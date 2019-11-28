@@ -57,6 +57,22 @@ public class AuthorServ {
 		if(res.isPresent()) {
 			result.add(res.get());
 		}
+		
+		for(final Author aut : result) {
+			for(final Publication pub:aut.getAutPubs())
+			{
+				pub.setPubAuts(new HashSet<>());
+			}
+			for(final Membership mem:aut.getAutOrgs())
+			{
+				mem.setAut(null);
+				mem.getResOrg().setOrgAuts(new HashSet<>());
+				//We assume we dont need suborg infos from auts
+				mem.getResOrg().setOrgSubs(new HashSet<>());
+				mem.getResOrg().setOrgSup(null);
+			}
+			//Also block off suborgs
+		}
 		return result;
 	}
 

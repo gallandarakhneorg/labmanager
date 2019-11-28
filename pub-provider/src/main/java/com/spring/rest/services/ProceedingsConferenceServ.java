@@ -80,46 +80,46 @@ public class ProceedingsConferenceServ {
 				res.get().setPubTitle(pubTitle);
 			if(!pubAbstract.isEmpty())
 				res.get().setPubAbstract(pubAbstract);
-			if(pubKeywords.isEmpty())
+			if(!pubKeywords.isEmpty())
 				res.get().setPubKeywords(pubKeywords);
 			if(pubDate != null)
 				res.get().setPubDate(pubDate);
-			if(pubNote.isEmpty())
+			if(!pubNote.isEmpty())
 				res.get().setPubNote(pubNote);
-			if(pubAnnotations.isEmpty())
+			if(!pubAnnotations.isEmpty())
 				res.get().setPubAnnotations(pubAnnotations);
-			if(pubISBN.isEmpty())
+			if(!pubISBN.isEmpty())
 				res.get().setPubISBN(pubISBN);
-			if(pubISSN.isEmpty())
+			if(!pubISSN.isEmpty())
 				res.get().setPubISSN(pubISSN);
-			if(pubDOIRef.isEmpty())
+			if(!pubDOIRef.isEmpty())
 				res.get().setPubDOIRef(pubDOIRef);
-			if(pubURL.isEmpty())
+			if(!pubURL.isEmpty())
 				res.get().setPubURL(pubURL);
-			if(pubDBLP.isEmpty())
+			if(!pubDBLP.isEmpty())
 				res.get().setPubDBLP(pubDBLP);
-			if(pubPDFPath.isEmpty())
+			if(!pubPDFPath.isEmpty())
 				res.get().setPubPDFPath(pubPDFPath);
-			if(pubLanguage.isEmpty())
+			if(!pubLanguage.isEmpty())
 				res.get().setPubLanguage(pubLanguage);
-			if(pubPaperAwardPath.isEmpty())
+			if(!pubPaperAwardPath.isEmpty())
 				res.get().setPubPaperAwardPath(pubPaperAwardPath);
-			if(pubType.toString().isEmpty())
+			if(!pubType.toString().isEmpty())
 				res.get().setPubType(pubType);
 			//ProceedingsConference fields
-			if(proConfAddress.isEmpty())
+			if(!proConfAddress.isEmpty())
 				res.get().setProConfAddress(proConfAddress);
-			if(proConfBookNameProceedings.isEmpty())
+			if(!proConfBookNameProceedings.isEmpty())
 				res.get().setProConfBookNameProceedings(proConfBookNameProceedings);
-			if(proConfEditor.isEmpty())
+			if(!proConfEditor.isEmpty())
 				res.get().setProConfEditor(proConfEditor);
-			if(proConfOrganization.isEmpty())
+			if(!proConfOrganization.isEmpty())
 				res.get().setProConfOrganization(proConfOrganization);
-			if(proConfPages.isEmpty())
+			if(!proConfPages.isEmpty())
 				res.get().setProConfPages(proConfPages);
-			if(proConfPublisher.isEmpty())
+			if(!proConfPublisher.isEmpty())
 				res.get().setProConfPublisher(proConfPublisher);
-			if(proConfSeries.isEmpty())
+			if(!proConfSeries.isEmpty())
 				res.get().setProConfSeries(proConfSeries);
 			this.repo.save(res.get());
 		}

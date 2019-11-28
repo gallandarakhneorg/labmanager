@@ -45,7 +45,7 @@ public class ResearchOrganizationServ {
 					pub.setPubAuts(new HashSet<>());
 				}
 			}
-			org.setOrgSup(null); //Either do that
+			//org.setOrgSup(null); //Either do that
 			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
 		}
 		return orgs;
@@ -56,6 +56,20 @@ public class ResearchOrganizationServ {
 		final Optional<ResearchOrganization> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());
+		}
+		
+		for(final ResearchOrganization org : result) {
+			for(final Membership mem:org.getOrgAuts())
+			{
+				mem.setResOrg(null);
+				mem.getAut().setAutOrgs(new HashSet<>());
+				for(final Publication pub:mem.getAut().getAutPubs())
+				{
+					pub.setPubAuts(new HashSet<>());
+				}
+			}
+			//org.setOrgSup(null); //Either do that
+			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
 		}
 		return result;
 	}
@@ -159,11 +173,41 @@ public class ResearchOrganizationServ {
 	}
 
 	public Set<ResearchOrganization> getSubOrganizations(int index) {
-		return repo.findDistinctByOrgSupResOrgId(index);
+		Set<ResearchOrganization> orgs = repo.findDistinctByOrgSupResOrgId(index);
+
+		for(final ResearchOrganization org : orgs) {
+			for(final Membership mem:org.getOrgAuts())
+			{
+				mem.setResOrg(null);
+				mem.getAut().setAutOrgs(new HashSet<>());
+				for(final Publication pub:mem.getAut().getAutPubs())
+				{
+					pub.setPubAuts(new HashSet<>());
+				}
+			}
+			//org.setOrgSup(null); //Either do that
+			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
+		}
+		return orgs;
 	}
 
 	public Set<ResearchOrganization> getSupOrganization(int index) {
-		return repo.findDistinctByOrgSubsResOrgId(index);
+		Set<ResearchOrganization> orgs = repo.findDistinctByOrgSubsResOrgId(index);
+
+		for(final ResearchOrganization org : orgs) {
+			for(final Membership mem:org.getOrgAuts())
+			{
+				mem.setResOrg(null);
+				mem.getAut().setAutOrgs(new HashSet<>());
+				for(final Publication pub:mem.getAut().getAutPubs())
+				{
+					pub.setPubAuts(new HashSet<>());
+				}
+			}
+			//org.setOrgSup(null); //Either do that
+			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
+		}
+		return orgs;
 	}
 	
 	public Set<ResearchOrganization> getAllSubOrganizations(int index){
@@ -187,6 +231,21 @@ public class ResearchOrganizationServ {
 			}
 		}
 		
+		//clearing
+
+		for(final ResearchOrganization org : orgL) {
+			for(final Membership mem:org.getOrgAuts())
+			{
+				mem.setResOrg(null);
+				mem.getAut().setAutOrgs(new HashSet<>());
+				for(final Publication pub:mem.getAut().getAutPubs())
+				{
+					pub.setPubAuts(new HashSet<>());
+				}
+			}
+			//org.setOrgSup(null); //Either do that
+			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
+		}
 		return orgL;
 	}
 	
@@ -204,11 +263,41 @@ public class ResearchOrganizationServ {
 			}
 		}
 		
+		//Clearing
+
+		for(final ResearchOrganization org : orgL) {
+			for(final Membership mem:org.getOrgAuts())
+			{
+				mem.setResOrg(null);
+				mem.getAut().setAutOrgs(new HashSet<>());
+				for(final Publication pub:mem.getAut().getAutPubs())
+				{
+					pub.setPubAuts(new HashSet<>());
+				}
+			}
+			//org.setOrgSup(null); //Either do that
+			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
+		}
 		return orgL;
 	}	
 
 	public Set<ResearchOrganization> getLinkedOrganizations(int index) {
-		return repo.findDistinctByOrgAutsAutAutId(index);
+		Set<ResearchOrganization> orgs = repo.findDistinctByOrgAutsAutAutId(index);
+
+		for(final ResearchOrganization org : orgs) {
+			for(final Membership mem:org.getOrgAuts())
+			{
+				mem.setResOrg(null);
+				mem.getAut().setAutOrgs(new HashSet<>());
+				for(final Publication pub:mem.getAut().getAutPubs())
+				{
+					pub.setPubAuts(new HashSet<>());
+				}
+			}
+			//org.setOrgSup(null); //Either do that
+			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
+		}
+		return orgs;
 	}
 	
 	
