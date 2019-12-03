@@ -39,7 +39,7 @@ public class AuthorCtrl {
 	}
 
 	//Remove one specific entity based on its Id
-	@RequestMapping(value="/removeAuthor", method=RequestMethod.GET, headers="Accept=application/json")
+	@RequestMapping(value="/removeAuthor", method=RequestMethod.POST, headers="Accept=application/json")
 	public void removeAuthor(int index) {
 		autServ.removeAuthor(index);
 	}

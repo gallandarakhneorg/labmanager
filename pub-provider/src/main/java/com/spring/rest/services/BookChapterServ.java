@@ -1,7 +1,10 @@
 package com.spring.rest.services;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,9 +56,9 @@ public class BookChapterServ {
 		res.setPubDOIRef(pubDOIRef);
 		res.setPubURL(pubURL);
 		res.setPubDBLP(pubDBLP);
-		res.setPubPDFPath(pubPDFPath);
+		//res.setPubPDFPath(pubPDFPath);
 		res.setPubLanguage(pubLanguage);
-		res.setPubPaperAwardPath(pubPaperAwardPath);
+		//res.setPubPaperAwardPath(pubPaperAwardPath);
 		res.setPubType(pubType);
 		//Book fields
 		res.setBookEditor(bookEditor);
@@ -69,6 +72,49 @@ public class BookChapterServ {
 		res.setBookChapBookNameProceedings(bookChapBookNameProceedings);
 		res.setBookChapNumberOrName(bookChapNumberOrName);
 		this.repo.save(res);
+
+		File file;
+		if(!pubPDFPath.isEmpty())
+		{
+			file=new File("Downloadables/PDFs/PDF"+res.getPubId()+".pdf");
+			try ( FileOutputStream fos = new FileOutputStream(file); )
+			{
+				byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
+				fos.write(decoder);
+				res.setPubPDFPath("Downloadables/PDFs/PDF"+res.getPubId()+".pdf");
+		    }
+			catch (Exception e) 
+			{
+			      res.setPubPDFPath("");
+			      e.printStackTrace();
+		    }
+		}
+		else
+		{
+		      res.setPubPDFPath("");
+		}
+		
+		if(!pubPaperAwardPath.isEmpty())
+		{
+			file=new File("Downloadables/Awards/Award"+res.getPubId()+".pdf");
+			try ( FileOutputStream fos = new FileOutputStream(file); )
+			{
+				byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
+				fos.write(decoder);
+				res.setPubPaperAwardPath("Downloadables/Awards/Award"+res.getPubId()+".pdf");
+			}
+			catch (Exception e) 
+			{
+		    	res.setPubPaperAwardPath("");
+		    	e.printStackTrace();
+		    }
+		}
+		else
+		{
+	    	res.setPubPaperAwardPath("");
+		}
+		
+		this.repo.save(res); //Id is generated on save so I gotta save once before setting these
 	}
 
 	public void updateBookChapter(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
@@ -77,6 +123,7 @@ public class BookChapterServ {
 			String bookPublisher, String bookVolume, String bookSeries, String bookAddress, String bookEdition,
 			String bookPages, String bookChapBookNameProceedings, String bookChapNumberOrName) {
 		final Optional<BookChapter> res = this.repo.findById(pubId);
+		File file;
 		if(res.isPresent()) {
 			//Generic pub fields
 			if(!pubTitle.isEmpty())
@@ -102,11 +149,37 @@ public class BookChapterServ {
 			if(!pubDBLP.isEmpty())
 				res.get().setPubDBLP(pubDBLP);
 			if(!pubPDFPath.isEmpty())
-				res.get().setPubPDFPath(pubPDFPath);
+			{
+				file=new File("Downloadables/PDFs/PDF"+res.get().getPubId()+".pdf");
+				try ( FileOutputStream fos = new FileOutputStream(file); )
+				{
+					byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
+					fos.write(decoder);
+					res.get().setPubPDFPath("Downloadables/PDFs/PDF"+res.get().getPubId()+".pdf");
+			    }
+				catch (Exception e) 
+				{
+				      res.get().setPubPDFPath("");
+				      e.printStackTrace();
+			    }
+			}
 			if(!pubLanguage.isEmpty())
 				res.get().setPubLanguage(pubLanguage);
 			if(!pubPaperAwardPath.isEmpty())
-				res.get().setPubPaperAwardPath(pubPaperAwardPath);
+			{
+				file=new File("Downloadables/Awards/Award"+res.get().getPubId()+".pdf");
+				try ( FileOutputStream fos = new FileOutputStream(file); )
+				{
+					byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
+					fos.write(decoder);
+					res.get().setPubPaperAwardPath("Downloadables/Awards/Award"+res.get().getPubId()+".pdf");
+				}
+				catch (Exception e) 
+				{
+			    	res.get().setPubPaperAwardPath("");
+			    	e.printStackTrace();
+			    }
+			}
 			if(!pubType.toString().isEmpty())
 				res.get().setPubType(pubType);
 			//Book fields

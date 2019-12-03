@@ -1,7 +1,14 @@
 package com.spring.rest.services;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.LinkOption;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -51,6 +58,7 @@ public class PublicationServ {
 					mem.getResOrg().setOrgSup(null);
 				}
 			}
+			encodeFiles(p);
 		}
 		
 		return publications;
@@ -76,6 +84,7 @@ public class PublicationServ {
 					mem.getResOrg().setOrgSup(null);
 				}
 			}
+			encodeFiles(p);
 		}
 		
 		return result;
@@ -113,10 +122,11 @@ public class PublicationServ {
 		res.setPubDOIRef(pubDOIRef);
 		res.setPubURL(pubURL);
 		res.setPubDBLP(pubDBLP);
-		res.setPubPDFPath(pubPDFPath);
+		//res.setPubPDFPath(pubPDFPath);
 		res.setPubLanguage(pubLanguage);
-		res.setPubPaperAwardPath(pubPaperAwardPath);
+		//res.setPubPaperAwardPath(pubPaperAwardPath);
 		res.setPubType(pubType);
+		
 		this.repo.save(res);
 	}
 
@@ -176,6 +186,7 @@ public class PublicationServ {
 					mem.getResOrg().setOrgSup(null);
 				}
 			}
+			encodeFiles(p);
 		}
 		
 		return publications;
@@ -197,6 +208,7 @@ public class PublicationServ {
 					mem.getResOrg().setOrgSup(null);
 				}
 			}
+			encodeFiles(p);
 		}
 		
 		return publications;
@@ -2172,6 +2184,39 @@ public class PublicationServ {
 		int finalCount=i-initialCount-1;
 
 		return finalCount;
+	}
+	
+	public void encodeFiles(Publication p)
+	{
+		byte[] input_file;
+		byte[] encodedBytes;
+		String fileString;
+		
+		//Check if the path exists, if it is not empty and if not, if it is a valid path
+		if(p.getPubPDFPath()!=null && !p.getPubPDFPath().isEmpty() && new File(p.getPubPDFPath()).exists())
+		{
+			try {
+				input_file = Files.readAllBytes(Paths.get(p.getPubPDFPath()));
+		        encodedBytes = Base64.getEncoder().encode(input_file);
+		        fileString=new String(encodedBytes);
+		        p.setPubPDFPath(fileString);
+			} catch (IOException e) {
+		        p.setPubPDFPath("");
+				e.printStackTrace();
+			}
+		}
+		if(p.getPubPaperAwardPath()!=null && !p.getPubPaperAwardPath().isEmpty() && new File(p.getPubPaperAwardPath()).exists())
+		{
+			try {
+				input_file = Files.readAllBytes(Paths.get(p.getPubPaperAwardPath()));
+		        encodedBytes = Base64.getEncoder().encode(input_file);
+		        fileString=new String(encodedBytes);
+		        p.setPubPaperAwardPath(fileString);
+			} catch (IOException e) {
+		        p.setPubPDFPath("");
+				e.printStackTrace();
+			}
+		}
 	}
 	
 }

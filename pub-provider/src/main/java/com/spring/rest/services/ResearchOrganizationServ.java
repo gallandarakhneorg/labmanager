@@ -8,6 +8,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -46,6 +48,8 @@ public class ResearchOrganizationServ {
 				}
 			}
 			//org.setOrgSup(null); //Either do that
+			if(org.getOrgSup()!=null) 
+				org.setOrgSup(cleanOrg(org.getOrgSup()));
 			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
 		}
 		return orgs;
@@ -69,6 +73,8 @@ public class ResearchOrganizationServ {
 				}
 			}
 			//org.setOrgSup(null); //Either do that
+			if(org.getOrgSup()!=null) 
+				org.setOrgSup(cleanOrg(org.getOrgSup()));
 			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
 		}
 		return result;
@@ -141,6 +147,8 @@ public class ResearchOrganizationServ {
 		}
 	}
 
+	@Transactional
+	//Dunno why but its specifically needed there
 	public void removeMembership(int index, int autId) 
 	{
 		memRepo.deleteByResOrgResOrgIdAndAutAutId(index, autId);
@@ -186,6 +194,8 @@ public class ResearchOrganizationServ {
 				}
 			}
 			//org.setOrgSup(null); //Either do that
+			if(org.getOrgSup()!=null) 
+				org.setOrgSup(cleanOrg(org.getOrgSup()));
 			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
 		}
 		return orgs;
@@ -205,6 +215,8 @@ public class ResearchOrganizationServ {
 				}
 			}
 			//org.setOrgSup(null); //Either do that
+			if(org.getOrgSup()!=null) 
+				org.setOrgSup(cleanOrg(org.getOrgSup()));
 			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
 		}
 		return orgs;
@@ -232,7 +244,7 @@ public class ResearchOrganizationServ {
 		}
 		
 		//clearing
-
+		
 		for(final ResearchOrganization org : orgL) {
 			for(final Membership mem:org.getOrgAuts())
 			{
@@ -244,6 +256,8 @@ public class ResearchOrganizationServ {
 				}
 			}
 			//org.setOrgSup(null); //Either do that
+			if(org.getOrgSup()!=null) 
+				org.setOrgSup(cleanOrg(org.getOrgSup()));
 			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
 		}
 		return orgL;
@@ -276,6 +290,8 @@ public class ResearchOrganizationServ {
 				}
 			}
 			//org.setOrgSup(null); //Either do that
+			if(org.getOrgSup()!=null) 
+				org.setOrgSup(cleanOrg(org.getOrgSup()));
 			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
 		}
 		return orgL;
@@ -295,11 +311,52 @@ public class ResearchOrganizationServ {
 				}
 			}
 			//org.setOrgSup(null); //Either do that
+			if(org.getOrgSup()!=null) 
+				org.setOrgSup(cleanOrg(org.getOrgSup()));
+			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
+		}
+		return orgs;
+	}
+
+	
+	public Set<ResearchOrganization> cleanOrgSet(Set<ResearchOrganization> orgs)
+	{
+		for(final ResearchOrganization org : orgs) {
+			for(final Membership mem:org.getOrgAuts())
+			{
+				mem.setResOrg(null);
+				mem.getAut().setAutOrgs(new HashSet<>());
+				for(final Publication pub:mem.getAut().getAutPubs())
+				{
+					pub.setPubAuts(new HashSet<>());
+				}
+			}
+			//org.setOrgSup(null); //Either do that
+			if(org.getOrgSup()!=null) 
+				org.setOrgSup(cleanOrg(org.getOrgSup()));
 			org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
 		}
 		return orgs;
 	}
 	
+	public ResearchOrganization cleanOrg(ResearchOrganization org)
+	{
+		for(final Membership mem:org.getOrgAuts())
+		{
+			mem.setResOrg(null);
+			mem.getAut().setAutOrgs(new HashSet<>());
+			for(final Publication pub:mem.getAut().getAutPubs())
+			{
+				pub.setPubAuts(new HashSet<>());
+			}
+		}
+		//org.setOrgSup(null); //Either do that
+		if(org.getOrgSup()!=null) 
+			org.setOrgSup(cleanOrg(org.getOrgSup()));
+		org.setOrgSubs(new HashSet<>()); //Or do that but neither will cause a recursion error
+		
+		return org;
+	}
 	
 
 }

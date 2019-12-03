@@ -70,7 +70,7 @@ public class ResearchOrganizationCtrl {
 	}
 
 	//Removes a membership relation between 2 entities based on the concerned entities' Ids
-	@RequestMapping(value="/removeMembership", method=RequestMethod.GET, headers="Accept=application/json")
+	@RequestMapping(value="/removeMembership", method=RequestMethod.POST, headers="Accept=application/json")
 	public void removeMembership(int index, int autId) {
 		resOrgServ.removeMembership(index, autId);
 	}

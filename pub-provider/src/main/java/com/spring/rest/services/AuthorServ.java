@@ -148,6 +148,7 @@ public class AuthorServ {
 		final Optional<Author> res = this.repo.findById(index);
 		if(res.isPresent()) {
 			res.get().setHasPage(hasPage);
+			repo.save(res.get());
 		}
 	}
 
