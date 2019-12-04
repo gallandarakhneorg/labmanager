@@ -43,11 +43,11 @@ public class ReadingCommitteeJournalPopularizationPaperCtrl {
 	public void createReadingCommitteeJournalPopularizationPaper(String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-			String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapJournalName, String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapPublisher) {
+			String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages) {
 		reaComConfPopPapServ.createReadingCommitteeJournalPopularizationPaper(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, reaComConfPopPapJournalName, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages, reaComConfPopPapPublisher);
+				pubPaperAwardPath, pubType, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);
 	}
 
 	//Updates one specific entity based on its fields (minus its relationship fields)
@@ -55,11 +55,11 @@ public class ReadingCommitteeJournalPopularizationPaperCtrl {
 	public void updateReadingCommitteeJournalPopularizationPaper(int pubId, String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-			String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapJournalName, String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapPublisher) {
+			String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages) {
 		reaComConfPopPapServ.updateReadingCommitteeJournalPopularizationPaper(pubId, pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, reaComConfPopPapJournalName, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages, reaComConfPopPapPublisher);
+				pubPaperAwardPath, pubType, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);
 	}
 
 

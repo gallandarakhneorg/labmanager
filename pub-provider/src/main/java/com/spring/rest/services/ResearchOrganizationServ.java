@@ -17,6 +17,7 @@ import com.spring.rest.entities.Author;
 import com.spring.rest.entities.MemberStatus;
 import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.Publication;
+import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
 import com.spring.rest.entities.ResearchOrganization;
 import com.spring.rest.repository.AuthorRepository;
 import com.spring.rest.repository.MembershipRepository;
@@ -45,6 +46,11 @@ public class ResearchOrganizationServ {
 				for(final Publication pub:mem.getAut().getAutPubs())
 				{
 					pub.setPubAuts(new HashSet<>());
+					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+					{
+						if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+							((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+					}
 				}
 			}
 			//org.setOrgSup(null); //Either do that
@@ -70,6 +76,11 @@ public class ResearchOrganizationServ {
 				for(final Publication pub:mem.getAut().getAutPubs())
 				{
 					pub.setPubAuts(new HashSet<>());
+					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+					{
+						if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+							((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+					}
 				}
 			}
 			//org.setOrgSup(null); //Either do that
@@ -191,6 +202,11 @@ public class ResearchOrganizationServ {
 				for(final Publication pub:mem.getAut().getAutPubs())
 				{
 					pub.setPubAuts(new HashSet<>());
+					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+					{
+						if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+							((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+					}
 				}
 			}
 			//org.setOrgSup(null); //Either do that
@@ -212,6 +228,11 @@ public class ResearchOrganizationServ {
 				for(final Publication pub:mem.getAut().getAutPubs())
 				{
 					pub.setPubAuts(new HashSet<>());
+					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+					{
+						if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+							((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+					}
 				}
 			}
 			//org.setOrgSup(null); //Either do that
@@ -253,6 +274,11 @@ public class ResearchOrganizationServ {
 				for(final Publication pub:mem.getAut().getAutPubs())
 				{
 					pub.setPubAuts(new HashSet<>());
+					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+					{
+						if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+							((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+					}
 				}
 			}
 			//org.setOrgSup(null); //Either do that
@@ -287,6 +313,11 @@ public class ResearchOrganizationServ {
 				for(final Publication pub:mem.getAut().getAutPubs())
 				{
 					pub.setPubAuts(new HashSet<>());
+					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+					{
+						if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+							((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+					}
 				}
 			}
 			//org.setOrgSup(null); //Either do that
@@ -308,6 +339,11 @@ public class ResearchOrganizationServ {
 				for(final Publication pub:mem.getAut().getAutPubs())
 				{
 					pub.setPubAuts(new HashSet<>());
+					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+					{
+						if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+							((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+					}
 				}
 			}
 			//org.setOrgSup(null); //Either do that
@@ -329,6 +365,11 @@ public class ResearchOrganizationServ {
 				for(final Publication pub:mem.getAut().getAutPubs())
 				{
 					pub.setPubAuts(new HashSet<>());
+					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+					{
+						if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+							((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+					}
 				}
 			}
 			//org.setOrgSup(null); //Either do that
@@ -348,6 +389,11 @@ public class ResearchOrganizationServ {
 			for(final Publication pub:mem.getAut().getAutPubs())
 			{
 				pub.setPubAuts(new HashSet<>());
+				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+				{
+					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+						((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+				}
 			}
 		}
 		//org.setOrgSup(null); //Either do that

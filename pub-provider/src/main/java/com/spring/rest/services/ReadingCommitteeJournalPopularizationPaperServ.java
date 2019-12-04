@@ -11,8 +11,10 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.spring.rest.entities.Journal;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
+import com.spring.rest.repository.JournalRepository;
 import com.spring.rest.repository.ReadingCommitteeJournalPopularizationPaperRepository;
 
 @Service
@@ -20,6 +22,9 @@ public class ReadingCommitteeJournalPopularizationPaperServ {
 	
 	@Autowired
 	private ReadingCommitteeJournalPopularizationPaperRepository repo;
+	
+	@Autowired
+	private JournalRepository jourRepo;
 
 	public List<ReadingCommitteeJournalPopularizationPaper> getAllReadingCommitteeJournalPopularizationPapers() {
 		return repo.findAll();
@@ -40,7 +45,7 @@ public class ReadingCommitteeJournalPopularizationPaperServ {
 
 	public void createReadingCommitteeJournalPopularizationPaper(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
 			String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
-			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapJournalName, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapPublisher, String reaComConfPopPapVolume) {
+			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapVolume) {
 		final ReadingCommitteeJournalPopularizationPaper res = new ReadingCommitteeJournalPopularizationPaper();
 		//Generic pub fields
 		res.setPubTitle(pubTitle);
@@ -59,10 +64,8 @@ public class ReadingCommitteeJournalPopularizationPaperServ {
 		//res.setPubPaperAwardPath(pubPaperAwardPath);
 		res.setPubType(pubType);
 		//ReadingCommitteeJournalPopularizationPaper fields
-		res.setReaComConfPopPapJournalName(reaComConfPopPapJournalName);
 		res.setReaComConfPopPapNumber(reaComConfPopPapNumber);
 		res.setReaComConfPopPapPages(reaComConfPopPapPages);
-		res.setReaComConfPopPapPublisher(reaComConfPopPapPublisher);
 		res.setReaComConfPopPapVolume(reaComConfPopPapVolume);
 
 		this.repo.save(res);
@@ -113,7 +116,7 @@ public class ReadingCommitteeJournalPopularizationPaperServ {
 
 	public void updateReadingCommitteeJournalPopularizationPaper(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
 			String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
-			String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapJournalName, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapPublisher, String reaComConfPopPapVolume) {
+			String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapVolume) {
 		final Optional<ReadingCommitteeJournalPopularizationPaper> res = this.repo.findById(pubId);
 		File file;
 		if(res.isPresent()) {
@@ -175,17 +178,15 @@ public class ReadingCommitteeJournalPopularizationPaperServ {
 			if(!pubType.toString().isEmpty())
 				res.get().setPubType(pubType);
 			//ReadingCommitteeJournalPopularizationPaper fields
-			if(!reaComConfPopPapJournalName.isEmpty())
-				res.get().setReaComConfPopPapJournalName(reaComConfPopPapJournalName);
 			if(!reaComConfPopPapNumber.isEmpty())
 				res.get().setReaComConfPopPapNumber(reaComConfPopPapNumber);
 			if(!reaComConfPopPapPages.isEmpty())
 				res.get().setReaComConfPopPapPages(reaComConfPopPapPages);
-			if(!reaComConfPopPapPublisher.isEmpty())
-				res.get().setReaComConfPopPapPublisher(reaComConfPopPapPublisher);
 			if(!reaComConfPopPapVolume.isEmpty())
 				res.get().setReaComConfPopPapVolume(reaComConfPopPapVolume);
+
 			this.repo.save(res.get());
+			
 		}
 	}
 }

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.spring.rest.entities.Author;
 import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.Publication;
+import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
 import com.spring.rest.entities.ResearchOrganization;
 import com.spring.rest.repository.AuthorRepository;
 import com.spring.rest.repository.PublicationRepository;
@@ -37,6 +38,11 @@ public class AuthorServ {
 			for(final Publication pub:aut.getAutPubs())
 			{
 				pub.setPubAuts(new HashSet<>());
+				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+				{
+					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+						((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+				}
 			}
 			for(final Membership mem:aut.getAutOrgs())
 			{
@@ -62,6 +68,11 @@ public class AuthorServ {
 			for(final Publication pub:aut.getAutPubs())
 			{
 				pub.setPubAuts(new HashSet<>());
+				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+				{
+					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+						((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+				}
 			}
 			for(final Membership mem:aut.getAutOrgs())
 			{
@@ -183,6 +194,11 @@ public class AuthorServ {
 			for(final Publication pub:aut.getAutPubs())
 			{
 				pub.setPubAuts(new HashSet<>());
+				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+				{
+					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+						((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+				}
 			}
 			for(final Membership mem:aut.getAutOrgs())
 			{
@@ -204,6 +220,11 @@ public class AuthorServ {
 			for(final Publication pub:aut.getAutPubs())
 			{
 				pub.setPubAuts(new HashSet<>());
+				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+				{
+					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+						((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+				}
 			}
 			for(final Membership mem:aut.getAutOrgs())
 			{
@@ -225,6 +246,11 @@ public class AuthorServ {
 			for(final Publication pub:aut.getAutPubs())
 			{
 				pub.setPubAuts(new HashSet<>());
+				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+				{
+					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+						((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+				}
 			}
 			for(final Membership mem:aut.getAutOrgs())
 			{

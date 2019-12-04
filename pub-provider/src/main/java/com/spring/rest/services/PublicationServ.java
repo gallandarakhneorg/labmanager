@@ -22,6 +22,7 @@ import com.spring.rest.entities.Author;
 import com.spring.rest.entities.Book;
 import com.spring.rest.entities.BookChapter;
 import com.spring.rest.entities.EngineeringActivity;
+import com.spring.rest.entities.Journal;
 import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.ProceedingsConference;
 import com.spring.rest.entities.Publication;
@@ -31,6 +32,7 @@ import com.spring.rest.entities.SeminarPatentInvitedConference;
 import com.spring.rest.entities.UniversityDocument;
 import com.spring.rest.entities.UserDocumentation;
 import com.spring.rest.repository.AuthorRepository;
+import com.spring.rest.repository.JournalRepository;
 import com.spring.rest.repository.PublicationRepository;
 
 @Service
@@ -41,6 +43,9 @@ public class PublicationServ {
 	
 	@Autowired
 	private AuthorRepository autRepo;
+	
+	@Autowired
+	private JournalRepository jourRepo;
 
 	public List<Publication> getAllPublications() {
 		final List<Publication> publications = repo.findAll();
@@ -59,6 +64,11 @@ public class PublicationServ {
 				}
 			}
 			encodeFiles(p);
+			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class) //I guess I could have done a pubType check instead
+			{
+				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)
+					((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+			}
 		}
 		
 		return publications;
@@ -85,6 +95,11 @@ public class PublicationServ {
 				}
 			}
 			encodeFiles(p);
+			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+			{
+				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)
+					((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+			}
 		}
 		
 		return result;
@@ -100,6 +115,16 @@ public class PublicationServ {
 				autRepo.save(aut);
 			}
 			res.get().getPubAuts().clear(); //Need to remove on both sides
+			
+
+			if(res.get().getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+			{
+				Journal jour=((ReadingCommitteeJournalPopularizationPaper)res.get()).getReaComConfPopPapJournal();
+				if(jour!=null && jour.getJourPubs().isEmpty())
+				{
+					jourRepo.delete(jour);
+				}
+			}
 			
 			repo.save(res.get());
 			repo.deleteById(index);
@@ -187,6 +212,11 @@ public class PublicationServ {
 				}
 			}
 			encodeFiles(p);
+			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+			{
+				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)
+					((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+			}
 		}
 		
 		return publications;
@@ -209,6 +239,11 @@ public class PublicationServ {
 				}
 			}
 			encodeFiles(p);
+			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+			{
+				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)
+					((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+			}
 		}
 		
 		return publications;
@@ -273,6 +308,7 @@ public class PublicationServ {
 		//Types to be persisted
 
 		ReadingCommitteeJournalPopularizationPaper article;
+		Journal jour;
 		ProceedingsConference inproceedings;
 		Book book;
 		BookChapter inbook;
@@ -331,6 +367,7 @@ public class PublicationServ {
 			number=null;
 
 			article=new ReadingCommitteeJournalPopularizationPaper();
+			jour=new Journal();
 			inproceedings=new ProceedingsConference();
 			book=new Book();
 			inbook=new BookChapter();
@@ -533,11 +570,17 @@ public class PublicationServ {
 								article.setPubLanguage(pubLanguage);
 								article.setPubPaperAwardPath(pubPaperAwardPath);
 								article.setPubType(javaPubType);
-								article.setReaComConfPopPapJournalName(name);
 								article.setReaComConfPopPapVolume(volume);
 								article.setReaComConfPopPapNumber(number);
 								article.setReaComConfPopPapPages(pages);
-								article.setReaComConfPopPapPublisher(publisher);
+								
+								//Journal fields
+								jour.setJourName(name);
+								jour.setJourPublisher(publisher);
+								
+								jourRepo.save(jour);
+								
+								article.setReaComConfPopPapJournal(jour);
 								
 								repo.save(article);
 								pubId=article.getPubId();
@@ -1411,7 +1454,7 @@ public class PublicationServ {
 		switch(groupType)
 		{
 			case "Article":
-				data=((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournalName();
+				data=((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
 				if(data!=null) 
 				{
 					bib+="journal = {";
@@ -1439,7 +1482,7 @@ public class PublicationServ {
 					bib+=data;
 					bib+="}, \n\t";
 				}
-				data=((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapPublisher();
+				data=((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourPublisher();
 				if(data!=null) 
 				{
 					bib+="publisher = {";
@@ -1959,7 +2002,7 @@ public class PublicationServ {
 		switch(groupType)
 		{
 			case "Article":
-				data=((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournalName();
+				data=((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().getJourName();
 			    if(data!=null)
 			    {
 			        text+="In ";

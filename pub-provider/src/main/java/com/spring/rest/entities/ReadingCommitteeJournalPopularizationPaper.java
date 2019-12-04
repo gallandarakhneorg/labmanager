@@ -5,6 +5,7 @@ import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
@@ -22,9 +23,6 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication{
 	private static final long serialVersionUID = 3154620399419184751L;
 
 	@Column
-	private String reaComConfPopPapJournalName;
-
-	@Column
 	private String reaComConfPopPapVolume;
 
 	@Column
@@ -33,16 +31,8 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication{
 	@Column
 	private String reaComConfPopPapPages;
 
-	@Column
-	private String reaComConfPopPapPublisher;
-
-	public String getReaComConfPopPapJournalName() {
-		return reaComConfPopPapJournalName;
-	}
-
-	public void setReaComConfPopPapJournalName(String reaComConfPopPapJournalName) {
-		this.reaComConfPopPapJournalName = reaComConfPopPapJournalName;
-	}
+	@ManyToOne
+	private Journal reaComConfPopPapJournal;
 
 	public String getReaComConfPopPapVolume() {
 		return reaComConfPopPapVolume;
@@ -68,22 +58,21 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication{
 		this.reaComConfPopPapPages = reaComConfPopPapPages;
 	}
 
-	public String getReaComConfPopPapPublisher() {
-		return reaComConfPopPapPublisher;
+	public Journal getReaComConfPopPapJournal() {
+		return reaComConfPopPapJournal;
 	}
 
-	public void setReaComConfPopPapPublisher(String reaComConfPopPapPublisher) {
-		this.reaComConfPopPapPublisher = reaComConfPopPapPublisher;
+	public void setReaComConfPopPapJournal(Journal reaComConfPopPapJournal) {
+		this.reaComConfPopPapJournal = reaComConfPopPapJournal;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + ((reaComConfPopPapJournalName == null) ? 0 : reaComConfPopPapJournalName.hashCode());
+		//result = prime * result + ((reaComConfPopPapJournal == null) ? 0 : reaComConfPopPapJournal.hashCode());
 		result = prime * result + ((reaComConfPopPapNumber == null) ? 0 : reaComConfPopPapNumber.hashCode());
 		result = prime * result + ((reaComConfPopPapPages == null) ? 0 : reaComConfPopPapPages.hashCode());
-		result = prime * result + ((reaComConfPopPapPublisher == null) ? 0 : reaComConfPopPapPublisher.hashCode());
 		result = prime * result + ((reaComConfPopPapVolume == null) ? 0 : reaComConfPopPapVolume.hashCode());
 		return result;
 	}
@@ -97,10 +86,10 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication{
 		if (getClass() != obj.getClass())
 			return false;
 		ReadingCommitteeJournalPopularizationPaper other = (ReadingCommitteeJournalPopularizationPaper) obj;
-		if (reaComConfPopPapJournalName == null) {
-			if (other.reaComConfPopPapJournalName != null)
+		if (reaComConfPopPapJournal == null) {
+			if (other.reaComConfPopPapJournal != null)
 				return false;
-		} else if (!reaComConfPopPapJournalName.equals(other.reaComConfPopPapJournalName))
+		} else if (!reaComConfPopPapJournal.equals(other.reaComConfPopPapJournal))
 			return false;
 		if (reaComConfPopPapNumber == null) {
 			if (other.reaComConfPopPapNumber != null)
@@ -112,11 +101,6 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication{
 				return false;
 		} else if (!reaComConfPopPapPages.equals(other.reaComConfPopPapPages))
 			return false;
-		if (reaComConfPopPapPublisher == null) {
-			if (other.reaComConfPopPapPublisher != null)
-				return false;
-		} else if (!reaComConfPopPapPublisher.equals(other.reaComConfPopPapPublisher))
-			return false;
 		if (reaComConfPopPapVolume == null) {
 			if (other.reaComConfPopPapVolume != null)
 				return false;
@@ -125,19 +109,17 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication{
 		return true;
 	}
 
-	public ReadingCommitteeJournalPopularizationPaper(int pubId, Set<Author> pubAuthorsByJoint, String pubTitle,
+	public ReadingCommitteeJournalPopularizationPaper(int pubId, Set<Author> pubAuts, String pubTitle,
 			String pubAbstract, String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN,
 			String pubISSN, String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-			String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapJournalName,
-			String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages,
-			String reaComConfPopPapPublisher) {
-		super(pubId, pubAuthorsByJoint, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN,
-				pubISSN, pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
-		this.reaComConfPopPapJournalName = reaComConfPopPapJournalName;
+			String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapVolume,
+			String reaComConfPopPapNumber, String reaComConfPopPapPages, Journal reaComConfPopPapJournal) {
+		super(pubId, pubAuts, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
+				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
 		this.reaComConfPopPapVolume = reaComConfPopPapVolume;
 		this.reaComConfPopPapNumber = reaComConfPopPapNumber;
 		this.reaComConfPopPapPages = reaComConfPopPapPages;
-		this.reaComConfPopPapPublisher = reaComConfPopPapPublisher;
+		this.reaComConfPopPapJournal = reaComConfPopPapJournal;
 	}
 
 	public ReadingCommitteeJournalPopularizationPaper() {
@@ -145,15 +127,17 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication{
 		// TODO Auto-generated constructor stub
 	}
 
-	public ReadingCommitteeJournalPopularizationPaper(int pubId, Set<Author> pubAuthorsByJoint, String pubTitle,
+	public ReadingCommitteeJournalPopularizationPaper(int pubId, Set<Author> pubAuts, String pubTitle,
 			String pubAbstract, String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN,
 			String pubISSN, String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType) {
-		super(pubId, pubAuthorsByJoint, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
-				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
+		super(pubId, pubAuts, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, pubDOIRef,
+				pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
 		// TODO Auto-generated constructor stub
 	}
 
+	
+	
 }
 
 
