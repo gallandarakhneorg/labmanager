@@ -10,10 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.rest.entities.Journal;
-import com.spring.rest.entities.Publication;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
 import com.spring.rest.repository.JournalRepository;
-import com.spring.rest.repository.PublicationRepository;
 import com.spring.rest.repository.ReadingCommitteeJournalPopularizationPaperRepository;
 
 @Service
@@ -52,6 +50,12 @@ public class JournalServ {
 		Optional<Journal> j = repo.findById(index);
 		if(j.isPresent())
 		{
+			//Deletion should be disabled if it still has pubs attached to it but just in case
+			for(ReadingCommitteeJournalPopularizationPaper p : j.get().getJourPubs())
+			{
+				p.setReaComConfPopPapJournal(null);
+				pubRepo.save(p);
+			}
 			repo.deleteById(index);
 		}
 	}

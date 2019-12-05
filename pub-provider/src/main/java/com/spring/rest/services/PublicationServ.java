@@ -3,8 +3,6 @@ package com.spring.rest.services;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.LinkOption;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.Date;
 import java.util.ArrayList;
@@ -264,8 +262,7 @@ public class PublicationServ {
 		int autId;
 		Optional<Publication> optPub;
 		Optional<Author> optAut;
-		optPub=null;
-		optAut=null;
+		Optional<Journal> optJour;
 
 		String pubType;
 		PublicationType javaPubType;
@@ -333,7 +330,10 @@ public class PublicationServ {
 			javaPubType=PublicationType.TypeLess;
 			autId=0;
 			pubId=0;
-			
+
+			optPub=null;
+			optAut=null;
+			optJour=null;
 			
 			pubTitle=null; //Check for dupes later
 			pubAbstract=null;
@@ -512,7 +512,7 @@ public class PublicationServ {
 						switch(pubType)
 						{
 							//Can be InternationalJournalWithReadingCommittee, NationalJournalWithReadingCommittee, InternationalJournalWithoutReadingCommittee, NationalJournalWithoutReadingCommittee or PopularizationPaper.
-							case "	Article": 
+							case "Article": 
 								javaPubType=PublicationType.InternationalJournalWithReadingCommittee; //Default
 								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 								
@@ -575,9 +575,20 @@ public class PublicationServ {
 								article.setReaComConfPopPapPages(pages);
 								
 								//Journal fields
-								jour.setJourName(name);
-								jour.setJourPublisher(publisher);
+								optJour=jourRepo.findByJourName(name);
+								if(optJour.isPresent())
+								{
+									//Checks if that journal already exists
+									jour=optJour.get();
+								}
+								else
+								{
+									//Or if we need to make a new one
+									jour.setJourName(name);
+									jour.setJourPublisher(publisher);
+								}
 								
+								//Needed to generate an Id in case journal doesnt exist yet
 								jourRepo.save(jour);
 								
 								article.setReaComConfPopPapJournal(jour);
@@ -943,7 +954,7 @@ public class PublicationServ {
 								break;
 								
 							//Can only be engineeringactivity
-							case "TechReport":
+							case "Techreport":
 								javaPubType=PublicationType.EngineeringActivity; //Default
 								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 								
@@ -1082,60 +1093,67 @@ public class PublicationServ {
 						if(pub.contains(splitter))
 						{
 							autL=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-						
-							splitter=" and ";
-							auts=autL.split(splitter);
-							
-							for(i=0;i<auts.length;i++)
+							if(autL.compareTo("")!=0)
 							{
-								autLastName=auts[i].substring(0,auts[i].indexOf(", "));
-								autFirstName=auts[i].substring(auts[i].indexOf(", ")+2);
+								splitter=" and ";
+								auts=autL.split(splitter);
 								
-								//Checking for dupes
-								
-								for(Author knownAut : authorList)
+								for(i=0;i<auts.length;i++)
 								{
-									if(knownAut.getAutFirstName().compareTo(autFirstName)==0 && knownAut.getAutLastName().compareTo(autLastName)==0)
+									autLastName=auts[i].substring(0,auts[i].indexOf(", "));
+									autFirstName=auts[i].substring(auts[i].indexOf(", ")+2);
+									
+									//Checking for dupes
+									
+									for(Author knownAut : authorList)
 									{
-										isDupe=true;
-										autId=knownAut.getAutId();
+										if(knownAut.getAutFirstName().compareTo(autFirstName)==0 && knownAut.getAutLastName().compareTo(autLastName)==0)
+										{
+											isDupe=true;
+											autId=knownAut.getAutId();
+										}
 									}
-								}
-								
-								if(!isDupe)
-								{
-									//Creating new author
-									aut=new Author();
 									
-									aut.setAutFirstName(autFirstName);
-									aut.setAutLastName(autLastName);
-									aut.setAutBirth(new Date(0));
-									
-									autRepo.save(aut);
-									autId=aut.getAutId();
-									
-								}
-								isDupe=false;
-								
-								
-								
-								
-								
-								//Assigning authorship
-								optPub=repo.findById(pubId);
-								optAut=autRepo.findById(autId);
-								
-								if(optPub.isPresent() && optAut.isPresent())
-								{
-									if(!optPub.get().getPubAuts().contains(optAut.get()))
+									if(!isDupe)
 									{
-										optPub.get().getPubAuts().add(optAut.get());
-										optAut.get().getAutPubs().add(optPub.get());
-										repo.save(optPub.get());
-										autRepo.save(optAut.get());
+										//Creating new author
+										aut=new Author();
+										
+										aut.setAutFirstName(autFirstName);
+										aut.setAutLastName(autLastName);
+										aut.setAutBirth(new Date(0));
+										
+										autRepo.save(aut);
+										autId=aut.getAutId();
+										
 									}
+									isDupe=false;
+									
+									
+									
+									
+									
+									//Assigning authorship
+									optPub=repo.findById(pubId);
+									optAut=autRepo.findById(autId);
+									
+									if(optPub.isPresent() && optAut.isPresent())
+									{
+										if(!optPub.get().getPubAuts().contains(optAut.get()))
+										{
+											optPub.get().getPubAuts().add(optAut.get());
+											optAut.get().getAutPubs().add(optPub.get());
+											repo.save(optPub.get());
+											autRepo.save(optAut.get());
+										}
+									}
+									
 								}
-								
+							}
+							else //Author = ""
+							{
+								//No nothing in particular I guess ?
+								//No Author to create and no authorship to assign
 							}
 						}
 					}
@@ -1144,19 +1162,40 @@ public class PublicationServ {
 		}
 	}
 	
-	public String fixEncoding(String bibText) {
-		bibText=bibText.replaceAll("(\\{\\\\'E\\})", "Ã‰");
-		bibText=bibText.replaceAll("(\\{\\\\'e\\})", "Ã©");
-		bibText=bibText.replaceAll("(\\{\\\\`E\\})", "Ãˆ");
-		bibText=bibText.replaceAll("(\\{\\\\`e\\})", "Ã¨");
-		bibText=bibText.replaceAll("(\\{\\\\^O\\})", "Ã”");
-		bibText=bibText.replaceAll("(\\{\\\\^o\\})", "Ã´");
-		bibText=bibText.replaceAll("(\\{\\\\`A\\})", "Ã€");
-		bibText=bibText.replaceAll("(\\{\\\\`a\\})", "Ã ");
-		bibText=bibText.replaceAll("(\\{\\\\\"A\\})", "Ã„");
-		bibText=bibText.replaceAll("(\\{\\\\\"a\\})", "Ã¤");
-		bibText=bibText.replaceAll("(\\{\\\\&\\})", "&");
-		
+	public String fixEncoding(String bibText)
+	{
+		//Manually deal with as much characters as possible yourself
+		//Characters not dealt with manually just gets deleted
+		//Depending on how the export is handled, we dont have to deal with any of this but I cant control how other DB export their stuff
+		bibText=bibText.replaceAll("(\\{\\\\'E\\})", "E");
+		bibText=bibText.replaceAll("(\\{\\\\'e\\})", "e"); //é
+		bibText=bibText.replaceAll("(\\{\\\\`E\\})", "E");
+		bibText=bibText.replaceAll("(\\{\\\\`e\\})", "e"); //è
+		bibText=bibText.replaceAll("(\\{\\\\\"E\\})", "E");
+		bibText=bibText.replaceAll("(\\{\\\\\"e\\})", "e"); //ë
+		bibText=bibText.replaceAll("(\\{\\\\\\^O\\})", "O");
+		bibText=bibText.replaceAll("(\\{\\\\\\^o\\})", "o"); //ô
+		bibText=bibText.replaceAll("(\\{\\\\~O\\})", "O");
+		bibText=bibText.replaceAll("(\\{\\\\~o\\})", "o"); //õ
+		bibText=bibText.replaceAll("(\\{\\\\`A\\})", "A");
+		bibText=bibText.replaceAll("(\\{\\\\`a\\})", "a"); //à
+		bibText=bibText.replaceAll("(\\{\\\\\"A\\})", "A");
+		bibText=bibText.replaceAll("(\\{\\\\\"a\\})", "a"); //ä
+		bibText=bibText.replaceAll("(\\{\\\\\\^\\{\\\\I\\}\\})", "I");
+		bibText=bibText.replaceAll("(\\{\\\\\\^\\{\\\\i\\}\\})", "i"); //î
+		bibText=bibText.replaceAll("(\\{\\\\\"\\{\\\\I\\}\\})", "I");
+		bibText=bibText.replaceAll("(\\{\\\\\"\\{\\\\i\\}\\})", "i"); //ï
+		bibText=bibText.replaceAll("(\\{\\\\c\\{C\\}\\})", "C");
+		bibText=bibText.replaceAll("(\\{\\\\c\\{c\\}\\})", "c"); //ç
+		bibText=bibText.replaceAll("(\\{\\\\&\\})", "&"); //&
+
+		//Kind of a radical solution but we can just remove all characters we dont care about
+		//We keep normal characters : a-z, A-Z, 0-9
+		//Characters we need to read the bibText : @, ",", {, }, =
+		//And characters java & the DB can handle : _, -, ., /, \, ;, :, ', ", ’, ^, !, ?, &, (, ), [, ], whitespaces, line jumps
+		//System.out.println(bibText);
+		bibText=bibText.replaceAll("([^a-zA-Z0-9@,\\{\\}\\(\\)\\[\\]=’:!?&_\\-./\\\\;'\"\\^\\s+])", "?");
+		//System.out.println(bibText);
 		return bibText;
 	}
 	
@@ -1454,12 +1493,15 @@ public class PublicationServ {
 		switch(groupType)
 		{
 			case "Article":
-				data=((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
-				if(data!=null) 
+				if(((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal()!=null)
 				{
-					bib+="journal = {";
-					bib+=data;
-					bib+="}, \n\t";
+					data=((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
+					if(data!=null) 
+					{
+						bib+="journal = {";
+						bib+=data;
+						bib+="}, \n\t";
+					}
 				}
 				data=((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapVolume();
 				if(data!=null) 
@@ -1482,12 +1524,15 @@ public class PublicationServ {
 					bib+=data;
 					bib+="}, \n\t";
 				}
-				data=((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourPublisher();
-				if(data!=null) 
+				if(((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal()!=null)
 				{
-					bib+="publisher = {";
-					bib+=data;
-					bib+="}, \n\t";
+					data=((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourPublisher();
+					if(data!=null) 
+					{
+						bib+="publisher = {";
+						bib+=data;
+						bib+="}, \n\t";
+					}
 				}
 				break;
 				
@@ -1880,7 +1925,7 @@ public class PublicationServ {
 		{
 			group="Book";
 		}
-		if(pubType=="BookChapter")
+		if(pubType=="BookChapter" || pubType=="VulgarizationBookChapter")
 		{
 			group="Inbook";
 		}
@@ -2002,13 +2047,16 @@ public class PublicationServ {
 		switch(groupType)
 		{
 			case "Article":
-				data=((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().getJourName();
-			    if(data!=null)
-			    {
-			        text+="In ";
-			        text+=data;
-			        text+=", ";
-			    }
+				if(((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal()!=null)
+				{
+					data=((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().getJourName();
+				    if(data!=null)
+				    {
+				        text+="In ";
+				        text+=data;
+				        text+=", ";
+				    }
+				}
 				data=((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapVolume();
 			    if(data!=null)
 			    {
