@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.rest.entities.Journal;
+import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
 import com.spring.rest.repository.JournalRepository;

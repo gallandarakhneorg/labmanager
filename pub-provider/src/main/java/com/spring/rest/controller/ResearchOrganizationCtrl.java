@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spring.rest.entities.MemberStatus;
+import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.ResearchOrganization;
 import com.spring.rest.services.ResearchOrganizationServ;
 
@@ -117,6 +118,12 @@ public class ResearchOrganizationCtrl {
 	@RequestMapping(value="/getLinkedOrganizations", method=RequestMethod.POST, headers="Accept=application/json")
 	public Set<ResearchOrganization> getLinkedOrganizations(int index) {
 		return resOrgServ.getLinkedOrganizations(index);
+	}
+	
+	//Get one specific entity based on its Id
+	@RequestMapping(value="/getMembership", method=RequestMethod.POST, headers="Accept=application/json")
+	public List<Membership> getMembership(int orgId, int autId) {
+		return resOrgServ.getMembership(orgId, autId);
 	}
 }
 

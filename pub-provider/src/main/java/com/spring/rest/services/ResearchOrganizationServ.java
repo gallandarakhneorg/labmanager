@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -123,6 +124,20 @@ public class ResearchOrganizationServ {
 		}
 	}
 
+	//Here we assume we dont need further than the aut & the org associated
+	public List<Membership> getMembership(int orgId, int autId) {
+		final Optional<Membership> res = memRepo.findDistinctByResOrgResOrgIdAndAutAutId(orgId, autId);
+		List<Membership> memL=new LinkedList<Membership>();
+		if(res.isPresent()) {
+			res.get().getAut().setAutPubs(new HashSet<>());
+			res.get().getAut().setAutOrgs(new HashSet<>());
+			res.get().getResOrg().setOrgSup(null);
+			res.get().getResOrg().setOrgSubs(new HashSet<>());
+			res.get().getResOrg().setOrgAuts(new HashSet<>());
+			memL.add(res.get());
+		}
+		return memL;
+	}
 	
 	public void addMembership(int index, int autId, Date memSinceWhen, Date memToWhen, MemberStatus memStatus) 
 	{
@@ -403,6 +418,4 @@ public class ResearchOrganizationServ {
 		
 		return org;
 	}
-	
-
 }
