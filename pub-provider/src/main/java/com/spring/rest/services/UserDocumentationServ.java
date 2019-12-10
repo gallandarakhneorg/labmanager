@@ -38,7 +38,7 @@ public class UserDocumentationServ {
 		repo.deleteById(index);
 	}
 
-	public void createUserDocumentation(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
+	public int createUserDocumentation(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
 			String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
 			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String userDocAddress, String userDocEdition, String userDocOrganization, String userDocPublisher) {
 		final UserDocumentation res = new UserDocumentation();
@@ -107,6 +107,7 @@ public class UserDocumentationServ {
 		}
 		
 		this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+		return res.getPubId();
 	}
 
 	public void updateUserDocumentation(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,

@@ -39,8 +39,8 @@ public class JournalCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createJournal", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createJournal(String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {
-		jourServ.createJournal(jourName, jourPublisher, jourElsevier, jourScimago, jourWos);
+	public int createJournal(String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {
+		return jourServ.createJournal(jourName, jourPublisher, jourElsevier, jourScimago, jourWos);
 	}
 
 	//Updates one specific entity based on its fields (minus its relationship fields)

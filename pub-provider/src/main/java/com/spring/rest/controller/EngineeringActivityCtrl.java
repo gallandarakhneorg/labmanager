@@ -40,11 +40,11 @@ public class EngineeringActivityCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createEngineeringActivity", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createEngineeringActivity(String pubTitle, String pubAbstract,
+	public int createEngineeringActivity(String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String engActInstitName, String engActReportType, String engActNumber) {
-		engActServ.createEngineeringActivity(pubTitle, pubAbstract,
+		return engActServ.createEngineeringActivity(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
 				pubPaperAwardPath, pubType, engActInstitName, engActReportType, engActNumber);

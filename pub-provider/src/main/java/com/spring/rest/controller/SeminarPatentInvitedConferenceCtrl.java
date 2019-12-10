@@ -40,11 +40,11 @@ public class SeminarPatentInvitedConferenceCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createSeminarPatentInvitedConference", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createSeminarPatentInvitedConference(String pubTitle, String pubAbstract,
+	public int createSeminarPatentInvitedConference(String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String semPatHowPub) {
-		semPatServ.createSeminarPatentInvitedConference(pubTitle, pubAbstract,
+		return semPatServ.createSeminarPatentInvitedConference(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
 				pubPaperAwardPath, pubType, semPatHowPub);

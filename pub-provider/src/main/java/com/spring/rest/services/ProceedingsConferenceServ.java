@@ -38,7 +38,7 @@ public class ProceedingsConferenceServ {
 		repo.deleteById(index);
 	}
 
-	public void createProceedingsConference(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
+	public int createProceedingsConference(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
 			String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
 			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String proConfAddress, 
 			String proConfBookNameProceedings, String proConfEditor, String proConfOrganization, String proConfPages, 
@@ -112,6 +112,7 @@ public class ProceedingsConferenceServ {
 		}
 		
 		this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+		return res.getPubId();
 	}
 
 	public void updateProceedingsConference(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,

@@ -38,7 +38,7 @@ public class UniversityDocumentServ {
 		repo.deleteById(index);
 	}
 
-	public void createUniversityDocument(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
+	public int createUniversityDocument(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
 			String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
 			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String uniDocAddress, String uniDocSchoolName) {
 		final UniversityDocument res = new UniversityDocument();
@@ -105,6 +105,7 @@ public class UniversityDocumentServ {
 		}
 		
 		this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+		return res.getPubId();
 	}
 
 	public void updateUniversityDocument(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,

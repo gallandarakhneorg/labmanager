@@ -60,7 +60,7 @@ public class JournalServ {
 		}
 	}
 
-	public void createJournal(String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {
+	public int createJournal(String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {
 		final Journal res = new Journal();
 		//Generic pub fields
 		res.setJourName(jourName);
@@ -69,6 +69,7 @@ public class JournalServ {
 		res.setJourScimago(jourScimago);
 		res.setJourWos(jourWos);
 		this.repo.save(res);
+		return res.getJourId();
 	}
 
 	public void updateJournal(int pubId, String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {

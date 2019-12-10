@@ -46,12 +46,13 @@ public class PublicationCtrl {
 	}
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
+	//made it so that createXXXX gives the Id of the created publication back for conveniance
 	@RequestMapping(value="/createPublication", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createPublication(String pubTitle, String pubAbstract,
+	public int createPublication(String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType) {
-		pubServ.createPublication(pubTitle, pubAbstract,
+		return pubServ.createPublication(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
 				pubPaperAwardPath, pubType);

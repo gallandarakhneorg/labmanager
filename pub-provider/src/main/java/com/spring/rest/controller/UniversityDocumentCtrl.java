@@ -40,11 +40,11 @@ public class UniversityDocumentCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createUniversityDocument", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createUniversityDocument(String pubTitle, String pubAbstract,
+	public int createUniversityDocument(String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String uniDocSchoolName, String uniDocAddress) {
-		uniDocServ.createUniversityDocument(pubTitle, pubAbstract,
+		return uniDocServ.createUniversityDocument(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
 				pubPaperAwardPath, pubType, uniDocSchoolName, uniDocAddress);

@@ -104,12 +104,13 @@ public class ResearchOrganizationServ {
 
 	}
 
-	public void createResearchOrganization(String resOrgName, String resOrgDesc) {
+	public int createResearchOrganization(String resOrgName, String resOrgDesc) {
 		final ResearchOrganization res = new ResearchOrganization();
 		//ResearchOrganization fields
 		res.setResOrgName(resOrgName);
 		res.setResOrgDesc(resOrgDesc);
 		this.repo.save(res);
+		return res.getResOrgId();
 	}
 
 	public void updateResearchOrganization(int resOrgId, String resOrgName, String resOrgDesc) {

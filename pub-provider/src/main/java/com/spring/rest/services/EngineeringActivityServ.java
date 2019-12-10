@@ -38,7 +38,7 @@ public class EngineeringActivityServ {
 		repo.deleteById(index);
 	}
 
-	public void createEngineeringActivity(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
+	public int createEngineeringActivity(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
 			String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
 			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String engActInstitName,
 			String engActNumber, String engActReportType) {
@@ -107,6 +107,7 @@ public class EngineeringActivityServ {
 		}
 		
 		this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+		return res.getPubId();
 	}
 
 	public void updateEngineeringActivity(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,

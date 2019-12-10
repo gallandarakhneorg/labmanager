@@ -103,12 +103,14 @@ public class AuthorServ {
 		}
 	}
 
-	public void createAuthor(String autFirstName, String autLastName, Date autBirth) {
+	public int createAuthor(String autFirstName, String autLastName, Date autBirth) {
 		final Author res = new Author();
 		res.setAutFirstName(autFirstName);
 		res.setAutLastName(autLastName);
 		res.setAutBirth(autBirth);
 		this.repo.save(res);
+	
+		return res.getAutId();
 	}
 
 	public void updateAuthor(int index, String autFirstName, String autLastName, Date autBirth) {

@@ -38,7 +38,7 @@ public class SeminarPatentInvitedConferenceServ {
 		repo.deleteById(index);
 	}
 
-	public void createSeminarPatentInvitedConference(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
+	public int createSeminarPatentInvitedConference(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
 			String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
 			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String semPatHowPub) {
 		final SeminarPatentInvitedConference res = new SeminarPatentInvitedConference();
@@ -104,6 +104,7 @@ public class SeminarPatentInvitedConferenceServ {
 		}
 		
 		this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+		return res.getPubId();
 	}
 
 	public void updateSeminarPatentInvitedConference(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,

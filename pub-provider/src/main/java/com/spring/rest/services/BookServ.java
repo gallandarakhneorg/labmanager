@@ -38,7 +38,7 @@ public class BookServ {
 		repo.deleteById(index);
 	}
 
-	public void createBook(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
+	public int createBook(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
 			String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
 			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String bookEditor, String bookPublisher,
 			String bookVolume, String bookSeries, String bookAddress, String bookEdition, String bookPages) {
@@ -111,6 +111,7 @@ public class BookServ {
 		}
 		
 		this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+		return res.getPubId();
 	}
 
 	public void updateBook(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,

@@ -40,11 +40,11 @@ public class ProceedingsConferenceCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createProceedingsConference", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createProceedingsConference(String pubTitle, String pubAbstract,
+	public int createProceedingsConference(String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String proConfBookNameProceedings, String proConfEditor, String proConfPages, String proConfOrganization, String proConfPublisher, String proConfAddress, String proConfSeries) {
-		proConfServ.createProceedingsConference(pubTitle, pubAbstract,
+		return proConfServ.createProceedingsConference(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
 				pubPaperAwardPath, pubType, proConfBookNameProceedings, proConfEditor, proConfPages, proConfOrganization, proConfPublisher, proConfAddress, proConfSeries);

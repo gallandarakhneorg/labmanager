@@ -129,7 +129,7 @@ public class PublicationServ {
 		}
 	}
 
-	public void createPublication(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
+	public int createPublication(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
 			String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
 			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType) {
 		final Publication res = new Publication();
@@ -151,6 +151,8 @@ public class PublicationServ {
 		res.setPubType(pubType);
 		
 		this.repo.save(res);
+		
+		return res.getPubId();
 	}
 
 	public void updatePublication(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,

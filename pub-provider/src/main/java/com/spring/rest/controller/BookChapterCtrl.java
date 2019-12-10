@@ -40,11 +40,11 @@ public class BookChapterCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createBookChapter", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createBookChapter(String pubTitle, String pubAbstract,
+	public int createBookChapter(String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String bookEditor, String bookPublisher, String bookVolume, String bookSeries, String bookAddress, String bookEdition, String bookPages, String bookChapBookNameProceedings, String bookChapNumberOrName) {
-		bookChapServ.createBookChapter(pubTitle, pubAbstract,
+		return bookChapServ.createBookChapter(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
 				pubPaperAwardPath, pubType, bookEditor, bookPublisher, bookVolume, bookSeries, bookAddress, bookEdition, bookPages, bookChapBookNameProceedings, bookChapNumberOrName);

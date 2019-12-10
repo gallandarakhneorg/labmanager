@@ -40,11 +40,11 @@ public class UserDocumentationCtrl{
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createUserDocumentation", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createUserDocumentation(String pubTitle, String pubAbstract,
+	public int createUserDocumentation(String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String userDocOrganization, String userDocAddress, String userDocEdition, String userDocPublisher) {
-		userDocServ.createUserDocumentation(pubTitle, pubAbstract,
+		return userDocServ.createUserDocumentation(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
 				pubPaperAwardPath, pubType, userDocOrganization, userDocAddress, userDocEdition, userDocPublisher);

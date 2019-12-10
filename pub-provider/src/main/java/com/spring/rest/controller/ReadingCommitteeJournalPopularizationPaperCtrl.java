@@ -41,11 +41,11 @@ public class ReadingCommitteeJournalPopularizationPaperCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createReadingCommitteeJournalPopularizationPaper", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createReadingCommitteeJournalPopularizationPaper(String pubTitle, String pubAbstract,
+	public int createReadingCommitteeJournalPopularizationPaper(String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages) {
-		reaComConfPopPapServ.createReadingCommitteeJournalPopularizationPaper(pubTitle, pubAbstract,
+		return reaComConfPopPapServ.createReadingCommitteeJournalPopularizationPaper(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
 				pubPaperAwardPath, pubType, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);

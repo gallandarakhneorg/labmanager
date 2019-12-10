@@ -48,8 +48,8 @@ public class ResearchOrganizationCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createResearchOrganization", method=RequestMethod.POST, headers="Accept=application/json")
-	public void createResearchOrganization(String resOrgName, String resOrgDesc) {
-		resOrgServ.createResearchOrganization(resOrgName, resOrgDesc);
+	public int createResearchOrganization(String resOrgName, String resOrgDesc) {
+		return resOrgServ.createResearchOrganization(resOrgName, resOrgDesc);
 	}
 
 	//Updates one specific entity based on its fields (minus its relationship fields)

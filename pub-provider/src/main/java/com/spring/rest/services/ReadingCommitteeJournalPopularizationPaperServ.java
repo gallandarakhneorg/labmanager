@@ -11,11 +11,8 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.spring.rest.entities.Journal;
-import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
-import com.spring.rest.repository.JournalRepository;
 import com.spring.rest.repository.ReadingCommitteeJournalPopularizationPaperRepository;
 
 @Service
@@ -23,9 +20,6 @@ public class ReadingCommitteeJournalPopularizationPaperServ {
 	
 	@Autowired
 	private ReadingCommitteeJournalPopularizationPaperRepository repo;
-	
-	@Autowired
-	private JournalRepository jourRepo;
 
 	public List<ReadingCommitteeJournalPopularizationPaper> getAllReadingCommitteeJournalPopularizationPapers() {
 		return repo.findAll();
@@ -44,7 +38,7 @@ public class ReadingCommitteeJournalPopularizationPaperServ {
 		repo.deleteById(index);
 	}
 
-	public void createReadingCommitteeJournalPopularizationPaper(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
+	public int createReadingCommitteeJournalPopularizationPaper(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
 			String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
 			String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapVolume) {
 		final ReadingCommitteeJournalPopularizationPaper res = new ReadingCommitteeJournalPopularizationPaper();
@@ -113,6 +107,8 @@ public class ReadingCommitteeJournalPopularizationPaperServ {
 		}
 		
 		this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+		
+		return res.getPubId();
 	}
 
 	public void updateReadingCommitteeJournalPopularizationPaper(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
