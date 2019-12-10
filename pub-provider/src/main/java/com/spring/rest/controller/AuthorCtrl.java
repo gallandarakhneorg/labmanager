@@ -92,6 +92,12 @@ public class AuthorCtrl {
 	public Set<Author> getLinkedAuthors(int index) {
 		return autServ.getLinkedAuthors(index);
 	}
+
+	//Get one specific entity based on its Id
+	@RequestMapping(value="/getAuthorIdByName", method=RequestMethod.POST, headers="Accept=application/json")
+	public int getAuthorIdByName(String autFirstName, String autLastName) {
+		return autServ.getAuthorIdByName(autFirstName, autLastName);
+	}
 }
 
 // Legacy //

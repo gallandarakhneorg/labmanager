@@ -67,4 +67,10 @@ public class JournalCtrl {
 		jourServ.removeJournalLink(pubId);
 	}
 
+	//Get one specific entity based on its Id
+	@RequestMapping(value="/getJournalIdByName", method=RequestMethod.POST, headers="Accept=application/json")
+	public int getJournalIdByName(String jourName) {
+		return jourServ.getJournalIdByName(jourName);
+	}
+
 }

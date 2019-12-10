@@ -139,6 +139,26 @@ public class JournalServ {
 			pubRepo.save(pub.get());
 		}
 	}
+
+//Review if optional as result when several result possible is a good idea
+	public int getJournalIdByName(String jourName) {
+		final List<Journal> result = new ArrayList<Journal>();
+		final Optional<Journal> res = repo.findByJourName(jourName);
+		if(res.isPresent()) {
+			preventJournalRecursion(res.get());
+			result.add(res.get());
+		}
+		
+		
+		if(!result.isEmpty())
+		{
+			return result.get(0).getJourId(); //We assume theres no name dupes
+		}
+		else
+		{
+			return 0;
+		}
+	}
 }
 
 

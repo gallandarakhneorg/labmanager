@@ -266,5 +266,24 @@ public class AuthorServ {
 		}
 		return auts;
 	}
+	
+
+//Review if optional as result when several result possible is a good idea
+	public int getAuthorIdByName(String autFirstName, String autLastName) {
+		final List<Author> result = new ArrayList<>();
+		final Optional<Author> res = repo.findByAutFirstNameAndAutLastName(autFirstName, autLastName);
+		if(res.isPresent()) {
+			result.add(res.get());
+		}
+		
+		if(!result.isEmpty())
+		{
+			return result.get(0).getAutId(); //We assume theres no name dupes
+		}
+		else
+		{
+			return 0;
+		}
+	}
 
 }
