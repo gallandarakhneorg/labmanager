@@ -98,6 +98,12 @@ public class AuthorCtrl {
 	public int getAuthorIdByName(String autFirstName, String autLastName) {
 		return autServ.getAuthorIdByName(autFirstName, autLastName);
 	}
+
+	//Get all authors directly linked to an organization with a specific given status
+	@RequestMapping(value="/getAuthorsByOrgStatus", method=RequestMethod.POST, headers="Accept=application/json")
+	public Set<Author> getAuthorsByOrgStatus(String orgName, String status) {
+		return autServ.getAuthorsByOrgStatus(orgName, status);
+	}
 }
 
 // Legacy //

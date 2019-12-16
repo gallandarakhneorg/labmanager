@@ -6,6 +6,7 @@ import java.util.Set;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import com.spring.rest.entities.Author;
+import com.spring.rest.entities.MemberStatus;
 
 public interface AuthorRepository extends JpaRepository<Author, Integer> {
 	Set<Author> findDistinctByAutPubsPubId(int pubId);
@@ -13,4 +14,6 @@ public interface AuthorRepository extends JpaRepository<Author, Integer> {
 	Set<Author> findDistinctByAutOrgsResOrgResOrgId(int resOrgId);
 	
 	Optional<Author> findByAutFirstNameAndAutLastName(String autFirstName, String autlastName);
+
+	Set<Author> findDistinctByAutOrgsResOrgResOrgNameAndAutOrgsMemStatus(String resOrgName, MemberStatus status);
 }

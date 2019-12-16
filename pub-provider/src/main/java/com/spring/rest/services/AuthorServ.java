@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.rest.entities.Author;
+import com.spring.rest.entities.MemberStatus;
 import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.Publication;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
@@ -284,6 +285,46 @@ public class AuthorServ {
 		{
 			return 0;
 		}
+	}
+
+	public Set<Author> getAuthorsByOrgStatus(String orgName, String status) {
+
+		Set<Author> auts;
+		//Consider all 5 as one regrouped type : enseignant chercheur
+		if(status.compareTo("Teacher-Researcher")==0)
+		{
+			auts = repo.findDistinctByAutOrgsResOrgResOrgNameAndAutOrgsMemStatus(orgName, MemberStatus.PR);
+			auts.addAll(repo.findDistinctByAutOrgsResOrgResOrgNameAndAutOrgsMemStatus(orgName, MemberStatus.MCF));
+			auts.addAll(repo.findDistinctByAutOrgsResOrgResOrgNameAndAutOrgsMemStatus(orgName, MemberStatus.MCF_HDR));
+			auts.addAll(repo.findDistinctByAutOrgsResOrgResOrgNameAndAutOrgsMemStatus(orgName, MemberStatus.ECC));
+			auts.addAll(repo.findDistinctByAutOrgsResOrgResOrgNameAndAutOrgsMemStatus(orgName, MemberStatus.LRU));
+		}
+		else
+		{
+			auts = repo.findDistinctByAutOrgsResOrgResOrgNameAndAutOrgsMemStatus(orgName, MemberStatus.valueOf(status));
+		}
+		
+		for(final Author aut : auts) {
+			for(final Publication pub:aut.getAutPubs())
+			{
+				pub.setPubAuts(new HashSet<>());
+				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+				{
+					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
+						((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+				}
+			}
+			for(final Membership mem:aut.getAutOrgs())
+			{
+				mem.setAut(null);
+				mem.getResOrg().setOrgAuts(new HashSet<>());
+				//We assume we dont need suborg infos from auts
+				mem.getResOrg().setOrgSubs(new HashSet<>());
+				mem.getResOrg().setOrgSup(null);
+			}
+			//Also block off suborgs
+		}
+		return auts;
 	}
 
 }

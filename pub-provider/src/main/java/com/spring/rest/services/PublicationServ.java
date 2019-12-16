@@ -1169,34 +1169,52 @@ public class PublicationServ {
 		//Manually deal with as much characters as possible yourself
 		//Characters not dealt with manually just gets deleted
 		//Depending on how the export is handled, we dont have to deal with any of this but I cant control how other DB export their stuff
-		bibText=bibText.replaceAll("(\\{\\\\'E\\})", "E");
-		bibText=bibText.replaceAll("(\\{\\\\'e\\})", "e"); //é
-		bibText=bibText.replaceAll("(\\{\\\\`E\\})", "E");
-		bibText=bibText.replaceAll("(\\{\\\\`e\\})", "e"); //è
-		bibText=bibText.replaceAll("(\\{\\\\\"E\\})", "E");
-		bibText=bibText.replaceAll("(\\{\\\\\"e\\})", "e"); //ë
-		bibText=bibText.replaceAll("(\\{\\\\\\^O\\})", "O");
-		bibText=bibText.replaceAll("(\\{\\\\\\^o\\})", "o"); //ô
-		bibText=bibText.replaceAll("(\\{\\\\~O\\})", "O");
-		bibText=bibText.replaceAll("(\\{\\\\~o\\})", "o"); //õ
-		bibText=bibText.replaceAll("(\\{\\\\`A\\})", "A");
-		bibText=bibText.replaceAll("(\\{\\\\`a\\})", "a"); //à
-		bibText=bibText.replaceAll("(\\{\\\\\"A\\})", "A");
-		bibText=bibText.replaceAll("(\\{\\\\\"a\\})", "a"); //ä
-		bibText=bibText.replaceAll("(\\{\\\\\\^\\{\\\\I\\}\\})", "I");
-		bibText=bibText.replaceAll("(\\{\\\\\\^\\{\\\\i\\}\\})", "i"); //î
-		bibText=bibText.replaceAll("(\\{\\\\\"\\{\\\\I\\}\\})", "I");
-		bibText=bibText.replaceAll("(\\{\\\\\"\\{\\\\i\\}\\})", "i"); //ï
-		bibText=bibText.replaceAll("(\\{\\\\c\\{C\\}\\})", "C");
-		bibText=bibText.replaceAll("(\\{\\\\c\\{c\\}\\})", "c"); //ç
-		bibText=bibText.replaceAll("(\\{\\\\&\\})", "&"); //&
+		bibText=bibText.replaceAll("(\\{\\\\'E\\})", "É");
+		bibText=bibText.replaceAll("(\\{\\\\'e\\})", "é"); 
+		bibText=bibText.replaceAll("(\\{\\\\`E\\})", "È");
+		bibText=bibText.replaceAll("(\\{\\\\`e\\})", "è"); 
+		bibText=bibText.replaceAll("(\\{\\\\\\^E\\})", "Ê");
+		bibText=bibText.replaceAll("(\\{\\\\\\^e\\})", "ê"); 
+		bibText=bibText.replaceAll("(\\{\\\\\"E\\})", "Ë");
+		bibText=bibText.replaceAll("(\\{\\\\\"e\\})", "ë"); 
+		bibText=bibText.replaceAll("(\\{\\\\`A\\})", "À");
+		bibText=bibText.replaceAll("(\\{\\\\`a\\})", "à"); 
+		bibText=bibText.replaceAll("(\\{\\\\\\^A\\})", "Â");
+		bibText=bibText.replaceAll("(\\{\\\\\\^a\\})", "â"); 
+		bibText=bibText.replaceAll("(\\{\\\\\"A\\})", "Ä");
+		bibText=bibText.replaceAll("(\\{\\\\\"a\\})", "ä"); 
+		bibText=bibText.replaceAll("(\\{\\\\\\^\\{\\\\I\\}\\})", "Î");
+		bibText=bibText.replaceAll("(\\{\\\\\\^\\{\\\\i\\}\\})", "î"); 
+		bibText=bibText.replaceAll("(\\{\\\\\"\\{\\\\I\\}\\})", "Ï");
+		bibText=bibText.replaceAll("(\\{\\\\\"\\{\\\\i\\}\\})", "ï"); 
+		bibText=bibText.replaceAll("(\\{\\\\\\^O\\})", "Ô");
+		bibText=bibText.replaceAll("(\\{\\\\\\^o\\})", "o"); 
+		bibText=bibText.replaceAll("(\\{\\\\~O\\})", "Õ");
+		bibText=bibText.replaceAll("(\\{\\\\~o\\})", "õ"); 
+		bibText=bibText.replaceAll("(\\{\\\\\\^U\\})", "Û");
+		bibText=bibText.replaceAll("(\\{\\\\\\^u\\})", "û"); 
+		bibText=bibText.replaceAll("(\\{\\\\\"U\\})", "Ü");
+		bibText=bibText.replaceAll("(\\{\\\\\"u\\})", "ü"); 
+		bibText=bibText.replaceAll("(\\{\\\\c\\{C\\}\\})", "Ç");
+		bibText=bibText.replaceAll("(\\{\\\\c\\{c\\}\\})", "ç"); 
+		bibText=bibText.replaceAll("(\\{\\\\&\\})", "&");
+
 
 		//Kind of a radical solution but we can just remove all characters we dont care about
 		//We keep normal characters : a-z, A-Z, 0-9
 		//Characters we need to read the bibText : @, ",", {, }, =
+		//Some accents we know how to manage : é, É, è, È... (see above)
 		//And characters java & the DB can handle : _, -, ., /, \, ;, :, ', ", ’, ^, !, ?, &, (, ), [, ], whitespaces, line jumps
 		//System.out.println(bibText);
-		bibText=bibText.replaceAll("([^a-zA-Z0-9@,\\{\\}\\(\\)\\[\\]=’:!?&_\\-./\\\\;'\"\\^\\s+])", "?");
+		
+		String charsToKeep="([^"
+				+ "a-zA-Z0-9"
+				+ "@,\\{\\}="
+				+ "ÉéÈèÊêËëÀàÂâÄäÎîÏïÔôÕõÛûÜüÇç&"
+				+ "\\(\\)\\[\\]’:!?_\\-./\\\\;'\"\\^\\s+"
+				+ "])";
+		
+		bibText=bibText.replaceAll(charsToKeep, "?");
 		//System.out.println(bibText);
 		return bibText;
 	}
