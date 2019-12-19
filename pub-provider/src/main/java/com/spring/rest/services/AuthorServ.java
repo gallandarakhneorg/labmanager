@@ -124,7 +124,7 @@ public class AuthorServ {
 		File file;
 		if(!autPic.isEmpty())
 		{
-			file=new File("Downloadables/Pictures/autPics"+res.getAutId()+".png");
+			file=new File("Downloadables/AutPictures/autPics"+res.getAutId()+".png");
 			try ( FileOutputStream fos = new FileOutputStream(file); )
 			{
 				byte[] decoder = Base64.getDecoder().decode(autPic);
@@ -166,7 +166,7 @@ public class AuthorServ {
 				File file;
 				if(!autPic.isEmpty())
 				{
-					file=new File("Downloadables/Pictures/autPics"+res.get().getAutId()+".png");
+					file=new File("Downloadables/AutPictures/autPics"+res.get().getAutId()+".png");
 					try ( FileOutputStream fos = new FileOutputStream(file); )
 					{
 						byte[] decoder = Base64.getDecoder().decode(autPic);
