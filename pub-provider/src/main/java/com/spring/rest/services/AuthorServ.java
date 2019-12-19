@@ -129,7 +129,7 @@ public class AuthorServ {
 			{
 				byte[] decoder = Base64.getDecoder().decode(autPic);
 				fos.write(decoder);
-				res.setAutPic("Downloadables/Pictures/autPics"+res.getAutId()+".png");
+				res.setAutPic("Downloadables/AutPictures/autPics"+res.getAutId()+".png");
 		    }
 			catch (Exception e) 
 			{
@@ -171,7 +171,7 @@ public class AuthorServ {
 					{
 						byte[] decoder = Base64.getDecoder().decode(autPic);
 						fos.write(decoder);
-						res.get().setAutPic("Downloadables/Pictures/autPics"+res.get().getAutId()+".png");
+						res.get().setAutPic("Downloadables/AutPictures/autPics"+res.get().getAutId()+".png");
 				    }
 					catch (Exception e) 
 					{
