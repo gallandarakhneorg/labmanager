@@ -1,7 +1,13 @@
 package com.spring.rest.services;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +60,7 @@ public class AuthorServ {
 				mem.getResOrg().setOrgSup(null);
 			}
 			//Also block off suborgs
+			encodeFiles(aut);
 		}
 		return auts;
 	}
@@ -84,6 +91,7 @@ public class AuthorServ {
 				mem.getResOrg().setOrgSup(null);
 			}
 			//Also block off suborgs
+			encodeFiles(aut);
 		}
 		return result;
 	}
@@ -104,17 +112,42 @@ public class AuthorServ {
 		}
 	}
 
-	public int createAuthor(String autFirstName, String autLastName, Date autBirth) {
+	public int createAuthor(String autFirstName, String autLastName, Date autBirth, String autMail, String autPic) {
 		final Author res = new Author();
 		res.setAutFirstName(autFirstName);
 		res.setAutLastName(autLastName);
 		res.setAutBirth(autBirth);
+		res.setAutMail(autMail);
+		//res.setAutPic(autPic);
 		this.repo.save(res);
-	
+
+		File file;
+		if(!autPic.isEmpty())
+		{
+			file=new File("Downloadables/Pictures/autPics"+res.getAutId()+".png");
+			try ( FileOutputStream fos = new FileOutputStream(file); )
+			{
+				byte[] decoder = Base64.getDecoder().decode(autPic);
+				fos.write(decoder);
+				res.setAutPic("Downloadables/Pictures/autPics"+res.getAutId()+".png");
+		    }
+			catch (Exception e) 
+			{
+			      res.setAutPic("");
+			      e.printStackTrace();
+		    }
+		}
+		else
+		{
+		      res.setAutPic("");
+		}
+
+		this.repo.save(res);
+		
 		return res.getAutId();
 	}
 
-	public void updateAuthor(int index, String autFirstName, String autLastName, Date autBirth) {
+	public void updateAuthor(int index, String autFirstName, String autLastName, Date autBirth, String autMail, String autPic) {
 		final Optional<Author> res = this.repo.findById(index);
 		if(res.isPresent()) {
 			if(!autFirstName.isEmpty())
@@ -123,7 +156,32 @@ public class AuthorServ {
 				res.get().setAutLastName(autLastName);
 			if(autBirth != null)
 				res.get().setAutBirth(autBirth);
+			if(autMail != null)
+				res.get().setAutMail(autMail);
+			
 			this.repo.save(res.get());
+			
+			if(autPic != null)
+			{
+				File file;
+				if(!autPic.isEmpty())
+				{
+					file=new File("Downloadables/Pictures/autPics"+res.get().getAutId()+".png");
+					try ( FileOutputStream fos = new FileOutputStream(file); )
+					{
+						byte[] decoder = Base64.getDecoder().decode(autPic);
+						fos.write(decoder);
+						res.get().setAutPic("Downloadables/Pictures/autPics"+res.get().getAutId()+".png");
+				    }
+					catch (Exception e) 
+					{
+					      res.get().setAutPic("");
+					      e.printStackTrace();
+				    }
+				}
+
+				this.repo.save(res.get());
+			}
 		}
 	}
 
@@ -212,6 +270,7 @@ public class AuthorServ {
 				mem.getResOrg().setOrgSup(null);
 			}
 			//Also block off suborgs
+			encodeFiles(aut);
 		}
 		return autL;
 	}
@@ -238,6 +297,7 @@ public class AuthorServ {
 				mem.getResOrg().setOrgSup(null);
 			}
 			//Also block off suborgs
+			encodeFiles(aut);
 		}
 		return auts;
 	}
@@ -264,6 +324,7 @@ public class AuthorServ {
 				mem.getResOrg().setOrgSup(null);
 			}
 			//Also block off suborgs
+			encodeFiles(aut);
 		}
 		return auts;
 	}
@@ -323,8 +384,30 @@ public class AuthorServ {
 				mem.getResOrg().setOrgSup(null);
 			}
 			//Also block off suborgs
+			encodeFiles(aut);
 		}
 		return auts;
 	}
 
+	public void encodeFiles(Author aut)
+	{
+		byte[] input_file;
+		byte[] encodedBytes;
+		String fileString;
+		
+		//Check if the path exists, if it is not empty and if not, if it is a valid path
+		if(aut.getAutPic()!=null && !aut.getAutPic().isEmpty() && new File(aut.getAutPic()).exists())
+		{
+			try {
+				input_file = Files.readAllBytes(Paths.get(aut.getAutPic()));
+		        encodedBytes = Base64.getEncoder().encode(input_file);
+		        fileString=new String(encodedBytes);
+		        aut.setAutPic(fileString);
+			} catch (IOException e) {
+		        aut.setAutPic("");
+				e.printStackTrace();
+			}
+		}
+	}
+	
 }

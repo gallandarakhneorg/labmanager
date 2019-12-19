@@ -48,6 +48,12 @@ public class Author implements Serializable {
 	private Date autBirth;
 	
 	@Column
+	private String autMail;
+	
+	@Column
+	private String autPic;
+	
+	@Column
 	private boolean hasPage; //Wether or not the author has a page on the site.
 
 	public int getAutId() {
@@ -98,6 +104,22 @@ public class Author implements Serializable {
 		this.autBirth = autBirth;
 	}
 
+	public String getAutMail() {
+		return autMail;
+	}
+
+	public void setAutMail(String autMail) {
+		this.autMail = autMail;
+	}
+
+	public String getAutPic() {
+		return autPic;
+	}
+
+	public void setAutPic(String autPic) {
+		this.autPic = autPic;
+	}
+
 	public boolean isHasPage() {
 		return hasPage;
 	}
@@ -114,7 +136,9 @@ public class Author implements Serializable {
 		result = prime * result + ((autFirstName == null) ? 0 : autFirstName.hashCode());
 		result = prime * result + autId;
 		result = prime * result + ((autLastName == null) ? 0 : autLastName.hashCode());
+		result = prime * result + ((autMail == null) ? 0 : autMail.hashCode());
 		//result = prime * result + ((autOrgs == null) ? 0 : autOrgs.hashCode());
+		result = prime * result + ((autPic == null) ? 0 : autPic.hashCode());
 		//result = prime * result + ((autPubs == null) ? 0 : autPubs.hashCode());
 		result = prime * result + (hasPage ? 1231 : 1237);
 		return result;
@@ -146,10 +170,20 @@ public class Author implements Serializable {
 				return false;
 		} else if (!autLastName.equals(other.autLastName))
 			return false;
+		if (autMail == null) {
+			if (other.autMail != null)
+				return false;
+		} else if (!autMail.equals(other.autMail))
+			return false;
 		if (autOrgs == null) {
 			if (other.autOrgs != null)
 				return false;
 		} else if (!autOrgs.equals(other.autOrgs))
+			return false;
+		if (autPic == null) {
+			if (other.autPic != null)
+				return false;
+		} else if (!autPic.equals(other.autPic))
 			return false;
 		if (autPubs == null) {
 			if (other.autPubs != null)
@@ -162,7 +196,7 @@ public class Author implements Serializable {
 	}
 
 	public Author(int autId, Set<Publication> autPubs, Set<Membership> autOrgs, String autFirstName, String autLastName,
-			Date autBirth, boolean hasPage) {
+			Date autBirth, String autMail, String autPic, boolean hasPage) {
 		super();
 		this.autId = autId;
 		this.autPubs = autPubs;
@@ -170,6 +204,8 @@ public class Author implements Serializable {
 		this.autFirstName = autFirstName;
 		this.autLastName = autLastName;
 		this.autBirth = autBirth;
+		this.autMail = autMail;
+		this.autPic = autPic;
 		this.hasPage = hasPage;
 	}
 
@@ -177,6 +213,7 @@ public class Author implements Serializable {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+
 
 
 

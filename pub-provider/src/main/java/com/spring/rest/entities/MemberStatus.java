@@ -15,5 +15,7 @@ public enum MemberStatus {
 	
 	ITRF,
 	
-	Associates;
+	Prag,
+	
+	Associate;
 }

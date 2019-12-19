@@ -46,14 +46,14 @@ public class AuthorCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createAuthor", method=RequestMethod.POST, headers="Accept=application/json")
-	public int createAuthor(String autFirstName, String autLastName, Date autBirth) {
-		return autServ.createAuthor(autFirstName, autLastName, autBirth);
+	public int createAuthor(String autFirstName, String autLastName, Date autBirth, String autMail, String autPic) {
+		return autServ.createAuthor(autFirstName, autLastName, autBirth, autMail, autPic);
 	}
 
 	//Updates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/updateAuthor", method=RequestMethod.POST, headers="Accept=application/json")
-	public void updateAuthor(int index, String autFirstName, String autLastName, Date autBirth) {
-		autServ.updateAuthor(index, autFirstName, autLastName, autBirth);
+	public void updateAuthor(int index, String autFirstName, String autLastName, Date autBirth, String autMail, String autPic) {
+		autServ.updateAuthor(index, autFirstName, autLastName, autBirth, autMail, autPic);
 	}
 
 	
