@@ -7,6 +7,9 @@ import java.nio.file.Paths;
 import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,6 +19,8 @@ import java.util.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.rest.entities.Author;
 import com.spring.rest.entities.Book;
 import com.spring.rest.entities.BookChapter;
@@ -157,40 +162,40 @@ public class PublicationServ {
 
 	public void updatePublication(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
 			String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
-			String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType) {
+			String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, String pubType) {
 		final Optional<Publication> res = this.repo.findById(pubId);
 		if(res.isPresent()) {
 			//Generic pub fields
-			if(!pubTitle.isEmpty())
+			if(pubTitle!=null && !pubTitle.isEmpty())
 				res.get().setPubTitle(pubTitle);
-			if(!pubAbstract.isEmpty())
+			if(pubAbstract!=null && !pubAbstract.isEmpty())
 				res.get().setPubAbstract(pubAbstract);
-			if(!pubKeywords.isEmpty())
+			if(pubKeywords!=null && !pubKeywords.isEmpty())
 				res.get().setPubKeywords(pubKeywords);
-			if(pubDate != null)
+			if(pubDate!=null && pubDate != null)
 				res.get().setPubDate(pubDate);
-			if(!pubNote.isEmpty())
+			if(pubNote!=null && !pubNote.isEmpty())
 				res.get().setPubNote(pubNote);
-			if(!pubAnnotations.isEmpty())
+			if(pubAnnotations!=null && !pubAnnotations.isEmpty())
 				res.get().setPubAnnotations(pubAnnotations);
-			if(!pubISBN.isEmpty())
+			if(pubISBN!=null && !pubISBN.isEmpty())
 				res.get().setPubISBN(pubISBN);
-			if(!pubISSN.isEmpty())
+			if(pubISSN!=null && !pubISSN.isEmpty())
 				res.get().setPubISSN(pubISSN);
-			if(!pubDOIRef.isEmpty())
+			if(pubDOIRef!=null && !pubDOIRef.isEmpty())
 				res.get().setPubDOIRef(pubDOIRef);
-			if(!pubURL.isEmpty())
+			if(pubURL!=null && !pubURL.isEmpty())
 				res.get().setPubURL(pubURL);
-			if(!pubDBLP.isEmpty())
+			if(pubDBLP!=null && !pubDBLP.isEmpty())
 				res.get().setPubDBLP(pubDBLP);
-			if(!pubPDFPath.isEmpty())
+			if(pubPDFPath!=null && !pubPDFPath.isEmpty())
 				res.get().setPubPDFPath(pubPDFPath);
-			if(!pubLanguage.isEmpty())
+			if(pubLanguage!=null && !pubLanguage.isEmpty())
 				res.get().setPubLanguage(pubLanguage);
-			if(!pubPaperAwardPath.isEmpty())
+			if(pubPaperAwardPath!=null && !pubPaperAwardPath.isEmpty())
 				res.get().setPubPaperAwardPath(pubPaperAwardPath);
-			if(!pubType.toString().isEmpty())
-				res.get().setPubType(pubType);
+			if(pubType!=null && !pubType.isEmpty())
+				res.get().setPubType(PublicationType.valueOf(pubType));
 			this.repo.save(res.get());
 		}
 	}
@@ -249,12 +254,20 @@ public class PublicationServ {
 		return publications;
 	}
 
-	public void importPublications(String bibText) {
+	public List<Integer> importPublications(String bibText) {
 
+		//The multiagent DB was formatted with " = {" so I based my import around that but the UB DB was formatted with "={" so I need to change it to what I know how to handle
+		bibText=bibText.replaceAll("=\\{", " = \\{");
+		//Also its legal in bibtex to end an object without a , after the last } but Id rather have it since it helps distinguishing end of the line instead of random } in the middle of a field
+		bibText=bibText.replaceAll("\\}\r", "\\},\r");
+		
 		bibText=fixEncoding(bibText);
 		
-		String splitter="\n\n\n";
-		String[] pubs=bibText.split(splitter);
+		bibText="\n"+bibText;
+		
+		//I used to separate the pubs by \n\n\n but spacing is inconsistent between databases so its safer to separate using the @ which signifies a new pub. Splitter here removes the @ but we can add it back up
+		String splitter="\n@"; //The \n is necessary to make sure the splitter dont split in the middle of a name containing @. That also means that without proper formatting the import will fail
+		String[] pubs=bibText.split(splitter); 
 		String[] auts;
 		Author aut;
 		String autFirstName;
@@ -266,6 +279,9 @@ public class PublicationServ {
 		Optional<Author> optAut;
 		Optional<Journal> optJour;
 
+		//Holds the IDs of the successfully imported IDs. We'll need it for type differenciation later.
+		List<Integer> importedPubIds=new LinkedList<Integer>();
+		
 		String pubType;
 		PublicationType javaPubType;
 		
@@ -324,844 +340,875 @@ public class PublicationServ {
 		String autL;
 		boolean isDupe;
 		
-		
-		
 		for(String pub : pubs)
 		{
-			pubType="";
-			javaPubType=PublicationType.TypeLess;
-			autId=0;
-			pubId=0;
-
-			optPub=null;
-			optAut=null;
-			optJour=null;
-			
-			pubTitle=null; //Check for dupes later
-			pubAbstract=null;
-			pubKeywords=null;
-			year=0;
-			month=0;
-			pubDate=new Date(0);
-			pubNote=null;
-			pubAnnotations=null;
-			pubISBN=null;
-			pubISSN=null;
-			pubDOIRef=null;
-			pubURL=null;
-			pubDBLP=null;
-			pubPDFPath=null;
-			pubLanguage=null;
-			pubPaperAwardPath=null;
-			
-			name=null;
-			publisher=null;
-			proceedings=null;
-			editor=null;
-			organization=null;
-			address=null;
-			series=null;
-			edition=null;
-			howPub=null;
-			reportType=null;
-			pages=null;
-			volume=null;
-			number=null;
-
-			article=new ReadingCommitteeJournalPopularizationPaper();
-			jour=new Journal();
-			inproceedings=new ProceedingsConference();
-			book=new Book();
-			inbook=new BookChapter();
-			misc=new SeminarPatentInvitedConference();
-			manual=new UserDocumentation();
-			techreport=new EngineeringActivity();
-			phdthesis=new UniversityDocument();
-			masterthesis=new UniversityDocument();
-			
-			isDupe=false;
-			autFirstName="";
-			autLastName="";
-
-			pubL=repo.findAll();
-			
-			authorList=autRepo.findAll();
-			
-			splitter="@";
-			if(pub.contains(splitter)) //Dont do anything if it doesnt even have a type
+			if(pub!=pubs[0])
 			{
-				pubType=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("{", pub.indexOf(splitter)));
-			
-				splitter="	title = {";
-				if(pub.contains(splitter))
-				{
-					pubTitle=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-					//pubTitle=truncate(pubTitle); Title too important to be truncked
-				 
-					//Checking for dupes
-					for(Publication singlePub : pubL)
-					{
-						if(singlePub.getPubTitle().compareTo(pubTitle)==0)
-						{
-							isDupe=true;
-						}
-					}
-					
-					if(!isDupe)
-					{
-			
-						splitter="	abstract = {";
-						if(pub.contains(splitter))
-						{
-							pubAbstract=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							//pubAbstract=truncate(pubAbstract); abstract is 67k character long so no need to trunck it
-						}
-						
-						splitter="	keywords = {";
-						if(pub.contains(splitter))
-						{
-							pubKeywords=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubKeywords=truncate(pubKeywords);
-						}
-						
-						splitter="	year = ";
-						if(pub.contains(splitter))
-						{
-							year=Integer.parseInt(pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf(",", pub.indexOf(splitter))));
+				pub="@"+pub; 
+				//System.out.println(pub);
+				
+				pubType="";
+				javaPubType=PublicationType.TypeLess;
+				autId=0;
+				pubId=0;
 	
-							splitter="	month = ";
-							if(pub.contains(splitter))
+				optPub=null;
+				optAut=null;
+				optJour=null;
+				
+				pubTitle=null; //Check for dupes later
+				pubAbstract=null;
+				pubKeywords=null;
+				year=0;
+				month=0;
+				pubDate=new Date(0);
+				pubNote=null;
+				pubAnnotations=null;
+				pubISBN=null;
+				pubISSN=null;
+				pubDOIRef=null;
+				pubURL=null;
+				pubDBLP=null;
+				pubPDFPath=null;
+				pubLanguage=null;
+				pubPaperAwardPath=null;
+				
+				name=null;
+				publisher=null;
+				proceedings=null;
+				editor=null;
+				organization=null;
+				address=null;
+				series=null;
+				edition=null;
+				howPub=null;
+				reportType=null;
+				pages=null;
+				volume=null;
+				number=null;
+	
+				article=new ReadingCommitteeJournalPopularizationPaper();
+				jour=new Journal();
+				inproceedings=new ProceedingsConference();
+				book=new Book();
+				inbook=new BookChapter();
+				misc=new SeminarPatentInvitedConference();
+				manual=new UserDocumentation();
+				techreport=new EngineeringActivity();
+				phdthesis=new UniversityDocument();
+				masterthesis=new UniversityDocument();
+				
+				isDupe=false;
+				autFirstName="";
+				autLastName="";
+	
+				pubL=repo.findAll();
+				
+				authorList=autRepo.findAll();
+				
+				splitter="@";
+				if(pub.contains(splitter)) //Dont do anything if it doesnt even have a type
+				{
+					pubType=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("{", pub.indexOf(splitter)));
+					
+					splitter="title = {";
+					if(pub.contains(splitter))
+					{
+						pubTitle=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+						if(pubTitle.length()>255)
+						{
+							System.out.println("\n Warning : Publication Title too long, had to be truncated. \n Concerned publication : "+pubTitle+"\n");
+						}
+						pubTitle=truncate(pubTitle);
+					 
+						//Checking for dupes
+						for(Publication singlePub : pubL)
+						{
+							if(singlePub.getPubTitle().compareTo(pubTitle)==0)
 							{
-								month=convertMonth(pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf(",", pub.indexOf(splitter))));
-							
-								pubDate=new Date(year-1900, month, 2);
-								//Day isnt specified so Im making it the first of the month
-								//That means 2 since the bug reducing the date by one exists
+								isDupe=true;
 							}
 						}
 						
-						splitter="	note = {";
-						if(pub.contains(splitter))
+						if(!isDupe)
 						{
-							pubNote=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubNote=truncate(pubNote);
-						}
-						
-						splitter="	annotations = {";
-						if(pub.contains(splitter))
-						{
-							pubAnnotations=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubAnnotations=truncate(pubAnnotations);
-						}
-						
-						splitter="	isbn = {";
-						if(pub.contains(splitter))
-						{
-							pubISBN=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubISBN=truncate(pubISBN);
-						}
-						
-						splitter="	issn = {";
-						if(pub.contains(splitter))
-						{
-							pubISSN=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubISSN=truncate(pubISSN);
-						}
-						
-						splitter="	doi = {";
-						if(pub.contains(splitter))
-						{
-							pubDOIRef=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubDOIRef=truncate(pubDOIRef);
-						}
-						
-						splitter="	url = {";
-						if(pub.contains(splitter))
-						{
-							pubURL=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubURL=truncate(pubURL);
-						}
-						
-						splitter="	dblp = {";
-						if(pub.contains(splitter))
-						{
-							pubDBLP=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubDBLP=truncate(pubDBLP);
-						}
-						
-						splitter="	pdf = {";
-						if(pub.contains(splitter))
-						{
-							pubPDFPath=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubPDFPath=truncate(pubPDFPath);
-						}
-						
-						splitter="	language = {";
-						if(pub.contains(splitter))
-						{
-							pubLanguage=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubLanguage=truncate(pubLanguage);
-						}
-						
-						splitter="	award = {";
-						if(pub.contains(splitter))
-						{
-							pubPaperAwardPath=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							pubPaperAwardPath=truncate(pubPaperAwardPath);
-						}
-						
-						
-						switch(pubType)
-						{
-							//Can be InternationalJournalWithReadingCommittee, NationalJournalWithReadingCommittee, InternationalJournalWithoutReadingCommittee, NationalJournalWithoutReadingCommittee or PopularizationPaper.
-							case "Article": 
-								javaPubType=PublicationType.InternationalJournalWithReadingCommittee; //Default
-								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
-								
-								splitter="	journal = {";
+
+							splitter="abstract = {";
+							if(pub.contains(splitter))
+							{
+								pubAbstract=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								//pubAbstract=truncate(pubAbstract); abstract is 67k character long so no need to trunck it
+							}
+							
+							splitter="keywords = {";
+							if(pub.contains(splitter))
+							{
+								pubKeywords=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubKeywords=truncate(pubKeywords);
+							}
+							
+
+							splitter="year = {";
+							if(pub.contains(splitter))
+							{
+								year=Integer.parseInt(pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter))));
+		
+								splitter="month = {";
 								if(pub.contains(splitter))
 								{
-									name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									name=truncate(name);
-								}
+									month=convertMonth(pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter))));
 								
-								splitter="	volume = {";
+									pubDate=new Date(year-1900, month, 2);
+									//Day isnt specified so Im making it the first of the month
+									//That means 2 since the bug reducing the date by one exists
+								}
+							}
+							else //Because sometimes year is formatted without {}
+							{
+								splitter="year = ";
 								if(pub.contains(splitter))
 								{
-									volume=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									volume=truncate(volume);
+									year=Integer.parseInt(pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf(",", pub.indexOf(splitter))));
+			
+									splitter="month = ";
+									if(pub.contains(splitter))
+									{
+										month=convertMonth(pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf(",", pub.indexOf(splitter))));
+									
+										pubDate=new Date(year-1900, month, 2);
+										//Day isnt specified so Im making it the first of the month
+										//That means 2 since the bug reducing the date by one exists
+									}
 								}
-								
-								splitter="	number = {";
-								if(pub.contains(splitter))
-								{
-									number=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									number=truncate(number);
-								}
-								
-								splitter="	pages = {";
-								if(pub.contains(splitter))
-								{
-									pages=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									pages=truncate(pages);
-								}
-								
-								splitter="	publisher = {";
-								if(pub.contains(splitter))
-								{
-									publisher=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									publisher=truncate(publisher);
-								}
-	
-	
-								//I cant just call the article's class dao because it needs to have a session which is created on controller call
-								//So I just copypasted the whole thing here, it's dirty but it works.
-	
-								article.setPubTitle(pubTitle);
-								article.setPubAbstract(pubAbstract);
-								article.setPubKeywords(pubKeywords);
-								article.setPubDate(pubDate);
-								article.setPubNote(pubNote);
-								article.setPubAnnotations(pubAnnotations);
-								article.setPubISBN(pubISBN);
-								article.setPubISSN(pubISSN);
-								article.setPubDOIRef(pubDOIRef);
-								article.setPubURL(pubURL);
-								article.setPubDBLP(pubDBLP);
-								article.setPubPDFPath(pubPDFPath);
-								article.setPubLanguage(pubLanguage);
-								article.setPubPaperAwardPath(pubPaperAwardPath);
-								article.setPubType(javaPubType);
-								article.setReaComConfPopPapVolume(volume);
-								article.setReaComConfPopPapNumber(number);
-								article.setReaComConfPopPapPages(pages);
-								
-								//Journal fields
-								optJour=jourRepo.findByJourName(name);
-								if(optJour.isPresent())
-								{
-									//Checks if that journal already exists
-									jour=optJour.get();
-								}
-								else
-								{
-									//Or if we need to make a new one
-									jour.setJourName(name);
-									jour.setJourPublisher(publisher);
-								}
-								
-								//Needed to generate an Id in case journal doesnt exist yet
-								jourRepo.save(jour);
-								
-								article.setReaComConfPopPapJournal(jour);
-								
-								repo.save(article);
-								pubId=article.getPubId();
-								break;
-								
-								
-								//Can be InternationalConferenceWithProceedings, NationalConferenceWithProceedings, InternationalConferenceWithoutProceedings or NationalConferenceWithoutProceedings.
-								case "Inproceedings":
-									javaPubType=PublicationType.InternationalConferenceWithProceedings; //Default
+							}
+							
+							splitter="note = {";
+							if(pub.contains(splitter))
+							{
+								pubNote=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubNote=truncate(pubNote);
+							}
+							
+							splitter="annotations = {";
+							if(pub.contains(splitter))
+							{
+								pubAnnotations=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubAnnotations=truncate(pubAnnotations);
+							}
+							
+							splitter="isbn = {";
+							if(pub.contains(splitter))
+							{
+								pubISBN=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubISBN=truncate(pubISBN);
+							}
+							
+							splitter="issn = {";
+							if(pub.contains(splitter))
+							{
+								pubISSN=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubISSN=truncate(pubISSN);
+							}
+							
+							splitter="doi = {";
+							if(pub.contains(splitter))
+							{
+								pubDOIRef=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubDOIRef=truncate(pubDOIRef);
+							}
+							
+							splitter="url = {";
+							if(pub.contains(splitter))
+							{
+								pubURL=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubURL=truncate(pubURL);
+							}
+							
+							splitter="dblp = {";
+							if(pub.contains(splitter))
+							{
+								pubDBLP=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubDBLP=truncate(pubDBLP);
+							}
+							
+							splitter="pdf = {";
+							if(pub.contains(splitter))
+							{
+								pubPDFPath=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubPDFPath=truncate(pubPDFPath);
+							}
+							
+							splitter="language = {";
+							if(pub.contains(splitter))
+							{
+								pubLanguage=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubLanguage=truncate(pubLanguage);
+							}
+							
+							splitter="award = {";
+							if(pub.contains(splitter))
+							{
+								pubPaperAwardPath=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								pubPaperAwardPath=truncate(pubPaperAwardPath);
+							}
+							
+							//Once again, some DB do this differently so I streamlined the naming convention
+							pubType=pubType.substring(0, 1).toUpperCase()+pubType.substring(1).toLowerCase();
+							switch(pubType)
+							{
+								//Can be InternationalJournalWithReadingCommittee, NationalJournalWithReadingCommittee, InternationalJournalWithoutReadingCommittee, NationalJournalWithoutReadingCommittee or PopularizationPaper.
+								case "Article": 
+									javaPubType=PublicationType.InternationalJournalWithReadingCommittee; //Default
 									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 									
-									splitter="	booktitle = {";
+									splitter="journal = {";
 									if(pub.contains(splitter))
 									{
 										name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
 										name=truncate(name);
 									}
 									
-									splitter="	editor = {";
+									splitter="volume = {";
 									if(pub.contains(splitter))
 									{
-										editor=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-										editor=truncate(editor);
+										volume=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										volume=truncate(volume);
 									}
 									
-									splitter="	pages = {";
+									splitter="number = {";
+									if(pub.contains(splitter))
+									{
+										number=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										number=truncate(number);
+									}
+									
+									splitter="pages = {";
 									if(pub.contains(splitter))
 									{
 										pages=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
 										pages=truncate(pages);
 									}
 									
-									splitter="	organization = {";
+									splitter="publisher = {";
 									if(pub.contains(splitter))
 									{
-										organization=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-										organization=truncate(organization);
+										publisher=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										publisher=truncate(publisher);
+									}
+		
+		
+									//I cant just call the article's class dao because it needs to have a session which is created on controller call
+									//So I just copypasted the whole thing here, it's dirty but it works.
+		
+									article.setPubTitle(pubTitle);
+									article.setPubAbstract(pubAbstract);
+									article.setPubKeywords(pubKeywords);
+									article.setPubDate(pubDate);
+									article.setPubNote(pubNote);
+									article.setPubAnnotations(pubAnnotations);
+									article.setPubISBN(pubISBN);
+									article.setPubISSN(pubISSN);
+									article.setPubDOIRef(pubDOIRef);
+									article.setPubURL(pubURL);
+									article.setPubDBLP(pubDBLP);
+									article.setPubPDFPath(pubPDFPath);
+									article.setPubLanguage(pubLanguage);
+									article.setPubPaperAwardPath(pubPaperAwardPath);
+									article.setPubType(javaPubType);
+									article.setReaComConfPopPapVolume(volume);
+									article.setReaComConfPopPapNumber(number);
+									article.setReaComConfPopPapPages(pages);
+									
+									//Journal fields
+									optJour=jourRepo.findByJourName(name);
+									if(optJour.isPresent())
+									{
+										//Checks if that journal already exists
+										jour=optJour.get();
+									}
+									else
+									{
+										//Or if we need to make a new one
+										jour.setJourName(name);
+										jour.setJourPublisher(publisher);
 									}
 									
-									splitter="	publisher = {";
+									//Needed to generate an Id in case journal doesnt exist yet
+									jourRepo.save(jour);
+									
+									article.setReaComConfPopPapJournal(jour);
+									
+									repo.save(article);
+									pubId=article.getPubId();
+									break;
+									
+									
+									//Can be InternationalConferenceWithProceedings, NationalConferenceWithProceedings, InternationalConferenceWithoutProceedings or NationalConferenceWithoutProceedings.
+									case "Inproceedings":
+										javaPubType=PublicationType.InternationalConferenceWithProceedings; //Default
+										javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
+										
+										splitter="booktitle = {";
+										if(pub.contains(splitter))
+										{
+											name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+											name=truncate(name);
+										}
+										
+										splitter="editor = {";
+										if(pub.contains(splitter))
+										{
+											editor=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+											editor=truncate(editor);
+										}
+										
+										splitter="pages = {";
+										if(pub.contains(splitter))
+										{
+											pages=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+											pages=truncate(pages);
+										}
+										
+										splitter="organization = {";
+										if(pub.contains(splitter))
+										{
+											organization=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+											organization=truncate(organization);
+										}
+										
+										splitter="publisher = {";
+										if(pub.contains(splitter))
+										{
+											publisher=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+											publisher=truncate(publisher);
+										}
+										
+										splitter="address = {";
+										if(pub.contains(splitter))
+										{
+											address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+											address=truncate(address);
+										}
+										
+										splitter="series = {";
+										if(pub.contains(splitter))
+										{
+											series=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+											series=truncate(series);
+										}
+		
+										inproceedings.setPubTitle(pubTitle);
+										inproceedings.setPubAbstract(pubAbstract);
+										inproceedings.setPubKeywords(pubKeywords);
+										inproceedings.setPubDate(pubDate);
+										inproceedings.setPubNote(pubNote);
+										inproceedings.setPubAnnotations(pubAnnotations);
+										inproceedings.setPubISBN(pubISBN);
+										inproceedings.setPubISSN(pubISSN);
+										inproceedings.setPubDOIRef(pubDOIRef);
+										inproceedings.setPubURL(pubURL);
+										inproceedings.setPubDBLP(pubDBLP);
+										inproceedings.setPubPDFPath(pubPDFPath);
+										inproceedings.setPubLanguage(pubLanguage);
+										inproceedings.setPubPaperAwardPath(pubPaperAwardPath);
+										inproceedings.setPubType(javaPubType);
+										inproceedings.setProConfBookNameProceedings(name);
+										inproceedings.setProConfEditor(editor);
+										inproceedings.setProConfPages(pages);
+										inproceedings.setProConfOrganization(organization);
+										inproceedings.setProConfPublisher(publisher);
+										inproceedings.setProConfAddress(address);
+										inproceedings.setProConfSeries(series);
+										
+										repo.save(inproceedings);
+										pubId=inproceedings.getPubId();
+									
+									break;
+									
+									
+									//Can be Book, BookEdition or ScientificPopularizationBook.
+									case "Book":
+									javaPubType=PublicationType.Book; //Default
+									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
+									
+									splitter="editor = {";
+									if(pub.contains(splitter))
+									{
+										editor=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										editor=truncate(editor);
+									}
+									
+									splitter="publisher = {";
 									if(pub.contains(splitter))
 									{
 										publisher=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
 										publisher=truncate(publisher);
 									}
 									
-									splitter="	address = {";
+									splitter="volume = {";
+									if(pub.contains(splitter))
+									{
+										volume=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										volume=truncate(volume);
+									}
+									
+									splitter="series = {";
+									if(pub.contains(splitter))
+									{
+										series=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										series=truncate(series);
+									}
+									
+									splitter="address = {";
 									if(pub.contains(splitter))
 									{
 										address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
 										address=truncate(address);
 									}
 									
-									splitter="	series = {";
+									splitter="edition = {";
+									if(pub.contains(splitter))
+									{
+										edition=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										edition=truncate(edition);
+									}
+									
+									splitter="pages = {";
+									if(pub.contains(splitter))
+									{
+										pages=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										pages=truncate(pages);
+									}
+		
+									book.setPubTitle(pubTitle);
+									book.setPubAbstract(pubAbstract);
+									book.setPubKeywords(pubKeywords);
+									book.setPubDate(pubDate);
+									book.setPubNote(pubNote);
+									book.setPubAnnotations(pubAnnotations);
+									book.setPubISBN(pubISBN);
+									book.setPubISSN(pubISSN);
+									book.setPubDOIRef(pubDOIRef);
+									book.setPubURL(pubURL);
+									book.setPubDBLP(pubDBLP);
+									book.setPubPDFPath(pubPDFPath);
+									book.setPubLanguage(pubLanguage);
+									book.setPubPaperAwardPath(pubPaperAwardPath);
+									book.setPubType(javaPubType);
+									book.setBookEditor(editor);
+									book.setBookPublisher(publisher);
+									book.setBookVolume(volume);
+									book.setBookSeries(series);
+									book.setBookAddress(address);
+									book.setBookEdition(edition);
+									book.setBookPages(pages);
+									
+									repo.save(book);
+									pubId=book.getPubId();
+									
+									break;
+									
+								//Can only be bookchapter	
+								case "Inbook":
+									javaPubType=PublicationType.BookChapter; //Default
+									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
+									
+									splitter="editor = {";
+									if(pub.contains(splitter))
+									{
+										editor=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										editor=truncate(editor);
+									}
+									
+									splitter="publisher = {";
+									if(pub.contains(splitter))
+									{
+										publisher=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										publisher=truncate(publisher);
+									}
+									
+									splitter="volume = {";
+									if(pub.contains(splitter))
+									{
+										volume=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										volume=truncate(volume);
+									}
+									
+									splitter="series = {";
 									if(pub.contains(splitter))
 									{
 										series=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
 										series=truncate(series);
 									}
-	
-									inproceedings.setPubTitle(pubTitle);
-									inproceedings.setPubAbstract(pubAbstract);
-									inproceedings.setPubKeywords(pubKeywords);
-									inproceedings.setPubDate(pubDate);
-									inproceedings.setPubNote(pubNote);
-									inproceedings.setPubAnnotations(pubAnnotations);
-									inproceedings.setPubISBN(pubISBN);
-									inproceedings.setPubISSN(pubISSN);
-									inproceedings.setPubDOIRef(pubDOIRef);
-									inproceedings.setPubURL(pubURL);
-									inproceedings.setPubDBLP(pubDBLP);
-									inproceedings.setPubPDFPath(pubPDFPath);
-									inproceedings.setPubLanguage(pubLanguage);
-									inproceedings.setPubPaperAwardPath(pubPaperAwardPath);
-									inproceedings.setPubType(javaPubType);
-									inproceedings.setProConfBookNameProceedings(name);
-									inproceedings.setProConfEditor(editor);
-									inproceedings.setProConfPages(pages);
-									inproceedings.setProConfOrganization(organization);
-									inproceedings.setProConfPublisher(publisher);
-									inproceedings.setProConfAddress(address);
-									inproceedings.setProConfSeries(series);
 									
-									repo.save(inproceedings);
-									pubId=inproceedings.getPubId();
-								
-								break;
-								
-								
-								//Can be Book, BookEdition or ScientificPopularizationBook.
-								case "Book":
-								javaPubType=PublicationType.Book; //Default
-								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
-								
-								splitter="	editor = {";
-								if(pub.contains(splitter))
-								{
-									editor=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									editor=truncate(editor);
-								}
-								
-								splitter="	publisher = {";
-								if(pub.contains(splitter))
-								{
-									publisher=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									publisher=truncate(publisher);
-								}
-								
-								splitter="	volume = {";
-								if(pub.contains(splitter))
-								{
-									volume=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									volume=truncate(volume);
-								}
-								
-								splitter="	series = {";
-								if(pub.contains(splitter))
-								{
-									series=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									series=truncate(series);
-								}
-								
-								splitter="	address = {";
-								if(pub.contains(splitter))
-								{
-									address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									address=truncate(address);
-								}
-								
-								splitter="	edition = {";
-								if(pub.contains(splitter))
-								{
-									edition=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									edition=truncate(edition);
-								}
-								
-								splitter="	pages = {";
-								if(pub.contains(splitter))
-								{
-									pages=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									pages=truncate(pages);
-								}
-	
-								book.setPubTitle(pubTitle);
-								book.setPubAbstract(pubAbstract);
-								book.setPubKeywords(pubKeywords);
-								book.setPubDate(pubDate);
-								book.setPubNote(pubNote);
-								book.setPubAnnotations(pubAnnotations);
-								book.setPubISBN(pubISBN);
-								book.setPubISSN(pubISSN);
-								book.setPubDOIRef(pubDOIRef);
-								book.setPubURL(pubURL);
-								book.setPubDBLP(pubDBLP);
-								book.setPubPDFPath(pubPDFPath);
-								book.setPubLanguage(pubLanguage);
-								book.setPubPaperAwardPath(pubPaperAwardPath);
-								book.setPubType(javaPubType);
-								book.setBookEditor(editor);
-								book.setBookPublisher(publisher);
-								book.setBookVolume(volume);
-								book.setBookSeries(series);
-								book.setBookAddress(address);
-								book.setBookEdition(edition);
-								book.setBookPages(pages);
-								
-								repo.save(book);
-								pubId=book.getPubId();
-								
-								break;
-								
-							//Can only be bookchapter	
-							case "Inbook":
-								javaPubType=PublicationType.BookChapter; //Default
-								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
-								
-								splitter="	editor = {";
-								if(pub.contains(splitter))
-								{
-									editor=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									editor=truncate(editor);
-								}
-								
-								splitter="	publisher = {";
-								if(pub.contains(splitter))
-								{
-									publisher=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									publisher=truncate(publisher);
-								}
-								
-								splitter="	volume = {";
-								if(pub.contains(splitter))
-								{
-									volume=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									volume=truncate(volume);
-								}
-								
-								splitter="	series = {";
-								if(pub.contains(splitter))
-								{
-									series=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									series=truncate(series);
-								}
-								
-								splitter="	address = {";
-								if(pub.contains(splitter))
-								{
-									address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									address=truncate(address);
-								}
-								
-								splitter="	edition = {";
-								if(pub.contains(splitter))
-								{
-									edition=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									edition=truncate(edition);
-								}
-								
-								splitter="	pages = {";
-								if(pub.contains(splitter))
-								{
-									pages=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									pages=truncate(pages);
-								}
-								
-								splitter="	booktitle = {";
-								if(pub.contains(splitter))
-								{
-									proceedings=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									proceedings=truncate(proceedings);
-								}
-								
-								splitter="	chapter = {";
-								if(pub.contains(splitter))
-								{
-									name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									name=truncate(name);
-								}
-	
-								inbook.setPubTitle(pubTitle);
-								inbook.setPubAbstract(pubAbstract);
-								inbook.setPubKeywords(pubKeywords);
-								inbook.setPubDate(pubDate);
-								inbook.setPubNote(pubNote);
-								inbook.setPubAnnotations(pubAnnotations);
-								inbook.setPubISBN(pubISBN);
-								inbook.setPubISSN(pubISSN);
-								inbook.setPubDOIRef(pubDOIRef);
-								inbook.setPubURL(pubURL);
-								inbook.setPubDBLP(pubDBLP);
-								inbook.setPubPDFPath(pubPDFPath);
-								inbook.setPubLanguage(pubLanguage);
-								inbook.setPubPaperAwardPath(pubPaperAwardPath);
-								inbook.setPubType(javaPubType);
-								inbook.setBookEditor(editor);
-								inbook.setBookPublisher(publisher);
-								inbook.setBookVolume(volume);
-								inbook.setBookSeries(series);
-								inbook.setBookAddress(address);
-								inbook.setBookEdition(edition);
-								inbook.setBookPages(pages);
-								inbook.setBookChapBookNameProceedings(proceedings);
-								inbook.setBookChapNumberOrName(name);
-								
-								repo.save(inbook);
-								pubId=inbook.getPubId();
-								
-								break;
-								
-							//Can be seminar, patent or invitedconference
-							case "Misc":
-								javaPubType=PublicationType.Seminar; //Default
-								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
-								
-								splitter="	howpublished = {";
-								if(pub.contains(splitter))
-								{
-									howPub=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									howPub=truncate(howPub);
-								}
-	
-								misc.setPubTitle(pubTitle);
-								misc.setPubAbstract(pubAbstract);
-								misc.setPubKeywords(pubKeywords);
-								misc.setPubDate(pubDate);
-								misc.setPubNote(pubNote);
-								misc.setPubAnnotations(pubAnnotations);
-								misc.setPubISBN(pubISBN);
-								misc.setPubISSN(pubISSN);
-								misc.setPubDOIRef(pubDOIRef);
-								misc.setPubURL(pubURL);
-								misc.setPubDBLP(pubDBLP);
-								misc.setPubPDFPath(pubPDFPath);
-								misc.setPubLanguage(pubLanguage);
-								misc.setPubPaperAwardPath(pubPaperAwardPath);
-								misc.setPubType(javaPubType);
-								misc.setSemPatHowPub(howPub);
-								
-								repo.save(misc);
-								pubId=misc.getPubId();
-								
-								break;
-								
-							//Can only be userdoc
-							case "Manual":
-								javaPubType=PublicationType.UserDocumentation; //Default
-								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
-								
-								splitter="	organization = {";
-								if(pub.contains(splitter))
-								{
-									organization=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									organization=truncate(organization);
-								}
-								
-								splitter="	address = {";
-								if(pub.contains(splitter))
-								{
-									address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									address=truncate(address);
-								}
-								
-								splitter="	edition = {";
-								if(pub.contains(splitter))
-								{
-									edition=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									edition=truncate(edition);
-								}
-								
-								splitter="	publisher = {";
-								if(pub.contains(splitter))
-								{
-									publisher=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									publisher=truncate(publisher);
-								}
-	
-								manual.setPubTitle(pubTitle);
-								manual.setPubAbstract(pubAbstract);
-								manual.setPubKeywords(pubKeywords);
-								manual.setPubDate(pubDate);
-								manual.setPubNote(pubNote);
-								manual.setPubAnnotations(pubAnnotations);
-								manual.setPubISBN(pubISBN);
-								manual.setPubISSN(pubISSN);
-								manual.setPubDOIRef(pubDOIRef);
-								manual.setPubURL(pubURL);
-								manual.setPubDBLP(pubDBLP);
-								manual.setPubPDFPath(pubPDFPath);
-								manual.setPubLanguage(pubLanguage);
-								manual.setPubPaperAwardPath(pubPaperAwardPath);
-								manual.setPubType(javaPubType);
-								manual.setUserDocOrganization(organization);
-								manual.setUserDocAddress(address);
-								manual.setUserDocEdition(edition);
-								manual.setUserDocPublisher(publisher);
-								
-								repo.save(manual);
-								pubId=manual.getPubId();
-								
-								break;
-								
-							//Can only be engineeringactivity
-							case "Techreport":
-								javaPubType=PublicationType.EngineeringActivity; //Default
-								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
-								
-								splitter="	institution = {";
-								if(pub.contains(splitter))
-								{
-									name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									name=truncate(name);
-								}
-								
-								splitter="	type = {";
-								if(pub.contains(splitter))
-								{
-									reportType=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									reportType=truncate(reportType);
-								}
-								
-								splitter="	number = {";
-								if(pub.contains(splitter))
-								{
-									number=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									number=truncate(number);
-								}
-	
-								techreport.setPubTitle(pubTitle);
-								techreport.setPubAbstract(pubAbstract);
-								techreport.setPubKeywords(pubKeywords);
-								techreport.setPubDate(pubDate);
-								techreport.setPubNote(pubNote);
-								techreport.setPubAnnotations(pubAnnotations);
-								techreport.setPubISBN(pubISBN);
-								techreport.setPubISSN(pubISSN);
-								techreport.setPubDOIRef(pubDOIRef);
-								techreport.setPubURL(pubURL);
-								techreport.setPubDBLP(pubDBLP);
-								techreport.setPubPDFPath(pubPDFPath);
-								techreport.setPubLanguage(pubLanguage);
-								techreport.setPubPaperAwardPath(pubPaperAwardPath);
-								techreport.setPubType(javaPubType);
-								techreport.setEngActInstitName(name);
-								techreport.setEngActReportType(reportType);
-								techreport.setEngActNumber(number);
-								
-								repo.save(techreport);
-								pubId=techreport.getPubId();
-								
-								break;
-								
-							//Can be phd or hdr thesis
-							case "Phdthesis":
-								javaPubType=PublicationType.PHDThesis; //Default
-								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
-								
-								splitter="	school = {";
-								if(pub.contains(splitter))
-								{
-									name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									name=truncate(name);
-								}
-								
-								splitter="	address = {";
-								if(pub.contains(splitter))
-								{
-									address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									address=truncate(address);
-								}
-	
-								phdthesis.setPubTitle(pubTitle);
-								phdthesis.setPubAbstract(pubAbstract);
-								phdthesis.setPubKeywords(pubKeywords);
-								phdthesis.setPubDate(pubDate);
-								phdthesis.setPubNote(pubNote);
-								phdthesis.setPubAnnotations(pubAnnotations);
-								phdthesis.setPubISBN(pubISBN);
-								phdthesis.setPubISSN(pubISSN);
-								phdthesis.setPubDOIRef(pubDOIRef);
-								phdthesis.setPubURL(pubURL);
-								phdthesis.setPubDBLP(pubDBLP);
-								phdthesis.setPubPDFPath(pubPDFPath);
-								phdthesis.setPubLanguage(pubLanguage);
-								phdthesis.setPubPaperAwardPath(pubPaperAwardPath);
-								phdthesis.setPubType(javaPubType);
-								phdthesis.setUniDocSchoolName(name);
-								phdthesis.setUniDocAddress(address);
-								
-								repo.save(phdthesis);
-								pubId=phdthesis.getPubId();
-								
-								break;
-								
-							//Can be master or engineering thesis
-							case "Masterthesis":
-								javaPubType=PublicationType.MasterOnResearch; //Default
-								javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
-								
-								splitter="	school = {";
-								if(pub.contains(splitter))
-								{
-									name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									name=truncate(name);
-								}
-								
-								splitter="	address = {";
-								if(pub.contains(splitter))
-								{
-									address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-									address=truncate(address);
-								}
-	
-								masterthesis.setPubTitle(pubTitle);
-								masterthesis.setPubAbstract(pubAbstract);
-								masterthesis.setPubKeywords(pubKeywords);
-								masterthesis.setPubDate(pubDate);
-								masterthesis.setPubNote(pubNote);
-								masterthesis.setPubAnnotations(pubAnnotations);
-								masterthesis.setPubISBN(pubISBN);
-								masterthesis.setPubISSN(pubISSN);
-								masterthesis.setPubDOIRef(pubDOIRef);
-								masterthesis.setPubURL(pubURL);
-								masterthesis.setPubDBLP(pubDBLP);
-								masterthesis.setPubPDFPath(pubPDFPath);
-								masterthesis.setPubLanguage(pubLanguage);
-								masterthesis.setPubPaperAwardPath(pubPaperAwardPath);
-								masterthesis.setPubType(javaPubType);
-								masterthesis.setUniDocSchoolName(name);
-								masterthesis.setUniDocAddress(address);
-								
-								repo.save(masterthesis);
-								pubId=masterthesis.getPubId();
-								
-								break;
-						}
-						
-						//Handle authors
-						splitter="	author = {";
-						if(pub.contains(splitter))
-						{
-							autL=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
-							if(autL.compareTo("")!=0)
-							{
-								splitter=" and ";
-								auts=autL.split(splitter);
-								
-								for(i=0;i<auts.length;i++)
-								{
-									autLastName=auts[i].substring(0,auts[i].indexOf(", "));
-									autFirstName=auts[i].substring(auts[i].indexOf(", ")+2);
-									
-									//Checking for dupes
-									
-									for(Author knownAut : authorList)
+									splitter="address = {";
+									if(pub.contains(splitter))
 									{
-										if(knownAut.getAutFirstName().compareTo(autFirstName)==0 && knownAut.getAutLastName().compareTo(autLastName)==0)
-										{
-											isDupe=true;
-											autId=knownAut.getAutId();
-										}
+										address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										address=truncate(address);
 									}
 									
-									if(!isDupe)
+									splitter="edition = {";
+									if(pub.contains(splitter))
 									{
-										//Creating new author
-										aut=new Author();
-										
-										aut.setAutFirstName(autFirstName);
-										aut.setAutLastName(autLastName);
-										aut.setAutBirth(new Date(0));
-										
-										autRepo.save(aut);
-										autId=aut.getAutId();
-										
-									}
-									isDupe=false;
-									
-									
-									
-									
-									
-									//Assigning authorship
-									optPub=repo.findById(pubId);
-									optAut=autRepo.findById(autId);
-									
-									if(optPub.isPresent() && optAut.isPresent())
-									{
-										if(!optPub.get().getPubAuts().contains(optAut.get()))
-										{
-											optPub.get().getPubAuts().add(optAut.get());
-											optAut.get().getAutPubs().add(optPub.get());
-											repo.save(optPub.get());
-											autRepo.save(optAut.get());
-										}
+										edition=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										edition=truncate(edition);
 									}
 									
-								}
+									splitter="pages = {";
+									if(pub.contains(splitter))
+									{
+										pages=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										pages=truncate(pages);
+									}
+									
+									splitter="booktitle = {";
+									if(pub.contains(splitter))
+									{
+										proceedings=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										proceedings=truncate(proceedings);
+									}
+									
+									splitter="chapter = {";
+									if(pub.contains(splitter))
+									{
+										name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										name=truncate(name);
+									}
+		
+									inbook.setPubTitle(pubTitle);
+									inbook.setPubAbstract(pubAbstract);
+									inbook.setPubKeywords(pubKeywords);
+									inbook.setPubDate(pubDate);
+									inbook.setPubNote(pubNote);
+									inbook.setPubAnnotations(pubAnnotations);
+									inbook.setPubISBN(pubISBN);
+									inbook.setPubISSN(pubISSN);
+									inbook.setPubDOIRef(pubDOIRef);
+									inbook.setPubURL(pubURL);
+									inbook.setPubDBLP(pubDBLP);
+									inbook.setPubPDFPath(pubPDFPath);
+									inbook.setPubLanguage(pubLanguage);
+									inbook.setPubPaperAwardPath(pubPaperAwardPath);
+									inbook.setPubType(javaPubType);
+									inbook.setBookEditor(editor);
+									inbook.setBookPublisher(publisher);
+									inbook.setBookVolume(volume);
+									inbook.setBookSeries(series);
+									inbook.setBookAddress(address);
+									inbook.setBookEdition(edition);
+									inbook.setBookPages(pages);
+									inbook.setBookChapBookNameProceedings(proceedings);
+									inbook.setBookChapNumberOrName(name);
+									
+									repo.save(inbook);
+									pubId=inbook.getPubId();
+									
+									break;
+									
+								//Can be seminar, patent or invitedconference
+								case "Misc":
+									javaPubType=PublicationType.Seminar; //Default
+									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
+									
+									splitter="howpublished = {";
+									if(pub.contains(splitter))
+									{
+										howPub=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										howPub=truncate(howPub);
+									}
+		
+									misc.setPubTitle(pubTitle);
+									misc.setPubAbstract(pubAbstract);
+									misc.setPubKeywords(pubKeywords);
+									misc.setPubDate(pubDate);
+									misc.setPubNote(pubNote);
+									misc.setPubAnnotations(pubAnnotations);
+									misc.setPubISBN(pubISBN);
+									misc.setPubISSN(pubISSN);
+									misc.setPubDOIRef(pubDOIRef);
+									misc.setPubURL(pubURL);
+									misc.setPubDBLP(pubDBLP);
+									misc.setPubPDFPath(pubPDFPath);
+									misc.setPubLanguage(pubLanguage);
+									misc.setPubPaperAwardPath(pubPaperAwardPath);
+									misc.setPubType(javaPubType);
+									misc.setSemPatHowPub(howPub);
+									
+									repo.save(misc);
+									pubId=misc.getPubId();
+									
+									break;
+									
+								//Can only be userdoc
+								case "Manual":
+									javaPubType=PublicationType.UserDocumentation; //Default
+									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
+									
+									splitter="organization = {";
+									if(pub.contains(splitter))
+									{
+										organization=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										organization=truncate(organization);
+									}
+									
+									splitter="address = {";
+									if(pub.contains(splitter))
+									{
+										address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										address=truncate(address);
+									}
+									
+									splitter="edition = {";
+									if(pub.contains(splitter))
+									{
+										edition=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										edition=truncate(edition);
+									}
+									
+									splitter="publisher = {";
+									if(pub.contains(splitter))
+									{
+										publisher=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										publisher=truncate(publisher);
+									}
+		
+									manual.setPubTitle(pubTitle);
+									manual.setPubAbstract(pubAbstract);
+									manual.setPubKeywords(pubKeywords);
+									manual.setPubDate(pubDate);
+									manual.setPubNote(pubNote);
+									manual.setPubAnnotations(pubAnnotations);
+									manual.setPubISBN(pubISBN);
+									manual.setPubISSN(pubISSN);
+									manual.setPubDOIRef(pubDOIRef);
+									manual.setPubURL(pubURL);
+									manual.setPubDBLP(pubDBLP);
+									manual.setPubPDFPath(pubPDFPath);
+									manual.setPubLanguage(pubLanguage);
+									manual.setPubPaperAwardPath(pubPaperAwardPath);
+									manual.setPubType(javaPubType);
+									manual.setUserDocOrganization(organization);
+									manual.setUserDocAddress(address);
+									manual.setUserDocEdition(edition);
+									manual.setUserDocPublisher(publisher);
+									
+									repo.save(manual);
+									pubId=manual.getPubId();
+									
+									break;
+									
+								//Can only be engineeringactivity
+								case "Techreport":
+									javaPubType=PublicationType.EngineeringActivity; //Default
+									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
+									
+									splitter="institution = {";
+									if(pub.contains(splitter))
+									{
+										name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										name=truncate(name);
+									}
+									
+									splitter="type = {";
+									if(pub.contains(splitter))
+									{
+										reportType=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										reportType=truncate(reportType);
+									}
+									
+									splitter="number = {";
+									if(pub.contains(splitter))
+									{
+										number=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										number=truncate(number);
+									}
+		
+									techreport.setPubTitle(pubTitle);
+									techreport.setPubAbstract(pubAbstract);
+									techreport.setPubKeywords(pubKeywords);
+									techreport.setPubDate(pubDate);
+									techreport.setPubNote(pubNote);
+									techreport.setPubAnnotations(pubAnnotations);
+									techreport.setPubISBN(pubISBN);
+									techreport.setPubISSN(pubISSN);
+									techreport.setPubDOIRef(pubDOIRef);
+									techreport.setPubURL(pubURL);
+									techreport.setPubDBLP(pubDBLP);
+									techreport.setPubPDFPath(pubPDFPath);
+									techreport.setPubLanguage(pubLanguage);
+									techreport.setPubPaperAwardPath(pubPaperAwardPath);
+									techreport.setPubType(javaPubType);
+									techreport.setEngActInstitName(name);
+									techreport.setEngActReportType(reportType);
+									techreport.setEngActNumber(number);
+									
+									repo.save(techreport);
+									pubId=techreport.getPubId();
+									
+									break;
+									
+								//Can be phd or hdr thesis
+								case "Phdthesis":
+									javaPubType=PublicationType.PHDThesis; //Default
+									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
+									
+									splitter="school = {";
+									if(pub.contains(splitter))
+									{
+										name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										name=truncate(name);
+									}
+									
+									splitter="address = {";
+									if(pub.contains(splitter))
+									{
+										address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										address=truncate(address);
+									}
+		
+									phdthesis.setPubTitle(pubTitle);
+									phdthesis.setPubAbstract(pubAbstract);
+									phdthesis.setPubKeywords(pubKeywords);
+									phdthesis.setPubDate(pubDate);
+									phdthesis.setPubNote(pubNote);
+									phdthesis.setPubAnnotations(pubAnnotations);
+									phdthesis.setPubISBN(pubISBN);
+									phdthesis.setPubISSN(pubISSN);
+									phdthesis.setPubDOIRef(pubDOIRef);
+									phdthesis.setPubURL(pubURL);
+									phdthesis.setPubDBLP(pubDBLP);
+									phdthesis.setPubPDFPath(pubPDFPath);
+									phdthesis.setPubLanguage(pubLanguage);
+									phdthesis.setPubPaperAwardPath(pubPaperAwardPath);
+									phdthesis.setPubType(javaPubType);
+									phdthesis.setUniDocSchoolName(name);
+									phdthesis.setUniDocAddress(address);
+									
+									repo.save(phdthesis);
+									pubId=phdthesis.getPubId();
+									
+									break;
+									
+								//Can be master or engineering thesis
+								case "Masterthesis":
+									javaPubType=PublicationType.MasterOnResearch; //Default
+									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
+									
+									splitter="school = {";
+									if(pub.contains(splitter))
+									{
+										name=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										name=truncate(name);
+									}
+									
+									splitter="address = {";
+									if(pub.contains(splitter))
+									{
+										address=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+										address=truncate(address);
+									}
+		
+									masterthesis.setPubTitle(pubTitle);
+									masterthesis.setPubAbstract(pubAbstract);
+									masterthesis.setPubKeywords(pubKeywords);
+									masterthesis.setPubDate(pubDate);
+									masterthesis.setPubNote(pubNote);
+									masterthesis.setPubAnnotations(pubAnnotations);
+									masterthesis.setPubISBN(pubISBN);
+									masterthesis.setPubISSN(pubISSN);
+									masterthesis.setPubDOIRef(pubDOIRef);
+									masterthesis.setPubURL(pubURL);
+									masterthesis.setPubDBLP(pubDBLP);
+									masterthesis.setPubPDFPath(pubPDFPath);
+									masterthesis.setPubLanguage(pubLanguage);
+									masterthesis.setPubPaperAwardPath(pubPaperAwardPath);
+									masterthesis.setPubType(javaPubType);
+									masterthesis.setUniDocSchoolName(name);
+									masterthesis.setUniDocAddress(address);
+									
+									repo.save(masterthesis);
+									pubId=masterthesis.getPubId();
+									
+									break;
 							}
-							else //Author = ""
+							importedPubIds.add(pubId);
+							
+							//Handle authors
+							splitter="author = {";
+							if(pub.contains(splitter))
 							{
-								//No nothing in particular I guess ?
-								//No Author to create and no authorship to assign
+								autL=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+								if(autL.compareTo("")!=0)
+								{
+									splitter=" and ";
+									auts=autL.split(splitter);
+									
+									for(i=0;i<auts.length;i++)
+									{
+										autLastName=auts[i].substring(0,auts[i].indexOf(", "));
+										autFirstName=auts[i].substring(auts[i].indexOf(", ")+2);
+										
+										//Checking for dupes
+										
+										for(Author knownAut : authorList)
+										{
+											if(knownAut.getAutFirstName().compareTo(autFirstName)==0 && knownAut.getAutLastName().compareTo(autLastName)==0)
+											{
+												isDupe=true;
+												autId=knownAut.getAutId();
+											}
+										}
+										
+										if(!isDupe)
+										{
+											//Creating new author
+											aut=new Author();
+											
+											aut.setAutFirstName(autFirstName);
+											aut.setAutLastName(autLastName);
+											aut.setAutBirth(new Date(0));
+											
+											autRepo.save(aut);
+											autId=aut.getAutId();
+											
+										}
+										isDupe=false;
+										
+										
+										
+										
+										
+										//Assigning authorship
+										optPub=repo.findById(pubId);
+										optAut=autRepo.findById(autId);
+										
+										if(optPub.isPresent() && optAut.isPresent())
+										{
+											if(!optPub.get().getPubAuts().contains(optAut.get()))
+											{
+												optPub.get().getPubAuts().add(optAut.get());
+												optAut.get().getAutPubs().add(optPub.get());
+												repo.save(optPub.get());
+												autRepo.save(optAut.get());
+											}
+										}
+										
+									}
+								}
+								else //Author = ""
+								{
+									//No nothing in particular I guess ?
+									//No Author to create and no authorship to assign
+								}
 							}
 						}
 					}
 				}
 			}
 		}
+		
+		return importedPubIds;
 	}
 	
 	public String fixEncoding(String bibText)
@@ -1984,6 +2031,8 @@ public class PublicationServ {
 			auts+=capitalizeFirstLetter(aut.getAutLastName());
 		}
 		
+		auts=auts.replaceAll("\\s", "");
+		
 		return auts;
 	}
 	
@@ -2328,6 +2377,100 @@ public class PublicationServ {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public String exportPublicationsFromDataBase(String exportStart, String exportEnd, String exportContent) {
+
+		int start=Integer.parseInt(exportStart);
+		int end=Integer.parseInt(exportEnd);
+		List<Publication> pubList=new LinkedList<Publication>();
+		Calendar calendar=Calendar.getInstance();
+		int pubYear=0;
+		int i=0;
+		Publication pub;
+		String json="";
+		String export="";
+		
+		if(exportContent.compareTo("all")==0) //export all pubs
+		{
+			pubList.addAll(repo.findAll());
+		}
+		else if(exportContent.contains("org:")) //export all pubs of a given organization
+		{
+			pubList.addAll(repo.findDistinctByPubAutsAutOrgsResOrgResOrgId(Integer.parseInt(exportContent.substring(exportContent.indexOf("org:")+4))));
+		}
+		else if(exportContent.contains("aut:")) //export all pubs of a given author
+		{
+			pubList.addAll(repo.findDistinctByPubAutsAutId(Integer.parseInt(exportContent.substring(exportContent.indexOf("aut:")+4))));
+		}
+		
+		while(i<pubList.size())
+		{
+			pub=pubList.get(i);
+			
+			calendar.setTime(pub.getPubDate());
+			pubYear=calendar.get(Calendar.YEAR);
+			
+			if(pubYear<start || pubYear>end) //check date conversion
+			{
+				pubList.remove(pub);
+			}
+			else
+			{
+				i++;
+			}
+		}
+		
+		for(final Publication p : pubList) { //Preventing infinite recursion
+			for(final Author aut:p.getPubAuts())
+			{
+				aut.setAutPubs(new HashSet<>());
+				for(final Membership mem:aut.getAutOrgs())
+				{
+					mem.setAut(null);
+					mem.getResOrg().setOrgAuts(new HashSet<>());
+					//We assume we dont need suborg infos from pubs
+					mem.getResOrg().setOrgSubs(new HashSet<>());
+					mem.getResOrg().setOrgSup(null);
+				}
+			}
+			encodeFiles(p);
+			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class) //I guess I could have done a pubType check instead
+			{
+				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)
+					((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+			}
+		}
+		
+		//Before converting to json, sort the list by year/type
+		//We assume it's fine to always sort by date and group by type regardless of how the page was sorted
+
+		Collections.sort(pubList, new Comparator<Publication>() {
+		    @Override
+		    public int compare(Publication o1, Publication o2) {
+		        return -o1.getPubType().compareTo(o2.getPubType());
+		    }
+		});
+		
+		Collections.sort(pubList, new Comparator<Publication>() {
+		    @Override
+		    public int compare(Publication o1, Publication o2) {
+		        return -o1.getPubDate().compareTo(o2.getPubDate());
+		    }
+		});
+		
+		ObjectMapper mapper = new ObjectMapper();
+		try 
+		{
+			json=mapper.writeValueAsString(pubList);
+			export=exportPublications(json);
+		} 
+		catch (JsonProcessingException e) 
+		{
+			e.printStackTrace();
+		}
+		
+		return export;
 	}
 	
 }

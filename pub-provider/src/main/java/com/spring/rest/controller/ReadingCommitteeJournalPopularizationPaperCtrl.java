@@ -9,10 +9,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.spring.rest.services.ReadingCommitteeJournalPopularizationPaperServ;
-import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
+import com.spring.rest.services.ReadingCommitteeJournalPopularizationPaperServ;
 
 @RestController
 @CrossOrigin
