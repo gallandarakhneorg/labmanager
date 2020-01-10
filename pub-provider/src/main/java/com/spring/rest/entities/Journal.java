@@ -40,6 +40,9 @@ public class Journal implements Serializable { //Supposed to be abstract but let
 	
 	@Column
 	private String jourWos;
+	
+	@Column
+	private String jourQuartil;
 
 	public int getJourId() {
 		return jourId;
@@ -97,6 +100,14 @@ public class Journal implements Serializable { //Supposed to be abstract but let
 		this.jourWos = jourWos;
 	}
 
+	public String getJourQuartil() {
+		return jourQuartil;
+	}
+
+	public void setJourQuartil(String jourQuartil) {
+		this.jourQuartil = jourQuartil;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -106,6 +117,7 @@ public class Journal implements Serializable { //Supposed to be abstract but let
 		result = prime * result + ((jourName == null) ? 0 : jourName.hashCode());
 		result = prime * result + ((jourPublisher == null) ? 0 : jourPublisher.hashCode());
 		//result = prime * result + ((jourPubs == null) ? 0 : jourPubs.hashCode());
+		result = prime * result + ((jourQuartil == null) ? 0 : jourQuartil.hashCode());
 		result = prime * result + ((jourScimago == null) ? 0 : jourScimago.hashCode());
 		result = prime * result + ((jourWos == null) ? 0 : jourWos.hashCode());
 		return result;
@@ -142,6 +154,11 @@ public class Journal implements Serializable { //Supposed to be abstract but let
 				return false;
 		} else if (!jourPubs.equals(other.jourPubs))
 			return false;
+		if (jourQuartil == null) {
+			if (other.jourQuartil != null)
+				return false;
+		} else if (!jourQuartil.equals(other.jourQuartil))
+			return false;
 		if (jourScimago == null) {
 			if (other.jourScimago != null)
 				return false;
@@ -156,7 +173,7 @@ public class Journal implements Serializable { //Supposed to be abstract but let
 	}
 
 	public Journal(int jourId, Set<ReadingCommitteeJournalPopularizationPaper> jourPubs, String jourName,
-			String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {
+			String jourPublisher, String jourElsevier, String jourScimago, String jourWos, String jourQuartil) {
 		super();
 		this.jourId = jourId;
 		this.jourPubs = jourPubs;
@@ -165,12 +182,15 @@ public class Journal implements Serializable { //Supposed to be abstract but let
 		this.jourElsevier = jourElsevier;
 		this.jourScimago = jourScimago;
 		this.jourWos = jourWos;
+		this.jourQuartil = jourQuartil;
 	}
 
 	public Journal() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
+
+	
 
 	
 	

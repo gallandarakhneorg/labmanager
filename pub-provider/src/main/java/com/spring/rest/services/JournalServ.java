@@ -1,14 +1,26 @@
 package com.spring.rest.services;
 
+import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.imageio.ImageIO;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.spring.rest.PubProviderApplication;
 import com.spring.rest.entities.Journal;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
 import com.spring.rest.repository.JournalRepository;
@@ -68,7 +80,9 @@ public class JournalServ {
 		res.setJourElsevier(jourElsevier);
 		res.setJourScimago(jourScimago);
 		res.setJourWos(jourWos);
+		res.setJourQuartil(getJournalQuartilInfo(jourScimago));
 		this.repo.save(res);
+		
 		return res.getJourId();
 	}
 
@@ -78,13 +92,14 @@ public class JournalServ {
 			//Generic pub fields
 			if(!jourName.isEmpty())
 				res.get().setJourName(jourName);
-			if(!jourName.isEmpty())
+			if(!jourPublisher.isEmpty())
 				res.get().setJourPublisher(jourPublisher);
-			if(!jourName.isEmpty())
+			if(!jourElsevier.isEmpty())
 				res.get().setJourElsevier(jourElsevier);
-			if(!jourName.isEmpty())
+			if(!jourScimago.isEmpty())
 				res.get().setJourScimago(jourScimago);
-			if(!jourName.isEmpty())
+				res.get().setJourQuartil(getJournalQuartilInfo(jourScimago));
+			if(!jourWos.isEmpty())
 				res.get().setJourWos(jourWos);
 
 			this.repo.save(res.get());
@@ -159,6 +174,88 @@ public class JournalServ {
 			return 0;
 		}
 	}
+
+	public String getJournalQuartilInfo(String scimagoID) {
+
+		String result="0";
+		
+		BufferedImage image = getImageFromURL("https://www.scimagojr.com/journal_img.php?id="+scimagoID);
+		int rgba=image.getRGB(5, 55);
+		String r=Integer.toString((rgba>>16) & 0xff);
+		switch(r)
+		{
+			case "164":
+				result="1";
+				break;
+				
+			case "232":
+				result="2";
+				break;
+				
+			case "251":
+				result="3";
+				break;
+				
+			case "221":
+				result="4";
+				break;
+		}
+		
+		return result;
+	}
+	
+	
+	
+	
+	
+	public static BufferedImage getImageFromURL(String url)
+	{
+		try
+		{
+			URL sciURL = new URL(url);
+			BufferedImage image;
+			
+			if(PubProviderApplication.PROXYURL.compareTo("")!=0)
+			{
+				Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PubProviderApplication.PROXYURL, PubProviderApplication.PROXYPORT));			
+				URLConnection connection = sciURL.openConnection(proxy);
+				connection.connect();
+				//InputStream in = new BufferedInputStream(sciURL.openStream());
+				InputStream in = connection.getInputStream();
+				ByteArrayOutputStream out = new ByteArrayOutputStream();
+				byte[] buf = new byte[1024];
+				int n = 0;
+				while (-1!=(n=in.read(buf)))
+				{
+				   out.write(buf, 0, n);
+				}
+				out.close();
+				in.close();
+				byte[] response = out.toByteArray();
+				ByteArrayInputStream bis = new ByteArrayInputStream(response);
+			    image = ImageIO.read(bis);
+			}
+			else //I assume this should be enough to work but given that Im behind a proxy I cant try it
+			{ 
+			    image = ImageIO.read(sciURL);
+			}
+			return image;
+		}
+		catch (Exception e)
+		{
+			e.printStackTrace();
+			return null;
+		}
+	}
+	
+	
+	
+	
+	
+	
+	
+	
+	
 }
 
 
