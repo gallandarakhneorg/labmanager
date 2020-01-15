@@ -98,7 +98,7 @@ public class PublicationCtrl {
 		return pubServ.exportPublicationsFromDataBase(exportStart, exportEnd, exportContent);
 	}
 
-	//Get all entities in relation with one specific entity
+	//Get all entities in relation with one specific author
 	@RequestMapping(value="/getLinkedPublications", method=RequestMethod.POST, headers="Accept=application/json")
 	public Set<Publication> getLinkedPublications(int index) {
 		return pubServ.getLinkedPublications(index);

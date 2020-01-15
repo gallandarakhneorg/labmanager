@@ -81,6 +81,11 @@ public class JournalServ {
 		res.setJourScimago(jourScimago);
 		res.setJourWos(jourWos);
 		res.setJourQuartil(getJournalQuartilInfo(jourScimago));
+
+		if(res.getJourName().contains("LNCS") && res.getJourQuartil()=="2")
+		{
+			res.setJourQuartil("2 (LNCS)");
+		}
 		this.repo.save(res);
 		
 		return res.getJourId();
@@ -102,6 +107,11 @@ public class JournalServ {
 			if(!jourWos.isEmpty())
 				res.get().setJourWos(jourWos);
 
+			if(res.get().getJourName().contains("LNCS") && res.get().getJourQuartil()=="2")
+			{
+				res.get().setJourQuartil("2 (LNCS)");
+			}
+			
 			this.repo.save(res.get());
 		}
 	}
@@ -246,6 +256,16 @@ public class JournalServ {
 			e.printStackTrace();
 			return null;
 		}
+	}
+
+	public Set<Journal> getJournalsByOrg(int index) {
+		Set<Journal> jours = repo.findDistinctByJourPubsPubAutsAutOrgsResOrgResOrgId(index);
+		//fix json recursion here, going further than pubs should be unnecessary
+		for(Journal j : jours)
+		{
+			preventJournalRecursion(j);
+		}
+		return jours;
 	}
 	
 	

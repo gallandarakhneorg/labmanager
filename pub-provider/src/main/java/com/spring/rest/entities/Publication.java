@@ -55,6 +55,9 @@ public class Publication implements Serializable { //Supposed to be abstract but
 	private Date pubDate;
 	
 	@Column
+	private int pubYear = getPubYear();
+	
+	@Column
 	private String pubNote;
 	
 	@Column
@@ -134,6 +137,30 @@ public class Publication implements Serializable { //Supposed to be abstract but
 
 	public void setPubDate(Date pubDate) {
 		this.pubDate = pubDate;
+
+		if(pubDate!=null)
+		{
+			this.pubYear = pubDate.toLocalDate().getYear();
+		}
+		else
+		{
+			this.pubYear = 1970;
+		}
+	}
+
+	public int getPubYear() {
+		if(pubDate!=null)
+		{
+			return pubDate.toLocalDate().getYear();
+		}
+		else
+		{
+			return 1970;
+		}
+	}
+
+	public void setPubYear(int pubYear) {
+		this.pubYear = pubYear;
 	}
 
 	public String getPubNote() {
@@ -223,7 +250,7 @@ public class Publication implements Serializable { //Supposed to be abstract but
 	public void setPubType(PublicationType pubType) {
 		this.pubType = pubType;
 	}
-	
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -245,9 +272,10 @@ public class Publication implements Serializable { //Supposed to be abstract but
 		result = prime * result + ((pubTitle == null) ? 0 : pubTitle.hashCode());
 		result = prime * result + ((pubType == null) ? 0 : pubType.hashCode());
 		result = prime * result + ((pubURL == null) ? 0 : pubURL.hashCode());
+		result = prime * result + pubYear;
 		return result;
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)
@@ -336,13 +364,15 @@ public class Publication implements Serializable { //Supposed to be abstract but
 				return false;
 		} else if (!pubURL.equals(other.pubURL))
 			return false;
+		if (pubYear != other.pubYear)
+			return false;
 		return true;
 	}
 
 	public Publication(int pubId, Set<Author> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
-			Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef,
-			String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath,
-			PublicationType pubType) {
+			Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
+			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
+			String pubPaperAwardPath, PublicationType pubType) {
 		super();
 		this.pubId = pubId;
 		this.pubAuts = pubAuts;
@@ -350,6 +380,50 @@ public class Publication implements Serializable { //Supposed to be abstract but
 		this.pubAbstract = pubAbstract;
 		this.pubKeywords = pubKeywords;
 		this.pubDate = pubDate;
+
+		if(pubDate!=null)
+		{
+			this.pubYear = pubDate.toLocalDate().getYear();
+		}
+		else
+		{
+			this.pubYear = 1970;
+		}
+		this.pubNote = pubNote;
+		this.pubAnnotations = pubAnnotations;
+		this.pubISBN = pubISBN;
+		this.pubISSN = pubISSN;
+		this.pubDOIRef = pubDOIRef;
+		this.pubURL = pubURL;
+		this.pubDBLP = pubDBLP;
+		this.pubPDFPath = pubPDFPath;
+		this.pubLanguage = pubLanguage;
+		this.pubPaperAwardPath = pubPaperAwardPath;
+		this.pubType = pubType;
+	}
+	
+	
+
+	public Publication(int pubId, Set<Author> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
+			Date pubDate, int pubYear, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
+			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
+			String pubPaperAwardPath, PublicationType pubType) {
+		super();
+		this.pubId = pubId;
+		this.pubAuts = pubAuts;
+		this.pubTitle = pubTitle;
+		this.pubAbstract = pubAbstract;
+		this.pubKeywords = pubKeywords;
+		this.pubDate = pubDate;
+
+		if(pubDate!=null)
+		{
+			this.pubYear = pubDate.toLocalDate().getYear();
+		}
+		else
+		{
+			this.pubYear = 1970;
+		}
 		this.pubNote = pubNote;
 		this.pubAnnotations = pubAnnotations;
 		this.pubISBN = pubISBN;
@@ -365,8 +439,9 @@ public class Publication implements Serializable { //Supposed to be abstract but
 
 	public Publication() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
+
+	
 
 	
 	

@@ -73,4 +73,10 @@ public class JournalCtrl {
 		return jourServ.getJournalIdByName(jourName);
 	}
 
+	//Get one specific entity based on its Id
+	@RequestMapping(value="/getJournalsByOrg", method=RequestMethod.POST, headers="Accept=application/json")
+	public Set<Journal> getJournalsByOrg(int index) {
+		return jourServ.getJournalsByOrg(index);
+	}
+
 }

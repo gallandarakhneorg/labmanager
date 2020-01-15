@@ -75,7 +75,7 @@ public class AuthorCtrl {
 		autServ.updateAuthorPage(index, hasPage);
 	}
 
-	//Get all entities in relation with one specific entity
+	//Get all entities in relation with one specific organization
 	@RequestMapping(value="/getLinkedMembers", method=RequestMethod.POST, headers="Accept=application/json")
 	public Set<Author> getLinkedMembers(int index) {
 		return autServ.getLinkedMembers(index);
@@ -87,7 +87,7 @@ public class AuthorCtrl {
 		return autServ.getDirectlyLinkedMembers(index);
 	}
 	
-	//Get all entities in relation with one specific entity
+	//Get all entities in relation with one specific publication
 	@RequestMapping(value="/getLinkedAuthors", method=RequestMethod.POST, headers="Accept=application/json")
 	public Set<Author> getLinkedAuthors(int index) {
 		return autServ.getLinkedAuthors(index);

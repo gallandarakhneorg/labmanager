@@ -104,7 +104,6 @@ public class PublicationServ {
 					((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
 			}
 		}
-		
 		return result;
 	}
 
@@ -559,7 +558,6 @@ public class PublicationServ {
 								//Can be InternationalJournalWithReadingCommittee, NationalJournalWithReadingCommittee, InternationalJournalWithoutReadingCommittee, NationalJournalWithoutReadingCommittee or PopularizationPaper.
 								case "Article": 
 									javaPubType=PublicationType.InternationalJournalWithReadingCommittee; //Default
-									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 									
 									splitter="journal = {";
 									if(pub.contains(splitter))
@@ -646,7 +644,6 @@ public class PublicationServ {
 									//Can be InternationalConferenceWithProceedings, NationalConferenceWithProceedings, InternationalConferenceWithoutProceedings or NationalConferenceWithoutProceedings.
 									case "Inproceedings":
 										javaPubType=PublicationType.InternationalConferenceWithProceedings; //Default
-										javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 										
 										splitter="booktitle = {";
 										if(pub.contains(splitter))
@@ -729,7 +726,6 @@ public class PublicationServ {
 									//Can be Book, BookEdition or ScientificPopularizationBook.
 									case "Book":
 									javaPubType=PublicationType.Book; //Default
-									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 									
 									splitter="editor = {";
 									if(pub.contains(splitter))
@@ -811,7 +807,6 @@ public class PublicationServ {
 								//Can only be bookchapter	
 								case "Inbook":
 									javaPubType=PublicationType.BookChapter; //Default
-									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 									
 									splitter="editor = {";
 									if(pub.contains(splitter))
@@ -909,7 +904,6 @@ public class PublicationServ {
 								//Can be seminar, patent or invitedconference
 								case "Misc":
 									javaPubType=PublicationType.Seminar; //Default
-									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 									
 									splitter="howpublished = {";
 									if(pub.contains(splitter))
@@ -943,7 +937,6 @@ public class PublicationServ {
 								//Can only be userdoc
 								case "Manual":
 									javaPubType=PublicationType.UserDocumentation; //Default
-									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 									
 									splitter="organization = {";
 									if(pub.contains(splitter))
@@ -1001,7 +994,6 @@ public class PublicationServ {
 								//Can only be engineeringactivity
 								case "Techreport":
 									javaPubType=PublicationType.EngineeringActivity; //Default
-									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 									
 									splitter="institution = {";
 									if(pub.contains(splitter))
@@ -1051,7 +1043,6 @@ public class PublicationServ {
 								//Can be phd or hdr thesis
 								case "Phdthesis":
 									javaPubType=PublicationType.PHDThesis; //Default
-									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 									
 									splitter="school = {";
 									if(pub.contains(splitter))
@@ -1093,7 +1084,6 @@ public class PublicationServ {
 								//Can be master or engineering thesis
 								case "Masterthesis":
 									javaPubType=PublicationType.MasterOnResearch; //Default
-									javaPubType=tryToDefineAMorePreciseType(javaPubType, pubTitle);
 									
 									splitter="school = {";
 									if(pub.contains(splitter))
@@ -1269,13 +1259,6 @@ public class PublicationServ {
 	public String truncate(String s) 
 	{
 		return s.substring(0, Math.min(s.length(), 255)); 
-	}
-	
-	public PublicationType tryToDefineAMorePreciseType(PublicationType pubType, String pubTitle)
-	{
-		//I dont really know how I could differanciate the types tbh
-		
-		return pubType;
 	}
 	
 	public int convertMonth(String month) 

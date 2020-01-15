@@ -10,6 +10,7 @@ import com.spring.rest.entities.Journal;
 public interface JournalRepository extends JpaRepository<Journal, Integer> {
 
 	Set<Journal> findDistinctByJourPubsPubId(int pubId);
+	Set<Journal> findDistinctByJourPubsPubAutsAutOrgsResOrgResOrgId(int orgId);
 	
 	Optional<Journal> findByJourName(String jourName);
 }
