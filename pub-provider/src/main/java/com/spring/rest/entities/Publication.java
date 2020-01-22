@@ -23,13 +23,8 @@ import javax.persistence.Table;
 @Table(name="publications")
 @Inheritance(strategy=InheritanceType.JOINED)
 //@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
-public class Publication implements Serializable { //Supposed to be abstract but lets not do that to avoid unnecessary bugs
+public class Publication implements Serializable { 
 
-
-
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 4617703154899843388L;
 
 	@Id

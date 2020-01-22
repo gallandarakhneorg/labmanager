@@ -114,7 +114,7 @@ public class ResearchOrganizationCtrl {
 		return resOrgServ.getAllSupOrganizations(index);
 	}
 	
-	//Get all entities in relation with one specific entity
+	//Get all entities in relation with one specific member
 	@RequestMapping(value="/getLinkedOrganizations", method=RequestMethod.POST, headers="Accept=application/json")
 	public Set<ResearchOrganization> getLinkedOrganizations(int index) {
 		return resOrgServ.getLinkedOrganizations(index);
