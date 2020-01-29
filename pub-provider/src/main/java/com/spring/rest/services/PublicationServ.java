@@ -66,7 +66,6 @@ public class PublicationServ {
 					mem.getResOrg().setOrgSup(null);
 				}
 			}
-			encodeFiles(p);
 			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class) //I guess I could have done a pubType check instead
 			{
 				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)
@@ -78,6 +77,36 @@ public class PublicationServ {
 	}
 
 	public List<Publication> getPublication(int index) {
+		final List<Publication> result = new ArrayList<Publication>();
+		final Optional<Publication> res = repo.findById(index);
+		if(res.isPresent()) {
+			result.add(res.get());
+		}
+		
+		for(final Publication p : result) {
+			for(final Author aut:p.getPubAuts())
+			{
+				aut.setAutPubs(new HashSet<>());
+				for(final Membership mem:aut.getAutOrgs())
+				{
+					mem.setAut(null);
+					mem.getResOrg().setOrgAuts(new HashSet<>());
+					//We assume we dont need suborg infos from pubs
+					mem.getResOrg().setOrgSubs(new HashSet<>());
+					mem.getResOrg().setOrgSup(null);
+				}
+			}
+			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
+			{
+				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)
+					((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
+			}
+		}
+		return result;
+	}
+
+	//On top of giving the publication back, it also translates the files to binary
+	public List<Publication> getPublicationForDownload(int index) {
 		final List<Publication> result = new ArrayList<Publication>();
 		final Optional<Publication> res = repo.findById(index);
 		if(res.isPresent()) {
@@ -215,7 +244,6 @@ public class PublicationServ {
 					mem.getResOrg().setOrgSup(null);
 				}
 			}
-			encodeFiles(p);
 			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 			{
 				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)
@@ -242,7 +270,6 @@ public class PublicationServ {
 					mem.getResOrg().setOrgSup(null);
 				}
 			}
-			encodeFiles(p);
 			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 			{
 				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)
@@ -410,7 +437,7 @@ public class PublicationServ {
 				{
 					pubType=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("{", pub.indexOf(splitter)));
 					
-					splitter="title = {";
+					splitter="	title = {";//I cant just look up title = { or itll pick up booktitle. So make sure you bibtext are properly formatted.
 					if(pub.contains(splitter))
 					{
 						pubTitle=pub.substring(pub.indexOf(splitter)+splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
@@ -1082,7 +1109,7 @@ public class PublicationServ {
 									break;
 									
 								//Can be master or engineering thesis
-								case "Masterthesis":
+								case "Mastersthesis":
 									javaPubType=PublicationType.MasterOnResearch; //Default
 									
 									splitter="school = {";
@@ -2334,7 +2361,6 @@ public class PublicationServ {
 		byte[] input_file;
 		byte[] encodedBytes;
 		String fileString;
-		
 		//Check if the path exists, if it is not empty and if not, if it is a valid path
 		if(p.getPubPDFPath()!=null && !p.getPubPDFPath().isEmpty() && new File(p.getPubPDFPath()).exists())
 		{
@@ -2417,7 +2443,6 @@ public class PublicationServ {
 					mem.getResOrg().setOrgSup(null);
 				}
 			}
-			encodeFiles(p);
 			if(p.getClass()==ReadingCommitteeJournalPopularizationPaper.class) //I guess I could have done a pubType check instead
 			{
 				if(((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal()!=null)

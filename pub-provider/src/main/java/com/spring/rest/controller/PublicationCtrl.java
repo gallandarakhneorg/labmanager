@@ -39,6 +39,12 @@ public class PublicationCtrl {
 		return pubServ.getPublication(index);
 	}
 
+	//Get one specific entity based on its Id, translates the files.
+	@RequestMapping(value="/getPublicationForDownload", method=RequestMethod.POST, headers="Accept=application/json")
+	public List<Publication> getPublicationForDownload(int index) {
+		return pubServ.getPublicationForDownload(index);
+	}
+
 	//Remove one specific entity based on its Id
 	@RequestMapping(value="/removePublication", method=RequestMethod.POST, headers="Accept=application/json")
 	public void removePublication(int index) {

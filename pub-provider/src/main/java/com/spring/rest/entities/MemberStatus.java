@@ -13,9 +13,14 @@ public enum MemberStatus {
 	
 	PostPHD,
 	
-	ITRF,
+	ITRF, //Includes IGE, IGE, ADM...
 	
 	Prag,
 	
-	Associate;
+	Associate,
+	
+	//Some additional ones that can be useful when none of the above applies
+	
+	Intern,
+	Contractless;
 }
