@@ -2,10 +2,11 @@ package com.spring.rest;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 
 @SpringBootApplication
-public class PubProviderApplication {
+public class PubProviderApplication extends SpringBootServletInitializer {
 
 	public static final String PROXYURL="proxy.utbm.fr";
 	public static final int PROXYPORT=3128;

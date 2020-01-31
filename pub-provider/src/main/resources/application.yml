@@ -11,9 +11,14 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/librarymanager?serverTimezone=UTC
+    
+    #Deployed use :
+    #username: ciadlabwpbdd
+    #password: ci@dlAbpas$
+    
+    #Local use :
     username: root
     password: 
-    
     
   servlet:
     multipart:
