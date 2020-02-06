@@ -2463,7 +2463,7 @@ public class PublicationServ {
 		Collections.sort(pubList, new Comparator<Publication>() {
 		    @Override
 		    public int compare(Publication o1, Publication o2) {
-		        return -o1.getPubDate().compareTo(o2.getPubDate());
+		        return -Integer.compare(o1.getPubYear(), o2.getPubYear());
 		    }
 		});
 		

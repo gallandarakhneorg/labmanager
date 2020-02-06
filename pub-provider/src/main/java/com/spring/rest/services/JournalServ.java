@@ -1,7 +1,6 @@
 package com.spring.rest.services;
 
 import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -14,6 +13,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
@@ -21,13 +22,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.rest.PubProviderApplication;
+import com.spring.rest.controller.JournalCtrl;
 import com.spring.rest.entities.Journal;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
 import com.spring.rest.repository.JournalRepository;
 import com.spring.rest.repository.ReadingCommitteeJournalPopularizationPaperRepository;
 
 @Service
-public class JournalServ {
+public class JournalServ {	
 	
 	@Autowired
 	private JournalRepository repo;
@@ -73,8 +75,10 @@ public class JournalServ {
 	}
 
 	public int createJournal(String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {
+			
 		final Journal res = new Journal();
 		//Generic pub fields
+		System.out.println("assigning fields");
 		res.setJourName(jourName);
 		res.setJourPublisher(jourPublisher);
 		res.setJourElsevier(jourElsevier);
@@ -86,8 +90,10 @@ public class JournalServ {
 		{
 			res.setJourQuartil("2 (LNCS)");
 		}
+		System.out.println("Saving");
 		this.repo.save(res);
 		
+		System.out.println("exiting");
 		return res.getJourId();
 	}
 

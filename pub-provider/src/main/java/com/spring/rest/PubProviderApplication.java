@@ -8,8 +8,13 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 @SpringBootApplication
 public class PubProviderApplication extends SpringBootServletInitializer {
 
-	public static final String PROXYURL="proxy.utbm.fr";
-	public static final int PROXYPORT=3128;
+	//For localhost use:
+	//public static final String PROXYURL="proxy.utbm.fr";
+	//public static final int PROXYPORT=3128;
+	
+	//For when deployed:
+	public static final String PROXYURL="";
+	public static final int PROXYPORT=0;
 
 	public static void main(String[] args) {
 		SpringApplication.run(PubProviderApplication.class, args);

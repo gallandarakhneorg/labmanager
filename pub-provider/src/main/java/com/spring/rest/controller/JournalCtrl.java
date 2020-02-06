@@ -2,6 +2,8 @@ package com.spring.rest.controller;
 
 import java.util.List;
 import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -39,7 +41,7 @@ public class JournalCtrl {
 
 	//Creates one specific entity based on its fields (minus its relationship fields)
 	@RequestMapping(value="/createJournal", method=RequestMethod.POST, headers="Accept=application/json")
-	public int createJournal(String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {
+	public int createJournal(String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {			
 		return jourServ.createJournal(jourName, jourPublisher, jourElsevier, jourScimago, jourWos);
 	}
 

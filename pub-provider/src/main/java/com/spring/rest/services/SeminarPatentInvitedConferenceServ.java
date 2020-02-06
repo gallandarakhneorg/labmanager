@@ -65,12 +65,12 @@ public class SeminarPatentInvitedConferenceServ {
 		File file;
 		if(!pubPDFPath.isEmpty())
 		{
-			file=new File("Downloadables/PDFs/PDF"+res.getPubId()+".pdf");
+			file=new File("/var/www/ciad-lab.fr/Downloadables/PDFs/PDF"+res.getPubId()+".pdf");
 			try ( FileOutputStream fos = new FileOutputStream(file); )
 			{
 				byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
 				fos.write(decoder);
-				res.setPubPDFPath("Downloadables/PDFs/PDF"+res.getPubId()+".pdf");
+				res.setPubPDFPath("/var/www/ciad-lab.fr/Downloadables/PDFs/PDF"+res.getPubId()+".pdf");
 		    }
 			catch (Exception e) 
 			{
@@ -85,12 +85,12 @@ public class SeminarPatentInvitedConferenceServ {
 		
 		if(!pubPaperAwardPath.isEmpty())
 		{
-			file=new File("Downloadables/Awards/Award"+res.getPubId()+".pdf");
+			file=new File("/var/www/ciad-lab.fr/Downloadables/Awards/Award"+res.getPubId()+".pdf");
 			try ( FileOutputStream fos = new FileOutputStream(file); )
 			{
 				byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
 				fos.write(decoder);
-				res.setPubPaperAwardPath("Downloadables/Awards/Award"+res.getPubId()+".pdf");
+				res.setPubPaperAwardPath("/var/www/ciad-lab.fr/Downloadables/Awards/Award"+res.getPubId()+".pdf");
 			}
 			catch (Exception e) 
 			{
@@ -138,12 +138,12 @@ public class SeminarPatentInvitedConferenceServ {
 				res.get().setPubDBLP(pubDBLP);
 			if(!pubPDFPath.isEmpty())
 			{
-				file=new File("Downloadables/PDFs/PDF"+res.get().getPubId()+".pdf");
+				file=new File("/var/www/ciad-lab.fr/Downloadables/PDFs/PDF"+res.get().getPubId()+".pdf");
 				try ( FileOutputStream fos = new FileOutputStream(file); )
 				{
 					byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
 					fos.write(decoder);
-					res.get().setPubPDFPath("Downloadables/PDFs/PDF"+res.get().getPubId()+".pdf");
+					res.get().setPubPDFPath("/var/www/ciad-lab.fr/Downloadables/PDFs/PDF"+res.get().getPubId()+".pdf");
 			    }
 				catch (Exception e) 
 				{
@@ -155,12 +155,12 @@ public class SeminarPatentInvitedConferenceServ {
 				res.get().setPubLanguage(pubLanguage);
 			if(!pubPaperAwardPath.isEmpty())
 			{
-				file=new File("Downloadables/Awards/Award"+res.get().getPubId()+".pdf");
+				file=new File("/var/www/ciad-lab.fr/Downloadables/Awards/Award"+res.get().getPubId()+".pdf");
 				try ( FileOutputStream fos = new FileOutputStream(file); )
 				{
 					byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
 					fos.write(decoder);
-					res.get().setPubPaperAwardPath("Downloadables/Awards/Award"+res.get().getPubId()+".pdf");
+					res.get().setPubPaperAwardPath("/var/www/ciad-lab.fr/Downloadables/Awards/Award"+res.get().getPubId()+".pdf");
 				}
 				catch (Exception e) 
 				{

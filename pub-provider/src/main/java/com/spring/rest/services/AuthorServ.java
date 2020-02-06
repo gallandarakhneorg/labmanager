@@ -1,13 +1,7 @@
 package com.spring.rest.services;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.sql.Date;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -112,42 +106,18 @@ public class AuthorServ {
 		}
 	}
 
-	public int createAuthor(String autFirstName, String autLastName, Date autBirth, String autMail, String autPic) {
+	public int createAuthor(String autFirstName, String autLastName, Date autBirth, String autMail) {
 		final Author res = new Author();
 		res.setAutFirstName(autFirstName);
 		res.setAutLastName(autLastName);
 		res.setAutBirth(autBirth);
 		res.setAutMail(autMail);
-		//res.setAutPic(autPic);
-		this.repo.save(res);
-
-		File file;
-		if(!autPic.isEmpty())
-		{
-			file=new File("Downloadables/AutPictures/autPics"+res.getAutId()+".png");
-			try ( FileOutputStream fos = new FileOutputStream(file); )
-			{
-				byte[] decoder = Base64.getDecoder().decode(autPic);
-				fos.write(decoder);
-				res.setAutPic("Downloadables/AutPictures/autPics"+res.getAutId()+".png");
-		    }
-			catch (Exception e) 
-			{
-			      res.setAutPic("");
-			      e.printStackTrace();
-		    }
-		}
-		else
-		{
-		      res.setAutPic("");
-		}
-
 		this.repo.save(res);
 		
 		return res.getAutId();
 	}
 
-	public void updateAuthor(int index, String autFirstName, String autLastName, Date autBirth, String autMail, String autPic) {
+	public void updateAuthor(int index, String autFirstName, String autLastName, Date autBirth, String autMail) {
 		final Optional<Author> res = this.repo.findById(index);
 		if(res.isPresent()) {
 			if(!autFirstName.isEmpty())
@@ -160,28 +130,6 @@ public class AuthorServ {
 				res.get().setAutMail(autMail);
 			
 			this.repo.save(res.get());
-			
-			if(autPic != null)
-			{
-				File file;
-				if(!autPic.isEmpty())
-				{
-					file=new File("Downloadables/AutPictures/autPics"+res.get().getAutId()+".png");
-					try ( FileOutputStream fos = new FileOutputStream(file); )
-					{
-						byte[] decoder = Base64.getDecoder().decode(autPic);
-						fos.write(decoder);
-						res.get().setAutPic("Downloadables/AutPictures/autPics"+res.get().getAutId()+".png");
-				    }
-					catch (Exception e) 
-					{
-					      res.get().setAutPic("");
-					      e.printStackTrace();
-				    }
-				}
-
-				this.repo.save(res.get());
-			}
 		}
 	}
 
@@ -391,6 +339,11 @@ public class AuthorServ {
 
 	public void encodeFiles(Author aut)
 	{
+		//We're gonna try and store the profile picture client-side so we dont need this.
+		//We'll save the pic on client are remember the path here is all.
+		
+		
+		/*
 		byte[] input_file;
 		byte[] encodedBytes;
 		String fileString;
@@ -408,6 +361,8 @@ public class AuthorServ {
 				e.printStackTrace();
 			}
 		}
+		
+		*/
 	}
 	
 }

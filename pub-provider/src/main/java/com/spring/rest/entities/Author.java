@@ -51,9 +51,6 @@ public class Author implements Serializable {
 	private String autMail;
 	
 	@Column
-	private String autPic;
-	
-	@Column
 	private boolean hasPage; //Wether or not the author has a page on the site.
 
 	public int getAutId() {
@@ -112,14 +109,6 @@ public class Author implements Serializable {
 		this.autMail = autMail;
 	}
 
-	public String getAutPic() {
-		return autPic;
-	}
-
-	public void setAutPic(String autPic) {
-		this.autPic = autPic;
-	}
-
 	public boolean isHasPage() {
 		return hasPage;
 	}
@@ -138,7 +127,6 @@ public class Author implements Serializable {
 		result = prime * result + ((autLastName == null) ? 0 : autLastName.hashCode());
 		result = prime * result + ((autMail == null) ? 0 : autMail.hashCode());
 		//result = prime * result + ((autOrgs == null) ? 0 : autOrgs.hashCode());
-		result = prime * result + ((autPic == null) ? 0 : autPic.hashCode());
 		//result = prime * result + ((autPubs == null) ? 0 : autPubs.hashCode());
 		result = prime * result + (hasPage ? 1231 : 1237);
 		return result;
@@ -180,11 +168,6 @@ public class Author implements Serializable {
 				return false;
 		} else if (!autOrgs.equals(other.autOrgs))
 			return false;
-		if (autPic == null) {
-			if (other.autPic != null)
-				return false;
-		} else if (!autPic.equals(other.autPic))
-			return false;
 		if (autPubs == null) {
 			if (other.autPubs != null)
 				return false;
@@ -205,7 +188,6 @@ public class Author implements Serializable {
 		this.autLastName = autLastName;
 		this.autBirth = autBirth;
 		this.autMail = autMail;
-		this.autPic = autPic;
 		this.hasPage = hasPage;
 	}
 
