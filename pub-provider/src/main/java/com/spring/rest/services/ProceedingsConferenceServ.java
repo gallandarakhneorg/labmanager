@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.spring.rest.PubProviderApplication;
 import com.spring.rest.entities.ProceedingsConference;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.repository.ProceedingsConferenceRepository;
@@ -77,12 +78,12 @@ public class ProceedingsConferenceServ {
 		File file;
 		if(!pubPDFPath.isEmpty())
 		{
-			file=new File(PublicationServ.DownloadablesPath+"PDFs/PDF"+res.getPubId()+".pdf");
+			file=new File(PubProviderApplication.DownloadablesPath+"PDFs/PDF"+res.getPubId()+".pdf");
 			try ( FileOutputStream fos = new FileOutputStream(file); )
 			{
 				byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
 				fos.write(decoder);
-				res.setPubPDFPath(PublicationServ.DownloadablesPath+"PDFs/PDF"+res.getPubId()+".pdf");
+				res.setPubPDFPath(PubProviderApplication.DownloadablesPath+"PDFs/PDF"+res.getPubId()+".pdf");
 		    }
 			catch (Exception e) 
 			{
@@ -98,12 +99,12 @@ public class ProceedingsConferenceServ {
 		
 		if(!pubPaperAwardPath.isEmpty())
 		{
-			file=new File(PublicationServ.DownloadablesPath+"Awards/Award"+res.getPubId()+".pdf");
+			file=new File(PubProviderApplication.DownloadablesPath+"Awards/Award"+res.getPubId()+".pdf");
 			try ( FileOutputStream fos = new FileOutputStream(file); )
 			{
 				byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
 				fos.write(decoder);
-				res.setPubPaperAwardPath(PublicationServ.DownloadablesPath+"Awards/Award"+res.getPubId()+".pdf");
+				res.setPubPaperAwardPath(PubProviderApplication.DownloadablesPath+"Awards/Award"+res.getPubId()+".pdf");
 			}
 			catch (Exception e) 
 			{
@@ -154,12 +155,12 @@ public class ProceedingsConferenceServ {
 				res.get().setPubDBLP(pubDBLP);
 			if(!pubPDFPath.isEmpty())
 			{
-				file=new File(PublicationServ.DownloadablesPath+"PDFs/PDF"+res.get().getPubId()+".pdf");
+				file=new File(PubProviderApplication.DownloadablesPath+"PDFs/PDF"+res.get().getPubId()+".pdf");
 				try ( FileOutputStream fos = new FileOutputStream(file); )
 				{
 					byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
 					fos.write(decoder);
-					res.get().setPubPDFPath(PublicationServ.DownloadablesPath+"PDFs/PDF"+res.get().getPubId()+".pdf");
+					res.get().setPubPDFPath(PubProviderApplication.DownloadablesPath+"PDFs/PDF"+res.get().getPubId()+".pdf");
 			    }
 				catch (Exception e) 
 				{
@@ -172,12 +173,12 @@ public class ProceedingsConferenceServ {
 				res.get().setPubLanguage(pubLanguage);
 			if(!pubPaperAwardPath.isEmpty())
 			{
-				file=new File(PublicationServ.DownloadablesPath+"Awards/Award"+res.get().getPubId()+".pdf");
+				file=new File(PubProviderApplication.DownloadablesPath+"Awards/Award"+res.get().getPubId()+".pdf");
 				try ( FileOutputStream fos = new FileOutputStream(file); )
 				{
 					byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
 					fos.write(decoder);
-					res.get().setPubPaperAwardPath(PublicationServ.DownloadablesPath+"Awards/Award"+res.get().getPubId()+".pdf");
+					res.get().setPubPaperAwardPath(PubProviderApplication.DownloadablesPath+"Awards/Award"+res.get().getPubId()+".pdf");
 				}
 				catch (Exception e) 
 				{

@@ -44,9 +44,6 @@ import com.spring.rest.repository.PublicationRepository;
 public class PublicationServ {
 	
 	private final Logger logger = LoggerFactory.getLogger(this.getClass());
-
-	public static final String DownloadablesPath="/var/www/ciad-lab.fr/Downloadables/";
-	
 	
 	@Autowired
 	private PublicationRepository repo;
