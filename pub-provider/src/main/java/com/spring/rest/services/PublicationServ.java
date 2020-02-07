@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spring.rest.entities.Author;
+import com.spring.rest.entities.Authorship;
 import com.spring.rest.entities.Book;
 import com.spring.rest.entities.BookChapter;
 import com.spring.rest.entities.EngineeringActivity;
@@ -37,6 +38,7 @@ import com.spring.rest.entities.SeminarPatentInvitedConference;
 import com.spring.rest.entities.UniversityDocument;
 import com.spring.rest.entities.UserDocumentation;
 import com.spring.rest.repository.AuthorRepository;
+import com.spring.rest.repository.AuthorshipRepository;
 import com.spring.rest.repository.JournalRepository;
 import com.spring.rest.repository.PublicationRepository;
 
@@ -47,6 +49,9 @@ public class PublicationServ {
 	
 	@Autowired
 	private PublicationRepository repo;
+
+	@Autowired
+	private AuthorshipRepository autShipRepo;
 	
 	@Autowired
 	private AuthorRepository autRepo;
@@ -58,8 +63,9 @@ public class PublicationServ {
 		final List<Publication> publications = repo.findAll();
 		
 		for(final Publication p : publications) {
-			for(final Author aut:p.getPubAuts())
+			for(final Authorship autShip:p.getPubAuts())
 			{
+				Author aut=autShip.getAut();
 				aut.setAutPubs(new HashSet<>());
 				for(final Membership mem:aut.getAutOrgs())
 				{
@@ -88,8 +94,9 @@ public class PublicationServ {
 		}
 		
 		for(final Publication p : result) {
-			for(final Author aut:p.getPubAuts())
+			for(final Authorship autShip:p.getPubAuts())
 			{
+				Author aut=autShip.getAut();
 				aut.setAutPubs(new HashSet<>());
 				for(final Membership mem:aut.getAutOrgs())
 				{
@@ -118,8 +125,9 @@ public class PublicationServ {
 		}
 		
 		for(final Publication p : result) {
-			for(final Author aut:p.getPubAuts())
+			for(final Authorship autShip:p.getPubAuts())
 			{
+				Author aut=autShip.getAut();
 				aut.setAutPubs(new HashSet<>());
 				for(final Membership mem:aut.getAutOrgs())
 				{
@@ -143,14 +151,7 @@ public class PublicationServ {
 	public void removePublication(int index) {
 		final Optional<Publication> res = repo.findById(index);
 		if(res.isPresent()) 
-		{
-			for(Author aut : res.get().getPubAuts())
-			{
-				aut.getAutPubs().remove(res.get());
-				autRepo.save(aut);
-			}
-			res.get().getPubAuts().clear(); //Need to remove on both sides
-			
+		{	
 
 			if(res.get().getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 			{
@@ -233,11 +234,12 @@ public class PublicationServ {
 	}
 
 	public Set<Publication> getLinkedMembersPublications(int index) {
-		Set<Publication> publications=repo.findDistinctByPubAutsAutOrgsResOrgResOrgId(index);
+		Set<Publication> publications=repo.findDistinctByPubAutsAutAutOrgsResOrgResOrgId(index);
 		
 		for(final Publication p : publications) {
-			for(final Author aut:p.getPubAuts())
+			for(final Authorship autShip:p.getPubAuts())
 			{
+				Author aut=autShip.getAut();
 				aut.setAutPubs(new HashSet<>());
 				for(final Membership mem:aut.getAutOrgs())
 				{
@@ -259,11 +261,12 @@ public class PublicationServ {
 	}
 
 	public Set<Publication> getLinkedPublications(int index) {
-		Set<Publication> publications= repo.findDistinctByPubAutsAutId(index);
+		Set<Publication> publications= repo.findDistinctByPubAutsAutAutId(index);
 		
 		for(final Publication p : publications) {
-			for(final Author aut:p.getPubAuts())
+			for(final Authorship autShip:p.getPubAuts())
 			{
+				Author aut=autShip.getAut();
 				aut.setAutPubs(new HashSet<>());
 				for(final Membership mem:aut.getAutOrgs())
 				{
@@ -308,6 +311,8 @@ public class PublicationServ {
 		Optional<Publication> optPub;
 		Optional<Author> optAut;
 		Optional<Journal> optJour;
+
+		Authorship autShip;
 
 		//Holds the IDs of the successfully imported IDs. We'll need it for type differenciation later.
 		List<Integer> importedPubIds=new LinkedList<Integer>();
@@ -385,6 +390,8 @@ public class PublicationServ {
 				optPub=null;
 				optAut=null;
 				optJour=null;
+
+				autShip= new Authorship();
 				
 				pubTitle=null; //Check for dupes later
 				pubAbstract=null;
@@ -1206,12 +1213,16 @@ public class PublicationServ {
 										
 										if(optPub.isPresent() && optAut.isPresent())
 										{
-											if(!optPub.get().getPubAuts().contains(optAut.get()))
+											
+											if(Collections.disjoint(optPub.get().getPubAuts(), optAut.get().getAutPubs()))
 											{
-												optPub.get().getPubAuts().add(optAut.get());
-												optAut.get().getAutPubs().add(optPub.get());
+												autShip= new Authorship();
+												autShip.setPub(optPub.get());
+												autShip.setAut(optAut.get());
+												autShip.setRank(autRepo.findDistinctByAutPubsPubPubId(optPub.get().getPubId()).size());
 												repo.save(optPub.get());
-												autRepo.save(optAut.get());
+												autShipRepo.save(autShip);
+												
 											}
 										}
 										
@@ -2040,8 +2051,9 @@ public class PublicationServ {
 		
 		
 		
-		for(Author aut : repo.findById(pubId).get().getPubAuts())
+		for(Authorship autShip : repo.findById(pubId).get().getPubAuts())
 		{
+			Author aut=autShip.getAut();
 			auts+=capitalizeFirstLetter(aut.getAutLastName());
 		}
 		
@@ -2054,11 +2066,12 @@ public class PublicationServ {
 	{
 		String auts="";
 		
-		List<Author> autL=new LinkedList<Author>();
-		autL.addAll(repo.findById(pubId).get().getPubAuts());
-		for(Author aut : autL)
+		List<Authorship> autShipL=new LinkedList<Authorship>();
+		autShipL.addAll(repo.findById(pubId).get().getPubAuts());
+		for(Authorship autShip : autShipL)
 		{
-			if(aut!=autL.get(0))
+			Author aut=autShip.getAut();
+			if(aut!=autShipL.get(0).getAut())
 			{
 				auts+=" and ";
 			}
@@ -2084,25 +2097,25 @@ public class PublicationServ {
 	{
 		String text="";
 		
-		List <Author> autL=new LinkedList<Author>();
-		autL.addAll(pub.getPubAuts());
+		List <Authorship> autShipL=new LinkedList<Authorship>();
+		autShipL.addAll(pub.getPubAuts());
 		int i;
-		for(i=0;i<autL.size();i++)
+		for(i=0;i<autShipL.size();i++)
 		{
-			if(autL.get(i).isHasPage())
+			if(autShipL.get(i).getAut().isHasPage())
 			{
 				text+="<u>";
 			}
 
-			text+=autL.get(i).getAutFirstName();
+			text+=autShipL.get(i).getAut().getAutFirstName();
 			text+=" ";
-			text+=autL.get(i).getAutLastName().toUpperCase();
+			text+=autShipL.get(i).getAut().getAutLastName().toUpperCase();
 			
-			if(autL.get(i).isHasPage())
+			if(autShipL.get(i).getAut().isHasPage())
 			{
 				text+="</u>";
 			}
-			if(i==autL.size()-1)
+			if(i==autShipL.size()-1)
 			{
 				text+=". ";
 			}
@@ -2412,11 +2425,11 @@ public class PublicationServ {
 		}
 		else if(exportContent.contains("org:")) //export all pubs of a given organization
 		{
-			pubList.addAll(repo.findDistinctByPubAutsAutOrgsResOrgResOrgId(Integer.parseInt(exportContent.substring(exportContent.indexOf("org:")+4))));
+			pubList.addAll(repo.findDistinctByPubAutsAutAutOrgsResOrgResOrgId(Integer.parseInt(exportContent.substring(exportContent.indexOf("org:")+4))));
 		}
 		else if(exportContent.contains("aut:")) //export all pubs of a given author
 		{
-			pubList.addAll(repo.findDistinctByPubAutsAutId(Integer.parseInt(exportContent.substring(exportContent.indexOf("aut:")+4))));
+			pubList.addAll(repo.findDistinctByPubAutsAutAutId(Integer.parseInt(exportContent.substring(exportContent.indexOf("aut:")+4))));
 		}
 		
 		while(i<pubList.size())
@@ -2437,8 +2450,9 @@ public class PublicationServ {
 		}
 		
 		for(final Publication p : pubList) { //Preventing infinite recursion
-			for(final Author aut:p.getPubAuts())
+			for(final Authorship autShip:p.getPubAuts())
 			{
+				Author aut=autShip.getAut();
 				aut.setAutPubs(new HashSet<>());
 				for(final Membership mem:aut.getAutOrgs())
 				{

@@ -266,7 +266,7 @@ public class JournalServ {
 	}
 
 	public Set<Journal> getJournalsByOrg(int index) {
-		Set<Journal> jours = repo.findDistinctByJourPubsPubAutsAutOrgsResOrgResOrgId(index);
+		Set<Journal> jours = repo.findDistinctByJourPubsPubAutsAutAutOrgsResOrgResOrgId(index);
 		//fix json recursion here, going further than pubs should be unnecessary
 		for(Journal j : jours)
 		{

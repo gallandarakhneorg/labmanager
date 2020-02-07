@@ -17,6 +17,7 @@ public class PubProviderApplication extends SpringBootServletInitializer {
 	//public static final String PROXYURL="";
 	//public static final int PROXYPORT=0;
 	//public static final String DownloadablesPath="/var/www/ciad-lab.fr/Downloadables/";
+	//Also go rename the logback file to logback.xml
 
 	public static void main(String[] args) {
 		SpringApplication.run(PubProviderApplication.class, args);

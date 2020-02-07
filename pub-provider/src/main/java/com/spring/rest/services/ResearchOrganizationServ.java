@@ -11,12 +11,11 @@ import java.util.Set;
 
 import javax.transaction.Transactional;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.rest.entities.Author;
+import com.spring.rest.entities.Authorship;
 import com.spring.rest.entities.MemberStatus;
 import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.Publication;
@@ -29,7 +28,8 @@ import com.spring.rest.repository.ResearchOrganizationRepository;
 @Service
 public class ResearchOrganizationServ {
 	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	//Not used so Ill comment it to prevent warnings
+	//private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private ResearchOrganizationRepository repo;
@@ -48,8 +48,9 @@ public class ResearchOrganizationServ {
 			{
 				mem.setResOrg(null);
 				mem.getAut().setAutOrgs(new HashSet<>());
-				for(final Publication pub:mem.getAut().getAutPubs())
+				for(final Authorship autShip:mem.getAut().getAutPubs())
 				{
+					Publication pub=autShip.getPub();
 					pub.setPubAuts(new HashSet<>());
 					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 					{
@@ -78,8 +79,9 @@ public class ResearchOrganizationServ {
 			{
 				mem.setResOrg(null);
 				mem.getAut().setAutOrgs(new HashSet<>());
-				for(final Publication pub:mem.getAut().getAutPubs())
+				for(final Authorship autShip:mem.getAut().getAutPubs())
 				{
+					Publication pub=autShip.getPub();
 					pub.setPubAuts(new HashSet<>());
 					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 					{
@@ -219,8 +221,9 @@ public class ResearchOrganizationServ {
 			{
 				mem.setResOrg(null);
 				mem.getAut().setAutOrgs(new HashSet<>());
-				for(final Publication pub:mem.getAut().getAutPubs())
+				for(final Authorship autShip:mem.getAut().getAutPubs())
 				{
+					Publication pub=autShip.getPub();
 					pub.setPubAuts(new HashSet<>());
 					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 					{
@@ -245,8 +248,9 @@ public class ResearchOrganizationServ {
 			{
 				mem.setResOrg(null);
 				mem.getAut().setAutOrgs(new HashSet<>());
-				for(final Publication pub:mem.getAut().getAutPubs())
+				for(final Authorship autShip:mem.getAut().getAutPubs())
 				{
+					Publication pub=autShip.getPub();
 					pub.setPubAuts(new HashSet<>());
 					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 					{
@@ -291,8 +295,9 @@ public class ResearchOrganizationServ {
 			{
 				mem.setResOrg(null);
 				mem.getAut().setAutOrgs(new HashSet<>());
-				for(final Publication pub:mem.getAut().getAutPubs())
+				for(final Authorship autShip:mem.getAut().getAutPubs())
 				{
+					Publication pub=autShip.getPub();
 					pub.setPubAuts(new HashSet<>());
 					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 					{
@@ -330,8 +335,9 @@ public class ResearchOrganizationServ {
 			{
 				mem.setResOrg(null);
 				mem.getAut().setAutOrgs(new HashSet<>());
-				for(final Publication pub:mem.getAut().getAutPubs())
+				for(final Authorship autShip:mem.getAut().getAutPubs())
 				{
+					Publication pub=autShip.getPub();
 					pub.setPubAuts(new HashSet<>());
 					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 					{
@@ -356,8 +362,9 @@ public class ResearchOrganizationServ {
 			{
 				mem.setResOrg(null);
 				mem.getAut().setAutOrgs(new HashSet<>());
-				for(final Publication pub:mem.getAut().getAutPubs())
+				for(final Authorship autShip:mem.getAut().getAutPubs())
 				{
+					Publication pub=autShip.getPub();
 					pub.setPubAuts(new HashSet<>());
 					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 					{
@@ -382,8 +389,9 @@ public class ResearchOrganizationServ {
 			{
 				mem.setResOrg(null);
 				mem.getAut().setAutOrgs(new HashSet<>());
-				for(final Publication pub:mem.getAut().getAutPubs())
+				for(final Authorship autShip:mem.getAut().getAutPubs())
 				{
+					Publication pub=autShip.getPub();
 					pub.setPubAuts(new HashSet<>());
 					if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 					{
@@ -406,8 +414,9 @@ public class ResearchOrganizationServ {
 		{
 			mem.setResOrg(null);
 			mem.getAut().setAutOrgs(new HashSet<>());
-			for(final Publication pub:mem.getAut().getAutPubs())
+			for(final Authorship autShip:mem.getAut().getAutPubs())
 			{
+				Publication pub=autShip.getPub();
 				pub.setPubAuts(new HashSet<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{

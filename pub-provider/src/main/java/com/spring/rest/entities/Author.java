@@ -11,7 +11,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
@@ -30,8 +29,8 @@ public class Author implements Serializable {
 	@Column(nullable=false)
 	private int autId;
 	
-	@ManyToMany(mappedBy = "pubAuts")
-	private Set<Publication> autPubs = new HashSet<>();
+	@OneToMany(mappedBy="aut", cascade = CascadeType.ALL)
+	private Set<Authorship> autPubs = new HashSet<>();
 	
 	@OneToMany(mappedBy="aut", cascade = CascadeType.ALL)
     private Set<Membership> autOrgs = new HashSet<>();
@@ -61,11 +60,11 @@ public class Author implements Serializable {
 		this.autId = autId;
 	}
 
-	public Set<Publication> getAutPubs() {
+	public Set<Authorship> getAutPubs() {
 		return autPubs;
 	}
 
-	public void setAutPubs(Set<Publication> autPubs) {
+	public void setAutPubs(Set<Authorship> autPubs) {
 		this.autPubs = autPubs;
 	}
 
@@ -126,7 +125,7 @@ public class Author implements Serializable {
 		result = prime * result + autId;
 		result = prime * result + ((autLastName == null) ? 0 : autLastName.hashCode());
 		result = prime * result + ((autMail == null) ? 0 : autMail.hashCode());
-		//result = prime * result + ((autOrgs == null) ? 0 : autOrgs.hashCode());
+		//Oresult = prime * result + ((autOrgs == null) ? 0 : autOrgs.hashCode());
 		//result = prime * result + ((autPubs == null) ? 0 : autPubs.hashCode());
 		result = prime * result + (hasPage ? 1231 : 1237);
 		return result;
@@ -178,8 +177,8 @@ public class Author implements Serializable {
 		return true;
 	}
 
-	public Author(int autId, Set<Publication> autPubs, Set<Membership> autOrgs, String autFirstName, String autLastName,
-			Date autBirth, String autMail, String autPic, boolean hasPage) {
+	public Author(int autId, Set<Authorship> autPubs, Set<Membership> autOrgs, String autFirstName, String autLastName,
+			Date autBirth, String autMail, boolean hasPage) {
 		super();
 		this.autId = autId;
 		this.autPubs = autPubs;
@@ -196,7 +195,7 @@ public class Author implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 
-
+	
 
 
 

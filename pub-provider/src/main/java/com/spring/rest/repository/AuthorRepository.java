@@ -9,7 +9,7 @@ import com.spring.rest.entities.Author;
 import com.spring.rest.entities.MemberStatus;
 
 public interface AuthorRepository extends JpaRepository<Author, Integer> {
-	Set<Author> findDistinctByAutPubsPubId(int pubId);
+	Set<Author> findDistinctByAutPubsPubPubId(int pubId);
 
 	Set<Author> findDistinctByAutOrgsResOrgResOrgId(int resOrgId);
 	

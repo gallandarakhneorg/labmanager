@@ -5,6 +5,7 @@ import java.sql.Date;
 import java.util.HashSet;
 import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -17,6 +18,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 @Entity
@@ -32,9 +34,8 @@ public class Publication implements Serializable {
 	@Column(nullable=false)
 	private int pubId;
 	
-	@ManyToMany
-    @JoinTable(name="authorship", joinColumns = @JoinColumn(name="pubId"), inverseJoinColumns = @JoinColumn(name="autId"))
-    private Set<Author> pubAuts = new HashSet<>();
+	@OneToMany(mappedBy="pub", cascade = CascadeType.ALL)
+    private Set<Authorship> pubAuts = new HashSet<>();
 	
 	@Column
 	private String pubTitle;
@@ -94,11 +95,11 @@ public class Publication implements Serializable {
 		this.pubId = pubId;
 	}
 
-	public Set<Author> getPubAuts() {
+	public Set<Authorship> getPubAuts() {
 		return pubAuts;
 	}
 
-	public void setPubAuts(Set<Author> pubAuts) {
+	public void setPubAuts(Set<Authorship> pubAuts) {
 		this.pubAuts = pubAuts;
 	}
 
@@ -364,42 +365,7 @@ public class Publication implements Serializable {
 		return true;
 	}
 
-	public Publication(int pubId, Set<Author> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
-			Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-			String pubPaperAwardPath, PublicationType pubType) {
-		super();
-		this.pubId = pubId;
-		this.pubAuts = pubAuts;
-		this.pubTitle = pubTitle;
-		this.pubAbstract = pubAbstract;
-		this.pubKeywords = pubKeywords;
-		this.pubDate = pubDate;
-
-		if(pubDate!=null)
-		{
-			this.pubYear = pubDate.toLocalDate().getYear();
-		}
-		else
-		{
-			this.pubYear = 1970;
-		}
-		this.pubNote = pubNote;
-		this.pubAnnotations = pubAnnotations;
-		this.pubISBN = pubISBN;
-		this.pubISSN = pubISSN;
-		this.pubDOIRef = pubDOIRef;
-		this.pubURL = pubURL;
-		this.pubDBLP = pubDBLP;
-		this.pubPDFPath = pubPDFPath;
-		this.pubLanguage = pubLanguage;
-		this.pubPaperAwardPath = pubPaperAwardPath;
-		this.pubType = pubType;
-	}
-	
-	
-
-	public Publication(int pubId, Set<Author> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
+	public Publication(int pubId, Set<Authorship> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
 			Date pubDate, int pubYear, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType) {
@@ -419,6 +385,41 @@ public class Publication implements Serializable {
 		{
 			this.pubYear = 1970;
 		}
+		
+		this.pubNote = pubNote;
+		this.pubAnnotations = pubAnnotations;
+		this.pubISBN = pubISBN;
+		this.pubISSN = pubISSN;
+		this.pubDOIRef = pubDOIRef;
+		this.pubURL = pubURL;
+		this.pubDBLP = pubDBLP;
+		this.pubPDFPath = pubPDFPath;
+		this.pubLanguage = pubLanguage;
+		this.pubPaperAwardPath = pubPaperAwardPath;
+		this.pubType = pubType;
+	}
+
+	public Publication(int pubId, Set<Authorship> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
+			Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
+			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
+			String pubPaperAwardPath, PublicationType pubType) {
+		super();
+		this.pubId = pubId;
+		this.pubAuts = pubAuts;
+		this.pubTitle = pubTitle;
+		this.pubAbstract = pubAbstract;
+		this.pubKeywords = pubKeywords;
+		this.pubDate = pubDate;
+		
+		if(pubDate!=null)
+		{
+			this.pubYear = pubDate.toLocalDate().getYear();
+		}
+		else
+		{
+			this.pubYear = 1970;
+		}
+		
 		this.pubNote = pubNote;
 		this.pubAnnotations = pubAnnotations;
 		this.pubISBN = pubISBN;
@@ -434,7 +435,10 @@ public class Publication implements Serializable {
 
 	public Publication() {
 		super();
+		// TODO Auto-generated constructor stub
 	}
+
+	
 
 	
 

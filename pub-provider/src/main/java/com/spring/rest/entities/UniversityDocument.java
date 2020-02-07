@@ -72,7 +72,7 @@ public class UniversityDocument extends Publication{
 		return true;
 	}
 
-	public UniversityDocument(int pubId, Set<Author> pubAuthorsByJoint, String pubTitle, String pubAbstract,
+	public UniversityDocument(int pubId, Set<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String uniDocSchoolName, String uniDocAddress) {
@@ -87,7 +87,7 @@ public class UniversityDocument extends Publication{
 		// TODO Auto-generated constructor stub
 	}
 
-	public UniversityDocument(int pubId, Set<Author> pubAuthorsByJoint, String pubTitle, String pubAbstract,
+	public UniversityDocument(int pubId, Set<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType) {

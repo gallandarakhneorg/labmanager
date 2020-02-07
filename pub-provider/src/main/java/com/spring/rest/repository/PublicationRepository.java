@@ -8,8 +8,8 @@ import com.spring.rest.entities.Publication;
 
 public interface PublicationRepository extends JpaRepository<Publication, Integer> {
 	
-	Set<Publication> findDistinctByPubAutsAutOrgsResOrgResOrgId(int resOrgId);
+	Set<Publication> findDistinctByPubAutsAutAutOrgsResOrgResOrgId(int resOrgId);
 
-	Set<Publication> findDistinctByPubAutsAutId(int autId);
+	Set<Publication> findDistinctByPubAutsAutAutId(int autId);
 	
 }

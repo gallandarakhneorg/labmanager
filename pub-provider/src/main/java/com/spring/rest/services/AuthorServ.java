@@ -2,6 +2,7 @@ package com.spring.rest.services;
 
 import java.sql.Date;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -13,22 +14,28 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.rest.entities.Author;
+import com.spring.rest.entities.Authorship;
 import com.spring.rest.entities.MemberStatus;
 import com.spring.rest.entities.Membership;
 import com.spring.rest.entities.Publication;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
 import com.spring.rest.entities.ResearchOrganization;
 import com.spring.rest.repository.AuthorRepository;
+import com.spring.rest.repository.AuthorshipRepository;
 import com.spring.rest.repository.PublicationRepository;
 import com.spring.rest.repository.ResearchOrganizationRepository;
 
 @Service
 public class AuthorServ {
 	
-	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+	//Not used so Ill comment it to prevent warnings
+	//private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private PublicationRepository pubRepo;
+
+	@Autowired
+	private AuthorshipRepository autShipRepo;
 
 	@Autowired
 	private AuthorRepository repo;
@@ -40,8 +47,9 @@ public class AuthorServ {
 		List<Author> auts = repo.findAll();
 		
 		for(final Author aut : auts) {
-			for(final Publication pub:aut.getAutPubs())
+			for(final Authorship autShip:aut.getAutPubs())
 			{
+				Publication pub=autShip.getPub();
 				pub.setPubAuts(new HashSet<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
@@ -71,8 +79,9 @@ public class AuthorServ {
 		}
 		
 		for(final Author aut : result) {
-			for(final Publication pub:aut.getAutPubs())
+			for(final Authorship autShip:aut.getAutPubs())
 			{
+				Publication pub=autShip.getPub();
 				pub.setPubAuts(new HashSet<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
@@ -98,15 +107,22 @@ public class AuthorServ {
 		final Optional<Author> res = repo.findById(index);
 		if(res.isPresent()) {
 			
-			for(Publication pub : res.get().getAutPubs())
+			//When removing an author, reduce the ranks of the other authorships for the pubs he made.
+			for(Authorship autShip:res.get().getAutPubs())
 			{
-				pub.getPubAuts().remove(res.get());
-				pubRepo.save(pub);
+				int rank=autShip.getRank();
+				Publication pub=autShip.getPub();
+				for(Authorship autShipPub:pub.getPubAuts())
+				{
+					if(autShipPub.getRank()>rank)
+					{
+						autShipPub.setRank(autShipPub.getRank()-1);
+					}
+					autShipRepo.save(autShipPub);
+				}
 			}
-			res.get().getAutPubs().clear(); //Need to remove on both sides
 			
-			repo.save(res.get());
-			repo.deleteById(index); //mem gets deleted by cascade
+			repo.deleteById(index); //mem & autship gets deleted by cascade
 		}
 	}
 
@@ -145,12 +161,14 @@ public class AuthorServ {
 		//Ill still do both in case
 		if(author.isPresent() && publication.isPresent()) 
 		{
-			if(!publication.get().getPubAuts().contains(author.get()))
+			if(Collections.disjoint(author.get().getAutPubs(), publication.get().getPubAuts()))
 			{
-				author.get().getAutPubs().add(publication.get());
-				publication.get().getPubAuts().add(author.get());
-				repo.save(author.get());
-				pubRepo.save(publication.get());
+				final Authorship autShip = new Authorship();
+				autShip.setPub(publication.get());
+				autShip.setAut(author.get());
+				
+				autShip.setRank(repo.findDistinctByAutPubsPubPubId(pubId).size());
+				this.autShipRepo.save(autShip);
 			}
 		}
 	}
@@ -159,13 +177,23 @@ public class AuthorServ {
 		final Optional<Author> author = repo.findById(index);
 		final Optional<Publication> publication = pubRepo.findById(pubId);
 		
-		if(author.isPresent() && publication.isPresent()) 
+		Optional<Authorship> autShip=autShipRepo.findDistinctByAutAutIdAndPubPubId(index, pubId);
+		
+		if(autShip.isPresent())
 		{
-			author.get().getAutPubs().remove(publication.get());
-			publication.get().getPubAuts().remove(author.get());
-			repo.save(author.get());
-			pubRepo.save(publication.get());
+			int rank=autShip.get().getRank();
+			Publication pub=autShip.get().getPub();
+			for(Authorship autShipPub:pub.getPubAuts())
+			{
+				if(autShipPub.getRank()>rank)
+				{
+					autShipPub.setRank(autShipPub.getRank()-1);
+				}
+				autShipRepo.save(autShipPub);
+			}
+			autShipRepo.deleteByAutAutIdAndPubPubId(index, pubId);
 		}
+		
 	}
 
 	public void updateAuthorPage(int index, boolean hasPage) {
@@ -204,8 +232,9 @@ public class AuthorServ {
 		}
 		
 		for(final Author aut : autL) {
-			for(final Publication pub:aut.getAutPubs())
+			for(final Authorship autShip:aut.getAutPubs())
 			{
+				Publication pub=autShip.getPub();
 				pub.setPubAuts(new HashSet<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
@@ -231,8 +260,9 @@ public class AuthorServ {
 		Set<Author> auts = repo.findDistinctByAutOrgsResOrgResOrgId(index);
 		
 		for(final Author aut : auts) {
-			for(final Publication pub:aut.getAutPubs())
+			for(final Authorship autShip:aut.getAutPubs())
 			{
+				Publication pub=autShip.getPub();
 				pub.setPubAuts(new HashSet<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
@@ -255,11 +285,12 @@ public class AuthorServ {
 	}
 
 	public Set<Author> getLinkedAuthors(int index) {
-		Set<Author> auts = repo.findDistinctByAutPubsPubId(index);
+		Set<Author> auts = repo.findDistinctByAutPubsPubPubId(index);
 		
 		for(final Author aut : auts) {
-			for(final Publication pub:aut.getAutPubs())
+			for(final Authorship autShip:aut.getAutPubs())
 			{
+				Publication pub=autShip.getPub();
 				pub.setPubAuts(new HashSet<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
@@ -318,8 +349,9 @@ public class AuthorServ {
 		}
 		
 		for(final Author aut : auts) {
-			for(final Publication pub:aut.getAutPubs())
+			for(final Authorship autShip:aut.getAutPubs())
 			{
+				Publication pub=autShip.getPub();
 				pub.setPubAuts(new HashSet<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
