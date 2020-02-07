@@ -1,6 +1,7 @@
 package com.spring.rest.entities;
 
 import java.sql.Date;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.Column;
@@ -106,7 +107,7 @@ public class UserDocumentation extends Publication{
 		return true;
 	}
 
-	public UserDocumentation(int pubId, Set<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
+	public UserDocumentation(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String userDocOrganization, String userDocAddress,
@@ -124,7 +125,7 @@ public class UserDocumentation extends Publication{
 		// TODO Auto-generated constructor stub
 	}
 
-	public UserDocumentation(int pubId, Set<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
+	public UserDocumentation(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType) {

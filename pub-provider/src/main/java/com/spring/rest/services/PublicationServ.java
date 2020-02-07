@@ -60,13 +60,15 @@ public class PublicationServ {
 	private JournalRepository jourRepo;
 
 	public List<Publication> getAllPublications() {
-		final List<Publication> publications = repo.findAll();
+		List<Publication> publications = repo.findAll();
 		
-		for(final Publication p : publications) {
-			for(final Authorship autShip:p.getPubAuts())
+		for(Publication p : publications) {
+			sortAuthorships(p);
+			for(Authorship autShip:p.getPubAuts())
 			{
 				Author aut=autShip.getAut();
-				aut.setAutPubs(new HashSet<>());
+				aut.setAutPubs(new LinkedList<>());
+				autShip.setPub(null);
 				for(final Membership mem:aut.getAutOrgs())
 				{
 					mem.setAut(null);
@@ -82,22 +84,24 @@ public class PublicationServ {
 					((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
 			}
 		}
-		
+
 		return publications;
 	}
 
 	public List<Publication> getPublication(int index) {
-		final List<Publication> result = new ArrayList<Publication>();
+		List<Publication> result = new ArrayList<Publication>();
 		final Optional<Publication> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());
 		}
 		
-		for(final Publication p : result) {
-			for(final Authorship autShip:p.getPubAuts())
+		for(Publication p : result) {
+			sortAuthorships(p);
+			for(Authorship autShip:p.getPubAuts())
 			{
 				Author aut=autShip.getAut();
-				aut.setAutPubs(new HashSet<>());
+				aut.setAutPubs(new LinkedList<>());
+				autShip.setPub(null);
 				for(final Membership mem:aut.getAutOrgs())
 				{
 					mem.setAut(null);
@@ -116,19 +120,25 @@ public class PublicationServ {
 		return result;
 	}
 
+	//Check if this sorts in the correct order
+	public void sortAuthorships(Publication p) {
+		Collections.sort(p.getPubAuts(), Comparator.comparing(s -> s.getRank()));
+	}
+
 	//On top of giving the publication back, it also translates the files to binary
 	public List<Publication> getPublicationForDownload(int index) {
-		final List<Publication> result = new ArrayList<Publication>();
+		List<Publication> result = new ArrayList<Publication>();
 		final Optional<Publication> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());
 		}
 		
 		for(final Publication p : result) {
-			for(final Authorship autShip:p.getPubAuts())
+			for(Authorship autShip:p.getPubAuts())
 			{
 				Author aut=autShip.getAut();
-				aut.setAutPubs(new HashSet<>());
+				autShip.setPub(null);
+				aut.setAutPubs(new LinkedList<>());
 				for(final Membership mem:aut.getAutOrgs())
 				{
 					mem.setAut(null);
@@ -236,11 +246,13 @@ public class PublicationServ {
 	public Set<Publication> getLinkedMembersPublications(int index) {
 		Set<Publication> publications=repo.findDistinctByPubAutsAutAutOrgsResOrgResOrgId(index);
 		
-		for(final Publication p : publications) {
-			for(final Authorship autShip:p.getPubAuts())
+		for(Publication p : publications) {
+			sortAuthorships(p);
+			for(Authorship autShip:p.getPubAuts())
 			{
 				Author aut=autShip.getAut();
-				aut.setAutPubs(new HashSet<>());
+				aut.setAutPubs(new LinkedList<>());
+				autShip.setPub(null);
 				for(final Membership mem:aut.getAutOrgs())
 				{
 					mem.setAut(null);
@@ -256,18 +268,19 @@ public class PublicationServ {
 					((ReadingCommitteeJournalPopularizationPaper)p).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
 			}
 		}
-		
 		return publications;
 	}
 
 	public Set<Publication> getLinkedPublications(int index) {
 		Set<Publication> publications= repo.findDistinctByPubAutsAutAutId(index);
 		
-		for(final Publication p : publications) {
-			for(final Authorship autShip:p.getPubAuts())
+		for(Publication p : publications) {
+			sortAuthorships(p);
+			for(Authorship autShip:p.getPubAuts())
 			{
 				Author aut=autShip.getAut();
-				aut.setAutPubs(new HashSet<>());
+				aut.setAutPubs(new LinkedList<>());
+				autShip.setPub(null);
 				for(final Membership mem:aut.getAutOrgs())
 				{
 					mem.setAut(null);
@@ -457,7 +470,7 @@ public class PublicationServ {
 							System.out.println("\n Warning : Publication Title too long, had to be truncated. \n Concerned publication : "+pubTitle+"\n");
 						}
 						pubTitle=truncate(pubTitle);
-					 
+						
 						//Checking for dupes
 						for(Publication singlePub : pubL)
 						{
@@ -933,8 +946,9 @@ public class PublicationServ {
 									inbook.setBookPages(pages);
 									inbook.setBookChapBookNameProceedings(proceedings);
 									inbook.setBookChapNumberOrName(name);
-									
+
 									repo.save(inbook);
+									 
 									pubId=inbook.getPubId();
 									
 									break;
@@ -1204,7 +1218,7 @@ public class PublicationServ {
 										isDupe=false;
 										
 										
-										
+
 										
 										
 										//Assigning authorship
@@ -2450,10 +2464,10 @@ public class PublicationServ {
 		}
 		
 		for(final Publication p : pubList) { //Preventing infinite recursion
-			for(final Authorship autShip:p.getPubAuts())
+			for(Authorship autShip:p.getPubAuts())
 			{
 				Author aut=autShip.getAut();
-				aut.setAutPubs(new HashSet<>());
+				aut.setAutPubs(new LinkedList<>());
 				for(final Membership mem:aut.getAutOrgs())
 				{
 					mem.setAut(null);

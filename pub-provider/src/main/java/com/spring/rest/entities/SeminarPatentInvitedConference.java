@@ -1,7 +1,7 @@
 package com.spring.rest.entities;
 
 import java.sql.Date;
-import java.util.Set;
+import java.util.List;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -56,7 +56,7 @@ public class SeminarPatentInvitedConference extends Publication{
 		return true;
 	}
 
-	public SeminarPatentInvitedConference(int pubId, Set<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
+	public SeminarPatentInvitedConference(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String semPatHowPub) {
@@ -70,7 +70,7 @@ public class SeminarPatentInvitedConference extends Publication{
 		// TODO Auto-generated constructor stub
 	}
 
-	public SeminarPatentInvitedConference(int pubId, Set<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
+	public SeminarPatentInvitedConference(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
 			String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType) {

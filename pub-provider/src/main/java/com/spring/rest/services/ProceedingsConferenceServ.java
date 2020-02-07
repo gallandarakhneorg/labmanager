@@ -31,7 +31,7 @@ public class ProceedingsConferenceServ {
 	}
 
 	public List<ProceedingsConference> getProceedingsConference(int index) {
-		final List<ProceedingsConference> result = new ArrayList<ProceedingsConference>();
+		List<ProceedingsConference> result = new ArrayList<ProceedingsConference>();
 		final Optional<ProceedingsConference> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());

@@ -3,6 +3,8 @@ package com.spring.rest.entities;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -35,7 +37,7 @@ public class Publication implements Serializable {
 	private int pubId;
 	
 	@OneToMany(mappedBy="pub", cascade = CascadeType.ALL)
-    private Set<Authorship> pubAuts = new HashSet<>();
+    private List<Authorship> pubAuts = new LinkedList<Authorship>();
 	
 	@Column
 	private String pubTitle;
@@ -95,11 +97,11 @@ public class Publication implements Serializable {
 		this.pubId = pubId;
 	}
 
-	public Set<Authorship> getPubAuts() {
+	public List<Authorship> getPubAuts() {
 		return pubAuts;
 	}
 
-	public void setPubAuts(Set<Authorship> pubAuts) {
+	public void setPubAuts(List<Authorship> pubAuts) {
 		this.pubAuts = pubAuts;
 	}
 
@@ -365,7 +367,7 @@ public class Publication implements Serializable {
 		return true;
 	}
 
-	public Publication(int pubId, Set<Authorship> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
+	public Publication(int pubId, List<Authorship> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
 			Date pubDate, int pubYear, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType) {
@@ -399,7 +401,7 @@ public class Publication implements Serializable {
 		this.pubType = pubType;
 	}
 
-	public Publication(int pubId, Set<Authorship> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
+	public Publication(int pubId, List<Authorship> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
 			Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType) {

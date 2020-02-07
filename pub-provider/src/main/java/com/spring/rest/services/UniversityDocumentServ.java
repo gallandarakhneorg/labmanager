@@ -31,7 +31,7 @@ public class UniversityDocumentServ {
 	}
 
 	public List<UniversityDocument> getUniversityDocument(int index) {
-		final List<UniversityDocument> result = new ArrayList<UniversityDocument>();
+		List<UniversityDocument> result = new ArrayList<UniversityDocument>();
 		final Optional<UniversityDocument> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());

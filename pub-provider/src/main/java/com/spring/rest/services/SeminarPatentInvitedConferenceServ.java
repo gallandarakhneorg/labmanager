@@ -31,7 +31,7 @@ public class SeminarPatentInvitedConferenceServ {
 	}
 
 	public List<SeminarPatentInvitedConference> getSeminarPatentInvitedConference(int index) {
-		final List<SeminarPatentInvitedConference> result = new ArrayList<SeminarPatentInvitedConference>();
+		List<SeminarPatentInvitedConference> result = new ArrayList<SeminarPatentInvitedConference>();
 		final Optional<SeminarPatentInvitedConference> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());

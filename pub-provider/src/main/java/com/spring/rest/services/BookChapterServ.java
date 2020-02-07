@@ -31,7 +31,7 @@ public class BookChapterServ {
 	}
 
 	public List<BookChapter> getBookChapter(int index) {
-		final List<BookChapter> result = new ArrayList<BookChapter>();
+		List<BookChapter> result = new ArrayList<BookChapter>();
 		final Optional<BookChapter> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());

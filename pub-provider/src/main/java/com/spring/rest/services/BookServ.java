@@ -31,7 +31,7 @@ public class BookServ {
 	}
 
 	public List<Book> getBook(int index) {
-		final List<Book> result = new ArrayList<Book>();
+		List<Book> result = new ArrayList<Book>();
 		final Optional<Book> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());

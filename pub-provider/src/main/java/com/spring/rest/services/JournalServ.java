@@ -10,6 +10,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -49,7 +50,7 @@ public class JournalServ {
 	}
 
 	public List<Journal> getJournal(int index) {
-		final List<Journal> result = new ArrayList<Journal>();
+		List<Journal> result = new ArrayList<Journal>();
 		final Optional<Journal> res = repo.findById(index);
 		if(res.isPresent()) {
 			preventJournalRecursion(res.get());
@@ -141,7 +142,7 @@ public class JournalServ {
 		for(ReadingCommitteeJournalPopularizationPaper p : pubs)
 		{
 			p.setReaComConfPopPapJournal(null);
-			p.setPubAuts(new HashSet<>());
+			p.setPubAuts(new LinkedList<>());
 		}
 	}
 
@@ -174,7 +175,7 @@ public class JournalServ {
 
 //Review if optional as result when several result possible is a good idea
 	public int getJournalIdByName(String jourName) {
-		final List<Journal> result = new ArrayList<Journal>();
+		List<Journal> result = new ArrayList<Journal>();
 		final Optional<Journal> res = repo.findByJourName(jourName);
 		if(res.isPresent()) {
 			preventJournalRecursion(res.get());

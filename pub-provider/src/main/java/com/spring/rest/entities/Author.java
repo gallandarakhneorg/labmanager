@@ -3,6 +3,8 @@ package com.spring.rest.entities;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 
 import javax.persistence.CascadeType;
@@ -30,7 +32,7 @@ public class Author implements Serializable {
 	private int autId;
 	
 	@OneToMany(mappedBy="aut", cascade = CascadeType.ALL)
-	private Set<Authorship> autPubs = new HashSet<>();
+    private List<Authorship> autPubs = new LinkedList<Authorship>();
 	
 	@OneToMany(mappedBy="aut", cascade = CascadeType.ALL)
     private Set<Membership> autOrgs = new HashSet<>();
@@ -60,11 +62,11 @@ public class Author implements Serializable {
 		this.autId = autId;
 	}
 
-	public Set<Authorship> getAutPubs() {
+	public List<Authorship> getAutPubs() {
 		return autPubs;
 	}
 
-	public void setAutPubs(Set<Authorship> autPubs) {
+	public void setAutPubs(List<Authorship> autPubs) {
 		this.autPubs = autPubs;
 	}
 
@@ -125,7 +127,7 @@ public class Author implements Serializable {
 		result = prime * result + autId;
 		result = prime * result + ((autLastName == null) ? 0 : autLastName.hashCode());
 		result = prime * result + ((autMail == null) ? 0 : autMail.hashCode());
-		//Oresult = prime * result + ((autOrgs == null) ? 0 : autOrgs.hashCode());
+		//result = prime * result + ((autOrgs == null) ? 0 : autOrgs.hashCode());
 		//result = prime * result + ((autPubs == null) ? 0 : autPubs.hashCode());
 		result = prime * result + (hasPage ? 1231 : 1237);
 		return result;
@@ -177,7 +179,7 @@ public class Author implements Serializable {
 		return true;
 	}
 
-	public Author(int autId, Set<Authorship> autPubs, Set<Membership> autOrgs, String autFirstName, String autLastName,
+	public Author(int autId, List<Authorship> autPubs, Set<Membership> autOrgs, String autFirstName, String autLastName,
 			Date autBirth, String autMail, boolean hasPage) {
 		super();
 		this.autId = autId;

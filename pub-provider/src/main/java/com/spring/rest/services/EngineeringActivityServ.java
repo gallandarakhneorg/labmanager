@@ -31,7 +31,7 @@ public class EngineeringActivityServ {
 	}
 
 	public List<EngineeringActivity> getEngineeringActivity(int index) {
-		final List<EngineeringActivity> result = new ArrayList<EngineeringActivity>();
+		List<EngineeringActivity> result = new ArrayList<EngineeringActivity>();
 		final Optional<EngineeringActivity> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());

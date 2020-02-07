@@ -13,12 +13,12 @@ spring:
     url: jdbc:mysql://localhost:3306/librarymanager?serverTimezone=UTC
     
     #Deployed use :
-    #username: ciadlabwpbdd
-    #password: ci@dlAbpas$
+    username: ciadlabwpbdd
+    password: ci@dlAbpas$
     
     #Local use :
-    username: root
-    password: 
+    #username: root
+    #password: 
     
   servlet:
     multipart:

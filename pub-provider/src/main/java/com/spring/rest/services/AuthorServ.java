@@ -4,6 +4,7 @@ import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -47,10 +48,11 @@ public class AuthorServ {
 		List<Author> auts = repo.findAll();
 		
 		for(final Author aut : auts) {
-			for(final Authorship autShip:aut.getAutPubs())
+			for(Authorship autShip:aut.getAutPubs())
 			{
 				Publication pub=autShip.getPub();
-				pub.setPubAuts(new HashSet<>());
+				autShip.setAut(null);
+				pub.setPubAuts(new LinkedList<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
 					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
@@ -72,17 +74,18 @@ public class AuthorServ {
 	}
 
 	public List<Author> getAuthor(int index) {
-		final List<Author> result = new ArrayList<Author>();
+		List<Author> result = new ArrayList<Author>();
 		final Optional<Author> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());
 		}
 		
 		for(final Author aut : result) {
-			for(final Authorship autShip:aut.getAutPubs())
+			for(Authorship autShip:aut.getAutPubs())
 			{
 				Publication pub=autShip.getPub();
-				pub.setPubAuts(new HashSet<>());
+				autShip.setAut(null);
+				pub.setPubAuts(new LinkedList<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
 					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
@@ -163,7 +166,7 @@ public class AuthorServ {
 		{
 			if(Collections.disjoint(author.get().getAutPubs(), publication.get().getPubAuts()))
 			{
-				final Authorship autShip = new Authorship();
+				Authorship autShip = new Authorship();
 				autShip.setPub(publication.get());
 				autShip.setAut(author.get());
 				
@@ -232,10 +235,11 @@ public class AuthorServ {
 		}
 		
 		for(final Author aut : autL) {
-			for(final Authorship autShip:aut.getAutPubs())
+			for(Authorship autShip:aut.getAutPubs())
 			{
 				Publication pub=autShip.getPub();
-				pub.setPubAuts(new HashSet<>());
+				autShip.setAut(null);
+				pub.setPubAuts(new LinkedList<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
 					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
@@ -260,10 +264,11 @@ public class AuthorServ {
 		Set<Author> auts = repo.findDistinctByAutOrgsResOrgResOrgId(index);
 		
 		for(final Author aut : auts) {
-			for(final Authorship autShip:aut.getAutPubs())
+			for(Authorship autShip:aut.getAutPubs())
 			{
 				Publication pub=autShip.getPub();
-				pub.setPubAuts(new HashSet<>());
+				autShip.setAut(null);
+				pub.setPubAuts(new LinkedList<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
 					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
@@ -288,10 +293,11 @@ public class AuthorServ {
 		Set<Author> auts = repo.findDistinctByAutPubsPubPubId(index);
 		
 		for(final Author aut : auts) {
-			for(final Authorship autShip:aut.getAutPubs())
+			for(Authorship autShip:aut.getAutPubs())
 			{
 				Publication pub=autShip.getPub();
-				pub.setPubAuts(new HashSet<>());
+				autShip.setAut(null);
+				pub.setPubAuts(new LinkedList<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
 					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)
@@ -315,7 +321,7 @@ public class AuthorServ {
 
 //Review if optional as result when several result possible is a good idea
 	public int getAuthorIdByName(String autFirstName, String autLastName) {
-		final List<Author> result = new ArrayList<>();
+		List<Author> result = new ArrayList<>();
 		final Optional<Author> res = repo.findByAutFirstNameAndAutLastName(autFirstName, autLastName);
 		if(res.isPresent()) {
 			result.add(res.get());
@@ -349,10 +355,11 @@ public class AuthorServ {
 		}
 		
 		for(final Author aut : auts) {
-			for(final Authorship autShip:aut.getAutPubs())
+			for(Authorship autShip:aut.getAutPubs())
 			{
 				Publication pub=autShip.getPub();
-				pub.setPubAuts(new HashSet<>());
+				autShip.setAut(null);
+				pub.setPubAuts(new LinkedList<>());
 				if(pub.getClass()==ReadingCommitteeJournalPopularizationPaper.class)
 				{
 					if(((ReadingCommitteeJournalPopularizationPaper)pub).getReaComConfPopPapJournal()!=null)

@@ -31,7 +31,7 @@ public class UserDocumentationServ {
 	}
 
 	public List<UserDocumentation> getUserDocumentation(int index) {
-		final List<UserDocumentation> result = new ArrayList<UserDocumentation>();
+		List<UserDocumentation> result = new ArrayList<UserDocumentation>();
 		final Optional<UserDocumentation> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());

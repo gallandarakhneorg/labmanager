@@ -31,7 +31,7 @@ public class ReadingCommitteeJournalPopularizationPaperServ {
 	}
 
 	public List<ReadingCommitteeJournalPopularizationPaper> getReadingCommitteeJournalPopularizationPaper(int index) {
-		final List<ReadingCommitteeJournalPopularizationPaper> result = new ArrayList<ReadingCommitteeJournalPopularizationPaper>();
+		List<ReadingCommitteeJournalPopularizationPaper> result = new ArrayList<ReadingCommitteeJournalPopularizationPaper>();
 		final Optional<ReadingCommitteeJournalPopularizationPaper> res = repo.findById(index);
 		if(res.isPresent()) {
 			result.add(res.get());
