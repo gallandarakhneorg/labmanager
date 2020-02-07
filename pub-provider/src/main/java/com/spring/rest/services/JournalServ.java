@@ -13,23 +13,24 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.imageio.ImageIO;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.spring.rest.PubProviderApplication;
-import com.spring.rest.controller.JournalCtrl;
 import com.spring.rest.entities.Journal;
 import com.spring.rest.entities.ReadingCommitteeJournalPopularizationPaper;
 import com.spring.rest.repository.JournalRepository;
 import com.spring.rest.repository.ReadingCommitteeJournalPopularizationPaperRepository;
 
 @Service
-public class JournalServ {	
+public class JournalServ {
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private JournalRepository repo;

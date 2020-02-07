@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +42,11 @@ import com.spring.rest.repository.PublicationRepository;
 
 @Service
 public class PublicationServ {
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
+
+	public static final String DownloadablesPath="/var/www/ciad-lab.fr/Downloadables/";
+	
 	
 	@Autowired
 	private PublicationRepository repo;
@@ -2372,6 +2379,7 @@ public class PublicationServ {
 			} catch (IOException e) {
 		        p.setPubPDFPath("");
 				e.printStackTrace();
+			      this.logger.error(e.getMessage(),e);
 			}
 		}
 		if(p.getPubPaperAwardPath()!=null && !p.getPubPaperAwardPath().isEmpty() && new File(p.getPubPaperAwardPath()).exists())
@@ -2384,6 +2392,7 @@ public class PublicationServ {
 			} catch (IOException e) {
 		        p.setPubPDFPath("");
 				e.printStackTrace();
+			      this.logger.error(e.getMessage(),e);
 			}
 		}
 	}
@@ -2476,6 +2485,7 @@ public class PublicationServ {
 		catch (JsonProcessingException e) 
 		{
 			e.printStackTrace();
+		      this.logger.error(e.getMessage(),e);
 		}
 		
 		return export;

@@ -8,6 +8,8 @@ import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +19,8 @@ import com.spring.rest.repository.UniversityDocumentRepository;
 
 @Service
 public class UniversityDocumentServ {
+	
+	private final Logger logger = LoggerFactory.getLogger(this.getClass());
 	
 	@Autowired
 	private UniversityDocumentRepository repo;
@@ -66,17 +70,18 @@ public class UniversityDocumentServ {
 		File file;
 		if(!pubPDFPath.isEmpty())
 		{
-			file=new File("/var/www/ciad-lab.fr/Downloadables/PDFs/PDF"+res.getPubId()+".pdf");
+			file=new File(PublicationServ.DownloadablesPath+"PDFs/PDF"+res.getPubId()+".pdf");
 			try ( FileOutputStream fos = new FileOutputStream(file); )
 			{
 				byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
 				fos.write(decoder);
-				res.setPubPDFPath("/var/www/ciad-lab.fr/Downloadables/PDFs/PDF"+res.getPubId()+".pdf");
+				res.setPubPDFPath(PublicationServ.DownloadablesPath+"PDFs/PDF"+res.getPubId()+".pdf");
 		    }
 			catch (Exception e) 
 			{
 			      res.setPubPDFPath("");
 			      e.printStackTrace();
+			      this.logger.error(e.getMessage(),e);
 		    }
 		}
 		else
@@ -86,17 +91,18 @@ public class UniversityDocumentServ {
 		
 		if(!pubPaperAwardPath.isEmpty())
 		{
-			file=new File("/var/www/ciad-lab.fr/Downloadables/Awards/Award"+res.getPubId()+".pdf");
+			file=new File(PublicationServ.DownloadablesPath+"Awards/Award"+res.getPubId()+".pdf");
 			try ( FileOutputStream fos = new FileOutputStream(file); )
 			{
 				byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
 				fos.write(decoder);
-				res.setPubPaperAwardPath("/var/www/ciad-lab.fr/Downloadables/Awards/Award"+res.getPubId()+".pdf");
+				res.setPubPaperAwardPath(PublicationServ.DownloadablesPath+"Awards/Award"+res.getPubId()+".pdf");
 			}
 			catch (Exception e) 
 			{
 		    	res.setPubPaperAwardPath("");
 		    	e.printStackTrace();
+			      this.logger.error(e.getMessage(),e);
 		    }
 		}
 		else
@@ -139,34 +145,37 @@ public class UniversityDocumentServ {
 				res.get().setPubDBLP(pubDBLP);
 			if(!pubPDFPath.isEmpty())
 			{
-				file=new File("/var/www/ciad-lab.fr/Downloadables/PDFs/PDF"+res.get().getPubId()+".pdf");
+				file=new File(PublicationServ.DownloadablesPath+"PDFs/PDF"+res.get().getPubId()+".pdf");
 				try ( FileOutputStream fos = new FileOutputStream(file); )
 				{
 					byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
 					fos.write(decoder);
-					res.get().setPubPDFPath("/var/www/ciad-lab.fr/Downloadables/PDFs/PDF"+res.get().getPubId()+".pdf");
+					res.get().setPubPDFPath(PublicationServ.DownloadablesPath+"PDFs/PDF"+res.get().getPubId()+".pdf");
 			    }
 				catch (Exception e) 
 				{
 				      res.get().setPubPDFPath("");
-				      e.printStackTrace();
+				    	e.printStackTrace();
+				      this.logger.error(e.getMessage(),e);
+				      
 			    }
 			}
 			if(!pubLanguage.isEmpty())
 				res.get().setPubLanguage(pubLanguage);
 			if(!pubPaperAwardPath.isEmpty())
 			{
-				file=new File("/var/www/ciad-lab.fr/Downloadables/Awards/Award"+res.get().getPubId()+".pdf");
+				file=new File(PublicationServ.DownloadablesPath+"Awards/Award"+res.get().getPubId()+".pdf");
 				try ( FileOutputStream fos = new FileOutputStream(file); )
 				{
 					byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
 					fos.write(decoder);
-					res.get().setPubPaperAwardPath("/var/www/ciad-lab.fr/Downloadables/Awards/Award"+res.get().getPubId()+".pdf");
+					res.get().setPubPaperAwardPath(PublicationServ.DownloadablesPath+"Awards/Award"+res.get().getPubId()+".pdf");
 				}
 				catch (Exception e) 
 				{
 			    	res.get().setPubPaperAwardPath("");
 			    	e.printStackTrace();
+			    	this.logger.error(e.getMessage(),e);
 			    }
 			}
 			if(!pubType.toString().isEmpty())
