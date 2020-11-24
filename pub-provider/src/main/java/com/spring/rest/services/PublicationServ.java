@@ -2462,7 +2462,8 @@ public class PublicationServ {
 				i++;
 			}
 		}
-		
+		List<Publication> pubListForExport=new LinkedList<Publication>();
+
 		for(final Publication p : pubList) { //Preventing infinite recursion
 			for(Authorship autShip:p.getPubAuts())
 			{

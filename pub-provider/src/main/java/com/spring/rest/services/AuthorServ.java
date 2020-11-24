@@ -26,6 +26,9 @@ import com.spring.rest.repository.AuthorshipRepository;
 import com.spring.rest.repository.PublicationRepository;
 import com.spring.rest.repository.ResearchOrganizationRepository;
 
+import javax.transaction.Transactional;
+
+@Transactional
 @Service
 public class AuthorServ {
 	
@@ -179,6 +182,10 @@ public class AuthorServ {
 	public void removeAuthorship(int index, int pubId) {
 		final Optional<Author> author = repo.findById(index);
 		final Optional<Publication> publication = pubRepo.findById(pubId);
+
+		if(author.isPresent() && publication.isPresent()) {
+			publication.get().getPubAuts().remove(author.get());
+		}
 		
 		Optional<Authorship> autShip=autShipRepo.findDistinctByAutAutIdAndPubPubId(index, pubId);
 		
@@ -194,7 +201,9 @@ public class AuthorServ {
 				}
 				autShipRepo.save(autShipPub);
 			}
-			autShipRepo.deleteByAutAutIdAndPubPubId(index, pubId);
+			autShipRepo.deleteById(autShip.get().getAutShipId()); //TMT 24/11/20 new delete method
+			autShipRepo.flush();
+			//autShipRepo.deleteByAutAutIdAndPubPubId(index, pubId);
 		}
 		
 	}

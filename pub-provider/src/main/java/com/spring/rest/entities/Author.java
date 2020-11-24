@@ -1,5 +1,7 @@
 package com.spring.rest.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.HashSet;
@@ -30,7 +32,8 @@ public class Author implements Serializable {
 	@GeneratedValue(strategy = GenerationType.TABLE)
 	@Column(nullable=false)
 	private int autId;
-	
+
+	@JsonIgnore
 	@OneToMany(mappedBy="aut", cascade = CascadeType.ALL)
     private List<Authorship> autPubs = new LinkedList<Authorship>();
 	
