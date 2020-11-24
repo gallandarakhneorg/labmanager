@@ -51,7 +51,8 @@ public class UniversityDocumentCtrl {
 		return uniDocServ.createUniversityDocument(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, uniDocSchoolName, uniDocAddress);
+				pubPaperAwardPath, pubType, uniDocAddress, uniDocSchoolName);
+		//TMT 24/11/20 : use right parameters (wrong order)
 	}
 
 	//Updates one specific entity based on its fields (minus its relationship fields)
@@ -65,7 +66,8 @@ public class UniversityDocumentCtrl {
 		uniDocServ.updateUniversityDocument(pubId, pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, uniDocSchoolName, uniDocAddress);
+				pubPaperAwardPath, pubType, uniDocAddress, uniDocSchoolName);
+		//TMT 24/11/20 : use right parameters (wrong order)
 	}	
 
 

@@ -47,7 +47,8 @@ public class ReadingCommitteeJournalPopularizationPaperCtrl {
 		return reaComConfPopPapServ.createReadingCommitteeJournalPopularizationPaper(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);
+				pubPaperAwardPath, pubType, reaComConfPopPapNumber, reaComConfPopPapPages, reaComConfPopPapVolume);
+		//TMT 24/11/20 : use right parameters (wrong order)
 	}
 
 	//Updates one specific entity based on its fields (minus its relationship fields)
@@ -59,7 +60,8 @@ public class ReadingCommitteeJournalPopularizationPaperCtrl {
 		reaComConfPopPapServ.updateReadingCommitteeJournalPopularizationPaper(pubId, pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);
+				pubPaperAwardPath, pubType, reaComConfPopPapNumber, reaComConfPopPapPages, reaComConfPopPapVolume);
+		//TMT 24/11/20 : use right parameters (wrong order)
 	}
 
 

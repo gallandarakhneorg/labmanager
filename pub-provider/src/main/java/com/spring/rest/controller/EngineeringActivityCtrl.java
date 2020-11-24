@@ -47,7 +47,8 @@ public class EngineeringActivityCtrl {
 		return engActServ.createEngineeringActivity(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, engActInstitName, engActReportType, engActNumber);
+				pubPaperAwardPath, pubType, engActInstitName, engActNumber, engActReportType);
+		//TMT 24/11/20 : use right parameters (wrong order)
 	}
 
 	//Updates one specific entity based on its fields (minus its relationship fields)
@@ -59,6 +60,7 @@ public class EngineeringActivityCtrl {
 		engActServ.updateEngineeringActivity(pubId, pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, engActInstitName, engActReportType, engActNumber);
+				pubPaperAwardPath, pubType, engActInstitName, engActNumber, engActReportType);
+		//TMT 24/11/20 : use right parameters (wrong order)
 	}
 }

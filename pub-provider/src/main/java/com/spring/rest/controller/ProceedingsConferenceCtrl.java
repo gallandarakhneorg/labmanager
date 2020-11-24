@@ -47,7 +47,13 @@ public class ProceedingsConferenceCtrl {
 		return proConfServ.createProceedingsConference(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, proConfBookNameProceedings, proConfEditor, proConfPages, proConfOrganization, proConfPublisher, proConfAddress, proConfSeries);
+				pubPaperAwardPath, pubType, proConfAddress,
+				proConfBookNameProceedings,
+				proConfEditor,
+				proConfOrganization,
+				proConfPages,
+				proConfPublisher,
+				proConfSeries); //TMT 24/11/20 : use right parameters (wrong order)
 	}
 
 	//Updates one specific entity based on its fields (minus its relationship fields)
@@ -57,9 +63,16 @@ public class ProceedingsConferenceCtrl {
 			String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
 			String pubPaperAwardPath, PublicationType pubType, String proConfBookNameProceedings, String proConfEditor, String proConfPages, String proConfOrganization, String proConfPublisher, String proConfAddress, String proConfSeries) {
 		proConfServ.updateProceedingsConference(pubId, pubTitle, pubAbstract,
-				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
+				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, proConfBookNameProceedings, proConfEditor, proConfPages, proConfOrganization, proConfPublisher, proConfAddress, proConfSeries);
+				pubPaperAwardPath, pubType,
+				proConfAddress,
+				proConfBookNameProceedings,
+				proConfEditor,
+				proConfOrganization,
+				proConfPages,
+				proConfPublisher,
+				proConfSeries);//TMT 24/11/20 : use right parameters (wrong order)
 	}
 
 

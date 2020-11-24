@@ -47,7 +47,8 @@ public class UserDocumentationCtrl{
 		return userDocServ.createUserDocumentation(pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, userDocOrganization, userDocAddress, userDocEdition, userDocPublisher);
+				pubPaperAwardPath, pubType, userDocAddress, userDocEdition, userDocOrganization, userDocPublisher);
+		//TMT 24/11/20 : use right parameters (wrong order)
 	}
 
 	//Updates one specific entity based on its fields (minus its relationship fields)
@@ -59,7 +60,8 @@ public class UserDocumentationCtrl{
 		userDocServ.updateUserDocumentation(pubId, pubTitle, pubAbstract,
 				pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, 
 				pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-				pubPaperAwardPath, pubType, userDocOrganization, userDocAddress, userDocEdition, userDocPublisher);
+				pubPaperAwardPath, pubType, userDocAddress, userDocEdition, userDocOrganization, userDocPublisher);
+		//TMT 24/11/20 : use right parameters (wrong order)
 	}
 
 
