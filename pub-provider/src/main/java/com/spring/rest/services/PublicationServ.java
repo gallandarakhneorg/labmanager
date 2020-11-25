@@ -15,6 +15,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1291,6 +1293,9 @@ public class PublicationServ {
 		bibText=bibText.replaceAll("(\\{\\\\c\\{C\\}\\})", "Ç");
 		bibText=bibText.replaceAll("(\\{\\\\c\\{c\\}\\})", "ç"); 
 		bibText=bibText.replaceAll("(\\{\\\\&\\})", "&");
+
+		// TMT 25/11/20 : deal with {\string#####} chars
+		bibText = bibText.replaceAll("\\{\\\\string(.)\\}", "$1");
 
 
 		//Kind of a radical solution but we can just remove all characters we dont care about

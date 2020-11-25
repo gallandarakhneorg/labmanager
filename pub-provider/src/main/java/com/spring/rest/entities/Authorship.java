@@ -1,5 +1,7 @@
 package com.spring.rest.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.io.Serializable;
 
 import javax.persistence.*;
@@ -18,6 +20,7 @@ public class Authorship implements Serializable {
 	private int autShipId;
 
 	@ManyToOne
+	@JsonIgnore
 	private Publication pub;
 	
 	@ManyToOne
