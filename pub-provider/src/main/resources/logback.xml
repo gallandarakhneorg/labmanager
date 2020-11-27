@@ -3,13 +3,13 @@
 
     <property name="LOG_PATH" value="/var/log/tomcat9"/>
 
-    <!-- appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
             <pattern>
                 %d{dd-MM-yyyy HH:mm:ss.SSS} %magenta([%thread]) %highlight(%-5level) %logger{36}.%M - %msg%n
             </pattern>
         </encoder>
-    </appender-->
+    </appender>
 
     <appender name="APPLICATION-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
 
@@ -33,11 +33,10 @@
     </appender>
 
 
-    <root level="error">
-<!--         <appender-ref ref="STDOUT"/> -->
+    <root level="info">
+        <appender-ref ref="STDOUT"/>
         <appender-ref ref="APPLICATION-LOG"/>
     </root>
-
 
 
 </configuration>

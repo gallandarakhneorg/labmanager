@@ -6,172 +6,172 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="ProceedingsConferences")
-@PrimaryKeyJoinColumn(name="pubId")
-public class ProceedingsConference extends Publication{
+@Table(name = "ProceedingsConferences")
+@PrimaryKeyJoinColumn(name = "pubId")
+public class ProceedingsConference extends Publication {
 
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = -389839033139487479L;
+    /**
+     *
+     */
+    private static final long serialVersionUID = -389839033139487479L;
 
-	@Column
-	private String proConfBookNameProceedings;
+    @Column
+    private String proConfBookNameProceedings;
 
-	@Column
-	private String proConfEditor;
+    @Column
+    private String proConfEditor;
 
-	@Column
-	private String proConfPages;
+    @Column
+    private String proConfPages;
 
-	@Column
-	private String proConfOrganization;
+    @Column
+    private String proConfOrganization;
 
-	@Column
-	private String proConfPublisher;
+    @Column
+    private String proConfPublisher;
 
-	@Column
-	private String proConfAddress;
+    @Column
+    private String proConfAddress;
 
-	@Column
-	private String proConfSeries;
+    @Column
+    private String proConfSeries;
 
-	public String getProConfBookNameProceedings() {
-		return proConfBookNameProceedings;
-	}
+    public ProceedingsConference(String proConfBookNameProceedings, String proConfEditor, String proConfPages,
+                                 String proConfOrganization, String proConfPublisher, String proConfAddress, String proConfSeries) {
+        super();
+        this.proConfBookNameProceedings = proConfBookNameProceedings;
+        this.proConfEditor = proConfEditor;
+        this.proConfPages = proConfPages;
+        this.proConfOrganization = proConfOrganization;
+        this.proConfPublisher = proConfPublisher;
+        this.proConfAddress = proConfAddress;
+        this.proConfSeries = proConfSeries;
+    }
 
-	public void setProConfBookNameProceedings(String proConfBookNameProceedings) {
-		this.proConfBookNameProceedings = proConfBookNameProceedings;
-	}
+    public ProceedingsConference() {
+        super();
+        // TODO Auto-generated constructor stub
+    }
 
-	public String getProConfEditor() {
-		return proConfEditor;
-	}
+    public String getProConfBookNameProceedings() {
+        return proConfBookNameProceedings;
+    }
 
-	public void setProConfEditor(String proConfEditor) {
-		this.proConfEditor = proConfEditor;
-	}
+    public void setProConfBookNameProceedings(String proConfBookNameProceedings) {
+        this.proConfBookNameProceedings = proConfBookNameProceedings;
+    }
 
-	public String getProConfPages() {
-		return proConfPages;
-	}
+    public String getProConfEditor() {
+        return proConfEditor;
+    }
 
-	public void setProConfPages(String proConfPages) {
-		this.proConfPages = proConfPages;
-	}
+    public void setProConfEditor(String proConfEditor) {
+        this.proConfEditor = proConfEditor;
+    }
 
-	public String getProConfOrganization() {
-		return proConfOrganization;
-	}
+    public String getProConfPages() {
+        return proConfPages;
+    }
 
-	public void setProConfOrganization(String proConfOrganization) {
-		this.proConfOrganization = proConfOrganization;
-	}
+    public void setProConfPages(String proConfPages) {
+        this.proConfPages = proConfPages;
+    }
 
-	public String getProConfPublisher() {
-		return proConfPublisher;
-	}
+    public String getProConfOrganization() {
+        return proConfOrganization;
+    }
 
-	public void setProConfPublisher(String proConfPublisher) {
-		this.proConfPublisher = proConfPublisher;
-	}
+    public void setProConfOrganization(String proConfOrganization) {
+        this.proConfOrganization = proConfOrganization;
+    }
 
-	public String getProConfAddress() {
-		return proConfAddress;
-	}
+    public String getProConfPublisher() {
+        return proConfPublisher;
+    }
 
-	public void setProConfAddress(String proConfAddress) {
-		this.proConfAddress = proConfAddress;
-	}
+    public void setProConfPublisher(String proConfPublisher) {
+        this.proConfPublisher = proConfPublisher;
+    }
 
-	public String getProConfSeries() {
-		return proConfSeries;
-	}
+    public String getProConfAddress() {
+        return proConfAddress;
+    }
 
-	public void setProConfSeries(String proConfSeries) {
-		this.proConfSeries = proConfSeries;
-	}
+    public void setProConfAddress(String proConfAddress) {
+        this.proConfAddress = proConfAddress;
+    }
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + ((proConfAddress == null) ? 0 : proConfAddress.hashCode());
-		result = prime * result + ((proConfBookNameProceedings == null) ? 0 : proConfBookNameProceedings.hashCode());
-		result = prime * result + ((proConfEditor == null) ? 0 : proConfEditor.hashCode());
-		result = prime * result + ((proConfOrganization == null) ? 0 : proConfOrganization.hashCode());
-		result = prime * result + ((proConfPages == null) ? 0 : proConfPages.hashCode());
-		result = prime * result + ((proConfPublisher == null) ? 0 : proConfPublisher.hashCode());
-		result = prime * result + ((proConfSeries == null) ? 0 : proConfSeries.hashCode());
-		return result;
-	}
+    public String getProConfSeries() {
+        return proConfSeries;
+    }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		ProceedingsConference other = (ProceedingsConference) obj;
-		if (proConfAddress == null) {
-			if (other.proConfAddress != null)
-				return false;
-		} else if (!proConfAddress.equals(other.proConfAddress))
-			return false;
-		if (proConfBookNameProceedings == null) {
-			if (other.proConfBookNameProceedings != null)
-				return false;
-		} else if (!proConfBookNameProceedings.equals(other.proConfBookNameProceedings))
-			return false;
-		if (proConfEditor == null) {
-			if (other.proConfEditor != null)
-				return false;
-		} else if (!proConfEditor.equals(other.proConfEditor))
-			return false;
-		if (proConfOrganization == null) {
-			if (other.proConfOrganization != null)
-				return false;
-		} else if (!proConfOrganization.equals(other.proConfOrganization))
-			return false;
-		if (proConfPages == null) {
-			if (other.proConfPages != null)
-				return false;
-		} else if (!proConfPages.equals(other.proConfPages))
-			return false;
-		if (proConfPublisher == null) {
-			if (other.proConfPublisher != null)
-				return false;
-		} else if (!proConfPublisher.equals(other.proConfPublisher))
-			return false;
-		if (proConfSeries == null) {
-			if (other.proConfSeries != null)
-				return false;
-		} else if (!proConfSeries.equals(other.proConfSeries))
-			return false;
-		return true;
-	}
+    public void setProConfSeries(String proConfSeries) {
+        this.proConfSeries = proConfSeries;
+    }
 
-	public ProceedingsConference(String proConfBookNameProceedings, String proConfEditor, String proConfPages,
-			String proConfOrganization, String proConfPublisher, String proConfAddress, String proConfSeries) {
-		super();
-		this.proConfBookNameProceedings = proConfBookNameProceedings;
-		this.proConfEditor = proConfEditor;
-		this.proConfPages = proConfPages;
-		this.proConfOrganization = proConfOrganization;
-		this.proConfPublisher = proConfPublisher;
-		this.proConfAddress = proConfAddress;
-		this.proConfSeries = proConfSeries;
-	}
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((proConfAddress == null) ? 0 : proConfAddress.hashCode());
+        result = prime * result + ((proConfBookNameProceedings == null) ? 0 : proConfBookNameProceedings.hashCode());
+        result = prime * result + ((proConfEditor == null) ? 0 : proConfEditor.hashCode());
+        result = prime * result + ((proConfOrganization == null) ? 0 : proConfOrganization.hashCode());
+        result = prime * result + ((proConfPages == null) ? 0 : proConfPages.hashCode());
+        result = prime * result + ((proConfPublisher == null) ? 0 : proConfPublisher.hashCode());
+        result = prime * result + ((proConfSeries == null) ? 0 : proConfSeries.hashCode());
+        return result;
+    }
 
-	public ProceedingsConference() {
-		super();
-		// TODO Auto-generated constructor stub
-	}
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (!super.equals(obj))
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        ProceedingsConference other = (ProceedingsConference) obj;
+        if (proConfAddress == null) {
+            if (other.proConfAddress != null)
+                return false;
+        } else if (!proConfAddress.equals(other.proConfAddress))
+            return false;
+        if (proConfBookNameProceedings == null) {
+            if (other.proConfBookNameProceedings != null)
+                return false;
+        } else if (!proConfBookNameProceedings.equals(other.proConfBookNameProceedings))
+            return false;
+        if (proConfEditor == null) {
+            if (other.proConfEditor != null)
+                return false;
+        } else if (!proConfEditor.equals(other.proConfEditor))
+            return false;
+        if (proConfOrganization == null) {
+            if (other.proConfOrganization != null)
+                return false;
+        } else if (!proConfOrganization.equals(other.proConfOrganization))
+            return false;
+        if (proConfPages == null) {
+            if (other.proConfPages != null)
+                return false;
+        } else if (!proConfPages.equals(other.proConfPages))
+            return false;
+        if (proConfPublisher == null) {
+            if (other.proConfPublisher != null)
+                return false;
+        } else if (!proConfPublisher.equals(other.proConfPublisher))
+            return false;
+        if (proConfSeries == null) {
+            if (other.proConfSeries != null)
+                return false;
+        } else if (!proConfSeries.equals(other.proConfSeries))
+            return false;
+        return true;
+    }
 
-	
+
 }
 
 

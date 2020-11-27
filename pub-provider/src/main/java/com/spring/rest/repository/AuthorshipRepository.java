@@ -1,15 +1,12 @@
 package com.spring.rest.repository;
 
-import java.util.Optional;
-
+import com.spring.rest.entities.Authorship;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.spring.rest.entities.Authorship;
-
-import javax.transaction.Transactional;
+import java.util.Optional;
 
 public interface AuthorshipRepository extends JpaRepository<Authorship, Integer> {
-	void deleteByAutAutIdAndPubPubId(int autId, int pubId);
+    void deleteByAutAutIdAndPubPubId(int autId, int pubId);
 
-	Optional<Authorship> findDistinctByAutAutIdAndPubPubId(int autId, int pubId);
+    Optional<Authorship> findDistinctByAutAutIdAndPubPubId(int autId, int pubId);
 }
