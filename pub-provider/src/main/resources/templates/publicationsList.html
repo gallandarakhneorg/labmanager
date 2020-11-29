@@ -1,0 +1,49 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.22/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/r-2.2.6/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.22/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/r-2.2.6/datatables.min.js"></script>
+
+
+<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
+    <thead>
+        <th>Title</th>
+        <th>Authors</th>
+        <th>Other Organizations</th>
+        <th>Status within CIAD</th>
+    </thead>
+    <tbody>
+        <tr th:each="publication : ${publications}">
+            <td th:utext="${publication.getPubTitle()}"></td>
+            <td>
+                <th:block th:each="author, iAuth : ${publication.getPubAuts()}">
+                    <th:block th:utext="${author.getAut().getAutFirstName() + ' ' + author.getAut().getAutLastName()}"></th:block>
+                    <th:block th:if="${iAuth.index != otherOrganisationsForMembers.get(member.getMemId()).size() - 1}"> and </th:block>
+                </th:block>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<script th:inline="javascript">
+    $(document).ready(function() {
+        var tableId = /*[[${uuid}]]*/ '';
+        var table = $('#table'+tableId).DataTable({
+            dom: 'Bfrtip',
+            scrollCollapse: true,
+            paging: false,
+            buttons: [
+                'excelHtml5', 'pdfHtml5', 'csvHtml5'
+            ],
+            responsive: true,
+            autoWidth: true,
+        });
+    });
+
+</script>
+</html>
+

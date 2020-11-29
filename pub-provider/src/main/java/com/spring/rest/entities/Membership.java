@@ -48,6 +48,10 @@ public class Membership implements Serializable {
         // TODO Auto-generated constructor stub
     }
 
+    public int getMemId() {
+        return memId;
+    }
+
     public Author getAut() {
         return aut;
     }
@@ -82,6 +86,37 @@ public class Membership implements Serializable {
 
     public MemberStatus getMemStatus() {
         return memStatus;
+    }
+
+    public String getMemStatusLongString() {
+        switch(getMemStatus()) {
+            case PR:
+                return "Full professor";
+            case MCF:
+                return "Associate professor";
+            case MCF_HDR:
+                return "Professor";
+            case ECC:
+                return "Lecturer";
+            case LRU:
+                return "Lecturer according to law LRU";
+            case PHD_Student:
+                return "PHD Student";
+            case PostPHD:
+                return "Post PHD";
+            case ITRF:
+                return "Engineer";
+            case Prag:
+                return "Prag";
+            case Associate:
+                return "Associate";
+            case Intern:
+                return "Intern";
+            case Contractless:
+                return "Contractless";
+            default:
+                return "";
+        }
     }
 
     public void setMemStatus(MemberStatus memStatus) {
