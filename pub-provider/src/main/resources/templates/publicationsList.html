@@ -4,44 +4,170 @@
 <link rel="stylesheet" th:href="@{/css/style.css}"/>
 
 <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.22/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/r-2.2.6/datatables.min.css"/>
 <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.22/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/r-2.2.6/datatables.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/rowgroup/1.1.2/js/dataTables.rowGroup.min.js"></script>
+
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/rowgroup/1.1.2/css/rowGroup.dataTables.min.css"/>
+<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css"/>
 
 
-<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
+<style>
+    td.details-control:before {
+        content: "\f06e";
+    }
+    td.details-control {
+        cursor: pointer;
+        color: #99cc00;
+        -webkit-font-smoothing: antialiased;
+        display: inline-block;
+        font-style: normal;
+        font-variant: normal;
+        text-rendering: auto;
+        line-height: 1;
+        font-weight: 900;
+        font-family: "Font Awesome 5 Free";
+    }
+</style>
+
+
+<table class="table table-responsive-sm table-bordered table-striped table-sm ciadCSS" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
-        <th>Title</th>
+        <th></th>
+        <th>Publications</th>
         <th>Authors</th>
-        <th>Other Organizations</th>
-        <th>Status within CIAD</th>
+        <th>Year</th>
+        <th>Type</th>
+        <th>Downloads</th>
     </thead>
     <tbody>
-        <tr th:each="publication : ${publications}">
-            <td th:utext="${publication.getPubTitle()}"></td>
+<!--        <tr th:each="publication : ${publications}">
+
+            <td class="details-control"></td>
+            &lt;!&ndash; Title &ndash;&gt;
             <td>
-                <th:block th:each="author, iAuth : ${publication.getPubAuts()}">
-                    <th:block th:utext="${author.getAut().getAutFirstName() + ' ' + author.getAut().getAutLastName()}"></th:block>
-                    <th:block th:if="${iAuth.index != otherOrganisationsForMembers.get(member.getMemId()).size() - 1}"> and </th:block>
-                </th:block>
+                <a th:href="${'http://www.ciad-lab.fr/publication/' + publication.getPubId()}">
+                    <header th:utext="${publication.getPubTitle()}"></header>
+                </a>
             </td>
-        </tr>
+            &lt;!&ndash; Authors &ndash;&gt;
+            <td>
+                <span th:each="author, iAuth : ${publication.getPubAuts()}">
+                    <span th:unless="${author.getAut().isHasPage()}" th:utext="${author.getAut().getAutFirstName() + ' ' + author.getAut().getAutLastName()}"></span><a th:if="${author.getAut().hasPage}" th:href="${'/author-' + author.getAut().getAutId()}" th:utext="${author.getAut().getAutFirstName() + ' ' + author.getAut().getAutLastName()}"></a><span th:if="${iAuth.index < publication.getPubAuts().size() - 2}">, </span><span th:if="${iAuth.index == publication.getPubAuts().size() - 2}"> and </span>
+                </span>
+            </td>
+            &lt;!&ndash; Year &ndash;&gt;
+            <td th:utext="${publication.getPubYear()}"></td>
+            &lt;!&ndash; Type &ndash;&gt;
+            <td th:utext="${publication.getPubType().toString()}"></td>
+            &lt;!&ndash; Downloads &ndash;&gt;
+            <td>
+                <a th:if="${publication.getPubPDFPath() != null && !publication.getPubPDFPath().isEmpty()}" class="dlAttachement" th:href="${'http://www.ciad-lab.fr/' + publication.getPubPDFPath().replace('/var/www/ciad-lab.fr', '') }">PDF</a> &lt;!&ndash;TODO : externalize paths&ndash;&gt;
+                <a th:if="${publication.getPubPaperAwardPath() != null && !publication.getPubPaperAwardPath().isEmpty()}" class="dlAttachement" th:href="${'http://www.ciad-lab.fr/' + publication.getPubPaperAwardPath().replace('/var/www/ciad-lab.fr', '') }">Award</a> &lt;!&ndash;TODO : externalize paths&ndash;&gt;
+
+            </td>
+
+        </tr>-->
     </tbody>
 </table>
 
 
 <script th:inline="javascript">
+    function format ( d ) {
+        return '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">'+
+            '<tr>'+
+            '<td>Authors: </td>'+
+            '<td>'+ d.authors +'</td>'+
+            '</tr>'+
+            '<tr>'+
+            '<td>Type: </td>'+
+            '<td>'+ d.type +'</td>'+
+            '</tr>'+
+            '<tr>'+
+            '<td>Links: </td>'+
+            '<td>'+ d.links +'</td>'+
+            '</tr>'+
+            '<tr>'+
+            '<td>Abstract: </td>'+
+            '<td>'+ d.abstract +'</td>'+
+            '</tr>'+
+            '<tr>'+
+            '<td>Downloads: </td>'+
+            '<td>'+ d.downloads +'</td>'+
+            '</tr>'+
+            '</table>';
+    }
+
     $(document).ready(function() {
         var tableId = /*[[${uuid}]]*/ '';
         var table = $('#table'+tableId).DataTable({
+            "ajax": "/SpringRestHibernate/getPublicationsList",
+            "columns": [
+                {
+                    "className":      'details-control',
+                    "orderable":      false,
+                    "data":           null,
+                    "defaultContent": ''
+                },
+                { "data": "title" },
+                { "data": "authors" },
+                { "data": "year" },
+                { "data": "type" },
+                { "data": "downloads" }
+            ],
             dom: 'Bfrtip',
             scrollCollapse: true,
             paging: false,
+            order: [ [3, 'desc'], [4, 'asc'] ],
+            rowGroup: {
+                startRender: function ( rows, group ) {
+                    if(rows.count() > 1)
+                        return group +' - ' + rows.count() + ' publications';
+                    else
+                        return group +' - ' + rows.count() + ' publication';
+                },
+                endRender: null,
+                dataSrc: ['year', 'type']
+            },
             buttons: [
                 'excelHtml5', 'pdfHtml5', 'csvHtml5'
             ],
             responsive: true,
             autoWidth: true,
         });
+
+            //row.before(format( row.data())).show();
+            //var row = table.row( $(this));
+            //tr.before(format( row.data())).show();
+
+        // Toggle the visibility
+        table.column(2).visible(false);
+        table.column(3).visible(false);
+        table.column(4).visible(false);
+        table.column(5).visible(false);
+        //table.column(2).visible(false);
+        //table.column(3).visible(false);
+        //table.column(4).visible(false);
+
+
+        // Array to track the ids of the details displayed rows
+        //var detailRows = [];
+        $('#table'+tableId +' tbody').on( 'click', 'tr td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = table.row( tr );
+
+            if ( row.child.isShown() ) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child( format(row.data()) ).show();
+                tr.addClass('shown');
+            }
+        } );
+
     });
 
 </script>

@@ -3,8 +3,10 @@ package com.spring.rest.entities;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "publications")
@@ -149,7 +151,8 @@ public class Publication implements Serializable {
     }
 
     public List<Authorship> getPubAuts() {
-        return pubAuts;
+        // Ordered by rank
+        return pubAuts.parallelStream().sorted(Comparator.comparingInt(Authorship::getRank)).collect(Collectors.toList());
     }
 
     public void setPubAuts(List<Authorship> pubAuts) {
