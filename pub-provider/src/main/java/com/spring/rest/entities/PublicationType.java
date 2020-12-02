@@ -1,6 +1,7 @@
 package com.spring.rest.entities;
 
 public enum PublicationType {
+
     TypeLess,
 
     //These are already present in the current site database :

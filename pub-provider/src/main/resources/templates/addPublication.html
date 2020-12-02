@@ -1,0 +1,178 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/head :: style"/>
+    <th:block th:replace="fragments/head :: script"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
+</head>
+
+<body>
+
+<div class="horizontal-main-wrapper">
+    <!-- main content area start -->
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="row">
+                <!-- seo fact area start -->
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Add publication</h4>
+                            <form id="form">
+                                <div class="form-group">
+                                    <label class="col-form-label">Publication type</label>
+                                    <select class="custom-select" id="publicationType">
+                                        <option value="null" selected="selected">Select a publication type</option>
+                                        <option value="InternationalJournalWithReadingCommittee">International Journal With Reading Committee (ACL/ACLN)
+                                        </option>
+                                        <option value="NationalJournalWithReadingCommittee">National Journal With Reading Committee (ACL/ACLN)
+                                        </option>
+                                        <option value="InternationalJournalWithoutReadingCommittee">International Journal Without Reading Committee (ASCL/ACLN)
+                                        </option>
+                                        <option value="NationalJournalWithoutReadingCommittee">National Journal Without Reading Committee (ASCL/ACLN)
+                                        </option>
+                                        <option value="InternationalConferenceWithProceedings">International Conference With Proceedings (C-ACTI)
+                                        </option>
+                                        <option value="NationalConferenceWithProceedings">National Conference With Proceedings (C-ACTN)
+                                        </option>
+                                        <option value="InternationalConferenceWithoutProceedings">International Conference Without Proceedings (C-COM)
+                                        </option>
+                                        <option value="NationalConferenceWithoutProceedings">National Conference Without Proceedings (C-COM)
+                                        </option>
+                                        <option value="Book">Book (OS)</option>
+                                        <option value="BookChapter">Book Chapter (COS)</option>
+                                        <option value="VulgarizationBookChapter">Vulgarization Book Chapter (COV)</option>
+                                        <option value="InvitedConference">Invited Conference (C-INV)</option>
+                                        <option value="BookEdition">Book Edition (DOR)</option>
+                                        <option value="Seminar">Seminar (C-COM)</option>
+                                        <option value="HDRThesis">HDR Thesis (TH)</option>
+                                        <option value="PHDThesis">PHD Thesis (TH)</option>
+                                        <option value="MasterOnResearch">Master On Research (TH)</option>
+                                        <option value="PopularizationPaper">Popularization Paper (AV)</option>
+                                        <option value="Patent">Patent (AP)</option>
+                                        <option value="EngineeringActivity">Engineering Activity</option>
+                                        <option value="EngineeringThesis">Engineering Thesis (TH)</option>
+                                        <option value="ScientificPopularizationBook">Scientific Popularization Book (OV)
+                                        </option>
+                                        <option value="UserDocumentation">User Documentation</option>
+                                    </select>
+                                </div>
+
+                                <div id="unlockOnceTypeChosen">
+                                    <div class="form-group">
+                                        <label for="publicationTitle" class="col-form-label">Title</label>
+                                        <input class="form-control" type="text" value="" placeholder="Publication title" id="publicationTitle" name="publicationTitle">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationAbstract" class="col-form-label">Abstract</label>
+                                        <textarea class="form-control" type="text" value="" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationKeywords" class="col-form-label">Keywords</label>
+                                        <input class="form-control" type="text" value="" placeholder="keyword1, keyword2, keyword3, ..." id="publicationKeywords" name="publicationKeywords">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationDate" class="col-form-label">Date</label>
+                                        <input class="form-control" type="date" value="jj/mm/aaaa" id="publicationDate" name="publicationDate">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationNote" class="col-form-label">Note</label>
+                                        <input class="form-control" type="text" value="" placeholder="Publication note" id="publicationNote" name="publicationNote">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationAnnotations" class="col-form-label">Annotations</label>
+                                        <input class="form-control" type="text" value="" placeholder="Publication annotations" id="publicationAnnotations" name="publicationAnnotations">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationIsbn" class="col-form-label">ISBN</label>
+                                        <input class="form-control" type="text" value="" placeholder="978-3-16-148410-0" id="publicationIsbn" name="publicationIsbn">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationIssn" class="col-form-label">ISSN</label>
+                                        <input class="form-control" type="text" value="" placeholder="0003-181X" id="publicationIssn" name="publicationIssn">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationDoi" class="col-form-label">DOI</label>
+                                        <input class="form-control" type="text" value="" placeholder="10.1000/182" id="publicationDoi" name="publicationDoi">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationUrl" class="col-form-label">URL</label>
+                                        <input class="form-control" type="text" value="" placeholder="http://website.com" id="publicationUrl" name="publicationUrl">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationDblp" class="col-form-label">DBLP</label>
+                                        <input class="form-control" type="text" value="" placeholder="http://website.com" id="publicationDblp" name="publicationDblp">
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main content area end -->
+</div>
+<!-- page container area end -->
+</body>
+
+<script th:inline="javascript">
+
+
+    $(document).ready(function () {
+        $('#form').validate({
+            rules: {
+                publicationTitle: 'required',
+                publicationAbstract: {
+                    required: true,
+                    minlength: 2
+                },
+                publicationDate: 'required',
+            },
+            messages: {
+                publicationTitle: 'Please enter the publication title',
+                publicationAbstract: {
+                    required: 'Please enter an abstract',
+                    minlength: 'The abstract is too short...'
+                },
+                publicationDate: 'Please enter the publication date',
+            },
+            errorElement: 'em',
+            errorPlacement: function errorPlacement(error, element) {
+                error.addClass('invalid-feedback');
+
+                if (element.prop('type') === 'checkbox') {
+                    error.insertAfter(element.parent('label'));
+                } else {
+                    error.insertAfter(element);
+                }
+            },
+            // eslint-disable-next-line object-shorthand
+            highlight: function highlight(element) {
+                $(element).addClass('is-invalid').removeClass('is-valid');
+            },
+            // eslint-disable-next-line object-shorthand
+            unhighlight: function unhighlight(element) {
+                $(element).addClass('is-valid').removeClass('is-invalid');
+            }
+        });
+
+        $("#unlockOnceTypeChosen *").prop('disabled',true); // disable at beginning
+
+        $("#publicationType").on('change', function() {
+            if(this.value === "null") {
+                $("#unlockOnceTypeChosen *").prop('disabled',true);
+            }
+            else {
+                $("#unlockOnceTypeChosen *").prop('disabled',false);
+            }
+        })
+    });
+
+</script>
+</html>
+

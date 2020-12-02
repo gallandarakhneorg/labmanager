@@ -293,6 +293,181 @@ public class Publication implements Serializable {
         return pubType;
     }
 
+    public String buildTitleHtml() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("<h5><a href=\"#\" class=\"details-control publicationTitle\">" + this.getPubTitle() + "");
+        if(this.getPubPaperAwardPath() != null && !this.getPubPaperAwardPath().isEmpty()) sb.append("&nbsp;&nbsp;<span class=\"badge badge-pill badge-danger\">Award</span>");
+        if(this.getPubPDFPath() != null && !this.getPubPDFPath().isEmpty()) sb.append("&nbsp;&nbsp;<span class=\"badge badge-pill badge-success\">PDF</span>");
+        sb.append("</a></h5>");
+
+        String authors = buildAuthorsHtml();
+        if(!authors.isEmpty()) sb.append("<h6>" + buildAuthorsHtml() + ".</h6>");
+
+        sb.append("<small class=\"text-muted\">" + buildDescriptionHtml() + "</small>");
+        return sb.toString();
+    }
+
+    public String buildAuthorsHtml() {
+        StringBuilder sb = new StringBuilder();
+        int i = 0;
+        for(Authorship a : this.getPubAuts()) {
+            if(a.getAut().isHasPage()) {
+                // Has a page
+                sb.append("<a class=\"publicationAuthor\" href=\"/author-" + a.getAut().getAutId() + "\">");
+                sb.append(a.getAut().getAutFirstName());
+                sb.append(" ");
+                sb.append(a.getAut().getAutLastName());
+                sb.append("</a>");
+            }
+            else {
+                // Nope
+                sb.append(a.getAut().getAutFirstName());
+                sb.append(" ");
+                sb.append(a.getAut().getAutLastName());
+            }
+            if(i < this.getPubAuts().size() - 2) {
+                sb.append(", ");
+            }
+            if(i == this.getPubAuts().size() - 2) {
+                sb.append(" and ");
+            }
+            i++;
+        }
+        return sb.toString();
+    }
+
+    public String buildLinksHtml() {
+        StringBuilder sb = new StringBuilder();
+
+        if(this.getPubISBN() != null && !this.getPubISBN().isEmpty()) sb.append("ISBN: " + this.getPubISBN() + "<br/>");
+        if(this.getPubISSN() != null && !this.getPubISSN().isEmpty()) sb.append("ISSN: " + this.getPubISSN() + "<br/>");
+        if(this.getPubDOIRef() != null && !this.getPubDOIRef().isEmpty()) {
+            if(this.getPubDOIRef().contains("http://dx.doi.org/"))
+            {
+                sb.append("DOI: <a href=\"" + this.getPubDOIRef() + "\">" + this.getPubDOIRef().replace("http://dx.doi.org/", "") + "</a>");
+            }
+            else if(this.getPubDOIRef().contains("https://doi.org/"))
+            {
+                sb.append("DOI: <a href=\"" + this.getPubDOIRef() + "\">" + this.getPubDOIRef().replace("https://doi.org/", "") + "</a>");
+            }
+            else if(this.getPubDOIRef().contains("//doi.org/"))
+            {
+                sb.append("DOI: <a href=\"" + this.getPubDOIRef() + "\">" + this.getPubDOIRef().replace("//doi.org/", "") + "</a>");
+            }
+            else {
+                sb.append("DOI: <a href=\"http://dx.doi.org/" + this.getPubDOIRef() + "\">" + this.getPubDOIRef() + "</a>");
+            }
+        }
+        return sb.toString();
+    }
+
+    public String buildDescriptionHtml() {
+        StringBuilder sb = new StringBuilder();
+        switch(this.getPubType()) {
+            case InternationalJournalWithReadingCommittee:
+            case NationalJournalWithReadingCommittee:
+            case InternationalJournalWithoutReadingCommittee:
+            case NationalJournalWithoutReadingCommittee:
+            case PopularizationPaper:                 //ReadingCommitteeJournalPopularizationPaper
+                if(((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapJournal() != null) {
+                    if(((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapJournal().getJourName() != null && !((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapJournal().getJourName().isEmpty())
+                        sb.append("In " + ((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapJournal().getJourName() + ", ");
+                }
+                if(((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapVolume() != null && !((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapVolume().isEmpty())  sb.append("vol. " + ((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapVolume() + ", ");
+                if(((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapPages() != null && !((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapPages().isEmpty())  sb.append("pthis. " + ((ReadingCommitteeJournalPopularizationPaper)this).getReaComConfPopPapPages() + ", ");
+                break;
+            case InternationalConferenceWithProceedings:
+            case NationalConferenceWithProceedings:
+            case InternationalConferenceWithoutProceedings:
+            case NationalConferenceWithoutProceedings:                //ProceedingsConference
+                if(((ProceedingsConference)this).getProConfBookNameProceedings() != null && !((ProceedingsConference)this).getProConfBookNameProceedings().isEmpty())  sb.append("In " + ((ProceedingsConference)this).getProConfBookNameProceedings() + ", ");
+                if(((ProceedingsConference)this).getProConfPages() != null && !((ProceedingsConference)this).getProConfPages().isEmpty())  sb.append("pthis. " + ((ProceedingsConference)this).getProConfPages() + ", ");
+                if(((ProceedingsConference)this).getProConfEditor() != null && !((ProceedingsConference)this).getProConfEditor().isEmpty())  sb.append("" + ((ProceedingsConference)this).getProConfEditor() + ", ");
+                if(((ProceedingsConference)this).getProConfAddress() != null && !((ProceedingsConference)this).getProConfAddress().isEmpty())  sb.append("" + ((ProceedingsConference)this).getProConfAddress() + ", ");
+                break;
+            case Book:
+            case BookEdition://Book
+                if(((Book)this).getBookVolume() != null && !((Book)this).getBookVolume().isEmpty())  sb.append("vol. " + ((Book)this).getBookVolume() + ", ");
+                if(((Book)this).getBookPages() != null && !((Book)this).getBookPages().isEmpty())  sb.append("pthis. " + ((Book)this).getBookPages() + ", ");
+                if(((Book)this).getBookAddress() != null && !((Book)this).getBookAddress().isEmpty())  sb.append(((Book)this).getBookAddress() + ", ");
+                break;
+            case BookChapter:
+            case VulgarizationBookChapter:
+                //Book Chapter
+                break;
+            case InvitedConference:
+            case Patent:
+            case Seminar:
+                // SeminarPatentInvitedConference
+                break;
+            case HDRThesis:
+            case PHDThesis:
+            case MasterOnResearch: //UniversityDocument
+                if(((UniversityDocument)this).getUniDocAddress() != null && !((UniversityDocument)this).getUniDocAddress().isEmpty())  sb.append(((UniversityDocument)this).getUniDocAddress() + ", ");
+                if(((UniversityDocument)this).getUniDocSchoolName() != null && !((UniversityDocument)this).getUniDocSchoolName().isEmpty())  sb.append(((UniversityDocument)this).getUniDocSchoolName() + ", ");
+                break;
+            default:
+                break;
+        }
+        sb.append(this.getPubYear() + ".");
+        return sb.toString();
+    }
+
+    public String getPubTypeToString() {
+        switch(pubType){
+
+            case InternationalJournalWithReadingCommittee:
+                return "International journal with reading committee";
+            case NationalJournalWithReadingCommittee:
+                return "National journal with reading committee";
+            case InternationalJournalWithoutReadingCommittee:
+                return "International journal without reading committee";
+            case NationalJournalWithoutReadingCommittee:
+                return "Naational journal without reading committee";
+            case InternationalConferenceWithProceedings:
+                return "International conference with proceedings";
+            case NationalConferenceWithProceedings:
+                return "National conference with proceedings";
+            case InternationalConferenceWithoutProceedings:
+                return "International conference without proceedings";
+            case NationalConferenceWithoutProceedings:
+                return "Naational conference without proceedings";
+            case Book:
+                return "Book";
+            case BookChapter:
+                return "Book chapter";
+            case VulgarizationBookChapter:
+                return "Vulgarization book chapter";
+            case InvitedConference:
+                return "Invited conference";
+            case BookEdition:
+                return "Book edition";
+            case Seminar:
+                return "Seminar";
+            case HDRThesis:
+                return "HDR thesis";
+            case PHDThesis:
+                return "PHD thesis";
+            case MasterOnResearch:
+                return "Master on research";
+            case PopularizationPaper:
+                return "Popularization paper";
+            case Patent:
+                return "Patent";
+            case EngineeringActivity:
+                return "Engineering activity";
+            case EngineeringThesis:
+                return "Engineering thesis";
+            case ScientificPopularizationBook:
+                return "Scientific popularization book";
+            case UserDocumentation:
+                return "User documentation";
+            case TypeLess:
+            default:
+                return "?";
+        }
+    }
+
     public void setPubType(PublicationType pubType) {
         this.pubType = pubType;
     }

@@ -33,6 +33,7 @@ public class Membership implements Serializable {
     @Enumerated(EnumType.STRING)
     private MemberStatus memStatus;
 
+
     public Membership(Author aut, ResearchOrganization resOrg, Date memSinceWhen, Date memToWhen,
                       MemberStatus memStatus) {
         super();

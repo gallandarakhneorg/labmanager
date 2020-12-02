@@ -212,8 +212,8 @@ public class PublicationServ {
         }
     }
 
-    public Set<Publication> getLinkedMembersPublications(int index) {
-        Set<Publication> publications = repo.findDistinctByPubAutsAutAutOrgsResOrgResOrgId(index);
+    public List<Publication> getLinkedMembersPublications(int index) {
+        List<Publication> publications = repo.findDistinctByPubAutsAutAutOrgsResOrgResOrgId(index);
 
         for (Publication p : publications) {
             sortAuthorships(p);
@@ -237,8 +237,8 @@ public class PublicationServ {
         return publications;
     }
 
-    public Set<Publication> getLinkedPublications(int index) {
-        Set<Publication> publications = repo.findDistinctByPubAutsAutAutId(index);
+    public List<Publication> getLinkedPublications(int index) {
+        List<Publication> publications = repo.findDistinctByPubAutsAutAutId(index);
 
         for (Publication p : publications) {
             sortAuthorships(p);
@@ -1311,6 +1311,7 @@ public class PublicationServ {
         return r;
     }
 
+    @Deprecated
     public String exportPublications(String pubs) {
         //System.out.println("in "+pubs);
         String export = "";
@@ -1334,6 +1335,7 @@ public class PublicationServ {
         return export;
     }
 
+    @Deprecated
     public String pickExport(String pubs, String type) {
         String text = "";
 
@@ -1763,6 +1765,28 @@ public class PublicationServ {
         return bib;
     }
 
+    /**
+     * TMT 02/12/20 : create a new function to export a single publication in HTML using its ID
+     * @param pubId the publication ID
+     * @return the HTML encapsuled inside li tag
+     */
+    public String exportOneHtml(int pubId) {
+        String html = "";
+
+        Publication pub = getPublication(pubId).get(0);
+
+        //details for each pub :
+        // TODO use new functions availables into Publication class
+        html += "<li align=\"justify\">";
+        html += printPubAuthors(pub);
+        html += printPubDesc(pub);
+        html += printPubLinks(pub);
+        html += "</li>";
+
+        return html;
+    }
+
+    @Deprecated
     public String exportOneHtml(String[] pubL, int i) {
         String html = "";
 
@@ -1816,6 +1840,7 @@ public class PublicationServ {
         return html;
     }
 
+    @Deprecated
     public String exportOneWos(int pubId) {
         String wos = "";
 
@@ -2201,10 +2226,12 @@ public class PublicationServ {
         if (exportContent.compareTo("all") == 0) //export all pubs
         {
             pubList.addAll(repo.findAll());
-        } else if (exportContent.contains("org:")) //export all pubs of a given organization
+        }
+        else if (exportContent.contains("org:")) //export all pubs of a given organization
         {
             pubList.addAll(repo.findDistinctByPubAutsAutAutOrgsResOrgResOrgId(Integer.parseInt(exportContent.substring(exportContent.indexOf("org:") + 4))));
-        } else if (exportContent.contains("aut:")) //export all pubs of a given author
+        }
+        else if (exportContent.contains("aut:")) //export all pubs of a given author
         {
             pubList.addAll(repo.findDistinctByPubAutsAutAutId(Integer.parseInt(exportContent.substring(exportContent.indexOf("aut:") + 4))));
         }

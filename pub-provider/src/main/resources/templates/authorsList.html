@@ -1,18 +1,14 @@
 <!DOCTYPE html >
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
-<link rel="stylesheet" th:href="@{/css/style.css}"/>
+<th:block th:replace="fragments/head :: style" />
+<th:block th:replace="fragments/head :: script" />
 
-<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.22/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/r-2.2.6/datatables.min.css"/>
-<script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.22/b-1.6.5/b-colvis-1.6.5/b-html5-1.6.5/b-print-1.6.5/r-2.2.6/datatables.min.js"></script>
-
-
-<table class="table table-responsive-sm table-bordered table-striped table-sm ciadCSS" th:id="${'table'+uuid}" style="width: 100%">
+<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
         <th>Last Name</th>
         <th>First Name</th>
-        <th>Other Organizations</th>
+        <th>Hosting institutions</th>
         <th>Status within CIAD</th>
     </thead>
     <tbody>
