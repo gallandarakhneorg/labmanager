@@ -3,10 +3,7 @@ package com.spring.rest.controller;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.spring.rest.entities.MemberStatus;
-import com.spring.rest.entities.Membership;
-import com.spring.rest.entities.Publication;
-import com.spring.rest.entities.ResearchOrganization;
+import com.spring.rest.entities.*;
 import com.spring.rest.services.AuthorServ;
 import com.spring.rest.services.PublicationServ;
 import com.spring.rest.services.ResearchOrganizationServ;
@@ -109,6 +106,11 @@ public class MainController {
     @GetMapping("/addPublication")
     public ModelAndView addPublication() {
         final ModelAndView modelAndView = new ModelAndView("addPublication");
+        Set<Author> authors = new HashSet<>();
+
+        resOrgServ.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut() )));
+
+        modelAndView.addObject("authors", authors);
         return modelAndView;
     }
 

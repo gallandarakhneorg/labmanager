@@ -8,6 +8,54 @@ function downloadString(filename, text) {
     document.body.removeChild(element);
 }
 
+
+function groupPublicationTypes(pubType)
+{
+    var typeGroup="Typeless";
+
+    if(pubType=="InternationalJournalWithReadingCommittee" || pubType=="NationalJournalWithReadingCommittee" || pubType=="InternationalJournalWithoutReadingCommittee" || pubType=="NationalJournalWithoutReadingCommittee" || pubType=="PopularizationPaper")
+    {
+        typeGroup="ReadingCommitteeJournalPopularizationPaper";
+    }
+
+    if(pubType=="InternationalConferenceWithProceedings" || pubType=="NationalConferenceWithProceedings" || pubType=="InternationalConferenceWithoutProceedings" || pubType=="NationalConferenceWithoutProceedings")
+    {
+        typeGroup="ProceedingsConference";
+    }
+
+    if(pubType=="Book" || pubType=="BookEdition" || pubType=="ScientificPopularizationBook")
+    {
+        typeGroup="Book";
+    }
+
+    if(pubType=="BookChapter" || pubType=="VulgarizationBookChapter")
+    {
+        typeGroup="BookChapter";
+    }
+
+    if(pubType=="Seminar" || pubType=="Patent" || pubType=="InvitedConference")
+    {
+        typeGroup="SeminarPatentInvitedConference";
+    }
+
+    if(pubType=="HDRThesis" || pubType=="PHDThesis" || pubType=="MasterOnResearch" || pubType=="EngineeringThesis")
+    {
+        typeGroup="UniversityDocument";
+    }
+
+    if(pubType=="EngineeringActivity")
+    {
+        typeGroup="EngineeringActivity";
+    }
+
+    if(pubType=="UserDocumentation")
+    {
+        typeGroup="UserDocumentation";
+    }
+
+    return typeGroup;
+}
+
 (function($) {
     "use strict";
 

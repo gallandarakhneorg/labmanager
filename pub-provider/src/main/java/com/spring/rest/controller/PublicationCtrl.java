@@ -6,10 +6,8 @@ import com.spring.rest.services.PublicationServ;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.sql.Date;
 import java.util.List;
@@ -54,7 +52,8 @@ public class PublicationCtrl {
 
     //Creates one specific entity based on its fields (minus its relationship fields)
     //made it so that createXXXX gives the Id of the created publication back for conveniance
-    @RequestMapping(value = "/createPublication", method = RequestMethod.POST, headers = "Accept=application/json")
+    @Deprecated
+    //@RequestMapping(value = "/createPublication", method = RequestMethod.POST, headers = "Accept=application/json")
     public int createPublication(String pubTitle, String pubAbstract,
                                  String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
                                  String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
@@ -75,6 +74,56 @@ public class PublicationCtrl {
                 pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
                 pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
                 pubPaperAwardPath, pubType);
+    }
+
+    @RequestMapping(value = "/createPublication",
+  method = RequestMethod.POST,
+  headers = "Accept=application/json")
+    public void createPublication(String publicationType,
+                                  String publicationTitle,
+                                  String publicationAbstract,
+                                  String publicationKeywords,
+                                  String publicationDate,
+                                  @RequestParam(required = false) String publicationNote,
+                                  @RequestParam(required = false) String publicationAnnotations,
+                                  @RequestParam(required = false) String publicationIsbn,
+                                  @RequestParam(required = false) String publicationIssn,
+                                  @RequestParam(required = false) String publicationDoi,
+                                  @RequestParam(required = false) String publicationUrl,
+                                  @RequestParam(required = false) String publicationDblp,
+                                  @RequestParam(required = false) MultipartFile publicationPdf,
+                                  @RequestParam(required = false) MultipartFile publicationAward,
+                                  @RequestParam(required = false) String reaComConfPopPapVolume,
+                                  @RequestParam(required = false) String reaComConfPopPapNumber,
+                                  @RequestParam(required = false) String reaComConfPopPapPages,
+                                  @RequestParam(required = false) String proConfBookNameProceedings,
+                                  @RequestParam(required = false) String proConfEditor,
+                                  @RequestParam(required = false) String proConfPages,
+                                  @RequestParam(required = false) String proConfOrganization,
+                                  @RequestParam(required = false) String proConfPublisher,
+                                  @RequestParam(required = false) String proConfAddress,
+                                  @RequestParam(required = false) String proConfSeries,
+                                  @RequestParam(required = false) String bookEditor,
+                                  @RequestParam(required = false) String bookPublisher,
+                                  @RequestParam(required = false) String bookVolume,
+                                  @RequestParam(required = false) String bookSeries,
+                                  @RequestParam(required = false) String bookAddress,
+                                  @RequestParam(required = false) String bookEdition,
+                                  @RequestParam(required = false) String bookPages,
+                                  @RequestParam(required = false) String bookChapBookNameProceedings,
+                                  @RequestParam(required = false) String bookChapNumberOrName,
+                                  @RequestParam(required = false) String semPatHowPub,
+                                  @RequestParam(required = false) String uniDocSchoolName,
+                                  @RequestParam(required = false) String uniDocAddress,
+                                  @RequestParam(required = false) String engActInstitName,
+                                  @RequestParam(required = false) String engActReportType,
+                                  @RequestParam(required = false) String engActNumber,
+                                  @RequestParam(required = false) String userDocOrganization,
+                                  @RequestParam(required = false) String userDocAddress,
+                                  @RequestParam(required = false) String userDocEdition,
+                                  @RequestParam(required = false) String userDocPublisher) {
+
+
     }
 
     //Import a bibTex file to the database.

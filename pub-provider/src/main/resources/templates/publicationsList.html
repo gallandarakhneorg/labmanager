@@ -35,6 +35,29 @@
             text-decoration: underline;
         }
 
+        .odd {
+            background-color: white !important;
+        }
+        .even {
+            background-color: white !important;
+        }
+
+        .table-responsive {
+            overflow-x: hidden !important;
+        }
+        table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.dataTable tbody td.selected {
+            color: #96c10d !important;
+            background-color: grey !important;
+        }
+
+        .page-item.active .page-link {
+            background-color: #96c10d !important;
+            border-color: #96c10d !important;
+        }
+
+        .page-link {
+            color: #96c10d !important;
+        }
 
     </style>
 </head>
@@ -123,7 +146,7 @@
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <div class="table-responsive">
+                            <div class="table table-responsive">
                                 <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
                                     <thead>
                                     <th></th>
@@ -306,9 +329,10 @@
                 ],
                 layout: 'columns-3',
             },
-            dom: 'Pt',
+            dom: 'Ptp',
             scrollCollapse: true,
-            paging: false,
+            paging: true,
+            deferRender:true,
             order: [ [3, 'desc'], [4, 'asc'] ],
             rowGroup: {
                 startRender: function ( rows, group ) {

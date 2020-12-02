@@ -8,6 +8,14 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
+    <style>
+        .custom-select.is-valid, .form-control.is-valid, .was-validated .custom-select:valid, .was-validated .form-control:valid {
+            border-color: #0d64c1;
+        }
+    </style>
 </head>
 
 <body>
@@ -22,10 +30,10 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="header-title">Add publication</h4>
-                            <form id="form">
+                            <form id="form" enctype="multipart/form-data">
                                 <div class="form-group">
                                     <label class="col-form-label">Publication type</label>
-                                    <select class="custom-select" id="publicationType">
+                                    <select class="custom-select" id="publicationType" name="publicationType">
                                         <option value="null" selected="selected">Select a publication type</option>
                                         <option value="InternationalJournalWithReadingCommittee">International Journal With Reading Committee (ACL/ACLN)
                                         </option>
@@ -105,8 +113,175 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationDblp" class="col-form-label">DBLP</label>
-                                        <input class="form-control" type="text" value="" placeholder="http://website.com" id="publicationDblp" name="publicationDblp">
+                                        <input class="form-control" type="text" value="" placeholder="http://dblp..." id="publicationDblp" name="publicationDblp">
                                     </div>
+                                    <div class="form-group">
+                                        <label class="col-form-label">Language</label>
+                                        <select class="custom-select" id="publicationLanguage">
+                                            <option value="English" selected="selected">English</option>
+                                            <option value="French">French</option>
+                                            <option value="Spanish">Spanish</option>
+                                            <option value="Italian">Italian</option>
+                                            <option value="German">German</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationPdf" class="col-form-label">PDF</label>
+                                        <input class="form-control" type="file" value="" id="publicationPdf" name="publicationPdf">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationAward" class="col-form-label">Award</label>
+                                        <input class="form-control" type="file" value="" id="publicationAward" name="publicationAward">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationAuthors" class="col-form-label">Authors</label>
+                                        <select id="publicationAuthors" class="js-example-basic-multiple js-states form-control" name="publicationAuthors" multiple="multiple">
+                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                        </select>
+                                    </div>
+
+                                    <div class="unlockIfReadingCommitteeJournalPopularizationPaper">
+                                        <div class="form-group">
+                                            <label for="reaComConfPopPapVolume" class="col-form-label">Journal volume</label>
+                                            <input class="form-control" type="text" value="" placeholder="12" id="reaComConfPopPapVolume" name="reaComConfPopPapVolume">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="reaComConfPopPapNumber" class="col-form-label">Journal number</label>
+                                            <input class="form-control" type="text" value="" placeholder="134" id="reaComConfPopPapNumber" name="reaComConfPopPapNumber">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="reaComConfPopPapPages" class="col-form-label">Journal pages</label>
+                                            <input class="form-control" type="text" value="" placeholder="4-5, 15" id="reaComConfPopPapPages" name="reaComConfPopPapPages">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfProceedingsConference">
+                                        <div class="form-group">
+                                            <label for="proConfBookNameProceedings" class="col-form-label">Name of the Book with proceedings</label>
+                                            <input class="form-control" type="text" value="" placeholder="Book Name or Proceedings" id="proConfBookNameProceedings" name="proConfBookNameProceedings">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfEditor" class="col-form-label">Conference editor</label>
+                                            <input class="form-control" type="text" value="" placeholder="Conference Editor" id="proConfEditor" name="proConfEditor">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfPages" class="col-form-label">Conference pages</label>
+                                            <input class="form-control" type="text" value="" placeholder="4-5, 15" id="proConfPages" name="proConfPages">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfOrganization" class="col-form-label">Conference organization</label>
+                                            <input class="form-control" type="text" value="" placeholder="Conference organization" id="proConfOrganization" name="proConfOrganization">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfPublisher" class="col-form-label">Conference publisher</label>
+                                            <input class="form-control" type="text" value="" placeholder="Conference publisher" id="proConfPublisher" name="proConfPublisher">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfAddress" class="col-form-label">Conference address</label>
+                                            <input class="form-control" type="text" value="" placeholder="Conference address" id="proConfAddress" name="proConfAddress">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfSeries" class="col-form-label">Conference series</label>
+                                            <input class="form-control" type="text" value="" placeholder="Conference series" id="proConfSeries" name="proConfSeries">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfBook unlockIfBookChapter">
+                                        <div class="form-group">
+                                            <label for="bookEditor" class="col-form-label">Book editor</label>
+                                            <input class="form-control" type="text" value="" placeholder="Book editor" id="bookEditor" name="bookEditor">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookPublisher" class="col-form-label">Book publisher</label>
+                                            <input class="form-control" type="text" value="" placeholder="Book publisher" id="bookPublisher" name="bookPublisher">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookVolume" class="col-form-label">Book volume</label>
+                                            <input class="form-control" type="text" value="" placeholder="2" id="bookVolume" name="bookVolume">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookSeries" class="col-form-label">Book series</label>
+                                            <input class="form-control" type="text" value="" placeholder="Book series" id="bookSeries" name="bookSeries">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookAddress" class="col-form-label">Book address</label>
+                                            <input class="form-control" type="text" value="" placeholder="Book address" id="bookAddress" name="bookAddress">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookEdition" class="col-form-label">Book edition</label>
+                                            <input class="form-control" type="text" value="" placeholder="Book edition" id="bookEdition" name="bookEdition">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookPages" class="col-form-label">Book pages</label>
+                                            <input class="form-control" type="text" value="" placeholder="5, 4-5" id="bookPages" name="bookPages">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfBookChapter">
+                                        <div class="form-group">
+                                            <label for="bookChapBookNameProceedings" class="col-form-label">Name of the book with proceedings</label>
+                                            <input class="form-control" type="text" value="" placeholder="Name of the book with proceedings" id="bookChapBookNameProceedings" name="bookChapBookNameProceedings">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookChapNumberOrName" class="col-form-label">Chapter number or name</label>
+                                            <input class="form-control" type="text" value="" placeholder="Chapter number or name" id="bookChapNumberOrName" name="bookChapNumberOrName">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfSeminarPatentInvitedConference">
+                                        <div class="form-group">
+                                            <label for="semPatHowPub" class="col-form-label">Publication method</label>
+                                            <input class="form-control" type="text" value="" placeholder="How it was published?" id="semPatHowPub" name="semPatHowPub">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfUniversityDocument">
+                                        <div class="form-group">
+                                            <label for="uniDocSchoolName" class="col-form-label">University name</label>
+                                            <input class="form-control" type="text" value="" placeholder="Name of the school" id="uniDocSchoolName" name="uniDocSchoolName">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="uniDocAddress" class="col-form-label">University address</label>
+                                            <input class="form-control" type="text" value="" placeholder="Address of the school" id="uniDocAddress" name="uniDocAddress">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="unlockIfEngineeringActivity">
+                                        <div class="form-group">
+                                            <label for="engActInstitName" class="col-form-label">Institute name</label>
+                                            <input class="form-control" type="text" value="" placeholder="Name of the institution" id="engActInstitName" name="engActInstitName">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="engActReportType" class="col-form-label">Report type</label>
+                                            <input class="form-control" type="text" value="" placeholder="Type of the report" id="engActReportType" name="engActReportType">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="engActNumber" class="col-form-label">Number</label>
+                                            <input class="form-control" type="text" value="" placeholder="Number of the activity report" id="engActNumber" name="engActNumber">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfUserDocumentation">
+                                        <div class="form-group">
+                                            <label for="userDocOrganization" class="col-form-label">Organization</label>
+                                            <input class="form-control" type="text" value="" placeholder="Organization the user documentation belongs to" id="userDocOrganization" name="userDocOrganization">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="userDocAddress" class="col-form-label">Report type</label>
+                                            <input class="form-control" type="text" value="" placeholder="Address of the user documentation" id="userDocAddress" name="userDocAddress">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="userDocEdition" class="col-form-label">Edition</label>
+                                            <input class="form-control" type="text" value="" placeholder="Edition of the user documentation" id="userDocEdition" name="userDocEdition">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="userDocPublisher" class="col-form-label">Publisher</label>
+                                            <input class="form-control" type="text" value="" placeholder="Publisher of the user documentation" id="userDocPublisher" name="userDocPublisher">
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Submit</button>
                                 </div>
                             </form>
                         </div>
@@ -124,6 +299,11 @@
 
 
     $(document).ready(function () {
+        $('#publicationAuthors').select2({
+            tags: true,
+            placeholder: 'Enter authors'
+        });
+
         $('#form').validate({
             rules: {
                 publicationTitle: 'required',
@@ -162,13 +342,63 @@
         });
 
         $("#unlockOnceTypeChosen *").prop('disabled',true); // disable at beginning
+        $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
+        $(".unlockIfBook").hide();
+        $(".unlockIfBookChapter").hide();
+        $(".unlockIfEngineeringActivity").hide();
+        $(".unlockIfProceedingsConference").hide();
+        $(".unlockIfSeminarPatentInvitedConference").hide();
+        $(".unlockIfUniversityDocument").hide();
+        $(".unlockIfUserDocumentation").hide();
 
         $("#publicationType").on('change', function() {
+            $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
+            $(".unlockIfBook").hide();
+            $(".unlockIfBookChapter").hide();
+            $(".unlockIfEngineeringActivity").hide();
+            $(".unlockIfProceedingsConference").hide();
+            $(".unlockIfSeminarPatentInvitedConference").hide();
+            $(".unlockIfUniversityDocument").hide();
+            $(".unlockIfUserDocumentation").hide();
             if(this.value === "null") {
                 $("#unlockOnceTypeChosen *").prop('disabled',true);
             }
             else {
                 $("#unlockOnceTypeChosen *").prop('disabled',false);
+                switch(groupPublicationTypes(this.value)) {
+                    case "ReadingCommitteeJournalPopularizationPaper":
+                        $(".unlockIfReadingCommitteeJournalPopularizationPaper").show();
+                        break;
+
+                    case "ProceedingsConference":
+                        $(".unlockIfProceedingsConference").show();
+                        break;
+
+                    case "Book":
+                        $(".unlockIfBook").show();
+                        break;
+
+                    case "BookChapter":
+                        $(".unlockIfBookChapter").show();
+                        break;
+
+                    case "SeminarPatentInvitedConference":
+                        $(".unlockIfSeminarPatentInvitedConference").show();
+                        break;
+
+                    case "UniversityDocument":
+                        $(".unlockIfUniversityDocument").show();
+                        break;
+
+                    case "EngineeringActivity":
+                        $(".unlockIfEngineeringActivity").show();
+                        break;
+
+                    case "UserDocumentation":
+                        $(".unlockIfUserDocumentation").show();
+                        break;
+                }
+
             }
         })
     });
