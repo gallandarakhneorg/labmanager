@@ -92,10 +92,6 @@
                                         <input class="form-control" type="text" value="" placeholder="Publication note" id="publicationNote" name="publicationNote">
                                     </div>
                                     <div class="form-group">
-                                        <label for="publicationAnnotations" class="col-form-label">Annotations</label>
-                                        <input class="form-control" type="text" value="" placeholder="Publication annotations" id="publicationAnnotations" name="publicationAnnotations">
-                                    </div>
-                                    <div class="form-group">
                                         <label for="publicationIsbn" class="col-form-label">ISBN</label>
                                         <input class="form-control" type="text" value="" placeholder="978-3-16-148410-0" id="publicationIsbn" name="publicationIsbn">
                                     </div>
@@ -341,7 +337,7 @@
             }
         });
 
-        $("#unlockOnceTypeChosen *").prop('disabled',true); // disable at beginning
+        $("#unlockOnceTypeChosen").hide(); // disable at beginning
         $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
         $(".unlockIfBook").hide();
         $(".unlockIfBookChapter").hide();
@@ -361,10 +357,10 @@
             $(".unlockIfUniversityDocument").hide();
             $(".unlockIfUserDocumentation").hide();
             if(this.value === "null") {
-                $("#unlockOnceTypeChosen *").prop('disabled',true);
+                $("#unlockOnceTypeChosen").hide();
             }
             else {
-                $("#unlockOnceTypeChosen *").prop('disabled',false);
+                $("#unlockOnceTypeChosen").show();
                 switch(groupPublicationTypes(this.value)) {
                     case "ReadingCommitteeJournalPopularizationPaper":
                         $(".unlockIfReadingCommitteeJournalPopularizationPaper").show();
