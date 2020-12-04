@@ -1,6 +1,7 @@
 package com.spring.rest.services;
 
 import com.spring.rest.PubProviderApplication;
+import com.spring.rest.entities.Publication;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.entities.SeminarPatentInvitedConference;
 import com.spring.rest.repository.SeminarPatentInvitedConferenceRepository;
@@ -42,6 +43,13 @@ public class SeminarPatentInvitedConferenceServ {
         repo.deleteById(index);
     }
 
+    public SeminarPatentInvitedConference createSeminarPatentInvitedConference(Publication p, String semPatHowPub) {
+        SeminarPatentInvitedConference res = new SeminarPatentInvitedConference(p, semPatHowPub);
+        res = this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+        return res;
+    }
+
+    @Deprecated
     public int createSeminarPatentInvitedConference(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
                                                     String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
                                                     String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String semPatHowPub) {

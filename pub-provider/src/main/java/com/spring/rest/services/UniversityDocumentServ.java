@@ -1,6 +1,7 @@
 package com.spring.rest.services;
 
 import com.spring.rest.PubProviderApplication;
+import com.spring.rest.entities.Publication;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.entities.UniversityDocument;
 import com.spring.rest.repository.UniversityDocumentRepository;
@@ -42,6 +43,13 @@ public class UniversityDocumentServ {
         repo.deleteById(index);
     }
 
+    public UniversityDocument createUniversityDocument(Publication p, String uniDocSchoolName, String uniDocAddress) {
+        UniversityDocument res = new UniversityDocument(p, uniDocSchoolName, uniDocAddress);
+        res = this.repo.save(res);
+        return res;
+    }
+
+    @Deprecated
     public int createUniversityDocument(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
                                         String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
                                         String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String uniDocAddress, String uniDocSchoolName) {

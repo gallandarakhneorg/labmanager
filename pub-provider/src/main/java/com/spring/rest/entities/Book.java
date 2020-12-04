@@ -36,9 +36,20 @@ public class Book extends Publication {
     @Column
     private String bookPages;
 
-    public Book(String bookEditor, String bookPublisher, String bookVolume, String bookSeries, String bookAddress,
+    public Book(Publication p, Book b) {
+        super(p);
+        this.bookEditor = b.bookEditor;
+        this.bookPublisher = b.bookPublisher;
+        this.bookVolume = b.bookVolume;
+        this.bookSeries = b.bookSeries;
+        this.bookAddress = b.bookAddress;
+        this.bookEdition = b.bookEdition;
+        this.bookPages = b.bookPages;
+    }
+
+    public Book(Publication p, String bookEditor, String bookPublisher, String bookVolume, String bookSeries, String bookAddress,
                 String bookEdition, String bookPages) {
-        super();
+        super(p);
         this.bookEditor = bookEditor;
         this.bookPublisher = bookPublisher;
         this.bookVolume = bookVolume;

@@ -25,8 +25,8 @@ public class EngineeringActivity extends Publication {
     @Column
     private String engActNumber;
 
-    public EngineeringActivity(String engActInstitName, String engActReportType, String engActNumber) {
-        super();
+    public EngineeringActivity(Publication p, String engActInstitName, String engActReportType, String engActNumber) {
+        super(p);
         this.engActInstitName = engActInstitName;
         this.engActReportType = engActReportType;
         this.engActNumber = engActNumber;

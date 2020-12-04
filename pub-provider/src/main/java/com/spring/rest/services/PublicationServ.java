@@ -146,8 +146,8 @@ public class PublicationServ {
         }
     }
 
-    public int createPublication(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
-                                 String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
+    public Publication createPublication(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
+                                 String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubVideoURL, String pubDBLP,
                                  String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType) {
         final Publication res = new Publication();
         //Generic pub fields
@@ -162,15 +162,17 @@ public class PublicationServ {
         res.setPubDOIRef(pubDOIRef);
         res.setPubURL(pubURL);
         res.setPubDBLP(pubDBLP);
-        //res.setPubPDFPath(pubPDFPath);
+        res.setPubVideoURL(pubVideoURL);
+        res.setPubPDFPath(pubPDFPath);
         res.setPubLanguage(pubLanguage);
-        //res.setPubPaperAwardPath(pubPaperAwardPath);
+        res.setPubPaperAwardPath(pubPaperAwardPath);
         res.setPubType(pubType);
 
         this.repo.save(res);
 
-        return res.getPubId();
+        return res;
     }
+
 
     public void updatePublication(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
                                   String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,

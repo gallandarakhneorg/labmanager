@@ -22,10 +22,8 @@ public class BookChapter extends Book {
     @Column
     private String bookChapNumberOrName;
 
-    public BookChapter(String bookEditor, String bookPublisher, String bookVolume, String bookSeries,
-                       String bookAddress, String bookEdition, String bookPages, String bookChapBookNameProceedings,
-                       String bookChapNumberOrName) {
-        super(bookEditor, bookPublisher, bookVolume, bookSeries, bookAddress, bookEdition, bookPages);
+    public BookChapter(Publication p, Book b, String bookChapBookNameProceedings, String bookChapNumberOrName) {
+        super(p, b);
         this.bookChapBookNameProceedings = bookChapBookNameProceedings;
         this.bookChapNumberOrName = bookChapNumberOrName;
     }
@@ -35,11 +33,6 @@ public class BookChapter extends Book {
         // TODO Auto-generated constructor stub
     }
 
-    public BookChapter(String bookEditor, String bookPublisher, String bookVolume, String bookSeries,
-                       String bookAddress, String bookEdition, String bookPages) {
-        super(bookEditor, bookPublisher, bookVolume, bookSeries, bookAddress, bookEdition, bookPages);
-        // TODO Auto-generated constructor stub
-    }
 
     public String getBookChapBookNameProceedings() {
         return bookChapBookNameProceedings;

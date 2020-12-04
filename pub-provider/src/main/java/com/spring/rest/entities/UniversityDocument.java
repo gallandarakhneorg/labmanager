@@ -24,12 +24,8 @@ public class UniversityDocument extends Publication {
     @Column
     private String uniDocAddress;
 
-    public UniversityDocument(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
-                              String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                              String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                              String pubPaperAwardPath, PublicationType pubType, String uniDocSchoolName, String uniDocAddress) {
-        super(pubId, pubAuthorsByJoint, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN,
-                pubISSN, pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
+    public UniversityDocument(Publication p, String uniDocSchoolName, String uniDocAddress) {
+        super(p);
         this.uniDocSchoolName = uniDocSchoolName;
         this.uniDocAddress = uniDocAddress;
     }
@@ -39,14 +35,6 @@ public class UniversityDocument extends Publication {
         // TODO Auto-generated constructor stub
     }
 
-    public UniversityDocument(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
-                              String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                              String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                              String pubPaperAwardPath, PublicationType pubType) {
-        super(pubId, pubAuthorsByJoint, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
-                pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
-        // TODO Auto-generated constructor stub
-    }
 
     public String getUniDocSchoolName() {
         return uniDocSchoolName;

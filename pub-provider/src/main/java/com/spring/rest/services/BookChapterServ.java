@@ -1,7 +1,9 @@
 package com.spring.rest.services;
 
 import com.spring.rest.PubProviderApplication;
+import com.spring.rest.entities.Book;
 import com.spring.rest.entities.BookChapter;
+import com.spring.rest.entities.Publication;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.repository.BookChapterRepository;
 import org.slf4j.Logger;
@@ -42,6 +44,13 @@ public class BookChapterServ {
         repo.deleteById(index);
     }
 
+    public BookChapter createBookChapter(Publication p, Book b, String bookChapBookNameProceedings, String bookChapNumberOrName) {
+        BookChapter res = new BookChapter(p, b, bookChapBookNameProceedings, bookChapNumberOrName);
+        res = repo.save(res);
+        return res;
+    }
+
+    @Deprecated
     public int createBookChapter(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
                                  String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
                                  String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String bookEditor, String bookPublisher,

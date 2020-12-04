@@ -37,9 +37,10 @@ public class ProceedingsConference extends Publication {
     @Column
     private String proConfSeries;
 
-    public ProceedingsConference(String proConfBookNameProceedings, String proConfEditor, String proConfPages,
+
+    public ProceedingsConference(Publication p, String proConfBookNameProceedings, String proConfEditor, String proConfPages,
                                  String proConfOrganization, String proConfPublisher, String proConfAddress, String proConfSeries) {
-        super();
+        super(p);
         this.proConfBookNameProceedings = proConfBookNameProceedings;
         this.proConfEditor = proConfEditor;
         this.proConfPages = proConfPages;

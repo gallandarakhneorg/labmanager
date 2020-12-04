@@ -1,6 +1,7 @@
 package com.spring.rest.services;
 
 import com.spring.rest.PubProviderApplication;
+import com.spring.rest.entities.Publication;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.entities.UserDocumentation;
 import com.spring.rest.repository.UserDocumentationRepository;
@@ -42,6 +43,13 @@ public class UserDocumentationServ {
         repo.deleteById(index);
     }
 
+    public UserDocumentation createUserDocumentation(Publication p, String userDocAddress, String userDocEdition, String userDocOrganization, String userDocPublisher) {
+        UserDocumentation res = new UserDocumentation(p, userDocOrganization, userDocAddress, userDocEdition, userDocPublisher);
+        res = repo.save(res);
+        return res;
+    }
+
+    @Deprecated
     public int createUserDocumentation(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
                                        String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
                                        String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String userDocAddress, String userDocEdition, String userDocOrganization, String userDocPublisher) {

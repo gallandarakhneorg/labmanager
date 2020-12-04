@@ -1,16 +1,22 @@
 package com.spring.rest.controller;
 
-import com.spring.rest.entities.Publication;
-import com.spring.rest.entities.PublicationType;
-import com.spring.rest.services.PublicationServ;
+import com.spring.rest.PubProviderApplication;
+import com.spring.rest.entities.*;
+import com.spring.rest.services.*;
+import com.spring.rest.utils.FileUploadUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.sql.Date;
+import java.time.Instant;
+import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 @RestController
@@ -19,6 +25,28 @@ public class PublicationCtrl {
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
     @Autowired
     private PublicationServ pubServ;
+    @Autowired
+    private BookChapterServ bookChapterServ;
+    @Autowired
+    private BookServ bookServ;
+    @Autowired
+    private EngineeringActivityServ engineeringActivityServ;
+    @Autowired
+    private JournalServ journalServ;
+    @Autowired
+    private ProceedingsConferenceServ proceedingsConferenceServ;
+    @Autowired
+    private ResearchOrganizationServ researchOrganizationServ;
+    @Autowired
+    private SeminarPatentInvitedConferenceServ seminarPatentInvitedConferenceServ;
+    @Autowired
+    private UniversityDocumentServ universityDocumentServ;
+    @Autowired
+    private UserDocumentationServ userDocumentationServ;
+    @Autowired
+    private ReadingCommitteeJournalPopularizationPaperServ readingCommitteeJournalPopularizationPaperServ;
+    @Autowired
+    private AuthorServ authorServ;
 
     //Get all entities
     @RequestMapping(value = "/getgetPublications", method = RequestMethod.GET, headers = "Accept=application/json")
@@ -49,20 +77,20 @@ public class PublicationCtrl {
     public void removePublication(int index) {
         pubServ.removePublication(index);
     }
-
-    //Creates one specific entity based on its fields (minus its relationship fields)
-    //made it so that createXXXX gives the Id of the created publication back for conveniance
-    @Deprecated
-    //@RequestMapping(value = "/createPublication", method = RequestMethod.POST, headers = "Accept=application/json")
-    public int createPublication(String pubTitle, String pubAbstract,
-                                 String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                                 String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                                 String pubPaperAwardPath, PublicationType pubType) {
-        return pubServ.createPublication(pubTitle, pubAbstract,
-                pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
-                pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
-                pubPaperAwardPath, pubType);
-    }
+//
+//    //Creates one specific entity based on its fields (minus its relationship fields)
+//    //made it so that createXXXX gives the Id of the created publication back for conveniance
+//    @Deprecated
+//    //@RequestMapping(value = "/createPublication", method = RequestMethod.POST, headers = "Accept=application/json")
+//    public int createPublication(String pubTitle, String pubAbstract,
+//                                 String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
+//                                 String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
+//                                 String pubPaperAwardPath, PublicationType pubType) {
+//        return pubServ.createPublication(pubTitle, pubAbstract,
+//                pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
+//                pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage,
+//                pubPaperAwardPath, pubType);
+//    }
 
     //Updates one specific entity based on its fields (minus its relationship fields)
     @RequestMapping(value = "/updatePublication", method = RequestMethod.POST, headers = "Accept=application/json")
@@ -84,15 +112,17 @@ public class PublicationCtrl {
                                   String publicationAbstract,
                                   String publicationKeywords,
                                   String publicationDate,
+                                  String[] publicationAuthors,
                                   @RequestParam(required = false) String publicationNote,
-                                  @RequestParam(required = false) String publicationAnnotations,
                                   @RequestParam(required = false) String publicationIsbn,
                                   @RequestParam(required = false) String publicationIssn,
                                   @RequestParam(required = false) String publicationDoi,
                                   @RequestParam(required = false) String publicationUrl,
+                                  @RequestParam(required = false) String publicationVideoUrl,
                                   @RequestParam(required = false) String publicationDblp,
                                   @RequestParam(required = false) MultipartFile publicationPdf,
                                   @RequestParam(required = false) MultipartFile publicationAward,
+                                  @RequestParam(required = false) String publicationLanguage,
                                   @RequestParam(required = false) String reaComConfPopPapVolume,
                                   @RequestParam(required = false) String reaComConfPopPapNumber,
                                   @RequestParam(required = false) String reaComConfPopPapPages,
@@ -121,8 +151,90 @@ public class PublicationCtrl {
                                   @RequestParam(required = false) String userDocOrganization,
                                   @RequestParam(required = false) String userDocAddress,
                                   @RequestParam(required = false) String userDocEdition,
-                                  @RequestParam(required = false) String userDocPublisher) {
+                                  @RequestParam(required = false) String userDocPublisher) throws IOException {
 
+        PublicationTypeGroup publicationTypeGroup = PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(PublicationType.valueOf(publicationType));
+        Date publicationDateDate = new Date(
+                Integer.parseInt(publicationDate.split("-")[0]) - 1900,
+                Integer.parseInt(publicationDate.split("-")[1]), 1
+        );
+        // Store pdfs
+        String pdfUploadPath = "";
+        if(publicationPdf != null && !publicationPdf.isEmpty()) {
+            String publicationPdfPath = StringUtils.cleanPath(Objects.requireNonNull(publicationPdf.getOriginalFilename()));
+            pdfUploadPath = PubProviderApplication.DownloadablesPath + "PDFs/" + publicationPdfPath;
+            FileUploadUtils.saveFile(pdfUploadPath, publicationPdfPath, publicationPdf);
+            logger.info("PDF uploaded at: " + pdfUploadPath);
+        }
+        String awardUploadPath = "";
+        if(publicationAward != null && !publicationAward.isEmpty()) {
+            String publicationAwardPath = StringUtils.cleanPath(Objects.requireNonNull(publicationAward.getOriginalFilename()));
+            awardUploadPath = PubProviderApplication.DownloadablesPath + "Awards/" + publicationAwardPath;
+            FileUploadUtils.saveFile(awardUploadPath, publicationAwardPath, publicationPdf);
+            logger.info("Award uploaded at: " + awardUploadPath);
+        }
+
+        // First step : create the publication
+        Publication publication = new Publication(publicationTitle, publicationAbstract, publicationKeywords, publicationDateDate, publicationNote, null, publicationIsbn, publicationIssn, publicationDoi, publicationUrl, publicationVideoUrl, publicationDblp, pdfUploadPath, publicationLanguage, awardUploadPath, PublicationType.valueOf(publicationType));
+        logger.info("Publication created with id: " + publication.getPubId());
+
+        // Second step : create the specific data of publication type
+        switch (publicationTypeGroup) {
+            case Typeless:
+                logger.error("Error during add publication: " + publicationType + " is not a valid type...");
+                return;
+            case ReadingCommitteeJournalPopularizationPaper:
+                ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ.createReadingCommitteeJournalPopularizationPaper(
+                        publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages
+                );
+                logger.info("ReadingCommitteeJournalPopularizationPaper created with id: " + paper.getPubId());
+                break;
+            case ProceedingsConference:
+                ProceedingsConference proceedingsConference = proceedingsConferenceServ.createProceedingsConference(publication, proConfBookNameProceedings, proConfEditor, proConfPages, proConfOrganization, proConfPublisher, proConfAddress, proConfSeries);
+                logger.info("ProceedingsConference created with id: " + proceedingsConference.getPubId());
+                break;
+            case Book:
+                Book book = bookServ.createBook(publication, bookEditor, bookPublisher, bookVolume, bookSeries, bookAddress, bookEdition, bookPages);
+                logger.info("Book created with id: " + book.getPubId());
+                break;
+            case BookChapter:
+                Book book2 =new Book(publication, bookEditor, bookPublisher, bookVolume, bookSeries, bookAddress, bookEdition, bookPages);
+                logger.info("Book created with id: " + book2.getPubId());
+                BookChapter bookChapter = bookChapterServ.createBookChapter(publication, book2, bookChapBookNameProceedings, bookChapNumberOrName);
+                logger.info("BookChapter created with id: " + bookChapter.getPubId());
+                break;
+            case SeminarPatentInvitedConference:
+                SeminarPatentInvitedConference seminarPatentInvitedConference = seminarPatentInvitedConferenceServ.createSeminarPatentInvitedConference(publication, semPatHowPub);
+                logger.info("SeminarPatentInvitedConference created with id: " + seminarPatentInvitedConference.getPubId());
+                break;
+            case UniversityDocument:
+                UniversityDocument universityDocument = universityDocumentServ.createUniversityDocument(publication, uniDocSchoolName, uniDocAddress);
+                logger.info("UniversityDocument created with id: " + universityDocument.getPubId());
+                break;
+            case EngineeringActivity:
+                EngineeringActivity engineeringActivity = engineeringActivityServ.createEngineeringActivity(publication, engActInstitName, engActNumber, engActReportType);
+                logger.info("EngineeringActivity created with id: " + engineeringActivity.getPubId());
+                break;
+            case UserDocumentation:
+                UserDocumentation userDocumentation = userDocumentationServ.createUserDocumentation(publication, userDocAddress, userDocEdition, userDocOrganization, userDocPublisher);
+                logger.info("UserDocumentation created with id: " + userDocumentation.getPubId());
+                break;
+        }
+
+        // Third step create the authors and link them to the publication
+        for (String publicationAuthor : publicationAuthors) {
+            String firstName = publicationAuthor.substring(0, publicationAuthor.lastIndexOf(" "));
+            String lastName = publicationAuthor.substring(publicationAuthor.lastIndexOf(" ")).replace(" ", "");
+
+            int authorIdByName = authorServ.getAuthorIdByName(firstName, lastName);
+            if(authorIdByName == 0) {
+                logger.info("Author " + publicationAuthor + " not found... Creating a new one.");
+                authorIdByName = authorServ.createAuthor(firstName, lastName, new Date(1970 - 1900, 1, 1), ""); //Temp birth date // TODO FIXME
+                logger.info("New author created with id: " + authorIdByName);
+            }
+            authorServ.addAuthorship(authorIdByName ,publication.getPubId());
+            logger.info("Author " + publicationAuthor + " added as publication's author.");
+        }
 
     }
 

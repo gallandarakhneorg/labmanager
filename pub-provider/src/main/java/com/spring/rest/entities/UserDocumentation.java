@@ -30,13 +30,9 @@ public class UserDocumentation extends Publication {
     @Column
     private String userDocPublisher;
 
-    public UserDocumentation(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
-                             String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                             String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                             String pubPaperAwardPath, PublicationType pubType, String userDocOrganization, String userDocAddress,
+    public UserDocumentation(Publication p, String userDocOrganization, String userDocAddress,
                              String userDocEdition, String userDocPublisher) {
-        super(pubId, pubAuthorsByJoint, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN,
-                pubISSN, pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
+        super(p);
         this.userDocOrganization = userDocOrganization;
         this.userDocAddress = userDocAddress;
         this.userDocEdition = userDocEdition;
@@ -48,14 +44,7 @@ public class UserDocumentation extends Publication {
         // TODO Auto-generated constructor stub
     }
 
-    public UserDocumentation(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
-                             String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                             String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                             String pubPaperAwardPath, PublicationType pubType) {
-        super(pubId, pubAuthorsByJoint, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
-                pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
-        // TODO Auto-generated constructor stub
-    }
+
 
     public String getUserDocOrganization() {
         return userDocOrganization;

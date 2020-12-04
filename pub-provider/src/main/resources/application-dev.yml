@@ -1,13 +1,4 @@
 spring:
-  jpa:
-    hibernate:
-      ddl-auto: validate
-    generate-ddl: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.MySQL5Dialect
-        format-sql: true
-
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/librarymanager?serverTimezone=UTC
@@ -20,13 +11,3 @@ spring:
     username: root
     password:
 
-
-  servlet:
-    multipart:
-      enabled: true
-      max-file-size: 100MB
-      max-request-size: 100MB
-
-server:
-  servlet:
-    context-path: /SpringRestHibernate

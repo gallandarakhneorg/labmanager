@@ -114,6 +114,14 @@ public class MainController {
         return modelAndView;
     }
 
+    @GetMapping("/orderAuthors")
+    public ModelAndView orderAuthors(Integer publicationId) {
+        final ModelAndView modelAndView = new ModelAndView("orderAuthors");
+        Set<Author> authors = new HashSet<>();
+        modelAndView.addObject("authors", autServ.getLinkedAuthors(publicationId));
+        return modelAndView;
+    }
+
     @GetMapping("/publicationsList")
     public ModelAndView showPublicationsList(
             @RequestParam(required = false) Integer authorId
@@ -144,7 +152,7 @@ public class MainController {
             data.addProperty("title", p.buildTitleHtml());
             data.addProperty("authors", p.buildAuthorsHtml());
             data.addProperty("year", p.getPubYear());
-            data.addProperty("type", p.getPubTypeToString());
+            data.addProperty("type", PublicationType.getPubTypeToString(p.getPubType()));
             data.addProperty("links", p.buildLinksHtml());
             data.addProperty("note", p.getPubNote());
             data.addProperty("keywords", p.getPubKeywords());

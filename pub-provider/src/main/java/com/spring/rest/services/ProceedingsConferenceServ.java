@@ -2,6 +2,7 @@ package com.spring.rest.services;
 
 import com.spring.rest.PubProviderApplication;
 import com.spring.rest.entities.ProceedingsConference;
+import com.spring.rest.entities.Publication;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.repository.ProceedingsConferenceRepository;
 import org.slf4j.Logger;
@@ -42,6 +43,14 @@ public class ProceedingsConferenceServ {
         repo.deleteById(index);
     }
 
+    public ProceedingsConference createProceedingsConference(Publication p, String proConfAddress, String proConfBookNameProceedings, String proConfEditor, String proConfOrganization, String proConfPages,
+                                           String proConfPublisher, String proConfSeries) {
+        ProceedingsConference res = new ProceedingsConference(p, proConfBookNameProceedings, proConfEditor, proConfPages, proConfOrganization, proConfPublisher, proConfAddress, proConfSeries);
+        res = this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+        return res;
+    }
+
+    @Deprecated
     public int createProceedingsConference(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
                                            String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
                                            String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String proConfAddress,

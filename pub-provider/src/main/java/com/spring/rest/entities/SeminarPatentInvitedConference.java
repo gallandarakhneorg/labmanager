@@ -22,12 +22,8 @@ public class SeminarPatentInvitedConference extends Publication {
     @Column
     private String semPatHowPub;
 
-    public SeminarPatentInvitedConference(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
-                                          String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                                          String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                                          String pubPaperAwardPath, PublicationType pubType, String semPatHowPub) {
-        super(pubId, pubAuthorsByJoint, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN,
-                pubISSN, pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
+    public SeminarPatentInvitedConference(Publication p, String semPatHowPub) {
+        super(p);
         this.semPatHowPub = semPatHowPub;
     }
 
@@ -36,14 +32,6 @@ public class SeminarPatentInvitedConference extends Publication {
         // TODO Auto-generated constructor stub
     }
 
-    public SeminarPatentInvitedConference(int pubId, List<Authorship> pubAuthorsByJoint, String pubTitle, String pubAbstract,
-                                          String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                                          String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                                          String pubPaperAwardPath, PublicationType pubType) {
-        super(pubId, pubAuthorsByJoint, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
-                pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
-        // TODO Auto-generated constructor stub
-    }
 
     public String getSemPatHowPub() {
         return semPatHowPub;

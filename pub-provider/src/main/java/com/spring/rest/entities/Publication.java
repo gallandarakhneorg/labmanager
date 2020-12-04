@@ -60,6 +60,9 @@ public class Publication implements Serializable {
     private String pubURL;
 
     @Column
+    private String pubVideoURL;
+
+    @Column
     private String pubDBLP;
 
     @Column
@@ -75,44 +78,33 @@ public class Publication implements Serializable {
     @Enumerated(EnumType.STRING)
     private PublicationType pubType;
 
-    public Publication(int pubId, List<Authorship> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
-                       Date pubDate, int pubYear, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                       String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                       String pubPaperAwardPath, PublicationType pubType) {
-        super();
-        this.pubId = pubId;
-        this.pubAuts = pubAuts;
-        this.pubTitle = pubTitle;
-        this.pubAbstract = pubAbstract;
-        this.pubKeywords = pubKeywords;
-        this.pubDate = pubDate;
-
-        if (pubDate != null) {
-            this.pubYear = pubDate.toLocalDate().getYear();
-        } else {
-            this.pubYear = 1970;
-        }
-
-        this.pubNote = pubNote;
-        this.pubAnnotations = pubAnnotations;
-        this.pubISBN = pubISBN;
-        this.pubISSN = pubISSN;
-        this.pubDOIRef = pubDOIRef;
-        this.pubURL = pubURL;
-        this.pubDBLP = pubDBLP;
-        this.pubPDFPath = pubPDFPath;
-        this.pubLanguage = pubLanguage;
-        this.pubPaperAwardPath = pubPaperAwardPath;
-        this.pubType = pubType;
+    public Publication(Publication p) {
+        this.pubId = p.pubId;
+        this.pubAuts = p.pubAuts;
+        this.pubTitle = p.pubTitle;
+        this.pubAbstract = p.pubAbstract;
+        this.pubKeywords = p.pubKeywords;
+        this.pubDate = p.pubDate;
+        this.pubYear = p.pubYear;
+        this.pubNote = p.pubNote;
+        this.pubAnnotations = p.pubAnnotations;
+        this.pubISBN = p.pubISBN;
+        this.pubISSN = p.pubISSN;
+        this.pubDOIRef = p.pubDOIRef;
+        this.pubURL = p.pubURL;
+        this.pubVideoURL = p.pubVideoURL;
+        this.pubDBLP = p.pubDBLP;
+        this.pubPDFPath = p.pubPDFPath;
+        this.pubLanguage = p.pubLanguage;
+        this.pubPaperAwardPath = p.pubPaperAwardPath;
+        this.pubType = p.pubType;
     }
 
-    public Publication(int pubId, List<Authorship> pubAuts, String pubTitle, String pubAbstract, String pubKeywords,
+    public Publication(String pubTitle, String pubAbstract, String pubKeywords,
                        Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                       String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
+                       String pubDOIRef, String pubURL, String pubVideoURL, String pubDBLP, String pubPDFPath, String pubLanguage,
                        String pubPaperAwardPath, PublicationType pubType) {
         super();
-        this.pubId = pubId;
-        this.pubAuts = pubAuts;
         this.pubTitle = pubTitle;
         this.pubAbstract = pubAbstract;
         this.pubKeywords = pubKeywords;
@@ -130,6 +122,7 @@ public class Publication implements Serializable {
         this.pubISSN = pubISSN;
         this.pubDOIRef = pubDOIRef;
         this.pubURL = pubURL;
+        this.pubVideoURL = pubVideoURL;
         this.pubDBLP = pubDBLP;
         this.pubPDFPath = pubPDFPath;
         this.pubLanguage = pubLanguage;
@@ -251,6 +244,14 @@ public class Publication implements Serializable {
 
     public String getPubURL() {
         return pubURL;
+    }
+
+    public String getPubVideoURL() {
+        return pubVideoURL;
+    }
+
+    public void setPubVideoURL(String pubVideoURL) {
+        this.pubVideoURL = pubVideoURL;
     }
 
     public void setPubURL(String pubURL) {
@@ -413,60 +414,7 @@ public class Publication implements Serializable {
         return sb.toString();
     }
 
-    public String getPubTypeToString() {
-        switch(pubType){
 
-            case InternationalJournalWithReadingCommittee:
-                return "International journal with reading committee";
-            case NationalJournalWithReadingCommittee:
-                return "National journal with reading committee";
-            case InternationalJournalWithoutReadingCommittee:
-                return "International journal without reading committee";
-            case NationalJournalWithoutReadingCommittee:
-                return "Naational journal without reading committee";
-            case InternationalConferenceWithProceedings:
-                return "International conference with proceedings";
-            case NationalConferenceWithProceedings:
-                return "National conference with proceedings";
-            case InternationalConferenceWithoutProceedings:
-                return "International conference without proceedings";
-            case NationalConferenceWithoutProceedings:
-                return "Naational conference without proceedings";
-            case Book:
-                return "Book";
-            case BookChapter:
-                return "Book chapter";
-            case VulgarizationBookChapter:
-                return "Vulgarization book chapter";
-            case InvitedConference:
-                return "Invited conference";
-            case BookEdition:
-                return "Book edition";
-            case Seminar:
-                return "Seminar";
-            case HDRThesis:
-                return "HDR thesis";
-            case PHDThesis:
-                return "PHD thesis";
-            case MasterOnResearch:
-                return "Master on research";
-            case PopularizationPaper:
-                return "Popularization paper";
-            case Patent:
-                return "Patent";
-            case EngineeringActivity:
-                return "Engineering activity";
-            case EngineeringThesis:
-                return "Engineering thesis";
-            case ScientificPopularizationBook:
-                return "Scientific popularization book";
-            case UserDocumentation:
-                return "User documentation";
-            case TypeLess:
-            default:
-                return "?";
-        }
-    }
 
     public void setPubType(PublicationType pubType) {
         this.pubType = pubType;

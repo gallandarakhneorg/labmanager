@@ -30,10 +30,10 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="header-title">Add publication</h4>
-                            <form id="form" enctype="multipart/form-data">
+                            <form id="form" enctype="multipart/form-data" th:action="@{/createPublication}" method="post">
                                 <div class="form-group">
                                     <label class="col-form-label">Publication type</label>
-                                    <select class="custom-select" id="publicationType" name="publicationType">
+                                    <select class="form-control custom-select js-example-basic-single" id="publicationType" name="publicationType">
                                         <option value="null" selected="selected">Select a publication type</option>
                                         <option value="InternationalJournalWithReadingCommittee">International Journal With Reading Committee (ACL/ACLN)
                                         </option>
@@ -75,6 +75,12 @@
                                         <label for="publicationTitle" class="col-form-label">Title</label>
                                         <input class="form-control" type="text" value="" placeholder="Publication title" id="publicationTitle" name="publicationTitle">
                                     </div>
+                                    <div class="form-group" id="containerAuthors">
+                                        <label for="publicationAuthors" class="col-form-label">Authors (ordering can be defined at the next step)</label>
+                                        <select id="publicationAuthors"  class="form-control custom-select selectAuthor" name="publicationAuthors" multiple="multiple">
+                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                        </select>
+                                    </div>
                                     <div class="form-group">
                                         <label for="publicationAbstract" class="col-form-label">Abstract</label>
                                         <textarea class="form-control" type="text" value="" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
@@ -85,7 +91,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationDate" class="col-form-label">Date</label>
-                                        <input class="form-control" type="date" value="jj/mm/aaaa" id="publicationDate" name="publicationDate">
+                                        <input class="form-control" type="month" id="publicationDate" name="publicationDate">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationNote" class="col-form-label">Note</label>
@@ -108,12 +114,16 @@
                                         <input class="form-control" type="text" value="" placeholder="http://website.com" id="publicationUrl" name="publicationUrl">
                                     </div>
                                     <div class="form-group">
+                                        <label for="publicationVideoUrl" class="col-form-label">Video URL</label>
+                                        <input class="form-control" type="text" value="" placeholder="http://youtube.com..." id="publicationVideoUrl" name="publicationVideoUrl">
+                                    </div>
+                                    <div class="form-group">
                                         <label for="publicationDblp" class="col-form-label">DBLP</label>
                                         <input class="form-control" type="text" value="" placeholder="http://dblp..." id="publicationDblp" name="publicationDblp">
                                     </div>
                                     <div class="form-group">
                                         <label class="col-form-label">Language</label>
-                                        <select class="custom-select" id="publicationLanguage">
+                                        <select class="custom-select" id="publicationLanguage" name="publicationLanguage">
                                             <option value="English" selected="selected">English</option>
                                             <option value="French">French</option>
                                             <option value="Spanish">Spanish</option>
@@ -128,12 +138,6 @@
                                     <div class="form-group">
                                         <label for="publicationAward" class="col-form-label">Award</label>
                                         <input class="form-control" type="file" value="" id="publicationAward" name="publicationAward">
-                                    </div>
-                                    <div class="form-group">
-                                        <label for="publicationAuthors" class="col-form-label">Authors</label>
-                                        <select id="publicationAuthors" class="js-example-basic-multiple js-states form-control" name="publicationAuthors" multiple="multiple">
-                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
-                                        </select>
                                     </div>
 
                                     <div class="unlockIfReadingCommitteeJournalPopularizationPaper">
@@ -293,11 +297,14 @@
 
 <script th:inline="javascript">
 
-
     $(document).ready(function () {
         $('#publicationAuthors').select2({
             tags: true,
             placeholder: 'Enter authors'
+        });
+
+        $('#publicationType').select2({
+            placeholder: 'Select publication type'
         });
 
         $('#form').validate({

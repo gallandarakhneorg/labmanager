@@ -2,6 +2,7 @@ package com.spring.rest.services;
 
 import com.spring.rest.PubProviderApplication;
 import com.spring.rest.entities.EngineeringActivity;
+import com.spring.rest.entities.Publication;
 import com.spring.rest.entities.PublicationType;
 import com.spring.rest.repository.EngineeringActivityRepository;
 import org.slf4j.Logger;
@@ -42,6 +43,14 @@ public class EngineeringActivityServ {
         repo.deleteById(index);
     }
 
+    public EngineeringActivity createEngineeringActivity(Publication p, String engActInstitName,
+                                                         String engActNumber, String engActReportType) {
+        EngineeringActivity res = new EngineeringActivity(p, engActInstitName, engActReportType, engActNumber);
+        res = repo.save(res);
+        return res;
+    }
+
+    @Deprecated
     public int createEngineeringActivity(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
                                          String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
                                          String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String engActInstitName,

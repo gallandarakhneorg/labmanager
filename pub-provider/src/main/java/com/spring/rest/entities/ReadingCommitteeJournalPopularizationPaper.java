@@ -29,32 +29,30 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication {
     @ManyToOne
     private Journal reaComConfPopPapJournal;
 
-    public ReadingCommitteeJournalPopularizationPaper(int pubId, List<Authorship> pubAuts, String pubTitle,
-                                                      String pubAbstract, String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN,
-                                                      String pubISSN, String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                                                      String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapVolume,
-                                                      String reaComConfPopPapNumber, String reaComConfPopPapPages, Journal reaComConfPopPapJournal) {
-        super(pubId, pubAuts, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
-                pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
+    public ReadingCommitteeJournalPopularizationPaper(Publication p, String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages) {
+        super(p);
         this.reaComConfPopPapVolume = reaComConfPopPapVolume;
         this.reaComConfPopPapNumber = reaComConfPopPapNumber;
         this.reaComConfPopPapPages = reaComConfPopPapPages;
-        this.reaComConfPopPapJournal = reaComConfPopPapJournal;
     }
 
     public ReadingCommitteeJournalPopularizationPaper() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
-    public ReadingCommitteeJournalPopularizationPaper(int pubId, List<Authorship> pubAuts, String pubTitle,
-                                                      String pubAbstract, String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN,
-                                                      String pubISSN, String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                                                      String pubPaperAwardPath, PublicationType pubType) {
-        super(pubId, pubAuts, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN, pubDOIRef,
-                pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
-        // TODO Auto-generated constructor stub
-    }
+    //
+//    public ReadingCommitteeJournalPopularizationPaper(int pubId, List<Authorship> pubAuts, String pubTitle,
+//                                                      String pubAbstract, String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN,
+//                                                      String pubISSN, String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
+//                                                      String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapVolume,
+//                                                      String reaComConfPopPapNumber, String reaComConfPopPapPages, Journal reaComConfPopPapJournal) {
+//        super(pubId, pubAuts, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
+//                pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
+//        this.reaComConfPopPapVolume = reaComConfPopPapVolume;
+//        this.reaComConfPopPapNumber = reaComConfPopPapNumber;
+//        this.reaComConfPopPapPages = reaComConfPopPapPages;
+//        this.reaComConfPopPapJournal = reaComConfPopPapJournal;
+//    }
 
     public String getReaComConfPopPapVolume() {
         return reaComConfPopPapVolume;
