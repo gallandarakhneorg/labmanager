@@ -134,6 +134,10 @@ public class AuthorServ {
     }
 
     public void addAuthorship(int index, int pubId) {
+        addAuthorship(index, pubId,repo.findDistinctByAutPubsPubPubId(pubId).size());
+    }
+
+    public void addAuthorship(int index, int pubId, int rank) {
         final Optional<Author> author = repo.findById(index);
         final Optional<Publication> publication = pubRepo.findById(pubId);
 
@@ -145,7 +149,7 @@ public class AuthorServ {
                 autShip.setPub(publication.get());
                 autShip.setAut(author.get());
 
-                autShip.setRank(repo.findDistinctByAutPubsPubPubId(pubId).size());
+                autShip.setRank(rank);
                 this.autShipRepo.save(autShip);
             }
         }
@@ -287,9 +291,9 @@ public class AuthorServ {
     //Review if optional as result when several result possible is a good idea
     public int getAuthorIdByName(String autFirstName, String autLastName) {
         List<Author> result = new ArrayList<>();
-        final Optional<Author> res = repo.findByAutFirstNameAndAutLastName(autFirstName, autLastName);
-        if (res.isPresent()) {
-            result.add(res.get());
+        final Set<Author> res = repo.findByAutFirstNameAndAutLastName(autFirstName, autLastName);
+        if (res.size() > 0) {
+            result.addAll(res);
         }
 
         if (!result.isEmpty()) {

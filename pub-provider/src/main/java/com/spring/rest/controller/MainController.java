@@ -117,8 +117,13 @@ public class MainController {
     @GetMapping("/orderAuthors")
     public ModelAndView orderAuthors(Integer publicationId) {
         final ModelAndView modelAndView = new ModelAndView("orderAuthors");
+        
         Set<Author> authors = new HashSet<>();
-        modelAndView.addObject("authors", autServ.getLinkedAuthors(publicationId));
+        resOrgServ.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut() )));
+        modelAndView.addObject("authors", authors);
+
+        modelAndView.addObject("publication", pubServ.getPublication(publicationId).get(0));
+        modelAndView.addObject("publicationAuthors", autServ.getLinkedAuthors(publicationId));
         return modelAndView;
     }
 

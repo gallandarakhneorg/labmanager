@@ -12,7 +12,7 @@ public interface AuthorRepository extends JpaRepository<Author, Integer> {
 
     Set<Author> findDistinctByAutOrgsResOrgResOrgId(int resOrgId);
 
-    Optional<Author> findByAutFirstNameAndAutLastName(String autFirstName, String autlastName);
+    Set<Author> findByAutFirstNameAndAutLastName(String autFirstName, String autlastName);
 
     Set<Author> findDistinctByAutOrgsResOrgResOrgNameAndAutOrgsMemStatus(String resOrgName, MemberStatus status);
 }
