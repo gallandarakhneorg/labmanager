@@ -7,6 +7,7 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5Dialect
         format-sql: true
+        auto_quote_keyword: true
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -29,3 +30,17 @@ spring:
 server:
   servlet:
     context-path: /SpringRestHibernate
+
+management:
+  endpoint:
+    logfile:
+      enabled: true
+  endpoints:
+    enabled-by-default: true
+    web:
+      base-path: /management
+      exposure:
+        include: "*"
+  security:
+    enabled: false
+    roles: ROLE_ADMIN

@@ -414,7 +414,29 @@ public class Publication implements Serializable {
         return sb.toString();
     }
 
-
+    public Class getPublicationClass() {
+        switch(PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(this.getPubType())) {
+            case Typeless:
+                return Publication.class;
+            case ReadingCommitteeJournalPopularizationPaper:
+                return ReadingCommitteeJournalPopularizationPaper.class;
+            case ProceedingsConference:
+                return ProceedingsConference.class;
+            case Book:
+                return Book.class;
+            case BookChapter:
+                return BookChapter.class;
+            case SeminarPatentInvitedConference:
+                return SeminarPatentInvitedConference.class;
+            case UniversityDocument:
+                return UniversityDocument.class;
+            case EngineeringActivity:
+                return EngineeringActivity.class;
+            case UserDocumentation:
+                return UserDocumentation.class;
+        }
+        return Publication.class;
+    }
 
     public void setPubType(PublicationType pubType) {
         this.pubType = pubType;

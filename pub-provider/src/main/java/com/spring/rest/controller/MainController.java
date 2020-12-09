@@ -104,26 +104,94 @@ public class MainController {
     }
 
     @GetMapping("/addPublication")
-    public ModelAndView addPublication() {
+    public ModelAndView addPublication(@RequestParam(required = false) Integer publicationId) {
         final ModelAndView modelAndView = new ModelAndView("addPublication");
         Set<Author> authors = new HashSet<>();
 
         resOrgServ.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut() )));
 
-        modelAndView.addObject("authors", authors);
-        return modelAndView;
-    }
-
-    @GetMapping("/orderAuthors")
-    public ModelAndView orderAuthors(Integer publicationId) {
-        final ModelAndView modelAndView = new ModelAndView("orderAuthors");
-        
-        Set<Author> authors = new HashSet<>();
-        resOrgServ.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut() )));
+        Map<PublicationType, String> publicationsTypes = new HashMap<>();
+        for(PublicationType p : PublicationType.values()) {
+            publicationsTypes.put(p, PublicationType.getPubTypeToString(p));
+        }
+        modelAndView.addObject("publicationsTypes", publicationsTypes);
         modelAndView.addObject("authors", authors);
 
-        modelAndView.addObject("publication", pubServ.getPublication(publicationId).get(0));
-        modelAndView.addObject("publicationAuthors", autServ.getLinkedAuthors(publicationId));
+        modelAndView.addObject("edit", false);
+        if(publicationId != null) {
+            Optional<Publication> publication = pubServ.getSinglePublication(publicationId);
+            if(publication.isPresent()) {
+                modelAndView.addObject("publication", publication.get().getPublicationClass().cast(publication.get())); // Dynamic downcasting
+                switch(PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(publication.get().getPubType())) {
+                    case Typeless:
+                        break;
+                    case ReadingCommitteeJournalPopularizationPaper:
+                        ReadingCommitteeJournalPopularizationPaper readingCommitteeJournalPopularizationPaper = (ReadingCommitteeJournalPopularizationPaper) publication.get();
+                        modelAndView.addObject("reaComConfPopPapVolume", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapVolume());
+                        modelAndView.addObject("reaComConfPopPapNumber", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapNumber());
+                        modelAndView.addObject("reaComConfPopPapPages", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapPages());
+                        break;
+                    case ProceedingsConference:
+                        ProceedingsConference proceedingsConference = (ProceedingsConference) publication.get();
+                        modelAndView.addObject("proConfBookNameProceedings", proceedingsConference.getProConfBookNameProceedings());
+                        modelAndView.addObject("proConfEditor", proceedingsConference.getProConfEditor());
+                        modelAndView.addObject("proConfPages", proceedingsConference.getProConfPages());
+                        modelAndView.addObject("proConfOrganization", proceedingsConference.getProConfOrganization());
+                        modelAndView.addObject("proConfPublisher", proceedingsConference.getProConfPublisher());
+                        modelAndView.addObject("proConfAddress", proceedingsConference.getProConfAddress());
+                        modelAndView.addObject("proConfSeries", proceedingsConference.getProConfSeries());
+                        break;
+                    case Book:
+                        Book book = (Book) publication.get();
+                        modelAndView.addObject("bookEditor", book.getBookEditor());
+                        modelAndView.addObject("bookPublisher", book.getBookPublisher());
+                        modelAndView.addObject("bookVolume", book.getBookVolume());
+                        modelAndView.addObject("bookSeries", book.getBookSeries());
+                        modelAndView.addObject("bookAddress", book.getBookAddress());
+                        modelAndView.addObject("bookEdition", book.getBookEdition());
+                        modelAndView.addObject("bookPages", book.getBookPages());
+                        break;
+                    case BookChapter:
+                        BookChapter bookChapter = (BookChapter) publication.get();
+                        modelAndView.addObject("bookEditor", bookChapter.getBookEditor());
+                        modelAndView.addObject("bookPublisher", bookChapter.getBookPublisher());
+                        modelAndView.addObject("bookVolume", bookChapter.getBookVolume());
+                        modelAndView.addObject("bookSeries", bookChapter.getBookSeries());
+                        modelAndView.addObject("bookAddress", bookChapter.getBookAddress());
+                        modelAndView.addObject("bookEdition", bookChapter.getBookEdition());
+                        modelAndView.addObject("bookPages", bookChapter.getBookPages());
+                        modelAndView.addObject("bookChapBookNameProceedings", bookChapter.getBookChapBookNameProceedings());
+                        modelAndView.addObject("bookChapNumberOrName", bookChapter.getBookChapNumberOrName());
+                        break;
+
+                    case SeminarPatentInvitedConference:
+                        SeminarPatentInvitedConference seminarPatentInvitedConference = (SeminarPatentInvitedConference) publication.get();
+                        modelAndView.addObject("semPatHowPub", seminarPatentInvitedConference.getSemPatHowPub());
+                        break;
+                    case UniversityDocument:
+                        UniversityDocument universityDocument = (UniversityDocument) publication.get();
+                        modelAndView.addObject("uniDocSchoolName", universityDocument.getUniDocSchoolName());
+                        modelAndView.addObject("uniDocAddress", universityDocument.getUniDocAddress());
+                        break;
+                    case EngineeringActivity:
+                        EngineeringActivity engineeringActivity = (EngineeringActivity) publication.get();
+                        modelAndView.addObject("engActInstitName", engineeringActivity.getEngActInstitName());
+                        modelAndView.addObject("engActReportType", engineeringActivity.getEngActReportType());
+                        modelAndView.addObject("engActNumber", engineeringActivity.getEngActNumber());
+                        break;
+                    case UserDocumentation:
+                        UserDocumentation userDocumentation = (UserDocumentation) publication.get();
+                        modelAndView.addObject("userDocOrganization", userDocumentation.getUserDocOrganization());
+                        modelAndView.addObject("userDocAddress", userDocumentation.getUserDocAddress());
+                        modelAndView.addObject("userDocEdition", userDocumentation.getUserDocEdition());
+                        modelAndView.addObject("userDocPublisher", userDocumentation.getUserDocPublisher());
+                        break;
+                }
+
+                modelAndView.addObject("edit", true);
+            }
+        }
+
         return modelAndView;
     }
 

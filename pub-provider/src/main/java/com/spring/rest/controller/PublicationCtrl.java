@@ -252,7 +252,7 @@ public class PublicationCtrl {
 
             response.sendRedirect("/SpringRestHibernate/addPublication?success=1");
         } catch (Exception ex) {
-            response.sendRedirect("/SpringRestHibernate/addPublication?error=1"); // Redirect on the same page
+            response.sendRedirect("/SpringRestHibernate/addPublication?error=1&message=" + ex.getMessage()); // Redirect on the same page
         }
 
     }

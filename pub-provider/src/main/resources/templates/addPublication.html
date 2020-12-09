@@ -28,17 +28,16 @@
     <div class="main-content">
         <div class="main-content-inner">
             <div class="row" th:if="${param.error != null}">
-                <!-- seo fact area start -->
                 <div class="col-lg-12">
                     <div class="card bg-danger">
                         <div class="card-body">
                             <h4 class="header-title">Error during publication add. Please check all compulsory fields are filled with correct values.</h4>
+                            <p th:utext="${param.message != null ?  param.message : ''}"></p>
                         </div>
                     </div>
                 </div>
             </div>
             <div class="row" th:if="${param.success != null}">
-                <!-- seo fact area start -->
                 <div class="col-lg-12">
                     <div class="card bg-success">
                         <div class="card-body">
@@ -50,55 +49,29 @@
         </div>
         <div class="main-content-inner">
             <div class="row">
-                <!-- seo fact area start -->
                 <div class="col-lg-12">
                     <div class="card">
                         <div class="card-body">
-                            <h4 class="header-title">Add publication</h4>
-                            <form id="form" enctype="multipart/form-data" th:action="@{/createPublication}" method="post" ><!---->
+                            <h4 class="header-title" th:if="${edit}">Edit publication</h4>
+                            <h4 class="header-title" th:unless="${edit}">Add publication</h4>
+                            <form id="form" enctype="multipart/form-data" th:action="@{ ${edit ? '/createPublication' : '/createPublication'} }" method="post" >
                                 <div class="form-group">
                                     <label class="col-form-label">Publication type</label>
                                     <select class="form-control custom-select js-example-basic-single" id="publicationType" name="publicationType">
-                                        <option value="null" selected="selected">Select a publication type</option>
-                                        <option value="InternationalJournalWithReadingCommittee">International Journal With Reading Committee (ACL/ACLN)
+                                        <option value="null" th:selected="${!edit}">Select a publication type</option>
+                                        <option
+                                                th:each="publicationType : ${publicationsTypes}"
+                                                th:selected="${publication != null && publicationType.getKey() == publication.getPubType()}"
+                                                th:value="${publicationType.getKey().toString()}"
+                                                th:utext="${publicationType.getValue()}">
                                         </option>
-                                        <option value="NationalJournalWithReadingCommittee">National Journal With Reading Committee (ACL/ACLN)
-                                        </option>
-                                        <option value="InternationalJournalWithoutReadingCommittee">International Journal Without Reading Committee (ASCL/ACLN)
-                                        </option>
-                                        <option value="NationalJournalWithoutReadingCommittee">National Journal Without Reading Committee (ASCL/ACLN)
-                                        </option>
-                                        <option value="InternationalConferenceWithProceedings">International Conference With Proceedings (C-ACTI)
-                                        </option>
-                                        <option value="NationalConferenceWithProceedings">National Conference With Proceedings (C-ACTN)
-                                        </option>
-                                        <option value="InternationalConferenceWithoutProceedings">International Conference Without Proceedings (C-COM)
-                                        </option>
-                                        <option value="NationalConferenceWithoutProceedings">National Conference Without Proceedings (C-COM)
-                                        </option>
-                                        <option value="Book">Book (OS)</option>
-                                        <option value="BookChapter">Book Chapter (COS)</option>
-                                        <option value="VulgarizationBookChapter">Vulgarization Book Chapter (COV)</option>
-                                        <option value="InvitedConference">Invited Conference (C-INV)</option>
-                                        <option value="BookEdition">Book Edition (DOR)</option>
-                                        <option value="Seminar">Seminar (C-COM)</option>
-                                        <option value="HDRThesis">HDR Thesis (TH)</option>
-                                        <option value="PHDThesis">PHD Thesis (TH)</option>
-                                        <option value="MasterOnResearch">Master On Research (TH)</option>
-                                        <option value="PopularizationPaper">Popularization Paper (AV)</option>
-                                        <option value="Patent">Patent (AP)</option>
-                                        <option value="EngineeringActivity">Engineering Activity</option>
-                                        <option value="EngineeringThesis">Engineering Thesis (TH)</option>
-                                        <option value="ScientificPopularizationBook">Scientific Popularization Book (OV)
-                                        </option>
-                                        <option value="UserDocumentation">User Documentation</option>
                                     </select>
                                 </div>
 
                                 <div id="unlockOnceTypeChosen">
                                     <div class="form-group">
                                         <label for="publicationTitle" class="col-form-label">Title</label>
-                                        <input class="form-control" type="text" value="" placeholder="Publication title" id="publicationTitle" name="publicationTitle">
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubTitle() : ''}" placeholder="Publication title" id="publicationTitle" name="publicationTitle">
                                     </div>
                                     <div class="form-group" id="containerAuthors">
                                         <label for="publicationAuthorsDiv" class="col-form-label">Authors (Add, remove and arrange authors' order using drag and drop. First ranked at top)</label>
@@ -106,6 +79,14 @@
                                         <div id="publicationAuthorsDiv">
                                             <div id="authors">
                                                 <!-- Nothing at start -->
+                                                <div th:if="${publication != null}" class="form-row" th:each="authorship : ${publication != null ? publication.getPubAuts() : null}" >
+                                                    <div class="col-md-10 mb-3">
+                                                        <input name="author" class="form-control list-group-item list-group-item-action list-group-item-primary" th:value="${authorship.getAut().getAutFirstName() + ' ' + author.getAut().getAutLastName() }" readonly="true" />
+                                                    </div>
+                                                    <div class="col-md-2 mb-3">
+                                                        <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>
+                                                    </div>
+                                                </div>
                                             </div>
 
                                             <div class="form-row">
@@ -125,166 +106,168 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationAbstract" class="col-form-label">Abstract</label>
-                                        <textarea class="form-control" type="text" value="" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
+                                        <textarea class="form-control" type="text" th:utext="${publication != null ? publication.getPubAbstract() : ''}" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationKeywords" class="col-form-label">Keywords</label>
-                                        <input class="form-control" type="text" value="" placeholder="keyword1, keyword2, keyword3, ..." id="publicationKeywords" name="publicationKeywords">
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubKeywords() : ''}" placeholder="keyword1, keyword2, keyword3, ..." id="publicationKeywords" name="publicationKeywords">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationDate" class="col-form-label">Date</label>
-                                        <input class="form-control" type="date" id="publicationDate" name="publicationDate">
+                                        <input class="form-control" type="date" id="publicationDate" th:value="${publication != null ? publication.getPubDate() : ''}" name="publicationDate">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationNote" class="col-form-label">Note</label>
-                                        <input class="form-control" type="text" value="" placeholder="Publication note" id="publicationNote" name="publicationNote">
+                                        <input class="form-control" type="text" value="" th:value="${publication != null ? publication.getPubNote() : ''}" placeholder="Publication note" id="publicationNote" name="publicationNote">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationIsbn" class="col-form-label">ISBN</label>
-                                        <input class="form-control" type="text" value="" placeholder="978-3-16-148410-0" id="publicationIsbn" name="publicationIsbn">
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubISBN() : ''}" placeholder="978-3-16-148410-0" id="publicationIsbn" name="publicationIsbn">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationIssn" class="col-form-label">ISSN</label>
-                                        <input class="form-control" type="text" value="" placeholder="0003-181X" id="publicationIssn" name="publicationIssn">
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubISSN() : ''}" placeholder="0003-181X" id="publicationIssn" name="publicationIssn">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationDoi" class="col-form-label">DOI</label>
-                                        <input class="form-control" type="text" value="" placeholder="10.1000/182" id="publicationDoi" name="publicationDoi">
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubDOIRef() : ''}" placeholder="10.1000/182" id="publicationDoi" name="publicationDoi">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationUrl" class="col-form-label">URL</label>
-                                        <input class="form-control" type="text" value="" placeholder="http://website.com" id="publicationUrl" name="publicationUrl">
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubURL() : ''}" placeholder="http://website.com" id="publicationUrl" name="publicationUrl">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationVideoUrl" class="col-form-label">Video URL</label>
-                                        <input class="form-control" type="text" value="" placeholder="http://youtube.com..." id="publicationVideoUrl" name="publicationVideoUrl">
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubVideoURL() : ''}" placeholder="http://youtube.com..." id="publicationVideoUrl" name="publicationVideoUrl">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationDblp" class="col-form-label">DBLP</label>
-                                        <input class="form-control" type="text" value="" placeholder="http://dblp..." id="publicationDblp" name="publicationDblp">
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubDBLP() : ''}" placeholder="http://dblp..." id="publicationDblp" name="publicationDblp">
                                     </div>
                                     <div class="form-group">
                                         <label class="col-form-label">Language</label>
                                         <select class="custom-select" id="publicationLanguage" name="publicationLanguage">
-                                            <option value="English" selected="selected">English</option>
-                                            <option value="French">French</option>
-                                            <option value="Spanish">Spanish</option>
-                                            <option value="Italian">Italian</option>
-                                            <option value="German">German</option>
+                                            <option value="English" th:selected="${publication != null && publication.getPubLanguage() == 'English' || publication == null}">English</option>
+                                            <option value="French" th:selected="${publication != null && publication.getPubLanguage() == 'French'}">French</option>
+                                            <option value="Spanish" th:selected="${publication != null && publication.getPubLanguage() == 'Spanish'}">Spanish</option>
+                                            <option value="Italian" th:selected="${publication != null && publication.getPubLanguage() == 'Italian'}">Italian</option>
+                                            <option value="German" th:selected="${publication != null && publication.getPubLanguage() == 'German'}">German</option>
                                         </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationPdf" class="col-form-label">PDF</label>
-                                        <input class="form-control" type="file" value="" id="publicationPdf" name="publicationPdf">
+                                        <input class="form-control" type="file" id="publicationPdf" name="publicationPdf">
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationAward" class="col-form-label">Award</label>
-                                        <input class="form-control" type="file" value="" id="publicationAward" name="publicationAward">
+                                        <input class="form-control" type="file" id="publicationAward" name="publicationAward">
                                     </div>
 
                                     <div class="unlockIfReadingCommitteeJournalPopularizationPaper">
                                         <div class="form-group">
                                             <label for="reaComConfPopPapVolume" class="col-form-label">Journal volume</label>
-                                            <input class="form-control" type="text" value="" placeholder="12" id="reaComConfPopPapVolume" name="reaComConfPopPapVolume">
+<!--                                            th:value="${publication != null ? publication.getReaComConfPopPapVolume() : ''}"-->
+                                            <input class="form-control" type="text" th:value="${reaComConfPopPapVolume}" placeholder="12" id="reaComConfPopPapVolume" name="reaComConfPopPapVolume">
                                         </div>
                                         <div class="form-group">
                                             <label for="reaComConfPopPapNumber" class="col-form-label">Journal number</label>
-                                            <input class="form-control" type="text" value="" placeholder="134" id="reaComConfPopPapNumber" name="reaComConfPopPapNumber">
+                                            <input class="form-control" type="text" th:value="${reaComConfPopPapNumber}" placeholder="134" id="reaComConfPopPapNumber" name="reaComConfPopPapNumber">
                                         </div>
                                         <div class="form-group">
                                             <label for="reaComConfPopPapPages" class="col-form-label">Journal pages</label>
-                                            <input class="form-control" type="text" value="" placeholder="4-5, 15" id="reaComConfPopPapPages" name="reaComConfPopPapPages">
+                                            <input class="form-control" type="text" th:value="${reaComConfPopPapPages}" placeholder="4-5, 15" id="reaComConfPopPapPages" name="reaComConfPopPapPages">
                                         </div>
                                     </div>
 
                                     <div class="unlockIfProceedingsConference">
                                         <div class="form-group">
                                             <label for="proConfBookNameProceedings" class="col-form-label">Name of the Book with proceedings</label>
-                                            <input class="form-control" type="text" value="" placeholder="Book Name or Proceedings" id="proConfBookNameProceedings" name="proConfBookNameProceedings">
+<!--                                            th:value="${publication != null ? publication.getProConfBookNameProceedings() : ''}" -->
+                                            <input class="form-control" type="text" th:value="${proConfBookNameProceedings}" placeholder="Book Name or Proceedings" id="proConfBookNameProceedings" name="proConfBookNameProceedings">
                                         </div>
                                         <div class="form-group">
                                             <label for="proConfEditor" class="col-form-label">Conference editor</label>
-                                            <input class="form-control" type="text" value="" placeholder="Conference Editor" id="proConfEditor" name="proConfEditor">
+                                            <input class="form-control" type="text" th:value="${proConfEditor}" placeholder="Conference Editor" id="proConfEditor" name="proConfEditor">
                                         </div>
                                         <div class="form-group">
                                             <label for="proConfPages" class="col-form-label">Conference pages</label>
-                                            <input class="form-control" type="text" value="" placeholder="4-5, 15" id="proConfPages" name="proConfPages">
+                                            <input class="form-control" type="text" th:value="${proConfPages}" placeholder="4-5, 15" id="proConfPages" name="proConfPages">
                                         </div>
                                         <div class="form-group">
                                             <label for="proConfOrganization" class="col-form-label">Conference organization</label>
-                                            <input class="form-control" type="text" value="" placeholder="Conference organization" id="proConfOrganization" name="proConfOrganization">
+                                            <input class="form-control" type="text" th:value="${proConfOrganization}" placeholder="Conference organization" id="proConfOrganization" name="proConfOrganization">
                                         </div>
                                         <div class="form-group">
                                             <label for="proConfPublisher" class="col-form-label">Conference publisher</label>
-                                            <input class="form-control" type="text" value="" placeholder="Conference publisher" id="proConfPublisher" name="proConfPublisher">
+                                            <input class="form-control" type="text" th:value="${proConfPublisher}" placeholder="Conference publisher" id="proConfPublisher" name="proConfPublisher">
                                         </div>
                                         <div class="form-group">
                                             <label for="proConfAddress" class="col-form-label">Conference address</label>
-                                            <input class="form-control" type="text" value="" placeholder="Conference address" id="proConfAddress" name="proConfAddress">
+                                            <input class="form-control" type="text" th:value="${proConfAddress}" placeholder="Conference address" id="proConfAddress" name="proConfAddress">
                                         </div>
                                         <div class="form-group">
                                             <label for="proConfSeries" class="col-form-label">Conference series</label>
-                                            <input class="form-control" type="text" value="" placeholder="Conference series" id="proConfSeries" name="proConfSeries">
+                                            <input class="form-control" type="text" th:value="${proConfSeries}" placeholder="Conference series" id="proConfSeries" name="proConfSeries">
                                         </div>
                                     </div>
 
                                     <div class="unlockIfBook unlockIfBookChapter">
                                         <div class="form-group">
                                             <label for="bookEditor" class="col-form-label">Book editor</label>
-                                            <input class="form-control" type="text" value="" placeholder="Book editor" id="bookEditor" name="bookEditor">
+                                            <input class="form-control" type="text" th:value="${bookEditor}" placeholder="Book editor" id="bookEditor" name="bookEditor">
                                         </div>
                                         <div class="form-group">
                                             <label for="bookPublisher" class="col-form-label">Book publisher</label>
-                                            <input class="form-control" type="text" value="" placeholder="Book publisher" id="bookPublisher" name="bookPublisher">
+                                            <input class="form-control" type="text" th:value="${bookPublisher}" placeholder="Book publisher" id="bookPublisher" name="bookPublisher">
                                         </div>
                                         <div class="form-group">
                                             <label for="bookVolume" class="col-form-label">Book volume</label>
-                                            <input class="form-control" type="text" value="" placeholder="2" id="bookVolume" name="bookVolume">
+                                            <input class="form-control" type="text" th:value="${bookVolume}" placeholder="2" id="bookVolume" name="bookVolume">
                                         </div>
                                         <div class="form-group">
                                             <label for="bookSeries" class="col-form-label">Book series</label>
-                                            <input class="form-control" type="text" value="" placeholder="Book series" id="bookSeries" name="bookSeries">
+                                            <input class="form-control" type="text" th:value="${bookSeries}" placeholder="Book series" id="bookSeries" name="bookSeries">
                                         </div>
                                         <div class="form-group">
                                             <label for="bookAddress" class="col-form-label">Book address</label>
-                                            <input class="form-control" type="text" value="" placeholder="Book address" id="bookAddress" name="bookAddress">
+                                            <input class="form-control" type="text" th:value="${bookAddress}" placeholder="Book address" id="bookAddress" name="bookAddress">
                                         </div>
                                         <div class="form-group">
                                             <label for="bookEdition" class="col-form-label">Book edition</label>
-                                            <input class="form-control" type="text" value="" placeholder="Book edition" id="bookEdition" name="bookEdition">
+                                            <input class="form-control" type="text" th:value="${bookEdition}" placeholder="Book edition" id="bookEdition" name="bookEdition">
                                         </div>
                                         <div class="form-group">
                                             <label for="bookPages" class="col-form-label">Book pages</label>
-                                            <input class="form-control" type="text" value="" placeholder="5, 4-5" id="bookPages" name="bookPages">
+                                            <input class="form-control" type="text" th:value="${bookPages}" placeholder="5, 4-5" id="bookPages" name="bookPages">
                                         </div>
                                     </div>
 
                                     <div class="unlockIfBookChapter">
                                         <div class="form-group">
                                             <label for="bookChapBookNameProceedings" class="col-form-label">Name of the book with proceedings</label>
-                                            <input class="form-control" type="text" value="" placeholder="Name of the book with proceedings" id="bookChapBookNameProceedings" name="bookChapBookNameProceedings">
+                                            <input class="form-control" type="text" th:value="${bookChapBookNameProceedings}" placeholder="Name of the book with proceedings" id="bookChapBookNameProceedings" name="bookChapBookNameProceedings">
                                         </div>
                                         <div class="form-group">
                                             <label for="bookChapNumberOrName" class="col-form-label">Chapter number or name</label>
-                                            <input class="form-control" type="text" value="" placeholder="Chapter number or name" id="bookChapNumberOrName" name="bookChapNumberOrName">
+                                            <input class="form-control" type="text" th:value="${bookChapNumberOrName}" placeholder="Chapter number or name" id="bookChapNumberOrName" name="bookChapNumberOrName">
                                         </div>
                                     </div>
 
                                     <div class="unlockIfSeminarPatentInvitedConference">
                                         <div class="form-group">
                                             <label for="semPatHowPub" class="col-form-label">Publication method</label>
-                                            <input class="form-control" type="text" value="" placeholder="How it was published?" id="semPatHowPub" name="semPatHowPub">
+                                            <input class="form-control" type="text" th:value="${semPatHowPub}" placeholder="How it was published?" id="semPatHowPub" name="semPatHowPub">
                                         </div>
                                     </div>
 
                                     <div class="unlockIfUniversityDocument">
                                         <div class="form-group">
                                             <label for="uniDocSchoolName" class="col-form-label">University name</label>
-                                            <input class="form-control" type="text" value="" placeholder="Name of the school" id="uniDocSchoolName" name="uniDocSchoolName">
+                                            <input class="form-control" type="text" th:value="${uniDocSchoolName}" placeholder="Name of the school" id="uniDocSchoolName" name="uniDocSchoolName">
                                         </div>
                                         <div class="form-group">
                                             <label for="uniDocAddress" class="col-form-label">University address</label>
-                                            <input class="form-control" type="text" value="" placeholder="Address of the school" id="uniDocAddress" name="uniDocAddress">
+                                            <input class="form-control" type="text" th:value="${uniDocAddress}" placeholder="Address of the school" id="uniDocAddress" name="uniDocAddress">
                                         </div>
                                     </div>
 
@@ -292,34 +275,34 @@
                                     <div class="unlockIfEngineeringActivity">
                                         <div class="form-group">
                                             <label for="engActInstitName" class="col-form-label">Institute name</label>
-                                            <input class="form-control" type="text" value="" placeholder="Name of the institution" id="engActInstitName" name="engActInstitName">
+                                            <input class="form-control" type="text" th:value="${engActInstitName}" placeholder="Name of the institution" id="engActInstitName" name="engActInstitName">
                                         </div>
                                         <div class="form-group">
                                             <label for="engActReportType" class="col-form-label">Report type</label>
-                                            <input class="form-control" type="text" value="" placeholder="Type of the report" id="engActReportType" name="engActReportType">
+                                            <input class="form-control" type="text" th:value="${engActReportType}" placeholder="Type of the report" id="engActReportType" name="engActReportType">
                                         </div>
                                         <div class="form-group">
                                             <label for="engActNumber" class="col-form-label">Number</label>
-                                            <input class="form-control" type="text" value="" placeholder="Number of the activity report" id="engActNumber" name="engActNumber">
+                                            <input class="form-control" type="text" th:value="${engActNumber}" placeholder="Number of the activity report" id="engActNumber" name="engActNumber">
                                         </div>
                                     </div>
 
                                     <div class="unlockIfUserDocumentation">
                                         <div class="form-group">
                                             <label for="userDocOrganization" class="col-form-label">Organization</label>
-                                            <input class="form-control" type="text" value="" placeholder="Organization the user documentation belongs to" id="userDocOrganization" name="userDocOrganization">
+                                            <input class="form-control" type="text" th:value="${userDocOrganization}" placeholder="Organization the user documentation belongs to" id="userDocOrganization" name="userDocOrganization">
                                         </div>
                                         <div class="form-group">
                                             <label for="userDocAddress" class="col-form-label">Report type</label>
-                                            <input class="form-control" type="text" value="" placeholder="Address of the user documentation" id="userDocAddress" name="userDocAddress">
+                                            <input class="form-control" type="text" th:value="${userDocAddress}" placeholder="Address of the user documentation" id="userDocAddress" name="userDocAddress">
                                         </div>
                                         <div class="form-group">
                                             <label for="userDocEdition" class="col-form-label">Edition</label>
-                                            <input class="form-control" type="text" value="" placeholder="Edition of the user documentation" id="userDocEdition" name="userDocEdition">
+                                            <input class="form-control" type="text" th:value="${userDocEdition}" placeholder="Edition of the user documentation" id="userDocEdition" name="userDocEdition">
                                         </div>
                                         <div class="form-group">
                                             <label for="userDocPublisher" class="col-form-label">Publisher</label>
-                                            <input class="form-control" type="text" value="" placeholder="Publisher of the user documentation" id="userDocPublisher" name="userDocPublisher">
+                                            <input class="form-control" type="text" th:value="${userDocPublisher}" placeholder="Publisher of the user documentation" id="userDocPublisher" name="userDocPublisher">
                                         </div>
                                     </div>
 
@@ -346,6 +329,62 @@
         });
     }
 
+    function unlockDivIfNeeded() {
+        var value = $("#publicationType").find(':selected')[0].value;
+        console.log("New value ; " + value);
+
+        $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
+        $(".unlockIfBook").hide();
+        $(".unlockIfBookChapter").hide();
+        $(".unlockIfEngineeringActivity").hide();
+        $(".unlockIfProceedingsConference").hide();
+        $(".unlockIfSeminarPatentInvitedConference").hide();
+        $(".unlockIfUniversityDocument").hide();
+        $(".unlockIfUserDocumentation").hide();
+
+
+        if(value === "null") {
+            $("#unlockOnceTypeChosen").hide();
+        }
+        else {
+            $("#unlockOnceTypeChosen").show();
+            switch(groupPublicationTypes(value)) {
+                case "ReadingCommitteeJournalPopularizationPaper":
+                    $(".unlockIfReadingCommitteeJournalPopularizationPaper").show();
+                    break;
+
+                case "ProceedingsConference":
+                    $(".unlockIfProceedingsConference").show();
+                    break;
+
+                case "Book":
+                    $(".unlockIfBook").show();
+                    break;
+
+                case "BookChapter":
+                    $(".unlockIfBookChapter").show();
+                    break;
+
+                case "SeminarPatentInvitedConference":
+                    $(".unlockIfSeminarPatentInvitedConference").show();
+                    break;
+
+                case "UniversityDocument":
+                    $(".unlockIfUniversityDocument").show();
+                    break;
+
+                case "EngineeringActivity":
+                    $(".unlockIfEngineeringActivity").show();
+                    break;
+
+                case "UserDocumentation":
+                    $(".unlockIfUserDocumentation").show();
+                    break;
+            }
+
+        }
+    }
+
     $(document).ready(function () {
 
         // var formUrl = /*[[@{/createPublication}]]*/ '';
@@ -359,6 +398,8 @@
         $('#publicationType').select2({
             placeholder: 'Select publication type'
         });
+        $("#publicationType").on('select2:select', unlockDivIfNeeded());
+        unlockDivIfNeeded();
 
         $('#form').validate({
             rules: {
@@ -420,67 +461,6 @@
 
         enableRemove();
 
-
-        $("#unlockOnceTypeChosen").hide(); // disable at beginning
-        $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
-        $(".unlockIfBook").hide();
-        $(".unlockIfBookChapter").hide();
-        $(".unlockIfEngineeringActivity").hide();
-        $(".unlockIfProceedingsConference").hide();
-        $(".unlockIfSeminarPatentInvitedConference").hide();
-        $(".unlockIfUniversityDocument").hide();
-        $(".unlockIfUserDocumentation").hide();
-
-        $("#publicationType").on('change', function() {
-            $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
-            $(".unlockIfBook").hide();
-            $(".unlockIfBookChapter").hide();
-            $(".unlockIfEngineeringActivity").hide();
-            $(".unlockIfProceedingsConference").hide();
-            $(".unlockIfSeminarPatentInvitedConference").hide();
-            $(".unlockIfUniversityDocument").hide();
-            $(".unlockIfUserDocumentation").hide();
-            if(this.value === "null") {
-                $("#unlockOnceTypeChosen").hide();
-            }
-            else {
-                $("#unlockOnceTypeChosen").show();
-                switch(groupPublicationTypes(this.value)) {
-                    case "ReadingCommitteeJournalPopularizationPaper":
-                        $(".unlockIfReadingCommitteeJournalPopularizationPaper").show();
-                        break;
-
-                    case "ProceedingsConference":
-                        $(".unlockIfProceedingsConference").show();
-                        break;
-
-                    case "Book":
-                        $(".unlockIfBook").show();
-                        break;
-
-                    case "BookChapter":
-                        $(".unlockIfBookChapter").show();
-                        break;
-
-                    case "SeminarPatentInvitedConference":
-                        $(".unlockIfSeminarPatentInvitedConference").show();
-                        break;
-
-                    case "UniversityDocument":
-                        $(".unlockIfUniversityDocument").show();
-                        break;
-
-                    case "EngineeringActivity":
-                        $(".unlockIfEngineeringActivity").show();
-                        break;
-
-                    case "UserDocumentation":
-                        $(".unlockIfUserDocumentation").show();
-                        break;
-                }
-
-            }
-        })
     });
 
 </script>

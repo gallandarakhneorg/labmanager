@@ -63,6 +63,11 @@ public class PublicationServ {
         return publications;
     }
 
+    public Optional<Publication> getSinglePublication(int publicationIndex) {
+        return repo.findById(publicationIndex);
+    }
+
+    @Deprecated
     public List<Publication> getPublication(int index) {
         List<Publication> result = new ArrayList<Publication>();
         final Optional<Publication> res = repo.findById(index);
