@@ -6,20 +6,18 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "authorship")
+@IdClass(AuthorshipPK.class)
 //@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
 public class Authorship implements Serializable {
 
     private static final long serialVersionUID = -1083342117826188053L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(nullable = false)
-    private int autShipId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     private Publication pub;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @Id
+    @ManyToOne
     private Author aut;
 
     //Rank determining the order of the author in the concerned publication
@@ -28,7 +26,6 @@ public class Authorship implements Serializable {
 
     public Authorship(int autShipId, Publication pub, Author aut, int autShipRank) {
         super();
-        this.autShipId = autShipId;
         this.pub = pub;
         this.aut = aut;
         this.autShipRank = autShipRank;
@@ -37,14 +34,6 @@ public class Authorship implements Serializable {
     public Authorship() {
         super();
         // TODO Auto-generated constructor stub
-    }
-
-    public int getAutShipId() {
-        return autShipId;
-    }
-
-    public void setAutShipId(int autShipId) {
-        this.autShipId = autShipId;
     }
 
     public Publication getPub() {
@@ -76,7 +65,6 @@ public class Authorship implements Serializable {
         final int prime = 31;
         int result = 1;
         //result = prime * result + ((aut == null) ? 0 : aut.hashCode());
-        result = prime * result + autShipId;
         //result = prime * result + ((pub == null) ? 0 : pub.hashCode());
         result = prime * result + autShipRank;
         return result;
@@ -94,14 +82,12 @@ public class Authorship implements Serializable {
         if (aut == null) {
             if (other.aut != null)
                 return false;
-        } else if (!aut.equals(other.aut))
-            return false;
-        if (autShipId != other.autShipId)
+        } else if (aut.getAutId() != other.aut.getAutId())
             return false;
         if (pub == null) {
             if (other.pub != null)
                 return false;
-        } else if (!pub.equals(other.pub))
+        } else if (pub.getPubId() != other.pub.getPubId())
             return false;
         if (autShipRank != other.autShipRank)
             return false;

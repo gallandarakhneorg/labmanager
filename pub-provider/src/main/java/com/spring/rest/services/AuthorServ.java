@@ -173,7 +173,8 @@ public class AuthorServ {
                 }
                 autShipRepo.save(autShipPub);
             }
-            autShipRepo.deleteById(autShip.get().getAutShipId()); //TMT 24/11/20 new delete method
+            autShipRepo.deleteByAutAutIdAndPubPubId(index, pubId);
+            //autShipRepo.deleteById(autShip.get().getAutShipId()); //TMT 24/11/20 new delete method
             autShipRepo.flush();
             //autShipRepo.deleteByAutAutIdAndPubPubId(index, pubId);
         }
