@@ -8,7 +8,6 @@ import com.spring.rest.repository.ResearchOrganizationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.transaction.Transactional;
 import java.sql.Date;
 import java.util.*;
 
@@ -37,7 +36,7 @@ public class AuthorServ {
             for (Authorship autShip : aut.getAutPubs()) {
                 Publication pub = autShip.getPub();
                 autShip.setAut(null);
-                pub.setPubAuts(new LinkedList<>());
+                pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
                         ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
@@ -67,7 +66,7 @@ public class AuthorServ {
             for (Authorship autShip : aut.getAutPubs()) {
                 Publication pub = autShip.getPub();
                 autShip.setAut(null);
-                pub.setPubAuts(new LinkedList<>());
+                pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
                         ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
@@ -92,11 +91,11 @@ public class AuthorServ {
 
             //When removing an author, reduce the ranks of the other authorships for the pubs he made.
             for (Authorship autShip : res.get().getAutPubs()) {
-                int rank = autShip.getRank();
+                int rank = autShip.getAutShipRank();
                 Publication pub = autShip.getPub();
                 for (Authorship autShipPub : pub.getPubAuts()) {
-                    if (autShipPub.getRank() > rank) {
-                        autShipPub.setRank(autShipPub.getRank() - 1);
+                    if (autShipPub.getAutShipRank() > rank) {
+                        autShipPub.setAutShipRank(autShipPub.getAutShipRank() - 1);
                     }
                     autShipRepo.save(autShipPub);
                 }
@@ -149,7 +148,7 @@ public class AuthorServ {
                 autShip.setPub(publication.get());
                 autShip.setAut(author.get());
 
-                autShip.setRank(rank);
+                autShip.setAutShipRank(rank);
                 this.autShipRepo.save(autShip);
             }
         }
@@ -166,11 +165,11 @@ public class AuthorServ {
         Optional<Authorship> autShip = autShipRepo.findDistinctByAutAutIdAndPubPubId(index, pubId);
 
         if (autShip.isPresent()) {
-            int rank = autShip.get().getRank();
+            int rank = autShip.get().getAutShipRank();
             Publication pub = autShip.get().getPub();
             for (Authorship autShipPub : pub.getPubAuts()) {
-                if (autShipPub.getRank() > rank) {
-                    autShipPub.setRank(autShipPub.getRank() - 1);
+                if (autShipPub.getAutShipRank() > rank) {
+                    autShipPub.setAutShipRank(autShipPub.getAutShipRank() - 1);
                 }
                 autShipRepo.save(autShipPub);
             }
@@ -216,7 +215,7 @@ public class AuthorServ {
             for (Authorship autShip : aut.getAutPubs()) {
                 Publication pub = autShip.getPub();
                 autShip.setAut(null);
-                pub.setPubAuts(new LinkedList<>());
+                pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
                         ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
@@ -242,7 +241,7 @@ public class AuthorServ {
             for (Authorship autShip : aut.getAutPubs()) {
                 Publication pub = autShip.getPub();
                 autShip.setAut(null);
-                pub.setPubAuts(new LinkedList<>());
+                pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
                         ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
@@ -268,7 +267,7 @@ public class AuthorServ {
             for (Authorship autShip : aut.getAutPubs()) {
                 Publication pub = autShip.getPub();
                 autShip.setAut(null);
-                pub.setPubAuts(new LinkedList<>());
+                pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
                         ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());
@@ -321,7 +320,7 @@ public class AuthorServ {
             for (Authorship autShip : aut.getAutPubs()) {
                 Publication pub = autShip.getPub();
                 autShip.setAut(null);
-                pub.setPubAuts(new LinkedList<>());
+                pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
                         ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().setJourPubs(new HashSet<>());

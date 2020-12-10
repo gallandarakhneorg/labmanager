@@ -3,9 +3,7 @@ package com.spring.rest.entities;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Date;
-import java.util.Comparator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -17,13 +15,13 @@ public class Publication implements Serializable {
     private static final long serialVersionUID = 4617703154899843388L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     //Using this instead of IDENTITY allows for JOINED or TABLE_PER_CLASS inheritance types to work
     @Column(nullable = false)
     private int pubId;
 
-    @OneToMany(mappedBy = "pub", cascade = CascadeType.ALL)
-    private List<Authorship> pubAuts = new LinkedList<Authorship>();
+    @OneToMany(mappedBy = "pub", fetch = FetchType.EAGER,  cascade = CascadeType.ALL)
+    private Set<Authorship> pubAuts = new HashSet<Authorship>();
 
     @Column
     private String pubTitle;
@@ -145,10 +143,10 @@ public class Publication implements Serializable {
 
     public List<Authorship> getPubAuts() {
         // Ordered by rank
-        return pubAuts.parallelStream().sorted(Comparator.comparingInt(Authorship::getRank)).collect(Collectors.toList());
+        return pubAuts.parallelStream().sorted(Comparator.comparingInt(Authorship::getAutShipRank)).collect(Collectors.toList());
     }
 
-    public void setPubAuts(List<Authorship> pubAuts) {
+    public void setPubAuts(Set<Authorship> pubAuts) {
         this.pubAuts = pubAuts;
     }
 

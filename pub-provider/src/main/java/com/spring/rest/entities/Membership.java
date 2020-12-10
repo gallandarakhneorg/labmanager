@@ -13,7 +13,7 @@ public class Membership implements Serializable {
     private static final long serialVersionUID = 3709293483578802302L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private int memId;
 

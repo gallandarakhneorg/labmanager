@@ -43,7 +43,7 @@ public class PublicationServ {
             sortAuthorships(p);
             for (Authorship autShip : p.getPubAuts()) {
                 Author aut = autShip.getAut();
-                aut.setAutPubs(new LinkedList<>());
+                aut.setAutPubs(new HashSet<>());
                 autShip.setPub(null);
                 for (final Membership mem : aut.getAutOrgs()) {
                     mem.setAut(null);
@@ -64,7 +64,12 @@ public class PublicationServ {
     }
 
     public Optional<Publication> getSinglePublication(int publicationIndex) {
-        return repo.findById(publicationIndex);
+        Optional<Publication> publication = repo.findByPubId(publicationIndex);
+        if(publication.isPresent()) {
+            publication.get().setPubAuts(autShipRepo.findByPubPubId(publicationIndex)); // EAGER loading
+
+        }
+        return publication;
     }
 
     @Deprecated
@@ -80,7 +85,7 @@ public class PublicationServ {
             for (Authorship autShip : p.getPubAuts()) {
                 Author aut = autShip.getAut();
                 if(aut != null) {
-                    aut.setAutPubs(new LinkedList<>());
+                    aut.setAutPubs(new HashSet<>());
                     autShip.setPub(null);
                     for (final Membership mem : aut.getAutOrgs()) {
                         mem.setAut(null);
@@ -102,7 +107,7 @@ public class PublicationServ {
 
     //Check if this sorts in the correct order
     public void sortAuthorships(Publication p) {
-        Collections.sort(p.getPubAuts(), Comparator.comparing(s -> s.getRank()));
+        Collections.sort(p.getPubAuts(), Comparator.comparing(s -> s.getAutShipRank()));
     }
 
     //On top of giving the publication back, it also translates the files to binary
@@ -117,7 +122,7 @@ public class PublicationServ {
             for (Authorship autShip : p.getPubAuts()) {
                 Author aut = autShip.getAut();
                 autShip.setPub(null);
-                aut.setAutPubs(new LinkedList<>());
+                aut.setAutPubs(new HashSet<>());
                 for (final Membership mem : aut.getAutOrgs()) {
                     mem.setAut(null);
                     mem.getResOrg().setOrgAuts(new HashSet<>());
@@ -226,7 +231,7 @@ public class PublicationServ {
             sortAuthorships(p);
             for (Authorship autShip : p.getPubAuts()) {
                 Author aut = autShip.getAut();
-                aut.setAutPubs(new LinkedList<>());
+                aut.setAutPubs(new HashSet<>());
                 autShip.setPub(null);
                 for (final Membership mem : aut.getAutOrgs()) {
                     mem.setAut(null);
@@ -251,7 +256,7 @@ public class PublicationServ {
             sortAuthorships(p);
             for (Authorship autShip : p.getPubAuts()) {
                 Author aut = autShip.getAut();
-                aut.setAutPubs(new LinkedList<>());
+                aut.setAutPubs(new HashSet<>());
                 autShip.setPub(null);
                 for (final Membership mem : aut.getAutOrgs()) {
                     mem.setAut(null);
@@ -1124,7 +1129,7 @@ public class PublicationServ {
                                                 autShip = new Authorship();
                                                 autShip.setPub(optPub.get());
                                                 autShip.setAut(optAut.get());
-                                                autShip.setRank(autRepo.findDistinctByAutPubsPubPubId(optPub.get().getPubId()).size());
+                                                autShip.setAutShipRank(autRepo.findDistinctByAutPubsPubPubId(optPub.get().getPubId()).size());
                                                 repo.save(optPub.get());
                                                 autShipRepo.save(autShip);
 
@@ -2266,7 +2271,7 @@ public class PublicationServ {
                 Author aut = autShip.getAut();
                 autShip.setPub(null);
                 if(aut != null) {
-                    aut.setAutPubs(new LinkedList<>());
+                    aut.setAutPubs(new HashSet<>());
                     for (final Membership mem : aut.getAutOrgs()) {
                         mem.setAut(null);
                         mem.getResOrg().setOrgAuts(new HashSet<>());

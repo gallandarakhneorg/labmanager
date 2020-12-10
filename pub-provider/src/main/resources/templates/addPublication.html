@@ -56,7 +56,7 @@
                             <h4 class="header-title" th:unless="${edit}">Add publication</h4>
                             <form id="form" enctype="multipart/form-data" th:action="@{ ${edit ? '/createPublication' : '/createPublication'} }" method="post" >
                                 <div class="form-group">
-                                    <label class="col-form-label">Publication type</label>
+                                    <label for="publicationType" class="col-form-label">Publication type</label>
                                     <select class="form-control custom-select js-example-basic-single" id="publicationType" name="publicationType">
                                         <option value="null" th:selected="${!edit}">Select a publication type</option>
                                         <option
@@ -80,6 +80,7 @@
                                             <div id="authors">
                                                 <!-- Nothing at start -->
                                                 <div th:if="${publication != null}" class="form-row" th:each="authorship : ${publication != null ? publication.getPubAuts() : null}" >
+
                                                     <div class="col-md-10 mb-3">
                                                         <input name="author" class="form-control list-group-item list-group-item-action list-group-item-primary" th:value="${authorship.getAut().getAutFirstName() + ' ' + author.getAut().getAutLastName() }" readonly="true" />
                                                     </div>
@@ -395,11 +396,12 @@
             placeholder: 'Enter authors'
         });*/
 
-        $('#publicationType').select2({
-            placeholder: 'Select publication type'
-        });
-        $("#publicationType").on('select2:select', unlockDivIfNeeded());
+        $('#publicationType').select2();
+        $(document).on('change', '#publicationType', function(){unlockDivIfNeeded();});
         unlockDivIfNeeded();
+        // $("#publicationType").on('select2:select', unlockDivIfNeeded());
+        // $("#publicationType").on('change', unlockDivIfNeeded());
+
 
         $('#form').validate({
             rules: {

@@ -14,7 +14,7 @@ public class Journal implements Serializable { //Supposed to be abstract but let
     private static final long serialVersionUID = 1567501055115722405L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     //Using this instead of IDENTITY allows for JOINED or TABLE_PER_CLASS inheritance types to work
     @Column(nullable = false)
     private int jourId;

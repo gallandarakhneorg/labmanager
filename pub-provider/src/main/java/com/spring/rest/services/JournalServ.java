@@ -160,7 +160,7 @@ public class JournalServ {
         Set<ReadingCommitteeJournalPopularizationPaper> pubs = j.getJourPubs();
         for (ReadingCommitteeJournalPopularizationPaper p : pubs) {
             p.setReaComConfPopPapJournal(null);
-            p.setPubAuts(new LinkedList<>());
+            p.setPubAuts(new HashSet<>());
         }
     }
 

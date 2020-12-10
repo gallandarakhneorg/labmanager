@@ -16,7 +16,7 @@ public class ResearchOrganization implements Serializable {
     private static final long serialVersionUID = 8860550934888735536L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private int resOrgId;
 

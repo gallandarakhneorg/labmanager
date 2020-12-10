@@ -1,7 +1,5 @@
 package com.spring.rest.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -14,26 +12,26 @@ public class Authorship implements Serializable {
     private static final long serialVersionUID = -1083342117826188053L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private int autShipId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Publication pub;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
     private Author aut;
 
     //Rank determining the order of the author in the concerned publication
     @Column
-    private int rank;
+    private int autShipRank;
 
-    public Authorship(int autShipId, Publication pub, Author aut, int rank) {
+    public Authorship(int autShipId, Publication pub, Author aut, int autShipRank) {
         super();
         this.autShipId = autShipId;
         this.pub = pub;
         this.aut = aut;
-        this.rank = rank;
+        this.autShipRank = autShipRank;
     }
 
     public Authorship() {
@@ -65,12 +63,12 @@ public class Authorship implements Serializable {
         this.aut = aut;
     }
 
-    public int getRank() {
-        return rank;
+    public int getAutShipRank() {
+        return autShipRank;
     }
 
-    public void setRank(int rank) {
-        this.rank = rank;
+    public void setAutShipRank(int rank) {
+        this.autShipRank = rank;
     }
 
     @Override
@@ -80,7 +78,7 @@ public class Authorship implements Serializable {
         //result = prime * result + ((aut == null) ? 0 : aut.hashCode());
         result = prime * result + autShipId;
         //result = prime * result + ((pub == null) ? 0 : pub.hashCode());
-        result = prime * result + rank;
+        result = prime * result + autShipRank;
         return result;
     }
 
@@ -105,7 +103,7 @@ public class Authorship implements Serializable {
                 return false;
         } else if (!pub.equals(other.pub))
             return false;
-        if (rank != other.rank)
+        if (autShipRank != other.autShipRank)
             return false;
         return true;
     }

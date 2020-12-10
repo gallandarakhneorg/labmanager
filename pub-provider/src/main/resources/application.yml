@@ -35,6 +35,7 @@ management:
   endpoint:
     logfile:
       enabled: true
+      external-file: /var/log/tomcat9/CIADSpringRestHibernate.log
   endpoints:
     enabled-by-default: true
     web:

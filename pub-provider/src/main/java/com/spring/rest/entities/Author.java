@@ -21,14 +21,14 @@ public class Author implements Serializable {
     private static final long serialVersionUID = 1623305979074421107L;
 
     @Id
-    @GeneratedValue(strategy = GenerationType.TABLE)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private int autId;
 
-    @OneToMany(mappedBy = "aut", cascade = CascadeType.ALL)
-    private List<Authorship> autPubs = new LinkedList<Authorship>();
+    @OneToMany(mappedBy = "aut", fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+    private Set<Authorship> autPubs = new HashSet<>();
 
-    @OneToMany(mappedBy = "aut", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "aut", fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     private Set<Membership> autOrgs = new HashSet<>();
 
 
@@ -48,7 +48,7 @@ public class Author implements Serializable {
     @Column
     private boolean hasPage; //Wether or not the author has a page on the site.
 
-    public Author(int autId, List<Authorship> autPubs, Set<Membership> autOrgs, String autFirstName, String autLastName,
+    public Author(int autId, Set<Authorship> autPubs, Set<Membership> autOrgs, String autFirstName, String autLastName,
                   Date autBirth, String autMail, boolean hasPage) {
         super();
         this.autId = autId;
@@ -74,11 +74,11 @@ public class Author implements Serializable {
         this.autId = autId;
     }
 
-    public List<Authorship> getAutPubs() {
+    public Set<Authorship> getAutPubs() {
         return autPubs;
     }
 
-    public void setAutPubs(List<Authorship> autPubs) {
+    public void setAutPubs(Set<Authorship> autPubs) {
         this.autPubs = autPubs;
     }
 
