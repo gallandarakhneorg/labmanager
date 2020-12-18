@@ -2,99 +2,69 @@ package com.spring.rest.entities;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Objects;
 
 
 @Entity
 @Table(name = "authorship")
-@IdClass(AuthorshipPK.class)
+@AssociationOverrides({
+        @AssociationOverride(name = "pk.publication",
+                joinColumns = @JoinColumn(name = "pub_id")),
+        @AssociationOverride(name = "pk.author",
+                joinColumns = @JoinColumn(name = "aut_id")) })
 //@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
 public class Authorship implements Serializable {
 
     private static final long serialVersionUID = -1083342117826188053L;
 
-    @Id
-    @ManyToOne
-    private Publication pub;
-
-    @Id
-    @ManyToOne
-    private Author aut;
+    @EmbeddedId
+    private AuthorshipPK pk = new AuthorshipPK();
 
     //Rank determining the order of the author in the concerned publication
-    @Column
+    @Column(nullable = false)
     private int autShipRank;
 
-    public Authorship(int autShipId, Publication pub, Author aut, int autShipRank) {
-        super();
-        this.pub = pub;
-        this.aut = aut;
+    public Authorship(AuthorshipPK pk, int autShipRank) {
+        this.pk = pk;
         this.autShipRank = autShipRank;
     }
 
     public Authorship() {
-        super();
-        // TODO Auto-generated constructor stub
     }
 
-    public Publication getPub() {
-        return pub;
+    public static long getSerialVersionUID() {
+        return serialVersionUID;
     }
 
-    public void setPub(Publication pub) {
-        this.pub = pub;
+    public AuthorshipPK getPk() {
+        return pk;
     }
 
-    public Author getAut() {
-        return aut;
-    }
-
-    public void setAut(Author aut) {
-        this.aut = aut;
+    public void setPk(AuthorshipPK pk) {
+        this.pk = pk;
     }
 
     public int getAutShipRank() {
         return autShipRank;
     }
 
-    public void setAutShipRank(int rank) {
-        this.autShipRank = rank;
+    public void setAutShipRank(int autShipRank) {
+        this.autShipRank = autShipRank;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Authorship that = (Authorship) o;
+        return autShipRank == that.autShipRank &&
+                Objects.equals(pk, that.pk);
     }
 
     @Override
     public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        //result = prime * result + ((aut == null) ? 0 : aut.hashCode());
-        //result = prime * result + ((pub == null) ? 0 : pub.hashCode());
-        result = prime * result + autShipRank;
-        return result;
+        return Objects.hash(pk, autShipRank);
     }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        Authorship other = (Authorship) obj;
-        if (aut == null) {
-            if (other.aut != null)
-                return false;
-        } else if (aut.getAutId() != other.aut.getAutId())
-            return false;
-        if (pub == null) {
-            if (other.pub != null)
-                return false;
-        } else if (pub.getPubId() != other.pub.getPubId())
-            return false;
-        if (autShipRank != other.autShipRank)
-            return false;
-        return true;
-    }
-
-
 }
 
 

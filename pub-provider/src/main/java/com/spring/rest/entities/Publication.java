@@ -20,7 +20,7 @@ public class Publication implements Serializable {
     @Column(nullable = false)
     private int pubId;
 
-    @OneToMany(mappedBy = "pub", fetch = FetchType.EAGER,  cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER,  cascade = CascadeType.ALL)
     private Set<Authorship> pubAuts = new HashSet<Authorship>();
 
     @Column
@@ -310,19 +310,19 @@ public class Publication implements Serializable {
         StringBuilder sb = new StringBuilder();
         int i = 0;
         for(Authorship a : this.getPubAuts()) {
-            if(a.getAut().isHasPage()) {
+            if(a.getPk().getAut().isHasPage()) {
                 // Has a page
-                sb.append("<a class=\"publicationAuthor\" href=\"/author-" + a.getAut().getAutId() + "\">");
-                sb.append(a.getAut().getAutFirstName());
+                sb.append("<a class=\"publicationAuthor\" href=\"/author-" + a.getPk().getAut().getAutId() + "\">");
+                sb.append(a.getPk().getAut().getAutFirstName());
                 sb.append(" ");
-                sb.append(a.getAut().getAutLastName());
+                sb.append(a.getPk().getAut().getAutLastName());
                 sb.append("</a>");
             }
             else {
                 // Nope
-                sb.append(a.getAut().getAutFirstName());
+                sb.append(a.getPk().getAut().getAutFirstName());
                 sb.append(" ");
-                sb.append(a.getAut().getAutLastName());
+                sb.append(a.getPk().getAut().getAutLastName());
             }
             if(i < this.getPubAuts().size() - 2) {
                 sb.append(", ");

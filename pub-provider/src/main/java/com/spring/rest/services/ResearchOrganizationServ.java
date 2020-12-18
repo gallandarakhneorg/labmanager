@@ -34,8 +34,8 @@ public class ResearchOrganizationServ {
                 mem.setResOrg(null);
                 mem.getAut().setAutOrgs(new HashSet<>());
                 for (Authorship autShip : mem.getAut().getAutPubs()) {
-                    Publication pub = autShip.getPub();
-                    autShip.setAut(null);
+                    Publication pub = autShip.getPk().getPub();
+                    autShip.getPk().setAut(null);
                     pub.setPubAuts(new HashSet<>());
                     if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                         if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -63,8 +63,8 @@ public class ResearchOrganizationServ {
                 mem.setResOrg(null);
                 mem.getAut().setAutOrgs(new HashSet<>());
                 for (Authorship autShip : mem.getAut().getAutPubs()) {
-                    Publication pub = autShip.getPub();
-                    autShip.setAut(null);
+                    Publication pub = autShip.getPk().getPub();
+                    autShip.getPk().setAut(null);
                     pub.setPubAuts(new HashSet<>());
                     if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                         if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -195,8 +195,8 @@ public class ResearchOrganizationServ {
                 mem.setResOrg(null);
                 mem.getAut().setAutOrgs(new HashSet<>());
                 for (Authorship autShip : mem.getAut().getAutPubs()) {
-                    Publication pub = autShip.getPub();
-                    autShip.setAut(null);
+                    Publication pub = autShip.getPk().getPub();
+                    autShip.getPk().setAut(null);
                     pub.setPubAuts(new HashSet<>());
                     if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                         if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -220,8 +220,8 @@ public class ResearchOrganizationServ {
                 mem.setResOrg(null);
                 mem.getAut().setAutOrgs(new HashSet<>());
                 for (Authorship autShip : mem.getAut().getAutPubs()) {
-                    Publication pub = autShip.getPub();
-                    autShip.setAut(null);
+                    Publication pub = autShip.getPk().getPub();
+                    autShip.getPk().setAut(null);
                     pub.setPubAuts(new HashSet<>());
                     if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                         if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -262,8 +262,8 @@ public class ResearchOrganizationServ {
                 mem.setResOrg(null);
                 mem.getAut().setAutOrgs(new HashSet<>());
                 for (Authorship autShip : mem.getAut().getAutPubs()) {
-                    Publication pub = autShip.getPub();
-                    autShip.setAut(null);
+                    Publication pub = autShip.getPk().getPub();
+                    autShip.getPk().setAut(null);
                     pub.setPubAuts(new HashSet<>());
                     if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                         if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -298,8 +298,8 @@ public class ResearchOrganizationServ {
                 mem.setResOrg(null);
                 mem.getAut().setAutOrgs(new HashSet<>());
                 for (Authorship autShip : mem.getAut().getAutPubs()) {
-                    Publication pub = autShip.getPub();
-                    autShip.setAut(null);
+                    Publication pub = autShip.getPk().getPub();
+                    autShip.getPk().setAut(null);
                     pub.setPubAuts(new HashSet<>());
                     if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                         if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -323,8 +323,8 @@ public class ResearchOrganizationServ {
                 mem.setResOrg(null);
                 mem.getAut().setAutOrgs(new HashSet<>());
                 for (Authorship autShip : mem.getAut().getAutPubs()) {
-                    Publication pub = autShip.getPub();
-                    autShip.setAut(null);
+                    Publication pub = autShip.getPk().getPub();
+                    autShip.getPk().setAut(null);
                     pub.setPubAuts(new HashSet<>());
                     if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                         if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -347,7 +347,7 @@ public class ResearchOrganizationServ {
                 mem.setResOrg(null);
                 mem.getAut().setAutOrgs(new HashSet<>());
                 for (Authorship autShip : mem.getAut().getAutPubs()) {
-                    Publication pub = autShip.getPub();
+                    Publication pub = autShip.getPk().getPub();
                     pub.setPubAuts(new HashSet<>());
                     if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                         if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -368,7 +368,7 @@ public class ResearchOrganizationServ {
             mem.setResOrg(null);
             mem.getAut().setAutOrgs(new HashSet<>());
             for (Authorship autShip : mem.getAut().getAutPubs()) {
-                Publication pub = autShip.getPub();
+                Publication pub = autShip.getPk().getPub();
                 pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)

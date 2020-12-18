@@ -539,7 +539,7 @@ INSERT INTO `authors` (`aut_id`, `aut_birth`, `aut_first_name`, `aut_last_name`,
 
 CREATE TABLE `authorship` (
   `aut_ship_id` int NOT NULL,
-  `rank` int DEFAULT NULL,
+  `aut_ship_rank` int DEFAULT NULL,
   `aut_aut_id` int DEFAULT NULL,
   `pub_pub_id` int DEFAULT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
@@ -548,7 +548,7 @@ CREATE TABLE `authorship` (
 -- Déchargement des données de la table `authorship`
 --
 
-INSERT INTO `authorship` (`aut_ship_id`, `rank`, `aut_aut_id`, `pub_pub_id`) VALUES
+INSERT INTO `authorship` (`aut_ship_id`, `aut_ship_rank`, `aut_aut_id`, `pub_pub_id`) VALUES
 (32111, 2, 10871, 32108),
 (32110, 1, 11524, 32108),
 (32109, 0, 12182, 32108),
@@ -2628,7 +2628,7 @@ INSERT INTO `authorship` (`aut_ship_id`, `rank`, `aut_aut_id`, `pub_pub_id`) VAL
 (33729, 4, 10837, 33724),
 (33731, 0, 11338, 33730),
 (33732, 1, 10871, 33730);
-INSERT INTO `authorship` (`aut_ship_id`, `rank`, `aut_aut_id`, `pub_pub_id`) VALUES
+INSERT INTO `authorship` (`aut_ship_id`, `aut_ship_rank`, `aut_aut_id`, `pub_pub_id`) VALUES
 (33733, 2, 10837, 33730),
 (33735, 0, 10837, 33734),
 (33736, 1, 11387, 33734),

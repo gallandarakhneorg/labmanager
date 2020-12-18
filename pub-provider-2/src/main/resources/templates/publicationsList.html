@@ -1,0 +1,532 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/head :: style" />
+    <th:block th:replace="fragments/head :: script" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.min.js"></script>
+
+    <style>
+        td.details-control:before {
+            content: "\f06e";
+        }
+        td.details-control {
+            cursor: pointer;
+            color: #99cc00;
+            -webkit-font-smoothing: antialiased;
+            display: inline-block;
+            font-style: normal;
+            font-variant: normal;
+            text-rendering: auto;
+            line-height: 1;
+            font-weight: 900;
+            font: normal normal normal 14px/1 FontAwesome;
+        }
+
+        .dataTables_wrapper table thead{
+            display:none;
+        }
+
+        .publicationTitle {
+            color: #96c10d !important;
+        }
+
+        .publicationAuthor {
+            color: #212529 !important;
+            text-decoration: underline;
+        }
+
+        .odd {
+            background-color: white !important;
+        }
+        .even {
+            background-color: white !important;
+        }
+
+        .table-responsive {
+            overflow-x: hidden !important;
+        }
+        table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.dataTable tbody td.selected {
+            color: #96c10d !important;
+            background-color: grey !important;
+        }
+
+        .page-item.active .page-link {
+            background-color: #96c10d !important;
+            border-color: #96c10d !important;
+        }
+
+        .page-link {
+            color: #96c10d !important;
+        }
+
+    </style>
+</head>
+
+<body>
+
+<!--<div id="preloader">-->
+<!--    <div class="loader"></div>-->
+<!--</div>-->
+<!-- preloader area end -->
+<!-- page container area start -->
+<div class="horizontal-main-wrapper">
+    <!-- main content area start -->
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="row">
+
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Exports</h4>
+                            <div class="mb-xl-3" role="group" id="buttonsContainer">
+                                &nbsp;
+                                <button type="button" class="btn btn-sm btn-success" id="btHtmlGlobal">
+                                    <i class="fa fa-file-text-o"></i>&nbsp;&nbsp;Html
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success" id="btWordGlobal">
+                                    <i class="fa fa-file-word-o"></i>&nbsp;&nbsp;Odt
+                                </button>
+                                <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal">
+                                    <i class="fa fa-file-code-o"></i>&nbsp;&nbsp;Bibtex
+                                </button>
+                            </div>
+                            <h4 class="header-title">Recherche</h4>
+                            <div class="form-group">
+                                <div>
+                                    <input type="text" class="form-control form-control-sm" id="searchInput" placeholder="Entrez votre recherche">
+                                </div>
+                                <small class="form-text text-muted" id="tableInfos"></small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Contrôles</h4>
+                            <form action="#">
+                                <b class="text-muted mb-3 mt-4 d-block">Trier:</b>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" checked="checked" id="orderYear" name="order" class="custom-control-input groupOrder">
+                                    <label class="custom-control-label" for="orderYear">Par année</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" id="orderType" name="order" class="custom-control-input groupOrder">
+                                    <label class="custom-control-label" for="orderType">Par type</label>
+                                </div>
+                                <div class="custom-control custom-radio custom-control-inline">
+                                    <input type="radio" id="orderName" name="order" class="custom-control-input groupOrder">
+                                    <label class="custom-control-label" for="orderName">Par nom</label>
+                                </div>
+
+                            </form>
+                            <form action="#">
+                                <b class="text-muted mb-3 mt-4 d-block">Grouper:</b>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupYear">
+                                    <label class="custom-control-label" for="groupYear">Par année</label>
+                                </div>
+                                <div class="custom-control custom-checkbox custom-control-inline">
+                                    <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupType">
+                                    <label class="custom-control-label" for="groupType">Par type</label>
+                                </div>
+<!--                                <div class="custom-control custom-checkbox custom-control-inline">-->
+<!--                                    <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupType">-->
+<!--                                    <label class="custom-control-label" for="groupType">Par type</label>-->
+<!--                                </div>-->
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <br/>
+            <div class="row">
+                <!-- seo fact area start -->
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="table table-responsive">
+                                <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
+                                    <thead>
+                                    <th></th>
+                                    <th>Publication</th>
+                                    <th>Author</th>
+                                    <th>Year</th>
+                                    <th>Type</th>
+                                    <th>Download</th>
+                                    </thead>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main content area end -->
+</div>
+<!-- page container area end -->
+</body>
+
+<script th:inline="javascript">
+
+    function format ( d ) {
+        var links = d.links && d.links != "" ? '<tr>'+
+            '<td>Links: </td>'+
+            '<td>'+ d.links +'</td>'+
+            '</tr>' : "";
+        var abstract = d.abstract && d.abstract != "" ? '<tr>'+
+            '<td>Abstract: </td>'+
+            '<td>'+ d.abstract +'</td>'+
+            '</tr>' : "";
+        var downloads = d.downloads && d.downloads != "" ? '<tr>'+
+            '<td>Downloads: </td>'+
+            '<td>'+ d.downloads +'</td>'+
+            '</tr>' : "";
+        var exports = d.exports && d.exports != "" ? '<tr>'+
+            '<td>Exports: </td>'+
+            '<td>'+ d.exports +'</td>'+
+            '</tr>' : "";
+        var note = d.note && d.note != "" ? '<tr>'+
+            '<td>Note: </td>'+
+            '<td>'+ d.note +'</td>'+
+            '</tr>' : "";
+        var keywords = d.keywords && d.keywords != "" ? '<tr>'+
+            '<td>Keywords: </td>'+
+            '<td>'+ d.keywords +'</td>'+
+            '</tr>' : "";
+
+        return '<div class="table-responsive"></div><table class="table" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%">'+
+            '<tr>'+
+            '<td>Authors: </td>'+
+            '<td>'+ d.authors +'</td>'+
+            '</tr>'+
+            '<tr>'+
+            '<td>Type: </td>'+
+            '<td>'+ d.type +'</td>'+
+            '</tr>'+
+            links +
+            abstract +
+            note +
+            keywords +
+            downloads +
+            exports +
+            '</table></div>';
+    }
+
+    function enableDownloadForButtons() {
+        // Allow download
+
+        $('.btBibtex').on( 'click', function (e) {
+            e.preventDefault();
+            var id = $(this).attr('data-href');
+            $.ajax({
+                url:"/SpringRestHibernate/exportBibtex",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: id},
+                success: function(d){
+                    downloadString("bibTexExport.bib", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export Bibtex...\n" + d);
+                }
+            });
+        });
+        $('.btHtml').on( 'click', function (e) {
+            e.preventDefault();
+            var id = $(this).attr('data-href');
+            $.ajax({
+                url:"/SpringRestHibernate/exportHtml",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: id},
+                success: function(d){
+                    downloadString("htmlExport.html", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export HTML...\n" + d);
+                }
+            });
+        });
+
+        $('.btWord').on( 'click', function (e) {
+            e.preventDefault();
+            var id = $(this).attr('data-href');
+            $.ajax({
+                url:"/SpringRestHibernate/exportHtml",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: id},
+                success: function(d){
+                    downloadString("odtExport.odt", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export ODT...\n" + d);
+                }
+            });
+        });
+    }
+
+
+
+    $(document).ready(function() {
+        var tableId = /*[[${uuid}]]*/ '';
+
+        var table = $('#table'+tableId).DataTable({
+            "initComplete":function( settings, json){
+                var info = table.page.info();
+                $('#tableInfos').html(info.recordsTotal + " publications au total");
+            },
+
+            "ajax": /*[[${url}]]*/ "",
+            "columns": [
+                {
+                    "className":      'details-control',
+                    "orderable":      false,
+                    "data":           null,
+                    "defaultContent": ''
+                },
+                { "data": "title",
+                    searchPanes:{
+                        show: false,
+                    },
+                },
+                { "data": "authors",
+                    searchPanes:{
+                        show: false,
+                    },
+                },
+                { "data": "year",
+                    searchPanes: {
+                        name: 'yearName'
+                    },
+                },
+                { "data": "type" },
+                { "data": "downloads",
+                    searchPanes:{
+                        show: false,
+                    },
+                }
+            ],
+            searchPanes:{
+                viewTotal: true,
+                panes: [
+                    {
+                        header:'Authors',
+                        options: [
+                            /*[# th:each="a : ${authorsMap}"]*/
+                            {
+                                label: '[(${a.getValue()})]',
+                                value: function(rowData, rowIdx){
+                                    return rowData.authors.includes('[(${a.getValue()})]');
+                                },
+                            },
+                            /*[/]*/
+                        ],
+                    }
+                ],
+                layout: 'columns-3',
+            },
+            dom: 'Ptp',
+            scrollCollapse: true,
+            paging: true,
+            deferRender:true,
+            order: [ [3, 'desc'], [4, 'asc'] ],
+            rowGroup: {
+                startRender: function ( rows, group ) {
+                    if(rows.count() > 1)
+                        return group +' - ' + rows.count() + ' publications';
+                    else
+                        return group +' - ' + rows.count() + ' publication';
+                },
+                endRender: null,
+                dataSrc: ['year', 'type']
+            },
+            buttons: [
+                'excelHtml5', 'pdfHtml5', 'csvHtml5'
+            ],
+            responsive: true,
+            autoWidth: true,
+        });
+
+        // Toggle the visibility
+        table.column(2).visible(false);
+        table.column(3).visible(false);
+        table.column(4).visible(false);
+        table.column(5).visible(false);
+        //table.column(2).visible(false);
+        //table.column(3).visible(false);
+        //table.column(4).visible(false);
+
+
+        // Array to track the ids of the details displayed rows
+        //var detailRows = [];
+        $('#table'+tableId +' tbody').on( 'click', 'tr td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = table.row( tr );
+
+            if ( row.child.isShown() ) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child( format(row.data()) ).show();
+                tr.addClass('shown');
+            }
+
+            // Allow download
+            enableDownloadForButtons();
+        } );
+        $('#table'+tableId +' tbody').on( 'click', 'tr a.details-control', function (e) {
+            e.preventDefault();
+            var tr = $(this).closest('tr');
+            var row = table.row( tr );
+
+            if ( row.child.isShown() ) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child( format(row.data()) ).show();
+                tr.addClass('shown');
+            }
+            enableDownloadForButtons();
+        } );
+        $('#searchInput').on( 'keyup', function () {
+            table.search( this.value ).draw();
+            var info = table.page.info();
+            if(this.value.length > 0) {
+                $('#tableInfos').html(info.recordsDisplay + " publications trouvées sur " + info.recordsTotal + " publications au total");
+            }
+            else {
+                $('#tableInfos').html(info.recordsTotal + " publications au total");
+            }
+        } );
+
+        var buttons = new $.fn.dataTable.Buttons(table, {
+            buttons: [
+                {
+                    extend:    'excelHtml5',
+                    text:      '<i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;XLS',
+                    titleAttr: 'Excel'
+                },
+                {
+                    extend:    'csvHtml5',
+                    text:      '<i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;CSV',
+                    titleAttr: 'CSV'
+                },
+                {
+                    extend:    'pdfHtml5',
+                    text:      '<i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;PDF',
+                    titleAttr: 'PDF'
+                }
+            ]
+        }).container().appendTo($('#buttonsContainer'));
+        $('.buttons-html5').addClass('btn btn-sm btn-success');
+        $('.buttons-html5').removeClass('dt-button');
+
+
+        $('.groupControl').on( 'click', function (e) {
+            if($('#groupYear')[0].checked && $('#groupType')[0].checked) {
+                // Group by year & type
+                table.rowGroup().enable();
+                table.rowGroup().dataSrc(['year', 'type']);
+            }
+            else if($('#groupType')[0].checked) {
+                // Group by year
+                table.rowGroup().enable();
+                table.rowGroup().dataSrc( 'type' );
+            }
+            else if($('#groupYear')[0].checked) {
+                // Group by year
+                table.rowGroup().enable();
+                table.rowGroup().dataSrc( 'year' );
+            }
+            else {
+                table.rowGroup().disable();
+                table.rowGroup().dataSrc();
+            }
+            table.draw();
+        } );
+
+        $('.groupOrder').on( 'click', function (e) {
+            if($('#orderName')[0].checked) {
+                table.column( '1' ).order( 'asc' );
+            }
+            else if($('#orderType')[0].checked) {
+                table.column( '4' ).order( 'asc' );
+            }
+            else if($('#orderYear')[0].checked) {
+                table.column( '3' ).order( 'desc' );
+            }
+            table.draw();
+        } );
+
+        $('#btBibtexGlobal').on('click' , function(e) {
+            var list = "";
+            table.rows( { filter : 'applied'} ).data().each(function (r){
+                list += r.id + ",";
+            });
+            $.ajax({
+                url:"/SpringRestHibernate/exportBibtex",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: list},
+                success: function(d){
+                    downloadString("bibTexExport.bib", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export Bibtex...\n" + d);
+                }
+            });
+        })
+
+        $('#btHtmlGlobal').on('click' , function(e) {
+            var list = "";
+            table.rows( { filter : 'applied'} ).data().each(function (r){
+                list += r.id + ",";
+            });
+            $.ajax({
+                url:"/SpringRestHibernate/exportHtml",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: list},
+                success: function(d){
+                    downloadString("htmlExport.html", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export Html...\n" + d);
+                }
+            });
+        })
+
+        $('#btWordGlobal').on('click' , function(e) {
+            var list = "";
+            table.rows( { filter : 'applied'} ).data().each(function (r){
+                list += r.id + ",";
+            });
+            $.ajax({
+                url:"/SpringRestHibernate/exportHtml",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: list},
+                success: function(d){
+                    downloadString("odtExport.odt", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export ODT...\n" + d);
+                }
+            });
+        })
+
+    });
+
+</script>
+</html>
+

@@ -4,15 +4,14 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Objects;
 
+@Embeddable
 public class AuthorshipPK implements Serializable {
 
     private static final long serialVersionUID = -1083342117826188053L;
 
-    @Id
     @ManyToOne
     private Publication pub;
 
-    @Id
     @ManyToOne
     private Author aut;
 

@@ -34,8 +34,8 @@ public class AuthorServ {
 
         for (final Author aut : auts) {
             for (Authorship autShip : aut.getAutPubs()) {
-                Publication pub = autShip.getPub();
-                autShip.setAut(null);
+                Publication pub = autShip.getPk().getPub();
+                autShip.getPk().setAut(null);
                 pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -64,8 +64,8 @@ public class AuthorServ {
 
         for (final Author aut : result) {
             for (Authorship autShip : aut.getAutPubs()) {
-                Publication pub = autShip.getPub();
-                autShip.setAut(null);
+                Publication pub = autShip.getPk().getPub();
+                autShip.getPk().setAut(null);
                 pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -92,7 +92,7 @@ public class AuthorServ {
             //When removing an author, reduce the ranks of the other authorships for the pubs he made.
             for (Authorship autShip : res.get().getAutPubs()) {
                 int rank = autShip.getAutShipRank();
-                Publication pub = autShip.getPub();
+                Publication pub = autShip.getPk().getPub();
                 for (Authorship autShipPub : pub.getPubAuts()) {
                     if (autShipPub.getAutShipRank() > rank) {
                         autShipPub.setAutShipRank(autShipPub.getAutShipRank() - 1);
@@ -145,8 +145,8 @@ public class AuthorServ {
         if (author.isPresent() && publication.isPresent()) {
             if (Collections.disjoint(author.get().getAutPubs(), publication.get().getPubAuts())) {
                 Authorship autShip = new Authorship();
-                autShip.setPub(publication.get());
-                autShip.setAut(author.get());
+                autShip.getPk().setPub(publication.get());
+                autShip.getPk().setAut(author.get());
 
                 autShip.setAutShipRank(rank);
                 this.autShipRepo.save(autShip);
@@ -166,7 +166,7 @@ public class AuthorServ {
 
         if (autShip.isPresent()) {
             int rank = autShip.get().getAutShipRank();
-            Publication pub = autShip.get().getPub();
+            Publication pub = autShip.get().getPk().getPub();
             for (Authorship autShipPub : pub.getPubAuts()) {
                 if (autShipPub.getAutShipRank() > rank) {
                     autShipPub.setAutShipRank(autShipPub.getAutShipRank() - 1);
@@ -214,8 +214,8 @@ public class AuthorServ {
 
         for (final Author aut : autL) {
             for (Authorship autShip : aut.getAutPubs()) {
-                Publication pub = autShip.getPub();
-                autShip.setAut(null);
+                Publication pub = autShip.getPk().getPub();
+                autShip.getPk().setAut(null);
                 pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -240,8 +240,8 @@ public class AuthorServ {
 
         for (final Author aut : auts) {
             for (Authorship autShip : aut.getAutPubs()) {
-                Publication pub = autShip.getPub();
-                autShip.setAut(null);
+                Publication pub = autShip.getPk().getPub();
+                autShip.getPk().setAut(null);
                 pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -266,8 +266,8 @@ public class AuthorServ {
 
         for (final Author aut : auts) {
             for (Authorship autShip : aut.getAutPubs()) {
-                Publication pub = autShip.getPub();
-                autShip.setAut(null);
+                Publication pub = autShip.getPk().getPub();
+                autShip.getPk().setAut(null);
                 pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)
@@ -319,8 +319,8 @@ public class AuthorServ {
 
         for (final Author aut : auts) {
             for (Authorship autShip : aut.getAutPubs()) {
-                Publication pub = autShip.getPub();
-                autShip.setAut(null);
+                Publication pub = autShip.getPk().getPub();
+                autShip.getPk().setAut(null);
                 pub.setPubAuts(new HashSet<>());
                 if (pub.getClass() == ReadingCommitteeJournalPopularizationPaper.class) {
                     if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null)

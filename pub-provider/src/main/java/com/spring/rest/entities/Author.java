@@ -25,7 +25,7 @@ public class Author implements Serializable {
     @Column(nullable = false)
     private int autId;
 
-    @OneToMany(mappedBy = "aut", fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
     private Set<Authorship> autPubs = new HashSet<>();
 
     @OneToMany(mappedBy = "aut", fetch = FetchType.LAZY,  cascade = CascadeType.ALL)
