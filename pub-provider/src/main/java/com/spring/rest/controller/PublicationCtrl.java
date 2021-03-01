@@ -16,8 +16,7 @@ import java.io.IOException;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @RestController
 @CrossOrigin
@@ -154,6 +153,7 @@ public class PublicationCtrl {
                                   @RequestParam(required = false) String userDocEdition,
                                   @RequestParam(required = false) String userDocPublisher) throws IOException, ParseException {
 
+        if(publicationAuthors == null) response.sendRedirect("/SpringRestHibernate/addPublication?error=1&message=Authors must be filled"); // Redirect on the same page
         try {
             PublicationTypeGroup publicationTypeGroup = PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(PublicationType.valueOf(publicationType));
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-DD").parse(publicationDate).getTime());/*new Date(
@@ -235,7 +235,9 @@ public class PublicationCtrl {
 
             int i = 0;
             // Third step create the authors and link them to the publication
-            for (String publicationAuthor : publicationAuthors) {
+            assert publicationAuthors != null;
+            Set<String> authors = new LinkedHashSet<>(Arrays.asList(publicationAuthors)); // Unify
+            for (String publicationAuthor : authors) {
                 String firstName = publicationAuthor.substring(0, publicationAuthor.lastIndexOf(" "));
                 String lastName = publicationAuthor.substring(publicationAuthor.lastIndexOf(" ")).replace(" ", "");
 
@@ -250,8 +252,10 @@ public class PublicationCtrl {
                 logger.info("Author " + publicationAuthor + " added as publication's author.");
             }
 
+            // TODO change to works with wordpress
             response.sendRedirect("/SpringRestHibernate/addPublication?success=1");
         } catch (Exception ex) {
+            // TODO change to works with wordpress
             response.sendRedirect("/SpringRestHibernate/addPublication?error=1&message=" + ex.getMessage()); // Redirect on the same page
         }
 

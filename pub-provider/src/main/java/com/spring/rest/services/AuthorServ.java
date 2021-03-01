@@ -106,13 +106,12 @@ public class AuthorServ {
     }
 
     public int createAuthor(String autFirstName, String autLastName, Date autBirth, String autMail) {
-        final Author res = new Author();
+        Author res = new Author();
         res.setAutFirstName(autFirstName);
         res.setAutLastName(autLastName);
         res.setAutBirth(autBirth);
         res.setAutMail(autMail);
-        this.repo.save(res);
-
+        res = this.repo.save(res);
         return res.getAutId();
     }
 

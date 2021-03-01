@@ -32,7 +32,7 @@
                     <div class="card bg-danger">
                         <div class="card-body">
                             <h4 class="header-title">Error during publication add. Please check all compulsory fields are filled with correct values.</h4>
-                            <p th:utext="${param.message != null ?  param.message : ''}"></p>
+                            <p th:text="${param.message != null ?  param.message : ''}"></p>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
 
                                             <div class="form-row">
                                                 <div class="col-md-10 mb-3">
-                                                    <select id="publicationAuthors"  class="form-control selectAuthor list-group-item list-group-item-action">
+                                                    <select id="publicationAuthors"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
                                                         <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
                                                     </select>
                                                 </div>

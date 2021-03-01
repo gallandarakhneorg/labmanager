@@ -106,16 +106,13 @@ public class MainController {
     @GetMapping("/addPublication")
     public ModelAndView addPublication(@RequestParam(required = false) Integer publicationId) {
         final ModelAndView modelAndView = new ModelAndView("addPublication");
-        Set<Author> authors = new HashSet<>();
-
-        resOrgServ.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut() )));
 
         Map<PublicationType, String> publicationsTypes = new HashMap<>();
         for(PublicationType p : PublicationType.values()) {
             publicationsTypes.put(p, PublicationType.getPubTypeToString(p));
         }
         modelAndView.addObject("publicationsTypes", publicationsTypes);
-        modelAndView.addObject("authors", authors);
+        modelAndView.addObject("authors", autServ.getAllAuthors());
 
         modelAndView.addObject("edit", false);
         if(publicationId != null) {

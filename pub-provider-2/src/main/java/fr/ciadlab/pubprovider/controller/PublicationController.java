@@ -99,6 +99,9 @@ public class PublicationController {
                                   @RequestParam(required = false) String userDocPublisher) throws IOException, ParseException {
 
         try {
+            if(publicationAuthors == null) {
+                throw new Exception("You must specify at least one author.");
+            }
             PublicationTypeGroup publicationTypeGroup = PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(PublicationType.valueOf(publicationType));
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());/*new Date(
                 Integer.parseInt(publicationDate.split("-")[0]) - 1900,
@@ -199,6 +202,23 @@ public class PublicationController {
             response.sendRedirect("/SpringRestHibernate/addPublication?error=1&message=" + ex.getMessage()); // Redirect on the same page
         }
 
+    }
+
+    @RequestMapping(value = "/importBibtext", method = RequestMethod.POST, headers = "Accept=application/json")
+    public void importBibtext(HttpServletResponse response, MultipartFile bibtext) throws IOException {
+        try {
+            if (bibtext != null && !bibtext.isEmpty()) {
+                String bibtextContent = new String(bibtext.getBytes());
+                logger.info("Bibtext file read : " + bibtextContent);
+                List<Integer> publications = importPublications(bibtextContent);
+                response.sendRedirect("/SpringRestHibernate/addPublicationFromBibtext?success=1&importedPubs=" + publications.size());
+            }
+            else {
+                throw new Exception("Bibtext not provided...");
+            }
+        } catch (Exception ex) {
+            response.sendRedirect("/SpringRestHibernate/addPublicationFromBibtext?error=1&message=" + ex.getMessage()); // Redirect on the same page
+        }
     }
 
     //Import a bibTex file to the database.

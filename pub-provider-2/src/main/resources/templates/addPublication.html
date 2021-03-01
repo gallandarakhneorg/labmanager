@@ -92,7 +92,7 @@
 
                                             <div class="form-row">
                                                 <div class="col-md-10 mb-3">
-                                                    <select id="publicationAuthors"  class="form-control selectAuthor list-group-item list-group-item-action">
+                                                    <select id="publicationAuthors"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
                                                         <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
                                                     </select>
                                                 </div>

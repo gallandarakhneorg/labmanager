@@ -70,7 +70,7 @@ public class PublicationService {
         //The multiagent DB was formatted with " = {" so I based my import around that but the UB DB was formatted with "={" so I need to change it to what I know how to handle
         bibText = bibText.replaceAll("=\\{", " = \\{");
         //Also its legal in bibtex to end an object without a , after the last } but Id rather have it since it helps distinguishing end of the line instead of random } in the middle of a field
-        bibText = bibText.replaceAll("\\}\r", "\\},\r");
+        bibText = bibText.replaceAll("\\}\r", "\\}\r");
 
         bibText = fixEncoding(bibText);
 
@@ -224,9 +224,9 @@ public class PublicationService {
                 {
                     pubType = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("{", pub.indexOf(splitter)));
 
-                    splitter = "	title = {";//I cant just look up title = { or itll pick up booktitle. So make sure you bibtext are properly formatted.
+                    splitter = "title = {";//I cant just look up title = { or itll pick up booktitle. So make sure you bibtext are properly formatted.
                     if (pub.contains(splitter)) {
-                        pubTitle = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                        pubTitle = parseUsingSplitter(pub, splitter);
                         if (pubTitle.length() > 255) {
                             System.out.println("\n Warning : Publication Title too long, had to be truncated. \n Concerned publication : " + pubTitle + "\n");
                         }
@@ -243,24 +243,24 @@ public class PublicationService {
 
                             splitter = "abstract = {";
                             if (pub.contains(splitter)) {
-                                pubAbstract = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubAbstract = parseUsingSplitter(pub, splitter);
                                 //pubAbstract=truncate(pubAbstract); abstract is 67k character long so no need to trunck it
                             }
 
                             splitter = "keywords = {";
                             if (pub.contains(splitter)) {
-                                pubKeywords = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubKeywords = parseUsingSplitter(pub, splitter);
                                 pubKeywords = truncate(pubKeywords);
                             }
 
 
                             splitter = "year = {";
                             if (pub.contains(splitter)) {
-                                year = Integer.parseInt(pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter))));
+                                year = Integer.parseInt(parseUsingSplitter(pub, splitter));
 
                                 splitter = "month = {";
                                 if (pub.contains(splitter)) {
-                                    month = convertMonth(pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter))));
+                                    month = convertMonth(parseUsingSplitter(pub, splitter));
 
                                     pubDate = new Date(year - 1900, month, 2);
                                     //Day isnt specified so Im making it the first of the month
@@ -270,11 +270,11 @@ public class PublicationService {
                             {
                                 splitter = "year = ";
                                 if (pub.contains(splitter)) {
-                                    year = Integer.parseInt(pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf(",", pub.indexOf(splitter))));
+                                    year = Integer.parseInt(parseUsingSplitter(pub, splitter));
 
                                     splitter = "month = ";
                                     if (pub.contains(splitter)) {
-                                        month = convertMonth(pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf(",", pub.indexOf(splitter))));
+                                        month = convertMonth(parseUsingSplitter(pub, splitter));
 
                                         pubDate = new Date(year - 1900, month, 2);
                                         //Day isnt specified so Im making it the first of the month
@@ -285,61 +285,61 @@ public class PublicationService {
 
                             splitter = "note = {";
                             if (pub.contains(splitter)) {
-                                pubNote = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubNote = parseUsingSplitter(pub, splitter);
                                 pubNote = truncate(pubNote);
                             }
 
                             splitter = "annotations = {";
                             if (pub.contains(splitter)) {
-                                pubAnnotations = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubAnnotations = parseUsingSplitter(pub, splitter);
                                 pubAnnotations = truncate(pubAnnotations);
                             }
 
                             splitter = "isbn = {";
                             if (pub.contains(splitter)) {
-                                pubISBN = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubISBN = parseUsingSplitter(pub, splitter);
                                 pubISBN = truncate(pubISBN);
                             }
 
                             splitter = "issn = {";
                             if (pub.contains(splitter)) {
-                                pubISSN = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubISSN = parseUsingSplitter(pub, splitter);
                                 pubISSN = truncate(pubISSN);
                             }
 
                             splitter = "doi = {";
                             if (pub.contains(splitter)) {
-                                pubDOIRef = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubDOIRef = parseUsingSplitter(pub, splitter);
                                 pubDOIRef = truncate(pubDOIRef);
                             }
 
                             splitter = "url = {";
                             if (pub.contains(splitter)) {
-                                pubURL = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubURL = parseUsingSplitter(pub, splitter);
                                 pubURL = truncate(pubURL);
                             }
 
                             splitter = "dblp = {";
                             if (pub.contains(splitter)) {
-                                pubDBLP = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubDBLP = parseUsingSplitter(pub, splitter);
                                 pubDBLP = truncate(pubDBLP);
                             }
 
                             splitter = "pdf = {";
                             if (pub.contains(splitter)) {
-                                pubPDFPath = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubPDFPath = parseUsingSplitter(pub, splitter);
                                 pubPDFPath = truncate(pubPDFPath);
                             }
 
                             splitter = "language = {";
                             if (pub.contains(splitter)) {
-                                pubLanguage = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubLanguage = parseUsingSplitter(pub, splitter);
                                 pubLanguage = truncate(pubLanguage);
                             }
 
                             splitter = "award = {";
                             if (pub.contains(splitter)) {
-                                pubPaperAwardPath = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                pubPaperAwardPath = parseUsingSplitter(pub, splitter);
                                 pubPaperAwardPath = truncate(pubPaperAwardPath);
                             }
 
@@ -352,31 +352,31 @@ public class PublicationService {
 
                                     splitter = "journal = {";
                                     if (pub.contains(splitter)) {
-                                        name = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        name = parseUsingSplitter(pub, splitter);
                                         name = truncate(name);
                                     }
 
                                     splitter = "volume = {";
                                     if (pub.contains(splitter)) {
-                                        volume = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        volume = parseUsingSplitter(pub, splitter);
                                         volume = truncate(volume);
                                     }
 
                                     splitter = "number = {";
                                     if (pub.contains(splitter)) {
-                                        number = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        number = parseUsingSplitter(pub, splitter);
                                         number = truncate(number);
                                     }
 
                                     splitter = "pages = {";
                                     if (pub.contains(splitter)) {
-                                        pages = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        pages = parseUsingSplitter(pub, splitter);
                                         pages = truncate(pages);
                                     }
 
                                     splitter = "publisher = {";
                                     if (pub.contains(splitter)) {
-                                        publisher = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        publisher = parseUsingSplitter(pub, splitter);
                                         publisher = truncate(publisher);
                                     }
 
@@ -430,43 +430,43 @@ public class PublicationService {
 
                                     splitter = "booktitle = {";
                                     if (pub.contains(splitter)) {
-                                        name = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        name = parseUsingSplitter(pub, splitter);
                                         name = truncate(name);
                                     }
 
                                     splitter = "editor = {";
                                     if (pub.contains(splitter)) {
-                                        editor = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        editor = parseUsingSplitter(pub, splitter);
                                         editor = truncate(editor);
                                     }
 
                                     splitter = "pages = {";
                                     if (pub.contains(splitter)) {
-                                        pages = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        pages = parseUsingSplitter(pub, splitter);
                                         pages = truncate(pages);
                                     }
 
                                     splitter = "organization = {";
                                     if (pub.contains(splitter)) {
-                                        organization = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        organization = parseUsingSplitter(pub, splitter);
                                         organization = truncate(organization);
                                     }
 
                                     splitter = "publisher = {";
                                     if (pub.contains(splitter)) {
-                                        publisher = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        publisher = parseUsingSplitter(pub, splitter);
                                         publisher = truncate(publisher);
                                     }
 
                                     splitter = "address = {";
                                     if (pub.contains(splitter)) {
-                                        address = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        address = parseUsingSplitter(pub, splitter);
                                         address = truncate(address);
                                     }
 
                                     splitter = "series = {";
                                     if (pub.contains(splitter)) {
-                                        series = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        series = parseUsingSplitter(pub, splitter);
                                         series = truncate(series);
                                     }
 
@@ -505,43 +505,43 @@ public class PublicationService {
 
                                     splitter = "editor = {";
                                     if (pub.contains(splitter)) {
-                                        editor = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        editor = parseUsingSplitter(pub, splitter);
                                         editor = truncate(editor);
                                     }
 
                                     splitter = "publisher = {";
                                     if (pub.contains(splitter)) {
-                                        publisher = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        publisher = parseUsingSplitter(pub, splitter);
                                         publisher = truncate(publisher);
                                     }
 
                                     splitter = "volume = {";
                                     if (pub.contains(splitter)) {
-                                        volume = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        volume = parseUsingSplitter(pub, splitter);
                                         volume = truncate(volume);
                                     }
 
                                     splitter = "series = {";
                                     if (pub.contains(splitter)) {
-                                        series = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        series = parseUsingSplitter(pub, splitter);
                                         series = truncate(series);
                                     }
 
                                     splitter = "address = {";
                                     if (pub.contains(splitter)) {
-                                        address = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        address = parseUsingSplitter(pub, splitter);
                                         address = truncate(address);
                                     }
 
                                     splitter = "edition = {";
                                     if (pub.contains(splitter)) {
-                                        edition = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        edition = parseUsingSplitter(pub, splitter);
                                         edition = truncate(edition);
                                     }
 
                                     splitter = "pages = {";
                                     if (pub.contains(splitter)) {
-                                        pages = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        pages = parseUsingSplitter(pub, splitter);
                                         pages = truncate(pages);
                                     }
 
@@ -579,55 +579,55 @@ public class PublicationService {
 
                                     splitter = "editor = {";
                                     if (pub.contains(splitter)) {
-                                        editor = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        editor = parseUsingSplitter(pub, splitter);
                                         editor = truncate(editor);
                                     }
 
                                     splitter = "publisher = {";
                                     if (pub.contains(splitter)) {
-                                        publisher = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        publisher = parseUsingSplitter(pub, splitter);
                                         publisher = truncate(publisher);
                                     }
 
                                     splitter = "volume = {";
                                     if (pub.contains(splitter)) {
-                                        volume = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        volume = parseUsingSplitter(pub, splitter);
                                         volume = truncate(volume);
                                     }
 
                                     splitter = "series = {";
                                     if (pub.contains(splitter)) {
-                                        series = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        series = parseUsingSplitter(pub, splitter);
                                         series = truncate(series);
                                     }
 
                                     splitter = "address = {";
                                     if (pub.contains(splitter)) {
-                                        address = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        address = parseUsingSplitter(pub, splitter);
                                         address = truncate(address);
                                     }
 
                                     splitter = "edition = {";
                                     if (pub.contains(splitter)) {
-                                        edition = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        edition = parseUsingSplitter(pub, splitter);
                                         edition = truncate(edition);
                                     }
 
                                     splitter = "pages = {";
                                     if (pub.contains(splitter)) {
-                                        pages = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        pages = parseUsingSplitter(pub, splitter);
                                         pages = truncate(pages);
                                     }
 
                                     splitter = "booktitle = {";
                                     if (pub.contains(splitter)) {
-                                        proceedings = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        proceedings = parseUsingSplitter(pub, splitter);
                                         proceedings = truncate(proceedings);
                                     }
 
                                     splitter = "chapter = {";
                                     if (pub.contains(splitter)) {
-                                        name = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        name = parseUsingSplitter(pub, splitter);
                                         name = truncate(name);
                                     }
 
@@ -668,7 +668,7 @@ public class PublicationService {
 
                                     splitter = "howpublished = {";
                                     if (pub.contains(splitter)) {
-                                        howPub = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        howPub = parseUsingSplitter(pub, splitter);
                                         howPub = truncate(howPub);
                                     }
 
@@ -700,25 +700,25 @@ public class PublicationService {
 
                                     splitter = "organization = {";
                                     if (pub.contains(splitter)) {
-                                        organization = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        organization = parseUsingSplitter(pub, splitter);
                                         organization = truncate(organization);
                                     }
 
                                     splitter = "address = {";
                                     if (pub.contains(splitter)) {
-                                        address = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        address = parseUsingSplitter(pub, splitter);
                                         address = truncate(address);
                                     }
 
                                     splitter = "edition = {";
                                     if (pub.contains(splitter)) {
-                                        edition = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        edition = parseUsingSplitter(pub, splitter);
                                         edition = truncate(edition);
                                     }
 
                                     splitter = "publisher = {";
                                     if (pub.contains(splitter)) {
-                                        publisher = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        publisher = parseUsingSplitter(pub, splitter);
                                         publisher = truncate(publisher);
                                     }
 
@@ -753,19 +753,19 @@ public class PublicationService {
 
                                     splitter = "institution = {";
                                     if (pub.contains(splitter)) {
-                                        name = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        name = parseUsingSplitter(pub, splitter);
                                         name = truncate(name);
                                     }
 
                                     splitter = "type = {";
                                     if (pub.contains(splitter)) {
-                                        reportType = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        reportType = parseUsingSplitter(pub, splitter);
                                         reportType = truncate(reportType);
                                     }
 
                                     splitter = "number = {";
                                     if (pub.contains(splitter)) {
-                                        number = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        number = parseUsingSplitter(pub, splitter);
                                         number = truncate(number);
                                     }
 
@@ -799,13 +799,13 @@ public class PublicationService {
 
                                     splitter = "school = {";
                                     if (pub.contains(splitter)) {
-                                        name = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        name = parseUsingSplitter(pub, splitter);
                                         name = truncate(name);
                                     }
 
                                     splitter = "address = {";
                                     if (pub.contains(splitter)) {
-                                        address = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        address = parseUsingSplitter(pub, splitter);
                                         address = truncate(address);
                                     }
 
@@ -838,13 +838,13 @@ public class PublicationService {
 
                                     splitter = "school = {";
                                     if (pub.contains(splitter)) {
-                                        name = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        name = parseUsingSplitter(pub, splitter);
                                         name = truncate(name);
                                     }
 
                                     splitter = "address = {";
                                     if (pub.contains(splitter)) {
-                                        address = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                        address = parseUsingSplitter(pub, splitter);
                                         address = truncate(address);
                                     }
 
@@ -876,19 +876,26 @@ public class PublicationService {
                             //Handle authors
                             splitter = "author = {";
                             if (pub.contains(splitter)) {
-                                autL = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("},", pub.indexOf(splitter)));
+                                autL = parseUsingSplitter(pub, splitter);
                                 if (autL.compareTo("") != 0) {
                                     splitter = " and ";
                                     auts = autL.split(splitter);
 
                                     for (i = 0; i < auts.length; i++) {
-                                        autLastName = auts[i].substring(0, auts[i].indexOf(", "));
-                                        autFirstName = auts[i].substring(auts[i].indexOf(", ") + 2);
+                                        if(auts[i].contains(",")) {
+                                            autLastName = auts[i].substring(0, auts[i].indexOf(", "));
+                                            autFirstName = auts[i].substring(auts[i].indexOf(", ") + 2);
+                                        }
+                                        else {
+                                            autLastName = auts[i].substring(0, auts[i].lastIndexOf(" "));
+                                            autFirstName = auts[i].substring(auts[i].lastIndexOf(" ") + 1);
+                                        }
+
 
                                         //Checking for dupes
 
                                         for (Author knownAut : authorList) {
-                                            if (knownAut.getAutFirstName().compareTo(autFirstName) == 0 && knownAut.getAutLastName().compareTo(autLastName) == 0) {
+                                            if (knownAut.getAutFirstName().compareToIgnoreCase(autFirstName) == 0 && knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
                                                 isDupe = true;
                                                 autId = knownAut.getAutId();
                                             }
@@ -981,7 +988,7 @@ public class PublicationService {
 
         //Kind of a radical solution but we can just remove all characters we dont care about
         //We keep normal characters : a-z, A-Z, 0-9
-        //Characters we need to read the bibText : @, ",", {, }, =
+        //Characters we need to read the bibText : @, ",", {, } =
         //Some accents we know how to manage : é, É, è, È... (see above)
         //And characters java & the DB can handle : _, -, ., /, \, ;, :, ', ", ’, ^, !, ?, &, (, ), [, ], whitespaces, line jumps
         //System.out.println(bibText);
@@ -1195,73 +1202,73 @@ public class PublicationService {
         {
             bib += "abstract = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubKeywords();
         if (data != null) {
             bib += "keywords = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubNote();
         if (data != null) {
             bib += "note = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubAnnotations();
         if (data != null) {
             bib += "annotations = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubISBN();
         if (data != null) {
             bib += "isbn = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubISSN();
         if (data != null) {
             bib += "issn = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubDOIRef();
         if (data != null) {
             bib += "doi = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubURL();
         if (data != null) {
             bib += "url = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubDBLP();
         if (data != null) {
             bib += "dblp = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubPDFPath();
         if (data != null) {
             bib += "pdf = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubLanguage();
         if (data != null) {
             bib += "language = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = pub.getPubPaperAwardPath();
         if (data != null) {
             bib += "award = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
 
         switch (groupType) {
@@ -1271,33 +1278,33 @@ public class PublicationService {
                     if (data != null) {
                         bib += "journal = {";
                         bib += data;
-                        bib += "}, \n\t";
+                        bib += "} \n\t";
                     }
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapVolume();
                 if (data != null) {
                     bib += "volume = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapNumber();
                 if (data != null) {
                     bib += "number = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapPages();
                 if (data != null) {
                     bib += "pages = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
                     data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourPublisher();
                     if (data != null) {
                         bib += "publisher = {";
                         bib += data;
-                        bib += "}, \n\t";
+                        bib += "} \n\t";
                     }
                 }
                 break;
@@ -1307,43 +1314,43 @@ public class PublicationService {
                 if (data != null) {
                     bib += "booktitle = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfEditor();
                 if (data != null) {
                     bib += "editor = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfPages();
                 if (data != null) {
                     bib += "pages = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfOrganization();
                 if (data != null) {
                     bib += "organization = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfPublisher();
                 if (data != null) {
                     bib += "publisher = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfAddress();
                 if (data != null) {
                     bib += "address = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfSeries();
                 if (data != null) {
                     bib += "series = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 break;
 
@@ -1352,43 +1359,43 @@ public class PublicationService {
                 if (data != null) {
                     bib += "editor = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((Book) pub).getBookPublisher();
                 if (data != null) {
                     bib += "publisher = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((Book) pub).getBookVolume();
                 if (data != null) {
                     bib += "volume = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((Book) pub).getBookSeries();
                 if (data != null) {
                     bib += "series = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((Book) pub).getBookAddress();
                 if (data != null) {
                     bib += "address = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((Book) pub).getBookEdition();
                 if (data != null) {
                     bib += "edition = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((Book) pub).getBookPages();
                 if (data != null) {
                     bib += "pages = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 break;
 
@@ -1397,55 +1404,55 @@ public class PublicationService {
                 if (data != null) {
                     bib += "editor = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((BookChapter) pub).getBookPublisher();
                 if (data != null) {
                     bib += "publisher = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((BookChapter) pub).getBookVolume();
                 if (data != null) {
                     bib += "volume = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((BookChapter) pub).getBookSeries();
                 if (data != null) {
                     bib += "series = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((BookChapter) pub).getBookAddress();
                 if (data != null) {
                     bib += "address = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((BookChapter) pub).getBookEdition();
                 if (data != null) {
                     bib += "edition = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((BookChapter) pub).getBookPages();
                 if (data != null) {
                     bib += "pages = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((BookChapter) pub).getBookChapBookNameProceedings();
                 if (data != null) {
                     bib += "booktitle = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((BookChapter) pub).getBookChapNumberOrName();
                 if (data != null) {
                     bib += "chapter = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 break;
 
@@ -1454,7 +1461,7 @@ public class PublicationService {
                 if (data != null) {
                     bib += "howpublished = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 break;
 
@@ -1463,25 +1470,25 @@ public class PublicationService {
                 if (data != null) {
                     bib += "organization = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((UserDocumentation) pub).getUserDocAddress();
                 if (data != null) {
                     bib += "address = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((UserDocumentation) pub).getUserDocEdition();
                 if (data != null) {
                     bib += "edition = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((UserDocumentation) pub).getUserDocPublisher();
                 if (data != null) {
                     bib += "publisher = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 break;
 
@@ -1490,19 +1497,19 @@ public class PublicationService {
                 if (data != null) {
                     bib += "institution = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((EngineeringActivity) pub).getEngActReportType();
                 if (data != null) {
                     bib += "type = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((EngineeringActivity) pub).getEngActNumber();
                 if (data != null) {
                     bib += "number = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 break;
 
@@ -1511,13 +1518,13 @@ public class PublicationService {
                 if (data != null) {
                     bib += "school = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((UniversityDocument) pub).getUniDocAddress();
                 if (data != null) {
                     bib += "address = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 break;
 
@@ -1526,13 +1533,13 @@ public class PublicationService {
                 if (data != null) {
                     bib += "school = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 data = ((UniversityDocument) pub).getUniDocAddress();
                 if (data != null) {
                     bib += "address = {";
                     bib += data;
-                    bib += "}, \n\t";
+                    bib += "} \n\t";
                 }
                 break;
         }
@@ -1553,13 +1560,13 @@ public class PublicationService {
         if (data != null) {
             bib += "title = {";
             bib += data;
-            bib += "}, \n\t";
+            bib += "} \n\t";
         }
         data = printAuthors(pubId);
         if (data != null) {
             bib += "author = {";
             bib += data;
-            bib += "}, \n";
+            bib += "} \n";
         }
 
         bib += "}\n\n\n";
@@ -1649,6 +1656,17 @@ public class PublicationService {
         //Not asked to do this yet
 
         return wos;
+    }
+
+    public String parseUsingSplitter(String pub, String splitter) {
+        String cleaned = "";
+        int beginIndex = pub.indexOf(splitter) + splitter.length();
+        if(pub.indexOf("},", pub.indexOf(splitter)) != -1)
+            cleaned = pub.substring(beginIndex, pub.indexOf("},", pub.indexOf(splitter)));
+        else
+            cleaned = pub.substring(beginIndex, pub.indexOf("}\n", pub.indexOf(splitter)));
+        cleaned = cleaned.replace("{", "").replace("}", "");
+        return cleaned;
     }
 
     public String groupPubType(String pubType) {

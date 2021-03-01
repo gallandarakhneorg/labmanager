@@ -13,6 +13,7 @@ public class Authorship implements Serializable {
     private static final long serialVersionUID = -1083342117826188053L;
 
     @Id
+    @GeneratedValue
     private int autShipId;
 
     @Column(nullable = false)

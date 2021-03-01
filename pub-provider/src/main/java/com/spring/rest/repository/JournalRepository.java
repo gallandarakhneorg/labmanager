@@ -11,7 +11,13 @@ public interface JournalRepository extends JpaRepository<Journal, Integer> {
 
     Set<Journal> findDistinctByJourPubsPubId(int pubId);
 
-    @Query("SELECT DISTINCT j FROM Journal j INNER JOIN j.jourPubs p INNER JOIN p.pubAuts au INNER JOIN au.aut a INNER JOIN a.autOrgs org WHERE org.resOrg.resOrgId = ?1")
+    @Query("SELECT DISTINCT j " +
+            "FROM Journal j " +
+            "INNER JOIN j.jourPubs p " +
+            "INNER JOIN p.pubAuts au " +
+            "INNER JOIN au.pk.aut a " +
+            "INNER JOIN a.autOrgs org " +
+            "WHERE org.resOrg.resOrgId = ?1")
     Set<Journal> findDistinctByJourPubsPubAutsAutAutOrgsResOrgResOrgId(int orgId);
 
     Optional<Journal> findByJourName(String jourName);
