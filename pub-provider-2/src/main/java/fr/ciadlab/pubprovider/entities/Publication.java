@@ -1,6 +1,7 @@
 package fr.ciadlab.pubprovider.entities;
 
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.Comparator;
@@ -296,6 +297,11 @@ public class Publication implements Serializable {
 
     public PublicationType getPubType() {
         return pubType;
+    }
+
+    @Transactional
+    public void deleteAuthorship(Authorship authorship){
+        pubAuts.remove(authorship);
     }
 
     public Class getPublicationClass() {

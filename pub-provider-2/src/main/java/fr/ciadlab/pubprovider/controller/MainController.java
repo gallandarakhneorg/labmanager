@@ -52,6 +52,14 @@ public class MainController {
         return modelAndView;
     }
 
+    @GetMapping("/authorsTool")
+    public ModelAndView showAuthorsTool() {
+        final ModelAndView modelAndView = new ModelAndView("authorsTool");
+        modelAndView.addObject("authors", autServ.getAllAuthors());
+
+        return modelAndView;
+    }
+
     @GetMapping("/addPublication")
     public ModelAndView addPublication(@RequestParam(required = false) Integer publicationId) {
         final ModelAndView modelAndView = new ModelAndView("addPublication");

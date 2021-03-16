@@ -183,8 +183,8 @@ public class PublicationController {
             int i = 0;
             // Third step create the authors and link them to the publication
             for (String publicationAuthor : publicationAuthors) {
-                String firstName = publicationAuthor.substring(0, publicationAuthor.lastIndexOf(" "));
-                String lastName = publicationAuthor.substring(publicationAuthor.lastIndexOf(" ")).replace(" ", "");
+                String firstName = publicationAuthor.substring(0, publicationAuthor.indexOf(" "));
+                String lastName = publicationAuthor.substring(publicationAuthor.indexOf(" ")+1);
 
                 int authorIdByName = authorServ.getAuthorIdByName(firstName, lastName);
                 if (authorIdByName == 0) {

@@ -1,6 +1,9 @@
 package fr.ciadlab.pubprovider.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
+import javax.transaction.Transactional;
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.HashSet;
@@ -23,9 +26,11 @@ public class Author implements Serializable {
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     @JoinColumn(name="autAutId", referencedColumnName = "autId")
+    @JsonIgnore
     private Set<Authorship> autPubs = new HashSet<>();
 
     @OneToMany(mappedBy = "aut", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @JsonIgnore
     private Set<Membership> autOrgs = new HashSet<>();
 
 
@@ -124,6 +129,16 @@ public class Author implements Serializable {
 
     public void setHasPage(boolean hasPage) {
         this.hasPage = hasPage;
+    }
+
+    @Transactional
+    public void deleteAuthorship(Authorship authorship){
+        autPubs.remove(authorship);
+    }
+
+    @Transactional
+    public void deleteAllAuthorships(){
+        autPubs.clear();
     }
 
     @Override

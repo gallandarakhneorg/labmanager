@@ -895,10 +895,44 @@ public class PublicationService {
                                         //Checking for dupes
 
                                         for (Author knownAut : authorList) {
-                                            if (knownAut.getAutFirstName().compareToIgnoreCase(autFirstName) == 0 && knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
+                                            // First possibility : First name and last name fully written
+                                            if (knownAut.getAutFirstName().compareToIgnoreCase(autFirstName) == 0
+                                                    && knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
                                                 isDupe = true;
                                                 autId = knownAut.getAutId();
+                                                break;
                                             }
+
+                                            // Second possibility : last name and first name inverted
+                                            if (knownAut.getAutFirstName().compareToIgnoreCase(autLastName) == 0
+                                                    && knownAut.getAutLastName().compareToIgnoreCase(autFirstName) == 0) {
+                                                isDupe = true;
+                                                autId = knownAut.getAutId();
+                                                break;
+                                            }
+
+                                            // Third possibility : S. GALLAND => only one letter
+                                            if(autFirstName.contains(".")) {
+                                                if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autFirstName.replace(".", "")) == 0) {
+                                                    // First name was only one letter
+                                                    if (knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
+                                                        isDupe = true;
+                                                        autId = knownAut.getAutId();
+                                                        break;
+                                                    }
+                                                }
+                                            }
+                                            if(autLastName.contains(".")) {
+                                                if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autLastName.replace(".", "")) == 0) {
+                                                    // First name was only one letter
+                                                    if (knownAut.getAutFirstName().compareToIgnoreCase(autFirstName) == 0) {
+                                                        isDupe = true;
+                                                        autId = knownAut.getAutId();
+                                                        break;
+                                                    }
+                                                }
+                                            }
+
                                         }
 
                                         if (!isDupe) {
@@ -1664,7 +1698,7 @@ public class PublicationService {
         if(pub.indexOf("},", pub.indexOf(splitter)) != -1)
             cleaned = pub.substring(beginIndex, pub.indexOf("},", pub.indexOf(splitter)));
         else
-            cleaned = pub.substring(beginIndex, pub.indexOf("}\n", pub.indexOf(splitter)));
+            cleaned = pub.substring(beginIndex, pub.indexOf("}\r\n", pub.indexOf(splitter)));
         cleaned = cleaned.replace("{", "").replace("}", "");
         return cleaned;
     }

@@ -17,10 +17,10 @@ public class Membership implements Serializable {
     @Column(nullable = false)
     private int memId;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Author aut;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private ResearchOrganization resOrg;
 
     @Column

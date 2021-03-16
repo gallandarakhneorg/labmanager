@@ -214,4 +214,36 @@ public class AuthorService {
         return auts;
     }
 
+    public int mergeAuthors(String publicationOldAuthor, String publicationNewAuthor) {
+        final String oldFirstName = publicationOldAuthor.substring(0, publicationOldAuthor.indexOf(" "));
+        final String oldLastName = publicationOldAuthor.substring(publicationOldAuthor.indexOf(" ")+1);
+        final Set<Author> oldAuthor = repo.findByAutFirstNameAndAutLastName(oldFirstName, oldLastName);
+
+        final String newFirstName = publicationNewAuthor.substring(0, publicationNewAuthor.indexOf(" "));
+        final String newLastName = publicationNewAuthor.substring(publicationNewAuthor.indexOf(" ")+1);
+        final Author newAuthor = (Author) repo.findByAutFirstNameAndAutLastName(newFirstName, newLastName).toArray()[0];
+
+        int pubCount = 0;
+        for(Author author : oldAuthor) {
+            Set<Authorship> autPubs = Collections.unmodifiableSet(author.getAutPubs());
+            pubCount = autPubs.size();
+            // first : create new authorships
+
+            Set<Integer> autorshipsId = new HashSet<>();
+            for(Authorship authorship : autPubs) {
+                // Add authorship to new author
+                addAuthorship(newAuthor.getAutId(), authorship.getPubPubId(), authorship.getAutShipRank());
+                pubRepo.findById(authorship.getPubPubId()).ifPresent(publication -> publication.deleteAuthorship(authorship));
+                autorshipsId.add(authorship.getAutShipId());
+            }
+            // Remove the author
+            author.deleteAllAuthorships();
+            removeAuthor(author.getAutId());
+            for(Integer id : autorshipsId) {
+                autShipRepo.deleteById(id);
+            }
+
+        }
+        return pubCount;
+    }
 }
