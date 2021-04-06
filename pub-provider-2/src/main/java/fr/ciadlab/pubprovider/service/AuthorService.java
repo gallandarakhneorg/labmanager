@@ -88,8 +88,19 @@ public class AuthorService {
         }
     }
 
+    public void updateAuthorship(int index, int pubId, int rank) {
+        final Optional<Authorship> autShip = autShipRepo.findDistinctByAutAutIdAndPubPubId(index, pubId);
+
+        //Need to add on both sides but only one save is needed.
+        //Ill still do both in case
+        if (autShip.isPresent()) {
+            autShip.get().setAutShipRank(rank);
+            this.autShipRepo.save(autShip.get());
+        }
+    }
+
     public void addAuthorship(int index, int pubId) {
-        addAuthorship(index, pubId,repo.findDistinctByAutPubsPubPubId(pubId).size());
+        addAuthorship(index, pubId,repo.findDistinctByAutPubsPubPubIdOrderByAutPubsAutShipRank(pubId).size());
     }
 
     public void addAuthorship(int index, int pubId, int rank) {
@@ -178,7 +189,7 @@ public class AuthorService {
     }
 
     public Set<Author> getLinkedAuthors(int index) {
-        return repo.findDistinctByAutPubsPubPubId(index);
+        return repo.findDistinctByAutPubsPubPubIdOrderByAutPubsAutShipRank(index);
     }
 
 

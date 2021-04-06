@@ -18,6 +18,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -47,6 +48,124 @@ public class PublicationController {
     private ReadingCommitteeJournalPopularizationPaperService readingCommitteeJournalPopularizationPaperServ;
     @Autowired
     private AuthorService authorServ;
+
+    @RequestMapping(value = "/editPublication",
+            method = RequestMethod.POST,
+            headers = "Accept=application/json")
+    public void editPublication(HttpServletResponse response,
+                                @RequestParam Integer publicationId,
+                                  String publicationType,
+                                  String publicationTitle,
+                                  String publicationAbstract,
+                                  String publicationKeywords,
+                                  String publicationDate,
+                                  String[] publicationAuthors,
+                                  @RequestParam(required = false) String publicationNote,
+                                  @RequestParam(required = false) String publicationIsbn,
+                                  @RequestParam(required = false) String publicationIssn,
+                                  @RequestParam(required = false) String publicationDoi,
+                                  @RequestParam(required = false) String publicationUrl,
+                                  @RequestParam(required = false) String publicationVideoUrl,
+                                  @RequestParam(required = false) String publicationDblp,
+                                  @RequestParam(required = false) MultipartFile publicationPdf,
+                                  @RequestParam(required = false) MultipartFile publicationAward,
+                                  @RequestParam(required = false) String publicationLanguage,
+                                  @RequestParam(required = false) String reaComConfPopPapVolume,
+                                  @RequestParam(required = false) String reaComConfPopPapNumber,
+                                  @RequestParam(required = false) String reaComConfPopPapPages,
+                                  @RequestParam(required = false) String proConfBookNameProceedings,
+                                  @RequestParam(required = false) String proConfEditor,
+                                  @RequestParam(required = false) String proConfPages,
+                                  @RequestParam(required = false) String proConfOrganization,
+                                  @RequestParam(required = false) String proConfPublisher,
+                                  @RequestParam(required = false) String proConfAddress,
+                                  @RequestParam(required = false) String proConfSeries,
+                                  @RequestParam(required = false) String bookEditor,
+                                  @RequestParam(required = false) String bookPublisher,
+                                  @RequestParam(required = false) String bookVolume,
+                                  @RequestParam(required = false) String bookSeries,
+                                  @RequestParam(required = false) String bookAddress,
+                                  @RequestParam(required = false) String bookEdition,
+                                  @RequestParam(required = false) String bookPages,
+                                  @RequestParam(required = false) String bookChapBookNameProceedings,
+                                  @RequestParam(required = false) String bookChapNumberOrName,
+                                  @RequestParam(required = false) String semPatHowPub,
+                                  @RequestParam(required = false) String uniDocSchoolName,
+                                  @RequestParam(required = false) String uniDocAddress,
+                                  @RequestParam(required = false) String engActInstitName,
+                                  @RequestParam(required = false) String engActReportType,
+                                  @RequestParam(required = false) String engActNumber,
+                                  @RequestParam(required = false) String userDocOrganization,
+                                  @RequestParam(required = false) String userDocAddress,
+                                  @RequestParam(required = false) String userDocEdition,
+                                  @RequestParam(required = false) String userDocPublisher) throws IOException, ParseException {
+
+        try {
+            if(publicationAuthors == null) {
+                throw new Exception("You must specify at least one author.");
+            }
+            PublicationTypeGroup publicationTypeGroup = PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(PublicationType.valueOf(publicationType));
+            Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());
+
+            Publication pub = pubServ.getPublication(publicationId);
+            if(pub != null)  {
+                // Store pdfs
+                String pdfUploadPath = "";
+                if (publicationPdf != null && !publicationPdf.isEmpty()) {
+                    String publicationPdfPath = StringUtils.cleanPath(Objects.requireNonNull(publicationPdf.getOriginalFilename()));
+                    pdfUploadPath = PubProviderApplication.DownloadablesPath + "PDFs/" + publicationPdfPath;
+                    FileUploadUtils.saveFile(pdfUploadPath, publicationPdfPath, publicationPdf);
+                    logger.info("PDF uploaded at: " + pdfUploadPath);
+                    pub.setPubPDFPath(pdfUploadPath);
+                }
+                String awardUploadPath = "";
+                if (publicationAward != null && !publicationAward.isEmpty()) {
+                    String publicationAwardPath = StringUtils.cleanPath(Objects.requireNonNull(publicationAward.getOriginalFilename()));
+                    awardUploadPath = PubProviderApplication.DownloadablesPath + "Awards/" + publicationAwardPath;
+                    FileUploadUtils.saveFile(awardUploadPath, publicationAwardPath, publicationPdf);
+                    logger.info("Award uploaded at: " + awardUploadPath);
+                    pub.setPubPaperAwardPath(awardUploadPath);
+                }
+
+                int i = 0;
+                // Third step create the authors and link them to the publication
+                for (String publicationAuthor : publicationAuthors) {
+                    String firstName = publicationAuthor.substring(0, publicationAuthor.indexOf(" "));
+                    String lastName = publicationAuthor.substring(publicationAuthor.indexOf(" ")+1);
+
+                    int authorIdByName = authorServ.getAuthorIdByName(firstName, lastName);
+                    if (authorIdByName == 0) {
+                        logger.info("Author " + publicationAuthor + " not found... Creating a new one.");
+                        authorIdByName = authorServ.createAuthor(firstName, lastName, new Date(1970 - 1900, 1, 1), ""); //Temp birth date // TODO FIXME
+                        logger.info("New author created with id: " + authorIdByName);
+                    }
+
+                    int finalAuthorIdByName = authorIdByName;
+                    if(pub.getPubAuts().stream().anyMatch(a -> a.getAutAutId() == finalAuthorIdByName)) {
+                        // Already present
+                        Optional<Authorship> first = pub.getPubAuts().stream().filter(a -> a.getAutAutId() == finalAuthorIdByName).findFirst();
+                        if(first.isPresent()) {
+                            authorServ.updateAuthorship(authorIdByName, publicationId, i);
+                            logger.info("Authorship for " + publicationAuthor + " updated.");
+                        }
+                    }
+                    else {
+                        authorServ.addAuthorship(authorIdByName, pub.getPubId(), i);
+                        logger.info("Author " + publicationAuthor + " added as publication's author.");
+                    }
+
+                    i++;
+
+                }
+                pubServ.savePublication(pub);
+            }
+
+            response.sendRedirect("/SpringRestHibernate/addPublication?success=1&publicationId=" + publicationId);
+        } catch (Exception ex) {
+            response.sendRedirect("/SpringRestHibernate/addPublication?error=1&publicationId=" + publicationId + "&message=" + ex.getMessage()); // Redirect on the same page
+        }
+
+    }
 
     @RequestMapping(value = "/createPublication",
             method = RequestMethod.POST,

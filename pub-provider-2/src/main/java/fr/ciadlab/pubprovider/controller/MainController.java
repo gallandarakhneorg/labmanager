@@ -12,6 +12,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,6 +62,12 @@ public class MainController {
         return modelAndView;
     }
 
+    @GetMapping("/deletePublication")
+    public void deletePublication(HttpServletResponse response, @RequestParam Integer publicationId) throws IOException {
+        pubServ.removePublication(publicationId);
+        response.sendRedirect("/SpringRestHibernate/publicationsListPrivate?success=1");
+    }
+
     @GetMapping("/addPublication")
     public ModelAndView addPublication(@RequestParam(required = false) Integer publicationId) {
         final ModelAndView modelAndView = new ModelAndView("addPublication");
@@ -79,7 +87,7 @@ public class MainController {
             Publication publication = pubServ.getPublication(publicationId);
             if(publication != null) {
                 modelAndView.addObject("publication", publication.getPublicationClass().cast(publication)); // Dynamic downcasting
-                modelAndView.addObject("authors", autServ.getLinkedAuthors(publicationId)); // Dynamic downcasting
+                modelAndView.addObject("pubAuthors", autServ.getLinkedAuthors(publicationId)); // Dynamic downcasting
                 switch(PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(publication.getPubType())) {
                     case Typeless:
                         break;
@@ -177,14 +185,37 @@ public class MainController {
         return modelAndView;
     }
 
+    @GetMapping("/publicationsListPrivate")
+    public ModelAndView showPublicationsListPrivate(
+            @RequestParam(required = false) Integer authorId
+    ) {
+        final ModelAndView modelAndView = new ModelAndView("publicationsListPrivate");
+
+        modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream().collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
+
+        if (authorId == null)
+            modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList?onlyValid=false");
+        else
+            modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList?authorId=" + authorId + "&onlyValid=false");
+
+        modelAndView.addObject("uuid", Math.abs(new Random().nextInt())); // UUID to generate unique html elements
+        return modelAndView;
+    }
+
     @GetMapping("/getPublicationsList")
     @ResponseBody
-    public String getPublicationsList(@RequestParam(required = false) Integer authorId) {
-        final List<Publication> publications = authorId == null ? pubServ.getAllPublications() : pubServ.getAuthorPublications(authorId);
+    public String getPublicationsList(@RequestParam(required = false) Integer authorId, @RequestParam(required = false) Boolean onlyValid) {
+        List<Publication> publications = authorId == null ? pubServ.getAllPublications() : pubServ.getAuthorPublications(authorId);
+        if(onlyValid != null && !onlyValid) {
+            // Do not filter
+        }
+        else {
+            publications = publications.stream().filter(p -> p.getPubAuts() != null && p.getPubAuts().size() > 0).collect(Collectors.toList());
+        }
 
 
         JsonArray publisJson = new JsonArray();
-        for (Publication p : publications.stream().filter(p -> p.getPubAuts() != null && p.getPubAuts().size() > 0).collect(Collectors.toList())) { // Keep only valid (with authors)
+        for (Publication p : publications) { // Keep only valid (with authors)
             JsonObject data = new JsonObject();
             data.addProperty("id", p.getPubId());
             data.addProperty("title", pubServ.buildTitleHtml(p));
@@ -209,6 +240,13 @@ public class MainController {
             data.addProperty("exports", exports);
             data.addProperty("downloads", downloads);
             data.addProperty("abstract", p.getPubAbstract());
+
+            String edit = "";
+            edit += "<a class=\"btn btn-xs btn-success\" href=\"/SpringRestHibernate/addPublication?publicationId=" + p.getPubId() + "\" <i class=\"fa fa-edit\"></i>&nbsp;&nbsp;Edit publication</a>&nbsp;&nbsp;";
+            edit += "<a class=\"btn btn-xs btn-danger\" href=\"/SpringRestHibernate/deletePublication?publicationId=" + p.getPubId() + "\" <i class=\"fa fa-delete\"></i>&nbsp;&nbsp;Delete publication</a>&nbsp;&nbsp;";
+            //edit += "<a class=\"btn btn-xs btn-warning\" href=\"/SpringRestHibernate/mergePublication?publicationId=" + p.getPubId() + "\" <i class=\"fa fa-edit\"></i>&nbsp;&nbsp;Merge publications</a>&nbsp;&nbsp;";
+
+            data.addProperty("edit", edit);
             publisJson.add(data);
         }
 

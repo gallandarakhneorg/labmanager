@@ -9,7 +9,7 @@ import java.util.Set;
 
 public interface AuthorRepository extends JpaRepository<Author, Integer> {
 
-    Set<Author> findDistinctByAutPubsPubPubId(int pubPubId);
+    Set<Author> findDistinctByAutPubsPubPubIdOrderByAutPubsAutShipRank(int pubPubId);
 
     Set<Author> findDistinctByAutOrgsResOrgResOrgId(int resOrgId);
 

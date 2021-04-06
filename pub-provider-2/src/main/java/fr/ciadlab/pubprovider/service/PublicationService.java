@@ -44,6 +44,10 @@ public class PublicationService {
         return repo.findAllByPubAutsAutAutId(authorId);
     }
 
+    public void savePublication(Publication pub) {
+        repo.save(pub);
+    }
+
     public Publication getPublication(int publicationIndex) {
         Optional<Publication> byId = repo.findById(publicationIndex);
         return byId.isPresent() ? byId.get() : null;
@@ -960,7 +964,7 @@ public class PublicationService {
                                                 autShip = new Authorship();
                                                 autShip.setPubPubId(optPub.get().getPubId());
                                                 autShip.setAutAutId(optAut.get().getAutId());
-                                                autShip.setAutShipRank(autRepo.findDistinctByAutPubsPubPubId(optPub.get().getPubId()).size());
+                                                autShip.setAutShipRank(autRepo.findDistinctByAutPubsPubPubIdOrderByAutPubsAutShipRank(optPub.get().getPubId()).size());
                                                 repo.save(optPub.get());
                                                 autShipRepo.save(autShip);
 

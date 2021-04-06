@@ -32,7 +32,7 @@
                     <div class="card bg-danger">
                         <div class="card-body">
                             <h4 class="header-title">Error during publication add. Please check all compulsory fields are filled with correct values.</h4>
-                            <p th:utext="${param.message != null ?  param.message : ''}"></p>
+                            <p th:text="${param.message != null ?  param.message : ''}"></p>
                         </div>
                     </div>
                 </div>
@@ -53,8 +53,9 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="header-title" th:if="${edit}">Edit publication</h4>
+                            <input name="publicationId" th:if="${publication != null}" hidden="true" th:value="${publication.id}" />
                             <h4 class="header-title" th:unless="${edit}">Add publication</h4>
-                            <form id="form" enctype="multipart/form-data" th:action="@{ ${edit ? '/createPublication' : '/createPublication'} }" method="post" >
+                            <form id="form" enctype="multipart/form-data" th:action="@{ ${edit ? '/editPublication' : '/createPublication'} }" method="post" >
                                 <div class="form-group">
                                     <label for="publicationType" class="col-form-label">Publication type</label>
                                     <select class="form-control custom-select js-example-basic-single" id="publicationType" name="publicationType">
@@ -79,13 +80,15 @@
                                         <div id="publicationAuthorsDiv">
                                             <div id="authors">
                                                 <!-- Nothing at start -->
-                                                <div th:if="${publication != null}" class="form-row" th:each="authorship : ${publication != null ? authors : null}" >
+                                                <div th:if="${publication != null}" class="form-row" th:each="authorship : ${publication != null ? pubAuthors : null}" >
 
-                                                    <div class="col-md-10 mb-3">
-                                                        <input name="author" class="form-control list-group-item list-group-item-action list-group-item-primary" th:value="${authorship.getAutFirstName() + ' ' + authorship.getAutLastName() }" readonly="true" />
-                                                    </div>
-                                                    <div class="col-md-2 mb-3">
-                                                        <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>
+                                                    <div class="form-row connectedSortable test">
+                                                        <div class="col-md-10 mb-3">
+                                                            <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" th:value="${authorship.getAutFirstName() + ' ' + authorship.getAutLastName() }"/>
+                                                        </div>
+                                                        <div class="col-md-2 mb-3">
+                                                            <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
