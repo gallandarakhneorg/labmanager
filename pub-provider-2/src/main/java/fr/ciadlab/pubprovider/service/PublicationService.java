@@ -1200,7 +1200,7 @@ public class PublicationService {
                         break;
 
                     case "html":
-                        text += exportOneHtml(pubL, i);
+                        text += exportOneHtml(pubL, i).replace("{", "").replace("}", "");
                         break;
 
                     case "wos":
@@ -2160,7 +2160,8 @@ public class PublicationService {
     // --------------------------------------- HTML
     public String buildTitleHtml(Publication p) {
         StringBuilder sb = new StringBuilder();
-        sb.append("<h5><a href=\"#\" class=\"details-control publicationTitle\">" + p.getPubTitle() + "");
+        String cleaned = p.getPubTitle().replace("{", "").replace("}", "");
+        sb.append("<h5><a href=\"#\" class=\"details-control publicationTitle\">" + cleaned + "");
         if(p.getPubPaperAwardPath() != null && !p.getPubPaperAwardPath().isEmpty()) sb.append("&nbsp;&nbsp;<span class=\"badge badge-pill badge-danger\">Award</span>");
         if(p.getPubPDFPath() != null && !p.getPubPDFPath().isEmpty()) sb.append("&nbsp;&nbsp;<span class=\"badge badge-pill badge-success\">PDF</span>");
         sb.append("</a></h5>");
@@ -2280,7 +2281,7 @@ public class PublicationService {
                 break;
         }
         sb.append(p.getPubYear() + ".");
-        return sb.toString();
+        return sb.toString().replace("{", "").replace("}", "");
     }
 
 }
