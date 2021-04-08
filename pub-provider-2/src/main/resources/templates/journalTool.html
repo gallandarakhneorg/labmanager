@@ -30,16 +30,7 @@
                     <div class="card bg-success">
                         <div class="card-body">
                             <p th:text="${param.success != null ?  param.success : ''}"></p>
-                            <h4 class="header-title">Publications merged from old author to the new one</h4>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row" th:if="${param.updated != null}">
-                <div class="col-lg-12">
-                    <div class="card bg-success">
-                        <div class="card-body">
-                            <h4 class="header-title">Author updated</h4>
+                            <h4 class="header-title">Jounal successfully created</h4>
                         </div>
                     </div>
                 </div>
@@ -63,8 +54,8 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="journalElvesier" class="col-form-label">Journal Elvesier</label>
-                                    <input class="form-control" type="text" placeholder="" id="journalElvesier" name="journalElvesier">
+                                    <label for="journalElsevier" class="col-form-label">Journal Elsevier</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalElsevier" name="journalElsevier">
                                 </div>
 
                                 <div class="form-group">
@@ -77,7 +68,6 @@
                                     <input class="form-control" type="text" placeholder="" id="journalWos" name="journalWos">
                                 </div>
 
-
                                 <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Create journal</button>
                             </form>
                         </div>
@@ -85,44 +75,44 @@
                 </div>
             </div>
 
-            <div class="row">
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="header-title">Author editing tool</h4>
-                            <form id="form2" th:action="@{'/renameAuthor'}" method="post" >
-                                <div class="form-group" id="containerAuthor">
-                                    <label for="publicationAuthorsDiv" class="col-form-label">Author to edit</label>
-                                    <div id="publicationAuthorsDiv">
-                                        <select id="author" name="author"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
-                                            <option></option>
-                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
-                                        </select>
-                                    </div>
+<!--            <div class="row">-->
+<!--                <div class="col-lg-12">-->
+<!--                    <div class="card">-->
+<!--                        <div class="card-body">-->
+<!--                            <h4 class="header-title">Author editing tool</h4>-->
+<!--                            <form id="form2" th:action="@{'/renameAuthor'}" method="post" >-->
+<!--                                <div class="form-group" id="containerAuthor">-->
+<!--                                    <label for="publicationAuthorsDiv" class="col-form-label">Author to edit</label>-->
+<!--                                    <div id="publicationAuthorsDiv">-->
+<!--                                        <select id="author" name="author"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">-->
+<!--                                            <option></option>-->
+<!--                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>-->
+<!--                                        </select>-->
+<!--                                    </div>-->
 
-                                </div>
+<!--                                </div>-->
 
-                                <div class="form-group">
-                                    <label for="newFirstname" class="col-form-label">firstname (must be in ONE word, use - to join words)</label>
-                                    <input class="form-control" type="text" placeholder="Jean-michel" id="newFirstname" name="newFirstname">
-                                </div>
+<!--                                <div class="form-group">-->
+<!--                                    <label for="newFirstname" class="col-form-label">firstname (must be in ONE word, use - to join words)</label>-->
+<!--                                    <input class="form-control" type="text" placeholder="Jean-michel" id="newFirstname" name="newFirstname">-->
+<!--                                </div>-->
 
-                                <div class="form-group">
-                                    <label for="newLastname" class="col-form-label">Lastname (can be in multiple words)</label>
-                                    <input class="form-control" type="text" placeholder="Dupont Pierre" id="newLastname" name="newLastname">
-                                </div>
+<!--                                <div class="form-group">-->
+<!--                                    <label for="newLastname" class="col-form-label">Lastname (can be in multiple words)</label>-->
+<!--                                    <input class="form-control" type="text" placeholder="Dupont Pierre" id="newLastname" name="newLastname">-->
+<!--                                </div>-->
 
-                                <div class="form-group">
-                                    <label for="autMail" class="col-form-label">Email</label>
-                                    <input class="form-control" type="text" placeholder="test@test.fr" id="autMail" name="autMail">
-                                </div>
+<!--                                <div class="form-group">-->
+<!--                                    <label for="autMail" class="col-form-label">Email</label>-->
+<!--                                    <input class="form-control" type="text" placeholder="test@test.fr" id="autMail" name="autMail">-->
+<!--                                </div>-->
 
-                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Rename</button>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
+<!--                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Rename</button>-->
+<!--                            </form>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
         </div>
     </div>
     <!-- main content area end -->

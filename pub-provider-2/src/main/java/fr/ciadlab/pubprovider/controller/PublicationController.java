@@ -98,7 +98,8 @@ public class PublicationController {
                                   @RequestParam(required = false) String userDocOrganization,
                                   @RequestParam(required = false) String userDocAddress,
                                   @RequestParam(required = false) String userDocEdition,
-                                  @RequestParam(required = false) String userDocPublisher) throws IOException, ParseException {
+                                  @RequestParam(required = false) String userDocPublisher,
+                                @RequestParam(required = false) Integer journalId) throws IOException, ParseException {
 
         try {
             if(publicationAuthors == null) {
@@ -157,6 +158,207 @@ public class PublicationController {
                     i++;
 
                 }
+
+                switch (publicationTypeGroup) {
+                    case Typeless:
+                        logger.error("Error during edit publication: " + publicationType + " is not a valid type...");
+                        response.sendRedirect("/SpringRestHibernate/editPublication?error=1"); // Redirect on the same page
+                        return;
+                    case ReadingCommitteeJournalPopularizationPaper:
+                        readingCommitteeJournalPopularizationPaperServ.updateReadingCommitteeJournalPopularizationPaper(pub.getPubId(),
+                                publicationTitle,
+                                publicationAbstract,
+                                publicationKeywords,
+                                publicationDateDate,
+                                publicationNote,
+                                null,
+                                publicationIsbn,
+                                publicationIssn,
+                                publicationDoi,
+                                publicationUrl,
+                                publicationDblp,
+                                null,
+                                publicationLanguage,
+                                null,
+                                null,
+                                reaComConfPopPapNumber,
+                                reaComConfPopPapPages,
+                                reaComConfPopPapVolume,
+                                journalId
+                                );
+                        break;
+                    case ProceedingsConference:
+                        proceedingsConferenceServ.updateProceedingsConference(pub.getPubId(),
+                                publicationTitle,
+                                publicationAbstract,
+                                publicationKeywords,
+                                publicationDateDate,
+                                publicationNote,
+                                null,
+                                publicationIsbn,
+                                publicationIssn,
+                                publicationDoi,
+                                publicationUrl,
+                                publicationDblp,
+                                null,
+                                publicationLanguage,
+                                null,
+                                null,
+                                proConfAddress,
+                                proConfBookNameProceedings,
+                                proConfEditor,
+                                proConfOrganization,
+                                proConfPages,
+                                proConfPublisher,
+                                proConfSeries
+                        );
+                        break;
+                    case Book:
+                        bookServ.updateBook(pub.getPubId(),
+                                publicationTitle,
+                                publicationAbstract,
+                                publicationKeywords,
+                                publicationDateDate,
+                                publicationNote,
+                                null,
+                                publicationIsbn,
+                                publicationIssn,
+                                publicationDoi,
+                                publicationUrl,
+                                publicationDblp,
+                                null,
+                                publicationLanguage,
+                                null,
+                                null,
+                                bookEditor,
+                                bookPublisher,
+                                bookVolume,
+                                bookSeries,
+                                bookAddress,
+                                bookEdition,
+                                bookPages);
+                        break;
+                    case BookChapter:
+                        bookChapterServ.updateBookChapter(
+                                pub.getPubId(),
+                                publicationTitle,
+                                publicationAbstract,
+                                publicationKeywords,
+                                publicationDateDate,
+                                publicationNote,
+                                null,
+                                publicationIsbn,
+                                publicationIssn,
+                                publicationDoi,
+                                publicationUrl,
+                                publicationDblp,
+                                null,
+                                publicationLanguage,
+                                null,
+                                null,
+                                bookEditor,
+                                bookPublisher,
+                                bookVolume,
+                                bookSeries,
+                                bookAddress,
+                                bookEdition,
+                                bookPages,
+                                bookChapBookNameProceedings,
+                                bookChapNumberOrName
+                        );
+                        break;
+                    case SeminarPatentInvitedConference:
+                        seminarPatentInvitedConferenceServ.updateSeminarPatentInvitedConference(
+                                pub.getPubId(),
+                                publicationTitle,
+                                publicationAbstract,
+                                publicationKeywords,
+                                publicationDateDate,
+                                publicationNote,
+                                null,
+                                publicationIsbn,
+                                publicationIssn,
+                                publicationDoi,
+                                publicationUrl,
+                                publicationDblp,
+                                null,
+                                publicationLanguage,
+                                null,
+                                null,
+                                semPatHowPub
+                        );
+                        break;
+                    case UniversityDocument:
+                        universityDocumentServ.updateUniversityDocument(
+                                pub.getPubId(),
+                                publicationTitle,
+                                publicationAbstract,
+                                publicationKeywords,
+                                publicationDateDate,
+                                publicationNote,
+                                null,
+                                publicationIsbn,
+                                publicationIssn,
+                                publicationDoi,
+                                publicationUrl,
+                                publicationDblp,
+                                null,
+                                publicationLanguage,
+                                null,
+                                null,
+                                uniDocAddress,
+                                uniDocSchoolName
+                        );
+                        break;
+                    case EngineeringActivity:
+                        engineeringActivityServ.updateEngineeringActivity(
+                                pub.getPubId(),
+                                publicationTitle,
+                                publicationAbstract,
+                                publicationKeywords,
+                                publicationDateDate,
+                                publicationNote,
+                                null,
+                                publicationIsbn,
+                                publicationIssn,
+                                publicationDoi,
+                                publicationUrl,
+                                publicationDblp,
+                                null,
+                                publicationLanguage,
+                                null,
+                                null,
+                                engActInstitName,
+                                engActNumber,
+                                engActReportType
+                        );
+                        break;
+                    case UserDocumentation:
+                        userDocumentationServ.updateUserDocumentation(
+                                pub.getPubId(),
+                                publicationTitle,
+                                publicationAbstract,
+                                publicationKeywords,
+                                publicationDateDate,
+                                publicationNote,
+                                null,
+                                publicationIsbn,
+                                publicationIssn,
+                                publicationDoi,
+                                publicationUrl,
+                                publicationDblp,
+                                null,
+                                publicationLanguage,
+                                null,
+                                null,
+                                userDocAddress,
+                                userDocEdition,
+                                userDocOrganization,
+                                userDocPublisher
+                        );
+                        break;
+                }
+
                 pubServ.savePublication(pub);
             }
 
@@ -215,7 +417,8 @@ public class PublicationController {
                                   @RequestParam(required = false) String userDocOrganization,
                                   @RequestParam(required = false) String userDocAddress,
                                   @RequestParam(required = false) String userDocEdition,
-                                  @RequestParam(required = false) String userDocPublisher) throws IOException, ParseException {
+                                  @RequestParam(required = false) String userDocPublisher,
+                                  @RequestParam(required = false) Integer journalId) throws IOException, ParseException {
 
         try {
             if(publicationAuthors == null) {
@@ -255,7 +458,7 @@ public class PublicationController {
                     return;
                 case ReadingCommitteeJournalPopularizationPaper:
                     ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ.createReadingCommitteeJournalPopularizationPaper(
-                            publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages
+                            publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages, journalId
                     );
                     pubId = paper.getPubId();
                     logger.info("ReadingCommitteeJournalPopularizationPaper created with id: " + paper.getPubId());

@@ -70,10 +70,10 @@ public class JournalService {
         return jours;
     }
 
-    public List<Journal> getJournal(int index) {
+    public Journal getJournal(int index) {
         List<Journal> result = new ArrayList<Journal>();
         final Optional<Journal> res = repo.findById(index);
-        return result;
+        return res.get();
     }
 
     public void removeJournal(int index) {

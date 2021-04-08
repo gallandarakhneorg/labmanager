@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import fr.ciadlab.pubprovider.entities.*;
 import fr.ciadlab.pubprovider.service.AuthorService;
+import fr.ciadlab.pubprovider.service.JournalService;
 import fr.ciadlab.pubprovider.service.PublicationService;
 import fr.ciadlab.pubprovider.service.ResearchOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,8 @@ public class MainController {
     private PublicationService pubServ;
     @Autowired
     private AuthorService autServ;
+    @Autowired
+    private JournalService jourServ;
 
     @GetMapping("/authorsList")
     public ModelAndView showAuthorsList(
@@ -58,6 +61,14 @@ public class MainController {
     public ModelAndView showAuthorsTool() {
         final ModelAndView modelAndView = new ModelAndView("authorsTool");
         modelAndView.addObject("authors", autServ.getAllAuthors());
+
+        return modelAndView;
+    }
+
+    @GetMapping("/journalTool")
+    public ModelAndView showJournalTool() {
+        final ModelAndView modelAndView = new ModelAndView("journalTool");
+        modelAndView.addObject("journals", jourServ.getAllJournals());
 
         return modelAndView;
     }

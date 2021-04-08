@@ -115,29 +115,29 @@ public class UserDocumentationService {
         File file;
         if (res.isPresent()) {
             //Generic pub fields
-            if (!pubTitle.isEmpty())
+            if (pubTitle != null && !pubTitle.isEmpty())
                 res.get().setPubTitle(pubTitle);
-            if (!pubAbstract.isEmpty())
+            if (pubAbstract  != null && !pubAbstract.isEmpty())
                 res.get().setPubAbstract(pubAbstract);
-            if (!pubKeywords.isEmpty())
+            if (pubKeywords != null && !pubKeywords.isEmpty())
                 res.get().setPubKeywords(pubKeywords);
-            if (pubDate != null)
+            if (pubDate != null && pubDate != null)
                 res.get().setPubDate(pubDate);
-            if (!pubNote.isEmpty())
+            if (pubNote != null && !pubNote.isEmpty())
                 res.get().setPubNote(pubNote);
-            if (!pubAnnotations.isEmpty())
+            if (pubAnnotations != null && !pubAnnotations.isEmpty())
                 res.get().setPubAnnotations(pubAnnotations);
-            if (!pubISBN.isEmpty())
+            if (pubISBN != null && !pubISBN.isEmpty())
                 res.get().setPubISBN(pubISBN);
-            if (!pubISSN.isEmpty())
+            if (pubISSN != null && !pubISSN.isEmpty())
                 res.get().setPubISSN(pubISSN);
-            if (!pubDOIRef.isEmpty())
+            if (pubDOIRef != null && !pubDOIRef.isEmpty())
                 res.get().setPubDOIRef(pubDOIRef);
-            if (!pubURL.isEmpty())
+            if (pubURL != null && !pubURL.isEmpty())
                 res.get().setPubURL(pubURL);
-            if (!pubDBLP.isEmpty())
+            if (pubDBLP != null && !pubDBLP.isEmpty())
                 res.get().setPubDBLP(pubDBLP);
-            if (!pubPDFPath.isEmpty()) {
+            if (pubPDFPath != null && !pubPDFPath.isEmpty()) {
                 file = new File(PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
@@ -149,9 +149,9 @@ public class UserDocumentationService {
                     this.logger.error(e.getMessage(), e);
                 }
             }
-            if (!pubLanguage.isEmpty())
+            if (pubLanguage != null && !pubLanguage.isEmpty())
                 res.get().setPubLanguage(pubLanguage);
-            if (!pubPaperAwardPath.isEmpty()) {
+            if (pubPaperAwardPath != null && !pubPaperAwardPath.isEmpty()) {
                 file = new File(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
@@ -163,16 +163,16 @@ public class UserDocumentationService {
                     this.logger.error(e.getMessage(), e);
                 }
             }
-            if (!pubType.toString().isEmpty())
+            if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
             //UserDocumentation fields
-            if (!userDocAddress.isEmpty())
+            if (userDocAddress  != null && !userDocAddress.isEmpty())
                 res.get().setUserDocAddress(userDocAddress);
-            if (!userDocEdition.isEmpty())
+            if (userDocEdition != null && !userDocEdition.isEmpty())
                 res.get().setUserDocEdition(userDocEdition);
-            if (!userDocOrganization.isEmpty())
+            if (userDocOrganization != null && !userDocOrganization.isEmpty())
                 res.get().setUserDocOrganization(userDocOrganization);
-            if (!userDocPublisher.isEmpty())
+            if (userDocPublisher != null && !userDocPublisher.isEmpty())
                 res.get().setUserDocPublisher(userDocPublisher);
             this.repo.save(res.get());
         }

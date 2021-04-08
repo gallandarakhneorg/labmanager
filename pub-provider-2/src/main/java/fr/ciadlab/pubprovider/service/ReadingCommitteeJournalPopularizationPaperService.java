@@ -5,6 +5,7 @@ import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.Publication;
 import fr.ciadlab.pubprovider.entities.PublicationType;
 import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
+import fr.ciadlab.pubprovider.repository.JournalRepository;
 import fr.ciadlab.pubprovider.repository.ReadingCommitteeJournalPopularizationPaperRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,6 +27,9 @@ public class ReadingCommitteeJournalPopularizationPaperService {
     @Autowired
     private ReadingCommitteeJournalPopularizationPaperRepository repo;
 
+    @Autowired
+    private JournalRepository journalRepository;
+
     public List<ReadingCommitteeJournalPopularizationPaper> getAllReadingCommitteeJournalPopularizationPapers() {
         return repo.findAll();
     }
@@ -39,8 +43,10 @@ public class ReadingCommitteeJournalPopularizationPaperService {
         repo.deleteById(index);
     }
 
-    public ReadingCommitteeJournalPopularizationPaper createReadingCommitteeJournalPopularizationPaper(Publication p, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapVolume) {
+    public ReadingCommitteeJournalPopularizationPaper createReadingCommitteeJournalPopularizationPaper(Publication p, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapVolume, Integer journalId) {
         ReadingCommitteeJournalPopularizationPaper res = new ReadingCommitteeJournalPopularizationPaper(p, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);
+        if(journalId != null && journalRepository.findById(journalId).isPresent())
+        res.setReaComConfPopPapJournal(journalRepository.getOne(journalId));
         res = this.repo.save(res); //Id is generated on save so I gotta save once before setting these
         return res;
     }
@@ -111,34 +117,35 @@ public class ReadingCommitteeJournalPopularizationPaperService {
 
     public void updateReadingCommitteeJournalPopularizationPaper(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
                                                                  String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
-                                                                 String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapVolume) {
+                                                                 String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapVolume, Integer journalId) {
         final Optional<ReadingCommitteeJournalPopularizationPaper> res = this.repo.findById(pubId);
         File file;
         if (res.isPresent()) {
             //Generic pub fields
-            if (!pubTitle.isEmpty())
+            if (pubTitle != null && !pubTitle.isEmpty())
                 res.get().setPubTitle(pubTitle);
-            if (!pubAbstract.isEmpty())
+            if (pubAbstract  != null && !pubAbstract.isEmpty())
                 res.get().setPubAbstract(pubAbstract);
-            if (!pubKeywords.isEmpty())
+            if (pubKeywords != null && !pubKeywords.isEmpty())
                 res.get().setPubKeywords(pubKeywords);
-            if (pubDate != null)
+            if (pubDate != null && pubDate != null)
                 res.get().setPubDate(pubDate);
-            if (!pubNote.isEmpty())
+            if (pubNote != null && !pubNote.isEmpty())
                 res.get().setPubNote(pubNote);
-            if (!pubAnnotations.isEmpty())
+            if (pubAnnotations != null && !pubAnnotations.isEmpty())
                 res.get().setPubAnnotations(pubAnnotations);
-            if (!pubISBN.isEmpty())
+            if (pubISBN != null && !pubISBN.isEmpty())
                 res.get().setPubISBN(pubISBN);
-            if (!pubISSN.isEmpty())
+            if (pubISSN != null && !pubISSN.isEmpty())
                 res.get().setPubISSN(pubISSN);
-            if (!pubDOIRef.isEmpty())
+            if (pubDOIRef != null && !pubDOIRef.isEmpty())
                 res.get().setPubDOIRef(pubDOIRef);
-            if (!pubURL.isEmpty())
+            if (pubURL != null && !pubURL.isEmpty())
                 res.get().setPubURL(pubURL);
-            if (!pubDBLP.isEmpty())
+            if (pubDBLP != null && !pubDBLP.isEmpty())
                 res.get().setPubDBLP(pubDBLP);
-            if (!pubPDFPath.isEmpty()) {
+
+            if (pubPDFPath != null && !pubPDFPath.isEmpty()) {
                 file = new File(PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
@@ -150,9 +157,9 @@ public class ReadingCommitteeJournalPopularizationPaperService {
                     this.logger.error(e.getMessage(), e);
                 }
             }
-            if (!pubLanguage.isEmpty())
+            if (pubLanguage != null && !pubLanguage.isEmpty())
                 res.get().setPubLanguage(pubLanguage);
-            if (!pubPaperAwardPath.isEmpty()) {
+            if (pubPaperAwardPath != null && !pubPaperAwardPath.isEmpty()) {
                 file = new File(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
@@ -164,14 +171,16 @@ public class ReadingCommitteeJournalPopularizationPaperService {
                     this.logger.error(e.getMessage(), e);
                 }
             }
-            if (!pubType.toString().isEmpty())
+            if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
             //ReadingCommitteeJournalPopularizationPaper fields
-            if (!reaComConfPopPapNumber.isEmpty())
+            if(journalId != null && journalId != 0)
+                res.get().setReaComConfPopPapJournal(journalRepository.getOne(journalId));
+            if (reaComConfPopPapNumber != null && !reaComConfPopPapNumber.isEmpty())
                 res.get().setReaComConfPopPapNumber(reaComConfPopPapNumber);
-            if (!reaComConfPopPapPages.isEmpty())
+            if (reaComConfPopPapPages != null && !reaComConfPopPapPages.isEmpty())
                 res.get().setReaComConfPopPapPages(reaComConfPopPapPages);
-            if (!reaComConfPopPapVolume.isEmpty())
+            if (reaComConfPopPapVolume != null && !reaComConfPopPapVolume.isEmpty())
                 res.get().setReaComConfPopPapVolume(reaComConfPopPapVolume);
 
             this.repo.save(res.get());
