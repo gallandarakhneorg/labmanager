@@ -964,7 +964,7 @@ public class PublicationService {
                                                 autShip = new Authorship();
                                                 autShip.setPubPubId(optPub.get().getPubId());
                                                 autShip.setAutAutId(optAut.get().getAutId());
-                                                autShip.setAutShipRank(autRepo.findDistinctByAutPubsPubPubIdOrderByAutPubsAutShipRank(optPub.get().getPubId()).size());
+                                                autShip.setAutShipRank(autRepo.findByAutPubsPubPubIdOrderByAutPubsAutShipRank(optPub.get().getPubId()).size());
                                                 repo.save(optPub.get());
                                                 autShipRepo.save(autShip);
 

@@ -100,7 +100,7 @@ public class AuthorService {
     }
 
     public void addAuthorship(int index, int pubId) {
-        addAuthorship(index, pubId,repo.findDistinctByAutPubsPubPubIdOrderByAutPubsAutShipRank(pubId).size());
+        addAuthorship(index, pubId,repo.findByAutPubsPubPubIdOrderByAutPubsAutShipRank(pubId).size());
     }
 
     public void addAuthorship(int index, int pubId, int rank) {
@@ -188,8 +188,8 @@ public class AuthorService {
         return repo.findDistinctByAutOrgsResOrgResOrgId(index);
     }
 
-    public Set<Author> getLinkedAuthors(int index) {
-        return repo.findDistinctByAutPubsPubPubIdOrderByAutPubsAutShipRank(index);
+    public List<Author> getLinkedAuthors(int index) {
+        return repo.findByAutPubsPubPubIdOrderByAutPubsAutShipRank(index);
     }
 
 

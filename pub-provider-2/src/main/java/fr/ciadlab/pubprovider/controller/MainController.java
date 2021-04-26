@@ -68,6 +68,7 @@ public class MainController {
     public ModelAndView addPublication(@RequestParam(required = false) Integer publicationId) {
         final ModelAndView modelAndView = new ModelAndView("addPublication");
         Set<Author> authors = new HashSet<>();
+        List<Journal> journals = jourServ.getAllJournals();
 
         resOrgService.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut() )));
 
@@ -77,8 +78,10 @@ public class MainController {
         }
         modelAndView.addObject("publicationsTypes", publicationsTypes);
         modelAndView.addObject("authors", authors);
-
+        modelAndView.addObject("journals", journals);
         modelAndView.addObject("edit", false);
+
+        // IF edit mode
         if(publicationId != null) {
             Publication publication = pubServ.getPublication(publicationId);
             if(publication != null) {
@@ -92,6 +95,7 @@ public class MainController {
                         modelAndView.addObject("reaComConfPopPapVolume", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapVolume());
                         modelAndView.addObject("reaComConfPopPapNumber", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapNumber());
                         modelAndView.addObject("reaComConfPopPapPages", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapPages());
+                        modelAndView.addObject("reaComConfPopPapJournal", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapJournal());
                         break;
                     case ProceedingsConference:
                         ProceedingsConference proceedingsConference = (ProceedingsConference) publication;

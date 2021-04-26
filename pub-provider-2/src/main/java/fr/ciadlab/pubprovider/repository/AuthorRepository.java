@@ -5,11 +5,12 @@ import fr.ciadlab.pubprovider.entities.MemberStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Set;
 
 public interface AuthorRepository extends JpaRepository<Author, Integer> {
 
-    Set<Author> findDistinctByAutPubsPubPubIdOrderByAutPubsAutShipRank(int pubPubId);
+    List<Author> findByAutPubsPubPubIdOrderByAutPubsAutShipRank(int pubPubId);
 
     Set<Author> findDistinctByAutOrgsResOrgResOrgId(int resOrgId);
 

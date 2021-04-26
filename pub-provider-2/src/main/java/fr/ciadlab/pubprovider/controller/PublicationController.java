@@ -99,7 +99,7 @@ public class PublicationController {
                                   @RequestParam(required = false) String userDocAddress,
                                   @RequestParam(required = false) String userDocEdition,
                                   @RequestParam(required = false) String userDocPublisher,
-                                @RequestParam(required = false) Integer journalId) throws IOException, ParseException {
+                                @RequestParam(required = false) String publicationJournal) throws IOException, ParseException {
 
         try {
             if(publicationAuthors == null) {
@@ -184,7 +184,7 @@ public class PublicationController {
                                 reaComConfPopPapNumber,
                                 reaComConfPopPapPages,
                                 reaComConfPopPapVolume,
-                                journalId
+                                journalServ.getJournalIdByName(publicationJournal)
                                 );
                         break;
                     case ProceedingsConference:
@@ -362,7 +362,7 @@ public class PublicationController {
                 pubServ.savePublication(pub);
             }
 
-            response.sendRedirect("/SpringRestHibernate/addPublication?success=1&publicationId=" + publicationId);
+            response.sendRedirect("/SpringRestHibernate/addPublication?edit=1&publicationId=" + publicationId);
         } catch (Exception ex) {
             response.sendRedirect("/SpringRestHibernate/addPublication?error=1&publicationId=" + publicationId + "&message=" + ex.getMessage()); // Redirect on the same page
         }
@@ -418,7 +418,7 @@ public class PublicationController {
                                   @RequestParam(required = false) String userDocAddress,
                                   @RequestParam(required = false) String userDocEdition,
                                   @RequestParam(required = false) String userDocPublisher,
-                                  @RequestParam(required = false) Integer journalId) throws IOException, ParseException {
+                                  @RequestParam(required = false) String publicationJournal) throws IOException, ParseException {
 
         try {
             if(publicationAuthors == null) {
@@ -458,7 +458,7 @@ public class PublicationController {
                     return;
                 case ReadingCommitteeJournalPopularizationPaper:
                     ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ.createReadingCommitteeJournalPopularizationPaper(
-                            publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages, journalId
+                            publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages, journalServ.getJournalIdByName(publicationJournal)
                     );
                     pubId = paper.getPubId();
                     logger.info("ReadingCommitteeJournalPopularizationPaper created with id: " + paper.getPubId());
