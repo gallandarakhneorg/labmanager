@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -38,6 +39,15 @@ public class AuthorsController {
     private ReadingCommitteeJournalPopularizationPaperService readingCommitteeJournalPopularizationPaperServ;
     @Autowired
     private AuthorService authorServ;
+
+    @GetMapping("/authorsTool")
+    public ModelAndView showAuthorsTool() {
+        final ModelAndView modelAndView = new ModelAndView("authorsTool");
+        modelAndView.addObject("authors", authorServ.getAllAuthors());
+
+        return modelAndView;
+    }
+
 
     @RequestMapping(value = "/mergeAuthors", method = RequestMethod.POST)
     public void mergeAuthors(HttpServletResponse response, @RequestParam String publicationNewAuthor, @RequestParam String publicationOldAuthor) throws IOException {

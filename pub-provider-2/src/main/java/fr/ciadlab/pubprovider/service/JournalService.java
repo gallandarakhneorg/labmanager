@@ -175,6 +175,22 @@ public class JournalService {
         }
     }
 
+    //Review if optional as result when several result possible is a good idea
+    public Journal getJournalByName(String jourName) {
+        List<Journal> result = new ArrayList<Journal>();
+        final Optional<Journal> res = repo.findByJourName(jourName);
+        if (res.isPresent()) {
+            result.add(res.get());
+        }
+
+
+        if (!result.isEmpty()) {
+            return result.get(0); //We assume theres no name dupes
+        } else {
+            return null;
+        }
+    }
+
     public String getJournalQuartilInfo(String scimagoID) {
 
         String result = "0";

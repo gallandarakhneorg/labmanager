@@ -35,6 +35,15 @@
                     </div>
                 </div>
             </div>
+            <div class="row" th:if="${param.updated != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                            <h4 class="header-title">Jounal successfully updated</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <div class="main-content-inner">
             <div class="row">
@@ -75,44 +84,53 @@
                 </div>
             </div>
 
-<!--            <div class="row">-->
-<!--                <div class="col-lg-12">-->
-<!--                    <div class="card">-->
-<!--                        <div class="card-body">-->
-<!--                            <h4 class="header-title">Author editing tool</h4>-->
-<!--                            <form id="form2" th:action="@{'/renameAuthor'}" method="post" >-->
-<!--                                <div class="form-group" id="containerAuthor">-->
-<!--                                    <label for="publicationAuthorsDiv" class="col-form-label">Author to edit</label>-->
-<!--                                    <div id="publicationAuthorsDiv">-->
-<!--                                        <select id="author" name="author"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">-->
-<!--                                            <option></option>-->
-<!--                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>-->
-<!--                                        </select>-->
-<!--                                    </div>-->
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Journal editing tool</h4>
+                            <form id="form2" th:action="@{'/editJournal'}" method="post" >
+                                <div class="form-group" id="containerJournal">
+                                    <label for="journalDiv" class="col-form-label">Journal to edit</label>
+                                    <div id="journalDiv">
+                                        <select id="journal" name="journal"  class="form-control selectJournal list-group-item list-group-item-action" style="width: 100%">
+                                            <option></option>
+                                            <option th:each="journal : ${journals}" th:utext="${journal.getJourName()}"></option>
+                                        </select>
+                                    </div>
+                                </div>
 
-<!--                                </div>-->
+                                <div class="form-group">
+                                    <label for="journalNameE" class="col-form-label">Journal name</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalNameE" name="journalName">
+                                </div>
 
-<!--                                <div class="form-group">-->
-<!--                                    <label for="newFirstname" class="col-form-label">firstname (must be in ONE word, use - to join words)</label>-->
-<!--                                    <input class="form-control" type="text" placeholder="Jean-michel" id="newFirstname" name="newFirstname">-->
-<!--                                </div>-->
+                                <div class="form-group">
+                                    <label for="journalPublisherE" class="col-form-label">Journal publisher</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalPublisherE" name="journalPublisher">
+                                </div>
 
-<!--                                <div class="form-group">-->
-<!--                                    <label for="newLastname" class="col-form-label">Lastname (can be in multiple words)</label>-->
-<!--                                    <input class="form-control" type="text" placeholder="Dupont Pierre" id="newLastname" name="newLastname">-->
-<!--                                </div>-->
+                                <div class="form-group">
+                                    <label for="journalElsevierE" class="col-form-label">Journal Elsevier</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalElsevierE" name="journalElsevier">
+                                </div>
 
-<!--                                <div class="form-group">-->
-<!--                                    <label for="autMail" class="col-form-label">Email</label>-->
-<!--                                    <input class="form-control" type="text" placeholder="test@test.fr" id="autMail" name="autMail">-->
-<!--                                </div>-->
+                                <div class="form-group">
+                                    <label for="journalScimagoE" class="col-form-label">Journal Scimago</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalScimagoE" name="journalScimago">
+                                </div>
 
-<!--                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Rename</button>-->
-<!--                            </form>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
+                                <div class="form-group">
+                                    <label for="journalWosE" class="col-form-label">Journal Wos</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalWosE" name="journalWos">
+                                </div>
+
+                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Edit journal</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <!-- main content area end -->
@@ -123,18 +141,20 @@
 <script th:inline="javascript">
 
     $(document).ready(function () {
-        $('.selectAuthor').select2();
+        $('.selectJournal').select2();
     });
 
-    $('#author').on('select2:select', function (e) {
+    $('#journal').on('select2:select', function (e) {
         var data = e.params.data.text;
         if(data != "") {
-            var href = /*[[@{/getAuthorData}]]*/ '/getAuthorData';
+            var href = /*[[@{/getJournalData}]]*/ '/getJournalData';
             $.ajax(href + '?name=' + data, {
                 success: function(newData) {
-                    $('#newFirstname').val(newData.autFirstName);
-                    $('#newLastname').val(newData.autLastName);
-                    $('#autMail').val(newData.autMail);
+                    $('#journalNameE').val(newData.jourName);
+                    $('#journalPublisherE').val(newData.jourPublisher);
+                    $('#journalElsevierE').val(newData.jourElsevier);
+                    $('#journalScimagoE').val(newData.jourScimago);
+                    $('#journalWosE').val(newData.jourWos);
                 },
                 error: function() {
                     alert("ERROR");

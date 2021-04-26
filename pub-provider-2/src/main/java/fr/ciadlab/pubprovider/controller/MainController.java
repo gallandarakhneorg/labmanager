@@ -57,21 +57,6 @@ public class MainController {
         return modelAndView;
     }
 
-    @GetMapping("/authorsTool")
-    public ModelAndView showAuthorsTool() {
-        final ModelAndView modelAndView = new ModelAndView("authorsTool");
-        modelAndView.addObject("authors", autServ.getAllAuthors());
-
-        return modelAndView;
-    }
-
-    @GetMapping("/journalTool")
-    public ModelAndView showJournalTool() {
-        final ModelAndView modelAndView = new ModelAndView("journalTool");
-        modelAndView.addObject("journals", jourServ.getAllJournals());
-
-        return modelAndView;
-    }
 
     @GetMapping("/deletePublication")
     public void deletePublication(HttpServletResponse response, @RequestParam Integer publicationId) throws IOException {

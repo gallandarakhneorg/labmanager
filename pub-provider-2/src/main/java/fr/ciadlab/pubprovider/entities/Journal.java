@@ -1,5 +1,7 @@
 package fr.ciadlab.pubprovider.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -18,6 +20,7 @@ public class Journal implements Serializable { //Supposed to be abstract but let
     private int jourId;
 
     @OneToMany(mappedBy = "reaComConfPopPapJournal")
+    @JsonIgnore
     private Set<ReadingCommitteeJournalPopularizationPaper> jourPubs = new HashSet<>();
 
     @Column
