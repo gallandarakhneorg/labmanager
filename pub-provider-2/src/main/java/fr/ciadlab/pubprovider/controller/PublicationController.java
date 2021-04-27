@@ -165,6 +165,9 @@ public class PublicationController {
                         response.sendRedirect("/SpringRestHibernate/editPublication?error=1"); // Redirect on the same page
                         return;
                     case ReadingCommitteeJournalPopularizationPaper:
+                        int journalId = journalServ.getJournalIdByName(publicationJournal);
+                        if(journalId == 0)
+                            journalId = journalServ.createJournal(publicationJournal, "", "", "", "");
                         readingCommitteeJournalPopularizationPaperServ.updateReadingCommitteeJournalPopularizationPaper(pub.getPubId(),
                                 publicationTitle,
                                 publicationAbstract,
@@ -184,7 +187,7 @@ public class PublicationController {
                                 reaComConfPopPapNumber,
                                 reaComConfPopPapPages,
                                 reaComConfPopPapVolume,
-                                journalServ.getJournalIdByName(publicationJournal)
+                                journalId
                                 );
                         break;
                     case ProceedingsConference:
@@ -457,8 +460,11 @@ public class PublicationController {
                     response.sendRedirect("/SpringRestHibernate/addPublication?error=1"); // Redirect on the same page
                     return;
                 case ReadingCommitteeJournalPopularizationPaper:
+                    int journalId = journalServ.getJournalIdByName(publicationJournal);
+                    if(journalId == 0)
+                        journalId = journalServ.createJournal(publicationJournal, "", "", "", "");
                     ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ.createReadingCommitteeJournalPopularizationPaper(
-                            publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages, journalServ.getJournalIdByName(publicationJournal)
+                            publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages, journalId
                     );
                     pubId = paper.getPubId();
                     logger.info("ReadingCommitteeJournalPopularizationPaper created with id: " + paper.getPubId());

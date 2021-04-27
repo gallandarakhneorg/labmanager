@@ -7,6 +7,7 @@ import fr.ciadlab.pubprovider.repository.AuthorRepository;
 import fr.ciadlab.pubprovider.repository.AuthorshipRepository;
 import fr.ciadlab.pubprovider.repository.JournalRepository;
 import fr.ciadlab.pubprovider.repository.PublicationRepository;
+import org.jbibtex.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
