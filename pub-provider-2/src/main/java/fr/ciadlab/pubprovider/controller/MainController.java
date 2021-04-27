@@ -185,6 +185,23 @@ public class MainController {
         return modelAndView;
     }
 
+    @GetMapping("/publicationsListLight")
+    public ModelAndView showPublicationsListLight(
+            @RequestParam(required = false) Integer authorId
+    ) {
+        final ModelAndView modelAndView = new ModelAndView("publicationsListLight");
+
+        modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream().collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
+
+        if (authorId == null)
+            modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList");
+        else
+            modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList?authorId=" + authorId);
+
+        modelAndView.addObject("uuid", Math.abs(new Random().nextInt())); // UUID to generate unique html elements
+        return modelAndView;
+    }
+
     @GetMapping("/publicationsListPrivate")
     public ModelAndView showPublicationsListPrivate(
             @RequestParam(required = false) Integer authorId
