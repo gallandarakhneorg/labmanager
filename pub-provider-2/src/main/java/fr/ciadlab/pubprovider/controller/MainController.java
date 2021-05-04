@@ -187,17 +187,10 @@ public class MainController {
 
     @GetMapping("/publicationsListLight")
     public ModelAndView showPublicationsListLight(
-            @RequestParam(required = false) Integer authorId
+            @RequestParam Integer id
     ) {
         final ModelAndView modelAndView = new ModelAndView("publicationsListLight");
-
-        modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream().collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
-
-        if (authorId == null)
-            modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList");
-        else
-            modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList?authorId=" + authorId);
-
+        modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList?authorId=" + id);
         modelAndView.addObject("uuid", Math.abs(new Random().nextInt())); // UUID to generate unique html elements
         return modelAndView;
     }
@@ -218,6 +211,63 @@ public class MainController {
         modelAndView.addObject("uuid", Math.abs(new Random().nextInt())); // UUID to generate unique html elements
         return modelAndView;
     }
+
+    @GetMapping("/publicationsStats")
+    public ModelAndView showPublicationsStats(
+            @RequestParam(required = false) Integer id
+    ) {
+        final ModelAndView modelAndView = new ModelAndView("publicationsStats");
+
+        List<Publication> publicationList;
+        if(id != null) {
+            publicationList = pubServ.getAuthorPublications(id);
+        }
+        else {
+            publicationList = pubServ.getAllPublications();
+        }
+        publicationList = publicationList.stream().filter(p -> p.getPubAuts() != null && p.getPubAuts().size() > 0).collect(Collectors.toList());
+
+        Map<Integer, PublicationsStat> publicationsStats = new TreeMap<>();
+        for(Publication p : publicationList) {
+            if(!publicationsStats.containsKey(p.getPubYear())) {
+                publicationsStats.put(p.getPubYear(), new PublicationsStat(p.getPubYear()));
+            }
+            PublicationsStat publicationsStat = publicationsStats.get(p.getPubYear());
+            switch(PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(p.getPubType())) {
+                case Typeless:
+                    publicationsStat.setOtherCount(publicationsStat.getOtherCount()+1);
+                    break;
+                case ReadingCommitteeJournalPopularizationPaper:
+                    publicationsStat.setReadingCommitteeJournalPopularizationPaperCount(publicationsStat.getReadingCommitteeJournalPopularizationPaperCount()+1);
+                    break;
+                case ProceedingsConference:
+                    publicationsStat.setProceedingsConferenceCount(publicationsStat.getProceedingsConferenceCount()+1);
+                    break;
+                case Book:
+                    publicationsStat.setBookCount(publicationsStat.getBookCount()+1);
+                    break;
+                case BookChapter:
+                    publicationsStat.setBookChapterCount(publicationsStat.getBookChapterCount()+1);
+                    break;
+                case SeminarPatentInvitedConference:
+                    publicationsStat.setSeminarPatentInvitedConferenceCount(publicationsStat.getSeminarPatentInvitedConferenceCount()+1);
+                    break;
+                case UniversityDocument:
+                    publicationsStat.setUniversityDocumentCount(publicationsStat.getUniversityDocumentCount()+1);
+                    break;
+                case EngineeringActivity:
+                    publicationsStat.setEngineeringActivityCount(publicationsStat.getEngineeringActivityCount()+1);
+                    break;
+                case UserDocumentation:
+                    publicationsStat.setUserDocumentationCount(publicationsStat.getUserDocumentationCount()+1);
+                    break;
+            }
+
+        }
+        modelAndView.addObject("stats", publicationsStats);
+        return modelAndView;
+    }
+
 
     @GetMapping("/getPublicationsList")
     @ResponseBody
