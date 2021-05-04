@@ -228,6 +228,7 @@ public class MainController {
         publicationList = publicationList.stream().filter(p -> p.getPubAuts() != null && p.getPubAuts().size() > 0).collect(Collectors.toList());
 
         Map<Integer, PublicationsStat> publicationsStats = new TreeMap<>();
+        PublicationsStat globalStats = new PublicationsStat(0);
         for(Publication p : publicationList) {
             if(!publicationsStats.containsKey(p.getPubYear())) {
                 publicationsStats.put(p.getPubYear(), new PublicationsStat(p.getPubYear()));
@@ -236,35 +237,45 @@ public class MainController {
             switch(PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(p.getPubType())) {
                 case Typeless:
                     publicationsStat.setOtherCount(publicationsStat.getOtherCount()+1);
+                    globalStats.setOtherCount(globalStats.getOtherCount()+1);
                     break;
                 case ReadingCommitteeJournalPopularizationPaper:
                     publicationsStat.setReadingCommitteeJournalPopularizationPaperCount(publicationsStat.getReadingCommitteeJournalPopularizationPaperCount()+1);
+                    globalStats.setReadingCommitteeJournalPopularizationPaperCount(globalStats.getReadingCommitteeJournalPopularizationPaperCount()+1);
                     break;
                 case ProceedingsConference:
                     publicationsStat.setProceedingsConferenceCount(publicationsStat.getProceedingsConferenceCount()+1);
+                    globalStats.setProceedingsConferenceCount(globalStats.getProceedingsConferenceCount()+1);
                     break;
                 case Book:
                     publicationsStat.setBookCount(publicationsStat.getBookCount()+1);
+                    globalStats.setBookCount(globalStats.getBookCount()+1);
                     break;
                 case BookChapter:
                     publicationsStat.setBookChapterCount(publicationsStat.getBookChapterCount()+1);
+                    globalStats.setBookChapterCount(globalStats.getBookChapterCount()+1);
                     break;
                 case SeminarPatentInvitedConference:
                     publicationsStat.setSeminarPatentInvitedConferenceCount(publicationsStat.getSeminarPatentInvitedConferenceCount()+1);
+                    globalStats.setSeminarPatentInvitedConferenceCount(globalStats.getSeminarPatentInvitedConferenceCount()+1);
                     break;
                 case UniversityDocument:
                     publicationsStat.setUniversityDocumentCount(publicationsStat.getUniversityDocumentCount()+1);
+                    globalStats.setUniversityDocumentCount(globalStats.getUniversityDocumentCount()+1);
                     break;
                 case EngineeringActivity:
                     publicationsStat.setEngineeringActivityCount(publicationsStat.getEngineeringActivityCount()+1);
+                    globalStats.setEngineeringActivityCount(globalStats.getEngineeringActivityCount()+1);
                     break;
                 case UserDocumentation:
                     publicationsStat.setUserDocumentationCount(publicationsStat.getUserDocumentationCount()+1);
+                    globalStats.setUserDocumentationCount(globalStats.getUserDocumentationCount()+1);
                     break;
             }
-
         }
+
         modelAndView.addObject("stats", publicationsStats);
+        modelAndView.addObject("globalStats", globalStats);
         return modelAndView;
     }
 

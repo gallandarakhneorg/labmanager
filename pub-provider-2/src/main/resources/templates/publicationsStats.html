@@ -47,7 +47,20 @@
                                     <td th:utext="${counts.getOtherCount() }"></td>
                                     <td th:utext="${counts.getTotal() }"></td>
                                 </tr>
+                                <tr style="border-top: 2px solid #dee2e6;font-weight: bold;">
+                                    <td>Total</td>
+                                    <td th:utext="${globalStats.getReadingCommitteeJournalPopularizationPaperCount()}"></td>
+                                    <td th:utext="${globalStats.getProceedingsConferenceCount()}"></td>
+                                    <td th:utext="${globalStats.getBookCount()}"></td>
+                                    <td th:utext="${globalStats.getBookChapterCount()}"></td>
+                                    <td th:utext="${globalStats.getSeminarPatentInvitedConferenceCount()}"></td>
+                                    <td th:utext="${globalStats.getUniversityDocumentCount()}"></td>
+                                    <td th:utext="${globalStats.getEngineeringActivityCount() + globalStats.getUserDocumentationCount() }"></td>
+                                    <td th:utext="${globalStats.getOtherCount() }"></td>
+                                    <td th:utext="${globalStats.getTotal() }"></td>
+                                </tr>
                             </tbody>
+
                         </table>
                     </div>
                 </div>
