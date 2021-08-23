@@ -945,8 +945,9 @@ public class PublicationService {
                                             //Creating new author
                                             aut = new Author();
 
-                                            aut.setAutFirstName(autFirstName);
-                                            aut.setAutLastName(autLastName);
+                                            // TMT fix : escape quotes in names such as "D'Artau"
+                                            aut.setAutFirstName(autFirstName.replaceAll("'", "\'"));
+                                            aut.setAutLastName(autLastName.replaceAll("'", "\'"));
                                             aut.setAutBirth(new Date(0));
 
                                             autRepo.save(aut);
