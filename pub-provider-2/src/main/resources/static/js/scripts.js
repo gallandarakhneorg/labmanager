@@ -8,6 +8,19 @@ function downloadString(filename, text) {
     document.body.removeChild(element);
 }
 
+function downloadOdt(filename, dataByte) {
+	var element = document.createElement('a');
+	document.body.appendChild(element);
+	element.style.display = 'none';
+	var blob = new Blob([dataByte], {type: "application/vnd.oasis.opendocument.text"}),
+		url = window.URL.createObjectURL(blob);
+	element.href = url;
+	element.download = filename;
+	element.click();
+	document.body.removeChild(element);
+	window.URL.revokeObjectURL(url);
+}
+
 
 function groupPublicationTypes(pubType)
 {

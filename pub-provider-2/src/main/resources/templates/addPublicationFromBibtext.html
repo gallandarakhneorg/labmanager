@@ -43,6 +43,7 @@
                         <div class="card-body">
                             <h4 th:text="${param.importedPubs != null ? param.importedPubs : '0'}"></h4>
                             <p>publication(s) has been successfully added to database.</p>
+                            <p>If the number is lower than expected, some publications have been rejected because of format error or missing data.</p>
                         </div>
                     </div>
                 </div>
@@ -57,7 +58,7 @@
                             <form id="form" enctype="multipart/form-data" th:action="@{'/importBibtext'}" method="post" >
                                 <div class="form-group">
                                     <label for="bibtext" class="col-form-label">Bibtext</label>
-                                    <input class="form-control" type="file" id="bibtext" name="bibtext">
+                                    <input class="form-control" type="file" id="bibtext" name="bibtext" multiple>
                                 </div>
 
                                 <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Submit</button>
@@ -153,6 +154,11 @@
         unlockDivIfNeeded();
         // $("#publicationType").on('select2:select', unlockDivIfNeeded());
         // $("#publicationType").on('change', unlockDivIfNeeded());
+        
+        $("input[type='file']").on("change", function(){  
+			var numFiles = $(this).get(0).files.length
+			alert(numFiles);
+		});
 
 
         $('#form').validate({

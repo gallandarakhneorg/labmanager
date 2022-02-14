@@ -1,22 +1,53 @@
 package fr.ciadlab.pubprovider.controller;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Random;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
+
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import fr.ciadlab.pubprovider.entities.*;
+
+import fr.ciadlab.pubprovider.entities.Author;
+import fr.ciadlab.pubprovider.entities.Book;
+import fr.ciadlab.pubprovider.entities.BookChapter;
+import fr.ciadlab.pubprovider.entities.EngineeringActivity;
+import fr.ciadlab.pubprovider.entities.Journal;
+import fr.ciadlab.pubprovider.entities.Membership;
+import fr.ciadlab.pubprovider.entities.ProceedingsConference;
+import fr.ciadlab.pubprovider.entities.Publication;
+import fr.ciadlab.pubprovider.entities.PublicationType;
+import fr.ciadlab.pubprovider.entities.PublicationTypeGroup;
+import fr.ciadlab.pubprovider.entities.PublicationsStat;
+import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
+import fr.ciadlab.pubprovider.entities.ResearchOrganization;
+import fr.ciadlab.pubprovider.entities.SeminarPatentInvitedConference;
+import fr.ciadlab.pubprovider.entities.UniversityDocument;
+import fr.ciadlab.pubprovider.entities.UserDocumentation;
 import fr.ciadlab.pubprovider.service.AuthorService;
 import fr.ciadlab.pubprovider.service.JournalService;
 import fr.ciadlab.pubprovider.service.PublicationService;
 import fr.ciadlab.pubprovider.service.ResearchOrganizationService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.util.*;
-import java.util.stream.Collectors;
+import info.debatty.java.stringsimilarity.SorensenDice;
 
 
 @Controller
@@ -333,6 +364,118 @@ public class MainController {
 
         Gson gson = new Gson();
         return gson.toJson(allPublisJson);
+    }
+
+    @GetMapping("/authorDuplicate")
+    public ModelAndView authorDuplicate() {
+        final ModelAndView modelAndView = new ModelAndView("authorDuplicate");
+
+        // Each list represents a group of authors that could be duplicate
+        List<ArrayList<Author>> matchingAuthors = new ArrayList<ArrayList<Author>>();
+
+        List<Author> authorsList = this.autServ.getAllAuthors();
+
+        for (Iterator<Author> iterator = authorsList.iterator(); iterator.hasNext();) {
+            Author author = iterator.next();
+            iterator.remove();
+            ArrayList<Author> currentAuthorMatch = new ArrayList<Author>();
+            currentAuthorMatch.add(author);
+
+            for (Author author2: authorsList) {
+                if (isAuthorSimilar(author, author2)) {
+                    currentAuthorMatch.add(author2);
+                }
+            }
+            if (currentAuthorMatch.size() > 1) {
+                boolean addToMatchingAuthors = true;
+                // check if the current group of similar authors is not a sub-group of another group of similar authors
+                for (ArrayList<Author> authors : matchingAuthors) {
+                    if (authors.containsAll(currentAuthorMatch)) {
+                        addToMatchingAuthors = false;
+                        break;
+                    }
+                }
+                if (addToMatchingAuthors) {
+                    matchingAuthors.add(currentAuthorMatch);
+                }
+            }
+        }
+
+        modelAndView.addObject("matchingAuthors", matchingAuthors);
+        return modelAndView;
+    }
+
+    /**
+     * Check name similarity between two authors using Sorensen Dice algorithm
+     * @param author first author
+     * @param author2 second author
+     * @return true if similar, false if not
+     */
+    private boolean isAuthorSimilar (Author author, Author author2) {
+        String authorFullName = author.getAutFirstName() + " " + author.getAutLastName();
+        String author2FullName = author2.getAutFirstName() + " " + author2.getAutLastName();
+
+        SorensenDice stringMatcher = new SorensenDice();
+
+        //First check on the full name else on the individual strings
+        if (stringMatcher.distance(authorFullName, author2FullName) <= 0.3) {
+            return true;
+        } else if (stringMatcher.distance(authorFullName, author2FullName) <= 0.6) {
+            String authorFirstName = author.getAutFirstName().replace(".","");
+            String authorLastName = author.getAutLastName().replace(".","");
+            String author2FirstName = author2.getAutFirstName().replace(".","");
+            String author2LastName = author2.getAutLastName().replace(".","");
+            //Check with possibility of shortened name and inversion
+            return isAuthorSimilarWithShortenedName(authorFirstName, authorLastName, author2FirstName, author2LastName)
+                    || isAuthorSimilarWithShortenedName(authorFirstName, authorLastName, author2LastName, author2FirstName);
+        }
+        return false;
+    }
+
+    /**
+     * Check similarity with a part of the name shortened
+     * ex: C. Durand / Christophe Durand
+     * @param authorFirstName first author string
+     * @param authorLastName first author string
+     * @param author2FirstName second author string
+     * @param author2LastName second author string
+     * @return true if similar, false if not
+     */
+    private boolean isAuthorSimilarWithShortenedName(String authorFirstName, String authorLastName, String author2FirstName, String author2LastName) {
+        SorensenDice stringMatcher = new SorensenDice();
+
+        String longestFirstName, smallestFirstName, longestLastName, smallestLastName;
+
+        //Find smallest first name
+        if (authorFirstName.length() > author2FirstName.length()) {
+            longestFirstName = authorFirstName;
+            smallestFirstName = author2FirstName;
+        } else {
+            longestFirstName = author2FirstName;
+            smallestFirstName = authorFirstName;
+        }
+
+        double lastNameSimilarity = stringMatcher.distance(authorLastName, author2LastName);
+
+        if (smallestFirstName.equals(longestFirstName.substring(0, smallestFirstName.length())) && lastNameSimilarity <= 0.4) {
+            return true;
+        }
+
+        //Find smallest last name
+        if (authorLastName.length() > author2LastName.length()) {
+            longestLastName = authorLastName;
+            smallestLastName = author2LastName;
+        } else {
+            longestLastName = author2LastName;
+            smallestLastName = authorLastName;
+        }
+
+        double firstNameSimilarity = stringMatcher.distance(authorFirstName, author2FirstName);
+
+        if (smallestLastName.equals(longestLastName.substring(0, smallestLastName.length())) && firstNameSimilarity <= 0.4) {
+            return true;
+        }
+        return false;
     }
 
 }

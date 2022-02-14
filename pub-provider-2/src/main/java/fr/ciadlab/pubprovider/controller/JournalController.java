@@ -69,13 +69,14 @@ public class JournalController {
 
     @RequestMapping(value = "/editJournal", method = RequestMethod.POST)
     public void editJournal(HttpServletResponse response,
+    						  @RequestParam("journal") String originalJournalName,
                               @RequestParam String journalName,
                               @RequestParam String journalPublisher,
                               @RequestParam String journalElsevier,
                               @RequestParam String journalScimago,
                               @RequestParam String journalWos) throws IOException {
         try {
-            final int journalId = journalServ.getJournalIdByName(journalName);
+            final int journalId = journalServ.getJournalIdByName(originalJournalName);
 
             journalServ.updateJournal(journalId,
                     journalName,

@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @CrossOrigin
@@ -56,6 +57,16 @@ public class AuthorsController {
             response.sendRedirect("/SpringRestHibernate/authorsTool?success=" + pubCount);
         } catch (Exception ex) {
             response.sendRedirect("/SpringRestHibernate/authorsTool?error=1&message=" + ex.getMessage()); // Redirect on the same page
+        }
+    }
+    
+    @RequestMapping(value = "/mergeMultipleAuthors", method = RequestMethod.POST)
+    public void mergeMultipleAuthors(HttpServletResponse response, @RequestParam String authorFirstName, @RequestParam String authorLastName, @RequestParam List<Integer> authorDuplicates) throws IOException {
+        try {
+            int pubCount = authorServ.mergeMultipleAuthors(authorFirstName, authorLastName, authorDuplicates);
+            response.sendRedirect("/SpringRestHibernate/authorDuplicate?success=" + pubCount);
+        } catch (Exception ex) {
+            response.sendRedirect("/SpringRestHibernate/authorDuplicate?error=1&message=" + ex.getMessage()); // Redirect on the same page
         }
     }
 

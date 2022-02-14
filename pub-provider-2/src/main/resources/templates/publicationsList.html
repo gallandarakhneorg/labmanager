@@ -255,12 +255,12 @@
             e.preventDefault();
             var id = $(this).attr('data-href');
             $.ajax({
-                url:"/SpringRestHibernate/exportHtml",
-                dataType: "text",
+                url:"/SpringRestHibernate/exportOdt",
                 type:"POST",
+                xhrFields: {responseType: 'arraybuffer'},
                 data: {listPublicationsIds: id},
                 success: function(d){
-                    downloadString("odtExport.odt", d)
+                	downloadOdt("odtExport.odt", d)
                 },
                 error: function(d) {
                     alert("Erreur lors de la tentative d'export ODT...\n" + d);
@@ -512,12 +512,12 @@
                 list += r.id + ",";
             });
             $.ajax({
-                url:"/SpringRestHibernate/exportHtml",
-                dataType: "text",
+                url:"/SpringRestHibernate/exportOdt",
                 type:"POST",
+                xhrFields: {responseType: 'arraybuffer'},
                 data: {listPublicationsIds: list},
                 success: function(d){
-                    downloadString("odtExport.odt", d)
+                	downloadOdt("odtExport.odt", d)
                 },
                 error: function(d) {
                     alert("Erreur lors de la tentative d'export ODT...\n" + d);

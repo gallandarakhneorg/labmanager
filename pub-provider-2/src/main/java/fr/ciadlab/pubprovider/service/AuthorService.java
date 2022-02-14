@@ -3,6 +3,7 @@ package fr.ciadlab.pubprovider.service;
 import fr.ciadlab.pubprovider.entities.*;
 import fr.ciadlab.pubprovider.repository.AuthorRepository;
 import fr.ciadlab.pubprovider.repository.AuthorshipRepository;
+import fr.ciadlab.pubprovider.repository.MembershipRepository;
 import fr.ciadlab.pubprovider.repository.PublicationRepository;
 import fr.ciadlab.pubprovider.repository.ResearchOrganizationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,9 @@ public class AuthorService {
 
     @Autowired
     private ResearchOrganizationRepository orgRepo;
+    
+    @Autowired
+    private MembershipRepository memRepo;
 
     public List<Author> getAllAuthors() {
         return repo.findAll();
@@ -255,6 +259,75 @@ public class AuthorService {
             }
 
         }
+        return pubCount;
+    }
+    
+    /**
+     * Merges all given authors to one and reset name
+     * @param authorFirstName new author first name
+     * @param authorLastName new author last name
+     * @param authorDuplicates list of all authors to merge
+     * @return number of affected publications
+     * @throws Exception if at least 2 of the authors have a page
+     */
+    public int mergeMultipleAuthors(String authorFirstName, String authorLastName, List<Integer> authorDuplicates) throws Exception {
+        final List<Author> duplicateAuthors = repo.findByAutIdIn(authorDuplicates);
+
+        Author destAuthor = null; 
+        List<Membership> memberships = new ArrayList<Membership>(); 
+        
+        //try to find destination author, the one who has a page (to avoid modification in Wordpress)
+        for(Author author : duplicateAuthors) {
+        	if (author.isHasPage()) {
+            	if (destAuthor != null) {
+            		throw new Exception("At least 2 authors have an author page !");
+            	}
+            	else {
+            		destAuthor = author;
+            	}  
+            }            
+        }
+        
+        //if no author has a page, then take the first one
+        if (destAuthor == null) {
+        	destAuthor = duplicateAuthors.get(0);
+        }
+        
+        int pubCount = 0;
+        
+        //loop to change authorship author
+        for(Author author : duplicateAuthors) {
+        	//use this loop to populate memberships list
+        	memberships.addAll(memRepo.findByAutAutId(author.getAutId()));
+        	//if not the destination author, then set all the authorship to that author
+        	if (!author.equals(destAuthor)) {
+                Set<Authorship> autPubs = Collections.unmodifiableSet(author.getAutPubs());
+                pubCount += autPubs.size();
+
+                for(Authorship authorship : autPubs) {
+                    // Set authorship author id to destination author
+                    authorship.setAutAutId(destAuthor.getAutId());
+                    this.autShipRepo.save(authorship);
+                }
+                //set to empty to avoid cascade deletion
+                author.setAutPubs(new HashSet<Authorship>());
+                repo.save(author);
+                repo.delete(author);
+        	}
+        }
+        
+        //use previously filled List to change all membership author
+        for(Membership membership : memberships) {
+            membership.setAut(destAuthor);
+            this.memRepo.save(membership);
+        }
+        
+        //change destination author name author name
+        destAuthor.setAutFirstName(authorFirstName);
+        destAuthor.setAutLastName(authorLastName);
+        
+        this.repo.save(destAuthor);
+        
         return pubCount;
     }
 }

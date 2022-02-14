@@ -1,24 +1,61 @@
 package fr.ciadlab.pubprovider.controller;
 
-import fr.ciadlab.pubprovider.PubProviderApplication;
-import fr.ciadlab.pubprovider.entities.*;
-import fr.ciadlab.pubprovider.service.*;
-import fr.ciadlab.pubprovider.utils.FileUploadUtils;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
+
+import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.sql.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import fr.ciadlab.pubprovider.PubProviderApplication;
+import fr.ciadlab.pubprovider.entities.Authorship;
+import fr.ciadlab.pubprovider.entities.Book;
+import fr.ciadlab.pubprovider.entities.BookChapter;
+import fr.ciadlab.pubprovider.entities.EngineeringActivity;
+import fr.ciadlab.pubprovider.entities.ProceedingsConference;
+import fr.ciadlab.pubprovider.entities.Publication;
+import fr.ciadlab.pubprovider.entities.PublicationType;
+import fr.ciadlab.pubprovider.entities.PublicationTypeGroup;
+import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
+import fr.ciadlab.pubprovider.entities.SeminarPatentInvitedConference;
+import fr.ciadlab.pubprovider.entities.UniversityDocument;
+import fr.ciadlab.pubprovider.entities.UserDocumentation;
+import fr.ciadlab.pubprovider.service.AuthorService;
+import fr.ciadlab.pubprovider.service.BookChapterService;
+import fr.ciadlab.pubprovider.service.BookService;
+import fr.ciadlab.pubprovider.service.EngineeringActivityService;
+import fr.ciadlab.pubprovider.service.JournalService;
+import fr.ciadlab.pubprovider.service.ProceedingsConferenceService;
+import fr.ciadlab.pubprovider.service.PublicationService;
+import fr.ciadlab.pubprovider.service.ReadingCommitteeJournalPopularizationPaperService;
+import fr.ciadlab.pubprovider.service.ResearchOrganizationService;
+import fr.ciadlab.pubprovider.service.SeminarPatentInvitedConferenceService;
+import fr.ciadlab.pubprovider.service.UniversityDocumentService;
+import fr.ciadlab.pubprovider.service.UserDocumentationService;
+import fr.ciadlab.pubprovider.utils.FileUploadUtils;
 
 @RestController
 @CrossOrigin
@@ -535,7 +572,7 @@ public class PublicationController {
     public void importBibtext(HttpServletResponse response, MultipartFile bibtext) throws IOException {
         try {
             if (bibtext != null && !bibtext.isEmpty()) {
-                String bibtextContent = new String(bibtext.getBytes());
+                String bibtextContent = new String(bibtext.getBytes(), Charset.forName("UTF-8"));
                 logger.info("Bibtext file read : " + bibtextContent);
                 List<Integer> publications = importPublications(bibtextContent);
                 response.sendRedirect("/SpringRestHibernate/addPublicationFromBibtext?success=1&importedPubs=" + publications.size());
@@ -599,10 +636,10 @@ public class PublicationController {
 
     /**
      * TMT 02/12/20
-     * Export function for html/odt using a list of publication ids
+     * Export function for html using a list of publication ids
      *
      * @param listPublicationsIds the array of publication id
-     * @return the html/odt
+     * @return the html
      */
     @RequestMapping(value = "/exportHtml", method = RequestMethod.POST, headers = "Accept=application/json")
     public String exportHtml(Integer[] listPublicationsIds) {
@@ -619,7 +656,35 @@ public class PublicationController {
         sb.append("</ul>");
         return sb.toString();
     }
+    
+    
+    /**
+     * TMT 02/12/20
+     * Export function for ODT using a list of publication ids
+     *
+     * @param listPublicationsIds the array of publication id
+     * @return the ODT bytes array
+     */
+    @RequestMapping(value = "/exportOdt", method = RequestMethod.POST, headers = "Accept=application/vnd.oasis.opendocument.text")
+    public byte[] exportOdt(Integer[] listPublicationsIds) {
+        try {
+            OdfTextDocument odt = OdfTextDocument.newTextDocument();
+            for (Integer i : listPublicationsIds) {
+                if (i == null) continue;
+                odt.newParagraph(pubServ.exportOneOdt(i));
+                // Adding paragraph to separate two publications
+                odt.newParagraph(); 
+            }
+            byte[] data = odt.getPackage().getInputStream().readAllBytes();
+            return data;
+        }
+        catch (Exception e) {
+        	this.logger.warn("Error during ODT export of publications");
+        }
+        return null;
+    }
 }
+
 
 
 	

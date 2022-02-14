@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE html >
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
@@ -10,6 +11,8 @@
     <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/umd/string-similarity.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
 <!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" integrity="sha384-qlmct0AOBiA2VPZkMY3+2WqkHtIQ9lSdAsAn5RUJD/3vA5MKDgSGcdmIv4ycVxyn" crossorigin="anonymous"></script>-->
 
 
@@ -17,6 +20,10 @@
         .custom-select.is-valid, .form-control.is-valid, .was-validated .custom-select:valid, .was-validated .form-control:valid {
             border-color: #0d64c1;
             border-width:2px;
+        }
+        
+        .swal2-title {
+            font-size: 20px;
         }
     </style>
 </head>
@@ -406,6 +413,63 @@
         }
     }
 
+    //Custom matcher for 2 strings
+    function stringDistanceMatcher(params, data) {
+        // If there are no search terms, return all of the data
+        if ($.trim(params.term) === '') {
+            return data;
+        }
+
+        // Do not display the item if there is no 'text' property
+        if (typeof data.text === 'undefined') {
+            return null;
+        }
+
+        //Remove all accents from tests
+        let searchTerm = params.term.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        let dataTerm = data.text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        //Compare distance for both full strings (to avoid using the same call twice)
+        let distance = stringSimilarity.compareTwoStrings(searchTerm.toUpperCase(), dataTerm.toUpperCase());
+
+        //First check for exact match of characters
+        if (searchTerm.toUpperCase() == dataTerm.substring(0,searchTerm.length).toUpperCase()) {
+            return data;
+        //Most of the string is matching then return
+        } else if (distance >= 0.6) {
+            return data;
+        //Slight match of the strings, then try to match each part of the names
+        } else if (distance > 0.1) {
+            //substrOfSearch list of substrings of the search name eg. Jean-Yves Durant ["Jean", "Yves", "Durant"]
+            let substrOfSearch = searchTerm.split(" ");
+            //substrOfData list of substrings of the name in the list
+            let substrOfData = dataTerm.split(" ");
+            for (let i = 0; i < substrOfSearch.length; i++) {
+                for (let j = 0; j < substrOfData.length; j++) {
+                    if(stringSimilarity.compareTwoStrings(substrOfSearch[i].toUpperCase(), substrOfData[j].toUpperCase()) >= 0.6
+                           || substrOfSearch[i].toUpperCase() == substrOfData[j].substring(0, substrOfSearch[i].length).toUpperCase()) {
+                        return data;
+                    }
+                }
+            }
+        }
+
+        // Return `null` if the term should not be displayed
+        return null;
+    }
+
+    function addAuthor() {
+        $('<div class="form-row connectedSortable test">\n' +
+                ' <div class="col-md-10 mb-3">\n' +
+                '    <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" value="' + $('#publicationAuthors')[0].value + '"/>\n' +
+                '     </div>\n' +
+                '     <div class="col-md-2 mb-3">\n' +
+                '    <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>\n' +
+                '     </div>\n' +
+                '    </div>').appendTo('#authors');
+        enableRemove();
+    }
+
     $(document).ready(function () {
 
         // var formUrl = /*[[@{/createPublication}]]*/ '';
@@ -462,7 +526,8 @@
 
         $('#publicationAuthors').select2({
             tags: true,
-            placeholder: 'Enter author'
+            placeholder: 'Enter author',
+            matcher: stringDistanceMatcher
         });
 
         $('#publicationJournal').select2({
@@ -475,17 +540,33 @@
 
         $(document).on('click', '.addElement', function(e) {
             e.preventDefault();
-            $('<div class="form-row connectedSortable test">\n' +
-                ' <div class="col-md-10 mb-3">\n' +
-                '    <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" value="' + $('#publicationAuthors')[0].value + '"/>\n' +
-                '     </div>\n' +
-                '     <div class="col-md-2 mb-3">\n' +
-                '    <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>\n' +
-                '     </div>\n' +
-                '    </div>').appendTo('#authors');
-            enableRemove();
-        });
 
+            let selectedAuthorName = $('#publicationAuthors').find(":selected").text();
+            let options = $('#publicationAuthors option');
+            let authorAlreadyExists = false;
+            options.each(function(index) {
+                if ($(this).text() === selectedAuthorName && $(this).attr('value') === undefined) {
+                    authorAlreadyExists = true;
+                }
+            });
+
+            if (!authorAlreadyExists) {
+                let confirm = false;;
+                Swal.fire({
+                    title: 'Do you want to create a new author ? Please check the author you want to add does not already exist.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Add',
+                    confirmButtonColor: '#96c10d',
+                    icon: 'warning',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        addAuthor();
+                    }
+                });
+            } else {
+                addAuthor();
+            }
+        });
         enableRemove();
 
     });
