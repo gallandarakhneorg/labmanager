@@ -1954,20 +1954,20 @@ public class PublicationService {
             case "Article":
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
                     data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
-                    if (data != null && !data.isBlank()) {
+                    if (data != null && !data.isEmpty()) {
                         text += "In ";
                         text += data;
                         text += ", ";
                     }
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapVolume();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += "vol ";
                     text += data;
                     text += ", ";
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapPages();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += "pp. ";
                     text += data;
                     text += ", ";
@@ -1976,24 +1976,24 @@ public class PublicationService {
 
             case "Inproceedings":
                 data = ((ProceedingsConference) pub).getProConfBookNameProceedings();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += "In ";
                     text += data;
                     text += ", ";
                 }
                 data = ((ProceedingsConference) pub).getProConfPages();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += "pp. ";
                     text += data;
                     text += ", ";
                 }
                 data = ((ProceedingsConference) pub).getProConfEditor();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += data;
                     text += ", ";
                 }
                 data = ((ProceedingsConference) pub).getProConfAddress();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += data;
                     text += ", ";
                 }
@@ -2002,24 +2002,24 @@ public class PublicationService {
 
             case "Book":
                 data = ((Book) pub).getBookVolume();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += "vol. ";
                     text += data;
                     text += ", ";
                 }
                 data = ((Book) pub).getBookPages();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += "pp. ";
                     text += data;
                     text += ", ";
                 }
                 data = ((Book) pub).getBookEditor();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += data;
                     text += ", ";
                 }
                 data = ((Book) pub).getBookAddress();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += data;
                     text += ", ";
                 }
@@ -2028,24 +2028,24 @@ public class PublicationService {
 
             case "Inbook":
                 data = ((BookChapter) pub).getBookVolume();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += "vol. ";
                     text += data;
                     text += ", ";
                 }
                 data = ((BookChapter) pub).getBookPages();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += "pp. ";
                     text += data;
                     text += ", ";
                 }
                 data = ((BookChapter) pub).getBookEditor();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += data;
                     text += ", ";
                 }
                 data = ((BookChapter) pub).getBookAddress();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += data;
                     text += ", ";
                 }
@@ -2058,7 +2058,7 @@ public class PublicationService {
 
             case "Manual":
                 data = ((UserDocumentation) pub).getUserDocAddress();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += data;
                     text += ", ";
                 }
@@ -2071,7 +2071,7 @@ public class PublicationService {
 
             case "Phdthesis":
                 data = ((UniversityDocument) pub).getUniDocAddress();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += data;
                     text += ", ";
                 }
@@ -2080,7 +2080,7 @@ public class PublicationService {
 
             case "Masterthesis":
                 data = ((UniversityDocument) pub).getUniDocAddress();
-                if (data != null && !data.isBlank()) {
+                if (data != null && !data.isEmpty()) {
                     text += data;
                     text += ", ";
                 }
@@ -2099,19 +2099,19 @@ public class PublicationService {
 
         String data = "";
         data = pub.getPubISBN();
-        if (data != null && !data.isBlank()) {
+        if (data != null && !data.isEmpty()) {
             text += " ISBN: ";
             text += data;
             text += ".";
         }
         data = pub.getPubISSN();
-        if (data != null && !data.isBlank()) {
+        if (data != null && !data.isEmpty()) {
             text += " ISSN: ";
             text += data;
             text += ".";
         }
         data = pub.getPubDOIRef();
-        if (data != null && !data.isBlank()) {
+        if (data != null && !data.isEmpty()) {
             text += " DOI: ";
             text += "<a href=\"";
             if (data.contains("http"))

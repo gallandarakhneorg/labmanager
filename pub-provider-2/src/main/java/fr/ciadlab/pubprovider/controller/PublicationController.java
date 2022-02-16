@@ -1,61 +1,29 @@
 package fr.ciadlab.pubprovider.controller;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
-import java.sql.Date;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
+import fr.ciadlab.pubprovider.PubProviderApplication;
+import fr.ciadlab.pubprovider.entities.*;
+import fr.ciadlab.pubprovider.service.*;
+import fr.ciadlab.pubprovider.utils.FileUploadUtils;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import fr.ciadlab.pubprovider.PubProviderApplication;
-import fr.ciadlab.pubprovider.entities.Authorship;
-import fr.ciadlab.pubprovider.entities.Book;
-import fr.ciadlab.pubprovider.entities.BookChapter;
-import fr.ciadlab.pubprovider.entities.EngineeringActivity;
-import fr.ciadlab.pubprovider.entities.ProceedingsConference;
-import fr.ciadlab.pubprovider.entities.Publication;
-import fr.ciadlab.pubprovider.entities.PublicationType;
-import fr.ciadlab.pubprovider.entities.PublicationTypeGroup;
-import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
-import fr.ciadlab.pubprovider.entities.SeminarPatentInvitedConference;
-import fr.ciadlab.pubprovider.entities.UniversityDocument;
-import fr.ciadlab.pubprovider.entities.UserDocumentation;
-import fr.ciadlab.pubprovider.service.AuthorService;
-import fr.ciadlab.pubprovider.service.BookChapterService;
-import fr.ciadlab.pubprovider.service.BookService;
-import fr.ciadlab.pubprovider.service.EngineeringActivityService;
-import fr.ciadlab.pubprovider.service.JournalService;
-import fr.ciadlab.pubprovider.service.ProceedingsConferenceService;
-import fr.ciadlab.pubprovider.service.PublicationService;
-import fr.ciadlab.pubprovider.service.ReadingCommitteeJournalPopularizationPaperService;
-import fr.ciadlab.pubprovider.service.ResearchOrganizationService;
-import fr.ciadlab.pubprovider.service.SeminarPatentInvitedConferenceService;
-import fr.ciadlab.pubprovider.service.UniversityDocumentService;
-import fr.ciadlab.pubprovider.service.UserDocumentationService;
-import fr.ciadlab.pubprovider.utils.FileUploadUtils;
+import javax.servlet.http.HttpServletResponse;
+import java.io.ByteArrayOutputStream;
+import java.io.FilterOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 
 @RestController
 @CrossOrigin
@@ -202,7 +170,7 @@ public class PublicationController {
                         return;
                     case ReadingCommitteeJournalPopularizationPaper:
                         int journalId = journalServ.getJournalIdByName(publicationJournal);
-                        if(journalId == 0)
+                        if (journalId == 0)
                             journalId = journalServ.createJournal(publicationJournal, "", "", "", "");
                         readingCommitteeJournalPopularizationPaperServ.updateReadingCommitteeJournalPopularizationPaper(pub.getPubId(),
                                 publicationTitle,
@@ -497,7 +465,7 @@ public class PublicationController {
                     return;
                 case ReadingCommitteeJournalPopularizationPaper:
                     int journalId = journalServ.getJournalIdByName(publicationJournal);
-                    if(journalId == 0)
+                    if (journalId == 0)
                         journalId = journalServ.createJournal(publicationJournal, "", "", "", "");
                     ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ.createReadingCommitteeJournalPopularizationPaper(
                             publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages, journalId
@@ -656,8 +624,8 @@ public class PublicationController {
         sb.append("</ul>");
         return sb.toString();
     }
-    
-    
+
+
     /**
      * TMT 02/12/20
      * Export function for ODT using a list of publication ids
@@ -673,15 +641,42 @@ public class PublicationController {
                 if (i == null) continue;
                 odt.newParagraph(pubServ.exportOneOdt(i));
                 // Adding paragraph to separate two publications
-                odt.newParagraph(); 
+                odt.newParagraph();
             }
-            byte[] data = odt.getPackage().getInputStream().readAllBytes();
+            DrainableOutputStream out = new DrainableOutputStream(null);
+            odt.getPackage().save(out);
+            byte[] data = out.toByteArray(); //odt.getPackage().getInputStream().readAllBytes();
             return data;
-        }
-        catch (Exception e) {
-        	this.logger.warn("Error during ODT export of publications");
+        } catch (Exception e) {
+            this.logger.warn("Error during ODT export of publications");
         }
         return null;
+    }
+
+    class DrainableOutputStream extends FilterOutputStream {
+        private final ByteArrayOutputStream buffer;
+        public DrainableOutputStream(OutputStream out) {
+            super(out);
+            this.buffer = new ByteArrayOutputStream();
+        }
+        @Override
+        public void write(byte b[]) throws IOException {
+            this.buffer.write(b);
+            super.write(b);
+        }
+        @Override
+        public void write(byte b[], int off, int len) throws IOException {
+            this.buffer.write(b, off, len);
+            super.write(b, off, len);
+        }
+        @Override
+        public void write(int b) throws IOException {
+            this.buffer.write(b);
+            super.write(b);
+        }
+        public byte[] toByteArray() {
+            return this.buffer.toByteArray();
+        }
     }
 }
 
