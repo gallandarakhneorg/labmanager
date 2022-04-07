@@ -1,0 +1,168 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/head :: style"/>
+    <th:block th:replace="fragments/head :: script"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
+</head>
+
+<body>
+
+<div class="horizontal-main-wrapper">
+    <!-- main content area start -->
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="row" th:if="${param.error != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-danger">
+                        <div class="card-body">
+                            <h4 class="header-title">Error :</h4>
+                            <p th:text="${param.message != null ?  param.message : ''}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" th:if="${param.success != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                            <p th:text="${param.success != null ?  param.success : ''}"></p>
+                            <h4 class="header-title">Jounal successfully created</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" th:if="${param.updated != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                            <h4 class="header-title">Jounal successfully updated</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="main-content-inner">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Add new journal</h4>
+                            <form id="form" th:action="@{'/addJournal'}" method="post" >
+                                <div class="form-group">
+                                    <label for="journalName" class="col-form-label">Journal name</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalName" name="journalName">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="journalPublisher" class="col-form-label">Journal publisher</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalPublisher" name="journalPublisher">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="journalElsevier" class="col-form-label">Journal Elsevier</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalElsevier" name="journalElsevier">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="journalScimago" class="col-form-label">Journal Scimago</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalScimago" name="journalScimago">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="journalWos" class="col-form-label">Journal Wos</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalWos" name="journalWos">
+                                </div>
+
+                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Create journal</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Journal editing tool</h4>
+                            <form id="form2" th:action="@{'/editJournal'}" method="post" >
+                                <div class="form-group" id="containerJournal">
+                                    <label for="journalDiv" class="col-form-label">Journal to edit</label>
+                                    <div id="journalDiv">
+                                        <select id="journal" name="journal"  class="form-control selectJournal list-group-item list-group-item-action" style="width: 100%">
+                                            <option></option>
+                                            <option th:each="journal : ${journals}" th:utext="${journal.getJourName()}"></option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="journalNameE" class="col-form-label">Journal name</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalNameE" name="journalName">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="journalPublisherE" class="col-form-label">Journal publisher</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalPublisherE" name="journalPublisher">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="journalElsevierE" class="col-form-label">Journal Elsevier</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalElsevierE" name="journalElsevier">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="journalScimagoE" class="col-form-label">Journal Scimago</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalScimagoE" name="journalScimago">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="journalWosE" class="col-form-label">Journal Wos</label>
+                                    <input class="form-control" type="text" placeholder="" id="journalWosE" name="journalWos">
+                                </div>
+
+                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Edit journal</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main content area end -->
+</div>
+<!-- page container area end -->
+</body>
+
+<script th:inline="javascript">
+
+    $(document).ready(function () {
+        $('.selectJournal').select2();
+    });
+
+    $('#journal').on('select2:select', function (e) {
+        var data = e.params.data.text;
+        if(data != "") {
+            var href = /*[[@{/getJournalData}]]*/ '/getJournalData';
+            $.ajax(href + '?name=' + data, {
+                success: function(newData) {
+                    $('#journalNameE').val(newData.jourName);
+                    $('#journalPublisherE').val(newData.jourPublisher);
+                    $('#journalElsevierE').val(newData.jourElsevier);
+                    $('#journalScimagoE').val(newData.jourScimago);
+                    $('#journalWosE').val(newData.jourWos);
+                },
+                error: function() {
+                    alert("ERROR");
+                }
+            });
+        }
+
+    });
+</script>
+</html>
+
