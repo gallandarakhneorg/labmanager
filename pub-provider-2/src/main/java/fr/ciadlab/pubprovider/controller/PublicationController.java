@@ -110,7 +110,8 @@ public class PublicationController {
             if (publicationAuthors == null) {
                 throw new Exception("You must specify at least one author.");
             }
-            PublicationTypeGroup publicationTypeGroup = PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(PublicationType.valueOf(publicationType));
+            PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
+            PublicationTypeGroup publicationTypeGroup = publicationTypeEnum.getPublicationTypeGroupFromPublicationType();
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());
 
             Publication pub = pubServ.getPublication(publicationId);
@@ -132,6 +133,8 @@ public class PublicationController {
                     logger.info("Award uploaded at: " + awardUploadPath);
                     pub.setPubPaperAwardPath(awardUploadPath);
                 }
+                
+                //TODO: Gérer remove authors
 
                 int i = 0;
                 // Third step create the authors and link them to the publication
@@ -431,7 +434,8 @@ public class PublicationController {
             if (publicationAuthors == null) {
                 throw new Exception("You must specify at least one author.");
             }
-            PublicationTypeGroup publicationTypeGroup = PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(PublicationType.valueOf(publicationType));
+            PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
+            PublicationTypeGroup publicationTypeGroup = publicationTypeEnum.getPublicationTypeGroupFromPublicationType();
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());/*new Date(
                 Integer.parseInt(publicationDate.split("-")[0]) - 1900,
                 Integer.parseInt(publicationDate.split("-")[1]), 1

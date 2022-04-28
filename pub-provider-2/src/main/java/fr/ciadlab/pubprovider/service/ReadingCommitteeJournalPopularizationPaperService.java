@@ -43,7 +43,7 @@ public class ReadingCommitteeJournalPopularizationPaperService {
         repo.deleteById(index);
     }
 
-    public ReadingCommitteeJournalPopularizationPaper createReadingCommitteeJournalPopularizationPaper(Publication p, String reaComConfPopPapNumber, String reaComConfPopPapPages, String reaComConfPopPapVolume, Integer journalId) {
+    public ReadingCommitteeJournalPopularizationPaper createReadingCommitteeJournalPopularizationPaper(Publication p, String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages, Integer journalId) {
         ReadingCommitteeJournalPopularizationPaper res = new ReadingCommitteeJournalPopularizationPaper(p, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);
         if(journalId != null && journalRepository.findById(journalId).isPresent())
         res.setReaComConfPopPapJournal(journalRepository.getOne(journalId));

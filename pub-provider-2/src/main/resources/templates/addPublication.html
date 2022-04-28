@@ -78,9 +78,9 @@
                                         <option value="null" th:selected="${!edit}">Select a publication type</option>
                                         <option
                                                 th:each="publicationType : ${publicationsTypes}"
-                                                th:selected="${publication != null && publicationType.getKey() == publication.getPubType()}"
-                                                th:value="${publicationType.getKey().toString()}"
-                                                th:utext="${publicationType.getValue()}">
+                                                th:selected="${publication != null && publicationType == publication.getPubType()}"
+                                                th:value="${publicationType.toString()}"
+                                                th:utext="${T(fr.ciadlab.pubprovider.entities.PublicationType).getPubTypeToString(publicationType)}">
                                         </option>
                                     </select>
                                 </div>
@@ -321,7 +321,7 @@
                                             <input class="form-control" type="text" th:value="${userDocOrganization}" placeholder="Organization the user documentation belongs to" id="userDocOrganization" name="userDocOrganization">
                                         </div>
                                         <div class="form-group">
-                                            <label for="userDocAddress" class="col-form-label">Report type</label>
+                                            <label for="userDocAddress" class="col-form-label">Address</label>
                                             <input class="form-control" type="text" th:value="${userDocAddress}" placeholder="Address of the user documentation" id="userDocAddress" name="userDocAddress">
                                         </div>
                                         <div class="form-group">

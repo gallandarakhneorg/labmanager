@@ -2,59 +2,181 @@ package fr.ciadlab.pubprovider.entities;
 
 public enum PublicationType {
 
-    TypeLess,
+    TypeLess {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.Typeless;
+		}
+	},
 
     //These are already present in the current site database :
 
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    InternationalJournalWithReadingCommittee,
+    InternationalJournalWithReadingCommittee {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    NationalJournalWithReadingCommittee,
+    NationalJournalWithReadingCommittee {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    InternationalJournalWithoutReadingCommittee,
+    InternationalJournalWithoutReadingCommittee {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    NationalJournalWithoutReadingCommittee,
+    NationalJournalWithoutReadingCommittee {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by ProceedingsConference
-    InternationalConferenceWithProceedings,
+    InternationalConferenceWithProceedings {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ProceedingsConference;
+		}
+	},
     //Mapped by ProceedingsConference
-    NationalConferenceWithProceedings,
+    NationalConferenceWithProceedings {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ProceedingsConference;
+		}
+	},
     //Mapped by ProceedingsConference
-    InternationalConferenceWithoutProceedings,
+    InternationalConferenceWithoutProceedings {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ProceedingsConference;
+		}
+	},
     //Mapped by ProceedingsConference
-    NationalConferenceWithoutProceedings,
+    NationalConferenceWithoutProceedings {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ProceedingsConference;
+		}
+	},
     //Mapped by Book
-    Book,
+    Book {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.Book;
+		}
+	},
     //Mapped by Book->BookChaper
-    BookChapter,
+    BookChapter {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.BookChapter;
+		}
+	},
     //Mapped by Book->BookChaper
-    VulgarizationBookChapter,
+    VulgarizationBookChapter {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.BookChapter;
+		}
+	},
     //Mapped by SeminarPatentInvitedConference
-    InvitedConference,
+    InvitedConference {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.SeminarPatentInvitedConference;
+		}
+	},
     //Mapped by Book
-    BookEdition,
+    BookEdition {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.Book;
+		}
+	},
     //Mapped by SeminarPatentInvitedConference
-    Seminar,
+    Seminar {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.SeminarPatentInvitedConference;
+		}
+	},
     //Mapped by UniversityDocument
-    HDRThesis,
+    HDRThesis {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UniversityDocument;
+		}
+	},
     //Mapped by UniversityDocument
-    PHDThesis,
+    PHDThesis {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UniversityDocument;
+		}
+	},
     //Mapped by UniversityDocument
-    MasterOnResearch,
+    MasterOnResearch {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UniversityDocument;
+		}
+	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    PopularizationPaper,
+    PopularizationPaper {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by SeminarPatentInvitedConference
-    Patent,
+    Patent {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.SeminarPatentInvitedConference;
+		}
+	},
 
     //These are submitable types but there are none in the current site database :
 
     //Mapped by EngineeringActivity
-    EngineeringActivity,
+    EngineeringActivity {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.EngineeringActivity;
+		}
+	},
     //Mapped by UniversityDocument
-    EngineeringThesis,
+    EngineeringThesis {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UniversityDocument;
+		}
+	},
     //Mapped by Book
-    ScientificPopularizationBook,
+    ScientificPopularizationBook {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.Book;
+		}
+	},
     //Mapped by UserDocumentation
-    UserDocumentation;
+    UserDocumentation {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UserDocumentation;
+		}
+	};
+	
+	public abstract PublicationTypeGroup getPublicationTypeGroupFromPublicationType();
 
     public static String getPubTypeToString(PublicationType pubType) {
         switch(pubType){
@@ -66,7 +188,7 @@ public enum PublicationType {
             case InternationalJournalWithoutReadingCommittee:
                 return "International journal without reading committee";
             case NationalJournalWithoutReadingCommittee:
-                return "Naational journal without reading committee";
+                return "National journal without reading committee";
             case InternationalConferenceWithProceedings:
                 return "International conference with proceedings";
             case NationalConferenceWithProceedings:
@@ -74,7 +196,7 @@ public enum PublicationType {
             case InternationalConferenceWithoutProceedings:
                 return "International conference without proceedings";
             case NationalConferenceWithoutProceedings:
-                return "Naational conference without proceedings";
+                return "National conference without proceedings";
             case Book:
                 return "Book";
             case BookChapter:
@@ -105,7 +227,6 @@ public enum PublicationType {
                 return "Scientific popularization book";
             case UserDocumentation:
                 return "User documentation";
-            case TypeLess:
             default:
                 return "?";
         }

@@ -305,7 +305,7 @@ public class Publication implements Serializable {
     }
 
     public Class getPublicationClass() {
-        switch(PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(this.getPubType())) {
+        switch(this.getPubType().getPublicationTypeGroupFromPublicationType()) {
             case Typeless:
                 return Publication.class;
             case ReadingCommitteeJournalPopularizationPaper:

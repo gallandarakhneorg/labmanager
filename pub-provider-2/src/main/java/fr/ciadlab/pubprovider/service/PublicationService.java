@@ -2289,6 +2289,8 @@ public class PublicationService {
         StringBuilder sb = new StringBuilder();
 
         int i = 0;
+        
+        //TODO: Gérer Sort by Ranking
 
         List<Integer> ids = new ArrayList<>();
         for(Authorship a : p.getPubAuts()) {
