@@ -2,7 +2,7 @@ package fr.ciadlab.pubprovider.controller;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -36,7 +36,6 @@ import fr.ciadlab.pubprovider.entities.Membership;
 import fr.ciadlab.pubprovider.entities.ProceedingsConference;
 import fr.ciadlab.pubprovider.entities.Publication;
 import fr.ciadlab.pubprovider.entities.PublicationType;
-import fr.ciadlab.pubprovider.entities.PublicationTypeGroup;
 import fr.ciadlab.pubprovider.entities.PublicationsStat;
 import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
 import fr.ciadlab.pubprovider.entities.ResearchOrganization;
@@ -103,10 +102,9 @@ public class MainController {
 
         resOrgService.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut() )));
 
-        Map<PublicationType, String> publicationsTypes = new HashMap<>();
-        for(PublicationType p : PublicationType.values()) {
-            publicationsTypes.put(p, PublicationType.getPubTypeToString(p));
-        }
+        List<PublicationType> publicationsTypes = Arrays.asList(PublicationType.values()).stream()
+        		.filter(pubType -> pubType != PublicationType.TypeLess)
+        		.collect(Collectors.toList());
         modelAndView.addObject("publicationsTypes", publicationsTypes);
         modelAndView.addObject("authors", authors);
         modelAndView.addObject("journals", journals);
@@ -118,7 +116,7 @@ public class MainController {
             if(publication != null) {
                 modelAndView.addObject("publication", publication.getPublicationClass().cast(publication)); // Dynamic downcasting
                 modelAndView.addObject("pubAuthors", autServ.getLinkedAuthors(publicationId)); // Dynamic downcasting
-                switch(PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(publication.getPubType())) {
+                switch(publication.getPubType().getPublicationTypeGroupFromPublicationType()) {
                     case Typeless:
                         break;
                     case ReadingCommitteeJournalPopularizationPaper:
@@ -265,7 +263,7 @@ public class MainController {
                 publicationsStats.put(p.getPubYear(), new PublicationsStat(p.getPubYear()));
             }
             PublicationsStat publicationsStat = publicationsStats.get(p.getPubYear());
-            switch(PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(p.getPubType())) {
+            switch(p.getPubType().getPublicationTypeGroupFromPublicationType()) {
                 case Typeless:
                     publicationsStat.setOtherCount(publicationsStat.getOtherCount()+1);
                     globalStats.setOtherCount(globalStats.getOtherCount()+1);

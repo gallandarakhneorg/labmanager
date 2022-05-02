@@ -2,59 +2,207 @@ package fr.ciadlab.pubprovider.entities;
 
 public enum PublicationType {
 
-    TypeLess,
+	//TODO: a supprimer dès que possible
+    TypeLess {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.Typeless;
+		}
+	},
 
     //These are already present in the current site database :
 
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    InternationalJournalWithReadingCommittee,
+    //ACL if ranked (quartile)
+    //ACLN if not ranked (quartile)
+    InternationalJournalWithReadingCommittee {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    NationalJournalWithReadingCommittee,
+    //ACL if ranked (quartile)
+    //ACLN if not ranked (quartile)
+    NationalJournalWithReadingCommittee {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    InternationalJournalWithoutReadingCommittee,
+    //ACLN
+    InternationalJournalWithoutReadingCommittee {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    NationalJournalWithoutReadingCommittee,
+    //ACLN
+    NationalJournalWithoutReadingCommittee {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by ProceedingsConference
-    InternationalConferenceWithProceedings,
+    //C-ACTI
+    InternationalConferenceWithProceedings {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ProceedingsConference;
+		}
+	},
     //Mapped by ProceedingsConference
-    NationalConferenceWithProceedings,
+    //C-ACTN
+    NationalConferenceWithProceedings {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ProceedingsConference;
+		}
+	},
     //Mapped by ProceedingsConference
-    InternationalConferenceWithoutProceedings,
+    //C-COM
+    InternationalConferenceWithoutProceedings {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ProceedingsConference;
+		}
+	},
     //Mapped by ProceedingsConference
-    NationalConferenceWithoutProceedings,
+    //C-COM
+    NationalConferenceWithoutProceedings {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ProceedingsConference;
+		}
+	},
     //Mapped by Book
-    Book,
+    //OS
+    Book {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.Book;
+		}
+	},
     //Mapped by Book->BookChaper
-    BookChapter,
+    //COS
+    BookChapter {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.BookChapter;
+		}
+	},
     //Mapped by Book->BookChaper
-    VulgarizationBookChapter,
+    //COV
+    VulgarizationBookChapter {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.BookChapter;
+		}
+	},
     //Mapped by SeminarPatentInvitedConference
-    InvitedConference,
+    //C-INV
+    InvitedConference {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.SeminarPatentInvitedConference;
+		}
+	},
     //Mapped by Book
-    BookEdition,
+    //AP
+    BookEdition {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.Book;
+		}
+	},
     //Mapped by SeminarPatentInvitedConference
-    Seminar,
+    //C-AFF
+    Seminar {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.SeminarPatentInvitedConference;
+		}
+	},
     //Mapped by UniversityDocument
-    HDRThesis,
+    //TH
+    HDRThesis {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UniversityDocument;
+		}
+	},
     //Mapped by UniversityDocument
-    PHDThesis,
+    //TH
+    PHDThesis {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UniversityDocument;
+		}
+	},
     //Mapped by UniversityDocument
-    MasterOnResearch,
+    //TH
+    MasterOnResearch {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UniversityDocument;
+		}
+	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
-    PopularizationPaper,
+    //PV
+    PopularizationPaper {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
+		}
+	},
     //Mapped by SeminarPatentInvitedConference
-    Patent,
+    //AP
+    Patent {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.SeminarPatentInvitedConference;
+		}
+	},
 
     //These are submitable types but there are none in the current site database :
 
     //Mapped by EngineeringActivity
-    EngineeringActivity,
+    //AP
+    EngineeringActivity {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.EngineeringActivity;
+		}
+	},
     //Mapped by UniversityDocument
-    EngineeringThesis,
+    //TH
+    EngineeringThesis {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UniversityDocument;
+		}
+	},
     //Mapped by Book
-    ScientificPopularizationBook,
+    //OV
+    ScientificPopularizationBook {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.Book;
+		}
+	},
     //Mapped by UserDocumentation
-    UserDocumentation;
+    //AP
+    UserDocumentation {
+		@Override
+		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
+			return PublicationTypeGroup.UserDocumentation;
+		}
+	};
+	
+	public abstract PublicationTypeGroup getPublicationTypeGroupFromPublicationType();
 
     public static String getPubTypeToString(PublicationType pubType) {
         switch(pubType){
@@ -66,7 +214,7 @@ public enum PublicationType {
             case InternationalJournalWithoutReadingCommittee:
                 return "International journal without reading committee";
             case NationalJournalWithoutReadingCommittee:
-                return "Naational journal without reading committee";
+                return "National journal without reading committee";
             case InternationalConferenceWithProceedings:
                 return "International conference with proceedings";
             case NationalConferenceWithProceedings:
@@ -74,7 +222,7 @@ public enum PublicationType {
             case InternationalConferenceWithoutProceedings:
                 return "International conference without proceedings";
             case NationalConferenceWithoutProceedings:
-                return "Naational conference without proceedings";
+                return "National conference without proceedings";
             case Book:
                 return "Book";
             case BookChapter:
@@ -105,7 +253,6 @@ public enum PublicationType {
                 return "Scientific popularization book";
             case UserDocumentation:
                 return "User documentation";
-            case TypeLess:
             default:
                 return "?";
         }

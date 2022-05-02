@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -110,7 +111,8 @@ public class PublicationController {
             if (publicationAuthors == null) {
                 throw new Exception("You must specify at least one author.");
             }
-            PublicationTypeGroup publicationTypeGroup = PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(PublicationType.valueOf(publicationType));
+            PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
+            PublicationTypeGroup publicationTypeGroup = publicationTypeEnum.getPublicationTypeGroupFromPublicationType();
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());
 
             Publication pub = pubServ.getPublication(publicationId);
@@ -132,6 +134,17 @@ public class PublicationController {
                     logger.info("Award uploaded at: " + awardUploadPath);
                     pub.setPubPaperAwardPath(awardUploadPath);
                 }
+                
+                //FIXME: Remove authors does not work on edit mode
+                /*List<Author> authors = authorServ.getLinkedAuthors(pub.getPubId());
+                for(Author author : authors) {
+                	String authorToString = author.getAutFirstName() + " " + author.getAutLastName();
+                	if( !Arrays.asList(publicationAuthors).stream()
+                		.anyMatch(a -> a.equals(authorToString))) {
+                		
+                		pub.removeAuthorshipFromAutId(author.getAutId());
+                	}
+                }*/
 
                 int i = 0;
                 // Third step create the authors and link them to the publication
@@ -431,7 +444,8 @@ public class PublicationController {
             if (publicationAuthors == null) {
                 throw new Exception("You must specify at least one author.");
             }
-            PublicationTypeGroup publicationTypeGroup = PublicationTypeGroup.getPublicationTypeGroupFromPublicationType(PublicationType.valueOf(publicationType));
+            PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
+            PublicationTypeGroup publicationTypeGroup = publicationTypeEnum.getPublicationTypeGroupFromPublicationType();
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());/*new Date(
                 Integer.parseInt(publicationDate.split("-")[0]) - 1900,
                 Integer.parseInt(publicationDate.split("-")[1]), 1
