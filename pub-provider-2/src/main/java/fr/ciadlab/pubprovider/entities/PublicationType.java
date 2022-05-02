@@ -2,6 +2,7 @@ package fr.ciadlab.pubprovider.entities;
 
 public enum PublicationType {
 
+	//TODO: a supprimer dès que possible
     TypeLess {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -12,6 +13,8 @@ public enum PublicationType {
     //These are already present in the current site database :
 
     //Mapped by ReadingCommitteeJournalPopularizationPaper
+    //ACL if ranked (quartile)
+    //ACLN if not ranked (quartile)
     InternationalJournalWithReadingCommittee {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -19,6 +22,8 @@ public enum PublicationType {
 		}
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
+    //ACL if ranked (quartile)
+    //ACLN if not ranked (quartile)
     NationalJournalWithReadingCommittee {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -26,6 +31,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
+    //ACLN
     InternationalJournalWithoutReadingCommittee {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -33,6 +39,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
+    //ACLN
     NationalJournalWithoutReadingCommittee {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -40,6 +47,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by ProceedingsConference
+    //C-ACTI
     InternationalConferenceWithProceedings {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -47,6 +55,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by ProceedingsConference
+    //C-ACTN
     NationalConferenceWithProceedings {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -54,6 +63,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by ProceedingsConference
+    //C-COM
     InternationalConferenceWithoutProceedings {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -61,6 +71,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by ProceedingsConference
+    //C-COM
     NationalConferenceWithoutProceedings {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -68,6 +79,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by Book
+    //OS
     Book {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -75,6 +87,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by Book->BookChaper
+    //COS
     BookChapter {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -82,6 +95,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by Book->BookChaper
+    //COV
     VulgarizationBookChapter {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -89,6 +103,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by SeminarPatentInvitedConference
+    //C-INV
     InvitedConference {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -96,6 +111,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by Book
+    //AP
     BookEdition {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -103,6 +119,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by SeminarPatentInvitedConference
+    //C-AFF
     Seminar {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -110,6 +127,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by UniversityDocument
+    //TH
     HDRThesis {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -117,6 +135,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by UniversityDocument
+    //TH
     PHDThesis {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -124,6 +143,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by UniversityDocument
+    //TH
     MasterOnResearch {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -131,6 +151,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
+    //PV
     PopularizationPaper {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -138,6 +159,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by SeminarPatentInvitedConference
+    //AP
     Patent {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -148,6 +170,7 @@ public enum PublicationType {
     //These are submitable types but there are none in the current site database :
 
     //Mapped by EngineeringActivity
+    //AP
     EngineeringActivity {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -155,6 +178,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by UniversityDocument
+    //TH
     EngineeringThesis {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -162,6 +186,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by Book
+    //OV
     ScientificPopularizationBook {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
@@ -169,6 +194,7 @@ public enum PublicationType {
 		}
 	},
     //Mapped by UserDocumentation
+    //AP
     UserDocumentation {
 		@Override
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {

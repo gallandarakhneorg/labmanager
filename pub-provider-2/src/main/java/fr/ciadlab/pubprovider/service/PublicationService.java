@@ -2290,14 +2290,8 @@ public class PublicationService {
 
         int i = 0;
         
-        //TODO: Gérer Sort by Ranking
-
-        List<Integer> ids = new ArrayList<>();
-        for(Authorship a : p.getPubAuts()) {
-            ids.add(a.getAutAutId());
-        }
-
-        List<Author> authors = autRepo.findByAutIdIn(ids);
+        //Get all the authors of the publication order by the ship rank of the authors
+        List<Author> authors = autRepo.findByAutPubsPubPubIdOrderByAutPubsAutShipRank(p.getPubId());
 
         for(Author aut : authors) {
             if(aut.isHasPage()) {

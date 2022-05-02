@@ -21,6 +21,7 @@ import java.nio.charset.Charset;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -134,7 +135,16 @@ public class PublicationController {
                     pub.setPubPaperAwardPath(awardUploadPath);
                 }
                 
-                //TODO: Gérer remove authors
+                //FIXME: Remove authors does not work on edit mode
+                /*List<Author> authors = authorServ.getLinkedAuthors(pub.getPubId());
+                for(Author author : authors) {
+                	String authorToString = author.getAutFirstName() + " " + author.getAutLastName();
+                	if( !Arrays.asList(publicationAuthors).stream()
+                		.anyMatch(a -> a.equals(authorToString))) {
+                		
+                		pub.removeAuthorshipFromAutId(author.getAutId());
+                	}
+                }*/
 
                 int i = 0;
                 // Third step create the authors and link them to the publication

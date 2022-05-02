@@ -303,6 +303,12 @@ public class Publication implements Serializable {
     public void deleteAuthorship(Authorship authorship){
         pubAuts.remove(authorship);
     }
+    
+    //FIXME: Remove authors does not work on edit mode
+    /*@Transactional
+    public void removeAuthorshipFromAutId(int autId) {
+    	this.pubAuts.removeIf(authorship -> authorship.getAutAutId() == autId);
+    }*/
 
     public Class getPublicationClass() {
         switch(this.getPubType().getPublicationTypeGroupFromPublicationType()) {

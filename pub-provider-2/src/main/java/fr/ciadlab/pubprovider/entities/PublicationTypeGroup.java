@@ -8,6 +8,7 @@ public enum PublicationTypeGroup {
     Book,
     BookChapter,
     //TODO: Ajouter JournalPopularizationPaper
+    //TODO: Ajouter PopularizationBookChapter
     SeminarPatentInvitedConference,
     UniversityDocument,
     EngineeringActivity,
