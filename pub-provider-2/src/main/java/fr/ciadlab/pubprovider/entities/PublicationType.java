@@ -8,6 +8,16 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.Typeless;
 		}
+
+		@Override
+		public String getAcronymFromPublicationType() {
+			return null;
+		}
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return null;
+		}
 	},
 
     //These are already present in the current site database :
@@ -23,8 +33,13 @@ public enum PublicationType {
 
         @Override
         public String getAcronymFromPublicationType(){
-            return "ACL or/ou ACLN"
+            return "ACL or/ou ACLN";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "International journal with reading committee";
+		}
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
     //ACL if ranked (quartile)
@@ -37,8 +52,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "ACL or/ou ACLN"
+            return "ACL or/ou ACLN";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "National journal with reading committee";
+		}
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
     //ACLN
@@ -50,8 +70,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "ACLN"
+            return "ACLN";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "International journal without reading committee";
+		}
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
     //ACLN
@@ -63,8 +88,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "ACLN"
+            return "ACLN";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "National journal without reading committee";
+		}
 	},
     //Mapped by ProceedingsConference
     //C-ACTI
@@ -76,8 +106,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "C-ACTI"
+            return "C-ACTI";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "International conference with proceedings";
+		}
 	},
     //Mapped by ProceedingsConference
     //C-ACTN
@@ -89,8 +124,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "C-ACTN"
+            return "C-ACTN";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "National conference with proceedings";
+		}
 	},
     //Mapped by ProceedingsConference
     //C-COM
@@ -102,8 +142,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "C-COM"
+            return "C-COM";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "International conference without proceedings";
+		}
 	},
     //Mapped by ProceedingsConference
     //C-COM
@@ -115,8 +160,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "C-COM"
+            return "C-COM";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "National conference without proceedings";
+		}
 	},
     //Mapped by Book
     //OS
@@ -128,8 +178,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "OS"
+            return "OS";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Book";
+		}
 	},
     //Mapped by Book->BookChaper
     //COS
@@ -141,8 +196,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "COS"
+            return "COS";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Book chapter";
+		}
 	},
     //Mapped by Book->BookChaper
     //COV
@@ -154,8 +214,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "COV"
+            return "COV";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Vulgarization book chapter";
+		}
 	},
     //Mapped by SeminarPatentInvitedConference
     //C-INV
@@ -167,8 +232,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "C-INV"
+            return "C-INV";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Invited conference";
+		}
 	},
     //Mapped by Book
     //AP
@@ -180,8 +250,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "AP"
+            return "AP";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Book edition";
+		}
 	},
     //Mapped by SeminarPatentInvitedConference
     //C-AFF
@@ -193,8 +268,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "C-AFF"
+            return "C-AFF";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Seminar";
+		}
 	},
     //Mapped by UniversityDocument
     //TH
@@ -206,8 +286,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "TH"
+            return "TH";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "HDR thesis";
+		}
 	},
     //Mapped by UniversityDocument
     //TH
@@ -219,8 +304,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "TH"
+            return "TH";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "PHD thesis";
+		}
 	},
     //Mapped by UniversityDocument
     //TH
@@ -232,8 +322,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "TH"
+            return "TH";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Master on research";
+		}
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
     //PV
@@ -245,8 +340,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "PV"
+            return "PV";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Popularization paper";
+		}
 	},
     //Mapped by SeminarPatentInvitedConference
     //AP
@@ -258,8 +358,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "AP"
+            return "AP";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Patent";
+		}
 	},
 
     //These are submitable types but there are none in the current site database :
@@ -274,8 +379,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "AP"
+            return "AP";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Engineering activity";
+		}
 	},
     //Mapped by UniversityDocument
     //TH
@@ -287,8 +397,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "TH"
+            return "TH";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Engineering thesis";
+		}
 	},
     //Mapped by Book
     //OV
@@ -300,8 +415,13 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "OV"
+            return "OV";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "Scientific popularization book";
+		}
 	},
     //Mapped by UserDocumentation
     //AP
@@ -313,67 +433,25 @@ public enum PublicationType {
         
         @Override
         public String getAcronymFromPublicationType(){
-            return "AP"
+            return "AP";
         }
+
+		@Override
+		public String getPubTypeTitleFromPublicationType() {
+			return "User documentation";
+		}
 	};
 	
 	public abstract PublicationTypeGroup getPublicationTypeGroupFromPublicationType();
 
     public abstract String getAcronymFromPublicationType();
 
+    public abstract String getPubTypeTitleFromPublicationType();
+    
     public static String getPubTypeToString(PublicationType pubType) {
-        switch(pubType){
-
-            case InternationalJournalWithReadingCommittee:
-                return "International journal with reading committee";
-            case NationalJournalWithReadingCommittee:
-                return "National journal with reading committee";
-            case InternationalJournalWithoutReadingCommittee:
-                return "International journal without reading committee";
-            case NationalJournalWithoutReadingCommittee:
-                return "National journal without reading committee";
-            case InternationalConferenceWithProceedings:
-                return "International conference with proceedings";
-            case NationalConferenceWithProceedings:
-                return "National conference with proceedings";
-            case InternationalConferenceWithoutProceedings:
-                return "International conference without proceedings";
-            case NationalConferenceWithoutProceedings:
-                return "National conference without proceedings";
-            case Book:
-                return "Book";
-            case BookChapter:
-                return "Book chapter";
-            case VulgarizationBookChapter:
-                return "Vulgarization book chapter";
-            case InvitedConference:
-                return "Invited conference";
-            case BookEdition:
-                return "Book edition";
-            case Seminar:
-                return "Seminar";
-            case HDRThesis:
-                return "HDR thesis";
-            case PHDThesis:
-                return "PHD thesis";
-            case MasterOnResearch:
-                return "Master on research";
-            case PopularizationPaper:
-                return "Popularization paper";
-            case Patent:
-                return "Patent";
-            case EngineeringActivity:
-                return "Engineering activity";
-            case EngineeringThesis:
-                return "Engineering thesis";
-            case ScientificPopularizationBook:
-                return "Scientific popularization book";
-            case UserDocumentation:
-                return "User documentation";
-            default:
-                return "?";
-        }
-    }
+			return pubType.getPubTypeTitleFromPublicationType() + " ("+ pubType.getAcronymFromPublicationType() +")";
+	}
+   
 }
 
 
