@@ -20,6 +20,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
 		}
+
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "ACL or/ou ACLN"
+        }
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
     //ACL if ranked (quartile)
@@ -29,6 +34,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "ACL or/ou ACLN"
+        }
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
     //ACLN
@@ -37,6 +47,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "ACLN"
+        }
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
     //ACLN
@@ -45,6 +60,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "ACLN"
+        }
 	},
     //Mapped by ProceedingsConference
     //C-ACTI
@@ -53,6 +73,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.ProceedingsConference;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "C-ACTI"
+        }
 	},
     //Mapped by ProceedingsConference
     //C-ACTN
@@ -61,6 +86,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.ProceedingsConference;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "C-ACTN"
+        }
 	},
     //Mapped by ProceedingsConference
     //C-COM
@@ -69,6 +99,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.ProceedingsConference;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "C-COM"
+        }
 	},
     //Mapped by ProceedingsConference
     //C-COM
@@ -77,6 +112,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.ProceedingsConference;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "C-COM"
+        }
 	},
     //Mapped by Book
     //OS
@@ -85,6 +125,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.Book;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "OS"
+        }
 	},
     //Mapped by Book->BookChaper
     //COS
@@ -93,6 +138,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.BookChapter;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "COS"
+        }
 	},
     //Mapped by Book->BookChaper
     //COV
@@ -101,6 +151,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.BookChapter;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "COV"
+        }
 	},
     //Mapped by SeminarPatentInvitedConference
     //C-INV
@@ -109,6 +164,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.SeminarPatentInvitedConference;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "C-INV"
+        }
 	},
     //Mapped by Book
     //AP
@@ -117,6 +177,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.Book;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "AP"
+        }
 	},
     //Mapped by SeminarPatentInvitedConference
     //C-AFF
@@ -125,6 +190,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.SeminarPatentInvitedConference;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "C-AFF"
+        }
 	},
     //Mapped by UniversityDocument
     //TH
@@ -133,6 +203,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.UniversityDocument;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "TH"
+        }
 	},
     //Mapped by UniversityDocument
     //TH
@@ -141,6 +216,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.UniversityDocument;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "TH"
+        }
 	},
     //Mapped by UniversityDocument
     //TH
@@ -149,6 +229,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.UniversityDocument;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "TH"
+        }
 	},
     //Mapped by ReadingCommitteeJournalPopularizationPaper
     //PV
@@ -157,6 +242,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.ReadingCommitteeJournalPopularizationPaper;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "PV"
+        }
 	},
     //Mapped by SeminarPatentInvitedConference
     //AP
@@ -165,6 +255,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.SeminarPatentInvitedConference;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "AP"
+        }
 	},
 
     //These are submitable types but there are none in the current site database :
@@ -176,6 +271,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.EngineeringActivity;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "AP"
+        }
 	},
     //Mapped by UniversityDocument
     //TH
@@ -184,6 +284,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.UniversityDocument;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "TH"
+        }
 	},
     //Mapped by Book
     //OV
@@ -192,6 +297,11 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.Book;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "OV"
+        }
 	},
     //Mapped by UserDocumentation
     //AP
@@ -200,9 +310,16 @@ public enum PublicationType {
 		public PublicationTypeGroup getPublicationTypeGroupFromPublicationType() {
 			return PublicationTypeGroup.UserDocumentation;
 		}
+        
+        @Override
+        public String getAcronymFromPublicationType(){
+            return "AP"
+        }
 	};
 	
 	public abstract PublicationTypeGroup getPublicationTypeGroupFromPublicationType();
+
+    public abstract String getAcronymFromPublicationType();
 
     public static String getPubTypeToString(PublicationType pubType) {
         switch(pubType){
