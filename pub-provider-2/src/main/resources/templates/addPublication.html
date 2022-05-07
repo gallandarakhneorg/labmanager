@@ -506,14 +506,16 @@
                     minlength: 2
                 },
                 publicationDate: 'required',
+                publicationQuartile : 'required'
             },
             messages: {
                 publicationTitle: 'Please enter the publication title',
                 publicationAbstract: {
-                    required: 'Please enter an abstract',
+                    required: 'Please, enter an abstract',
                     minlength: 'The abstract is too short...'
                 },
-                publicationDate: 'Please enter the publication date',
+                publicationDate: 'Please, enter the publication date',
+                publicationQuartile : 'Please, enter the publication quartile'
             },
             errorElement: 'em',
             errorPlacement: function errorPlacement(error, element) {
