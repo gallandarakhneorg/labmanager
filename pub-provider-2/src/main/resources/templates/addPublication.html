@@ -142,6 +142,7 @@
                                             <option value="null" th:selected="${!edit}">Select a publication quartile</option>
                                             <option
                                                     th:each="publicationQuartile : ${publicationsQuartiles}"
+                                                    th:selected="${publication != null && publicationQuartile == publication.getPubQuartile()}"
                                                     th:value="${publicationQuartile.toString()}"
                                                     th:utext="${publicationQuartile.toString()}">
                                             </option>

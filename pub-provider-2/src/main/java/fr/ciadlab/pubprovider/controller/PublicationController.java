@@ -115,6 +115,8 @@ public class PublicationController {
                     .getPublicationTypeGroupFromPublicationType();
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());
 
+            PublicationQuartile publicationQuartileEnum = PublicationQuartile.valueOf(publicationQuartile);
+
             Publication pub = pubServ.getPublication(publicationId);
             if (pub != null) {
                 // Store pdfs
@@ -214,6 +216,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+                                publicationQuartileEnum,
                                 reaComConfPopPapNumber,
                                 reaComConfPopPapPages,
                                 reaComConfPopPapVolume,
@@ -236,6 +239,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+                                publicationQuartileEnum,
                                 proConfAddress,
                                 proConfBookNameProceedings,
                                 proConfEditor,
@@ -261,6 +265,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+                                publicationQuartileEnum,
                                 bookEditor,
                                 bookPublisher,
                                 bookVolume,
@@ -287,6 +292,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+                                publicationQuartileEnum,
                                 bookEditor,
                                 bookPublisher,
                                 bookVolume,
@@ -306,6 +312,7 @@ public class PublicationController {
                                 publicationDateDate,
                                 publicationNote,
                                 null,
+                                publicationQuartileEnum,
                                 publicationIsbn,
                                 publicationIssn,
                                 publicationDoi,
@@ -326,6 +333,7 @@ public class PublicationController {
                                 publicationDateDate,
                                 publicationNote,
                                 null,
+                                publicationQuartileEnum,
                                 publicationIsbn,
                                 publicationIssn,
                                 publicationDoi,
@@ -347,6 +355,7 @@ public class PublicationController {
                                 publicationDateDate,
                                 publicationNote,
                                 null,
+                                publicationQuartileEnum,
                                 publicationIsbn,
                                 publicationIssn,
                                 publicationDoi,
@@ -378,6 +387,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+                                publicationQuartileEnum,
                                 userDocAddress,
                                 userDocEdition,
                                 userDocOrganization,

@@ -3,6 +3,7 @@ package fr.ciadlab.pubprovider.service;
 import fr.ciadlab.pubprovider.PubProviderApplication;
 import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.Publication;
+import fr.ciadlab.pubprovider.entities.PublicationQuartile;
 import fr.ciadlab.pubprovider.entities.PublicationType;
 import fr.ciadlab.pubprovider.entities.SeminarPatentInvitedConference;
 import fr.ciadlab.pubprovider.repository.SeminarPatentInvitedConferenceRepository;
@@ -41,16 +42,18 @@ public class SeminarPatentInvitedConferenceService {
 
     public SeminarPatentInvitedConference createSeminarPatentInvitedConference(Publication p, String semPatHowPub) {
         SeminarPatentInvitedConference res = new SeminarPatentInvitedConference(p, semPatHowPub);
-        res = this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+        res = this.repo.save(res); // Id is generated on save so I gotta save once before setting these
         return res;
     }
 
     @Deprecated
-    public int createSeminarPatentInvitedConference(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
-                                                    String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
-                                                    String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String semPatHowPub) {
+    public int createSeminarPatentInvitedConference(String pubTitle, String pubAbstract, String pubKeywords,
+            Date pubDate, String pubNote,
+            String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
+            String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
+            String semPatHowPub) {
         final SeminarPatentInvitedConference res = new SeminarPatentInvitedConference();
-        //Generic pub fields
+        // Generic pub fields
         res.setPubTitle(pubTitle);
         res.setPubAbstract(pubAbstract);
         res.setPubKeywords(pubKeywords);
@@ -62,11 +65,11 @@ public class SeminarPatentInvitedConferenceService {
         res.setPubDOIRef(pubDOIRef);
         res.setPubURL(pubURL);
         res.setPubDBLP(pubDBLP);
-        //res.setPubPDFPath(pubPDFPath);
+        // res.setPubPDFPath(pubPDFPath);
         res.setPubLanguage(pubLanguage);
-        //res.setPubPaperAwardPath(pubPaperAwardPath);
+        // res.setPubPaperAwardPath(pubPaperAwardPath);
         res.setPubType(pubType);
-        //SeminarPatentInvitedConference fields
+        // SeminarPatentInvitedConference fields
         res.setSemPatHowPub(semPatHowPub);
         this.repo.save(res);
 
@@ -91,7 +94,8 @@ public class SeminarPatentInvitedConferenceService {
             try (FileOutputStream fos = new FileOutputStream(file);) {
                 byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
                 fos.write(decoder);
-                res.setPubPaperAwardPath(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.getPubId() + ".pdf");
+                res.setPubPaperAwardPath(
+                        PubProviderApplication.DownloadablesPath + "Awards/Award" + res.getPubId() + ".pdf");
             } catch (Exception e) {
                 res.setPubPaperAwardPath("");
                 e.printStackTrace();
@@ -101,20 +105,23 @@ public class SeminarPatentInvitedConferenceService {
             res.setPubPaperAwardPath("");
         }
 
-        this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+        this.repo.save(res); // Id is generated on save so I gotta save once before setting these
         return res.getPubId();
     }
 
-    public void updateSeminarPatentInvitedConference(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
-                                                     String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
-                                                     String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String semPatHowPub) {
+    public void updateSeminarPatentInvitedConference(int pubId, String pubTitle, String pubAbstract, String pubKeywords,
+            Date pubDate,
+            String pubNote, String pubAnnotations, PublicationQuartile pubQuartile, String pubISBN, String pubISSN,
+            String pubDOIRef, String pubURL,
+            String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
+            String semPatHowPub) {
         final Optional<SeminarPatentInvitedConference> res = this.repo.findById(pubId);
         File file;
         if (res.isPresent()) {
-            //Generic pub fields
+            // Generic pub fields
             if (pubTitle != null && !pubTitle.isEmpty())
                 res.get().setPubTitle(pubTitle);
-            if (pubAbstract  != null && !pubAbstract.isEmpty())
+            if (pubAbstract != null && !pubAbstract.isEmpty())
                 res.get().setPubAbstract(pubAbstract);
             if (pubKeywords != null && !pubKeywords.isEmpty())
                 res.get().setPubKeywords(pubKeywords);
@@ -139,7 +146,8 @@ public class SeminarPatentInvitedConferenceService {
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
                     fos.write(decoder);
-                    res.get().setPubPDFPath(PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
+                    res.get().setPubPDFPath(
+                            PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
                 } catch (Exception e) {
                     res.get().setPubPDFPath("");
                     e.printStackTrace();
@@ -149,11 +157,13 @@ public class SeminarPatentInvitedConferenceService {
             if (pubLanguage != null && !pubLanguage.isEmpty())
                 res.get().setPubLanguage(pubLanguage);
             if (pubPaperAwardPath != null && !pubPaperAwardPath.isEmpty()) {
-                file = new File(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
+                file = new File(
+                        PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
                     fos.write(decoder);
-                    res.get().setPubPaperAwardPath(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
+                    res.get().setPubPaperAwardPath(
+                            PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 } catch (Exception e) {
                     res.get().setPubPaperAwardPath("");
                     e.printStackTrace();
@@ -162,13 +172,12 @@ public class SeminarPatentInvitedConferenceService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            //SeminarPatentInvitedConference fields
+            if (pubQuartile != null && !pubQuartile.toString().isEmpty())
+                res.get().setPubQuartile(pubQuartile);
+            // SeminarPatentInvitedConference fields
             if (semPatHowPub != null && !semPatHowPub.isEmpty())
                 res.get().setSemPatHowPub(semPatHowPub);
             this.repo.save(res.get());
         }
     }
 }
-
-
-

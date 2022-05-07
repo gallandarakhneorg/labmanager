@@ -4,6 +4,7 @@ import fr.ciadlab.pubprovider.PubProviderApplication;
 import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.EngineeringActivity;
 import fr.ciadlab.pubprovider.entities.Publication;
+import fr.ciadlab.pubprovider.entities.PublicationQuartile;
 import fr.ciadlab.pubprovider.entities.PublicationType;
 import fr.ciadlab.pubprovider.repository.EngineeringActivityRepository;
 import org.slf4j.Logger;
@@ -40,19 +41,21 @@ public class EngineeringActivityService {
     }
 
     public EngineeringActivity createEngineeringActivity(Publication p, String engActInstitName,
-                                                         String engActNumber, String engActReportType) {
+            String engActNumber, String engActReportType) {
         EngineeringActivity res = new EngineeringActivity(p, engActInstitName, engActReportType, engActNumber);
         res = repo.save(res);
         return res;
     }
 
     @Deprecated
-    public int createEngineeringActivity(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
-                                         String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
-                                         String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String engActInstitName,
-                                         String engActNumber, String engActReportType) {
+    public int createEngineeringActivity(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
+            String pubNote,
+            String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
+            String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
+            String engActInstitName,
+            String engActNumber, String engActReportType) {
         final EngineeringActivity res = new EngineeringActivity();
-        //Generic pub fields
+        // Generic pub fields
         res.setPubTitle(pubTitle);
         res.setPubAbstract(pubAbstract);
         res.setPubKeywords(pubKeywords);
@@ -64,11 +67,11 @@ public class EngineeringActivityService {
         res.setPubDOIRef(pubDOIRef);
         res.setPubURL(pubURL);
         res.setPubDBLP(pubDBLP);
-        //res.setPubPDFPath(pubPDFPath);
+        // res.setPubPDFPath(pubPDFPath);
         res.setPubLanguage(pubLanguage);
-        //res.setPubPaperAwardPath(pubPaperAwardPath);
+        // res.setPubPaperAwardPath(pubPaperAwardPath);
         res.setPubType(pubType);
-        //EngineeringActivity fields
+        // EngineeringActivity fields
         res.setEngActInstitName(engActInstitName);
         res.setEngActNumber(engActNumber);
         res.setEngActReportType(engActReportType);
@@ -95,7 +98,8 @@ public class EngineeringActivityService {
             try (FileOutputStream fos = new FileOutputStream(file);) {
                 byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
                 fos.write(decoder);
-                res.setPubPaperAwardPath(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.getPubId() + ".pdf");
+                res.setPubPaperAwardPath(
+                        PubProviderApplication.DownloadablesPath + "Awards/Award" + res.getPubId() + ".pdf");
             } catch (Exception e) {
                 res.setPubPaperAwardPath("");
                 e.printStackTrace();
@@ -105,20 +109,23 @@ public class EngineeringActivityService {
             res.setPubPaperAwardPath("");
         }
 
-        this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+        this.repo.save(res); // Id is generated on save so I gotta save once before setting these
         return res.getPubId();
     }
 
-    public void updateEngineeringActivity(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
-                                          String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
-                                          String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String engActInstitName,
-                                          String engActNumber, String engActReportType) {
+    public void updateEngineeringActivity(int pubId, String pubTitle, String pubAbstract, String pubKeywords,
+            Date pubDate,
+            String pubNote, String pubAnnotations, PublicationQuartile pubQuartile, String pubISBN, String pubISSN,
+            String pubDOIRef, String pubURL,
+            String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
+            String engActInstitName,
+            String engActNumber, String engActReportType) {
         final Optional<EngineeringActivity> res = this.repo.findById(pubId);
         File file;
         if (res.isPresent()) {
             if (pubTitle != null && !pubTitle.isEmpty())
                 res.get().setPubTitle(pubTitle);
-            if (pubAbstract  != null && !pubAbstract.isEmpty())
+            if (pubAbstract != null && !pubAbstract.isEmpty())
                 res.get().setPubAbstract(pubAbstract);
             if (pubKeywords != null && !pubKeywords.isEmpty())
                 res.get().setPubKeywords(pubKeywords);
@@ -143,7 +150,8 @@ public class EngineeringActivityService {
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
                     fos.write(decoder);
-                    res.get().setPubPDFPath(PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
+                    res.get().setPubPDFPath(
+                            PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
                 } catch (Exception e) {
                     res.get().setPubPDFPath("");
                     e.printStackTrace();
@@ -153,11 +161,13 @@ public class EngineeringActivityService {
             if (pubLanguage != null && !pubLanguage.isEmpty())
                 res.get().setPubLanguage(pubLanguage);
             if (pubPaperAwardPath != null && !pubPaperAwardPath.isEmpty()) {
-                file = new File(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
+                file = new File(
+                        PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
                     fos.write(decoder);
-                    res.get().setPubPaperAwardPath(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
+                    res.get().setPubPaperAwardPath(
+                            PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 } catch (Exception e) {
                     res.get().setPubPaperAwardPath("");
                     e.printStackTrace();
@@ -166,7 +176,9 @@ public class EngineeringActivityService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            //EngineeringActivity fields
+            if (pubQuartile != null && !pubQuartile.toString().isEmpty())
+                res.get().setPubQuartile(pubQuartile);
+            // EngineeringActivity fields
             if (engActInstitName != null && !engActInstitName.isEmpty())
                 res.get().setEngActInstitName(engActInstitName);
             if (engActNumber != null && !engActNumber.isEmpty())
@@ -177,6 +189,3 @@ public class EngineeringActivityService {
         }
     }
 }
-
-
-
