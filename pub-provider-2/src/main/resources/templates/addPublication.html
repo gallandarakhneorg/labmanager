@@ -137,6 +137,17 @@
                                         <input class="form-control" type="date" id="publicationDate" th:value="${publication != null ? publication.getPubDate() : ''}" name="publicationDate">
                                     </div>
                                     <div class="form-group">
+                                        <label for="publicationQuartile" class="col-form-label">Publication quartile</label>
+                                        <select class="form-control custom-select js-example-basic-single" id="publicationQuartile" name="publicationQuartile">
+                                            <option value="null" th:selected="${!edit}">Select a publication quartile</option>
+                                            <option
+                                                    th:each="publicationQuartile : ${publicationsQuartiles}"
+                                                    th:value="${publicationQuartile.toString()}"
+                                                    th:utext="${publicationQuartile.toString()}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
                                         <label for="publicationNote" class="col-form-label">Note</label>
                                         <input class="form-control" type="text" value="" th:value="${publication != null ? publication.getPubNote() : ''}" placeholder="Publication note" id="publicationNote" name="publicationNote">
                                     </div>
