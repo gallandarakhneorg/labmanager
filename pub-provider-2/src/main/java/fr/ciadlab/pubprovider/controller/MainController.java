@@ -203,6 +203,9 @@ public class MainController {
     ) {
         final ModelAndView modelAndView = new ModelAndView("publicationsList");
 
+        List<PublicationType> publicationsTypes = Arrays.asList(PublicationType.values()).stream()
+        		.filter(pubType -> pubType != PublicationType.TypeLess)
+        		.collect(Collectors.toList());
         modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream().collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
 
         if (authorId == null)
