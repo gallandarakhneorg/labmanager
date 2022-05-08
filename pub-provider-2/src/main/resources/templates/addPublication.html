@@ -139,7 +139,7 @@
                                     <div class="form-group">
                                         <label for="publicationQuartile" class="col-form-label">Publication quartile</label>
                                         <select class="form-control" id="publicationQuartile" name="publicationQuartile">
-                                            <option value="null" th:selected="${!edit}">Select a publication quartile</option>
+                                            <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                             <option
                                                     th:each="publicationQuartile : ${publicationsQuartiles}"
                                                     th:selected="${publication != null && publicationQuartile == publication.getPubQuartile()}"

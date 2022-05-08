@@ -110,6 +110,11 @@ public class PublicationController {
             if (publicationAuthors == null) {
                 throw new Exception("You must specify at least one author.");
             }
+
+            if (publicationQuartile == null) {
+                throw new Exception("You must provide a publication quartile");
+            }
+
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
             PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
                     .getPublicationTypeGroupFromPublicationType();
@@ -460,7 +465,11 @@ public class PublicationController {
             if (publicationAuthors == null) {
                 throw new Exception("You must specify at least one author.");
             }
-            System.out.println(publicationQuartile);
+
+            if (publicationQuartile == null) {
+                System.out.println(publicationQuartile);
+                throw new Exception("You must provide a publication quartile");
+            }
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
             PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
                     .getPublicationTypeGroupFromPublicationType();
