@@ -351,6 +351,9 @@ public class MainController {
             data.addProperty("note", p.getPubNote());
             data.addProperty("keywords", p.getPubKeywords());
 
+            if (p.getPubQuartile() != null)
+                data.addProperty("quartile", p.getPubQuartile().toString());
+
             String downloads = "";
             if (p.getPubPDFPath() != null && !p.getPubPDFPath().isEmpty())
                 downloads += "<a class=\"btn btn-xs btn-success\" href=\"http://www.ciad-lab.fr/"
