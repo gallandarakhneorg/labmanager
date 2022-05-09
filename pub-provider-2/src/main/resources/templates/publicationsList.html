@@ -173,50 +173,50 @@
 
     function format ( d ) {
         var links = d.links && d.links != "" ? '<tr>'+
-            '<td>Links : </td>'+
+            '<td>Links: </td>'+
             '<td>'+ d.links +'</td>'+
             '</tr>' : "";
         var abstract = d.abstract && d.abstract != "" ? '<tr>'+
-            '<td>Abstract : </td>'+
+            '<td>Abstract: </td>'+
             '<td>'+ d.abstract +'</td>'+
             '</tr>' : "";
         var downloads = d.downloads && d.downloads != "" ? '<tr>'+
-            '<td>Downloads : </td>'+
+            '<td>Downloads: </td>'+
             '<td>'+ d.downloads +'</td>'+
             '</tr>' : "";
         var exports = d.exports && d.exports != "" ? '<tr>'+
-            '<td>Exports : </td>'+
+            '<td>Exports: </td>'+
             '<td>'+ d.exports +'</td>'+
             '</tr>' : "";
         var note = d.note && d.note != "" ? '<tr>'+
-            '<td>Note : </td>'+
+            '<td>Note: </td>'+
             '<td>'+ d.note +'</td>'+
             '</tr>' : "";
         var keywords = d.keywords && d.keywords != "" ? '<tr>'+
-            '<td>Keywords : </td>'+
+            '<td>Keywords: </td>'+
             '<td>'+ d.keywords +'</td>'+
             '</tr>' : "";
         var quartile = d.quartile && d.quartile != "" ? '<tr>'+
-            '<td>Quartile : </td>'+
+            '<td>Quartile: </td>'+
             '<td>'+ d.quartile +'</td>'+
             '</tr>' : "";
 
         return '<div class="table-responsive"></div><table class="table" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%">'+
             '<tr>'+
-            '<td>Authors : </td>'+
+            '<td>Authors: </td>'+
             '<td>'+ d.authors +'</td>'+
             '</tr>'+
             '<tr>'+
-            '<td>Type : </td>'+
+            '<td>Type: </td>'+
             '<td>'+ d.type +'</td>'+
             '</tr>'+
             links +
             abstract +
             note +
             keywords +
+            quartile +
             downloads +
             exports +
-            quartile +
             '</table></div>';
     }
 

@@ -153,6 +153,10 @@
             '<td>Edit: </td>'+
             '<td>'+ d.edit +'</td>'+
             '</tr>' : "";
+        var quartile = d.quartile && d.quartile != "" ? '<tr>'+
+            '<td>Quartile: </td>'+
+            '<td>'+ d.quartile +'</td>'+
+            '</tr>' : "";
 
         return '<div class="table-responsive"></div><table class="table" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%">'+
             '<tr>'+
@@ -171,6 +175,7 @@
             abstract +
             note +
             keywords +
+            quartile +
             downloads +
             exports +
             edit +
