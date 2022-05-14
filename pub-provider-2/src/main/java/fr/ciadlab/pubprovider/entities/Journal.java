@@ -4,18 +4,21 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
 @Table(name = "journals")
-public class Journal implements Serializable { //Supposed to be abstract but lets not do that to avoid unnecessary bugs
+public class Journal implements Serializable { // Supposed to be abstract but lets not do that to avoid unnecessary bugs
 
     private static final long serialVersionUID = 1567501055115722405L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    //Using this instead of IDENTITY allows for JOINED or TABLE_PER_CLASS inheritance types to work
+    // Using this instead of IDENTITY allows for JOINED or TABLE_PER_CLASS
+    // inheritance types to work
     @Column(nullable = false)
     private int jourId;
 
@@ -41,8 +44,12 @@ public class Journal implements Serializable { //Supposed to be abstract but let
     @Column
     private String jourQuartil;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "journal_id")
+    private ArrayList<JournalQualityIndicatorsHistory> jourQualityIndicatorsHistory;
+
     public Journal(int jourId, Set<ReadingCommitteeJournalPopularizationPaper> jourPubs, String jourName,
-                   String jourPublisher, String jourElsevier, String jourScimago, String jourWos, String jourQuartil) {
+            String jourPublisher, String jourElsevier, String jourScimago, String jourWos, String jourQuartil) {
         super();
         this.jourId = jourId;
         this.jourPubs = jourPubs;
@@ -131,7 +138,7 @@ public class Journal implements Serializable { //Supposed to be abstract but let
         result = prime * result + jourId;
         result = prime * result + ((jourName == null) ? 0 : jourName.hashCode());
         result = prime * result + ((jourPublisher == null) ? 0 : jourPublisher.hashCode());
-        //result = prime * result + ((jourPubs == null) ? 0 : jourPubs.hashCode());
+        // result = prime * result + ((jourPubs == null) ? 0 : jourPubs.hashCode());
         result = prime * result + ((jourQuartil == null) ? 0 : jourQuartil.hashCode());
         result = prime * result + ((jourScimago == null) ? 0 : jourScimago.hashCode());
         result = prime * result + ((jourWos == null) ? 0 : jourWos.hashCode());
@@ -187,7 +194,4 @@ public class Journal implements Serializable { //Supposed to be abstract but let
         return true;
     }
 
-
 }
-
-

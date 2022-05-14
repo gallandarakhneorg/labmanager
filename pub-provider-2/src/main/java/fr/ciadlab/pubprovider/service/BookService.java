@@ -4,7 +4,7 @@ import fr.ciadlab.pubprovider.PubProviderApplication;
 import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.Book;
 import fr.ciadlab.pubprovider.entities.Publication;
-import fr.ciadlab.pubprovider.entities.PublicationQuartile;
+import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.entities.PublicationType;
 import fr.ciadlab.pubprovider.repository.BookRepository;
 import org.slf4j.Logger;

@@ -120,7 +120,7 @@ public class PublicationController {
                     .getPublicationTypeGroupFromPublicationType();
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());
 
-            PublicationQuartile publicationQuartileEnum = PublicationQuartile.valueOf(publicationQuartile);
+            Quartile publicationQuartileEnum = Quartile.valueOf(publicationQuartile);
 
             Publication pub = pubServ.getPublication(publicationId);
             if (pub != null) {
@@ -534,7 +534,7 @@ public class PublicationController {
                     publicationDateDate, publicationNote, null, publicationIsbn, publicationIssn, publicationDoi,
                     publicationUrl, publicationVideoUrl, publicationDblp, pdfUploadPath, publicationLanguage,
                     awardUploadPath, PublicationType.valueOf(publicationType),
-                    PublicationQuartile.valueOf(publicationQuartile));
+                    Quartile.valueOf(publicationQuartile));
             pubId = publication.getPubId();
 
             // Second step : create the specific data of publication type

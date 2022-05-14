@@ -35,7 +35,7 @@ import fr.ciadlab.pubprovider.entities.Journal;
 import fr.ciadlab.pubprovider.entities.Membership;
 import fr.ciadlab.pubprovider.entities.ProceedingsConference;
 import fr.ciadlab.pubprovider.entities.Publication;
-import fr.ciadlab.pubprovider.entities.PublicationQuartile;
+import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.entities.PublicationType;
 import fr.ciadlab.pubprovider.entities.PublicationsStat;
 import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
@@ -106,7 +106,7 @@ public class MainController {
                 .filter(pubType -> pubType != PublicationType.TypeLess)
                 .collect(Collectors.toList());
 
-        List<PublicationQuartile> publicationsQuartiles = Arrays.asList(PublicationQuartile.values()).stream()
+        List<Quartile> publicationsQuartiles = Arrays.asList(Quartile.values()).stream()
                 .collect(Collectors.toList());
 
         modelAndView.addObject("publicationsTypes", publicationsTypes);

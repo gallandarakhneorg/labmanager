@@ -107,7 +107,7 @@ public class Publication implements Serializable {
     public Publication(String pubTitle, String pubAbstract, String pubKeywords,
             Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
             String pubDOIRef, String pubURL, String pubVideoURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-            String pubPaperAwardPath, PublicationType pubType, PublicationQuartile pubQuartile) {
+            String pubPaperAwardPath, PublicationType pubType, Quartile pubQuartile) {
         super();
         this.pubTitle = pubTitle;
         this.pubAbstract = pubAbstract;
@@ -301,8 +301,8 @@ public class Publication implements Serializable {
         return pubType;
     }
 
-    public PublicationQuartile getPubQuartile() {
-        return PublicationQuartile.Q1;
+    public Quartile getPubQuartile() {
+        return Quartile.Q1;
     }
 
     @Transactional

@@ -3,7 +3,7 @@ package fr.ciadlab.pubprovider.service;
 import fr.ciadlab.pubprovider.PubProviderApplication;
 import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.Publication;
-import fr.ciadlab.pubprovider.entities.PublicationQuartile;
+import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.entities.PublicationType;
 import fr.ciadlab.pubprovider.entities.UniversityDocument;
 import fr.ciadlab.pubprovider.repository.UniversityDocumentRepository;

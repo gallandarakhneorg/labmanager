@@ -2,8 +2,8 @@ package fr.ciadlab.pubprovider.entities;
 
 public class JournalQualityIndicatorsHistory {
     private int journalHistoryYear;
-    private PublicationQuartile journalHistoryScimagoQuartile;
-    private PublicationQuartile journalHistoryWosQuartile;
+    private Quartile journalHistoryScimagoQuartile;
+    private Quartile journalHistoryWosQuartile;
     private CoreRanking journalHistoryCoreRanking;
     private int journalHistoryImpactFactor;
 
@@ -15,8 +15,8 @@ public class JournalQualityIndicatorsHistory {
         this.journalHistoryImpactFactor = 0;
     }
 
-    public JournalQualityIndicatorsHistory(int year, PublicationQuartile scimagoQuartile,
-            PublicationQuartile wosQuartile, CoreRanking coreRanking, int journalHistoryImpactFactor) {
+    public JournalQualityIndicatorsHistory(int year, Quartile scimagoQuartile,
+            Quartile wosQuartile, CoreRanking coreRanking, int journalHistoryImpactFactor) {
         this.journalHistoryYear = 0;
         this.journalHistoryScimagoQuartile = null;
         this.journalHistoryWosQuartile = null;
@@ -28,11 +28,11 @@ public class JournalQualityIndicatorsHistory {
         return this.journalHistoryYear;
     }
 
-    public PublicationQuartile getJournalHistoryScimagoQuartile() {
+    public Quartile getJournalHistoryScimagoQuartile() {
         return this.journalHistoryScimagoQuartile;
     }
 
-    public PublicationQuartile getJournalHistoryWosQuartile() {
+    public Quartile getJournalHistoryWosQuartile() {
         return this.journalHistoryWosQuartile;
     }
 
@@ -48,11 +48,11 @@ public class JournalQualityIndicatorsHistory {
         this.journalHistoryYear = year;
     }
 
-    public void setJournalHistoryScimagoQuartile(PublicationQuartile quartile) {
+    public void setJournalHistoryScimagoQuartile(Quartile quartile) {
         this.journalHistoryScimagoQuartile = quartile;
     }
 
-    public void setJournalHistoryWosQuartile(PublicationQuartile quartile) {
+    public void setJournalHistoryWosQuartile(Quartile quartile) {
         this.journalHistoryWosQuartile = quartile;
     }
 
