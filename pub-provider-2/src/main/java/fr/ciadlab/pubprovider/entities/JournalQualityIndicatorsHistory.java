@@ -1,10 +1,29 @@
 package fr.ciadlab.pubprovider.entities;
 
+import javax.persistence.*;
+
+@Entity
+@Table(name = "journal_qality_indicators_histories")
 public class JournalQualityIndicatorsHistory {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "ID")
+    private int journalHistoryId;
+
+    @Column
     private int journalHistoryYear;
+
+    @Column
     private Quartile journalHistoryScimagoQuartile;
+
+    @Column
     private Quartile journalHistoryWosQuartile;
+
+    @Column
     private CoreRanking journalHistoryCoreRanking;
+
+    @Column
     private int journalHistoryImpactFactor;
 
     public JournalQualityIndicatorsHistory() {

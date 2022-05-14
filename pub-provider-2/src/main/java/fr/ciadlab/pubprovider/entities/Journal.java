@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -46,7 +45,7 @@ public class Journal implements Serializable { // Supposed to be abstract but le
 
     @OneToMany(cascade = CascadeType.ALL)
     @JoinColumn(name = "journal_id")
-    private ArrayList<JournalQualityIndicatorsHistory> jourQualityIndicatorsHistory;
+    private Set<JournalQualityIndicatorsHistory> jourQualityIndicatorsHistory;
 
     public Journal(int jourId, Set<ReadingCommitteeJournalPopularizationPaper> jourPubs, String jourName,
             String jourPublisher, String jourElsevier, String jourScimago, String jourWos, String jourQuartil) {
