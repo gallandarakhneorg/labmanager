@@ -126,7 +126,7 @@ public class ReadingCommitteeJournalPopularizationPaperService {
             String pubKeywords, Date pubDate,
             String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
             String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
-            PublicationQuartile pubQuartile, String reaComConfPopPapNumber, String reaComConfPopPapPages,
+            String reaComConfPopPapNumber, String reaComConfPopPapPages,
             String reaComConfPopPapVolume, Integer journalId) {
         final Optional<ReadingCommitteeJournalPopularizationPaper> res = this.repo.findById(pubId);
         File file;
@@ -186,8 +186,6 @@ public class ReadingCommitteeJournalPopularizationPaperService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            if (pubQuartile != null && !pubQuartile.toString().isEmpty())
-                res.get().setPubQuartile(pubQuartile);
             // ReadingCommitteeJournalPopularizationPaper fields
             if (journalId != null && journalId != 0)
                 res.get().setReaComConfPopPapJournal(journalRepository.getOne(journalId));

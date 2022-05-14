@@ -112,7 +112,7 @@ public class UniversityDocumentService {
 
     public void updateUniversityDocument(int pubId, String pubTitle, String pubAbstract, String pubKeywords,
             Date pubDate,
-            String pubNote, String pubAnnotations, PublicationQuartile pubQuartile, String pubISBN, String pubISSN,
+            String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
             String pubDOIRef, String pubURL,
             String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
             String uniDocAddress, String uniDocSchoolName) {
@@ -173,8 +173,6 @@ public class UniversityDocumentService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            if (pubQuartile != null && !pubQuartile.toString().isEmpty())
-                res.get().setPubQuartile(pubQuartile);
             // UniversityDocument fields
             if (uniDocAddress != null && !uniDocAddress.isEmpty())
                 res.get().setUniDocAddress(uniDocAddress);

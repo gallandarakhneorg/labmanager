@@ -124,7 +124,7 @@ public class ProceedingsConferenceService {
             Date pubDate,
             String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
             String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
-            PublicationQuartile pubQuartile, String proConfAddress,
+            String proConfAddress,
             String proConfBookNameProceedings, String proConfEditor, String proConfOrganization, String proConfPages,
             String proConfPublisher, String proConfSeries) {
         final Optional<ProceedingsConference> res = this.repo.findById(pubId);
@@ -184,8 +184,6 @@ public class ProceedingsConferenceService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            if (pubQuartile != null && !pubQuartile.toString().isEmpty())
-                res.get().setPubQuartile(pubQuartile);
             // ProceedingsConference fields
             if (proConfAddress != null && !proConfAddress.isEmpty())
                 res.get().setProConfAddress(proConfAddress);

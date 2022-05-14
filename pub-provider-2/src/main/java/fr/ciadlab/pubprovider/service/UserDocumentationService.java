@@ -118,7 +118,7 @@ public class UserDocumentationService {
             Date pubDate,
             String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
             String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
-            PublicationQuartile pubQuartile,
+
             String userDocAddress, String userDocEdition, String userDocOrganization, String userDocPublisher) {
         final Optional<UserDocumentation> res = this.repo.findById(pubId);
         File file;
@@ -177,8 +177,6 @@ public class UserDocumentationService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            if (pubQuartile != null && !pubQuartile.toString().isEmpty())
-                res.get().setPubQuartile(pubQuartile);
             // UserDocumentation fields
             if (userDocAddress != null && !userDocAddress.isEmpty())
                 res.get().setUserDocAddress(userDocAddress);

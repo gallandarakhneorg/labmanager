@@ -221,7 +221,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
-                                publicationQuartileEnum,
+
                                 reaComConfPopPapNumber,
                                 reaComConfPopPapPages,
                                 reaComConfPopPapVolume,
@@ -244,7 +244,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
-                                publicationQuartileEnum,
+
                                 proConfAddress,
                                 proConfBookNameProceedings,
                                 proConfEditor,
@@ -270,7 +270,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
-                                publicationQuartileEnum,
+
                                 bookEditor,
                                 bookPublisher,
                                 bookVolume,
@@ -297,7 +297,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
-                                publicationQuartileEnum,
+
                                 bookEditor,
                                 bookPublisher,
                                 bookVolume,
@@ -317,7 +317,7 @@ public class PublicationController {
                                 publicationDateDate,
                                 publicationNote,
                                 null,
-                                publicationQuartileEnum,
+
                                 publicationIsbn,
                                 publicationIssn,
                                 publicationDoi,
@@ -338,7 +338,7 @@ public class PublicationController {
                                 publicationDateDate,
                                 publicationNote,
                                 null,
-                                publicationQuartileEnum,
+
                                 publicationIsbn,
                                 publicationIssn,
                                 publicationDoi,
@@ -360,7 +360,7 @@ public class PublicationController {
                                 publicationDateDate,
                                 publicationNote,
                                 null,
-                                publicationQuartileEnum,
+
                                 publicationIsbn,
                                 publicationIssn,
                                 publicationDoi,
@@ -392,7 +392,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
-                                publicationQuartileEnum,
+
                                 userDocAddress,
                                 userDocEdition,
                                 userDocOrganization,

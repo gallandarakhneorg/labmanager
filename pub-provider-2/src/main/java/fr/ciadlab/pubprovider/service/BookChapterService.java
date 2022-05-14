@@ -120,7 +120,7 @@ public class BookChapterService {
     public void updateBookChapter(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
             String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
             String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
-            PublicationQuartile pubQuartile, String bookEditor,
+            String bookEditor,
             String bookPublisher, String bookVolume, String bookSeries, String bookAddress, String bookEdition,
             String bookPages, String bookChapBookNameProceedings, String bookChapNumberOrName) {
         final Optional<BookChapter> res = this.repo.findById(pubId);
@@ -180,8 +180,6 @@ public class BookChapterService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            if (pubQuartile != null && !pubQuartile.toString().isEmpty())
-                res.get().setPubQuartile(pubQuartile);
             // Book fields
             if (bookEditor != null && !bookEditor.isEmpty())
                 res.get().setBookEditor(bookEditor);

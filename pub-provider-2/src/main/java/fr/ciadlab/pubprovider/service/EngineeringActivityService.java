@@ -115,7 +115,7 @@ public class EngineeringActivityService {
 
     public void updateEngineeringActivity(int pubId, String pubTitle, String pubAbstract, String pubKeywords,
             Date pubDate,
-            String pubNote, String pubAnnotations, PublicationQuartile pubQuartile, String pubISBN, String pubISSN,
+            String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
             String pubDOIRef, String pubURL,
             String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
             String engActInstitName,
@@ -176,8 +176,6 @@ public class EngineeringActivityService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            if (pubQuartile != null && !pubQuartile.toString().isEmpty())
-                res.get().setPubQuartile(pubQuartile);
             // EngineeringActivity fields
             if (engActInstitName != null && !engActInstitName.isEmpty())
                 res.get().setEngActInstitName(engActInstitName);

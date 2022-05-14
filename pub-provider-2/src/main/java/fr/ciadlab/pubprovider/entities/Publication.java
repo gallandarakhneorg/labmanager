@@ -80,10 +80,6 @@ public class Publication implements Serializable {
 
     @Column
     @Enumerated(EnumType.STRING)
-    private PublicationQuartile pubQuartile;
-
-    @Column
-    @Enumerated(EnumType.STRING)
     private PublicationType pubType;
 
     public Publication(Publication p) {
@@ -106,7 +102,6 @@ public class Publication implements Serializable {
         this.pubLanguage = p.pubLanguage;
         this.pubPaperAwardPath = p.pubPaperAwardPath;
         this.pubType = p.pubType;
-        this.pubQuartile = p.pubQuartile;
     }
 
     public Publication(String pubTitle, String pubAbstract, String pubKeywords,
@@ -137,7 +132,6 @@ public class Publication implements Serializable {
         this.pubLanguage = pubLanguage;
         this.pubPaperAwardPath = pubPaperAwardPath;
         this.pubType = pubType;
-        this.pubQuartile = pubQuartile;
     }
 
     public Publication() {
@@ -308,11 +302,7 @@ public class Publication implements Serializable {
     }
 
     public PublicationQuartile getPubQuartile() {
-        return pubQuartile;
-    }
-
-    public void setPubQuartile(PublicationQuartile pubQuartile) {
-        this.pubQuartile = pubQuartile;
+        return PublicationQuartile.Q1;
     }
 
     @Transactional
@@ -463,8 +453,6 @@ public class Publication implements Serializable {
         } else if (!pubTitle.equals(other.pubTitle))
             return false;
         if (pubType != other.pubType)
-            return false;
-        if (pubQuartile != other.pubQuartile)
             return false;
         if (pubURL == null) {
             if (other.pubURL != null)
