@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "journals")
@@ -191,6 +193,46 @@ public class Journal implements Serializable { // Supposed to be abstract but le
         } else if (!jourWos.equals(other.jourWos))
             return false;
         return true;
+    }
+
+    public Quartile getScimagoQuartileByYear(int year) {
+        return this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
+                .collect(Collectors.toList()).get(0).getJournalHistoryScimagoQuartile();
+    }
+
+    public Quartile getWosQuartileByYear(int year) {
+        return this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
+                .collect(Collectors.toList()).get(0).getJournalHistoryWosQuartile();
+    }
+
+    public CoreRanking getCoreRankingByYear(int year) {
+        return this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
+                .collect(Collectors.toList()).get(0).getJournalHistoryCoreRanking();
+    }
+
+    public int getImpactFactorByYear(int year) {
+        return this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
+                .collect(Collectors.toList()).get(0).getJournalHistoryImpactFactor();
+    }
+
+    public void setScimagoQuartileByYear(int year, Quartile newQuartile) {
+        this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
+                .collect(Collectors.toList()).get(0).setJournalHistoryScimagoQuartile(newQuartile);
+    }
+
+    public void setWosQuartileByYear(int year, Quartile newQuartile) {
+        this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
+                .collect(Collectors.toList()).get(0).setJournalHistoryWosQuartile(newQuartile);
+    }
+
+    public void setCoreRankingByYear(int year, CoreRanking newCoreRanking) {
+        this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
+                .collect(Collectors.toList()).get(0).setJournalHistoryCoreRanking(newCoreRanking);
+    }
+
+    public void setImpactFactorByYear(int year, int newImpactFactor) {
+        this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
+                .collect(Collectors.toList()).get(0).setJournalHistoryImpactFactor(newImpactFactor);
     }
 
 }
