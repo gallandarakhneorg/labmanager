@@ -153,9 +153,21 @@
             '<td>Edit: </td>'+
             '<td>'+ d.edit +'</td>'+
             '</tr>' : "";
-        var quartile = d.quartile && d.quartile != "" ? '<tr>'+
-            '<td>Quartile: </td>'+
-            '<td>'+ d.quartile +'</td>'+
+        var scimagoQuartile = d.scimagoQuartile && d.scimagoQuartile != "" ? '<tr>'+
+            '<td>Scimago quartile: </td>'+
+            '<td>'+ d.scimagoQuartile +'</td>'+
+            '</tr>' : "";
+        var wosQuartile = d.wosQuartile && d.wosQuartile != "" ? '<tr>'+
+            '<td>Wos quartile: </td>'+
+            '<td>'+ d.wosQuartile +'</td>'+
+            '</tr>' : "";
+        var coreRanking = d.coreRanking && d.coreRanking != "" ? '<tr>'+
+            '<td>Core ranking: </td>'+
+            '<td>'+ d.coreRanking +'</td>'+
+            '</tr>' : "";
+        var impactFactor = d.impactFactor && d.impactFactor != "" ? '<tr>'+
+            '<td>Impact factor: </td>'+
+            '<td>'+ d.impactFactor +'</td>'+
             '</tr>' : "";
 
         return '<div class="table-responsive"></div><table class="table" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%">'+
@@ -175,7 +187,10 @@
             abstract +
             note +
             keywords +
-            quartile +
+            scimagoQuartile +
+            wosQuartile +
+            coreRanking +
+            impactFactor +
             downloads +
             exports +
             edit +
