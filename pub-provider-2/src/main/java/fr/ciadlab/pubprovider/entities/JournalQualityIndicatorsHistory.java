@@ -17,12 +17,16 @@ public class JournalQualityIndicatorsHistory implements Serializable {
     private int journalHistoryYear;
 
     @Column
+
+    @Enumerated(EnumType.STRING)
     private Quartile journalHistoryScimagoQuartile;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private Quartile journalHistoryWosQuartile;
 
     @Column
+    @Enumerated(EnumType.STRING)
     private CoreRanking journalHistoryCoreRanking;
 
     @Column

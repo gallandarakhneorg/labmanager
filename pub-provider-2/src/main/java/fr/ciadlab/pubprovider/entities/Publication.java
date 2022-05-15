@@ -305,6 +305,18 @@ public class Publication implements Serializable {
         return null;
     }
 
+    public Quartile getPubJournalWosQuartile() {
+        return null;
+    }
+
+    public CoreRanking getPubJournalCoreRanking() {
+        return null;
+    }
+
+    public int getPubJournalImpactFactor() {
+        return 0;
+    }
+
     @Transactional
     public void deleteAuthorship(Authorship authorship) {
         pubAuts.remove(authorship);

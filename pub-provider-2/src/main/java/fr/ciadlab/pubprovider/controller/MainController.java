@@ -340,6 +340,7 @@ public class MainController {
         }
 
         JsonArray publisJson = new JsonArray();
+
         for (Publication p : publications) { // Keep only valid (with authors)
             JsonObject data = new JsonObject();
             data.addProperty("id", p.getPubId());
@@ -351,8 +352,17 @@ public class MainController {
             data.addProperty("note", p.getPubNote());
             data.addProperty("keywords", p.getPubKeywords());
 
+            // addition of publication's journal quality indicators, if they exist
             if (p.getPubJournalScimagoQuartile() != null)
-                data.addProperty("quartile", p.getPubJournalScimagoQuartile().toString());
+                data.addProperty("scimagoQuartile", p.getPubJournalScimagoQuartile().toString());
+            if (p.getPubJournalWosQuartile() != null)
+                data.addProperty("wosQuartile", p.getPubJournalWosQuartile().toString());
+            if (p.getPubJournalCoreRanking() != null)
+                data.addProperty("coreRanking",
+                        p.getPubJournalCoreRanking().toString());
+            if (p.getPubJournalImpactFactor() != 0)
+                data.addProperty("impactFactor",
+                        p.getPubJournalImpactFactor());
 
             String downloads = "";
             if (p.getPubPDFPath() != null && !p.getPubPDFPath().isEmpty())
