@@ -139,7 +139,7 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication {
         return true;
     }
 
-    public Quartile getPubQuartile() {
+    public Quartile getPubJournalScimagoQuartile() {
         if (this.getReaComConfPopPapJournal() != null)
             return this.getReaComConfPopPapJournal().getScimagoQuartileByYear(this.getPubYear());
         return null;

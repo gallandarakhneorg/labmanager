@@ -301,7 +301,7 @@ public class Publication implements Serializable {
         return pubType;
     }
 
-    public Quartile getPubQuartile() {
+    public Quartile getPubJournalScimagoQuartile() {
         return null;
     }
 

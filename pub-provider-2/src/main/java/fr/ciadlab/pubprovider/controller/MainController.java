@@ -351,8 +351,8 @@ public class MainController {
             data.addProperty("note", p.getPubNote());
             data.addProperty("keywords", p.getPubKeywords());
 
-            if (p.getPubQuartile() != null)
-                data.addProperty("quartile", p.getPubQuartile().toString());
+            if (p.getPubJournalScimagoQuartile() != null)
+                data.addProperty("quartile", p.getPubJournalScimagoQuartile().toString());
 
             String downloads = "";
             if (p.getPubPDFPath() != null && !p.getPubPDFPath().isEmpty())
