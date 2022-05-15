@@ -302,7 +302,7 @@ public class Publication implements Serializable {
     }
 
     public Quartile getPubQuartile() {
-        return Quartile.Q1;
+        return null;
     }
 
     @Transactional

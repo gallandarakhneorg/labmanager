@@ -190,43 +190,91 @@ public class Journal implements Serializable { // Supposed to be abstract but le
     }
 
     public Quartile getScimagoQuartileByYear(int year) {
-        return this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
-                .collect(Collectors.toList()).get(0).getJournalHistoryScimagoQuartile();
+        for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+            if (jourQIHistory.getJournalHistoryYear() == year)
+                return jourQIHistory.getJournalHistoryScimagoQuartile();
+        }
+        return null;
     }
 
     public Quartile getWosQuartileByYear(int year) {
-        return this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
-                .collect(Collectors.toList()).get(0).getJournalHistoryWosQuartile();
+        for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+            if (jourQIHistory.getJournalHistoryYear() == year)
+                return jourQIHistory.getJournalHistoryWosQuartile();
+        }
+        return null;
     }
 
     public CoreRanking getCoreRankingByYear(int year) {
-        return this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
-                .collect(Collectors.toList()).get(0).getJournalHistoryCoreRanking();
+        for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+            if (jourQIHistory.getJournalHistoryYear() == year)
+                return jourQIHistory.getJournalHistoryCoreRanking();
+        }
+        return null;
     }
 
     public int getImpactFactorByYear(int year) {
-        return this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
-                .collect(Collectors.toList()).get(0).getJournalHistoryImpactFactor();
+        for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+            if (jourQIHistory.getJournalHistoryYear() == year)
+                return jourQIHistory.getJournalHistoryImpactFactor();
+        }
+        return 0;
     }
 
     public void setScimagoQuartileByYear(int year, Quartile newQuartile) {
-        this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
-                .collect(Collectors.toList()).get(0).setJournalHistoryScimagoQuartile(newQuartile);
+        // checks if an history already exists for the requested year
+        if (this.hasJounralQualityIndicatorsHistoryForYear(year)) {
+            for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+                if (jourQIHistory.getJournalHistoryYear() == year)
+                    jourQIHistory.setJournalHistoryScimagoQuartile(newQuartile);
+            }
+        } else {
+            // creates a new history if none exists for this given year
+            this.jourQualityIndicatorsHistory
+                    .add(new JournalQualityIndicatorsHistory(year, newQuartile, null, null, 0));
+        }
     }
 
     public void setWosQuartileByYear(int year, Quartile newQuartile) {
-        this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
-                .collect(Collectors.toList()).get(0).setJournalHistoryWosQuartile(newQuartile);
+        // checks if an history already exists for the requested year
+        if (this.hasJounralQualityIndicatorsHistoryForYear(year)) {
+            for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+                if (jourQIHistory.getJournalHistoryYear() == year)
+                    jourQIHistory.setJournalHistoryWosQuartile(newQuartile);
+            }
+        } else {
+            // creates a new history if none exists for this given year
+            this.jourQualityIndicatorsHistory
+                    .add(new JournalQualityIndicatorsHistory(year, null, newQuartile, null, 0));
+        }
     }
 
     public void setCoreRankingByYear(int year, CoreRanking newCoreRanking) {
-        this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
-                .collect(Collectors.toList()).get(0).setJournalHistoryCoreRanking(newCoreRanking);
+        // checks if an history already exists for the requested year
+        if (this.hasJounralQualityIndicatorsHistoryForYear(year)) {
+            for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+                if (jourQIHistory.getJournalHistoryYear() == year)
+                    jourQIHistory.setJournalHistoryCoreRanking(newCoreRanking);
+            }
+        } else {
+            // creates a new history if none exists for this given year
+            this.jourQualityIndicatorsHistory
+                    .add(new JournalQualityIndicatorsHistory(year, null, null, newCoreRanking, 0));
+        }
     }
 
     public void setImpactFactorByYear(int year, int newImpactFactor) {
-        this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
-                .collect(Collectors.toList()).get(0).setJournalHistoryImpactFactor(newImpactFactor);
+        // checks if an history already exists for the requested year
+        if (this.hasJounralQualityIndicatorsHistoryForYear(year)) {
+            for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+                if (jourQIHistory.getJournalHistoryYear() == year)
+                    jourQIHistory.setJournalHistoryImpactFactor(newImpactFactor);
+            }
+        } else {
+            // creates a new history if none exists for this given year
+            this.jourQualityIndicatorsHistory
+                    .add(new JournalQualityIndicatorsHistory(year, null, null, null, newImpactFactor));
+        }
     }
 
 }
