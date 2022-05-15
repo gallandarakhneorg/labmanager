@@ -145,4 +145,22 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication {
         return null;
     }
 
+    public Quartile getPubJournalWosQuartile() {
+        if (this.getReaComConfPopPapJournal() != null)
+            return this.getReaComConfPopPapJournal().getWosQuartileByYear(this.getPubYear());
+        return null;
+    }
+
+    public CoreRanking getPubJournalCoreRanking() {
+        if (this.getReaComConfPopPapJournal() != null)
+            return this.getReaComConfPopPapJournal().getCoreRankingByYear(this.getPubYear());
+        return null;
+    }
+
+    public int getPubJournalImpactFactor() {
+        if (this.getReaComConfPopPapJournal() != null)
+            return this.getReaComConfPopPapJournal().getImpactFactorByYear(this.getPubYear());
+        return 0;
+    }
+
 }
