@@ -1,10 +1,12 @@
 package fr.ciadlab.pubprovider.entities;
 
+import java.io.Serializable;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "journal_qality_indicators_histories")
-public class JournalQualityIndicatorsHistory {
+public class JournalQualityIndicatorsHistory implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
