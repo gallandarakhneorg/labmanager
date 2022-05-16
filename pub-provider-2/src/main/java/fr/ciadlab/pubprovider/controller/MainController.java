@@ -19,6 +19,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
@@ -30,6 +32,7 @@ import com.google.gson.JsonObject;
 import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.Book;
 import fr.ciadlab.pubprovider.entities.BookChapter;
+import fr.ciadlab.pubprovider.entities.CoreRanking;
 import fr.ciadlab.pubprovider.entities.EngineeringActivity;
 import fr.ciadlab.pubprovider.entities.Journal;
 import fr.ciadlab.pubprovider.entities.Membership;
@@ -109,10 +112,14 @@ public class MainController {
         List<Quartile> publicationsQuartiles = Arrays.asList(Quartile.values()).stream()
                 .collect(Collectors.toList());
 
+        List<CoreRanking> jCoreRankings = Arrays.asList(CoreRanking.values()).stream().collect(Collectors.toList());
+
         modelAndView.addObject("publicationsTypes", publicationsTypes);
         modelAndView.addObject("publicationsQuartiles", publicationsQuartiles);
+        modelAndView.addObject("journalCoreRankings", jCoreRankings);
         modelAndView.addObject("authors", authors);
         modelAndView.addObject("journals", journals);
+        modelAndView.addObject("journalServ", jourServ);
         modelAndView.addObject("edit", false);
 
         // IF edit mode
@@ -213,9 +220,10 @@ public class MainController {
             @RequestParam(required = false) Integer authorId) {
         final ModelAndView modelAndView = new ModelAndView("publicationsList");
 
-        List<PublicationType> publicationsTypes = Arrays.asList(PublicationType.values()).stream()
-                .filter(pubType -> pubType != PublicationType.TypeLess)
-                .collect(Collectors.toList());
+        // List<PublicationType> publicationsTypes =
+        // Arrays.asList(PublicationType.values()).stream()
+        // .filter(pubType -> pubType != PublicationType.TypeLess)
+        // .collect(Collectors.toList());
         modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream()
                 .collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
 
