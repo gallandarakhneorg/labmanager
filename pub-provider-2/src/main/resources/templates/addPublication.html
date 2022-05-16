@@ -400,8 +400,10 @@
     }
 
     function loadQualityindicatorsInputs() {
-        console.log($("#publicationDate")[0].value + " " + $("#publicationJournal")[0].value);
-        const date = new Date ($("#publicationDate")[0].value);
+        var date =''
+        if (($("#publicationDate")[0].value) !=  ''){
+            date = new Date ($("#publicationDate")[0].value);
+        }
         const journalTitle = $("#publicationJournal")[0].value;
                 
         if(date != '' && journalTitle != '' ){
@@ -436,7 +438,6 @@
 
     function unlockDivIfNeeded() {
         var value = $("#publicationType").find(':selected')[0].value;
-        console.log("New value ; " + value);
 
         $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
         $(".unlockIfBook").hide();

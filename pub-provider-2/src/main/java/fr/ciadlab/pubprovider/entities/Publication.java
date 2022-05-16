@@ -107,7 +107,7 @@ public class Publication implements Serializable {
     public Publication(String pubTitle, String pubAbstract, String pubKeywords,
             Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
             String pubDOIRef, String pubURL, String pubVideoURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-            String pubPaperAwardPath, PublicationType pubType, Quartile pubQuartile) {
+            String pubPaperAwardPath, PublicationType pubType) {
         super();
         this.pubTitle = pubTitle;
         this.pubAbstract = pubAbstract;
