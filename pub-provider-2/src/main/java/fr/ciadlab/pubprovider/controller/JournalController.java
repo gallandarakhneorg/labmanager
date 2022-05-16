@@ -1,7 +1,9 @@
 package fr.ciadlab.pubprovider.controller;
 
 import fr.ciadlab.pubprovider.entities.Author;
+import fr.ciadlab.pubprovider.entities.CoreRanking;
 import fr.ciadlab.pubprovider.entities.Journal;
+import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.service.*;
 
 import org.apache.catalina.mapper.Mapper;
@@ -85,14 +87,26 @@ public class JournalController {
         if (requestedJournal != null && requestedJournal.hasJounralQualityIndicatorsHistoryForYear(historyYear)) {
             // creation of a JSON object containing each of the journal's quality indicators
             Map<String, String> journalIndicators = new HashMap<>();
-            journalIndicators.put("scimagoQuartile",
-                    requestedJournal.getScimagoQuartileByYear(historyYear).toString());
-            journalIndicators.put("wosQuartile",
-                    requestedJournal.getWosQuartileByYear(historyYear).toString());
-            journalIndicators.put("coreRanking",
-                    requestedJournal.getCoreRankingByYear(historyYear).toString());
-            journalIndicators.put("impactFactor",
-                    Integer.toString(requestedJournal.getImpactFactorByYear(historyYear)));
+
+            // recuperation of the indicators
+            Quartile scimagoQuartile = requestedJournal.getScimagoQuartileByYear(historyYear);
+            Quartile wosQuartile = requestedJournal.getWosQuartileByYear(historyYear);
+            CoreRanking coreRanking = requestedJournal.getCoreRankingByYear(historyYear);
+            int impactFactor = requestedJournal.getImpactFactorByYear(historyYear);
+
+            // addition of the indicators in the json map
+            if (scimagoQuartile != null)
+                journalIndicators.put("scimagoQuartile",
+                        scimagoQuartile.toString());
+            if (wosQuartile != null)
+                journalIndicators.put("wosQuartile",
+                        wosQuartile.toString());
+            if (coreRanking != null)
+                journalIndicators.put("coreRanking",
+                        coreRanking.toString());
+            if (impactFactor != 0)
+                journalIndicators.put("impactFactor",
+                        Integer.toString(impactFactor));
             return journalIndicators;
         }
         return null;

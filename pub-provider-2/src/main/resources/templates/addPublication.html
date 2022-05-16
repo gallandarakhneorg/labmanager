@@ -401,21 +401,21 @@
 
     function loadQualityindicatorsInputs() {
         console.log($("#publicationDate")[0].value + " " + $("#publicationJournal")[0].value);
-        var date = $("#publicationDate")[0].value;
-        var journalTitle = $("#publicationJournal")[0].value;
-        
+        const date = new Date ($("#publicationDate")[0].value);
+        const journalTitle = $("#publicationJournal")[0].value;
+                
         if(date != '' && journalTitle != '' ){
             $.ajax({
                 url:"/SpringRestHibernate/getJournalQualityIndicators",
                 dataType: "text",
                 type:"GET",
                 data: {
-                    historyYear: "2022",
+                    historyYear: date.getFullYear(),
                     journalName: journalTitle
                 },
                 success: function(d){
-                    d = JSON.parse(d);
                     console.log(d);
+                    d = JSON.parse(d);
                     console.log(d.scimagoQuartile);
                     console.log(d.wosQuartile);
                     console.log(d.coreRanking);
@@ -425,12 +425,9 @@
                     $("#journalWosQuartile").val(d.wosQuartile);
                     $("#journalCoreRanking").val(d.coreRanking);
                     $("#journalImpactFactor").val(d.impactFactor);
-                },
-                error: function(d) {
-                    alert("Erreur lors de la tentative d'export Bibtex...\n" + d);
+                    $("#qualityIndicatorsInputs").show();
                 }
             });
-            $("#qualityIndicatorsInputs").show();
         }else{
             $("#qualityIndicatorsInputs").hide();
         }
