@@ -555,7 +555,7 @@ public class PublicationController {
         try {
             if (bibtext != null && !bibtext.isEmpty()) {
                 String bibtextContent = new String(bibtext.getBytes(), Charset.forName("UTF-8"));
-                logger.info("Bibtext file read : " + bibtextContent);
+                logger.info("Bibtext file read : \n " + bibtextContent);
                 List<Integer> publications = importPublications(bibtextContent);
                 response.sendRedirect("/SpringRestHibernate/addPublicationFromBibtext?success=1&importedPubs=" + publications.size());
             } else {

@@ -90,7 +90,167 @@ public class PublicationService {
         }
     }
 
-    public List<Integer> importPublications(String bibText) {
+    public List<Integer> importPublications(String bibText) 
+    {
+    	//Variables declaration
+    	boolean isDupe;
+    	int autId, pubId;
+    	Optional<Publication> optPub;
+        Optional<Author> optAut;
+        Authorship autShip;
+        
+        //Holds the IDs of the successfully imported IDs. We'll need it for type differenciation later.
+        List<Integer> pubIdList = new LinkedList<Integer>();
+        
+        //Holds all the authors that we can find in the DataB
+    	List<Author> authorList = new LinkedList<Author>();
+    	authorList = autRepo.findAll();
+    	
+    	//Holds the publications that we are trying to import
+    	List<Publication> pubList;
+    	pubList = BibTexToPublication(bibText);
+    	
+    	//We are going to try to import every publication in the list
+    	for(Publication currentPub : pubList)
+    	{
+    		try
+    		{
+    			autId = 0;
+    			pubId  = 0;
+    			
+    			//Adding the publication to the DataB
+            	repo.save(currentPub);
+            	
+            	//Adding the id of the current publication to the list
+            	pubId = currentPub.getPubId();
+            	
+    			pubIdList.add(pubId);
+	    		//For every authors assigned to this publication
+	    		for(Author currentAut: currentPub.getAuthorsList())
+	    		{
+	    			
+	    			try
+	    			{
+	    				Author aut;
+	    				optPub = null;  //Default value
+		                optAut = null;  //Default value
+		    			isDupe = false; //Default value
+		    			     //Default value 
+		    			
+		    			autShip = new Authorship();
+		    			
+		    			//Getting the author name 
+		            	String autFirstName = currentAut.getAutFirstName();
+		            	String autLastName  = currentAut.getAutLastName();
+		            	
+		            	
+		            	
+		            	
+		            	//Checking for duplications in the authors
+		                for (Author knownAut : authorList) 
+		                {
+		                    //1st possibility : First name and last name fully written > Stéphane Galland = Stéphane Galland or S. Galland = S. Galland
+		                    if (knownAut.getAutFirstName().compareToIgnoreCase(autFirstName) == 0
+		                            && knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
+		                        isDupe = true;
+		                        autId = knownAut.getAutId();
+		                        break;
+		                    }
+		
+		                    //2nd possibility : Last name and first name are inverted > Stéphane Galland = Galland Stéphane
+		                    else if (knownAut.getAutFirstName().compareToIgnoreCase(autLastName) == 0
+		                            && knownAut.getAutLastName().compareToIgnoreCase(autFirstName) == 0) {
+		                        isDupe = true;
+		                        autId = knownAut.getAutId();
+		                        break;
+		                    }
+		                    
+		                    //3rd possibility : Abbreviated first name > Stéphane Galland = S. Galland
+		                    if(autFirstName.contains(".")) {
+		                    	//The first name letter exists as the first letter of a known author's first name
+		                        if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autFirstName.replace(".", "")) == 0) {
+		                            //Check if the last names are identical
+		                            if (knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
+		                                isDupe = true;
+		                                autId = knownAut.getAutId();
+		                                break;
+		                            }
+		                        }
+		                    }
+		                    
+		                    //4rd possibility : Abbreviated first name and inverted > Stéphane Galland = Galland S.
+		                    else if(autLastName.contains(".")) {
+		                    	//The first name letter, permuted with the last name, exists as the first letter of a known author's first name
+		                        if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autLastName.replace(".", "")) == 0) {
+		                        	//Check if the last names are identical
+		                            if (knownAut.getAutLastName().compareToIgnoreCase(autFirstName) == 0) {
+		                                isDupe = true;
+		                                autId = knownAut.getAutId();
+		                                break;
+		                            }
+		                        }
+		                    }
+		                }
+		                
+		                //Create new author if not dupe. If we've already got the author with the abbreviated first name in DB, 
+		                //but the one parsed have the full version, it creates a new author
+		                if (!isDupe) 
+		                {
+		                    aut = new Author();
+		
+		                    // TMT fix : escape quotes in names such as "D'Artau"
+		                    aut.setAutFirstName(autFirstName.replaceAll("'", "\'"));
+		                    aut.setAutLastName(autLastName.replaceAll("'", "\'"));
+		                    aut.setAutBirth(new Date(0));
+		
+		                    autRepo.save(aut);
+		                    autId = aut.getAutId();
+		                }
+		                isDupe = false;
+		                //Assigning authorship
+		                optPub = repo.findById(pubId);
+		                optAut = autRepo.findById(autId);
+		
+		                if (optPub.isPresent() && optAut.isPresent()) 
+		                {
+		                    if (Collections.disjoint(optPub.get().getPubAuts(), optAut.get().getAutPubs())) {
+		                        autShip = new Authorship();
+		                        autShip.setPubPubId(optPub.get().getPubId());
+		                        autShip.setAutAutId(optAut.get().getAutId());
+		                        autShip.setAutShipRank(autRepo.findByAutPubsPubPubIdOrderByAutPubsAutShipRank(optPub.get().getPubId()).size());
+		                        repo.save(optPub.get());
+		                        autShipRepo.save(autShip);
+		                    }
+		                }
+		                    
+	                    //Check if the newly imported pub has at least one authorship. If not, it's a bad case and the pub have to be removed and marked as failed
+                        if (autShipRepo.findByPubPubId(pubId).isEmpty()) 
+                        {
+                        	throw new IllegalArgumentException("No author for publication id=" + pubId);
+                        }
+                        
+		            }
+	    			//Even if a larger try catch for exceptions exists, we need to delete first the imported pub and linked authorship
+                    catch (Exception e) 
+	    			{
+                    	pubIdList.remove((Object)pubId);
+                    	for (Authorship autShipRemove : autShipRepo.findByPubPubId(pubId)) {
+                    		autShipRepo.deleteById(autShipRemove.getAutShipId());
+                    	}
+                    	repo.deleteById(pubId);
+                    	throw e;
+                    }
+	            }	
+	    	}
+	    	catch(Exception e)
+	    	{
+	    		logger.error("Error while importing Bibtext publication\n" + "Data :\n" + currentPub + "\nException :", e);
+	    	}
+    	}
+    	return pubIdList;
+    }
+    
+    public List<Publication> BibTexToPublication(String bibText) {
     	//The multiagent DB was formatted with " = {" so I based my import around that but the UB DB was formatted with "={" so I need to change it to what I know how to handle
     	// Fix only the space between = and { , since the space between the field name and = can be already there
         bibText = bibText.replaceAll("\\=\\{", "\\= \\{"); 
@@ -107,19 +267,12 @@ public class PublicationService {
         String splitter = "\n@"; //The \n is necessary to make sure the splitter dont split in the middle of a name containing @. That also means that without proper formatting the import will fail
         String[] pubs = bibText.split(splitter);
         String[] auts;
-        Author aut;
+        
         String autFirstName;
         String autLastName;
-        int pubId;
-        int autId;
-        Optional<Publication> optPub;
-        Optional<Author> optAut;
+        
+        
         Optional<Journal> optJour;
-
-        Authorship autShip;
-
-        //Holds the IDs of the successfully imported IDs. We'll need it for type differenciation later.
-        List<Integer> importedPubIds = new LinkedList<Integer>();
 
         String pubType;
         PublicationType javaPubType;
@@ -166,7 +319,8 @@ public class PublicationService {
         
         //Used to persist
         List<Publication> pubL = new LinkedList<Publication>();
-        List<Author> authorList = new LinkedList<Author>();
+        List<Publication> newPubL = new LinkedList<Publication>();
+        LinkedList<Author> AuthorsList;
         String autL;
         boolean isDupe;
 
@@ -174,18 +328,16 @@ public class PublicationService {
         //TODO Handle errors and exceptions to parse a maximum of pub before reporting them
         for (String pub : pubs) {
         	try {
-	            if (pub != pubs[0]) {
+	            if (pub != pubs[0]) 
+	            {
 	                pub = "@" + pub;
 	                pubType = "";
-	                javaPubType = PublicationType.TypeLess;
-	                autId = 0;
-	                pubId = 0;
+	                javaPubType = PublicationType.TypeLess;                
 	
-	                optPub = null;
-	                optAut = null;
 	                optJour = null;
 	
-	                autShip = new Authorship();
+	                
+	                AuthorsList = new LinkedList<Author>();
 	
 	                pubTitle = null; //Check for dupes later
 	                pubAbstract = null;
@@ -223,7 +375,7 @@ public class PublicationService {
 	                autLastName = "";
 	
 	                pubL = repo.findAll();
-	                authorList = autRepo.findAll();
+	                
 	
 	                splitter = "@";
 	                if (pub.contains("@")) //Dont do anything if it doesnt even have a type
@@ -647,15 +799,13 @@ public class PublicationService {
 	                    		throw new Exception("Type does not exist");
 	                    }
 	                    
-	                    repo.save(currentPub);
-                        pubId = currentPub.getPubId();
-	                    
 	                    // Because "title = {" can also match with "booktitle = {", we need to prevent to parse the wrong field.
 	                    // First, add "pub" before "title" using regex to get the exact match and not booktitle. Not the best solution, but not require from user to change their bibtex file
 	                    pub = pub.replaceAll("(?<=[^k])(?=title \\= \\{)", "pub");
 	                    // Then, parse with the new name "pubtitle" which distinguish it from "booktitle" 
 	                    splitter = "pubtitle = {";
-	                    if (pub.contains(splitter)) {
+	                    if (pub.contains(splitter)) 
+	                    {
 	                        pubTitle = parseUsingSplitter(pub, splitter);
 	                        if (pubTitle.length() > 255) {
 	                            System.out.println("\n Warning : Publication Title too long, had to be truncated. \n Concerned publication : " + pubTitle + "\n");
@@ -669,7 +819,8 @@ public class PublicationService {
 	                            }
 	                        }
 	
-	                        if (!isDupe) {
+	                        if (!isDupe) 
+	                        {
 	
 	                            splitter = "abstract = {";
 	                            if (pub.contains(splitter)) {
@@ -809,12 +960,12 @@ public class PublicationService {
                                 currentPub.setPubPaperAwardPath(pubPaperAwardPath);
                                 currentPub.setPubType(javaPubType);
                                 
-	                            importedPubIds.add(pubId);
-	
 	                            //Handle authors. If an error occurs at this state, catch it to be sure to delete the new pub from DB
-	                            try {
+	                            try 
+	                            {
 	                            	splitter = "author = {";
-		                            if (pub.contains(splitter)) {
+		                            if (pub.contains(splitter)) 
+		                            {
 		                                autL = parseUsingSplitter(pub, splitter);
 		                                if (autL.compareTo("") != 0) {
 		                                	//To add more than one author in bibtex, the keyword "and" is used. 
@@ -833,87 +984,12 @@ public class PublicationService {
 		                                            autLastName = auts[i].substring(0, auts[i].lastIndexOf(" "));
 		                                            autFirstName = auts[i].substring(auts[i].lastIndexOf(" ") + 1);
 		                                        }
-		
-		
-		                                        //Checking for duplications
-		                                        for (Author knownAut : authorList) {
-		                                            //1st possibility : First name and last name fully written > Stéphane Galland = Stéphane Galland or S. Galland = S. Galland
-		                                            if (knownAut.getAutFirstName().compareToIgnoreCase(autFirstName) == 0
-		                                                    && knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
-		                                                isDupe = true;
-		                                                autId = knownAut.getAutId();
-		                                                break;
-		                                            }
-		
-		                                            //2nd possibility : Last name and first name are inverted > Stéphane Galland = Galland Stéphane
-		                                            else if (knownAut.getAutFirstName().compareToIgnoreCase(autLastName) == 0
-		                                                    && knownAut.getAutLastName().compareToIgnoreCase(autFirstName) == 0) {
-		                                                isDupe = true;
-		                                                autId = knownAut.getAutId();
-		                                                break;
-		                                            }
-		                                            
-		                                            //3rd possibility : Abbreviated first name > Stéphane Galland = S. Galland
-		                                            if(autFirstName.contains(".")) {
-		                                            	//The first name letter exists as the first letter of a known author's first name
-		                                                if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autFirstName.replace(".", "")) == 0) {
-		                                                    //Check if the last names are identical
-		                                                    if (knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
-		                                                        isDupe = true;
-		                                                        autId = knownAut.getAutId();
-		                                                        break;
-		                                                    }
-		                                                }
-		                                            }
-		                                            
-		                                            //4rd possibility : Abbreviated first name and inverted > Stéphane Galland = Galland S.
-		                                            else if(autLastName.contains(".")) {
-		                                            	//The first name letter, permuted with the last name, exists as the first letter of a known author's first name
-		                                                if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autLastName.replace(".", "")) == 0) {
-		                                                	//Check if the last names are identical
-		                                                    if (knownAut.getAutLastName().compareToIgnoreCase(autFirstName) == 0) {
-		                                                        isDupe = true;
-		                                                        autId = knownAut.getAutId();
-		                                                        break;
-		                                                    }
-		                                                }
-		                                            }
-		
-		                                        }
-		
-		                                        //Create new author if not dupe. If we've already got the author with the abbreviated first name in DB, 
-		                                        //but the one parsed have the full version, it creates a new author
-		                                        if (!isDupe) {
-		                                            aut = new Author();
-		
-		                                            // TMT fix : escape quotes in names such as "D'Artau"
-		                                            aut.setAutFirstName(autFirstName.replaceAll("'", "\'"));
-		                                            aut.setAutLastName(autLastName.replaceAll("'", "\'"));
-		                                            aut.setAutBirth(new Date(0));
-		
-		                                            autRepo.save(aut);
-		                                            autId = aut.getAutId();
-		
-		                                        }
-		                                        isDupe = false;
-		
-		                                        //Assigning authorship
-		                                        optPub = repo.findById(pubId);
-		                                        optAut = autRepo.findById(autId);
-		
-		                                        if (optPub.isPresent() && optAut.isPresent()) {
-		
-		                                            if (Collections.disjoint(optPub.get().getPubAuts(), optAut.get().getAutPubs())) {
-		                                                autShip = new Authorship();
-		                                                autShip.setPubPubId(optPub.get().getPubId());
-		                                                autShip.setAutAutId(optAut.get().getAutId());
-		                                                autShip.setAutShipRank(autRepo.findByAutPubsPubPubIdOrderByAutPubsAutShipRank(optPub.get().getPubId()).size());
-		                                                repo.save(optPub.get());
-		                                                autShipRepo.save(autShip);
-		
-		                                            }
-		                                        }
-		
+		                                        
+		                                        // Associating the author with the publication.
+		                                        Author currentAuthor = new Author();
+		                                        currentAuthor.setAutFirstName(autFirstName);
+		                                        currentAuthor.setAutLastName(autLastName);
+		                                        AuthorsList.add(currentAuthor);
 		                                    }
 		                                } 
 		                                //Author field empty 
@@ -922,31 +998,26 @@ public class PublicationService {
 		                                	//Handled below
 		                                }
 		                            }
-		                            //Check if the newly imported pub has at least one authorship. If not, it's a bad case and the pub have to be removed and marked as failed
-		                            if (autShipRepo.findByPubPubId(pubId).isEmpty()) {
-		                            	throw new IllegalArgumentException("No author for publication id=" + pubId);
-		                            }
 	                            }
 	                            //Even if a larger try catch for exceptions exists, we need to delete first the imported pub and linked authorship
-	                            catch (Exception e) {
-	                            	importedPubIds.remove((Object)pubId);
-	                            	for (Authorship autShipRemove : autShipRepo.findByPubPubId(pubId)) {
-	                            		autShipRepo.deleteById(autShipRemove.getAutShipId());
-	                            	}
-	                            	repo.deleteById(pubId);
+	                            catch (Exception e) 
+	                            {
 	                            	throw e;
 	                            }
 	                        }
 	                    }
-	                }
+	                    currentPub.setAuthorsList(AuthorsList);
+	                    newPubL.add(currentPub);
+	                }  
 	            }
         	} 
         	//If an error occurs during import (import itself or authorship), catch them all and log all pubs which failed at import
-        	catch (Exception e) {
-        		logger.error("Error while importing Bibtext publication\n" + "Data :\n" + pub + "\nException :", e);
+        	catch (Exception e) 
+        	{
+        		logger.error("Error while converting Bibtext publication\n" + "Data :\n" + pub + "\nException :", e);
         	}
         }
-        return importedPubIds;
+        return newPubL;
     }
 
     public String fixEncoding(String bibText) {
