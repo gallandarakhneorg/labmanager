@@ -29,6 +29,7 @@
 </head>
 
 <body>
+    
 
 <div class="horizontal-main-wrapper">
     <!-- main content area start -->
@@ -135,6 +136,18 @@
                                     <div class="form-group">
                                         <label for="publicationDate" class="col-form-label">Date</label>
                                         <input class="form-control" type="date" id="publicationDate" th:value="${publication != null ? publication.getPubDate() : ''}" name="publicationDate">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationQuartile" class="col-form-label">Publication quartile</label>
+                                        <select class="form-control" id="publicationQuartile" name="publicationQuartile">
+                                            <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                            <option
+                                                    th:each="publicationQuartile : ${publicationsQuartiles}"
+                                                    th:selected="${publication != null && publicationQuartile == publication.getPubQuartile()}"
+                                                    th:value="${publicationQuartile.toString()}"
+                                                    th:utext="${publicationQuartile.toString()}">
+                                            </option>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationNote" class="col-form-label">Note</label>
@@ -495,14 +508,16 @@
                     minlength: 2
                 },
                 publicationDate: 'required',
+                publicationQuartile : 'required'
             },
             messages: {
                 publicationTitle: 'Please enter the publication title',
                 publicationAbstract: {
-                    required: 'Please enter an abstract',
+                    required: 'Please, enter an abstract',
                     minlength: 'The abstract is too short...'
                 },
-                publicationDate: 'Please enter the publication date',
+                publicationDate: 'Please, enter the publication date',
+                publicationQuartile : 'Please, enter the publication quartile'
             },
             errorElement: 'em',
             errorPlacement: function errorPlacement(error, element) {

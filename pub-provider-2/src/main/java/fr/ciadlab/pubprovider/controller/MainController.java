@@ -35,6 +35,7 @@ import fr.ciadlab.pubprovider.entities.Journal;
 import fr.ciadlab.pubprovider.entities.Membership;
 import fr.ciadlab.pubprovider.entities.ProceedingsConference;
 import fr.ciadlab.pubprovider.entities.Publication;
+import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.entities.PublicationType;
 import fr.ciadlab.pubprovider.entities.PublicationsStat;
 import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
@@ -47,7 +48,6 @@ import fr.ciadlab.pubprovider.service.JournalService;
 import fr.ciadlab.pubprovider.service.PublicationService;
 import fr.ciadlab.pubprovider.service.ResearchOrganizationService;
 import info.debatty.java.stringsimilarity.SorensenDice;
-
 
 @Controller
 @CrossOrigin
@@ -66,20 +66,20 @@ public class MainController {
     public ModelAndView showAuthorsList(
             @RequestParam(required = false) String organization,
             @RequestParam(required = false) Integer active,
-            @RequestParam(required = false) String status
-    ) {
+            @RequestParam(required = false) String status) {
         // Default values
-        if (organization == null || organization.isEmpty()) organization = "CIAD";
-
+        if (organization == null || organization.isEmpty())
+            organization = "CIAD";
 
         final ModelAndView modelAndView = new ModelAndView("authorsList");
 
         Optional<ResearchOrganization> researchOrganization = resOrgService.getResearchOrganizationByName(organization);
-        if(researchOrganization.isPresent()) {
+        if (researchOrganization.isPresent()) {
             List<Membership> members = resOrgService.getOrganizationMembers(researchOrganization.get(), active, status);
 
             // Add to view
-            modelAndView.addObject("otherOrganisationsForMembers", resOrgService.getOtherOrganizationsForMembers(members, organization));
+            modelAndView.addObject("otherOrganisationsForMembers",
+                    resOrgService.getOtherOrganizationsForMembers(members, organization));
             modelAndView.addObject("members", members);
             modelAndView.addObject("uuid", Math.abs(new Random().nextInt())); // UUID to generate unique html elements
         }
@@ -87,9 +87,9 @@ public class MainController {
         return modelAndView;
     }
 
-
     @GetMapping("/deletePublication")
-    public void deletePublication(HttpServletResponse response, @RequestParam Integer publicationId) throws IOException {
+    public void deletePublication(HttpServletResponse response, @RequestParam Integer publicationId)
+            throws IOException {
         pubServ.removePublication(publicationId);
         response.sendRedirect("/SpringRestHibernate/publicationsListPrivate?success=1");
     }
@@ -100,35 +100,46 @@ public class MainController {
         Set<Author> authors = new HashSet<>();
         List<Journal> journals = jourServ.getAllJournals();
 
-        resOrgService.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut() )));
+        resOrgService.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut())));
 
         List<PublicationType> publicationsTypes = Arrays.asList(PublicationType.values()).stream()
-        		.filter(pubType -> pubType != PublicationType.TypeLess)
-        		.collect(Collectors.toList());
+                .filter(pubType -> pubType != PublicationType.TypeLess)
+                .collect(Collectors.toList());
+
+        List<Quartile> publicationsQuartiles = Arrays.asList(Quartile.values()).stream()
+                .collect(Collectors.toList());
+
         modelAndView.addObject("publicationsTypes", publicationsTypes);
+        modelAndView.addObject("publicationsQuartiles", publicationsQuartiles);
         modelAndView.addObject("authors", authors);
         modelAndView.addObject("journals", journals);
         modelAndView.addObject("edit", false);
 
         // IF edit mode
-        if(publicationId != null) {
+        if (publicationId != null) {
             Publication publication = pubServ.getPublication(publicationId);
-            if(publication != null) {
-                modelAndView.addObject("publication", publication.getPublicationClass().cast(publication)); // Dynamic downcasting
+            if (publication != null) {
+                modelAndView.addObject("publication", publication.getPublicationClass().cast(publication)); // Dynamic
+                                                                                                            // downcasting
                 modelAndView.addObject("pubAuthors", autServ.getLinkedAuthors(publicationId)); // Dynamic downcasting
-                switch(publication.getPubType().getPublicationTypeGroupFromPublicationType()) {
+                switch (publication.getPubType().getPublicationTypeGroupFromPublicationType()) {
                     case Typeless:
                         break;
                     case ReadingCommitteeJournalPopularizationPaper:
                         ReadingCommitteeJournalPopularizationPaper readingCommitteeJournalPopularizationPaper = (ReadingCommitteeJournalPopularizationPaper) publication;
-                        modelAndView.addObject("reaComConfPopPapVolume", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapVolume());
-                        modelAndView.addObject("reaComConfPopPapNumber", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapNumber());
-                        modelAndView.addObject("reaComConfPopPapPages", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapPages());
-                        modelAndView.addObject("reaComConfPopPapJournal", readingCommitteeJournalPopularizationPaper.getReaComConfPopPapJournal());
+                        modelAndView.addObject("reaComConfPopPapVolume",
+                                readingCommitteeJournalPopularizationPaper.getReaComConfPopPapVolume());
+                        modelAndView.addObject("reaComConfPopPapNumber",
+                                readingCommitteeJournalPopularizationPaper.getReaComConfPopPapNumber());
+                        modelAndView.addObject("reaComConfPopPapPages",
+                                readingCommitteeJournalPopularizationPaper.getReaComConfPopPapPages());
+                        modelAndView.addObject("reaComConfPopPapJournal",
+                                readingCommitteeJournalPopularizationPaper.getReaComConfPopPapJournal());
                         break;
                     case ProceedingsConference:
                         ProceedingsConference proceedingsConference = (ProceedingsConference) publication;
-                        modelAndView.addObject("proConfBookNameProceedings", proceedingsConference.getProConfBookNameProceedings());
+                        modelAndView.addObject("proConfBookNameProceedings",
+                                proceedingsConference.getProConfBookNameProceedings());
                         modelAndView.addObject("proConfEditor", proceedingsConference.getProConfEditor());
                         modelAndView.addObject("proConfPages", proceedingsConference.getProConfPages());
                         modelAndView.addObject("proConfOrganization", proceedingsConference.getProConfOrganization());
@@ -155,7 +166,8 @@ public class MainController {
                         modelAndView.addObject("bookAddress", bookChapter.getBookAddress());
                         modelAndView.addObject("bookEdition", bookChapter.getBookEdition());
                         modelAndView.addObject("bookPages", bookChapter.getBookPages());
-                        modelAndView.addObject("bookChapBookNameProceedings", bookChapter.getBookChapBookNameProceedings());
+                        modelAndView.addObject("bookChapBookNameProceedings",
+                                bookChapter.getBookChapBookNameProceedings());
                         modelAndView.addObject("bookChapNumberOrName", bookChapter.getBookChapNumberOrName());
                         break;
 
@@ -196,17 +208,16 @@ public class MainController {
         return modelAndView;
     }
 
-
     @GetMapping("/publicationsList")
     public ModelAndView showPublicationsList(
-            @RequestParam(required = false) Integer authorId
-    ) {
+            @RequestParam(required = false) Integer authorId) {
         final ModelAndView modelAndView = new ModelAndView("publicationsList");
 
         List<PublicationType> publicationsTypes = Arrays.asList(PublicationType.values()).stream()
-        		.filter(pubType -> pubType != PublicationType.TypeLess)
-        		.collect(Collectors.toList());
-        modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream().collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
+                .filter(pubType -> pubType != PublicationType.TypeLess)
+                .collect(Collectors.toList());
+        modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream()
+                .collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
 
         if (authorId == null)
             modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList");
@@ -219,8 +230,7 @@ public class MainController {
 
     @GetMapping("/publicationsListLight")
     public ModelAndView showPublicationsListLight(
-            @RequestParam Integer id
-    ) {
+            @RequestParam Integer id) {
         final ModelAndView modelAndView = new ModelAndView("publicationsListLight");
         modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList?authorId=" + id);
         modelAndView.addObject("uuid", Math.abs(new Random().nextInt())); // UUID to generate unique html elements
@@ -229,16 +239,17 @@ public class MainController {
 
     @GetMapping("/publicationsListPrivate")
     public ModelAndView showPublicationsListPrivate(
-            @RequestParam(required = false) Integer authorId
-    ) {
+            @RequestParam(required = false) Integer authorId) {
         final ModelAndView modelAndView = new ModelAndView("publicationsListPrivate");
 
-        modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream().collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
+        modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream()
+                .collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
 
         if (authorId == null)
             modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList?onlyValid=false");
         else
-            modelAndView.addObject("url", "/SpringRestHibernate/getPublicationsList?authorId=" + authorId + "&onlyValid=false");
+            modelAndView.addObject("url",
+                    "/SpringRestHibernate/getPublicationsList?authorId=" + authorId + "&onlyValid=false");
 
         modelAndView.addObject("uuid", Math.abs(new Random().nextInt())); // UUID to generate unique html elements
         return modelAndView;
@@ -246,62 +257,66 @@ public class MainController {
 
     @GetMapping("/publicationsStats")
     public ModelAndView showPublicationsStats(
-            @RequestParam(required = false) Integer id
-    ) {
+            @RequestParam(required = false) Integer id) {
         final ModelAndView modelAndView = new ModelAndView("publicationsStats");
 
         List<Publication> publicationList;
-        if(id != null) {
+        if (id != null) {
             publicationList = pubServ.getAuthorPublications(id);
-        }
-        else {
+        } else {
             publicationList = pubServ.getAllPublications();
         }
-        publicationList = publicationList.stream().filter(p -> p.getPubAuts() != null && p.getPubAuts().size() > 0).collect(Collectors.toList());
+        publicationList = publicationList.stream().filter(p -> p.getPubAuts() != null && p.getPubAuts().size() > 0)
+                .collect(Collectors.toList());
 
         Map<Integer, PublicationsStat> publicationsStats = new TreeMap<>();
         PublicationsStat globalStats = new PublicationsStat(0);
-        for(Publication p : publicationList) {
-            if(!publicationsStats.containsKey(p.getPubYear())) {
+        for (Publication p : publicationList) {
+            if (!publicationsStats.containsKey(p.getPubYear())) {
                 publicationsStats.put(p.getPubYear(), new PublicationsStat(p.getPubYear()));
             }
             PublicationsStat publicationsStat = publicationsStats.get(p.getPubYear());
-            switch(p.getPubType().getPublicationTypeGroupFromPublicationType()) {
+            switch (p.getPubType().getPublicationTypeGroupFromPublicationType()) {
                 case Typeless:
-                    publicationsStat.setOtherCount(publicationsStat.getOtherCount()+1);
-                    globalStats.setOtherCount(globalStats.getOtherCount()+1);
+                    publicationsStat.setOtherCount(publicationsStat.getOtherCount() + 1);
+                    globalStats.setOtherCount(globalStats.getOtherCount() + 1);
                     break;
                 case ReadingCommitteeJournalPopularizationPaper:
-                    publicationsStat.setReadingCommitteeJournalPopularizationPaperCount(publicationsStat.getReadingCommitteeJournalPopularizationPaperCount()+1);
-                    globalStats.setReadingCommitteeJournalPopularizationPaperCount(globalStats.getReadingCommitteeJournalPopularizationPaperCount()+1);
+                    publicationsStat.setReadingCommitteeJournalPopularizationPaperCount(
+                            publicationsStat.getReadingCommitteeJournalPopularizationPaperCount() + 1);
+                    globalStats.setReadingCommitteeJournalPopularizationPaperCount(
+                            globalStats.getReadingCommitteeJournalPopularizationPaperCount() + 1);
                     break;
                 case ProceedingsConference:
-                    publicationsStat.setProceedingsConferenceCount(publicationsStat.getProceedingsConferenceCount()+1);
-                    globalStats.setProceedingsConferenceCount(globalStats.getProceedingsConferenceCount()+1);
+                    publicationsStat
+                            .setProceedingsConferenceCount(publicationsStat.getProceedingsConferenceCount() + 1);
+                    globalStats.setProceedingsConferenceCount(globalStats.getProceedingsConferenceCount() + 1);
                     break;
                 case Book:
-                    publicationsStat.setBookCount(publicationsStat.getBookCount()+1);
-                    globalStats.setBookCount(globalStats.getBookCount()+1);
+                    publicationsStat.setBookCount(publicationsStat.getBookCount() + 1);
+                    globalStats.setBookCount(globalStats.getBookCount() + 1);
                     break;
                 case BookChapter:
-                    publicationsStat.setBookChapterCount(publicationsStat.getBookChapterCount()+1);
-                    globalStats.setBookChapterCount(globalStats.getBookChapterCount()+1);
+                    publicationsStat.setBookChapterCount(publicationsStat.getBookChapterCount() + 1);
+                    globalStats.setBookChapterCount(globalStats.getBookChapterCount() + 1);
                     break;
                 case SeminarPatentInvitedConference:
-                    publicationsStat.setSeminarPatentInvitedConferenceCount(publicationsStat.getSeminarPatentInvitedConferenceCount()+1);
-                    globalStats.setSeminarPatentInvitedConferenceCount(globalStats.getSeminarPatentInvitedConferenceCount()+1);
+                    publicationsStat.setSeminarPatentInvitedConferenceCount(
+                            publicationsStat.getSeminarPatentInvitedConferenceCount() + 1);
+                    globalStats.setSeminarPatentInvitedConferenceCount(
+                            globalStats.getSeminarPatentInvitedConferenceCount() + 1);
                     break;
                 case UniversityDocument:
-                    publicationsStat.setUniversityDocumentCount(publicationsStat.getUniversityDocumentCount()+1);
-                    globalStats.setUniversityDocumentCount(globalStats.getUniversityDocumentCount()+1);
+                    publicationsStat.setUniversityDocumentCount(publicationsStat.getUniversityDocumentCount() + 1);
+                    globalStats.setUniversityDocumentCount(globalStats.getUniversityDocumentCount() + 1);
                     break;
                 case EngineeringActivity:
-                    publicationsStat.setEngineeringActivityCount(publicationsStat.getEngineeringActivityCount()+1);
-                    globalStats.setEngineeringActivityCount(globalStats.getEngineeringActivityCount()+1);
+                    publicationsStat.setEngineeringActivityCount(publicationsStat.getEngineeringActivityCount() + 1);
+                    globalStats.setEngineeringActivityCount(globalStats.getEngineeringActivityCount() + 1);
                     break;
                 case UserDocumentation:
-                    publicationsStat.setUserDocumentationCount(publicationsStat.getUserDocumentationCount()+1);
-                    globalStats.setUserDocumentationCount(globalStats.getUserDocumentationCount()+1);
+                    publicationsStat.setUserDocumentationCount(publicationsStat.getUserDocumentationCount() + 1);
+                    globalStats.setUserDocumentationCount(globalStats.getUserDocumentationCount() + 1);
                     break;
             }
         }
@@ -311,20 +326,21 @@ public class MainController {
         return modelAndView;
     }
 
-
     @GetMapping("/getPublicationsList")
     @ResponseBody
-    public String getPublicationsList(@RequestParam(required = false) Integer authorId, @RequestParam(required = false) Boolean onlyValid) {
-        List<Publication> publications = authorId == null ? pubServ.getAllPublications() : pubServ.getAuthorPublications(authorId);
-        if(onlyValid != null && !onlyValid) {
+    public String getPublicationsList(@RequestParam(required = false) Integer authorId,
+            @RequestParam(required = false) Boolean onlyValid) {
+        List<Publication> publications = authorId == null ? pubServ.getAllPublications()
+                : pubServ.getAuthorPublications(authorId);
+        if (onlyValid != null && !onlyValid) {
             // Do not filter
+        } else {
+            publications = publications.stream().filter(p -> p.getPubAuts() != null && p.getPubAuts().size() > 0)
+                    .collect(Collectors.toList());
         }
-        else {
-            publications = publications.stream().filter(p -> p.getPubAuts() != null && p.getPubAuts().size() > 0).collect(Collectors.toList());
-        }
-
 
         JsonArray publisJson = new JsonArray();
+
         for (Publication p : publications) { // Keep only valid (with authors)
             JsonObject data = new JsonObject();
             data.addProperty("id", p.getPubId());
@@ -336,25 +352,49 @@ public class MainController {
             data.addProperty("note", p.getPubNote());
             data.addProperty("keywords", p.getPubKeywords());
 
+            // addition of publication's journal quality indicators, if they exist
+            if (p.getPubJournalScimagoQuartile() != null)
+                data.addProperty("scimagoQuartile", p.getPubJournalScimagoQuartile().toString());
+            if (p.getPubJournalWosQuartile() != null)
+                data.addProperty("wosQuartile", p.getPubJournalWosQuartile().toString());
+            if (p.getPubJournalCoreRanking() != null)
+                data.addProperty("coreRanking",
+                        p.getPubJournalCoreRanking().toString());
+            if (p.getPubJournalImpactFactor() != 0)
+                data.addProperty("impactFactor",
+                        p.getPubJournalImpactFactor());
+
             String downloads = "";
             if (p.getPubPDFPath() != null && !p.getPubPDFPath().isEmpty())
-                downloads += "<a class=\"btn btn-xs btn-success\" href=\"http://www.ciad-lab.fr/" + p.getPubPDFPath().replace("/var/www/ciad-lab.fr", "") + "\"><i class=\"fa fa-file-pdf-o\"></i>&nbsp;&nbsp;PDF</a>&nbsp;&nbsp;";
+                downloads += "<a class=\"btn btn-xs btn-success\" href=\"http://www.ciad-lab.fr/"
+                        + p.getPubPDFPath().replace("/var/www/ciad-lab.fr", "")
+                        + "\"><i class=\"fa fa-file-pdf-o\"></i>&nbsp;&nbsp;PDF</a>&nbsp;&nbsp;";
             if (p.getPubPaperAwardPath() != null && !p.getPubPaperAwardPath().isEmpty())
-                downloads += "<a class=\"btn btn-xs btn-success\" href=\"http://www.ciad-lab.fr/" + p.getPubPaperAwardPath().replace("/var/www/ciad-lab.fr", "") + "\"><i class=\"fa fa-file-pdf-o\"></i>&nbsp;&nbsp;Award</a>&nbsp;&nbsp;";
+                downloads += "<a class=\"btn btn-xs btn-success\" href=\"http://www.ciad-lab.fr/"
+                        + p.getPubPaperAwardPath().replace("/var/www/ciad-lab.fr", "")
+                        + "\"><i class=\"fa fa-file-pdf-o\"></i>&nbsp;&nbsp;Award</a>&nbsp;&nbsp;";
 
             String exports = "";
-            exports += "<a class=\"btn btn-xs btn-success btHtml\" href=\"\" data-href=\"" + p.getPubId() + "\"><i class=\"fa fa-file-text-o\"></i>&nbsp;&nbsp;HTML</a>&nbsp;&nbsp;";
-            exports += "<a class=\"btn btn-xs btn-success btWord\" href=\"\" data-href=\"" + p.getPubId() + "\"><i class=\"fa fa-file-text-o\"></i>&nbsp;&nbsp;Odt</a>&nbsp;&nbsp;";
-            exports += "<a class=\"btn btn-xs btn-success btBibtex\" href=\"\" data-href=\"" + p.getPubId() + "\"><i class=\"fa fa-file-code-o\"></i>&nbsp;&nbsp;Bibtex</a>&nbsp;&nbsp;";
+            exports += "<a class=\"btn btn-xs btn-success btHtml\" href=\"\" data-href=\"" + p.getPubId()
+                    + "\"><i class=\"fa fa-file-text-o\"></i>&nbsp;&nbsp;HTML</a>&nbsp;&nbsp;";
+            exports += "<a class=\"btn btn-xs btn-success btWord\" href=\"\" data-href=\"" + p.getPubId()
+                    + "\"><i class=\"fa fa-file-text-o\"></i>&nbsp;&nbsp;Odt</a>&nbsp;&nbsp;";
+            exports += "<a class=\"btn btn-xs btn-success btBibtex\" href=\"\" data-href=\"" + p.getPubId()
+                    + "\"><i class=\"fa fa-file-code-o\"></i>&nbsp;&nbsp;Bibtex</a>&nbsp;&nbsp;";
 
             data.addProperty("exports", exports);
             data.addProperty("downloads", downloads);
             data.addProperty("abstract", p.getPubAbstract());
 
             String edit = "";
-            edit += "<a class=\"btn btn-xs btn-success\" href=\"/SpringRestHibernate/addPublication?publicationId=" + p.getPubId() + "\" <i class=\"fa fa-edit\"></i>&nbsp;&nbsp;Edit publication</a>&nbsp;&nbsp;";
-            edit += "<a class=\"btn btn-xs btn-danger\" href=\"/SpringRestHibernate/deletePublication?publicationId=" + p.getPubId() + "\" <i class=\"fa fa-delete\"></i>&nbsp;&nbsp;Delete publication</a>&nbsp;&nbsp;";
-            //edit += "<a class=\"btn btn-xs btn-warning\" href=\"/SpringRestHibernate/mergePublication?publicationId=" + p.getPubId() + "\" <i class=\"fa fa-edit\"></i>&nbsp;&nbsp;Merge publications</a>&nbsp;&nbsp;";
+            edit += "<a class=\"btn btn-xs btn-success\" href=\"/SpringRestHibernate/addPublication?publicationId="
+                    + p.getPubId() + "\" <i class=\"fa fa-edit\"></i>&nbsp;&nbsp;Edit publication</a>&nbsp;&nbsp;";
+            edit += "<a class=\"btn btn-xs btn-danger\" href=\"/SpringRestHibernate/deletePublication?publicationId="
+                    + p.getPubId() + "\" <i class=\"fa fa-delete\"></i>&nbsp;&nbsp;Delete publication</a>&nbsp;&nbsp;";
+            // edit += "<a class=\"btn btn-xs btn-warning\"
+            // href=\"/SpringRestHibernate/mergePublication?publicationId=" + p.getPubId() +
+            // "\" <i class=\"fa fa-edit\"></i>&nbsp;&nbsp;Merge
+            // publications</a>&nbsp;&nbsp;";
 
             data.addProperty("edit", edit);
             publisJson.add(data);
@@ -382,14 +422,15 @@ public class MainController {
             ArrayList<Author> currentAuthorMatch = new ArrayList<Author>();
             currentAuthorMatch.add(author);
 
-            for (Author author2: authorsList) {
+            for (Author author2 : authorsList) {
                 if (isAuthorSimilar(author, author2)) {
                     currentAuthorMatch.add(author2);
                 }
             }
             if (currentAuthorMatch.size() > 1) {
                 boolean addToMatchingAuthors = true;
-                // check if the current group of similar authors is not a sub-group of another group of similar authors
+                // check if the current group of similar authors is not a sub-group of another
+                // group of similar authors
                 for (ArrayList<Author> authors : matchingAuthors) {
                     if (authors.containsAll(currentAuthorMatch)) {
                         addToMatchingAuthors = false;
@@ -408,27 +449,29 @@ public class MainController {
 
     /**
      * Check name similarity between two authors using Sorensen Dice algorithm
-     * @param author first author
+     * 
+     * @param author  first author
      * @param author2 second author
      * @return true if similar, false if not
      */
-    private boolean isAuthorSimilar (Author author, Author author2) {
+    private boolean isAuthorSimilar(Author author, Author author2) {
         String authorFullName = author.getAutFirstName() + " " + author.getAutLastName();
         String author2FullName = author2.getAutFirstName() + " " + author2.getAutLastName();
 
         SorensenDice stringMatcher = new SorensenDice();
 
-        //First check on the full name else on the individual strings
+        // First check on the full name else on the individual strings
         if (stringMatcher.distance(authorFullName, author2FullName) <= 0.3) {
             return true;
         } else if (stringMatcher.distance(authorFullName, author2FullName) <= 0.6) {
-            String authorFirstName = author.getAutFirstName().replace(".","");
-            String authorLastName = author.getAutLastName().replace(".","");
-            String author2FirstName = author2.getAutFirstName().replace(".","");
-            String author2LastName = author2.getAutLastName().replace(".","");
-            //Check with possibility of shortened name and inversion
+            String authorFirstName = author.getAutFirstName().replace(".", "");
+            String authorLastName = author.getAutLastName().replace(".", "");
+            String author2FirstName = author2.getAutFirstName().replace(".", "");
+            String author2LastName = author2.getAutLastName().replace(".", "");
+            // Check with possibility of shortened name and inversion
             return isAuthorSimilarWithShortenedName(authorFirstName, authorLastName, author2FirstName, author2LastName)
-                    || isAuthorSimilarWithShortenedName(authorFirstName, authorLastName, author2LastName, author2FirstName);
+                    || isAuthorSimilarWithShortenedName(authorFirstName, authorLastName, author2LastName,
+                            author2FirstName);
         }
         return false;
     }
@@ -436,18 +479,20 @@ public class MainController {
     /**
      * Check similarity with a part of the name shortened
      * ex: C. Durand / Christophe Durand
-     * @param authorFirstName first author string
-     * @param authorLastName first author string
+     * 
+     * @param authorFirstName  first author string
+     * @param authorLastName   first author string
      * @param author2FirstName second author string
-     * @param author2LastName second author string
+     * @param author2LastName  second author string
      * @return true if similar, false if not
      */
-    private boolean isAuthorSimilarWithShortenedName(String authorFirstName, String authorLastName, String author2FirstName, String author2LastName) {
+    private boolean isAuthorSimilarWithShortenedName(String authorFirstName, String authorLastName,
+            String author2FirstName, String author2LastName) {
         SorensenDice stringMatcher = new SorensenDice();
 
         String longestFirstName, smallestFirstName, longestLastName, smallestLastName;
 
-        //Find smallest first name
+        // Find smallest first name
         if (authorFirstName.length() > author2FirstName.length()) {
             longestFirstName = authorFirstName;
             smallestFirstName = author2FirstName;
@@ -458,11 +503,12 @@ public class MainController {
 
         double lastNameSimilarity = stringMatcher.distance(authorLastName, author2LastName);
 
-        if (smallestFirstName.equals(longestFirstName.substring(0, smallestFirstName.length())) && lastNameSimilarity <= 0.4) {
+        if (smallestFirstName.equals(longestFirstName.substring(0, smallestFirstName.length()))
+                && lastNameSimilarity <= 0.4) {
             return true;
         }
 
-        //Find smallest last name
+        // Find smallest last name
         if (authorLastName.length() > author2LastName.length()) {
             longestLastName = authorLastName;
             smallestLastName = author2LastName;
@@ -473,7 +519,8 @@ public class MainController {
 
         double firstNameSimilarity = stringMatcher.distance(authorFirstName, author2FirstName);
 
-        if (smallestLastName.equals(longestLastName.substring(0, smallestLastName.length())) && firstNameSimilarity <= 0.4) {
+        if (smallestLastName.equals(longestLastName.substring(0, smallestLastName.length()))
+                && firstNameSimilarity <= 0.4) {
             return true;
         }
         return false;

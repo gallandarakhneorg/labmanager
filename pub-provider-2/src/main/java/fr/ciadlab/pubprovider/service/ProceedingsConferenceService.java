@@ -4,6 +4,7 @@ import fr.ciadlab.pubprovider.PubProviderApplication;
 import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.ProceedingsConference;
 import fr.ciadlab.pubprovider.entities.Publication;
+import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.entities.PublicationType;
 import fr.ciadlab.pubprovider.repository.ProceedingsConferenceRepository;
 import org.slf4j.Logger;
@@ -39,21 +40,25 @@ public class ProceedingsConferenceService {
         repo.deleteById(index);
     }
 
-    public ProceedingsConference createProceedingsConference(Publication p, String proConfBookNameProceedings, String proConfEditor, String proConfPages, String proConfOrganization, String proConfPublisher,
-                                                             String proConfAddress, String proConfSeries) {
-        ProceedingsConference res = new ProceedingsConference(p, proConfBookNameProceedings, proConfEditor, proConfPages, proConfOrganization, proConfPublisher, proConfAddress, proConfSeries);
-        res = this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+    public ProceedingsConference createProceedingsConference(Publication p, String proConfBookNameProceedings,
+            String proConfEditor, String proConfPages, String proConfOrganization, String proConfPublisher,
+            String proConfAddress, String proConfSeries) {
+        ProceedingsConference res = new ProceedingsConference(p, proConfBookNameProceedings, proConfEditor,
+                proConfPages, proConfOrganization, proConfPublisher, proConfAddress, proConfSeries);
+        res = this.repo.save(res); // Id is generated on save so I gotta save once before setting these
         return res;
     }
 
     @Deprecated
-    public int createProceedingsConference(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
-                                           String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
-                                           String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String proConfAddress,
-                                           String proConfBookNameProceedings, String proConfEditor, String proConfOrganization, String proConfPages,
-                                           String proConfPublisher, String proConfSeries) {
+    public int createProceedingsConference(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
+            String pubNote,
+            String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
+            String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
+            String proConfAddress,
+            String proConfBookNameProceedings, String proConfEditor, String proConfOrganization, String proConfPages,
+            String proConfPublisher, String proConfSeries) {
         final ProceedingsConference res = new ProceedingsConference();
-        //Generic pub fields
+        // Generic pub fields
         res.setPubTitle(pubTitle);
         res.setPubAbstract(pubAbstract);
         res.setPubKeywords(pubKeywords);
@@ -65,11 +70,11 @@ public class ProceedingsConferenceService {
         res.setPubDOIRef(pubDOIRef);
         res.setPubURL(pubURL);
         res.setPubDBLP(pubDBLP);
-        //res.setPubPDFPath(pubPDFPath);
+        // res.setPubPDFPath(pubPDFPath);
         res.setPubLanguage(pubLanguage);
-        //res.setPubPaperAwardPath(pubPaperAwardPath);
+        // res.setPubPaperAwardPath(pubPaperAwardPath);
         res.setPubType(pubType);
-        //ProceedingsConference fields
+        // ProceedingsConference fields
         res.setProConfAddress(proConfAddress);
         res.setProConfBookNameProceedings(proConfBookNameProceedings);
         res.setProConfEditor(proConfEditor);
@@ -100,7 +105,8 @@ public class ProceedingsConferenceService {
             try (FileOutputStream fos = new FileOutputStream(file);) {
                 byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
                 fos.write(decoder);
-                res.setPubPaperAwardPath(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.getPubId() + ".pdf");
+                res.setPubPaperAwardPath(
+                        PubProviderApplication.DownloadablesPath + "Awards/Award" + res.getPubId() + ".pdf");
             } catch (Exception e) {
                 res.setPubPaperAwardPath("");
                 e.printStackTrace();
@@ -110,22 +116,24 @@ public class ProceedingsConferenceService {
             res.setPubPaperAwardPath("");
         }
 
-        this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+        this.repo.save(res); // Id is generated on save so I gotta save once before setting these
         return res.getPubId();
     }
 
-    public void updateProceedingsConference(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
-                                            String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
-                                            String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String proConfAddress,
-                                            String proConfBookNameProceedings, String proConfEditor, String proConfOrganization, String proConfPages,
-                                            String proConfPublisher, String proConfSeries) {
+    public void updateProceedingsConference(int pubId, String pubTitle, String pubAbstract, String pubKeywords,
+            Date pubDate,
+            String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
+            String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
+            String proConfAddress,
+            String proConfBookNameProceedings, String proConfEditor, String proConfOrganization, String proConfPages,
+            String proConfPublisher, String proConfSeries) {
         final Optional<ProceedingsConference> res = this.repo.findById(pubId);
         File file;
         if (res.isPresent()) {
-            //Generic pub fields
+            // Generic pub fields
             if (pubTitle != null && !pubTitle.isEmpty())
                 res.get().setPubTitle(pubTitle);
-            if (pubAbstract  != null && !pubAbstract.isEmpty())
+            if (pubAbstract != null && !pubAbstract.isEmpty())
                 res.get().setPubAbstract(pubAbstract);
             if (pubKeywords != null && !pubKeywords.isEmpty())
                 res.get().setPubKeywords(pubKeywords);
@@ -150,7 +158,8 @@ public class ProceedingsConferenceService {
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
                     fos.write(decoder);
-                    res.get().setPubPDFPath(PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
+                    res.get().setPubPDFPath(
+                            PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
                 } catch (Exception e) {
                     res.get().setPubPDFPath("");
                     e.printStackTrace();
@@ -160,11 +169,13 @@ public class ProceedingsConferenceService {
             if (pubLanguage != null && !pubLanguage.isEmpty())
                 res.get().setPubLanguage(pubLanguage);
             if (pubPaperAwardPath != null && !pubPaperAwardPath.isEmpty()) {
-                file = new File(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
+                file = new File(
+                        PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
                     fos.write(decoder);
-                    res.get().setPubPaperAwardPath(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
+                    res.get().setPubPaperAwardPath(
+                            PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 } catch (Exception e) {
                     res.get().setPubPaperAwardPath("");
                     e.printStackTrace();
@@ -173,7 +184,7 @@ public class ProceedingsConferenceService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            //ProceedingsConference fields
+            // ProceedingsConference fields
             if (proConfAddress != null && !proConfAddress.isEmpty())
                 res.get().setProConfAddress(proConfAddress);
             if (proConfBookNameProceedings != null && !proConfBookNameProceedings.isEmpty())
@@ -192,6 +203,3 @@ public class ProceedingsConferenceService {
         }
     }
 }
-
-
-

@@ -55,72 +55,80 @@ public class PublicationController {
     @Autowired
     private AuthorService authorServ;
 
-    @RequestMapping(value = "/editPublication",
-            method = RequestMethod.POST,
-            headers = "Accept=application/json")
+    @RequestMapping(value = "/editPublication", method = RequestMethod.POST, headers = "Accept=application/json")
     public void editPublication(HttpServletResponse response,
-                                @RequestParam Integer publicationId,
-                                String publicationType,
-                                String publicationTitle,
-                                String publicationAbstract,
-                                String publicationKeywords,
-                                String publicationDate,
-                                String[] publicationAuthors,
-                                @RequestParam(required = false) String publicationNote,
-                                @RequestParam(required = false) String publicationIsbn,
-                                @RequestParam(required = false) String publicationIssn,
-                                @RequestParam(required = false) String publicationDoi,
-                                @RequestParam(required = false) String publicationUrl,
-                                @RequestParam(required = false) String publicationVideoUrl,
-                                @RequestParam(required = false) String publicationDblp,
-                                @RequestParam(required = false) MultipartFile publicationPdf,
-                                @RequestParam(required = false) MultipartFile publicationAward,
-                                @RequestParam(required = false) String publicationLanguage,
-                                @RequestParam(required = false) String reaComConfPopPapVolume,
-                                @RequestParam(required = false) String reaComConfPopPapNumber,
-                                @RequestParam(required = false) String reaComConfPopPapPages,
-                                @RequestParam(required = false) String proConfBookNameProceedings,
-                                @RequestParam(required = false) String proConfEditor,
-                                @RequestParam(required = false) String proConfPages,
-                                @RequestParam(required = false) String proConfOrganization,
-                                @RequestParam(required = false) String proConfPublisher,
-                                @RequestParam(required = false) String proConfAddress,
-                                @RequestParam(required = false) String proConfSeries,
-                                @RequestParam(required = false) String bookEditor,
-                                @RequestParam(required = false) String bookPublisher,
-                                @RequestParam(required = false) String bookVolume,
-                                @RequestParam(required = false) String bookSeries,
-                                @RequestParam(required = false) String bookAddress,
-                                @RequestParam(required = false) String bookEdition,
-                                @RequestParam(required = false) String bookPages,
-                                @RequestParam(required = false) String bookChapBookNameProceedings,
-                                @RequestParam(required = false) String bookChapNumberOrName,
-                                @RequestParam(required = false) String semPatHowPub,
-                                @RequestParam(required = false) String uniDocSchoolName,
-                                @RequestParam(required = false) String uniDocAddress,
-                                @RequestParam(required = false) String engActInstitName,
-                                @RequestParam(required = false) String engActReportType,
-                                @RequestParam(required = false) String engActNumber,
-                                @RequestParam(required = false) String userDocOrganization,
-                                @RequestParam(required = false) String userDocAddress,
-                                @RequestParam(required = false) String userDocEdition,
-                                @RequestParam(required = false) String userDocPublisher,
-                                @RequestParam(required = false) String publicationJournal) throws IOException, ParseException {
+            @RequestParam Integer publicationId,
+            String publicationType,
+            String publicationQuartile,
+            String publicationTitle,
+            String publicationAbstract,
+            String publicationKeywords,
+            String publicationDate,
+            String[] publicationAuthors,
+            @RequestParam(required = false) String publicationNote,
+            @RequestParam(required = false) String publicationIsbn,
+            @RequestParam(required = false) String publicationIssn,
+            @RequestParam(required = false) String publicationDoi,
+            @RequestParam(required = false) String publicationUrl,
+            @RequestParam(required = false) String publicationVideoUrl,
+            @RequestParam(required = false) String publicationDblp,
+            @RequestParam(required = false) MultipartFile publicationPdf,
+            @RequestParam(required = false) MultipartFile publicationAward,
+            @RequestParam(required = false) String publicationLanguage,
+            @RequestParam(required = false) String reaComConfPopPapVolume,
+            @RequestParam(required = false) String reaComConfPopPapNumber,
+            @RequestParam(required = false) String reaComConfPopPapPages,
+            @RequestParam(required = false) String proConfBookNameProceedings,
+            @RequestParam(required = false) String proConfEditor,
+            @RequestParam(required = false) String proConfPages,
+            @RequestParam(required = false) String proConfOrganization,
+            @RequestParam(required = false) String proConfPublisher,
+            @RequestParam(required = false) String proConfAddress,
+            @RequestParam(required = false) String proConfSeries,
+            @RequestParam(required = false) String bookEditor,
+            @RequestParam(required = false) String bookPublisher,
+            @RequestParam(required = false) String bookVolume,
+            @RequestParam(required = false) String bookSeries,
+            @RequestParam(required = false) String bookAddress,
+            @RequestParam(required = false) String bookEdition,
+            @RequestParam(required = false) String bookPages,
+            @RequestParam(required = false) String bookChapBookNameProceedings,
+            @RequestParam(required = false) String bookChapNumberOrName,
+            @RequestParam(required = false) String semPatHowPub,
+            @RequestParam(required = false) String uniDocSchoolName,
+            @RequestParam(required = false) String uniDocAddress,
+            @RequestParam(required = false) String engActInstitName,
+            @RequestParam(required = false) String engActReportType,
+            @RequestParam(required = false) String engActNumber,
+            @RequestParam(required = false) String userDocOrganization,
+            @RequestParam(required = false) String userDocAddress,
+            @RequestParam(required = false) String userDocEdition,
+            @RequestParam(required = false) String userDocPublisher,
+            @RequestParam(required = false) String publicationJournal) throws IOException, ParseException {
 
         try {
             if (publicationAuthors == null) {
                 throw new Exception("You must specify at least one author.");
             }
+
+            if (publicationQuartile == null) {
+                throw new Exception("You must provide a publication quartile");
+            }
+
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
-            PublicationTypeGroup publicationTypeGroup = publicationTypeEnum.getPublicationTypeGroupFromPublicationType();
+            PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
+                    .getPublicationTypeGroupFromPublicationType();
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());
+
+            Quartile publicationQuartileEnum = Quartile.valueOf(publicationQuartile);
 
             Publication pub = pubServ.getPublication(publicationId);
             if (pub != null) {
                 // Store pdfs
                 String pdfUploadPath = "";
                 if (publicationPdf != null && !publicationPdf.isEmpty()) {
-                    String publicationPdfPath = StringUtils.cleanPath(Objects.requireNonNull(publicationPdf.getOriginalFilename()));
+                    String publicationPdfPath = StringUtils
+                            .cleanPath(Objects.requireNonNull(publicationPdf.getOriginalFilename()));
                     pdfUploadPath = PubProviderApplication.DownloadablesPath + "PDFs/" + publicationPdfPath;
                     FileUploadUtils.saveFile(pdfUploadPath, publicationPdfPath, publicationPdf);
                     logger.info("PDF uploaded at: " + pdfUploadPath);
@@ -128,23 +136,27 @@ public class PublicationController {
                 }
                 String awardUploadPath = "";
                 if (publicationAward != null && !publicationAward.isEmpty()) {
-                    String publicationAwardPath = StringUtils.cleanPath(Objects.requireNonNull(publicationAward.getOriginalFilename()));
+                    String publicationAwardPath = StringUtils
+                            .cleanPath(Objects.requireNonNull(publicationAward.getOriginalFilename()));
                     awardUploadPath = PubProviderApplication.DownloadablesPath + "Awards/" + publicationAwardPath;
                     FileUploadUtils.saveFile(awardUploadPath, publicationAwardPath, publicationPdf);
                     logger.info("Award uploaded at: " + awardUploadPath);
                     pub.setPubPaperAwardPath(awardUploadPath);
                 }
-                
-                //FIXME: Remove authors does not work on edit mode
-                /*List<Author> authors = authorServ.getLinkedAuthors(pub.getPubId());
-                for(Author author : authors) {
-                	String authorToString = author.getAutFirstName() + " " + author.getAutLastName();
-                	if( !Arrays.asList(publicationAuthors).stream()
-                		.anyMatch(a -> a.equals(authorToString))) {
-                		
-                		pub.removeAuthorshipFromAutId(author.getAutId());
-                	}
-                }*/
+
+                // FIXME: Remove authors does not work on edit mode
+                /*
+                 * List<Author> authors = authorServ.getLinkedAuthors(pub.getPubId());
+                 * for(Author author : authors) {
+                 * String authorToString = author.getAutFirstName() + " " +
+                 * author.getAutLastName();
+                 * if( !Arrays.asList(publicationAuthors).stream()
+                 * .anyMatch(a -> a.equals(authorToString))) {
+                 * 
+                 * pub.removeAuthorshipFromAutId(author.getAutId());
+                 * }
+                 * }
+                 */
 
                 int i = 0;
                 // Third step create the authors and link them to the publication
@@ -155,14 +167,20 @@ public class PublicationController {
                     int authorIdByName = authorServ.getAuthorIdByName(firstName, lastName);
                     if (authorIdByName == 0) {
                         logger.info("Author " + publicationAuthor + " not found... Creating a new one.");
-                        authorIdByName = authorServ.createAuthor(firstName, lastName, new Date(1970 - 1900, 1, 1), ""); //Temp birth date // TODO FIXME
+                        authorIdByName = authorServ.createAuthor(firstName, lastName, new Date(1970 - 1900, 1, 1), ""); // Temp
+                                                                                                                        // birth
+                                                                                                                        // date
+                                                                                                                        // //
+                                                                                                                        // TODO
+                                                                                                                        // FIXME
                         logger.info("New author created with id: " + authorIdByName);
                     }
 
                     int finalAuthorIdByName = authorIdByName;
                     if (pub.getPubAuts().stream().anyMatch(a -> a.getAutAutId() == finalAuthorIdByName)) {
                         // Already present
-                        Optional<Authorship> first = pub.getPubAuts().stream().filter(a -> a.getAutAutId() == finalAuthorIdByName).findFirst();
+                        Optional<Authorship> first = pub.getPubAuts().stream()
+                                .filter(a -> a.getAutAutId() == finalAuthorIdByName).findFirst();
                         if (first.isPresent()) {
                             authorServ.updateAuthorship(authorIdByName, publicationId, i);
                             logger.info("Authorship for " + publicationAuthor + " updated.");
@@ -179,13 +197,15 @@ public class PublicationController {
                 switch (publicationTypeGroup) {
                     case Typeless:
                         logger.error("Error during edit publication: " + publicationType + " is not a valid type...");
-                        response.sendRedirect("/SpringRestHibernate/editPublication?error=1"); // Redirect on the same page
+                        response.sendRedirect("/SpringRestHibernate/editPublication?error=1"); // Redirect on the same
+                                                                                               // page
                         return;
                     case ReadingCommitteeJournalPopularizationPaper:
                         int journalId = journalServ.getJournalIdByName(publicationJournal);
                         if (journalId == 0)
                             journalId = journalServ.createJournal(publicationJournal, "", "", "", "");
-                        readingCommitteeJournalPopularizationPaperServ.updateReadingCommitteeJournalPopularizationPaper(pub.getPubId(),
+                        readingCommitteeJournalPopularizationPaperServ.updateReadingCommitteeJournalPopularizationPaper(
+                                pub.getPubId(),
                                 publicationTitle,
                                 publicationAbstract,
                                 publicationKeywords,
@@ -201,11 +221,11 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+
                                 reaComConfPopPapNumber,
                                 reaComConfPopPapPages,
                                 reaComConfPopPapVolume,
-                                journalId
-                        );
+                                journalId);
                         break;
                     case ProceedingsConference:
                         proceedingsConferenceServ.updateProceedingsConference(pub.getPubId(),
@@ -224,14 +244,14 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+
                                 proConfAddress,
                                 proConfBookNameProceedings,
                                 proConfEditor,
                                 proConfOrganization,
                                 proConfPages,
                                 proConfPublisher,
-                                proConfSeries
-                        );
+                                proConfSeries);
                         break;
                     case Book:
                         bookServ.updateBook(pub.getPubId(),
@@ -250,6 +270,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+
                                 bookEditor,
                                 bookPublisher,
                                 bookVolume,
@@ -276,6 +297,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+
                                 bookEditor,
                                 bookPublisher,
                                 bookVolume,
@@ -284,8 +306,7 @@ public class PublicationController {
                                 bookEdition,
                                 bookPages,
                                 bookChapBookNameProceedings,
-                                bookChapNumberOrName
-                        );
+                                bookChapNumberOrName);
                         break;
                     case SeminarPatentInvitedConference:
                         seminarPatentInvitedConferenceServ.updateSeminarPatentInvitedConference(
@@ -296,6 +317,7 @@ public class PublicationController {
                                 publicationDateDate,
                                 publicationNote,
                                 null,
+
                                 publicationIsbn,
                                 publicationIssn,
                                 publicationDoi,
@@ -305,8 +327,7 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
-                                semPatHowPub
-                        );
+                                semPatHowPub);
                         break;
                     case UniversityDocument:
                         universityDocumentServ.updateUniversityDocument(
@@ -317,6 +338,7 @@ public class PublicationController {
                                 publicationDateDate,
                                 publicationNote,
                                 null,
+
                                 publicationIsbn,
                                 publicationIssn,
                                 publicationDoi,
@@ -327,8 +349,7 @@ public class PublicationController {
                                 null,
                                 null,
                                 uniDocAddress,
-                                uniDocSchoolName
-                        );
+                                uniDocSchoolName);
                         break;
                     case EngineeringActivity:
                         engineeringActivityServ.updateEngineeringActivity(
@@ -339,6 +360,7 @@ public class PublicationController {
                                 publicationDateDate,
                                 publicationNote,
                                 null,
+
                                 publicationIsbn,
                                 publicationIssn,
                                 publicationDoi,
@@ -350,8 +372,7 @@ public class PublicationController {
                                 null,
                                 engActInstitName,
                                 engActNumber,
-                                engActReportType
-                        );
+                                engActReportType);
                         break;
                     case UserDocumentation:
                         userDocumentationServ.updateUserDocumentation(
@@ -371,11 +392,11 @@ public class PublicationController {
                                 publicationLanguage,
                                 null,
                                 null,
+
                                 userDocAddress,
                                 userDocEdition,
                                 userDocOrganization,
-                                userDocPublisher
-                        );
+                                userDocPublisher);
                         break;
                 }
 
@@ -384,83 +405,124 @@ public class PublicationController {
 
             response.sendRedirect("/SpringRestHibernate/addPublication?edit=1&publicationId=" + publicationId);
         } catch (Exception ex) {
-            response.sendRedirect("/SpringRestHibernate/addPublication?error=1&publicationId=" + publicationId + "&message=" + ex.getMessage()); // Redirect on the same page
+            response.sendRedirect("/SpringRestHibernate/addPublication?error=1&publicationId=" + publicationId
+                    + "&message=" + ex.getMessage()); // Redirect on the same page
         }
 
     }
 
-    @RequestMapping(value = "/createPublication",
-            method = RequestMethod.POST,
-            headers = "Accept=application/json")
+    @RequestMapping(value = "/createPublication", method = RequestMethod.POST, headers = "Accept=application/json")
     public void createPublication(HttpServletResponse response,
-                                  String publicationType,
-                                  String publicationTitle,
-                                  String publicationAbstract,
-                                  String publicationKeywords,
-                                  String publicationDate,
-                                  String[] publicationAuthors,
-                                  @RequestParam(required = false) String publicationNote,
-                                  @RequestParam(required = false) String publicationIsbn,
-                                  @RequestParam(required = false) String publicationIssn,
-                                  @RequestParam(required = false) String publicationDoi,
-                                  @RequestParam(required = false) String publicationUrl,
-                                  @RequestParam(required = false) String publicationVideoUrl,
-                                  @RequestParam(required = false) String publicationDblp,
-                                  @RequestParam(required = false) MultipartFile publicationPdf,
-                                  @RequestParam(required = false) MultipartFile publicationAward,
-                                  @RequestParam(required = false) String publicationLanguage,
-                                  @RequestParam(required = false) String reaComConfPopPapVolume,
-                                  @RequestParam(required = false) String reaComConfPopPapNumber,
-                                  @RequestParam(required = false) String reaComConfPopPapPages,
-                                  @RequestParam(required = false) String proConfBookNameProceedings,
-                                  @RequestParam(required = false) String proConfEditor,
-                                  @RequestParam(required = false) String proConfPages,
-                                  @RequestParam(required = false) String proConfOrganization,
-                                  @RequestParam(required = false) String proConfPublisher,
-                                  @RequestParam(required = false) String proConfAddress,
-                                  @RequestParam(required = false) String proConfSeries,
-                                  @RequestParam(required = false) String bookEditor,
-                                  @RequestParam(required = false) String bookPublisher,
-                                  @RequestParam(required = false) String bookVolume,
-                                  @RequestParam(required = false) String bookSeries,
-                                  @RequestParam(required = false) String bookAddress,
-                                  @RequestParam(required = false) String bookEdition,
-                                  @RequestParam(required = false) String bookPages,
-                                  @RequestParam(required = false) String bookChapBookNameProceedings,
-                                  @RequestParam(required = false) String bookChapNumberOrName,
-                                  @RequestParam(required = false) String semPatHowPub,
-                                  @RequestParam(required = false) String uniDocSchoolName,
-                                  @RequestParam(required = false) String uniDocAddress,
-                                  @RequestParam(required = false) String engActInstitName,
-                                  @RequestParam(required = false) String engActReportType,
-                                  @RequestParam(required = false) String engActNumber,
-                                  @RequestParam(required = false) String userDocOrganization,
-                                  @RequestParam(required = false) String userDocAddress,
-                                  @RequestParam(required = false) String userDocEdition,
-                                  @RequestParam(required = false) String userDocPublisher,
-                                  @RequestParam(required = false) String publicationJournal) throws IOException, ParseException {
+            String publicationType,
+            String publicationQuartile,
+            String publicationTitle,
+            String publicationAbstract,
+            String publicationKeywords,
+            String publicationDate,
+            String[] publicationAuthors,
+            @RequestParam(required = false) String publicationNote,
+            @RequestParam(required = false) String publicationIsbn,
+            @RequestParam(required = false) String publicationIssn,
+            @RequestParam(required = false) String publicationDoi,
+            @RequestParam(required = false) String publicationUrl,
+            @RequestParam(required = false) String publicationVideoUrl,
+            @RequestParam(required = false) String publicationDblp,
+            @RequestParam(required = false) MultipartFile publicationPdf,
+            @RequestParam(required = false) MultipartFile publicationAward,
+            @RequestParam(required = false) String publicationLanguage,
+            @RequestParam(required = false) String reaComConfPopPapVolume,
+            @RequestParam(required = false) String reaComConfPopPapNumber,
+            @RequestParam(required = false) String reaComConfPopPapPages,
+            @RequestParam(required = false) String proConfBookNameProceedings,
+            @RequestParam(required = false) String proConfEditor,
+            @RequestParam(required = false) String proConfPages,
+            @RequestParam(required = false) String proConfOrganization,
+            @RequestParam(required = false) String proConfPublisher,
+            @RequestParam(required = false) String proConfAddress,
+            @RequestParam(required = false) String proConfSeries,
+            @RequestParam(required = false) String bookEditor,
+            @RequestParam(required = false) String bookPublisher,
+            @RequestParam(required = false) String bookVolume,
+            @RequestParam(required = false) String bookSeries,
+            @RequestParam(required = false) String bookAddress,
+            @RequestParam(required = false) String bookEdition,
+            @RequestParam(required = false) String bookPages,
+            @RequestParam(required = false) String bookChapBookNameProceedings,
+            @RequestParam(required = false) String bookChapNumberOrName,
+            @RequestParam(required = false) String semPatHowPub,
+            @RequestParam(required = false) String uniDocSchoolName,
+            @RequestParam(required = false) String uniDocAddress,
+            @RequestParam(required = false) String engActInstitName,
+            @RequestParam(required = false) String engActReportType,
+            @RequestParam(required = false) String engActNumber,
+            @RequestParam(required = false) String userDocOrganization,
+            @RequestParam(required = false) String userDocAddress,
+            @RequestParam(required = false) String userDocEdition,
+            @RequestParam(required = false) String userDocPublisher,
+            @RequestParam(required = false) String publicationJournal) throws IOException, ParseException {
 
         try {
             if (publicationAuthors == null) {
                 throw new Exception("You must specify at least one author.");
             }
+
+            if (publicationQuartile == null) {
+                System.out.println(publicationQuartile);
+                throw new Exception("You must provide a publication quartile");
+            }
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
-            PublicationTypeGroup publicationTypeGroup = publicationTypeEnum.getPublicationTypeGroupFromPublicationType();
-            Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());/*new Date(
-                Integer.parseInt(publicationDate.split("-")[0]) - 1900,
-                Integer.parseInt(publicationDate.split("-")[1]), 1
-        );*/
+            PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
+                    .getPublicationTypeGroupFromPublicationType();
+            Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());/*
+                                                                                                                      * new
+                                                                                                                      * Date(
+                                                                                                                      * Integer
+                                                                                                                      * .
+                                                                                                                      * parseInt
+                                                                                                                      * (
+                                                                                                                      * publicationDate
+                                                                                                                      * .
+                                                                                                                      * split
+                                                                                                                      * (
+                                                                                                                      * "-"
+                                                                                                                      * )
+                                                                                                                      * [
+                                                                                                                      * 0
+                                                                                                                      * ]
+                                                                                                                      * )
+                                                                                                                      * -
+                                                                                                                      * 1900,
+                                                                                                                      * Integer
+                                                                                                                      * .
+                                                                                                                      * parseInt
+                                                                                                                      * (
+                                                                                                                      * publicationDate
+                                                                                                                      * .
+                                                                                                                      * split
+                                                                                                                      * (
+                                                                                                                      * "-"
+                                                                                                                      * )
+                                                                                                                      * [
+                                                                                                                      * 1
+                                                                                                                      * ]
+                                                                                                                      * )
+                                                                                                                      * ,
+                                                                                                                      * 1
+                                                                                                                      * );
+                                                                                                                      */
             // Store pdfs
             String pdfUploadPath = "";
             if (publicationPdf != null && !publicationPdf.isEmpty()) {
-                String publicationPdfPath = StringUtils.cleanPath(Objects.requireNonNull(publicationPdf.getOriginalFilename()));
+                String publicationPdfPath = StringUtils
+                        .cleanPath(Objects.requireNonNull(publicationPdf.getOriginalFilename()));
                 pdfUploadPath = PubProviderApplication.DownloadablesPath + "PDFs/" + publicationPdfPath;
                 FileUploadUtils.saveFile(pdfUploadPath, publicationPdfPath, publicationPdf);
                 logger.info("PDF uploaded at: " + pdfUploadPath);
             }
             String awardUploadPath = "";
             if (publicationAward != null && !publicationAward.isEmpty()) {
-                String publicationAwardPath = StringUtils.cleanPath(Objects.requireNonNull(publicationAward.getOriginalFilename()));
+                String publicationAwardPath = StringUtils
+                        .cleanPath(Objects.requireNonNull(publicationAward.getOriginalFilename()));
                 awardUploadPath = PubProviderApplication.DownloadablesPath + "Awards/" + publicationAwardPath;
                 FileUploadUtils.saveFile(awardUploadPath, publicationAwardPath, publicationPdf);
                 logger.info("Award uploaded at: " + awardUploadPath);
@@ -468,7 +530,11 @@ public class PublicationController {
 
             int pubId = 0;
             // First step : create the publication
-            Publication publication = new Publication(publicationTitle, publicationAbstract, publicationKeywords, publicationDateDate, publicationNote, null, publicationIsbn, publicationIssn, publicationDoi, publicationUrl, publicationVideoUrl, publicationDblp, pdfUploadPath, publicationLanguage, awardUploadPath, PublicationType.valueOf(publicationType));
+            Publication publication = new Publication(publicationTitle, publicationAbstract, publicationKeywords,
+                    publicationDateDate, publicationNote, null, publicationIsbn, publicationIssn, publicationDoi,
+                    publicationUrl, publicationVideoUrl, publicationDblp, pdfUploadPath, publicationLanguage,
+                    awardUploadPath, PublicationType.valueOf(publicationType),
+                    Quartile.valueOf(publicationQuartile));
             pubId = publication.getPubId();
 
             // Second step : create the specific data of publication type
@@ -481,46 +547,57 @@ public class PublicationController {
                     int journalId = journalServ.getJournalIdByName(publicationJournal);
                     if (journalId == 0)
                         journalId = journalServ.createJournal(publicationJournal, "", "", "", "");
-                    ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ.createReadingCommitteeJournalPopularizationPaper(
-                            publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages, journalId
-                    );
+                    ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ
+                            .createReadingCommitteeJournalPopularizationPaper(
+                                    publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages,
+                                    journalId);
                     pubId = paper.getPubId();
                     logger.info("ReadingCommitteeJournalPopularizationPaper created with id: " + paper.getPubId());
                     break;
                 case ProceedingsConference:
-                    ProceedingsConference proceedingsConference = proceedingsConferenceServ.createProceedingsConference(publication, proConfBookNameProceedings, proConfEditor, proConfPages, proConfOrganization, proConfPublisher, proConfAddress, proConfSeries);
+                    ProceedingsConference proceedingsConference = proceedingsConferenceServ.createProceedingsConference(
+                            publication, proConfBookNameProceedings, proConfEditor, proConfPages, proConfOrganization,
+                            proConfPublisher, proConfAddress, proConfSeries);
                     pubId = proceedingsConference.getPubId();
                     logger.info("ProceedingsConference created with id: " + proceedingsConference.getPubId());
                     break;
                 case Book:
-                    Book book = bookServ.createBook(publication, bookEditor, bookPublisher, bookVolume, bookSeries, bookAddress, bookEdition, bookPages);
+                    Book book = bookServ.createBook(publication, bookEditor, bookPublisher, bookVolume, bookSeries,
+                            bookAddress, bookEdition, bookPages);
                     pubId = book.getPubId();
                     logger.info("Book created with id: " + book.getPubId());
                     break;
                 case BookChapter:
-                    Book book2 = new Book(publication, bookEditor, bookPublisher, bookVolume, bookSeries, bookAddress, bookEdition, bookPages);
+                    Book book2 = new Book(publication, bookEditor, bookPublisher, bookVolume, bookSeries, bookAddress,
+                            bookEdition, bookPages);
                     logger.info("Book created with id: " + book2.getPubId());
-                    BookChapter bookChapter = bookChapterServ.createBookChapter(publication, book2, bookChapBookNameProceedings, bookChapNumberOrName);
+                    BookChapter bookChapter = bookChapterServ.createBookChapter(publication, book2,
+                            bookChapBookNameProceedings, bookChapNumberOrName);
                     pubId = bookChapter.getPubId();
                     logger.info("BookChapter created with id: " + bookChapter.getPubId());
                     break;
                 case SeminarPatentInvitedConference:
-                    SeminarPatentInvitedConference seminarPatentInvitedConference = seminarPatentInvitedConferenceServ.createSeminarPatentInvitedConference(publication, semPatHowPub);
+                    SeminarPatentInvitedConference seminarPatentInvitedConference = seminarPatentInvitedConferenceServ
+                            .createSeminarPatentInvitedConference(publication, semPatHowPub);
                     pubId = seminarPatentInvitedConference.getPubId();
-                    logger.info("SeminarPatentInvitedConference created with id: " + seminarPatentInvitedConference.getPubId());
+                    logger.info("SeminarPatentInvitedConference created with id: "
+                            + seminarPatentInvitedConference.getPubId());
                     break;
                 case UniversityDocument:
-                    UniversityDocument universityDocument = universityDocumentServ.createUniversityDocument(publication, uniDocSchoolName, uniDocAddress);
+                    UniversityDocument universityDocument = universityDocumentServ.createUniversityDocument(publication,
+                            uniDocSchoolName, uniDocAddress);
                     pubId = universityDocument.getPubId();
                     logger.info("UniversityDocument created with id: " + universityDocument.getPubId());
                     break;
                 case EngineeringActivity:
-                    EngineeringActivity engineeringActivity = engineeringActivityServ.createEngineeringActivity(publication, engActInstitName, engActNumber, engActReportType);
+                    EngineeringActivity engineeringActivity = engineeringActivityServ
+                            .createEngineeringActivity(publication, engActInstitName, engActNumber, engActReportType);
                     pubId = engineeringActivity.getPubId();
                     logger.info("EngineeringActivity created with id: " + engineeringActivity.getPubId());
                     break;
                 case UserDocumentation:
-                    UserDocumentation userDocumentation = userDocumentationServ.createUserDocumentation(publication, userDocAddress, userDocEdition, userDocOrganization, userDocPublisher);
+                    UserDocumentation userDocumentation = userDocumentationServ.createUserDocumentation(publication,
+                            userDocAddress, userDocEdition, userDocOrganization, userDocPublisher);
                     pubId = userDocumentation.getPubId();
                     logger.info("UserDocumentation created with id: " + userDocumentation.getPubId());
                     break;
@@ -535,7 +612,12 @@ public class PublicationController {
                 int authorIdByName = authorServ.getAuthorIdByName(firstName, lastName);
                 if (authorIdByName == 0) {
                     logger.info("Author " + publicationAuthor + " not found... Creating a new one.");
-                    authorIdByName = authorServ.createAuthor(firstName, lastName, new Date(1970 - 1900, 1, 1), ""); //Temp birth date // TODO FIXME
+                    authorIdByName = authorServ.createAuthor(firstName, lastName, new Date(1970 - 1900, 1, 1), ""); // Temp
+                                                                                                                    // birth
+                                                                                                                    // date
+                                                                                                                    // //
+                                                                                                                    // TODO
+                                                                                                                    // FIXME
                     logger.info("New author created with id: " + authorIdByName);
                 }
                 authorServ.addAuthorship(authorIdByName, pubId, i);
@@ -545,7 +627,10 @@ public class PublicationController {
 
             response.sendRedirect("/SpringRestHibernate/addPublication?success=1");
         } catch (Exception ex) {
-            response.sendRedirect("/SpringRestHibernate/addPublication?error=1&message=" + ex.getMessage()); // Redirect on the same page
+            response.sendRedirect("/SpringRestHibernate/addPublication?error=1&message=" + ex.getMessage()); // Redirect
+                                                                                                             // on the
+                                                                                                             // same
+                                                                                                             // page
         }
 
     }
@@ -557,38 +642,46 @@ public class PublicationController {
                 String bibtextContent = new String(bibtext.getBytes(), Charset.forName("UTF-8"));
                 logger.info("Bibtext file read : " + bibtextContent);
                 List<Integer> publications = importPublications(bibtextContent);
-                response.sendRedirect("/SpringRestHibernate/addPublicationFromBibtext?success=1&importedPubs=" + publications.size());
+                response.sendRedirect(
+                        "/SpringRestHibernate/addPublicationFromBibtext?success=1&importedPubs=" + publications.size());
             } else {
                 throw new Exception("Bibtext not provided...");
             }
         } catch (Exception ex) {
-            response.sendRedirect("/SpringRestHibernate/addPublicationFromBibtext?error=1&message=" + ex.getMessage()); // Redirect on the same page
+            response.sendRedirect("/SpringRestHibernate/addPublicationFromBibtext?error=1&message=" + ex.getMessage()); // Redirect
+                                                                                                                        // on
+                                                                                                                        // the
+                                                                                                                        // same
+                                                                                                                        // page
         }
     }
 
-    //Import a bibTex file to the database.
-    //Returns a list of the IDs of the successfully imported publications.
+    // Import a bibTex file to the database.
+    // Returns a list of the IDs of the successfully imported publications.
     @RequestMapping(value = "/importPublications", method = RequestMethod.POST, headers = "Accept=application/json")
     public List<Integer> importPublications(String bibText) {
         return pubServ.importPublications(bibText);
     }
 
-    //Export a bibTex file from a given json
-    //The export contains a bibtex and an html export which can be extracted like in an html document
+    // Export a bibTex file from a given json
+    // The export contains a bibtex and an html export which can be extracted like
+    // in an html document
     @Deprecated
     @RequestMapping(value = "/exportPublications", method = RequestMethod.POST, headers = "Accept=application/json")
     public String exportPublications(String pubs) {
         if (pubs == null) {
-            System.out.println("\n\nNo data received\n\n."); //This will pop up when the json is too big.
+            System.out.println("\n\nNo data received\n\n."); // This will pop up when the json is too big.
         }
         return pubServ.exportPublications(pubs);
     }
 
-
-    //Export a bibTex file from the database
-    //Exports publications released between exportStart & exportEnd. What is being exported depends on exportContent.
-    //exportContent format type "all" or "org:1754" or "aut:1487"... With the number being the ID of the concerned org or aut
-    //The export contains a bibtex and an html export which can be extracted like in an html document
+    // Export a bibTex file from the database
+    // Exports publications released between exportStart & exportEnd. What is being
+    // exported depends on exportContent.
+    // exportContent format type "all" or "org:1754" or "aut:1487"... With the
+    // number being the ID of the concerned org or aut
+    // The export contains a bibtex and an html export which can be extracted like
+    // in an html document
     @Deprecated
     @RequestMapping(value = "/exportPublicationsFromDataBase", method = RequestMethod.POST, headers = "Accept=application/json")
     public String exportPublicationsFromDataBase(String exportStart, String exportEnd, String exportContent) {
@@ -606,7 +699,8 @@ public class PublicationController {
     public String exportBibtex(Integer[] listPublicationsIds) {
         StringBuilder sb = new StringBuilder();
         for (Integer i : listPublicationsIds) {
-            if (i == null) continue;
+            if (i == null)
+                continue;
             try {
                 sb.append(pubServ.exportOneBibTex(i));
             } catch (Exception ex) {
@@ -628,7 +722,8 @@ public class PublicationController {
         StringBuilder sb = new StringBuilder();
         sb.append("<ul>");
         for (Integer i : listPublicationsIds) {
-            if (i == null) continue;
+            if (i == null)
+                continue;
             try {
                 sb.append(pubServ.exportOneHtml(i));
             } catch (Exception ex) {
@@ -638,7 +733,6 @@ public class PublicationController {
         sb.append("</ul>");
         return sb.toString();
     }
-
 
     /**
      * TMT 02/12/20
@@ -652,14 +746,15 @@ public class PublicationController {
         try {
             OdfTextDocument odt = OdfTextDocument.newTextDocument();
             for (Integer i : listPublicationsIds) {
-                if (i == null) continue;
+                if (i == null)
+                    continue;
                 odt.newParagraph(pubServ.exportOneOdt(i));
                 // Adding paragraph to separate two publications
                 odt.newParagraph();
             }
             DrainableOutputStream out = new DrainableOutputStream(null);
             odt.getPackage().save(out);
-            byte[] data = out.toByteArray(); //odt.getPackage().getInputStream().readAllBytes();
+            byte[] data = out.toByteArray(); // odt.getPackage().getInputStream().readAllBytes();
             return data;
         } catch (Exception e) {
             this.logger.warn("Error during ODT export of publications");
@@ -669,31 +764,32 @@ public class PublicationController {
 
     class DrainableOutputStream extends FilterOutputStream {
         private final ByteArrayOutputStream buffer;
+
         public DrainableOutputStream(OutputStream out) {
             super(out);
             this.buffer = new ByteArrayOutputStream();
         }
+
         @Override
         public void write(byte b[]) throws IOException {
             this.buffer.write(b);
             super.write(b);
         }
+
         @Override
         public void write(byte b[], int off, int len) throws IOException {
             this.buffer.write(b, off, len);
             super.write(b, off, len);
         }
+
         @Override
         public void write(int b) throws IOException {
             this.buffer.write(b);
             super.write(b);
         }
+
         public byte[] toByteArray() {
             return this.buffer.toByteArray();
         }
     }
 }
-
-
-
-	

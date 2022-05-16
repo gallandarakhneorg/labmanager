@@ -38,10 +38,11 @@ public class JournalService {
             BufferedImage image;
 
             if (PubProviderApplication.PROXYURL.compareTo("") != 0) {
-                Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(PubProviderApplication.PROXYURL, PubProviderApplication.PROXYPORT));
+                Proxy proxy = new Proxy(Proxy.Type.HTTP,
+                        new InetSocketAddress(PubProviderApplication.PROXYURL, PubProviderApplication.PROXYPORT));
                 URLConnection connection = sciURL.openConnection(proxy);
                 connection.connect();
-                //InputStream in = new BufferedInputStream(sciURL.openStream());
+                // InputStream in = new BufferedInputStream(sciURL.openStream());
                 InputStream in = connection.getInputStream();
                 ByteArrayOutputStream out = new ByteArrayOutputStream();
                 byte[] buf = new byte[1024];
@@ -54,7 +55,8 @@ public class JournalService {
                 byte[] response = out.toByteArray();
                 ByteArrayInputStream bis = new ByteArrayInputStream(response);
                 image = ImageIO.read(bis);
-            } else //I assume this should be enough to work but given that Im behind a proxy I cant try it
+            } else // I assume this should be enough to work but given that Im behind a proxy I
+                   // cant try it
             {
                 image = ImageIO.read(sciURL);
             }
@@ -79,7 +81,8 @@ public class JournalService {
     public void removeJournal(int index) {
         Optional<Journal> j = repo.findById(index);
         if (j.isPresent()) {
-            //Deletion should be disabled if it still has pubs attached to it but just in case
+            // Deletion should be disabled if it still has pubs attached to it but just in
+            // case
             for (ReadingCommitteeJournalPopularizationPaper p : j.get().getJourPubs()) {
                 p.setReaComConfPopPapJournal(null);
                 pubRepo.save(p);
@@ -88,21 +91,23 @@ public class JournalService {
         }
     }
 
-    public int createJournal(String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {
+    public int createJournal(String jourName, String jourPublisher, String jourElsevier, String jourScimago,
+            String jourWos) {
 
         final Journal res = new Journal();
-        //Generic pub fields
+        // Generic pub fields
         System.out.println("assigning fields");
         res.setJourName(jourName);
         res.setJourPublisher(jourPublisher);
         res.setJourElsevier(jourElsevier);
         res.setJourScimago(jourScimago);
         res.setJourWos(jourWos);
-        res.setJourQuartil(getJournalQuartilInfo(jourScimago));
+        // res.setJourQuartil(getJournalQuartilInfo(jourScimago));
 
-        if (res.getJourName().contains("LNCS") && res.getJourQuartil() == "2") {
-            res.setJourQuartil("2 (LNCS)");
-        }
+        // if (res.getJourName().contains("LNCS") && res.getJourQuartil() == "2") {
+        // res.setJourQuartil("2 (LNCS)");
+        // }
+
         System.out.println("Saving");
         this.repo.save(res);
 
@@ -110,10 +115,11 @@ public class JournalService {
         return res.getJourId();
     }
 
-    public void updateJournal(int pubId, String jourName, String jourPublisher, String jourElsevier, String jourScimago, String jourWos) {
+    public void updateJournal(int pubId, String jourName, String jourPublisher, String jourElsevier, String jourScimago,
+            String jourWos) {
         final Optional<Journal> res = this.repo.findById(pubId);
         if (res.isPresent()) {
-            //Generic pub fields
+            // Generic pub fields
             if (!jourName.isEmpty())
                 res.get().setJourName(jourName);
             if (!jourPublisher.isEmpty())
@@ -122,13 +128,14 @@ public class JournalService {
                 res.get().setJourElsevier(jourElsevier);
             if (!jourScimago.isEmpty())
                 res.get().setJourScimago(jourScimago);
-            res.get().setJourQuartil(getJournalQuartilInfo(jourScimago));
+            // res.get().setJourQuartil(getJournalQuartilInfo(jourScimago));
             if (!jourWos.isEmpty())
                 res.get().setJourWos(jourWos);
 
-            if (res.get().getJourName().contains("LNCS") && res.get().getJourQuartil() == "2") {
-                res.get().setJourQuartil("2 (LNCS)");
-            }
+            // if (res.get().getJourName().contains("LNCS") && res.get().getJourQuartil() ==
+            // "2") {
+            // res.get().setJourQuartil("2 (LNCS)");
+            // }
 
             this.repo.save(res.get());
         }
@@ -159,7 +166,7 @@ public class JournalService {
         }
     }
 
-    //Review if optional as result when several result possible is a good idea
+    // Review if optional as result when several result possible is a good idea
     public int getJournalIdByName(String jourName) {
         List<Journal> result = new ArrayList<Journal>();
         final Optional<Journal> res = repo.findByJourName(jourName);
@@ -167,15 +174,14 @@ public class JournalService {
             result.add(res.get());
         }
 
-
         if (!result.isEmpty()) {
-            return result.get(0).getJourId(); //We assume theres no name dupes
+            return result.get(0).getJourId(); // We assume theres no name dupes
         } else {
             return 0;
         }
     }
 
-    //Review if optional as result when several result possible is a good idea
+    // Review if optional as result when several result possible is a good idea
     public Journal getJournalByName(String jourName) {
         List<Journal> result = new ArrayList<Journal>();
         final Optional<Journal> res = repo.findByJourName(jourName);
@@ -183,9 +189,8 @@ public class JournalService {
             result.add(res.get());
         }
 
-
         if (!result.isEmpty()) {
-            return result.get(0); //We assume theres no name dupes
+            return result.get(0); // We assume theres no name dupes
         } else {
             return null;
         }
@@ -219,8 +224,4 @@ public class JournalService {
         return result;
     }
 
-
 }
-
-
-

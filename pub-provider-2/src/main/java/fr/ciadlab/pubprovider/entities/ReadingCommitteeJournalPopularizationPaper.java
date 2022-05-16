@@ -2,13 +2,16 @@ package fr.ciadlab.pubprovider.entities;
 
 import javax.persistence.*;
 
+import com.itextpdf.text.pdf.PdfStructTreeController.returnType;
+
 @Entity
 @Table(name = "ReadingCommitteeJournalsPopularizationPapers")
 @PrimaryKeyJoinColumn(name = "pubId")
-//I realised way too late that this was a journal type and not a conference type
-//As a result all of the attributes are still named reaComConf instead of reaComJour
+// I realised way too late that this was a journal type and not a conference
+// type
+// As a result all of the attributes are still named reaComConf instead of
+// reaComJour
 public class ReadingCommitteeJournalPopularizationPaper extends Publication {
-
 
     /**
      *
@@ -27,7 +30,8 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication {
     @ManyToOne
     private Journal reaComConfPopPapJournal;
 
-    public ReadingCommitteeJournalPopularizationPaper(Publication p, String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages) {
+    public ReadingCommitteeJournalPopularizationPaper(Publication p, String reaComConfPopPapVolume,
+            String reaComConfPopPapNumber, String reaComConfPopPapPages) {
         super(p);
         this.reaComConfPopPapVolume = reaComConfPopPapVolume;
         this.reaComConfPopPapNumber = reaComConfPopPapNumber;
@@ -39,18 +43,25 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication {
     }
 
     //
-//    public ReadingCommitteeJournalPopularizationPaper(int pubId, List<Authorship> pubAuts, String pubTitle,
-//                                                      String pubAbstract, String pubKeywords, Date pubDate, String pubNote, String pubAnnotations, String pubISBN,
-//                                                      String pubISSN, String pubDOIRef, String pubURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-//                                                      String pubPaperAwardPath, PublicationType pubType, String reaComConfPopPapVolume,
-//                                                      String reaComConfPopPapNumber, String reaComConfPopPapPages, Journal reaComConfPopPapJournal) {
-//        super(pubId, pubAuts, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote, pubAnnotations, pubISBN, pubISSN,
-//                pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath, pubType);
-//        this.reaComConfPopPapVolume = reaComConfPopPapVolume;
-//        this.reaComConfPopPapNumber = reaComConfPopPapNumber;
-//        this.reaComConfPopPapPages = reaComConfPopPapPages;
-//        this.reaComConfPopPapJournal = reaComConfPopPapJournal;
-//    }
+    // public ReadingCommitteeJournalPopularizationPaper(int pubId, List<Authorship>
+    // pubAuts, String pubTitle,
+    // String pubAbstract, String pubKeywords, Date pubDate, String pubNote, String
+    // pubAnnotations, String pubISBN,
+    // String pubISSN, String pubDOIRef, String pubURL, String pubDBLP, String
+    // pubPDFPath, String pubLanguage,
+    // String pubPaperAwardPath, PublicationType pubType, String
+    // reaComConfPopPapVolume,
+    // String reaComConfPopPapNumber, String reaComConfPopPapPages, Journal
+    // reaComConfPopPapJournal) {
+    // super(pubId, pubAuts, pubTitle, pubAbstract, pubKeywords, pubDate, pubNote,
+    // pubAnnotations, pubISBN, pubISSN,
+    // pubDOIRef, pubURL, pubDBLP, pubPDFPath, pubLanguage, pubPaperAwardPath,
+    // pubType);
+    // this.reaComConfPopPapVolume = reaComConfPopPapVolume;
+    // this.reaComConfPopPapNumber = reaComConfPopPapNumber;
+    // this.reaComConfPopPapPages = reaComConfPopPapPages;
+    // this.reaComConfPopPapJournal = reaComConfPopPapJournal;
+    // }
 
     public String getReaComConfPopPapVolume() {
         return reaComConfPopPapVolume;
@@ -88,7 +99,8 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication {
     public int hashCode() {
         final int prime = 31;
         int result = super.hashCode();
-        //result = prime * result + ((reaComConfPopPapJournal == null) ? 0 : reaComConfPopPapJournal.hashCode());
+        // result = prime * result + ((reaComConfPopPapJournal == null) ? 0 :
+        // reaComConfPopPapJournal.hashCode());
         result = prime * result + ((reaComConfPopPapNumber == null) ? 0 : reaComConfPopPapNumber.hashCode());
         result = prime * result + ((reaComConfPopPapPages == null) ? 0 : reaComConfPopPapPages.hashCode());
         result = prime * result + ((reaComConfPopPapVolume == null) ? 0 : reaComConfPopPapVolume.hashCode());
@@ -127,7 +139,28 @@ public class ReadingCommitteeJournalPopularizationPaper extends Publication {
         return true;
     }
 
+    public Quartile getPubJournalScimagoQuartile() {
+        if (this.getReaComConfPopPapJournal() != null)
+            return this.getReaComConfPopPapJournal().getScimagoQuartileByYear(this.getPubYear());
+        return null;
+    }
+
+    public Quartile getPubJournalWosQuartile() {
+        if (this.getReaComConfPopPapJournal() != null)
+            return this.getReaComConfPopPapJournal().getWosQuartileByYear(this.getPubYear());
+        return null;
+    }
+
+    public CoreRanking getPubJournalCoreRanking() {
+        if (this.getReaComConfPopPapJournal() != null)
+            return this.getReaComConfPopPapJournal().getCoreRankingByYear(this.getPubYear());
+        return null;
+    }
+
+    public int getPubJournalImpactFactor() {
+        if (this.getReaComConfPopPapJournal() != null)
+            return this.getReaComConfPopPapJournal().getImpactFactorByYear(this.getPubYear());
+        return 0;
+    }
 
 }
-
-
