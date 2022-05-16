@@ -421,7 +421,7 @@ public class PublicationController {
             @RequestParam(required = false) String journalScimagoQuartile,
             @RequestParam(required = false) String journalWosQuartile,
             @RequestParam(required = false) String journalCoreRanking,
-            @RequestParam(required = false) String journalImpactFactor,
+            @RequestParam(required = false, defaultValue = "0") int journalImpactFactor,
             @RequestParam(required = false) String publicationNote,
             @RequestParam(required = false) String publicationIsbn,
             @RequestParam(required = false) String publicationIssn,
@@ -548,7 +548,10 @@ public class PublicationController {
                     ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ
                             .createReadingCommitteeJournalPopularizationPaper(
                                     publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages,
-                                    journalId);
+                                    journalId, Quartile.valueOf(journalScimagoQuartile),
+                                    Quartile.valueOf(journalWosQuartile),
+                                    CoreRanking.getCoreRankingFromString(journalCoreRanking),
+                                    journalImpactFactor);
                     pubId = paper.getPubId();
                     logger.info("ReadingCommitteeJournalPopularizationPaper created with id: " + paper.getPubId());
                     break;

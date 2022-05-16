@@ -2,6 +2,7 @@ package fr.ciadlab.pubprovider.service;
 
 import fr.ciadlab.pubprovider.PubProviderApplication;
 import fr.ciadlab.pubprovider.entities.Author;
+import fr.ciadlab.pubprovider.entities.CoreRanking;
 import fr.ciadlab.pubprovider.entities.Publication;
 import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.entities.PublicationType;
@@ -46,17 +47,32 @@ public class ReadingCommitteeJournalPopularizationPaperService {
 
     public ReadingCommitteeJournalPopularizationPaper createReadingCommitteeJournalPopularizationPaper(Publication p,
             String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages,
-            Integer journalId) {
+            Integer journalId,
+            Quartile reaComConfPopPapScimagoQuartile, Quartile reaComConfPopPapWosQuartile,
+            CoreRanking reaComConfPopPapCoreRanking, int reaComConfPopPapImpactFactor) {
         ReadingCommitteeJournalPopularizationPaper res = new ReadingCommitteeJournalPopularizationPaper(p,
                 reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);
         if (journalId != null && journalRepository.findById(journalId).isPresent())
             res.setReaComConfPopPapJournal(journalRepository.getOne(journalId));
         res = this.repo.save(res); // Id is generated on save so I gotta save once before setting these
+        if (reaComConfPopPapScimagoQuartile != null)
+            res.getReaComConfPopPapJournal().setScimagoQuartileByYear(res.getPubYear(),
+                    reaComConfPopPapScimagoQuartile);
+        if (reaComConfPopPapWosQuartile != null)
+            res.getReaComConfPopPapJournal().setWosQuartileByYear(res.getPubYear(),
+                    reaComConfPopPapWosQuartile);
+        if (reaComConfPopPapCoreRanking != null)
+            res.getReaComConfPopPapJournal().setCoreRankingByYear(res.getPubYear(),
+                    reaComConfPopPapCoreRanking);
+        res.getReaComConfPopPapJournal().setImpactFactorByYear(res.getPubYear(),
+                reaComConfPopPapImpactFactor);
         return res;
     }
 
+    // TODO: A SUPPRIMER CAR DEPRECATED
     @Deprecated
-    public int createReadingCommitteeJournalPopularizationPaper(String pubTitle, String pubAbstract, String pubKeywords,
+    public int createReadingCommitteeJournalPopularizationPaper4(String pubTitle, String pubAbstract,
+            String pubKeywords,
             Date pubDate, String pubNote,
             String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
             String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,

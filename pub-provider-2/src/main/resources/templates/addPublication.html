@@ -415,22 +415,30 @@
                     historyYear: date.getFullYear(),
                     journalName: journalTitle
                 },
-                success: function(d){
-                    console.log(d);
-                    d = JSON.parse(d);
-                    console.log(d.scimagoQuartile);
-                    console.log(d.wosQuartile);
-                    console.log(d.coreRanking);
-                    console.log(d.impactFactor);
-                    
-                    $("#journalScimagoQuartile").val(d.scimagoQuartile);
-                    $("#journalWosQuartile").val(d.wosQuartile);
-                    $("#journalCoreRanking").val(d.coreRanking);
-                    $("#journalImpactFactor").val(d.impactFactor);
+                success: function(fetchedQualityIndicators){
+                    if(fetchedQualityIndicators != null && fetchedQualityIndicators!=''){
+                        fetchedQualityIndicators = JSON.parse(fetchedQualityIndicators);
+                        
+                        // preselection of each quality indicator if they exist
+                        if(fetchedQualityIndicators.scimagoQuartile != ''){
+                            $("#journalScimagoQuartile").val(fetchedQualityIndicators.scimagoQuartile);   
+                        }
+                        if(fetchedQualityIndicators.wosQuartile != ''){
+                            $("#journalWosQuartile").val(fetchedQualityIndicators.wosQuartile);   
+                        }
+                        if(fetchedQualityIndicators.coreRanking != ''){
+                            $("#journalCoreRanking").val(fetchedQualityIndicators.coreRanking);   
+                        }
+                        if(fetchedQualityIndicators.impactFactor != undefined){
+                            $("#journalImpactFactor").val(fetchedQualityIndicators.impactFactor);   
+                        }
+                    }
+                    // Display the quality indicators inputs
                     $("#qualityIndicatorsInputs").show();
                 }
             });
         }else{
+            // Hide the quality indicators inputs
             $("#qualityIndicatorsInputs").hide();
         }
     }
