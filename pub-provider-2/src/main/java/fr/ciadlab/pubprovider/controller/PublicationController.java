@@ -469,6 +469,7 @@ public class PublicationController {
             }
             System.out.println("HAAAAAAAAAAAAAAA" + journalCoreRanking + journalImpactFactor + journalScimagoQuartile
                     + journalWosQuartile);
+            System.out.println("HAAAAAAAAAAAAAAA");
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
             PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
                     .getPublicationTypeGroupFromPublicationType();
@@ -548,9 +549,9 @@ public class PublicationController {
                     ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ
                             .createReadingCommitteeJournalPopularizationPaper(
                                     publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages,
-                                    journalId, Quartile.valueOf(journalScimagoQuartile),
-                                    Quartile.valueOf(journalWosQuartile),
-                                    CoreRanking.getCoreRankingFromString(journalCoreRanking),
+                                    journalId, journalScimagoQuartile,
+                                    journalWosQuartile,
+                                    journalCoreRanking,
                                     journalImpactFactor);
                     pubId = paper.getPubId();
                     logger.info("ReadingCommitteeJournalPopularizationPaper created with id: " + paper.getPubId());

@@ -48,24 +48,32 @@ public class ReadingCommitteeJournalPopularizationPaperService {
     public ReadingCommitteeJournalPopularizationPaper createReadingCommitteeJournalPopularizationPaper(Publication p,
             String reaComConfPopPapVolume, String reaComConfPopPapNumber, String reaComConfPopPapPages,
             Integer journalId,
-            Quartile reaComConfPopPapScimagoQuartile, Quartile reaComConfPopPapWosQuartile,
-            CoreRanking reaComConfPopPapCoreRanking, int reaComConfPopPapImpactFactor) {
+            String reaComConfPopPapScimagoQuartile, String reaComConfPopPapWosQuartile,
+            String reaComConfPopPapCoreRanking, int reaComConfPopPapImpactFactor) {
+        System.out.println("Avanbt exception ");
         ReadingCommitteeJournalPopularizationPaper res = new ReadingCommitteeJournalPopularizationPaper(p,
                 reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);
         if (journalId != null && journalRepository.findById(journalId).isPresent())
             res.setReaComConfPopPapJournal(journalRepository.getOne(journalId));
         res = this.repo.save(res); // Id is generated on save so I gotta save once before setting these
-        if (reaComConfPopPapScimagoQuartile != null)
+        System.out.println("Avant scimago");
+        if (reaComConfPopPapScimagoQuartile != null && !(reaComConfPopPapScimagoQuartile.isEmpty())) {
+            System.out.println("Mangez tous vos grands morts " + reaComConfPopPapScimagoQuartile
+                    + (reaComConfPopPapScimagoQuartile == null) + " / " + (reaComConfPopPapScimagoQuartile.isEmpty()));
             res.getReaComConfPopPapJournal().setScimagoQuartileByYear(res.getPubYear(),
-                    reaComConfPopPapScimagoQuartile);
-        if (reaComConfPopPapWosQuartile != null)
+                    Quartile.valueOf(reaComConfPopPapScimagoQuartile));
+        }
+        System.out.println("Avant wos");
+        if (reaComConfPopPapWosQuartile != null && !(reaComConfPopPapWosQuartile.isEmpty()))
             res.getReaComConfPopPapJournal().setWosQuartileByYear(res.getPubYear(),
-                    reaComConfPopPapWosQuartile);
-        if (reaComConfPopPapCoreRanking != null)
+                    Quartile.valueOf(reaComConfPopPapWosQuartile));
+        System.out.println("Avant coreRanking");
+        if (reaComConfPopPapCoreRanking != null && !(reaComConfPopPapCoreRanking.isEmpty()))
             res.getReaComConfPopPapJournal().setCoreRankingByYear(res.getPubYear(),
-                    reaComConfPopPapCoreRanking);
+                    CoreRanking.getCoreRankingFromString(reaComConfPopPapCoreRanking));
         res.getReaComConfPopPapJournal().setImpactFactorByYear(res.getPubYear(),
                 reaComConfPopPapImpactFactor);
+        System.out.println("Bla bla bla la vie c'est nul ");
         return res;
     }
 
