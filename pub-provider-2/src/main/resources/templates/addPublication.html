@@ -405,8 +405,8 @@
             date = new Date ($("#publicationDate")[0].value);
         }
         const journalTitle = $("#publicationJournal")[0].value;
-                
-        if(date != '' && journalTitle != '' ){
+                console.log(getPublicationTypeValue(), groupPublicationTypes(getPublicationTypeValue()) == "ReadingCommitteeJournalPopularizationPaper", groupPublicationTypes(getPublicationTypeValue()))
+        if(date != '' && journalTitle != '' && groupPublicationTypes(getPublicationTypeValue()) == "ReadingCommitteeJournalPopularizationPaper"){
             $.ajax({
                 url:"/SpringRestHibernate/getJournalQualityIndicators",
                 dataType: "text",
@@ -443,9 +443,12 @@
         }
     }
     
+    function getPublicationTypeValue(){
+        return $("#publicationType").find(':selected')[0].value;
+    }
 
     function unlockDivIfNeeded() {
-        var value = $("#publicationType").find(':selected')[0].value;
+        var value = getPublicationTypeValue();
 
         $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
         $(".unlockIfBook").hide();
@@ -466,6 +469,7 @@
                 case "ReadingCommitteeJournalPopularizationPaper":
                     $(".unlockIfReadingCommitteeJournalPopularizationPaper").show();
                     $("#qualityIndicatorsInputs").hide();
+                    loadQualityindicatorsInputs();
                     break;
 
                 case "ProceedingsConference":
