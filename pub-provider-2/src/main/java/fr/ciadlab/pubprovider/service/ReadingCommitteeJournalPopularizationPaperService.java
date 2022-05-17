@@ -50,24 +50,49 @@ public class ReadingCommitteeJournalPopularizationPaperService {
             Integer journalId,
             String reaComConfPopPapScimagoQuartile, String reaComConfPopPapWosQuartile,
             String reaComConfPopPapCoreRanking, int reaComConfPopPapImpactFactor) {
-        System.out.println("Avanbt exception ");
+
         ReadingCommitteeJournalPopularizationPaper res = new ReadingCommitteeJournalPopularizationPaper(p,
                 reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages);
         if (journalId != null && journalRepository.findById(journalId).isPresent())
             res.setReaComConfPopPapJournal(journalRepository.getOne(journalId));
         res = this.repo.save(res); // Id is generated on save so I gotta save once before setting these
 
-        if (reaComConfPopPapScimagoQuartile != null && !(reaComConfPopPapScimagoQuartile.isEmpty()))
+        Quartile newScimagoQuartile = null;
+        if (reaComConfPopPapScimagoQuartile != null && !(reaComConfPopPapScimagoQuartile.isEmpty())) {
+            newScimagoQuartile = Quartile.valueOf(reaComConfPopPapScimagoQuartile);
+        }
+
+        Quartile newWosQuartile = null;
+        if (reaComConfPopPapWosQuartile != null && !(reaComConfPopPapWosQuartile.isEmpty())) {
+            newWosQuartile = Quartile.valueOf(reaComConfPopPapWosQuartile);
+        }
+
+        CoreRanking newCoreRanking = null;
+        if (reaComConfPopPapCoreRanking != null && !(reaComConfPopPapCoreRanking.isEmpty())) {
+            newCoreRanking = CoreRanking.valueOf(reaComConfPopPapCoreRanking);
+        }
+
+        /*
+         * right part of the conditon is to allow the user to erase the value of an
+         * indicator in the history
+         */
+        if (newScimagoQuartile != null
+                || (reaComConfPopPapScimagoQuartile.isEmpty()
+                        && res.getReaComConfPopPapJournal().getScimagoQuartileByYear(res.getPubYear()) != null))
             res.getReaComConfPopPapJournal().setScimagoQuartileByYear(res.getPubYear(),
-                    Quartile.valueOf(reaComConfPopPapScimagoQuartile));
+                    newScimagoQuartile);
 
-        if (reaComConfPopPapWosQuartile != null && !(reaComConfPopPapWosQuartile.isEmpty()))
+        if (newWosQuartile != null
+                || (reaComConfPopPapWosQuartile.isEmpty()
+                        && res.getReaComConfPopPapJournal().getWosQuartileByYear(res.getPubYear()) != null))
             res.getReaComConfPopPapJournal().setWosQuartileByYear(res.getPubYear(),
-                    Quartile.valueOf(reaComConfPopPapWosQuartile));
+                    newWosQuartile);
 
-        if (reaComConfPopPapCoreRanking != null && !(reaComConfPopPapCoreRanking.isEmpty()))
+        if (newCoreRanking != null
+                || (reaComConfPopPapCoreRanking.isEmpty()
+                        && res.getReaComConfPopPapJournal().getCoreRankingByYear(res.getPubYear()) != null))
             res.getReaComConfPopPapJournal().setCoreRankingByYear(res.getPubYear(),
-                    CoreRanking.getCoreRankingFromString(reaComConfPopPapCoreRanking));
+                    newCoreRanking);
 
         res.getReaComConfPopPapJournal().setImpactFactorByYear(res.getPubYear(),
                 reaComConfPopPapImpactFactor);
@@ -149,7 +174,9 @@ public class ReadingCommitteeJournalPopularizationPaperService {
             String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
             String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
             String reaComConfPopPapNumber, String reaComConfPopPapPages,
-            String reaComConfPopPapVolume, Integer journalId) {
+            String reaComConfPopPapVolume, Integer journalId, String reaComConfPopPapScimagoQuartile,
+            String reaComConfPopPapWosQuartile,
+            String reaComConfPopPapCoreRanking, int reaComConfPopPapImpactFactor) {
         final Optional<ReadingCommitteeJournalPopularizationPaper> res = this.repo.findById(pubId);
         File file;
         if (res.isPresent()) {
@@ -217,6 +244,49 @@ public class ReadingCommitteeJournalPopularizationPaperService {
                 res.get().setReaComConfPopPapPages(reaComConfPopPapPages);
             if (reaComConfPopPapVolume != null && !reaComConfPopPapVolume.isEmpty())
                 res.get().setReaComConfPopPapVolume(reaComConfPopPapVolume);
+
+            /*
+             * right part of the conditon is to allow the user to erase the value of an
+             * indicator in the history
+             */
+            Quartile newScimagoQuartile = null;
+            if (reaComConfPopPapScimagoQuartile != null && !(reaComConfPopPapScimagoQuartile.isEmpty())) {
+                newScimagoQuartile = Quartile.valueOf(reaComConfPopPapScimagoQuartile);
+            }
+
+            Quartile newWosQuartile = null;
+            if (reaComConfPopPapWosQuartile != null && !(reaComConfPopPapWosQuartile.isEmpty())) {
+                newWosQuartile = Quartile.valueOf(reaComConfPopPapWosQuartile);
+            }
+
+            CoreRanking newCoreRanking = null;
+            if (reaComConfPopPapCoreRanking != null && !(reaComConfPopPapCoreRanking.isEmpty())) {
+                newCoreRanking = CoreRanking.valueOf(reaComConfPopPapCoreRanking);
+            }
+
+            if (newScimagoQuartile != null
+                    || (reaComConfPopPapScimagoQuartile.isEmpty()
+                            && res.get().getReaComConfPopPapJournal()
+                                    .getScimagoQuartileByYear(res.get().getPubYear()) != null))
+                res.get().getReaComConfPopPapJournal().setScimagoQuartileByYear(res.get().getPubYear(),
+                        newScimagoQuartile);
+
+            if (newWosQuartile != null
+                    || (reaComConfPopPapWosQuartile.isEmpty()
+                            && res.get().getReaComConfPopPapJournal()
+                                    .getWosQuartileByYear(res.get().getPubYear()) != null))
+                res.get().getReaComConfPopPapJournal().setWosQuartileByYear(res.get().getPubYear(),
+                        newWosQuartile);
+
+            if (newCoreRanking != null
+                    || (reaComConfPopPapCoreRanking.isEmpty()
+                            && res.get().getReaComConfPopPapJournal()
+                                    .getCoreRankingByYear(res.get().getPubYear()) != null))
+                res.get().getReaComConfPopPapJournal().setCoreRankingByYear(res.get().getPubYear(),
+                        newCoreRanking);
+
+            res.get().getReaComConfPopPapJournal().setImpactFactorByYear(res.get().getPubYear(),
+                    reaComConfPopPapImpactFactor);
 
             this.repo.save(res.get());
 

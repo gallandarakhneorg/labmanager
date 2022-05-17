@@ -58,12 +58,15 @@ public class PublicationController {
     public void editPublication(HttpServletResponse response,
             @RequestParam Integer publicationId,
             String publicationType,
-            String publicationQuartile,
             String publicationTitle,
             String publicationAbstract,
             String publicationKeywords,
             String publicationDate,
             String[] publicationAuthors,
+            @RequestParam(required = false) String journalScimagoQuartile,
+            @RequestParam(required = false) String journalWosQuartile,
+            @RequestParam(required = false) String journalCoreRanking,
+            @RequestParam(required = false, defaultValue = "0") int journalImpactFactor,
             @RequestParam(required = false) String publicationNote,
             @RequestParam(required = false) String publicationIsbn,
             @RequestParam(required = false) String publicationIssn,
@@ -110,16 +113,10 @@ public class PublicationController {
                 throw new Exception("You must specify at least one author.");
             }
 
-            if (publicationQuartile == null) {
-                throw new Exception("You must provide a publication quartile");
-            }
-
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
             PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
                     .getPublicationTypeGroupFromPublicationType();
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());
-
-            Quartile publicationQuartileEnum = Quartile.valueOf(publicationQuartile);
 
             Publication pub = pubServ.getPublication(publicationId);
             if (pub != null) {
@@ -224,7 +221,10 @@ public class PublicationController {
                                 reaComConfPopPapNumber,
                                 reaComConfPopPapPages,
                                 reaComConfPopPapVolume,
-                                journalId);
+                                journalId, journalScimagoQuartile,
+                                journalWosQuartile,
+                                journalCoreRanking,
+                                journalImpactFactor);
                         break;
                     case ProceedingsConference:
                         proceedingsConferenceServ.updateProceedingsConference(pub.getPubId(),
