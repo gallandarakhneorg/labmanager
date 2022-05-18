@@ -4,6 +4,10 @@ import java.io.Serializable;
 
 import javax.persistence.*;
 
+import org.hibernate.annotations.ColumnDefault;
+
+import net.bytebuddy.implementation.bind.annotation.Default;
+
 @Entity
 @Table(name = "journal_qality_indicators_histories")
 public class JournalQualityIndicatorsHistory implements Serializable {
@@ -14,10 +18,12 @@ public class JournalQualityIndicatorsHistory implements Serializable {
     private int journalHistoryId;
 
     @Column
+    // a null value for this column in the database would generate a crash when
+    // fetching the histories (as ints cannot be null)
+    @ColumnDefault("0")
     private int journalHistoryYear;
 
     @Column
-
     @Enumerated(EnumType.STRING)
     private Quartile journalHistoryScimagoQuartile;
 
@@ -30,6 +36,9 @@ public class JournalQualityIndicatorsHistory implements Serializable {
     private CoreRanking journalHistoryCoreRanking;
 
     @Column
+    // a null value for this column in the database would generate a crash when
+    // fetching the histories (as ints cannot be null)
+    @ColumnDefault("0")
     private int journalHistoryImpactFactor;
 
     public JournalQualityIndicatorsHistory() {
@@ -42,11 +51,11 @@ public class JournalQualityIndicatorsHistory implements Serializable {
 
     public JournalQualityIndicatorsHistory(int year, Quartile scimagoQuartile,
             Quartile wosQuartile, CoreRanking coreRanking, int journalHistoryImpactFactor) {
-        this.journalHistoryYear = 0;
-        this.journalHistoryScimagoQuartile = null;
-        this.journalHistoryWosQuartile = null;
-        this.journalHistoryCoreRanking = null;
-        this.journalHistoryImpactFactor = 0;
+        this.journalHistoryYear = year;
+        this.journalHistoryScimagoQuartile = scimagoQuartile;
+        this.journalHistoryWosQuartile = wosQuartile;
+        this.journalHistoryCoreRanking = coreRanking;
+        this.journalHistoryImpactFactor = journalHistoryImpactFactor;
     }
 
     public int getJournalHistoryYear() {

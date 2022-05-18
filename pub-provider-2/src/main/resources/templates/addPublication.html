@@ -138,18 +138,6 @@
                                         <input class="form-control" type="date" id="publicationDate" th:value="${publication != null ? publication.getPubDate() : ''}" name="publicationDate">
                                     </div>
                                     <div class="form-group">
-                                        <label for="publicationQuartile" class="col-form-label">Publication quartile</label>
-                                        <select class="form-control" id="publicationQuartile" name="publicationQuartile">
-                                            <option value="" th:selected="${!edit}">Select a publication quartile</option>
-                                            <option
-                                                    th:each="publicationQuartile : ${publicationsQuartiles}"
-                                                    th:selected="${publication != null && publicationQuartile == publication.getPubQuartile()}"
-                                                    th:value="${publicationQuartile.toString()}"
-                                                    th:utext="${publicationQuartile.toString()}">
-                                            </option>
-                                        </select>
-                                    </div>
-                                    <div class="form-group">
                                         <label for="publicationNote" class="col-form-label">Note</label>
                                         <input class="form-control" type="text" value="" th:value="${publication != null ? publication.getPubNote() : ''}" placeholder="Publication note" id="publicationNote" name="publicationNote">
                                     </div>
@@ -201,10 +189,9 @@
                                             <label for="publicationJournal" class="col-form-label">Journal name</label>
                                             <select name="publicationJournal" id="publicationJournal"  class="form-control selectJournal list-group-item list-group-item-action" style="width: 100%">
                                                 <option></option>
-                                                <option th:each="journal : ${journals}" th:utext="${journal.getJourName() }" th:selected="${reaComConfPopPapJournal != null && reaComConfPopPapJournal.getJourName().equals(journal.getJourName())}"></option>
+                                                <option th:each="journal : ${journals}" th:utext="${journal.getJourName()}" th:selected="${reaComConfPopPapJournal != null && reaComConfPopPapJournal.getJourName().equals(journal.getJourName())}"></option>
                                             </select>
                                         </div>
-
                                         <div class="form-group">
                                             <label for="reaComConfPopPapVolume" class="col-form-label">Journal volume</label>
 <!--                                            th:value="${publication != null ? publication.getReaComConfPopPapVolume() : ''}"-->
@@ -217,6 +204,48 @@
                                         <div class="form-group">
                                             <label for="reaComConfPopPapPages" class="col-form-label">Journal pages</label>
                                             <input class="form-control" type="text" th:value="${reaComConfPopPapPages}" placeholder="4-5, 15" id="reaComConfPopPapPages" name="reaComConfPopPapPages">
+                                        </div>
+                                        
+                                        <div id="qualityIndicatorsInputs" class="form-group" >
+                                            <div class="form-group">
+                                                <label for="journalScimagoQuartile" class="col-form-label">Journal scimago quartile</label>
+                                                <select class="form-control" id="journalScimagoQuartile" name="journalScimagoQuartile">
+                                                    <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                                    <option
+                                                            th:each="journalScimagoQuartile : ${publicationsQuartiles}"
+                                                            th:selected="${publication != null && journalScimagoQuartile == publication.getPubQuartile()}"
+                                                            th:value="${journalScimagoQuartile.toString()}"
+                                                            th:utext="${journalScimagoQuartile.toString()}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="journalWosQuartile" class="col-form-label">Journal wos quartile</label>
+                                                <select class="form-control" id="journalWosQuartile" name="journalWosQuartile">
+                                                    <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                                    <option
+                                                            th:each="journalWosQuartile : ${publicationsQuartiles}"
+                                                            th:selected="${publication != null && journalWosQuartile == publication.getPubQuartile()}"
+                                                            th:value="${journalWosQuartile.toString()}"
+                                                            th:utext="${journalWosQuartile.toString()}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="journalCoreRanking" class="col-form-label">Journal core ranking</label>
+                                                <select class="form-control" id="journalCoreRanking" name="journalCoreRanking">
+                                                    <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                                    <option
+                                                            th:each="journalCoreRanking : ${journalCoreRankings}"
+                                                            th:value="${journalCoreRanking}"
+                                                            th:utext="${journalCoreRanking.toString()}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="journalImpactFactor" class="col-form-label">Journal impact factor</label>
+                                                <input type="number" class="form-control" id="journalImpactFactor" name="journalImpactFactor"/>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -370,9 +399,56 @@
         });
     }
 
+    function loadQualityindicatorsInputs() {
+        var date =''
+        if (($("#publicationDate")[0].value) !=  ''){
+            date = new Date ($("#publicationDate")[0].value);
+        }
+        const journalTitle = $("#publicationJournal")[0].value;
+                console.log(getPublicationTypeValue(), groupPublicationTypes(getPublicationTypeValue()) == "ReadingCommitteeJournalPopularizationPaper", groupPublicationTypes(getPublicationTypeValue()))
+        if(date != '' && journalTitle != '' && groupPublicationTypes(getPublicationTypeValue()) == "ReadingCommitteeJournalPopularizationPaper"){
+            $.ajax({
+                url:"/SpringRestHibernate/getJournalQualityIndicators",
+                dataType: "text",
+                type:"GET",
+                data: {
+                    historyYear: date.getFullYear(),
+                    journalName: journalTitle
+                },
+                success: function(fetchedQualityIndicators){
+                    if(fetchedQualityIndicators != null && fetchedQualityIndicators!=''){
+                        fetchedQualityIndicators = JSON.parse(fetchedQualityIndicators);
+                        
+                        // preselection of each quality indicator if they exist
+                        if(fetchedQualityIndicators.scimagoQuartile != ''){
+                            $("#journalScimagoQuartile").val(fetchedQualityIndicators.scimagoQuartile);   
+                        }
+                        if(fetchedQualityIndicators.wosQuartile != ''){
+                            $("#journalWosQuartile").val(fetchedQualityIndicators.wosQuartile);   
+                        }
+                        if(fetchedQualityIndicators.coreRanking != ''){
+                            $("#journalCoreRanking").val(fetchedQualityIndicators.coreRanking);   
+                        }
+                        if(fetchedQualityIndicators.impactFactor != undefined){
+                            $("#journalImpactFactor").val(fetchedQualityIndicators.impactFactor);   
+                        }
+                    }
+                    // Display the quality indicators inputs
+                    $("#qualityIndicatorsInputs").show();
+                }
+            });
+        }else{
+            // Hide the quality indicators inputs
+            $("#qualityIndicatorsInputs").hide();
+        }
+    }
+    
+    function getPublicationTypeValue(){
+        return $("#publicationType").find(':selected')[0].value;
+    }
+
     function unlockDivIfNeeded() {
-        var value = $("#publicationType").find(':selected')[0].value;
-        console.log("New value ; " + value);
+        var value = getPublicationTypeValue();
 
         $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
         $(".unlockIfBook").hide();
@@ -392,6 +468,8 @@
             switch(groupPublicationTypes(value)) {
                 case "ReadingCommitteeJournalPopularizationPaper":
                     $(".unlockIfReadingCommitteeJournalPopularizationPaper").show();
+                    $("#qualityIndicatorsInputs").hide();
+                    loadQualityindicatorsInputs();
                     break;
 
                 case "ProceedingsConference":
@@ -495,6 +573,8 @@
 
         $('#publicationType').select2();
         $(document).on('change', '#publicationType', function(){unlockDivIfNeeded();});
+        $(document).on('change', '#publicationJournal', function(){loadQualityindicatorsInputs();});
+        $(document).on('change', '#publicationDate', function(){loadQualityindicatorsInputs();});
         unlockDivIfNeeded();
         // $("#publicationType").on('select2:select', unlockDivIfNeeded());
         // $("#publicationType").on('change', unlockDivIfNeeded());
@@ -507,8 +587,7 @@
                     required: true,
                     minlength: 2
                 },
-                publicationDate: 'required',
-                publicationQuartile : 'required'
+                publicationDate: 'required'
             },
             messages: {
                 publicationTitle: 'Please enter the publication title',
@@ -516,8 +595,7 @@
                     required: 'Please, enter an abstract',
                     minlength: 'The abstract is too short...'
                 },
-                publicationDate: 'Please, enter the publication date',
-                publicationQuartile : 'Please, enter the publication quartile'
+                publicationDate: 'Please, enter the publication date'
             },
             errorElement: 'em',
             errorPlacement: function errorPlacement(error, element) {

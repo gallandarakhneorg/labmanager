@@ -21,7 +21,6 @@ import java.nio.charset.Charset;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -59,12 +58,15 @@ public class PublicationController {
     public void editPublication(HttpServletResponse response,
             @RequestParam Integer publicationId,
             String publicationType,
-            String publicationQuartile,
             String publicationTitle,
             String publicationAbstract,
             String publicationKeywords,
             String publicationDate,
             String[] publicationAuthors,
+            @RequestParam(required = false) String journalScimagoQuartile,
+            @RequestParam(required = false) String journalWosQuartile,
+            @RequestParam(required = false) String journalCoreRanking,
+            @RequestParam(required = false, defaultValue = "0") int journalImpactFactor,
             @RequestParam(required = false) String publicationNote,
             @RequestParam(required = false) String publicationIsbn,
             @RequestParam(required = false) String publicationIssn,
@@ -111,16 +113,10 @@ public class PublicationController {
                 throw new Exception("You must specify at least one author.");
             }
 
-            if (publicationQuartile == null) {
-                throw new Exception("You must provide a publication quartile");
-            }
-
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
             PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
                     .getPublicationTypeGroupFromPublicationType();
             Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());
-
-            Quartile publicationQuartileEnum = Quartile.valueOf(publicationQuartile);
 
             Publication pub = pubServ.getPublication(publicationId);
             if (pub != null) {
@@ -225,7 +221,10 @@ public class PublicationController {
                                 reaComConfPopPapNumber,
                                 reaComConfPopPapPages,
                                 reaComConfPopPapVolume,
-                                journalId);
+                                journalId, journalScimagoQuartile,
+                                journalWosQuartile,
+                                journalCoreRanking,
+                                journalImpactFactor);
                         break;
                     case ProceedingsConference:
                         proceedingsConferenceServ.updateProceedingsConference(pub.getPubId(),
@@ -414,12 +413,15 @@ public class PublicationController {
     @RequestMapping(value = "/createPublication", method = RequestMethod.POST, headers = "Accept=application/json")
     public void createPublication(HttpServletResponse response,
             String publicationType,
-            String publicationQuartile,
             String publicationTitle,
             String publicationAbstract,
             String publicationKeywords,
             String publicationDate,
             String[] publicationAuthors,
+            @RequestParam(required = false) String journalScimagoQuartile,
+            @RequestParam(required = false) String journalWosQuartile,
+            @RequestParam(required = false) String journalCoreRanking,
+            @RequestParam(required = false, defaultValue = "0") int journalImpactFactor,
             @RequestParam(required = false) String publicationNote,
             @RequestParam(required = false) String publicationIsbn,
             @RequestParam(required = false) String publicationIssn,
@@ -466,10 +468,6 @@ public class PublicationController {
                 throw new Exception("You must specify at least one author.");
             }
 
-            if (publicationQuartile == null) {
-                System.out.println(publicationQuartile);
-                throw new Exception("You must provide a publication quartile");
-            }
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
             PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
                     .getPublicationTypeGroupFromPublicationType();
@@ -533,8 +531,7 @@ public class PublicationController {
             Publication publication = new Publication(publicationTitle, publicationAbstract, publicationKeywords,
                     publicationDateDate, publicationNote, null, publicationIsbn, publicationIssn, publicationDoi,
                     publicationUrl, publicationVideoUrl, publicationDblp, pdfUploadPath, publicationLanguage,
-                    awardUploadPath, PublicationType.valueOf(publicationType),
-                    Quartile.valueOf(publicationQuartile));
+                    awardUploadPath, PublicationType.valueOf(publicationType));
             pubId = publication.getPubId();
 
             // Second step : create the specific data of publication type
@@ -550,7 +547,10 @@ public class PublicationController {
                     ReadingCommitteeJournalPopularizationPaper paper = readingCommitteeJournalPopularizationPaperServ
                             .createReadingCommitteeJournalPopularizationPaper(
                                     publication, reaComConfPopPapVolume, reaComConfPopPapNumber, reaComConfPopPapPages,
-                                    journalId);
+                                    journalId, journalScimagoQuartile,
+                                    journalWosQuartile,
+                                    journalCoreRanking,
+                                    journalImpactFactor);
                     pubId = paper.getPubId();
                     logger.info("ReadingCommitteeJournalPopularizationPaper created with id: " + paper.getPubId());
                     break;

@@ -107,7 +107,7 @@ public class Publication implements Serializable {
     public Publication(String pubTitle, String pubAbstract, String pubKeywords,
             Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
             String pubDOIRef, String pubURL, String pubVideoURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-            String pubPaperAwardPath, PublicationType pubType, Quartile pubQuartile) {
+            String pubPaperAwardPath, PublicationType pubType) {
         super();
         this.pubTitle = pubTitle;
         this.pubAbstract = pubAbstract;
@@ -301,6 +301,15 @@ public class Publication implements Serializable {
         return pubType;
     }
 
+    /*
+     * The only purpose of these methods is to avoid having to check if a
+     * Publication is a
+     * ReadingCommitteeJournalPopularizationPaper
+     * and cast it in order to get its journal's quality indicators in
+     * MainController.getPublicationsList()
+     * (wich would be an heavy operation to do and would alter the application's
+     * performance)
+     */
     public Quartile getPubJournalScimagoQuartile() {
         return null;
     }

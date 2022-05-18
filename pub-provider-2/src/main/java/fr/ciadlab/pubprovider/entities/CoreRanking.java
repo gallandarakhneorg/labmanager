@@ -14,5 +14,16 @@ public enum CoreRanking {
     A,
     B,
     C,
-    D
+    D;
+
+    public static CoreRanking getCoreRankingFromString(String stringCoreRanking) {
+        switch (stringCoreRanking) {
+            case "A**":
+                return A_PLUS_PLUS;
+            case "A*":
+                return A_PLUS;
+            default:
+                return valueOf(stringCoreRanking);
+        }
+    }
 }
