@@ -467,9 +467,7 @@ public class PublicationController {
             if (publicationAuthors == null) {
                 throw new Exception("You must specify at least one author.");
             }
-            System.out.println("HAAAAAAAAAAAAAAA" + journalCoreRanking + journalImpactFactor + journalScimagoQuartile
-                    + journalWosQuartile);
-            System.out.println("HAAAAAAAAAAAAAAA");
+
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
             PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
                     .getPublicationTypeGroupFromPublicationType();

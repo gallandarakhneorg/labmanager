@@ -69,7 +69,7 @@ public class ReadingCommitteeJournalPopularizationPaperService {
 
         CoreRanking newCoreRanking = null;
         if (reaComConfPopPapCoreRanking != null && !(reaComConfPopPapCoreRanking.isEmpty())) {
-            newCoreRanking = CoreRanking.valueOf(reaComConfPopPapCoreRanking);
+            newCoreRanking = CoreRanking.getCoreRankingFromString(reaComConfPopPapCoreRanking);
         }
 
         /*
@@ -261,7 +261,7 @@ public class ReadingCommitteeJournalPopularizationPaperService {
 
             CoreRanking newCoreRanking = null;
             if (reaComConfPopPapCoreRanking != null && !(reaComConfPopPapCoreRanking.isEmpty())) {
-                newCoreRanking = CoreRanking.valueOf(reaComConfPopPapCoreRanking);
+                newCoreRanking = CoreRanking.getCoreRankingFromString(reaComConfPopPapCoreRanking);
             }
 
             if (newScimagoQuartile != null
