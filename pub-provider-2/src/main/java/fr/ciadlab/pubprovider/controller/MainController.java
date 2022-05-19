@@ -186,10 +186,10 @@ public class MainController {
                 modelAndView.addObject("edit", true);
             }
         }
-
+        
         return modelAndView;
     }
-
+    
     @GetMapping("/addPublicationFromBibtext")
     public ModelAndView addPublicationFromBibtext() {
         final ModelAndView modelAndView = new ModelAndView("addPublicationFromBibtext");
