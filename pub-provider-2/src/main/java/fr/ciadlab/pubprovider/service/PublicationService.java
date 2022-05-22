@@ -108,7 +108,7 @@ public class PublicationService {
     	
     	//Holds the publications that we are trying to import
     	List<Publication> pubList;
-    	pubList = BibTexToPublication(bibText);
+    	pubList = BibTexToPublication(bibText, true);
     	
     	//We are going to try to import every publication in the list
     	for(Publication currentPub : pubList)
@@ -250,7 +250,7 @@ public class PublicationService {
     	return pubIdList;
     }
     
-    public List<Publication> BibTexToPublication(String bibText) {
+    public List<Publication> BibTexToPublication(String bibText, boolean checkDupes) {
     	//The multiagent DB was formatted with " = {" so I based my import around that but the UB DB was formatted with "={" so I need to change it to what I know how to handle
     	// Fix only the space between = and { , since the space between the field name and = can be already there
         bibText = bibText.replaceAll("\\=\\{", "\\= \\{"); 
@@ -812,12 +812,17 @@ public class PublicationService {
 	                        }
 	                        pubTitle = truncate(pubTitle);
 	
-	                        //Checking for dupes
-	                        for (Publication singlePub : pubL) {
-	                            if (singlePub.getPubTitle().compareTo(pubTitle) == 0) {
-	                                isDupe = true;
-	                            }
+	                        if(checkDupes)
+	                        {
+	                        	//Checking for dupes
+		                        for (Publication singlePub : pubL) 
+		                        {
+		                            if (singlePub.getPubTitle().compareTo(pubTitle) == 0) {
+		                                isDupe = true;
+		                            }
+		                        }
 	                        }
+	                        
 	
 	                        if (!isDupe) 
 	                        {
@@ -1004,10 +1009,10 @@ public class PublicationService {
 	                            {
 	                            	throw e;
 	                            }
+	                            currentPub.setAuthorsList(AuthorsList);
+	    	                    newPubL.add(currentPub);
 	                        }
 	                    }
-	                    currentPub.setAuthorsList(AuthorsList);
-	                    newPubL.add(currentPub);
 	                }  
 	            }
         	} 

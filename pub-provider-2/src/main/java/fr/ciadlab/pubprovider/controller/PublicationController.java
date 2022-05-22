@@ -12,6 +12,8 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.springframework.web.servlet.view.RedirectView;
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
 import java.io.FilterOutputStream;
@@ -566,6 +568,26 @@ public class PublicationController {
         }
     }
 
+    @RequestMapping(value = "/BibtextToAddPublication", method = RequestMethod.POST, headers = "Accept=application/json")
+    public RedirectView BibtextToAddPublication(HttpServletResponse response, MultipartFile bibtext, RedirectAttributes redirectAttributes ) throws IOException 
+    {
+        try {
+            if (bibtext != null && !bibtext.isEmpty()) {
+            	String bibtextContent = new String(bibtext.getBytes(), Charset.forName("UTF-8"));
+            	redirectAttributes.addFlashAttribute("bibtex", bibtextContent);
+            	redirectAttributes.addFlashAttribute("pubServ", this.pubServ);
+            	final boolean filling = true;
+            	return new RedirectView("/addPublication?filling=" + filling, true);
+            } else {
+                throw new Exception("Bibtext not provided...");
+            }
+        } catch (Exception ex) {
+        	System.out.println("exception");
+        	return new RedirectView("/SpringRestHibernate/addPublicationFromBibtext?error=1&message=" + ex.getMessage(), true); 
+        }
+    }
+    
+    
     //Import a bibTex file to the database.
     //Returns a list of the IDs of the successfully imported publications.
     @RequestMapping(value = "/importPublications", method = RequestMethod.POST, headers = "Accept=application/json")
@@ -573,6 +595,9 @@ public class PublicationController {
         return pubServ.importPublications(bibText);
     }
 
+    
+    
+    
     //Export a bibTex file from a given json
     //The export contains a bibtex and an html export which can be extracted like in an html document
     @Deprecated
