@@ -14,19 +14,20 @@ import java.util.stream.Collectors;
 @Entity
 @Table(name = "publications")
 @Inheritance(strategy = InheritanceType.JOINED)
-//@JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
+// @JsonIdentityInfo(generator=ObjectIdGenerators.IntSequenceGenerator.class)
 public class Publication implements Serializable {
 
     private static final long serialVersionUID = 4617703154899843388L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    //Using this instead of IDENTITY allows for JOINED or TABLE_PER_CLASS inheritance types to work
+    // Using this instead of IDENTITY allows for JOINED or TABLE_PER_CLASS
+    // inheritance types to work
     @Column(nullable = false)
     private int pubId;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-    @JoinColumn(name="pubPubId", referencedColumnName = "pubId")
+    @JoinColumn(name = "pubPubId", referencedColumnName = "pubId")
     private Set<Authorship> pubAuts = new HashSet<Authorship>();
 
     @Transient
@@ -44,7 +45,7 @@ public class Publication implements Serializable {
     
 
     @Column
-    //@Temporal(TemporalType.DATE)
+    // @Temporal(TemporalType.DATE)
     private Date pubDate;
 
     @Column
@@ -111,9 +112,9 @@ public class Publication implements Serializable {
     }
 
     public Publication(String pubTitle, String pubAbstract, String pubKeywords,
-                       Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
-                       String pubDOIRef, String pubURL, String pubVideoURL, String pubDBLP, String pubPDFPath, String pubLanguage,
-                       String pubPaperAwardPath, PublicationType pubType) {
+            Date pubDate, String pubNote, String pubAnnotations, String pubISBN, String pubISSN,
+            String pubDOIRef, String pubURL, String pubVideoURL, String pubDBLP, String pubPDFPath, String pubLanguage,
+            String pubPaperAwardPath, PublicationType pubType) {
         super();
         this.pubTitle = pubTitle;
         this.pubAbstract = pubAbstract;
@@ -156,8 +157,9 @@ public class Publication implements Serializable {
     public List<Authorship> getPubAuts() 
     {
         // Ordered by rank
-        if(pubAuts != null)
-            return pubAuts.stream().sorted(Comparator.comparingInt(Authorship::getAutShipRank)).collect(Collectors.toList());
+        if (pubAuts != null)
+            return pubAuts.stream().sorted(Comparator.comparingInt(Authorship::getAutShipRank))
+                    .collect(Collectors.toList());
         return null;
     }
 
@@ -319,19 +321,46 @@ public class Publication implements Serializable {
         return pubType;
     }
 
+    /*
+     * The only purpose of these methods is to avoid having to check if a
+     * Publication is a
+     * ReadingCommitteeJournalPopularizationPaper
+     * and cast it in order to get its journal's quality indicators in
+     * MainController.getPublicationsList()
+     * (wich would be an heavy operation to do and would alter the application's
+     * performance)
+     */
+    public Quartile getPubJournalScimagoQuartile() {
+        return null;
+    }
+
+    public Quartile getPubJournalWosQuartile() {
+        return null;
+    }
+
+    public CoreRanking getPubJournalCoreRanking() {
+        return null;
+    }
+
+    public int getPubJournalImpactFactor() {
+        return 0;
+    }
+
     @Transactional
-    public void deleteAuthorship(Authorship authorship){
+    public void deleteAuthorship(Authorship authorship) {
         pubAuts.remove(authorship);
     }
-    
-    //FIXME: Remove authors does not work on edit mode
-    /*@Transactional
-    public void removeAuthorshipFromAutId(int autId) {
-    	this.pubAuts.removeIf(authorship -> authorship.getAutAutId() == autId);
-    }*/
+
+    // FIXME: Remove authors does not work on edit mode
+    /*
+     * @Transactional
+     * public void removeAuthorshipFromAutId(int autId) {
+     * this.pubAuts.removeIf(authorship -> authorship.getAutAutId() == autId);
+     * }
+     */
 
     public Class getPublicationClass() {
-        switch(this.getPubType().getPublicationTypeGroupFromPublicationType()) {
+        switch (this.getPubType().getPublicationTypeGroupFromPublicationType()) {
             case Typeless:
                 return Publication.class;
             case ReadingCommitteeJournalPopularizationPaper:
@@ -364,7 +393,7 @@ public class Publication implements Serializable {
         int result = 1;
         result = prime * result + ((pubAbstract == null) ? 0 : pubAbstract.hashCode());
         result = prime * result + ((pubAnnotations == null) ? 0 : pubAnnotations.hashCode());
-        //result = prime * result + ((pubAuts == null) ? 0 : pubAuts.hashCode());
+        // result = prime * result + ((pubAuts == null) ? 0 : pubAuts.hashCode());
         result = prime * result + ((pubDBLP == null) ? 0 : pubDBLP.hashCode());
         result = prime * result + ((pubDOIRef == null) ? 0 : pubDOIRef.hashCode());
         result = prime * result + ((pubDate == null) ? 0 : pubDate.hashCode());
@@ -476,7 +505,4 @@ public class Publication implements Serializable {
         return true;
     }
 
-
 }
-
-
