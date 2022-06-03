@@ -62,8 +62,8 @@ public class PublicationController {
                                 @RequestParam Integer publicationId,
                                 String publicationType,
                                 String publicationTitle,
-                                String publicationAbstract,
-                                String publicationKeywords,
+                                @RequestParam(required = false) String publicationAbstract,
+                                @RequestParam(required = false) String publicationKeywords,
                                 String publicationDate,
                                 String[] publicationAuthors,
                                 @RequestParam(required = false) String publicationNote,
@@ -194,7 +194,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -217,7 +217,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -243,7 +243,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -269,7 +269,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -298,7 +298,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -319,7 +319,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -341,7 +341,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -364,7 +364,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -395,8 +395,8 @@ public class PublicationController {
     public void createPublication(HttpServletResponse response,
                                   String publicationType,
                                   String publicationTitle,
-                                  String publicationAbstract,
-                                  String publicationKeywords,
+                                  @RequestParam(required = false) String publicationAbstract,
+                                  @RequestParam(required = false) String publicationKeywords,
                                   String publicationDate,
                                   String[] publicationAuthors,
                                   @RequestParam(required = false) String publicationNote,
@@ -468,7 +468,7 @@ public class PublicationController {
 
             int pubId = 0;
             // First step : create the publication
-            Publication publication = new Publication(publicationTitle, publicationAbstract, publicationKeywords, publicationDateDate, publicationNote, null, publicationIsbn, publicationIssn, publicationDoi, publicationUrl, publicationVideoUrl, publicationDblp, pdfUploadPath, publicationLanguage, awardUploadPath, PublicationType.valueOf(publicationType));
+            Publication publication = new Publication(publicationTitle, publicationAbstract, publicationKeywords, publicationDateDate, publicationNote, null, publicationIsbn, publicationIssn, pubServ.getDOINumberFromDOIRef(publicationDoi), publicationUrl, publicationVideoUrl, publicationDblp, pdfUploadPath, publicationLanguage, awardUploadPath, PublicationType.valueOf(publicationType));
             pubId = publication.getPubId();
 
             // Second step : create the specific data of publication type
@@ -649,22 +649,18 @@ public class PublicationController {
      */
     @RequestMapping(value = "/exportOdt", method = RequestMethod.POST, headers = "Accept=application/vnd.oasis.opendocument.text")
     public byte[] exportOdt(Integer[] listPublicationsIds) {
-        try {
-            OdfTextDocument odt = OdfTextDocument.newTextDocument();
-            for (Integer i : listPublicationsIds) {
-                if (i == null) continue;
-                odt.newParagraph(pubServ.exportOneOdt(i));
-                // Adding paragraph to separate two publications
-                odt.newParagraph();
+    	StringBuilder res = new StringBuilder();
+    	for(Integer i : listPublicationsIds) {
+    		if (i == null) continue;
+    		try {
+                res.append(pubServ.exportOneOdt(i));
+                res.append("\n\n");
+            } catch (Exception ex) {
+                this.logger.warn("Error during ODT export of publication ID = " + i);
             }
-            DrainableOutputStream out = new DrainableOutputStream(null);
-            odt.getPackage().save(out);
-            byte[] data = out.toByteArray(); //odt.getPackage().getInputStream().readAllBytes();
-            return data;
-        } catch (Exception e) {
-            this.logger.warn("Error during ODT export of publications");
-        }
-        return null;
+    	}
+    	
+    	return res.toString().getBytes();
     }
 
     class DrainableOutputStream extends FilterOutputStream {

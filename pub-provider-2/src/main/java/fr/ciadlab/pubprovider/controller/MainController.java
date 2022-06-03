@@ -320,7 +320,6 @@ public class MainController {
             publications = publications.stream().filter(p -> p.getPubAuts() != null && p.getPubAuts().size() > 0).collect(Collectors.toList());
         }
 
-
         JsonArray publisJson = new JsonArray();
         for (Publication p : publications) { // Keep only valid (with authors)
             JsonObject data = new JsonObject();
