@@ -213,7 +213,7 @@
                                                     <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                                     <option
                                                             th:each="journalScimagoQuartile : ${publicationsQuartiles}"
-                                                            th:selected="${publication != null && journalScimagoQuartile == publication.getPubQuartile()}"
+                                                            th:selected="${publication != null && journalScimagoQuartile == publication.getPubJournalScimagoQuartile()}"
                                                             th:value="${journalScimagoQuartile.toString()}"
                                                             th:utext="${journalScimagoQuartile.toString()}">
                                                     </option>
@@ -225,7 +225,7 @@
                                                     <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                                     <option
                                                             th:each="journalWosQuartile : ${publicationsQuartiles}"
-                                                            th:selected="${publication != null && journalWosQuartile == publication.getPubQuartile()}"
+                                                            th:selected="${publication != null && journalWosQuartile == publication.getPubJournalWosQuartile()}"
                                                             th:value="${journalWosQuartile.toString()}"
                                                             th:utext="${journalWosQuartile.toString()}">
                                                     </option>
@@ -237,6 +237,7 @@
                                                     <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                                     <option
                                                             th:each="journalCoreRanking : ${journalCoreRankings}"
+                                                            th:selected="${publication != null && journalCoreRanking == publication.getPubJournalCoreRanking()}"
                                                             th:value="${journalCoreRanking}"
                                                             th:utext="${journalCoreRanking.toString()}">
                                                     </option>
