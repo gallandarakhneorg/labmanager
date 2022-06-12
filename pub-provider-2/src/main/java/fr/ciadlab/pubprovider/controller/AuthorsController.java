@@ -79,7 +79,7 @@ public class AuthorsController {
     }
 
     @RequestMapping(value = "/renameAuthor", method = RequestMethod.POST)
-    public void renameAuthor(HttpServletResponse response, @RequestParam String author, @RequestParam String newFirstname, @RequestParam String newLastname , @RequestParam String autMail) throws IOException {
+    public void updateAuthor(HttpServletResponse response, @RequestParam String author, @RequestParam String newFirstname, @RequestParam String newLastname , @RequestParam String autMail, @RequestParam Date newBirthDate) throws IOException {
         try {
             final String oldFirstName = author.substring(0, author.indexOf(" "));
             final String oldLastName = author.substring(author.indexOf(" ")+1);
@@ -89,7 +89,7 @@ public class AuthorsController {
                     authorServ.getAuthorIdByName(oldFirstName, oldLastName),
                     newFirstname,
                     newLastname,
-                    null,
+                    newBirthDate,
                     autMail
             );
 
@@ -100,7 +100,7 @@ public class AuthorsController {
     }
     
     @RequestMapping(value = "/createAuthor", method = RequestMethod.POST)
-    public void createAuthor(HttpServletResponse response, String autFirstName, String autLastName, Date autBirth, String autMail) throws IOException 
+    public void createAuthor(HttpServletResponse response, @RequestParam String autFirstName, @RequestParam String autLastName, @RequestParam Date autBirth, @RequestParam String autMail) throws IOException 
     {
     	try {
 	    	authorServ.createAuthor(autFirstName, autLastName, autBirth, autMail);
@@ -113,7 +113,7 @@ public class AuthorsController {
     }
     
     @RequestMapping(value = "/deleteAuthor", method = RequestMethod.POST)
-    public void deleteAuthor(HttpServletResponse response, String author) throws IOException 
+    public void deleteAuthor(HttpServletResponse response, @RequestParam String author) throws IOException 
     {
     	try {
     		final String oldFirstName = author.substring(0, author.indexOf(" "));
