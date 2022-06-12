@@ -10,6 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.sql.Date;
 import java.util.List;
 
 @RestController
@@ -96,6 +97,37 @@ public class AuthorsController {
         } catch (Exception ex) {
             response.sendRedirect("/SpringRestHibernate/authorsTool?error=1&message=" + ex.getMessage()); // Redirect on the same page
         }
+    }
+    
+    @RequestMapping(value = "/createAuthor", method = RequestMethod.POST)
+    public void createAuthor(HttpServletResponse response, String autFirstName, String autLastName, Date autBirth, String autMail) throws IOException 
+    {
+    	try {
+	    	authorServ.createAuthor(autFirstName, autLastName, autBirth, autMail);
+	    	response.sendRedirect("/SpringRestHibernate/authorsTool?successCreate=" + autFirstName + " " + autLastName);
+    	}
+    	catch (Exception ex)
+    	{
+    		response.sendRedirect("/SpringRestHibernate/authorsToolCreate?error=1&message=" + ex.getMessage());
+    	}
+    }
+    
+    @RequestMapping(value = "/deleteAuthor", method = RequestMethod.POST)
+    public void deleteAuthor(HttpServletResponse response, String author) throws IOException 
+    {
+    	try {
+    		final String oldFirstName = author.substring(0, author.indexOf(" "));
+            final String oldLastName = author.substring(author.indexOf(" ")+1);
+            
+            int index = authorServ.getAuthorIdByName(oldFirstName, oldLastName);
+            
+    		authorServ.removeAuthor(index);
+	    	response.sendRedirect("/SpringRestHibernate/authorsTool?Deletesuccess=" + index);
+    	}
+    	catch (Exception ex)
+    	{
+    		response.sendRedirect("/SpringRestHibernate/authorsToolCreate?error=1&message=" + ex.getMessage());
+    	}
     }
 }
 
