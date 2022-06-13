@@ -98,7 +98,6 @@
                                             <div id="authors">
                                                 <!-- Nothing at start -->
                                                 <div th:if="${publication != null}" class="form-row" th:each="authorship : ${publication != null ? pubAuthors : null}" >
-
                                                     <div class="form-row connectedSortable test">
                                                         <div class="col-md-10 mb-3">
                                                             <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" th:value="${authorship.getAutFirstName() + ' ' + authorship.getAutLastName() }"/>
@@ -108,8 +107,15 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-
+                                                <div th:if="${pubAuts != null}" class="form-row connectedSortable test" th:each="currentAut : ${pubAuts}">
+								                    <div class="col-md-10 mb-3">
+								                        <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" th:value="${currentAut.getAutFirstName() + ' ' + currentAut.getAutLastName() }"/>
+								                    </div>
+									                <div class="col-md-2 mb-3">
+									                	<button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>
+									                </div> 
+	                                            </div>
+                                            </div>  
                                             <div class="form-row">
                                                 <div class="col-md-10 mb-3">
                                                     <select id="publicationAuthors"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
@@ -119,6 +125,7 @@
                                                 <div class="col-md-2 mb-3">
                                                     <button class="form-control btn btn-primary mt-2 pr-2 pl-2 addElement">Add</button>
                                                 </div>
+
                                             </div>
                                         </div>
                                         <!--<select id="publicationAuthors"  class="form-control custom-select selectAuthor" name="publicationAuthors">
@@ -376,7 +383,6 @@
                                             <input class="form-control" type="text" th:value="${userDocPublisher}" placeholder="Publisher of the user documentation" id="userDocPublisher" name="userDocPublisher">
                                         </div>
                                     </div>
-
                                     <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Submit</button>
                                 </div>
                             </form>
@@ -561,7 +567,7 @@
                 '    </div>').appendTo('#authors');
         enableRemove();
     }
-
+    
     $(document).ready(function () {
 
         // var formUrl = /*[[@{/createPublication}]]*/ '';

@@ -161,7 +161,7 @@ public class MainController {
 	        modelAndView.addObject("journals", journals);
 	        modelAndView.addObject("journalServ", jourServ);
 	        modelAndView.addObject("edit", false);
-	        modelAndView.addObject("pubAuts", publication.getAuthorsList());
+	        
 
 	        // IF edit mode
 	        if(publicationId != null || filling == true) 
@@ -175,7 +175,7 @@ public class MainController {
 	            	}
 	            	else if(filling == true)
 	            	{
-	            		//TODO check les auteurs par nom
+	            		modelAndView.addObject("pubAuts", publication.getAuthorsList());
 	            	}
 	                modelAndView.addObject("publication", publication.getPublicationClass().cast(publication)); // Dynamic downcasting
 	                
