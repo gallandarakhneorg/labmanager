@@ -162,12 +162,7 @@ public class MainController {
 	        modelAndView.addObject("journalServ", jourServ);
 	        modelAndView.addObject("edit", false);
 	        modelAndView.addObject("pubAuts", publication.getAuthorsList());
-	        for (Author aut: publication.getAuthorsList())
-	        {
-	        	System.out.println("ayaya" + aut.getAutFirstName() + "," + aut.getAutLastName());
-	        }
-	        
-	        
+
 	        // IF edit mode
 	        if(publicationId != null || filling == true) 
 	        {
