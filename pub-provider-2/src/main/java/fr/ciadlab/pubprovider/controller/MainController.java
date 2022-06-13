@@ -104,6 +104,8 @@ public class MainController {
         List<Journal> journals = jourServ.getAllJournals();
 
         resOrgService.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut())));
+        
+        //authors.remove(authors.iterator().next()); AMBRE C'EST ICI (Rappel à moi du futur)
 
         List<PublicationType> publicationsTypes = Arrays.asList(PublicationType.values()).stream()
                 .filter(pubType -> pubType != PublicationType.TypeLess)
@@ -121,7 +123,9 @@ public class MainController {
         modelAndView.addObject("journals", journals);
         modelAndView.addObject("journalServ", jourServ);
         modelAndView.addObject("edit", false);
-
+        
+        //authors.remove(authors.iterator().next());
+        
         // IF edit mode
         if (publicationId != null) {
             Publication publication = pubServ.getPublication(publicationId);
@@ -219,11 +223,6 @@ public class MainController {
     public ModelAndView showPublicationsList(
             @RequestParam(required = false) Integer authorId) {
         final ModelAndView modelAndView = new ModelAndView("publicationsList");
-
-        // List<PublicationType> publicationsTypes =
-        // Arrays.asList(PublicationType.values()).stream()
-        // .filter(pubType -> pubType != PublicationType.TypeLess)
-        // .collect(Collectors.toList());
         modelAndView.addObject("authorsMap", autServ.getAllAuthors().parallelStream()
                 .collect(Collectors.toMap(a -> a.getAutId(), a -> a.getAutFirstName() + " " + a.getAutLastName())));
 

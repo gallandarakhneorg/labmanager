@@ -1,8 +1,10 @@
 package fr.ciadlab.pubprovider.controller;
 
 import fr.ciadlab.pubprovider.PubProviderApplication;
+
 import fr.ciadlab.pubprovider.entities.*;
 import fr.ciadlab.pubprovider.service.*;
+
 import fr.ciadlab.pubprovider.utils.FileUploadUtils;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.slf4j.Logger;
@@ -11,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.ByteArrayOutputStream;
@@ -21,9 +24,14 @@ import java.nio.charset.Charset;
 import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 
 @RestController
 @CrossOrigin
@@ -408,6 +416,39 @@ public class PublicationController {
                     + "&message=" + ex.getMessage()); // Redirect on the same page
         }
 
+    }
+    
+    @RequestMapping(value = "/getAuthorsList", method = RequestMethod.GET)
+    public @ResponseBody Map<String, String> getAuthorsList(
+            @RequestParam(value = "publicationAuthorsList", required = true) String[] publicationAuthorsList)
+    {
+    	
+            // creation of a JSON object containing each of the author
+        Map<String, String> AuthorsList = new HashMap<>();
+        Set<Author> authors = new HashSet<>();
+        researchOrganizationServ.getAllResearchOrganizations().forEach(o -> o.getOrgAuts().forEach(a -> authors.add(a.getAut())));
+			
+        	for (String publicationAuthor : publicationAuthorsList) { 
+			      String firstName = publicationAuthor.substring(0, publicationAuthor.indexOf(" ")); 
+			      String lastName = publicationAuthor.substring(publicationAuthor.indexOf(" ") + 1);
+				  
+				  int authorIdByName = authorServ.getAuthorIdByName(firstName, lastName);
+				  Author NameToDelete = authorServ.getAuthor(authorIdByName);
+				  authors.remove(NameToDelete); 
+        	}
+            	
+        	Iterator<Author> it = authors.iterator();
+			  
+        	while (it.hasNext() != false) {
+				  Author NomAuthor = it.next();
+				  AuthorsList.put("Name", NomAuthor.getAutFirstName().toString()+ ' ' + NomAuthor.getAutLastName().toString());
+			  
+        	}
+			
+            		
+            		
+            
+        	return AuthorsList;
     }
 
     @RequestMapping(value = "/createPublication", method = RequestMethod.POST, headers = "Accept=application/json")
