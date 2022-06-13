@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
@@ -26,11 +25,13 @@ import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.Authorship;
 import fr.ciadlab.pubprovider.entities.Book;
 import fr.ciadlab.pubprovider.entities.BookChapter;
+import fr.ciadlab.pubprovider.entities.CoreRanking;
 import fr.ciadlab.pubprovider.entities.EngineeringActivity;
 import fr.ciadlab.pubprovider.entities.Journal;
 import fr.ciadlab.pubprovider.entities.ProceedingsConference;
 import fr.ciadlab.pubprovider.entities.Publication;
 import fr.ciadlab.pubprovider.entities.PublicationType;
+import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
 import fr.ciadlab.pubprovider.entities.SeminarPatentInvitedConference;
 import fr.ciadlab.pubprovider.entities.UniversityDocument;
@@ -1272,118 +1273,132 @@ public class PublicationService {
         bib += "@";
         bib += groupType;
         bib += "{";
-        bib += printAuthorsLastNames(pubId);
-        bib += pub.getPubDate().toString().substring(0, 4);
-        bib += "_";
         bib += pubId;
+        bib += "_";
+        bib += pub.getPubDate().toString().substring(0, 4);
         bib += ",";
         bib += "\n\t";
 
         data = pub.getPubAbstract();
-        if (data != null) //if data exists
+        if (!isDataEmpty(data)) //if data exists
         {
             bib += "abstract = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubKeywords();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "keywords = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubNote();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "note = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubAnnotations();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "annotations = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubISBN();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "isbn = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubISSN();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "issn = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubDOIRef();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "doi = {";
-            bib += data;
+            bib += getDOINumberFromDOIRef(data); //we keep calling this method here because of the existing publications that may contain a full doi ref
             bib += "}, \n\t";
         }
         data = pub.getPubURL();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "url = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubDBLP();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "dblp = {";
             bib += data;
             bib += "}, \n\t";
         }
-        data = pub.getPubPDFPath();
-        if (data != null) {
-            bib += "pdf = {";
-            bib += data;
-            bib += "}, \n\t";
-        }
+        //We don't get the pubPDFPath field because it points to a local file which is useless
         data = pub.getPubLanguage();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "language = {";
             bib += data;
             bib += "}, \n\t";
         }
-        data = pub.getPubPaperAwardPath();
-        if (data != null) {
-            bib += "award = {";
-            bib += data;
-            bib += "}, \n\t";
-        }
+        //We don't get the pubPaperAwardPath field because it points to a local file which is useless
 
         switch (groupType) {
             case "Article":
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
-                    data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
-                    if (data != null) {
+                	Journal journal = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal();
+                	data = journal.getJourName();
+                    if (!isDataEmpty(data)) {
                         bib += "journal = {";
                         bib += data;
                         bib += "}, \n\t";
                     }
+                	Quartile quartileScimago = journal.getScimagoQuartileByYear(pub.getPubYear());
+                	if(quartileScimago != null) {
+                		bib += "quartile_scimago = {";
+                		bib += quartileScimago.toString();
+                		bib += "}, \n\t";
+                	}
+                	Quartile quartileWos = journal.getWosQuartileByYear(pub.getPubYear());
+                	if(quartileWos != null) {
+                		bib += "quartile_wos = {";
+                		bib += quartileWos.toString();
+                		bib += "}, \n\t";
+                	}
+                	CoreRanking coreRanking = journal.getCoreRankingByYear(pub.getPubYear());
+                	if(coreRanking != null) {
+                		bib += "core_rank = {";
+                		bib += coreRanking.toString();
+                		bib += "}, \n\t";
+                	}
+                	int impactFactor = journal.getImpactFactorByYear(pub.getPubYear());
+                	if(impactFactor != 0) {
+                		bib += "if = {";
+                		bib += impactFactor;
+                		bib += "}, \n\t";
+                	}
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapVolume();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "volume = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapNumber();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "number = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapPages();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "pages = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
                     data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourPublisher();
-                    if (data != null) {
+                    if (!isDataEmpty(data)) {
                         bib += "publisher = {";
                         bib += data;
                         bib += "}, \n\t";
@@ -1393,43 +1408,43 @@ public class PublicationService {
 
             case "Inproceedings":
                 data = ((ProceedingsConference) pub).getProConfBookNameProceedings();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "booktitle = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfEditor();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "editor = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfPages();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "pages = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfOrganization();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "organization = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfPublisher();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "publisher = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfSeries();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "series = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1438,100 +1453,100 @@ public class PublicationService {
 
             case "Book":
                 data = ((Book) pub).getBookEditor();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "editor = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookPublisher();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "publisher = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookVolume();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "volume = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookSeries();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "series = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookEdition();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "edition = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookPages();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "pages = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 break;
 
             case "Inbook":
                 data = ((BookChapter) pub).getBookEditor();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "editor = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookPublisher();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "publisher = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookVolume();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "volume = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookSeries();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "series = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookEdition();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "edition = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookPages();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "pages = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookChapBookNameProceedings();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "booktitle = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookChapNumberOrName();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "chapter = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1540,7 +1555,7 @@ public class PublicationService {
 
             case "Misc":
                 data = ((SeminarPatentInvitedConference) pub).getSemPatHowPub();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "howpublished = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1549,25 +1564,25 @@ public class PublicationService {
 
             case "Manual":
                 data = ((UserDocumentation) pub).getUserDocOrganization();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "organization = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UserDocumentation) pub).getUserDocAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UserDocumentation) pub).getUserDocEdition();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "edition = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UserDocumentation) pub).getUserDocPublisher();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "publisher = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1576,19 +1591,19 @@ public class PublicationService {
 
             case "Techreport":
                 data = ((EngineeringActivity) pub).getEngActInstitName();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "institution = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((EngineeringActivity) pub).getEngActReportType();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "type = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((EngineeringActivity) pub).getEngActNumber();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "number = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1597,13 +1612,13 @@ public class PublicationService {
 
             case "Phdthesis":
                 data = ((UniversityDocument) pub).getUniDocSchoolName();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "school = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UniversityDocument) pub).getUniDocAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1612,13 +1627,13 @@ public class PublicationService {
 
             case "Masterthesis":
                 data = ((UniversityDocument) pub).getUniDocSchoolName();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "school = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UniversityDocument) pub).getUniDocAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1627,31 +1642,33 @@ public class PublicationService {
         }
 
         data = convertBackMonth(pub.getPubDate().toString().substring(5, 7));
-        if (data != null) {
-            bib += "month = {";
+        if (!isDataEmpty(data)) {
+            bib += "month = ";
             bib += data;
-            bib += "}, \n\t";
+            bib += ", \n\t";
         }
         data = pub.getPubDate().toString().substring(0, 4);
-        if (data != null) {
-            bib += "year = {";
+        if (!isDataEmpty(data)) {
+            bib += "year = ";
             bib += data;
-            bib += "}, \n\t";
+            bib += ", \n\t";
         }
         data = pub.getPubTitle();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "title = {";
-            bib += data;
+            bib += encapsulateAcronymsInTitle(data);
             bib += "}, \n\t";
         }
         data = printAuthors(pubId);
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "author = {";
             bib += data;
             bib += "}, \n";
         }
 
         bib += "}\n\n\n";
+        
+        bib = formatData(bib);
 
         return bib;
     }
@@ -1752,6 +1769,62 @@ public class PublicationService {
 
         return wos;
     }
+    
+    public String encapsulateAcronymsInTitle(String title) {
+    	
+    	/*We consider a word as an acronym when it is full capitalized with a minimum length of 2
+    	  and followed by a potential lower case s*/
+    	
+    	//regex for acronyms in the middle of a sentence
+		String acronymRegex = "([^A-Za-z0-9{}])([A-Z0-9][A-Z0-9]+s?)([^A-Za-z0-9{}])";
+		//regex for an acronym as the first word in the sentence
+		String firstWordAcronymRegex = "^([A-Z0-9][A-Z0-9]+s?)([^A-Za-z0-9])";
+		//regex for an acronym as the last word in the sentence
+		String lastWordAcronymRegex = "([^A-Za-z0-9])([A-Z0-9][A-Z0-9]+s?)$";
+		
+		//We add braces to the acronyms that we found
+		String titleEncaps = title.replaceAll(acronymRegex, "$1{$2}$3")
+									.replaceAll(firstWordAcronymRegex, "{$1}$2")
+									.replaceAll(lastWordAcronymRegex, "$1{$2}");
+    	
+    	return titleEncaps;
+    }
+    
+    public String formatData(String data) {
+    	String formatData = data.replace("\\", "\\\\");
+    	formatData = formatData.replace("&", "\\&");
+    	
+    	return formatData;
+    }
+    
+    /**
+     * Check if the string data is null, empty or equals to an invalid values
+     * @param data the string data
+     * @return a boolean
+     */
+    public boolean isDataEmpty(String data) {
+    	if(data == null || data.isEmpty()) {
+    		return true;
+    	}
+    	
+    	if(data.matches("^[ ,\\-\\.]*$")) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    public String getDOINumberFromDOIRef(String doiRef) {
+    	String doiNumber = doiRef;
+    	String[] doiRefSplitted = doiRef.split("/"); //We split the doiRef into different elements using the slash separator
+    	int doiRefSplittedLength = doiRefSplitted.length;
+    	if(doiRefSplittedLength >= 2) {
+    		//The DOI number refers to the two last elements of the reference
+    		doiNumber = doiRefSplitted[doiRefSplittedLength - 2] + "/" + doiRefSplitted[doiRefSplittedLength - 1];
+    	}
+    	
+    	return doiNumber;
+    }
 
     public String parseUsingSplitter(String pub, String splitter) {
         String cleaned = "";
@@ -1797,7 +1870,7 @@ public class PublicationService {
             group = "Phdthesis";
         }
         if (pubType == "MasterOnResearch" || pubType == "EngineeringThesis") {
-            group = "Masterthesis";
+            group = "Mastersthesis";
         }
 
         return group;
@@ -1915,12 +1988,35 @@ public class PublicationService {
         switch (groupType) {
             case "Article":
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
-                    data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
+                	Journal journal = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal();
+                	data = journal.getJourName();
                     if (data != null && !data.isEmpty()) {
                         text += "In ";
                         text += data;
                         text += ", ";
                     }
+                	Quartile quartileScimago = journal.getScimagoQuartileByYear(pub.getPubYear());
+                	if(quartileScimago != null) {
+                		text += quartileScimago.toString();
+                		text += " Scimago, ";
+                	}
+                	Quartile quartileWos = journal.getWosQuartileByYear(pub.getPubYear());
+                	if(quartileWos != null) {
+                		text += quartileWos.toString();
+                		text += " Wos, ";
+                	}
+                	CoreRanking coreRanking = journal.getCoreRankingByYear(pub.getPubYear());
+                	if(coreRanking != null) {
+                		text += "rank ";
+                		text += coreRanking.toString();
+                		text += ", ";
+                	}
+                	int impactFactor = journal.getImpactFactorByYear(pub.getPubYear());
+                	if(impactFactor != 0) {
+                		text += "if ";
+                		text += impactFactor;
+                		text += ", ";
+                	}
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapVolume();
                 if (data != null && !data.isEmpty()) {

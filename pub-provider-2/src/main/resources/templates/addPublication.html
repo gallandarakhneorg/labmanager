@@ -127,7 +127,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationAbstract" class="col-form-label">Abstract</label>
-                                        <textarea class="form-control" type="text" th:utext="${publication != null ? publication.getPubAbstract() : ''}" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
+                                        <textarea class="form-control" th:text="${publication != null ? publication.getPubAbstract() : ''}" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationKeywords" class="col-form-label">Keywords</label>
@@ -213,7 +213,7 @@
                                                     <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                                     <option
                                                             th:each="journalScimagoQuartile : ${publicationsQuartiles}"
-                                                            th:selected="${publication != null && journalScimagoQuartile == publication.getPubQuartile()}"
+                                                            th:selected="${publication != null && journalScimagoQuartile == publication.getPubJournalScimagoQuartile()}"
                                                             th:value="${journalScimagoQuartile.toString()}"
                                                             th:utext="${journalScimagoQuartile.toString()}">
                                                     </option>
@@ -225,7 +225,7 @@
                                                     <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                                     <option
                                                             th:each="journalWosQuartile : ${publicationsQuartiles}"
-                                                            th:selected="${publication != null && journalWosQuartile == publication.getPubQuartile()}"
+                                                            th:selected="${publication != null && journalWosQuartile == publication.getPubJournalWosQuartile()}"
                                                             th:value="${journalWosQuartile.toString()}"
                                                             th:utext="${journalWosQuartile.toString()}">
                                                     </option>
@@ -237,6 +237,7 @@
                                                     <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                                     <option
                                                             th:each="journalCoreRanking : ${journalCoreRankings}"
+                                                            th:selected="${publication != null && journalCoreRanking == publication.getPubJournalCoreRanking()}"
                                                             th:value="${journalCoreRanking}"
                                                             th:utext="${journalCoreRanking.toString()}">
                                                     </option>
@@ -244,7 +245,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <label for="journalImpactFactor" class="col-form-label">Journal impact factor</label>
-                                                <input type="number" class="form-control" id="journalImpactFactor" name="journalImpactFactor"/>
+                                                <input type="number" placeholder="Journal impact factor" class="form-control" id="journalImpactFactor" name="journalImpactFactor"/>
                                             </div>
                                         </div>
                                     </div>
@@ -583,17 +584,15 @@
         $('#form').validate({
             rules: {
                 publicationTitle: 'required',
-                publicationAbstract: {
-                    required: true,
-                    minlength: 2
+                publicationNote: {
+                	pattern: '^(?!.*to be published).*$'
                 },
                 publicationDate: 'required'
             },
             messages: {
                 publicationTitle: 'Please enter the publication title',
-                publicationAbstract: {
-                    required: 'Please, enter an abstract',
-                    minlength: 'The abstract is too short...'
+                publicationNote: {
+                	pattern: 'A publication should be published, it cannot be pending'
                 },
                 publicationDate: 'Please, enter the publication date'
             },

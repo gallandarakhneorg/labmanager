@@ -61,8 +61,8 @@ public class PublicationController {
             @RequestParam Integer publicationId,
             String publicationType,
             String publicationTitle,
-            String publicationAbstract,
-            String publicationKeywords,
+            @RequestParam(required = false) String publicationAbstract,
+            @RequestParam(required = false) String publicationKeywords,
             String publicationDate,
             String[] publicationAuthors,
             @RequestParam(required = false) String journalScimagoQuartile,
@@ -165,12 +165,7 @@ public class PublicationController {
                     int authorIdByName = authorServ.getAuthorIdByName(firstName, lastName);
                     if (authorIdByName == 0) {
                         logger.info("Author " + publicationAuthor + " not found... Creating a new one.");
-                        authorIdByName = authorServ.createAuthor(firstName, lastName, new Date(1970 - 1900, 1, 1), ""); // Temp
-                                                                                                                        // birth
-                                                                                                                        // date
-                                                                                                                        // //
-                                                                                                                        // TODO
-                                                                                                                        // FIXME
+                        authorIdByName = authorServ.createAuthor(firstName, lastName, new Date(1970 - 1900, 1, 1), ""); //Temp birth date // TODO FIXME
                         logger.info("New author created with id: " + authorIdByName);
                     }
 
@@ -212,7 +207,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -238,7 +233,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -264,7 +259,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -291,7 +286,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -321,7 +316,7 @@ public class PublicationController {
 
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -342,7 +337,7 @@ public class PublicationController {
 
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -364,7 +359,7 @@ public class PublicationController {
 
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -386,7 +381,7 @@ public class PublicationController {
                                 null,
                                 publicationIsbn,
                                 publicationIssn,
-                                publicationDoi,
+                                pubServ.getDOINumberFromDOIRef(publicationDoi),
                                 publicationUrl,
                                 publicationDblp,
                                 null,
@@ -416,8 +411,8 @@ public class PublicationController {
     public void createPublication(HttpServletResponse response,
             String publicationType,
             String publicationTitle,
-            String publicationAbstract,
-            String publicationKeywords,
+            @RequestParam(required = false) String publicationAbstract,
+            @RequestParam(required = false) String publicationKeywords,
             String publicationDate,
             String[] publicationAuthors,
             @RequestParam(required = false) String journalScimagoQuartile,
@@ -473,43 +468,11 @@ public class PublicationController {
             PublicationType publicationTypeEnum = PublicationType.valueOf(publicationType);
             PublicationTypeGroup publicationTypeGroup = publicationTypeEnum
                     .getPublicationTypeGroupFromPublicationType();
-            Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());/*
-                                                                                                                      * new
-                                                                                                                      * Date(
-                                                                                                                      * Integer
-                                                                                                                      * .
-                                                                                                                      * parseInt
-                                                                                                                      * (
-                                                                                                                      * publicationDate
-                                                                                                                      * .
-                                                                                                                      * split
-                                                                                                                      * (
-                                                                                                                      * "-"
-                                                                                                                      * )
-                                                                                                                      * [
-                                                                                                                      * 0
-                                                                                                                      * ]
-                                                                                                                      * )
-                                                                                                                      * -
-                                                                                                                      * 1900,
-                                                                                                                      * Integer
-                                                                                                                      * .
-                                                                                                                      * parseInt
-                                                                                                                      * (
-                                                                                                                      * publicationDate
-                                                                                                                      * .
-                                                                                                                      * split
-                                                                                                                      * (
-                                                                                                                      * "-"
-                                                                                                                      * )
-                                                                                                                      * [
-                                                                                                                      * 1
-                                                                                                                      * ]
-                                                                                                                      * )
-                                                                                                                      * ,
-                                                                                                                      * 1
-                                                                                                                      * );
-                                                                                                                      */
+            Date publicationDateDate = new Date(new SimpleDateFormat("yyyy-MM-dd").parse(publicationDate).getTime());/*new Date(
+            Integer.parseInt(publicationDate.split("-")[0]) - 1900,
+            Integer.parseInt(publicationDate.split("-")[1]), 1
+    		);*/
+            
             // Store pdfs
             String pdfUploadPath = "";
             if (publicationPdf != null && !publicationPdf.isEmpty()) {
@@ -531,9 +494,9 @@ public class PublicationController {
             int pubId = 0;
             // First step : create the publication
             Publication publication = new Publication(publicationTitle, publicationAbstract, publicationKeywords,
-                    publicationDateDate, publicationNote, null, publicationIsbn, publicationIssn, publicationDoi,
-                    publicationUrl, publicationVideoUrl, publicationDblp, pdfUploadPath, publicationLanguage,
-                    awardUploadPath, PublicationType.valueOf(publicationType));
+            		publicationDateDate, publicationNote, null, publicationIsbn, publicationIssn,
+            		pubServ.getDOINumberFromDOIRef(publicationDoi), publicationUrl, publicationVideoUrl, publicationDblp,
+            		pdfUploadPath, publicationLanguage, awardUploadPath, PublicationType.valueOf(publicationType));
             pubId = publication.getPubId();
 
             // Second step : create the specific data of publication type
@@ -765,23 +728,18 @@ public class PublicationController {
      */
     @RequestMapping(value = "/exportOdt", method = RequestMethod.POST, headers = "Accept=application/vnd.oasis.opendocument.text")
     public byte[] exportOdt(Integer[] listPublicationsIds) {
-        try {
-            OdfTextDocument odt = OdfTextDocument.newTextDocument();
-            for (Integer i : listPublicationsIds) {
-                if (i == null)
-                    continue;
-                odt.newParagraph(pubServ.exportOneOdt(i));
-                // Adding paragraph to separate two publications
-                odt.newParagraph();
+    	StringBuilder res = new StringBuilder();
+    	for(Integer i : listPublicationsIds) {
+    		if (i == null) continue;
+    		try {
+                res.append(pubServ.exportOneOdt(i));
+                res.append("\n\n");
+            } catch (Exception ex) {
+                this.logger.warn("Error during ODT export of publication ID = " + i);
             }
-            DrainableOutputStream out = new DrainableOutputStream(null);
-            odt.getPackage().save(out);
-            byte[] data = out.toByteArray(); // odt.getPackage().getInputStream().readAllBytes();
-            return data;
-        } catch (Exception e) {
-            this.logger.warn("Error during ODT export of publications");
-        }
-        return null;
+    	}
+    	
+    	return res.toString().getBytes();
     }
 
     class DrainableOutputStream extends FilterOutputStream {
