@@ -25,11 +25,13 @@ import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.Authorship;
 import fr.ciadlab.pubprovider.entities.Book;
 import fr.ciadlab.pubprovider.entities.BookChapter;
+import fr.ciadlab.pubprovider.entities.CoreRanking;
 import fr.ciadlab.pubprovider.entities.EngineeringActivity;
 import fr.ciadlab.pubprovider.entities.Journal;
 import fr.ciadlab.pubprovider.entities.ProceedingsConference;
 import fr.ciadlab.pubprovider.entities.Publication;
 import fr.ciadlab.pubprovider.entities.PublicationType;
+import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
 import fr.ciadlab.pubprovider.entities.SeminarPatentInvitedConference;
 import fr.ciadlab.pubprovider.entities.UniversityDocument;
@@ -1382,12 +1384,37 @@ public class PublicationService {
         switch (groupType) {
             case "Article":
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
-                    data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
+                	Journal journal = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal();
+                	data = journal.getJourName();
                     if (!isDataEmpty(data)) {
                         bib += "journal = {";
                         bib += data;
                         bib += "}, \n\t";
                     }
+                	Quartile quartileScimago = journal.getScimagoQuartileByYear(pub.getPubYear());
+                	if(quartileScimago != null) {
+                		bib += "quartile_scimago = {";
+                		bib += quartileScimago.toString();
+                		bib += "}, \n\t";
+                	}
+                	Quartile quartileWos = journal.getWosQuartileByYear(pub.getPubYear());
+                	if(quartileWos != null) {
+                		bib += "quartile_wos = {";
+                		bib += quartileWos.toString();
+                		bib += "}, \n\t";
+                	}
+                	CoreRanking coreRanking = journal.getCoreRankingByYear(pub.getPubYear());
+                	if(coreRanking != null) {
+                		bib += "core_rank = {";
+                		bib += coreRanking.toString();
+                		bib += "}, \n\t";
+                	}
+                	int impactFactor = journal.getImpactFactorByYear(pub.getPubYear());
+                	if(impactFactor != 0) {
+                		bib += "if = {";
+                		bib += impactFactor;
+                		bib += "}, \n\t";
+                	}
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapVolume();
                 if (!isDataEmpty(data)) {
@@ -1999,12 +2026,35 @@ public class PublicationService {
         switch (groupType) {
             case "Article":
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
-                    data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
+                	Journal journal = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal();
+                	data = journal.getJourName();
                     if (data != null && !data.isEmpty()) {
                         text += "In ";
                         text += data;
                         text += ", ";
                     }
+                	Quartile quartileScimago = journal.getScimagoQuartileByYear(pub.getPubYear());
+                	if(quartileScimago != null) {
+                		text += quartileScimago.toString();
+                		text += " Scimago, ";
+                	}
+                	Quartile quartileWos = journal.getWosQuartileByYear(pub.getPubYear());
+                	if(quartileWos != null) {
+                		text += quartileWos.toString();
+                		text += " Wos, ";
+                	}
+                	CoreRanking coreRanking = journal.getCoreRankingByYear(pub.getPubYear());
+                	if(coreRanking != null) {
+                		text += "rank ";
+                		text += coreRanking.toString();
+                		text += ", ";
+                	}
+                	int impactFactor = journal.getImpactFactorByYear(pub.getPubYear());
+                	if(impactFactor != 0) {
+                		text += "if ";
+                		text += impactFactor;
+                		text += ", ";
+                	}
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapVolume();
                 if (data != null && !data.isEmpty()) {
