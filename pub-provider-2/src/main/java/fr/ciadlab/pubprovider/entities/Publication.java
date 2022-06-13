@@ -6,6 +6,7 @@ import java.io.Serializable;
 import java.sql.Date;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -29,6 +30,9 @@ public class Publication implements Serializable {
     @JoinColumn(name = "pubPubId", referencedColumnName = "pubId")
     private Set<Authorship> pubAuts = new HashSet<Authorship>();
 
+    @Transient
+    private List<Author> AuthorsList; 
+    
     @Column
     private String pubTitle;
 
@@ -37,6 +41,8 @@ public class Publication implements Serializable {
 
     @Column
     private String pubKeywords;
+    
+    
 
     @Column
     // @Temporal(TemporalType.DATE)
@@ -83,25 +89,26 @@ public class Publication implements Serializable {
     private PublicationType pubType;
 
     public Publication(Publication p) {
-        this.pubId = p.pubId;
-        this.pubAuts = p.pubAuts;
-        this.pubTitle = p.pubTitle;
-        this.pubAbstract = p.pubAbstract;
-        this.pubKeywords = p.pubKeywords;
-        this.pubDate = p.pubDate;
-        this.pubYear = p.pubYear;
-        this.pubNote = p.pubNote;
-        this.pubAnnotations = p.pubAnnotations;
-        this.pubISBN = p.pubISBN;
-        this.pubISSN = p.pubISSN;
-        this.pubDOIRef = p.pubDOIRef;
-        this.pubURL = p.pubURL;
-        this.pubVideoURL = p.pubVideoURL;
-        this.pubDBLP = p.pubDBLP;
-        this.pubPDFPath = p.pubPDFPath;
-        this.pubLanguage = p.pubLanguage;
+        this.pubId             = p.pubId;
+        this.pubAuts           = p.pubAuts;
+        this.AuthorsList       = p.AuthorsList;
+        this.pubTitle          = p.pubTitle;
+        this.pubAbstract       = p.pubAbstract;
+        this.pubKeywords       = p.pubKeywords;
+        this.pubDate           = p.pubDate;
+        this.pubYear           = p.pubYear;
+        this.pubNote           = p.pubNote;
+        this.pubAnnotations    = p.pubAnnotations;
+        this.pubISBN           = p.pubISBN;
+        this.pubISSN           = p.pubISSN;
+        this.pubDOIRef         = p.pubDOIRef;
+        this.pubURL            = p.pubURL;
+        this.pubVideoURL       = p.pubVideoURL;
+        this.pubDBLP           = p.pubDBLP;
+        this.pubPDFPath        = p.pubPDFPath;
+        this.pubLanguage       = p.pubLanguage;
         this.pubPaperAwardPath = p.pubPaperAwardPath;
-        this.pubType = p.pubType;
+        this.pubType           = p.pubType;
     }
 
     public Publication(String pubTitle, String pubAbstract, String pubKeywords,
@@ -147,7 +154,8 @@ public class Publication implements Serializable {
         this.pubId = pubId;
     }
 
-    public List<Authorship> getPubAuts() {
+    public List<Authorship> getPubAuts() 
+    {
         // Ordered by rank
         if (pubAuts != null)
             return pubAuts.stream().sorted(Comparator.comparingInt(Authorship::getAutShipRank))
@@ -155,8 +163,20 @@ public class Publication implements Serializable {
         return null;
     }
 
+    public List<Author> getAuthorsList() 
+    {
+        // Ordered by rank
+        if(this.AuthorsList != null)
+            return this.AuthorsList;
+        return null;
+    }
+    
     public void setPubAuts(Set<Authorship> pubAuts) {
         this.pubAuts = pubAuts;
+    }
+    
+    public void setAuthorsList(List<Author> AuthorsList) {
+        this.AuthorsList = AuthorsList;
     }
 
     public String getPubTitle() {

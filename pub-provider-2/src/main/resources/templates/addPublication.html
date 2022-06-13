@@ -98,7 +98,6 @@
                                             <div id="authors">
                                                 <!-- Nothing at start -->
                                                 <div th:if="${publication != null}" class="form-row" th:each="authorship : ${publication != null ? pubAuthors : null}" >
-
                                                     <div class="form-row connectedSortable test">
                                                         <div class="col-md-10 mb-3">
                                                             <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" th:value="${authorship.getAutFirstName() + ' ' + authorship.getAutLastName() }"/>
@@ -108,8 +107,15 @@
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-
+                                                <div th:if="${pubAuts != null}" class="form-row connectedSortable test" th:each="currentAut : ${pubAuts}">
+								                    <div class="col-md-10 mb-3">
+								                        <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" th:value="${currentAut.getAutFirstName() + ' ' + currentAut.getAutLastName() }"/>
+								                    </div>
+									                <div class="col-md-2 mb-3">
+									                	<button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>
+									                </div> 
+	                                            </div>
+                                            </div>  
                                             <div class="form-row">
                                                 <div class="col-md-10 mb-3">
                                                    <!--  <select id="publicationAuthors"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
@@ -128,6 +134,7 @@
                                                 <div class="col-md-2 mb-3">
                                                     <button class="form-control btn btn-primary mt-2 pr-2 pl-2 addElement">Add</button>
                                                 </div>
+
                                             </div>
                                         </div>
                                         <!--<select id="publicationAuthors"  class="form-control custom-select selectAuthor" name="publicationAuthors">
@@ -136,7 +143,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationAbstract" class="col-form-label">Abstract</label>
-                                        <textarea class="form-control" type="text" th:utext="${publication != null ? publication.getPubAbstract() : ''}" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
+                                        <textarea class="form-control" th:text="${publication != null ? publication.getPubAbstract() : ''}" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationKeywords" class="col-form-label">Keywords</label>
@@ -222,7 +229,7 @@
                                                     <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                                     <option
                                                             th:each="journalScimagoQuartile : ${publicationsQuartiles}"
-                                                            th:selected="${publication != null && journalScimagoQuartile == publication.getPubQuartile()}"
+                                                            th:selected="${publication != null && journalScimagoQuartile == publication.getPubJournalScimagoQuartile()}"
                                                             th:value="${journalScimagoQuartile.toString()}"
                                                             th:utext="${journalScimagoQuartile.toString()}">
                                                     </option>
@@ -234,7 +241,7 @@
                                                     <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                                     <option
                                                             th:each="journalWosQuartile : ${publicationsQuartiles}"
-                                                            th:selected="${publication != null && journalWosQuartile == publication.getPubQuartile()}"
+                                                            th:selected="${publication != null && journalWosQuartile == publication.getPubJournalWosQuartile()}"
                                                             th:value="${journalWosQuartile.toString()}"
                                                             th:utext="${journalWosQuartile.toString()}">
                                                     </option>
@@ -246,6 +253,7 @@
                                                     <option value="" th:selected="${!edit}">Select a publication quartile</option>
                                                     <option
                                                             th:each="journalCoreRanking : ${journalCoreRankings}"
+                                                            th:selected="${publication != null && journalCoreRanking == publication.getPubJournalCoreRanking()}"
                                                             th:value="${journalCoreRanking}"
                                                             th:utext="${journalCoreRanking.toString()}">
                                                     </option>
@@ -253,7 +261,7 @@
                                             </div>
                                             <div class="form-group">
                                                 <label for="journalImpactFactor" class="col-form-label">Journal impact factor</label>
-                                                <input type="number" class="form-control" id="journalImpactFactor" name="journalImpactFactor"/>
+                                                <input type="number" placeholder="Journal impact factor" class="form-control" id="journalImpactFactor" name="journalImpactFactor"/>
                                             </div>
                                         </div>
                                     </div>
@@ -384,7 +392,6 @@
                                             <input class="form-control" type="text" th:value="${userDocPublisher}" placeholder="Publisher of the user documentation" id="userDocPublisher" name="userDocPublisher">
                                         </div>
                                     </div>
-
                                     <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Submit</button>
                                 </div>
                             </form>
@@ -629,7 +636,7 @@
     	}
     	
     }
-
+    
     $(document).ready(function () {
 
         $('#publicationType').select2();
@@ -642,17 +649,15 @@
         $('#form').validate({
             rules: {
                 publicationTitle: 'required',
-                publicationAbstract: {
-                    required: true,
-                    minlength: 2
+                publicationNote: {
+                	pattern: '^(?!.*to be published).*$'
                 },
                 publicationDate: 'required'
             },
             messages: {
                 publicationTitle: 'Please enter the publication title',
-                publicationAbstract: {
-                    required: 'Please, enter an abstract',
-                    minlength: 'The abstract is too short...'
+                publicationNote: {
+                	pattern: 'A publication should be published, it cannot be pending'
                 },
                 publicationDate: 'Please, enter the publication date'
             },
