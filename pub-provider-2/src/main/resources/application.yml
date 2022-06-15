@@ -18,8 +18,8 @@ spring:
 #    password: ci@dlAbpas$
 
     #Local use :
-    username: root
-    password: 
+    username: Ambre
+    password: Pingoleon92
 
   servlet:
     multipart:
