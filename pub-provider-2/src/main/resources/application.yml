@@ -19,7 +19,7 @@ spring:
 
     #Local use :
     username: root
-    password: JeSuisUnNouveauMotDePasse!1
+    password: 
 
   servlet:
     multipart:
