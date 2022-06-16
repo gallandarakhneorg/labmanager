@@ -78,20 +78,15 @@ public class AuthorsController {
         return authorServ.getAuthor(authorServ.getAuthorIdByName(oldFirstName, oldLastName));
     }
 
-    @RequestMapping(value = "/renameAuthor", method = RequestMethod.POST)
+    @RequestMapping(value = "/updateAuthor", method = RequestMethod.POST)
     public void updateAuthor(HttpServletResponse response, @RequestParam String author, @RequestParam String newFirstname, @RequestParam String newLastname , @RequestParam String autMail, @RequestParam Date newBirthDate) throws IOException {
         try {
             final String oldFirstName = author.substring(0, author.indexOf(" "));
             final String oldLastName = author.substring(author.indexOf(" ")+1);
+            final int auteur = authorServ.getAuthorIdByName(oldFirstName, oldLastName);
            // authorServ.getAuthorIdByName()
 
-            authorServ.updateAuthor(
-                    authorServ.getAuthorIdByName(oldFirstName, oldLastName),
-                    newFirstname,
-                    newLastname,
-                    newBirthDate,
-                    autMail
-            );
+            authorServ.updateAuthor(auteur,newFirstname,newLastname,newBirthDate,autMail);
 
             response.sendRedirect("/SpringRestHibernate/authorsTool?updated=true");
         } catch (Exception ex) {
