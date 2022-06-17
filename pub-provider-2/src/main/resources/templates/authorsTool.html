@@ -122,7 +122,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="newFirstname" class="col-form-label">firstname (must be in ONE word, use - to join words)</label>
+                                    <label for="newFirstname" class="col-form-label">Firstname (must be in ONE word, use - to join words)</label>
                                     <input class="form-control" type="text" placeholder="Jean-michel" id="newFirstname" name="newFirstname">
                                 </div>
 
@@ -137,9 +137,9 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="newBirthDate" class="col-form-label">Birtdate</label>
+                                    <label for="newBirthDate" class="col-form-label">Birthdate</label>
                                     <div class="input-group date">
-                                    	<input class="form-control" type="date" id="newBirthDate" name="newBirthDate" placeholder="Birthdate">
+                                    	<input class="form-control" type="date" id="newBirthDate" name="newBirthDate">
                                     </div>
                                 </div>
 
@@ -157,7 +157,7 @@
                             <h4 class="header-title">Create Author Tool</h4>
                             <form id="form2" th:action="@{'/createAuthor'}" method="post">
                             	<div class="form-group">
-                                    <label for="autFirstName" class="col-form-label">firstname (must be in ONE word, use - to join words)</label>
+                                    <label for="autFirstName" class="col-form-label">Firstname (must be in ONE word, use - to join words)</label>
                                     <input class="form-control" type="text" placeholder="Jean-michel" id="autFirstName" name="autFirstName">
                                 </div>
 
@@ -172,9 +172,9 @@
                                 </div>
                                 
                                 <div class="form-group">
-                                    <label for="autBirth" class="col-form-label">Birtdate</label>
+                                    <label for="autBirth" class="col-form-label">Birthdate</label>
                                     <div class="input-group date">
-                                    	<input class="form-control" type="date" id="autBirth" name="autBirth" placeholder="Birthdate">
+                                    	<input class="form-control" type="date" id="autBirth" name="autBirth" value="1970-01-01">
                                     </div>
                                 </div>
 
@@ -226,9 +226,11 @@
             var href = /*[[@{/getAuthorData}]]*/ '/getAuthorData';
             $.ajax(href + '?name=' + data, {
                 success: function(newData) {
+                	var date = new Date(newData.autBirth).toISOString().split('T')[0];
                     $('#newFirstname').val(newData.autFirstName);
                     $('#newLastname').val(newData.autLastName);
                     $('#autMail').val(newData.autMail);
+                    $('#newBirthDate').val(date);
                 },
                 error: function() {
                     alert("ERROR");
