@@ -37,7 +37,8 @@ public class BookChapterService {
         repo.deleteById(index);
     }
 
-    public BookChapter createBookChapter(Publication p, Book b, String bookChapBookNameProceedings, String bookChapNumberOrName) {
+    public BookChapter createBookChapter(Publication p, Book b, String bookChapBookNameProceedings,
+            String bookChapNumberOrName) {
         BookChapter res = new BookChapter(p, b, bookChapBookNameProceedings, bookChapNumberOrName);
         res = repo.save(res);
         return res;
@@ -45,12 +46,13 @@ public class BookChapterService {
 
     @Deprecated
     public int createBookChapter(String pubTitle, String pubAbstract, String pubKeywords, Date pubDate, String pubNote,
-                                 String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
-                                 String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String bookEditor, String bookPublisher,
-                                 String bookVolume, String bookSeries, String bookAddress, String bookEdition, String bookPages,
-                                 String bookChapBookNameProceedings, String bookChapNumberOrName) {
+            String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL, String pubDBLP,
+            String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String bookEditor,
+            String bookPublisher,
+            String bookVolume, String bookSeries, String bookAddress, String bookEdition, String bookPages,
+            String bookChapBookNameProceedings, String bookChapNumberOrName) {
         final BookChapter res = new BookChapter();
-        //Generic pub fields
+        // Generic pub fields
         res.setPubTitle(pubTitle);
         res.setPubAbstract(pubAbstract);
         res.setPubKeywords(pubKeywords);
@@ -62,11 +64,11 @@ public class BookChapterService {
         res.setPubDOIRef(pubDOIRef);
         res.setPubURL(pubURL);
         res.setPubDBLP(pubDBLP);
-        //res.setPubPDFPath(pubPDFPath);
+        // res.setPubPDFPath(pubPDFPath);
         res.setPubLanguage(pubLanguage);
-        //res.setPubPaperAwardPath(pubPaperAwardPath);
+        // res.setPubPaperAwardPath(pubPaperAwardPath);
         res.setPubType(pubType);
-        //Book fields
+        // Book fields
         res.setBookEditor(bookEditor);
         res.setBookPublisher(bookPublisher);
         res.setBookVolume(bookVolume);
@@ -74,7 +76,7 @@ public class BookChapterService {
         res.setBookAddress(bookAddress);
         res.setBookEdition(bookEdition);
         res.setBookPages(bookPages);
-        //Book Chapter fields
+        // Book Chapter fields
         res.setBookChapBookNameProceedings(bookChapBookNameProceedings);
         res.setBookChapNumberOrName(bookChapNumberOrName);
         this.repo.save(res);
@@ -100,7 +102,8 @@ public class BookChapterService {
             try (FileOutputStream fos = new FileOutputStream(file);) {
                 byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
                 fos.write(decoder);
-                res.setPubPaperAwardPath(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.getPubId() + ".pdf");
+                res.setPubPaperAwardPath(
+                        PubProviderApplication.DownloadablesPath + "Awards/Award" + res.getPubId() + ".pdf");
             } catch (Exception e) {
                 res.setPubPaperAwardPath("");
                 e.printStackTrace();
@@ -110,22 +113,23 @@ public class BookChapterService {
             res.setPubPaperAwardPath("");
         }
 
-        this.repo.save(res); //Id is generated on save so I gotta save once before setting these
+        this.repo.save(res); // Id is generated on save so I gotta save once before setting these
         return res.getPubId();
     }
 
     public void updateBookChapter(int pubId, String pubTitle, String pubAbstract, String pubKeywords, Date pubDate,
-                                  String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
-                                  String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType, String bookEditor,
-                                  String bookPublisher, String bookVolume, String bookSeries, String bookAddress, String bookEdition,
-                                  String bookPages, String bookChapBookNameProceedings, String bookChapNumberOrName) {
+            String pubNote, String pubAnnotations, String pubISBN, String pubISSN, String pubDOIRef, String pubURL,
+            String pubDBLP, String pubPDFPath, String pubLanguage, String pubPaperAwardPath, PublicationType pubType,
+            String bookEditor,
+            String bookPublisher, String bookVolume, String bookSeries, String bookAddress, String bookEdition,
+            String bookPages, String bookChapBookNameProceedings, String bookChapNumberOrName) {
         final Optional<BookChapter> res = this.repo.findById(pubId);
         File file;
         if (res.isPresent()) {
-            //Generic pub fields
+            // Generic pub fields
             if (pubTitle != null && !pubTitle.isEmpty())
                 res.get().setPubTitle(pubTitle);
-            if (pubAbstract  != null && !pubAbstract.isEmpty())
+            if (pubAbstract != null && !pubAbstract.isEmpty())
                 res.get().setPubAbstract(pubAbstract);
             if (pubKeywords != null && !pubKeywords.isEmpty())
                 res.get().setPubKeywords(pubKeywords);
@@ -150,7 +154,8 @@ public class BookChapterService {
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPDFPath);
                     fos.write(decoder);
-                    res.get().setPubPDFPath(PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
+                    res.get().setPubPDFPath(
+                            PubProviderApplication.DownloadablesPath + "PDFs/PDF" + res.get().getPubId() + ".pdf");
                 } catch (Exception e) {
                     res.get().setPubPDFPath("");
                     e.printStackTrace();
@@ -160,11 +165,13 @@ public class BookChapterService {
             if (pubLanguage != null && !pubLanguage.isEmpty())
                 res.get().setPubLanguage(pubLanguage);
             if (pubPaperAwardPath != null && !pubPaperAwardPath.isEmpty()) {
-                file = new File(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
+                file = new File(
+                        PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 try (FileOutputStream fos = new FileOutputStream(file);) {
                     byte[] decoder = Base64.getDecoder().decode(pubPaperAwardPath);
                     fos.write(decoder);
-                    res.get().setPubPaperAwardPath(PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
+                    res.get().setPubPaperAwardPath(
+                            PubProviderApplication.DownloadablesPath + "Awards/Award" + res.get().getPubId() + ".pdf");
                 } catch (Exception e) {
                     res.get().setPubPaperAwardPath("");
                     e.printStackTrace();
@@ -173,7 +180,7 @@ public class BookChapterService {
             }
             if (pubType != null && !pubType.toString().isEmpty())
                 res.get().setPubType(pubType);
-            //Book fields
+            // Book fields
             if (bookEditor != null && !bookEditor.isEmpty())
                 res.get().setBookEditor(bookEditor);
             if (bookPublisher != null && !bookPublisher.isEmpty())
@@ -188,7 +195,7 @@ public class BookChapterService {
                 res.get().setBookEdition(bookEdition);
             if (bookPages != null && !bookPages.isEmpty())
                 res.get().setBookPages(bookPages);
-            //Book chapter fields
+            // Book chapter fields
             if (bookChapBookNameProceedings != null && !bookChapBookNameProceedings.isEmpty())
                 res.get().setBookChapBookNameProceedings(bookChapBookNameProceedings);
             if (bookChapNumberOrName != null && !bookChapNumberOrName.isEmpty())
@@ -197,4 +204,3 @@ public class BookChapterService {
         }
     }
 }
-

@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.Date;
-import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Calendar;
 import java.util.Collections;
@@ -26,11 +25,13 @@ import fr.ciadlab.pubprovider.entities.Author;
 import fr.ciadlab.pubprovider.entities.Authorship;
 import fr.ciadlab.pubprovider.entities.Book;
 import fr.ciadlab.pubprovider.entities.BookChapter;
+import fr.ciadlab.pubprovider.entities.CoreRanking;
 import fr.ciadlab.pubprovider.entities.EngineeringActivity;
 import fr.ciadlab.pubprovider.entities.Journal;
 import fr.ciadlab.pubprovider.entities.ProceedingsConference;
 import fr.ciadlab.pubprovider.entities.Publication;
 import fr.ciadlab.pubprovider.entities.PublicationType;
+import fr.ciadlab.pubprovider.entities.Quartile;
 import fr.ciadlab.pubprovider.entities.ReadingCommitteeJournalPopularizationPaper;
 import fr.ciadlab.pubprovider.entities.SeminarPatentInvitedConference;
 import fr.ciadlab.pubprovider.entities.UniversityDocument;
@@ -90,7 +91,167 @@ public class PublicationService {
         }
     }
 
-    public List<Integer> importPublications(String bibText) {
+    public List<Integer> importPublications(String bibText) 
+    {
+    	//Variables declaration
+    	boolean isDupe;
+    	int autId, pubId;
+    	Optional<Publication> optPub;
+        Optional<Author> optAut;
+        Authorship autShip;
+        
+        //Holds the IDs of the successfully imported IDs. We'll need it for type differenciation later.
+        List<Integer> pubIdList = new LinkedList<Integer>();
+        
+        //Holds all the authors that we can find in the DataB
+    	List<Author> authorList = new LinkedList<Author>();
+    	authorList = autRepo.findAll();
+    	
+    	//Holds the publications that we are trying to import
+    	List<Publication> pubList;
+    	pubList = BibTexToPublication(bibText, true);
+    	
+    	//We are going to try to import every publication in the list
+    	for(Publication currentPub : pubList)
+    	{
+    		try
+    		{
+    			autId = 0;
+    			pubId  = 0;
+    			
+    			//Adding the publication to the DataB
+            	repo.save(currentPub);
+            	
+            	//Adding the id of the current publication to the list
+            	pubId = currentPub.getPubId();
+            	
+    			pubIdList.add(pubId);
+	    		//For every authors assigned to this publication
+	    		for(Author currentAut: currentPub.getAuthorsList())
+	    		{
+	    			
+	    			try
+	    			{
+	    				Author aut;
+	    				optPub = null;  //Default value
+		                optAut = null;  //Default value
+		    			isDupe = false; //Default value
+		    			     //Default value 
+		    			
+		    			autShip = new Authorship();
+		    			
+		    			//Getting the author name 
+		            	String autFirstName = currentAut.getAutFirstName();
+		            	String autLastName  = currentAut.getAutLastName();
+		            	
+		            	
+		            	
+		            	
+		            	//Checking for duplications in the authors
+		                for (Author knownAut : authorList) 
+		                {
+		                    //1st possibility : First name and last name fully written > Stéphane Galland = Stéphane Galland or S. Galland = S. Galland
+		                    if (knownAut.getAutFirstName().compareToIgnoreCase(autFirstName) == 0
+		                            && knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
+		                        isDupe = true;
+		                        autId = knownAut.getAutId();
+		                        break;
+		                    }
+		
+		                    //2nd possibility : Last name and first name are inverted > Stéphane Galland = Galland Stéphane
+		                    else if (knownAut.getAutFirstName().compareToIgnoreCase(autLastName) == 0
+		                            && knownAut.getAutLastName().compareToIgnoreCase(autFirstName) == 0) {
+		                        isDupe = true;
+		                        autId = knownAut.getAutId();
+		                        break;
+		                    }
+		                    
+		                    //3rd possibility : Abbreviated first name > Stéphane Galland = S. Galland
+		                    if(autFirstName.contains(".")) {
+		                    	//The first name letter exists as the first letter of a known author's first name
+		                        if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autFirstName.replace(".", "")) == 0) {
+		                            //Check if the last names are identical
+		                            if (knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
+		                                isDupe = true;
+		                                autId = knownAut.getAutId();
+		                                break;
+		                            }
+		                        }
+		                    }
+		                    
+		                    //4rd possibility : Abbreviated first name and inverted > Stéphane Galland = Galland S.
+		                    else if(autLastName.contains(".")) {
+		                    	//The first name letter, permuted with the last name, exists as the first letter of a known author's first name
+		                        if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autLastName.replace(".", "")) == 0) {
+		                        	//Check if the last names are identical
+		                            if (knownAut.getAutLastName().compareToIgnoreCase(autFirstName) == 0) {
+		                                isDupe = true;
+		                                autId = knownAut.getAutId();
+		                                break;
+		                            }
+		                        }
+		                    }
+		                }
+		                
+		                //Create new author if not dupe. If we've already got the author with the abbreviated first name in DB, 
+		                //but the one parsed have the full version, it creates a new author
+		                if (!isDupe) 
+		                {
+		                    aut = new Author();
+		
+		                    // TMT fix : escape quotes in names such as "D'Artau"
+		                    aut.setAutFirstName(autFirstName.replaceAll("'", "\'"));
+		                    aut.setAutLastName(autLastName.replaceAll("'", "\'"));
+		                    aut.setAutBirth(new Date(0));
+		
+		                    autRepo.save(aut);
+		                    autId = aut.getAutId();
+		                }
+		                isDupe = false;
+		                //Assigning authorship
+		                optPub = repo.findById(pubId);
+		                optAut = autRepo.findById(autId);
+		
+		                if (optPub.isPresent() && optAut.isPresent()) 
+		                {
+		                    if (Collections.disjoint(optPub.get().getPubAuts(), optAut.get().getAutPubs())) {
+		                        autShip = new Authorship();
+		                        autShip.setPubPubId(optPub.get().getPubId());
+		                        autShip.setAutAutId(optAut.get().getAutId());
+		                        autShip.setAutShipRank(autRepo.findByAutPubsPubPubIdOrderByAutPubsAutShipRank(optPub.get().getPubId()).size());
+		                        repo.save(optPub.get());
+		                        autShipRepo.save(autShip);
+		                    }
+		                }
+		                    
+	                    //Check if the newly imported pub has at least one authorship. If not, it's a bad case and the pub have to be removed and marked as failed
+                        if (autShipRepo.findByPubPubId(pubId).isEmpty()) 
+                        {
+                        	throw new IllegalArgumentException("No author for publication id=" + pubId);
+                        }
+                        
+		            }
+	    			//Even if a larger try catch for exceptions exists, we need to delete first the imported pub and linked authorship
+                    catch (Exception e) 
+	    			{
+                    	pubIdList.remove((Object)pubId);
+                    	for (Authorship autShipRemove : autShipRepo.findByPubPubId(pubId)) {
+                    		autShipRepo.deleteById(autShipRemove.getAutShipId());
+                    	}
+                    	repo.deleteById(pubId);
+                    	throw e;
+                    }
+	            }	
+	    	}
+	    	catch(Exception e)
+	    	{
+	    		logger.error("Error while importing Bibtext publication\n" + "Data :\n" + currentPub + "\nException :", e);
+	    	}
+    	}
+    	return pubIdList;
+    }
+    
+    public List<Publication> BibTexToPublication(String bibText, boolean checkDupes) {
     	//The multiagent DB was formatted with " = {" so I based my import around that but the UB DB was formatted with "={" so I need to change it to what I know how to handle
     	// Fix only the space between = and { , since the space between the field name and = can be already there
         bibText = bibText.replaceAll("\\=\\{", "\\= \\{"); 
@@ -107,20 +268,12 @@ public class PublicationService {
         String splitter = "\n@"; //The \n is necessary to make sure the splitter dont split in the middle of a name containing @. That also means that without proper formatting the import will fail
         String[] pubs = bibText.split(splitter);
         String[] auts;
-        Author aut;
+        
         String autFirstName;
         String autLastName;
-        int i;
-        int pubId;
-        int autId;
-        Optional<Publication> optPub;
-        Optional<Author> optAut;
+        
+        
         Optional<Journal> optJour;
-
-        Authorship autShip;
-
-        //Holds the IDs of the successfully imported IDs. We'll need it for type differenciation later.
-        List<Integer> importedPubIds = new LinkedList<Integer>();
 
         String pubType;
         PublicationType javaPubType;
@@ -160,41 +313,32 @@ public class PublicationService {
         String number;
         String pages;
 
+        
         //Types to be persisted
-
-        ReadingCommitteeJournalPopularizationPaper article;
         Journal jour;
-        ProceedingsConference inproceedings;
-        Book book;
-        BookChapter inbook;
-        SeminarPatentInvitedConference misc;
-        UserDocumentation manual;
-        EngineeringActivity techreport;
-        UniversityDocument phdthesis;
-        UniversityDocument masterthesis;
-
+        Publication currentPub;
+        
         //Used to persist
-
         List<Publication> pubL = new LinkedList<Publication>();
-        List<Author> authorList = new LinkedList<Author>();
+        List<Publication> newPubL = new LinkedList<Publication>();
+        LinkedList<Author> AuthorsList;
         String autL;
         boolean isDupe;
 
+        
         //TODO Handle errors and exceptions to parse a maximum of pub before reporting them
         for (String pub : pubs) {
         	try {
-	            if (pub != pubs[0]) {
+	            if (pub != pubs[0]) 
+	            {
 	                pub = "@" + pub;
 	                pubType = "";
-	                javaPubType = PublicationType.TypeLess;
-	                autId = 0;
-	                pubId = 0;
+	                javaPubType = PublicationType.TypeLess;                
 	
-	                optPub = null;
-	                optAut = null;
 	                optJour = null;
 	
-	                autShip = new Authorship();
+	                
+	                AuthorsList = new LinkedList<Author>();
 	
 	                pubTitle = null; //Check for dupes later
 	                pubAbstract = null;
@@ -226,50 +370,463 @@ public class PublicationService {
 	                pages = null;
 	                volume = null;
 	                number = null;
-	
-	                article = new ReadingCommitteeJournalPopularizationPaper();
-	                jour = new Journal();
-	                inproceedings = new ProceedingsConference();
-	                book = new Book();
-	                inbook = new BookChapter();
-	                misc = new SeminarPatentInvitedConference();
-	                manual = new UserDocumentation();
-	                techreport = new EngineeringActivity();
-	                phdthesis = new UniversityDocument();
-	                masterthesis = new UniversityDocument();
-	
+	 
 	                isDupe = false;
 	                autFirstName = "";
 	                autLastName = "";
 	
 	                pubL = repo.findAll();
-	                authorList = autRepo.findAll();
+	                
 	
 	                splitter = "@";
-	                if (pub.contains(splitter)) //Dont do anything if it doesnt even have a type
+	                if (pub.contains("@")) //Dont do anything if it doesnt even have a type
 	                {
 	                    pubType = pub.substring(pub.indexOf(splitter) + splitter.length(), pub.indexOf("{", pub.indexOf(splitter)));
 	
+	                    switch(pubType)
+	                    {
+	                    	case "Article":
+	                    		//initialising the article objects
+	                    		currentPub = new ReadingCommitteeJournalPopularizationPaper();
+	                    		jour = new Journal();
+	                    		
+	                    		//default publication type value
+	                    		//Can be InternationalJournalWithReadingCommittee
+	                    		//       NationalJournalWithReadingCommittee
+	                    		//       InternationalJournalWithoutReadingCommittee
+	                    		//       NationalJournalWithoutReadingCommittee
+	                    		//       PopularizationPaper
+	                    		javaPubType = PublicationType.InternationalJournalWithReadingCommittee; 
+	                    		
+	                    		//Parsing the bibtex to get our needed data
+	                    		splitter = "journal = {";
+                                if (pub.contains(splitter)) {
+                                    name = parseUsingSplitter(pub, splitter);
+                                    name = truncate(name);
+                                }
+
+                                splitter = "volume = {";
+                                if (pub.contains(splitter)) {
+                                    volume = parseUsingSplitter(pub, splitter);
+                                    volume = truncate(volume);
+                                }
+
+                                splitter = "number = {";
+                                if (pub.contains(splitter)) {
+                                    number = parseUsingSplitter(pub, splitter);
+                                    number = truncate(number);
+                                }
+
+                                splitter = "pages = {";
+                                if (pub.contains(splitter)) {
+                                    pages = parseUsingSplitter(pub, splitter);
+                                    pages = truncate(pages);
+                                }
+
+                                splitter = "publisher = {";
+                                if (pub.contains(splitter)) {
+                                    publisher = parseUsingSplitter(pub, splitter);
+                                    publisher = truncate(publisher);
+                                }
+                                
+                                //You have to cast the child type to call the method
+                                ((ReadingCommitteeJournalPopularizationPaper)currentPub).setReaComConfPopPapVolume(volume);
+                                ((ReadingCommitteeJournalPopularizationPaper)currentPub).setReaComConfPopPapNumber(number);
+                                ((ReadingCommitteeJournalPopularizationPaper)currentPub).setReaComConfPopPapPages(pages);
+
+                                //Journal fields
+                                optJour = jourRepo.findByJourName(name);
+                                if (optJour.isPresent()) {
+                                    //Checks if that journal already exists
+                                    jour = optJour.get();
+                                } else {
+                                    //Or if we need to make a new one
+                                    jour.setJourName(name);
+                                    jour.setJourPublisher(publisher);
+                                }
+
+                                //Needed to generate an Id in case journal doesnt exist yet
+                                jourRepo.save(jour);
+
+                                ((ReadingCommitteeJournalPopularizationPaper)currentPub).setReaComConfPopPapJournal(jour);
+
+	                    		break;
+	                    	case "Inproceedings":
+	                    		//initialising the publication
+	                    		currentPub = new ProceedingsConference();
+	                    		
+	                    		//default publication type value
+	                    		//Can be InternationalConferenceWithProceedings
+	                    		//       NationalConferenceWithProceedings
+	                    		//       InternationalConferenceWithoutProceeding
+	                    		//       NationalConferenceWithoutProceedings
+	                    		javaPubType = PublicationType.InternationalConferenceWithProceedings; 
+	                    		
+	                    		//Parsing the bibtex to get our needed data
+	                    		splitter = "booktitle = {";
+                                if (pub.contains(splitter)) {
+                                    name = parseUsingSplitter(pub, splitter);
+                                    name = truncate(name);
+                                }
+
+                                splitter = "editor = {";
+                                if (pub.contains(splitter)) {
+                                    editor = parseUsingSplitter(pub, splitter);
+                                    editor = truncate(editor);
+                                }
+
+                                splitter = "pages = {";
+                                if (pub.contains(splitter)) {
+                                    pages = parseUsingSplitter(pub, splitter);
+                                    pages = truncate(pages);
+                                }
+
+                                splitter = "organization = {";
+                                if (pub.contains(splitter)) {
+                                    organization = parseUsingSplitter(pub, splitter);
+                                    organization = truncate(organization);
+                                }
+
+                                splitter = "publisher = {";
+                                if (pub.contains(splitter)) {
+                                    publisher = parseUsingSplitter(pub, splitter);
+                                    publisher = truncate(publisher);
+                                }
+
+                                splitter = "address = {";
+                                if (pub.contains(splitter)) {
+                                    address = parseUsingSplitter(pub, splitter);
+                                    address = truncate(address);
+                                }
+
+                                splitter = "series = {";
+                                if (pub.contains(splitter)) {
+                                    series = parseUsingSplitter(pub, splitter);
+                                    series = truncate(series);
+                                }
+                                
+                                //You have to cast the child type to call the method
+                                ((ProceedingsConference)currentPub).setProConfBookNameProceedings(name);
+                                ((ProceedingsConference)currentPub).setProConfEditor(editor);
+                                ((ProceedingsConference)currentPub).setProConfPages(pages);
+                                ((ProceedingsConference)currentPub).setProConfOrganization(organization);
+                                ((ProceedingsConference)currentPub).setProConfPublisher(publisher);
+                                ((ProceedingsConference)currentPub).setProConfAddress(address);
+                                ((ProceedingsConference)currentPub).setProConfSeries(series);
+
+	                    		break;
+	                    	case "Book":
+	                    		//initialising the publication
+	                    		currentPub = new Book();
+
+	                    		//default publication type value
+	                    		//Can be Book
+	                    		//       BookEdition
+	                    		//       ScientificPopularizationBook
+	                    		javaPubType = PublicationType.Book; 
+	                    		
+	                    		//Parsing the bibtex to get our needed data
+	                    		splitter = "editor = {";
+                                if (pub.contains(splitter)) {
+                                    editor = parseUsingSplitter(pub, splitter);
+                                    editor = truncate(editor);
+                                }
+
+                                splitter = "publisher = {";
+                                if (pub.contains(splitter)) {
+                                    publisher = parseUsingSplitter(pub, splitter);
+                                    publisher = truncate(publisher);
+                                }
+
+                                splitter = "volume = {";
+                                if (pub.contains(splitter)) {
+                                    volume = parseUsingSplitter(pub, splitter);
+                                    volume = truncate(volume);
+                                }
+
+                                splitter = "series = {";
+                                if (pub.contains(splitter)) {
+                                    series = parseUsingSplitter(pub, splitter);
+                                    series = truncate(series);
+                                }
+
+                                splitter = "address = {";
+                                if (pub.contains(splitter)) {
+                                    address = parseUsingSplitter(pub, splitter);
+                                    address = truncate(address);
+                                }
+
+                                splitter = "edition = {";
+                                if (pub.contains(splitter)) {
+                                    edition = parseUsingSplitter(pub, splitter);
+                                    edition = truncate(edition);
+                                }
+
+                                splitter = "pages = {";
+                                if (pub.contains(splitter)) {
+                                    pages = parseUsingSplitter(pub, splitter);
+                                    pages = truncate(pages);
+                                }
+                                //You have to cast the child type to call the method
+                                ((Book)currentPub).setBookEditor(editor);
+                                ((Book)currentPub).setBookPublisher(publisher);
+                                ((Book)currentPub).setBookVolume(volume);
+                                ((Book)currentPub).setBookSeries(series);
+                                ((Book)currentPub).setBookAddress(address);
+                                ((Book)currentPub).setBookEdition(edition);
+                                ((Book)currentPub).setBookPages(pages);
+	                    		
+	                    		break;
+	                    	case "Inbook":
+	                    		//initialising the publication
+	                    		currentPub = new BookChapter();
+
+	                    		//default publication type value
+	                    		//Can only be bookchapter
+	                    		javaPubType = PublicationType.BookChapter;
+	                    		
+	                    		//Parsing the bibtex to get our needed data
+	                    		splitter = "editor = {";
+                                if (pub.contains(splitter)) {
+                                    editor = parseUsingSplitter(pub, splitter);
+                                    editor = truncate(editor);
+                                }
+
+                                splitter = "publisher = {";
+                                if (pub.contains(splitter)) {
+                                    publisher = parseUsingSplitter(pub, splitter);
+                                    publisher = truncate(publisher);
+                                }
+
+                                splitter = "volume = {";
+                                if (pub.contains(splitter)) {
+                                    volume = parseUsingSplitter(pub, splitter);
+                                    volume = truncate(volume);
+                                }
+
+                                splitter = "series = {";
+                                if (pub.contains(splitter)) {
+                                    series = parseUsingSplitter(pub, splitter);
+                                    series = truncate(series);
+                                }
+
+                                splitter = "address = {";
+                                if (pub.contains(splitter)) {
+                                    address = parseUsingSplitter(pub, splitter);
+                                    address = truncate(address);
+                                }
+
+                                splitter = "edition = {";
+                                if (pub.contains(splitter)) {
+                                    edition = parseUsingSplitter(pub, splitter);
+                                    edition = truncate(edition);
+                                }
+
+                                splitter = "pages = {";
+                                if (pub.contains(splitter)) {
+                                    pages = parseUsingSplitter(pub, splitter);
+                                    pages = truncate(pages);
+                                }
+
+                                splitter = "booktitle = {";
+                                if (pub.contains(splitter)) {
+                                    proceedings = parseUsingSplitter(pub, splitter);
+                                    proceedings = truncate(proceedings);
+                                }
+
+                                splitter = "chapter = {";
+                                if (pub.contains(splitter)) {
+                                    name = parseUsingSplitter(pub, splitter);
+                                    name = truncate(name);
+                                }
+                                //You have to cast the child type to call the method
+                                ((BookChapter)currentPub).setBookEditor(editor);
+                                ((BookChapter)currentPub).setBookPublisher(publisher);
+                                ((BookChapter)currentPub).setBookVolume(volume);
+                                ((BookChapter)currentPub).setBookSeries(series);
+                                ((BookChapter)currentPub).setBookAddress(address);
+                                ((BookChapter)currentPub).setBookEdition(edition);
+                                ((BookChapter)currentPub).setBookPages(pages);
+                                ((BookChapter)currentPub).setBookChapBookNameProceedings(proceedings);
+                                ((BookChapter)currentPub).setBookChapNumberOrName(name);
+                                
+	                    		break;
+	                    	case "Misc":
+	                    		//initialising the publication
+	                    		currentPub = new SeminarPatentInvitedConference();
+
+	                    		//default publication type value
+	                    		//Can be seminar
+	                    		//       patent
+	                    		//       invitedconference
+	                    		javaPubType = PublicationType.Seminar;
+	                    		
+	                    		//Parsing the bibtex to get our needed data
+	                    		splitter = "howpublished = {";
+                                if (pub.contains(splitter)) {
+                                    howPub = parseUsingSplitter(pub, splitter);
+                                    howPub = truncate(howPub);
+                                }
+                                //You have to cast the child type to call the method
+                                ((SeminarPatentInvitedConference)currentPub).setSemPatHowPub(howPub);
+	                    		break;
+	                    	case "Manual":
+	                    		//initialising the publication
+	                    		currentPub = new UserDocumentation();
+	                    		//default publication type value
+	                    		//Can only be userdoc
+	                    		javaPubType = PublicationType.UserDocumentation;
+	                    		
+	                    		//Parsing the bibtex to get our needed data
+	                    		splitter = "organization = {";
+                                if (pub.contains(splitter)) {
+                                    organization = parseUsingSplitter(pub, splitter);
+                                    organization = truncate(organization);
+                                }
+
+                                splitter = "address = {";
+                                if (pub.contains(splitter)) {
+                                    address = parseUsingSplitter(pub, splitter);
+                                    address = truncate(address);
+                                }
+
+                                splitter = "edition = {";
+                                if (pub.contains(splitter)) {
+                                    edition = parseUsingSplitter(pub, splitter);
+                                    edition = truncate(edition);
+                                }
+
+                                splitter = "publisher = {";
+                                if (pub.contains(splitter)) {
+                                    publisher = parseUsingSplitter(pub, splitter);
+                                    publisher = truncate(publisher);
+                                }
+                                
+                                //You have to cast the child type to call the method
+                                ((UserDocumentation)currentPub).setUserDocOrganization(organization);
+                                ((UserDocumentation)currentPub).setUserDocAddress(address);
+                                ((UserDocumentation)currentPub).setUserDocEdition(edition);
+                                ((UserDocumentation)currentPub).setUserDocPublisher(publisher);
+	                    		break;
+	                    	case "Techreport":
+	                    		//initialising the publication
+	                    		currentPub = new EngineeringActivity();
+	                    		
+	                    		//default publication type value
+	                    		//Can only be engineeringactivity
+	                    		javaPubType = PublicationType.EngineeringActivity;
+	                    		
+	                    		//Parsing the bibtex to get our needed data
+	                    		splitter = "institution = {";
+                                if (pub.contains(splitter)) {
+                                    name = parseUsingSplitter(pub, splitter);
+                                    name = truncate(name);
+                                }
+
+                                splitter = "type = {";
+                                if (pub.contains(splitter)) {
+                                    reportType = parseUsingSplitter(pub, splitter);
+                                    reportType = truncate(reportType);
+                                }
+
+                                splitter = "number = {";
+                                if (pub.contains(splitter)) {
+                                    number = parseUsingSplitter(pub, splitter);
+                                    number = truncate(number);
+                                }
+                                
+                                //You have to cast the child type to call the method
+                                ((EngineeringActivity)currentPub).setEngActInstitName(name);
+                                ((EngineeringActivity)currentPub).setEngActReportType(reportType);
+                                ((EngineeringActivity)currentPub).setEngActNumber(number);
+	                    		
+	                    		break;
+	                    	case "Phdthesis":
+	                    		//initialising the publication
+	                    		currentPub = new UniversityDocument();
+	                    		
+	                    		//default publication type value
+	                    		//Can be PHDThesis
+	                    		//       HDRThesis
+	                    		javaPubType = PublicationType.PHDThesis;
+	                    		
+	                    		//Parsing the bibtex to get our needed data
+	                    		splitter = "school = {";
+                                if (pub.contains(splitter)) {
+                                    name = parseUsingSplitter(pub, splitter);
+                                    name = truncate(name);
+                                }
+
+                                splitter = "address = {";
+                                if (pub.contains(splitter)) {
+                                    address = parseUsingSplitter(pub, splitter);
+                                    address = truncate(address);
+                                }
+	                    		
+                                //You have to cast the child type to call the method
+                                ((UniversityDocument)currentPub).setUniDocSchoolName(name);
+                                ((UniversityDocument)currentPub).setUniDocAddress(address);
+                                
+	                    		break;
+	                    	case "Mastersthesis":
+	                    		//initialising the publication
+	                    		currentPub = new UniversityDocument();
+	                    		
+	                    		//default publication type value
+	                    		//Can be master thesis
+	                    		//       engineering thesis
+	                    		javaPubType = PublicationType.MasterOnResearch;
+	                    		
+	                    		//Parsing the bibtex to get our needed data
+	                    		splitter = "school = {";
+                                if (pub.contains(splitter)) {
+                                    name = parseUsingSplitter(pub, splitter);
+                                    name = truncate(name);
+                                }
+
+                                splitter = "address = {";
+                                if (pub.contains(splitter)) {
+                                    address = parseUsingSplitter(pub, splitter);
+                                    address = truncate(address);
+                                }
+                                
+                                //You have to cast the child type to call the method
+                                ((UniversityDocument)currentPub).setUniDocSchoolName(name);
+                                ((UniversityDocument)currentPub).setUniDocAddress(address);
+                                
+	                    		break;
+	                    	default:
+	                    		//This should never happen
+	                    		throw new Exception("Type does not exist");
+	                    }
+	                    
 	                    // Because "title = {" can also match with "booktitle = {", we need to prevent to parse the wrong field.
 	                    // First, add "pub" before "title" using regex to get the exact match and not booktitle. Not the best solution, but not require from user to change their bibtex file
 	                    pub = pub.replaceAll("(?<=[^k])(?=title \\= \\{)", "pub");
 	                    // Then, parse with the new name "pubtitle" which distinguish it from "booktitle" 
 	                    splitter = "pubtitle = {";
-	                    if (pub.contains(splitter)) {
+	                    if (pub.contains(splitter)) 
+	                    {
 	                        pubTitle = parseUsingSplitter(pub, splitter);
 	                        if (pubTitle.length() > 255) {
 	                            System.out.println("\n Warning : Publication Title too long, had to be truncated. \n Concerned publication : " + pubTitle + "\n");
 	                        }
 	                        pubTitle = truncate(pubTitle);
 	
-	                        //Checking for dupes
-	                        for (Publication singlePub : pubL) {
-	                            if (singlePub.getPubTitle().compareTo(pubTitle) == 0) {
-	                                isDupe = true;
-	                            }
+	                        if(checkDupes)
+	                        {
+	                        	//Checking for dupes
+		                        for (Publication singlePub : pubL) 
+		                        {
+		                            if (singlePub.getPubTitle().compareTo(pubTitle) == 0) {
+		                                isDupe = true;
+		                            }
+		                        }
 	                        }
+	                        
 	
-	                        if (!isDupe) {
+	                        if (!isDupe) 
+	                        {
 	
 	                            splitter = "abstract = {";
 	                            if (pub.contains(splitter)) {
@@ -393,549 +950,36 @@ public class PublicationService {
 	                                pubPaperAwardPath = truncate(pubPaperAwardPath);
 	                            }
 	
-	                            //Once again, some DB do this differently so I streamlined the naming convention
-	                            pubType = pubType.substring(0, 1).toUpperCase() + pubType.substring(1).toLowerCase();
-	                            switch (pubType) {
-	                                //Can be InternationalJournalWithReadingCommittee, NationalJournalWithReadingCommittee, InternationalJournalWithoutReadingCommittee, NationalJournalWithoutReadingCommittee or PopularizationPaper.
-	                                case "Article":
-	                                    javaPubType = PublicationType.InternationalJournalWithReadingCommittee; //Default
-	
-	                                    splitter = "journal = {";
-	                                    if (pub.contains(splitter)) {
-	                                        name = parseUsingSplitter(pub, splitter);
-	                                        name = truncate(name);
-	                                    }
-	
-	                                    splitter = "volume = {";
-	                                    if (pub.contains(splitter)) {
-	                                        volume = parseUsingSplitter(pub, splitter);
-	                                        volume = truncate(volume);
-	                                    }
-	
-	                                    splitter = "number = {";
-	                                    if (pub.contains(splitter)) {
-	                                        number = parseUsingSplitter(pub, splitter);
-	                                        number = truncate(number);
-	                                    }
-	
-	                                    splitter = "pages = {";
-	                                    if (pub.contains(splitter)) {
-	                                        pages = parseUsingSplitter(pub, splitter);
-	                                        pages = truncate(pages);
-	                                    }
-	
-	                                    splitter = "publisher = {";
-	                                    if (pub.contains(splitter)) {
-	                                        publisher = parseUsingSplitter(pub, splitter);
-	                                        publisher = truncate(publisher);
-	                                    }
-	
-	
-	                                    //I cant just call the article's class dao because it needs to have a session which is created on controller call
-	                                    //So I just copypasted the whole thing here, it's dirty but it works.
-	
-	                                    article.setPubTitle(pubTitle);
-	                                    article.setPubAbstract(pubAbstract);
-	                                    article.setPubKeywords(pubKeywords);
-	                                    article.setPubDate(pubDate);
-	                                    article.setPubNote(pubNote);
-	                                    article.setPubAnnotations(pubAnnotations);
-	                                    article.setPubISBN(pubISBN);
-	                                    article.setPubISSN(pubISSN);
-	                                    article.setPubDOIRef(pubDOIRef);
-	                                    article.setPubURL(pubURL);
-	                                    article.setPubDBLP(pubDBLP);
-	                                    article.setPubPDFPath(pubPDFPath);
-	                                    article.setPubLanguage(pubLanguage);
-	                                    article.setPubPaperAwardPath(pubPaperAwardPath);
-	                                    article.setPubType(javaPubType);
-	                                    article.setReaComConfPopPapVolume(volume);
-	                                    article.setReaComConfPopPapNumber(number);
-	                                    article.setReaComConfPopPapPages(pages);
-	
-	                                    //Journal fields
-	                                    optJour = jourRepo.findByJourName(name);
-	                                    if (optJour.isPresent()) {
-	                                        //Checks if that journal already exists
-	                                        jour = optJour.get();
-	                                    } else {
-	                                        //Or if we need to make a new one
-	                                        jour.setJourName(name);
-	                                        jour.setJourPublisher(publisher);
-	                                    }
-	
-	                                    //Needed to generate an Id in case journal doesnt exist yet
-	                                    jourRepo.save(jour);
-	
-	                                    article.setReaComConfPopPapJournal(jour);
-	
-	                                    repo.save(article);
-	                                    pubId = article.getPubId();
-	                                    break;
-	
-	
-	                                //Can be InternationalConferenceWithProceedings, NationalConferenceWithProceedings, InternationalConferenceWithoutProceedings or NationalConferenceWithoutProceedings.
-	                                case "Inproceedings":
-	                                    javaPubType = PublicationType.InternationalConferenceWithProceedings; //Default
-	
-	                                    splitter = "booktitle = {";
-	                                    if (pub.contains(splitter)) {
-	                                        name = parseUsingSplitter(pub, splitter);
-	                                        name = truncate(name);
-	                                    }
-	
-	                                    splitter = "editor = {";
-	                                    if (pub.contains(splitter)) {
-	                                        editor = parseUsingSplitter(pub, splitter);
-	                                        editor = truncate(editor);
-	                                    }
-	
-	                                    splitter = "pages = {";
-	                                    if (pub.contains(splitter)) {
-	                                        pages = parseUsingSplitter(pub, splitter);
-	                                        pages = truncate(pages);
-	                                    }
-	
-	                                    splitter = "organization = {";
-	                                    if (pub.contains(splitter)) {
-	                                        organization = parseUsingSplitter(pub, splitter);
-	                                        organization = truncate(organization);
-	                                    }
-	
-	                                    splitter = "publisher = {";
-	                                    if (pub.contains(splitter)) {
-	                                        publisher = parseUsingSplitter(pub, splitter);
-	                                        publisher = truncate(publisher);
-	                                    }
-	
-	                                    splitter = "address = {";
-	                                    if (pub.contains(splitter)) {
-	                                        address = parseUsingSplitter(pub, splitter);
-	                                        address = truncate(address);
-	                                    }
-	
-	                                    splitter = "series = {";
-	                                    if (pub.contains(splitter)) {
-	                                        series = parseUsingSplitter(pub, splitter);
-	                                        series = truncate(series);
-	                                    }
-	
-	                                    inproceedings.setPubTitle(pubTitle);
-	                                    inproceedings.setPubAbstract(pubAbstract);
-	                                    inproceedings.setPubKeywords(pubKeywords);
-	                                    inproceedings.setPubDate(pubDate);
-	                                    inproceedings.setPubNote(pubNote);
-	                                    inproceedings.setPubAnnotations(pubAnnotations);
-	                                    inproceedings.setPubISBN(pubISBN);
-	                                    inproceedings.setPubISSN(pubISSN);
-	                                    inproceedings.setPubDOIRef(pubDOIRef);
-	                                    inproceedings.setPubURL(pubURL);
-	                                    inproceedings.setPubDBLP(pubDBLP);
-	                                    inproceedings.setPubPDFPath(pubPDFPath);
-	                                    inproceedings.setPubLanguage(pubLanguage);
-	                                    inproceedings.setPubPaperAwardPath(pubPaperAwardPath);
-	                                    inproceedings.setPubType(javaPubType);
-	                                    inproceedings.setProConfBookNameProceedings(name);
-	                                    inproceedings.setProConfEditor(editor);
-	                                    inproceedings.setProConfPages(pages);
-	                                    inproceedings.setProConfOrganization(organization);
-	                                    inproceedings.setProConfPublisher(publisher);
-	                                    inproceedings.setProConfAddress(address);
-	                                    inproceedings.setProConfSeries(series);
-	
-	                                    repo.save(inproceedings);
-	                                    pubId = inproceedings.getPubId();
-	
-	                                    break;
-	
-	
-	                                //Can be Book, BookEdition or ScientificPopularizationBook.
-	                                case "Book":
-	                                    javaPubType = PublicationType.Book; //Default
-	
-	                                    splitter = "editor = {";
-	                                    if (pub.contains(splitter)) {
-	                                        editor = parseUsingSplitter(pub, splitter);
-	                                        editor = truncate(editor);
-	                                    }
-	
-	                                    splitter = "publisher = {";
-	                                    if (pub.contains(splitter)) {
-	                                        publisher = parseUsingSplitter(pub, splitter);
-	                                        publisher = truncate(publisher);
-	                                    }
-	
-	                                    splitter = "volume = {";
-	                                    if (pub.contains(splitter)) {
-	                                        volume = parseUsingSplitter(pub, splitter);
-	                                        volume = truncate(volume);
-	                                    }
-	
-	                                    splitter = "series = {";
-	                                    if (pub.contains(splitter)) {
-	                                        series = parseUsingSplitter(pub, splitter);
-	                                        series = truncate(series);
-	                                    }
-	
-	                                    splitter = "address = {";
-	                                    if (pub.contains(splitter)) {
-	                                        address = parseUsingSplitter(pub, splitter);
-	                                        address = truncate(address);
-	                                    }
-	
-	                                    splitter = "edition = {";
-	                                    if (pub.contains(splitter)) {
-	                                        edition = parseUsingSplitter(pub, splitter);
-	                                        edition = truncate(edition);
-	                                    }
-	
-	                                    splitter = "pages = {";
-	                                    if (pub.contains(splitter)) {
-	                                        pages = parseUsingSplitter(pub, splitter);
-	                                        pages = truncate(pages);
-	                                    }
-	
-	                                    book.setPubTitle(pubTitle);
-	                                    book.setPubAbstract(pubAbstract);
-	                                    book.setPubKeywords(pubKeywords);
-	                                    book.setPubDate(pubDate);
-	                                    book.setPubNote(pubNote);
-	                                    book.setPubAnnotations(pubAnnotations);
-	                                    book.setPubISBN(pubISBN);
-	                                    book.setPubISSN(pubISSN);
-	                                    book.setPubDOIRef(pubDOIRef);
-	                                    book.setPubURL(pubURL);
-	                                    book.setPubDBLP(pubDBLP);
-	                                    book.setPubPDFPath(pubPDFPath);
-	                                    book.setPubLanguage(pubLanguage);
-	                                    book.setPubPaperAwardPath(pubPaperAwardPath);
-	                                    book.setPubType(javaPubType);
-	                                    book.setBookEditor(editor);
-	                                    book.setBookPublisher(publisher);
-	                                    book.setBookVolume(volume);
-	                                    book.setBookSeries(series);
-	                                    book.setBookAddress(address);
-	                                    book.setBookEdition(edition);
-	                                    book.setBookPages(pages);
-	
-	                                    repo.save(book);
-	                                    pubId = book.getPubId();
-	
-	                                    break;
-	
-	                                //Can only be bookchapter
-	                                case "Inbook":
-	                                    javaPubType = PublicationType.BookChapter; //Default
-	
-	                                    splitter = "editor = {";
-	                                    if (pub.contains(splitter)) {
-	                                        editor = parseUsingSplitter(pub, splitter);
-	                                        editor = truncate(editor);
-	                                    }
-	
-	                                    splitter = "publisher = {";
-	                                    if (pub.contains(splitter)) {
-	                                        publisher = parseUsingSplitter(pub, splitter);
-	                                        publisher = truncate(publisher);
-	                                    }
-	
-	                                    splitter = "volume = {";
-	                                    if (pub.contains(splitter)) {
-	                                        volume = parseUsingSplitter(pub, splitter);
-	                                        volume = truncate(volume);
-	                                    }
-	
-	                                    splitter = "series = {";
-	                                    if (pub.contains(splitter)) {
-	                                        series = parseUsingSplitter(pub, splitter);
-	                                        series = truncate(series);
-	                                    }
-	
-	                                    splitter = "address = {";
-	                                    if (pub.contains(splitter)) {
-	                                        address = parseUsingSplitter(pub, splitter);
-	                                        address = truncate(address);
-	                                    }
-	
-	                                    splitter = "edition = {";
-	                                    if (pub.contains(splitter)) {
-	                                        edition = parseUsingSplitter(pub, splitter);
-	                                        edition = truncate(edition);
-	                                    }
-	
-	                                    splitter = "pages = {";
-	                                    if (pub.contains(splitter)) {
-	                                        pages = parseUsingSplitter(pub, splitter);
-	                                        pages = truncate(pages);
-	                                    }
-	
-	                                    splitter = "booktitle = {";
-	                                    if (pub.contains(splitter)) {
-	                                        proceedings = parseUsingSplitter(pub, splitter);
-	                                        proceedings = truncate(proceedings);
-	                                    }
-	
-	                                    splitter = "chapter = {";
-	                                    if (pub.contains(splitter)) {
-	                                        name = parseUsingSplitter(pub, splitter);
-	                                        name = truncate(name);
-	                                    }
-	
-	                                    inbook.setPubTitle(pubTitle);
-	                                    inbook.setPubAbstract(pubAbstract);
-	                                    inbook.setPubKeywords(pubKeywords);
-	                                    inbook.setPubDate(pubDate);
-	                                    inbook.setPubNote(pubNote);
-	                                    inbook.setPubAnnotations(pubAnnotations);
-	                                    inbook.setPubISBN(pubISBN);
-	                                    inbook.setPubISSN(pubISSN);
-	                                    inbook.setPubDOIRef(pubDOIRef);
-	                                    inbook.setPubURL(pubURL);
-	                                    inbook.setPubDBLP(pubDBLP);
-	                                    inbook.setPubPDFPath(pubPDFPath);
-	                                    inbook.setPubLanguage(pubLanguage);
-	                                    inbook.setPubPaperAwardPath(pubPaperAwardPath);
-	                                    inbook.setPubType(javaPubType);
-	                                    inbook.setBookEditor(editor);
-	                                    inbook.setBookPublisher(publisher);
-	                                    inbook.setBookVolume(volume);
-	                                    inbook.setBookSeries(series);
-	                                    inbook.setBookAddress(address);
-	                                    inbook.setBookEdition(edition);
-	                                    inbook.setBookPages(pages);
-	                                    inbook.setBookChapBookNameProceedings(proceedings);
-	                                    inbook.setBookChapNumberOrName(name);
-	
-	                                    repo.save(inbook);
-	
-	                                    pubId = inbook.getPubId();
-	
-	                                    break;
-	
-	                                //Can be seminar, patent or invitedconference
-	                                case "Misc":
-	                                    javaPubType = PublicationType.Seminar; //Default
-	
-	                                    splitter = "howpublished = {";
-	                                    if (pub.contains(splitter)) {
-	                                        howPub = parseUsingSplitter(pub, splitter);
-	                                        howPub = truncate(howPub);
-	                                    }
-	
-	                                    misc.setPubTitle(pubTitle);
-	                                    misc.setPubAbstract(pubAbstract);
-	                                    misc.setPubKeywords(pubKeywords);
-	                                    misc.setPubDate(pubDate);
-	                                    misc.setPubNote(pubNote);
-	                                    misc.setPubAnnotations(pubAnnotations);
-	                                    misc.setPubISBN(pubISBN);
-	                                    misc.setPubISSN(pubISSN);
-	                                    misc.setPubDOIRef(pubDOIRef);
-	                                    misc.setPubURL(pubURL);
-	                                    misc.setPubDBLP(pubDBLP);
-	                                    misc.setPubPDFPath(pubPDFPath);
-	                                    misc.setPubLanguage(pubLanguage);
-	                                    misc.setPubPaperAwardPath(pubPaperAwardPath);
-	                                    misc.setPubType(javaPubType);
-	                                    misc.setSemPatHowPub(howPub);
-	
-	                                    repo.save(misc);
-	                                    pubId = misc.getPubId();
-	
-	                                    break;
-	
-	                                //Can only be userdoc
-	                                case "Manual":
-	                                    javaPubType = PublicationType.UserDocumentation; //Default
-	
-	                                    splitter = "organization = {";
-	                                    if (pub.contains(splitter)) {
-	                                        organization = parseUsingSplitter(pub, splitter);
-	                                        organization = truncate(organization);
-	                                    }
-	
-	                                    splitter = "address = {";
-	                                    if (pub.contains(splitter)) {
-	                                        address = parseUsingSplitter(pub, splitter);
-	                                        address = truncate(address);
-	                                    }
-	
-	                                    splitter = "edition = {";
-	                                    if (pub.contains(splitter)) {
-	                                        edition = parseUsingSplitter(pub, splitter);
-	                                        edition = truncate(edition);
-	                                    }
-	
-	                                    splitter = "publisher = {";
-	                                    if (pub.contains(splitter)) {
-	                                        publisher = parseUsingSplitter(pub, splitter);
-	                                        publisher = truncate(publisher);
-	                                    }
-	
-	                                    manual.setPubTitle(pubTitle);
-	                                    manual.setPubAbstract(pubAbstract);
-	                                    manual.setPubKeywords(pubKeywords);
-	                                    manual.setPubDate(pubDate);
-	                                    manual.setPubNote(pubNote);
-	                                    manual.setPubAnnotations(pubAnnotations);
-	                                    manual.setPubISBN(pubISBN);
-	                                    manual.setPubISSN(pubISSN);
-	                                    manual.setPubDOIRef(pubDOIRef);
-	                                    manual.setPubURL(pubURL);
-	                                    manual.setPubDBLP(pubDBLP);
-	                                    manual.setPubPDFPath(pubPDFPath);
-	                                    manual.setPubLanguage(pubLanguage);
-	                                    manual.setPubPaperAwardPath(pubPaperAwardPath);
-	                                    manual.setPubType(javaPubType);
-	                                    manual.setUserDocOrganization(organization);
-	                                    manual.setUserDocAddress(address);
-	                                    manual.setUserDocEdition(edition);
-	                                    manual.setUserDocPublisher(publisher);
-	
-	                                    repo.save(manual);
-	                                    pubId = manual.getPubId();
-	
-	                                    break;
-	
-	                                //Can only be engineeringactivity
-	                                case "Techreport":
-	                                    javaPubType = PublicationType.EngineeringActivity; //Default
-	
-	                                    splitter = "institution = {";
-	                                    if (pub.contains(splitter)) {
-	                                        name = parseUsingSplitter(pub, splitter);
-	                                        name = truncate(name);
-	                                    }
-	
-	                                    splitter = "type = {";
-	                                    if (pub.contains(splitter)) {
-	                                        reportType = parseUsingSplitter(pub, splitter);
-	                                        reportType = truncate(reportType);
-	                                    }
-	
-	                                    splitter = "number = {";
-	                                    if (pub.contains(splitter)) {
-	                                        number = parseUsingSplitter(pub, splitter);
-	                                        number = truncate(number);
-	                                    }
-	
-	                                    techreport.setPubTitle(pubTitle);
-	                                    techreport.setPubAbstract(pubAbstract);
-	                                    techreport.setPubKeywords(pubKeywords);
-	                                    techreport.setPubDate(pubDate);
-	                                    techreport.setPubNote(pubNote);
-	                                    techreport.setPubAnnotations(pubAnnotations);
-	                                    techreport.setPubISBN(pubISBN);
-	                                    techreport.setPubISSN(pubISSN);
-	                                    techreport.setPubDOIRef(pubDOIRef);
-	                                    techreport.setPubURL(pubURL);
-	                                    techreport.setPubDBLP(pubDBLP);
-	                                    techreport.setPubPDFPath(pubPDFPath);
-	                                    techreport.setPubLanguage(pubLanguage);
-	                                    techreport.setPubPaperAwardPath(pubPaperAwardPath);
-	                                    techreport.setPubType(javaPubType);
-	                                    techreport.setEngActInstitName(name);
-	                                    techreport.setEngActReportType(reportType);
-	                                    techreport.setEngActNumber(number);
-	
-	                                    repo.save(techreport);
-	                                    pubId = techreport.getPubId();
-	
-	                                    break;
-	
-	                                //Can be phd or hdr thesis
-	                                case "Phdthesis":
-	                                    javaPubType = PublicationType.PHDThesis; //Default
-	
-	                                    splitter = "school = {";
-	                                    if (pub.contains(splitter)) {
-	                                        name = parseUsingSplitter(pub, splitter);
-	                                        name = truncate(name);
-	                                    }
-	
-	                                    splitter = "address = {";
-	                                    if (pub.contains(splitter)) {
-	                                        address = parseUsingSplitter(pub, splitter);
-	                                        address = truncate(address);
-	                                    }
-	
-	                                    phdthesis.setPubTitle(pubTitle);
-	                                    phdthesis.setPubAbstract(pubAbstract);
-	                                    phdthesis.setPubKeywords(pubKeywords);
-	                                    phdthesis.setPubDate(pubDate);
-	                                    phdthesis.setPubNote(pubNote);
-	                                    phdthesis.setPubAnnotations(pubAnnotations);
-	                                    phdthesis.setPubISBN(pubISBN);
-	                                    phdthesis.setPubISSN(pubISSN);
-	                                    phdthesis.setPubDOIRef(pubDOIRef);
-	                                    phdthesis.setPubURL(pubURL);
-	                                    phdthesis.setPubDBLP(pubDBLP);
-	                                    phdthesis.setPubPDFPath(pubPDFPath);
-	                                    phdthesis.setPubLanguage(pubLanguage);
-	                                    phdthesis.setPubPaperAwardPath(pubPaperAwardPath);
-	                                    phdthesis.setPubType(javaPubType);
-	                                    phdthesis.setUniDocSchoolName(name);
-	                                    phdthesis.setUniDocAddress(address);
-	
-	                                    repo.save(phdthesis);
-	                                    pubId = phdthesis.getPubId();
-	
-	                                    break;
-	
-	                                //Can be master or engineering thesis
-	                                case "Mastersthesis":
-	                                    javaPubType = PublicationType.MasterOnResearch; //Default
-	
-	                                    splitter = "school = {";
-	                                    if (pub.contains(splitter)) {
-	                                        name = parseUsingSplitter(pub, splitter);
-	                                        name = truncate(name);
-	                                    }
-	
-	                                    splitter = "address = {";
-	                                    if (pub.contains(splitter)) {
-	                                        address = parseUsingSplitter(pub, splitter);
-	                                        address = truncate(address);
-	                                    }
-	
-	                                    masterthesis.setPubTitle(pubTitle);
-	                                    masterthesis.setPubAbstract(pubAbstract);
-	                                    masterthesis.setPubKeywords(pubKeywords);
-	                                    masterthesis.setPubDate(pubDate);
-	                                    masterthesis.setPubNote(pubNote);
-	                                    masterthesis.setPubAnnotations(pubAnnotations);
-	                                    masterthesis.setPubISBN(pubISBN);
-	                                    masterthesis.setPubISSN(pubISSN);
-	                                    masterthesis.setPubDOIRef(pubDOIRef);
-	                                    masterthesis.setPubURL(pubURL);
-	                                    masterthesis.setPubDBLP(pubDBLP);
-	                                    masterthesis.setPubPDFPath(pubPDFPath);
-	                                    masterthesis.setPubLanguage(pubLanguage);
-	                                    masterthesis.setPubPaperAwardPath(pubPaperAwardPath);
-	                                    masterthesis.setPubType(javaPubType);
-	                                    masterthesis.setUniDocSchoolName(name);
-	                                    masterthesis.setUniDocAddress(address);
-	
-	                                    repo.save(masterthesis);
-	                                    pubId = masterthesis.getPubId();
-	
-	                                    break;
-	                            }
-	                         
-	                            importedPubIds.add(pubId);
-	
+	                            currentPub.setPubTitle(pubTitle);
+	                            currentPub.setPubAbstract(pubAbstract);
+	                            currentPub.setPubKeywords(pubKeywords);
+	                            currentPub.setPubDate(pubDate);
+                                currentPub.setPubNote(pubNote);
+                                currentPub.setPubAnnotations(pubAnnotations);
+                                currentPub.setPubISBN(pubISBN);
+                                currentPub.setPubISSN(pubISSN);
+                                currentPub.setPubDOIRef(pubDOIRef);
+                                currentPub.setPubURL(pubURL);
+                                currentPub.setPubDBLP(pubDBLP);
+                                currentPub.setPubPDFPath(pubPDFPath);
+                                currentPub.setPubLanguage(pubLanguage);
+                                currentPub.setPubPaperAwardPath(pubPaperAwardPath);
+                                currentPub.setPubType(javaPubType);
+                                
 	                            //Handle authors. If an error occurs at this state, catch it to be sure to delete the new pub from DB
-	                            try {
+	                            try 
+	                            {
 	                            	splitter = "author = {";
-		                            if (pub.contains(splitter)) {
+		                            if (pub.contains(splitter)) 
+		                            {
 		                                autL = parseUsingSplitter(pub, splitter);
 		                                if (autL.compareTo("") != 0) {
 		                                	//To add more than one author in bibtex, the keyword "and" is used. 
 		                                	//Since comma is used to separate last name and first name, all other way to add another author can be considered as wrong
 		                                    splitter = " and ";
 		                                    auts = autL.split(splitter);
-		
-		                                    for (i = 0; i < auts.length; i++) {
+		                                    
+		                                    for (int i = 0; i < auts.length; i++) {
 		                                    	//Last name and first name are generally separated by a comma
 		                                        if(auts[i].contains(",")) {
 		                                            autLastName = auts[i].substring(0, auts[i].indexOf(", "));
@@ -946,87 +990,12 @@ public class PublicationService {
 		                                            autLastName = auts[i].substring(0, auts[i].lastIndexOf(" "));
 		                                            autFirstName = auts[i].substring(auts[i].lastIndexOf(" ") + 1);
 		                                        }
-		
-		
-		                                        //Checking for duplications
-		                                        for (Author knownAut : authorList) {
-		                                            //1st possibility : First name and last name fully written > Stéphane Galland = Stéphane Galland or S. Galland = S. Galland
-		                                            if (knownAut.getAutFirstName().compareToIgnoreCase(autFirstName) == 0
-		                                                    && knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
-		                                                isDupe = true;
-		                                                autId = knownAut.getAutId();
-		                                                break;
-		                                            }
-		
-		                                            //2nd possibility : Last name and first name are inverted > Stéphane Galland = Galland Stéphane
-		                                            else if (knownAut.getAutFirstName().compareToIgnoreCase(autLastName) == 0
-		                                                    && knownAut.getAutLastName().compareToIgnoreCase(autFirstName) == 0) {
-		                                                isDupe = true;
-		                                                autId = knownAut.getAutId();
-		                                                break;
-		                                            }
-		                                            
-		                                            //3rd possibility : Abbreviated first name > Stéphane Galland = S. Galland
-		                                            if(autFirstName.contains(".")) {
-		                                            	//The first name letter exists as the first letter of a known author's first name
-		                                                if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autFirstName.replace(".", "")) == 0) {
-		                                                    //Check if the last names are identical
-		                                                    if (knownAut.getAutLastName().compareToIgnoreCase(autLastName) == 0) {
-		                                                        isDupe = true;
-		                                                        autId = knownAut.getAutId();
-		                                                        break;
-		                                                    }
-		                                                }
-		                                            }
-		                                            
-		                                            //4rd possibility : Abbreviated first name and inverted > Stéphane Galland = Galland S.
-		                                            else if(autLastName.contains(".")) {
-		                                            	//The first name letter, permuted with the last name, exists as the first letter of a known author's first name
-		                                                if(knownAut.getAutFirstName().substring(0, 1).compareToIgnoreCase(autLastName.replace(".", "")) == 0) {
-		                                                	//Check if the last names are identical
-		                                                    if (knownAut.getAutLastName().compareToIgnoreCase(autFirstName) == 0) {
-		                                                        isDupe = true;
-		                                                        autId = knownAut.getAutId();
-		                                                        break;
-		                                                    }
-		                                                }
-		                                            }
-		
-		                                        }
-		
-		                                        //Create new author if not dupe. If we've already got the author with the abbreviated first name in DB, 
-		                                        //but the one parsed have the full version, it creates a new author
-		                                        if (!isDupe) {
-		                                            aut = new Author();
-		
-		                                            // TMT fix : escape quotes in names such as "D'Artau"
-		                                            aut.setAutFirstName(autFirstName.replaceAll("'", "\'"));
-		                                            aut.setAutLastName(autLastName.replaceAll("'", "\'"));
-		                                            aut.setAutBirth(new Date(0));
-		
-		                                            autRepo.save(aut);
-		                                            autId = aut.getAutId();
-		
-		                                        }
-		                                        isDupe = false;
-		
-		                                        //Assigning authorship
-		                                        optPub = repo.findById(pubId);
-		                                        optAut = autRepo.findById(autId);
-		
-		                                        if (optPub.isPresent() && optAut.isPresent()) {
-		
-		                                            if (Collections.disjoint(optPub.get().getPubAuts(), optAut.get().getAutPubs())) {
-		                                                autShip = new Authorship();
-		                                                autShip.setPubPubId(optPub.get().getPubId());
-		                                                autShip.setAutAutId(optAut.get().getAutId());
-		                                                autShip.setAutShipRank(autRepo.findByAutPubsPubPubIdOrderByAutPubsAutShipRank(optPub.get().getPubId()).size());
-		                                                repo.save(optPub.get());
-		                                                autShipRepo.save(autShip);
-		
-		                                            }
-		                                        }
-		
+		                                        
+		                                        // Associating the author with the publication.
+		                                        Author currentAuthor = new Author();
+		                                        currentAuthor.setAutFirstName(autFirstName);
+		                                        currentAuthor.setAutLastName(autLastName);
+		                                        AuthorsList.add(currentAuthor);
 		                                    }
 		                                } 
 		                                //Author field empty 
@@ -1035,32 +1004,26 @@ public class PublicationService {
 		                                	//Handled below
 		                                }
 		                            }
-		                            //Check if the newly imported pub has at least one authorship. If not, it's a bad case and the pub have to be removed and marked as failed
-		                            if (autShipRepo.findByPubPubId(pubId).isEmpty()) {
-		                            	throw new IllegalArgumentException("No author for publication id=" + pubId);
-		                            }
 	                            }
 	                            //Even if a larger try catch for exceptions exists, we need to delete first the imported pub and linked authorship
-	                            catch (Exception e) {
-	                            	importedPubIds.remove((Object)pubId);
-	                            	for (Authorship autShipRemove : autShipRepo.findByPubPubId(pubId)) {
-	                            		autShipRepo.deleteById(autShipRemove.getAutShipId());
-	                            	}
-	                            	repo.deleteById(pubId);
+	                            catch (Exception e) 
+	                            {
 	                            	throw e;
 	                            }
+	                            currentPub.setAuthorsList(AuthorsList);
+	    	                    newPubL.add(currentPub);
 	                        }
 	                    }
-	                }
+	                }  
 	            }
         	} 
         	//If an error occurs during import (import itself or authorship), catch them all and log all pubs which failed at import
-        	catch (Exception e) {
-        		logger.error("Error while importing Bibtext publication\n" + "Data :\n" + pub + "\nException :", e);
+        	catch (Exception e) 
+        	{
+        		logger.error("Error while converting Bibtext publication\n" + "Data :\n" + pub + "\nException :", e);
         	}
         }
-
-        return importedPubIds;
+        return newPubL;
     }
 
     public String fixEncoding(String bibText) {
@@ -1310,118 +1273,132 @@ public class PublicationService {
         bib += "@";
         bib += groupType;
         bib += "{";
-        bib += printAuthorsLastNames(pubId);
-        bib += pub.getPubDate().toString().substring(0, 4);
-        bib += "_";
         bib += pubId;
+        bib += "_";
+        bib += pub.getPubDate().toString().substring(0, 4);
         bib += ",";
         bib += "\n\t";
 
         data = pub.getPubAbstract();
-        if (data != null) //if data exists
+        if (!isDataEmpty(data)) //if data exists
         {
             bib += "abstract = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubKeywords();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "keywords = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubNote();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "note = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubAnnotations();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "annotations = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubISBN();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "isbn = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubISSN();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "issn = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubDOIRef();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "doi = {";
-            bib += data;
+            bib += getDOINumberFromDOIRef(data); //we keep calling this method here because of the existing publications that may contain a full doi ref
             bib += "}, \n\t";
         }
         data = pub.getPubURL();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "url = {";
             bib += data;
             bib += "}, \n\t";
         }
         data = pub.getPubDBLP();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "dblp = {";
             bib += data;
             bib += "}, \n\t";
         }
-        data = pub.getPubPDFPath();
-        if (data != null) {
-            bib += "pdf = {";
-            bib += data;
-            bib += "}, \n\t";
-        }
+        //We don't get the pubPDFPath field because it points to a local file which is useless
         data = pub.getPubLanguage();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "language = {";
             bib += data;
             bib += "}, \n\t";
         }
-        data = pub.getPubPaperAwardPath();
-        if (data != null) {
-            bib += "award = {";
-            bib += data;
-            bib += "}, \n\t";
-        }
+        //We don't get the pubPaperAwardPath field because it points to a local file which is useless
 
         switch (groupType) {
             case "Article":
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
-                    data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
-                    if (data != null) {
+                	Journal journal = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal();
+                	data = journal.getJourName();
+                    if (!isDataEmpty(data)) {
                         bib += "journal = {";
                         bib += data;
                         bib += "}, \n\t";
                     }
+                	Quartile quartileScimago = journal.getScimagoQuartileByYear(pub.getPubYear());
+                	if(quartileScimago != null) {
+                		bib += "quartile_scimago = {";
+                		bib += quartileScimago.toString();
+                		bib += "}, \n\t";
+                	}
+                	Quartile quartileWos = journal.getWosQuartileByYear(pub.getPubYear());
+                	if(quartileWos != null) {
+                		bib += "quartile_wos = {";
+                		bib += quartileWos.toString();
+                		bib += "}, \n\t";
+                	}
+                	CoreRanking coreRanking = journal.getCoreRankingByYear(pub.getPubYear());
+                	if(coreRanking != null) {
+                		bib += "core_rank = {";
+                		bib += coreRanking.toString();
+                		bib += "}, \n\t";
+                	}
+                	int impactFactor = journal.getImpactFactorByYear(pub.getPubYear());
+                	if(impactFactor != 0) {
+                		bib += "if = {";
+                		bib += impactFactor;
+                		bib += "}, \n\t";
+                	}
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapVolume();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "volume = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapNumber();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "number = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapPages();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "pages = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
                     data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourPublisher();
-                    if (data != null) {
+                    if (!isDataEmpty(data)) {
                         bib += "publisher = {";
                         bib += data;
                         bib += "}, \n\t";
@@ -1431,43 +1408,43 @@ public class PublicationService {
 
             case "Inproceedings":
                 data = ((ProceedingsConference) pub).getProConfBookNameProceedings();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "booktitle = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfEditor();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "editor = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfPages();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "pages = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfOrganization();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "organization = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfPublisher();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "publisher = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((ProceedingsConference) pub).getProConfSeries();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "series = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1476,100 +1453,100 @@ public class PublicationService {
 
             case "Book":
                 data = ((Book) pub).getBookEditor();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "editor = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookPublisher();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "publisher = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookVolume();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "volume = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookSeries();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "series = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookEdition();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "edition = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((Book) pub).getBookPages();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "pages = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 break;
 
             case "Inbook":
                 data = ((BookChapter) pub).getBookEditor();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "editor = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookPublisher();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "publisher = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookVolume();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "volume = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookSeries();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "series = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookEdition();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "edition = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookPages();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "pages = {";
-                    bib += data;
+                    bib += data.replaceAll("\\-", "\\-\\-");
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookChapBookNameProceedings();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "booktitle = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((BookChapter) pub).getBookChapNumberOrName();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "chapter = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1578,7 +1555,7 @@ public class PublicationService {
 
             case "Misc":
                 data = ((SeminarPatentInvitedConference) pub).getSemPatHowPub();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "howpublished = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1587,25 +1564,25 @@ public class PublicationService {
 
             case "Manual":
                 data = ((UserDocumentation) pub).getUserDocOrganization();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "organization = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UserDocumentation) pub).getUserDocAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UserDocumentation) pub).getUserDocEdition();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "edition = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UserDocumentation) pub).getUserDocPublisher();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "publisher = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1614,19 +1591,19 @@ public class PublicationService {
 
             case "Techreport":
                 data = ((EngineeringActivity) pub).getEngActInstitName();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "institution = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((EngineeringActivity) pub).getEngActReportType();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "type = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((EngineeringActivity) pub).getEngActNumber();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "number = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1635,13 +1612,13 @@ public class PublicationService {
 
             case "Phdthesis":
                 data = ((UniversityDocument) pub).getUniDocSchoolName();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "school = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UniversityDocument) pub).getUniDocAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1650,13 +1627,13 @@ public class PublicationService {
 
             case "Masterthesis":
                 data = ((UniversityDocument) pub).getUniDocSchoolName();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "school = {";
                     bib += data;
                     bib += "}, \n\t";
                 }
                 data = ((UniversityDocument) pub).getUniDocAddress();
-                if (data != null) {
+                if (!isDataEmpty(data)) {
                     bib += "address = {";
                     bib += data;
                     bib += "}, \n\t";
@@ -1665,31 +1642,33 @@ public class PublicationService {
         }
 
         data = convertBackMonth(pub.getPubDate().toString().substring(5, 7));
-        if (data != null) {
-            bib += "month = {";
+        if (!isDataEmpty(data)) {
+            bib += "month = ";
             bib += data;
-            bib += "}, \n\t";
+            bib += ", \n\t";
         }
         data = pub.getPubDate().toString().substring(0, 4);
-        if (data != null) {
-            bib += "year = {";
+        if (!isDataEmpty(data)) {
+            bib += "year = ";
             bib += data;
-            bib += "}, \n\t";
+            bib += ", \n\t";
         }
         data = pub.getPubTitle();
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "title = {";
-            bib += data;
+            bib += encapsulateAcronymsInTitle(data);
             bib += "}, \n\t";
         }
         data = printAuthors(pubId);
-        if (data != null) {
+        if (!isDataEmpty(data)) {
             bib += "author = {";
             bib += data;
             bib += "}, \n";
         }
 
         bib += "}\n\n\n";
+        
+        bib = formatData(bib);
 
         return bib;
     }
@@ -1790,6 +1769,62 @@ public class PublicationService {
 
         return wos;
     }
+    
+    public String encapsulateAcronymsInTitle(String title) {
+    	
+    	/*We consider a word as an acronym when it is full capitalized with a minimum length of 2
+    	  and followed by a potential lower case s*/
+    	
+    	//regex for acronyms in the middle of a sentence
+		String acronymRegex = "([^A-Za-z0-9{}])([A-Z0-9][A-Z0-9]+s?)([^A-Za-z0-9{}])";
+		//regex for an acronym as the first word in the sentence
+		String firstWordAcronymRegex = "^([A-Z0-9][A-Z0-9]+s?)([^A-Za-z0-9])";
+		//regex for an acronym as the last word in the sentence
+		String lastWordAcronymRegex = "([^A-Za-z0-9])([A-Z0-9][A-Z0-9]+s?)$";
+		
+		//We add braces to the acronyms that we found
+		String titleEncaps = title.replaceAll(acronymRegex, "$1{$2}$3")
+									.replaceAll(firstWordAcronymRegex, "{$1}$2")
+									.replaceAll(lastWordAcronymRegex, "$1{$2}");
+    	
+    	return titleEncaps;
+    }
+    
+    public String formatData(String data) {
+    	String formatData = data.replace("\\", "\\\\");
+    	formatData = formatData.replace("&", "\\&");
+    	
+    	return formatData;
+    }
+    
+    /**
+     * Check if the string data is null, empty or equals to an invalid values
+     * @param data the string data
+     * @return a boolean
+     */
+    public boolean isDataEmpty(String data) {
+    	if(data == null || data.isEmpty()) {
+    		return true;
+    	}
+    	
+    	if(data.matches("^[ ,\\-\\.]*$")) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    public String getDOINumberFromDOIRef(String doiRef) {
+    	String doiNumber = doiRef;
+    	String[] doiRefSplitted = doiRef.split("/"); //We split the doiRef into different elements using the slash separator
+    	int doiRefSplittedLength = doiRefSplitted.length;
+    	if(doiRefSplittedLength >= 2) {
+    		//The DOI number refers to the two last elements of the reference
+    		doiNumber = doiRefSplitted[doiRefSplittedLength - 2] + "/" + doiRefSplitted[doiRefSplittedLength - 1];
+    	}
+    	
+    	return doiNumber;
+    }
 
     public String parseUsingSplitter(String pub, String splitter) {
         String cleaned = "";
@@ -1835,7 +1870,7 @@ public class PublicationService {
             group = "Phdthesis";
         }
         if (pubType == "MasterOnResearch" || pubType == "EngineeringThesis") {
-            group = "Masterthesis";
+            group = "Mastersthesis";
         }
 
         return group;
@@ -1953,12 +1988,35 @@ public class PublicationService {
         switch (groupType) {
             case "Article":
                 if (((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal() != null) {
-                    data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal().getJourName();
+                	Journal journal = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapJournal();
+                	data = journal.getJourName();
                     if (data != null && !data.isEmpty()) {
                         text += "In ";
                         text += data;
                         text += ", ";
                     }
+                	Quartile quartileScimago = journal.getScimagoQuartileByYear(pub.getPubYear());
+                	if(quartileScimago != null) {
+                		text += quartileScimago.toString();
+                		text += " Scimago, ";
+                	}
+                	Quartile quartileWos = journal.getWosQuartileByYear(pub.getPubYear());
+                	if(quartileWos != null) {
+                		text += quartileWos.toString();
+                		text += " Wos, ";
+                	}
+                	CoreRanking coreRanking = journal.getCoreRankingByYear(pub.getPubYear());
+                	if(coreRanking != null) {
+                		text += "rank ";
+                		text += coreRanking.toString();
+                		text += ", ";
+                	}
+                	int impactFactor = journal.getImpactFactorByYear(pub.getPubYear());
+                	if(impactFactor != 0) {
+                		text += "if ";
+                		text += impactFactor;
+                		text += ", ";
+                	}
                 }
                 data = ((ReadingCommitteeJournalPopularizationPaper) pub).getReaComConfPopPapVolume();
                 if (data != null && !data.isEmpty()) {
@@ -2289,13 +2347,9 @@ public class PublicationService {
         StringBuilder sb = new StringBuilder();
 
         int i = 0;
-
-        List<Integer> ids = new ArrayList<>();
-        for(Authorship a : p.getPubAuts()) {
-            ids.add(a.getAutAutId());
-        }
-
-        List<Author> authors = autRepo.findByAutIdIn(ids);
+        
+        //Get all the authors of the publication order by the ship rank of the authors
+        List<Author> authors = autRepo.findByAutPubsPubPubIdOrderByAutPubsAutShipRank(p.getPubId());
 
         for(Author aut : authors) {
             if(aut.isHasPage()) {

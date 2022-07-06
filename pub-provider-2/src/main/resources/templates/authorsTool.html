@@ -44,6 +44,26 @@
                     </div>
                 </div>
             </div>
+            <div class="row" th:if="${param.successCreate != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                        	<p th:text="${param.successCreate != null ?  param.successCreate : ''}"></p>
+                            <h4 class="header-title">Author created</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="row" th:if="${param.Deletesuccess != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                        	<p th:text="${param.Deletesuccess != null ?  param.Deletesuccess : ''}"></p>
+                            <h4 class="header-title">Author Deleted</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
         </div>
         <div class="main-content-inner">
             <div class="row">
@@ -89,7 +109,7 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="header-title">Author editing tool</h4>
-                            <form id="form2" th:action="@{'/renameAuthor'}" method="post" >
+                            <form id="form2" th:action="@{'/updateAuthor'}" method="post" >
                                 <div class="form-group" id="containerAuthor">
                                     <label for="publicationAuthorsDiv" class="col-form-label">Author to edit</label>
                                     <div id="publicationAuthorsDiv">
@@ -102,7 +122,7 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="newFirstname" class="col-form-label">firstname (must be in ONE word, use - to join words)</label>
+                                    <label for="newFirstname" class="col-form-label">Firstname (must be in ONE word, use - to join words)</label>
                                     <input class="form-control" type="text" placeholder="Jean-michel" id="newFirstname" name="newFirstname">
                                 </div>
 
@@ -115,13 +135,78 @@
                                     <label for="autMail" class="col-form-label">Email</label>
                                     <input class="form-control" type="text" placeholder="test@test.fr" id="autMail" name="autMail">
                                 </div>
+                                
+                                <div class="form-group">
+                                    <label for="newBirthDate" class="col-form-label">Birthdate</label>
+                                    <div class="input-group date">
+                                    	<input class="form-control" type="date" id="newBirthDate" name="newBirthDate">
+                                    </div>
+                                </div>
 
-                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Rename</button>
+                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Update</button>
                             </form>
                         </div>
                     </div>
                 </div>
             </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Create Author Tool</h4>
+                            <form id="form2" th:action="@{'/createAuthor'}" method="post">
+                            	<div class="form-group">
+                                    <label for="autFirstName" class="col-form-label">Firstname (must be in ONE word, use - to join words)</label>
+                                    <input class="form-control" type="text" placeholder="Jean-michel" id="autFirstName" name="autFirstName">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="autLastName" class="col-form-label">Lastname (can be in multiple words)</label>
+                                    <input class="form-control" type="text" placeholder="Dupont Pierre" id="autLastName" name="autLastName">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="autMail" class="col-form-label">Email</label>
+                                    <input class="form-control" type="text" placeholder="test@test.fr" id="autMail" name="autMail">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="autBirth" class="col-form-label">Birthdate</label>
+                                    <div class="input-group date">
+                                    	<input class="form-control" type="date" id="autBirth" name="autBirth" value="1970-01-01">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Create</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!--<div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Delete Author tool</h4>
+                            <form id="form2" th:action="@{'/deleteAuthor'}" method="post" >
+                                <div class="form-group" id="containerAuthor">
+                                    <label for="publicationAuthorsDiv" class="col-form-label">Author to delete</label>
+                                    <div id="publicationAuthorsDiv">
+                                        <select id="author" name="author"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
+                                            <option></option>
+                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+            
         </div>
     </div>
     <!-- main content area end -->
@@ -141,9 +226,11 @@
             var href = /*[[@{/getAuthorData}]]*/ '/getAuthorData';
             $.ajax(href + '?name=' + data, {
                 success: function(newData) {
+                	var date = new Date(newData.autBirth).toISOString().split('T')[0];
                     $('#newFirstname').val(newData.autFirstName);
                     $('#newLastname').val(newData.autLastName);
                     $('#autMail').val(newData.autMail);
+                    $('#newBirthDate').val(date);
                 },
                 error: function() {
                     alert("ERROR");

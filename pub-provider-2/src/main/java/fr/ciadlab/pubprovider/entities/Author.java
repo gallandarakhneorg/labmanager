@@ -4,6 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import javax.transaction.Transactional;
+
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.io.Serializable;
 import java.sql.Date;
 import java.util.HashSet;
@@ -41,6 +44,7 @@ public class Author implements Serializable {
     private String autLastName;
 
     @Column
+    @DateTimeFormat(pattern = "dd/MM/yyyy")
     private Date autBirth;
 
     @Column

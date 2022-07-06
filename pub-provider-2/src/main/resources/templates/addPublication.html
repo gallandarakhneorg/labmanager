@@ -29,6 +29,7 @@
 </head>
 
 <body>
+    
 
 <div class="horizontal-main-wrapper">
     <!-- main content area start -->
@@ -78,9 +79,9 @@
                                         <option value="null" th:selected="${!edit}">Select a publication type</option>
                                         <option
                                                 th:each="publicationType : ${publicationsTypes}"
-                                                th:selected="${publication != null && publicationType.getKey() == publication.getPubType()}"
-                                                th:value="${publicationType.getKey().toString()}"
-                                                th:utext="${publicationType.getValue()}">
+                                                th:selected="${publication != null && publicationType == publication.getPubType()}"
+                                                th:value="${publicationType.toString()}"
+                                                th:utext="${T(fr.ciadlab.pubprovider.entities.PublicationType).getPubTypeToString(publicationType)}">
                                         </option>
                                     </select>
                                 </div>
@@ -92,32 +93,47 @@
                                     </div>
                                     <div class="form-group" id="containerAuthors">
                                         <label for="publicationAuthorsDiv" class="col-form-label">Authors (Add, remove and arrange authors' order using drag and drop. First ranked at top)</label>
-
                                         <div id="publicationAuthorsDiv">
                                             <div id="authors">
                                                 <!-- Nothing at start -->
                                                 <div th:if="${publication != null}" class="form-row" th:each="authorship : ${publication != null ? pubAuthors : null}" >
-
                                                     <div class="form-row connectedSortable test">
                                                         <div class="col-md-10 mb-3">
-                                                            <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" th:value="${authorship.getAutFirstName() + ' ' + authorship.getAutLastName() }"/>
+                                                            <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" th:value="${authorship.getAutFirstName() + ' ' + authorship.getAutLastName() }"/>
                                                         </div>
                                                         <div class="col-md-2 mb-3">
                                                             <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
-
+                                                <div th:if="${pubAuts != null}" class="form-row connectedSortable test" th:each="currentAut : ${pubAuts}">
+								                    <div class="col-md-10 mb-3">
+								                        <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" th:value="${currentAut.getAutFirstName() + ' ' + currentAut.getAutLastName() }"/>
+								                    </div>
+									                <div class="col-md-2 mb-3">
+									                	<button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>
+									                </div> 
+	                                            </div>
+                                            </div>  
                                             <div class="form-row">
                                                 <div class="col-md-10 mb-3">
-                                                    <select id="publicationAuthors"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
+                                                   <!--  <select id="publicationAuthors"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
                                                         <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
-                                                    </select>
+                                                    </select> -->
+													<select class="form-control selectAuthor list-group-item list-group-item-action" id="publicationAuthors" name="publicationAuthorsBar" style="width: 100%">
+<!--                                                     	<option -->
+<!--                                                             	th:each="publicationAuthors : ${publicationAuthor}" -->
+<!--                                                             	th:value="${publicationAuthors}" -->
+<!--                                                             	th:utext="${publicationAuthors.toString()}"> -->
+<!--                                                     	</option> -->
+
+                                                        	<option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                                	</select>
                                                 </div>
                                                 <div class="col-md-2 mb-3">
                                                     <button class="form-control btn btn-primary mt-2 pr-2 pl-2 addElement">Add</button>
                                                 </div>
+
                                             </div>
                                         </div>
                                         <!--<select id="publicationAuthors"  class="form-control custom-select selectAuthor" name="publicationAuthors">
@@ -126,7 +142,7 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationAbstract" class="col-form-label">Abstract</label>
-                                        <textarea class="form-control" type="text" th:utext="${publication != null ? publication.getPubAbstract() : ''}" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
+                                        <textarea class="form-control" th:text="${publication != null ? publication.getPubAbstract() : ''}" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
                                     </div>
                                     <div class="form-group">
                                         <label for="publicationKeywords" class="col-form-label">Keywords</label>
@@ -188,10 +204,9 @@
                                             <label for="publicationJournal" class="col-form-label">Journal name</label>
                                             <select name="publicationJournal" id="publicationJournal"  class="form-control selectJournal list-group-item list-group-item-action" style="width: 100%">
                                                 <option></option>
-                                                <option th:each="journal : ${journals}" th:utext="${journal.getJourName() }" th:selected="${reaComConfPopPapJournal != null && reaComConfPopPapJournal.getJourName().equals(journal.getJourName())}"></option>
+                                                <option th:each="journal : ${journals}" th:utext="${journal.getJourName()}" th:selected="${reaComConfPopPapJournal != null && reaComConfPopPapJournal.getJourName().equals(journal.getJourName())}"></option>
                                             </select>
                                         </div>
-
                                         <div class="form-group">
                                             <label for="reaComConfPopPapVolume" class="col-form-label">Journal volume</label>
 <!--                                            th:value="${publication != null ? publication.getReaComConfPopPapVolume() : ''}"-->
@@ -204,6 +219,49 @@
                                         <div class="form-group">
                                             <label for="reaComConfPopPapPages" class="col-form-label">Journal pages</label>
                                             <input class="form-control" type="text" th:value="${reaComConfPopPapPages}" placeholder="4-5, 15" id="reaComConfPopPapPages" name="reaComConfPopPapPages">
+                                        </div>
+                                        
+                                        <div id="qualityIndicatorsInputs" class="form-group" >
+                                            <div class="form-group">
+                                                <label for="journalScimagoQuartile" class="col-form-label">Journal scimago quartile</label>
+                                                <select class="form-control" id="journalScimagoQuartile" name="journalScimagoQuartile">
+                                                    <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                                    <option
+                                                            th:each="journalScimagoQuartile : ${publicationsQuartiles}"
+                                                            th:selected="${publication != null && journalScimagoQuartile == publication.getPubJournalScimagoQuartile()}"
+                                                            th:value="${journalScimagoQuartile.toString()}"
+                                                            th:utext="${journalScimagoQuartile.toString()}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="journalWosQuartile" class="col-form-label">Journal wos quartile</label>
+                                                <select class="form-control" id="journalWosQuartile" name="journalWosQuartile">
+                                                    <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                                    <option
+                                                            th:each="journalWosQuartile : ${publicationsQuartiles}"
+                                                            th:selected="${publication != null && journalWosQuartile == publication.getPubJournalWosQuartile()}"
+                                                            th:value="${journalWosQuartile.toString()}"
+                                                            th:utext="${journalWosQuartile.toString()}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="journalCoreRanking" class="col-form-label">Journal core ranking</label>
+                                                <select class="form-control" id="journalCoreRanking" name="journalCoreRanking">
+                                                    <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                                    <option
+                                                            th:each="journalCoreRanking : ${journalCoreRankings}"
+                                                            th:selected="${publication != null && journalCoreRanking == publication.getPubJournalCoreRanking()}"
+                                                            th:value="${journalCoreRanking}"
+                                                            th:utext="${journalCoreRanking.toString()}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="journalImpactFactor" class="col-form-label">Journal impact factor</label>
+                                                <input type="number" placeholder="Journal impact factor" class="form-control" id="journalImpactFactor" name="journalImpactFactor"/>
+                                            </div>
                                         </div>
                                     </div>
 
@@ -321,7 +379,7 @@
                                             <input class="form-control" type="text" th:value="${userDocOrganization}" placeholder="Organization the user documentation belongs to" id="userDocOrganization" name="userDocOrganization">
                                         </div>
                                         <div class="form-group">
-                                            <label for="userDocAddress" class="col-form-label">Report type</label>
+                                            <label for="userDocAddress" class="col-form-label">Address</label>
                                             <input class="form-control" type="text" th:value="${userDocAddress}" placeholder="Address of the user documentation" id="userDocAddress" name="userDocAddress">
                                         </div>
                                         <div class="form-group">
@@ -333,7 +391,6 @@
                                             <input class="form-control" type="text" th:value="${userDocPublisher}" placeholder="Publisher of the user documentation" id="userDocPublisher" name="userDocPublisher">
                                         </div>
                                     </div>
-
                                     <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Submit</button>
                                 </div>
                             </form>
@@ -357,9 +414,85 @@
         });
     }
 
+    function loadQualityindicatorsInputs() {
+        var date =''
+        if (($("#publicationDate")[0].value) !=  ''){
+            date = new Date ($("#publicationDate")[0].value);
+        }
+        const journalTitle = $("#publicationJournal")[0].value;
+                console.log(getPublicationTypeValue(), groupPublicationTypes(getPublicationTypeValue()) == "ReadingCommitteeJournalPopularizationPaper", groupPublicationTypes(getPublicationTypeValue()))
+        if(date != '' && journalTitle != '' && groupPublicationTypes(getPublicationTypeValue()) == "ReadingCommitteeJournalPopularizationPaper"){
+            $.ajax({
+                url:"/SpringRestHibernate/getJournalQualityIndicators",
+                dataType: "text",
+                type:"GET",
+                data: {
+                    historyYear: date.getFullYear(),
+                    journalName: journalTitle
+                },
+                success: function(fetchedQualityIndicators){
+                    if(fetchedQualityIndicators != null && fetchedQualityIndicators!=''){
+                        fetchedQualityIndicators = JSON.parse(fetchedQualityIndicators);
+                        
+                        // preselection of each quality indicator if they exist
+                        if(fetchedQualityIndicators.scimagoQuartile != ''){
+                            $("#journalScimagoQuartile").val(fetchedQualityIndicators.scimagoQuartile);   
+                        }
+                        if(fetchedQualityIndicators.wosQuartile != ''){
+                            $("#journalWosQuartile").val(fetchedQualityIndicators.wosQuartile); 
+                            console.log(fetchedQualityIndicators.wosQuartile);
+                        }
+                        if(fetchedQualityIndicators.coreRanking != ''){
+                            $("#journalCoreRanking").val(fetchedQualityIndicators.coreRanking);   
+                        }
+                        if(fetchedQualityIndicators.impactFactor != undefined){
+                            $("#journalImpactFactor").val(fetchedQualityIndicators.impactFactor);   
+                        }
+                    }
+                    // Display the quality indicators inputs
+                    $("#qualityIndicatorsInputs").show();
+                }
+            });
+        }else{
+            // Hide the quality indicators inputs
+            $("#qualityIndicatorsInputs").hide();
+        }
+    }
+    
+    function loadAuthorsList() {
+			console.log("Start");
+            $.ajax({
+                url:"/SpringRestHibernate/getAuthorsList",
+                dataType: "text",
+                type:"GET",
+                data: {
+                 	publicationAuthorsList: $('#publicationAuthors')[0].value
+                },
+                success:
+                	function(fetchedAuthorsList){
+                	console.log("Success");
+                	if(fetchedAuthorsList != null && fetchedAuthorsList!=''){
+
+                        // preselection of each quality indicator if they exist
+                        if(fetchedAuthorsList.Name != ''){
+                        	console.log(fetchedAuthorsList);
+                            $("#publicationAuthors").val(fetchedAuthorsList.Name);
+                            $("authors").val(fetchedAuthorsList.Name);
+                        }
+                    }
+                    // Display the quality indicators inputs
+                    //$("#qualityIndicatorsInputs").show();
+                } 
+            });
+            console.log("End");
+    }
+    
+    function getPublicationTypeValue(){
+        return $("#publicationType").find(':selected')[0].value;
+    }
+
     function unlockDivIfNeeded() {
-        var value = $("#publicationType").find(':selected')[0].value;
-        console.log("New value ; " + value);
+        var value = getPublicationTypeValue();
 
         $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
         $(".unlockIfBook").hide();
@@ -375,10 +508,13 @@
             $("#unlockOnceTypeChosen").hide();
         }
         else {
+        	loadAuthorsList();
             $("#unlockOnceTypeChosen").show();
             switch(groupPublicationTypes(value)) {
                 case "ReadingCommitteeJournalPopularizationPaper":
                     $(".unlockIfReadingCommitteeJournalPopularizationPaper").show();
+                    $("#qualityIndicatorsInputs").hide();
+                    loadQualityindicatorsInputs();
                     break;
 
                 case "ProceedingsConference":
@@ -459,50 +595,70 @@
     }
 
     function addAuthor() {
-        $('<div class="form-row connectedSortable test">\n' +
-                ' <div class="col-md-10 mb-3">\n' +
-                '    <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" value="' + $('#publicationAuthors')[0].value + '"/>\n' +
-                '     </div>\n' +
-                '     <div class="col-md-2 mb-3">\n' +
-                '    <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>\n' +
-                '     </div>\n' +
-                '    </div>').appendTo('#authors');
-        enableRemove();
+    	
+    	//DEF
+    	let selectedAuthorName = $('#publicationAuthors').find(":selected").text();
+    	let authorAlreadySelected = false;
+    	
+    	const myElement = document.getElementById('authors');
+    	
+    	//Prend la liste de tous les auteurs déjà sélectionnés
+    	for (let i = 0; i < myElement.children.length; i++) {
+    		if (selectedAuthorName === myElement.children[i].children[0].children[0].value){
+    			authorAlreadySelected = true;
+    		}
+    	}
+    	
+    	// Crée l'auteur et l'affiche dans une ligne s'il n'est pas déjà selectionné
+    	if (!authorAlreadySelected) {
+    		$('<div class="form-row connectedSortable test">\n' +
+                    ' <div class="col-md-10 mb-3">\n' +
+                    '    <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="false" value="' + $('#publicationAuthors')[0].value + '"/>\n' +
+                    '     </div>\n' +
+                    '     <div class="col-md-2 mb-3">\n' +
+                    '    <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>\n' +
+                    '     </div>\n' +
+          		    '    </div>').appendTo('#authors'); 
+             
+            enableRemove();
+    	} else {
+    		let confirm = false;
+    		
+    		//Affiche un message pop-up
+    		Swal.fire({
+    			title : 'You already selected that author.',
+    			showCancelButton: false,
+    			confirmbuttonText: 'Ok',
+    			confirmButtonColor: '#93c10d',
+    			icon: 'warning',
+    		})
+    	}
+    	
     }
-
+    
     $(document).ready(function () {
-
-        // var formUrl = /*[[@{/createPublication}]]*/ '';
-        // $("#form").ajaxForm({url: formUrl, type: 'post'});
-
-/*        $('#publicationAuthors').select2({
-            tags: true,
-            placeholder: 'Enter authors'
-        });*/
 
         $('#publicationType').select2();
         $(document).on('change', '#publicationType', function(){unlockDivIfNeeded();});
+        $(document).on('change', '#publicationJournal', function(){loadQualityindicatorsInputs();});
+        $(document).on('change', '#publicationDate', function(){loadQualityindicatorsInputs();});
         unlockDivIfNeeded();
-        // $("#publicationType").on('select2:select', unlockDivIfNeeded());
-        // $("#publicationType").on('change', unlockDivIfNeeded());
 
 
         $('#form').validate({
             rules: {
                 publicationTitle: 'required',
-                publicationAbstract: {
-                    required: true,
-                    minlength: 2
+                publicationNote: {
+                	pattern: '^(?!.*to be published).*$'
                 },
-                publicationDate: 'required',
+                publicationDate: 'required'
             },
             messages: {
                 publicationTitle: 'Please enter the publication title',
-                publicationAbstract: {
-                    required: 'Please enter an abstract',
-                    minlength: 'The abstract is too short...'
+                publicationNote: {
+                	pattern: 'A publication should be published, it cannot be pending'
                 },
-                publicationDate: 'Please enter the publication date',
+                publicationDate: 'Please, enter the publication date'
             },
             errorElement: 'em',
             errorPlacement: function errorPlacement(error, element) {

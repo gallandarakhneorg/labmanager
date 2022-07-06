@@ -4,18 +4,23 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "journals")
-public class Journal implements Serializable { //Supposed to be abstract but lets not do that to avoid unnecessary bugs
+public class Journal implements Serializable { // Supposed to be abstract but lets not do that to avoid unnecessary bugs
 
     private static final long serialVersionUID = 1567501055115722405L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    //Using this instead of IDENTITY allows for JOINED or TABLE_PER_CLASS inheritance types to work
+    // Using this instead of IDENTITY allows for JOINED or TABLE_PER_CLASS
+    // inheritance types to work
     @Column(nullable = false)
     private int jourId;
 
@@ -38,11 +43,13 @@ public class Journal implements Serializable { //Supposed to be abstract but let
     @Column
     private String jourWos;
 
-    @Column
-    private String jourQuartil;
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "journal_id")
+    private Set<JournalQualityIndicatorsHistory> jourQualityIndicatorsHistory;
 
     public Journal(int jourId, Set<ReadingCommitteeJournalPopularizationPaper> jourPubs, String jourName,
-                   String jourPublisher, String jourElsevier, String jourScimago, String jourWos, String jourQuartil) {
+            String jourPublisher, String jourElsevier, String jourScimago, String jourWos,
+            Set<JournalQualityIndicatorsHistory> jourQualityIndicatorsHistory) {
         super();
         this.jourId = jourId;
         this.jourPubs = jourPubs;
@@ -51,11 +58,14 @@ public class Journal implements Serializable { //Supposed to be abstract but let
         this.jourElsevier = jourElsevier;
         this.jourScimago = jourScimago;
         this.jourWos = jourWos;
-        this.jourQuartil = jourQuartil;
+        this.jourQualityIndicatorsHistory = jourQualityIndicatorsHistory;
     }
 
     public Journal() {
         super();
+        // creation of an empty set to avoid any null pointer exception while using the
+        // history
+        this.jourQualityIndicatorsHistory = Collections.emptySet();
         // TODO Auto-generated constructor stub
     }
 
@@ -115,14 +125,6 @@ public class Journal implements Serializable { //Supposed to be abstract but let
         this.jourWos = jourWos;
     }
 
-    public String getJourQuartil() {
-        return jourQuartil;
-    }
-
-    public void setJourQuartil(String jourQuartil) {
-        this.jourQuartil = jourQuartil;
-    }
-
     @Override
     public int hashCode() {
         final int prime = 31;
@@ -131,8 +133,7 @@ public class Journal implements Serializable { //Supposed to be abstract but let
         result = prime * result + jourId;
         result = prime * result + ((jourName == null) ? 0 : jourName.hashCode());
         result = prime * result + ((jourPublisher == null) ? 0 : jourPublisher.hashCode());
-        //result = prime * result + ((jourPubs == null) ? 0 : jourPubs.hashCode());
-        result = prime * result + ((jourQuartil == null) ? 0 : jourQuartil.hashCode());
+        // result = prime * result + ((jourPubs == null) ? 0 : jourPubs.hashCode());
         result = prime * result + ((jourScimago == null) ? 0 : jourScimago.hashCode());
         result = prime * result + ((jourWos == null) ? 0 : jourWos.hashCode());
         return result;
@@ -169,11 +170,6 @@ public class Journal implements Serializable { //Supposed to be abstract but let
                 return false;
         } else if (!jourPubs.equals(other.jourPubs))
             return false;
-        if (jourQuartil == null) {
-            if (other.jourQuartil != null)
-                return false;
-        } else if (!jourQuartil.equals(other.jourQuartil))
-            return false;
         if (jourScimago == null) {
             if (other.jourScimago != null)
                 return false;
@@ -187,7 +183,98 @@ public class Journal implements Serializable { //Supposed to be abstract but let
         return true;
     }
 
+    // History management methods
+    public boolean hasJounralQualityIndicatorsHistoryForYear(int year) {
+        return this.jourQualityIndicatorsHistory.stream().filter(history -> (history.getJournalHistoryYear() == year))
+                .collect(Collectors.toList()).size() > 0;
+    }
+
+    public Quartile getScimagoQuartileByYear(int year) {
+        for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+            if (jourQIHistory.getJournalHistoryYear() == year)
+                return jourQIHistory.getJournalHistoryScimagoQuartile();
+        }
+        return null;
+    }
+
+    public Quartile getWosQuartileByYear(int year) {
+        for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+            if (jourQIHistory.getJournalHistoryYear() == year)
+                return jourQIHistory.getJournalHistoryWosQuartile();
+        }
+        return null;
+    }
+
+    public CoreRanking getCoreRankingByYear(int year) {
+        for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+            if (jourQIHistory.getJournalHistoryYear() == year)
+                return jourQIHistory.getJournalHistoryCoreRanking();
+        }
+        return null;
+    }
+
+    public int getImpactFactorByYear(int year) {
+        for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+            if (jourQIHistory.getJournalHistoryYear() == year)
+                return jourQIHistory.getJournalHistoryImpactFactor();
+        }
+        return 0;
+    }
+
+    public void setScimagoQuartileByYear(int year, Quartile newQuartile) {
+        // checks if an history already exists for the requested year
+        if (this.hasJounralQualityIndicatorsHistoryForYear(year)) {
+            for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+                if (jourQIHistory.getJournalHistoryYear() == year)
+                    jourQIHistory.setJournalHistoryScimagoQuartile(newQuartile);
+            }
+        } else {
+            // creates a new history if none exists for this given year
+            this.jourQualityIndicatorsHistory
+                    .add(new JournalQualityIndicatorsHistory(year, newQuartile, null, null, 0));
+        }
+    }
+
+    public void setWosQuartileByYear(int year, Quartile newQuartile) {
+        // checks if an history already exists for the requested year
+        if (this.hasJounralQualityIndicatorsHistoryForYear(year)) {
+            for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+                if (jourQIHistory.getJournalHistoryYear() == year)
+                    jourQIHistory.setJournalHistoryWosQuartile(newQuartile);
+            }
+        } else {
+            // creates a new history if none exists for this given year
+            this.jourQualityIndicatorsHistory
+                    .add(new JournalQualityIndicatorsHistory(year, null, newQuartile, null, 0));
+        }
+    }
+
+    public void setCoreRankingByYear(int year, CoreRanking newCoreRanking) {
+        // checks if an history already exists for the requested year
+        if (this.hasJounralQualityIndicatorsHistoryForYear(year)) {
+            for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+                if (jourQIHistory.getJournalHistoryYear() == year)
+                    jourQIHistory.setJournalHistoryCoreRanking(newCoreRanking);
+            }
+        } else {
+            // creates a new history if none exists for this given year
+            this.jourQualityIndicatorsHistory
+                    .add(new JournalQualityIndicatorsHistory(year, null, null, newCoreRanking, 0));
+        }
+    }
+
+    public void setImpactFactorByYear(int year, int newImpactFactor) {
+        // checks if an history already exists for the requested year
+        if (this.hasJounralQualityIndicatorsHistoryForYear(year)) {
+            for (JournalQualityIndicatorsHistory jourQIHistory : jourQualityIndicatorsHistory) {
+                if (jourQIHistory.getJournalHistoryYear() == year)
+                    jourQIHistory.setJournalHistoryImpactFactor(newImpactFactor);
+            }
+        } else {
+            // creates a new history if none exists for this given year
+            this.jourQualityIndicatorsHistory
+                    .add(new JournalQualityIndicatorsHistory(year, null, null, null, newImpactFactor));
+        }
+    }
 
 }
-
-

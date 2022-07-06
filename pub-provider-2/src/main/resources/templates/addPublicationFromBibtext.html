@@ -55,13 +55,14 @@
                     <div class="card">
                         <div class="card-body">
                             <h4 class="header-title" >Add publication from Bibtext</h4>
-                            <form id="form" enctype="multipart/form-data" th:action="@{'/importBibtext'}" method="post" >
+                            <form id="form" th:action="@{'/importBibtext'}" enctype="multipart/form-data" method="post">
                                 <div class="form-group">
                                     <label for="bibtext" class="col-form-label">Bibtext</label>
-                                    <input class="form-control" type="file" id="bibtext" name="bibtext" multiple>
+                                    <input class="form-control" type="file" name="bibtext" multiple>
                                 </div>
-
-                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Submit</button>
+	
+                                <button type="submit" id="Submit" class="btn btn-success mt-4 pr-4 pl-4">Submit</button> 
+                                <button type="submit" id="SubmitWBibtex" th:formaction="@{'/BibtextToAddPublication'}" class="btn btn-success mt-4 pr-4 pl-4">Submit with bibtext</button>
                             </form>
                         </div>
                     </div>
@@ -160,6 +161,16 @@
 			alert(numFiles);
 		});
 
+        $('#Submit').click(function() {
+            $('#form').attr('action', '/importBibtext');
+            $('#form').attr('method', 'post');
+            $('#form').submit();
+        });
+        $('#SubmitWBibtex').click(function() {
+            $('#form').attr('action', '/BibtextToAddPublication');
+            $('#form').attr('method', 'post');
+            $('#form').submit();
+        });
 
         $('#form').validate({
             rules: {
