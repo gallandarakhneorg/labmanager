@@ -18,8 +18,8 @@ spring:
     password: ci@dlAbpas$
 
     #Local use :
-    #username: root
-    #password: 
+#    username: root
+#    password: JeSuisUnNouveauMotDePasse!1
 
   servlet:
     multipart:

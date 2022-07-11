@@ -13,9 +13,9 @@ import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 public class PubProviderApplication extends SpringBootServletInitializer {
 
     //For localhost use:
-    //public static final String PROXYURL="proxy.utbm.fr";
-    //public static final int PROXYPORT=3128;
-    //public static final String DownloadablesPath="Downloadables/";
+//    public static final String PROXYURL="proxy.utbm.fr";
+//    public static final int PROXYPORT=3128;
+//    public static final String DownloadablesPath="Downloadables/";
     //Also go rename the logback file to "something logback.xml something.txt"
 
     //For when deployed:
