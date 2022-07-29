@@ -1,0 +1,422 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/head :: style" />
+    <th:block th:replace="fragments/head :: script" />
+</head>
+
+<body>
+
+<div class="row">
+    <!-- seo fact area start -->
+    <div class="col-lg-12">
+        <div class="table table-sm table-responsive table-striped">
+            <table style="width: 100%">
+                <thead>
+                    <th>Year</th>
+                    <th><abbr title="National/international journal with/without reading comittee">ACL/N</abbr></th>
+                    <th><abbr title="National/international conference with/without procedings">C-ACT</abbr></th>
+                    <th><abbr title="Book">OS</abbr></th>
+                    <th><abbr title="Book chapter">COS</abbr></th>
+                    <th><abbr title="Invited conference">C-INV</abbr></th>
+                    <th><abbr title="HDR/PHD/engineering thesis">TH</abbr></th>
+                    <th><abbr title="University documents/engineering activity/user documentation">ETC</abbr></th>
+                    <th>Other</th>
+                    <th>Total</th>
+                </thead>
+                <tbody>
+                    <tr th:each="stat : ${stats}" th:with="counts = ${stat.getValue()}">
+                        <!--/*@thymesVar id="counts" type="fr.ciadlab.labmanager.entities.PublicationsStat"*/-->
+                        <td th:utext="${stat.getKey()}"></td>
+                        <td th:utext="${counts.getReadingCommitteeJournalPopularizationPaperCount()}"></td>
+                        <td th:utext="${counts.getProceedingsConferenceCount()}"></td>
+                        <td th:utext="${counts.getBookCount()}"></td>
+                        <td th:utext="${counts.getBookChapterCount()}"></td>
+                        <td th:utext="${counts.getSeminarPatentInvitedConferenceCount()}"></td>
+                        <td th:utext="${counts.getUniversityDocumentCount()}"></td>
+                        <td th:utext="${counts.getEngineeringActivityCount() + counts.getUserDocumentationCount() }"></td>
+                        <td th:utext="${counts.getOtherCount() }"></td>
+                        <td th:utext="${counts.getTotal() }"></td>
+                    </tr>
+                    <tr style="border-top: 2px solid #dee2e6;font-weight: bold;">
+                        <td>Total</td>
+                        <td th:utext="${globalStats.getReadingCommitteeJournalPopularizationPaperCount()}"></td>
+                        <td th:utext="${globalStats.getProceedingsConferenceCount()}"></td>
+                        <td th:utext="${globalStats.getBookCount()}"></td>
+                        <td th:utext="${globalStats.getBookChapterCount()}"></td>
+                        <td th:utext="${globalStats.getSeminarPatentInvitedConferenceCount()}"></td>
+                        <td th:utext="${globalStats.getUniversityDocumentCount()}"></td>
+                        <td th:utext="${globalStats.getEngineeringActivityCount() + globalStats.getUserDocumentationCount() }"></td>
+                        <td th:utext="${globalStats.getOtherCount() }"></td>
+                        <td th:utext="${globalStats.getTotal() }"></td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+</div>
+<!-- page container area end -->
+</body>
+
+<script th:inline="javascript">
+
+    function format ( d ) {
+        var links = d.links && d.links != "" ? '<tr>'+
+            '<td>Links: </td>'+
+            '<td>'+ d.links +'</td>'+
+            '</tr>' : "";
+        var abstract = d.abstract && d.abstract != "" ? '<tr>'+
+            '<td>Abstract: </td>'+
+            '<td>'+ d.abstract +'</td>'+
+            '</tr>' : "";
+        var downloads = d.downloads && d.downloads != "" ? '<tr>'+
+            '<td>Downloads: </td>'+
+            '<td>'+ d.downloads +'</td>'+
+            '</tr>' : "";
+        var exports = d.exports && d.exports != "" ? '<tr>'+
+            '<td>Exports: </td>'+
+            '<td>'+ d.exports +'</td>'+
+            '</tr>' : "";
+        var note = d.note && d.note != "" ? '<tr>'+
+            '<td>Note: </td>'+
+            '<td>'+ d.note +'</td>'+
+            '</tr>' : "";
+        var keywords = d.keywords && d.keywords != "" ? '<tr>'+
+            '<td>Keywords: </td>'+
+            '<td>'+ d.keywords +'</td>'+
+            '</tr>' : "";
+
+        return '<div class="table-responsive"></div><table class="table" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%">'+
+            '<tr>'+
+            '<td>Authors: </td>'+
+            '<td>'+ d.authors +'</td>'+
+            '</tr>'+
+            '<tr>'+
+            '<td>Type: </td>'+
+            '<td>'+ d.type +'</td>'+
+            '</tr>'+
+            links +
+            abstract +
+            note +
+            keywords +
+            downloads +
+            exports +
+            '</table></div>';
+    }
+
+    function enableDownloadForButtons() {
+        // Allow download
+
+        $('.btBibtex').on( 'click', function (e) {
+            e.preventDefault();
+            var id = $(this).attr('data-href');
+            $.ajax({
+                url:"/SpringRestHibernate/exportBibtex",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: id},
+                success: function(d){
+                    downloadString("bibTexExport.bib", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export Bibtex...\n" + d);
+                }
+            });
+        });
+        $('.btHtml').on( 'click', function (e) {
+            e.preventDefault();
+            var id = $(this).attr('data-href');
+            $.ajax({
+                url:"/SpringRestHibernate/exportHtml",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: id},
+                success: function(d){
+                    downloadString("htmlExport.html", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export HTML...\n" + d);
+                }
+            });
+        });
+
+        $('.btWord').on( 'click', function (e) {
+            e.preventDefault();
+            var id = $(this).attr('data-href');
+            $.ajax({
+                url:"/SpringRestHibernate/exportHtml",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: id},
+                success: function(d){
+                    downloadString("odtExport.odt", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export ODT...\n" + d);
+                }
+            });
+        });
+    }
+
+
+
+    $(document).ready(function() {
+        var tableId = /*[[${uuid}]]*/ '';
+
+        var table = $('#table'+tableId).DataTable({
+            "initComplete":function( settings, json){
+                var info = table.page.info();
+                $('#tableInfos').html(info.recordsTotal + " publications au total");
+            },
+
+            "ajax": /*[[${url}]]*/ "",
+            "columns": [
+                {
+                    "className":      'details-control',
+                    "orderable":      false,
+                    "data":           null,
+                    "defaultContent": ''
+                },
+                { "data": "title",
+                    searchPanes:{
+                        show: false,
+                    },
+                },
+                { "data": "authors",
+                    searchPanes:{
+                        show: false,
+                    },
+                },
+                { "data": "year",
+                    searchPanes: {
+                        name: 'yearName'
+                    },
+                },
+                { "data": "type" },
+                { "data": "downloads",
+                    searchPanes:{
+                        show: false,
+                    },
+                }
+            ],
+            searchPanes:{
+                viewTotal: true,
+                panes: [
+                    {
+                        header:'Authors',
+                        options: [
+                            /*[# th:each="a : ${authorsMap}"]*/
+                            {
+                                label: '[(${a.getValue()})]',
+                                value: function(rowData, rowIdx){
+                                    return rowData.authors.includes('[(${a.getValue()})]');
+                                },
+                            },
+                            /*[/]*/
+                        ],
+                    }
+                ],
+                layout: 'columns-3',
+            },
+            dom: 'Ptp',
+            scrollCollapse: true,
+            paging: true,
+            deferRender:true,
+            order: [ [3, 'desc'], [4, 'asc'] ],
+            rowGroup: {
+                startRender: function ( rows, group ) {
+                    if(rows.count() > 1)
+                        return group +' - ' + rows.count() + ' publications';
+                    else
+                        return group +' - ' + rows.count() + ' publication';
+                },
+                endRender: null,
+                dataSrc: ['year', 'type']
+            },
+            buttons: [
+                'excelHtml5', 'pdfHtml5', 'csvHtml5'
+            ],
+            responsive: true,
+            autoWidth: true,
+        });
+
+        // Toggle the visibility
+        table.column(2).visible(false);
+        table.column(3).visible(false);
+        table.column(4).visible(false);
+        table.column(5).visible(false);
+        //table.column(2).visible(false);
+        //table.column(3).visible(false);
+        //table.column(4).visible(false);
+
+
+        // Array to track the ids of the details displayed rows
+        //var detailRows = [];
+        $('#table'+tableId +' tbody').on( 'click', 'tr td.details-control', function () {
+            var tr = $(this).closest('tr');
+            var row = table.row( tr );
+
+            if ( row.child.isShown() ) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child( format(row.data()) ).show();
+                tr.addClass('shown');
+            }
+
+            // Allow download
+            enableDownloadForButtons();
+        } );
+        $('#table'+tableId +' tbody').on( 'click', 'tr a.details-control', function (e) {
+            e.preventDefault();
+            var tr = $(this).closest('tr');
+            var row = table.row( tr );
+
+            if ( row.child.isShown() ) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child( format(row.data()) ).show();
+                tr.addClass('shown');
+            }
+            enableDownloadForButtons();
+        } );
+        $('#searchInput').on( 'keyup', function () {
+            table.search( this.value ).draw();
+            var info = table.page.info();
+            if(this.value.length > 0) {
+                $('#tableInfos').html(info.recordsDisplay + " publications trouvées sur " + info.recordsTotal + " publications au total");
+            }
+            else {
+                $('#tableInfos').html(info.recordsTotal + " publications au total");
+            }
+        } );
+
+        var buttons = new $.fn.dataTable.Buttons(table, {
+            buttons: [
+                {
+                    extend:    'excelHtml5',
+                    text:      '<i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;XLS',
+                    titleAttr: 'Excel'
+                },
+                {
+                    extend:    'csvHtml5',
+                    text:      '<i class="fa fa-file-excel-o"></i>&nbsp;&nbsp;CSV',
+                    titleAttr: 'CSV'
+                },
+                {
+                    extend:    'pdfHtml5',
+                    text:      '<i class="fa fa-file-pdf-o"></i>&nbsp;&nbsp;PDF',
+                    titleAttr: 'PDF'
+                }
+            ]
+        }).container().appendTo($('#buttonsContainer'));
+        $('.buttons-html5').addClass('btn btn-sm btn-success');
+        $('.buttons-html5').removeClass('dt-button');
+
+
+        $('.groupControl').on( 'click', function (e) {
+            if($('#groupYear')[0].checked && $('#groupType')[0].checked) {
+                // Group by year & type
+                table.rowGroup().enable();
+                table.rowGroup().dataSrc(['year', 'type']);
+            }
+            else if($('#groupType')[0].checked) {
+                // Group by year
+                table.rowGroup().enable();
+                table.rowGroup().dataSrc( 'type' );
+            }
+            else if($('#groupYear')[0].checked) {
+                // Group by year
+                table.rowGroup().enable();
+                table.rowGroup().dataSrc( 'year' );
+            }
+            else {
+                table.rowGroup().disable();
+                table.rowGroup().dataSrc();
+            }
+            table.draw();
+        } );
+
+        $('.groupOrder').on( 'click', function (e) {
+            if($('#orderName')[0].checked) {
+                table.column( '1' ).order( 'asc' );
+            }
+            else if($('#orderType')[0].checked) {
+                table.column( '4' ).order( 'asc' );
+            }
+            else if($('#orderYear')[0].checked) {
+                table.column( '3' ).order( 'desc' );
+            }
+            table.draw();
+        } );
+
+        $('#btBibtexGlobal').on('click' , function(e) {
+            var list = "";
+            table.rows( { filter : 'applied'} ).data().each(function (r){
+                list += r.id + ",";
+            });
+            $.ajax({
+                url:"/SpringRestHibernate/exportBibtex",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: list},
+                success: function(d){
+                    downloadString("bibTexExport.bib", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export Bibtex...\n" + d);
+                }
+            });
+        })
+
+        $('#btHtmlGlobal').on('click' , function(e) {
+            var list = "";
+            table.rows( { filter : 'applied'} ).data().each(function (r){
+                list += r.id + ",";
+            });
+            $.ajax({
+                url:"/SpringRestHibernate/exportHtml",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: list},
+                success: function(d){
+                    downloadString("htmlExport.html", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export Html...\n" + d);
+                }
+            });
+        })
+
+        $('#btWordGlobal').on('click' , function(e) {
+            var list = "";
+            table.rows( { filter : 'applied'} ).data().each(function (r){
+                list += r.id + ",";
+            });
+            $.ajax({
+                url:"/SpringRestHibernate/exportHtml",
+                dataType: "text",
+                type:"POST",
+                data: {listPublicationsIds: list},
+                success: function(d){
+                    downloadString("odtExport.odt", d)
+                },
+                error: function(d) {
+                    alert("Erreur lors de la tentative d'export ODT...\n" + d);
+                }
+            });
+        })
+
+    });
+
+</script>
+</html>
+

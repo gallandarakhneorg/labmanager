@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <th:block th:replace="fragments/head :: style" />
+        <th:block th:replace="fragments/head :: script" />
+        <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+
+        <style>
+            .matching-authors {
+                margin-bottom: 30px;
+            }
+
+            .checkbox-column {
+                width: 20px;
+            }
+
+        </style>
+    </head>
+    <body>
+        <p>Please check the authors that you want to merge and then click on the Merge button.</p>
+        <br/>
+        <th:block th:each="matchingGroup : ${matchingAuthors}">
+            <div class="matching-authors">
+                <table class="table table-responsive-sm table-bordered table-striped table-sm" data-th-attr="data-group-index=${matchingAuthors.indexOf(matchingGroup)}">
+                    <thead>
+                        <th class="checkbox-column"></th>
+                        <th>First Name</th>
+                        <th>Last Name</th>
+                    </thead>
+                    <tbody>
+                        <tr th:each="author : ${matchingGroup}">
+                            <td>
+                                <input type="checkbox" th:value="${author.autId}">
+                            </td>
+                            <td th:utext="${author.autFirstName}"></td>
+                            <td th:utext="${author.autLastName}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <button type="button" class="button-dialog-merge btn btn-primary" data-th-attr="data-group-index=${matchingAuthors.indexOf(matchingGroup)}">Merge</button>
+            </div>
+        </th:block>
+    </body>
+    <script th:inline="javascript">
+        $(document).ready(function () {
+            $(':input:checked').prop('checked', false);
+            $('.button-dialog-merge').click(function() {
+                let groupIndex = $(this).data('group-index');
+                let checkedCheckbox = $('table[data-group-index="' + groupIndex + '"] input:checked');
+                if (checkedCheckbox.length > 1) {
+                    Swal.fire({
+                        title: 'Fill in with the correct first and last name to keep in the database.',
+                        showCancelButton: true,
+                        confirmButtonText: 'Merge',
+                        confirmButtonColor: '#007bff',
+                        html:
+                            '<br/>' +
+                            '<input type="text" class="form-control input-first-name" placeholder="First name">' +
+                            '<br/>' +
+                            '<input type="text" class="form-control input-last-name" placeholder="Last name">'
+                    }).then((result) => {
+                        if (result.isConfirmed) {
+                            let authorsIds = [];
+                            checkedCheckbox.each(function(index) {
+                                authorsIds.push($(this).val());
+                            });
+                            let correctFirstName = $('.input-first-name').val();
+                            let correctLastName = $('.input-last-name').val();
+                            $.ajax({
+                                url:"/SpringRestHibernate/mergeMultipleAuthors",
+                                type:"POST",
+                                data: jQuery.param({
+                                    'authorFirstName': correctFirstName,
+                                    'authorLastName': correctLastName,
+                                    'authorDuplicates': authorsIds.join(',')
+                                }),
+                                success: function(data){
+                                    location.reload();
+                                    Swal.fire({
+                                        position: 'center',
+                                        icon: 'success',
+                                        title: 'Authors have been merged',
+                                        showConfirmButton: false,
+                                        timer: 1500
+                                    });
+                                },
+                                error: function(data) {
+                                    alert("Erreur lors de la tentative de merge ...\n" + data.responseText);
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Oops...',
+                        text: 'You must check at least 2 authors to merge !',
+                        confirmButtonColor: '#007bff'
+                    })
+                }
+            });
+        });
+    </script>
+</html>

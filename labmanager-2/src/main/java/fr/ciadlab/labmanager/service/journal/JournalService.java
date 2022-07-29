@@ -1,0 +1,308 @@
+/*
+ * $Id$
+ * 
+ * Copyright (c) 2019-22, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
+ * All rights reserved.
+ *
+ * This software is the confidential and proprietary information
+ * of the Systems and Transportation Laboratory ("Confidential Information").
+ * You shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with the SeT.
+ * 
+ * http://www.ciad-lab.fr/
+ */
+
+package fr.ciadlab.labmanager.service.journal;
+
+import java.awt.image.BufferedImage;
+import java.net.URL;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.entities.ranking.QuartileRanking;
+import fr.ciadlab.labmanager.repository.journal.JournalRepository;
+import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
+import fr.ciadlab.labmanager.service.AbstractService;
+import fr.ciadlab.labmanager.utils.net.NetConnection;
+import org.springframework.beans.factory.annotation.Autowired;
+
+/** Service related to the journals.
+ * 
+ * @author $Author: sgalland$
+ * @author $Author: tmartine$
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+public class JournalService extends AbstractService {
+
+	private static final String SCIMAGO_URL_PREFIX = "https://www.scimagojr.com/journal_img.php?id="; //$NON-NLS-1$
+	
+	private final JournalRepository journalRepository;
+
+	private final JournalPaperRepository publicationRepository;
+
+	private final NetConnection netConnection;
+
+	/** Constructor for injector.
+	 * This constructor is defined for being invoked by the IOC injector.
+	 *
+	 * @param journalRepository the journal repository.
+	 * @param publicationRepository the publication repository.
+	 * @param netConnection the tools for accessing the network.
+	 */
+	public JournalService(@Autowired JournalRepository journalRepository,
+			@Autowired JournalPaperRepository publicationRepository,
+			@Autowired NetConnection netConnection) {
+		this.journalRepository = journalRepository;
+		this.publicationRepository = publicationRepository;
+		this.netConnection = netConnection;
+	}
+
+	/** Replies all the journals for the database.
+	 *
+	 * @return the list of journals.
+	 */
+	public List<Journal> getAllJournals() {
+		return this.journalRepository.findAll();
+	}
+
+	/** Replies the journal with the given identifier.
+	 *
+	 * @param identifier the identifier to search for.
+	 * @return the journal, or {@code null} if none is defined.
+	 */
+	public Journal getJournalById(int identifier) {
+		final Optional<Journal> res = this.journalRepository.findById(Integer.valueOf(identifier));
+		if (res.isPresent()) {
+			return res.get();
+		}
+		return null;
+	}
+
+	/** Replies a journal with the given name. If multiple journals have the same name, one is replied (usually the first replied by the iterator).
+	 *
+	 * @param name the name to search for.
+	 * @return the journal, or {@code null} if none is defined.
+	 */
+	public Journal getJournalByName(String name) {
+		final Set<Journal> res = this.journalRepository.findDistinctByJournalName(name);
+		if (res.isEmpty()) {
+			return null;
+		}
+		return res.iterator().next();
+	}
+
+	/** Replies the identifier of a journal with the given name. If multiple journals have the same name, one is selected (usually the first replied by the iterator).
+	 *
+	 * @param name the name to search for.
+	 * @return the journal identifier, or {@code 0} if none is defined.
+	 */
+	public int getJournalIdByName(String name) {
+		final Set<Journal> res = this.journalRepository.findDistinctByJournalName(name);
+		if (!res.isEmpty()) {
+			final Journal journal = res.iterator().next();
+			if (journal != null) {
+				return journal.getId();
+			}
+		}
+		return 0;
+	}
+
+	/** Create a journal into the database.
+	 *
+	 * @param name the name of the journal.
+	 * @param publisher the name of the publisher of the journal.
+	 * @param journalUrl the URL to the page of the journal on the publisher website.
+	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
+	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
+	 * @return the identifier of the created journal.
+	 */
+	public int createJournal(String name, String publisher, String journalUrl, String scimagoId, String wosId) {
+		final Journal res = new Journal();
+		res.setJournalName(name);
+		res.setPublisher(publisher);
+		res.setJournalURL(journalUrl);
+		res.setScimagoId(scimagoId);
+		res.setWosId(wosId);
+		this.journalRepository.save(res);
+		return res.getId();
+	}
+
+	/** Create a journal into the database.
+	 *
+	 * @param name the name of the journal.
+	 * @param publisher the name of the publisher of the journal.
+	 * @param journalUrl the URL to the page of the journal on the publisher website.
+	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
+	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
+	 * @return the identifier of the created journal.
+	 */
+	public int createJournal(String name, String publisher, URL journalUrl, String scimagoId, String wosId) {
+		final Journal res = new Journal();
+		res.setJournalName(name);
+		res.setPublisher(publisher);
+		res.setJournalURL(journalUrl);
+		res.setScimagoId(scimagoId);
+		res.setWosId(wosId);
+		this.journalRepository.save(res);
+		return res.getId();
+	}
+
+	/** Remove the journal with the given identifier.
+	 * A journal cannot be removed if it has attached papers.
+	 *
+	 * @param identifier the identifier of the journal to remove.
+	 * @throws AttachedJournalPaperException when the journal has attached papers.
+	 */
+	public void removeJournal(int identifier) throws AttachedJournalPaperException {
+		final Integer id = Integer.valueOf(identifier);
+		final Optional<Journal> journalRef = this.journalRepository.findById(id);
+		if (journalRef.isPresent()) {
+			final Journal journal = journalRef.get();
+			if (journal.hasPublishedPaper()) {
+				throw new AttachedJournalPaperException();
+			}
+			this.journalRepository.deleteById(id);
+		}
+	}
+
+	/** Update the information of a journal.
+	 *
+	 * @param identifier the identifier of the journal for which information must be updated.
+	 * @param name the new name of the journal.
+	 * @param publisher the new name of the publisher of the journal.
+	 * @param journalUrl the new URL of the journal on the publisher website.
+	 * @param scimagoId the new identifier of the journal on the Scimago website.
+	 * @param wosId the new identifier of the journal on the Web-Of-Science website.
+	 */
+	public void updateJournal(int identifier, String name, String publisher, String journalUrl, String scimagoId, String wosId) {
+		final Optional<Journal> res = this.journalRepository.findById(Integer.valueOf(identifier));
+		if (res.isPresent()) {
+			final Journal journal = res.get();
+			if (journal != null) {
+				if (!Strings.isNullOrEmpty(name)) {
+					journal.setJournalName(name);
+				}
+				journal.setPublisher(Strings.emptyToNull(publisher));
+				journal.setJournalURL(Strings.emptyToNull(journalUrl));
+				journal.setScimagoId(Strings.emptyToNull(scimagoId));
+				journal.setWosId(Strings.emptyToNull(wosId));
+				this.journalRepository.save(journal);
+			}
+		}
+	}
+
+	/** Create a link between a journal and a paper.
+	 * If the paper is linked to another journal, this previous link is lost and the new link is set up.
+	 *
+	 * @param journalId the identifier of the journal.
+	 * @param paperId the identifier of the paper.
+	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
+	 */
+	public boolean linkPaper(int journalId, int paperId) {
+		final Integer idPaper = Integer.valueOf(paperId);
+		final Optional<JournalPaper> optPaper = this.publicationRepository.findById(idPaper);
+		if (optPaper.isPresent()) {
+			final Optional<Journal> optJournal = this.journalRepository.findById(Integer.valueOf(journalId));
+			if (optJournal.isPresent()) {
+				final JournalPaper paper = optPaper.get();
+				final Journal journal = optJournal.get();
+				unlinkPaper(paperId, false);
+				journal.getPublishedPapers().add(paper);
+				paper.setJournal(journal);
+				this.journalRepository.save(journal);
+				this.publicationRepository.save(paper);
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/** Unlink the paper with the given identifier from its journal.
+	 *
+	 * @param paperId the identifier of the paper. 
+	 * @param applySave indicates if the changes must be committed into the database by this function.
+	 * @return {@code true} if the link is deleted; {@code false} if the link cannot be deleted.
+	 */
+	public boolean unlinkPaper(int paperId, boolean applySave) {
+		final Optional<JournalPaper> optPaper = this.publicationRepository.findById(Integer.valueOf(paperId));
+		if (optPaper.isPresent()) {
+			final JournalPaper paper = optPaper.get();
+			final Journal linkedJournal = paper.getJournal();
+			if (linkedJournal != null) {
+				if (linkedJournal.getPublishedPapers().remove(paper)) {
+					paper.setJournal(null);
+					if (applySave) {
+						this.journalRepository.save(linkedJournal);
+						this.publicationRepository.save(paper);
+					}
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/** Unlink the paper with the given identifier from its journal.
+	 *
+	 * @param paperId the identifier of the paper. 
+	 * @return {@code true} if the link is deleted; {@code false} if the link cannot be deleted.
+	 */
+	public boolean unlinkPaper(int paperId) {
+		return unlinkPaper(paperId, true);
+	}
+
+	/** Download the quartile information from the Scimago website.
+	 *
+	 * @param journalId the identifier of the journal.
+	 * @return the quartile or {@code null} if none cannot be found.
+	 */
+	public QuartileRanking downloadScimagoQuartileByJournalId(int journalId) {
+		final Optional<Journal> res = this.journalRepository.findById(Integer.valueOf(journalId));
+		if (res.isPresent()) {
+			return downloadScimagoQuartileByJournal(res.get());
+		}
+		return null;
+	}
+
+	/** Download the quartile information from the Scimago website.
+	 *
+	 * @param journal the journal for which the quartile must be downloaded.
+	 * @return the quartile or {@code null} if none cannot be found.
+	 */
+	public QuartileRanking downloadScimagoQuartileByJournal(Journal journal) {
+		if (journal != null) {
+			final String scimagoId = journal.getScimagoId();
+			if (!Strings.isNullOrEmpty(scimagoId)) {
+				try {
+					final BufferedImage image = this.netConnection.getImageFromURL(
+							new URL(SCIMAGO_URL_PREFIX + journal.getScimagoId()));
+					final int rgba = image.getRGB(5, 55);
+					final int red = (rgba >> 16) & 0xff;
+					switch (red) {
+					case 164:
+						return QuartileRanking.Q1;
+					case 232:
+						return QuartileRanking.Q2;
+					case 251:
+						return QuartileRanking.Q3;
+					case 221:
+						return QuartileRanking.Q4;
+					default:
+						//
+					}
+				} catch (Throwable ex) {
+					getLogger().warn(ex.getLocalizedMessage(), ex);
+				}
+			}
+		}
+		return null;
+	}
+
+}

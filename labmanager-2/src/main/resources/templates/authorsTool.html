@@ -1,0 +1,244 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/head :: style"/>
+    <th:block th:replace="fragments/head :: script"/>
+
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+
+</head>
+
+<body>
+
+<div class="horizontal-main-wrapper">
+    <!-- main content area start -->
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="row" th:if="${param.error != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-danger">
+                        <div class="card-body">
+                            <h4 class="header-title">Error :</h4>
+                            <p th:text="${param.message != null ?  param.message : ''}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" th:if="${param.success != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                            <p th:text="${param.success != null ?  param.success : ''}"></p>
+                            <h4 class="header-title">Publications merged from old author to the new one</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" th:if="${param.updated != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                            <h4 class="header-title">Author updated</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" th:if="${param.successCreate != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                        	<p th:text="${param.successCreate != null ?  param.successCreate : ''}"></p>
+                            <h4 class="header-title">Author created</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--<div class="row" th:if="${param.Deletesuccess != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                        	<p th:text="${param.Deletesuccess != null ?  param.Deletesuccess : ''}"></p>
+                            <h4 class="header-title">Author Deleted</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+        </div>
+        <div class="main-content-inner">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Author merging tool</h4>
+                            <p>The publications from the first author will be added to the second author. WARNING : The first author will be deleted at the end of this process. </p>
+                            <form id="form" th:action="@{'/mergeAuthors'}" method="post" >
+                                <div class="form-group" id="containerOldAuthor">
+                                    <label for="publicationOldAuthorsDiv" class="col-form-label">Author to delete</label>
+                                    <div id="publicationOldAuthorsDiv">
+                                        <select id="publicationOldAuthor" name="publicationOldAuthor"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
+                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                        </select>
+                                    </div>
+                                    <!--<select id="publicationAuthors"  class="form-control custom-select selectAuthor" name="publicationAuthors">
+                                        <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                    </select>-->
+                                </div>
+
+                                <div class="form-group" id="containerNewAuthor">
+                                    <label for="publicationNewAuthorsDiv" class="col-form-label">Destination author</label>
+                                    <div id="publicationNewAuthorsDiv">
+                                        <select id="publicationNewAuthor" name="publicationNewAuthor" class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
+                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                        </select>
+                                    </div>
+                                    <!--<select id="publicationAuthors"  class="form-control custom-select selectAuthor" name="publicationAuthors">
+                                        <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                    </select>-->
+                                </div>
+
+                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Merge authors</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Author editing tool</h4>
+                            <form id="form2" th:action="@{'/updateAuthor'}" method="post" >
+                                <div class="form-group" id="containerAuthor">
+                                    <label for="publicationAuthorsDiv" class="col-form-label">Author to edit</label>
+                                    <div id="publicationAuthorsDiv">
+                                        <select id="author" name="author"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
+                                            <option></option>
+                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                        </select>
+                                    </div>
+
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="newFirstname" class="col-form-label">Firstname (must be in ONE word, use - to join words)</label>
+                                    <input class="form-control" type="text" placeholder="Jean-michel" id="newFirstname" name="newFirstname">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="newLastname" class="col-form-label">Lastname (can be in multiple words)</label>
+                                    <input class="form-control" type="text" placeholder="Dupont Pierre" id="newLastname" name="newLastname">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="autMail" class="col-form-label">Email</label>
+                                    <input class="form-control" type="text" placeholder="test@test.fr" id="autMail" name="autMail">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="newBirthDate" class="col-form-label">Birthdate</label>
+                                    <div class="input-group date">
+                                    	<input class="form-control" type="date" id="newBirthDate" name="newBirthDate">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Update</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Create Author Tool</h4>
+                            <form id="form2" th:action="@{'/createAuthor'}" method="post">
+                            	<div class="form-group">
+                                    <label for="autFirstName" class="col-form-label">Firstname (must be in ONE word, use - to join words)</label>
+                                    <input class="form-control" type="text" placeholder="Jean-michel" id="autFirstName" name="autFirstName">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="autLastName" class="col-form-label">Lastname (can be in multiple words)</label>
+                                    <input class="form-control" type="text" placeholder="Dupont Pierre" id="autLastName" name="autLastName">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="autMail" class="col-form-label">Email</label>
+                                    <input class="form-control" type="text" placeholder="test@test.fr" id="autMail" name="autMail">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="autBirth" class="col-form-label">Birthdate</label>
+                                    <div class="input-group date">
+                                    	<input class="form-control" type="date" id="autBirth" name="autBirth" value="1970-01-01">
+                                    </div>
+                                </div>
+
+                                <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Create</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!--<div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title">Delete Author tool</h4>
+                            <form id="form2" th:action="@{'/deleteAuthor'}" method="post" >
+                                <div class="form-group" id="containerAuthor">
+                                    <label for="publicationAuthorsDiv" class="col-form-label">Author to delete</label>
+                                    <div id="publicationAuthorsDiv">
+                                        <select id="author" name="author"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
+                                            <option></option>
+                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                        </select>
+                                    </div>
+                                    <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Delete</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>-->
+            
+        </div>
+    </div>
+    <!-- main content area end -->
+</div>
+<!-- page container area end -->
+</body>
+
+<script th:inline="javascript">
+
+    $(document).ready(function () {
+        $('.selectAuthor').select2();
+    });
+
+    $('#author').on('select2:select', function (e) {
+        var data = e.params.data.text;
+        if(data != "") {
+            var href = /*[[@{/getAuthorData}]]*/ '/getAuthorData';
+            $.ajax(href + '?name=' + data, {
+                success: function(newData) {
+                	var date = new Date(newData.autBirth).toISOString().split('T')[0];
+                    $('#newFirstname').val(newData.autFirstName);
+                    $('#newLastname').val(newData.autLastName);
+                    $('#autMail').val(newData.autMail);
+                    $('#newBirthDate').val(date);
+                },
+                error: function() {
+                    alert("ERROR");
+                }
+            });
+        }
+
+    });
+</script>
+</html>
+

@@ -1,0 +1,732 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <th:block th:replace="fragments/head :: style"/>
+    <th:block th:replace="fragments/head :: script"/>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/umd/string-similarity.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.form/4.3.0/jquery.form.min.js" integrity="sha384-qlmct0AOBiA2VPZkMY3+2WqkHtIQ9lSdAsAn5RUJD/3vA5MKDgSGcdmIv4ycVxyn" crossorigin="anonymous"></script>-->
+
+
+    <style>
+        .custom-select.is-valid, .form-control.is-valid, .was-validated .custom-select:valid, .was-validated .form-control:valid {
+            border-color: #0d64c1;
+            border-width:2px;
+        }
+        
+        .swal2-title {
+            font-size: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    
+
+<div class="horizontal-main-wrapper">
+    <!-- main content area start -->
+    <div class="main-content">
+        <div class="main-content-inner">
+            <div class="row" th:if="${param.error != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-danger">
+                        <div class="card-body">
+                            <h4 class="header-title">Error. Please check all compulsory fields are filled with correct values.</h4>
+                            <p th:text="${param.message != null ?  param.message : ''}"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" th:if="${param.edit != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                            <h4 class="header-title">Publication has been successfully edited.</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row" th:if="${param.success != null}">
+                <div class="col-lg-12">
+                    <div class="card bg-success">
+                        <div class="card-body">
+                            <h4 class="header-title">Publication has been successfully added to database.</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="main-content-inner">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <h4 class="header-title" th:if="${edit}">Edit publication</h4>
+                            <h4 class="header-title" th:unless="${edit}">Add publication</h4>
+                            <form id="form" enctype="multipart/form-data" th:action="@{ ${edit ? '/editPublication' : '/createPublication'} }" method="post" >
+                                <input name="publicationId" th:if="${publication != null}" hidden="true" th:value="${publication.pubId}" />
+                                <div class="form-group">
+                                    <label for="publicationType" class="col-form-label">Publication type</label>
+                                    <select class="form-control custom-select js-example-basic-single" id="publicationType" name="publicationType">
+                                        <option value="null" th:selected="${!edit}">Select a publication type</option>
+                                        <option
+                                                th:each="publicationType : ${publicationsTypes}"
+                                                th:selected="${publication != null && publicationType == publication.getPubType()}"
+                                                th:value="${publicationType.toString()}"
+                                                th:utext="${T(fr.ciadlab.labmanager.entities.PublicationType).getPubTypeToString(publicationType)}">
+                                        </option>
+                                    </select>
+                                </div>
+
+                                <div id="unlockOnceTypeChosen">
+                                    <div class="form-group">
+                                        <label for="publicationTitle" class="col-form-label">Title</label>
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubTitle() : ''}" placeholder="Publication title" id="publicationTitle" name="publicationTitle">
+                                    </div>
+                                    <div class="form-group" id="containerAuthors">
+                                        <label for="publicationAuthorsDiv" class="col-form-label">Authors (Add, remove and arrange authors' order using drag and drop. First ranked at top)</label>
+                                        <div id="publicationAuthorsDiv">
+                                            <div id="authors">
+                                                <!-- Nothing at start -->
+                                                <div th:if="${publication != null}" class="form-row" th:each="authorship : ${publication != null ? pubAuthors : null}" >
+                                                    <div class="form-row connectedSortable test">
+                                                        <div class="col-md-10 mb-3">
+                                                            <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" th:value="${authorship.getAutFirstName() + ' ' + authorship.getAutLastName() }"/>
+                                                        </div>
+                                                        <div class="col-md-2 mb-3">
+                                                            <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div th:if="${pubAuts != null}" class="form-row connectedSortable test" th:each="currentAut : ${pubAuts}">
+								                    <div class="col-md-10 mb-3">
+								                        <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="true" th:value="${currentAut.getAutFirstName() + ' ' + currentAut.getAutLastName() }"/>
+								                    </div>
+									                <div class="col-md-2 mb-3">
+									                	<button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>
+									                </div> 
+	                                            </div>
+                                            </div>  
+                                            <div class="form-row">
+                                                <div class="col-md-10 mb-3">
+                                                   <!--  <select id="publicationAuthors"  class="form-control selectAuthor list-group-item list-group-item-action" style="width: 100%">
+                                                        <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                                    </select> -->
+													<select class="form-control selectAuthor list-group-item list-group-item-action" id="publicationAuthors" name="publicationAuthorsBar" style="width: 100%">
+<!--                                                     	<option -->
+<!--                                                             	th:each="publicationAuthors : ${publicationAuthor}" -->
+<!--                                                             	th:value="${publicationAuthors}" -->
+<!--                                                             	th:utext="${publicationAuthors.toString()}"> -->
+<!--                                                     	</option> -->
+
+                                                        	<option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                                	</select>
+                                                </div>
+                                                <div class="col-md-2 mb-3">
+                                                    <button class="form-control btn btn-primary mt-2 pr-2 pl-2 addElement">Add</button>
+                                                </div>
+
+                                            </div>
+                                        </div>
+                                        <!--<select id="publicationAuthors"  class="form-control custom-select selectAuthor" name="publicationAuthors">
+                                            <option th:each="author : ${authors}" th:utext="${author.getAutFirstName() + ' ' + author.getAutLastName() }"></option>
+                                        </select>-->
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationAbstract" class="col-form-label">Abstract</label>
+                                        <textarea class="form-control" th:text="${publication != null ? publication.getPubAbstract() : ''}" placeholder="Publication abstract" id="publicationAbstract" name="publicationAbstract"></textarea>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationKeywords" class="col-form-label">Keywords</label>
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubKeywords() : ''}" placeholder="keyword1, keyword2, keyword3, ..." id="publicationKeywords" name="publicationKeywords">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationDate" class="col-form-label">Date</label>
+                                        <input class="form-control" type="date" id="publicationDate" th:value="${publication != null ? publication.getPubDate() : ''}" name="publicationDate">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationNote" class="col-form-label">Note</label>
+                                        <input class="form-control" type="text" value="" th:value="${publication != null ? publication.getPubNote() : ''}" placeholder="Publication note" id="publicationNote" name="publicationNote">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationIsbn" class="col-form-label">ISBN</label>
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubISBN() : ''}" placeholder="978-3-16-148410-0" id="publicationIsbn" name="publicationIsbn">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationIssn" class="col-form-label">ISSN</label>
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubISSN() : ''}" placeholder="0003-181X" id="publicationIssn" name="publicationIssn">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationDoi" class="col-form-label">DOI</label>
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubDOIRef() : ''}" placeholder="10.1000/182" id="publicationDoi" name="publicationDoi">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationUrl" class="col-form-label">URL</label>
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubURL() : ''}" placeholder="http://website.com" id="publicationUrl" name="publicationUrl">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationVideoUrl" class="col-form-label">Video URL</label>
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubVideoURL() : ''}" placeholder="http://youtube.com..." id="publicationVideoUrl" name="publicationVideoUrl">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationDblp" class="col-form-label">DBLP</label>
+                                        <input class="form-control" type="text" th:value="${publication != null ? publication.getPubDBLP() : ''}" placeholder="http://dblp..." id="publicationDblp" name="publicationDblp">
+                                    </div>
+                                    <div class="form-group">
+                                        <label class="col-form-label">Language</label>
+                                        <select class="custom-select" id="publicationLanguage" name="publicationLanguage">
+                                            <option value="English" th:selected="${publication != null && publication.getPubLanguage() == 'English' || publication == null}">English</option>
+                                            <option value="French" th:selected="${publication != null && publication.getPubLanguage() == 'French'}">French</option>
+                                            <option value="Spanish" th:selected="${publication != null && publication.getPubLanguage() == 'Spanish'}">Spanish</option>
+                                            <option value="Italian" th:selected="${publication != null && publication.getPubLanguage() == 'Italian'}">Italian</option>
+                                            <option value="German" th:selected="${publication != null && publication.getPubLanguage() == 'German'}">German</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationPdf" class="col-form-label">PDF</label>
+                                        <input class="form-control" type="file" id="publicationPdf" name="publicationPdf">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="publicationAward" class="col-form-label">Award</label>
+                                        <input class="form-control" type="file" id="publicationAward" name="publicationAward">
+                                    </div>
+
+                                    <div class="unlockIfReadingCommitteeJournalPopularizationPaper">
+                                        <div class="form-group">
+                                            <label for="publicationJournal" class="col-form-label">Journal name</label>
+                                            <select name="publicationJournal" id="publicationJournal"  class="form-control selectJournal list-group-item list-group-item-action" style="width: 100%">
+                                                <option></option>
+                                                <option th:each="journal : ${journals}" th:utext="${journal.getJourName()}" th:selected="${reaComConfPopPapJournal != null && reaComConfPopPapJournal.getJourName().equals(journal.getJourName())}"></option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="reaComConfPopPapVolume" class="col-form-label">Journal volume</label>
+<!--                                            th:value="${publication != null ? publication.getReaComConfPopPapVolume() : ''}"-->
+                                            <input class="form-control" type="text" th:value="${reaComConfPopPapVolume}" placeholder="12" id="reaComConfPopPapVolume" name="reaComConfPopPapVolume">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="reaComConfPopPapNumber" class="col-form-label">Journal number</label>
+                                            <input class="form-control" type="text" th:value="${reaComConfPopPapNumber}" placeholder="134" id="reaComConfPopPapNumber" name="reaComConfPopPapNumber">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="reaComConfPopPapPages" class="col-form-label">Journal pages</label>
+                                            <input class="form-control" type="text" th:value="${reaComConfPopPapPages}" placeholder="4-5, 15" id="reaComConfPopPapPages" name="reaComConfPopPapPages">
+                                        </div>
+                                        
+                                        <div id="qualityIndicatorsInputs" class="form-group" >
+                                            <div class="form-group">
+                                                <label for="journalScimagoQuartile" class="col-form-label">Journal scimago quartile</label>
+                                                <select class="form-control" id="journalScimagoQuartile" name="journalScimagoQuartile">
+                                                    <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                                    <option
+                                                            th:each="journalScimagoQuartile : ${publicationsQuartiles}"
+                                                            th:selected="${publication != null && journalScimagoQuartile == publication.getPubJournalScimagoQuartile()}"
+                                                            th:value="${journalScimagoQuartile.toString()}"
+                                                            th:utext="${journalScimagoQuartile.toString()}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="journalWosQuartile" class="col-form-label">Journal wos quartile</label>
+                                                <select class="form-control" id="journalWosQuartile" name="journalWosQuartile">
+                                                    <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                                    <option
+                                                            th:each="journalWosQuartile : ${publicationsQuartiles}"
+                                                            th:selected="${publication != null && journalWosQuartile == publication.getPubJournalWosQuartile()}"
+                                                            th:value="${journalWosQuartile.toString()}"
+                                                            th:utext="${journalWosQuartile.toString()}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="journalCoreRanking" class="col-form-label">Journal core ranking</label>
+                                                <select class="form-control" id="journalCoreRanking" name="journalCoreRanking">
+                                                    <option value="" th:selected="${!edit}">Select a publication quartile</option>
+                                                    <option
+                                                            th:each="journalCoreRanking : ${journalCoreRankings}"
+                                                            th:selected="${publication != null && journalCoreRanking == publication.getPubJournalCoreRanking()}"
+                                                            th:value="${journalCoreRanking}"
+                                                            th:utext="${journalCoreRanking.toString()}">
+                                                    </option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="journalImpactFactor" class="col-form-label">Journal impact factor</label>
+                                                <input type="number" placeholder="Journal impact factor" class="form-control" id="journalImpactFactor" name="journalImpactFactor"/>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfProceedingsConference">
+                                        <div class="form-group">
+                                            <label for="proConfBookNameProceedings" class="col-form-label">Name of the Book with proceedings</label>
+<!--                                            th:value="${publication != null ? publication.getProConfBookNameProceedings() : ''}" -->
+                                            <input class="form-control" type="text" th:value="${proConfBookNameProceedings}" placeholder="Book Name or Proceedings" id="proConfBookNameProceedings" name="proConfBookNameProceedings">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfEditor" class="col-form-label">Conference editor</label>
+                                            <input class="form-control" type="text" th:value="${proConfEditor}" placeholder="Conference Editor" id="proConfEditor" name="proConfEditor">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfPages" class="col-form-label">Conference pages</label>
+                                            <input class="form-control" type="text" th:value="${proConfPages}" placeholder="4-5, 15" id="proConfPages" name="proConfPages">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfOrganization" class="col-form-label">Conference organization</label>
+                                            <input class="form-control" type="text" th:value="${proConfOrganization}" placeholder="Conference organization" id="proConfOrganization" name="proConfOrganization">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfPublisher" class="col-form-label">Conference publisher</label>
+                                            <input class="form-control" type="text" th:value="${proConfPublisher}" placeholder="Conference publisher" id="proConfPublisher" name="proConfPublisher">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfAddress" class="col-form-label">Conference address</label>
+                                            <input class="form-control" type="text" th:value="${proConfAddress}" placeholder="Conference address" id="proConfAddress" name="proConfAddress">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="proConfSeries" class="col-form-label">Conference series</label>
+                                            <input class="form-control" type="text" th:value="${proConfSeries}" placeholder="Conference series" id="proConfSeries" name="proConfSeries">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfBook unlockIfBookChapter">
+                                        <div class="form-group">
+                                            <label for="bookEditor" class="col-form-label">Book editor</label>
+                                            <input class="form-control" type="text" th:value="${bookEditor}" placeholder="Book editor" id="bookEditor" name="bookEditor">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookPublisher" class="col-form-label">Book publisher</label>
+                                            <input class="form-control" type="text" th:value="${bookPublisher}" placeholder="Book publisher" id="bookPublisher" name="bookPublisher">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookVolume" class="col-form-label">Book volume</label>
+                                            <input class="form-control" type="text" th:value="${bookVolume}" placeholder="2" id="bookVolume" name="bookVolume">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookSeries" class="col-form-label">Book series</label>
+                                            <input class="form-control" type="text" th:value="${bookSeries}" placeholder="Book series" id="bookSeries" name="bookSeries">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookAddress" class="col-form-label">Book address</label>
+                                            <input class="form-control" type="text" th:value="${bookAddress}" placeholder="Book address" id="bookAddress" name="bookAddress">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookEdition" class="col-form-label">Book edition</label>
+                                            <input class="form-control" type="text" th:value="${bookEdition}" placeholder="Book edition" id="bookEdition" name="bookEdition">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookPages" class="col-form-label">Book pages</label>
+                                            <input class="form-control" type="text" th:value="${bookPages}" placeholder="5, 4-5" id="bookPages" name="bookPages">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfBookChapter">
+                                        <div class="form-group">
+                                            <label for="bookChapBookNameProceedings" class="col-form-label">Name of the book with proceedings</label>
+                                            <input class="form-control" type="text" th:value="${bookChapBookNameProceedings}" placeholder="Name of the book with proceedings" id="bookChapBookNameProceedings" name="bookChapBookNameProceedings">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="bookChapNumberOrName" class="col-form-label">Chapter number or name</label>
+                                            <input class="form-control" type="text" th:value="${bookChapNumberOrName}" placeholder="Chapter number or name" id="bookChapNumberOrName" name="bookChapNumberOrName">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfSeminarPatentInvitedConference">
+                                        <div class="form-group">
+                                            <label for="semPatHowPub" class="col-form-label">Publication method</label>
+                                            <input class="form-control" type="text" th:value="${semPatHowPub}" placeholder="How it was published?" id="semPatHowPub" name="semPatHowPub">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfUniversityDocument">
+                                        <div class="form-group">
+                                            <label for="uniDocSchoolName" class="col-form-label">University name</label>
+                                            <input class="form-control" type="text" th:value="${uniDocSchoolName}" placeholder="Name of the school" id="uniDocSchoolName" name="uniDocSchoolName">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="uniDocAddress" class="col-form-label">University address</label>
+                                            <input class="form-control" type="text" th:value="${uniDocAddress}" placeholder="Address of the school" id="uniDocAddress" name="uniDocAddress">
+                                        </div>
+                                    </div>
+
+
+                                    <div class="unlockIfEngineeringActivity">
+                                        <div class="form-group">
+                                            <label for="engActInstitName" class="col-form-label">Institute name</label>
+                                            <input class="form-control" type="text" th:value="${engActInstitName}" placeholder="Name of the institution" id="engActInstitName" name="engActInstitName">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="engActReportType" class="col-form-label">Report type</label>
+                                            <input class="form-control" type="text" th:value="${engActReportType}" placeholder="Type of the report" id="engActReportType" name="engActReportType">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="engActNumber" class="col-form-label">Number</label>
+                                            <input class="form-control" type="text" th:value="${engActNumber}" placeholder="Number of the activity report" id="engActNumber" name="engActNumber">
+                                        </div>
+                                    </div>
+
+                                    <div class="unlockIfUserDocumentation">
+                                        <div class="form-group">
+                                            <label for="userDocOrganization" class="col-form-label">Organization</label>
+                                            <input class="form-control" type="text" th:value="${userDocOrganization}" placeholder="Organization the user documentation belongs to" id="userDocOrganization" name="userDocOrganization">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="userDocAddress" class="col-form-label">Address</label>
+                                            <input class="form-control" type="text" th:value="${userDocAddress}" placeholder="Address of the user documentation" id="userDocAddress" name="userDocAddress">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="userDocEdition" class="col-form-label">Edition</label>
+                                            <input class="form-control" type="text" th:value="${userDocEdition}" placeholder="Edition of the user documentation" id="userDocEdition" name="userDocEdition">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="userDocPublisher" class="col-form-label">Publisher</label>
+                                            <input class="form-control" type="text" th:value="${userDocPublisher}" placeholder="Publisher of the user documentation" id="userDocPublisher" name="userDocPublisher">
+                                        </div>
+                                    </div>
+                                    <button type="submit" class="btn btn-success mt-4 pr-4 pl-4">Submit</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- main content area end -->
+</div>
+<!-- page container area end -->
+</body>
+
+<script th:inline="javascript">
+
+    function enableRemove() {
+        $(document).on('click', '.removeElement', function(e) {
+            e.preventDefault();
+            $(this).parent().parent().remove();
+        });
+    }
+
+    function loadQualityindicatorsInputs() {
+        var date =''
+        if (($("#publicationDate")[0].value) !=  ''){
+            date = new Date ($("#publicationDate")[0].value);
+        }
+        const journalTitle = $("#publicationJournal")[0].value;
+                console.log(getPublicationTypeValue(), groupPublicationTypes(getPublicationTypeValue()) == "ReadingCommitteeJournalPopularizationPaper", groupPublicationTypes(getPublicationTypeValue()))
+        if(date != '' && journalTitle != '' && groupPublicationTypes(getPublicationTypeValue()) == "ReadingCommitteeJournalPopularizationPaper"){
+            $.ajax({
+                url:"/SpringRestHibernate/getJournalQualityIndicators",
+                dataType: "text",
+                type:"GET",
+                data: {
+                    historyYear: date.getFullYear(),
+                    journalName: journalTitle
+                },
+                success: function(fetchedQualityIndicators){
+                    if(fetchedQualityIndicators != null && fetchedQualityIndicators!=''){
+                        fetchedQualityIndicators = JSON.parse(fetchedQualityIndicators);
+                        
+                        // preselection of each quality indicator if they exist
+                        if(fetchedQualityIndicators.scimagoQuartile != ''){
+                            $("#journalScimagoQuartile").val(fetchedQualityIndicators.scimagoQuartile);   
+                        }
+                        if(fetchedQualityIndicators.wosQuartile != ''){
+                            $("#journalWosQuartile").val(fetchedQualityIndicators.wosQuartile); 
+                            console.log(fetchedQualityIndicators.wosQuartile);
+                        }
+                        if(fetchedQualityIndicators.coreRanking != ''){
+                            $("#journalCoreRanking").val(fetchedQualityIndicators.coreRanking);   
+                        }
+                        if(fetchedQualityIndicators.impactFactor != undefined){
+                            $("#journalImpactFactor").val(fetchedQualityIndicators.impactFactor);   
+                        }
+                    }
+                    // Display the quality indicators inputs
+                    $("#qualityIndicatorsInputs").show();
+                }
+            });
+        }else{
+            // Hide the quality indicators inputs
+            $("#qualityIndicatorsInputs").hide();
+        }
+    }
+    
+    function loadAuthorsList() {
+			console.log("Start");
+            $.ajax({
+                url:"/SpringRestHibernate/getAuthorsList",
+                dataType: "text",
+                type:"GET",
+                data: {
+                 	publicationAuthorsList: $('#publicationAuthors')[0].value
+                },
+                success:
+                	function(fetchedAuthorsList){
+                	console.log("Success");
+                	if(fetchedAuthorsList != null && fetchedAuthorsList!=''){
+
+                        // preselection of each quality indicator if they exist
+                        if(fetchedAuthorsList.Name != ''){
+                        	console.log(fetchedAuthorsList);
+                            $("#publicationAuthors").val(fetchedAuthorsList.Name);
+                            $("authors").val(fetchedAuthorsList.Name);
+                        }
+                    }
+                    // Display the quality indicators inputs
+                    //$("#qualityIndicatorsInputs").show();
+                } 
+            });
+            console.log("End");
+    }
+    
+    function getPublicationTypeValue(){
+        return $("#publicationType").find(':selected')[0].value;
+    }
+
+    function unlockDivIfNeeded() {
+        var value = getPublicationTypeValue();
+
+        $(".unlockIfReadingCommitteeJournalPopularizationPaper").hide();
+        $(".unlockIfBook").hide();
+        $(".unlockIfBookChapter").hide();
+        $(".unlockIfEngineeringActivity").hide();
+        $(".unlockIfProceedingsConference").hide();
+        $(".unlockIfSeminarPatentInvitedConference").hide();
+        $(".unlockIfUniversityDocument").hide();
+        $(".unlockIfUserDocumentation").hide();
+
+
+        if(value === "null") {
+            $("#unlockOnceTypeChosen").hide();
+        }
+        else {
+        	loadAuthorsList();
+            $("#unlockOnceTypeChosen").show();
+            switch(groupPublicationTypes(value)) {
+                case "ReadingCommitteeJournalPopularizationPaper":
+                    $(".unlockIfReadingCommitteeJournalPopularizationPaper").show();
+                    $("#qualityIndicatorsInputs").hide();
+                    loadQualityindicatorsInputs();
+                    break;
+
+                case "ProceedingsConference":
+                    $(".unlockIfProceedingsConference").show();
+                    break;
+
+                case "Book":
+                    $(".unlockIfBook").show();
+                    break;
+
+                case "BookChapter":
+                    $(".unlockIfBookChapter").show();
+                    break;
+
+                case "SeminarPatentInvitedConference":
+                    $(".unlockIfSeminarPatentInvitedConference").show();
+                    break;
+
+                case "UniversityDocument":
+                    $(".unlockIfUniversityDocument").show();
+                    break;
+
+                case "EngineeringActivity":
+                    $(".unlockIfEngineeringActivity").show();
+                    break;
+
+                case "UserDocumentation":
+                    $(".unlockIfUserDocumentation").show();
+                    break;
+            }
+
+        }
+    }
+
+    //Custom matcher for 2 strings
+    function stringDistanceMatcher(params, data) {
+        // If there are no search terms, return all of the data
+        if ($.trim(params.term) === '') {
+            return data;
+        }
+
+        // Do not display the item if there is no 'text' property
+        if (typeof data.text === 'undefined') {
+            return null;
+        }
+
+        //Remove all accents from tests
+        let searchTerm = params.term.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+        let dataTerm = data.text.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+        //Compare distance for both full strings (to avoid using the same call twice)
+        let distance = stringSimilarity.compareTwoStrings(searchTerm.toUpperCase(), dataTerm.toUpperCase());
+
+        //First check for exact match of characters
+        if (searchTerm.toUpperCase() == dataTerm.substring(0,searchTerm.length).toUpperCase()) {
+            return data;
+        //Most of the string is matching then return
+        } else if (distance >= 0.6) {
+            return data;
+        //Slight match of the strings, then try to match each part of the names
+        } else if (distance > 0.1) {
+            //substrOfSearch list of substrings of the search name eg. Jean-Yves Durant ["Jean", "Yves", "Durant"]
+            let substrOfSearch = searchTerm.split(" ");
+            //substrOfData list of substrings of the name in the list
+            let substrOfData = dataTerm.split(" ");
+            for (let i = 0; i < substrOfSearch.length; i++) {
+                for (let j = 0; j < substrOfData.length; j++) {
+                    if(stringSimilarity.compareTwoStrings(substrOfSearch[i].toUpperCase(), substrOfData[j].toUpperCase()) >= 0.6
+                           || substrOfSearch[i].toUpperCase() == substrOfData[j].substring(0, substrOfSearch[i].length).toUpperCase()) {
+                        return data;
+                    }
+                }
+            }
+        }
+
+        // Return `null` if the term should not be displayed
+        return null;
+    }
+
+    function addAuthor() {
+    	
+    	//DEF
+    	let selectedAuthorName = $('#publicationAuthors').find(":selected").text();
+    	let authorAlreadySelected = false;
+    	
+    	const myElement = document.getElementById('authors');
+    	
+    	//Prend la liste de tous les auteurs déjà sélectionnés
+    	for (let i = 0; i < myElement.children.length; i++) {
+    		if (selectedAuthorName === myElement.children[i].children[0].children[0].value){
+    			authorAlreadySelected = true;
+    		}
+    	}
+    	
+    	// Crée l'auteur et l'affiche dans une ligne s'il n'est pas déjà selectionné
+    	if (!authorAlreadySelected) {
+    		$('<div class="form-row connectedSortable test">\n' +
+                    ' <div class="col-md-10 mb-3">\n' +
+                    '    <input name="publicationAuthors" class="form-control list-group-item list-group-item-action list-group-item-primary" readonly="false" value="' + $('#publicationAuthors')[0].value + '"/>\n' +
+                    '     </div>\n' +
+                    '     <div class="col-md-2 mb-3">\n' +
+                    '    <button class="form-control btn btn-danger mt-2 pr-2 pl-2 removeElement">Remove</button>\n' +
+                    '     </div>\n' +
+          		    '    </div>').appendTo('#authors'); 
+             
+            enableRemove();
+    	} else {
+    		let confirm = false;
+    		
+    		//Affiche un message pop-up
+    		Swal.fire({
+    			title : 'You already selected that author.',
+    			showCancelButton: false,
+    			confirmbuttonText: 'Ok',
+    			confirmButtonColor: '#93c10d',
+    			icon: 'warning',
+    		})
+    	}
+    	
+    }
+    
+    $(document).ready(function () {
+
+        $('#publicationType').select2();
+        $(document).on('change', '#publicationType', function(){unlockDivIfNeeded();});
+        $(document).on('change', '#publicationJournal', function(){loadQualityindicatorsInputs();});
+        $(document).on('change', '#publicationDate', function(){loadQualityindicatorsInputs();});
+        unlockDivIfNeeded();
+
+
+        $('#form').validate({
+            rules: {
+                publicationTitle: 'required',
+                publicationNote: {
+                	pattern: '^(?!.*to be published).*$'
+                },
+                publicationDate: 'required'
+            },
+            messages: {
+                publicationTitle: 'Please enter the publication title',
+                publicationNote: {
+                	pattern: 'A publication should be published, it cannot be pending'
+                },
+                publicationDate: 'Please, enter the publication date'
+            },
+            errorElement: 'em',
+            errorPlacement: function errorPlacement(error, element) {
+                error.addClass('invalid-feedback');
+
+                if (element.prop('type') === 'checkbox') {
+                    error.insertAfter(element.parent('label'));
+                } else {
+                    error.insertAfter(element);
+                }
+            },
+            // eslint-disable-next-line object-shorthand
+            highlight: function highlight(element) {
+                $(element).addClass('is-invalid').removeClass('is-valid');
+            },
+            // eslint-disable-next-line object-shorthand
+            unhighlight: function unhighlight(element) {
+                $(element).addClass('is-valid').removeClass('is-invalid');
+            }
+        });
+
+        $('#publicationAuthors').select2({
+            tags: true,
+            placeholder: 'Enter author',
+            matcher: stringDistanceMatcher
+        });
+
+        $('#publicationJournal').select2({
+            tags: true,
+            placeholder: 'Enter journal name'
+        });
+
+        var el = document.getElementById("authors");
+        var sortable = Sortable.create(el);
+
+        $(document).on('click', '.addElement', function(e) {
+            e.preventDefault();
+
+            let selectedAuthorName = $('#publicationAuthors').find(":selected").text();
+            let options = $('#publicationAuthors option');
+            let authorAlreadyExists = false;
+            options.each(function(index) {
+                if ($(this).text() === selectedAuthorName && $(this).attr('value') === undefined) {
+                    authorAlreadyExists = true;
+                }
+            });
+
+            if (!authorAlreadyExists) {
+                let confirm = false;;
+                Swal.fire({
+                    title: 'Do you want to create a new author ? Please check the author you want to add does not already exist.',
+                    showCancelButton: true,
+                    confirmButtonText: 'Add',
+                    confirmButtonColor: '#96c10d',
+                    icon: 'warning',
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        addAuthor();
+                    }
+                });
+            } else {
+                addAuthor();
+            }
+        });
+        enableRemove();
+
+    });
+
+</script>
+</html>
+
