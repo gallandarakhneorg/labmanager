@@ -7,7 +7,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.4.5</version>
+        <version>2.7.2</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
@@ -47,17 +47,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itextpdf</artifactId>
-            <version>5.5.13.3</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.pdfbox</groupId>
-            <artifactId>pdfbox</artifactId>
-            <version>3.0.0-RC1</version>
-        </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk15on</artifactId>
@@ -85,12 +74,12 @@
         <dependency>
             <groupId>org.arakhne.afc.core</groupId>
             <artifactId>vmutils</artifactId>
-            <version>16.0</version>
+            <version>17.0</version>
         </dependency>
         <dependency>
             <groupId>org.arakhne.afc.core</groupId>
             <artifactId>util</artifactId>
-            <version>16.0</version>
+            <version>17.0</version>
         </dependency>
         <dependency>
         	<groupId>org.springframework.boot</groupId>
