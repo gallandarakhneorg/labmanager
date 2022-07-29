@@ -1,0 +1,355 @@
+/*
+ * $Id$
+ * 
+ * Copyright (c) 2019-22, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
+ * All rights reserved.
+ *
+ * This software is the confidential and proprietary information
+ * of the Systems and Transportation Laboratory ("Confidential Information").
+ * You shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with the SeT.
+ * 
+ * http://www.ciad-lab.fr/
+ */
+
+package fr.ciadlab.labmanager.entities.publication;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
+import java.util.Random;
+
+import com.google.common.collect.Sets;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+/** Tests for {@link PublicationType}.
+ * 
+ * @author $Author: sgalland$
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ */
+@SuppressWarnings("all")
+public class PublicationTypeTest {
+
+	private static final Random RANDOM = new Random();
+
+	private List<PublicationType> items;
+
+	@BeforeEach
+	public void setUp() {
+		this.items = new ArrayList<>();
+		this.items.addAll(Arrays.asList(PublicationType.values()));
+	}
+
+	private PublicationType cons(PublicationType type) {
+		assertTrue(this.items.remove(type), "Expecting enumeration item: " + type.toString());
+		return type;
+	}
+
+	private void assertAllTreated() {
+		assertTrue(this.items.isEmpty(), "Missing enumeration items: " + this.items.toString());
+	}
+
+	private static String randomString(String text) {
+		final StringBuilder buf = new StringBuilder();
+		for (int i = 0; i < text.length(); ++i) {
+			final String s = Character.toString(text.charAt(i));
+			if (RANDOM.nextBoolean()) {
+				buf.append(s.toLowerCase());
+			} else {
+				buf.append(s.toUpperCase());
+			}
+		}
+		return buf.toString();
+	}
+
+	@Test
+	public void getCategory_trueParam() {
+		assertEquals(PublicationCategory.ACL, cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).getCategory(true));
+		assertEquals(PublicationCategory.ACL, cons(PublicationType.NATIONAL_JOURNAL_PAPER).getCategory(true));
+		assertEquals(PublicationCategory.C_ACTI, cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).getCategory(true));
+		assertEquals(PublicationCategory.C_ACTN, cons(PublicationType.NATIONAL_CONFERENCE_PAPER).getCategory(true));
+		assertEquals(PublicationCategory.C_COM, cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).getCategory(true));
+		assertEquals(PublicationCategory.C_COM, cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).getCategory(true));
+		assertEquals(PublicationCategory.C_AFF, cons(PublicationType.INTERNATIONAL_POSTER).getCategory(true));
+		assertEquals(PublicationCategory.C_AFF, cons(PublicationType.NATIONAL_POSTER).getCategory(true));
+		assertEquals(PublicationCategory.DO, cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).getCategory(true));
+		assertEquals(PublicationCategory.DO, cons(PublicationType.NATIONAL_JOURNAL_EDITION).getCategory(true));
+		assertEquals(PublicationCategory.OS, cons(PublicationType.INTERNATIONAL_BOOK).getCategory(true));
+		assertEquals(PublicationCategory.OS, cons(PublicationType.NATIONAL_BOOK).getCategory(true));
+		assertEquals(PublicationCategory.COS, cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).getCategory(true));
+		assertEquals(PublicationCategory.COS, cons(PublicationType.NATIONAL_BOOK_CHAPTER).getCategory(true));
+		assertEquals(PublicationCategory.ASCL, cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getCategory(true));
+		assertEquals(PublicationCategory.ASCL, cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getCategory(true));
+		assertEquals(PublicationCategory.C_INV, cons(PublicationType.INTERNATIONAL_KEYNOTE).getCategory(true));
+		assertEquals(PublicationCategory.C_INV, cons(PublicationType.NATIONAL_KEYNOTE).getCategory(true));
+		assertEquals(PublicationCategory.TH, cons(PublicationType.HDR_THESIS).getCategory(true));
+		assertEquals(PublicationCategory.TH, cons(PublicationType.PHD_THESIS).getCategory(true));
+		assertEquals(PublicationCategory.TH, cons(PublicationType.MASTER_THESIS).getCategory(true));
+		assertEquals(PublicationCategory.BRE, cons(PublicationType.INTERNATIONAL_PATENT).getCategory(true));
+		assertEquals(PublicationCategory.BRE, cons(PublicationType.EUROPEAN_PATENT).getCategory(true));
+		assertEquals(PublicationCategory.BRE, cons(PublicationType.NATIONAL_PATENT).getCategory(true));
+		assertEquals(PublicationCategory.PT, cons(PublicationType.RESEARCH_TRANSFERT_REPORT).getCategory(true));
+		assertEquals(PublicationCategory.OR, cons(PublicationType.RESEARCH_TOOLS).getCategory(true));
+		assertEquals(PublicationCategory.OV, cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).getCategory(true));
+		assertEquals(PublicationCategory.COV, cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).getCategory(true));
+		assertEquals(PublicationCategory.PV, cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).getCategory(true));
+		assertEquals(PublicationCategory.PAT, cons(PublicationType.ARTISTIC_PRODUCTION).getCategory(true));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.TECHNICAL_REPORTS).getCategory(true));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.PROJECT_REPORTS).getCategory(true));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.TEACHING_DOCUMENTS).getCategory(true));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.TUTORIAL_DOCUMENTATION).getCategory(true));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.OTHER).getCategory(true));
+		assertAllTreated();
+	}
+
+	@Test
+	public void getCategory_falseParam() {
+		assertEquals(PublicationCategory.ACLN, cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).getCategory(false));
+		assertEquals(PublicationCategory.ACLN, cons(PublicationType.NATIONAL_JOURNAL_PAPER).getCategory(false));
+		assertEquals(PublicationCategory.C_ACTI, cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).getCategory(false));
+		assertEquals(PublicationCategory.C_ACTN, cons(PublicationType.NATIONAL_CONFERENCE_PAPER).getCategory(false));
+		assertEquals(PublicationCategory.C_COM, cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).getCategory(false));
+		assertEquals(PublicationCategory.C_COM, cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).getCategory(false));
+		assertEquals(PublicationCategory.C_AFF, cons(PublicationType.INTERNATIONAL_POSTER).getCategory(false));
+		assertEquals(PublicationCategory.C_AFF, cons(PublicationType.NATIONAL_POSTER).getCategory(false));
+		assertEquals(PublicationCategory.DO, cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).getCategory(false));
+		assertEquals(PublicationCategory.DO, cons(PublicationType.NATIONAL_JOURNAL_EDITION).getCategory(false));
+		assertEquals(PublicationCategory.OS, cons(PublicationType.INTERNATIONAL_BOOK).getCategory(false));
+		assertEquals(PublicationCategory.OS, cons(PublicationType.NATIONAL_BOOK).getCategory(false));
+		assertEquals(PublicationCategory.COS, cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).getCategory(false));
+		assertEquals(PublicationCategory.COS, cons(PublicationType.NATIONAL_BOOK_CHAPTER).getCategory(false));
+		assertEquals(PublicationCategory.ASCL, cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getCategory(false));
+		assertEquals(PublicationCategory.ASCL, cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getCategory(false));
+		assertEquals(PublicationCategory.C_INV, cons(PublicationType.INTERNATIONAL_KEYNOTE).getCategory(false));
+		assertEquals(PublicationCategory.C_INV, cons(PublicationType.NATIONAL_KEYNOTE).getCategory(false));
+		assertEquals(PublicationCategory.TH, cons(PublicationType.HDR_THESIS).getCategory(false));
+		assertEquals(PublicationCategory.TH, cons(PublicationType.PHD_THESIS).getCategory(false));
+		assertEquals(PublicationCategory.TH, cons(PublicationType.MASTER_THESIS).getCategory(false));
+		assertEquals(PublicationCategory.BRE, cons(PublicationType.INTERNATIONAL_PATENT).getCategory(false));
+		assertEquals(PublicationCategory.BRE, cons(PublicationType.EUROPEAN_PATENT).getCategory(false));
+		assertEquals(PublicationCategory.BRE, cons(PublicationType.NATIONAL_PATENT).getCategory(false));
+		assertEquals(PublicationCategory.PT, cons(PublicationType.RESEARCH_TRANSFERT_REPORT).getCategory(false));
+		assertEquals(PublicationCategory.OR, cons(PublicationType.RESEARCH_TOOLS).getCategory(false));
+		assertEquals(PublicationCategory.OV, cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).getCategory(false));
+		assertEquals(PublicationCategory.COV, cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).getCategory(false));
+		assertEquals(PublicationCategory.PV, cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).getCategory(false));
+		assertEquals(PublicationCategory.PAT, cons(PublicationType.ARTISTIC_PRODUCTION).getCategory(false));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.TECHNICAL_REPORTS).getCategory(false));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.PROJECT_REPORTS).getCategory(false));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.TEACHING_DOCUMENTS).getCategory(false));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.TUTORIAL_DOCUMENTATION).getCategory(false));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.OTHER).getCategory(false));
+		assertAllTreated();
+	}
+
+	@Test
+	public void getCategories() {
+		assertEquals(Sets.newHashSet(PublicationCategory.ACL, PublicationCategory.ACLN), cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).getCategories());
+		assertEquals(Sets.newHashSet(PublicationCategory.ACL, PublicationCategory.ACLN), cons(PublicationType.NATIONAL_JOURNAL_PAPER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.C_ACTI), cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.C_ACTN), cons(PublicationType.NATIONAL_CONFERENCE_PAPER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.C_COM), cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.C_COM), cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.C_AFF), cons(PublicationType.INTERNATIONAL_POSTER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.C_AFF), cons(PublicationType.NATIONAL_POSTER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.DO), cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.DO), cons(PublicationType.NATIONAL_JOURNAL_EDITION).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.OS), cons(PublicationType.INTERNATIONAL_BOOK).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.OS), cons(PublicationType.NATIONAL_BOOK).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.COS), cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.COS), cons(PublicationType.NATIONAL_BOOK_CHAPTER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.ASCL), cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.ASCL), cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.C_INV), cons(PublicationType.INTERNATIONAL_KEYNOTE).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.C_INV), cons(PublicationType.NATIONAL_KEYNOTE).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.TH), cons(PublicationType.HDR_THESIS).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.TH), cons(PublicationType.PHD_THESIS).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.TH), cons(PublicationType.MASTER_THESIS).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.BRE), cons(PublicationType.INTERNATIONAL_PATENT).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.BRE), cons(PublicationType.EUROPEAN_PATENT).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.BRE), cons(PublicationType.NATIONAL_PATENT).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.PT), cons(PublicationType.RESEARCH_TRANSFERT_REPORT).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.OR), cons(PublicationType.RESEARCH_TOOLS).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.OV), cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.COV), cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.PV), cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.PAT), cons(PublicationType.ARTISTIC_PRODUCTION).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.TECHNICAL_REPORTS).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.PROJECT_REPORTS).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.TEACHING_DOCUMENTS).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.TUTORIAL_DOCUMENTATION).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.OTHER).getCategories());
+		assertAllTreated();
+	}
+
+	@Test
+	public void isInternational() {
+		assertTrue(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_CONFERENCE_PAPER).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_POSTER).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_POSTER).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_EDITION).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_BOOK).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_BOOK).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_BOOK_CHAPTER).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_KEYNOTE).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_KEYNOTE).isInternational());
+		assertFalse(cons(PublicationType.HDR_THESIS).isInternational());
+		assertFalse(cons(PublicationType.PHD_THESIS).isInternational());
+		assertFalse(cons(PublicationType.MASTER_THESIS).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_PATENT).isInternational());
+		assertTrue(cons(PublicationType.EUROPEAN_PATENT).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_PATENT).isInternational());
+		assertFalse(cons(PublicationType.RESEARCH_TRANSFERT_REPORT).isInternational());
+		assertFalse(cons(PublicationType.RESEARCH_TOOLS).isInternational());
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).isInternational());
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).isInternational());
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).isInternational());
+		assertFalse(cons(PublicationType.ARTISTIC_PRODUCTION).isInternational());
+		assertFalse(cons(PublicationType.TECHNICAL_REPORTS).isInternational());
+		assertFalse(cons(PublicationType.PROJECT_REPORTS).isInternational());
+		assertFalse(cons(PublicationType.TEACHING_DOCUMENTS).isInternational());
+		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isInternational());
+		assertFalse(cons(PublicationType.OTHER).isInternational());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_US() {
+		// Force the default locale to be US
+		Locale.setDefault(Locale.US);
+		//
+		assertEquals("Articles in international journals with selection committee", cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).getLabel());
+		assertEquals("Articles in national journals with selection committee", cons(PublicationType.NATIONAL_JOURNAL_PAPER).getLabel());
+		assertEquals("Papers in the proceedings of an international conference", cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).getLabel());
+		assertEquals("Papers in the proceedings of a national conference", cons(PublicationType.NATIONAL_CONFERENCE_PAPER).getLabel());
+		assertEquals("Oral Communications without proceeding in international conference", cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).getLabel());
+		assertEquals("Oral Communications without proceeding in national conference", cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).getLabel());
+		assertEquals("Posters in international conference", cons(PublicationType.INTERNATIONAL_POSTER).getLabel());
+		assertEquals("Posters in national conference", cons(PublicationType.NATIONAL_POSTER).getLabel());
+		assertEquals("Editor of international books or journals", cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).getLabel());
+		assertEquals("Editor of national books or journals", cons(PublicationType.NATIONAL_JOURNAL_EDITION).getLabel());
+		assertEquals("International scientific books", cons(PublicationType.INTERNATIONAL_BOOK).getLabel());
+		assertEquals("National scientific books", cons(PublicationType.NATIONAL_BOOK).getLabel());
+		assertEquals("Chapters in international scientific books", cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).getLabel());
+		assertEquals("Chapters in national scientific books", cons(PublicationType.NATIONAL_BOOK_CHAPTER).getLabel());
+		assertEquals("Articles in international journals without selection committee", cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getLabel());
+		assertEquals("Articles in national journals without selection committee", cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getLabel());
+		assertEquals("Keynotes in international conference", cons(PublicationType.INTERNATIONAL_KEYNOTE).getLabel());
+		assertEquals("Keynotes in national conference", cons(PublicationType.NATIONAL_KEYNOTE).getLabel());
+		assertEquals("HDR theses", cons(PublicationType.HDR_THESIS).getLabel());
+		assertEquals("PhD theses", cons(PublicationType.PHD_THESIS).getLabel());
+		assertEquals("Master theses", cons(PublicationType.MASTER_THESIS).getLabel());
+		assertEquals("International patents", cons(PublicationType.INTERNATIONAL_PATENT).getLabel());
+		assertEquals("European patents", cons(PublicationType.EUROPEAN_PATENT).getLabel());
+		assertEquals("National patents", cons(PublicationType.NATIONAL_PATENT).getLabel());
+		assertEquals("Publications for research transfer", cons(PublicationType.RESEARCH_TRANSFERT_REPORT).getLabel());
+		assertEquals("Research tools", cons(PublicationType.RESEARCH_TOOLS).getLabel());
+		assertEquals("Books for scientific culture dissemination", cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).getLabel());
+		assertEquals("Chapters in a book for scientific culture dissemination", cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).getLabel());
+		assertEquals("Paper in a journal for scientific culture dissemination", cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).getLabel());
+		assertEquals("Artistic research productions", cons(PublicationType.ARTISTIC_PRODUCTION).getLabel());
+		assertEquals("Technical reports", cons(PublicationType.TECHNICAL_REPORTS).getLabel());
+		assertEquals("Project reports", cons(PublicationType.PROJECT_REPORTS).getLabel());
+		assertEquals("Teaching documents", cons(PublicationType.TEACHING_DOCUMENTS).getLabel());
+		assertEquals("Tutorials or documentations", cons(PublicationType.TUTORIAL_DOCUMENTATION).getLabel());
+		assertEquals("Other productions", cons(PublicationType.OTHER).getLabel());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_FR() {
+		// Force the default locale to be FR
+		Locale.setDefault(Locale.FRANCE);
+		//
+		assertEquals("Articles dans des journaux internationaux avec comité de lecture", cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).getLabel());
+		assertEquals("Articles dans des journaux nationaux avec comité de lecture", cons(PublicationType.NATIONAL_JOURNAL_PAPER).getLabel());
+		assertEquals("Articles dans des conférences internationales", cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).getLabel());
+		assertEquals("Articles dans des conférences nationales", cons(PublicationType.NATIONAL_CONFERENCE_PAPER).getLabel());
+		assertEquals("Communications orales dans une conférence internationale sans actes", cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).getLabel());
+		assertEquals("Communications orales dans une conférence nationale sans actes", cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).getLabel());
+		assertEquals("Posters dans une conférence internationale", cons(PublicationType.INTERNATIONAL_POSTER).getLabel());
+		assertEquals("Posters dans une conférence nationale", cons(PublicationType.NATIONAL_POSTER).getLabel());
+		assertEquals("Editions d'ouvrage ou de journal scientifique international", cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).getLabel());
+		assertEquals("Editions d'ouvrage ou de journal scientifique national", cons(PublicationType.NATIONAL_JOURNAL_EDITION).getLabel());
+		assertEquals("Ouvrages scientifiques internationaux", cons(PublicationType.INTERNATIONAL_BOOK).getLabel());
+		assertEquals("Ouvrages scientifiques nationaux", cons(PublicationType.NATIONAL_BOOK).getLabel());
+		assertEquals("Chapitres dans un ouvrage scientifique international", cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).getLabel());
+		assertEquals("Chapitres dans un ouvrage scientifique national", cons(PublicationType.NATIONAL_BOOK_CHAPTER).getLabel());
+		assertEquals("Articles dans des journaux internationaux sans comité de lecture", cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getLabel());
+		assertEquals("Articles dans des journaux nationaux sans comité de lecture", cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getLabel());
+		assertEquals("Conférenciers invités dans une conférence internationale", cons(PublicationType.INTERNATIONAL_KEYNOTE).getLabel());
+		assertEquals("Conférenciers invités dans une conférence nationale", cons(PublicationType.NATIONAL_KEYNOTE).getLabel());
+		assertEquals("Thèses d'HDR", cons(PublicationType.HDR_THESIS).getLabel());
+		assertEquals("Thèses de doctorat", cons(PublicationType.PHD_THESIS).getLabel());
+		assertEquals("Thèses de master", cons(PublicationType.MASTER_THESIS).getLabel());
+		assertEquals("Brevets internationaux", cons(PublicationType.INTERNATIONAL_PATENT).getLabel());
+		assertEquals("Brevets européens", cons(PublicationType.EUROPEAN_PATENT).getLabel());
+		assertEquals("Brevets nationaux", cons(PublicationType.NATIONAL_PATENT).getLabel());
+		assertEquals("Publications pour le transfert scientifique", cons(PublicationType.RESEARCH_TRANSFERT_REPORT).getLabel());
+		assertEquals("Outils de recherche", cons(PublicationType.RESEARCH_TOOLS).getLabel());
+		assertEquals("Ouvrages de vulgarisation", cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).getLabel());
+		assertEquals("Chapitres dans un ouvrage de vulgarisation", cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).getLabel());
+		assertEquals("Article dans un journal de vulgarisation", cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).getLabel());
+		assertEquals("Productions artistiques théorisées", cons(PublicationType.ARTISTIC_PRODUCTION).getLabel());
+		assertEquals("Rapports techniques", cons(PublicationType.TECHNICAL_REPORTS).getLabel());
+		assertEquals("Rapports de projet", cons(PublicationType.PROJECT_REPORTS).getLabel());
+		assertEquals("Documents d'enseignement", cons(PublicationType.TEACHING_DOCUMENTS).getLabel());
+		assertEquals("Tutoriels ou documentations", cons(PublicationType.TUTORIAL_DOCUMENTATION).getLabel());
+		assertEquals("Autres productions", cons(PublicationType.OTHER).getLabel());
+		assertAllTreated();
+	}
+
+	@Test
+	public void valueOfCaseInsensitive_null() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			PublicationType.valueOfCaseInsensitive(null);
+		});
+	}
+
+	@Test
+	public void valueOfCaseInsensitive_empty() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			PublicationType.valueOfCaseInsensitive("");
+		});
+	}
+
+	@Test
+	public void valueOfCaseInsensitive_invalid() {
+		assertThrows(IllegalArgumentException.class, () -> {
+			PublicationType.valueOfCaseInsensitive("xvz");
+		});
+	}
+
+	@Test
+	public void valueOfCaseInsensitive_notNull() {
+		for (PublicationType type : PublicationType.values()) {
+			assertSame(
+					cons(type),
+					PublicationType.valueOfCaseInsensitive(randomString(type.name())),
+					"valueOfCaseInsensitive: "+ type.name());
+		}
+		assertAllTreated();
+	}
+
+}
