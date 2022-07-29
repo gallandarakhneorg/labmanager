@@ -49,8 +49,8 @@ import org.junit.jupiter.api.Test;
 @SuppressWarnings("all")
 public class CiadHtmlPageExporterTest {
 
-	private static final String OUTPUT_FILE = "/home/sgalland/tmp/export.html";
-	//private static final String OUTPUT_FILE = null;
+	//private static final String OUTPUT_FILE = "/home/sgalland/tmp/export.html";
+	private static final String OUTPUT_FILE = null;
 
 	private CiadHtmlPageExporter test;
 
