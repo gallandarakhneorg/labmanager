@@ -105,7 +105,7 @@ public class PublicationController extends AbstractController {
 
 	private PersonService personService;
 
-	private HtmlPageExporter htmlExporter;
+	private HtmlPageExporter htmlPageExporter;
 
 	private DownloadableFileManager fileManager;
 
@@ -145,7 +145,7 @@ public class PublicationController extends AbstractController {
 	 * @param publicationService the publication service.
 	 * @param authorshipService the authorship service.
 	 * @param personService the person service.
-	 * @param htmlExporter the tool for exporting to HTML.
+	 * @param htmlPageExporter the tool for exporting to HTML page.
 	 * @param fileManager the manager of local files.
 	 * @param nameParser the parser of a person name.
 	 * @param bibtex the tools for manipulating BibTeX data.
@@ -165,7 +165,7 @@ public class PublicationController extends AbstractController {
 	public PublicationController(@Autowired PublicationService publicationService,
 			@Autowired AuthorshipService authorshipService,
 			@Autowired PersonService personService,
-			@Autowired HtmlPageExporter htmlExporter,
+			@Autowired HtmlPageExporter htmlPageExporter,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired PersonNameParser nameParser,
 			@Autowired BibTeX bibtex,
@@ -185,7 +185,7 @@ public class PublicationController extends AbstractController {
 		this.publicationService = publicationService;
 		this.authorshipService = authorshipService;
 		this.personService = personService;
-		this.htmlExporter = htmlExporter;
+		this.htmlPageExporter = htmlPageExporter;
 		this.fileManager = fileManager;
 		this.nameParser = nameParser;
 		this.bibtex = bibtex;
@@ -257,17 +257,17 @@ public class PublicationController extends AbstractController {
 			final StringBuilder downloads = new StringBuilder();
 			boolean htmlAdded = false;
 			if (publication.getPathToDownloadablePDF() != null) {
-				final String html = this.htmlExporter.getButtonToDownloadPublicationPDF(publication.getPathToDownloadablePDF());
+				final String html = this.htmlPageExporter.getButtonToDownloadPublicationPDF(publication.getPathToDownloadablePDF());
 				if (!Strings.isNullOrEmpty(html)) {
 					downloads.append(html);
 					htmlAdded = true;
 				}
 			}
 			if (publication.getPathToDownloadableAwardCertificate() != null) {
-				final String html = this.htmlExporter.getButtonToDownloadPublicationAwardCertificate(publication.getPathToDownloadableAwardCertificate());
+				final String html = this.htmlPageExporter.getButtonToDownloadPublicationAwardCertificate(publication.getPathToDownloadableAwardCertificate());
 				if (!Strings.isNullOrEmpty(html)) {
 					if (htmlAdded) {
-						downloads.append(this.htmlExporter.doubleSeparator());
+						downloads.append(this.htmlPageExporter.doubleSeparator());
 					}
 					downloads.append(html);
 				}
@@ -277,24 +277,24 @@ public class PublicationController extends AbstractController {
 			}
 
 			final StringBuilder exports = new StringBuilder();
-			String html = this.htmlExporter.getButtonToExportPublicationToBibTeX(publication.getId());
+			String html = this.htmlPageExporter.getButtonToExportPublicationToBibTeX(publication.getId());
 			htmlAdded = false;
 			if (!Strings.isNullOrEmpty(html)) {
 				exports.append(html);
 				htmlAdded = true;
 			}
-			html = this.htmlExporter.getButtonToExportPublicationToHtml(publication.getId());
+			html = this.htmlPageExporter.getButtonToExportPublicationToHtml(publication.getId());
 			if (!Strings.isNullOrEmpty(html)) {
 				if (htmlAdded) {
-					exports.append(this.htmlExporter.doubleSeparator());
+					exports.append(this.htmlPageExporter.doubleSeparator());
 				}
 				exports.append(html);
 				htmlAdded = true;
 			}
-			html = this.htmlExporter.getButtonToExportPublicationToOpenDocument(publication.getId());
+			html = this.htmlPageExporter.getButtonToExportPublicationToOpenDocument(publication.getId());
 			if (!Strings.isNullOrEmpty(html)) {
 				if (htmlAdded) {
-					exports.append(this.htmlExporter.doubleSeparator());
+					exports.append(this.htmlPageExporter.doubleSeparator());
 				}
 				exports.append(html);
 			}
@@ -303,16 +303,16 @@ public class PublicationController extends AbstractController {
 			}
 
 			final StringBuilder edit = new StringBuilder();
-			html = this.htmlExporter.getButtonToEditPublication(publication.getId());
+			html = this.htmlPageExporter.getButtonToEditPublication(publication.getId());
 			htmlAdded = false;
 			if (!Strings.isNullOrEmpty(html)) {
 				exports.append(html);
 				htmlAdded = true;
 			}
-			html = this.htmlExporter.getButtonToDeletePublication(publication.getId());
+			html = this.htmlPageExporter.getButtonToDeletePublication(publication.getId());
 			if (!Strings.isNullOrEmpty(html)) {
 				if (htmlAdded) {
-					exports.append(this.htmlExporter.doubleSeparator());
+					exports.append(this.htmlPageExporter.doubleSeparator());
 				}
 				exports.append(html);
 			}

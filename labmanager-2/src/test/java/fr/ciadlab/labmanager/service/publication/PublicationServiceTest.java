@@ -47,7 +47,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
-import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
+import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
@@ -88,7 +88,7 @@ public class PublicationServiceTest {
 
 	private BibTeX bibtex;
 
-	private HtmlPageExporter html;
+	private HtmlDocumentExporter html;
 
 	private OpenDocumentTextExporter odt;
 
@@ -102,7 +102,7 @@ public class PublicationServiceTest {
 		this.personService = mock(PersonService.class);
 		this.personRepository = mock(PersonRepository.class);
 		this.bibtex = mock(BibTeX.class);
-		this.html = mock(HtmlPageExporter.class);
+		this.html = mock(HtmlDocumentExporter.class);
 		this.odt = mock(OpenDocumentTextExporter.class);
 		this.test = new PublicationService(this.publicationRepository,
 				this.authorshipService, this.authorshipRepository,

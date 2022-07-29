@@ -30,7 +30,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
-import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
+import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
@@ -61,7 +61,7 @@ public class PublicationService extends AbstractService {
 
 	private BibTeX bibtex;
 
-	private HtmlPageExporter html;
+	private HtmlDocumentExporter html;
 
 	private OpenDocumentTextExporter odt;
 
@@ -81,7 +81,7 @@ public class PublicationService extends AbstractService {
 			@Autowired AuthorshipService authorshipService,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonService personService, @Autowired PersonRepository personRepository,
-			@Autowired BibTeX bibtex, @Autowired HtmlPageExporter html,
+			@Autowired BibTeX bibtex, @Autowired HtmlDocumentExporter html,
 			@Autowired OpenDocumentTextExporter odt) {
 		this.publicationRepository = publicationRepository;
 		this.authorshipService = authorshipService;
