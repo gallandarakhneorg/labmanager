@@ -42,6 +42,14 @@ import org.arakhne.afc.vmutil.locale.Locale;
  */
 public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 
+	/** Green color for CIAD lab.
+	 */
+	public static final String CIAD_GREEN = "95bc0f"; //$NON-NLS-1$
+
+	/** Dark green color for CIAD lab.
+	 */
+	public static final String CIAD_DARK_GREEN = "4b5e08"; //$NON-NLS-1$
+
 	/** Root URL of the CIAD lab website.
 	 */
 	protected static final String ROOT_URL = "http://www.ciad-lab.fr/"; //$NON-NLS-1$
@@ -51,13 +59,14 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 		final StringBuilder html = new StringBuilder();
 		html.append("<i>"); //$NON-NLS-1$
 		if (configurator.isColoredTitle()) {
-			// CIAD green : #95bc0f
-			// CIAD dark green : #4b5e08
-			html.append("<font color=\"#4b5e08\">"); //$NON-NLS-1$
+			html.append("<font color=\"#"); //$NON-NLS-1$
+			html.append(CIAD_GREEN);
+			html.append("\">"); //$NON-NLS-1$
 		}
-		html.append("\""); //$NON-NLS-1$
+		html.append(getLeftQuotes());
 		html.append(title);
-		html.append("\"."); //$NON-NLS-1$
+		html.append(getRightQuotes());
+		html.append("."); //$NON-NLS-1$
 		if (configurator.isColoredTitle()) {
 			html.append("</font>"); //$NON-NLS-1$
 		}

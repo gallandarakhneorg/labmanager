@@ -26,12 +26,15 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 
+import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
+import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.entities.ranking.QuartileRanking;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,7 +67,6 @@ public class CiadHtmlDocumentExporterTest {
 	@Test
 	public void exportPublications_Iterable_one() throws Exception {
 		ConferencePaper p0 = mock(ConferencePaper.class);
-		when(p0.getId()).thenReturn(12345);
 		when(p0.getAddress()).thenReturn("location0");
 		when(p0.getDOI()).thenReturn("doinumber0");
 		when(p0.getEditors()).thenReturn("Dupont, Henri");
@@ -81,27 +83,65 @@ public class CiadHtmlDocumentExporterTest {
 		when(p0.getType()).thenReturn(PublicationType.INTERNATIONAL_CONFERENCE_PAPER);
 		when(p0.getVolume()).thenReturn("vol0");
 
+		Journal j = mock(Journal.class);
+		when(j.getJournalName()).thenReturn("Int. Journal of Science");
+		when(j.getPublisher()).thenReturn("The Publisher");
+		
+		JournalPaper p1 = mock(JournalPaper.class);
+		when(p1.getDOI()).thenReturn("doinumber1");
+		when(p1.getISBN()).thenReturn("isbn1");
+		when(p1.getISSN()).thenReturn("issn1");
+		when(p1.getNumber()).thenReturn("num1");
+		when(p1.getMajorLanguage()).thenReturn(PublicationLanguage.FRENCH);
+		when(p1.getPages()).thenReturn("xx-yy");
+		when(p1.getPublicationYear()).thenReturn(2020);
+		when(p1.getTitle()).thenReturn("This is the title of an older publication");
+		when(p1.getType()).thenReturn(PublicationType.INTERNATIONAL_JOURNAL_PAPER);
+		when(p1.getVolume()).thenReturn("vol1");
+		when(p1.getJournal()).thenReturn(j);
+		when(p1.getScimagoQIndex()).thenReturn(QuartileRanking.Q1);
+		when(p1.getWosQIndex()).thenReturn(QuartileRanking.Q2);
+		when(p1.getImpactFactor()).thenReturn(8.901f);
+
+		JournalPaper p2 = mock(JournalPaper.class);
+		when(p2.getDOI()).thenReturn("doinumber2");
+		when(p2.getISBN()).thenReturn("isbn2");
+		when(p2.getISSN()).thenReturn("issn2");
+		when(p2.getNumber()).thenReturn("num2");
+		when(p2.getMajorLanguage()).thenReturn(PublicationLanguage.ENGLISH);
+		when(p2.getPages()).thenReturn("xx-yy");
+		when(p2.getPublicationYear()).thenReturn(2021);
+		when(p2.getTitle()).thenReturn("This is the title of a publication");
+		when(p2.getType()).thenReturn(PublicationType.INTERNATIONAL_JOURNAL_PAPER);
+		when(p2.getVolume()).thenReturn("vol2");
+		when(p2.getJournal()).thenReturn(j);
+		when(p2.getScimagoQIndex()).thenReturn(QuartileRanking.Q1);
+		when(p2.getWosQIndex()).thenReturn(QuartileRanking.Q1);
+		when(p2.getImpactFactor()).thenReturn(5.45f);
+
 		Person a0 = mock(Person.class);
-		when(a0.getId()).thenReturn(8954);
 		when(a0.getFirstName()).thenReturn("Stephane");
 		when(a0.getLastName()).thenReturn("Martin");
 
 		Person a1 = mock(Person.class);
-		when(a1.getId()).thenReturn(8955);
 		when(a1.getFirstName()).thenReturn("Etienne");
 		when(a1.getLastName()).thenReturn("Dupont");
 
+		Person a2 = mock(Person.class);
+		when(a2.getFirstName()).thenReturn("Andrew");
+		when(a2.getLastName()).thenReturn("Schmit");
+
 		when(p0.getAuthors()).thenReturn(Arrays.asList(a0, a1));
+		when(p1.getAuthors()).thenReturn(Arrays.asList(a2, a1, a0));
+		when(p2.getAuthors()).thenReturn(Arrays.asList(a2, a0));
 
 		Membership m0 = mock(Membership.class);
-		when(m0.getPerson()).thenReturn(a0);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		when(m0.isActiveIn(any(), any())).thenReturn(true);
 
 		when(a0.getResearchOrganizations()).thenReturn(Collections.singleton(m0));
 
 		Membership m1 = mock(Membership.class);
-		when(m1.getPerson()).thenReturn(a1);
 		when(m1.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
 		when(m1.isActiveIn(any(), any())).thenReturn(true);
 

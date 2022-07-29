@@ -49,6 +49,22 @@ import org.arakhne.afc.vmutil.locale.Locale;
  */
 public abstract class AbstractHtmlExporter implements HtmlExporter {
 
+	/** Replies the string representation of left quotes.
+	 *
+	 * @return the left quotes.
+	 */
+	public static String getLeftQuotes() {
+		return "&ldquo;"; //$NON-NLS-1$
+	}
+
+	/** Replies the string representation of right quotes.
+	 *
+	 * @return the left quotes.
+	 */
+	public static String getRightQuotes() {
+		return "&rdquo;"; //$NON-NLS-1$
+	}
+
 	@Override
 	public String separator() {
 		return "&nbsp;"; //$NON-NLS-1$
