@@ -16,8 +16,6 @@
 package fr.ciadlab.labmanager.io.od;
 
 import fr.ciadlab.labmanager.entities.journal.Journal;
-import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.type.Book;
 import fr.ciadlab.labmanager.entities.publication.type.BookChapter;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
@@ -32,8 +30,6 @@ import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.locale.Locale;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
-import org.odftoolkit.odfdom.dom.element.text.TextListElement;
-import org.odftoolkit.odfdom.dom.element.text.TextListItemElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
 import org.odftoolkit.odfdom.dom.element.text.TextSpanElement;
 import org.springframework.context.annotation.Primary;
@@ -53,54 +49,15 @@ import org.springframework.stereotype.Component;
 public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolkitOpenDocumentTextExporter {
 
 	@Override
-	public void exportPublication(TextListElement odt, Publication publication, ExporterConfigurator configurator) {
-		assert odt != null;
-		assert publication != null;
-		final TextListItemElement item = odt.newTextListItemElement();
-		final TextPElement odtText = item.newTextPElement();
-		final java.util.Locale loc = java.util.Locale.getDefault();
-		try {
-			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
-			exportAuthors(odtText, publication, configurator);
-			exportDescription(odtText, publication, configurator);
-		} finally {
-			java.util.Locale.setDefault(loc);
-		}
-	}
-
-	/** Export in ODT the authors of a single publication.
-	 *
-	 * @param odtText the receiver of the ODT content.
-	 * @param publication the publication, never {@code null}.
-	 * @param configurator the configurator for the exporter.
-	 */
-	@SuppressWarnings("static-method")
-	protected void exportAuthors(TextPElement odtText, Publication publication, ExporterConfigurator configurator) {
-		assert configurator != null;
-		final int year = publication.getPublicationYear();
-		boolean first = true;
-		for (final Person person : publication.getAuthors()) {
-			if (first) {
-				first = false;
-			} else {
-				odtText.newTextNode(", "); //$NON-NLS-1$
-			}
-			formatAuthorName(odtText, person, year, configurator);
-		}
-		odtText.newTextNode(". "); //$NON-NLS-1$
-	}
-
-	@Override
 	protected void formatTitle(TextPElement odtText, String title, ExporterConfigurator configurator) {
 		final TextSpanElement odtSpan = newTextItalic(odtText);
 		if (configurator.isColoredTitle()) {
-			// CIAD green : #95bc0f
-			// CIAD dark green : #4b5e08
-			odtSpan.setProperty(StyleTextPropertiesElement.Color, "4b5e08"); //$NON-NLS-1$
+			odtSpan.setProperty(StyleTextPropertiesElement.Color, CIAD_GREEN.toString());
 		}
-		odtSpan.newTextNode("\""); //$NON-NLS-1$
+		odtSpan.newTextNode(getLeftQuotes());
 		odtSpan.newTextNode(title);
-		odtSpan.newTextNode("\"."); //$NON-NLS-1$
+		odtSpan.newTextNode(getRightQuotes());
+		odtSpan.newTextNode("."); //$NON-NLS-1$
 		odtText.newTextNode(" "); //$NON-NLS-1$
 	}
 

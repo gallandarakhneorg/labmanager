@@ -43,8 +43,10 @@ import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
 import org.odftoolkit.odfdom.dom.element.text.TextAElement;
 import org.odftoolkit.odfdom.dom.element.text.TextListElement;
+import org.odftoolkit.odfdom.dom.element.text.TextListItemElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
 import org.odftoolkit.odfdom.dom.element.text.TextSpanElement;
+import org.odftoolkit.odfdom.type.Color;
 
 /** Exporter of publications to Open Document Text based on the ODF toolkit.
  * 
@@ -56,6 +58,30 @@ import org.odftoolkit.odfdom.dom.element.text.TextSpanElement;
  * @see "https://odftoolkit.org"
  */
 public abstract class AbstractOdfToolkitOpenDocumentTextExporter implements OpenDocumentTextExporter {
+
+	/** Green color for CIAD lab.
+	 */
+	public static final Color CIAD_GREEN = Color.valueOf("#95bc0f"); //$NON-NLS-1$
+
+	/** Dark green color for CIAD lab.
+	 */
+	public static final Color CIAD_DARK_GREEN = Color.valueOf("#4b5e08"); //$NON-NLS-1$
+
+	/** Replies the string representation of left quotes.
+	 *
+	 * @return the left quotes.
+	 */
+	public static String getLeftQuotes() {
+		return Locale.getString(AbstractOdfToolkitOpenDocumentTextExporter.class, "LEFT_QUOTES"); //$NON-NLS-1$
+	}
+
+	/** Replies the string representation of right quotes.
+	 *
+	 * @return the left quotes.
+	 */
+	public static String getRightQuotes() {
+		return Locale.getString(AbstractOdfToolkitOpenDocumentTextExporter.class, "RIGHT_QUOTES"); //$NON-NLS-1$
+	}
 
 	@SuppressWarnings("resource")
 	@Override
@@ -83,7 +109,20 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter implements Open
 	 * @param publication the publication, never {@code null}.
 	 * @param configurator the configurator for the exporter.
 	 */
-	public abstract void exportPublication(TextListElement odt, Publication publication, ExporterConfigurator configurator);
+	public void exportPublication(TextListElement odt, Publication publication, ExporterConfigurator configurator) {
+		assert odt != null;
+		assert publication != null;
+		final TextListItemElement item = odt.newTextListItemElement();
+		final TextPElement odtText = item.newTextPElement();
+		final java.util.Locale loc = java.util.Locale.getDefault();
+		try {
+			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
+			exportAuthors(odtText, publication, configurator);
+			exportDescription(odtText, publication, configurator);
+		} finally {
+			java.util.Locale.setDefault(loc);
+		}
+	}
 
 	/** Replies the name of the person with a format compliant with the HTML output.
 	 *
@@ -419,6 +458,29 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter implements Open
 		}
 		final int year = publication.getPublicationYear();
 		odtText.newTextNode(Integer.toString(year));
+		odtText.newTextNode(". "); //$NON-NLS-1$
+	}
+
+
+	/** Export in ODT the authors of a single publication.
+	 *
+	 * @param odtText the receiver of the ODT content.
+	 * @param publication the publication, never {@code null}.
+	 * @param configurator the configurator for the exporter.
+	 */
+	@SuppressWarnings("static-method")
+	protected void exportAuthors(TextPElement odtText, Publication publication, ExporterConfigurator configurator) {
+		assert configurator != null;
+		final int year = publication.getPublicationYear();
+		boolean first = true;
+		for (final Person person : publication.getAuthors()) {
+			if (first) {
+				first = false;
+			} else {
+				odtText.newTextNode(", "); //$NON-NLS-1$
+			}
+			formatAuthorName(odtText, person, year, configurator);
+		}
 		odtText.newTextNode(". "); //$NON-NLS-1$
 	}
 

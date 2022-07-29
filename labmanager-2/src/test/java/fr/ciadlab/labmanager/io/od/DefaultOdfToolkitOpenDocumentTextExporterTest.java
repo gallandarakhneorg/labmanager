@@ -26,12 +26,15 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 
+import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
+import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.entities.ranking.QuartileRanking;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,8 +52,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
-	//private static final String OUTPUT_FILE = "/tmp/export.odt";
-	private static final String OUTPUT_FILE = null;
+	private static final String OUTPUT_FILE = "/home/sgalland/tmp/export.odt";
+	//private static final String OUTPUT_FILE = null;
 
 	private DefaultOdfToolkitOpenDocumentTextExporter test;
 
@@ -83,6 +86,42 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 		when(p0.getType()).thenReturn(PublicationType.INTERNATIONAL_CONFERENCE_PAPER);
 		when(p0.getVolume()).thenReturn("vol0");
 
+		Journal j = mock(Journal.class);
+		when(j.getJournalName()).thenReturn("Int. Journal of Science");
+		when(j.getPublisher()).thenReturn("The Publisher");
+		
+		JournalPaper p1 = mock(JournalPaper.class);
+		when(p1.getDOI()).thenReturn("doinumber1");
+		when(p1.getISBN()).thenReturn("isbn1");
+		when(p1.getISSN()).thenReturn("issn1");
+		when(p1.getNumber()).thenReturn("num1");
+		when(p1.getMajorLanguage()).thenReturn(PublicationLanguage.FRENCH);
+		when(p1.getPages()).thenReturn("xx-yy");
+		when(p1.getPublicationYear()).thenReturn(2020);
+		when(p1.getTitle()).thenReturn("This is the title of an older publication");
+		when(p1.getType()).thenReturn(PublicationType.INTERNATIONAL_JOURNAL_PAPER);
+		when(p1.getVolume()).thenReturn("vol1");
+		when(p1.getJournal()).thenReturn(j);
+		when(p1.getScimagoQIndex()).thenReturn(QuartileRanking.Q1);
+		when(p1.getWosQIndex()).thenReturn(QuartileRanking.Q2);
+		when(p1.getImpactFactor()).thenReturn(8.901f);
+
+		JournalPaper p2 = mock(JournalPaper.class);
+		when(p2.getDOI()).thenReturn("doinumber2");
+		when(p2.getISBN()).thenReturn("isbn2");
+		when(p2.getISSN()).thenReturn("issn2");
+		when(p2.getNumber()).thenReturn("num2");
+		when(p2.getMajorLanguage()).thenReturn(PublicationLanguage.ENGLISH);
+		when(p2.getPages()).thenReturn("xx-yy");
+		when(p2.getPublicationYear()).thenReturn(2021);
+		when(p2.getTitle()).thenReturn("This is the title of a publication");
+		when(p2.getType()).thenReturn(PublicationType.INTERNATIONAL_JOURNAL_PAPER);
+		when(p2.getVolume()).thenReturn("vol2");
+		when(p2.getJournal()).thenReturn(j);
+		when(p2.getScimagoQIndex()).thenReturn(QuartileRanking.Q1);
+		when(p2.getWosQIndex()).thenReturn(QuartileRanking.Q1);
+		when(p2.getImpactFactor()).thenReturn(5.45f);
+
 		Person a0 = mock(Person.class);
 		when(a0.getFirstName()).thenReturn("Stephane");
 		when(a0.getLastName()).thenReturn("Martin");
@@ -91,7 +130,13 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 		when(a1.getFirstName()).thenReturn("Etienne");
 		when(a1.getLastName()).thenReturn("Dupont");
 
+		Person a2 = mock(Person.class);
+		when(a2.getFirstName()).thenReturn("Andrew");
+		when(a2.getLastName()).thenReturn("Schmit");
+
 		when(p0.getAuthors()).thenReturn(Arrays.asList(a0, a1));
+		when(p1.getAuthors()).thenReturn(Arrays.asList(a2, a1, a0));
+		when(p2.getAuthors()).thenReturn(Arrays.asList(a2, a0));
 
 		Membership m0 = mock(Membership.class);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
@@ -107,7 +152,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 		ExporterConfigurator configurator = new ExporterConfigurator();
 
-		byte[] content = this.test.exportPublications(Arrays.asList(p0), configurator);
+		byte[] content = this.test.exportPublications(Arrays.asList(p0, p1, p2), configurator);
 
 		assertNotNull(content);
 
