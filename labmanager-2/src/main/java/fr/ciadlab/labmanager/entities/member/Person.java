@@ -64,7 +64,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	/** Default comparator of persons. The order of the persons is based on the
 	 * last name, first name, email, and the identifier.
 	 */
-	public static final Comparator<Person> PERSON_COMPARATOR = new Comparator<Person>() {
+	public static final Comparator<Person> PERSON_COMPARATOR = new Comparator<>() {
 		@Override
 		public int compare(Person o1, Person o2) {
 			if (o1 == o2) {
@@ -92,7 +92,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	/** Default comparator of lists of persons. The order of the persons in the list is based on
 	 * {@link #PERSON_COMPARATOR}.
 	 */
-	public static final Comparator<List<Person>> PERSON_LIST_COMPARATOR = new Comparator<List<Person>>() {
+	public static final Comparator<List<Person>> PERSON_LIST_COMPARATOR = new Comparator<>() {
 		@Override
 		public int compare(List<Person> o1, List<Person> o2) {
 			if (o1 == o2) {

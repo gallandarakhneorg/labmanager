@@ -44,7 +44,7 @@ public class Authorship implements Serializable, Comparable<Authorship> {
 
 	/** Singleton of a comparator of authorships.
 	 */
-	public static final Comparator<Authorship> AUTHORSHIP_COMPARATOR = new Comparator<Authorship>() {
+	public static final Comparator<Authorship> AUTHORSHIP_COMPARATOR = new Comparator<>() {
 		@Override
 		public int compare(Authorship o1, Authorship o2) {
 			if (o1 == o2) {

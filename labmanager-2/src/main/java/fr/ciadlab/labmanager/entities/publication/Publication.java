@@ -74,7 +74,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	/** Default comparator of publication. The order of the publication is based on the
 	 * type of publication, the year, the authors, the identifier.
 	 */
-	public static final Comparator<Publication> DEFAULT_COMPARATOR = new Comparator<Publication>() {
+	public static final Comparator<Publication> DEFAULT_COMPARATOR = new Comparator<>() {
 		@Override
 		public int compare(Publication o1, Publication o2) {
 			if (o1 == o2) {

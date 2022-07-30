@@ -55,7 +55,7 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 
 	/** Default comparator.
 	 */
-	public static final Comparator<ResearchOrganization> DEFAULT_COMPARATOR = new Comparator<ResearchOrganization>() {
+	public static final Comparator<ResearchOrganization> DEFAULT_COMPARATOR = new Comparator<>() {
 		@Override
 		public int compare(ResearchOrganization o1, ResearchOrganization o2) {
 			if (o1 == o2) {

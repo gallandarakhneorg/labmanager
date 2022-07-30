@@ -52,7 +52,7 @@ public class Membership implements Serializable, Comparable<Membership> {
 
 	/** Default comparator of memberships.
 	 */
-	public static final Comparator<Membership> DEFAULT_COMPARATOR = new Comparator<Membership>() {
+	public static final Comparator<Membership> DEFAULT_COMPARATOR = new Comparator<>() {
 		@Override
 		public int compare(Membership o1, Membership o2) {
 			if (o1 == o2) {
