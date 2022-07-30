@@ -10,6 +10,7 @@ bin/
 
 # JEE
 **/.attach_pid*
+**/derby.log
 
 # Subversion and CVS
 **/.svn/

@@ -44,13 +44,18 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+        	<!-- The following connector to database is used for local development only -->
+			<groupId>org.apache.derby</groupId>
+			<artifactId>derby</artifactId>
+		</dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.56</version>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.71</version>
         </dependency>
         <dependency>
             <groupId>org.odftoolkit</groupId>

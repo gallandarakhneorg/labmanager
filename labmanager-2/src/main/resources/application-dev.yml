@@ -1,9 +1,32 @@
+# This configuration is activated if you active the "dev" profile:
+#   -Dspring.profiles.active=default,dev
+
 spring:
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/labmanager?serverTimezone=UTC
+    # JDBC database
+    #driver-class-name: com.mysql.cj.jdbc.Driver
+    #url: jdbc:mysql://localhost:3306/labmanager?serverTimezone=UTC
+    ##Local use :
+    #username: root
+    #password:
 
-    #Local use :
-    username: root
+    # Derby databae
+    driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
+    url: jdbc:derby:/home/sgalland/tmp/ciadlab/db;create=true
+    username: sa
     password:
 
+  jpa:
+    defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.DerbyTenSevenDialect
+      # Lines dedicated only to generating the script file, it is not applied to the DB. These are from JPA, not from Hibernate
+      javax.persistence.schema-generation.scripts.action: create
+      javax.persistence.schema-generation.scripts.create-target: create-derby.sql
+      javax.persistence.schema-generation.scripts.create-source: metadata
+
+management:
+  endpoint:
+    logfile:
+      external-file: /home/sgalland/tmp/tomcat9/CIADSpringRestHibernate.log
