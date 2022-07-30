@@ -22,8 +22,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RestController;
 
 /** Abstract implementation of a JEE Controller.
  * 
@@ -33,8 +31,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-@RestController
-@CrossOrigin
 public abstract class AbstractController {
 
 	/** Logger of the service. It is lazy loaded.

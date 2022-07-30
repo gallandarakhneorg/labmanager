@@ -15,7 +15,6 @@
 
 package fr.ciadlab.labmanager.service.publication;
 
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -26,8 +25,6 @@ import java.util.stream.Stream;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
-import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
-import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
@@ -38,6 +35,7 @@ import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /** Service for managing the publications.
  * 
@@ -47,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@Service
 public class PublicationService extends AbstractService {
 
 	private PublicationRepository publicationRepository;
@@ -123,34 +122,6 @@ public class PublicationService extends AbstractService {
 			this.publicationRepository.save(publication);
 			this.publicationRepository.deleteById(id);
 		}
-	}
-
-	/** Create a publication with the given field values that is supposed to have a temporary usage.
-	 * This function does not save the publication in the database.
-	 *
-	 * @param type the type of the publication. It cannot be {@code null}.
-	 * @param title the title of the publication.
-	 * @param abstractText the text of the abstract for the publication.
-	 * @param keywords the keywords, seperated by coma or column characters 
-	 * @param date the date of publication.
-	 * @param isbn the ISBN number if any.
-	 * @param issn the ISSN number if any.
-	 * @param doi the DOI reference number if any.
-	 * @param extraUrl an URL to a page associated to the publication.
-	 * @param videoUrl an URL to a video associated to the publication.
-	 * @param dblpUrl the URL to the DBLP page of the publication if any.
-	 * @param pdfPath the path (may be an URL, but preferably a simple path) to a downloadable PDF file for the publication.
-	 * @param awardPath the path (may be an URL, but preferably a simple path) to a downloadable PDF file that is a award certificate associated to the publication.
-	 * @param language the major language used for writing the publication. It cannot be {@code null}.
-	 * @return the fake publication.
-	 */
-	@SuppressWarnings("static-method")
-	public Publication createFakePublication(PublicationType type, String title, String abstractText, String keywords,
-			Date date, String isbn, String issn,
-			String doi, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
-			String awardPath, PublicationLanguage language) {
-		return new Publication.FakePublication(type, title, abstractText, keywords, date, isbn, issn, doi, extraUrl,
-				videoUrl, dblpUrl, pdfPath, awardPath, language);
 	}
 
 	/** Save the given publications into the database.

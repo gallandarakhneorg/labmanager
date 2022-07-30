@@ -33,6 +33,7 @@ import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.utils.names.PersonNameComparator;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /** Service for managing the persons.
  * 
@@ -42,6 +43,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@Service
 public class PersonService extends AbstractService {
 
 	private PublicationRepository publicationRepository;

@@ -17,7 +17,6 @@ package fr.ciadlab.labmanager.service;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.stereotype.Service;
 
 /** Abstract implementation of a Spring boot service.
  * 
@@ -27,7 +26,6 @@ import org.springframework.stereotype.Service;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-@Service
 public abstract class AbstractService {
 
 	/** Logger of the service. It is lazy loaded.

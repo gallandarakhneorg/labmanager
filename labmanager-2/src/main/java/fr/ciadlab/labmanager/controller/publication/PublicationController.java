@@ -57,6 +57,7 @@ import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.AuthorshipService;
+import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
 import fr.ciadlab.labmanager.service.publication.type.BookService;
@@ -98,6 +99,8 @@ import org.springframework.web.servlet.view.RedirectView;
 public class PublicationController extends AbstractController {
 
 	private static final String TOOL_NAME = "publicationTool"; //$NON-NLS-1$
+
+	private PrePublicationFactory prePublicationFactory;
 
 	private PublicationService publicationService;
 
@@ -142,6 +145,7 @@ public class PublicationController extends AbstractController {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param prePublicationFactory the factory of pre-publications.
 	 * @param publicationService the publication service.
 	 * @param authorshipService the authorship service.
 	 * @param personService the person service.
@@ -162,7 +166,9 @@ public class PublicationController extends AbstractController {
 	 * @param reportService the service for reports.
 	 * @param thesisService the service for theses.
 	 */
-	public PublicationController(@Autowired PublicationService publicationService,
+	public PublicationController(
+			@Autowired PrePublicationFactory prePublicationFactory,
+			@Autowired PublicationService publicationService,
 			@Autowired AuthorshipService authorshipService,
 			@Autowired PersonService personService,
 			@Autowired HtmlPageExporter htmlPageExporter,
@@ -182,6 +188,7 @@ public class PublicationController extends AbstractController {
 			@Autowired ReportService reportService,
 			@Autowired ThesisService thesisService) {
 		super(TOOL_NAME);
+		this.prePublicationFactory = prePublicationFactory;
 		this.publicationService = publicationService;
 		this.authorshipService = authorshipService;
 		this.personService = personService;
@@ -609,7 +616,7 @@ public class PublicationController extends AbstractController {
 			final PublicationLanguage publicationLanguageEnum = PublicationLanguage.valueOfCaseInsensitive(publicationLanguage);
 
 			// First step : create the publication
-			final Publication publication = this.publicationService.createFakePublication(
+			final Publication publication = this.prePublicationFactory.createPrePublication(
 					publicationTypeEnum,
 					publicationTitle,
 					publicationAbstract,

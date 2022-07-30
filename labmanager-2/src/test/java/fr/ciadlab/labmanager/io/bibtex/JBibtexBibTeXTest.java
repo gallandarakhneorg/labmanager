@@ -58,7 +58,7 @@ import fr.ciadlab.labmanager.entities.ranking.QuartileRanking;
 import fr.ciadlab.labmanager.io.bibtex.bugfix.BugfixLaTeXPrinter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.service.publication.PublicationService;
+import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
 import fr.ciadlab.labmanager.service.publication.type.BookService;
 import fr.ciadlab.labmanager.service.publication.type.ConferencePaperService;
@@ -87,7 +87,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @ExtendWith(MockitoExtension.class)
 public class JBibtexBibTeXTest {
 
-	private PublicationService publicationService;
+	private PrePublicationFactory prePublicationFactory;
 
 	private JournalService journalService;
 
@@ -111,7 +111,7 @@ public class JBibtexBibTeXTest {
 
 	@BeforeEach
 	public void setUp() {
-		this.publicationService = mock(PublicationService.class);
+		this.prePublicationFactory = mock(PrePublicationFactory.class);
 		this.journalService = mock(JournalService.class);
 		this.personService = mock(PersonService.class);
 		this.bookService = mock(BookService.class);
@@ -122,7 +122,7 @@ public class JBibtexBibTeXTest {
 		this.reportService = mock(ReportService.class);
 		this.thesisService = mock(ThesisService.class);
 		this.test = new JBibtexBibTeX(
-				this.publicationService,
+				this.prePublicationFactory,
 				this.journalService,
 				this.personService,
 				this.bookService,
@@ -291,7 +291,7 @@ public class JBibtexBibTeXTest {
 
 	@Test
 	public void getPublicationStreamFrom_n() throws Exception {
-		when(this.publicationService.createFakePublication(
+		when(this.prePublicationFactory.createPrePublication(
 				any(), any(), any(), any(), any(), any(), any(),
 				any(), any(), any(), any(), any(), any(), any())).thenAnswer(it -> {
 					Publication fake = mock(Publication.class);
@@ -324,7 +324,7 @@ public class JBibtexBibTeXTest {
 
 		p = list.get(0);
 		assertTrue(p instanceof JournalPaper);
-		verify(this.publicationService, atLeastOnce()).createFakePublication(
+		verify(this.prePublicationFactory, atLeastOnce()).createPrePublication(
 				eq(PublicationType.INTERNATIONAL_JOURNAL_PAPER),
 				eq("On the Use of Clustering Algorithms in Medical Domain"),
 				eq("{\\\\string_}"),
@@ -351,7 +351,7 @@ public class JBibtexBibTeXTest {
 
 		p = list.get(1);
 		assertTrue(p instanceof ConferencePaper);
-		verify(this.publicationService).createFakePublication(
+		verify(this.prePublicationFactory).createPrePublication(
 				eq(PublicationType.INTERNATIONAL_CONFERENCE_PAPER),
 				eq("Déploiement d?un système de détection automatisé des situations à risque de décompensation de comorbidités."),
 				eq("Déploiement d?un système de détection automatisé des situations à risque de décompensation de comorbidités."),

@@ -15,6 +15,9 @@
 
 package fr.ciadlab.labmanager.utils;
 
+import org.apache.jena.ext.com.google.common.base.Strings;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.view.RedirectView;
 
 /** Factory of views.
@@ -25,7 +28,9 @@ import org.springframework.web.servlet.view.RedirectView;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public interface ViewFactory {
+@Component
+@Primary
+public class DefaultViewFactory implements ViewFactory {
 
 	/** Create a redirection view.
 	 *
@@ -33,6 +38,10 @@ public interface ViewFactory {
 	 * @param contextRelative whether to interpret the given URL as relative to the current ServletContext.
 	 * @return the view.
 	 */
-	RedirectView newRedirectView(String url, boolean contextRelative);
+	@Override
+	public RedirectView newRedirectView(String url, boolean contextRelative) {
+		assert !Strings.isNullOrEmpty(url);
+		return new RedirectView(url, contextRelative);
+	}
 
 }

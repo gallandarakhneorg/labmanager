@@ -150,7 +150,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	/** List of publications of the person.
 	 */
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name="publicationId", referencedColumnName = "person")
+	@JoinColumn(name="person", referencedColumnName = "id")
 	@JsonIgnore
 	private Set<Authorship> publications = new HashSet<>();
 

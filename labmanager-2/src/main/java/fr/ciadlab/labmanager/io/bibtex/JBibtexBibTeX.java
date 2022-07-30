@@ -79,7 +79,7 @@ import fr.ciadlab.labmanager.entities.ranking.QuartileRanking;
 import fr.ciadlab.labmanager.io.bibtex.bugfix.BugfixLaTeXPrinter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.service.publication.PublicationService;
+import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
 import fr.ciadlab.labmanager.service.publication.type.BookService;
 import fr.ciadlab.labmanager.service.publication.type.ConferencePaperService;
@@ -169,7 +169,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 */
 	protected static final Key KEY_CORE_RANKING = new Key("_core_ranking"); //$NON-NLS-1$
 
-	private PublicationService publicationService;
+	private PrePublicationFactory prePublicationFactory;
 
 	private JournalService journalService;
 
@@ -190,8 +190,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	private ThesisService thesisService;
 
 	/** Constructor. This constructor is ready for injection.
-	 * 
-	 * @param publicationService the general service for publications.
+	 *
+	 * @param prePublicationFactory the factory of pre-publications.
 	 * @param journalService the service for accessing the journals.
 	 * @param personService the service for managing the persons.
 	 * @param bookService the book service.
@@ -203,7 +203,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param thesisService the service for theses.
 	 */
 	public JBibtexBibTeX(
-			@Autowired PublicationService publicationService,
+			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired JournalService journalService,
 			@Autowired PersonService personService,
 			@Autowired BookService bookService,
@@ -213,7 +213,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			@Autowired MiscDocumentService miscDocumentService,
 			@Autowired ReportService reportService,
 			@Autowired ThesisService thesisService) {
-		this.publicationService = publicationService;
+		this.prePublicationFactory = prePublicationFactory;
 		this.journalService = journalService;
 		this.personService = personService;
 		this.bookService = bookService;
@@ -436,7 +436,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		final PublicationType type = getPublicationTypeFor(entry);
 		if (type != null) {
 			// Create a generic publication
-			final Publication genericPublication = this.publicationService.createFakePublication(
+			final Publication genericPublication = this.prePublicationFactory.createPrePublication(
 					type,
 					field(entry, KEY_TITLE),
 					field(entry, KEY_ABSTRACT_NAME),

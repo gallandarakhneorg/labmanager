@@ -29,6 +29,7 @@ import fr.ciadlab.labmanager.repository.publication.type.ConferencePaperReposito
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
 import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /** Service for managing papers for conferences and workshops.
  * 
@@ -38,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@Service
 public class ConferencePaperService extends AbstractPublicationTypeService {
 
 	private ConferencePaperRepository repository;

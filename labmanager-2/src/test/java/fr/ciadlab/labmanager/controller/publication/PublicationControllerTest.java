@@ -65,6 +65,7 @@ import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.AuthorshipService;
+import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
 import fr.ciadlab.labmanager.service.publication.type.BookService;
@@ -101,6 +102,8 @@ import org.springframework.web.servlet.view.RedirectView;
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
 public class PublicationControllerTest {
+
+	private PrePublicationFactory prePublicationFactory;
 
 	private PublicationService publicationService;
 
@@ -146,6 +149,7 @@ public class PublicationControllerTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.prePublicationFactory = mock(PrePublicationFactory.class);
 		this.publicationService = mock(PublicationService.class);
 		this.htmlExporter = mock(HtmlPageExporter.class);
 		this.odtExporter = mock(OpenDocumentTextExporter.class);
@@ -166,7 +170,8 @@ public class PublicationControllerTest {
 		this.patentService = mock(PatentService.class);
 		this.reportService = mock(ReportService.class);
 		this.thesisService = mock(ThesisService.class);
-		this.test = new PublicationController(this.publicationService, this.authorshipService,
+		this.test = new PublicationController(
+				this.prePublicationFactory, this.publicationService, this.authorshipService,
 				this.personService, this.htmlExporter, this.fileManager,
 				this.nameParser, this.bibtex, this.viewFactory, this.journalService,
 				this.bookService, this.bookChapterService, this.conferencePaperService,
@@ -431,7 +436,7 @@ public class PublicationControllerTest {
 		when(this.personService.createPerson(eq("F1"), eq("L1"), isNull())).thenReturn(234);
 		Publication fake = mock(Publication.class);
 		when(fake.getId()).thenReturn(1234);
-		doReturn(fake).when(this.publicationService).createFakePublication(
+		doReturn(fake).when(this.prePublicationFactory).createPrePublication(
 				any(), anyString(),
 				anyString(), anyString(), isNull(), anyString(), anyString(),
 				anyString(), anyString(), anyString(), anyString(), isNull(), isNull(),

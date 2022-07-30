@@ -32,6 +32,7 @@ import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.utils.names.DefaultPersonNameParser;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /** Service for managing the authors of the publications.
  * 
@@ -41,6 +42,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@Service
 public class AuthorshipService extends AbstractService {
 
 	private final PublicationRepository publicationRepository;

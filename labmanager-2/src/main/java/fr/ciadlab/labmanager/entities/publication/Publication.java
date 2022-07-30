@@ -42,6 +42,7 @@ import javax.persistence.InheritanceType;
 import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.transaction.Transactional;
 
 import com.google.common.base.Strings;
@@ -52,7 +53,6 @@ import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.JsonExportable;
 import fr.ciadlab.labmanager.utils.JsonUtils;
-import org.springframework.data.annotation.Transient;
 
 /** Abstract representation of a research publication.
  * This class contains the fields that are usually shared between many of the different types of research publications.
@@ -193,7 +193,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	/** Authorships specify the authors of the publication and their position in the list of authors.
 	 */
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "auhorId", referencedColumnName = "publication")
+	@JoinColumn(name = "publication", referencedColumnName = "id")
 	private Set<Authorship> authorships = new HashSet<>();
 
 	@Transient
@@ -907,50 +907,6 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		} else {
 			this.majorLanguage = language;
 		}
-	}
-
-	/** This is a instanciable publication that is used for temporary usage.
-	 * 
-	 * @author $Author: sgalland$
-	 * @author $Author: tmartine$
-	 * @version $Name$ $Revision$ $Date$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 */
-	public static class FakePublication extends Publication {
-
-		private static final long serialVersionUID = 3190476422430385432L;
-
-		/** Create a publication with the given field values.
-		 *
-		 * @param type the type of the publication. It cannot be {@code null}.
-		 * @param title the title of the publication.
-		 * @param abstractText the text of the abstract for the publication.
-		 * @param keywords the keywords, seperated by coma or column characters 
-		 * @param date the date of publication.
-		 * @param isbn the ISBN number if any.
-		 * @param issn the ISSN number if any.
-		 * @param doi the DOI reference number if any.
-		 * @param extraUrl an URL to a page associated to the publication.
-		 * @param videoUrl an URL to a video associated to the publication.
-		 * @param dblpUrl the URL to the DBLP page of the publication if any.
-		 * @param pdfPath the path (may be an URL, but preferably a simple path) to a downloadable PDF file for the publication.
-		 * @param awardPath the path (may be an URL, but preferably a simple path) to a downloadable PDF file that is a award certificate associated to the publication.
-		 * @param language the major language used for writing the publication. It cannot be {@code null}.
-		 */
-		public FakePublication(PublicationType type, String title, String abstractText, String keywords,
-				Date date, String isbn, String issn,
-				String doi, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
-				String awardPath, PublicationLanguage language) {
-			super(type, title, abstractText, keywords, date, isbn, issn, doi, extraUrl,
-					videoUrl, dblpUrl, pdfPath, awardPath, language);
-		}
-
-		@Override
-		public boolean isRanked() {
-			return false;
-		}
-
 	}
 
 }

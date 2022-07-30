@@ -30,6 +30,7 @@ import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.utils.net.NetConnection;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 /** Service related to the journals.
  * 
@@ -39,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@Service
 public class JournalService extends AbstractService {
 
 	private static final String SCIMAGO_URL_PREFIX = "https://www.scimagojr.com/journal_img.php?id="; //$NON-NLS-1$

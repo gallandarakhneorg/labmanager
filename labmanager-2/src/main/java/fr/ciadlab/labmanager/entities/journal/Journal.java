@@ -104,7 +104,7 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	/** History of the quality indicators for this journal.
 	 */
 	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name = "indicatorsId")
+	@JoinColumn(name = "id")
 	@MapKey(name = "year")
 	private Map<Integer, JournalQualityAnnualIndicators> qualityIndicatorsHistory;
 
