@@ -1,0 +1,67 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org">
+   <head>
+      <meta charset="UTF-8" />
+      <title>Laboratory Management Tools</title>
+      <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
+   </head>
+   <body>
+      <h1>Laboratory Management Tools</h1>
+      <h2 th:utext="${message}">..!..</h2>
+
+      <h2>Research Organization Management</h2>
+
+      <ul>
+      	<li>List of organizations</li>
+      	<li>Add organization</li>
+      	<li>Modify organization</li>
+      	<li>Delete organization</li>
+      </ul>
+      
+      <h2>Person Management</h2>
+
+      <ul>
+      	<li><a th:href="@{/personList}">List of persons</a></li>
+      	<li>Add person</li>
+      	<li>Modify person</li>
+      	<li>Delete person</li>
+      	<li>Merge persons</li>
+      </ul>
+
+      <h2>Publication Management</h2>
+
+      <h3>List</h3>
+        <ul>
+      	  <li>List of publications</li>
+      	  <li>Publication stats</li>
+        </ul>
+
+      <h3>Update</h3>
+        <ul>
+      	  <li>Add publication</li>
+      	  <li>Modify publication</li>
+        </ul>
+
+      <h3>Import</h3>
+        <ul>
+      	  <li>Import BibTeX</li>
+        </ul>
+
+      <h2>Project Management</h2>
+
+      <ul>
+      	<li>Project List</li>
+      	<li>Add Project</li>
+      	<li>Modify Project</li>
+      	<li>Delete Project</li>
+      </ul>
+
+      <h2>Dash board</h2>
+
+      <ul>
+      	<li>Chart</li>
+      </ul>
+
+   </body>
+   
+</html>
