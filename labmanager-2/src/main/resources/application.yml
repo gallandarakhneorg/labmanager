@@ -12,10 +12,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/labmanager?serverTimezone=UTC
-
-    #Local use :
-    username: root
-    password: JeSuisUnNouveauMotDePasse!1
+    #username: root
+    #password: JeSuisUnNouveauMotDePasse!1
 
   servlet:
     multipart:

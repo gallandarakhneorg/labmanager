@@ -10,7 +10,7 @@ spring:
     #username: root
     #password:
 
-    # Derby databae
+    # Derby database
     driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
     url: jdbc:derby:/home/sgalland/tmp/ciadlab/db;create=true
     username: sa
@@ -29,4 +29,5 @@ spring:
 management:
   endpoint:
     logfile:
+      # Path to the log file
       external-file: /home/sgalland/tmp/tomcat9/CIADSpringRestHibernate.log
