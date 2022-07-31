@@ -3,28 +3,31 @@
 
 spring:
   datasource:
-    # JDBC database
-    #driver-class-name: com.mysql.cj.jdbc.Driver
-    #url: jdbc:mysql://localhost:3306/labmanager?serverTimezone=UTC
-    ##Local use :
-    #username: root
-    #password:
-
     # Derby database
     driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
     url: jdbc:derby:/home/sgalland/tmp/ciadlab/db;create=true
+    generate-unique-name: false
     username: sa
     password:
 
+  sql:
+    init:
+      platform: derby
+
   jpa:
     defer-datasource-initialization: true
+    show-sql: true
     properties:
       hibernate:
         dialect: org.hibernate.dialect.DerbyTenSevenDialect
-      # Lines dedicated only to generating the script file, it is not applied to the DB. These are from JPA, not from Hibernate
-      javax.persistence.schema-generation.scripts.action: create
-      javax.persistence.schema-generation.scripts.create-target: create-derby.sql
-      javax.persistence.schema-generation.scripts.create-source: metadata
+      # Lines dedicated only to generating the SQL script file, it is not applied to the DB. These are from JPA, not from Hibernate
+      javax:
+        persistence:
+          schema-generation:
+            scripts:
+              action: create
+              create-target: schema-derby-gen.sql
+              create-source: metadata
 
 management:
   endpoint:

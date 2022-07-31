@@ -29,11 +29,13 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.EntityFieldConfig;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -109,12 +111,13 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 
 	/** Name of the research organization.
 	 */
-	@Column
+	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
 	private String name;
 
 	/** Textual description of the research organization.
 	 */
-	@Column
+	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Lob
 	private String description;
 
 	/** The country of the organization.

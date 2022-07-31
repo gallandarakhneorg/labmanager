@@ -23,6 +23,7 @@ import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
+import fr.ciadlab.labmanager.entities.EntityFieldConfig;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -62,7 +63,7 @@ public class Book extends Publication {
 	/** List of names of the editors of the book.
 	 * The list of names is usually a sequence of names separated by {@code AND}, and each name has the format {@code LAST, VON, FIRST}.
 	 */
-	@Column
+	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
 	private String editors;
 
 	/** Geographical location of the publisher of the book. It is usually a city and a country.
