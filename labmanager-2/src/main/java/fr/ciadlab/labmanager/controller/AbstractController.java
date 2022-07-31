@@ -37,14 +37,15 @@ public abstract class AbstractController {
 	 */
 	private Logger logger;
 
-	private final String tool;
+	private final String majoutEndpointName;
 
 	/** Constructor.
 	 *
-	 * @param toolName the name of the major tool.
+	 * @param defaultEndpointName the name of the endpoint that should be used by default, e.g., for displaying success
+	 *     messages.
 	 */
-	public AbstractController(String toolName) {
-		this.tool = toolName;
+	public AbstractController(String defaultEndpointName) {
+		this.majoutEndpointName = defaultEndpointName;
 	}
 
 	/** Replies the logger of this service.
@@ -83,7 +84,7 @@ public abstract class AbstractController {
 	protected void redirectSuccess(HttpServletResponse response, String successReason, String... additionalParameters) throws Exception {
 		final StringBuilder msg = new StringBuilder();
 		msg.append("/SpringRestHibernate/"); //$NON-NLS-1$
-		msg.append(this.tool);
+		msg.append(this.majoutEndpointName);
 		msg.append("?success=true&message="); //$NON-NLS-1$
 		msg.append(URLEncoder.encode(successReason, Charset.defaultCharset()));
 		for (int i = 0; i < additionalParameters.length; i += 2) {
@@ -102,7 +103,7 @@ public abstract class AbstractController {
 	 * @throws Exception if the redirection has failed.
 	 */
 	protected void redirectCreated(HttpServletResponse response, String successReason) throws Exception {
-		response.sendRedirect("/SpringRestHibernate/" + this.tool + "?created=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?created=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(successReason, Charset.defaultCharset()));
 	}
 
@@ -113,7 +114,7 @@ public abstract class AbstractController {
 	 * @throws Exception if the redirection has failed.
 	 */
 	protected void redirectUpdated(HttpServletResponse response, String successReason) throws Exception {
-		response.sendRedirect("/SpringRestHibernate/" + this.tool + "?updated=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?updated=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(successReason, Charset.defaultCharset()));
 	}
 
@@ -124,7 +125,7 @@ public abstract class AbstractController {
 	 * @throws Exception if the redirection has failed.
 	 */
 	protected void redirectDeleted(HttpServletResponse response, String successReason) throws Exception {
-		response.sendRedirect("/SpringRestHibernate/" + this.tool + "?deleted=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?deleted=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(successReason, Charset.defaultCharset()));
 	}
 
@@ -136,7 +137,7 @@ public abstract class AbstractController {
 	 */
 	protected void redirectError(HttpServletResponse response, Throwable exception) throws Exception {
 		getLogger().error(exception.getLocalizedMessage(), exception);
-		response.sendRedirect("/SpringRestHibernate/" + this.tool + "?error=1&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?error=1&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(exception.getLocalizedMessage(), Charset.defaultCharset()));
 	}
 
@@ -148,7 +149,7 @@ public abstract class AbstractController {
 	 */
 	protected void redirectError(HttpServletResponse response, String errorMessage) throws Exception {
 		getLogger().error(errorMessage);
-		response.sendRedirect("/SpringRestHibernate/" + this.tool + "?error=1&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?error=1&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(errorMessage, Charset.defaultCharset()));
 	}
 
