@@ -12,7 +12,9 @@ The following tools must be installed for contributing to the project, and testi
 * **Maven:** Maven is the compilation framework that is used for the project. You must [download and install Maven](https://maven.apache.org/download.cgi) (at least the version 3.8.4) in order to have it available from the command-line interface.
 * **Git:** It is recommended to install a Git tool that could be used outside the development environment, e.g. the command-line interface or windows tools.
 * **Eclipse:** You must install a specific version of Eclipse: [Eclipse IDE for Enterprise Java and Web Developers](https://www.eclipse.org/downloads/)
-* **Database:** *For developers,* you don't need to install a database system. The project is configured for using the Apache Derby Database system that is local file-based. *For production,* the project is configured for using MySQL. Therefore, you must [download and install MySQL](https://dev.mysql.com/downloads/installer/).
+* **Database:**
+  * *For developers,* you don't need to install a database system. The project is configured for using the Apache Derby Database system that is local file-based.
+  * *For production,* the project is configured for using MySQL 5.0.3 (or higher). Therefore, you must [download and install MySQL](https://dev.mysql.com/downloads/installer/).
 
 ### 1.2. First creation of the project
 
@@ -50,21 +52,7 @@ external-file: /tmp/tomcat9/CIADSpringRestHibernate.log
 ```
     Replace `/tmp/tomcat9/CIADSpringRestHibernate.log` by the filename of the file that must contain the logs.
 
-### 1.3. Create JUnit5 tests 
-
-The guideline of the Master development team recommend to create JUnit5 tests for all the significant contributions. You must create your tests into the source folder `src/test/java` and copy additionnal testing resources into the source folder `src/test/resources`.
-
-For launching the tests, you could create and use a specific launch configuration of type `JUnit`:
-
-* Open the menu `Run > Run configurations`
-* Select the type `JUnit` and click on the `Create new launch configuration` button at the top of the list
-* Enter the name of the launch configuration on the right part of the wizard windows, e.g. with `All tests`
-* Select `Run all tests in the selected project, package or source folder`
-* Select the `labmanager` project below
-* Ensure that the test runner is `JUnit 5`
-* Click on the `Run` button for saving the launch configuration and launching the tests
-
-### 1.4. Launching of the project
+### 1.3. Launching of the project
 
 For launching the backend services into a local Tomcat server, you could launch it into the Eclipse environment. To do so, you have to create a configuration for Spring Boot App:
 
@@ -77,9 +65,39 @@ For launching the backend services into a local Tomcat server, you could launch 
 * Enter the profile: `dev`
 * Click on the `Run` button for saving the launch configuration and launching the Spring Boot application
 
-### 1.5. Import of data
+### 1.4. Initial database schema creation
 
-Not yet available.
+By default, JPA is not creating the database schema. Indeed, it is configured for updating the content of the database from an existing schema.
+Therefore, it is necessary to create the initial database schema when you start from an empty database.
+
+The project is configured for creating automatically a SQL script for creating the database schema. It is created into the project folder, i.e., `./labmanager-2/`.
+The name of the script is `schema-<platform>.-gensql`, where `<platform>` is the name of the database platform that is configured in the `spring.sql.init.platform` configuration property.
+By default, in the development environment, the platform is `derby`.
+
+Caution: if the file `schema-<platform>.-gensql` does not exist in your source folder, you have to launch the project into Eclipse once for forcing its generation.
+
+For creating the database schema, you have to follow the steps:
+
+* Copy `./labmanager-2/schema-<platform>-gen.sql` into `./labmanager-2/src/main/resources/schema-<platform>.sql`
+* Launch the project in Eclipse
+* Wait for successful project launching, and then stop the run.
+* Delete the file `./labmanager-2/src/main/resources/schema-<platform>.sql`
+
+Now you database should be ready with an up-to-date schema and with empty tables.
+
+### 1.5. Create JUnit5 tests 
+
+The guideline of the Master development team recommend to create JUnit5 tests for all the significant contributions. You must create your tests into the source folder `src/test/java` and copy additionnal testing resources into the source folder `src/test/resources`.
+
+For launching the tests, you could create and use a specific launch configuration of type `JUnit`:
+
+* Open the menu `Run > Run configurations`
+* Select the type `JUnit` and click on the `Create new launch configuration` button at the top of the list
+* Enter the name of the launch configuration on the right part of the wizard windows, e.g. with `All tests`
+* Select `Run all tests in the selected project, package or source folder`
+* Select the `labmanager` project below
+* Ensure that the test runner is `JUnit 5`
+* Click on the `Run` button for saving the launch configuration and launching the tests
 
 ### 1.6. Merge your contributions to the Master server
 

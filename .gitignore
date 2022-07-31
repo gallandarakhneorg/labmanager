@@ -11,6 +11,7 @@ bin/
 # JEE
 **/.attach_pid*
 **/derby.log
+**/schema-*.sql
 
 # Subversion and CVS
 **/.svn/
