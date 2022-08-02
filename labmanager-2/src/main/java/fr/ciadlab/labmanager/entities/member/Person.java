@@ -16,14 +16,17 @@
 package fr.ciadlab.labmanager.entities.member;
 
 import java.io.Serializable;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
+import java.net.URL;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -41,7 +44,10 @@ import javax.transaction.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonObject;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
+import fr.ciadlab.labmanager.entities.publication.AuthorshipComparator;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.JsonExportable;
@@ -62,7 +68,17 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 
 	private static final long serialVersionUID = -7738810647549936633L;
 
+	private static final String ORCID_URL = "https://orcid.org/"; //$NON-NLS-1$
 
+	private static final String FACEBOOK_URL = "https://www.facebook.com/"; //$NON-NLS-1$
+
+	private static final String GITHUB_URL = "https://www.github.com/"; //$NON-NLS-1$
+
+	private static final String LINKEDIN_URL = "http://linkedin.com/in/"; //$NON-NLS-1$
+
+	private static final String RESEARCHERID_URL = "http://www.researcherid.com/rid/"; //$NON-NLS-1$
+
+	private static final String RESEARCHGATE_URL = "http://www.researchgate.net/profile/"; //$NON-NLS-1$
 
 	/** Identifier of a person.
 	 */
@@ -81,6 +97,12 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	@Column
 	private String lastName;
 
+	/** Gender of the person.
+	 */
+	@Column(nullable = true)
+	@Enumerated(EnumType.STRING)
+	private Gender gender;
+
 	/** Email of the person.
 	 */
 	@Column
@@ -91,11 +113,45 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	@Column
 	private String orcid;
 
-	/** Gender of the person.
+	/** URL of the person on {@code academia.edu}.
 	 */
-	@Column(nullable = true)
-	@Enumerated(EnumType.STRING)
-	private Gender gender;
+	@Column
+	private String academiaURL;
+
+	/** URL of the person on {@code cordis.europa.eu}.
+	 */
+	@Column
+	private String cordisURL;
+
+	/** URL of the person on DBLP.
+	 */
+	@Column
+	private String dblpURL;
+
+	/** Identifier of the person on Facebook.
+	 */
+	@Column
+	private String facebookId;
+
+	/** Identifier of the person on Github.
+	 */
+	@Column
+	private String githubId;
+
+	/** Identifier of the person on Linked-In.
+	 */
+	@Column
+	private String linkedInId;
+
+	/** Research Identifier of the person.
+	 */
+	@Column
+	private String researcherId;
+
+	/** Identifier of the person on Research Gate.
+	 */
+	@Column
+	private String researchGateId;
 
 	/** List of research organizations for the person.
 	 */
@@ -149,6 +205,16 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.firstName);
 		h = HashCodeUtils.add(h, this.lastName);
+		h = HashCodeUtils.add(h, this.gender);
+		h = HashCodeUtils.add(h, this.orcid);
+		h = HashCodeUtils.add(h, this.academiaURL);
+		h = HashCodeUtils.add(h, this.cordisURL);
+		h = HashCodeUtils.add(h, this.dblpURL);
+		h = HashCodeUtils.add(h, this.facebookId);
+		h = HashCodeUtils.add(h, this.githubId);
+		h = HashCodeUtils.add(h, this.linkedInId);
+		h = HashCodeUtils.add(h, this.researcherId);
+		h = HashCodeUtils.add(h, this.researchGateId);
 		h = HashCodeUtils.add(h, this.email);
 		return h;
 	}
@@ -169,6 +235,36 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 			return false;
 		}
 		if (!Objects.equals(this.lastName, other.lastName)) {
+			return false;
+		}
+		if (!Objects.equals(this.gender, other.gender)) {
+			return false;
+		}
+		if (!Objects.equals(this.orcid, other.orcid)) {
+			return false;
+		}
+		if (!Objects.equals(this.academiaURL, other.academiaURL)) {
+			return false;
+		}
+		if (!Objects.equals(this.cordisURL, other.cordisURL)) {
+			return false;
+		}
+		if (!Objects.equals(this.dblpURL, other.dblpURL)) {
+			return false;
+		}
+		if (!Objects.equals(this.facebookId, other.facebookId)) {
+			return false;
+		}
+		if (!Objects.equals(this.githubId, other.githubId)) {
+			return false;
+		}
+		if (!Objects.equals(this.linkedInId, other.linkedInId)) {
+			return false;
+		}
+		if (!Objects.equals(this.researcherId, other.researcherId)) {
+			return false;
+		}
+		if (!Objects.equals(this.researchGateId, other.researchGateId)) {
 			return false;
 		}
 		if (!Objects.equals(this.email, other.email)) {
@@ -201,8 +297,38 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		if (!Strings.isNullOrEmpty(getLastName())) {
 			consumer.accept("lastName", getLastName()); //$NON-NLS-1$
 		}
+		if (getGender() != null) {
+			consumer.accept("gender", getGender()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getEmail())) {
 			consumer.accept("email", getEmail()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getORCID())) {
+			consumer.accept("orcid", getORCID()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
+			consumer.accept("academiaURL", getAcademiaURL()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getCordisURL())) {
+			consumer.accept("cordisURL", getCordisURL()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getDblpURL())) {
+			consumer.accept("dblpURL", getDblpURL()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getFacebookId())) {
+			consumer.accept("facebookId", getFacebookId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getGithubId())) {
+			consumer.accept("githubId", getGithubId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getLinkedInId())) {
+			consumer.accept("linkedInId", getLinkedInId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getResearcherId())) {
+			consumer.accept("researcherId", getResearcherId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getResearchGateId())) {
+			consumer.accept("researchGateId", getResearchGateId()); //$NON-NLS-1$
 		}
 	}
 
@@ -290,6 +416,21 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	public String getORCID() {
 		return this.orcid;
+	}
+
+	/** Replies the URL to ORCID of the person.
+	 *
+	 * @return the ORCID URL.
+	 */
+	public final URL getOrcidURL() {
+		if (!Strings.isNullOrEmpty(getORCID())) {
+			try {
+				return new URL(ORCID_URL + getORCID());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
 	}
 
 	/** Change the ORCID of the person.
@@ -391,6 +532,259 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		if (this.publications != null) {
 			this.publications.clear();
 		}
+	}
+
+	/** Replies the URL of the person on {@code academia.edu}.
+	 *
+	 * @return the URL.
+	 */
+	public String getAcademiaURL() {
+		return this.academiaURL;
+	}
+
+	/** Replies the URL of the person on {@code academia.edu}.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getAcademiaURLObject() {
+		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
+			try {
+				return new URL(getAcademiaURL());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the URL of the person on {@code academia.edu}.
+	 *
+	 * @param url the URL.
+	 */
+	public void setAcademiaURL(String url) {
+		this.academiaURL = Strings.emptyToNull(url);
+	}
+
+	/** Replies the URL of the person on {@code cordis.europa.eu}.
+	 *
+	 * @return the URL.
+	 */
+	public String getCordisURL() {
+		return this.cordisURL;
+	}
+
+	/** Replies the URL of the person on {@code cordis.europa.eu}.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getCordisURLObject() {
+		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
+			try {
+				return new URL(getCordisURL());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the URL of the person on {@code cordis.europa.eu}.
+	 *
+	 * @param url the URL.
+	 */
+	public void setCordisURL(String url) {
+		this.cordisURL = Strings.emptyToNull(url);
+	}
+
+	/** Replies the URL of the person on DBLP.
+	 *
+	 * @return the URL.
+	 */
+	public String getDblpURL() {
+		return this.dblpURL;
+	}
+
+	/** Replies the URL of the person on DBLP.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getDblpURLObject() {
+		if (!Strings.isNullOrEmpty(getDblpURL())) {
+			try {
+				return new URL(getDblpURL());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the URL of the person on DBLP.
+	 *
+	 * @param url the URL.
+	 */
+	public void setDblpURL(String url) {
+		this.dblpURL = Strings.emptyToNull(url);
+	}
+
+	/** Replies the identifier of the person on Facebook.
+	 *
+	 * @return the identifier.
+	 */
+	public String getFacebookId() {
+		return this.facebookId;
+	}
+
+	/** Replies the URL of the person on Facebook.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getFacebookURL() {
+		if (!Strings.isNullOrEmpty(getFacebookId())) {
+			try {
+
+				return new URL(FACEBOOK_URL + getFacebookId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the identifier of the person on Facebook.
+	 *
+	 * @param id the identifier.
+	 */
+	public void setFacebookId(String id) {
+		this.facebookId = Strings.emptyToNull(id);
+	}
+
+	/** Replies the identifier of the person on Github.
+	 *
+	 * @return the identifier.
+	 */
+	public String getGithubId() {
+		return this.githubId;
+	}
+
+	/** Replies the URL of the person on Github.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getGithubURL() {
+		if (!Strings.isNullOrEmpty(getGithubId())) {
+			try {
+
+				return new URL(GITHUB_URL + getGithubId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the identifier of the person on Github.
+	 *
+	 * @param id the identifier.
+	 */
+	public void setGithubId(String id) {
+		this.githubId = Strings.emptyToNull(id);
+	}
+
+	/** Replies the identifier of the person on LinkedIn.
+	 *
+	 * @return the identifier.
+	 */
+	public String getLinkedInId() {
+		return this.linkedInId;
+	}
+
+	/** Replies the URL of the person on LinkedIn.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getLinkedInURL() {
+		if (!Strings.isNullOrEmpty(getLinkedInId())) {
+			try {
+
+				return new URL(LINKEDIN_URL + getLinkedInId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the identifier of the person on LinkedIn.
+	 *
+	 * @param id the identifier.
+	 */
+	public void setLinkedInId(String id) {
+		this.linkedInId = Strings.emptyToNull(id);
+	}
+
+	/** Replies the ResearcherID of the person.
+	 *
+	 * @return the identifier.
+	 */
+	public String getResearcherId() {
+		return this.researcherId;
+	}
+
+	/** Replies the URL of the person on Plubon.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getResearcherIdURL() {
+		if (!Strings.isNullOrEmpty(getResearcherId())) {
+			try {
+
+				return new URL(RESEARCHERID_URL + getResearcherId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the ResearcherID of the person.
+	 *
+	 * @param id the identifier.
+	 */
+	public void setResearcherId(String id) {
+		this.researcherId = Strings.emptyToNull(id);
+	}
+
+	/** Replies the identifier of the person on ResearchGate.
+	 *
+	 * @return the identifier.
+	 */
+	public String getResearchGateId() {
+		return this.researchGateId;
+	}
+
+	/** Replies the URL of the person on ResearchGate.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getResearchGateURL() {
+		if (!Strings.isNullOrEmpty(getResearchGateId())) {
+			try {
+
+				return new URL(RESEARCHGATE_URL + getResearchGateId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the identifier of the person on ResearchGate.
+	 *
+	 * @param id the identifier.
+	 */
+	public void setResearchGateId(String id) {
+		this.researchGateId = Strings.emptyToNull(id);
 	}
 
 }

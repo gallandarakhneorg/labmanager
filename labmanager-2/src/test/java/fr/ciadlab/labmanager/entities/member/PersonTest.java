@@ -283,4 +283,225 @@ public class PersonTest {
 		assertSame(Gender.FEMALE, this.test.getGender());
 	}
 
+	@Test
+	public void getAcademiaURL() {
+		assertNull(this.test.getAcademiaURL());
+	}
+
+	@Test
+	public void getAcademiaURLObject() {
+		assertNull(this.test.getAcademiaURLObject());
+	}
+
+	@Test
+	public void setAcademiaURL() {
+		assertNull(this.test.getAcademiaURL());
+
+		this.test.setAcademiaURL("xyz");
+		assertEquals("xyz", this.test.getAcademiaURL());
+
+		this.test.setAcademiaURL(null);
+		assertNull(this.test.getAcademiaURL());
+
+		this.test.setAcademiaURL("xyz");
+		assertEquals("xyz", this.test.getAcademiaURL());
+
+		this.test.setAcademiaURL("");
+		assertNull(this.test.getAcademiaURL());
+	}
+
+	@Test
+	public void getCordisURL() {
+		assertNull(this.test.getCordisURL());
+	}
+
+	@Test
+	public void getCordisURLObject() {
+		assertNull(this.test.getCordisURLObject());
+	}
+
+	@Test
+	public void setCordisURL() {
+		assertNull(this.test.getCordisURL());
+
+		this.test.setCordisURL("xyz");
+		assertEquals("xyz", this.test.getCordisURL());
+
+		this.test.setCordisURL(null);
+		assertNull(this.test.getCordisURL());
+
+		this.test.setCordisURL("xyz");
+		assertEquals("xyz", this.test.getCordisURL());
+
+		this.test.setCordisURL("");
+		assertNull(this.test.getCordisURL());
+	}
+
+	@Test
+	public void getDblpURL() {
+		assertNull(this.test.getDblpURL());
+	}
+
+	@Test
+	public void getDblpURLObject() {
+		assertNull(this.test.getDblpURLObject());
+	}
+
+	@Test
+	public void setDblpURL() {
+		assertNull(this.test.getDblpURL());
+
+		this.test.setDblpURL("xyz");
+		assertEquals("xyz", this.test.getDblpURL());
+
+		this.test.setDblpURL(null);
+		assertNull(this.test.getDblpURL());
+
+		this.test.setDblpURL("xyz");
+		assertEquals("xyz", this.test.getDblpURL());
+
+		this.test.setDblpURL("");
+		assertNull(this.test.getDblpURL());
+	}
+
+	@Test
+	public void getFacebookId() {
+		assertNull(this.test.getFacebookId());
+	}
+
+	@Test
+	public void getFacebookURL() {
+		assertNull(this.test.getFacebookURL());
+	}
+
+	@Test
+	public void setFacebookId() throws Exception {
+		assertNull(this.test.getFacebookId());
+
+		this.test.setFacebookId("xyz");
+		assertEquals("xyz", this.test.getFacebookId());
+		assertEquals(new URL("https://www.facebook.com/xyz"), this.test.getFacebookURL());
+
+		this.test.setFacebookId(null);
+		assertNull(this.test.getFacebookId());
+		assertNull(this.test.getFacebookURL());
+
+		this.test.setFacebookId("xyz");
+		assertEquals("xyz", this.test.getFacebookId());
+		assertEquals(new URL("https://www.facebook.com/xyz"), this.test.getFacebookURL());
+
+		this.test.setFacebookId("");
+		assertNull(this.test.getFacebookId());
+		assertNull(this.test.getFacebookURL());
+	}
+
+	@Test
+	public void getGithubId() {
+		assertNull(this.test.getGithubId());
+	}
+
+	@Test
+	public void getGithubURL() {
+		assertNull(this.test.getGithubURL());
+	}
+
+	@Test
+	public void setGithubId() throws Exception {
+		assertNull(this.test.getGithubId());
+
+		this.test.setGithubId("xyz");
+		assertEquals("xyz", this.test.getGithubId());
+		assertEquals(new URL("https://www.github.com/xyz"), this.test.getGithubURL());
+
+		this.test.setGithubId(null);
+		assertNull(this.test.getGithubId());
+		assertNull(this.test.getGithubURL());
+
+		this.test.setGithubId("xyz");
+		assertEquals("xyz", this.test.getGithubId());
+		assertEquals(new URL("https://www.github.com/xyz"), this.test.getGithubURL());
+
+		this.test.setGithubId("");
+		assertNull(this.test.getGithubId());
+		assertNull(this.test.getGithubURL());
+	}
+
+	@Test
+	public void getLinkedInURL() {
+		assertNull(this.test.getLinkedInURL());
+	}
+
+	@Test
+	public void setLinkedInId() throws Exception {
+		assertNull(this.test.getLinkedInId());
+
+		this.test.setLinkedInId("xyz");
+		assertEquals("xyz", this.test.getLinkedInId());
+		assertEquals(new URL("http://linkedin.com/in/xyz"), this.test.getLinkedInURL());
+
+		this.test.setLinkedInId(null);
+		assertNull(this.test.getLinkedInId());
+		assertNull(this.test.getLinkedInURL());
+
+		this.test.setLinkedInId("xyz");
+		assertEquals("xyz", this.test.getLinkedInId());
+		assertEquals(new URL("http://linkedin.com/in/xyz"), this.test.getLinkedInURL());
+
+		this.test.setLinkedInId("");
+		assertNull(this.test.getLinkedInId());
+		assertNull(this.test.getLinkedInURL());
+	}
+
+	@Test
+	public void getResearcherId() {
+		assertNull(this.test.getResearcherId());
+	}
+
+	@Test
+	public void setResearcherId() throws Exception {
+		assertNull(this.test.getResearcherId());
+
+		this.test.setResearcherId("xyz");
+		assertEquals("xyz", this.test.getResearcherId());
+		assertEquals(new URL("http://www.researcherid.com/rid/xyz"), this.test.getResearcherIdURL());
+
+		this.test.setResearcherId(null);
+		assertNull(this.test.getResearcherId());
+		assertNull(this.test.getResearcherIdURL());
+
+		this.test.setResearcherId("xyz");
+		assertEquals("xyz", this.test.getResearcherId());
+		assertEquals(new URL("http://www.researcherid.com/rid/xyz"), this.test.getResearcherIdURL());
+
+		this.test.setResearcherId("");
+		assertNull(this.test.getResearcherId());
+		assertNull(this.test.getResearcherIdURL());
+	}
+
+	@Test
+	public void getResearchGateId() {
+		assertNull(this.test.getResearchGateId());
+	}
+
+	@Test
+	public void setResearchGateId() throws Exception {
+		assertNull(this.test.getResearchGateId());
+
+		this.test.setResearchGateId("xyz");
+		assertEquals("xyz", this.test.getResearchGateId());
+		assertEquals(new URL("http://www.researchgate.net/profile/xyz"), this.test.getResearchGateURL());
+
+		this.test.setResearchGateId(null);
+		assertNull(this.test.getResearchGateId());
+		assertNull(this.test.getResearchGateURL());
+
+		this.test.setResearchGateId("xyz");
+		assertEquals("xyz", this.test.getResearchGateId());
+		assertEquals(new URL("http://www.researchgate.net/profile/xyz"), this.test.getResearchGateURL());
+
+		this.test.setResearchGateId("");
+		assertNull(this.test.getResearchGateId());
+		assertNull(this.test.getResearchGateURL());
+	}
+
 }
