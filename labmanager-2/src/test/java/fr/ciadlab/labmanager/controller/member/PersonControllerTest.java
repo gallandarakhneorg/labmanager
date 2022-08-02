@@ -78,8 +78,8 @@ public class PersonControllerTest {
 	@Test
 	public void addPerson() throws Exception {
 		final HttpServletResponse response = mock(HttpServletResponse.class);
-		this.test.addPerson(response, "first0", "last0", "email0");
-		verify(this.personService).createPerson("first0", "last0", "email0");
+		this.test.addPerson(response, "first0", "last0", "gender0", "email0", "orcid0");
+		verify(this.personService).createPerson("first0", "last0", "gender0", "email0", "orcid0");
 		verify(response).sendRedirect("/SpringRestHibernate/personTool?created=true&message=first0+last0+%3Cemail0%3E");
 	}
 
@@ -106,9 +106,9 @@ public class PersonControllerTest {
 		final HttpServletResponse response = mock(HttpServletResponse.class);
 		Locale.setDefault(Locale.US);
 
-		this.test.editPerson(response, "abc xyz", "abc1", "xyz1", "email1");
+		this.test.editPerson(response, "abc xyz", "abc1", "xyz1", "email1", "orcid1");
 
-		verify(this.personService, never()).updatePerson(anyInt(), anyString(), anyString(), anyString());
+		verify(this.personService, never()).updatePerson(anyInt(), anyString(), anyString(), anyString(), anyString());
 		verify(response).sendRedirect("/SpringRestHibernate/personTool?error=1&message=Person+with+the+name+%27abc+xyz%27+was+not+found");
 	}
 
@@ -118,9 +118,9 @@ public class PersonControllerTest {
 		final Person expected = mock(Person.class);
 		when(this.personService.getPersonIdByName("abc", "xyz")).thenReturn(123);
 
-		this.test.editPerson(response, "abc xyz", "abc1", "xyz1", "email1");
+		this.test.editPerson(response, "abc xyz", "abc1", "xyz1", "email1", "orcid1");
 
-		verify(this.personService).updatePerson(123, "abc1", "xyz1", "email1");
+		verify(this.personService).updatePerson(123, "abc1", "xyz1", "email1", "orcid1");
 		verify(response).sendRedirect("/SpringRestHibernate/personTool?updated=true&message=abc+xyz");
 	}
 

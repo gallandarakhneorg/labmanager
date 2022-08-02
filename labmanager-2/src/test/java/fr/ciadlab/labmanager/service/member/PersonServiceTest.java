@@ -36,6 +36,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
@@ -236,7 +237,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void createPerson() {
-		final int id = this.test.createPerson("NFN", "NLN", "NE");
+		final int id = this.test.createPerson("NFN", "NLN", "male", "NE", "NORCID");
 
 		final ArgumentCaptor<Person> arg = ArgumentCaptor.forClass(Person.class);
 		verify(this.personRepository, only()).save(arg.capture());
@@ -245,12 +246,14 @@ public class PersonServiceTest {
 		assertEquals(id, actual.getId());
 		assertEquals("NFN", actual.getFirstName());
 		assertEquals("NLN", actual.getLastName());
+		assertSame(Gender.MALE, actual.getGender());
 		assertEquals("NE", actual.getEmail());
+		assertEquals("NORCID", actual.getORCID());
 	}
 
 	@Test
 	public void updatePerson() {
-		this.test.updatePerson(234, "NFN", "NLN", "NE");
+		this.test.updatePerson(234, "NFN", "NLN", "NE", "NORCID");
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.personRepository, atLeastOnce()).findById(arg0.capture());
@@ -263,16 +266,21 @@ public class PersonServiceTest {
 		final Person actual1 = arg1.getValue();
 		assertSame(this.pers1, actual1);
 
-		final ArgumentCaptor<String> arg2 = ArgumentCaptor.forClass(String.class);
-
+		ArgumentCaptor<String> arg2 = ArgumentCaptor.forClass(String.class);
 		verify(this.pers1, atLeastOnce()).setFirstName(arg2.capture());
 		assertEquals("NFN", arg2.getValue());
 
+		arg2 = ArgumentCaptor.forClass(String.class);
 		verify(this.pers1, atLeastOnce()).setLastName(arg2.capture());
 		assertEquals("NLN", arg2.getValue());
 
+		arg2 = ArgumentCaptor.forClass(String.class);
 		verify(this.pers1, atLeastOnce()).setEmail(arg2.capture());
 		assertEquals("NE", arg2.getValue());
+
+		arg2 = ArgumentCaptor.forClass(String.class);
+		verify(this.pers1, atLeastOnce()).setORCID(arg2.capture());
+		assertEquals("NORCID", arg2.getValue());
 	}
 
 	@Test

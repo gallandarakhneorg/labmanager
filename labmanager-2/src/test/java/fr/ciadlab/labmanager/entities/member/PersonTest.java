@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -121,14 +122,39 @@ public class PersonTest {
 	public void setEmail() {
 		assertNull(this.test.getEmail());
 
-		this.test.setEmail(null);
-		assertNull(this.test.getEmail());
+		this.test.setEmail("xyz");
+		assertEquals("xyz", this.test.getEmail());
 
-		this.test.setEmail("");
+		this.test.setEmail(null);
 		assertNull(this.test.getEmail());
 
 		this.test.setEmail("xyz");
 		assertEquals("xyz", this.test.getEmail());
+
+		this.test.setEmail("");
+		assertNull(this.test.getEmail());
+	}
+
+	@Test
+	public void getORCID() {
+		assertNull(this.test.getORCID());
+	}
+
+	@Test
+	public void setORCID() {
+		assertNull(this.test.getORCID());
+
+		this.test.setORCID("xyz");
+		assertEquals("xyz", this.test.getORCID());
+
+		this.test.setORCID(null);
+		assertNull(this.test.getORCID());
+
+		this.test.setORCID("xyz");
+		assertEquals("xyz", this.test.getORCID());
+
+		this.test.setORCID("");
+		assertNull(this.test.getORCID());
 	}
 
 	@Test
@@ -216,6 +242,41 @@ public class PersonTest {
 		assertNotNull(obj.get("firstName"));
 		assertNotNull(obj.get("lastName"));
 		assertNotNull(obj.get("email"));
+	}
+
+	@Test
+	public void getGender() {
+		assertSame(Gender.NOT_SPECIFIED, this.test.getGender());
+	}
+
+	@Test
+	public void setGender_gender() {
+		assertSame(Gender.NOT_SPECIFIED, this.test.getGender());
+
+		this.test.setGender(Gender.MALE);
+		assertSame(Gender.MALE, this.test.getGender());
+
+		this.test.setGender((Gender) null);
+		assertSame(Gender.NOT_SPECIFIED, this.test.getGender());
+
+		this.test.setGender(Gender.FEMALE);
+		assertSame(Gender.FEMALE, this.test.getGender());
+	}
+
+	@Test
+	public void setGender_string() {
+		assertSame(Gender.NOT_SPECIFIED, this.test.getGender());
+
+		this.test.setGender(Gender.MALE);
+		assertSame(Gender.MALE, this.test.getGender());
+
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.test.setGender((String) null);
+		});
+		assertSame(Gender.MALE, this.test.getGender());
+
+		this.test.setGender(Gender.FEMALE);
+		assertSame(Gender.FEMALE, this.test.getGender());
 	}
 
 }

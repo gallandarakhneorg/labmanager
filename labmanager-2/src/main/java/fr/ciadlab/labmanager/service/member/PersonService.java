@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -99,14 +100,19 @@ public class PersonService extends AbstractService {
 	 *
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
+	 * @param gender the string representation of the gender.
 	 * @param email the email of the person.
+	 * @param orcid the ORCID of the person.
 	 * @return the identifier of the person in the database.
+	 * @see Gender
 	 */
-	public int createPerson(String firstName, String lastName, String email) {
+	public int createPerson(String firstName, String lastName, String gender, String email, String orcid) {
 		final Person res = new Person();
 		res.setFirstName(firstName);
 		res.setLastName(lastName);
+		res.setGender(Gender.valueOfCaseInsensitive(gender));
 		res.setEmail(email);
+		res.setORCID(orcid);
 		this.personRepository.save(res);
 
 		return res.getId();
@@ -118,8 +124,9 @@ public class PersonService extends AbstractService {
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
 	 * @param email the email of the person.
+	 * @param orcid the ORCID of the person.
 	 */
-	public void updatePerson(int identifier, String firstName, String lastName, String email) {
+	public void updatePerson(int identifier, String firstName, String lastName, String email, String orcid) {
 		final Optional<Person> res = this.personRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
 			final Person person = res.get();
@@ -130,6 +137,7 @@ public class PersonService extends AbstractService {
 				person.setLastName(lastName);
 			}
 			person.setEmail(email);
+			person.setORCID(orcid);
 			this.personRepository.save(person);
 		}
 	}

@@ -104,16 +104,21 @@ public class PersonController extends AbstractController {
 	 * @param response JEE response.
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
+	 * @param gender the string representation of the persons' gender.
 	 * @param email the email of the person.
+	 * @param orcid the ORCID of the person.
 	 * @throws Exception if the redirection to success/failure page cannot be done.
+	 * @see Gender
 	 */
 	@RequestMapping(value = "/addPerson", method = RequestMethod.POST)
 	public void addPerson(HttpServletResponse response,
 			@RequestParam String firstName,
 			@RequestParam String lastName,
-			@RequestParam String email) throws Exception {
+			@RequestParam String gender,
+			@RequestParam String email,
+			@RequestParam String orcid) throws Exception {
 		try {
-			this.personService.createPerson(firstName, lastName, email);
+			this.personService.createPerson(firstName, lastName, gender, email, orcid);
 			final String msg;
 			if (!Strings.isNullOrEmpty(email)) {
 				msg = firstName + " " + lastName + " <" + email + ">"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -134,20 +139,22 @@ public class PersonController extends AbstractController {
 	 * @param firstName the new first name.
 	 * @param lastName the new last name.
 	 * @param email the new email.
+	 * @param orcid the new ORCID.
 	 * @throws Exception if the redirection to success/failure page cannot be done.
 	 */
 	@PostMapping("/editPerson")
 	public void editPerson(HttpServletResponse response,
 			@RequestParam String person,
 			@RequestParam String firstName,
-			@RequestParam String lastName ,
-			@RequestParam String email) throws Exception {
+			@RequestParam String lastName,
+			@RequestParam String email,
+			@RequestParam String orcid) throws Exception {
 		try {
 			final String oldFirstName = this.nameParser.parseFirstName(person);
 			final String oldLastName = this.nameParser.parseLastName(person);
 			final int id = this.personService.getPersonIdByName(oldFirstName, oldLastName);
 			if (id != 0) {
-				this.personService.updatePerson(id, firstName, lastName, email);
+				this.personService.updatePerson(id, firstName, lastName, email, orcid);
 				redirectUpdated(response, person);
 			} else {
 				redirectError(response, Locale.getString("NO_PERSON_ERROR", person)); //$NON-NLS-1$

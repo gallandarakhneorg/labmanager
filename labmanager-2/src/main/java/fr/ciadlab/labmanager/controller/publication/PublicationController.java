@@ -697,7 +697,7 @@ public class PublicationController extends AbstractController {
 				int authorId = this.personService.getPersonIdByName(firstName, lastName);
 				if (authorId == 0) {
 					// The author does not exist yet
-					authorId = this.personService.createPerson(firstName, lastName, null);
+					authorId = this.personService.createPerson(firstName, lastName, null, null, null);
 					getLogger().info("New person \"" + publicationAuthor + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
 				}
 				this.authorshipService.addAuthorship(authorId, publicationId, i);
@@ -924,7 +924,7 @@ public class PublicationController extends AbstractController {
 					int authorId = this.personService.getPersonIdByName(firstName, lastName);
 					if (authorId == 0) {
 						// The author does not exist yet
-						authorId = this.personService.createPerson(firstName, lastName, null);
+						authorId = this.personService.createPerson(firstName, lastName, null, null, null);
 						getLogger().info("New person \"" + publicationAuthor + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
 					} else {
 						oldAuthorIds.remove(Integer.valueOf(authorId));

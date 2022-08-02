@@ -28,6 +28,8 @@ import java.util.function.BiConsumer;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -141,6 +143,17 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	@Column
 	private String email;
 
+	/** ORCID of the person.
+	 */
+	@Column
+	private String orcid;
+
+	/** Gender of the person.
+	 */
+	@Column(nullable = true)
+	@Enumerated(EnumType.STRING)
+	private Gender gender;
+
 	/** List of research organizations for the person.
 	 */
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -161,17 +174,24 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 * @param orgas the memberships of the person.
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
+	 * @param gender the gender of the person.
 	 * @param email the email of the person.
-	 * @param hasPage indicates if the person has a personal page on the research organization website.
+	 * @param orcid the ORCID identifier of the person.
 	 */
 	public Person(int id, Set<Authorship> publications, Set<Membership> orgas, String firstName, String lastName,
-			String email, boolean hasPage) {
+			Gender gender, String email, String orcid) {
 		this.id = id;
 		this.publications = publications;
 		this.researchOrganizations = orgas;
 		this.firstName = firstName;
 		this.lastName = lastName;
+		if (gender == Gender.NOT_SPECIFIED) {
+			this.gender = null;
+		}else {
+			this.gender = gender;
+		}
 		this.email = email;
+		this.orcid = orcid;
 	}
 
 	/** Construct an empty person.
@@ -319,6 +339,53 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	public void setEmail(String email) {
 		this.email = Strings.emptyToNull(email);
+	}
+
+	/** Replies the ORCID of the person.
+	 *
+	 * @return the ORCID.
+	 */
+	public String getORCID() {
+		return this.orcid;
+	}
+
+	/** Change the ORCID of the person.
+	 *
+	 * @param orcid the orcid.
+	 */
+	public void setORCID(String orcid) {
+		this.orcid = Strings.emptyToNull(orcid);
+	}
+
+	/** Replies the gender of the person.
+	 *
+	 * @return the gender.
+	 */
+	public Gender getGender() {
+		if (this.gender == null) {
+			return Gender.NOT_SPECIFIED;
+		}
+		return this.gender;
+	}
+
+	/** Change the gender of the person.
+	 *
+	 * @param gender the gender, or {@code null} to set to "unspecified".
+	 */
+	public void setGender(Gender gender) {
+		if (gender == Gender.NOT_SPECIFIED) {
+			this.gender = null;
+		} else {
+			this.gender = gender;
+		}
+	}
+
+	/** Change the gender of the person.
+	 *
+	 * @param gender the gender.
+	 */
+	public final void setGender(String gender) {
+		setGender(Gender.valueOfCaseInsensitive(gender));
 	}
 
 	/** Replies the list of publications of the person.
