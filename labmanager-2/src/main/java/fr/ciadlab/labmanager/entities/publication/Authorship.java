@@ -177,6 +177,18 @@ public class Authorship implements Serializable, Comparable<Authorship> {
 		this.authorRank = rank;
 	}
 
+	/** Change the rank of the author in the list of authors for the publication.
+	 *
+	 * @param rank the rank number.
+	 */
+	public final void setAuthorRank(Number rank) {
+		if (rank == null) {
+			setAuthorRank(0);
+		} else {
+			setAuthorRank(rank.intValue());
+		}
+	}
+
 }
 
 

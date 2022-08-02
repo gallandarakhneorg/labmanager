@@ -280,13 +280,26 @@ public class Membership implements Serializable, Comparable<Membership> {
 	/** Change the CNU section of the member in the research organization.
 	 * CNU means "Conseil National des Universités". 
 	 *
-	 * @param cnu the CNY section number or {@code 0} if unknown.
+	 * @param cnu the CNU section number or {@code 0} if unknown.
 	 */
 	public void setCnuSection(int cnu) {
 		if (cnu < 0) {
 			this.cnuSection = 0;
 		} else {
 			this.cnuSection = cnu;
+		}
+	}
+
+	/** Change the CNU section of the member in the research organization.
+	 * CNU means "Conseil National des Universités". 
+	 *
+	 * @param cnu the CNU section number or {@code null} if unknown.
+	 */
+	public final void setCnuSection(Number cnu) {
+		if (cnu == null) {
+			setCnuSection(0);
+		} else {
+			setCnuSection(cnu.intValue());
 		}
 	}
 

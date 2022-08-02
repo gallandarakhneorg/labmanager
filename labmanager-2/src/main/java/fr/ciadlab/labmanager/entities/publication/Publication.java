@@ -414,7 +414,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 * @return the authoships.
 	 */
 	public List<Authorship> getAuthorships() {
-		return this.authorships.stream().sorted(Authorship.AUTHORSHIP_COMPARATOR).collect(Collectors.toList());
+		return this.authorships.stream().sorted(AuthorshipComparator.DEFAULT).collect(Collectors.toList());
 	}
 
 	/** Replies the ordered list of authors.
@@ -651,6 +651,18 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 */
 	public void setPublicationYear(int year) {
 		this.publicationYear = year;
+	}
+
+	/** Change the publication year.
+	 *
+	 * @param year is the year of publication.
+	 */
+	public final void setPublicationYear(Number year) {
+		if (year == null) {
+			setPublicationYear(0);
+		} else {
+			setPublicationYear(year.intValue());
+		}
 	}
 
 	/** Replies the ISBN number that is associated to this publication.
