@@ -16,7 +16,6 @@
 package fr.ciadlab.labmanager.entities.publication;
 
 import java.io.Serializable;
-import java.util.Comparator;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -41,32 +40,6 @@ import fr.ciadlab.labmanager.utils.HashCodeUtils;
 @Entity
 @Table(name = "Authorship")
 public class Authorship implements Serializable, Comparable<Authorship> {
-
-	/** Singleton of a comparator of authorships.
-	 */
-	public static final Comparator<Authorship> AUTHORSHIP_COMPARATOR = new Comparator<>() {
-		@Override
-		public int compare(Authorship o1, Authorship o2) {
-			if (o1 == o2) {
-				return 0;
-			}
-			if (o1 == null) {
-				return Integer.MIN_VALUE;
-			}
-			if (o2 == null) {
-				return Integer.MAX_VALUE;
-			}
-			int n = Integer.compare(o1.getPublication().getId(), o2.getPublication().getId());
-			if (n != 0) {
-				return n;
-			}
-			n = Integer.compare(o1.getAuthorRank(), o2.getAuthorRank());
-			if (n != 0) {
-				return n;
-			}
-			return Integer.compare(o1.getPerson().getId(), o2.getPerson().getId());
-		}
-	};
 
 	private static final long serialVersionUID = -6870718668893845051L;
 
@@ -137,7 +110,7 @@ public class Authorship implements Serializable, Comparable<Authorship> {
 
 	@Override
 	public int compareTo(Authorship o) {
-		return AUTHORSHIP_COMPARATOR.compare(this, o);
+		return AuthorshipComparator.DEFAULT.compare(this, o);
 	}
 
 	/** Replies the identifier of the authorship.

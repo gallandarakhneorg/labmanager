@@ -46,7 +46,6 @@ import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.JsonExportable;
 import fr.ciadlab.labmanager.utils.JsonUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Represent a person.
@@ -63,63 +62,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 
 	private static final long serialVersionUID = -7738810647549936633L;
 
-	/** Default comparator of persons. The order of the persons is based on the
-	 * last name, first name, email, and the identifier.
-	 */
-	public static final Comparator<Person> PERSON_COMPARATOR = new Comparator<>() {
-		@Override
-		public int compare(Person o1, Person o2) {
-			if (o1 == o2) {
-				return 0;
-			}
-			if (o1 == null) {
-				return Integer.MIN_VALUE;
-			}
-			if (o2 == null) {
-				return Integer.MAX_VALUE;
-			}
-			int cmp = StringUtils.compare(o1.getLastName(), o2.getLastName());
-			if (cmp != 0) {
-				return cmp;
-			}
-			cmp = StringUtils.compare(o1.getFirstName(), o2.getFirstName());
-			if (cmp != 0) {
-				return cmp;
-			}
-			cmp = StringUtils.compare(o1.getEmail(), o2.getEmail());
-			return Integer.compare(o1.getId(), o2.getId());
-		}
-	};
 
-	/** Default comparator of lists of persons. The order of the persons in the list is based on
-	 * {@link #PERSON_COMPARATOR}.
-	 */
-	public static final Comparator<List<Person>> PERSON_LIST_COMPARATOR = new Comparator<>() {
-		@Override
-		public int compare(List<Person> o1, List<Person> o2) {
-			if (o1 == o2) {
-				return 0;
-			}
-			if (o1 == null) {
-				return Integer.MIN_VALUE;
-			}
-			if (o2 == null) {
-				return Integer.MAX_VALUE;
-			}
-			final int max = Integer.max(o1.size(), o2.size());
-			final Iterator<Person> it1 = o1.iterator();
-			final Iterator<Person> it2 = o2.iterator();
-			for (int i = 0; i < max; ++i) {
-				final Person p1 = it1.next();
-				final Person p2 = it2.next();
-				final int cmp = PERSON_COMPARATOR.compare(p1, p2);
-				if (cmp != 0) {
-					return cmp;
-				}
-			}
-			return Integer.compare(o1.size(), o2.size());
-		}
-	};
 
 	/** Identifier of a person.
 	 */
@@ -242,7 +185,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 
 	@Override
 	public int compareTo(Person o) {
-		return PERSON_COMPARATOR.compare(this, o);
+		return PersonComparator.DEFAULT.compare(this, o);
 	}
 
 	/** {@inheritDoc}

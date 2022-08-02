@@ -32,6 +32,7 @@ import fr.ciadlab.labmanager.controller.member.PersonController;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.service.member.MemberFiltering;
 import fr.ciadlab.labmanager.service.member.MembershipService;
@@ -171,7 +172,7 @@ public class AuthorController extends AbstractController {
 		Stream<Person> stream = this.personService.getAllPersons().stream();
 		if (excludedAuthors != null && excludedAuthors.length > 0) {
 			// Build the list of persons to exclude.
-			final Set<Person> personsToExclude = new TreeSet<>(Person.PERSON_COMPARATOR);
+			final Set<Person> personsToExclude = new TreeSet<>(PersonComparator.DEFAULT);
 			for (final String fullName : excludedAuthors) { 
 				final String firstName = this.nameParser.parseFirstName(fullName); 
 				final String lastName = this.nameParser.parseLastName(fullName);

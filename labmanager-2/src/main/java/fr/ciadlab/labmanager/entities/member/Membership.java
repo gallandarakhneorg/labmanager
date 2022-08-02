@@ -18,7 +18,6 @@ package fr.ciadlab.labmanager.entities.member;
 import java.io.Serializable;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.Objects;
 
 import javax.persistence.CascadeType;
@@ -33,6 +32,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 
@@ -49,56 +49,6 @@ import fr.ciadlab.labmanager.utils.HashCodeUtils;
 public class Membership implements Serializable, Comparable<Membership> {
 
 	private static final long serialVersionUID = 297499358606685801L;
-
-	/** Default comparator of memberships.
-	 */
-	public static final Comparator<Membership> DEFAULT_COMPARATOR = new Comparator<>() {
-		@Override
-		public int compare(Membership o1, Membership o2) {
-			if (o1 == o2) {
-				return 0;
-			}
-			if (o1 == null) {
-				return Integer.MIN_VALUE;
-			}
-			if (o2 == null) {
-				return Integer.MAX_VALUE;
-			}
-			int n = ResearchOrganization.DEFAULT_COMPARATOR.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
-			if (n != 0) {
-				return n;
-			}
-			n = o1.getMemberStatus().compareTo(o2.getMemberStatus());
-			if (n != 0) {
-				return n;
-			}
-			n = compareDate(o1.getMemberSinceWhen(), o2.getMemberSinceWhen());
-			if (n != 0) {
-				return n;
-			}
-			n = compareDate(o1.getMemberToWhen(), o2.getMemberToWhen());
-			if (n != 0) {
-				return n;
-			}
-			n = Person.PERSON_COMPARATOR.compare(o1.getPerson(), o2.getPerson());
-			if (n != 0) {
-				return n;
-			}
-			return Integer.compare(o1.getId(), o2.getId());
-		}
-		private int compareDate(Date d0, Date d1) {
-			if (d0 == d1) {
-				return 0;
-			}
-			if (d0 == null) {
-				return Integer.MIN_VALUE;
-			}
-			if (d1 == null) {
-				return Integer.MAX_VALUE;
-			}
-			return d0.compareTo(d1);
-		}
-	};
 
 	/** Identifier of the membership.
 	 */
@@ -203,7 +153,7 @@ public class Membership implements Serializable, Comparable<Membership> {
 
 	@Override
 	public int compareTo(Membership o) {
-		return DEFAULT_COMPARATOR.compare(this, o);
+		return MembershipComparator.DEFAULT.compare(this, o);
 	}
 
 	/** Replies the membership identifier.

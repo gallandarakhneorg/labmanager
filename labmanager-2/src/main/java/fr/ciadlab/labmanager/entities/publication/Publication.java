@@ -20,7 +20,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -72,37 +71,6 @@ import fr.ciadlab.labmanager.utils.JsonUtils;
 public abstract class Publication implements Serializable, Comparable<Publication>, JsonExportable, AttributeProvider {
 
 	private static final long serialVersionUID = -5980560007123809890L;
-
-	/** Default comparator of publication. The order of the publication is based on the
-	 * type of publication, the year, the authors, the identifier.
-	 */
-	public static final Comparator<Publication> DEFAULT_COMPARATOR = new Comparator<>() {
-		@Override
-		public int compare(Publication o1, Publication o2) {
-			if (o1 == o2) {
-				return 0;
-			}
-			if (o1 == null) {
-				return Integer.MIN_VALUE;
-			}
-			if (o2 == null) {
-				return Integer.MAX_VALUE;
-			}
-			int cmp = o1.getType().compareTo(o2.getType());
-			if (cmp != 0) {
-				return cmp;
-			}
-			cmp = Integer.compare(o1.getPublicationYear(), o2.getPublicationYear());
-			if (cmp != 0) {
-				return cmp;
-			}
-			cmp = Person.PERSON_LIST_COMPARATOR.compare(o1.getAuthors(), o2.getAuthors());
-			if (cmp != 0) {
-				return cmp;
-			}
-			return Integer.compare(o1.getId(), o2.getId());
-		}
-	};
 
 	/** Identifier of the publication.
 	 * The generated value type is set to {@link GenerationType#AUTO} instead of {@link GenerationType#IDENTITY}
@@ -362,7 +330,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 
 	@Override
 	public int compareTo(Publication o) {
-		return DEFAULT_COMPARATOR.compare(this, o);
+		return PublicationComparator.DEFAULT.compare(this, o);
 	}
 
 	/** {@inheritDoc}
