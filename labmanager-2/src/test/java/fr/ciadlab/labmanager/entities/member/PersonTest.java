@@ -504,4 +504,144 @@ public class PersonTest {
 		assertNull(this.test.getResearchGateURL());
 	}
 
+	private ResearchOrganization mockOrg(String acronym) {
+		ResearchOrganization o = mock(ResearchOrganization.class);
+		when(o.getType()).thenReturn(ResearchOrganizationType.LABORATORY);
+		when(o.getAcronym()).thenReturn(acronym);
+		return o;
+	}
+
+	@Test
+	public void getRecentMemberships() {
+		ResearchOrganization o0 = mockOrg("o0");
+		ResearchOrganization o1 = mockOrg("o1");
+
+		Membership m0 = mock(Membership.class);
+		when(m0.getResearchOrganization()).thenReturn(o0);
+		when(m0.getPerson()).thenReturn(this.test);
+		when(m0.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
+		when(m0.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-07-22"));
+		when(m0.getMemberToWhen()).thenReturn(Date.valueOf("2022-07-22"));
+
+		Membership m1 = mock(Membership.class);
+		when(m1.getResearchOrganization()).thenReturn(o1);
+		when(m1.getPerson()).thenReturn(this.test);
+		when(m1.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
+
+		Membership m2 = mock(Membership.class);
+		when(m2.getResearchOrganization()).thenReturn(o0);
+		when(m2.getPerson()).thenReturn(this.test);
+		when(m2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
+		when(m2.getMemberSinceWhen()).thenReturn(Date.valueOf("2022-07-23"));
+
+		Membership m3 = mock(Membership.class);
+		when(m3.getResearchOrganization()).thenReturn(o0);
+		when(m3.getPerson()).thenReturn(this.test);
+		when(m3.getMemberStatus()).thenReturn(MemberStatus.MASTER_STUDENT);
+		when(m3.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-01-01"));
+		when(m0.getMemberToWhen()).thenReturn(Date.valueOf("2021-07-21"));
+
+		Set<Membership> mbrs = new HashSet<>(Arrays.asList(m0, m1, m2));
+		this.test.setResearchOrganizations(mbrs);
+
+		Map<ResearchOrganization, Membership> map = this.test.getRecentMemberships();
+
+		assertNotNull(map);
+		assertEquals(2, map.size());
+		assertSame(m2, map.get(o0));
+		assertSame(m1, map.get(o1));
+	}
+
+	@Test
+	public void getRecentMemberships_filter_0() {
+		ResearchOrganization o0 = mockOrg("o0");
+		ResearchOrganization o1 = mockOrg("o1");
+
+		Membership m0 = mock(Membership.class);
+		when(m0.getResearchOrganization()).thenReturn(o0);
+		when(m0.getPerson()).thenReturn(this.test);
+		when(m0.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
+		when(m0.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-07-22"));
+		when(m0.getMemberToWhen()).thenReturn(Date.valueOf("2022-07-22"));
+		when(m0.isActiveAt(any())).thenReturn(false);
+
+		Membership m1 = mock(Membership.class);
+		when(m1.getResearchOrganization()).thenReturn(o1);
+		when(m1.getPerson()).thenReturn(this.test);
+		when(m1.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
+		when(m1.isActiveAt(any())).thenReturn(true);
+
+		Membership m2 = mock(Membership.class);
+		when(m2.getResearchOrganization()).thenReturn(o0);
+		when(m2.getPerson()).thenReturn(this.test);
+		when(m2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
+		when(m2.getMemberSinceWhen()).thenReturn(Date.valueOf("2022-07-23"));
+		when(m2.isActiveAt(any())).thenReturn(true);
+
+		Membership m3 = mock(Membership.class);
+		when(m3.getResearchOrganization()).thenReturn(o0);
+		when(m3.getPerson()).thenReturn(this.test);
+		when(m3.getMemberStatus()).thenReturn(MemberStatus.MASTER_STUDENT);
+		when(m3.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-01-01"));
+		when(m3.getMemberToWhen()).thenReturn(Date.valueOf("2021-07-21"));
+		when(m3.isActiveAt(any())).thenReturn(false);
+
+		Set<Membership> mbrs = new HashSet<>(Arrays.asList(m0, m1, m2));
+		this.test.setResearchOrganizations(mbrs);
+
+		final LocalDate now = LocalDate.of(2022, 8, 1);
+		Map<ResearchOrganization, Membership> map = this.test.getRecentMemberships(it -> it.isActiveAt(now));
+
+		assertNotNull(map);
+		assertEquals(2, map.size());
+		assertSame(m2, map.get(o0));
+		assertSame(m1, map.get(o1));
+	}
+
+	@Test
+	public void getRecentMemberships_filter_1() {
+		ResearchOrganization o0 = mockOrg("o0");
+		ResearchOrganization o1 = mockOrg("o1");
+
+		Membership m0 = mock(Membership.class);
+		when(m0.getResearchOrganization()).thenReturn(o0);
+		when(m0.getPerson()).thenReturn(this.test);
+		when(m0.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
+		when(m0.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-07-22"));
+		when(m0.getMemberToWhen()).thenReturn(Date.valueOf("2022-07-22"));
+		when(m0.isActiveAt(any())).thenReturn(true);
+
+		Membership m1 = mock(Membership.class);
+		when(m1.getResearchOrganization()).thenReturn(o1);
+		when(m1.getPerson()).thenReturn(this.test);
+		when(m1.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
+		when(m1.isActiveAt(any())).thenReturn(true);
+
+		Membership m2 = mock(Membership.class);
+		when(m2.getResearchOrganization()).thenReturn(o0);
+		when(m2.getPerson()).thenReturn(this.test);
+		when(m2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
+		when(m2.getMemberSinceWhen()).thenReturn(Date.valueOf("2022-07-23"));
+		when(m2.isActiveAt(any())).thenReturn(true);
+
+		Membership m3 = mock(Membership.class);
+		when(m3.getResearchOrganization()).thenReturn(o0);
+		when(m3.getPerson()).thenReturn(this.test);
+		when(m3.getMemberStatus()).thenReturn(MemberStatus.MASTER_STUDENT);
+		when(m3.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-01-01"));
+		when(m3.getMemberToWhen()).thenReturn(Date.valueOf("2021-07-21"));
+		when(m3.isActiveAt(any())).thenReturn(true);
+
+		Set<Membership> mbrs = new HashSet<>(Arrays.asList(m0, m1, m2));
+		this.test.setResearchOrganizations(mbrs);
+
+		final LocalDate now = LocalDate.of(2022, 8, 1);
+		Map<ResearchOrganization, Membership> map = this.test.getRecentMemberships(it -> it.isActiveAt(now));
+
+		assertNotNull(map);
+		assertEquals(2, map.size());
+		assertSame(m2, map.get(o0));
+		assertSame(m1, map.get(o1));
+	}
+
 }

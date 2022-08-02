@@ -157,14 +157,14 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JsonIgnore
-	private Set<Membership> researchOrganizations = new HashSet<>();
+	private Set<Membership> researchOrganizations;
 
 	/** List of publications of the person.
 	 */
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JoinColumn(name="person", referencedColumnName = "id")
 	@JsonIgnore
-	private Set<Authorship> publications = new HashSet<>();
+	private Set<Authorship> publications;
 
 	/** Construct a person with the given values.
 	 *
@@ -504,6 +504,59 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 			this.researchOrganizations = new TreeSet<>(MembershipComparator.DEFAULT);
 		}
 		return this.researchOrganizations;
+	}
+
+	/** Replies the more recent membership per research organization.
+	 *
+	 * @return the recent memberships per organization.
+	 */
+	public Map<ResearchOrganization, Membership> getRecentMemberships() {
+		return getRecentMemberships(null);
+	}
+
+	/** Replies the more recent membership per research organization.
+	 *
+	 * @param filteringCondition the condition to apply for filtering the memberships, never {@code null}.
+	 * @return the recent membership for each organization.
+	 */
+	public Map<ResearchOrganization, Membership> getRecentMemberships(Predicate<? super Membership> filteringCondition) {
+		Stream<Membership> stream = getResearchOrganizations().stream();
+		if (filteringCondition != null) {
+			stream = stream.filter(filteringCondition);
+		}
+		return stream.collect(Collectors.toMap(
+				it -> it.getResearchOrganization(),
+				it -> it,
+				// Sort the memberships from the highest date to the lowest date
+				BinaryOperator.minBy(MembershipComparator.DEFAULT),
+				() -> new TreeMap<>(ResearchOrganizationComparator.DEFAULT)));
+	}
+
+	/** Replies the active membership per research organization.
+	 * The current system date is used as the temporal reference.
+	 *
+	 * @return the active membership for each organization.
+	 */
+	public Map<ResearchOrganization, Membership> getActiveMemberships() {
+		return getRecentMemberships(it -> it.isActive());
+	}
+
+	/** Replies the finished membership per research organization.
+	 * The current system date is used as the temporal reference.
+	 *
+	 * @return the finished membership for each organization.
+	 */
+	public Map<ResearchOrganization, Membership> getFinishedMemberships() {
+		return getRecentMemberships(it -> it.isFormer());
+	}
+
+	/** Replies the future membership per research organization.
+	 * The current system date is used as the temporal reference.
+	 *
+	 * @return the future membership for each organization.
+	 */
+	public Map<ResearchOrganization, Membership> getFutureMemberships() {
+		return getRecentMemberships(it -> it.isFuture());
 	}
 
 	/** Change the memberships of the person.
