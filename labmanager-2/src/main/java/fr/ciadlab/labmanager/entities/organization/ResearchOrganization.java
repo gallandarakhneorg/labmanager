@@ -67,6 +67,10 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	 */
 	public static final CountryCode DEFAULT_COUNTRY = CountryCode.FRANCE;
 
+	/** Default type for research organizations.
+	 */
+	public static final ResearchOrganizationType DEFAULT_TYPE = ResearchOrganizationType.LABORATORY;
+
 	private static final long serialVersionUID = -450531251083286848L;
 
 	/** Default comparator.
@@ -143,6 +147,12 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
 	private CountryCode country = DEFAULT_COUNTRY;
+
+	/** The type of organization.
+	 */
+	@Column(nullable = false)
+	@Enumerated(EnumType.STRING)
+	private ResearchOrganizationType type = DEFAULT_TYPE;
 
 	/** The URL of the organization.
 	 */
@@ -512,6 +522,39 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 			value = null;
 		}
 		setOrganizationURL(value);
+	}
+
+	/** Replies the type of organization.
+	 *
+	 * @return the type.
+	 */
+	public ResearchOrganizationType getType() {
+		return this.type;
+	}
+
+	/** Change the type of organization.
+	 *
+	 * @param type the country, or {@code null} if the type is the default one.
+	 * @see #DEFAULT_TYPE
+	 */
+	public void setType(ResearchOrganizationType type) {
+		if (type == null) {
+			this.type = DEFAULT_TYPE;
+		} else {
+			this.type = type;
+		}
+	}
+
+	/** Change the type of the organization.
+	 *
+	 * @param type the type.
+	 */
+	public final void setType(String type) {
+		if (Strings.isNullOrEmpty(type)) {
+			setType((ResearchOrganizationType) null);
+		} else {
+			setType(ResearchOrganizationType.valueOfCaseInsensitive(type));
+		}
 	}
 
 }

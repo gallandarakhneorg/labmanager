@@ -230,4 +230,27 @@ public class ResearchOrganizationTest {
 		assertNull(this.test.getOrganizationURLObject());
 	}
 
+	@Test
+	public void getType() {
+		assertSame(ResearchOrganizationType.LABORATORY, this.test.getType());
+	}
+
+	@Test
+	public void setType_type() {
+		this.test.setType(ResearchOrganizationType.COMMUNITY);
+		assertSame(ResearchOrganizationType.COMMUNITY, this.test.getType());
+
+		this.test.setType((ResearchOrganizationType) null);
+		assertSame(ResearchOrganizationType.LABORATORY, this.test.getType());
+	}
+
+	@Test
+	public void setType_string() {
+		this.test.setType("faCulty");
+		assertSame(ResearchOrganizationType.FACULTY, this.test.getType());
+
+		this.test.setType((String) null);
+		assertSame(ResearchOrganizationType.LABORATORY, this.test.getType());
+	}
+
 }
