@@ -70,9 +70,9 @@ public class PersonControllerTest {
 	}
 
 	@Test
-	public void showPersonTool() {
-		final ModelAndView mv = this.test.showPersonTool();
-		assertEquals("personTool", mv.getViewName());
+	public void personList() {
+		final ModelAndView mv = this.test.personList();
+		assertEquals("personList", mv.getViewName());
 	}
 
 	@Test
@@ -80,7 +80,7 @@ public class PersonControllerTest {
 		final HttpServletResponse response = mock(HttpServletResponse.class);
 		this.test.addPerson(response, "first0", "last0", "gender0", "email0", "orcid0");
 		verify(this.personService).createPerson("first0", "last0", "gender0", "email0", "orcid0");
-		verify(response).sendRedirect("/SpringRestHibernate/personTool?created=true&message=first0+last0+%3Cemail0%3E");
+		verify(response).sendRedirect("/SpringRestHibernate/personList?created=true&message=first0+last0+%3Cemail0%3E");
 	}
 
 	@Test
@@ -109,7 +109,7 @@ public class PersonControllerTest {
 		this.test.editPerson(response, "abc xyz", "abc1", "xyz1", "email1", "orcid1");
 
 		verify(this.personService, never()).updatePerson(anyInt(), anyString(), anyString(), anyString(), anyString());
-		verify(response).sendRedirect("/SpringRestHibernate/personTool?error=1&message=Person+with+the+name+%27abc+xyz%27+was+not+found");
+		verify(response).sendRedirect("/SpringRestHibernate/personList?error=1&message=Person+with+the+name+%27abc+xyz%27+was+not+found");
 	}
 
 	@Test
@@ -121,7 +121,7 @@ public class PersonControllerTest {
 		this.test.editPerson(response, "abc xyz", "abc1", "xyz1", "email1", "orcid1");
 
 		verify(this.personService).updatePerson(123, "abc1", "xyz1", "email1", "orcid1");
-		verify(response).sendRedirect("/SpringRestHibernate/personTool?updated=true&message=abc+xyz");
+		verify(response).sendRedirect("/SpringRestHibernate/personList?updated=true&message=abc+xyz");
 	}
 
 	@Test

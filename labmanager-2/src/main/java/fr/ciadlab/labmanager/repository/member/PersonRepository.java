@@ -16,6 +16,7 @@
 package fr.ciadlab.labmanager.repository.member;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
@@ -31,6 +32,14 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  */
 public interface PersonRepository extends JpaRepository<Person, Integer> {
+
+	/** Replies a person who has the given first and last names.
+	 * 
+	 * @param firstName the first name of the person.
+	 * @param lastName the last name of the person.
+	 * @return the person.
+	 */
+	Optional<Person> findDistinctByFirstNameAndLastName(String firstName, String lastName);
 
 	/** Replies the persons who have the given first and last names.
 	 * 

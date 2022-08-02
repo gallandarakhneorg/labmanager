@@ -53,7 +53,7 @@ import org.springframework.web.servlet.ModelAndView;
 @CrossOrigin
 public class PersonController extends AbstractController {
 
-	private static final String TOOL_NAME = "personTool"; //$NON-NLS-1$
+	private static final String DEFAULT_ENDPOINT = "personList"; //$NON-NLS-1$
 
 	private PersonService personService;
 
@@ -66,18 +66,18 @@ public class PersonController extends AbstractController {
 	 * @param nameParser the parser of person names.
 	 */
 	public PersonController(@Autowired PersonService personService, @Autowired PersonNameParser nameParser) {
-		super(TOOL_NAME);
+		super(DEFAULT_ENDPOINT);
 		this.personService = personService;
 		this.nameParser = nameParser;
 	}
 
-	/** Replies the model-view component for managing the persons.
+	/** Replies the model-view component for showing the persons independently of the organization memberships.
 	 *
 	 * @return the model-view component.
 	 */
-	@GetMapping("/" + TOOL_NAME)
-	public ModelAndView showPersonTool() {
-		final ModelAndView modelAndView = new ModelAndView(TOOL_NAME);
+	@GetMapping("/" + DEFAULT_ENDPOINT)
+	public ModelAndView personList() {
+		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("persons", this.personService.getAllPersons()); //$NON-NLS-1$
 		return modelAndView;
 	}

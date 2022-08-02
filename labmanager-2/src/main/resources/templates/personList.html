@@ -1,0 +1,76 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="fragments/head :: style" />
+<th:block th:replace="fragments/head :: script" />
+
+<!-- created=true&message=first0+last0+%3Cemail0%3E -->
+<!-- updated=true&message=abc+xyz -->
+<!-- error=1&message=Person+with+the+name+%27abc+xyz%27+was+not+found -->
+
+<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
+    <thead>
+        <th>Last Name</th>
+        <th>First Name</th>
+        <th>ORCID</th>
+        <th>Current Organizations</th>
+        <th>Former Organizations</th>
+        <th>Future Organizations</th>
+    </thead>
+    <tbody>
+        <tr th:each="person : ${persons}">
+            <td>
+                <th:block th:utext="${person.getLastName()}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${person.getFirstName()}"></th:block>
+            </td>
+            <td>
+                <a th:if="${person.getORCID() != null}"
+                   th:href="${person.getOrcidURL()}"
+                   th:utext="${person.getORCID()}"></a>
+            </td>
+            <td>
+                <th:block th:each="orga, iMbr : ${person.getActiveMemberships().keySet()}">
+                    <th:block th:if="${!iMbr.first}">, </th:block>
+                    <a th:href="@{/memberList(organization=${orga.getAcronymOrName()})}"
+                       th:utext="${orga.getAcronymOrName()}"></a>
+                </th:block>
+            </td>
+            <td>
+                <th:block th:each="orga, iMbr : ${person.getFinishedMemberships().keySet()}">
+                    <th:block th:if="${!iMbr.first}">, </th:block>
+                    <a th:href="@{/memberList(organization=${orga.getAcronymOrName()})}"
+                       th:utext="${orga.getAcronymOrName()}"></a>
+                </th:block>
+            </td>
+            <td>
+                <th:block th:each="orga, iMbr : ${person.getFutureMemberships().keySet()}">
+                    <th:block th:if="${!iMbr.first}">, </th:block>
+                    <a th:href="@{/memberList(organization=${orga.getAcronymOrName()})}"
+                       th:utext="${orga.getAcronymOrName()}"></a>
+                </th:block>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<script th:inline="javascript">
+    $(document).ready(function() {
+        var tableId = /*[[${uuid}]]*/ '';
+        var table = $('#table'+tableId).DataTable({
+            dom: 'Bfrtip',
+            scrollCollapse: true,
+            paging: false,
+            buttons: [
+                'excelHtml5', 'pdfHtml5', 'csvHtml5'
+            ],
+            responsive: true,
+            autoWidth: true,
+        });
+    });
+
+</script>
+</html>
+
