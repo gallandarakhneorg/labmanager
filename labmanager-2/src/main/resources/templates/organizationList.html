@@ -36,7 +36,7 @@
                           th:utext="${organization.getSuperOrganization().getAcronymOrName()}"></th:block>
             </td>
             <td>
-                <th:block th:each="suborga : ${organization.getSubOrganizations()}">
+                <th:block th:each="suborga : ${#lists.sort(organization.getSubOrganizations(), new fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator())}">
                     <th:block th:utext="${suborga.getAcronymOrName()} "></th:block>
                 </th:block>
             </td>

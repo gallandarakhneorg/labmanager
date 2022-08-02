@@ -15,6 +15,8 @@
 
 package fr.ciadlab.labmanager.repository.organization;
 
+import java.util.Optional;
+
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -28,5 +30,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @see ResearchOrganization
  */
 public interface ResearchOrganizationRepository extends JpaRepository<ResearchOrganization, Integer> {
-	//
+
+	/** Find a research organization with the given acronm or name.
+	 *
+	 * @param acronym the acronym to search for.
+	 * @param name the name to search for.
+	 * @return the research organization.
+	 */
+	Optional<ResearchOrganization> findDistinctByAcronymOrName(String acronym, String name);
+
 }
