@@ -15,12 +15,13 @@
 
 package fr.ciadlab.labmanager.entities.organization;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -172,16 +173,63 @@ public class ResearchOrganizationTest {
 
 	@Test
 	public void getCountry() {
-		assertNull(this.test.getCountry());
+		assertSame(CountryCode.FRANCE, this.test.getCountry());
 	}
 
 	@Test
-	public void setCountry() {
+	public void setCountry_code() {
 		this.test.setCountry(CountryCode.ALGERIA);
 		assertSame(CountryCode.ALGERIA, this.test.getCountry());
 
-		this.test.setCountry(null);
-		assertNull(this.test.getCountry());
+		this.test.setCountry((CountryCode) null);
+		assertSame(CountryCode.FRANCE, this.test.getCountry());
+	}
+
+	@Test
+	public void setCountry_string() {
+		this.test.setCountry(CountryCode.ALGERIA);
+		assertSame(CountryCode.ALGERIA, this.test.getCountry());
+
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.test.setCountry((String) null);
+		});
+		assertSame(CountryCode.ALGERIA, this.test.getCountry());
+	}
+
+	@Test
+	public void getOrganizationURL() {
+		assertNull(this.test.getOrganizationURL());
+	}
+
+	@Test
+	public void getOrganizationURLObject() {
+		assertNull(this.test.getOrganizationURLObject());
+	}
+
+	@Test
+	public void setOrganizationURL_string() throws Exception {
+		this.test.setOrganizationURL("http://xyz.org");
+		assertEquals("http://xyz.org", this.test.getOrganizationURL());
+		assertEquals(new URL("http://xyz.org"), this.test.getOrganizationURLObject());
+
+		this.test.setOrganizationURL("");
+		assertNull(this.test.getOrganizationURL());
+		assertNull(this.test.getOrganizationURLObject());
+
+		this.test.setOrganizationURL((String) null);
+		assertNull(this.test.getOrganizationURL());
+		assertNull(this.test.getOrganizationURLObject());
+	}
+
+	@Test
+	public void setOrganizationURL_url() throws Exception {
+		this.test.setOrganizationURL(new URL("http://xyz.org"));
+		assertEquals("http://xyz.org", this.test.getOrganizationURL());
+		assertEquals(new URL("http://xyz.org"), this.test.getOrganizationURLObject());
+
+		this.test.setOrganizationURL((URL) null);
+		assertNull(this.test.getOrganizationURL());
+		assertNull(this.test.getOrganizationURLObject());
 	}
 
 }

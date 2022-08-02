@@ -16,10 +16,13 @@
 package fr.ciadlab.labmanager.entities.organization;
 
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiConsumer;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -35,9 +38,15 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.google.common.base.Strings;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import fr.ciadlab.labmanager.entities.EntityFieldConfig;
 import fr.ciadlab.labmanager.entities.member.Membership;
+import fr.ciadlab.labmanager.utils.AttributeProvider;
+import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.JsonExportable;
+import fr.ciadlab.labmanager.utils.JsonUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.arakhne.afc.util.CountryCode;
 
@@ -51,7 +60,11 @@ import org.arakhne.afc.util.CountryCode;
  */
 @Entity
 @Table(name = "ResearchOrgs")
-public class ResearchOrganization implements Serializable, Comparable<ResearchOrganization> {
+public class ResearchOrganization implements Serializable, Comparable<ResearchOrganization>, JsonExportable, AttributeProvider {
+
+	/** Default country for research organizations.
+	 */
+	public static final CountryCode DEFAULT_COUNTRY = CountryCode.FRANCE;
 
 	private static final long serialVersionUID = -450531251083286848L;
 
@@ -122,9 +135,14 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 
 	/** The country of the organization.
 	 */
-	@Column(nullable = true)
+	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private CountryCode country;
+	private CountryCode country = DEFAULT_COUNTRY;
+
+	/** The URL of the organization.
+	 */
+	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	private String organizationUrl;
 
 	/** Members of the organization.
 	 */
@@ -183,6 +201,7 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.description);
+		h = HashCodeUtils.add(h, this.organizationUrl);
 		return h;
 	}
 
@@ -204,6 +223,9 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		if (Objects.equals(this.name, other.name)) {
 			return false;
 		}
+		if (Objects.equals(this.organizationUrl, other.organizationUrl)) {
+			return false;
+		}
 		if (Objects.equals(this.description, other.description)) {
 			return false;
 		}
@@ -219,6 +241,50 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	@Override
 	public int compareTo(ResearchOrganization o) {
 		return DEFAULT_COMPARATOR.compare(this, o);
+	}
+
+	/** {@inheritDoc}
+	 * <p>The attributes that are not considered by this function are:<ul>
+	 * <li>{@code id}</li>
+	 * <li>{@code type}</li>
+	 * <li>{@code authorships}</li>
+	 * <li>{@code authors}</li>
+	 * <li>{@code publicationYear}</li>
+	 * </ul>
+	 */
+	@Override
+	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(getAcronym())) {
+			consumer.accept("acronym", getAcronym()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getName())) {
+			consumer.accept("name", getName()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getDescription())) {
+			consumer.accept("description", getDescription()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getOrganizationURL())) {
+			consumer.accept("organizationURL", getOrganizationURL()); //$NON-NLS-1$
+		}
+		consumer.accept("country", getCountry().name()); //$NON-NLS-1$
+	}
+
+	@Override
+	public final void toJson(JsonObject json) {
+		json.addProperty("id", Integer.valueOf(getId())); //$NON-NLS-1$
+		if (getSuperOrganization() != null) {
+			json.addProperty("superOrganization", Integer.valueOf(getSuperOrganization().getId())); //$NON-NLS-1$
+		}
+		final JsonArray suborgas = new JsonArray();
+		for (final ResearchOrganization suborga : getSubOrganizations()) {
+			suborgas.add(Integer.valueOf(suborga.getId()));
+		}
+		if (suborgas.size() > 0) {
+			json.add("subOrganizations", suborgas); //$NON-NLS-1$
+		}
+		//
+		forEachAttribute((name, value) -> JsonUtils.defaultBehavior(json, name, value));
 	}
 
 	/** Replies the identifier of the research organization.
@@ -293,6 +359,14 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		this.superOrganization = orga;
 	}
 
+	/** Replies the acronym or the name of the research organization.
+	 *
+	 * @return the acronym or name.
+	 */
+	public String getAcronymOrName() {
+		return Strings.isNullOrEmpty(this.acronym) ? this.name : this.acronym;
+	}
+
 	/** Replies the acronym of the research organization.
 	 *
 	 * @return the acronym.
@@ -341,9 +415,17 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		this.description = Strings.emptyToNull(description);
 	}
 
+	/** Replies the name of the country of the organization.
+	 *
+	 * @return the display name of the country.
+	 */
+	public String getCountryDisplayName() {
+		return CountryCodeUtils.getDisplayCountry(this.country);
+	}
+
 	/** Replies the country of the organization.
 	 *
-	 * @return the country or {@code null} if the country is not known.
+	 * @return the country, never {@code null}.
 	 */
 	public CountryCode getCountry() {
 		return this.country;
@@ -351,10 +433,65 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 
 	/** Change the country of the organization.
 	 *
-	 * @param country the country, or {@code null} if the country is unknown.
+	 * @param country the country, or {@code null} if the country is the default country.
+	 * @see #DEFAULT_COUNTRY
 	 */
 	public void setCountry(CountryCode country) {
-		this.country= country;
+		if (country == null) {
+			this.country = DEFAULT_COUNTRY;
+		} else {
+			this.country = country;
+		}
+	}
+
+	/** Change the country of the organization.
+	 *
+	 * @param country the country.
+	 */
+	public final void setCountry(String country) {
+		setCountry(CountryCodeUtils.valueOfCaseInsensitive(country));
+	}
+
+	/** Replies the URL of the research organization.
+	 *
+	 * @return the URL.
+	 */
+	public String getOrganizationURL() {
+		return this.organizationUrl;
+	}
+
+	/** Replies the URL of the research organization.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getOrganizationURLObject() {
+		try {
+			return new URL(getOrganizationURL());
+		} catch (MalformedURLException ex) {
+			return null;
+		}
+	}
+
+	/** Change the URL of the research organization.
+	 *
+	 * @param url the URL.
+	 */
+	public void setOrganizationURL(String url) {
+		this.organizationUrl = Strings.emptyToNull(url);
+	}
+
+	/** Change the URL of the research organization.
+	 *
+	 * @param url the URL.
+	 */
+	public final void setOrganizationURL(URL url) {
+		final String value;
+		if (url != null) {
+			value = url.toExternalForm();
+		} else {
+			value = null;
+		}
+		setOrganizationURL(value);
 	}
 
 }
