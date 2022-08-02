@@ -29,6 +29,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -150,7 +151,7 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 
 	/** Members of the organization.
 	 */
-	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<Membership> members = new HashSet<>();
 
 	/** Reference to the super organization.

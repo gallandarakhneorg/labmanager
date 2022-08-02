@@ -20,7 +20,6 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Objects;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -80,12 +79,12 @@ public class Membership implements Serializable, Comparable<Membership> {
 
 	/** Reference to the person.
 	 */
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	private Person person;
 
 	/** Reference to the research organization.
 	 */
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	private ResearchOrganization researchOrganization;
 
 	/** Construct a membership with the given values.
