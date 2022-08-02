@@ -243,6 +243,11 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	}
 
 	@Override
+	public String toString() {
+		return "{" + getTitle() + "}:" + this.id; //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	@Override
 	public int hashCode() {
 		int h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.id);

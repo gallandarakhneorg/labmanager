@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -37,7 +38,7 @@ public final class JsonUtils {
 	private JsonUtils() {
 		//
 	}
-	
+
 	/** Implementation of a standard behavior for exporting an attribute to JSON.
 	 *
 	 * @param output the JSON data structure to fill up.
@@ -135,6 +136,17 @@ public final class JsonUtils {
 		} else if (value != null) {
 			array.add(value.toString());
 		}
+	}
+
+	/** Generate the JSON string for the given object.
+	 *
+	 * @param json the JSON object.
+	 * @return the JSON string representation of the object.
+	 */
+	public static String toString(JsonExportable json) {
+		final JsonObject obj = new JsonObject();
+		json.toJson(obj);
+		return new Gson().toJson(obj);
 	}
 
 }

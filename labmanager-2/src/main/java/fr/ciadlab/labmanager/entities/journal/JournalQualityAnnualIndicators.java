@@ -98,6 +98,11 @@ public class JournalQualityAnnualIndicators implements Serializable {
 		this.impactFactor = impactFactor;
 	}
 
+	@Override
+	public String toString() {
+		return ":" + this.id; //$NON-NLS-1$
+	}
+
 	/** Replies the year for this history entry.
 	 *
 	 * @return the year.

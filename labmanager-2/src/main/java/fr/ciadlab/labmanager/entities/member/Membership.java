@@ -112,6 +112,14 @@ public class Membership implements Serializable, Comparable<Membership> {
 	}
 
 	@Override
+	public String toString() {
+		return "{" + getPerson() + "}{" + getResearchOrganization() + "}{" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				+ getMemberStatus() + "}{" //$NON-NLS-1$
+				+ getMemberSinceWhen() + "}{" //$NON-NLS-1$
+				+ getMemberToWhen() + "}:" + this.id; //$NON-NLS-1$
+	}
+
+	@Override
 	public int hashCode() {
 		int h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.person);
