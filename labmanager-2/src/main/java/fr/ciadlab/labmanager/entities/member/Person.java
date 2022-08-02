@@ -328,7 +328,11 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 * @param gender the gender.
 	 */
 	public final void setGender(String gender) {
-		setGender(Gender.valueOfCaseInsensitive(gender));
+		if (Strings.isNullOrEmpty(gender)) {
+			setGender((Gender) null);
+		} else {
+			setGender(Gender.valueOfCaseInsensitive(gender));
+		}
 	}
 
 	/** Replies the list of publications of the person.
@@ -337,7 +341,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	public Set<Authorship> getPublications() {
 		if (this.publications == null) {
-			return Collections.emptySet();
+			this.publications = new TreeSet<>(AuthorshipComparator.DEFAULT);
 		}
 		return this.publications;
 	}
@@ -356,7 +360,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	public Set<Membership> getResearchOrganizations() {
 		if (this.researchOrganizations == null) {
-			return Collections.emptySet();
+			this.researchOrganizations = new TreeSet<>(MembershipComparator.DEFAULT);
 		}
 		return this.researchOrganizations;
 	}

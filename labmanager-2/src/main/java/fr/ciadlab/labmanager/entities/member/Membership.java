@@ -221,7 +221,11 @@ public class Membership implements Serializable, Comparable<Membership> {
 	 * @param date the date.
 	 */
 	public final void setMemberSinceWhen(String date) {
-		setMemberSinceWhen(Date.valueOf(date));
+		if (Strings.isNullOrEmpty(date)) {
+			setMemberSinceWhen((Date) null);
+		} else {
+			setMemberSinceWhen(Date.valueOf(date));
+		}
 	}
 
 	/** Replies the last date of involvement in the research organization.
@@ -245,7 +249,11 @@ public class Membership implements Serializable, Comparable<Membership> {
 	 * @param date the date.
 	 */
 	public final void setMemberToWhen(String date) {
-		setMemberToWhen(Date.valueOf(date));
+		if (Strings.isNullOrEmpty(date)) {
+			setMemberToWhen((Date) null);
+		} else {
+			setMemberToWhen(Date.valueOf(date));
+		}
 	}
 
 	/** Replies the status of the member in the research organization.
@@ -269,7 +277,11 @@ public class Membership implements Serializable, Comparable<Membership> {
 	 * @param status the status.
 	 */
 	public final void setMemberStatus(String status) {
-		setMemberStatus(MemberStatus.valueOfCaseInsensitive(status));
+		if (Strings.isNullOrEmpty(status)) {
+			setMemberStatus((MemberStatus) null);
+		} else {
+			setMemberStatus(MemberStatus.valueOfCaseInsensitive(status));
+		}
 	}
 
 	/** Replies the CNU section of the member in the research organization.

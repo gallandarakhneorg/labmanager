@@ -98,10 +98,8 @@ public class PublicationTest {
 		this.test.setType(PublicationType.NATIONAL_POSTER);
 		assertSame(PublicationType.NATIONAL_POSTER, this.test.getType());
 
-		assertThrows(IllegalArgumentException.class, () -> {
-			this.test.setType((String) null);
-		});
-		assertSame(PublicationType.NATIONAL_POSTER, this.test.getType());
+		this.test.setType((String) null);
+		assertNull(this.test.getType());
 	}
 
 	@Test

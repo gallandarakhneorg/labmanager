@@ -16,18 +16,24 @@
 package fr.ciadlab.labmanager.entities.member;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
+import java.net.URL;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.gson.JsonObject;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -270,10 +276,8 @@ public class PersonTest {
 		this.test.setGender(Gender.MALE);
 		assertSame(Gender.MALE, this.test.getGender());
 
-		assertThrows(IllegalArgumentException.class, () -> {
-			this.test.setGender((String) null);
-		});
-		assertSame(Gender.MALE, this.test.getGender());
+		this.test.setGender((String) null);
+		assertSame(Gender.NOT_SPECIFIED, this.test.getGender());
 
 		this.test.setGender(Gender.FEMALE);
 		assertSame(Gender.FEMALE, this.test.getGender());

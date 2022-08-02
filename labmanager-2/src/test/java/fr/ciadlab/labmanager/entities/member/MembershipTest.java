@@ -19,7 +19,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -119,10 +118,8 @@ public class MembershipTest {
 		final Date d0 = mock(Date.class);
 		this.test.setMemberSinceWhen(d0);
 		assertSame(d0, this.test.getMemberSinceWhen());
-		assertThrows(IllegalArgumentException.class, () -> {
-			this.test.setMemberSinceWhen((String) null);
-		});
-		assertSame(d0, this.test.getMemberSinceWhen());
+		this.test.setMemberSinceWhen((String) null);
+		assertNull(this.test.getMemberSinceWhen());
 	}
 
 	@Test
@@ -146,10 +143,8 @@ public class MembershipTest {
 		final Date d0 = mock(Date.class);
 		this.test.setMemberToWhen(d0);
 		assertSame(d0, this.test.getMemberToWhen());
-		assertThrows(IllegalArgumentException.class, () -> {
-			this.test.setMemberToWhen((String) null);
-		});
-		assertSame(d0, this.test.getMemberToWhen());
+		this.test.setMemberToWhen((String) null);
+		assertNull(this.test.getMemberToWhen());
 	}
 
 	@Test
@@ -173,10 +168,8 @@ public class MembershipTest {
 		final MemberStatus s0 = MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER;
 		this.test.setMemberStatus(s0.name().toLowerCase());
 		assertSame(s0, this.test.getMemberStatus());
-		assertThrows(IllegalArgumentException.class, () -> {
-			this.test.setMemberStatus((String) null);
-		});
-		assertSame(s0, this.test.getMemberStatus());
+		this.test.setMemberStatus((String) null);
+		assertNull(this.test.getMemberStatus());
 	}
 
 	@Test

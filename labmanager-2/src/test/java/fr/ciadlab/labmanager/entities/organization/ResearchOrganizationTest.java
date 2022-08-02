@@ -187,13 +187,11 @@ public class ResearchOrganizationTest {
 
 	@Test
 	public void setCountry_string() {
-		this.test.setCountry(CountryCode.ALGERIA);
+		this.test.setCountry("AlGERIA");
 		assertSame(CountryCode.ALGERIA, this.test.getCountry());
 
-		assertThrows(IllegalArgumentException.class, () -> {
-			this.test.setCountry((String) null);
-		});
-		assertSame(CountryCode.ALGERIA, this.test.getCountry());
+		this.test.setCountry((String) null);
+		assertSame(CountryCode.FRANCE, this.test.getCountry());
 	}
 
 	@Test

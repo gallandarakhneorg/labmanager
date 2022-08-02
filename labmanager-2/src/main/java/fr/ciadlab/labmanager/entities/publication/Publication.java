@@ -515,7 +515,11 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 * @param type the type.
 	 */
 	public final void setType(String type) {
-		setType(PublicationType.valueOfCaseInsensitive(type));
+		if (Strings.isNullOrEmpty(type)) {
+			setType((PublicationType) null);
+		} else {
+			setType(PublicationType.valueOfCaseInsensitive(type));
+		}
 	}
 
 	/** Replies the category of publication.
@@ -914,7 +918,11 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 * @param language the language.
 	 */
 	public final void setMajorLanguage(String language) {
-		setMajorLanguage(PublicationLanguage.valueOfCaseInsensitive(language));
+		if (Strings.isNullOrEmpty(language)) {
+			setMajorLanguage((PublicationLanguage) null);
+		} else {
+			setMajorLanguage(PublicationLanguage.valueOfCaseInsensitive(language));
+		}
 	}
 
 }

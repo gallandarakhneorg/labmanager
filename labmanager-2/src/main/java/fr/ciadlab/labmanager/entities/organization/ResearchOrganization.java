@@ -82,7 +82,11 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 			if (o2 == null) {
 				return Integer.MAX_VALUE;
 			}
-			int cmp = StringUtils.compare(o1.getAcronym(), o2.getAcronym());
+			int cmp = Objects.compare(o1.getType(), o2.getType(), (a, b) -> a.compareTo(b));
+			if (cmp != 0) {
+				return cmp;
+			}
+			cmp = StringUtils.compare(o1.getAcronym(), o2.getAcronym());
 			if (cmp != 0) {
 				return cmp;
 			}
@@ -201,6 +205,8 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.description);
+		h = HashCodeUtils.add(h, this.country);
+		h = HashCodeUtils.add(h, this.type);
 		h = HashCodeUtils.add(h, this.organizationUrl);
 		return h;
 	}
@@ -217,22 +223,28 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		if (this.id != other.id) {
 			return false;
 		}
-		if (Objects.equals(this.acronym, other.acronym)) {
+		if (!Objects.equals(this.acronym, other.acronym)) {
 			return false;
 		}
-		if (Objects.equals(this.name, other.name)) {
+		if (!Objects.equals(this.name, other.name)) {
 			return false;
 		}
-		if (Objects.equals(this.organizationUrl, other.organizationUrl)) {
+		if (!Objects.equals(this.type, other.type)) {
 			return false;
 		}
-		if (Objects.equals(this.description, other.description)) {
+		if (!Objects.equals(this.country, other.country)) {
 			return false;
 		}
-		if (Objects.equals(this.superOrganization, other.superOrganization)) {
+		if (!Objects.equals(this.organizationUrl, other.organizationUrl)) {
 			return false;
 		}
-		if (Objects.equals(this.subOrganizations, other.subOrganizations)) {
+		if (!Objects.equals(this.description, other.description)) {
+			return false;
+		}
+		if (!Objects.equals(this.superOrganization, other.superOrganization)) {
+			return false;
+		}
+		if (!Objects.equals(this.subOrganizations, other.subOrganizations)) {
 			return false;
 		}
 		return true;
@@ -260,6 +272,9 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		}
 		if (!Strings.isNullOrEmpty(getName())) {
 			consumer.accept("name", getName()); //$NON-NLS-1$
+		}
+		if (getType() != null) {
+			consumer.accept("type", getType()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getDescription())) {
 			consumer.accept("description", getDescription()); //$NON-NLS-1$
@@ -449,7 +464,11 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	 * @param country the country.
 	 */
 	public final void setCountry(String country) {
-		setCountry(CountryCodeUtils.valueOfCaseInsensitive(country));
+		if (Strings.isNullOrEmpty(country)) {
+			setCountry((CountryCode) null);
+		} else {
+			setCountry(CountryCodeUtils.valueOfCaseInsensitive(country));
+		}
 	}
 
 	/** Replies the URL of the research organization.
