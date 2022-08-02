@@ -23,8 +23,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Stream;
 
 import com.google.gson.Gson;
 import fr.ciadlab.labmanager.entities.member.Membership;
@@ -366,24 +369,33 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 						throw new IllegalArgumentException("Invalid organization reference for membership with id: " + id); //$NON-NLS-1$
 					}
 					//
-					final Optional<Membership> existing = this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(
+					final Set<Membership> existings = this.membershipRepository.findByResearchOrganizationIdAndPersonId(
 							targetOrganization.getId(), targetPerson.getId());
+					final Membership finalmbr0 = membership;
+					final Stream<Membership> existing0 = existings.stream().filter(it -> {
+						assert it.getPerson().getId() == targetPerson.getId();
+						assert it.getResearchOrganization().getId() == targetOrganization.getId();
+						return Objects.equals(it.getMemberStatus(), finalmbr0.getMemberStatus())
+								&& Objects.equals(it.getMemberSinceWhen(), finalmbr0.getMemberSinceWhen())
+								&& Objects.equals(it.getMemberToWhen(), finalmbr0.getMemberToWhen());
+					});
+					final Optional<Membership> existing = existing0.findAny();
 					if (existing.isEmpty()) {
 						membership.setPerson(targetPerson);
 						membership.setResearchOrganization(targetOrganization);
 						targetPerson.getResearchOrganizations().add(membership);
 						targetOrganization.getMembers().add(membership);
 						membership = this.membershipRepository.saveAndFlush(membership);
-						getLogger().info("  > " + targetOrganization.getAcronymOrName() //$NON-NLS-1$
+						getLogger().info("  + " + targetOrganization.getAcronymOrName() //$NON-NLS-1$
 						+ " - " + targetPerson.getFullName() //$NON-NLS-1$
-						+ "(id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
 							repository.put(id, membership);
 						}
 					} else {
 						getLogger().info("  X " + targetOrganization.getAcronymOrName() //$NON-NLS-1$
 						+ " - " + targetPerson.getFullName() //$NON-NLS-1$
-						+ "(id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						+ " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
 							repository.put(id, existing.get());
 						}

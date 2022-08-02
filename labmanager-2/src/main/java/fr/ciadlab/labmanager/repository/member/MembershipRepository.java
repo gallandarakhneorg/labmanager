@@ -16,6 +16,7 @@
 package fr.ciadlab.labmanager.repository.member;
 
 import java.util.Optional;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.member.Membership;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -44,5 +45,13 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
 	 * @param personId the identifier of the member.
 	 */
 	void deleteByResearchOrganizationIdAndPersonId(int researchoOrganizationId, int personId);
+
+	/** Find the memberships by their organization and member identifiers.
+	 *
+	 * @param researchoOrganizationId the identifier of the organization.
+	 * @param personId the identifier of the member.
+	 * @return the memberships.
+	 */
+	Set<Membership> findByResearchOrganizationIdAndPersonId(int researchoOrganizationId, int personId);
 
 }
