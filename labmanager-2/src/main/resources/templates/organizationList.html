@@ -1,0 +1,65 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="fragments/head :: style" />
+<th:block th:replace="fragments/head :: script" />
+
+<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
+    <thead>
+        <th>Acronym</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Country</th>
+        <th>Super-organization</th>
+        <th>Sub-organizations</th>
+    </thead>
+    <tbody>
+        <tr th:each="organization : ${organizations}">
+            <td>
+                <a th:if="${organization.getOrganizationURL() != null}"
+                   th:href="${organization.getOrganizationURL()}"
+                   th:utext="${organization.getAcronym()}"></a>
+                <th:block th:if="${organization.getOrganizationURL() == null}"
+                          th:utext="${organization.getAcronym()}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${organization.getName()}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${organization.getDescription()}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${organization.getCountryDisplayName()}"></th:block>
+            </td>
+            <td>
+                <th:block th:if="${organization.getSuperOrganization() != null}"
+                          th:utext="${organization.getSuperOrganization().getAcronymOrName()}"></th:block>
+            </td>
+            <td>
+                <th:block th:each="suborga : ${organization.getSubOrganizations()}">
+                    <th:block th:utext="${suborga.getAcronymOrName()} "></th:block>
+                </th:block>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<script th:inline="javascript">
+    $(document).ready(function() {
+        var tableId = /*[[${uuid}]]*/ '';
+        var table = $('#table'+tableId).DataTable({
+            dom: 'Bfrtip',
+            scrollCollapse: true,
+            paging: false,
+            buttons: [
+                'excelHtml5', 'pdfHtml5', 'csvHtml5'
+            ],
+            responsive: true,
+            autoWidth: true,
+        });
+    });
+
+</script>
+</html>
+
