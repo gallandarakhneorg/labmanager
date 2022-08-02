@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiConsumer;
+import java.util.function.Predicate;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -46,6 +47,8 @@ import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.JsonExportable;
 import fr.ciadlab.labmanager.utils.JsonUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.util.IntegerList;
+import org.arakhne.afc.util.ListUtil;
 
 /** Scientific or scientific culture dissemination journal.
  * This class provides all the necessary information and tools for managing the journals and their quality indicators.
@@ -106,7 +109,7 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 */
 	@OneToMany(mappedBy = "journal")
 	@JsonIgnore
-	private Set<JournalPaper> publishedPapers = new HashSet<>();
+	private Set<JournalPaper> publishedPapers;
 
 	/** History of the quality indicators for this journal.
 	 */
@@ -375,6 +378,9 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 * @return the published papers.
 	 */
 	public Set<JournalPaper> getPublishedPapers() {
+		if (this.publishedPapers == null) {
+			this.publishedPapers = new HashSet<>();
+		}
 		return this.publishedPapers;
 	}
 
@@ -383,7 +389,12 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 * @param papers the published papers.
 	 */
 	public void setPublishedPapers(Set<JournalPaper> papers) {
-		if (papers == null) {
+		if (this.publishedPapers != null) {
+			this.publishedPapers.clear();
+			if (papers != null) {
+				this.publishedPapers.addAll(papers);
+			}
+		} else if (papers == null) {
 			this.publishedPapers = new HashSet<>();
 		} else {
 			this.publishedPapers = papers;
@@ -399,32 +410,33 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	}
 
 	/** Replies the quality indicators of the journal for the given year.
-	 * This function is equivalent to {@link #getQualityIndicatorsForYear(int, boolean)}
-	 * with the second argument set to {@code false}.
 	 *
 	 * @param year the year to search for.
 	 * @return the indicators or {@code null} if none were defined.
 	 * @since 2.0
-	 * @see #getQualityIndicatorsForYear(int, boolean)
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsForYear(int year) {
-		return getQualityIndicatorsForYear(year, false);
+		return this.qualityIndicatorsHistory.get(Integer.valueOf(year));
 	}
 
-	/** Replies the quality indicators of the journal for the given year.
-	 * The function {@link #getQualityIndicatorsForYear(int)} is equivalent to this function
-	 * with the second argument of this function set to {@code false}.
+	/** Replies the quality indicators that is fitting the given predicates and with an year lower or equal
+	 * to the given value.
 	 *
 	 * @param year the year to search for.
-	 * @param createInstance is {@code true} for forcing the creation of the indicator instance if it is
-	 *     not yet into the internal data structure. It is {@code false} to not create automatically
-	 *     the instance of the indicators if it was not created.
+	 * @param selector the object that permits to select the best quality indicators.
 	 * @return the indicators or {@code null} if none were defined.
 	 * @since 2.0
-	 * @see #getQualityIndicatorsForYear(int)
 	 */
-	public JournalQualityAnnualIndicators getQualityIndicatorsForYear(int year, boolean createInstance) {
-		return this.qualityIndicatorsHistory.get(Integer.valueOf(year));
+	public final JournalQualityAnnualIndicators getQualityIndicatorsFor(int year, Predicate<JournalQualityAnnualIndicators> selector) {
+		final IntegerList ids = new IntegerList(this.qualityIndicatorsHistory.keySet());
+		final int start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
+		for (int i = start; i >= 0; --i) {
+			final JournalQualityAnnualIndicators indicators = this.qualityIndicatorsHistory.get(ids.get(i));
+			if (indicators != null && selector.test(indicators)) {
+				return indicators;
+			}
+		}
+		return null;
 	}
 
 	/** Replies if the journal has quality indicators for the given year.
@@ -437,12 +449,14 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	}
 
 	/** Replies the Q-Index of the journal from the Scimago source.
+	 * If there is no Q-Index known for the given year, this function replies
+	 * the Q-Index for the highest year that is below the given one. 
 	 *
 	 * @param year the year to search for.
 	 * @return the Q-Index of the journal for the given year, or {@code null} if not defined.
 	 */
 	public QuartileRanking getScimagoQIndexByYear(int year) {
-		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsFor(year, it -> it.getScimagoQIndex() != null);
 		if (indicators != null) {
 			return indicators.getScimagoQIndex();
 		}
@@ -464,12 +478,14 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	}
 
 	/** Replies the Q-Index of the journal from the JCR/WOS source.
+	 * If there is no Q-Index known for the given year, this function replies
+	 * the Q-Index for the highest year that is below the given one. 
 	 *
 	 * @param year the year to search for.
 	 * @return the Q-Index of the journal for the given year, or {@code null} if not defined.
 	 */
 	public QuartileRanking getWosQIndexByYear(int year) {
-		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsFor(year, it -> it.getWosQIndex() != null);
 		if (indicators != null) {
 			return indicators.getWosQIndex();
 		}
@@ -491,12 +507,14 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	}
 
 	/** Replies the impact factor of the journal.
+	 * If there is no impact factor known for the given year, this function replies
+	 * the impact factor for the highest year that is below the given one. 
 	 *
 	 * @param year the year to search for.
 	 * @return the IF of the journal for the given year, or {@code 0} if not defined.
 	 */
 	public float getImpactFactorByYear(int year) {
-		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsFor(year, it -> it.getImpactFactor() > 0f);
 		if (indicators != null) {
 			return indicators.getImpactFactor();
 		}

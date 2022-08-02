@@ -15,7 +15,7 @@
 
 package fr.ciadlab.labmanager.entities.journal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -213,12 +213,14 @@ public class JournalTest {
 
 		final Set<JournalPaper> base0 = new TreeSet<>();
 		this.test.setPublishedPapers(base0);
-		assertSame(base0, this.test.getPublishedPapers());
+		assertNotNull(this.test.getPublishedPapers());
+		assertEquals(base0, this.test.getPublishedPapers());
 
 		final Set<JournalPaper> base1 = new TreeSet<>();
 		base1.add(mock(JournalPaper.class));
 		this.test.setPublishedPapers(base1);
-		assertSame(base1, this.test.getPublishedPapers());
+		assertNotNull(this.test.getPublishedPapers());
+		assertEquals(base1, this.test.getPublishedPapers());
 
 		this.test.setPublishedPapers(null);
 		assertTrue(this.test.getPublishedPapers().isEmpty());
@@ -247,6 +249,14 @@ public class JournalTest {
 	}
 
 	@Test
+	public void getQualityIndicatorsFor() {
+		assertNull(this.test.getQualityIndicatorsFor(-10, it -> true));
+		assertNull(this.test.getQualityIndicatorsFor(0, it -> true));
+		assertNull(this.test.getQualityIndicatorsFor(123, it -> true));
+		assertNull(this.test.getQualityIndicatorsFor(2022, it -> true));
+	}
+
+	@Test
 	public void hasQualityIndicatorsForYear() {
 		assertNull(this.test.getQualityIndicatorsForYear(-10));
 		assertNull(this.test.getQualityIndicatorsForYear(0));
@@ -263,20 +273,29 @@ public class JournalTest {
 
 	@Test
 	public void setScimagoQIndexByYear() {
+		assertNull(this.test.getScimagoQIndexByYear(512));
 		assertNull(this.test.getScimagoQIndexByYear(1234));
 		assertNull(this.test.getScimagoQIndexByYear(4567));
 
 		this.test.setScimagoQIndexByYear(1234, QuartileRanking.Q3);
+		assertNull(this.test.getScimagoQIndexByYear(512));
 		assertSame(QuartileRanking.Q3, this.test.getScimagoQIndexByYear(1234));
-		assertNull(this.test.getScimagoQIndexByYear(4567));
+		assertSame(QuartileRanking.Q3, this.test.getScimagoQIndexByYear(4567));
 
 		this.test.setScimagoQIndexByYear(1234, null);
+		assertNull(this.test.getScimagoQIndexByYear(512));
 		assertNull(this.test.getScimagoQIndexByYear(1234));
 		assertNull(this.test.getScimagoQIndexByYear(4567));
 
 		this.test.setScimagoQIndexByYear(1234, QuartileRanking.Q1);
+		assertNull(this.test.getScimagoQIndexByYear(512));
 		assertSame(QuartileRanking.Q1, this.test.getScimagoQIndexByYear(1234));
-		assertNull(this.test.getScimagoQIndexByYear(4567));
+		assertSame(QuartileRanking.Q1, this.test.getScimagoQIndexByYear(4567));
+
+		this.test.setScimagoQIndexByYear(3, QuartileRanking.Q4);
+		assertSame(QuartileRanking.Q4, this.test.getScimagoQIndexByYear(512));
+		assertSame(QuartileRanking.Q1, this.test.getScimagoQIndexByYear(1234));
+		assertSame(QuartileRanking.Q1, this.test.getScimagoQIndexByYear(4567));
 	}
 
 	@Test
@@ -288,20 +307,29 @@ public class JournalTest {
 
 	@Test
 	public void setWosQIndexByYear() {
+		assertNull(this.test.getWosQIndexByYear(512));
 		assertNull(this.test.getWosQIndexByYear(1234));
 		assertNull(this.test.getWosQIndexByYear(4567));
 
 		this.test.setWosQIndexByYear(1234, QuartileRanking.Q3);
+		assertNull(this.test.getWosQIndexByYear(512));
 		assertSame(QuartileRanking.Q3, this.test.getWosQIndexByYear(1234));
-		assertNull(this.test.getWosQIndexByYear(4567));
+		assertSame(QuartileRanking.Q3, this.test.getWosQIndexByYear(4567));
 
 		this.test.setWosQIndexByYear(1234, null);
+		assertNull(this.test.getWosQIndexByYear(512));
 		assertNull(this.test.getWosQIndexByYear(1234));
 		assertNull(this.test.getWosQIndexByYear(4567));
 
 		this.test.setWosQIndexByYear(1234, QuartileRanking.Q1);
+		assertNull(this.test.getWosQIndexByYear(512));
 		assertSame(QuartileRanking.Q1, this.test.getWosQIndexByYear(1234));
-		assertNull(this.test.getWosQIndexByYear(4567));
+		assertSame(QuartileRanking.Q1, this.test.getWosQIndexByYear(4567));
+
+		this.test.setWosQIndexByYear(3, QuartileRanking.Q4);
+		assertSame(QuartileRanking.Q4, this.test.getWosQIndexByYear(512));
+		assertSame(QuartileRanking.Q1, this.test.getWosQIndexByYear(1234));
+		assertSame(QuartileRanking.Q1, this.test.getWosQIndexByYear(4567));
 	}
 
 	@Test
@@ -313,20 +341,29 @@ public class JournalTest {
 
 	@Test
 	public void setImpactFactorByYear() {
+		assertEquals(0f, this.test.getImpactFactorByYear(512));
 		assertEquals(0f, this.test.getImpactFactorByYear(1234));
 		assertEquals(0f, this.test.getImpactFactorByYear(4567));
 
-		this.test.setImpactFactorByYear(1234, 45.1f);
-		assertEquals(45.1f, this.test.getImpactFactorByYear(1234));
-		assertEquals(0f, this.test.getImpactFactorByYear(4567));
+		this.test.setImpactFactorByYear(1234, 4.567f);
+		assertEquals(0f, this.test.getImpactFactorByYear(512));
+		assertEquals(4.567f, this.test.getImpactFactorByYear(1234));
+		assertEquals(4.567f, this.test.getImpactFactorByYear(4567));
 
 		this.test.setImpactFactorByYear(1234, 0f);
+		assertEquals(0f, this.test.getImpactFactorByYear(512));
 		assertEquals(0f, this.test.getImpactFactorByYear(1234));
 		assertEquals(0f, this.test.getImpactFactorByYear(4567));
 
-		this.test.setImpactFactorByYear(1234, 47f);
-		assertEquals(47f, this.test.getImpactFactorByYear(1234));
-		assertEquals(0f, this.test.getImpactFactorByYear(4567));
+		this.test.setImpactFactorByYear(1234, 9.478f);
+		assertEquals(0f, this.test.getImpactFactorByYear(512));
+		assertEquals(9.478f, this.test.getImpactFactorByYear(1234));
+		assertEquals(9.478f, this.test.getImpactFactorByYear(4567));
+
+		this.test.setImpactFactorByYear(3, 0.412f);
+		assertEquals(0.412f, this.test.getImpactFactorByYear(512));
+		assertEquals(9.478f, this.test.getImpactFactorByYear(1234));
+		assertEquals(9.478f, this.test.getImpactFactorByYear(4567));
 	}
 
 	@Test
