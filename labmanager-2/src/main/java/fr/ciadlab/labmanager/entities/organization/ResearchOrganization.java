@@ -298,7 +298,7 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		if (!Strings.isNullOrEmpty(getOrganizationURL())) {
 			consumer.accept("organizationURL", getOrganizationURL()); //$NON-NLS-1$
 		}
-		consumer.accept("country", getCountry().name()); //$NON-NLS-1$
+		consumer.accept("country", getCountry()); //$NON-NLS-1$
 	}
 
 	@Override

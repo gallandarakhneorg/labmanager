@@ -16,6 +16,7 @@
 package fr.ciadlab.labmanager.entities.publication;
 
 import java.io.Serializable;
+import java.util.function.BiConsumer;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -26,8 +27,12 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import com.google.gson.JsonObject;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.JsonExportable;
+import fr.ciadlab.labmanager.utils.JsonUtils;
 
 /** Author link between a person and a research publication.
  * 
@@ -39,7 +44,7 @@ import fr.ciadlab.labmanager.utils.HashCodeUtils;
  */
 @Entity
 @Table(name = "Authorship")
-public class Authorship implements Serializable, Comparable<Authorship> {
+public class Authorship implements Serializable, JsonExportable, AttributeProvider, Comparable<Authorship> {
 
 	private static final long serialVersionUID = -6870718668893845051L;
 
@@ -117,6 +122,28 @@ public class Authorship implements Serializable, Comparable<Authorship> {
 	@Override
 	public int compareTo(Authorship o) {
 		return AuthorshipComparator.DEFAULT.compare(this, o);
+	}
+
+	/** {@inheritDoc}
+	 * <p>The attributes that are not considered by this function are:<ul>
+	 * <li>{@code id}</li>
+	 * </ul>
+	 */
+	@Override
+	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+		if (getPublication() != null) {
+			consumer.accept("publication", getPublication()); //$NON-NLS-1$
+		}
+		if (getPerson() != null) {
+			consumer.accept("person", getPerson()); //$NON-NLS-1$
+		}
+		consumer.accept("authorRank", Integer.valueOf(getAuthorRank())); //$NON-NLS-1$
+	}
+
+	@Override
+	public void toJson(JsonObject json) {
+		json.addProperty("id", Integer.valueOf(getId())); //$NON-NLS-1$
+		forEachAttribute((name, value) -> JsonUtils.defaultBehavior(json, name, value));
 	}
 
 	/** Replies the identifier of the authorship.
