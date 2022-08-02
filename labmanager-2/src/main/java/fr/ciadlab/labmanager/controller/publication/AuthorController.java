@@ -66,10 +66,6 @@ import org.springframework.web.servlet.ModelAndView;
 @CrossOrigin
 public class AuthorController extends AbstractController {
 
-	/** Default name of organization that is assumed by the author controller.
-	 */
-	public static final String DEFAULT_ORGANIZATION = "CIAD"; //$NON-NLS-1$
-
 	private static final String TOOL_NAME = "authorTool"; //$NON-NLS-1$
 
 	private static final Random RANDOM = new Random();

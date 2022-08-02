@@ -33,6 +33,10 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractController {
 
+	/** Default name of organization that is assumed by the author controller.
+	 */
+	public static final String DEFAULT_ORGANIZATION = "CIAD"; //$NON-NLS-1$
+
 	/** Logger of the service. It is lazy loaded.
 	 */
 	private Logger logger;
