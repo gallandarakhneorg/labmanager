@@ -121,6 +121,7 @@ public class Membership implements Serializable, Comparable<Membership> {
 		h = HashCodeUtils.add(h, this.memberStatus);
 		h = HashCodeUtils.add(h, this.memberSinceWhen);
 		h = HashCodeUtils.add(h, this.memberToWhen);
+		h = HashCodeUtils.add(h, this.cnuSection);
 		return h;
 	}
 
@@ -146,6 +147,9 @@ public class Membership implements Serializable, Comparable<Membership> {
 			return false;
 		}
 		if (!Objects.equals(this.memberToWhen, other.memberSinceWhen)) {
+			return false;
+		}
+		if (this.cnuSection != other.cnuSection) {
 			return false;
 		}
 		return true;
