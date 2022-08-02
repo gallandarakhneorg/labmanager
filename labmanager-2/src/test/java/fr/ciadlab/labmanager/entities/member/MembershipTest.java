@@ -19,6 +19,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
@@ -103,13 +104,25 @@ public class MembershipTest {
 	}
 
 	@Test
-	public void setMemberSinceWhen() {
+	public void setMemberSinceWhen_date() {
 		assertNull(this.test.getMemberSinceWhen());
 		final Date d0 = mock(Date.class);
 		this.test.setMemberSinceWhen(d0);
 		assertSame(d0, this.test.getMemberSinceWhen());
-		this.test.setMemberSinceWhen(null);
+		this.test.setMemberSinceWhen((Date) null);
 		assertNull(this.test.getMemberSinceWhen());
+	}
+
+	@Test
+	public void setMemberSinceWhen_string() {
+		assertNull(this.test.getMemberSinceWhen());
+		final Date d0 = mock(Date.class);
+		this.test.setMemberSinceWhen(d0);
+		assertSame(d0, this.test.getMemberSinceWhen());
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.test.setMemberSinceWhen((String) null);
+		});
+		assertSame(d0, this.test.getMemberSinceWhen());
 	}
 
 	@Test
@@ -118,13 +131,25 @@ public class MembershipTest {
 	}
 
 	@Test
-	public void setMemberToWhen() {
+	public void setMemberToWhen_date() {
 		assertNull(this.test.getMemberToWhen());
 		final Date d0 = mock(Date.class);
 		this.test.setMemberToWhen(d0);
 		assertSame(d0, this.test.getMemberToWhen());
-		this.test.setMemberToWhen(null);
+		this.test.setMemberToWhen((Date) null);
 		assertNull(this.test.getMemberToWhen());
+	}
+
+	@Test
+	public void setMemberToWhen_string() {
+		assertNull(this.test.getMemberToWhen());
+		final Date d0 = mock(Date.class);
+		this.test.setMemberToWhen(d0);
+		assertSame(d0, this.test.getMemberToWhen());
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.test.setMemberToWhen((String) null);
+		});
+		assertSame(d0, this.test.getMemberToWhen());
 	}
 
 	@Test
@@ -133,13 +158,41 @@ public class MembershipTest {
 	}
 
 	@Test
-	public void setMemberStatus() {
+	public void setMemberStatus_MemberStatus() {
 		assertNull(this.test.getMemberStatus());
 		final MemberStatus s0 = MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER;
 		this.test.setMemberStatus(s0);
 		assertSame(s0, this.test.getMemberStatus());
-		this.test.setMemberStatus(null);
+		this.test.setMemberStatus((MemberStatus) null);
 		assertNull(this.test.getMemberStatus());
+	}
+
+	@Test
+	public void setMemberStatus_String() {
+		assertNull(this.test.getMemberStatus());
+		final MemberStatus s0 = MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER;
+		this.test.setMemberStatus(s0.name().toLowerCase());
+		assertSame(s0, this.test.getMemberStatus());
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.test.setMemberStatus((String) null);
+		});
+		assertSame(s0, this.test.getMemberStatus());
+	}
+
+	@Test
+	public void getCnuSection() {
+		assertEquals(0, this.test.getCnuSection());
+	}
+
+	@Test
+	public void setCnuSection() {
+		assertEquals(0, this.test.getCnuSection());
+		this.test.setCnuSection(61);
+		assertEquals(61, this.test.getCnuSection());
+		this.test.setCnuSection(0);
+		assertEquals(0, this.test.getCnuSection());
+		this.test.setCnuSection(-1);
+		assertEquals(0, this.test.getCnuSection());
 	}
 
 	@Test

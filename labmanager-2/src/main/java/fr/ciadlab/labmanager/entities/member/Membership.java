@@ -123,6 +123,11 @@ public class Membership implements Serializable, Comparable<Membership> {
 	@Enumerated(EnumType.STRING)
 	private MemberStatus memberStatus;
 
+	/** Number of the CNU section of the person related to which membership.
+	 */
+	@Column
+	private int cnuSection;
+
 	/** Reference to the person.
 	 */
 	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -140,13 +145,15 @@ public class Membership implements Serializable, Comparable<Membership> {
 	 * @param since the start date of involvement.
 	 * @param to the end date of involvement.
 	 * @param status the status.
+	 * @param cnuSection is the number of the CNU section, or {@code 0} if it is unknown or irrelevant.
 	 */
-	public Membership(Person person, ResearchOrganization orga, Date since, Date to, MemberStatus status) {
+	public Membership(Person person, ResearchOrganization orga, Date since, Date to, MemberStatus status, int cnuSection) {
 		this.person = person;
 		this.researchOrganization = orga;
 		this.memberSinceWhen = since;
 		this.memberToWhen = to;
 		this.memberStatus = status;
+		this.cnuSection = cnuSection;
 	}
 
 	/** Construct an empty membership.
@@ -255,6 +262,14 @@ public class Membership implements Serializable, Comparable<Membership> {
 		this.memberSinceWhen = date;
 	}
 
+	/** Change the first date of involvement in the research organization.
+	 *
+	 * @param date the date.
+	 */
+	public final void setMemberSinceWhen(String date) {
+		setMemberSinceWhen(Date.valueOf(date));
+	}
+
 	/** Replies the last date of involvement in the research organization.
 	 *
 	 * @return the date.
@@ -271,6 +286,14 @@ public class Membership implements Serializable, Comparable<Membership> {
 		this.memberToWhen = date;
 	}
 
+	/** Change the last date of involvement in the research organization.
+	 *
+	 * @param date the date.
+	 */
+	public final void setMemberToWhen(String date) {
+		setMemberToWhen(Date.valueOf(date));
+	}
+
 	/** Replies the status of the member in the research organization.
 	 *
 	 * @return the status.
@@ -285,6 +308,36 @@ public class Membership implements Serializable, Comparable<Membership> {
 	 */
 	public void setMemberStatus(MemberStatus status) {
 		this.memberStatus = status;
+	}
+
+	/** Change the status of the member in the research organization.
+	 *
+	 * @param status the status.
+	 */
+	public final void setMemberStatus(String status) {
+		setMemberStatus(MemberStatus.valueOfCaseInsensitive(status));
+	}
+
+	/** Replies the CNU section of the member in the research organization.
+	 * CNU means "Conseil National des Universités". 
+	 *
+	 * @return the CNY section number or {@code 0} if unknown.
+	 */
+	public int getCnuSection() {
+		return this.cnuSection;
+	}
+
+	/** Change the CNU section of the member in the research organization.
+	 * CNU means "Conseil National des Universités". 
+	 *
+	 * @param cnu the CNY section number or {@code 0} if unknown.
+	 */
+	public void setCnuSection(int cnu) {
+		if (cnu < 0) {
+			this.cnuSection = 0;
+		} else {
+			this.cnuSection = cnu;
+		}
 	}
 
 	/** Replies if the membership is active.
