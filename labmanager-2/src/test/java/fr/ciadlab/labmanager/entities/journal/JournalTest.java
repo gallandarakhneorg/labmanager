@@ -350,4 +350,23 @@ public class JournalTest {
 		assertNotNull(obj.get("wosId"));
 	}
 
+	@Test
+	public void getOpenAcess() {
+		assertNull(this.test.getOpenAccess());
+	}
+
+	@Test
+	public void setOpenAccess() {
+		assertNull(this.test.getOpenAccess());
+
+		this.test.setOpenAccess(Boolean.TRUE);
+		assertTrue(this.test.getOpenAccess());
+
+		this.test.setOpenAccess(null);
+		assertNull(this.test.getOpenAccess());
+
+		this.test.setOpenAccess(Boolean.FALSE);
+		assertFalse(this.test.getOpenAccess());
+	}
+
 }

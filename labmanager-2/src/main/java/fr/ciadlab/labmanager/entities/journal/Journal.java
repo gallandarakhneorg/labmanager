@@ -96,6 +96,12 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	@Column
 	private String wosId;
 
+	/** Indicates if the journal is an open-access journal. If this field
+	 * is not set, we don't know if the journal is open access.
+	 */
+	@Column(nullable = true)
+	private Boolean openAccess;
+
 	/** List of papers that are published in this journal.
 	 */
 	@OneToMany(mappedBy = "journal")
@@ -346,6 +352,22 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 */
 	public void setWosId(String id) {
 		this.wosId = Strings.emptyToNull(id);
+	}
+
+	/** Replies if the journal is open access. If it is not known, this functio returns {@code null}.
+	 *
+	 * @return the open-access status of the journal, or {@code null} if it is not known.
+	 */
+	public Boolean getOpenAccess() {
+		return this.openAccess;
+	}
+
+	/** Change the flag that indicates if the journal is open access. If it is not known, this functio returns {@code null}.
+	 *
+	 * @param openAccess the open-access status of the journal, or {@code null} if it is not known.
+	 */
+	public void setOpenAccess(Boolean openAccess) {
+		this.openAccess = openAccess;
 	}
 
 	/** Replies the set of published papers in this journal.
