@@ -433,7 +433,7 @@ public class PublicationControllerTest {
 	public void createPublication() throws Exception {
 		HttpServletResponse response = mock(HttpServletResponse.class);
 		when(this.personService.getPersonIdByName(eq("F0"), eq("L0"))).thenReturn(123);
-		when(this.personService.createPerson(eq("F1"), eq("L1"), isNull())).thenReturn(234);
+		when(this.personService.createPerson(eq("F1"), eq("L1"), isNull(), isNull(), isNull())).thenReturn(234);
 		Publication fake = mock(Publication.class);
 		when(fake.getId()).thenReturn(1234);
 		doReturn(fake).when(this.prePublicationFactory).createPrePublication(
@@ -506,7 +506,7 @@ public class PublicationControllerTest {
 
 		assertSame(fake, pub.getValue());
 
-		verify(this.personService).createPerson("F1", "L1", null);
+		verify(this.personService).createPerson("F1", "L1", null, null, null);
 		verify(this.authorshipService, atLeastOnce()).addAuthorship(123, 1234, 0);
 		verify(this.authorshipService, atLeastOnce()).addAuthorship(234, 1234, 1);
 
@@ -671,7 +671,7 @@ public class PublicationControllerTest {
 		assertEquals("orga0", arg21.getValue());
 		assertEquals("adr0", arg22.getValue());
 
-		verify(this.personService, never()).createPerson(anyString(), anyString(), any());
+		verify(this.personService, never()).createPerson(anyString(), anyString(), any(), any(), any());
 		verify(this.authorshipService, atLeastOnce()).updateAuthorship(1234, 123456, 0);
 		verify(this.authorshipService, atLeastOnce()).updateAuthorship(2345, 123456, 1);
 		verify(this.authorshipService, never()).addAuthorship(anyInt(), anyInt(), anyInt());
@@ -783,7 +783,7 @@ public class PublicationControllerTest {
 		assertEquals("orga0", arg21.getValue());
 		assertEquals("adr0", arg22.getValue());
 
-		verify(this.personService, never()).createPerson(anyString(), anyString(), any());
+		verify(this.personService, never()).createPerson(anyString(), anyString(), any(), any(), any());
 		verify(this.authorshipService, atLeastOnce()).updateAuthorship(2345, 123456, 0);
 		verify(this.authorshipService, never()).addAuthorship(anyInt(), anyInt(), anyInt());
 		verify(this.authorshipService, atLeastOnce()).removeAuthorship(1234, 123456);
@@ -898,7 +898,7 @@ public class PublicationControllerTest {
 		assertEquals("orga0", arg21.getValue());
 		assertEquals("adr0", arg22.getValue());
 
-		verify(this.personService, never()).createPerson(anyString(), anyString(), any());
+		verify(this.personService, never()).createPerson(anyString(), anyString(), any(), any(), any());
 		verify(this.authorshipService, atLeastOnce()).updateAuthorship(1234, 123456, 0);
 		verify(this.authorshipService, atLeastOnce()).updateAuthorship(2345, 123456, 1);
 		verify(this.authorshipService, atLeastOnce()).addAuthorship(3456, 123456, 2);

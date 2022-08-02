@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -78,15 +79,29 @@ public class PublicationTest {
 	}
 
 	@Test
-	public void setType() {
+	public void setType_type() {
 		this.test.setType(PublicationType.INTERNATIONAL_CONFERENCE_PAPER);
 		assertSame(PublicationType.INTERNATIONAL_CONFERENCE_PAPER, this.test.getType());
 
 		this.test.setType(PublicationType.NATIONAL_POSTER);
 		assertSame(PublicationType.NATIONAL_POSTER, this.test.getType());
 
-		this.test.setType(null);
+		this.test.setType((PublicationType) null);
 		assertNull(this.test.getType());
+	}
+
+	@Test
+	public void setType_string() {
+		this.test.setType(PublicationType.INTERNATIONAL_CONFERENCE_PAPER);
+		assertSame(PublicationType.INTERNATIONAL_CONFERENCE_PAPER, this.test.getType());
+
+		this.test.setType(PublicationType.NATIONAL_POSTER);
+		assertSame(PublicationType.NATIONAL_POSTER, this.test.getType());
+
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.test.setType((String) null);
+		});
+		assertSame(PublicationType.NATIONAL_POSTER, this.test.getType());
 	}
 
 	@Test
@@ -99,7 +114,7 @@ public class PublicationTest {
 		this.test.setType(PublicationType.NATIONAL_POSTER);
 		assertSame(PublicationCategory.C_AFF, this.test.getCategory());
 
-		this.test.setType(null);
+		this.test.setType((PublicationType) null);
 		assertNull(this.test.getCategory());
 	}
 
@@ -160,12 +175,23 @@ public class PublicationTest {
 	}
 
 	@Test
-	public void setPublicationDate() {
+	public void setPublicationDate_date() {
 		this.test.setPublicationDate(Date.valueOf("2022-07-12"));
 		assertEquals(Date.valueOf("2022-07-12"), this.test.getPublicationDate());
 
-		this.test.setPublicationDate(null);
+		this.test.setPublicationDate((Date) null);
 		assertNull(this.test.getPublicationDate());
+	}
+
+	@Test
+	public void setPublicationDate_string() {
+		this.test.setPublicationDate(Date.valueOf("2022-07-12"));
+		assertEquals(Date.valueOf("2022-07-12"), this.test.getPublicationDate());
+
+		assertThrows(IllegalArgumentException.class, () -> {
+			this.test.setPublicationDate((String) null);
+		});
+		assertEquals(Date.valueOf("2022-07-12"), this.test.getPublicationDate());
 	}
 
 	@Test
@@ -389,11 +415,20 @@ public class PublicationTest {
 	}
 
 	@Test
-	public void setMajorLanguage() {
+	public void setMajorLanguage_language() {
 		this.test.setMajorLanguage(PublicationLanguage.GERMAN);
 		assertSame(PublicationLanguage.GERMAN, this.test.getMajorLanguage());
 
-		this.test.setMajorLanguage(null);
+		this.test.setMajorLanguage((PublicationLanguage) null);
+		assertSame(PublicationLanguage.ENGLISH, this.test.getMajorLanguage());
+	}
+
+	@Test
+	public void setMajorLanguage_string() {
+		this.test.setMajorLanguage(PublicationLanguage.GERMAN);
+		assertSame(PublicationLanguage.GERMAN, this.test.getMajorLanguage());
+
+		this.test.setMajorLanguage((String) null);
 		assertSame(PublicationLanguage.ENGLISH, this.test.getMajorLanguage());
 	}
 

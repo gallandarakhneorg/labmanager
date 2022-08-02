@@ -542,6 +542,14 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		this.type = type;
 	}
 
+	/** Change the type of publication.
+	 *
+	 * @param type the type.
+	 */
+	public final void setType(String type) {
+		setType(PublicationType.valueOfCaseInsensitive(type));
+	}
+
 	/** Replies the category of publication.
 	 *
 	 * @return the category, never {@code null}.
@@ -633,6 +641,14 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	public void setPublicationDate(Date date) {
 		this.publicationDate = date;
 		resetPublicationYear();
+	}
+
+	/** Change the date of publication. This function changes also the field that contains the publication year. 
+	 *
+	 * @param date the date, or {@code null}.
+	 */
+	public final void setPublicationDate(String date) {
+		setPublicationDate(Date.valueOf(date));
 	}
 
 	private void resetPublicationYear() {
@@ -911,6 +927,14 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		} else {
 			this.majorLanguage = language;
 		}
+	}
+
+	/** Change the major language that is used for writing the publication.
+	 *
+	 * @param language the language.
+	 */
+	public final void setMajorLanguage(String language) {
+		setMajorLanguage(PublicationLanguage.valueOfCaseInsensitive(language));
 	}
 
 }

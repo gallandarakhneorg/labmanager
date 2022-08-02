@@ -160,7 +160,7 @@ public class AbstractPublicationTypeServiceTest {
 				"http://video.org");
 
 		verify(pub, atLeastOnce()).setTitle("title0");
-		verify(pub, never()).setType(any());
+		verify(pub, never()).setType(any(PublicationType.class));
 		verify(pub, atLeastOnce()).setPublicationDate(Date.valueOf("2022-07-23"));
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
@@ -194,7 +194,7 @@ public class AbstractPublicationTypeServiceTest {
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
-		verify(pub, never()).setPublicationDate(any());
+		verify(pub, never()).setPublicationDate(any(Date.class));
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -358,7 +358,7 @@ public class AbstractPublicationTypeServiceTest {
 				new URL("http://video.org"));
 
 		verify(pub, atLeastOnce()).setTitle("title0");
-		verify(pub, never()).setType(any());
+		verify(pub, never()).setType(any(PublicationType.class));
 		verify(pub, atLeastOnce()).setPublicationDate(Date.valueOf("2022-07-23"));
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
@@ -392,7 +392,7 @@ public class AbstractPublicationTypeServiceTest {
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
-		verify(pub, never()).setPublicationDate(any());
+		verify(pub, never()).setPublicationDate(any(Date.class));
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
