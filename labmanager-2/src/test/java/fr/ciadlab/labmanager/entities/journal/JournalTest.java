@@ -29,7 +29,7 @@ import java.util.TreeSet;
 
 import com.google.gson.JsonObject;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
-import fr.ciadlab.labmanager.entities.ranking.QuartileRanking;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

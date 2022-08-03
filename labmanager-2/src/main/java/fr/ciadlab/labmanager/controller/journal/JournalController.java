@@ -22,8 +22,8 @@ import javax.servlet.http.HttpServletResponse;
 
 import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
-import fr.ciadlab.labmanager.entities.ranking.QuartileRanking;
 import fr.ciadlab.labmanager.service.journal.JournalService;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.vmutil.locale.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;

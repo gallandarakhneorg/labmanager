@@ -13,7 +13,9 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.entities.ranking;
+package fr.ciadlab.labmanager.utils.ranking;
+
+import com.google.common.base.Strings;
 
 /** Quartile is one indicator for ranking scientific journals.
  * A quartile is the ranking of a journal or paper definite by any database based
@@ -48,4 +50,23 @@ public enum QuartileRanking {
 	/** First quartile.
 	 */
 	Q1;
+
+	/** Replies the quartile that corresponds to the given name, with a case-insensitive
+	 * test of the name.
+	 *
+	 * @param name the name of the quartile, to search for.
+	 * @return the quartile.
+	 * @throws IllegalArgumentException if the given name does not corresponds to a quartile.
+	 */
+	public static QuartileRanking valueOfCaseInsensitive(String name) {
+		if (!Strings.isNullOrEmpty(name)) {
+			for (final QuartileRanking ranking : values()) {
+				if (name.equalsIgnoreCase(ranking.name())) {
+					return ranking;
+				}
+			}
+		}
+		throw new IllegalArgumentException("Invalid quartile ranking: " + name); //$NON-NLS-1$
+	}
+
 }

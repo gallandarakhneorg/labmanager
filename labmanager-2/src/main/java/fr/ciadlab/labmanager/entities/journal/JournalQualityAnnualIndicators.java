@@ -26,7 +26,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import fr.ciadlab.labmanager.entities.ranking.QuartileRanking;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.hibernate.annotations.ColumnDefault;
 
 /** Histoty of the quality indicators for a journal.

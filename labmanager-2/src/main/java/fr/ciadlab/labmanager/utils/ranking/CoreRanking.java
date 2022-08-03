@@ -13,7 +13,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.entities.ranking;
+package fr.ciadlab.labmanager.utils.ranking;
 
 import com.google.common.base.Strings;
 
@@ -67,7 +67,7 @@ public enum CoreRanking {
 	 * @param stringCoreRanking the string representation of the code ranking.
 	 * @return the core raking or {@code null} if the given string cannot match.
 	 */
-    public static CoreRanking getCoreRankingFromString(String stringCoreRanking) {
+    public static CoreRanking valueOfCaseInsensitive(String stringCoreRanking) {
     	if (!Strings.isNullOrEmpty(stringCoreRanking)) {
 	    	for (final CoreRanking candidate : values()) {
 	    		if (candidate.toString().equalsIgnoreCase(stringCoreRanking)) {

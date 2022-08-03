@@ -25,8 +25,8 @@ import javax.persistence.Table;
 
 import fr.ciadlab.labmanager.entities.EntityFieldConfig;
 import fr.ciadlab.labmanager.entities.publication.Publication;
-import fr.ciadlab.labmanager.entities.ranking.CoreRanking;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Paper in a conference or a workshop.
