@@ -13,9 +13,8 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.runners;
+package fr.ciadlab.labmanager.io.json;
 
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -30,25 +29,23 @@ import java.util.TreeMap;
 import java.util.stream.Stream;
 
 import com.google.gson.Gson;
+import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
+import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.Resources;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.ApplicationArguments;
-import org.springframework.boot.ApplicationRunner;
 import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
-/** This componet fill up the database with standard CIAD data.
- * It is searching for a file with the name {@code data-<platform>.json} at the
- * root folder of the class-path.
+/** Importer of JSON data into the database.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -57,29 +54,7 @@ import org.springframework.stereotype.Component;
  * @since 2.0.0
  */
 @Component
-public class CiadDatabaseInitializer implements ApplicationRunner {
-
-	private static final String DATA_FILENAME = "/data.json"; //$NON-NLS-1$
-
-	private static final String ID_FIELDNAME = "@id"; //$NON-NLS-1$
-
-	private static final String PREFIX1 = "_"; //$NON-NLS-1$
-
-	private static final String PREFIX2 = "@"; //$NON-NLS-1$
-
-	private static final String PREFIX3 = "set"; //$NON-NLS-1$
-
-	private static final String RESEARCHORGANIZATIONS_KEY = "researchOrganizations"; //$NON-NLS-1$
-
-	private static final String SUPERORGANIZATION_KEY = "superOrganization"; //$NON-NLS-1$
-
-	private static final String PERSONS_KEY = "persons"; //$NON-NLS-1$
-
-	private static final String MEMBERSHIPS_KEY = "memberships"; //$NON-NLS-1$
-
-	private static final String PERSON_KEY = "person"; //$NON-NLS-1$
-
-	private static final String RESEARCHORGANIZATION_KEY = "researchOrganization"; //$NON-NLS-1$
+public class JsonToDatabaseImporter extends JsonTool {
 
 	private ResearchOrganizationRepository organizationRepository;
 
@@ -87,76 +62,29 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 
 	private MembershipRepository membershipRepository;
 
-	/** Logger of the service. It is lazy loaded.
-	 */
-	private Logger logger;
+	private JournalRepository journalRepository;
+
+	private JournalQualityAnnualIndicatorsRepository journalIndicatorsRepository;
 
 	/** Constructor.
 	 * 
 	 * @param organizationRepository the accessor to the organization repository.
 	 * @param personRepository the accessor to the person repository.
 	 * @param membershipRepository the accessor to the membership repository.
+	 * @param journalRepository the accessor to the journal repository.
+	 * @param journalIndicatorsRepository the accessor to the repository of the journal quality annual indicators.
 	 */
-	public CiadDatabaseInitializer(
+	public JsonToDatabaseImporter(
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
-			@Autowired MembershipRepository membershipRepository) {
+			@Autowired MembershipRepository membershipRepository,
+			@Autowired JournalRepository journalRepository,
+			@Autowired JournalQualityAnnualIndicatorsRepository journalIndicatorsRepository) {
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
 		this.membershipRepository = membershipRepository;
-	}
-
-	/** Replies the logger of this service.
-	 *
-	 * @return the logger.
-	 */
-	public Logger getLogger() {
-		if (this.logger == null) {
-			this.logger = createLogger();
-		}
-		return this.logger;
-	}
-
-	/** Change the logger of this service.
-	 *
-	 * @param logger the logger.
-	 */
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	/** Factory method for creating the service logger.
-	 *
-	 * @return the logger.
-	 */
-	protected Logger createLogger() {
-		return LoggerFactory.getLogger(getClass());
-	}
-
-	/** Replies the URL to the data script to use.
-	 *
-	 * @return the URL or {@code null} if none.
-	 */
-	@SuppressWarnings("static-method")
-	protected URL getDataScriptURL() {
-		try {
-			final URL url = Resources.getResource(DATA_FILENAME);
-			if (url != null) {
-				try {
-					@SuppressWarnings("resource")
-					final InputStream is = url.openStream();
-					if (is != null) {
-						is.close();
-					}
-					return url;
-				} catch (Throwable ex) {
-					//
-				}
-			}
-		} catch (Throwable ex) {
-			//
-		}
-		return null;
+		this.journalRepository = journalRepository;
+		this.journalIndicatorsRepository = journalIndicatorsRepository;
 	}
 
 	private static <T> T get(Object content, String key, Class<T> type) {
@@ -215,9 +143,9 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 	protected <T> T createObject(Class<T> type, Map<String, Object> source) throws Exception {
 		final T obj = type.getConstructor().newInstance();
 		for (final Entry<String, Object> entry : source.entrySet()) {
-			if (!Strings.isNullOrEmpty(entry.getKey()) && !entry.getKey().startsWith(PREFIX1)
-					&& !entry.getKey().startsWith(PREFIX2)) {
-				final Method method = findMethod(type, PREFIX3 + entry.getKey(), entry.getValue());
+			if (!Strings.isNullOrEmpty(entry.getKey()) && !entry.getKey().startsWith(HIDDEN_FIELD_PREFIX)
+					&& !entry.getKey().startsWith(SPECIAL_FIELD_PREFIX)) {
+				final Method method = findMethod(type, SETTER_FUNCTION_PREFIX + entry.getKey(), entry.getValue());
 				if (method != null) {
 					try {
 						method.invoke(obj, entry.getValue());
@@ -230,23 +158,29 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 		return obj;
 	}
 
+	/** Run the importer.
+	 *
+	 * @param url the URL of the JSON file to read.
+	 * @throws Exception if there is problem for importing.
+	 */
 	@SuppressWarnings("unchecked")
-	@Override
-	public void run(ApplicationArguments args) throws Exception {
-		final URL url = getDataScriptURL();
-		if (url != null) {
-			getLogger().info("Database initialization with: " + url.toExternalForm()); //$NON-NLS-1$
-			final Gson gson = new Gson();
-			final Map<Object, Object> content; 
-			try (final InputStreamReader isr = new InputStreamReader(url.openStream())) {
-				content = gson.fromJson(isr, Map.class);
-			}
-			if (content != null && !content.isEmpty()) {
-				final Map<String, Object> repository = new TreeMap<>();
-				insertOrganizations(get(content, RESEARCHORGANIZATIONS_KEY, List.class), repository);
-				insertPersons(get(content, PERSONS_KEY, List.class), repository);
-				insertMemberships(get(content, MEMBERSHIPS_KEY, List.class), repository);
-			}
+	public void importToDatabase(URL url) throws Exception {
+		final Gson gson = new Gson();
+		final Map<Object, Object> content; 
+		try (final InputStreamReader isr = new InputStreamReader(url.openStream())) {
+			content = gson.fromJson(isr, Map.class);
+		}
+		if (content != null && !content.isEmpty()) {
+			final Map<String, Object> repository = new TreeMap<>();
+			final int nb0 = insertOrganizations(get(content, RESEARCHORGANIZATIONS_SECTION, List.class), repository);
+			final int nb1 = insertPersons(get(content, PERSONS_SECTION, List.class), repository);
+			final int nb2 = insertMemberships(get(content, MEMBERSHIPS_SECTION, List.class), repository);
+			final int nb3 = insertJournals(get(content, JOURNALS_SECTION, List.class), repository);
+			getLogger().info("Summary of inserts: " //$NON-NLS-1$
+					+ nb0 + " organizations; " //$NON-NLS-1$
+					+ nb1 + " persons; " //$NON-NLS-1$
+					+ nb2 + " memberships; " //$NON-NLS-1$
+					+ nb3 + " journals."); //$NON-NLS-1$
 		}
 	}
 
@@ -254,10 +188,12 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 	 *
 	 * @param organizations the list of organizations in the Json source.
 	 * @param repository the repository of the JSON elements with {@code "@id"} field.
+	 * @return the number of new organizations in the database.
 	 * @throws Exception if an organization cannot be created.
 	 */
 	@SuppressWarnings("unchecked")
-	protected void insertOrganizations(List<?> organizations, Map<String, Object> repository) throws Exception {
+	protected int insertOrganizations(List<?> organizations, Map<String, Object> repository) throws Exception {
+		int nbNew = 0;
 		if (organizations != null && !organizations.isEmpty()) {
 			getLogger().info("Inserting " + organizations.size() + " organizations..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
@@ -270,6 +206,7 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 					final Optional<ResearchOrganization> existing = this.organizationRepository.findDistinctByAcronymOrName(orga.getAcronym(), orga.getName());
 					if (existing.isEmpty()) {
 						orga = this.organizationRepository.saveAndFlush(orga);
+						++nbNew;
 						getLogger().info("  + " + orga.getAcronymOrName() + " (id: " + orga.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						if (!Strings.isNullOrEmpty(id)) {
 							repository.put(id, orga);
@@ -298,16 +235,19 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 				this.organizationRepository.save(sup);
 			}
 		}
+		return nbNew;
 	}
 
 	/** Create the persons in the database.
 	 *
 	 * @param persons the list of persons in the Json source.
 	 * @param repository the repository of the JSON elements with {@code "@id"} field.
+	 * @return the number of new persons in the database.
 	 * @throws Exception if a person cannot be created.
 	 */
 	@SuppressWarnings("unchecked")
-	protected void insertPersons(List<?> persons, Map<String, Object> repository) throws Exception {
+	protected int insertPersons(List<?> persons, Map<String, Object> repository) throws Exception {
+		int nbNew = 0;
 		if (persons != null && !persons.isEmpty()) {
 			getLogger().info("Inserting " + persons.size() + " persons..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
@@ -319,6 +259,7 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 					final Optional<Person> existing = this.personRepository.findDistinctByFirstNameAndLastName(person.getFirstName(), person.getLastName());
 					if (existing.isEmpty()) {
 						person = this.personRepository.saveAndFlush(person);
+						++nbNew;
 						getLogger().info("  + " + person.getFullName() + " (id: " + person.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						if (!Strings.isNullOrEmpty(id)) {
 							repository.put(id, person);
@@ -333,16 +274,19 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 				++i;
 			}
 		}
+		return nbNew;
 	}
 
 	/** Create the memberships in the database.
 	 *
 	 * @param memberships the list of memberships in the Json source.
 	 * @param repository the repository of the JSON elements with {@code "@id"} field.
+	 * @return the number of new memberships in the database.
 	 * @throws Exception if a membership cannot be created.
 	 */
 	@SuppressWarnings("unchecked")
-	protected void insertMemberships(List<?> memberships, Map<String, Object> repository) throws Exception {
+	protected int insertMemberships(List<?> memberships, Map<String, Object> repository) throws Exception {
+		int nbNew = 0;
 		if (memberships != null && !memberships.isEmpty()) {
 			getLogger().info("Inserting " + memberships.size() + " memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
@@ -386,6 +330,7 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 						targetPerson.getResearchOrganizations().add(membership);
 						targetOrganization.getMembers().add(membership);
 						membership = this.membershipRepository.saveAndFlush(membership);
+						++nbNew;
 						getLogger().info("  + " + targetOrganization.getAcronymOrName() //$NON-NLS-1$
 						+ " - " + targetPerson.getFullName() //$NON-NLS-1$
 						+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -404,6 +349,86 @@ public class CiadDatabaseInitializer implements ApplicationRunner {
 				++i;
 			}
 		}
+		return nbNew;
+	}
+
+
+	/** Create the journals in the database.
+	 *
+	 * @param journals the list of journals in the Json source.
+	 * @param repository the repository of the JSON elements with {@code "@id"} field.
+	 * @return the number of new journals in the database.
+	 * @throws Exception if a membership cannot be created.
+	 */
+	@SuppressWarnings("unchecked")
+	protected int insertJournals(List<?> journals, Map<String, Object> repository) throws Exception {
+		int nbNew = 0;
+		if (journals != null && !journals.isEmpty()) {
+			getLogger().info("Inserting " + journals.size() + " journal..."); //$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (Object journalObject : journals) {
+				getLogger().info("> Journal " + (i + 1) + "/" + journals.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				final String id = getId(journalObject);
+				Journal journal = createObject(Journal.class, get(journalObject, Map.class));
+				if (journal != null) {
+					final Optional<Journal> existing = this.journalRepository.findByJournalName(journal.getJournalName());
+					if (existing.isEmpty()) {
+						journal = this.journalRepository.saveAndFlush(journal);
+						// Create the quality indicators
+						final Map<String, Object> history = get(journalObject, QUALITYINDICATORSHISTORY_KEY, Map.class);
+						if (history != null && !history.isEmpty()) {
+							for (final Entry<String, Object> historyEntry : history.entrySet()) {
+								final int year = Integer.parseInt(historyEntry.getKey());
+								String str = get(historyEntry.getValue(), SCIMAGOQINDEX_KEY, String.class);
+								JournalQualityAnnualIndicators indicators = null; 
+								if (!Strings.isNullOrEmpty(str) ) {
+									final QuartileRanking scimago = QuartileRanking.valueOfCaseInsensitive(str);
+									if (scimago != null) {
+										indicators = journal.setScimagoQIndexByYear(year, scimago);
+									}
+								}
+								str = get(historyEntry.getValue(), WOSQINDEX_KEY, String.class);
+								if (!Strings.isNullOrEmpty(str)) {
+									final QuartileRanking wos = QuartileRanking.valueOfCaseInsensitive(str);
+									if (wos != null) {
+										final JournalQualityAnnualIndicators oindicators = indicators;
+										indicators = journal.setWosQIndexByYear(year, wos);
+										assert oindicators == null || oindicators == indicators;
+									}
+								}
+								Number flt = get(historyEntry.getValue(), IMPACTFACTOR_KEY, Number.class);
+								if (flt != null) {
+									final float impactFactor = flt.floatValue();
+									if (impactFactor > 0) {
+										final JournalQualityAnnualIndicators oindicators = indicators;
+										indicators = journal.setImpactFactorByYear(year, impactFactor);
+										assert oindicators == null || oindicators == indicators;
+									}
+								}
+								if (indicators != null) {
+									this.journalIndicatorsRepository.saveAndFlush(indicators);
+								}
+							}
+						}
+						// Save again the journal for saving the links to the quality indicators
+						journal = this.journalRepository.saveAndFlush(journal);
+						++nbNew;
+						//
+						getLogger().info("  + " + journal.getJournalName() + " (id: " + journal.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (!Strings.isNullOrEmpty(id)) {
+							repository.put(id, journal);
+						}
+					} else {
+						getLogger().info("  X " + existing.get().getJournalName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (!Strings.isNullOrEmpty(id)) {
+							repository.put(id, existing.get());
+						}
+					}
+				}
+				++i;
+			}
+		}
+		return nbNew;
 	}
 
 }
