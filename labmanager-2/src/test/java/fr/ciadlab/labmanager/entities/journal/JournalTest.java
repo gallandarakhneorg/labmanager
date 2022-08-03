@@ -241,6 +241,11 @@ public class JournalTest {
 	}
 
 	@Test
+	public void getQualityIndicators() {
+		assertTrue(this.test.getQualityIndicators().isEmpty());
+	}
+
+	@Test
 	public void getQualityIndicatorsForYear() {
 		assertNull(this.test.getQualityIndicatorsForYear(-10));
 		assertNull(this.test.getQualityIndicatorsForYear(0));

@@ -433,6 +433,18 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 		return this.publishedPapers != null && !this.publishedPapers.isEmpty();
 	}
 
+	/** Replies the quality indicators of the journal.
+	 *
+	 * @return the indicators.
+	 * @since 2.0
+	 */
+	public final Map<Integer, JournalQualityAnnualIndicators> getQualityIndicators() {
+		if (this.qualityIndicatorsHistory == null) {
+			this.qualityIndicatorsHistory = new TreeMap<>();
+		}
+		return this.qualityIndicatorsHistory;
+	}
+
 	/** Replies the quality indicators of the journal for the given year.
 	 *
 	 * @param year the year to search for.
