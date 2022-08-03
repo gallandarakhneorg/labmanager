@@ -30,14 +30,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class CentralController {
 
-	/** Shows up the HTML page for the index.
+	/** Shows up the HTML page for the administration entry point.
 	 *
 	 * @param model the model.
 	 * @return not used.
 	 */
-	@GetMapping(value = { "/", "/index" })
-	public static String index(Model model) {
-		return "index"; //$NON-NLS-1$
+	@GetMapping(value = { "/admin" })
+	public static String admin(Model model) {
+		return "admin"; //$NON-NLS-1$
 	}
 
 }
