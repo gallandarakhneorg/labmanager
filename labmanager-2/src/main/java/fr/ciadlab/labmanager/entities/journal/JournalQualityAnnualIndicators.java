@@ -47,14 +47,14 @@ public class JournalQualityAnnualIndicators implements Serializable {
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(nullable = false)
+	@Column(name = "id", nullable = false)
 	private int id;
 
 	/** Year for the entry.
 	 */
 	@Column
 	@ColumnDefault("0")
-	private int year;
+	private int referenceYear;
 
 	/** Scimargo Q-Index.
 	 */
@@ -77,7 +77,7 @@ public class JournalQualityAnnualIndicators implements Serializable {
 	/** Default constructor.
 	 */
 	public JournalQualityAnnualIndicators() {
-		this.year = 0;
+		this.referenceYear = 0;
 		this.scimagoQIndex = null;
 		this.wosQIndex = null;
 		this.impactFactor = 0;
@@ -92,7 +92,7 @@ public class JournalQualityAnnualIndicators implements Serializable {
 	 */
 	public JournalQualityAnnualIndicators(int year, QuartileRanking scimagoQuartile,
 			QuartileRanking wosQuartile, float impactFactor) {
-		this.year = year;
+		this.referenceYear = year;
 		this.scimagoQIndex = scimagoQuartile;
 		this.wosQIndex = wosQuartile;
 		this.impactFactor = impactFactor;
@@ -107,27 +107,27 @@ public class JournalQualityAnnualIndicators implements Serializable {
 	 *
 	 * @return the year.
 	 */
-	public int getYear() {
-		return this.year;
+	public int getReferenceYear() {
+		return this.referenceYear;
 	}
 
 	/** Change the year for this history entry.
 	 *
 	 * @param year the year.
 	 */
-	public void setYear(int year) {
-		this.year = year;
+	public void setReferenceYear(int year) {
+		this.referenceYear = year;
 	}
 
 	/** Change the year for this history entry.
 	 *
 	 * @param year the year.
 	 */
-	public final void setYear(Number year) {
+	public final void setReferenceYear(Number year) {
 		if (year == null) {
-			setYear(0);
+			setReferenceYear(0);
 		} else {
-			setYear(year.intValue());
+			setReferenceYear(year.intValue());
 		}
 	}
 
@@ -178,6 +178,8 @@ public class JournalQualityAnnualIndicators implements Serializable {
 	public void setImpactFactor(float impactFactor) {
 		if (impactFactor >= 0f) {
 			this.impactFactor = impactFactor;
+		} else {
+			this.impactFactor = 0f;
 		}
 	}
 

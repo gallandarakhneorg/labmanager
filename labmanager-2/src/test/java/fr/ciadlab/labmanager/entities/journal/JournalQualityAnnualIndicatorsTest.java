@@ -41,22 +41,22 @@ public class JournalQualityAnnualIndicatorsTest {
 	}
 
 	@Test
-	public void getYear() {
-		assertEquals(0, this.test.getYear());
+	public void getReferenceYear() {
+		assertEquals(0, this.test.getReferenceYear());
 	}
 
 	@Test
-	public void setYear() {
-		assertEquals(0, this.test.getYear());
+	public void setReferenceYear() {
+		assertEquals(0, this.test.getReferenceYear());
 
-		this.test.setYear(1234);
-		assertEquals(1234, this.test.getYear());
+		this.test.setReferenceYear(1234);
+		assertEquals(1234, this.test.getReferenceYear());
 
-		this.test.setYear(0);
-		assertEquals(0, this.test.getYear());
+		this.test.setReferenceYear(0);
+		assertEquals(0, this.test.getReferenceYear());
 
-		this.test.setYear(-56884);
-		assertEquals(-56884, this.test.getYear());
+		this.test.setReferenceYear(-56884);
+		assertEquals(-56884, this.test.getReferenceYear());
 	}
 
 	@Test
@@ -104,7 +104,7 @@ public class JournalQualityAnnualIndicatorsTest {
 		assertEquals(12.56f, this.test.getImpactFactor());
 
 		this.test.setImpactFactor(-458f);
-		assertEquals(12.56f, this.test.getImpactFactor());
+		assertEquals(0f, this.test.getImpactFactor());
 	}
 
 }

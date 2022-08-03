@@ -18,11 +18,11 @@ package fr.ciadlab.labmanager.entities.journal;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeMap;
 import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
@@ -33,6 +33,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -73,7 +74,7 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	@Column(nullable = false)
+	@Column(name = "id", nullable = false)
 	private int id;
 
 	/** Name of the journal.
@@ -116,8 +117,14 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	/** History of the quality indicators for this journal.
 	 */
 	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(name = "id")
-	@MapKey(name = "year")
+	@JoinTable(name = "journal_journal_annual_indicators_mapping", 
+	joinColumns = {
+			@JoinColumn(name = "journal_id", referencedColumnName = "id")
+	},
+	inverseJoinColumns = {
+			@JoinColumn(name = "indicators_id", referencedColumnName = "id")
+	})
+	@MapKey(name = "referenceYear")
 	private Map<Integer, JournalQualityAnnualIndicators> qualityIndicatorsHistory;
 
 	/** Construct a journal with the given values.
@@ -141,7 +148,7 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 		this.journalUrl = publisherUrl;
 		this.scimagoId = scimagoId;
 		this.wosId = wosId;
-		this.qualityIndicatorsHistory = indicators == null ? new HashMap<>() : indicators;
+		this.qualityIndicatorsHistory = indicators;
 	}
 
 	/** Construct a journal with the given values.
@@ -166,9 +173,7 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	/** Construct an empty journal.
 	 */
 	public Journal() {
-		// creation of an empty set to avoid any null pointer exception while using the
-		// history
-		this.qualityIndicatorsHistory = new HashMap<>();
+		//
 	}
 
 	@Override
@@ -435,6 +440,9 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 * @since 2.0
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsForYear(int year) {
+		if (this.qualityIndicatorsHistory == null) {
+			return null;
+		}
 		return this.qualityIndicatorsHistory.get(Integer.valueOf(year));
 	}
 
@@ -447,12 +455,18 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 * @since 2.0
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsFor(int year, Predicate<JournalQualityAnnualIndicators> selector) {
-		final IntegerList ids = new IntegerList(this.qualityIndicatorsHistory.keySet());
-		final int start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
-		for (int i = start; i >= 0; --i) {
-			final JournalQualityAnnualIndicators indicators = this.qualityIndicatorsHistory.get(ids.get(i));
-			if (indicators != null && selector.test(indicators)) {
+		if (this.qualityIndicatorsHistory != null) {
+			JournalQualityAnnualIndicators indicators = this.qualityIndicatorsHistory.get(Integer.valueOf(year));
+			if (indicators != null) {
 				return indicators;
+			}
+			final IntegerList ids = new IntegerList(this.qualityIndicatorsHistory.keySet());
+			final int start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
+			for (int i = start - 1; i >= 0; --i) {
+				indicators = this.qualityIndicatorsHistory.get(ids.get(i));
+				if (indicators != null && selector.test(indicators)) {
+					return indicators;
+				}
 			}
 		}
 		return null;
@@ -486,14 +500,31 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 *
 	 * @param year the year to search for.
 	 * @param quartile the Q-Index of the journal for the given year, or {@code null} if not defined.
+	 * @return the impacted annual indicators object
 	 */
-	public void setScimagoQIndexByYear(int year, QuartileRanking quartile) {
-		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+	public JournalQualityAnnualIndicators setScimagoQIndexByYear(int year, QuartileRanking quartile) {
+		JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
 		if (indicators != null) {
 			indicators.setScimagoQIndex(quartile);
 		} else {
-			this.qualityIndicatorsHistory.put(Integer.valueOf(year), new JournalQualityAnnualIndicators(year, quartile, null, 0f));
+			indicators = new JournalQualityAnnualIndicators(year, quartile, null, 0f);
+			if (this.qualityIndicatorsHistory == null) {
+				this.qualityIndicatorsHistory = new TreeMap<>();
+			}
+			this.qualityIndicatorsHistory.put(Integer.valueOf(year), indicators);
 		}
+		return indicators;
+	}
+
+	/** Replies if the journal has Scimago Q-Index for the given year.
+	 * If there is no Q-Index known for the given year, this function replies
+	 * the Q-Index for the highest year that is below the given one. 
+	 *
+	 * @param year the year to search for.
+	 * @return {@code true} if the journal has Q-Index.
+	 */
+	public boolean hasScimagoQIndexForYear(int year) {
+		return getScimagoQIndexByYear(year) != null;
 	}
 
 	/** Replies the Q-Index of the journal from the JCR/WOS source.
@@ -515,14 +546,31 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 *
 	 * @param year the year to search for.
 	 * @param quartile the Q-Index of the journal for the given year, or {@code null} if not defined.
+	 * @return the impacted annual indicators object
 	 */
-	public void setWosQIndexByYear(int year, QuartileRanking quartile) {
-		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+	public JournalQualityAnnualIndicators setWosQIndexByYear(int year, QuartileRanking quartile) {
+		JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
 		if (indicators != null) {
 			indicators.setWosQIndex(quartile);
 		} else {
-			this.qualityIndicatorsHistory.put(Integer.valueOf(year), new JournalQualityAnnualIndicators(year, null, quartile, 0f));
+			indicators = new JournalQualityAnnualIndicators(year, null, quartile, 0f);
+			if (this.qualityIndicatorsHistory == null) {
+				this.qualityIndicatorsHistory = new TreeMap<>();
+			}
+			this.qualityIndicatorsHistory.put(Integer.valueOf(year), indicators);
 		}
+		return indicators;
+	}
+
+	/** Replies if the journal has WOS Q-Index for the given year.
+	 * If there is no Q-Index known for the given year, this function replies
+	 * the Q-Index for the highest year that is below the given one. 
+	 *
+	 * @param year the year to search for.
+	 * @return {@code true} if the journal has Q-Index.
+	 */
+	public boolean hasWosQIndexForYear(int year) {
+		return getWosQIndexByYear(year) != null;
 	}
 
 	/** Replies the impact factor of the journal.
@@ -544,15 +592,32 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 *
 	 * @param year the year to search for.
 	 * @param impactFactor the new impact factor of the journal for the given year, or {@code 0} if not defined.
+	 * @return the impacted annual indicators object
 	 */
-	public void setImpactFactorByYear(int year, float impactFactor) {
+	public JournalQualityAnnualIndicators setImpactFactorByYear(int year, float impactFactor) {
 		assert impactFactor >= 0f;
-		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+		JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
 		if (indicators != null) {
 			indicators.setImpactFactor(impactFactor);
 		} else {
-			this.qualityIndicatorsHistory.put(Integer.valueOf(year), new JournalQualityAnnualIndicators(year, null, null, impactFactor));
+			indicators = new JournalQualityAnnualIndicators(year, null, null, impactFactor);
+			if (this.qualityIndicatorsHistory == null) {
+				this.qualityIndicatorsHistory = new TreeMap<>();
+			}
+			this.qualityIndicatorsHistory.put(Integer.valueOf(year), indicators);
 		}
+		return indicators;
+	}
+
+	/** Replies if the journal has impact factor for the given year.
+	 * If there is no impact factor known for the given year, this function replies
+	 * the impact factor for the highest year that is below the given one. 
+	 *
+	 * @param year the year to search for.
+	 * @return {@code true} if the journal has impact factor.
+	 */
+	public boolean hasImpactFactorForYear(int year) {
+		return getImpactFactorByYear(year) > 0f;
 	}
 
 }
