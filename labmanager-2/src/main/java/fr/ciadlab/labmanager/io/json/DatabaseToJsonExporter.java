@@ -32,10 +32,10 @@ import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -63,8 +63,6 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private JournalRepository journalRepository;
 
-	private JournalQualityAnnualIndicatorsRepository journalIndicatorsRepository;
-
 	/** Constructor.
 	 * 
 	 * @param organizationRepository the accessor to the organization repository.
@@ -77,13 +75,11 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired MembershipRepository membershipRepository,
-			@Autowired JournalRepository journalRepository,
-			@Autowired JournalQualityAnnualIndicatorsRepository journalIndicatorsRepository) {
+			@Autowired JournalRepository journalRepository) {
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
 		this.membershipRepository = membershipRepository;
 		this.journalRepository = journalRepository;
-		this.journalIndicatorsRepository = journalIndicatorsRepository;
 	}
 
 	/** Run the exporter.
@@ -347,6 +343,19 @@ public class DatabaseToJsonExporter extends JsonTool {
 				final String id = JOURNAL_ID_PREFIX + i;
 
 				exportObject(jsonJournal, id, journal);
+				
+				final JsonObject indicatorMap = new JsonObject();
+				for (final JournalQualityAnnualIndicators indicators : journal.getQualityIndicators().values()) {
+					final JsonObject jsonIndicator = new JsonObject();
+					exportObject(jsonIndicator, null, indicators);
+					jsonIndicator.remove("referenceYear"); //$NON-NLS-1$
+					if (jsonIndicator.size() > 0) {
+						indicatorMap.add(Integer.toString(indicators.getReferenceYear()), jsonIndicator);
+					}
+				}
+				if (indicatorMap.size() > 0) {
+					jsonJournal.add(QUALITYINDICATORSHISTORY_KEY, indicatorMap);
+				}
 				
 				if (jsonJournal.size() > 0) {
 					repository.put(journal, id);
