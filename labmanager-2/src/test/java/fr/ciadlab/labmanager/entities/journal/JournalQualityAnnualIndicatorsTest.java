@@ -65,13 +65,24 @@ public class JournalQualityAnnualIndicatorsTest {
 	}
 
 	@Test
-	public void setScimagoQIndex() {
+	public void setScimagoQIndex_enum() {
 		assertNull(this.test.getScimagoQIndex());
 
 		this.test.setScimagoQIndex(QuartileRanking.Q2);
 		assertSame(QuartileRanking.Q2, this.test.getScimagoQIndex());
 
-		this.test.setScimagoQIndex(null);
+		this.test.setScimagoQIndex((QuartileRanking) null);
+		assertNull(this.test.getScimagoQIndex());
+	}
+
+	@Test
+	public void setScimagoQIndex_string() {
+		assertNull(this.test.getScimagoQIndex());
+
+		this.test.setScimagoQIndex("Q2");
+		assertSame(QuartileRanking.Q2, this.test.getScimagoQIndex());
+
+		this.test.setScimagoQIndex((String) null);
 		assertNull(this.test.getScimagoQIndex());
 	}
 
@@ -81,13 +92,24 @@ public class JournalQualityAnnualIndicatorsTest {
 	}
 
 	@Test
-	public void setWosQIndex() {
+	public void setWosQIndex_enum() {
 		assertNull(this.test.getWosQIndex());
 
 		this.test.setWosQIndex(QuartileRanking.Q2);
 		assertSame(QuartileRanking.Q2, this.test.getWosQIndex());
 
-		this.test.setWosQIndex(null);
+		this.test.setWosQIndex((QuartileRanking) null);
+		assertNull(this.test.getWosQIndex());
+	}
+
+	@Test
+	public void setWosQIndex_string() {
+		assertNull(this.test.getWosQIndex());
+
+		this.test.setWosQIndex("Q2");
+		assertSame(QuartileRanking.Q2, this.test.getWosQIndex());
+
+		this.test.setWosQIndex((String) null);
 		assertNull(this.test.getWosQIndex());
 	}
 
@@ -97,13 +119,24 @@ public class JournalQualityAnnualIndicatorsTest {
 	}
 
 	@Test
-	public void setImpactFactor() {
+	public void setImpactFactor_float() {
 		assertEquals(0f, this.test.getImpactFactor());
 
 		this.test.setImpactFactor(12.56f);
 		assertEquals(12.56f, this.test.getImpactFactor());
 
 		this.test.setImpactFactor(-458f);
+		assertEquals(0f, this.test.getImpactFactor());
+	}
+
+	@Test
+	public void setImpactFactor_string() {
+		assertEquals(0f, this.test.getImpactFactor());
+
+		this.test.setImpactFactor(Float.valueOf(12.56f));
+		assertEquals(12.56f, this.test.getImpactFactor());
+
+		this.test.setImpactFactor(Float.valueOf(-458f));
 		assertEquals(0f, this.test.getImpactFactor());
 	}
 

@@ -27,6 +27,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.hibernate.annotations.ColumnDefault;
 
 /** Histoty of the quality indicators for a journal.
@@ -140,11 +141,23 @@ public class JournalQualityAnnualIndicators implements Serializable {
 	}
 
 	/** Change the Q-Index of the journal from Scimago source.
-	 * 
+	 *
 	 * @param quartile the Q-Index.
 	 */
 	public void setScimagoQIndex(QuartileRanking  quartile) {
 		this.scimagoQIndex = quartile;
+	}
+
+	/** Change the Q-Index of the journal from Scimago source.
+	 *
+	 * @param quartile the Q-Index.
+	 */
+	public final void setScimagoQIndex(String quartile) {
+		if (Strings.isNullOrEmpty(quartile)) {
+			setScimagoQIndex((QuartileRanking) null);
+		} else {
+			setScimagoQIndex(QuartileRanking.valueOfCaseInsensitive(quartile));
+		}
 	}
 
 	/** Replies the Q-Index of the journal from JCR/Web-Of-Science source.
@@ -161,6 +174,18 @@ public class JournalQualityAnnualIndicators implements Serializable {
 	 */
 	public void setWosQIndex(QuartileRanking quartile) {
 		this.wosQIndex = quartile;
+	}
+
+	/** Change the Q-Index of the journal from JCR/Web-Of-Science source.
+	 * 
+	 * @param quartile the Q-Index.
+	 */
+	public final void setWosQIndex(String quartile) {
+		if (Strings.isNullOrEmpty(quartile)) {
+			setWosQIndex((QuartileRanking) null);
+		} else {
+			setWosQIndex(QuartileRanking.valueOfCaseInsensitive(quartile));
+		}
 	}
 
 	/** Replies the impact factor of the journal.
@@ -188,10 +213,10 @@ public class JournalQualityAnnualIndicators implements Serializable {
 	 * @param impactFactor the impact factor that is a positive number.
 	 */
 	public final void setImpactFactor(Number impactFactor) {
-		if (impactFactor != null) {
-			setImpactFactor(impactFactor.floatValue());
-		} else {
+		if (impactFactor == null) {
 			setImpactFactor(0f);
+		} else {
+			setImpactFactor(impactFactor.floatValue());
 		}
 	}
 
