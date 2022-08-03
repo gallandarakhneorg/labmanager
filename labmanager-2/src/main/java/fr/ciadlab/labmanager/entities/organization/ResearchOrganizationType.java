@@ -5,10 +5,11 @@
  * All rights reserved.
  *
  * This software is the confidential and proprietary information
- * of the Systems and Transportation Laboratory ("Confidential Information").
+ * of the CIAD laboratory and the Université de Technologie
+ * de Belfort-Montbéliard ("Confidential Information").
  * You shall not disclose such Confidential Information and shall use
  * it only in accordance with the terms of the license agreement
- * you entered into with the CIAD.
+ * you entered into with the CIAD-UTBM.
  * 
  * http://www.ciad-lab.fr/
  */
