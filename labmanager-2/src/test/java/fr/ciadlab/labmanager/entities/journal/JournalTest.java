@@ -301,6 +301,11 @@ public class JournalTest {
 		assertSame(QuartileRanking.Q4, this.test.getScimagoQIndexByYear(512));
 		assertSame(QuartileRanking.Q1, this.test.getScimagoQIndexByYear(1234));
 		assertSame(QuartileRanking.Q1, this.test.getScimagoQIndexByYear(4567));
+
+		assertNotNull(this.test.setScimagoQIndexByYear(2500, QuartileRanking.Q3));
+		assertSame(QuartileRanking.Q4, this.test.getScimagoQIndexByYear(512));
+		assertSame(QuartileRanking.Q1, this.test.getScimagoQIndexByYear(1234));
+		assertSame(QuartileRanking.Q3, this.test.getScimagoQIndexByYear(4567));
 	}
 
 	@Test

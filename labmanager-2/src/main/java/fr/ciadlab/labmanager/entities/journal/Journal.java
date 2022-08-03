@@ -468,14 +468,10 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsFor(int year, Predicate<JournalQualityAnnualIndicators> selector) {
 		if (this.qualityIndicatorsHistory != null) {
-			JournalQualityAnnualIndicators indicators = this.qualityIndicatorsHistory.get(Integer.valueOf(year));
-			if (indicators != null) {
-				return indicators;
-			}
 			final IntegerList ids = new IntegerList(this.qualityIndicatorsHistory.keySet());
 			final int start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
-			for (int i = start - 1; i >= 0; --i) {
-				indicators = this.qualityIndicatorsHistory.get(ids.get(i));
+			for (int i = start; i >= 0; --i) {
+				final JournalQualityAnnualIndicators indicators = this.qualityIndicatorsHistory.get(ids.get(i));
 				if (indicators != null && selector.test(indicators)) {
 					return indicators;
 				}
