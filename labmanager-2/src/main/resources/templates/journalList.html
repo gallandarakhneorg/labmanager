@@ -1,0 +1,69 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="fragments/head :: style" />
+<th:block th:replace="fragments/head :: script" />
+
+<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
+    <thead>
+        <th>Name</th>
+        <th>Publisher</th>
+        <th>Open Access</th>
+        <th>Scimago</th>
+        <th>WoS</th>
+        <th>Impact Factor</th>
+        <th># Papers</th>
+    </thead>
+    <tbody>
+        <tr th:each="journal : ${journals}">
+            <td th:with="urlObject=${journal.journalURLObject}">
+                <a th:if="${urlObject != null}"
+                   th:href="${journal.journalURL}"
+                   th:utext="${journal.journalName}"></a>
+                <th:block th:if="${urlObject == null}"
+                          th:utext="${journal.journalName}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${journal.publisher}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${journal.openAccess == null ? '' : (journal.openAccess.booleanValue ? 'yes' : 'no')}"></th:block>
+            </td>
+            <td th:with="qindex=${journal.getScimagoQIndexByYear(currentYear)}">
+                <th:block th:if="${qindex != null}"
+                          th:utext="${qindex.toString}"></th:block>
+            </td>
+            <td th:with="qindex=${journal.getWosQIndexByYear(currentYear)}">
+                <th:block th:if="${qindex != null}"
+                          th:utext="${qindex.toString}"></th:block>
+            </td>
+            <td th:with="impactFactor=${journal.getImpactFactorByYear(currentYear)}">
+                <th:block th:if="${impactFactor > 0}"
+                          th:utext="${impactFactor}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${journal.publishedPapers.size}"></th:block>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<script th:inline="javascript">
+    $(document).ready(function() {
+        var tableId = /*[[${uuid}]]*/ '';
+        var table = $('#table'+tableId).DataTable({
+            dom: 'Bfrtip',
+            scrollCollapse: true,
+            paging: false,
+            buttons: [
+                'excelHtml5', 'pdfHtml5', 'csvHtml5'
+            ],
+            responsive: true,
+            autoWidth: true,
+        });
+    });
+
+</script>
+</html>
+

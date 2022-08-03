@@ -25,6 +25,7 @@ import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.vmutil.locale.Locale;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -47,7 +48,7 @@ import org.springframework.web.servlet.ModelAndView;
 @CrossOrigin
 public class JournalController extends AbstractController {
 
-	private static final String TOOL_NAME = "journalTool"; //$NON-NLS-1$
+	private static final String DEFAULT_ENDPOINT = "journalList"; //$NON-NLS-1$
 
 	private JournalService journalService;
 
@@ -57,7 +58,7 @@ public class JournalController extends AbstractController {
 	 * @param journalService the journal service.
 	 */
 	public JournalController(@Autowired JournalService journalService) {
-		super(TOOL_NAME);
+		super(DEFAULT_ENDPOINT);
 		this.journalService = journalService;
 	}
 
@@ -65,10 +66,11 @@ public class JournalController extends AbstractController {
 	 *
 	 * @return the model-view component.
 	 */
-	@GetMapping("/" + TOOL_NAME)
-	public ModelAndView showJournalTool() {
-		final ModelAndView modelAndView = new ModelAndView(TOOL_NAME);
+	@GetMapping("/" + DEFAULT_ENDPOINT)
+	public ModelAndView journalList() {
+		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("journals", this.journalService.getAllJournals()); //$NON-NLS-1$
+		modelAndView.addObject("currentYear", Integer.valueOf(LocalDate.now().getYear())); //$NON-NLS-1$
 		return modelAndView;
 	}
 
@@ -101,7 +103,6 @@ public class JournalController extends AbstractController {
 
 	/** Replies data about a specific journal from the database.
 	 *
-	 * @param response JEE response.
 	 * @param name the name of the journal.
 	 * @return the journal.
 	 */

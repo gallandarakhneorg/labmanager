@@ -64,9 +64,9 @@ public class JournalControllerTest {
 	}
 
 	@Test
-	public void showJournalTool() {
-		final ModelAndView mv = this.test.showJournalTool();
-		assertEquals("journalTool", mv.getViewName());
+	public void journalList() {
+		final ModelAndView mv = this.test.journalList();
+		assertEquals("journalList", mv.getViewName());
 	}
 
 	@Test
@@ -74,7 +74,7 @@ public class JournalControllerTest {
 		final HttpServletResponse response = mock(HttpServletResponse.class);
 		this.test.addJournal(response, "name0", "publisher0", "url0", "scimagoId0", "wosId0");
 		verify(this.journalService).createJournal("name0", "publisher0", "url0", "scimagoId0", "wosId0");
-		verify(response).sendRedirect("/SpringRestHibernate/journalTool?created=true&message=name0");
+		verify(response).sendRedirect("/SpringRestHibernate/journalList?created=true&message=name0");
 	}
 
 	@Test
@@ -131,7 +131,7 @@ public class JournalControllerTest {
 		this.test.editJournal(response, "name0", "name1", "publisher1", "url1", "scimagoId1", "wosId1");
 
 		verify(this.journalService, never()).updateJournal(anyInt(), anyString(), anyString(), anyString(), anyString(), anyString());
-		verify(response).sendRedirect("/SpringRestHibernate/journalTool?error=1&message=Journal+with+the+name+%27name0%27+was+not+found");
+		verify(response).sendRedirect("/SpringRestHibernate/journalList?error=1&message=Journal+with+the+name+%27name0%27+was+not+found");
 	}
 
 	@Test
@@ -142,7 +142,7 @@ public class JournalControllerTest {
 		this.test.editJournal(response, "name0", "name1", "publisher1", "url1", "scimagoId1", "wosId1");
 
 		verify(this.journalService).updateJournal(123, "name1", "publisher1", "url1", "scimagoId1", "wosId1");
-		verify(response).sendRedirect("/SpringRestHibernate/journalTool?updated=true&message=name0");
+		verify(response).sendRedirect("/SpringRestHibernate/journalList?updated=true&message=name0");
 	}
 
 }
