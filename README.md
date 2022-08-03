@@ -85,7 +85,23 @@ For creating the database schema, you have to follow the steps:
 
 Now you database should be ready with an up-to-date schema and with empty tables.
 
-### 1.5. Create JUnit5 tests 
+### 1.5. Inject initial data into the database
+
+The development teams has a not-public JSON file that contains the initial content of the database (research organizations, persons, memberships, journals, etc.).
+
+The project is configured for inserting automatically the data that is described into a specific JSON file with the location and name `./labmanager-2/src/main/resources/data.json`.
+Copy the JSON file provided by the projec team into the folder `./labmanager-2/src/main/resources/` and ensures that the name of the new file is `data.json`.
+
+For injecting initial data in the database, you have to follow the steps:
+
+* Copy the JSON file into `./labmanager-2/src/main/resources/data.json`
+* Launch the project in Eclipse
+* Wait for successful project launching, and then stop the run.
+* Delete the file `./labmanager-2/src/main/resources/data.json`
+
+Now you database contains the based data that is validated by the project development team.
+
+### 1.6. Create JUnit5 tests 
 
 The guideline of the Master development team recommend to create JUnit5 tests for all the significant contributions. You must create your tests into the source folder `src/test/java` and copy additionnal testing resources into the source folder `src/test/resources`.
 
@@ -99,7 +115,7 @@ For launching the tests, you could create and use a specific launch configuratio
 * Ensure that the test runner is `JUnit 5`
 * Click on the `Run` button for saving the launch configuration and launching the tests
 
-### 1.6. Merge your contributions to the Master server
+### 1.7. Merge your contributions to the Master server
 
 As soon as all your contributions are comitted on your fork Git repository, it is possible to provide your changes to the Master development team through a *Pull Request* (PR) on Bitbucket:
 
@@ -116,10 +132,11 @@ Copyright (c) 2019-22, CIAD Laboratory, Universite de Technologie de Belfort Mon
 All rights reserved.
 
 This software is the confidential and proprietary information
-of the Systems and Transportation Laboratory ("Confidential Information").
+of the CIAD laboratory and the Université de Technologie
+de Belfort-Montbéliard ("Confidential Information").
 You shall not disclose such Confidential Information and shall use
 it only in accordance with the terms of the license agreement
-you entered into with the CIAD.
+you entered into with the CIAD-UTBM.
 
 http://www.ciad-lab.fr/
 ```
