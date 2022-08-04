@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
+import fr.ciadlab.labmanager.configuration.BaseMessageSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -84,13 +86,37 @@ public class ResearchOrganizationTypeTest {
 	public void getLabel_FR() {
 		// Force the local to be FR
 		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Equipe de recherche", cons(ResearchOrganizationType.RESEARCH_TEAM).getLabel());
-		assertEquals("Département de recherche", cons(ResearchOrganizationType.LABORATORY_DEPARTMENT).getLabel());
-		assertEquals("Laboratoire de recherche", cons(ResearchOrganizationType.LABORATORY).getLabel());
-		assertEquals("Faculté", cons(ResearchOrganizationType.FACULTY).getLabel());
-		assertEquals("Université", cons(ResearchOrganizationType.UNIVERSITY).getLabel());
-		assertEquals("Communauté d'universités", cons(ResearchOrganizationType.COMMUNITY).getLabel());
-		assertEquals("Autre type d'organisation", cons(ResearchOrganizationType.OTHER).getLabel());
+		assertEquals("Research Team", cons(ResearchOrganizationType.RESEARCH_TEAM).getLabel());
+		assertEquals("Research Department", cons(ResearchOrganizationType.LABORATORY_DEPARTMENT).getLabel());
+		assertEquals("Research Laboratory", cons(ResearchOrganizationType.LABORATORY).getLabel());
+		assertEquals("Faculty", cons(ResearchOrganizationType.FACULTY).getLabel());
+		assertEquals("University", cons(ResearchOrganizationType.UNIVERSITY).getLabel());
+		assertEquals("Community of universities", cons(ResearchOrganizationType.COMMUNITY).getLabel());
+		assertEquals("Other type of organization", cons(ResearchOrganizationType.OTHER).getLabel());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_Locale_US() {
+		assertEquals("Research Team", cons(ResearchOrganizationType.RESEARCH_TEAM).getLabel(Locale.US));
+		assertEquals("Research Department", cons(ResearchOrganizationType.LABORATORY_DEPARTMENT).getLabel(Locale.US));
+		assertEquals("Research Laboratory", cons(ResearchOrganizationType.LABORATORY).getLabel(Locale.US));
+		assertEquals("Faculty", cons(ResearchOrganizationType.FACULTY).getLabel(Locale.US));
+		assertEquals("University", cons(ResearchOrganizationType.UNIVERSITY).getLabel(Locale.US));
+		assertEquals("Community of universities", cons(ResearchOrganizationType.COMMUNITY).getLabel(Locale.US));
+		assertEquals("Other type of organization", cons(ResearchOrganizationType.OTHER).getLabel(Locale.US));
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_Locale_FR() {
+		assertEquals("\u00C9quipe de recherche", cons(ResearchOrganizationType.RESEARCH_TEAM).getLabel(Locale.FRANCE));
+		assertEquals("Département de recherche", cons(ResearchOrganizationType.LABORATORY_DEPARTMENT).getLabel(Locale.FRANCE));
+		assertEquals("Laboratoire de recherche", cons(ResearchOrganizationType.LABORATORY).getLabel(Locale.FRANCE));
+		assertEquals("Faculté", cons(ResearchOrganizationType.FACULTY).getLabel(Locale.FRANCE));
+		assertEquals("Université", cons(ResearchOrganizationType.UNIVERSITY).getLabel(Locale.FRANCE));
+		assertEquals("Communauté d'universités", cons(ResearchOrganizationType.COMMUNITY).getLabel(Locale.FRANCE));
+		assertEquals("Autre type d'organisation", cons(ResearchOrganizationType.OTHER).getLabel(Locale.FRANCE));
 		assertAllTreated();
 	}
 

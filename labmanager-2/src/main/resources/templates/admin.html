@@ -6,33 +6,36 @@
       <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
    </head>
    <body>
-      <h1>Laboratory Management Tools</h1>
+      <h1 th:utext="#{html.LaboratoryManagementTools}"></h1>
       <h2 th:utext="${message}">..!..</h2>
 
-      <h2>Research Organization Management</h2>
+      <h2 th:utext="#{html.ResearchOrganizationManagement}"></h2>
 
       <ul>
-      	<li><a th:href="@{/organizationList}">List of the organizations</a></li>
+      	<li><a th:href="@{/organizationList}"
+      	       th:utext="#{html.OrganizationsList}"></a></li>
       	<li>Add organization</li>
       	<li>Modify organization</li>
       	<li>Delete organization</li>
       </ul>
       
-      <h2>Person Management</h2>
+      <h2 th:utext="#{html.PersonManagement}"></h2>
 
       <ul>
-      	<li><a th:href="@{/personList}">List of the persons</a></li>
+      	<li><a th:href="@{/personList}"
+      	       th:utext="#{html.PersonsList}"></a></li>
       	<li>Add person</li>
       	<li>Modify person</li>
       	<li>Delete person</li>
       	<li>Merge persons</li>
       </ul>
 
-      <h2>Publication Management</h2>
+      <h2 th:utext="#{html.PublicationManagement}"></h2>
 
       <h3>Journals</h3>
         <ul>
-      	  <li><a th:href="@{/journalList}">List of the journals</a></li>
+      	  <li><a th:href="@{/journalList}"
+      	         th:utext="#{html.JournalsList}"></a></li>
       	  <li>Update journals</li>
         </ul>
 
@@ -68,10 +71,11 @@
       	<li>Chart</li>
       </ul>
       
-      <h2>Database</h2>
+      <h2 th:utext="#{html.DatabaseManagement}"></h2>
 
       <ul>
-      	<li><a th:href="@{/exportDatabaseToJson}">Export database to JSON</a></li>
+      	<li><a th:href="@{/exportDatabaseToJson}"
+      	         th:utext="#{html.DatabaseToJsonExport}"></a></li>
       </ul>
 
    </body>

@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 
+import fr.ciadlab.labmanager.configuration.BaseMessageSource;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
@@ -39,6 +40,7 @@ import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link CiadHtmlPageExporter}.
  * 
@@ -53,11 +55,14 @@ public class CiadHtmlPageExporterTest {
 	//private static final String OUTPUT_FILE = "/home/sgalland/tmp/export.html";
 	private static final String OUTPUT_FILE = null;
 
+	private MessageSourceAccessor messages;
+
 	private CiadHtmlPageExporter test;
 
 	@BeforeEach
 	public void setUp() {
-		this.test = new CiadHtmlPageExporter();
+		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
+		this.test = new CiadHtmlPageExporter(this.messages);
 	}
 
 	@Test

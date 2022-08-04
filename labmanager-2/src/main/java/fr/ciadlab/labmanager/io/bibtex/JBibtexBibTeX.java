@@ -89,7 +89,6 @@ import fr.ciadlab.labmanager.service.publication.type.ThesisService;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.locale.Locale;
 import org.jbibtex.BibTeXDatabase;
 import org.jbibtex.BibTeXEntry;
 import org.jbibtex.BibTeXFormatter;
@@ -104,6 +103,7 @@ import org.jbibtex.StringValue;
 import org.jbibtex.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
 /** Implementation of the utilities for BibTeX based on the JBibtex library.
@@ -170,6 +170,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 */
 	protected static final Key KEY_CORE_RANKING = new Key("_core_ranking"); //$NON-NLS-1$
 
+	private static final String MESSAGE_PREFIX = "jBibtexBibTeX."; //$NON-NLS-1$
+
+	private MessageSourceAccessor messages;
+
 	private PrePublicationFactory prePublicationFactory;
 
 	private JournalService journalService;
@@ -192,6 +196,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	/** Constructor. This constructor is ready for injection.
 	 *
+	 * @param messages the accessor to the localized messages.
 	 * @param prePublicationFactory the factory of pre-publications.
 	 * @param journalService the service for accessing the journals.
 	 * @param personService the service for managing the persons.
@@ -204,6 +209,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param thesisService the service for theses.
 	 */
 	public JBibtexBibTeX(
+			@Autowired MessageSourceAccessor messages,
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired JournalService journalService,
 			@Autowired PersonService personService,
@@ -214,6 +220,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			@Autowired MiscDocumentService miscDocumentService,
 			@Autowired ReportService reportService,
 			@Autowired ThesisService thesisService) {
+		this.messages = messages;
 		this.prePublicationFactory = prePublicationFactory;
 		this.journalService = journalService;
 		this.personService = personService;
@@ -767,7 +774,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		}
 	}
 
-	private static void addNoteForJournal(BibTeXEntry entry, PublicationLanguage language, 
+	private void addNoteForJournal(BibTeXEntry entry, PublicationLanguage language, 
 			QuartileRanking scimago, QuartileRanking wos, float impactFactor) {
 		// Force the Java locale to get the text that is corresponding to the language of the paper
 		final java.util.Locale loc = java.util.Locale.getDefault();
@@ -776,26 +783,25 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			final StringBuilder note = new StringBuilder();
 			if (scimago != null && wos != null) {
 				if (scimago != wos) {
-					note.append(Locale.getString(JBibtexBibTeX.class, "SCIMAGO_WOS_QUARTILES", //$NON-NLS-1$
-							scimago.toString(),
-							wos.toString()));
+					note.append(this.messages.getMessage(MESSAGE_PREFIX + "SCIMAGO_WOS_QUARTILES", //$NON-NLS-1$
+							new Object[] {scimago.toString(), wos.toString()}));
 				} else {
-					note.append(Locale.getString(JBibtexBibTeX.class, "QUARTILES", //$NON-NLS-1$
-							scimago.toString()));
+					note.append(this.messages.getMessage(MESSAGE_PREFIX + "QUARTILES", //$NON-NLS-1$
+							new Object[] {scimago.toString()}));
 				}
 			} else if (scimago != null) {
-				note.append(Locale.getString(JBibtexBibTeX.class, "SCIMAGO_QUARTILE", //$NON-NLS-1$
-						scimago.toString()));
+				note.append(this.messages.getMessage(MESSAGE_PREFIX + "SCIMAGO_QUARTILE", //$NON-NLS-1$
+						new Object[] {scimago.toString()}));
 			} else if (wos != null) {
-				note.append(Locale.getString(JBibtexBibTeX.class, "WOS_QUARTILE", //$NON-NLS-1$
-						wos.toString()));
+				note.append(this.messages.getMessage(MESSAGE_PREFIX + "WOS_QUARTILE", //$NON-NLS-1$
+						new Object[] {wos.toString()}));
 			}
 			if (impactFactor > 0f) {
 				if (note.length() > 0) {
 					note.append(", "); //$NON-NLS-1$
 				}
-				note.append(Locale.getString(JBibtexBibTeX.class, "IMPACT_FACTOR", //$NON-NLS-1$
-						Float.valueOf(impactFactor)));
+				note.append(this.messages.getMessage(MESSAGE_PREFIX + "IMPACT_FACTOR", //$NON-NLS-1$
+						new Object[] {Float.valueOf(impactFactor)}));
 			}
 			addField(entry, KEY_NOTE, note.toString());
 		} finally {
@@ -803,15 +809,14 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		}
 	}
 
-	private static void addNoteForConference(BibTeXEntry entry, PublicationLanguage language, 
-			CoreRanking core) {
+	private void addNoteForConference(BibTeXEntry entry, PublicationLanguage language, CoreRanking core) {
 		// Force the Java locale to get the text that is corresponding to the language of the paper
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(language.getLocale());
 			if (core != null) {
-				addField(entry, KEY_NOTE, Locale.getString(JBibtexBibTeX.class, "CORE_RANKING", //$NON-NLS-1$
-						core.toString()));
+				addField(entry, KEY_NOTE, this.messages.getMessage(MESSAGE_PREFIX + "CORE_RANKING", //$NON-NLS-1$
+						new Object[] {core.toString()}));
 			}
 		} finally {
 			java.util.Locale.setDefault(loc);
@@ -823,7 +828,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param paper the journal paper to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(JournalPaper paper) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_ARTICLE, createBibTeXId(paper));
 		fillBibTeXEntry(entry, paper, KEY_AUTHOR);
@@ -848,7 +852,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param paper the conference paper to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(ConferencePaper paper) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(paper));
 		fillBibTeXEntry(entry, paper, KEY_AUTHOR);
@@ -935,7 +938,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param edition the journal edition to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(JournalEdition edition) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_BOOK, createBibTeXId(edition));
 		fillBibTeXEntry(entry, edition, KEY_EDITOR);
@@ -1011,7 +1013,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param patent the patent to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(Patent patent) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_MISC, createBibTeXId(patent));
 		fillBibTeXEntry(entry, patent, KEY_AUTHOR);
@@ -1024,14 +1025,14 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			final StringBuilder howPublished = new StringBuilder();
 			if (!Strings.isNullOrEmpty(patent.getPatentNumber())
 					&& !Strings.isNullOrEmpty(patent.getInstitution())) {
-				howPublished.append(Locale.getString(JBibtexBibTeX.class, "PATENT_NUMBER_INSTITUTION", //$NON-NLS-1$
-						patent.getPatentNumber(), patent.getInstitution()));
+				howPublished.append(this.messages.getMessage(MESSAGE_PREFIX + "PATENT_NUMBER_INSTITUTION", //$NON-NLS-1$
+						new Object[] {patent.getPatentNumber(), patent.getInstitution()}));
 			} else if (!Strings.isNullOrEmpty(patent.getPatentNumber())) {
-				howPublished.append(Locale.getString(JBibtexBibTeX.class, "PATENT_NUMBER", //$NON-NLS-1$
-						patent.getPatentNumber()));
+				howPublished.append(this.messages.getMessage(MESSAGE_PREFIX + "PATENT_NUMBER", //$NON-NLS-1$
+						new Object[] {patent.getPatentNumber()}));
 			} else if (!Strings.isNullOrEmpty(patent.getInstitution())) {
-				howPublished.append(Locale.getString(JBibtexBibTeX.class, "PATENT_INSTITUTION", //$NON-NLS-1$
-						patent.getInstitution()));
+				howPublished.append(this.messages.getMessage(MESSAGE_PREFIX + "PATENT_INSTITUTION", //$NON-NLS-1$
+						new Object[] {patent.getInstitution()}));
 			} 
 			addField(entry, KEY_HOWPUBLISHED, howPublished.toString());
 		} finally {

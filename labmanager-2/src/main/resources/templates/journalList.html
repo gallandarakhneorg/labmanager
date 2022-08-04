@@ -6,13 +6,13 @@
 
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
-        <th>Name</th>
-        <th>Publisher</th>
-        <th>Open Access</th>
-        <th>Scimago</th>
-        <th>WoS</th>
-        <th>Impact Factor</th>
-        <th># Papers</th>
+        <th th:utext="#{html.Name}"></th>
+        <th th:utext="#{html.Publisher}"></th>
+        <th th:utext="#{html.OpenAccess}"></th>
+        <th th:utext="#{html.Scimago}"></th>
+        <th th:utext="#{html.WoS}"></th>
+        <th th:utext="#{html.ImpactFactor}"></th>
+        <th th:utext="#{html.PapersCount}"></th>
     </thead>
     <tbody>
         <tr th:each="journal : ${journals}">
@@ -27,7 +27,10 @@
                 <th:block th:utext="${journal.publisher}"></th:block>
             </td>
             <td>
-                <th:block th:utext="${journal.openAccess == null ? '' : (journal.openAccess.booleanValue ? 'yes' : 'no')}"></th:block>
+                <th:block th:if="${journal.openAccess != null && journal.openAccess.booleanValue}"
+                          th:utext="#{html.yes}"></th:block>
+                <th:block th:if="${journal.openAccess != null && !journal.openAccess.booleanValue}"
+                          th:utext="#{html.no}"></th:block>
             </td>
             <td th:with="qindex=${journal.getScimagoQIndexByYear(currentYear)}">
                 <th:block th:if="${qindex != null}"

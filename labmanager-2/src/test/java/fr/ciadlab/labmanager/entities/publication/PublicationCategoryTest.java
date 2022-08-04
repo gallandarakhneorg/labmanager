@@ -159,7 +159,6 @@ public class PublicationCategoryTest {
 	public void getLabel_US() {
 		// Force the default locale to be US.
 		Locale.setDefault(Locale.US);
-		//
 		assertEquals("Patents", cons(PublicationCategory.BRE).getLabel());
 		assertEquals("Articles in international or national journals with selection committee and ranked in international databases", cons(PublicationCategory.ACL).getLabel());
 		assertEquals("Articles in international or national journals with selection committee and not ranked in international databases", cons(PublicationCategory.ACLN).getLabel());
@@ -187,27 +186,76 @@ public class PublicationCategoryTest {
 	public void getLabel_FR() {
 		// Force the default locale to be FR.
 		Locale.setDefault(Locale.FRANCE);
-		//
-		assertEquals("Brevets", cons(PublicationCategory.BRE).getLabel());
-		assertEquals("Articles dans des revues internationales ou nationales avec comité de lecture répertoriées dans les bases de données internationales", cons(PublicationCategory.ACL).getLabel());
-		assertEquals("Articles dans des revues avec comité de lecture non répertoriées dans des bases de données internationales", cons(PublicationCategory.ACLN).getLabel());
-		assertEquals("Articles dans des revues sans comité de lecture", cons(PublicationCategory.ASCL).getLabel());
-		assertEquals("Communications avec actes dans un congrès international", cons(PublicationCategory.C_ACTI).getLabel());
-		assertEquals("Communications avec actes dans un congrès national", cons(PublicationCategory.C_ACTN).getLabel());
-		assertEquals("Communications orales sans actes dans un congrès international ou national", cons(PublicationCategory.C_COM).getLabel());
-		assertEquals("Communications par affiche dans un congrès international ou national", cons(PublicationCategory.C_AFF).getLabel());
-		assertEquals("Directions d'ouvrages ou de revues", cons(PublicationCategory.DO).getLabel());
-		assertEquals("Ouvrages scientifiques", cons(PublicationCategory.OS).getLabel());
-		assertEquals("Chapitres dans un ouvrage scientifique", cons(PublicationCategory.COS).getLabel());
-		assertEquals("Conférences données à l'invitation du comité d'organisation dans un congrès national ou international", cons(PublicationCategory.C_INV).getLabel());
-		assertEquals("Thèses (HDR, doctorat, master)", cons(PublicationCategory.TH).getLabel());
-		assertEquals("Publications de transfert", cons(PublicationCategory.PT).getLabel());
-		assertEquals("Outils de recherche (bases de données, corpus de recherche...)", cons(PublicationCategory.OR).getLabel());
-		assertEquals("Ouvrages de vulgarisation", cons(PublicationCategory.OV).getLabel());
-		assertEquals("Chapitres dans un ouvrage de vulgarisation", cons(PublicationCategory.COV).getLabel());
-		assertEquals("Publications de vulgarisation", cons(PublicationCategory.PV).getLabel());
-		assertEquals("Productions artistiques théorisées", cons(PublicationCategory.PAT).getLabel());
-		assertEquals("Autres productions", cons(PublicationCategory.AP).getLabel());
+		assertEquals("Patents", cons(PublicationCategory.BRE).getLabel());
+		assertEquals("Articles in international or national journals with selection committee and ranked in international databases", cons(PublicationCategory.ACL).getLabel());
+		assertEquals("Articles in international or national journals with selection committee and not ranked in international databases", cons(PublicationCategory.ACLN).getLabel());
+		assertEquals("Articles in international or national journals without selection committee", cons(PublicationCategory.ASCL).getLabel());
+		assertEquals("Papers in the proceedings of an international conference", cons(PublicationCategory.C_ACTI).getLabel());
+		assertEquals("Papers in the proceedings of a national conference", cons(PublicationCategory.C_ACTN).getLabel());
+		assertEquals("Oral Communications without proceeding in international or national conference", cons(PublicationCategory.C_COM).getLabel());
+		assertEquals("Posters in international or national conference", cons(PublicationCategory.C_AFF).getLabel());
+		assertEquals("Editor of books or journals", cons(PublicationCategory.DO).getLabel());
+		assertEquals("Scientific books", cons(PublicationCategory.OS).getLabel());
+		assertEquals("Chapters in scientific books", cons(PublicationCategory.COS).getLabel());
+		assertEquals("Keynotes in international or national conference", cons(PublicationCategory.C_INV).getLabel());
+		assertEquals("Theses (HDR, PHD, Master)", cons(PublicationCategory.TH).getLabel());
+		assertEquals("Publications for research transfer", cons(PublicationCategory.PT).getLabel());
+		assertEquals("Research tools (databases...)", cons(PublicationCategory.OR).getLabel());
+		assertEquals("Books for scientific culture dissemination", cons(PublicationCategory.OV).getLabel());
+		assertEquals("Chapters in a book for scientific culture dissemination", cons(PublicationCategory.COV).getLabel());
+		assertEquals("Papers for scientific culture dissemination", cons(PublicationCategory.PV).getLabel());
+		assertEquals("Artistic research productions", cons(PublicationCategory.PAT).getLabel());
+		assertEquals("Other productions", cons(PublicationCategory.AP).getLabel());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_Locale_US() {
+		assertEquals("Patents", cons(PublicationCategory.BRE).getLabel(Locale.US));
+		assertEquals("Articles in international or national journals with selection committee and ranked in international databases", cons(PublicationCategory.ACL).getLabel(Locale.US));
+		assertEquals("Articles in international or national journals with selection committee and not ranked in international databases", cons(PublicationCategory.ACLN).getLabel(Locale.US));
+		assertEquals("Articles in international or national journals without selection committee", cons(PublicationCategory.ASCL).getLabel(Locale.US));
+		assertEquals("Papers in the proceedings of an international conference", cons(PublicationCategory.C_ACTI).getLabel(Locale.US));
+		assertEquals("Papers in the proceedings of a national conference", cons(PublicationCategory.C_ACTN).getLabel(Locale.US));
+		assertEquals("Oral Communications without proceeding in international or national conference", cons(PublicationCategory.C_COM).getLabel(Locale.US));
+		assertEquals("Posters in international or national conference", cons(PublicationCategory.C_AFF).getLabel(Locale.US));
+		assertEquals("Editor of books or journals", cons(PublicationCategory.DO).getLabel(Locale.US));
+		assertEquals("Scientific books", cons(PublicationCategory.OS).getLabel(Locale.US));
+		assertEquals("Chapters in scientific books", cons(PublicationCategory.COS).getLabel(Locale.US));
+		assertEquals("Keynotes in international or national conference", cons(PublicationCategory.C_INV).getLabel(Locale.US));
+		assertEquals("Theses (HDR, PHD, Master)", cons(PublicationCategory.TH).getLabel(Locale.US));
+		assertEquals("Publications for research transfer", cons(PublicationCategory.PT).getLabel(Locale.US));
+		assertEquals("Research tools (databases...)", cons(PublicationCategory.OR).getLabel(Locale.US));
+		assertEquals("Books for scientific culture dissemination", cons(PublicationCategory.OV).getLabel(Locale.US));
+		assertEquals("Chapters in a book for scientific culture dissemination", cons(PublicationCategory.COV).getLabel(Locale.US));
+		assertEquals("Papers for scientific culture dissemination", cons(PublicationCategory.PV).getLabel(Locale.US));
+		assertEquals("Artistic research productions", cons(PublicationCategory.PAT).getLabel(Locale.US));
+		assertEquals("Other productions", cons(PublicationCategory.AP).getLabel(Locale.US));
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_Locale_FR() {
+		assertEquals("Brevets", cons(PublicationCategory.BRE).getLabel(Locale.FRANCE));
+		assertEquals("Articles dans des revues internationales ou nationales avec comité de lecture répertoriées dans les bases de données internationales", cons(PublicationCategory.ACL).getLabel(Locale.FRANCE));
+		assertEquals("Articles dans des revues avec comité de lecture non répertoriées dans des bases de données internationales", cons(PublicationCategory.ACLN).getLabel(Locale.FRANCE));
+		assertEquals("Articles dans des revues sans comité de lecture", cons(PublicationCategory.ASCL).getLabel(Locale.FRANCE));
+		assertEquals("Communications avec actes dans un congrès international", cons(PublicationCategory.C_ACTI).getLabel(Locale.FRANCE));
+		assertEquals("Communications avec actes dans un congrès national", cons(PublicationCategory.C_ACTN).getLabel(Locale.FRANCE));
+		assertEquals("Communications orales sans actes dans un congrès international ou national", cons(PublicationCategory.C_COM).getLabel(Locale.FRANCE));
+		assertEquals("Communications par affiche dans un congrès international ou national", cons(PublicationCategory.C_AFF).getLabel(Locale.FRANCE));
+		assertEquals("Directions d'ouvrages ou de revues", cons(PublicationCategory.DO).getLabel(Locale.FRANCE));
+		assertEquals("Ouvrages scientifiques", cons(PublicationCategory.OS).getLabel(Locale.FRANCE));
+		assertEquals("Chapitres dans un ouvrage scientifique", cons(PublicationCategory.COS).getLabel(Locale.FRANCE));
+		assertEquals("Conférences données à l'invitation du comité d'organisation dans un congrès national ou international", cons(PublicationCategory.C_INV).getLabel(Locale.FRANCE));
+		assertEquals("Thèses (HDR, doctorat, master)", cons(PublicationCategory.TH).getLabel(Locale.FRANCE));
+		assertEquals("Publications de transfert", cons(PublicationCategory.PT).getLabel(Locale.FRANCE));
+		assertEquals("Outils de recherche (bases de données, corpus de recherche...)", cons(PublicationCategory.OR).getLabel(Locale.FRANCE));
+		assertEquals("Ouvrages de vulgarisation", cons(PublicationCategory.OV).getLabel(Locale.FRANCE));
+		assertEquals("Chapitres dans un ouvrage de vulgarisation", cons(PublicationCategory.COV).getLabel(Locale.FRANCE));
+		assertEquals("Publications de vulgarisation", cons(PublicationCategory.PV).getLabel(Locale.FRANCE));
+		assertEquals("Productions artistiques théorisées", cons(PublicationCategory.PAT).getLabel(Locale.FRANCE));
+		assertEquals("Autres productions", cons(PublicationCategory.AP).getLabel(Locale.FRANCE));
 		assertAllTreated();
 	}
 

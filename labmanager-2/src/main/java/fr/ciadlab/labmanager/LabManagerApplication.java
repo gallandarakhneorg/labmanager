@@ -35,9 +35,9 @@ import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 @EnableSpringConfigured
 public class LabManagerApplication extends SpringBootServletInitializer {
 
-    @SuppressWarnings("resource")
+	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-        SpringApplication.run(LabManagerApplication.class, args);
-    }
+		SpringApplication.run(LabManagerApplication.class, args);
+	}
 
 }

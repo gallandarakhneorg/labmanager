@@ -38,7 +38,7 @@ import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExportedAuthorStatus;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.locale.Locale;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Utilities for exporting publications to HTML.
  * 
@@ -49,6 +49,20 @@ import org.arakhne.afc.vmutil.locale.Locale;
  * @since 2.0.0
  */
 public abstract class AbstractHtmlExporter implements HtmlExporter {
+
+	private static final String MESSAGES_PREFIX = "abstractHtmlExporter."; //$NON-NLS-1$
+
+	/** Provider of localized messages.
+	 */
+	protected final MessageSourceAccessor messages;
+
+	/** Constructor.
+	 *
+	 * @param messages the accessor to the localized messages.
+	 */
+	public AbstractHtmlExporter(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
 
 	/** Replies the string representation of left quotes.
 	 *
@@ -218,7 +232,7 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 	 * @param impactFactor the journal's impact factor.
 	 * @return {@code true} if the receiver has changed.
 	 */
-	protected static boolean appendRanks(StringBuilder receiver, Object scimago, Object wos, float impactFactor) {
+	protected boolean appendRanks(StringBuilder receiver, Object scimago, Object wos, float impactFactor) {
 		final String impactFactorStr = formatNumberIfStrictlyPositive(impactFactor);
 		String rank = null;
 		if (scimago != null && wos != null) {
@@ -226,9 +240,9 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 				final String scimagoStr = scimago.toString();
 				final String wosStr = wos.toString();
 				if (append(receiver, ", ", //$NON-NLS-1$
-						decorateBefore(scimagoStr, Locale.getString(AbstractHtmlExporter.class, "SCIMAGO_PREFIX")), //$NON-NLS-1$
-						decorateBefore(wosStr, Locale.getString(AbstractHtmlExporter.class, "WOS_PREFIX")), //$NON-NLS-1$
-						decorateBefore(impactFactorStr, Locale.getString(AbstractHtmlExporter.class, "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+						decorateBefore(scimagoStr, this.messages.getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX")), //$NON-NLS-1$
+						decorateBefore(wosStr, this.messages.getMessage(MESSAGES_PREFIX + "WOS_PREFIX")), //$NON-NLS-1$
+						decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
 					receiver.append(". "); //$NON-NLS-1$
 					return true;
 				}		
@@ -241,8 +255,8 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 			rank = wos.toString();
 		}
 		if (append(receiver, ", ", //$NON-NLS-1$
-				decorateBefore(rank, Locale.getString(AbstractHtmlExporter.class, "JOURNALRANK_PREFIX")), //$NON-NLS-1$
-				decorateBefore(impactFactorStr, Locale.getString(AbstractHtmlExporter.class, "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+				decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX")), //$NON-NLS-1$
+				decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
 			receiver.append(". "); //$NON-NLS-1$
 			return true;
 		}		

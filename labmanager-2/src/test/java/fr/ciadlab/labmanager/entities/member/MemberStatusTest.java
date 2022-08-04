@@ -153,7 +153,6 @@ public class MemberStatusTest {
 	public void getLabel_US() {
 		// Force the local to be US
 		java.util.Locale.setDefault(java.util.Locale.US);
-
 		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel());
 		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel());
 		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel());
@@ -175,21 +174,58 @@ public class MemberStatusTest {
 	public void getLabel_FR() {
 		// Force the local to be FR
 		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-
-		assertEquals("Professeur des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel());
-		assertEquals("Maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel());
-		assertEquals("Maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel());
-		assertEquals("Enseignant chercheur contractuel", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel());
-		assertEquals("Chercheur", cons(MemberStatus.RESEARCHER).getLabel());
-		assertEquals("Ingénieur de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel());
+		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel());
+		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel());
+		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel());
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel());
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel());
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel());
 		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel());
-		assertEquals("Doctorant", cons(MemberStatus.PHD_STUDENT).getLabel());
-		assertEquals("Ingénieur", cons(MemberStatus.ENGINEER).getLabel());
-		assertEquals("Personnel administratif", cons(MemberStatus.ADMIN).getLabel());
-		assertEquals("Enseignant", cons(MemberStatus.TEACHER).getLabel());
-		assertEquals("Etudiant master", cons(MemberStatus.MASTER_STUDENT).getLabel());
-		assertEquals("Etudiant", cons(MemberStatus.OTHER_STUDENT).getLabel());
-		assertEquals("Membre associé", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel());
+		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel());
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel());
+		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel());
+		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel());
+		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel());
+		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel());
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_Locale_US() {
+		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(java.util.Locale.US));
+		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(java.util.Locale.US));
+		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(java.util.Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(java.util.Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(java.util.Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(java.util.Locale.US));
+		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(java.util.Locale.US));
+		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(java.util.Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(java.util.Locale.US));
+		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(java.util.Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(java.util.Locale.US));
+		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(java.util.Locale.US));
+		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(java.util.Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(java.util.Locale.US));
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_Locale_FR() {
+		assertEquals("Professeur des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Enseignant chercheur contractuel", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Chercheur", cons(MemberStatus.RESEARCHER).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Ingénieur de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Doctorant", cons(MemberStatus.PHD_STUDENT).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Ingénieur", cons(MemberStatus.ENGINEER).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Personnel administratif", cons(MemberStatus.ADMIN).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Enseignant", cons(MemberStatus.TEACHER).getLabel(java.util.Locale.FRANCE));
+		assertEquals("\u00C9tudiant master", cons(MemberStatus.MASTER_STUDENT).getLabel(java.util.Locale.FRANCE));
+		assertEquals("\u00C9tudiant", cons(MemberStatus.OTHER_STUDENT).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Membre associé", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(java.util.Locale.FRANCE));
 		assertAllTreated();
 	}
 

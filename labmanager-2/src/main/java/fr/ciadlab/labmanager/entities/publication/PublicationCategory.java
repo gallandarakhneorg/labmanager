@@ -16,8 +16,11 @@
 
 package fr.ciadlab.labmanager.entities.publication;
 
+import java.util.Locale;
+
 import com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.locale.Locale;
+import fr.ciadlab.labmanager.configuration.BaseMessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** A publication category defines a family of research papers in France.
  * The publication categories group several {@link PublicationType publications types}.
@@ -431,12 +434,45 @@ public enum PublicationCategory {
 		}
 	};
 
+	private static final String MESSAGE_PREFIX = "publicationCategory."; //$NON-NLS-1$
+
+	private MessageSourceAccessor messages;
+	
+	/** Replies the message accessor to be used.
+	 *
+	 * @return the accessor.
+	 */
+	public MessageSourceAccessor getMessageSourceAccessor() {
+		if (this.messages == null) {
+			this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
+		}
+		return this.messages;
+	}
+
+	/** Change the message accessor to be used.
+	 *
+	 * @param messages the accessor.
+	 */
+	public void setMessageSourceAccessor(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
+
 	/** Replies the label for the publication category.
 	 *
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel() {
-		final String label = Locale.getString(PublicationCategory.class, name());
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name());
+		return Strings.nullToEmpty(label);
+	}
+
+	/** Replies the label for the publication category.
+	 *
+	 * @param locale the locale to use.
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(Locale locale) {
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 

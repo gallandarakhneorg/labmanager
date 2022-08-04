@@ -18,7 +18,9 @@ package fr.ciadlab.labmanager.io.html;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
 /** Utilities for exporting publications to HTML content based on the CIAD standard HTML style.
@@ -33,6 +35,14 @@ import org.springframework.stereotype.Component;
 @Primary
 public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implements HtmlDocumentExporter {
 
+	/** Constructor.
+	 *
+	 * @param messages the accessor to the localized messages.
+	 */
+	public CiadHtmlDocumentExporter(@Autowired MessageSourceAccessor messages) {
+		super(messages);
+	}
+	
 	@Override
 	public String exportPublications(Iterable<Publication> publications, ExporterConfigurator configurator) throws Exception {
 		assert configurator != null;

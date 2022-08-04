@@ -16,10 +16,12 @@
 
 package fr.ciadlab.labmanager.entities.publication;
 
+import java.util.Locale;
 import java.util.Set;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
+import fr.ciadlab.labmanager.configuration.BaseMessageSource;
 import fr.ciadlab.labmanager.entities.publication.type.Book;
 import fr.ciadlab.labmanager.entities.publication.type.BookChapter;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
@@ -30,7 +32,7 @@ import fr.ciadlab.labmanager.entities.publication.type.MiscDocument;
 import fr.ciadlab.labmanager.entities.publication.type.Patent;
 import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
-import org.arakhne.afc.vmutil.locale.Locale;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Describe the type of a publication.
  * The type of publication is mostly inherited from the BibTeX standard,
@@ -757,6 +759,29 @@ public enum PublicationType {
 		}
 	};
 
+	private static final String MESSAGE_PREFIX = "publicationType."; //$NON-NLS-1$
+
+	private MessageSourceAccessor messages;
+
+	/** Replies the message accessor to be used.
+	 *
+	 * @return the accessor.
+	 */
+	public MessageSourceAccessor getMessageSourceAccessor() {
+		if (this.messages == null) {
+			this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
+		}
+		return this.messages;
+	}
+
+	/** Change the message accessor to be used.
+	 *
+	 * @param messages the accessor.
+	 */
+	public void setMessageSourceAccessor(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
+
 	/** Replies the type of the publication instance that is implementing this type.
 	 *
 	 * @return the type, or {@code null} if there is no instance type for implementation.
@@ -788,7 +813,17 @@ public enum PublicationType {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel() {
-		final String label = Locale.getString(PublicationType.class, name());
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name());
+		return Strings.nullToEmpty(label);
+	}
+
+	/** Replies the label of the status in the current language.
+	 *
+	 * @param locale the locale to use.
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(Locale locale) {
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 

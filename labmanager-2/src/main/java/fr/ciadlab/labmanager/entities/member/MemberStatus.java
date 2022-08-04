@@ -16,8 +16,11 @@
 
 package fr.ciadlab.labmanager.entities.member;
 
+import java.util.Locale;
+
 import com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.locale.Locale;
+import fr.ciadlab.labmanager.configuration.BaseMessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Status of a person in a research organization.
  * 
@@ -365,6 +368,29 @@ public enum MemberStatus {
 		}
 	};
 
+	private static final String MESSAGE_PREFIX = "memberStatus."; //$NON-NLS-1$
+
+	private MessageSourceAccessor messages;
+	
+	/** Replies the message accessor to be used.
+	 *
+	 * @return the accessor.
+	 */
+	public MessageSourceAccessor getMessageSourceAccessor() {
+		if (this.messages == null) {
+			this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
+		}
+		return this.messages;
+	}
+
+	/** Change the message accessor to be used.
+	 *
+	 * @param messages the accessor.
+	 */
+	public void setMessageSourceAccessor(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
+
 	/** Replies the hierarchical level.
 	 *
 	 * @return the level: {@code 0} for the higher level, higher is the value lower is the hierarchical position.
@@ -400,7 +426,17 @@ public enum MemberStatus {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel() {
-		final String label = Locale.getString(MemberStatus.class, name());
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name());
+		return Strings.nullToEmpty(label);
+	}
+
+	/** Replies the label of the status in the current language.
+	 *
+	 * @param locale the locale to use.
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(Locale locale) {
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 

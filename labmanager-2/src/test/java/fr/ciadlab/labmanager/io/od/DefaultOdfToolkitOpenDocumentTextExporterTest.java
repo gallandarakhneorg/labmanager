@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 
+import fr.ciadlab.labmanager.configuration.BaseMessageSource;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
@@ -41,6 +42,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link DefaultOdfToolkitOpenDocumentTextExporter}.
  * 
@@ -56,11 +58,14 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 	private static final String OUTPUT_FILE = "/home/sgalland/tmp/export.odt";
 	//private static final String OUTPUT_FILE = null;
 
+	private MessageSourceAccessor messages;
+
 	private DefaultOdfToolkitOpenDocumentTextExporter test;
 
 	@BeforeEach
 	public void setUp() {
-		this.test = new DefaultOdfToolkitOpenDocumentTextExporter();
+		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
+		this.test = new DefaultOdfToolkitOpenDocumentTextExporter(this.messages);
 	}
 
 	@Test

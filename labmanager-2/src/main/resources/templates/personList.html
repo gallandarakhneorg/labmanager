@@ -10,12 +10,12 @@
 
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
-        <th>Last Name</th>
-        <th>First Name</th>
-        <th>ORCID</th>
-        <th>Current Organizations</th>
-        <th>Former Organizations</th>
-        <th>Future Organizations</th>
+        <th th:utext="#{html.LastName}"></th>
+        <th th:utext="#{html.FirstName}"></th>
+        <th th:utext="#{html.ORCID}"></th>
+        <th th:utext="#{html.CurrentOrganizations}"></th>
+        <th th:utext="#{html.FormerOrganizations}"></th>
+        <th th:utext="#{html.FutureOrganizations}"></th>
     </thead>
     <tbody>
         <tr th:each="person : ${persons}">
@@ -34,7 +34,7 @@
                 <th:block th:each="mbr, iMbr : ${person.activeMemberships}">
                     <th:block th:if="${!iMbr.first}">, </th:block>
                     <a th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
-                       th:title="${mbr.value.memberStatus.label}"
+                       th:title="${mbr.value.memberStatus.getLabel(locale)}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>
@@ -42,7 +42,7 @@
                 <th:block th:each="mbr, iMbr : ${person.finishedMemberships}">
                     <th:block th:if="${!iMbr.first}">, </th:block>
                     <a th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
-                       th:title="${mbr.value.memberStatus.label + ' to ' + mbr.value.memberToWhen.toLocalDate.year}"
+                       th:title="#{html.FormerPositionTo(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberToWhen.toLocalDate.year})}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>
@@ -50,7 +50,7 @@
                 <th:block th:each="mbr, iMbr : ${person.futureMemberships}">
                     <th:block th:if="${!iMbr.first}">, </th:block>
                     <a th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
-                       th:title="${mbr.value.memberStatus.label + ' since ' + mbr.value.memberSinceWhen.toLocalDate.year}"
+                       th:title="#{html.FuturePositionFrom(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberSinceWhen.toLocalDate.year})}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>

@@ -40,6 +40,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import fr.ciadlab.labmanager.configuration.BaseMessageSource;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -76,6 +77,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link JBibtexBibTeX}.
  * 
@@ -87,6 +89,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
 public class JBibtexBibTeXTest {
+
+	private MessageSourceAccessor messages;
 
 	private PrePublicationFactory prePublicationFactory;
 
@@ -112,6 +116,7 @@ public class JBibtexBibTeXTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
 		this.prePublicationFactory = mock(PrePublicationFactory.class);
 		this.journalService = mock(JournalService.class);
 		this.personService = mock(PersonService.class);
@@ -123,6 +128,7 @@ public class JBibtexBibTeXTest {
 		this.reportService = mock(ReportService.class);
 		this.thesisService = mock(ThesisService.class);
 		this.test = new JBibtexBibTeX(
+				this.messages,
 				this.prePublicationFactory,
 				this.journalService,
 				this.personService,

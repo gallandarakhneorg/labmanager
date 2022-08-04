@@ -18,8 +18,9 @@ package fr.ciadlab.labmanager.io.html;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
-import org.arakhne.afc.vmutil.locale.Locale;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
 /** Utilities for exporting publications to HTML content based on the CIAD standard HTML style.
@@ -33,6 +34,16 @@ import org.springframework.stereotype.Component;
 @Component
 @Primary
 public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements HtmlPageExporter {
+
+	private static final String MESSAGES_PREFIX = "ciadHtmlPageExporter."; //$NON-NLS-1$
+
+	/** Constructor.
+	 *
+	 * @param messages the accessor to the localized messages.
+	 */
+	public CiadHtmlPageExporter(@Autowired MessageSourceAccessor messages) {
+		super(messages);
+	}
 
 	private static String fixFilename(String filename) {
 		String fn = filename.replace("/var/www/ciad-lab.fr", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -99,7 +110,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		html.append("<a class=\"btn btn-xs btn-success\" href=\"/SpringRestHibernate/addPublication?publicationId="); //$NON-NLS-1$
 		html.append(publicationId);
 		html.append("\" <i class=\"fa fa-edit\">"); //$NON-NLS-1$
-		html.append(Locale.getString("EDIT_BUTTON_LABEL")); //$NON-NLS-1$
+		html.append(this.messages.getMessage(MESSAGES_PREFIX + "EDIT_BUTTON_LABEL")); //$NON-NLS-1$
 		html.append("</i></a>"); //$NON-NLS-1$
 		return html.toString();
 	}
@@ -110,7 +121,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		html.append("<a class=\"btn btn-xs btn-danger\" href=\"/SpringRestHibernate/deletePublication?publicationId="); //$NON-NLS-1$
 		html.append(publicationId);
 		html.append("\" <i class=\"fa fa-delete\">"); //$NON-NLS-1$
-		html.append(Locale.getString("DELETE_BUTTON_LABEL")); //$NON-NLS-1$
+		html.append(this.messages.getMessage(MESSAGES_PREFIX + "DELETE_BUTTON_LABEL")); //$NON-NLS-1$
 		html.append("</i></a>"); //$NON-NLS-1$
 		return html.toString();
 	}

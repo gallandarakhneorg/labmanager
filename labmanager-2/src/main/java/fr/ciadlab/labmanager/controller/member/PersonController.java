@@ -27,8 +27,8 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.locale.Locale;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,6 +56,10 @@ public class PersonController extends AbstractController {
 
 	private static final String DEFAULT_ENDPOINT = "personList"; //$NON-NLS-1$
 
+	private static final String MESSAGES_PREFIX = "personController."; //$NON-NLS-1$
+
+	private MessageSourceAccessor messages;
+
 	private PersonService personService;
 
 	private PersonNameParser nameParser;
@@ -63,11 +67,14 @@ public class PersonController extends AbstractController {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the accessor to the localized messages.
 	 * @param personService the person service.
 	 * @param nameParser the parser of person names.
 	 */
-	public PersonController(@Autowired PersonService personService, @Autowired PersonNameParser nameParser) {
+	public PersonController(@Autowired MessageSourceAccessor messages,
+			@Autowired PersonService personService, @Autowired PersonNameParser nameParser) {
 		super(DEFAULT_ENDPOINT);
+		this.messages = messages;
 		this.personService = personService;
 		this.nameParser = nameParser;
 	}
@@ -83,124 +90,124 @@ public class PersonController extends AbstractController {
 		return modelAndView;
 	}
 
-	/** Replies the information about a person.
-	 *
-	 * @param name the name of the person. The format should be recognized by a {@link PersonNameParser}.
-	 *     Usually, it is {@code "FIRST LAST"} or {@code "LAST, FIRST"}.
-	 * @return the person, or {@code null} if the person with the given name was not found.
-	 */
-	@GetMapping("/getPersonData")
-	public Person getPersonData(@RequestParam String name) {
-		final String oldFirstName = this.nameParser.parseFirstName(name);
-		final String oldLastName = this.nameParser.parseLastName(name);
-		final int id = this.personService.getPersonIdByName(oldFirstName, oldLastName);
-		if (id != 0) {
-			return this.personService.getPerson(id);
-		}
-		return null;
-	}
-
-	/** Add a person into the database.
-	 *
-	 * @param response JEE response.
-	 * @param firstName the first name of the person.
-	 * @param lastName the last name of the person.
-	 * @param gender the string representation of the persons' gender.
-	 * @param email the email of the person.
-	 * @param orcid the ORCID of the person.
-	 * @throws Exception if the redirection to success/failure page cannot be done.
-	 * @see Gender
-	 */
-	@RequestMapping(value = "/addPerson", method = RequestMethod.POST)
-	public void addPerson(HttpServletResponse response,
-			@RequestParam String firstName,
-			@RequestParam String lastName,
-			@RequestParam String gender,
-			@RequestParam String email,
-			@RequestParam String orcid) throws Exception {
-		try {
-			this.personService.createPerson(firstName, lastName, gender, email, orcid);
-			final String msg;
-			if (!Strings.isNullOrEmpty(email)) {
-				msg = firstName + " " + lastName + " <" + email + ">"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			} else {
-				msg = firstName + " " + lastName; //$NON-NLS-1$
-			}
-			redirectCreated(response, msg);
-		} catch (Exception ex) {
-			redirectError(response, ex);
-		}
-	}
-
-	/** Edit the fields of a person in the database.
-	 *
-	 * @param response the HTTP response.
-	 * @param person the name of the person to be changed. The format should be recognized by a {@link PersonNameParser}.
-	 *     Usually, it is {@code "FIRST LAST"} or {@code "LAST, FIRST"}.
-	 * @param firstName the new first name.
-	 * @param lastName the new last name.
-	 * @param email the new email.
-	 * @param orcid the new ORCID.
-	 * @throws Exception if the redirection to success/failure page cannot be done.
-	 */
-	@PostMapping("/editPerson")
-	public void editPerson(HttpServletResponse response,
-			@RequestParam String person,
-			@RequestParam String firstName,
-			@RequestParam String lastName,
-			@RequestParam String email,
-			@RequestParam String orcid) throws Exception {
-		try {
-			final String oldFirstName = this.nameParser.parseFirstName(person);
-			final String oldLastName = this.nameParser.parseLastName(person);
-			final int id = this.personService.getPersonIdByName(oldFirstName, oldLastName);
-			if (id != 0) {
-				this.personService.updatePerson(id, firstName, lastName, email, orcid);
-				redirectUpdated(response, person);
-			} else {
-				redirectError(response, Locale.getString("NO_PERSON_ERROR", person)); //$NON-NLS-1$
-			}
-		} catch (Exception ex) {
-			redirectError(response, ex);
-		}
-	}
-
-	/** Delete a person from the database.
-	 *
-	 * @param response the HTTP response.
-	 * @param name the name of the person to be changed. The format should be recognized by a {@link PersonNameParser}.
-	 *     Usually, it is {@code "FIRST LAST"} or {@code "LAST, FIRST"}.
-	 * @throws Exception if the redirection to success/failure page cannot be done.
-	 */
-	@PostMapping("/deletePerson")
-	public void deletePerson(HttpServletResponse response,
-			@RequestParam String name) throws Exception {
-		try {
-			final String oldFirstName = this.nameParser.parseFirstName(name);
-			final String oldLastName = this.nameParser.parseLastName(name);
-			final int id = this.personService.getPersonIdByName(oldFirstName, oldLastName);
-			if (id != 0) {
-				this.personService.removePerson(id);
-				redirectDeleted(response, name);
-			} else {
-				redirectError(response, Locale.getString("NO_PERSON_ERROR", name)); //$NON-NLS-1$
-			}
-		} catch (Exception ex) {
-			redirectError(response, ex);
-		}
-	}
-
-	/** Replies the duplicate person names.
-	 *
-	 * @return the model-view that shows the duplicate persons.
-	 */
-	@GetMapping("/personDuplicate")
-	public ModelAndView personDuplicate() {
-		final ModelAndView modelAndView = new ModelAndView("personDuplicate"); //$NON-NLS-1$
-		final List<Set<Person>> matchingAuthors = this.personService.computePersonDuplicate();
-		modelAndView.addObject("matchingAuthors", matchingAuthors); //$NON-NLS-1$
-		return modelAndView;
-	}
+//	/** Replies the information about a person.
+//	 *
+//	 * @param name the name of the person. The format should be recognized by a {@link PersonNameParser}.
+//	 *     Usually, it is {@code "FIRST LAST"} or {@code "LAST, FIRST"}.
+//	 * @return the person, or {@code null} if the person with the given name was not found.
+//	 */
+//	@GetMapping("/getPersonData")
+//	public Person getPersonData(@RequestParam String name) {
+//		final String oldFirstName = this.nameParser.parseFirstName(name);
+//		final String oldLastName = this.nameParser.parseLastName(name);
+//		final int id = this.personService.getPersonIdByName(oldFirstName, oldLastName);
+//		if (id != 0) {
+//			return this.personService.getPerson(id);
+//		}
+//		return null;
+//	}
+//
+//	/** Add a person into the database.
+//	 *
+//	 * @param response JEE response.
+//	 * @param firstName the first name of the person.
+//	 * @param lastName the last name of the person.
+//	 * @param gender the string representation of the persons' gender.
+//	 * @param email the email of the person.
+//	 * @param orcid the ORCID of the person.
+//	 * @throws Exception if the redirection to success/failure page cannot be done.
+//	 * @see Gender
+//	 */
+//	@RequestMapping(value = "/addPerson", method = RequestMethod.POST)
+//	public void addPerson(HttpServletResponse response,
+//			@RequestParam String firstName,
+//			@RequestParam String lastName,
+//			@RequestParam String gender,
+//			@RequestParam String email,
+//			@RequestParam String orcid) throws Exception {
+//		try {
+//			this.personService.createPerson(firstName, lastName, gender, email, orcid);
+//			final String msg;
+//			if (!Strings.isNullOrEmpty(email)) {
+//				msg = firstName + " " + lastName + " <" + email + ">"; //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+//			} else {
+//				msg = firstName + " " + lastName; //$NON-NLS-1$
+//			}
+//			redirectCreated(response, msg);
+//		} catch (Exception ex) {
+//			redirectError(response, ex);
+//		}
+//	}
+//
+//	/** Edit the fields of a person in the database.
+//	 *
+//	 * @param response the HTTP response.
+//	 * @param person the name of the person to be changed. The format should be recognized by a {@link PersonNameParser}.
+//	 *     Usually, it is {@code "FIRST LAST"} or {@code "LAST, FIRST"}.
+//	 * @param firstName the new first name.
+//	 * @param lastName the new last name.
+//	 * @param email the new email.
+//	 * @param orcid the new ORCID.
+//	 * @throws Exception if the redirection to success/failure page cannot be done.
+//	 */
+//	@PostMapping("/editPerson")
+//	public void editPerson(HttpServletResponse response,
+//			@RequestParam String person,
+//			@RequestParam String firstName,
+//			@RequestParam String lastName,
+//			@RequestParam String email,
+//			@RequestParam String orcid) throws Exception {
+//		try {
+//			final String oldFirstName = this.nameParser.parseFirstName(person);
+//			final String oldLastName = this.nameParser.parseLastName(person);
+//			final int id = this.personService.getPersonIdByName(oldFirstName, oldLastName);
+//			if (id != 0) {
+//				this.personService.updatePerson(id, firstName, lastName, email, orcid);
+//				redirectUpdated(response, person);
+//			} else {
+//				redirectError(response, this.messages.getMessage(MESSAGES_PREFIX + "NO_PERSON_ERROR", new Object[] {person})); //$NON-NLS-1$
+//			}
+//		} catch (Exception ex) {
+//			redirectError(response, ex);
+//		}
+//	}
+//
+//	/** Delete a person from the database.
+//	 *
+//	 * @param response the HTTP response.
+//	 * @param name the name of the person to be changed. The format should be recognized by a {@link PersonNameParser}.
+//	 *     Usually, it is {@code "FIRST LAST"} or {@code "LAST, FIRST"}.
+//	 * @throws Exception if the redirection to success/failure page cannot be done.
+//	 */
+//	@PostMapping("/deletePerson")
+//	public void deletePerson(HttpServletResponse response,
+//			@RequestParam String name) throws Exception {
+//		try {
+//			final String oldFirstName = this.nameParser.parseFirstName(name);
+//			final String oldLastName = this.nameParser.parseLastName(name);
+//			final int id = this.personService.getPersonIdByName(oldFirstName, oldLastName);
+//			if (id != 0) {
+//				this.personService.removePerson(id);
+//				redirectDeleted(response, name);
+//			} else {
+//				redirectError(response, this.messages.getMessage(MESSAGES_PREFIX + "NO_PERSON_ERROR", new String[] {name})); //$NON-NLS-1$
+//			}
+//		} catch (Exception ex) {
+//			redirectError(response, ex);
+//		}
+//	}
+//
+//	/** Replies the duplicate person names.
+//	 *
+//	 * @return the model-view that shows the duplicate persons.
+//	 */
+//	@GetMapping("/personDuplicate")
+//	public ModelAndView personDuplicate() {
+//		final ModelAndView modelAndView = new ModelAndView("personDuplicate"); //$NON-NLS-1$
+//		final List<Set<Person>> matchingAuthors = this.personService.computePersonDuplicate();
+//		modelAndView.addObject("matchingAuthors", matchingAuthors); //$NON-NLS-1$
+//		return modelAndView;
+//	}
 
 }
 

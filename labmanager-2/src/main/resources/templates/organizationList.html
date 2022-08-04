@@ -6,13 +6,13 @@
 
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
-        <th>Acronym</th>
-        <th>Name</th>
-        <th>Type</th>
-        <th>Description</th>
-        <th>Country</th>
-        <th>Super-organization</th>
-        <th>Sub-organizations</th>
+        <th th:text="#{html.Acronym}"></th>
+        <th th:text="#{html.Name}"></th>
+        <th th:text="#{html.Type}"></th>
+        <th th:text="#{html.Description}"></th>
+        <th th:text="#{html.Country}"></th>
+        <th th:text="#{html.SuperOrganization}"></th>
+        <th th:text="#{html.SubOrganizations}"></th>
     </thead>
     <tbody>
         <tr th:each="organization : ${organizations}">
@@ -27,7 +27,7 @@
                 <th:block th:utext="${organization.name}"></th:block>
             </td>
             <td>
-                <th:block th:utext="${organization.type.label}"></th:block>
+                <th:block th:utext="${organization.type.getLabel(locale)}"></th:block>
             </td>
             <td>
                 <th:block th:utext="${organization.description}"></th:block>

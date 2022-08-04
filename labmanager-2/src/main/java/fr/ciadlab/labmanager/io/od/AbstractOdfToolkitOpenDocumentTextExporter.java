@@ -39,7 +39,6 @@ import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExportedAuthorStatus;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.locale.Locale;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
 import org.odftoolkit.odfdom.dom.element.text.TextAElement;
@@ -48,6 +47,7 @@ import org.odftoolkit.odfdom.dom.element.text.TextListItemElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
 import org.odftoolkit.odfdom.dom.element.text.TextSpanElement;
 import org.odftoolkit.odfdom.type.Color;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Exporter of publications to Open Document Text based on the ODF toolkit.
  * 
@@ -68,20 +68,34 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter implements Open
 	 */
 	public static final Color CIAD_DARK_GREEN = Color.valueOf("#4b5e08"); //$NON-NLS-1$
 
+	private static final String MESSAGES_PREFIX = "abstractOdfToolkitOpenDocumentTextExporter."; //$NON-NLS-1$
+
+	/** Accessor to the localized messages.
+	 */
+	protected final MessageSourceAccessor messages;
+
+	/** Constructor.
+	 *
+	 * @param messages the accessor to the localized message.
+	 */
+	public AbstractOdfToolkitOpenDocumentTextExporter(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
+
 	/** Replies the string representation of left quotes.
 	 *
 	 * @return the left quotes.
 	 */
-	public static String getLeftQuotes() {
-		return Locale.getString(AbstractOdfToolkitOpenDocumentTextExporter.class, "LEFT_QUOTES"); //$NON-NLS-1$
+	public String getLeftQuotes() {
+		return this.messages.getMessage(MESSAGES_PREFIX + "LEFT_QUOTES"); //$NON-NLS-1$
 	}
 
 	/** Replies the string representation of right quotes.
 	 *
 	 * @return the left quotes.
 	 */
-	public static String getRightQuotes() {
-		return Locale.getString(AbstractOdfToolkitOpenDocumentTextExporter.class, "RIGHT_QUOTES"); //$NON-NLS-1$
+	public String getRightQuotes() {
+		return this.messages.getMessage(MESSAGES_PREFIX + "RIGHT_QUOTES"); //$NON-NLS-1$
 	}
 
 	@SuppressWarnings("resource")
@@ -296,7 +310,7 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter implements Open
 	 * @param impactFactor the journal's impact factor.
 	 * @return {@code true} if the receiver has changed.
 	 */
-	protected static boolean appendRanks(TextPElement receiver, Object scimago, Object wos, float impactFactor) {
+	protected boolean appendRanks(TextPElement receiver, Object scimago, Object wos, float impactFactor) {
 		final String impactFactorStr = formatNumberIfStrictlyPositive(impactFactor);
 		String rank = null;
 		if (scimago != null && wos != null) {
@@ -304,9 +318,9 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter implements Open
 				final String scimagoStr = scimago.toString();
 				final String wosStr = wos.toString();
 				if (append(receiver, ", ", //$NON-NLS-1$
-						decorateBefore(scimagoStr, Locale.getString(AbstractOdfToolkitOpenDocumentTextExporter.class, "SCIMAGO_PREFIX")), //$NON-NLS-1$
-						decorateBefore(wosStr, Locale.getString(AbstractOdfToolkitOpenDocumentTextExporter.class, "WOS_PREFIX")), //$NON-NLS-1$
-						decorateBefore(impactFactorStr, Locale.getString(AbstractOdfToolkitOpenDocumentTextExporter.class, "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+						decorateBefore(scimagoStr, this.messages.getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX")), //$NON-NLS-1$
+						decorateBefore(wosStr, this.messages.getMessage(MESSAGES_PREFIX + "WOS_PREFIX")), //$NON-NLS-1$
+						decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
 					receiver.newTextNode(". "); //$NON-NLS-1$
 					return true;
 				}		
@@ -319,8 +333,8 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter implements Open
 			rank = wos.toString();
 		}
 		if (append(receiver, ", ", //$NON-NLS-1$
-				decorateBefore(rank, Locale.getString(AbstractOdfToolkitOpenDocumentTextExporter.class, "JOURNALRANK_PREFIX")), //$NON-NLS-1$
-				decorateBefore(impactFactorStr, Locale.getString(AbstractOdfToolkitOpenDocumentTextExporter.class, "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+				decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX")), //$NON-NLS-1$
+				decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
 			receiver.newTextNode(". "); //$NON-NLS-1$
 			return true;
 		}		
