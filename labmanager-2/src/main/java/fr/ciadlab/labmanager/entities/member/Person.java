@@ -67,7 +67,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 @Table(name = "Persons")
 public class Person implements Serializable, JsonExportable, AttributeProvider, Comparable<Person> {
 
-	private static final long serialVersionUID = -7738810647549936633L;
+	private static final long serialVersionUID = -1312811718336186349L;
 
 	private static final String ORCID_URL = "https://orcid.org/"; //$NON-NLS-1$
 
@@ -80,6 +80,10 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	private static final String RESEARCHERID_URL = "http://www.researcherid.com/rid/"; //$NON-NLS-1$
 
 	private static final String RESEARCHGATE_URL = "http://www.researchgate.net/profile/"; //$NON-NLS-1$
+
+	private static final String GRAVATAR_URL = "https://www.gravatar.com/avatar/"; //$NON-NLS-1$
+
+	private static final String GRAVATAR_SIZE_PARAM = "s"; //$NON-NLS-1$
 
 	/** Identifier of a person.
 	 */
@@ -164,6 +168,11 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	@Column
 	private int wosHindex;
 
+	/** Identifier of the person on Gravatar.
+	 */
+	@Column
+	private String gravatarId;
+
 	/** List of research organizations for the person.
 	 */
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -234,6 +243,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		h = HashCodeUtils.add(h, this.researchGateId);
 		h = HashCodeUtils.add(h, this.googleScholarHindex);
 		h = HashCodeUtils.add(h, this.wosHindex);
+		h = HashCodeUtils.add(h, this.gravatarId);
 		return h;
 	}
 
@@ -295,6 +305,9 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 			return false;
 		}
 		if (this.wosHindex != other.wosHindex) {
+			return false;
+		}
+		if (!Objects.equals(this.gravatarId, other.gravatarId)) {
 			return false;
 		}
 		if (!Objects.equals(this.publications, other.publications)) {
@@ -359,6 +372,9 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		}
 		if (getWosHindex() > 0) {
 			consumer.accept("wosHindex", Integer.valueOf(getWosHindex())); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getGravatarId())) {
+			consumer.accept("gravatarId", getGravatarId()); //$NON-NLS-1$
 		}
 	}
 
@@ -932,6 +948,55 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		} else {
 			setWosHindex(hindex.intValue());
 		}
+	}
+
+	/** Replies the identifier of the person provided by Gravatar.
+	 *
+	 * @return the identifier.
+	 */
+	public String getGravatarId() {
+		return this.gravatarId;
+	}
+
+	/** Replies the URL to the photo of the person that is provided by Gravatar.
+	 *
+	 * @return the URL, or {@code null} if none.
+	 */
+	public final URL getGravatarURL() {
+		final String id = getGravatarId();
+		if (!Strings.isNullOrEmpty(id)) {
+			try {
+				return new URL(GRAVATAR_URL + id);
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Replies the URL to the photo of the person that is provided by Gravatar.
+	 *
+	 * @param size the expecting size of the photo, in pixels.
+	 * @return the URL, or {@code null} if none.
+	 */
+	public final URL getGravatarURL(int size) {
+		final String id = getGravatarId();
+		if (size > 0 && !Strings.isNullOrEmpty(id)) {
+			try {
+				return new URL(GRAVATAR_URL + id + "?" + GRAVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the identifier of the person provided by Gravatar.
+	 *
+	 * @param identifier the identifier.
+	 */
+	public void setGravatarId(String identifier) {
+		this.gravatarId = Strings.emptyToNull(identifier);
 	}
 
 }

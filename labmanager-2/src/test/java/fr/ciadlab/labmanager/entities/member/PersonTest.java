@@ -717,4 +717,60 @@ public class PersonTest {
 		assertEquals(852, this.test.getWosHindex());
 	}
 
+	@Test
+	public void getGravatarId() {
+		assertNull(this.test.getGravatarId());
+	}
+
+	@Test
+	public void setGravatarId() throws Exception {
+		assertNull(this.test.getGravatarId());
+
+		this.test.setGravatarId("xyz");
+		assertEquals("xyz", this.test.getGravatarId());
+
+		this.test.setGravatarId(null);
+		assertNull(this.test.getGravatarId());
+
+		this.test.setGravatarId("abc");
+		assertEquals("abc", this.test.getGravatarId());
+
+		this.test.setGravatarId(null);
+		assertNull(this.test.getGravatarId());
+	}
+
+	@Test
+	public void getGravatarURL() throws Exception {
+		assertNull(this.test.getGravatarURL());
+
+		this.test.setGravatarId("xyz");
+		assertEquals(new URL("https://www.gravatar.com/avatar/xyz"), this.test.getGravatarURL());
+
+		this.test.setGravatarId(null);
+		assertNull(this.test.getGravatarURL());
+
+		this.test.setGravatarId("abc");
+		assertEquals(new URL("https://www.gravatar.com/avatar/abc"), this.test.getGravatarURL());
+
+		this.test.setGravatarId(null);
+		assertNull(this.test.getGravatarURL());
+	}
+
+	@Test
+	public void getGravatarURL_size() throws Exception {
+		assertNull(this.test.getGravatarURL(256));
+
+		this.test.setGravatarId("xyz");
+		assertEquals(new URL("https://www.gravatar.com/avatar/xyz?s=256"), this.test.getGravatarURL(256));
+
+		this.test.setGravatarId(null);
+		assertNull(this.test.getGravatarURL(256));
+
+		this.test.setGravatarId("abc");
+		assertEquals(new URL("https://www.gravatar.com/avatar/abc?s=256"), this.test.getGravatarURL(256));
+
+		this.test.setGravatarId(null);
+		assertNull(this.test.getGravatarURL(256));
+	}
+
 }
