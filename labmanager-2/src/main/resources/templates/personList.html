@@ -13,6 +13,7 @@
         <th th:utext="#{html.LastName}"></th>
         <th th:utext="#{html.FirstName}"></th>
         <th th:utext="#{html.ORCID}"></th>
+        <th th:utext="#{html.Hindex}"></th>
         <th th:utext="#{html.CurrentOrganizations}"></th>
         <th th:utext="#{html.FormerOrganizations}"></th>
         <th th:utext="#{html.FutureOrganizations}"></th>
@@ -29,6 +30,14 @@
                 <a th:if="${person.ORCID != null}"
                    th:href="${person.orcidURL}"
                    th:utext="${person.ORCID}"></a>
+            </td>
+            <td>
+                <th:block th:if="${person.googleScholarHindex > 0}"
+                          th:utext="#{html.GoogleScholarHindex(${person.googleScholarHindex})}"></th:block>
+                <th:block th:if="${person.googleScholarHindex > 0 && person.wosHindex > 0}"
+                          th:utext="', '"></th:block>
+                <th:block th:if="${person.wosHindex > 0}"
+                          th:utext="#{html.WosHindex(${person.wosHindex})}"></th:block>
             </td>
             <td>
                 <th:block th:each="mbr, iMbr : ${person.activeMemberships}">

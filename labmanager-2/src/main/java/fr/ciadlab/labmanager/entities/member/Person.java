@@ -154,6 +154,16 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	@Column
 	private String researchGateId;
 
+	/** H-index of the person provided by Google Scholar.
+	 */
+	@Column
+	private int googleScholarHindex;
+
+	/** H-index of the person provided by Web-Of-Science.
+	 */
+	@Column
+	private int wosHindex;
+
 	/** List of research organizations for the person.
 	 */
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -212,6 +222,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		h = HashCodeUtils.add(h, this.firstName);
 		h = HashCodeUtils.add(h, this.lastName);
 		h = HashCodeUtils.add(h, this.gender);
+		h = HashCodeUtils.add(h, this.email);
 		h = HashCodeUtils.add(h, this.orcid);
 		h = HashCodeUtils.add(h, this.academiaURL);
 		h = HashCodeUtils.add(h, this.cordisURL);
@@ -221,7 +232,8 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		h = HashCodeUtils.add(h, this.linkedInId);
 		h = HashCodeUtils.add(h, this.researcherId);
 		h = HashCodeUtils.add(h, this.researchGateId);
-		h = HashCodeUtils.add(h, this.email);
+		h = HashCodeUtils.add(h, this.googleScholarHindex);
+		h = HashCodeUtils.add(h, this.wosHindex);
 		return h;
 	}
 
@@ -244,6 +256,9 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 			return false;
 		}
 		if (!Objects.equals(this.gender, other.gender)) {
+			return false;
+		}
+		if (!Objects.equals(this.email, other.email)) {
 			return false;
 		}
 		if (!Objects.equals(this.orcid, other.orcid)) {
@@ -273,10 +288,13 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		if (!Objects.equals(this.researchGateId, other.researchGateId)) {
 			return false;
 		}
-		if (!Objects.equals(this.email, other.email)) {
+		if (!Objects.equals(this.researchOrganizations, other.researchOrganizations)) {
 			return false;
 		}
-		if (!Objects.equals(this.researchOrganizations, other.researchOrganizations)) {
+		if (this.googleScholarHindex != other.googleScholarHindex) {
+			return false;
+		}
+		if (this.wosHindex != other.wosHindex) {
 			return false;
 		}
 		if (!Objects.equals(this.publications, other.publications)) {
@@ -335,6 +353,12 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		}
 		if (!Strings.isNullOrEmpty(getResearchGateId())) {
 			consumer.accept("researchGateId", getResearchGateId()); //$NON-NLS-1$
+		}
+		if (getGoogleScholarHindex() > 0) {
+			consumer.accept("googleScholarHindex", Integer.valueOf(getGoogleScholarHindex())); //$NON-NLS-1$
+		}
+		if (getWosHindex() > 0) {
+			consumer.accept("wosHindex", Integer.valueOf(getWosHindex())); //$NON-NLS-1$
 		}
 	}
 
@@ -844,6 +868,70 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	public void setResearchGateId(String id) {
 		this.researchGateId = Strings.emptyToNull(id);
+	}
+
+	/** Replies the H-index of the person provided by Google Scholar.
+	 *
+	 * @return the h-index.
+	 */
+	public int getGoogleScholarHindex() {
+		return this.googleScholarHindex;
+	}
+
+	/** Change the H-index of the person provided by Google Scholar.
+	 *
+	 * @param hindex the H-index.
+	 */
+	public void setGoogleScholarHindex(int hindex) {
+		if (hindex < 0) {
+			this.googleScholarHindex = 0;
+		} else {
+			this.googleScholarHindex = hindex;
+		}
+	}
+
+	/** Change the H-index of the person provided by Google Scholar.
+	 *
+	 * @param hindex the H-index.
+	 */
+	public final void setGoogleScholarHindex(Number hindex) {
+		if (hindex == null) {
+			setGoogleScholarHindex(0);
+		} else {
+			setGoogleScholarHindex(hindex.intValue());
+		}
+	}
+
+	/** Replies the H-index of the person provided by Web-of-Science.
+	 *
+	 * @return the h-index.
+	 */
+	public int getWosHindex() {
+		return this.wosHindex;
+	}
+
+	/** Change the H-index of the person provided by Web-of-Science.
+	 *
+	 * @param hindex the H-index.
+	 */
+	public void setWosHindex(int hindex) {
+		if (hindex < 0) {
+			this.wosHindex = 0;
+		} else {
+			this.wosHindex = hindex;
+		}
+	}
+
+	/** Change the H-index of the person provided by Web-of-Science.
+	 *
+	 * @param hindex the H-index.
+	 */
+	public final void setWosHindex(Number hindex) {
+		if (hindex == null) {
+			setWosHindex(0);
+		} else {
+			setWosHindex(hindex.intValue());
+		}
 	}
 
 }

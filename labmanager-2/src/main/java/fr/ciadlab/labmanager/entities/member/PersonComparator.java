@@ -98,6 +98,14 @@ public class PersonComparator implements Comparator<Person> {
 		if (cmp != 0) {
 			return cmp;
 		}
+		cmp = Integer.compare(o1.getGoogleScholarHindex(), o2.getGoogleScholarHindex());
+		if (cmp != 0) {
+			return cmp;
+		}
+		cmp = Integer.compare(o1.getWosHindex(), o2.getWosHindex());
+		if (cmp != 0) {
+			return cmp;
+		}
 		return Integer.compare(o1.getId(), o2.getId());
 	}
 

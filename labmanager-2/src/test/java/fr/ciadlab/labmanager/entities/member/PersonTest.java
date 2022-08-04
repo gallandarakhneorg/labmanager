@@ -645,4 +645,76 @@ public class PersonTest {
 		assertSame(m1, map.get(o1));
 	}
 
+	@Test
+	public void getGoogleScholarHindex() {
+		assertEquals(0, this.test.getGoogleScholarHindex());
+	}
+
+	@Test
+	public void setGoogleScholarHindex_int() throws Exception {
+		assertEquals(0, this.test.getGoogleScholarHindex());
+
+		this.test.setGoogleScholarHindex(456);
+		assertEquals(456, this.test.getGoogleScholarHindex());
+
+		this.test.setGoogleScholarHindex(0);
+		assertEquals(0, this.test.getGoogleScholarHindex());
+
+		this.test.setGoogleScholarHindex(852);
+		assertEquals(852, this.test.getGoogleScholarHindex());
+
+		this.test.setGoogleScholarHindex(-580);
+		assertEquals(0, this.test.getGoogleScholarHindex());
+	}
+
+	@Test
+	public void setGoogleScholarHindex_Number() throws Exception {
+		assertEquals(0, this.test.getGoogleScholarHindex());
+
+		this.test.setGoogleScholarHindex(Integer.valueOf(456));
+		assertEquals(456, this.test.getGoogleScholarHindex());
+
+		this.test.setGoogleScholarHindex(null);
+		assertEquals(0, this.test.getGoogleScholarHindex());
+
+		this.test.setGoogleScholarHindex(Integer.valueOf(852));
+		assertEquals(852, this.test.getGoogleScholarHindex());
+	}
+
+	@Test
+	public void getWosHindex() {
+		assertEquals(0, this.test.getWosHindex());
+	}
+
+	@Test
+	public void setWosHindex_int() throws Exception {
+		assertEquals(0, this.test.getWosHindex());
+
+		this.test.setWosHindex(456);
+		assertEquals(456, this.test.getWosHindex());
+
+		this.test.setWosHindex(0);
+		assertEquals(0, this.test.getWosHindex());
+
+		this.test.setWosHindex(852);
+		assertEquals(852, this.test.getWosHindex());
+
+		this.test.setWosHindex(-580);
+		assertEquals(0, this.test.getWosHindex());
+	}
+
+	@Test
+	public void setWosHindex_Number() throws Exception {
+		assertEquals(0, this.test.getWosHindex());
+
+		this.test.setWosHindex(Integer.valueOf(456));
+		assertEquals(456, this.test.getWosHindex());
+
+		this.test.setWosHindex(null);
+		assertEquals(0, this.test.getWosHindex());
+
+		this.test.setWosHindex(Integer.valueOf(852));
+		assertEquals(852, this.test.getWosHindex());
+	}
+
 }
