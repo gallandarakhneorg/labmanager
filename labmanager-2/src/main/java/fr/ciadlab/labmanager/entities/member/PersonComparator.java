@@ -58,6 +58,14 @@ public class PersonComparator implements Comparator<Person> {
 		if (cmp != 0) {
 			return cmp;
 		}
+		cmp = StringUtils.compare(o1.getOfficePhone(), o2.getOfficePhone());
+		if (cmp != 0) {
+			return cmp;
+		}
+		cmp = StringUtils.compare(o1.getMobilePhone(), o2.getMobilePhone());
+		if (cmp != 0) {
+			return cmp;
+		}
 		cmp = StringUtils.compare(o1.getEmail(), o2.getEmail());
 		if (cmp != 0) {
 			return cmp;

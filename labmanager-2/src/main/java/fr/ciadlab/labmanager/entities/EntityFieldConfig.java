@@ -26,10 +26,17 @@ package fr.ciadlab.labmanager.entities;
 public interface EntityFieldConfig {
 
 	/** Size of {@code VARCHAR} fields for large texts.
-	 * By default, the length of coulmns is set to 255. This value
+	 * By default, the length of columns is set to 255. This value
 	 * permits to override this size for string-based columns.
 	 * <p>This value is defined in order to be database independent for most of the {@code VARCHAR} specifications.
 	 */
 	static final int LARGE_TEXT_SIZE = 32672;
+
+	/** Size of {@code VARCHAR} fields for very small texts.
+	 * By default, the length of columns is set to 32. This value
+	 * permits to override this size for string-based columns.
+	 * <p>This value is defined in order to be database independent for most of the {@code VARCHAR} specifications.
+	 */
+	static final int VERY_SMALL_TEXT_SIZE = 32;
 
 }

@@ -773,4 +773,48 @@ public class PersonTest {
 		assertNull(this.test.getGravatarURL(256));
 	}
 
+	@Test
+	public void getOfficePhone() {
+		assertNull(this.test.getOfficePhone());
+	}
+
+	@Test
+	public void setOfficePhone() throws Exception {
+		assertNull(this.test.getOfficePhone());
+
+		this.test.setOfficePhone("xyz");
+		assertEquals("xyz", this.test.getOfficePhone());
+
+		this.test.setOfficePhone(null);
+		assertNull(this.test.getOfficePhone());
+
+		this.test.setOfficePhone("852");
+		assertEquals("852", this.test.getOfficePhone());
+
+		this.test.setOfficePhone("");
+		assertNull(this.test.getOfficePhone());
+	}
+
+	@Test
+	public void getMobilePhone() {
+		assertNull(this.test.getMobilePhone());
+	}
+
+	@Test
+	public void setMobilePhone() throws Exception {
+		assertNull(this.test.getMobilePhone());
+
+		this.test.setMobilePhone("xyz");
+		assertEquals("xyz", this.test.getMobilePhone());
+
+		this.test.setMobilePhone(null);
+		assertNull(this.test.getMobilePhone());
+
+		this.test.setMobilePhone("852");
+		assertEquals("852", this.test.getMobilePhone());
+
+		this.test.setMobilePhone("");
+		assertNull(this.test.getMobilePhone());
+	}
+
 }

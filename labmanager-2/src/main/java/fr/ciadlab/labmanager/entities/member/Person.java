@@ -45,6 +45,7 @@ import javax.transaction.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonObject;
+import fr.ciadlab.labmanager.entities.EntityFieldConfig;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
@@ -122,6 +123,16 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	@Column
 	private String academiaURL;
+
+	/** Office phone number, using the international prefix if possible.
+	 */
+	@Column(length = EntityFieldConfig.VERY_SMALL_TEXT_SIZE)
+	private String officePhone;
+
+	/** Mobile phone number, using the international prefix if possible.
+	 */
+	@Column(length = EntityFieldConfig.VERY_SMALL_TEXT_SIZE)
+	private String mobilePhone;
 
 	/** URL of the person on {@code cordis.europa.eu}.
 	 */
@@ -231,6 +242,8 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		h = HashCodeUtils.add(h, this.firstName);
 		h = HashCodeUtils.add(h, this.lastName);
 		h = HashCodeUtils.add(h, this.gender);
+		h = HashCodeUtils.add(h, this.officePhone);
+		h = HashCodeUtils.add(h, this.mobilePhone);
 		h = HashCodeUtils.add(h, this.email);
 		h = HashCodeUtils.add(h, this.orcid);
 		h = HashCodeUtils.add(h, this.academiaURL);
@@ -266,6 +279,12 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 			return false;
 		}
 		if (!Objects.equals(this.gender, other.gender)) {
+			return false;
+		}
+		if (!Objects.equals(this.officePhone, other.officePhone)) {
+			return false;
+		}
+		if (!Objects.equals(this.mobilePhone, other.mobilePhone)) {
 			return false;
 		}
 		if (!Objects.equals(this.email, other.email)) {
@@ -336,6 +355,12 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		}
 		if (getGender() != null) {
 			consumer.accept("gender", getGender()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getOfficePhone())) {
+			consumer.accept("officePhone", getOfficePhone()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getMobilePhone())) {
+			consumer.accept("mobilePhone", getMobilePhone()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getEmail())) {
 			consumer.accept("email", getEmail()); //$NON-NLS-1$
@@ -997,6 +1022,42 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	public void setGravatarId(String identifier) {
 		this.gravatarId = Strings.emptyToNull(identifier);
+	}
+
+	/** Replies the office phone number of the person. This phone number is supposed to follows the international
+	 * standards
+	 *
+	 * @return the number.
+	 */
+	public String getOfficePhone() {
+		return this.officePhone;
+	}
+
+	/** Change the office phone number of the person. This phone number is supposed to follows the international
+	 * standards
+	 *
+	 * @param number the number.
+	 */
+	public void setOfficePhone(String number) {
+		this.officePhone = Strings.emptyToNull(number);
+	}
+
+	/** Replies the mobile phone number of the person. This phone number is supposed to follows the international
+	 * standards
+	 *
+	 * @return the number.
+	 */
+	public String getMobilePhone() {
+		return this.mobilePhone;
+	}
+
+	/** Change the mobile phone number of the person. This phone number is supposed to follows the international
+	 * standards
+	 *
+	 * @param number the number.
+	 */
+	public void setMobilePhone(String number) {
+		this.mobilePhone = Strings.emptyToNull(number);
 	}
 
 }
