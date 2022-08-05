@@ -39,9 +39,15 @@ import org.springframework.stereotype.Component;
 @Primary
 public class DefaultPersonNameParser implements PersonNameParser {
 
+	private static final String FORMAT_1_PATTERN = "\\s"; //$NON-NLS-1$
+
+	private static final Pattern FORMAT_1_PATTERN_0 = Pattern.compile(FORMAT_1_PATTERN);
+
 	private static final char FORMAT_2_SEPARATOR = ',';
-	
-	private static final char FORMAT_1_SEPARATOR = ' ';
+
+	private static final String FORMAT_3_PATTERN = "((?:[A-Z](?:(?:[\\s\\-]+)|(?:\\.[\\s\\-]*)))*[A-Z]\\.?)\\s+(.+?)"; //$NON-NLS-1$
+
+	private static final Pattern FORMAT_3_PATTERN_0 = Pattern.compile(FORMAT_3_PATTERN, Pattern.CASE_INSENSITIVE);
 
 	private static final String NAME_FORMAT_0 = "([^,]+?)(?:\\s*,\\s*([^,]+?))?\\s*,\\s*([^,]+?)"; //$NON-NLS-1$
 
@@ -52,11 +58,11 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	private static final Pattern NAME_SEPARATOR_PATTERN_0 = Pattern.compile(NAME_SEPARATOR_0, Pattern.CASE_INSENSITIVE);
 
 	private static final String AND_SEPARATED_FORMAT = NAME_FORMAT_0 + "(?:" + NAME_SEPARATOR_0 + NAME_FORMAT_0 + ")*"; //$NON-NLS-1$ //$NON-NLS-2$
-	
+
 	private static final Pattern AND_SEPARATED_PATTERN = Pattern.compile(AND_SEPARATED_FORMAT, Pattern.CASE_INSENSITIVE);
 
 	private static final String NAME_FORMAT_1 = "([^,]+?)\\s+([^,]+?)"; //$NON-NLS-1$
-	
+
 	private static final Pattern NAME_PATTERN_1 = Pattern.compile(NAME_FORMAT_1);
 
 	private static final String NAME_SEPARATOR_1 = "\\s*,\\s*"; //$NON-NLS-1$
@@ -84,7 +90,7 @@ public class DefaultPersonNameParser implements PersonNameParser {
 		}
 		return nb;
 	}
-	
+
 	@Override
 	public int parseNames(String text, NameCallback callback) {
 		assert callback != null;
@@ -105,6 +111,14 @@ public class DefaultPersonNameParser implements PersonNameParser {
 		return nb;
 	}
 
+	private static int indexOf(Pattern pattern, String text) {
+	    final Matcher matcher = pattern.matcher(text);
+	    if (matcher.find()) {
+	        return matcher.start();
+	    }
+	    return -1;
+	}
+
 	@Override
 	public String parseFirstName(String fullName) {
 		final String fn = Strings.nullToEmpty(fullName).trim();
@@ -114,7 +128,12 @@ public class DefaultPersonNameParser implements PersonNameParser {
 				final String n = fn.substring(index + 1).trim();
 				return Strings.emptyToNull(n.trim());
 			}
-			index = fn.indexOf(FORMAT_1_SEPARATOR);
+			final Matcher match = FORMAT_3_PATTERN_0.matcher(fn);
+			if (match.matches()) {
+				final String firstName = match.group(1);
+				return Strings.emptyToNull(firstName.trim());
+			}
+			index = indexOf(FORMAT_1_PATTERN_0, fn);
 			if (index > 0) {
 				final String n = fn.substring(0, index).trim();
 				return Strings.emptyToNull(n.trim());
@@ -133,7 +152,13 @@ public class DefaultPersonNameParser implements PersonNameParser {
 				final String n = fn.substring(0, index).trim();
 				return Strings.emptyToNull(n.trim());
 			}
-			index = fn.indexOf(FORMAT_1_SEPARATOR);
+			final Matcher match = FORMAT_3_PATTERN_0.matcher(fn);
+			if (match.matches()) {
+				index = match.start(2);
+				final String lastName = fn.substring(index);
+				return Strings.emptyToNull(lastName.trim());
+			}
+			index = indexOf(FORMAT_1_PATTERN_0, fn);
 			if (index > 0) {
 				final String n = fn.substring(index + 1).trim();
 				return Strings.emptyToNull(n.trim());
@@ -141,7 +166,7 @@ public class DefaultPersonNameParser implements PersonNameParser {
 		}
 		return null;
 	}
-	
+
 	@Override
 	public String normalizeName(String name) {
 		if (!Strings.isNullOrEmpty(name)) {

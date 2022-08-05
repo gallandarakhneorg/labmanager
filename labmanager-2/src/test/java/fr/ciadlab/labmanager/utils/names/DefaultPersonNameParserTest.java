@@ -97,6 +97,35 @@ public class DefaultPersonNameParserTest {
 	}
 
 	@Test
+	public void parseFirstName_specials() {
+		assertEquals("J.C.", this.test.parseFirstName("J.C. Creput"));
+		assertEquals("J C", this.test.parseFirstName("J C Creput"));
+		assertEquals("A.", this.test.parseFirstName("A. ABBAS-TURKI"));
+		assertEquals("A", this.test.parseFirstName("A ABBAS-TURKI"));
+		assertEquals("I.", this.test.parseFirstName("I. EL KHADIRI"));
+		assertEquals("I", this.test.parseFirstName("I EL KHADIRI"));
+		assertEquals("Y.", this.test.parseFirstName("Y. EL MERABET"));
+		assertEquals("Y", this.test.parseFirstName("Y EL MERABET"));
+		assertEquals("I.", this.test.parseFirstName("I. EL-KHADIRI"));
+		assertEquals("I", this.test.parseFirstName("I EL-KHADIRI"));
+		assertEquals("Y.", this.test.parseFirstName("Y. EL-MERABET"));
+		assertEquals("Y", this.test.parseFirstName("Y EL-MERABET"));
+		assertEquals("A. S.", this.test.parseFirstName("A. S. MALIK"));
+		assertEquals("A S", this.test.parseFirstName("A S MALIK"));
+		assertEquals("T.", this.test.parseFirstName("T. MENDES DE FARIAS"));
+		assertEquals("T", this.test.parseFirstName("T MENDES DE FARIAS"));
+		assertEquals("W.S.H.", this.test.parseFirstName("W.S.H. SYED"));
+		assertEquals("W S H", this.test.parseFirstName("W S H SYED"));
+		assertEquals("W S. H", this.test.parseFirstName("W S. H SYED"));
+		assertEquals("W. S H.", this.test.parseFirstName("W. S H. SYED"));
+		assertEquals("P.-J.", this.test.parseFirstName("P.-J. LAPRAY"));
+		assertEquals("P-J.", this.test.parseFirstName("P-J. LAPRAY"));
+		assertEquals("P.-J", this.test.parseFirstName("P.-J LAPRAY"));
+		assertEquals("P-J", this.test.parseFirstName("P-J LAPRAY"));
+		assertEquals("Jean-Michel", this.test.parseFirstName("Jean-Michel Dupont"));
+	}
+
+	@Test
 	public void parseLastName_emptyInput() {
 		assertNull(this.test.parseLastName(null));	
 		assertNull(this.test.parseLastName(""));
@@ -137,6 +166,35 @@ public class DefaultPersonNameParserTest {
 		assertEquals("Last Last2", this.test.parseLastName(" Last Last2 , First First2"));
 		assertEquals("Last Last2", this.test.parseLastName("Last Last2 , First First2 "));
 		assertEquals("Last Last2", this.test.parseLastName(" Last Last2 , First First2 "));
+	}
+
+	@Test
+	public void parseLastName_specials() {
+		assertEquals("Creput", this.test.parseLastName("J.C. Creput"));
+		assertEquals("Creput", this.test.parseLastName("J C Creput"));
+		assertEquals("ABBAS-TURKI", this.test.parseLastName("A. ABBAS-TURKI"));
+		assertEquals("ABBAS-TURKI", this.test.parseLastName("A ABBAS-TURKI"));
+		assertEquals("EL KHADIRI", this.test.parseLastName("I. EL KHADIRI"));
+		assertEquals("EL KHADIRI", this.test.parseLastName("I EL KHADIRI"));
+		assertEquals("EL MERABET", this.test.parseLastName("Y. EL MERABET"));
+		assertEquals("EL MERABET", this.test.parseLastName("Y EL MERABET"));
+		assertEquals("EL-KHADIRI", this.test.parseLastName("I. EL-KHADIRI"));
+		assertEquals("EL-KHADIRI", this.test.parseLastName("I EL-KHADIRI"));
+		assertEquals("EL-MERABET", this.test.parseLastName("Y. EL-MERABET"));
+		assertEquals("EL-MERABET", this.test.parseLastName("Y EL-MERABET"));
+		assertEquals("MALIK", this.test.parseLastName("A. S. MALIK"));
+		assertEquals("MALIK", this.test.parseLastName("A S MALIK"));
+		assertEquals("MENDES DE FARIAS", this.test.parseLastName("T. MENDES DE FARIAS"));
+		assertEquals("MENDES DE FARIAS", this.test.parseLastName("T MENDES DE FARIAS"));
+		assertEquals("SYED", this.test.parseLastName("W.S.H. SYED"));
+		assertEquals("SYED", this.test.parseLastName("W S H SYED"));
+		assertEquals("SYED", this.test.parseLastName("W S. H SYED"));
+		assertEquals("SYED", this.test.parseLastName("W. S H. SYED"));
+		assertEquals("LAPRAY", this.test.parseLastName("P.-J. LAPRAY"));
+		assertEquals("LAPRAY", this.test.parseLastName("P-J. LAPRAY"));
+		assertEquals("LAPRAY", this.test.parseLastName("P.-J LAPRAY"));
+		assertEquals("LAPRAY", this.test.parseLastName("P-J LAPRAY"));
+		assertEquals("Dupont", this.test.parseLastName("Jean-Michel Dupont"));
 	}
 
 	@Test
