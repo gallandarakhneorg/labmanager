@@ -58,6 +58,13 @@ public interface PersonNameParser {
 	 */
 	int parseNames(String text, NameCallback callback);
 
+	/** Format the given name by making upper-case the first letters of the words, and lower-case the other letters.
+	 *
+	 * @param name the name.
+	 * @return the formatted name.
+	 */
+	String formatNameForDisplay(String name);
+
 	/** Normalize the given name. Normalization removes dots and dash characters, and transforms
 	 * the text to upper-case.
 	 *

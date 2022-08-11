@@ -790,4 +790,49 @@ public class DefaultPersonNameParserTest {
 		assertFalse(this.test.isShortName("  Stephane-Stephane "));
 	}
 
+	@Test
+	public void formatNameForDisplay_null() {
+		assertNull(this.test.formatNameForDisplay(null));
+	}
+
+	@Test
+	public void formatNameForDisplay_empty() {
+		assertEquals("", this.test.formatNameForDisplay(""));
+	}
+
+	@Test
+	public void formatNameForDisplay_whitespaces() {
+		assertEquals("", this.test.formatNameForDisplay("     "));
+	}
+
+	@Test
+	public void formatNameForDisplay_0() {
+		assertEquals("Abc", this.test.formatNameForDisplay(" abc   "));
+	}
+
+	@Test
+	public void formatNameForDisplay_1() {
+		assertEquals("Abc Xyz", this.test.formatNameForDisplay(" aBc xyZ   "));
+	}
+
+	@Test
+	public void formatNameForDisplay_2() {
+		assertEquals("Abc \u00C9yz", this.test.formatNameForDisplay(" aBc éyZ   "));
+	}
+
+	@Test
+	public void formatNameForDisplay_3() {
+		assertEquals("A. \u00C9yz", this.test.formatNameForDisplay(" a. éyZ   "));
+	}
+
+	@Test
+	public void formatNameForDisplay_4() {
+		assertEquals("J.-P. \u00C9yz", this.test.formatNameForDisplay(" j.-p. éyZ   "));
+	}
+
+	@Test
+	public void formatNameForDisplay_5() {
+		assertEquals("J.P.\u00C9yz", this.test.formatNameForDisplay(" j.p.éyZ   "));
+	}
+
 }

@@ -23,6 +23,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
+import org.apache.commons.text.WordUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,14 @@ import org.springframework.stereotype.Component;
 @Component
 @Primary
 public class DefaultPersonNameParser implements PersonNameParser {
+
+	/** List of characters that are considered as delimiters for words when formatting names.
+	 *
+	 * @see #formatNameForDisplay(String)
+	 */
+	public static final char[] NAME_DELIMITERS = new char[] {
+		' ', '\t', '\n', '\r', '\f', '.', '-', '_'	
+	};
 
 	private static final String FORMAT_1_PATTERN = "\\s"; //$NON-NLS-1$
 
@@ -165,6 +174,18 @@ public class DefaultPersonNameParser implements PersonNameParser {
 			}
 		}
 		return null;
+	}
+
+	@Override
+	public String formatNameForDisplay(String name) {
+		if (!Strings.isNullOrEmpty(name)) {
+			final String tname = name.trim();
+			if (!Strings.isNullOrEmpty(tname)) {
+				return WordUtils.capitalizeFully(tname, NAME_DELIMITERS);
+			}
+			return tname;
+		}
+		return name;
 	}
 
 	@Override
