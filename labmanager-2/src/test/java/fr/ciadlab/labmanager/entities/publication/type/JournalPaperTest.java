@@ -135,6 +135,23 @@ public class JournalPaperTest {
 	}
 
 	@Test
+	public void getSeries() {
+		assertNull(this.test.getSeries());
+	}
+
+	@Test
+	public void setSeries() {
+		this.test.setSeries("xyz");
+		assertEquals("xyz", this.test.getSeries());
+
+		this.test.setSeries("");
+		assertNull(this.test.getSeries());
+
+		this.test.setSeries(null);
+		assertNull(this.test.getSeries());
+	}
+
+	@Test
 	public void getJournal() {
 		assertNull(this.test.getJournal());
 	}

@@ -124,11 +124,12 @@ public class JournalPaperServiceTest {
 	@Test
 	public void createJournalPaper() {
 		final JournalPaper actual = this.test.createJournalPaper(pub0,
-				"volume0", "number0", "pages0");
+				"volume0", "number0", "pages0", "series0");
 
 		assertEquals("volume0", actual.getVolume());
 		assertEquals("number0", actual.getNumber());
 		assertEquals("pages0", actual.getPages());
+		assertEquals("series0", actual.getSeries());
 
 		verify(this.repository).save(actual);
 	}
@@ -139,13 +140,14 @@ public class JournalPaperServiceTest {
 				"title0", PublicationType.ARTISTIC_PRODUCTION, Date.valueOf("2022-07-22"), "abstractText0",
 				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
-				"volume0", "number0", "pages0");
+				"volume0", "number0", "pages0", "series0");
 
 		verifyNoInteractions(this.pub0);
 
 		verify(this.pub1).setVolume("volume0");
 		verify(this.pub1).setNumber("number0");
 		verify(this.pub1).setPages("pages0");
+		verify(this.pub1).setSeries("series0");
 
 		verifyNoInteractions(this.pub2);
 	}

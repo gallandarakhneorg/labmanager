@@ -64,6 +64,11 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 	@Column
 	private String pages;
 
+	/** Name of series of the journal.
+	 */
+	@Column
+	private String series;
+
 	/** Reference to the journal.
 	 */
 	@ManyToOne
@@ -75,12 +80,14 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
+	 * @param series the series of the journal.
 	 */
-	public JournalPaper(Publication publication, String volume, String number, String pages) {
+	public JournalPaper(Publication publication, String volume, String number, String pages, String series) {
 		super(publication);
 		this.volume = volume;
 		this.number = number;
 		this.pages = pages;
+		this.series = series;
 	}
 
 	/** Construct an empty journal paper.
@@ -95,6 +102,7 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 		h = HashCodeUtils.add(h, this.volume);
 		h = HashCodeUtils.add(h, this.number);
 		h = HashCodeUtils.add(h, this.pages);
+		h = HashCodeUtils.add(h, this.series);
 		h = HashCodeUtils.add(h, this.journal);
 		return h;
 	}
@@ -114,6 +122,9 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 		if (!Objects.equals(this.pages, other.pages)) {
 			return false;
 		}
+		if (!Objects.equals(this.series, other.series)) {
+			return false;
+		}
 		if (!Objects.equals(this.journal, other.journal)) {
 			return false;
 		}
@@ -131,6 +142,9 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 		}
 		if (!Strings.isNullOrEmpty(getPages())) {
 			consumer.accept("pages", getPages()); //$NON-NLS-1$
+		}		
+		if (!Strings.isNullOrEmpty(getSeries())) {
+			consumer.accept("series", getSeries()); //$NON-NLS-1$
 		}		
 		final Journal journal = getJournal();
 		if (journal != null) {
@@ -223,10 +237,23 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 		this.pages = Strings.emptyToNull(range);
 	}
 
-	/** Replies the journal in which the publication was published.
-	 *
-	 * @return the journal.
+	/** Replies the series of the journal in which the publication was published.
+	 * 
+	 * @return the series.
 	 */
+	public String getSeries() {
+		return this.series;
+	}
+
+	/** Change the series of the journal in which the publication was published.
+	 * 
+	 * @param series the series.
+	 */
+	public void setSeries(String series) {
+		this.series = Strings.emptyToNull(series);
+	}
+
+	@Override
 	public Journal getJournal() {
 		return this.journal;
 	}

@@ -81,10 +81,11 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
+	 * @param series the series of the journal.
 	 * @return the created journal paper.
 	 */
-	public JournalPaper createJournalPaper(Publication publication, String volume, String number, String pages) {
-		return createJournalPaper(publication, volume, number, pages, true);
+	public JournalPaper createJournalPaper(Publication publication, String volume, String number, String pages, String series) {
+		return createJournalPaper(publication, volume, number, pages, series, true);
 	}
 
 	/** Create a journal paper.
@@ -93,12 +94,13 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
+	 * @param series the series of the journal.
 	 * @param saveInDb {@code true} for saving the publication in the database.
 	 * @return the created journal paper.
 	 */
 	public JournalPaper createJournalPaper(Publication publication, String volume, String number, String pages,
-			boolean saveInDb) {
-		final JournalPaper res = new JournalPaper(publication, volume, number, pages);
+			String series, boolean saveInDb) {
+		final JournalPaper res = new JournalPaper(publication, volume, number, pages, series);
 		if (saveInDb) {
 			this.repository.save(res);
 		}
@@ -127,12 +129,13 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
+	 * @param series the series of the journal.
 	 */
 	public void updateJournalPaper(int pubId,
 			String title, PublicationType type, Date date, String abstractText, String keywords,
 			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
-			String volume, String number, String pages) {
+			String volume, String number, String pages, String series) {
 		final Optional<JournalPaper> res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
 			final JournalPaper paper = res.get();
@@ -145,6 +148,7 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 			paper.setVolume(Strings.emptyToNull(volume));
 			paper.setNumber(Strings.emptyToNull(number));
 			paper.setPages(Strings.emptyToNull(pages));
+			paper.setSeries(Strings.emptyToNull(series));
 
 			this.repository.save(res.get());
 		}

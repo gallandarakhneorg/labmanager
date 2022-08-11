@@ -474,6 +474,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 						field(entry, KEY_VOLUME),
 						field(entry, KEY_NUMBER),
 						field(entry, KEY_PAGES),
+						field(entry, KEY_SERIES),
 						false);
 				final String journalName = field(entry, KEY_JOURNAL);
 				final Journal journal = this.journalService.getJournalByName(journalName);
@@ -846,6 +847,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_VOLUME, paper.getVolume());
 		addField(entry, KEY_NUMBER, paper.getNumber());
 		addField(entry, KEY_PAGES, paper.getPages());
+		addField(entry, KEY_SERIES, paper.getSeries());
 		addField(entry, KEY_SCIMAGO_QINDEX, paper.getScimagoQIndex());
 		addField(entry, KEY_WOS_QINDEX, paper.getWosQIndex());
 		addField(entry, KEY_IMPACT_FACTOR, paper.getImpactFactor());
