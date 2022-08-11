@@ -132,6 +132,11 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	@Column
 	private String doi;
 
+	/** identifier on HAL if the publication has one.
+	 */
+	@Column
+	private String halId;
+
 	/** Extra URL if the publication has one.
 	 */
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
@@ -207,6 +212,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 * @param isbn the ISBN number if any.
 	 * @param issn the ISSN number if any.
 	 * @param doi the DOI reference number if any.
+	 * @param halId the HAL reference number if any.
 	 * @param extraUrl an URL to a page associated to the publication.
 	 * @param videoUrl an URL to a video associated to the publication.
 	 * @param dblpUrl the URL to the DBLP page of the publication if any.
@@ -216,7 +222,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 */
 	public Publication(PublicationType type, String title, String abstractText, String keywords,
 			Date date, String isbn, String issn,
-			String doi, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
+			String doi, String halId, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language) {
 		assert type != null;
 		assert language != null;
@@ -228,6 +234,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		this.isbn = isbn;
 		this.issn = issn;
 		this.doi = doi;
+		this.halId = halId;
 		this.extraUrl = extraUrl;
 		this.videoUrl = videoUrl;
 		this.dblpUrl = dblpUrl;
@@ -260,6 +267,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		h = HashCodeUtils.add(h, this.publicationDate);
 		h = HashCodeUtils.add(h, this.publicationYear);
 		h = HashCodeUtils.add(h, this.doi);
+		h = HashCodeUtils.add(h, this.halId);
 		h = HashCodeUtils.add(h, this.dblpUrl);
 		h = HashCodeUtils.add(h, this.isbn);
 		h = HashCodeUtils.add(h, this.issn);
@@ -308,6 +316,9 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 			return false;
 		}
 		if (!Objects.equals(this.doi, other.doi)) {
+			return false;
+		}
+		if (!Objects.equals(this.halId, other.halId)) {
 			return false;
 		}
 		if (!Objects.equals(this.dblpUrl, other.dblpUrl)) {
@@ -366,6 +377,9 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		}
 		if (!Strings.isNullOrEmpty(getDOI())) {
 			consumer.accept("doi", getDOI()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getHalId())) {
+			consumer.accept("halId", getHalId()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getDblpURL())) {
 			consumer.accept("dblpURL", getDblpURL()); //$NON-NLS-1$
@@ -733,6 +747,24 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 */
 	public void setDOI(String doi) {
 		this.doi = Strings.emptyToNull(doi);
+	}
+
+	/** Replies the HAL reference number that is associated to this publication.
+	 * Usually, the HAL number should not be prefixed by the {@code http://hal.archives-ouvertes.fr} prefix.
+	 *
+	 * @return the HAL reference or {@code null}.
+	 */
+	public String getHalId() {
+		return this.halId;
+	}
+
+	/** Change the HAL reference number that is associated to this publication.
+	 * Usually, the HAL number should not be prefixed by the {@code http://hal.archives-ouvertes.fr} prefix.
+	 *
+	 * @param hal the HAL reference or {@code null}.
+	 */
+	public void setHalId(String hal) {
+		this.halId = Strings.emptyToNull(hal);
 	}
 
 	/** Replies any extra URL that is associated to the publication.

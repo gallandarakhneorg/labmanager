@@ -299,7 +299,7 @@ public class JBibtexBibTeXTest {
 	@Test
 	public void getPublicationStreamFrom_n() throws Exception {
 		when(this.prePublicationFactory.createPrePublication(
-				any(), any(), any(), any(), any(), any(), any(),
+				any(), any(), any(), any(), any(), any(), any(), any(),
 				any(), any(), any(), any(), any(), any(), any())).thenAnswer(it -> {
 					Publication fake = mock(Publication.class);
 					return fake;		
@@ -307,12 +307,12 @@ public class JBibtexBibTeXTest {
 
 		JournalPaper jp = mock(JournalPaper.class);
 		when(this.journalPaperService.createJournalPaper(
-				any(), any(), any(), any(), anyBoolean())).thenReturn(jp);
+				any(), any(), any(), any(), any(), anyBoolean())).thenReturn(jp);
 
 		ConferencePaper cp = mock(ConferencePaper.class);
 		when(this.conferencePaperService.createConferencePaper(
 				any(), any(), any(), any(), any(), any(), any(),
-				any(), any(), anyBoolean())).thenReturn(cp);
+				any(), any(), any(), anyBoolean())).thenReturn(cp);
 
 		Journal journal = mock(Journal.class);
 		when(this.journalService.getJournalByName(any())).thenReturn(journal);
@@ -345,11 +345,13 @@ public class JBibtexBibTeXTest {
 				isNull(),
 				isNull(),
 				isNull(),
+				isNull(),
 				eq(PublicationLanguage.ENGLISH));
 		verify(this.journalPaperService).createJournalPaper(
 				any(),
 				eq("17"),
 				eq("2"),
+				isNull(),
 				isNull(),
 				eq(false));
 		verify(p).setTemporaryAuthors(any());
@@ -372,10 +374,12 @@ public class JBibtexBibTeXTest {
 				isNull(),
 				isNull(),
 				isNull(),
+				isNull(),
 				eq(PublicationLanguage.ENGLISH));
 		verify(this.conferencePaperService).createConferencePaper(
 				any(),
 				eq("Communication au Congrès de la Société Française d?Hématologie, Paris"),
+				isNull(),
 				isNull(),
 				isNull(),
 				isNull(),

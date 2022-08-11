@@ -134,6 +134,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 */
 	protected static final Key KEY_ISSN = new Key(KEY_ISSN_NAME);
 
+	/** Field {@code halId}.
+	 */
+	protected static final Key KEY_HALID = new Key(KEY_HALID_NAME);
+
 	/** Field {@code dblp}.
 	 */
 	protected static final Key KEY_DBLP = new Key(KEY_DBLP_NAME);
@@ -453,6 +457,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 					field(entry, KEY_ISBN_NAME),
 					field(entry, KEY_ISSN_NAME),
 					field(entry, KEY_DOI),
+					field(entry, KEY_HALID),
 					field(entry, KEY_URL),
 					field(entry, KEY_VIDEO_NAME),
 					field(entry, KEY_DBLP_NAME),

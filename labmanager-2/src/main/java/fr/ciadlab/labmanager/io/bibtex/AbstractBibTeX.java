@@ -44,6 +44,10 @@ public abstract class AbstractBibTeX implements BibTeX {
 	 */
 	protected static final String KEY_ISSN_NAME = "issn"; //$NON-NLS-1$
 
+	/** Field {@code halid}.
+	 */
+	protected static final String KEY_HALID_NAME = "halid"; //$NON-NLS-1$
+
 	/** Field {@code dblp}.
 	 */
 	protected static final String KEY_DBLP_NAME = "dblp"; //$NON-NLS-1$

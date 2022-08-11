@@ -54,6 +54,11 @@ public class PublicationTest {
 			public boolean isRanked() {
 				throw new UnsupportedOperationException();
 			}
+
+			@Override
+			public String getWherePublishedShortDescription() {
+				throw new UnsupportedOperationException();
+			}
 		};
 	}
 
@@ -264,6 +269,23 @@ public class PublicationTest {
 
 		this.test.setDOI(null);
 		assertNull(this.test.getDOI());
+	}
+
+	@Test
+	public void getHalId() {
+		assertNull(this.test.getHalId());
+	}
+
+	@Test
+	public void setHalId() {
+		this.test.setHalId("xyz");
+		assertEquals("xyz", this.test.getHalId());
+
+		this.test.setHalId("");
+		assertNull(this.test.getHalId());
+
+		this.test.setHalId(null);
+		assertNull(this.test.getHalId());
 	}
 
 	@Test

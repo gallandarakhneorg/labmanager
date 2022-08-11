@@ -43,6 +43,7 @@ public interface PrePublicationFactory {
 	 * @param isbn the ISBN number if any.
 	 * @param issn the ISSN number if any.
 	 * @param doi the DOI reference number if any.
+	 * @param halId the HAL reference number if any.
 	 * @param extraUrl an URL to a page associated to the publication.
 	 * @param videoUrl an URL to a video associated to the publication.
 	 * @param dblpUrl the URL to the DBLP page of the publication if any.
@@ -53,7 +54,7 @@ public interface PrePublicationFactory {
 	 */
 	Publication createPrePublication(PublicationType type, String title, String abstractText, String keywords,
 			Date date, String isbn, String issn,
-			String doi, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
+			String doi, String halId, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language);
 
 }

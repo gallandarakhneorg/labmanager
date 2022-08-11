@@ -125,7 +125,7 @@ public class ConferencePaperServiceTest {
 	public void createConferencePaper() {
 		final ConferencePaper actual = this.test.createConferencePaper(pub0,
 				"event0", "volume0", "number0", "pages0", "editors0",
-				"series0", "orga0", "address0");
+				"series0", "orga0", "address0", "publish0");
 
 		assertEquals("event0", actual.getScientificEventName());
 		assertEquals("volume0", actual.getVolume());
@@ -136,6 +136,7 @@ public class ConferencePaperServiceTest {
 		assertEquals("series0", actual.getSeries());
 		assertEquals("orga0", actual.getOrganization());
 		assertEquals("address0", actual.getAddress());
+		assertEquals("publish0", actual.getPublisher());
 
 		verify(this.repository).save(actual);
 	}
