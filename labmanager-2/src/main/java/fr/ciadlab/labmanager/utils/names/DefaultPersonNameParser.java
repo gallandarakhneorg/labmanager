@@ -17,12 +17,17 @@
 package fr.ciadlab.labmanager.utils.names;
 
 import java.text.Normalizer;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
+import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.text.WordUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -45,18 +50,10 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	 * @see #formatNameForDisplay(String)
 	 */
 	public static final char[] NAME_DELIMITERS = new char[] {
-		' ', '\t', '\n', '\r', '\f', '.', '-', '_'	
+			' ', '\t', '\n', '\r', '\f', '.', '-', '_'	
 	};
 
-	private static final String FORMAT_1_PATTERN = "\\s"; //$NON-NLS-1$
-
-	private static final Pattern FORMAT_1_PATTERN_0 = Pattern.compile(FORMAT_1_PATTERN);
-
 	private static final char FORMAT_2_SEPARATOR = ',';
-
-	private static final String FORMAT_3_PATTERN = "((?:[A-Z](?:(?:[\\s\\-]+)|(?:\\.[\\s\\-]*)))*[A-Z]\\.?)\\s+(.+?)"; //$NON-NLS-1$
-
-	private static final Pattern FORMAT_3_PATTERN_0 = Pattern.compile(FORMAT_3_PATTERN, Pattern.CASE_INSENSITIVE);
 
 	private static final String NAME_FORMAT_0 = "([^,]+?)(?:\\s*,\\s*([^,]+?))?\\s*,\\s*([^,]+?)"; //$NON-NLS-1$
 
@@ -120,32 +117,91 @@ public class DefaultPersonNameParser implements PersonNameParser {
 		return nb;
 	}
 
-	private static int indexOf(Pattern pattern, String text) {
-	    final Matcher matcher = pattern.matcher(text);
-	    if (matcher.find()) {
-	        return matcher.start();
-	    }
-	    return -1;
+	private static void forEachComponent(String name, Function<String, Boolean> consumer) {
+		final String[] words = name.split("\\s+"); //$NON-NLS-1$
+		for (final String word : words) {
+			final String[] subwords = word.split("[\\-]+"); //$NON-NLS-1$
+			int max = subwords.length;
+			if (subwords.length > 1 && "".equals(subwords[subwords.length -1])) { //$NON-NLS-1$
+				--max;
+			}
+			final List<String> components0 = new ArrayList<>();
+			for (int i = 0; i < max; ++i) {
+				if (subwords[i].length() > 0) {
+					final String[] particles = subwords[i].split("[.]+"); //$NON-NLS-1$
+					for (final String particle : particles) {
+						final String cmp;
+						if (particle.length() == 1) {
+							cmp = WordUtils.capitalizeFully(particle + "."); //$NON-NLS-1$
+						} else {
+							cmp = WordUtils.capitalizeFully(particle);
+						}
+						components0.add(cmp);
+					}
+				}
+			}
+			if (max > 1) {
+				final StringBuilder buf = new StringBuilder();
+				boolean first = true;
+				for (final String cmp : components0) {
+					if (first) {
+						first = false;
+					} else {
+						buf.append("-"); //$NON-NLS-1$
+					}
+					buf.append(cmp);
+				}
+				final Boolean ret = consumer.apply(buf.toString());
+				if (ret != null && !ret.booleanValue()) {
+					return;
+				}
+			} else {
+				for (final String cmp : components0) {
+					final Boolean ret = consumer.apply(cmp);
+					if (ret != null && !ret.booleanValue()) {
+						return;
+					}
+				}
+			}
+		}
 	}
 
 	@Override
 	public String parseFirstName(String fullName) {
-		final String fn = Strings.nullToEmpty(fullName).trim();
+		String fn = Strings.nullToEmpty(fullName).trim();
 		if (!Strings.isNullOrEmpty(fn)) {
 			int index = fn.indexOf(FORMAT_2_SEPARATOR);
+			final StringBuilder name = new StringBuilder();
 			if (index >= 0) {
-				final String n = fn.substring(index + 1).trim();
-				return Strings.emptyToNull(n.trim());
+				fn = fn.substring(index + 1).trim();
+				final MutableBoolean cont = new MutableBoolean(false);
+				forEachComponent(fn, it -> {
+					if (cont.booleanValue()) {
+						name.append(" "); //$NON-NLS-1$
+					}
+					name.append(it);
+					cont.setTrue();
+					return Boolean.TRUE;
+				});
+			} else {
+				final MutableBoolean cont = new MutableBoolean(false);
+				final MutableObject<String> cmp0 = new MutableObject<>(null);
+				forEachComponent(fn, it -> {
+					if (!it.endsWith(".") && cont.booleanValue()) { //$NON-NLS-1$
+						cmp0.setValue(it);
+					} else {
+						if (cont.booleanValue()) {
+							name.append(" "); //$NON-NLS-1$
+						}
+						name.append(it);
+					}
+					cont.setTrue();
+					return Boolean.valueOf(cmp0.getValue() == null);
+				});
 			}
-			final Matcher match = FORMAT_3_PATTERN_0.matcher(fn);
-			if (match.matches()) {
-				final String firstName = match.group(1);
-				return Strings.emptyToNull(firstName.trim());
-			}
-			index = indexOf(FORMAT_1_PATTERN_0, fn);
-			if (index > 0) {
-				final String n = fn.substring(0, index).trim();
-				return Strings.emptyToNull(n.trim());
+			final String firstName = name.toString();
+			if (!Strings.isNullOrEmpty(firstName)) {
+				return firstName;
 			}
 			return Strings.emptyToNull(fn);
 		}
@@ -154,23 +210,41 @@ public class DefaultPersonNameParser implements PersonNameParser {
 
 	@Override
 	public String parseLastName(String fullName) {
-		final String fn = Strings.nullToEmpty(fullName).trim();
+		String fn = Strings.nullToEmpty(fullName).trim();
 		if (!Strings.isNullOrEmpty(fn)) {
 			int index = fn.indexOf(FORMAT_2_SEPARATOR);
+			final StringBuilder name = new StringBuilder();
 			if (index >= 0) {
-				final String n = fn.substring(0, index).trim();
-				return Strings.emptyToNull(n.trim());
+				fn = fn.substring(0, index).trim();
+				final MutableBoolean cont = new MutableBoolean(false);
+				forEachComponent(fn, it -> {
+					if (cont.booleanValue()) {
+						name.append(" "); //$NON-NLS-1$
+					}
+					name.append(it);
+					cont.setTrue();
+					return Boolean.TRUE;
+				});
+			} else {
+				final MutableBoolean cont = new MutableBoolean(false);
+				final MutableBoolean inFirstName = new MutableBoolean(true);
+				forEachComponent(fn, it -> {
+					if (!it.endsWith(".") || !inFirstName.booleanValue()) { //$NON-NLS-1$
+						inFirstName.setFalse();
+						if (cont.booleanValue()) {
+							if (name.length() > 0) {
+								name.append(" "); //$NON-NLS-1$
+							}
+							name.append(it);
+						}
+					}
+					cont.setTrue();
+					return Boolean.TRUE;
+				});
 			}
-			final Matcher match = FORMAT_3_PATTERN_0.matcher(fn);
-			if (match.matches()) {
-				index = match.start(2);
-				final String lastName = fn.substring(index);
-				return Strings.emptyToNull(lastName.trim());
-			}
-			index = indexOf(FORMAT_1_PATTERN_0, fn);
-			if (index > 0) {
-				final String n = fn.substring(index + 1).trim();
-				return Strings.emptyToNull(n.trim());
+			final String lastName = name.toString();
+			if (!Strings.isNullOrEmpty(lastName)) {
+				return lastName;
 			}
 		}
 		return null;
