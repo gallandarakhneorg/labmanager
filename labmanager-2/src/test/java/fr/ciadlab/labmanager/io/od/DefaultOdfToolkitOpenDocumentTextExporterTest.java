@@ -98,8 +98,6 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 		
 		JournalPaper p1 = mock(JournalPaper.class);
 		when(p1.getDOI()).thenReturn("doinumber1");
-		when(p1.getISBN()).thenReturn("isbn1");
-		when(p1.getISSN()).thenReturn("issn1");
 		when(p1.getNumber()).thenReturn("num1");
 		when(p1.getMajorLanguage()).thenReturn(PublicationLanguage.FRENCH);
 		when(p1.getPages()).thenReturn("xx-yy");
@@ -114,8 +112,6 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 		JournalPaper p2 = mock(JournalPaper.class);
 		when(p2.getDOI()).thenReturn("doinumber2");
-		when(p2.getISBN()).thenReturn("isbn2");
-		when(p2.getISSN()).thenReturn("issn2");
 		when(p2.getNumber()).thenReturn("num2");
 		when(p2.getMajorLanguage()).thenReturn(PublicationLanguage.ENGLISH);
 		when(p2.getPages()).thenReturn("xx-yy");

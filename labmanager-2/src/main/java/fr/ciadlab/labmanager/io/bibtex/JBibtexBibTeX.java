@@ -841,6 +841,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		if (journal != null) {
 			addField(entry, KEY_JOURNAL, journal.getJournalName());
 			addField(entry, KEY_PUBLISHER, journal.getPublisher());
+			addField(entry, KEY_ADDRESS, journal.getAddress());
 		}
 		addField(entry, KEY_VOLUME, paper.getVolume());
 		addField(entry, KEY_NUMBER, paper.getNumber());

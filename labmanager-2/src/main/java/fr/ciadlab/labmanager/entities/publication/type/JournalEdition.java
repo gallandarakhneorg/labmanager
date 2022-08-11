@@ -26,6 +26,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
@@ -44,7 +45,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 @Entity
 @Table(name = "JournalEditions")
 @PrimaryKeyJoinColumn(name = "id")
-public class JournalEdition extends Publication {
+public class JournalEdition extends Publication implements JournalBasedPublication {
 
 	private static final long serialVersionUID = 2950457929302009775L;
 
@@ -223,18 +224,12 @@ public class JournalEdition extends Publication {
 		this.pages = Strings.emptyToNull(range);
 	}
 
-	/** Replies the journal in which the publication was published.
-	 *
-	 * @return the journal.
-	 */
+	@Override
 	public Journal getJournal() {
 		return this.journal;
 	}
 
-	/** Change the journal in which the publication was published.
-	 *
-	 * @param journal the journal.
-	 */
+	@Override
 	public void setJournal(Journal journal) {
 		this.journal = journal;
 	}

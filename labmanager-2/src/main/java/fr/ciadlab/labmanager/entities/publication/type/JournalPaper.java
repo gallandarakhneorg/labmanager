@@ -26,6 +26,7 @@ import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
@@ -44,7 +45,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 @Entity
 @Table(name = "JournalPapers")
 @PrimaryKeyJoinColumn(name = "id")
-public class JournalPaper extends Publication {
+public class JournalPaper extends Publication implements JournalBasedPublication {
 
 	private static final long serialVersionUID = -3322028380433314352L;
 
@@ -230,10 +231,7 @@ public class JournalPaper extends Publication {
 		return this.journal;
 	}
 
-	/** Change the journal in which the publication was published.
-	 *
-	 * @param journal the journal.
-	 */
+	@Override
 	public void setJournal(Journal journal) {
 		this.journal = journal;
 	}
@@ -282,6 +280,58 @@ public class JournalPaper extends Publication {
 				|| journal.getWosQIndexByYear(getPublicationYear()) != null;
 		}
 		return false;
+	}
+
+	/** Replies the ISBN number that is associated to this publication.
+	 * This functions delegates to the journal.
+	 *
+	 * @return the ISBN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/ISBN"
+	 * @deprecated See {@link Journal#getISBN()}
+	 */
+	@Override
+	@Deprecated(since = "2.0.0")
+	public String getISBN() {
+		return this.journal.getISBN();
+	}
+
+	/** Change the ISBN number that is associated to this publication.
+	 * This functions delegates to the journal.
+	 *
+	 * @param isbn the ISBN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/ISBN"
+	 * @deprecated See {@link Journal#setISBN(String)}
+	 */
+	@Override
+	@Deprecated(since = "2.0.0")
+	public void setISBN(String isbn) {
+		this.journal.setISBN(isbn);
+	}
+
+	/** Replies the ISSN number that is associated to this publication.
+	 * This functions delegates to the journal.
+	 *
+	 * @return the ISSN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
+	 * @deprecated See {@link Journal#getISSN()}
+	 */
+	@Override
+	@Deprecated(since = "2.0.0")
+	public String getISSN() {
+		return this.journal.getISSN();
+	}
+
+	/** Change the ISSN number that is associated to this publication.
+	 * This functions delegates to the journal.
+	 *
+	 * @param issn the ISSN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
+	 * @deprecated See {@link Journal#setISSN(String)}
+	 */
+	@Override
+	@Deprecated(since = "2.0.0")
+	public final void setISSN(String issn) {
+		this.journal.setISSN(issn);
 	}
 
 }
