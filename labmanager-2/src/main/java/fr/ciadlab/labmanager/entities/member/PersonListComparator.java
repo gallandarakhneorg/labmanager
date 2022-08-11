@@ -20,6 +20,10 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
+
 /** Comparator of lists of persons.
  * 
  * @author $Author: sgalland$
@@ -27,12 +31,19 @@ import java.util.List;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@Component
+@Primary
 public class PersonListComparator implements Comparator<List<Person>> {
 
-	/** Default comparator of lists of persons. The order of the persons in the list is based on
-	 * {@link #DEFAULT}.
+	private PersonComparator personComparator;
+
+	/** Constructor.
+	 *
+	 * @param personComparator the comparator of person names.
 	 */
-	public static final Comparator<List<Person>> DEFAULT = new PersonListComparator();
+	public PersonListComparator(@Autowired PersonComparator personComparator) {
+		this.personComparator = personComparator;
+	}
 
 	@Override
 	public int compare(List<Person> o1, List<Person> o2) {
@@ -51,7 +62,7 @@ public class PersonListComparator implements Comparator<List<Person>> {
 		for (int i = 0; i < max; ++i) {
 			final Person p1 = it1.next();
 			final Person p2 = it2.next();
-			final int cmp = PersonComparator.DEFAULT.compare(p1, p2);
+			final int cmp = this.personComparator.compare(p1, p2);
 			if (cmp != 0) {
 				return cmp;
 			}

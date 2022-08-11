@@ -21,6 +21,8 @@ import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
 import org.arakhne.afc.util.CountryCode;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 /** Comparator of research organizations.
  * 
@@ -29,11 +31,9 @@ import org.arakhne.afc.util.CountryCode;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@Component
+@Primary
 public class ResearchOrganizationComparator implements Comparator<ResearchOrganization> {
-
-	/** Default comparator.
-	 */
-	public static final Comparator<ResearchOrganization> DEFAULT = new ResearchOrganizationComparator();
 
 	@Override
 	public int compare(ResearchOrganization o1, ResearchOrganization o2) {

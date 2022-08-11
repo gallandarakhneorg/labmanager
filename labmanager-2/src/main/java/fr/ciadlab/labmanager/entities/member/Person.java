@@ -47,7 +47,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonObject;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.AuthorshipComparator;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
@@ -337,7 +336,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 
 	@Override
 	public int compareTo(Person o) {
-		return PersonComparator.DEFAULT.compare(this, o);
+		return EntityUtils.getPreferredPersonComparator().compare(this, o);
 	}
 
 	/** {@inheritDoc}
@@ -572,7 +571,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	public Set<Membership> getResearchOrganizations() {
 		if (this.researchOrganizations == null) {
-			this.researchOrganizations = new TreeSet<>(MembershipComparator.DEFAULT);
+			this.researchOrganizations = new TreeSet<>(EntityUtils.getPreferredMembershipComparator());
 		}
 		return this.researchOrganizations;
 	}
@@ -599,8 +598,8 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 				it -> it.getResearchOrganization(),
 				it -> it,
 				// Sort the memberships from the highest date to the lowest date
-				BinaryOperator.minBy(MembershipComparator.DEFAULT),
-				() -> new TreeMap<>(ResearchOrganizationComparator.DEFAULT)));
+				BinaryOperator.minBy(EntityUtils.getPreferredMembershipComparator()),
+				() -> new TreeMap<>(EntityUtils.getPreferredResearchOrganizationComparator())));
 	}
 
 	/** Replies the active membership per research organization.

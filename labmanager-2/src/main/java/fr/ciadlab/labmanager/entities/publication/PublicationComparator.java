@@ -18,46 +18,48 @@ package fr.ciadlab.labmanager.entities.publication;
 
 import java.util.Comparator;
 
-import fr.ciadlab.labmanager.entities.member.PersonListComparator;
-
-/** Comparator of publications. The order of the publication is based on the
- * type of publication, the year, the authors, the identifier.
+/** Comparator of publications. The order of the publication depends on the implementation
+ * of this interface.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public class PublicationComparator implements Comparator<Publication> {
+public interface PublicationComparator extends Comparator<Publication> {
 
-	/** Default comparator of publication.
+	/** Compute and replies the similarity between the publications.
+	 * 
+	 * @param publication1 the first publication.
+	 * @param publication2 the second publication.
+	 * @return the level of similarity. {@code 0} means that the publications are not
+	 *     similar, and {@code 1} means that they are totally equal.
 	 */
-	public static final Comparator<Publication> DEFAULT = new PublicationComparator();
+	double getSimilarity(Publication publication1, Publication publication2);
 
-	@Override
-	public int compare(Publication o1, Publication o2) {
-		if (o1 == o2) {
-			return 0;
-		}
-		if (o1 == null) {
-			return Integer.MIN_VALUE;
-		}
-		if (o2 == null) {
-			return Integer.MAX_VALUE;
-		}
-		int cmp = o1.getType().compareTo(o2.getType());
-		if (cmp != 0) {
-			return cmp;
-		}
-		cmp = Integer.compare(o1.getPublicationYear(), o2.getPublicationYear());
-		if (cmp != 0) {
-			return cmp;
-		}
-		cmp = PersonListComparator.DEFAULT.compare(o1.getAuthors(), o2.getAuthors());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+	/** Replies the similarity level to consider for assuming that two publications are similar.
+	 *
+	 * @return the minimum level of similarity. {@code 0} means that the publication are not
+	 *     similar, and {@code 1} means that they are totally equal.
+	 */
+	double getSimilarityLevel();
+
+	/** Replies the similarity level to consider for assuming that two publications are similar.
+	 *
+	 * @param similarityLevel the minimum level of similarity. {@code 0} means that the publications are not
+	 *     similar, and {@code 1} means that they are totally equal.
+	 */
+	void setSimilarityLevel(double similarityLevel);
+
+	/** Check publication similarity between the publications.
+	 * 
+	 * @param publication1 the first publication.
+	 * @param publication2 the second publication.
+	 * @return {@code true} if the two given publications are similar.
+	 */
+	default boolean isSimilar(Publication publication1, Publication publication2) {
+		final double similarity = getSimilarity(publication1, publication2);
+		return similarity > getSimilarityLevel();
 	}
 
 }

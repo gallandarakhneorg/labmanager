@@ -20,6 +20,8 @@ import java.util.Comparator;
 import java.util.Objects;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 /** Comparator of persons.
  * 
@@ -28,12 +30,9 @@ import org.apache.commons.lang3.StringUtils;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@Component
+@Primary
 public class PersonComparator implements Comparator<Person> {
-
-	/** Default comparator of persons. The order of the persons is based on the
-	 * last name, first name, email, and the identifier.
-	 */
-	public static final Comparator<Person> DEFAULT = new PersonComparator();
 
 	@Override
 	public int compare(Person o1, Person o2) {

@@ -170,7 +170,7 @@ public class Membership implements Serializable, JsonExportable, AttributeProvid
 
 	@Override
 	public int compareTo(Membership o) {
-		return MembershipComparator.DEFAULT.compare(this, o);
+		return EntityUtils.getPreferredMembershipComparator().compare(this, o);
 	}
 
 	/** {@inheritDoc}

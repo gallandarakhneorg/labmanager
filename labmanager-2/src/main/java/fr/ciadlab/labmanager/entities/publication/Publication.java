@@ -336,7 +336,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 
 	@Override
 	public int compareTo(Publication o) {
-		return PublicationComparator.DEFAULT.compare(this, o);
+		return EntityUtils.getPreferredPublicationComparator().compare(this, o);
 	}
 
 	/** {@inheritDoc}

@@ -388,6 +388,8 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	 * @param orga the super organization or {@code null}.
 	 */
 	public void setSuperOrganization(ResearchOrganization orga) {
+		// TODO: An organization may have multiple super organizations.
+		// For examples, CIAD laboratory has UTBM, UB, UBFC as super-organizations.
 		this.superOrganization = orga;
 	}
 

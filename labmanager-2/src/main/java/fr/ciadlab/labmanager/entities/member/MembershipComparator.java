@@ -20,6 +20,9 @@ import java.sql.Date;
 import java.util.Comparator;
 
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 /** Comparator of memberships. Dates are sorted from the highest to the lowest.
  * 
@@ -28,12 +31,19 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
+@Component
+@Primary
 public class MembershipComparator implements Comparator<Membership> {
 
-	/** Default comparator of memberships.
-	 * Dates are sorted from the highest to the lowest.
+	private PersonComparator personComparator;
+
+	/** Constructor.
+	 *
+	 * @param personComparator the comparator of persons names.
 	 */
-	public static final Comparator<Membership> DEFAULT = new MembershipComparator();
+	public MembershipComparator(@Autowired PersonComparator personComparator) {
+		this.personComparator = personComparator;
+	}
 
 	@Override
 	public int compare(Membership o1, Membership o2) {
@@ -62,7 +72,7 @@ public class MembershipComparator implements Comparator<Membership> {
 		if (n != 0) {
 			return n;
 		}
-		n = PersonComparator.DEFAULT.compare(o1.getPerson(), o2.getPerson());
+		n = this.personComparator.compare(o1.getPerson(), o2.getPerson());
 		if (n != 0) {
 			return n;
 		}
