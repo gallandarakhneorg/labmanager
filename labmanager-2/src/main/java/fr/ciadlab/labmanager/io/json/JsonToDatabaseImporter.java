@@ -16,8 +16,6 @@
 
 package fr.ciadlab.labmanager.io.json;
 
-import static org.jbibtex.BibTeXEntry.KEY_MONTH;
-
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -58,13 +56,13 @@ import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
+import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.jbibtex.BibTeXEntry;
-import org.jbibtex.DigitStringValue;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.util.Pair;
 import org.springframework.stereotype.Component;
 
 /** Importer of JSON data into the database.
@@ -81,6 +79,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 	private ResearchOrganizationRepository organizationRepository;
 
 	private PersonRepository personRepository;
+
+	private PersonService personService;
 
 	private MembershipRepository membershipRepository;
 
@@ -104,6 +104,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * 
 	 * @param organizationRepository the accessor to the organization repository.
 	 * @param personRepository the accessor to the person repository.
+	 * @param personService the accessor to the high-level person services.
 	 * @param membershipRepository the accessor to the membership repository.
 	 * @param journalRepository the accessor to the journal repository.
 	 * @param journalIndicatorsRepository the accessor to the repository of the journal quality annual indicators.
@@ -115,6 +116,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	public JsonToDatabaseImporter(
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
+			@Autowired PersonService personService,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired JournalRepository journalRepository,
 			@Autowired JournalQualityAnnualIndicatorsRepository journalIndicatorsRepository,
@@ -124,6 +126,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired PersonNameParser personNameParser) {
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
+		this.personService = personService;
 		this.membershipRepository = membershipRepository;
 		this.journalRepository = journalRepository;
 		this.journalIndicatorsRepository = journalIndicatorsRepository;
@@ -295,7 +298,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 					method.invoke(obj, entry.getValue());
 				} else if (failIfNoSetter != null && failIfNoSetter.test(entry)) {
 					throw new IllegalArgumentException("Setter function not found for the attribute: " + entry.getKey() //$NON-NLS-1$
-						+ "; with a value of type: " + entry.getValue().getClass()); //$NON-NLS-1$
+					+ "; with a value of type: " + entry.getValue().getClass()); //$NON-NLS-1$
 				}
 			}
 		}
@@ -322,8 +325,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final int nb2 = insertMemberships(get(content, MEMBERSHIPS_SECTION, List.class), objectRepository, aliasRepository);
 			final int nb3 = insertJournals(get(content, JOURNALS_SECTION, List.class), objectRepository, aliasRepository);
 			final Pair<Integer, Integer> added = insertPublications(get(content, PUBLICATIONS_SECTION, List.class), objectRepository, aliasRepository);
-			final int nb4 = added != null ? added.getFirst().intValue() : 0;
-			final int nb5 = added != null ? added.getSecond().intValue() : 0;
+			final int nb4 = added != null ? added.getLeft().intValue() : 0;
+			final int nb5 = added != null ? added.getRight().intValue() : 0;
 			getLogger().info("Summary of inserts: " //$NON-NLS-1$
 					+ nb0 + " organizations; " //$NON-NLS-1$
 					+ (nb1 + nb5) + " persons; " //$NON-NLS-1$
@@ -359,7 +362,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						final Optional<ResearchOrganization> existing = this.organizationRepository.findDistinctByAcronymOrName(orga.getAcronym(), orga.getName());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
-								orga = this.organizationRepository.saveAndFlush(orga);
+								orga = this.organizationRepository.save(orga);
 							}
 							++nbNew;
 							getLogger().info("  + " + orga.getAcronymOrName() + " (id: " + orga.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -383,14 +386,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 				++i;
 			}
 			for (final Pair<ResearchOrganization, String> entry : superOrgas) {
-				final ResearchOrganization sup = get(objectRepository, entry.getSecond(), ResearchOrganization.class);
+				final ResearchOrganization sup = get(objectRepository, entry.getRight(), ResearchOrganization.class);
 				if (sup == null) {
-					throw new IllegalArgumentException("Invalid reference to Json element with id: " + entry.getSecond()); //$NON-NLS-1$
+					throw new IllegalArgumentException("Invalid reference to Json element with id: " + entry.getRight()); //$NON-NLS-1$
 				}
-				entry.getFirst().setSuperOrganization(sup);
-				sup.getSubOrganizations().add(entry.getFirst());
+				entry.getLeft().setSuperOrganization(sup);
+				sup.getSubOrganizations().add(entry.getLeft());
 				if (!isFake()) {
-					this.organizationRepository.save(entry.getFirst());
+					this.organizationRepository.save(entry.getLeft());
 					this.organizationRepository.save(sup);
 				}
 			}
@@ -422,7 +425,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						final Optional<Person> existing = this.personRepository.findDistinctByFirstNameAndLastName(person.getFirstName(), person.getLastName());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
-								person = this.personRepository.saveAndFlush(person);
+								person = this.personRepository.save(person);
 							}
 							++nbNew;
 							getLogger().info("  + " + person.getFullName() + " (id: " + person.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -502,7 +505,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 							targetPerson.getResearchOrganizations().add(membership);
 							targetOrganization.getMembers().add(membership);
 							if (!isFake()) {
-								membership = this.membershipRepository.saveAndFlush(membership);
+								membership = this.membershipRepository.save(membership);
 							}
 							++nbNew;
 							getLogger().info("  + " + targetOrganization.getAcronymOrName() //$NON-NLS-1$
@@ -553,7 +556,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						final Optional<Journal> existing = this.journalRepository.findByJournalName(journal.getJournalName());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
-								journal = this.journalRepository.saveAndFlush(journal);
+								journal = this.journalRepository.save(journal);
 							}
 							// Create the quality indicators
 							final Map<String, Object> history = get(journalObject, QUALITYINDICATORSHISTORY_KEY, Map.class);
@@ -587,13 +590,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 										}
 									}
 									if (indicators != null && !isFake()) {
-										this.journalIndicatorsRepository.saveAndFlush(indicators);
+										this.journalIndicatorsRepository.save(indicators);
 									}
 								}
 							}
 							// Save again the journal for saving the links to the quality indicators
 							if (!isFake()) {
-								journal = this.journalRepository.saveAndFlush(journal);
+								journal = this.journalRepository.save(journal);
 							}
 							++nbNew;
 							//
@@ -660,87 +663,23 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 *     second number is the is the number of added persons.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	@SuppressWarnings("unchecked")
 	protected Pair<Integer, Integer> insertPublications(List<?> publications, Map<String, Object> objectRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNewPublications = 0;
-		int nbNewPersons = 0;
+		final MutableInt nbNewPersons = new MutableInt();
 		if (publications != null && !publications.isEmpty()) {
 			getLogger().info("Retreiving the existing publications..."); //$NON-NLS-1$
 			final List<Publication> allPublications = this.publicationRepository.findAll();
 			getLogger().info("Inserting " + publications.size() + " publications..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			// FIXME: For debug: keep the first publication only.
-//			final List<?> debugPublications = publications.isEmpty() ? new ArrayList<>() : Arrays.asList(
-//					publications.get(0), publications.get(1), publications.get(2));
-			final List<?> debugPublications = publications;
-			for (Object publicationObject : debugPublications) {
+			for (Object publicationObject : publications) {
 				getLogger().info("> Publication " + (i + 1) + "/" + publications.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					final String id = getId(publicationObject);
-
-					// Retrieve the elements that characterize the type of the publication
-					final PublicationType type = getEnum(publicationObject, TYPE_KEY, PublicationType.class);
-					if (type == null) {
-						throw new IllegalArgumentException("Missing publication type"); //$NON-NLS-1$
-					}
-					final Class<? extends Publication> publicationClass = type.getInstanceType();
-					assert publicationClass != null;
-
-					// Create the publication
-					Publication publication = createObject(publicationClass, get(publicationObject, Map.class),
-							aliasRepository, it -> {
-								final String k = it.getKey();
-								// Keys "authors" and "journal" are not directly set. They have a specific
-								// code for associating authors and journals to the publication
-								return !AUTHORS_KEY.equalsIgnoreCase(k) && !JOURNAL_KEY.equalsIgnoreCase(k)
-										&& !MONTH_KEY.equalsIgnoreCase(k);
-							});
-					if (publication == null) {
-						throw new IllegalArgumentException("Unable to create the instance of the publication of type: " + publicationClass); //$NON-NLS-1$
-					}
-
-					// Attach month if it is provided
-					final int month = parseMonthField(get(publicationObject, MONTH_KEY, String.class));
-					if (month > 0 && month <= 12) {
-						final int year = publication.getPublicationYear();
-						if (year != 0) {
-							final LocalDate localDate = LocalDate.of(year, month, 1);
-							final Date dt = Date.valueOf(localDate);
-							publication.setPublicationDate(dt);
-						}
-					}
-
-					// Attach journal if needed for the type of publication
-					final Journal targetJournal;
-					if (publication instanceof JournalBasedPublication) {
-						final String journalId = getRef(get(publicationObject, JOURNAL_KEY, Object.class));
-						if (Strings.isNullOrEmpty(journalId)) {
-							throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
-						}
-						targetJournal = get(objectRepository, journalId, Journal.class);
-						if (targetJournal == null) {
-							throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
-						}
-						final JournalBasedPublication journalPaper = (JournalBasedPublication) publication;
-						journalPaper.setJournal(targetJournal);
-					} else {
-						targetJournal = null;
-					}
-
-					// Check the minimum set of fields
-					if (Strings.isNullOrEmpty(publication.getTitle())) {
-						throw new IllegalArgumentException("A publication must have a title"); //$NON-NLS-1$
-					}
-					if (publication.getPublicationYear() <= 1980) {
-						throw new IllegalArgumentException("A publication must have a year of publishing greather to 1980 (value: " //$NON-NLS-1$
-								+ publication.getPublicationYear() + ")"); //$NON-NLS-1$
-					}
-					if (publication.getType() == null) {
-						throw new IllegalArgumentException("A publication must have a type"); //$NON-NLS-1$
-					}
-
+					final Pair<Publication, Journal> pair = createPublicationInstance(id,
+							publicationObject, objectRepository, aliasRepository);
 					// Test if the publication is already inside the database
+					Publication publication = pair.getLeft();
 					final Publication readOnlyPublication = publication;
 					final Optional<Publication> existing = allPublications.stream().filter(
 							it -> this.publicationComparator.isSimilar(it, readOnlyPublication)).findAny();
@@ -748,46 +687,22 @@ public class JsonToDatabaseImporter extends JsonTool {
 						// Save the publication
 						if (!isFake()) {
 							publication = this.publicationRepository.save(publication);
-							if (targetJournal != null) {
-								this.journalRepository.save(targetJournal);
+							if (pair.getRight() != null) {
+								this.journalRepository.save(pair.getRight());
 							}
 						}
 						++nbNewPublications;
 						if (!Strings.isNullOrEmpty(id)) {
 							objectRepository.put(id, publication);
 						}
+						//
+						getLogger().info("  + " + publication.getTitle() + " (id: " + publication.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 						// Attach authors
-						/*final Iterable<?> authors = get(publicationObject, AUTHORS_KEY, Iterable.class);
+						final Iterable<?> authors = get(publicationObject, AUTHORS_KEY, Iterable.class);
 						int authorRank = 0;
 						for (final Object authorObject : authors) {
-							final String authorId = getRef(authorObject);
-							Person targetAuthor = null;
-							if (Strings.isNullOrEmpty(authorId)) {
-								// The author is not a reference to a defined person
-								if (authorObject != null) {
-									final String authorName = authorObject.toString();
-									final String firstName = this.personNameParser.parseFirstName(authorName);
-									final String lastName = this.personNameParser.parseLastName(authorName);
-									final Optional<Person> optAuthor = this.personRepository.findDistinctByFirstNameAndLastName(firstName, lastName);
-									if (optAuthor.isEmpty()) {
-										// This is a new person in the database
-										Person newAuthor = new Person();
-										newAuthor.setFirstName(firstName);
-										newAuthor.setLastName(firstName);
-										if (!isFake()) {
-											newAuthor = this.personRepository.save(newAuthor);
-										}
-										++nbNewPersons;
-										targetAuthor = newAuthor;
-									} else {
-										targetAuthor = optAuthor.get();
-									}
-								}
-							} else {
-								// The author is a referenced to a defined person
-								targetAuthor = get(objectRepository, authorId, Person.class);
-							}
+							final Person targetAuthor = findOrCreateAuthor(authorObject, objectRepository, nbNewPersons);
 							if (targetAuthor == null) {
 								throw new IllegalArgumentException("Invalid author reference for publication with id: " + id); //$NON-NLS-1$
 							}
@@ -800,9 +715,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 								authorship = this.authorshipRepository.save(authorship);
 							}
 							++authorRank;
-						}*/
-						//
-						getLogger().info("  + " + publication.getTitle() + " (id: " + publication.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						}
 					} else {
 						// Publication is already in the database
 						getLogger().info("  X " + existing.get().getTitle() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -816,7 +729,104 @@ public class JsonToDatabaseImporter extends JsonTool {
 				++i;
 			}
 		}
-		return Pair.of(Integer.valueOf(nbNewPublications), Integer.valueOf(nbNewPersons));
+		return Pair.of(Integer.valueOf(nbNewPublications), nbNewPersons.toInteger());
+	}
+
+	@SuppressWarnings("unchecked")
+	private Pair<Publication, Journal> createPublicationInstance(String id, Object publicationObject, Map<String, Object> objectRepository,
+			Map<String, Set<String>> aliasRepository) throws Exception {
+		// Retrieve the elements that characterize the type of the publication
+		final PublicationType type = getEnum(publicationObject, TYPE_KEY, PublicationType.class);
+		if (type == null) {
+			throw new IllegalArgumentException("Missing publication type"); //$NON-NLS-1$
+		}
+		final Class<? extends Publication> publicationClass = type.getInstanceType();
+		assert publicationClass != null;
+
+		// Create the publication
+		Publication publication = createObject(publicationClass, get(publicationObject, Map.class),
+				aliasRepository, it -> {
+					final String k = it.getKey();
+					// Keys "authors" and "journal" are not directly set. They have a specific
+					// code for associating authors and journals to the publication
+					return !AUTHORS_KEY.equalsIgnoreCase(k) && !JOURNAL_KEY.equalsIgnoreCase(k)
+							&& !MONTH_KEY.equalsIgnoreCase(k);
+				});
+		if (publication == null) {
+			throw new IllegalArgumentException("Unable to create the instance of the publication of type: " + publicationClass); //$NON-NLS-1$
+		}
+
+		// Attach month if it is provided
+		final int month = parseMonthField(get(publicationObject, MONTH_KEY, String.class));
+		if (month > 0 && month <= 12) {
+			final int year = publication.getPublicationYear();
+			if (year != 0) {
+				final LocalDate localDate = LocalDate.of(year, month, 1);
+				final Date dt = Date.valueOf(localDate);
+				publication.setPublicationDate(dt);
+			}
+		}
+
+		// Attach journal if needed for the type of publication
+		final Journal targetJournal;
+		if (publication instanceof JournalBasedPublication) {
+			final String journalId = getRef(get(publicationObject, JOURNAL_KEY, Object.class));
+			if (Strings.isNullOrEmpty(journalId)) {
+				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
+			}
+			targetJournal = get(objectRepository, journalId, Journal.class);
+			if (targetJournal == null) {
+				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
+			}
+			final JournalBasedPublication journalPaper = (JournalBasedPublication) publication;
+			journalPaper.setJournal(targetJournal);
+		} else {
+			targetJournal = null;
+		}
+
+		// Check the minimum set of fields
+		if (Strings.isNullOrEmpty(publication.getTitle())) {
+			throw new IllegalArgumentException("A publication must have a title"); //$NON-NLS-1$
+		}
+		if (publication.getPublicationYear() <= 1980) {
+			throw new IllegalArgumentException("A publication must have a year of publishing greather to 1980 (value: " //$NON-NLS-1$
+					+ publication.getPublicationYear() + ")"); //$NON-NLS-1$
+		}
+		if (publication.getType() == null) {
+			throw new IllegalArgumentException("A publication must have a type"); //$NON-NLS-1$
+		}
+
+		return Pair.of(publication, targetJournal);
+	}
+
+	private Person findOrCreateAuthor(Object authorObject, Map<String, Object> objectRepository, MutableInt nbNewPersons) {
+		assert authorObject != null;
+		final String authorId = getRef(authorObject);
+		Person targetAuthor = null;
+		if (Strings.isNullOrEmpty(authorId)) {
+			// The author is not a reference to a defined person
+			final String authorName = authorObject.toString();
+			final String firstName = this.personNameParser.parseFirstName(authorName);
+			final String lastName = this.personNameParser.parseLastName(authorName);
+			final Person optPerson = this.personService.getPersonBySimilarName(firstName, lastName);
+			if (optPerson == null) {
+				// This is a new person in the database
+				Person newAuthor = new Person();
+				newAuthor.setFirstName(this.personNameParser.formatNameForDisplay(firstName));
+				newAuthor.setLastName(this.personNameParser.formatNameForDisplay(lastName));
+				if (!isFake()) {
+					newAuthor = this.personRepository.save(newAuthor);
+				}
+				nbNewPersons.increment();
+				targetAuthor = newAuthor;
+			} else {
+				targetAuthor = optPerson;
+			}
+		} else {
+			// The author is a referenced to a defined person
+			targetAuthor = get(objectRepository, authorId, Person.class);
+		}
+		return targetAuthor;
 	}
 
 }
