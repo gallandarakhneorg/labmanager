@@ -81,6 +81,10 @@ public abstract class JsonTool {
 	 */
 	protected static final String JOURNALS_SECTION = "journals"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to publications.
+	 */
+	protected static final String PUBLICATIONS_SECTION = "publications"; //$NON-NLS-1$
+
 	/** Name of the field for the super organization reference.
 	 */
 	protected static final String SUPERORGANIZATION_KEY = "superOrganization"; //$NON-NLS-1$
@@ -108,6 +112,58 @@ public abstract class JsonTool {
 	/** Name of the field for the journal impact factor.
 	 */
 	protected static final String IMPACTFACTOR_KEY = "impactFactor"; //$NON-NLS-1$
+
+	/** Name of the field for the types.
+	 */
+	protected static final String TYPE_KEY = "type"; //$NON-NLS-1$
+
+	/** Name of the field for the authors of a publication.
+	 */
+	protected static final String AUTHORS_KEY = "authors"; //$NON-NLS-1$
+
+	/** Name of the field for the journal of a journal paper.
+	 */
+	protected static final String JOURNAL_KEY = "journal"; //$NON-NLS-1$
+
+	/** Name of the field for the year.
+	 *
+	 * @see #PUBLICATIONYEAR_KEY
+	 */
+	protected static final String YEAR_KEY = "year"; //$NON-NLS-1$
+
+	/** Name of the field for the year.
+	 *
+	 * @see #YEAR_KEY
+	 */
+	protected static final String PUBLICATIONYEAR_KEY = "publicationYear"; //$NON-NLS-1$
+
+	/** Name of the field for the major language of a publication.
+	 *
+	 * @see #MAJORLANGUAGE_KEY
+	 */
+	protected static final String LANGUAGE_KEY = "language"; //$NON-NLS-1$
+
+	/** Name of the field for the major language of a publication.
+	 *
+	 * @see #LANGUAGE_KEY
+	 */
+	protected static final String MAJORLANGUAGE_KEY = "majorLanguage"; //$NON-NLS-1$
+
+	/** Name of the field for the month of a publication.
+	 */
+	protected static final String MONTH_KEY = "month"; //$NON-NLS-1$
+
+	/** Name of the field for the URL of the publication.
+	 *
+	 * @see #EXTRAURL_KEY
+	 */
+	protected static final String URL_KEY = "url"; //$NON-NLS-1$
+
+	/** Name of the field for the URL of the publication.
+	 *
+	 * @see #URL_KEY
+	 */
+	protected static final String EXTRAURL_KEY = "extraURL"; //$NON-NLS-1$
 
 	/** Logger of the service. It is lazy loaded.
 	 */
