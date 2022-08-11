@@ -38,7 +38,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.transaction.Transactional;
@@ -191,8 +190,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 
 	/** List of publications of the person.
 	 */
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name="person", referencedColumnName = "id")
+	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	@JsonIgnore
 	private Set<Authorship> publications;
 

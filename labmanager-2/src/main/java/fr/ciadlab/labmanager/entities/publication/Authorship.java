@@ -57,12 +57,12 @@ public class Authorship implements Serializable, JsonExportable, AttributeProvid
 
 	/** Reference to the publication.
 	 */
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	private Publication publication;
 
 	/** Reference to the person.
 	 */
-	@ManyToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@ManyToOne(fetch = FetchType.EAGER)
 	private Person person;
 
 	/** Author rank determines the order of the author in the list of authors for the concerned publication.

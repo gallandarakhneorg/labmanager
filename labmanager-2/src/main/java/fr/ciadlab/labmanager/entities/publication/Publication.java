@@ -39,7 +39,6 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
-import javax.persistence.JoinColumn;
 import javax.persistence.Lob;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -170,8 +169,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 
 	/** Authorships specify the authors of the publication and their position in the list of authors.
 	 */
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "publication", referencedColumnName = "id")
+	@OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
 	private Set<Authorship> authorships = new HashSet<>();
 
 	@Transient
