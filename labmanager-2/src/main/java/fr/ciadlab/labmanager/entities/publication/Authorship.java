@@ -19,7 +19,6 @@ package fr.ciadlab.labmanager.entities.publication;
 import java.io.Serializable;
 import java.util.function.BiConsumer;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -113,10 +112,10 @@ public class Authorship implements Serializable, JsonExportable, AttributeProvid
 	@Override
 	public int hashCode() {
 		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
-		h = HashCodeUtils.add(h, this.publication);
-		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.authorRank);
+		h = HashCodeUtils.add(h, this.id);
+		h = HashCodeUtils.add(h, this.person);
+		h = HashCodeUtils.add(h, this.publication);
 		return h;
 	}
 
@@ -132,13 +131,13 @@ public class Authorship implements Serializable, JsonExportable, AttributeProvid
 	 */
 	@Override
 	public void forEachAttribute(BiConsumer<String, Object> consumer) {
-		if (getPublication() != null) {
-			consumer.accept("publication", getPublication()); //$NON-NLS-1$
-		}
+		consumer.accept("authorRank", Integer.valueOf(getAuthorRank())); //$NON-NLS-1$
 		if (getPerson() != null) {
 			consumer.accept("person", getPerson()); //$NON-NLS-1$
 		}
-		consumer.accept("authorRank", Integer.valueOf(getAuthorRank())); //$NON-NLS-1$
+		if (getPublication() != null) {
+			consumer.accept("publication", getPublication()); //$NON-NLS-1$
+		}
 	}
 
 	@Override

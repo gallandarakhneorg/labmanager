@@ -218,6 +218,7 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 		h = HashCodeUtils.add(h, this.wosId);
 		h = HashCodeUtils.add(h, this.isbn);
 		h = HashCodeUtils.add(h, this.issn);
+		h = HashCodeUtils.add(h, this.openAccess);
 		return h;
 	}
 
@@ -257,6 +258,9 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 		if (!Objects.equals(this.issn, other.issn)) {
 			return false;
 		}
+		if (!Objects.equals(this.openAccess, other.openAccess)) {
+			return false;
+		}
 		return true;
 	}
 
@@ -290,6 +294,9 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 		}
 		if (!Strings.isNullOrEmpty(getISSN())) {
 			consumer.accept("issn", getISSN()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getISSN())) {
+			consumer.accept("openAccess", getOpenAccess()); //$NON-NLS-1$
 		}
 	}
 

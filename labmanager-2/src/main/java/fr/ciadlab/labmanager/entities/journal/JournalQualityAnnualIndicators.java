@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.entities.journal;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,6 +28,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.hibernate.annotations.ColumnDefault;
@@ -103,6 +105,44 @@ public class JournalQualityAnnualIndicators implements Serializable {
 	@Override
 	public String toString() {
 		return ":" + this.id; //$NON-NLS-1$
+	}
+
+	@Override
+	public int hashCode() {
+		int h = HashCodeUtils.start();
+		h = HashCodeUtils.add(h, this.id);
+		h = HashCodeUtils.add(h, this.impactFactor);
+		h = HashCodeUtils.add(h, this.referenceYear);
+		h = HashCodeUtils.add(h, this.scimagoQIndex);
+		h = HashCodeUtils.add(h, this.wosQIndex);
+		return h;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+		final JournalQualityAnnualIndicators other = (JournalQualityAnnualIndicators) obj;
+		if (this.id != other.id) {
+			return false;
+		}
+		if (this.impactFactor != other.impactFactor) {
+			return false;
+		}
+		if (this.referenceYear != other.referenceYear) {
+			return false;
+		}
+		if (!Objects.equals(this.scimagoQIndex, other.scimagoQIndex)) {
+			return false;
+		}
+		if (!Objects.equals(this.wosQIndex, other.wosQIndex)) {
+			return false;
+		}
+		return true;
 	}
 
 	/** Replies the year for this history entry.

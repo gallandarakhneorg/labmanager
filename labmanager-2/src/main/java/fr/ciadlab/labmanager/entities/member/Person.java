@@ -235,25 +235,25 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	@Override
 	public int hashCode() {
 		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
-		h = HashCodeUtils.add(h, this.firstName);
-		h = HashCodeUtils.add(h, this.lastName);
-		h = HashCodeUtils.add(h, this.gender);
-		h = HashCodeUtils.add(h, this.officePhone);
-		h = HashCodeUtils.add(h, this.mobilePhone);
-		h = HashCodeUtils.add(h, this.email);
-		h = HashCodeUtils.add(h, this.orcid);
 		h = HashCodeUtils.add(h, this.academiaURL);
 		h = HashCodeUtils.add(h, this.cordisURL);
 		h = HashCodeUtils.add(h, this.dblpURL);
+		h = HashCodeUtils.add(h, this.email);
 		h = HashCodeUtils.add(h, this.facebookId);
+		h = HashCodeUtils.add(h, this.firstName);
+		h = HashCodeUtils.add(h, this.gender);
 		h = HashCodeUtils.add(h, this.githubId);
+		h = HashCodeUtils.add(h, this.googleScholarHindex);
+		h = HashCodeUtils.add(h, this.gravatarId);
+		h = HashCodeUtils.add(h, this.id);
+		h = HashCodeUtils.add(h, this.lastName);
 		h = HashCodeUtils.add(h, this.linkedInId);
+		h = HashCodeUtils.add(h, this.mobilePhone);
+		h = HashCodeUtils.add(h, this.officePhone);
+		h = HashCodeUtils.add(h, this.orcid);
 		h = HashCodeUtils.add(h, this.researcherId);
 		h = HashCodeUtils.add(h, this.researchGateId);
-		h = HashCodeUtils.add(h, this.googleScholarHindex);
 		h = HashCodeUtils.add(h, this.wosHindex);
-		h = HashCodeUtils.add(h, this.gravatarId);
 		return h;
 	}
 
@@ -269,27 +269,6 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		if (this.id != other.id) {
 			return false;
 		}
-		if (!Objects.equals(this.firstName, other.firstName)) {
-			return false;
-		}
-		if (!Objects.equals(this.lastName, other.lastName)) {
-			return false;
-		}
-		if (!Objects.equals(this.gender, other.gender)) {
-			return false;
-		}
-		if (!Objects.equals(this.officePhone, other.officePhone)) {
-			return false;
-		}
-		if (!Objects.equals(this.mobilePhone, other.mobilePhone)) {
-			return false;
-		}
-		if (!Objects.equals(this.email, other.email)) {
-			return false;
-		}
-		if (!Objects.equals(this.orcid, other.orcid)) {
-			return false;
-		}
 		if (!Objects.equals(this.academiaURL, other.academiaURL)) {
 			return false;
 		}
@@ -299,13 +278,40 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		if (!Objects.equals(this.dblpURL, other.dblpURL)) {
 			return false;
 		}
+		if (!Objects.equals(this.email, other.email)) {
+			return false;
+		}
 		if (!Objects.equals(this.facebookId, other.facebookId)) {
+			return false;
+		}
+		if (!Objects.equals(this.firstName, other.firstName)) {
+			return false;
+		}
+		if (!Objects.equals(this.gender, other.gender)) {
 			return false;
 		}
 		if (!Objects.equals(this.githubId, other.githubId)) {
 			return false;
 		}
+		if (this.googleScholarHindex != other.googleScholarHindex) {
+			return false;
+		}
+		if (!Objects.equals(this.gravatarId, other.gravatarId)) {
+			return false;
+		}
+		if (!Objects.equals(this.lastName, other.lastName)) {
+			return false;
+		}
 		if (!Objects.equals(this.linkedInId, other.linkedInId)) {
+			return false;
+		}
+		if (!Objects.equals(this.mobilePhone, other.mobilePhone)) {
+			return false;
+		}
+		if (!Objects.equals(this.officePhone, other.officePhone)) {
+			return false;
+		}
+		if (!Objects.equals(this.orcid, other.orcid)) {
 			return false;
 		}
 		if (!Objects.equals(this.researcherId, other.researcherId)) {
@@ -314,19 +320,7 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		if (!Objects.equals(this.researchGateId, other.researchGateId)) {
 			return false;
 		}
-		if (!Objects.equals(this.researchOrganizations, other.researchOrganizations)) {
-			return false;
-		}
-		if (this.googleScholarHindex != other.googleScholarHindex) {
-			return false;
-		}
 		if (this.wosHindex != other.wosHindex) {
-			return false;
-		}
-		if (!Objects.equals(this.gravatarId, other.gravatarId)) {
-			return false;
-		}
-		if (!Objects.equals(this.publications, other.publications)) {
 			return false;
 		}
 		return true;
@@ -344,27 +338,6 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	 */
 	@Override
 	public void forEachAttribute(BiConsumer<String, Object> consumer) {
-		if (!Strings.isNullOrEmpty(getFirstName())) {
-			consumer.accept("firstName", getFirstName()); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getLastName())) {
-			consumer.accept("lastName", getLastName()); //$NON-NLS-1$
-		}
-		if (getGender() != null) {
-			consumer.accept("gender", getGender()); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getOfficePhone())) {
-			consumer.accept("officePhone", getOfficePhone()); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getMobilePhone())) {
-			consumer.accept("mobilePhone", getMobilePhone()); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getEmail())) {
-			consumer.accept("email", getEmail()); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getORCID())) {
-			consumer.accept("orcid", getORCID()); //$NON-NLS-1$
-		}
 		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
 			consumer.accept("academiaURL", getAcademiaURL()); //$NON-NLS-1$
 		}
@@ -374,14 +347,41 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		if (!Strings.isNullOrEmpty(getDblpURL())) {
 			consumer.accept("dblpURL", getDblpURL()); //$NON-NLS-1$
 		}
+		if (!Strings.isNullOrEmpty(getEmail())) {
+			consumer.accept("email", getEmail()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getFacebookId())) {
 			consumer.accept("facebookId", getFacebookId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getFirstName())) {
+			consumer.accept("firstName", getFirstName()); //$NON-NLS-1$
+		}
+		if (getGender() != null) {
+			consumer.accept("gender", getGender()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			consumer.accept("githubId", getGithubId()); //$NON-NLS-1$
 		}
+		if (getGoogleScholarHindex() > 0) {
+			consumer.accept("googleScholarHindex", Integer.valueOf(getGoogleScholarHindex())); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getGravatarId())) {
+			consumer.accept("gravatarId", getGravatarId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getLastName())) {
+			consumer.accept("lastName", getLastName()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getLinkedInId())) {
 			consumer.accept("linkedInId", getLinkedInId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getMobilePhone())) {
+			consumer.accept("mobilePhone", getMobilePhone()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getOfficePhone())) {
+			consumer.accept("officePhone", getOfficePhone()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getORCID())) {
+			consumer.accept("orcid", getORCID()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getResearcherId())) {
 			consumer.accept("researcherId", getResearcherId()); //$NON-NLS-1$
@@ -389,14 +389,8 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 		if (!Strings.isNullOrEmpty(getResearchGateId())) {
 			consumer.accept("researchGateId", getResearchGateId()); //$NON-NLS-1$
 		}
-		if (getGoogleScholarHindex() > 0) {
-			consumer.accept("googleScholarHindex", Integer.valueOf(getGoogleScholarHindex())); //$NON-NLS-1$
-		}
 		if (getWosHindex() > 0) {
 			consumer.accept("wosHindex", Integer.valueOf(getWosHindex())); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getGravatarId())) {
-			consumer.accept("gravatarId", getGravatarId()); //$NON-NLS-1$
 		}
 	}
 

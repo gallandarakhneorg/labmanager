@@ -129,12 +129,13 @@ public class Membership implements Serializable, JsonExportable, AttributeProvid
 	@Override
 	public int hashCode() {
 		int h = HashCodeUtils.start();
+		h = HashCodeUtils.add(h, this.cnuSection);
+		h = HashCodeUtils.add(h, this.id);
+		h = HashCodeUtils.add(h, this.memberSinceWhen);
+		h = HashCodeUtils.add(h, this.memberStatus);
+		h = HashCodeUtils.add(h, this.memberToWhen);
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.researchOrganization);
-		h = HashCodeUtils.add(h, this.memberStatus);
-		h = HashCodeUtils.add(h, this.memberSinceWhen);
-		h = HashCodeUtils.add(h, this.memberToWhen);
-		h = HashCodeUtils.add(h, this.cnuSection);
 		return h;
 	}
 
@@ -147,22 +148,22 @@ public class Membership implements Serializable, JsonExportable, AttributeProvid
 			return false;
 		}
 		final Membership other = (Membership) obj;
-		if (!Objects.equals(this.person, other.person)) {
-			return false;
-		}
-		if (!Objects.equals(this.researchOrganization, other.researchOrganization)) {
-			return false;
-		}
-		if (!Objects.equals(this.memberStatus, other.memberStatus)) {
+		if (this.cnuSection != other.cnuSection) {
 			return false;
 		}
 		if (!Objects.equals(this.memberSinceWhen, other.memberSinceWhen)) {
 			return false;
 		}
+		if (!Objects.equals(this.memberStatus, other.memberStatus)) {
+			return false;
+		}
 		if (!Objects.equals(this.memberToWhen, other.memberSinceWhen)) {
 			return false;
 		}
-		if (this.cnuSection != other.cnuSection) {
+		if (!Objects.equals(this.person, other.person)) {
+			return false;
+		}
+		if (!Objects.equals(this.researchOrganization, other.researchOrganization)) {
 			return false;
 		}
 		return true;
@@ -180,23 +181,23 @@ public class Membership implements Serializable, JsonExportable, AttributeProvid
 	 */
 	@Override
 	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+		if (getCnuSection() > 0) {
+			consumer.accept("cnuSection", Integer.valueOf(getCnuSection())); //$NON-NLS-1$
+		}
+		if (getMemberSinceWhen() != null) {
+			consumer.accept("memberSinceWhen", getMemberSinceWhen()); //$NON-NLS-1$
+		}
+		if (getMemberStatus() != null) {
+			consumer.accept("memberStatus", getMemberStatus()); //$NON-NLS-1$
+		}
+		if (getMemberToWhen() != null) {
+			consumer.accept("memberToWhen", getMemberToWhen()); //$NON-NLS-1$
+		}
 		if (getPerson() != null) {
 			consumer.accept("person", getPerson()); //$NON-NLS-1$
 		}
 		if (getResearchOrganization() != null) {
 			consumer.accept("researchOrganization", getResearchOrganization()); //$NON-NLS-1$
-		}
-		if (getMemberStatus() != null) {
-			consumer.accept("memberStatus", getMemberStatus()); //$NON-NLS-1$
-		}
-		if (getMemberSinceWhen() != null) {
-			consumer.accept("memberSinceWhen", getMemberSinceWhen()); //$NON-NLS-1$
-		}
-		if (getMemberToWhen() != null) {
-			consumer.accept("memberToWhen", getMemberToWhen()); //$NON-NLS-1$
-		}
-		if (getCnuSection() > 0) {
-			consumer.accept("cnuSection", Integer.valueOf(getCnuSection())); //$NON-NLS-1$
 		}
 	}
 

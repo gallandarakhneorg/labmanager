@@ -256,23 +256,23 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	@Override
 	public int hashCode() {
 		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
-		h = HashCodeUtils.add(h, this.type);
-		h = HashCodeUtils.add(h, this.title);
 		h = HashCodeUtils.add(h, this.abstractText);
-		h = HashCodeUtils.add(h, this.keywords);
-		h = HashCodeUtils.add(h, this.publicationDate);
-		h = HashCodeUtils.add(h, this.publicationYear);
-		h = HashCodeUtils.add(h, this.doi);
-		h = HashCodeUtils.add(h, this.halId);
 		h = HashCodeUtils.add(h, this.dblpUrl);
+		h = HashCodeUtils.add(h, this.doi);
+		h = HashCodeUtils.add(h, this.extraUrl);
+		h = HashCodeUtils.add(h, this.halId);
+		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.isbn);
 		h = HashCodeUtils.add(h, this.issn);
-		h = HashCodeUtils.add(h, this.extraUrl);
-		h = HashCodeUtils.add(h, this.pathToDownloadablePDF);
-		h = HashCodeUtils.add(h, this.pathToDownloadableAwardCertificate);
+		h = HashCodeUtils.add(h, this.keywords);
 		h = HashCodeUtils.add(h, this.majorLanguage);
-		// result = prime * result + ((pubAuts == null) ? 0 : pubAuts.hashCode());
+		h = HashCodeUtils.add(h, this.pathToDownloadableAwardCertificate);
+		h = HashCodeUtils.add(h, this.pathToDownloadablePDF);
+		h = HashCodeUtils.add(h, this.publicationDate);
+		h = HashCodeUtils.add(h, this.publicationYear);
+		h = HashCodeUtils.add(h, this.title);
+		h = HashCodeUtils.add(h, this.type);
+		h = HashCodeUtils.add(h, this.videoUrl);
 		return h;
 	}
 
@@ -288,34 +288,19 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 			return false;
 		}
 		final Publication other = (Publication) obj;
-		if (this.id != other.id) {
-			return false;
-		}
-		if (!Objects.equals(this.type, other.type)) {
-			return false;
-		}
-		if (!Objects.equals(this.title, other.title)) {
-			return false;
-		}
 		if (!Objects.equals(this.abstractText, other.abstractText)) {
 			return false;
 		}
-		if (!Objects.equals(this.keywords, other.keywords)) {
-			return false;
-		}
-		if (!Objects.equals(this.publicationDate, other.publicationDate)) {
-			return false;
-		}
-		if (this.publicationYear != other.publicationYear) {
+		if (!Objects.equals(this.dblpUrl, other.dblpUrl)) {
 			return false;
 		}
 		if (!Objects.equals(this.doi, other.doi)) {
 			return false;
 		}
-		if (!Objects.equals(this.halId, other.halId)) {
+		if (!Objects.equals(this.extraUrl, other.extraUrl)) {
 			return false;
 		}
-		if (!Objects.equals(this.dblpUrl, other.dblpUrl)) {
+		if (!Objects.equals(this.halId, other.halId)) {
 			return false;
 		}
 		if (!Objects.equals(this.isbn, other.isbn)) {
@@ -324,16 +309,31 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		if (!Objects.equals(this.issn, other.issn)) {
 			return false;
 		}
-		if (!Objects.equals(this.extraUrl, other.extraUrl)) {
+		if (!Objects.equals(this.keywords, other.keywords)) {
 			return false;
 		}
-		if (!Objects.equals(this.pathToDownloadablePDF, other.pathToDownloadablePDF)) {
+		if (!Objects.equals(this.majorLanguage, other.majorLanguage)) {
 			return false;
 		}
 		if (!Objects.equals(this.pathToDownloadableAwardCertificate, other.pathToDownloadableAwardCertificate)) {
 			return false;
 		}
-		if (!Objects.equals(this.majorLanguage, other.majorLanguage)) {
+		if (!Objects.equals(this.pathToDownloadablePDF, other.pathToDownloadablePDF)) {
+			return false;
+		}
+		if (!Objects.equals(this.publicationDate, other.publicationDate)) {
+			return false;
+		}
+		if (this.publicationYear != other.publicationYear) {
+			return false;
+		}
+		if (!Objects.equals(this.title, other.title)) {
+			return false;
+		}
+		if (!Objects.equals(this.type, other.type)) {
+			return false;
+		}
+		if (!Objects.equals(this.videoUrl, other.videoUrl)) {
 			return false;
 		}
 		return true;
@@ -356,27 +356,20 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	@Override
 	public void forEachAttribute(BiConsumer<String, Object> consumer) {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
-		if (!Strings.isNullOrEmpty(getTitle())) {
-			consumer.accept("title", getTitle()); //$NON-NLS-1$
-		}
 		if (!Strings.isNullOrEmpty(getAbstractText())) {
 			consumer.accept("abstractText", getAbstractText()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getKeywords())) {
-			consumer.accept("keywords", getKeywords()); //$NON-NLS-1$
-		}
-		final Date dt = getPublicationDate();
-		if (dt != null) {
-			consumer.accept("publicationDate", dt.toString()); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(getDblpURL())) {
+			consumer.accept("dblpURL", getDblpURL()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getDOI())) {
 			consumer.accept("doi", getDOI()); //$NON-NLS-1$
 		}
+		if (!Strings.isNullOrEmpty(getExtraURL())) {
+			consumer.accept("extraURL", getExtraURL()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getHalId())) {
 			consumer.accept("halId", getHalId()); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getDblpURL())) {
-			consumer.accept("dblpURL", getDblpURL()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getISBN())) {
 			consumer.accept("isbn", getISBN()); //$NON-NLS-1$
@@ -384,20 +377,33 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		if (!Strings.isNullOrEmpty(getISSN())) {
 			consumer.accept("issn", getISSN()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getExtraURL())) {
-			consumer.accept("extraURL", getExtraURL()); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(getKeywords())) {
+			consumer.accept("keywords", getKeywords()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getVideoURL())) {
-			consumer.accept("videoURL", getVideoURL()); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getPathToDownloadablePDF())) {
-			consumer.accept("pathToDownloadablePDF", getPathToDownloadablePDF()); //$NON-NLS-1$
+		if (getMajorLanguage() != null) {
+			consumer.accept("majorLanguage", getMajorLanguage()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getPathToDownloadableAwardCertificate())) {
 			consumer.accept("pathToDownloadableAwardCertificate", getPathToDownloadableAwardCertificate()); //$NON-NLS-1$
 		}
-		if (getMajorLanguage() != null) {
-			consumer.accept("majorLanguage", getMajorLanguage()); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(getPathToDownloadablePDF())) {
+			consumer.accept("pathToDownloadablePDF", getPathToDownloadablePDF()); //$NON-NLS-1$
+		}
+		final Date dt = getPublicationDate();
+		if (dt != null) {
+			consumer.accept("publicationDate", dt.toString()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getVideoURL())) {
+			consumer.accept("videoURL", getVideoURL()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getTitle())) {
+			consumer.accept("title", getTitle()); //$NON-NLS-1$
+		}
+		if (getType() != null) {
+			consumer.accept("type", getType()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getVideoURL())) {
+			consumer.accept("videoURL", getVideoURL()); //$NON-NLS-1$
 		}
 	}
 

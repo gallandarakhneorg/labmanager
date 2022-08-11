@@ -218,13 +218,13 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	@Override
 	public int hashCode() {
 		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.acronym);
-		h = HashCodeUtils.add(h, this.name);
-		h = HashCodeUtils.add(h, this.description);
 		h = HashCodeUtils.add(h, this.country);
-		h = HashCodeUtils.add(h, this.type);
+		h = HashCodeUtils.add(h, this.description);
+		h = HashCodeUtils.add(h, this.id);
+		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.organizationUrl);
+		h = HashCodeUtils.add(h, this.type);
 		return h;
 	}
 
@@ -243,25 +243,19 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		if (!Objects.equals(this.acronym, other.acronym)) {
 			return false;
 		}
-		if (!Objects.equals(this.name, other.name)) {
-			return false;
-		}
-		if (!Objects.equals(this.type, other.type)) {
-			return false;
-		}
 		if (!Objects.equals(this.country, other.country)) {
-			return false;
-		}
-		if (!Objects.equals(this.organizationUrl, other.organizationUrl)) {
 			return false;
 		}
 		if (!Objects.equals(this.description, other.description)) {
 			return false;
 		}
-		if (!Objects.equals(this.superOrganization, other.superOrganization)) {
+		if (!Objects.equals(this.name, other.name)) {
 			return false;
 		}
-		if (!Objects.equals(this.subOrganizations, other.subOrganizations)) {
+		if (!Objects.equals(this.organizationUrl, other.organizationUrl)) {
+			return false;
+		}
+		if (!Objects.equals(this.type, other.type)) {
 			return false;
 		}
 		return true;
@@ -287,19 +281,21 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		if (!Strings.isNullOrEmpty(getAcronym())) {
 			consumer.accept("acronym", getAcronym()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getName())) {
-			consumer.accept("name", getName()); //$NON-NLS-1$
-		}
-		if (getType() != null) {
-			consumer.accept("type", getType()); //$NON-NLS-1$
+		if (getCountry() != null) {
+			consumer.accept("country", getCountry()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getDescription())) {
 			consumer.accept("description", getDescription()); //$NON-NLS-1$
 		}
+		if (!Strings.isNullOrEmpty(getName())) {
+			consumer.accept("name", getName()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getOrganizationURL())) {
 			consumer.accept("organizationURL", getOrganizationURL()); //$NON-NLS-1$
 		}
-		consumer.accept("country", getCountry()); //$NON-NLS-1$
+		if (getType() != null) {
+			consumer.accept("type", getType()); //$NON-NLS-1$
+		}
 	}
 
 	@Override
