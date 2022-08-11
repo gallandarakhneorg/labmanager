@@ -76,7 +76,7 @@ public class MvcConfig implements WebMvcConfigurer {
 		final ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
 		resolver.setPrefix("/templates/"); //$NON-NLS-1$
 		resolver.setSuffix(".html"); //$NON-NLS-1$
-		resolver.setTemplateMode("HTML5"); //$NON-NLS-1$
+		resolver.setTemplateMode("HTML"); //$NON-NLS-1$
 		resolver.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
 		resolver.setCacheable(true);
 		return resolver;
