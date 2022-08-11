@@ -191,6 +191,50 @@ public class ConferencePaper extends Publication {
 		if (!Strings.isNullOrEmpty(getSeries())) {
 			consumer.accept("series", getSeries()); //$NON-NLS-1$
 		}
+
+	@Override
+	public String getWherePublishedShortDescription() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getScientificEventName());
+		final boolean b0 = !Strings.isNullOrEmpty(getVolume());
+		final boolean b1 = !Strings.isNullOrEmpty(getNumber());
+		if (b0 || b1) {
+			buf.append(", "); //$NON-NLS-1$
+			if (b0) {
+				buf.append(getVolume());
+			}
+			if (b1) {
+				buf.append("("); //$NON-NLS-1$
+				buf.append(getNumber());
+				buf.append(")"); //$NON-NLS-1$
+			}
+		}
+		final boolean b2 = !Strings.isNullOrEmpty(getPages());
+		if (b2) {
+			buf.append(", pp. "); //$NON-NLS-1$
+			buf.append(getPages());
+		}
+		if (!Strings.isNullOrEmpty(getOrganization())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getOrganization());
+		}
+		if (!Strings.isNullOrEmpty(getAddress())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getAddress());
+		}
+		if (!Strings.isNullOrEmpty(getPublisher())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getPublisher());
+		}
+		if (!Strings.isNullOrEmpty(getISBN())) {
+			buf.append(", ISBN "); //$NON-NLS-1$
+			buf.append(getISBN());
+		}
+		if (!Strings.isNullOrEmpty(getISSN())) {
+			buf.append(", ISSN "); //$NON-NLS-1$
+			buf.append(getISSN());
+		}
+		return buf.toString();
 	}
 
 	/** Replies the name of event (conference or workshop) in which the publication was published.

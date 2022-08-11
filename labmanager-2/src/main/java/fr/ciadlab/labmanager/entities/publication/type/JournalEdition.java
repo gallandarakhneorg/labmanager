@@ -137,6 +137,44 @@ public class JournalEdition extends Publication {
 		}
 	}
 
+
+	@Override
+	public String getWherePublishedShortDescription() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getJournal().getJournalName());
+		final boolean b0 = !Strings.isNullOrEmpty(getVolume());
+		final boolean b1 = !Strings.isNullOrEmpty(getNumber());
+		if (b0 || b1) {
+			buf.append(", "); //$NON-NLS-1$
+			if (b0) {
+				buf.append(getVolume());
+			}
+			if (b1) {
+				buf.append("("); //$NON-NLS-1$
+				buf.append(getNumber());
+				buf.append(")"); //$NON-NLS-1$
+			}
+		}
+		final boolean b2 = !Strings.isNullOrEmpty(getPages());
+		if (b2) {
+			buf.append(", pp. "); //$NON-NLS-1$
+			buf.append(getPages());
+		}
+		if (!Strings.isNullOrEmpty(getJournal().getPublisher())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getJournal().getPublisher());
+		}
+		if (!Strings.isNullOrEmpty(getJournal().getISBN())) {
+			buf.append(", ISBN "); //$NON-NLS-1$
+			buf.append(getJournal().getISBN());
+		}
+		if (!Strings.isNullOrEmpty(getJournal().getISSN())) {
+			buf.append(", ISSN "); //$NON-NLS-1$
+			buf.append(getJournal().getISSN());
+		}
+		return buf.toString();
+	}
+
 	/** Replies the volume number of the journal in which the publication was published.
 	 * 
 	 * @return the volume number.

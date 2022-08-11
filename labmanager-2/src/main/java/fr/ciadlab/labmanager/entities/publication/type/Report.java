@@ -135,6 +135,39 @@ public class Report extends Publication {
 		}
 	}
 
+	@Override
+	public String getWherePublishedShortDescription() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getInstitution());
+		final boolean b0 = !Strings.isNullOrEmpty(getReportNumber());
+		final boolean b1 = !Strings.isNullOrEmpty(getReportType());
+		if (b0 || b1) {
+			buf.append(", "); //$NON-NLS-1$
+			if (b0 && b1) {
+				buf.append(getReportNumber());
+				buf.append("/"); //$NON-NLS-1$
+				buf.append(getReportType());
+			} else if (b0) {
+				buf.append(getReportNumber());
+			} else {
+				buf.append(getReportType());
+			}
+		}
+		if (!Strings.isNullOrEmpty(getAddress())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getAddress());
+		}
+		if (!Strings.isNullOrEmpty(getISBN())) {
+			buf.append(", ISBN "); //$NON-NLS-1$
+			buf.append(getISBN());
+		}
+		if (!Strings.isNullOrEmpty(getISSN())) {
+			buf.append(", ISSN "); //$NON-NLS-1$
+			buf.append(getISSN());
+		}
+		return buf.toString();
+	}
+
 	/** Replies the name of the institution in which the report was published.
 	 *
 	 * @return the name of the institution.

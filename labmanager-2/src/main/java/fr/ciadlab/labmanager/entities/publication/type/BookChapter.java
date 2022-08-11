@@ -219,6 +219,51 @@ public class BookChapter extends Publication {
 			consumer.accept("chapterNumber", getChapterNumber()); //$NON-NLS-1$
 		}
 	}
+	@Override
+	public String getWherePublishedShortDescription() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getBookTitle());
+		if (!Strings.isNullOrEmpty(getChapterNumber())) {
+			buf.append(" (chap. "); //$NON-NLS-1$
+			buf.append(getChapterNumber());
+			buf.append(")"); //$NON-NLS-1$
+		}
+		final boolean b0 = !Strings.isNullOrEmpty(getVolume());
+		final boolean b1 = !Strings.isNullOrEmpty(getNumber());
+		if (b0 || b1) {
+			buf.append(", "); //$NON-NLS-1$
+			if (b0) {
+				buf.append(getVolume());
+			}
+			if (b1) {
+				buf.append("("); //$NON-NLS-1$
+				buf.append(getNumber());
+				buf.append(")"); //$NON-NLS-1$
+			}
+		}
+		final boolean b2 = !Strings.isNullOrEmpty(getPages());
+		if (b2) {
+			buf.append(", pp. "); //$NON-NLS-1$
+			buf.append(getPages());
+		}
+		if (!Strings.isNullOrEmpty(getPublisher())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getPublisher());
+		}
+		if (!Strings.isNullOrEmpty(getAddress())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getAddress());
+		}
+		if (!Strings.isNullOrEmpty(getISBN())) {
+			buf.append(", ISBN "); //$NON-NLS-1$
+			buf.append(getISBN());
+		}
+		if (!Strings.isNullOrEmpty(getISSN())) {
+			buf.append(", ISSN "); //$NON-NLS-1$
+			buf.append(getISSN());
+		}
+		return buf.toString();
+	}
 
 	/** Replies the volume number of the book chapter.
 	 * 

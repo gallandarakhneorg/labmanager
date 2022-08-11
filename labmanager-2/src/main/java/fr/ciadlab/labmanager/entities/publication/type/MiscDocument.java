@@ -150,6 +150,47 @@ public class MiscDocument extends Publication {
 		}
 	}
 
+	@Override
+	public String getWherePublishedShortDescription() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getHowPublished());
+		final boolean b0 = !Strings.isNullOrEmpty(getDocumentNumber());
+		final boolean b1 = !Strings.isNullOrEmpty(getDocumentType());
+		if (b0 || b1) {
+			buf.append(", "); //$NON-NLS-1$
+			if (b0 && b1) {
+				buf.append(getDocumentNumber());
+				buf.append("/"); //$NON-NLS-1$
+				buf.append(getDocumentType());
+			} else if (b0) {
+				buf.append(getDocumentNumber());
+			} else {
+				buf.append(getDocumentType());
+			}
+		}
+		if (!Strings.isNullOrEmpty(getOrganization())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getOrganization());
+		}
+		if (!Strings.isNullOrEmpty(getAddress())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getAddress());
+		}
+		if (!Strings.isNullOrEmpty(getPublisher())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getPublisher());
+		}
+		if (!Strings.isNullOrEmpty(getISBN())) {
+			buf.append(", ISBN "); //$NON-NLS-1$
+			buf.append(getISBN());
+		}
+		if (!Strings.isNullOrEmpty(getISSN())) {
+			buf.append(", ISSN "); //$NON-NLS-1$
+			buf.append(getISSN());
+		}
+		return buf.toString();
+	}
+
 	/** Replies the name of the organization that has published the document.
 	 *
 	 * @return the name of the organization.

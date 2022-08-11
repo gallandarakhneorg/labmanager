@@ -107,6 +107,25 @@ public class Thesis extends Publication {
 		}
 	}
 
+	@Override
+	public String getWherePublishedShortDescription() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getInstitution());
+		if (!Strings.isNullOrEmpty(getAddress())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getAddress());
+		}
+		if (!Strings.isNullOrEmpty(getISBN())) {
+			buf.append(", ISBN "); //$NON-NLS-1$
+			buf.append(getISBN());
+		}
+		if (!Strings.isNullOrEmpty(getISSN())) {
+			buf.append(", ISSN "); //$NON-NLS-1$
+			buf.append(getISSN());
+		}
+		return buf.toString();
+	}
+
 	/** Replies the name of the institution in which the thesis was passed.
 	 *
 	 * @return the name of the institution.

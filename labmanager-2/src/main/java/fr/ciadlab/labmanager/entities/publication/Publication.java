@@ -676,6 +676,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	}
 
 	/** Replies the ISBN number that is associated to this publication.
+	 * Some implementation of this function delegates to the container of the publication, e.g., the journal.
 	 *
 	 * @return the ISBN number or {@code null}.
 	 * @see "https://en.wikipedia.org/wiki/ISBN"
@@ -685,6 +686,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	}
 
 	/** Change the ISBN number that is associated to this publication.
+	 * Some implementation of this function delegates to the container of the publication, e.g., the journal.
 	 *
 	 * @param isbn the ISBN number or {@code null}.
 	 * @see "https://en.wikipedia.org/wiki/ISBN"
@@ -694,6 +696,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	}
 
 	/** Replies the ISSN number that is associated to this publication.
+	 * Some implementation of this function delegates to the container of the publication, e.g., the journal.
 	 *
 	 * @return the ISSN number or {@code null}.
 	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
@@ -703,6 +706,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	}
 
 	/** Change the ISSN number that is associated to this publication.
+	 * Some implementation of this function delegates to the container of the publication, e.g., the journal.
 	 *
 	 * @param issn the ISSN number or {@code null}.
 	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
@@ -930,5 +934,14 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 			setMajorLanguage(PublicationLanguage.valueOfCaseInsensitive(language));
 		}
 	}
+
+	/** Replies a short description of where the publication is published.
+	 * This function is a general place-holder for obtaining the place where publication
+	 * was published. The returned value depends strongly of the type of the publication,
+	 * and therefore of the function implementation in the sub-types.
+	 *
+	 * @return the description.
+	 */
+	public abstract String getWherePublishedShortDescription();
 
 }

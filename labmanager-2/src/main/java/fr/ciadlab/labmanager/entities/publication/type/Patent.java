@@ -135,6 +135,39 @@ public class Patent extends Publication {
 		}
 	}
 
+	@Override
+	public String getWherePublishedShortDescription() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getInstitution());
+		final boolean b0 = !Strings.isNullOrEmpty(getPatentNumber());
+		final boolean b1 = !Strings.isNullOrEmpty(getPatentType());
+		if (b0 || b1) {
+			buf.append(", "); //$NON-NLS-1$
+			if (b0 && b1) {
+				buf.append(getPatentNumber());
+				buf.append("/"); //$NON-NLS-1$
+				buf.append(getPatentType());
+			} else if (b0) {
+				buf.append(getPatentNumber());
+			} else {
+				buf.append(getPatentType());
+			}
+		}
+		if (!Strings.isNullOrEmpty(getAddress())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getAddress());
+		}
+		if (!Strings.isNullOrEmpty(getISBN())) {
+			buf.append(", ISBN "); //$NON-NLS-1$
+			buf.append(getISBN());
+		}
+		if (!Strings.isNullOrEmpty(getISSN())) {
+			buf.append(", ISSN "); //$NON-NLS-1$
+			buf.append(getISSN());
+		}
+		return buf.toString();
+	}
+
 	/** Replies the name of the institution in which the patent was published.
 	 *
 	 * @return the name of the institution.
