@@ -22,7 +22,6 @@ import java.net.URL;
 import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +32,6 @@ import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import com.google.common.collect.LinkedListMultimap;
@@ -243,30 +241,6 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return null;
 	}
 
-	private static Method findMethod(Class<?> type, Set<String> names, Object value) {
-		assert value != null;
-		try {
-			final Collection<Method> methods = Arrays.asList(type.getMethods()).parallelStream().filter(it -> {
-				if (it.getParameterCount() == 1 && (names.contains(it.getName().toLowerCase()))) {
-					final Class<?> receiver = it.getParameterTypes()[0];
-					final Class<?> provider = value.getClass();
-					return receiver.isAssignableFrom(provider);
-				}
-				return false;
-			}) .collect(Collectors.toSet());
-			final int size = methods.size();
-			if (size > 1) {
-				throw new IllegalArgumentException("Too many setter function candidates (case insensitive) in type '" //$NON-NLS-1$
-						+ type.getName() + "' with names: " + names.toString()); //$NON-NLS-1$
-			} else if (size == 1) {
-				return methods.iterator().next();
-			}
-		} catch (Throwable ex) {
-			//
-		}
-		return null;
-	}
-
 	/** Create the instance of an object that is initialized from the given JSON source.
 	 *
 	 * @param <T> the expected type of object.
@@ -293,7 +267,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 					}
 					return set;
 				});
-				final Method method = findMethod(type, aliases, entry.getValue());
+				final Method method = findSetterMethod(type, aliases, entry.getValue());
 				if (method != null) {
 					method.invoke(obj, entry.getValue());
 				} else if (failIfNoSetter != null && failIfNoSetter.test(entry)) {

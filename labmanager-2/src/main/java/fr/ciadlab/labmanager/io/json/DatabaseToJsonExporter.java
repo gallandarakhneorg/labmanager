@@ -17,17 +17,11 @@
 package fr.ciadlab.labmanager.io.json;
 
 import java.lang.reflect.Method;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -37,10 +31,13 @@ import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
+import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -64,23 +61,27 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private JournalRepository journalRepository;
 
+	private PublicationRepository publicationRepository;
+
 	/** Constructor.
 	 * 
 	 * @param organizationRepository the accessor to the organization repository.
 	 * @param personRepository the accessor to the person repository.
 	 * @param membershipRepository the accessor to the membership repository.
 	 * @param journalRepository the accessor to the journal repository.
-	 * @param journalIndicatorsRepository the accessor to the repository of the journal quality annual indicators.
+	 * @param publicationRepository the accessor to the repository of the publications.
 	 */
 	public DatabaseToJsonExporter(
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired MembershipRepository membershipRepository,
-			@Autowired JournalRepository journalRepository) {
+			@Autowired JournalRepository journalRepository,
+			@Autowired PublicationRepository publicationRepository) {
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
 		this.membershipRepository = membershipRepository;
 		this.journalRepository = journalRepository;
+		this.publicationRepository = publicationRepository;
 	}
 
 	/** Run the exporter.
@@ -110,99 +111,12 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportPersons(root, repository);
 		exportMemberships(root, repository);
 		exportJournals(root, repository);
+		exportPublications(root, repository);
 		if (root.size() > 0) {
 			root.addProperty(LAST_CHANGE_FIELDNAME, LocalDate.now().toString());
 			return root;
 		}
 		return null;
-	}
-
-	private static String toLowerFirst(String name) {
-		if (name.length() <= 0) {
-			return name.toLowerCase();
-		}
-		final Pattern pattern = Pattern.compile("^[A-Z]+$"); //$NON-NLS-1$
-		final Matcher matcher = pattern.matcher(name);
-		if (matcher.matches()) {
-			return name.toLowerCase();
-		}
-		return name.substring(0, 1).toLowerCase() + name.substring(1);
-	}
-
-	private static Map<String, Method> findMethods(Class<?> source) {
-		final Set<String> setters = new TreeSet<>();
-		final Map<String, Method> getters = new HashMap<>();
-		for (final Method meth : source.getMethods()) {
-			final String name = meth.getName().toLowerCase();
-			if (meth.getParameterCount() == 1
-					&& (Number.class.equals(meth.getParameterTypes()[0])
-						|| String.class.equals(meth.getParameterTypes()[0])
-						|| Boolean.class.equals(meth.getParameterTypes()[0]))
-					&& name.startsWith(SETTER_FUNCTION_PREFIX)) {
-				final String attrName = toLowerFirst(meth.getName().substring(SETTER_FUNCTION_PREFIX.length()));
-				setters.add(attrName);
-			} else 	if (meth.getParameterCount() == 0
-					&& (meth.getReturnType().isPrimitive()
-							|| meth.getReturnType().isEnum()
-							|| Number.class.isAssignableFrom(meth.getReturnType())
-							|| String.class.isAssignableFrom(meth.getReturnType())
-							|| Boolean.class.isAssignableFrom(meth.getReturnType())
-							|| Date.class.isAssignableFrom(meth.getReturnType())
-							|| LocalDate.class.isAssignableFrom(meth.getReturnType())
-							|| Character.class.isAssignableFrom(meth.getReturnType()))
-						&& name.startsWith(GETTER_FUNCTION_PREFIX)) {
-				final String attrName = toLowerFirst(meth.getName().substring(GETTER_FUNCTION_PREFIX.length()));
-				getters.put(attrName, meth);
-			}
-		}
-		//
-		final Iterator<Entry<String, Method>> iterator = getters.entrySet().iterator();
-		while (iterator.hasNext()) {
-			final Entry<String, Method> entry = iterator.next();
-			if (!setters.contains(entry.getKey())) {
-				iterator.remove();
-			}
-		}
-		//
-		return getters;
-	}
-
-	private static Object convertValue(Object value) {
-		if (value != null) {
-			final Class<?> type = value.getClass();
-			if (value instanceof CharSequence) {
-				return ((CharSequence) value).toString();
-			}
-			if (type.isPrimitive() || value instanceof Number || value instanceof Boolean) {
-				return value;
-			}
-			if (value instanceof Enum) {
-				return ((Enum<?>) value).name().toLowerCase();
-			}
-			if (value instanceof Date) {
-				return ((Date) value).toString();
-			}
-			if (value instanceof LocalDate) {
-				return ((LocalDate) value).toString();
-			}
-			if (value instanceof Character) {
-				return ((Character) value).toString();
-			}
-		}
-		return null;
-	}
-	
-	/** Add entity reference to the given receiver.
-	 *
-	 * @param receiver the receiver of JSON.
-	 * @param key the key that should receive the reference.
-	 * @param id the identifier.
-	 */
-	@SuppressWarnings("static-method")
-	protected void ref(JsonObject receiver, String key, String id) {
-		final JsonObject ref = new JsonObject();
-		ref.addProperty(ID_FIELDNAME, id);
-		receiver.add(key, ref);
 	}
 
 	/** Export the given object to the receiver.
@@ -218,7 +132,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			if (!Strings.isNullOrEmpty(id)) {
 				receiver.addProperty(ID_FIELDNAME, id);
 			}
-			final Map<String, Method> meths = findMethods(object.getClass());
+			final Map<String, Method> meths = findGetterMethods(object.getClass());
 			for (final Entry<String, Method> entry : meths.entrySet()) {
 				final Object objValue = convertValue(entry.getValue().invoke(object));
 				if (objValue instanceof String) {
@@ -233,7 +147,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 		}
 	}
-	
+
 	/** Export the research organizations to the given JSON root element.
 	 *
 	 * @param root the receiver of the JSON elements.
@@ -249,7 +163,6 @@ public class DatabaseToJsonExporter extends JsonTool {
 				final JsonObject jsonOrganization = new JsonObject();
 
 				final String id = RESEARCHORGANIZATION_ID_PREFIX + i;
-
 				exportObject(jsonOrganization, id, organization);
 
 				if (jsonOrganization.size() > 0) {
@@ -280,7 +193,6 @@ public class DatabaseToJsonExporter extends JsonTool {
 				final JsonObject jsonPerson = new JsonObject();
 
 				final String id = PERSON_ID_PREFIX + i;
-
 				exportObject(jsonPerson, id, person);
 
 				if (jsonPerson.size() > 0) {
@@ -305,19 +217,24 @@ public class DatabaseToJsonExporter extends JsonTool {
 		final List<Membership> memberships = this.membershipRepository.findAll();
 		if (!memberships.isEmpty()) {
 			final JsonArray array = new JsonArray();
+			int i = 0;
 			for (final Membership membership : memberships) {
 				final String personId = repository.get(membership.getPerson());
 				final String organizationId = repository.get(membership.getResearchOrganization());
 				if (!Strings.isNullOrEmpty(personId) && !Strings.isNullOrEmpty(organizationId)) {
 					final JsonObject jsonMembership = new JsonObject();
 
-					exportObject(jsonMembership, null, membership);
-					
-					ref(jsonMembership, PERSON_KEY, personId);
-					ref(jsonMembership, RESEARCHORGANIZATION_KEY, organizationId);
+					final String id = RESEARCHORGANIZATION_ID_PREFIX + i;
+					exportObject(jsonMembership, id, membership);
+
+					// Person and organization must be added explicitly because the "exportObject" function
+					// ignore the getter functions for both.
+					addReference(jsonMembership, PERSON_KEY, personId);
+					addReference(jsonMembership, RESEARCHORGANIZATION_KEY, organizationId);
 
 					if (jsonMembership.size() > 0) {
 						array.add(jsonMembership);
+						++i;
 					}
 				}
 			}
@@ -342,14 +259,16 @@ public class DatabaseToJsonExporter extends JsonTool {
 				final JsonObject jsonJournal = new JsonObject();
 
 				final String id = JOURNAL_ID_PREFIX + i;
-
 				exportObject(jsonJournal, id, journal);
-				
+
+				// Add the publication indicators by hand because they are not exported implicitly by
+				// the "exportObject" function
 				final JsonObject indicatorMap = new JsonObject();
 				for (final JournalQualityAnnualIndicators indicators : journal.getQualityIndicators().values()) {
 					final JsonObject jsonIndicator = new JsonObject();
 					exportObject(jsonIndicator, null, indicators);
-					jsonIndicator.remove("referenceYear"); //$NON-NLS-1$
+					// Remove the year because it is not necessary into the JSON map as value and the year is the key.
+					jsonIndicator.remove(REFERENCEYEAR_KEY);
 					if (jsonIndicator.size() > 0) {
 						indicatorMap.add(Integer.toString(indicators.getReferenceYear()), jsonIndicator);
 					}
@@ -357,7 +276,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				if (indicatorMap.size() > 0) {
 					jsonJournal.add(QUALITYINDICATORSHISTORY_KEY, indicatorMap);
 				}
-				
+
 				if (jsonJournal.size() > 0) {
 					repository.put(journal, id);
 					array.add(jsonJournal);
@@ -366,6 +285,71 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			if (array.size() > 0) {
 				root.add(JOURNALS_SECTION, array);
+			}
+		}
+	}
+
+	/** Export the publications to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	protected void exportPublications(JsonObject root, Map<Object, String> repository) throws Exception {
+		final List<Publication> publications = this.publicationRepository.findAll();
+		if (!publications.isEmpty()) {
+			final JsonArray array = new JsonArray();
+			int i = 0;
+			for (final Publication publication : publications) {
+				final JsonObject jsonPublication = new JsonObject();
+
+				final String id = PUBLICATION_ID_PREFIX + i;
+				exportObject(jsonPublication, id, publication);
+
+				// Add the authors by hand because they are not exported implicitly by
+				// the "exportObject" function.
+				// It is due to the reference to person entities.
+				final JsonArray authorArray = new JsonArray();
+				for (final Person author : publication.getAuthors()) {
+					final String authorId = repository.get(author);
+					if (Strings.isNullOrEmpty(authorId)) {
+						// Author not found in the repository. It is an unexpected behavior but
+						// the full name of the person is output to JSON
+						authorArray.add(author.getFullName());
+					} else {
+						authorArray.add(createReference(authorId));
+					}
+				}
+				if (authorArray.size() > 0) {
+					jsonPublication.add(AUTHORS_KEY, authorArray);
+				}
+
+				// Add the journal by hand because they are not exported implicitly by
+				// the "exportObject" function
+				// It is due to the reference to journal entities.
+				if (publication instanceof JournalBasedPublication) {
+					final JournalBasedPublication jbp = (JournalBasedPublication) publication;
+					final Journal journal = jbp.getJournal();
+					if (journal != null) {
+						final String journalId = repository.get(journal);
+						if (Strings.isNullOrEmpty(journalId)) {
+							// Journal not found in the repository. It is an unexpected behavior but
+							// the name of the journal is output to JSON
+							jsonPublication.addProperty(JOURNAL_KEY, journal.getJournalName());
+						} else {
+							jsonPublication.add(JOURNAL_KEY, createReference(journalId));
+						}
+					}
+				}
+
+				if (jsonPublication.size() > 0) {
+					repository.put(publication, id);
+					array.add(jsonPublication);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.add(PUBLICATIONS_SECTION, array);
 			}
 		}
 	}
