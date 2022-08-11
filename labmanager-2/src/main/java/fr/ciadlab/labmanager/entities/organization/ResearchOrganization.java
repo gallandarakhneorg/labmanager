@@ -19,7 +19,6 @@ package fr.ciadlab.labmanager.entities.organization;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -49,7 +48,6 @@ import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.JsonExportable;
 import fr.ciadlab.labmanager.utils.JsonUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.arakhne.afc.util.CountryCode;
 
 /** Research organization or group or researchers.
@@ -73,52 +71,6 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	public static final ResearchOrganizationType DEFAULT_TYPE = ResearchOrganizationType.LABORATORY;
 
 	private static final long serialVersionUID = -450531251083286848L;
-
-	/** Default comparator.
-	 */
-	public static final Comparator<ResearchOrganization> DEFAULT_COMPARATOR = new Comparator<>() {
-		@Override
-		public int compare(ResearchOrganization o1, ResearchOrganization o2) {
-			if (o1 == o2) {
-				return 0;
-			}
-			if (o1 == null) {
-				return Integer.MIN_VALUE;
-			}
-			if (o2 == null) {
-				return Integer.MAX_VALUE;
-			}
-			int cmp = Objects.compare(o1.getType(), o2.getType(), (a, b) -> a.compareTo(b));
-			if (cmp != 0) {
-				return cmp;
-			}
-			cmp = StringUtils.compare(o1.getAcronym(), o2.getAcronym());
-			if (cmp != 0) {
-				return cmp;
-			}
-			cmp = StringUtils.compare(o1.getName(), o2.getName());
-			if (cmp != 0) {
-				return cmp;
-			}
-			cmp = compareCountry(o1.getCountry(), o2.getCountry());
-			if (cmp != 0) {
-				return cmp;
-			}
-			return Integer.compare(o1.getId(), o2.getId());
-		}
-		private int compareCountry(CountryCode c0, CountryCode c1) {
-			if (c0 == c1) {
-				return 0;
-			}
-			if (c0 == null) {
-				return Integer.MIN_VALUE;
-			}
-			if (c1 == null) {
-				return Integer.MAX_VALUE;
-			}
-			return c0.compareTo(c1);
-		}
-	};
 
 	/** Identifier of the organization.
 	 */
@@ -263,7 +215,7 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 
 	@Override
 	public int compareTo(ResearchOrganization o) {
-		return DEFAULT_COMPARATOR.compare(this, o);
+		return EntityUtils.getPreferredResearchOrganizationComparator().compare(this, o);
 	}
 
 	/** {@inheritDoc}

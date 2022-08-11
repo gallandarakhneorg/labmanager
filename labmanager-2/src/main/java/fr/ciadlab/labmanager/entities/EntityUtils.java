@@ -113,7 +113,8 @@ public final class EntityUtils {
 	public static MembershipComparator getPreferredMembershipComparator() {
 		synchronized (EntityUtils.class) {
 			if (MEMBERSHIP_COMPARATOR == null) {
-				MEMBERSHIP_COMPARATOR = new MembershipComparator(getPreferredPersonComparator());
+				MEMBERSHIP_COMPARATOR = new MembershipComparator(
+						getPreferredPersonComparator(), getPreferredResearchOrganizationComparator());
 			}
 			return MEMBERSHIP_COMPARATOR;
 		}

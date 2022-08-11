@@ -19,7 +19,7 @@ package fr.ciadlab.labmanager.entities.member;
 import java.sql.Date;
 import java.util.Comparator;
 
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -37,12 +37,16 @@ public class MembershipComparator implements Comparator<Membership> {
 
 	private PersonComparator personComparator;
 
+	private ResearchOrganizationComparator organizationComparator;
+
 	/** Constructor.
 	 *
 	 * @param personComparator the comparator of persons names.
+	 * @param organizationComparator the comparator of research organizations.
 	 */
-	public MembershipComparator(@Autowired PersonComparator personComparator) {
+	public MembershipComparator(@Autowired PersonComparator personComparator, @Autowired ResearchOrganizationComparator organizationComparator) {
 		this.personComparator = personComparator;
+		this.organizationComparator = organizationComparator;
 	}
 
 	@Override
@@ -56,7 +60,7 @@ public class MembershipComparator implements Comparator<Membership> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = ResearchOrganization.DEFAULT_COMPARATOR.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
+		int n = this.organizationComparator.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
 		if (n != 0) {
 			return n;
 		}
