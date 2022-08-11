@@ -32,7 +32,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 public interface DoiTools {
 
 	/** Replies the DOI number that is specified inside the given DOI URL.
-	 * A DPI URL is based on the standard {@link "https://doi.org"} to which
+	 * A DOI URL is based on the standard {@link "https://doi.org"} to which
 	 * the DOI number is added.
 	 *
 	 * @param url the DOI URL.
@@ -41,7 +41,7 @@ public interface DoiTools {
 	String getDOINumberFromDOIUrl(URL url);
 
 	/** Replies the DOI number that is specified inside the given DOI URL.
-	 * A DPI URL is based on the standard {@link "https://doi.org"} to which
+	 * A DOI URL is based on the standard {@link "https://doi.org"} to which
 	 * the DOI number is added.
 	 *
 	 * @param url the DOI URL.
@@ -56,7 +56,7 @@ public interface DoiTools {
 	}
 
 	/** Replies the DOI URL from the given DOI number.
-	 * A DPI URL is based on the standard {@link "https://doi.org"} to which
+	 * A DOI URL is based on the standard {@link "https://doi.org"} to which
 	 * the DOI number is added.
 	 *
 	 * @param number the DOI number.
