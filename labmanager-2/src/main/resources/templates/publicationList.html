@@ -1,0 +1,54 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="fragments/head :: style" />
+<th:block th:replace="fragments/head :: script" />
+
+<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
+    <thead>
+        <th th:utext="#{html.Title}"></th>
+        <th th:utext="#{html.Authors}"></th>
+        <th th:utext="#{html.Type}"></th>
+        <th th:utext="#{html.Year}"></th>
+        <th th:utext="#{html.WherePublished}"></th>
+    </thead>
+    <tbody>
+        <tr th:each="publication : ${publications}">
+            <td>
+            	<th:block th:utext="${publication.title}"></th:block>
+            </td>
+            <td>
+            	<!-- Authors  -->
+            </td>
+            <td>
+            	<th:block th:utext="${publication.type.getLabel(locale)}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${publication.publicationYear}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${publication.wherePublishedShortDescription}"></th:block>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+
+<script th:inline="javascript">
+    $(document).ready(function() {
+        var tableId = /*[[${uuid}]]*/ '';
+        var table = $('#table'+tableId).DataTable({
+            dom: 'Bfrtip',
+            scrollCollapse: true,
+            paging: false,
+            buttons: [
+                'excelHtml5', 'pdfHtml5', 'csvHtml5'
+            ],
+            responsive: true,
+            autoWidth: true,
+        });
+    });
+
+</script>
+</html>
+

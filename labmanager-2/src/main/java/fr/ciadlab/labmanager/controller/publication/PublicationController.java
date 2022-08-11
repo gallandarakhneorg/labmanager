@@ -99,7 +99,7 @@ import org.springframework.web.servlet.view.RedirectView;
 @CrossOrigin
 public class PublicationController extends AbstractController {
 
-	private static final String TOOL_NAME = "publicationTool"; //$NON-NLS-1$
+	private static final String DEFAULT_ENDPOINT = "publicationList"; //$NON-NLS-1$
 
 	private PrePublicationFactory prePublicationFactory;
 
@@ -188,7 +188,7 @@ public class PublicationController extends AbstractController {
 			@Autowired PatentService patentService,
 			@Autowired ReportService reportService,
 			@Autowired ThesisService thesisService) {
-		super(TOOL_NAME);
+		super(DEFAULT_ENDPOINT);
 		this.prePublicationFactory = prePublicationFactory;
 		this.publicationService = publicationService;
 		this.authorshipService = authorshipService;
@@ -211,17 +211,17 @@ public class PublicationController extends AbstractController {
 		this.thesisService = thesisService;
 	}
 
-//	/** Replies the model-view component for managing the publications.
-//	 *
-//	 * @return the model-view component.
-//	 */
-//	@GetMapping("/" + TOOL_NAME)
-//	public ModelAndView showPublicationTool() {
-//		final ModelAndView modelAndView = new ModelAndView(TOOL_NAME);
-//		modelAndView.addObject("publications", this.publicationService.getAllPublications()); //$NON-NLS-1$
-//		return modelAndView;
-//	}
-//
+	/** Replies the model-view component for managing the publications.
+	 *
+	 * @return the model-view component.
+	 */
+	@GetMapping("/" + DEFAULT_ENDPOINT)
+	public ModelAndView showPublicationTool() {
+		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
+		modelAndView.addObject("publications", this.publicationService.getAllPublications()); //$NON-NLS-1$
+		return modelAndView;
+	}
+
 //	/** Build a list of publication as a Json string.
 //	 * 
 //	 * @param authorId the identifier of the person for who the publications must be replied.
