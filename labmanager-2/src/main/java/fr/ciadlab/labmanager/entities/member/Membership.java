@@ -35,6 +35,7 @@ import javax.persistence.Table;
 
 import com.google.common.base.Strings;
 import com.google.gson.JsonObject;
+import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;

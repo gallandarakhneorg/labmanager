@@ -41,7 +41,7 @@ import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonObject;
-import fr.ciadlab.labmanager.entities.EntityFieldConfig;
+import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
@@ -90,7 +90,7 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 
 	/** URL to the page of the journal on the publisher website.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String journalUrl;
 
 	/** Identifier of the journal on the Scimago website.

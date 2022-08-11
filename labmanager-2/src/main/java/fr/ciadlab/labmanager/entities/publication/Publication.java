@@ -49,7 +49,7 @@ import javax.transaction.Transactional;
 import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import fr.ciadlab.labmanager.entities.EntityFieldConfig;
+import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
@@ -90,18 +90,18 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 
 	/** Title of a publication.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String title;
 
 	/** Text that is the abstract of the publication.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	@Lob
 	private String abstractText;
 
 	/** List of keywords. The separator of the keywords may be a coma ({@code ,}) or a column (@code ;}).
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	@Lob
 	private String keywords;
 
@@ -134,27 +134,27 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 
 	/** Extra URL if the publication has one.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String extraUrl;
 
 	/** URL of a associated video if the publication has one.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String videoUrl;
 
 	/** URL of the publication page on the DBLP if the publication has one.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String dblpUrl;
 
 	/** URL of a associated video if the publication has one. It is preferred to have a local URL, i.e. without the host name.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String pathToDownloadablePDF;
 
 	/** URL of a associated award certificate if the publication has one. It is preferred to have a local URL, i.e. without the host name.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String pathToDownloadableAwardCertificate;
 
 	/** The major language used for writing the publication. The default language depends on the definition in {@link PublicationLanguage}.

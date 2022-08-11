@@ -45,7 +45,7 @@ import javax.transaction.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.JsonObject;
-import fr.ciadlab.labmanager.entities.EntityFieldConfig;
+import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
@@ -126,12 +126,12 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 
 	/** Office phone number, using the international prefix if possible.
 	 */
-	@Column(length = EntityFieldConfig.VERY_SMALL_TEXT_SIZE)
+	@Column(length = EntityUtils.VERY_SMALL_TEXT_SIZE)
 	private String officePhone;
 
 	/** Mobile phone number, using the international prefix if possible.
 	 */
-	@Column(length = EntityFieldConfig.VERY_SMALL_TEXT_SIZE)
+	@Column(length = EntityUtils.VERY_SMALL_TEXT_SIZE)
 	private String mobilePhone;
 
 	/** URL of the person on {@code cordis.europa.eu}.

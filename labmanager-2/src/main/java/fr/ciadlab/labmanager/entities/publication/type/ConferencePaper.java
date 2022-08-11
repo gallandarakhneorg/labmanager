@@ -24,7 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
-import fr.ciadlab.labmanager.entities.EntityFieldConfig;
+import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
@@ -70,7 +70,7 @@ public class ConferencePaper extends Publication {
 	/** List of names of the editors of the proceedings of the event.
 	 * The list of names is usually a sequence of names separated by {@code AND}, and each name has the format {@code LAST, VON, FIRST}.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String editors;
 
 	/** Name of the institution that has organized the event.

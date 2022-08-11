@@ -24,7 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
-import fr.ciadlab.labmanager.entities.EntityFieldConfig;
+import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -52,7 +52,7 @@ public class MiscDocument extends Publication {
 	@Column
 	private String address;
 
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String howPublished;
 
 	@Column

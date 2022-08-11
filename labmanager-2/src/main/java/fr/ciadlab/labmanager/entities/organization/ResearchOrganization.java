@@ -42,7 +42,7 @@ import javax.persistence.Table;
 import com.google.common.base.Strings;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import fr.ciadlab.labmanager.entities.EntityFieldConfig;
+import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.CountryCodeUtils;
@@ -134,12 +134,12 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 
 	/** Name of the research organization.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String name;
 
 	/** Textual description of the research organization.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	@Lob
 	private String description;
 
@@ -157,7 +157,7 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 
 	/** The URL of the organization.
 	 */
-	@Column(length = EntityFieldConfig.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String organizationUrl;
 
 	/** Members of the organization.
