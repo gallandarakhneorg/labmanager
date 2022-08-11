@@ -48,7 +48,10 @@
             <td>
                 <th:block th:each="mbr, iMbr : ${person.activeMemberships}">
                     <th:block th:if="${!iMbr.first}">, </th:block>
-                    <a th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
+                    <th:block th:if="${mbr.value.memberStatus == null}"
+                              th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
+                    <a th:if="${mbr.value.memberStatus != null}"
+                       th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
                        th:title="${mbr.value.memberStatus.getLabel(locale)}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
@@ -56,7 +59,10 @@
             <td>
                 <th:block th:each="mbr, iMbr : ${person.finishedMemberships}">
                     <th:block th:if="${!iMbr.first}">, </th:block>
-                    <a th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
+                    <th:block th:if="${mbr.value.memberStatus == null}"
+                              th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
+                    <a th:if="${mbr.value.memberStatus != null}"
+                       th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
                        th:title="#{html.FormerPositionTo(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberToWhen.toLocalDate.year})}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
@@ -64,7 +70,10 @@
             <td>
                 <th:block th:each="mbr, iMbr : ${person.futureMemberships}">
                     <th:block th:if="${!iMbr.first}">, </th:block>
-                    <a th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
+                    <th:block th:if="${mbr.value.memberStatus == null}"
+                              th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
+                    <a th:if="${mbr.value.memberStatus != null}"
+                       th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
                        th:title="#{html.FuturePositionFrom(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberSinceWhen.toLocalDate.year})}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
