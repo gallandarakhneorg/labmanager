@@ -258,7 +258,6 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		int h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.type);
-		h = HashCodeUtils.add(h, getAuthors());
 		h = HashCodeUtils.add(h, this.title);
 		h = HashCodeUtils.add(h, this.abstractText);
 		h = HashCodeUtils.add(h, this.keywords);
@@ -293,9 +292,6 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 			return false;
 		}
 		if (!Objects.equals(this.type, other.type)) {
-			return false;
-		}
-		if (!Objects.equals(getAuthors(), other.getAuthors())) {
 			return false;
 		}
 		if (!Objects.equals(this.title, other.title)) {
