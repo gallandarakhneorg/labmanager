@@ -21,11 +21,21 @@
     </thead>
     <tbody>
         <tr th:each="person : ${persons}">
-            <td>
-                <th:block th:utext="${person.lastName}"></th:block>
+            <td th:with="actives = ${person.activeMemberships}">
+                <s th:if="${actives.isEmpty() && !person.researchOrganizations.isEmpty()}"
+                   th:utext="${person.lastName}"></s>
+                <i th:if="${actives.isEmpty() && person.researchOrganizations.isEmpty()}"
+                          th:utext="${person.lastName}"></i>
+                <th:block th:if="${!actives.isEmpty()}"
+                          th:utext="${person.lastName}"></th:block>
             </td>
-            <td>
-                <th:block th:utext="${person.firstName}"></th:block>
+            <td th:with="actives = ${person.activeMemberships}">
+                <s th:if="${actives.isEmpty() && !person.researchOrganizations.isEmpty()}"
+                     th:utext="${person.firstName}"></s>
+                <i th:if="${actives.isEmpty() && person.researchOrganizations.isEmpty()}"
+                          th:utext="${person.firstName}"></i>
+                <th:block th:if="${!actives.isEmpty()}"
+                          th:utext="${person.firstName}"></th:block>
             </td>
             <td>
                 <img th:if="${person.gravatarId != null}"
