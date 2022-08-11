@@ -62,7 +62,12 @@ final class PrePublication extends Publication {
 
 	@Override
 	public boolean isRanked() {
-		return false;
+		throw new UnsupportedOperationException();
+	}
+
+	@Override
+	public String getWherePublishedShortDescription() {
+		throw new UnsupportedOperationException();
 	}
 
 }

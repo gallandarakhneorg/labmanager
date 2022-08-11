@@ -87,12 +87,13 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param series the number or the name of the series for the conference proceedings.
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
+	 * @param publisher the name of the publisher of the proocedings.
 	 * @return the created conference paper.
 	 */
 	public ConferencePaper createConferencePaper(Publication publication, String scientificEventName, String volume, String number,
-			String pages, String editors, String series, String orga, String address) {
+			String pages, String editors, String series, String orga, String address, String publisher) {
 		return createConferencePaper(publication, scientificEventName, volume, number, pages, editors, series,
-				orga, address, true);
+				orga, address, publisher, true);
 	}
 
 	/** Create a conference paper.
@@ -107,13 +108,14 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param series the number or the name of the series for the conference proceedings.
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
+	 * @param publisher the name of the publisher of the proocedings.
 	 * @param saveInDb {@code true} for saving the publication in the database.
 	 * @return the created conference paper.
 	 */
 	public ConferencePaper createConferencePaper(Publication publication, String scientificEventName, String volume, String number,
-			String pages, String editors, String series, String orga, String address, boolean saveInDb) {
+			String pages, String editors, String series, String orga, String address, String publisher, boolean saveInDb) {
 		final ConferencePaper res = new ConferencePaper(publication, scientificEventName, volume, number, pages, editors,
-				orga, address, series);
+				orga, address, series, publisher);
 		if (saveInDb) {
 			this.repository.save(res);
 		}

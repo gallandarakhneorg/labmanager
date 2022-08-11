@@ -186,4 +186,21 @@ public class ConferencePaperTest {
 		assertNull(this.test.getCoreRanking());
 	}
 
+	@Test
+	public void getPublisher() {
+		assertNull(this.test.getPublisher());
+	}
+
+	@Test
+	public void setPublisher() {
+		this.test.setPublisher("xyz");
+		assertEquals("xyz", this.test.getPublisher());
+
+		this.test.setPublisher("");
+		assertNull(this.test.getPublisher());
+
+		this.test.setPublisher(null);
+		assertNull(this.test.getPublisher());
+	}
+
 }

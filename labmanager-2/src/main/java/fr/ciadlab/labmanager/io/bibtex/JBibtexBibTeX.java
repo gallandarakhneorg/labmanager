@@ -488,6 +488,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 						field(entry, KEY_SERIES),
 						field(entry, KEY_ORGANIZATION),
 						field(entry, KEY_ADDRESS),
+						field(entry, KEY_PUBLISHER),
 						false);
 				break;
 			case INTERNATIONAL_BOOK:

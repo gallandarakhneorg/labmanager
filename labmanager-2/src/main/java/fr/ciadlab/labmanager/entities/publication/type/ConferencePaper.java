@@ -88,6 +88,11 @@ public class ConferencePaper extends Publication {
 	@Column
 	private String series;
 
+	/** Name of the publisher of the proceedings.
+	 */
+	@Column
+	private String publisher;
+
 	/** Construct a conference paper with the given values.
 	 *
 	 * @param publication the publication to copy.
@@ -100,9 +105,10 @@ public class ConferencePaper extends Publication {
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 * @param series the number or the name of the series for the conference proceedings.
+	 * @param publisher the publisher of the proceedings.
 	 */
 	public ConferencePaper(Publication publication, String scientificEventName, String volume, String number, String pages, String editors,
-			String orga, String address, String series) {
+			String orga, String address, String series, String publisher) {
 		super(publication);
 		this.scientificEventName = scientificEventName;
 		this.volume = volume;
@@ -112,6 +118,7 @@ public class ConferencePaper extends Publication {
 		this.organization = orga;
 		this.address = address;
 		this.series = series;
+		this.publisher = publisher;
 	}
 
 	/** Construct an empty conference paper.
@@ -131,6 +138,7 @@ public class ConferencePaper extends Publication {
 		h = HashCodeUtils.add(h, this.organization);
 		h = HashCodeUtils.add(h, this.address);
 		h = HashCodeUtils.add(h, this.series);
+		h = HashCodeUtils.add(h, this.publisher);
 		return h;
 	}
 
@@ -164,6 +172,9 @@ public class ConferencePaper extends Publication {
 		if (!Objects.equals(this.series, other.series)) {
 			return false;
 		}
+		if (!Objects.equals(this.publisher, other.publisher)) {
+			return false;
+		}
 		return true;
 	}
 
@@ -191,6 +202,10 @@ public class ConferencePaper extends Publication {
 		if (!Strings.isNullOrEmpty(getSeries())) {
 			consumer.accept("series", getSeries()); //$NON-NLS-1$
 		}
+		if (!Strings.isNullOrEmpty(getPublisher())) {
+			consumer.accept("publisher", getPublisher()); //$NON-NLS-1$
+		}
+	}
 
 	@Override
 	public String getWherePublishedShortDescription() {
@@ -367,6 +382,22 @@ public class ConferencePaper extends Publication {
 	 */
 	public void setSeries(String series) {
 		this.series = Strings.emptyToNull(series);
+	}
+
+	/** Replies the name of the publisher of the proceedings.
+	 *
+	 * @return the publisher.
+	 */
+	public String getPublisher() {
+		return this.publisher;
+	}
+
+	/** Change the name of the publisher of the proceedings.
+	 *
+	 * @param name the publisher name.
+	 */
+	public void setPublisher(String name) {
+		this.publisher = Strings.emptyToNull(name);
 	}
 
 	/** Replies the CORE ranking.
