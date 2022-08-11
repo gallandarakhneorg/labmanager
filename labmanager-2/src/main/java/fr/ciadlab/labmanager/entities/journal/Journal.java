@@ -88,6 +88,11 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	@Column
 	private String publisher;
 
+	/** Address of the publisher of the journal.
+	 */
+	@Column
+	private String address;
+
 	/** URL to the page of the journal on the publisher website.
 	 */
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
@@ -102,6 +107,16 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 */
 	@Column
 	private String wosId;
+
+	/** ISBN number if the journal has one.
+	 */
+	@Column
+	private String isbn;
+
+	/** ISSN number if the journal has one.
+	 */
+	@Column
+	private String issn;
 
 	/** Indicates if the journal is an open-access journal. If this field
 	 * is not set, we don't know if the journal is open access.
@@ -134,21 +149,27 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 * @param papers the set of papers that were published in this journal.
 	 * @param name the name of the journal.
 	 * @param publisher the name of the publisher of the journal.
+	 * @param address the address of the publisher.
 	 * @param publisherUrl the URL to the page of the journal on the publisher website.
 	 * @param scimagoId the identifier of the journal on the Scimago website.
 	 * @param wosId the identifier of the journal on the Web-Of-Science website.
+	 * @param isbn the ISBN of the journal.
+	 * @param issn the ISSN of the journal.
 	 * @param indicators the history of the quality indicators for the journal.
 	 */
 	public Journal(int identifier, Set<JournalPaper> papers, String name,
-			String publisher, String publisherUrl, String scimagoId, String wosId,
-			Map<Integer, JournalQualityAnnualIndicators> indicators) {
+			String publisher, String address, String publisherUrl, String scimagoId, String wosId,
+			String isbn, String issn, Map<Integer, JournalQualityAnnualIndicators> indicators) {
 		this.id = identifier;
 		this.publishedPapers = papers;
 		this.journalName = name;
 		this.publisher = publisher;
+		this.address = address;
 		this.journalUrl = publisherUrl;
 		this.scimagoId = scimagoId;
 		this.wosId = wosId;
+		this.isbn = isbn;
+		this.issn = issn;
 		this.qualityIndicatorsHistory = indicators;
 	}
 
@@ -158,17 +179,20 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 * @param papers the set of papers that were published in this journal.
 	 * @param name the name of the journal.
 	 * @param publisher the name of the publisher of the journal.
+	 * @param address the address of the publisher.
 	 * @param publisherUrl the URL to the page of the journal on the publisher website.
 	 * @param scimagoId the identifier of the journal on the Scimago website.
 	 * @param wosId the identifier of the journal on the Web-Of-Science website.
+	 * @param isbn the ISBN of the journal.
+	 * @param issn the ISSN of the journal.
 	 * @param indicators the history of the quality indicators for the journal.
 	 */
 	public Journal(int identifier, Set<JournalPaper> papers, String name,
-			String publisher, URL publisherUrl, String scimagoId, String wosId,
-			Map<Integer, JournalQualityAnnualIndicators> indicators) {
-		this(identifier, papers, name, publisher,
+			String publisher, String address, URL publisherUrl, String scimagoId, String wosId,
+			String isbn, String issn, Map<Integer, JournalQualityAnnualIndicators> indicators) {
+		this(identifier, papers, name, publisher, address,
 				publisherUrl != null ? publisherUrl.toExternalForm() : null,
-						scimagoId, wosId, indicators);
+						scimagoId, wosId, isbn, issn, indicators);
 	}
 
 	/** Construct an empty journal.
@@ -188,9 +212,12 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.journalName);
 		h = HashCodeUtils.add(h, this.publisher);
+		h = HashCodeUtils.add(h, this.address);
 		h = HashCodeUtils.add(h, this.journalUrl);
 		h = HashCodeUtils.add(h, this.scimagoId);
 		h = HashCodeUtils.add(h, this.wosId);
+		h = HashCodeUtils.add(h, this.isbn);
+		h = HashCodeUtils.add(h, this.issn);
 		return h;
 	}
 
@@ -212,6 +239,9 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 		if (!Objects.equals(this.publisher, other.publisher)) {
 			return false;
 		}
+		if (!Objects.equals(this.address, other.address)) {
+			return false;
+		}
 		if (!Objects.equals(this.journalUrl, other.journalUrl)) {
 			return false;
 		}
@@ -219,6 +249,12 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 			return false;
 		}
 		if (!Objects.equals(this.wosId, other.wosId)) {
+			return false;
+		}
+		if (!Objects.equals(this.isbn, other.isbn)) {
+			return false;
+		}
+		if (!Objects.equals(this.issn, other.issn)) {
 			return false;
 		}
 		return true;
@@ -237,6 +273,9 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 		if (!Strings.isNullOrEmpty(getPublisher())) {
 			consumer.accept("publisher", getPublisher()); //$NON-NLS-1$
 		}
+		if (!Strings.isNullOrEmpty(getAddress())) {
+			consumer.accept("address", getAddress()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getJournalURL())) {
 			consumer.accept("journalUrl", getJournalURL()); //$NON-NLS-1$
 		}
@@ -245,6 +284,12 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 		}
 		if (!Strings.isNullOrEmpty(getWosId())) {
 			consumer.accept("wosId", getWosId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getISBN())) {
+			consumer.accept("isbn", getISBN()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getISSN())) {
+			consumer.accept("issn", getISSN()); //$NON-NLS-1$
 		}
 	}
 
@@ -300,6 +345,22 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 */
 	public void setPublisher(String name) {
 		this.publisher = Strings.emptyToNull(name);
+	}
+
+	/** Replies the address of publisher of the journal.
+	 *
+	 * @return the address.
+	 */
+	public String getAddress() {
+		return this.address;
+	}
+
+	/** Change the address of publisher of the journal.
+	 *
+	 * @param address the address.
+	 */
+	public void setAddress(String address) {
+		this.address = Strings.emptyToNull(address);
 	}
 
 	/** Replies the URL of the journal on the publisher website.
@@ -627,6 +688,42 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	 */
 	public boolean hasImpactFactorForYear(int year) {
 		return getImpactFactorByYear(year) > 0f;
+	}
+
+	/** Replies the ISBN number that is associated to this journal.
+	 *
+	 * @return the ISBN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/ISBN"
+	 */
+	public String getISBN() {
+		return this.isbn;
+	}
+
+	/** Change the ISBN number that is associated to this journal.
+	 *
+	 * @param isbn the ISBN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/ISBN"
+	 */
+	public void setISBN(String isbn) {
+		this.isbn = Strings.emptyToNull(isbn);
+	}
+
+	/** Replies the ISSN number that is associated to this journal.
+	 *
+	 * @return the ISSN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
+	 */
+	public String getISSN() {
+		return this.issn;
+	}
+
+	/** Change the ISSN number that is associated to this journal.
+	 *
+	 * @param issn the ISSN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
+	 */
+	public void setISSN(String issn) {
+		this.issn = Strings.emptyToNull(issn);
 	}
 
 }

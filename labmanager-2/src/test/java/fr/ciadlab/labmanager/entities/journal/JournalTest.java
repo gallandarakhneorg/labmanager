@@ -115,6 +115,28 @@ public class JournalTest {
 	}
 
 	@Test
+	public void getAddress() {
+		assertNull(this.test.getAddress());
+	}
+
+	@Test
+	public void setAddress() {
+		assertNull(this.test.getAddress());
+
+		this.test.setAddress("abc");
+		assertEquals("abc", this.test.getAddress());
+
+		this.test.setAddress("");
+		assertNull(this.test.getAddress());
+
+		this.test.setAddress("xyz");
+		assertEquals("xyz", this.test.getAddress());
+
+		this.test.setAddress(null);
+		assertNull(this.test.getAddress());
+	}
+
+	@Test
 	public void getJournalURL() {
 		assertNull(this.test.getJournalURL());
 	}
@@ -496,6 +518,40 @@ public class JournalTest {
 
 		this.test.setOpenAccess(Boolean.FALSE);
 		assertFalse(this.test.getOpenAccess());
+	}
+
+	@Test
+	public void getISBN() {
+		assertNull(this.test.getISBN());
+	}
+
+	@Test
+	public void setISBN() {
+		this.test.setISBN("xyz");
+		assertEquals("xyz", this.test.getISBN());
+
+		this.test.setISBN("");
+		assertNull(this.test.getISBN());
+
+		this.test.setISBN(null);
+		assertNull(this.test.getISBN());
+	}
+
+	@Test
+	public void getISSN() {
+		assertNull(this.test.getISSN());
+	}
+
+	@Test
+	public void setISSN() {
+		this.test.setISSN("xyz");
+		assertEquals("xyz", this.test.getISSN());
+
+		this.test.setISSN("");
+		assertNull(this.test.getISSN());
+
+		this.test.setISSN(null);
+		assertNull(this.test.getISSN());
 	}
 
 }
