@@ -19,11 +19,14 @@ package fr.ciadlab.labmanager.controller.journal;
 import java.time.LocalDate;
 
 import fr.ciadlab.labmanager.controller.AbstractController;
+import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.service.journal.JournalService;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -71,6 +74,25 @@ public class JournalController extends AbstractController {
 		modelAndView.addObject("currentYear", Integer.valueOf(LocalDate.now().getYear())); //$NON-NLS-1$
 		return modelAndView;
 	}
+	
+	/** Replies data about a specific journal from the database.
+	 * This endpoint accepts one of the two parameters: the name or the identifier of the journal.
+	 *
+	 * @param name the name of the journal.
+	 * @param id the identifier of the journal.
+	 * @return the journal.
+	 */
+	@GetMapping("/getJournalData")
+	public Journal getJournalData(@RequestParam(required = false) String name, @RequestParam(required = false) Integer id) {
+		if (id == null && Strings.isNullOrEmpty(name)) {
+			throw new IllegalArgumentException("Name and identifier parameters are missed"); //$NON-NLS-1$
+		}
+		if (Strings.isNullOrEmpty(name)) {
+			assert id != null;
+			return this.journalService.getJournalById(id.intValue());
+		}
+		return this.journalService.getJournalByName(name);
+	}
 
 //	/** Add a journal into the database.
 //	 *
@@ -97,16 +119,6 @@ public class JournalController extends AbstractController {
 //			redirectError(response, ex);
 //		}
 //
-//	}
-//
-//	/** Replies data about a specific journal from the database.
-//	 *
-//	 * @param name the name of the journal.
-//	 * @return the journal.
-//	 */
-//	@GetMapping("/getJournalData")
-//	public Journal getJournalData(@RequestParam String name) {
-//		return this.journalService.getJournalByName(name);
 //	}
 //
 //	/** Replies the quality indicators for a specific journal.

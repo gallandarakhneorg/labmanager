@@ -323,11 +323,10 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		if (!getQualityIndicators().isEmpty()) {
 			generator.writeObjectFieldStart("qualityIndicators"); //$NON-NLS-1$
 			for (final Entry<Integer, JournalQualityAnnualIndicators> indicators : getQualityIndicators().entrySet()) {
-				generator.writeObjectFieldStart(indicators.getKey().toString());
+				generator.writeFieldName(indicators.getKey().toString());
 				indicators.getValue().serialize(generator, serializers);
-				generator.writeEndObject();
 			}
-			generator.writeEndArray();
+			generator.writeEndObject();
 		}
 		generator.writeEndObject();
 	}
