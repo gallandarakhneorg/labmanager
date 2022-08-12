@@ -16,8 +16,8 @@
 
 package fr.ciadlab.labmanager.entities.publication.type;
 
+import java.io.IOException;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -131,7 +131,7 @@ public class MiscDocument extends Publication {
 	}
 
 	@Override
-	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
 		if (!Strings.isNullOrEmpty(getOrganization())) {
 			consumer.accept("organization", getOrganization()); //$NON-NLS-1$
@@ -147,6 +147,9 @@ public class MiscDocument extends Publication {
 		}
 		if (!Strings.isNullOrEmpty(getDocumentType())) {
 			consumer.accept("documentType", getDocumentType()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getPublisher())) {
+			consumer.accept("publisher", getPublisher()); //$NON-NLS-1$
 		}
 	}
 

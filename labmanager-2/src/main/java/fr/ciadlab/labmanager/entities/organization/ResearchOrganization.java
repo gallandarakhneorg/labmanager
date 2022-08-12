@@ -16,13 +16,13 @@
 
 package fr.ciadlab.labmanager.entities.organization;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiConsumer;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -38,16 +38,17 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Membership;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
-import fr.ciadlab.labmanager.utils.JsonExportable;
-import fr.ciadlab.labmanager.utils.JsonUtils;
 import org.arakhne.afc.util.CountryCode;
 
 /** Research organization or group or researchers.
@@ -60,7 +61,7 @@ import org.arakhne.afc.util.CountryCode;
  */
 @Entity
 @Table(name = "ResearchOrgs")
-public class ResearchOrganization implements Serializable, Comparable<ResearchOrganization>, JsonExportable, AttributeProvider {
+public class ResearchOrganization implements Serializable, Comparable<ResearchOrganization>, JsonSerializable, AttributeProvider {
 
 	/** Default country for research organizations.
 	 */
@@ -221,14 +222,12 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	/** {@inheritDoc}
 	 * <p>The attributes that are not considered by this function are:<ul>
 	 * <li>{@code id}</li>
-	 * <li>{@code type}</li>
-	 * <li>{@code authorships}</li>
-	 * <li>{@code authors}</li>
-	 * <li>{@code publicationYear}</li>
+	 * <li>{@code superOrganization}</li>
+	 * <li>{@code subOrganizations}</li>
 	 * </ul>
 	 */
 	@Override
-	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
 		if (!Strings.isNullOrEmpty(getAcronym())) {
 			consumer.accept("acronym", getAcronym()); //$NON-NLS-1$
@@ -251,20 +250,29 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	}
 
 	@Override
-	public final void toJson(JsonObject json) {
-		json.addProperty("id", Integer.valueOf(getId())); //$NON-NLS-1$
+	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
+		generator.writeStartObject();
+		generator.writeNumberField("id", getId()); //$NON-NLS-1$
+		forEachAttribute((name, value) -> {
+			JsonUtils.writeField(generator, name, value);
+		});
 		if (getSuperOrganization() != null) {
-			json.addProperty("superOrganization", Integer.valueOf(getSuperOrganization().getId())); //$NON-NLS-1$
+			generator.writeNumberField("superOrganization", getSuperOrganization().getId()); //$NON-NLS-1$
 		}
-		final JsonArray suborgas = new JsonArray();
-		for (final ResearchOrganization suborga : getSubOrganizations()) {
-			suborgas.add(Integer.valueOf(suborga.getId()));
+		if (!getSubOrganizations().isEmpty()) {
+			generator.writeArrayFieldStart("subOrganizations"); //$NON-NLS-1$
+			for (final ResearchOrganization suborga : getSubOrganizations()) {
+				generator.writeNumber(suborga.getId());
+			}
+			generator.writeEndArray();
 		}
-		if (suborgas.size() > 0) {
-			json.add("subOrganizations", suborgas); //$NON-NLS-1$
-		}
-		//
-		forEachAttribute((name, value) -> JsonUtils.defaultBehavior(json, name, value));
+		generator.writeEndObject();
+	}
+
+	@Override
+	public void serializeWithType(JsonGenerator generator, SerializerProvider serializers, TypeSerializer typeSer)
+			throws IOException {
+		serialize(generator, serializers);
 	}
 
 	/** Replies the identifier of the research organization.

@@ -16,8 +16,8 @@
 
 package fr.ciadlab.labmanager.entities.publication;
 
+import java.io.IOException;
 import java.io.Serializable;
-import java.util.function.BiConsumer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -27,12 +27,14 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
-import fr.ciadlab.labmanager.utils.JsonExportable;
-import fr.ciadlab.labmanager.utils.JsonUtils;
 
 /** Author link between a person and a research publication.
  * 
@@ -44,7 +46,7 @@ import fr.ciadlab.labmanager.utils.JsonUtils;
  */
 @Entity
 @Table(name = "Authorship")
-public class Authorship implements Serializable, JsonExportable, AttributeProvider, Comparable<Authorship> {
+public class Authorship implements Serializable, JsonSerializable, AttributeProvider, Comparable<Authorship> {
 
 	private static final long serialVersionUID = -6870718668893845051L;
 
@@ -91,7 +93,7 @@ public class Authorship implements Serializable, JsonExportable, AttributeProvid
 	@Override
 	public String toString() {
 		return "{" + getPerson() + "}{" + getAuthorRank() + "}{" //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-			+ getPublication() + "}:" + this.id; //$NON-NLS-1$
+				+ getPublication() + "}:" + this.id; //$NON-NLS-1$
 	}
 
 	@Override
@@ -127,23 +129,35 @@ public class Authorship implements Serializable, JsonExportable, AttributeProvid
 	/** {@inheritDoc}
 	 * <p>The attributes that are not considered by this function are:<ul>
 	 * <li>{@code id}</li>
+	 * <li>{@code person}</li>
+	 * <li>{@code publication}</li>
 	 * </ul>
 	 */
 	@Override
-	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		consumer.accept("authorRank", Integer.valueOf(getAuthorRank())); //$NON-NLS-1$
-		if (getPerson() != null) {
-			consumer.accept("person", getPerson()); //$NON-NLS-1$
-		}
-		if (getPublication() != null) {
-			consumer.accept("publication", getPublication()); //$NON-NLS-1$
-		}
 	}
 
 	@Override
-	public void toJson(JsonObject json) {
-		json.addProperty("id", Integer.valueOf(getId())); //$NON-NLS-1$
-		forEachAttribute((name, value) -> JsonUtils.defaultBehavior(json, name, value));
+	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
+		generator.writeStartObject();
+		generator.writeNumberField("id", getId()); //$NON-NLS-1$
+		forEachAttribute((name, value) -> {
+			JsonUtils.writeField(generator, name, value);
+		});
+		if (getPerson() != null) {
+			generator.writeNumberField("person", getPerson().getId()); //$NON-NLS-1$
+		}
+		if (getPublication() != null) {
+			generator.writeNumberField("publication", getPublication().getId()); //$NON-NLS-1$
+		}
+		generator.writeEndObject();
+	}
+
+	@Override
+	public void serializeWithType(JsonGenerator generator, SerializerProvider serializers, TypeSerializer typeSer)
+			throws IOException {
+		serialize(generator, serializers);
 	}
 
 	/** Replies the identifier of the authorship.

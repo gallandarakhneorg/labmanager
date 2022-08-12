@@ -16,8 +16,8 @@
 
 package fr.ciadlab.labmanager.entities.publication.type;
 
+import java.io.IOException;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -179,8 +179,11 @@ public class ConferencePaper extends Publication {
 	}
 
 	@Override
-	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
+		if (!Strings.isNullOrEmpty(getScientificEventName())) {
+			consumer.accept("scientificEventName", getScientificEventName()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getVolume())) {
 			consumer.accept("volume", getVolume()); //$NON-NLS-1$
 		}

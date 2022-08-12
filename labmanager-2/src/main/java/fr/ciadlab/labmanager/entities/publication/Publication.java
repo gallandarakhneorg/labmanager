@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.entities.publication;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,7 +26,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
@@ -45,15 +45,16 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 import javax.transaction.Transactional;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
-import fr.ciadlab.labmanager.utils.JsonExportable;
-import fr.ciadlab.labmanager.utils.JsonUtils;
 
 /** Abstract representation of a research publication.
  * This class contains the fields that are usually shared between many of the different types of research publications.
@@ -68,7 +69,7 @@ import fr.ciadlab.labmanager.utils.JsonUtils;
 @Entity
 @Table(name = "Publications")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class Publication implements Serializable, Comparable<Publication>, JsonExportable, AttributeProvider {
+public abstract class Publication implements Serializable, Comparable<Publication>, JsonSerializable, AttributeProvider {
 
 	private static final long serialVersionUID = -5980560007123809890L;
 
@@ -347,15 +348,19 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	/** {@inheritDoc}
 	 * <p>The attributes that are not considered by this function are:<ul>
 	 * <li>{@code id}</li>
-	 * <li>{@code type}</li>
 	 * <li>{@code authorships}</li>
 	 * <li>{@code authors}</li>
-	 * <li>{@code publicationYear}</li>
 	 * </ul>
 	 */
 	@Override
-	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
+		if (getPublicationYear() > 0) {
+			consumer.accept("publicationYear", Integer.valueOf(getPublicationYear())); //$NON-NLS-1$
+		}
+		if (getPublicationDate() != null) {
+			consumer.accept("publicationDate", getPublicationDate()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getAbstractText())) {
 			consumer.accept("abstractText", getAbstractText()); //$NON-NLS-1$
 		}
@@ -389,10 +394,6 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		if (!Strings.isNullOrEmpty(getPathToDownloadablePDF())) {
 			consumer.accept("pathToDownloadablePDF", getPathToDownloadablePDF()); //$NON-NLS-1$
 		}
-		final Date dt = getPublicationDate();
-		if (dt != null) {
-			consumer.accept("publicationDate", dt.toString()); //$NON-NLS-1$
-		}
 		if (!Strings.isNullOrEmpty(getVideoURL())) {
 			consumer.accept("videoURL", getVideoURL()); //$NON-NLS-1$
 		}
@@ -402,39 +403,59 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		if (getType() != null) {
 			consumer.accept("type", getType()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getVideoURL())) {
-			consumer.accept("videoURL", getVideoURL()); //$NON-NLS-1$
-		}
 	}
 
 	@Override
-	public final void toJson(JsonObject json) {
-		json.addProperty("id", Integer.valueOf(getId())); //$NON-NLS-1$
-		if (getType() != null) {
-			json.addProperty("type", getType().name()); //$NON-NLS-1$
-		}
-		final JsonArray authors = new JsonArray();
-		for (final Person author : getAuthors()) {
-			final JsonObject personJson = new JsonObject();
-			author.toJson(personJson);
-			if (personJson.size() > 0) {
-				authors.add(personJson);
+	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
+		generator.writeStartObject();
+		generator.writeNumberField("id", getId()); //$NON-NLS-1$
+		forEachAttribute((name, value) -> {
+			JsonUtils.writeField(generator, name, value);
+		});
+		if (!getAuthors().isEmpty()) {
+			generator.writeArrayFieldStart("authors"); //$NON-NLS-1$
+			for (final Person author : getAuthors()) {
+				generator.writeNumber(author.getId());
 			}
+			generator.writeEndArray();
 		}
-		if (authors.size() > 0) {
-			json.add("authors", authors); //$NON-NLS-1$
+		if (!getAuthorships().isEmpty()) {
+			generator.writeArrayFieldStart("authorships"); //$NON-NLS-1$
+			for (final Authorship authorship : getAuthorships()) {
+				generator.writeStartObject();
+				generator.writeNumberField("authorRank", authorship.getAuthorRank()); //$NON-NLS-1$
+				if (authorship.getPerson() !=null) {
+					generator.writeNumberField("person", authorship.getPerson().getId()); //$NON-NLS-1$
+				}
+				generator.writeEndObject();
+			}
+			generator.writeEndArray();
 		}
-		json.addProperty("publicationYear", Integer.valueOf(getPublicationYear())); //$NON-NLS-1$
-		//
-		forEachAttribute((name, value) -> JsonUtils.defaultBehavior(json, name, value));
+		generator.writeEndObject();
+	}
+
+	@Override
+	public void serializeWithType(JsonGenerator generator, SerializerProvider serializers, TypeSerializer typeSer)
+			throws IOException {
+		serialize(generator, serializers);
 	}
 
 	/** Replies the set of authorships.
 	 *
-	 * @return the authoships.
+	 * @return the authorships.
 	 */
 	public List<Authorship> getAuthorships() {
 		return this.authorships.stream().sorted(AuthorshipComparator.DEFAULT).collect(Collectors.toList());
+	}
+
+	/** Change the set of authorships.
+	 * You are not supposed to invoke this function yourself because the authorship set
+	 * if managed by the API framework.
+	 *
+	 * @param authorships the authorships.
+	 */
+	public void setAuthorships(Set<Authorship> authorships) {
+		this.authorships = authorships;
 	}
 
 	/** Replies the ordered list of authors.

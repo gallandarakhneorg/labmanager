@@ -31,8 +31,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeCreator;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import org.slf4j.Logger;
@@ -228,6 +229,42 @@ public abstract class JsonTool {
 		return LoggerFactory.getLogger(getClass());
 	}
 
+	/** Extract the raw value from the given node.
+	 *
+	 * @param node the JSON node.
+	 * @return the raw value, or {@code null} if the value cannot be obtained.
+	 */
+	protected static Object getRawValue(JsonNode node) {
+		if (node.isBoolean()) {
+			return Boolean.valueOf(node.booleanValue());
+		}
+		if (node.isShort()) {
+			return Short.valueOf(node.shortValue());
+		}
+		if (node.isInt()) {
+			return Integer.valueOf(node.intValue());
+		}
+		if (node.isLong()) {
+			return Long.valueOf(node.longValue());
+		}
+		if (node.isFloat()) {
+			return Float.valueOf(node.floatValue());
+		}
+		if (node.isDouble()) {
+			return Double.valueOf(node.doubleValue());
+		}
+		if (node.isBigInteger()) {
+			return node.bigIntegerValue();
+		}
+		if (node.isBigDecimal()) {
+			return node.decimalValue();
+		}
+		if (node.isTextual()) {
+			return node.textValue();
+		}
+		return null;
+	}
+
 	/** Find the setter methods that matches the given names.
 	 *
 	 * @param type the type of the object on which the setter function must be invoked.
@@ -239,10 +276,11 @@ public abstract class JsonTool {
 	protected static Method findSetterMethod(Class<?> type, Set<String> names, Object value) {
 		assert value != null;
 		try {
+			final Class<?> valueType = value.getClass();
 			final Collection<Method> methods = Arrays.asList(type.getMethods()).parallelStream().filter(it -> {
 				if (it.getParameterCount() == 1 && (names.contains(it.getName().toLowerCase()))) {
 					final Class<?> receiver = it.getParameterTypes()[0];
-					final Class<?> provider = value.getClass();
+					final Class<?> provider = valueType;
 					return receiver.isAssignableFrom(provider);
 				}
 				return false;
@@ -348,10 +386,11 @@ public abstract class JsonTool {
 	/** Create a reference to another entity.
 	 *
 	 * @param id the identifier.
+	 * @param factory the factory of JSON nodes.
 	 */
-	protected static JsonElement createReference(String id) {
-		final JsonObject ref = new JsonObject();
-		ref.addProperty(ID_FIELDNAME, id);
+	protected static JsonNode createReference(String id, JsonNodeCreator factory) {
+		final ObjectNode ref = factory.objectNode();
+		ref.set(ID_FIELDNAME, factory.textNode(id));
 		return ref;
 	}
 
@@ -361,9 +400,9 @@ public abstract class JsonTool {
 	 * @param key the key that should receive the reference.
 	 * @param id the identifier.
 	 */
-	protected static void addReference(JsonObject receiver, String key, String id) {
-		final JsonElement ref = createReference(id);
-		receiver.add(key, ref);
+	protected static void addReference(ObjectNode receiver, String key, String id) {
+		final JsonNode ref = createReference(id, receiver);
+		receiver.set(key, ref);
 	}
 
 }

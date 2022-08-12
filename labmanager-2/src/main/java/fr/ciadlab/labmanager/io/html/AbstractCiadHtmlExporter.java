@@ -227,10 +227,19 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 			html.append(". "); //$NON-NLS-1$
 		}
 		final String doiLink = buildDoiLink(publication.getDOI());
+		final String isbn;
+		final String issn;
+		if (journal != null) {
+			isbn = journal.getISBN();
+			issn = journal.getISSN();
+		} else {
+			isbn = null;
+			issn = null;
+		}
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+				decorateBefore(isbn, this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				decorateBefore(issn, this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			html.append(". "); //$NON-NLS-1$
 		}		
 		if (journal != null && append(html, journal.getPublisher())) {

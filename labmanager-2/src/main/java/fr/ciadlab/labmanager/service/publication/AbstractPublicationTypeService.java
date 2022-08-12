@@ -21,10 +21,10 @@ import java.sql.Date;
 import java.util.Base64;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
-import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -122,8 +122,7 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 		publication.setAbstractText(Strings.emptyToNull(abstractText));
 		publication.setKeywords(Strings.emptyToNull(keywords));
 		publication.setDOI(Strings.emptyToNull(doi));
-		// TODO: Make the design better by creating separate classes for publications w/ and w/o ISBN/ISSN
-		if (!(publication instanceof JournalPaper)) {
+		if (!(publication instanceof JournalBasedPublication)) {
 			publication.setISBN(Strings.emptyToNull(isbn));
 			publication.setISSN(Strings.emptyToNull(issn));
 		}

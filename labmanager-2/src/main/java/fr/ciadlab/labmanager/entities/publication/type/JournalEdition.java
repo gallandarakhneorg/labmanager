@@ -16,8 +16,8 @@
 
 package fr.ciadlab.labmanager.entities.publication.type;
 
+import java.io.IOException;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -25,6 +25,8 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -121,7 +123,7 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 	}
 
 	@Override
-	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
 		if (!Strings.isNullOrEmpty(getVolume())) {
 			consumer.accept("volume", getVolume()); //$NON-NLS-1$
@@ -132,12 +134,15 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		if (!Strings.isNullOrEmpty(getPages())) {
 			consumer.accept("pages", getPages()); //$NON-NLS-1$
 		}		
-		final Journal journal = getJournal();
-		if (journal != null) {
-			consumer.accept("journal", journal); //$NON-NLS-1$
-		}
 	}
 
+	@Override
+	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
+		super.serialize(generator, serializers);
+		if (getJournal() != null) {
+			generator.writeNumberField("journal", getJournal().getId()); //$NON-NLS-1$
+		}
+	}
 
 	@Override
 	public String getWherePublishedShortDescription() {
@@ -278,6 +283,58 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 				|| journal.getWosQIndexByYear(getPublicationYear()) != null;
 		}
 		return false;
+	}
+
+	/** Replies the ISBN number that is associated to this publication.
+	 * This functions delegates to the journal.
+	 *
+	 * @return the ISBN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/ISBN"
+	 * @deprecated See {@link Journal#getISBN()}
+	 */
+	@Override
+	@Deprecated(since = "2.0.0")
+	public String getISBN() {
+		return this.journal.getISBN();
+	}
+
+	/** Change the ISBN number that is associated to this publication.
+	 * This functions delegates to the journal.
+	 *
+	 * @param isbn the ISBN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/ISBN"
+	 * @deprecated See {@link Journal#setISBN(String)}
+	 */
+	@Override
+	@Deprecated(since = "2.0.0")
+	public void setISBN(String isbn) {
+		this.journal.setISBN(isbn);
+	}
+
+	/** Replies the ISSN number that is associated to this publication.
+	 * This functions delegates to the journal.
+	 *
+	 * @return the ISSN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
+	 * @deprecated See {@link Journal#getISSN()}
+	 */
+	@Override
+	@Deprecated(since = "2.0.0")
+	public String getISSN() {
+		return this.journal.getISSN();
+	}
+
+	/** Change the ISSN number that is associated to this publication.
+	 * This functions delegates to the journal.
+	 *
+	 * @param issn the ISSN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
+	 * @deprecated See {@link Journal#setISSN(String)}
+	 */
+	@Override
+	@Deprecated(since = "2.0.0")
+	public final void setISSN(String issn) {
+		this.journal.setISSN(issn);
 	}
 
 }

@@ -21,11 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.sql.Date;
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.core.JsonGenerator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,6 +70,17 @@ public class MembershipTest {
 
 	@Test
 	public void getId() {
+		assertEquals(0, this.test.getId());
+	}
+
+	@Test
+	public void setId() {
+		assertEquals(0, this.test.getId());
+
+		this.test.setId(456);
+		assertEquals(456, this.test.getId());
+
+		this.test.setId(0);
 		assertEquals(0, this.test.getId());
 	}
 
@@ -498,6 +514,35 @@ public class MembershipTest {
 		this.test.setMemberSinceWhen(date(2023, 5, 5));
 		this.test.setMemberToWhen(date(2023, 5, 5));
 		assertFalse(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	public void serialize() throws Exception {
+		Person person = mock(Person.class);
+		when(person.getId()).thenReturn(753);
+		ResearchOrganization orga = mock(ResearchOrganization.class);
+		when(orga.getId()).thenReturn(951);
+		this.test.setId(369);
+		this.test.setCnuSection(27);
+		this.test.setMemberSinceWhen(Date.valueOf("2022-07-22"));
+		this.test.setMemberStatus(MemberStatus.ENGINEER);
+		this.test.setMemberToWhen(Date.valueOf("2022-09-18"));
+		this.test.setPerson(person);
+		this.test.setResearchOrganization(orga);
+		JsonGenerator generator = mock(JsonGenerator.class);
+
+		this.test.serialize(generator, null);
+
+		verify(generator).writeStartObject();
+		verify(generator).writeNumberField(eq("id"), eq(369));
+		verify(generator).writeNumberField(eq("cnuSection"), eq(27));
+		verify(generator).writeStringField(eq("memberSinceWhen"), eq("2022-07-22"));
+		verify(generator).writeStringField(eq("memberToWhen"), eq("2022-09-18"));
+		verify(generator).writeStringField(eq("memberStatus"), eq("ENGINEER"));
+		verify(generator).writeNumberField(eq("person"), eq(753));
+		verify(generator).writeNumberField(eq("researchOrganization"), eq(951));
+		verify(generator).writeEndObject();
+		verifyNoMoreInteractions(generator);
 	}
 
 }

@@ -16,19 +16,20 @@
 
 package fr.ciadlab.labmanager.entities.journal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.*;
 
 import java.net.URL;
 import java.util.Set;
 import java.util.TreeSet;
 
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.core.JsonGenerator;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
@@ -481,27 +482,6 @@ public class JournalTest {
 	}
 
 	@Test
-	public void toJson() {
-		this.test.setId(123);
-		this.test.setJournalName("name0");
-		this.test.setJournalURL("url0");
-		this.test.setPublisher("pub0");
-		this.test.setScimagoId("sid0");
-		this.test.setWosId("wid0");
-
-		JsonObject obj = new JsonObject();
-
-		this.test.toJson(obj);
-
-		assertNotNull(obj.get("id"));
-		assertNotNull(obj.get("journalName"));
-		assertNotNull(obj.get("publisher"));
-		assertNotNull(obj.get("journalUrl"));
-		assertNotNull(obj.get("scimagoId"));
-		assertNotNull(obj.get("wosId"));
-	}
-
-	@Test
 	public void getOpenAcess() {
 		assertNull(this.test.getOpenAccess());
 	}
@@ -552,6 +532,37 @@ public class JournalTest {
 
 		this.test.setISSN(null);
 		assertNull(this.test.getISSN());
+	}
+
+	@Test
+	public void serialize() throws Exception {
+		this.test.setAddress("adr0");
+		this.test.setId(159);
+		this.test.setISBN("isbn0");
+		this.test.setISSN("issn0");
+		this.test.setJournalName("name0");
+		this.test.setJournalURL("url0");
+		this.test.setOpenAccess(true);
+		this.test.setPublisher("publisher0");
+		this.test.setScimagoId("sci0");
+		this.test.setWosId("wos0");
+		JsonGenerator generator = mock(JsonGenerator.class);
+
+		this.test.serialize(generator, null);
+
+		verify(generator).writeStartObject();
+		verify(generator).writeStringField(eq("address"), eq("adr0"));
+		verify(generator).writeNumberField(eq("id"), eq(159));
+		verify(generator).writeStringField(eq("isbn"), eq("isbn0"));
+		verify(generator).writeStringField(eq("issn"), eq("issn0"));
+		verify(generator).writeStringField(eq("journalName"), eq("name0"));
+		verify(generator).writeStringField(eq("journalURL"), eq("url0"));
+		verify(generator).writeBooleanField(eq("openAccess"), eq(true));
+		verify(generator).writeStringField(eq("publisher"), eq("publisher0"));
+		verify(generator).writeStringField(eq("scimagoId"), eq("sci0"));
+		verify(generator).writeStringField(eq("wosId"), eq("wos0"));
+		verify(generator).writeEndObject();
+		verifyNoMoreInteractions(generator);
 	}
 
 }

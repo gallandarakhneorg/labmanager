@@ -98,8 +98,6 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param abstractText the new text of the abstract.
 	 * @param keywords the new list of keywords.
 	 * @param doi the new DOI number.
-	 * @param isbn the new ISBN number.
-	 * @param issn the new ISSN number.
 	 * @param dblpUrl the new URL to the DBLP page of the publication.
 	 * @param extraUrl the new URL to the page of the publication.
 	 * @param language the new major language of the publication.
@@ -114,7 +112,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 */
 	public void updateJournalEdition(int pubId,
 			String title, PublicationType type, Date date, String abstractText, String keywords,
-			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
+			String doi, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages) {
 		final Optional<JournalEdition> res = this.repository.findById(Integer.valueOf(pubId));
@@ -122,7 +120,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 			final JournalEdition edition = res.get();
 
 			updatePublicationNoSave(edition, title, type, date,
-					abstractText, keywords, doi, isbn, issn, dblpUrl,
+					abstractText, keywords, doi, null, null, dblpUrl,
 					extraUrl, language, pdfContent, awardContent,
 					pathToVideo);
 

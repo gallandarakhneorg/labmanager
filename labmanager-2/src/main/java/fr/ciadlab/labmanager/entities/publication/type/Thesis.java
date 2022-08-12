@@ -16,8 +16,8 @@
 
 package fr.ciadlab.labmanager.entities.publication.type;
 
+import java.io.IOException;
 import java.util.Objects;
-import java.util.function.BiConsumer;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -97,7 +97,7 @@ public class Thesis extends Publication {
 	}
 
 	@Override
-	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
 		if (!Strings.isNullOrEmpty(getInstitution())) {
 			consumer.accept("institution", getInstitution()); //$NON-NLS-1$

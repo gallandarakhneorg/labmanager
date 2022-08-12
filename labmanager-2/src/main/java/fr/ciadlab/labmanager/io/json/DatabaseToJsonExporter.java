@@ -17,15 +17,19 @@
 package fr.ciadlab.labmanager.io.json;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.JsonNodeCreator;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.member.Membership;
@@ -91,21 +95,22 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 */
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> exportFromDatabase() throws Exception {
-		final JsonObject obj = exportFromDatabaseToJsonObject();
+		final ObjectMapper mapper = new ObjectMapper();
+		final JsonNode obj = exportFromDatabaseToJsonObject(mapper.getNodeFactory());
 		if (obj != null) {
-			final Gson gson = new Gson();
-			return gson.fromJson(obj, Map.class);
+			return mapper.treeToValue(obj, Map.class);
 		}
 		return null;
 	}
 
 	/** Run the exporter for creating JSON objects.
 	 *
+	 * @param factory the factory of nodes.
 	 * @return the JSON content.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	public JsonObject exportFromDatabaseToJsonObject() throws Exception {
-		final JsonObject root = new JsonObject();
+	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory) throws Exception {
+		final ObjectNode root = factory.objectNode();
 		final Map<Object, String> repository = new HashMap<>();
 		exportOrganizations(root, repository);
 		exportPersons(root, repository);
@@ -113,7 +118,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportJournals(root, repository);
 		exportPublications(root, repository);
 		if (root.size() > 0) {
-			root.addProperty(LAST_CHANGE_FIELDNAME, LocalDate.now().toString());
+			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;
 		}
 		return null;
@@ -124,25 +129,41 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param receiver the receiver of JSON.
 	 * @param id the identifier.
 	 * @param object the object to export.
+	 * @param factory the factory of nodes.
 	 * @throws Exception if there is problem for exporting.
 	 */
 	@SuppressWarnings("static-method")
-	protected void exportObject(JsonObject receiver, String id, Object object) throws Exception {
+	protected void exportObject(JsonNode receiver, String id, Object object, JsonNodeCreator factory) throws Exception {
 		if (object != null) {
+			final ObjectNode rec = (ObjectNode) receiver;
 			if (!Strings.isNullOrEmpty(id)) {
-				receiver.addProperty(ID_FIELDNAME, id);
+				rec.set(ID_FIELDNAME, factory.textNode(id));
 			}
 			final Map<String, Method> meths = findGetterMethods(object.getClass());
 			for (final Entry<String, Method> entry : meths.entrySet()) {
 				final Object objValue = convertValue(entry.getValue().invoke(object));
 				if (objValue instanceof String) {
-					receiver.addProperty(entry.getKey(), (String) objValue);
+					rec.set(entry.getKey(), factory.textNode((String) objValue));
+				} else if (objValue instanceof Byte) {
+					rec.set(entry.getKey(), factory.numberNode((Byte) objValue));
+				} else if (objValue instanceof Short) {
+					rec.set(entry.getKey(), factory.numberNode((Short) objValue));
+				} else if (objValue instanceof Integer) {
+					rec.set(entry.getKey(), factory.numberNode((Integer) objValue));
+				} else if (objValue instanceof Long) {
+					rec.set(entry.getKey(), factory.numberNode((Long) objValue));
+				} else if (objValue instanceof Float) {
+					rec.set(entry.getKey(), factory.numberNode((Float) objValue));
+				} else if (objValue instanceof BigDecimal) {
+					rec.set(entry.getKey(), factory.numberNode((BigDecimal) objValue));
+				} else if (objValue instanceof BigInteger) {
+					rec.set(entry.getKey(), factory.numberNode((BigInteger) objValue));
 				} else if (objValue instanceof Number) {
-					receiver.addProperty(entry.getKey(), (Number) objValue);
+					rec.set(entry.getKey(), factory.numberNode(((Number) objValue).doubleValue()));
 				} else if (objValue instanceof Boolean) {
-					receiver.addProperty(entry.getKey(), (Boolean) objValue);
+					rec.set(entry.getKey(), factory.booleanNode(((Boolean) objValue).booleanValue()));
 				} else if (objValue instanceof Character) {
-					receiver.addProperty(entry.getKey(), (Character) objValue);
+					rec.set(entry.getKey(), factory.textNode(((Character) objValue).toString()));
 				}
 			}
 		}
@@ -154,16 +175,16 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param repository the repository of elements that maps an object to its JSON id.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	protected void exportOrganizations(JsonObject root, Map<Object, String> repository) throws Exception {
+	protected void exportOrganizations(ObjectNode root, Map<Object, String> repository) throws Exception {
 		final List<ResearchOrganization> organizations = this.organizationRepository.findAll();
 		if (!organizations.isEmpty()) {
-			final JsonArray array = new JsonArray();
+			final ArrayNode array = root.arrayNode();
 			int i = 0;
 			for (final ResearchOrganization organization : organizations) {
-				final JsonObject jsonOrganization = new JsonObject();
+				final ObjectNode jsonOrganization = array.objectNode();
 
 				final String id = RESEARCHORGANIZATION_ID_PREFIX + i;
-				exportObject(jsonOrganization, id, organization);
+				exportObject(jsonOrganization, id, organization, jsonOrganization);
 
 				if (jsonOrganization.size() > 0) {
 					repository.put(organization, id);
@@ -172,7 +193,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				}
 			}
 			if (array.size() > 0) {
-				root.add(RESEARCHORGANIZATIONS_SECTION, array);
+				root.set(RESEARCHORGANIZATIONS_SECTION, array);
 			}
 		}
 	}
@@ -184,16 +205,16 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param repository the repository of elements that maps an object to its JSON id.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	protected void exportPersons(JsonObject root, Map<Object, String> repository) throws Exception {
+	protected void exportPersons(ObjectNode root, Map<Object, String> repository) throws Exception {
 		final List<Person> persons = this.personRepository.findAll();
 		if (!persons.isEmpty()) {
-			final JsonArray array = new JsonArray();
+			final ArrayNode array = root.arrayNode();
 			int i = 0;
 			for (final Person person : persons) {
-				final JsonObject jsonPerson = new JsonObject();
+				final ObjectNode jsonPerson = array.objectNode();
 
 				final String id = PERSON_ID_PREFIX + i;
-				exportObject(jsonPerson, id, person);
+				exportObject(jsonPerson, id, person, jsonPerson);
 
 				if (jsonPerson.size() > 0) {
 					repository.put(person, id);
@@ -202,7 +223,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				}
 			}
 			if (array.size() > 0) {
-				root.add(PERSONS_SECTION, array);
+				root.set(PERSONS_SECTION, array);
 			}
 		}
 	}
@@ -213,19 +234,19 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param repository the repository of elements that maps an object to its JSON id.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	protected void exportMemberships(JsonObject root, Map<Object, String> repository) throws Exception {
+	protected void exportMemberships(ObjectNode root, Map<Object, String> repository) throws Exception {
 		final List<Membership> memberships = this.membershipRepository.findAll();
 		if (!memberships.isEmpty()) {
-			final JsonArray array = new JsonArray();
+			final ArrayNode array = root.arrayNode();
 			int i = 0;
 			for (final Membership membership : memberships) {
 				final String personId = repository.get(membership.getPerson());
 				final String organizationId = repository.get(membership.getResearchOrganization());
 				if (!Strings.isNullOrEmpty(personId) && !Strings.isNullOrEmpty(organizationId)) {
-					final JsonObject jsonMembership = new JsonObject();
+					final ObjectNode jsonMembership = array.objectNode();
 
 					final String id = RESEARCHORGANIZATION_ID_PREFIX + i;
-					exportObject(jsonMembership, id, membership);
+					exportObject(jsonMembership, id, membership, jsonMembership);
 
 					// Person and organization must be added explicitly because the "exportObject" function
 					// ignore the getter functions for both.
@@ -239,7 +260,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				}
 			}
 			if (array.size() > 0) {
-				root.add(MEMBERSHIPS_SECTION, array);
+				root.set(MEMBERSHIPS_SECTION, array);
 			}
 		}
 	}
@@ -250,31 +271,31 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param repository the repository of elements that maps an object to its JSON id.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	protected void exportJournals(JsonObject root, Map<Object, String> repository) throws Exception {
+	protected void exportJournals(ObjectNode root, Map<Object, String> repository) throws Exception {
 		final List<Journal> journals = this.journalRepository.findAll();
 		if (!journals.isEmpty()) {
-			final JsonArray array = new JsonArray();
+			final ArrayNode array = root.arrayNode();
 			int i = 0;
 			for (final Journal journal : journals) {
-				final JsonObject jsonJournal = new JsonObject();
+				final ObjectNode jsonJournal = array.objectNode();
 
 				final String id = JOURNAL_ID_PREFIX + i;
-				exportObject(jsonJournal, id, journal);
+				exportObject(jsonJournal, id, journal, jsonJournal);
 
 				// Add the publication indicators by hand because they are not exported implicitly by
 				// the "exportObject" function
-				final JsonObject indicatorMap = new JsonObject();
+				final ObjectNode indicatorMap = jsonJournal.objectNode();
 				for (final JournalQualityAnnualIndicators indicators : journal.getQualityIndicators().values()) {
-					final JsonObject jsonIndicator = new JsonObject();
-					exportObject(jsonIndicator, null, indicators);
+					final ObjectNode jsonIndicator = indicatorMap.objectNode();
+					exportObject(jsonIndicator, null, indicators, jsonIndicator);
 					// Remove the year because it is not necessary into the JSON map as value and the year is the key.
 					jsonIndicator.remove(REFERENCEYEAR_KEY);
 					if (jsonIndicator.size() > 0) {
-						indicatorMap.add(Integer.toString(indicators.getReferenceYear()), jsonIndicator);
+						indicatorMap.set(Integer.toString(indicators.getReferenceYear()), jsonIndicator);
 					}
 				}
 				if (indicatorMap.size() > 0) {
-					jsonJournal.add(QUALITYINDICATORSHISTORY_KEY, indicatorMap);
+					jsonJournal.set(QUALITYINDICATORSHISTORY_KEY, indicatorMap);
 				}
 
 				if (jsonJournal.size() > 0) {
@@ -284,7 +305,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				}
 			}
 			if (array.size() > 0) {
-				root.add(JOURNALS_SECTION, array);
+				root.set(JOURNALS_SECTION, array);
 			}
 		}
 	}
@@ -295,21 +316,21 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param repository the repository of elements that maps an object to its JSON id.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	protected void exportPublications(JsonObject root, Map<Object, String> repository) throws Exception {
+	protected void exportPublications(ObjectNode root, Map<Object, String> repository) throws Exception {
 		final List<Publication> publications = this.publicationRepository.findAll();
 		if (!publications.isEmpty()) {
-			final JsonArray array = new JsonArray();
+			final ArrayNode array = root.arrayNode();
 			int i = 0;
 			for (final Publication publication : publications) {
-				final JsonObject jsonPublication = new JsonObject();
+				final ObjectNode jsonPublication = array.objectNode();
 
 				final String id = PUBLICATION_ID_PREFIX + i;
-				exportObject(jsonPublication, id, publication);
+				exportObject(jsonPublication, id, publication, jsonPublication);
 
 				// Add the authors by hand because they are not exported implicitly by
 				// the "exportObject" function.
 				// It is due to the reference to person entities.
-				final JsonArray authorArray = new JsonArray();
+				final ArrayNode authorArray = jsonPublication.arrayNode();
 				for (final Person author : publication.getAuthors()) {
 					final String authorId = repository.get(author);
 					if (Strings.isNullOrEmpty(authorId)) {
@@ -317,11 +338,11 @@ public class DatabaseToJsonExporter extends JsonTool {
 						// the full name of the person is output to JSON
 						authorArray.add(author.getFullName());
 					} else {
-						authorArray.add(createReference(authorId));
+						authorArray.add(createReference(authorId, authorArray));
 					}
 				}
 				if (authorArray.size() > 0) {
-					jsonPublication.add(AUTHORS_KEY, authorArray);
+					jsonPublication.set(AUTHORS_KEY, authorArray);
 				}
 
 				// Add the journal by hand because they are not exported implicitly by
@@ -335,9 +356,9 @@ public class DatabaseToJsonExporter extends JsonTool {
 						if (Strings.isNullOrEmpty(journalId)) {
 							// Journal not found in the repository. It is an unexpected behavior but
 							// the name of the journal is output to JSON
-							jsonPublication.addProperty(JOURNAL_KEY, journal.getJournalName());
+							jsonPublication.set(JOURNAL_KEY, jsonPublication.textNode(journal.getJournalName()));
 						} else {
-							jsonPublication.add(JOURNAL_KEY, createReference(journalId));
+							jsonPublication.set(JOURNAL_KEY, createReference(journalId, jsonPublication));
 						}
 					}
 				}
@@ -349,7 +370,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				}
 			}
 			if (array.size() > 0) {
-				root.add(PUBLICATIONS_SECTION, array);
+				root.set(PUBLICATIONS_SECTION, array);
 			}
 		}
 	}

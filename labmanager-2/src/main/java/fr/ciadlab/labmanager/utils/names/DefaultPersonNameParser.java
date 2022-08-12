@@ -50,7 +50,7 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	 * @see #formatNameForDisplay(String)
 	 */
 	public static final char[] NAME_DELIMITERS = new char[] {
-			' ', '\t', '\n', '\r', '\f', '.', '-', '_'	
+			' ', '\u00A0', '\t', '\n', '\r', '\f', '.', '-', '_'	
 	};
 
 	private static final char FORMAT_2_SEPARATOR = ',';
@@ -118,7 +118,7 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	}
 
 	private static void forEachComponent(String name, Function<String, Boolean> consumer) {
-		final String[] words = name.split("\\s+"); //$NON-NLS-1$
+		final String[] words = name.split("[\\s\u00A0]+"); //$NON-NLS-1$
 		for (final String word : words) {
 			final String[] subwords = word.split("[\\-]+"); //$NON-NLS-1$
 			int max = subwords.length;

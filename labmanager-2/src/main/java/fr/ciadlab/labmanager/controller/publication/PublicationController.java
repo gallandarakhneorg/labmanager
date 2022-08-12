@@ -16,41 +16,9 @@
 
 package fr.ciadlab.labmanager.controller.publication;
 
-import java.io.File;
-import java.sql.Date;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
-import java.util.TreeMap;
-import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import fr.ciadlab.labmanager.controller.AbstractController;
-import fr.ciadlab.labmanager.entities.journal.Journal;
-import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.publication.Publication;
-import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
-import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
-import fr.ciadlab.labmanager.entities.publication.PublicationType;
-import fr.ciadlab.labmanager.entities.publication.type.Book;
-import fr.ciadlab.labmanager.entities.publication.type.BookChapter;
-import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
-import fr.ciadlab.labmanager.entities.publication.type.JournalEdition;
-import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
-import fr.ciadlab.labmanager.entities.publication.type.KeyNote;
-import fr.ciadlab.labmanager.entities.publication.type.MiscDocument;
-import fr.ciadlab.labmanager.entities.publication.type.Patent;
-import fr.ciadlab.labmanager.entities.publication.type.Report;
-import fr.ciadlab.labmanager.entities.publication.type.Thesis;
-import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
@@ -71,21 +39,11 @@ import fr.ciadlab.labmanager.service.publication.type.ThesisService;
 import fr.ciadlab.labmanager.utils.ViewFactory;
 import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
-import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
-import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.support.RequestContextUtils;
-import org.springframework.web.servlet.view.RedirectView;
 
 /** REST Controller for publications.
  * 

@@ -16,9 +16,7 @@
 
 package fr.ciadlab.labmanager.utils;
 
-import java.util.function.BiConsumer;
-
-import com.google.gson.JsonObject;
+import java.io.IOException;
 
 /** Interface that represents an object that could provides attributes.
  * 
@@ -27,18 +25,39 @@ import com.google.gson.JsonObject;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
- * @see JsonExportable
  */
 public interface AttributeProvider {
 
 	/** Invoke the given consumer on each attribute of this object.
 	 * This function is usually invoked by the functions that need to generate
-	 * a map of attributes for this object, e.g., {@link JsonExportable#toJson(JsonObject)}.
+	 * a map of attributes for this object.
 	 * <p>Several attributes are not considered by this function. They
 	 * are listed in the documentation of the implementation class.
 	 *
 	 * @param consumer the consumer of the publication's attributes
+		 * @throws IOException on error.
 	 */
-	void forEachAttribute(BiConsumer<String, Object> consumer);
+	void forEachAttribute(AttributeConsumer consumer) throws IOException ;
+
+	/** Interface that represents an object that could provides attributes.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.0.0
+	 */
+	public interface AttributeConsumer {
+
+		/**
+		 * Performs the operation on the given attribute.
+		 *
+		 * @param name the attribute name.
+		 * @param value the attribute value.
+		 * @throws IOException on error.
+		 */
+		void accept(String name, Object value) throws IOException;
+
+	}
 
 }

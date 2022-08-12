@@ -20,12 +20,16 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import org.arakhne.afc.util.CountryCode;
 import org.junit.jupiter.api.BeforeEach;
@@ -252,6 +256,44 @@ public class ResearchOrganizationTest {
 
 		this.test.setType((String) null);
 		assertSame(ResearchOrganizationType.LABORATORY, this.test.getType());
+	}
+
+	@Test
+	public void serialize() throws Exception {
+		ResearchOrganization sub0 = mock(ResearchOrganization.class);
+		when(sub0.getId()).thenReturn(4568);
+		ResearchOrganization sub1 = mock(ResearchOrganization.class);
+		when(sub1.getId()).thenReturn(4569);
+		ResearchOrganization sup = mock(ResearchOrganization.class);
+		when(sup.getId()).thenReturn(3569);
+		this.test.setAcronym("acro0");
+		this.test.setCountry(CountryCode.ALBANIA);
+		this.test.setDescription("desc0");
+		this.test.setId(456);
+		this.test.setName("name0");
+		this.test.setOrganizationURL("url0");
+		this.test.setSubOrganizations(new HashSet<>(Arrays.asList(sub0, sub1)));
+		this.test.setSuperOrganization(sup);
+		this.test.setType(ResearchOrganizationType.LABORATORY_DEPARTMENT);
+		JsonGenerator generator = mock(JsonGenerator.class);
+
+		this.test.serialize(generator, null);
+
+		verify(generator).writeStartObject();
+		verify(generator).writeStringField(eq("acronym"), eq("acro0"));
+		verify(generator).writeStringField(eq("country"), eq("ALBANIA"));
+		verify(generator).writeStringField(eq("description"), eq("desc0"));
+		verify(generator).writeNumberField(eq("id"), eq(456));
+		verify(generator).writeStringField(eq("name"), eq("name0"));
+		verify(generator).writeStringField(eq("organizationURL"), eq("url0"));
+		verify(generator).writeArrayFieldStart(eq("subOrganizations"));
+		verify(generator).writeNumber(eq(4568));
+		verify(generator).writeNumber(eq(4569));
+		verify(generator).writeNumberField(eq("superOrganization"), eq(3569));
+		verify(generator).writeStringField(eq("type"), eq("LABORATORY_DEPARTMENT"));
+		verify(generator).writeEndArray();
+		verify(generator).writeEndObject();
+		verifyNoMoreInteractions(generator);
 	}
 
 }

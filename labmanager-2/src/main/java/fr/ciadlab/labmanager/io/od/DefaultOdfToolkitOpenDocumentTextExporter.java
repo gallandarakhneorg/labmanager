@@ -215,9 +215,18 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
+		final String isbn;
+		final String issn;
+		if (journal != null) {
+			isbn = journal.getISBN();
+			issn = journal.getISSN();
+		} else {
+			isbn = null;
+			issn = null;
+		}
 		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+				decorateBefore(isbn, this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				decorateBefore(issn, this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}		
 		if (journal != null && append(odtText, journal.getPublisher())) {

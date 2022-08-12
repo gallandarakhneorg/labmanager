@@ -23,6 +23,7 @@ import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,12 +32,12 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
-import com.google.gson.Gson;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.member.Membership;
@@ -60,6 +61,7 @@ import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.eclipse.xtext.xbase.lib.Functions.Function3;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -168,22 +170,22 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return this.fieldAliases.get(sourceName);
 	}
 
-	private static <T> T get(Object content, String key, Class<T> type) {
-		if (content != null && !Strings.isNullOrEmpty(key) && content instanceof Map) {
-			final Object value = ((Map<?, ?>) content).get(key);
-			if (type.isInstance(value)) {
+	private static <T> T getAndCast(Map<String, Object> content, String key, Class<T> type) {
+		if (content != null && !Strings.isNullOrEmpty(key)) {
+			final Object value = content.get(key);
+			if (value != null && type.isInstance(value)) {
 				return type.cast(value);
 			}
 		}
 		return null;
 	}
 
-	private static <T extends Enum<T>> T getEnum(Object content, String key, Class<T> type) {
-		if (content != null && !Strings.isNullOrEmpty(key) && content instanceof Map) {
-			final Object value = ((Map<?, ?>) content).get(key);
+	private static <T extends Enum<T>> T getEnum(JsonNode content, String key, Class<T> type) {
+		if (content != null && !Strings.isNullOrEmpty(key) && content.isObject()) {
+			final JsonNode value = content.get(key);
 			if (value != null) {
 				try {
-					final String name = value.toString();
+					final String name = value.asText();
 					final T[] constants = type.getEnumConstants();
 					if (constants != null) {
 						for (final T cons : constants) {
@@ -220,23 +222,20 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.fake = fake;
 	}
 
-	private static String getId(Object content) {
-		return get(content, ID_FIELDNAME, String.class);
-	}
-
-	private static String getRef(Object content) {
-		if (content != null && content instanceof Map) {
-			final Object value = ((Map<?, ?>) content).get(ID_FIELDNAME);
-			if (value != null) {
-				return value.toString();
-			}
+	private static String getId(JsonNode content) {
+		final JsonNode child = content.get(ID_FIELDNAME);
+		if (child != null) {
+			return Strings.emptyToNull(child.asText());
 		}
 		return null;
 	}
 
-	private static <T> T get(Object value, Class<T> type) {
-		if (value != null && type.isInstance(value)) {
-			return type.cast(value);
+	private static String getRef(JsonNode content) {
+		if (content != null && content.isObject()) {
+			final JsonNode value = content.get(ID_FIELDNAME);
+			if (value != null) {
+				return value.asText();
+			}
 		}
 		return null;
 	}
@@ -248,31 +247,45 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param source the JSON source.
 	 * @param aliasRepository the repository of aliases. This repository is filled up by this function.
 	 * @param failIfNoSetter indicates if the function should fail if there is no setter method found for an attribute name in
-	 *      the JSON file.
+	 *      the JSON file. The first argument is the attribute name, the second argument is the raw value for
+	 *      the attribute, the third argument is the JSON node of the value.
 	 * @return the object or {@code null}.
 	 * @throws Exception if the object cannot be created.
 	 */
-	protected <T> T createObject(Class<T> type, Map<String, Object> source,
+	protected <T> T createObject(Class<T> type, JsonNode source,
 			Map<String, Set<String>> aliasRepository,
-			Predicate<Entry<String, Object>> failIfNoSetter) throws Exception {
+			Function3<String, Object, JsonNode, Boolean> failIfNoSetter) throws Exception {
+		if (!source.isObject()) {
+			throw new IllegalArgumentException("Source node for an object must be a Json map."); //$NON-NLS-1$
+		}
 		final T obj = type.getConstructor().newInstance();
-		for (final Entry<String, Object> entry : source.entrySet()) {
-			if (!Strings.isNullOrEmpty(entry.getKey()) && !entry.getKey().startsWith(HIDDEN_FIELD_PREFIX)
-					&& !entry.getKey().startsWith(SPECIAL_FIELD_PREFIX)) {
-				final Set<String> aliases = aliasRepository.computeIfAbsent(entry.getKey(), it -> {
+		final Iterator<Entry<String, JsonNode>> iterator = source.fields();
+		while (iterator.hasNext()) {
+			final Entry<String, JsonNode> entry = iterator.next();
+			final String key = entry.getKey();
+			final JsonNode jsonValue = entry.getValue();
+			if (!Strings.isNullOrEmpty(key) && !key.startsWith(HIDDEN_FIELD_PREFIX)
+					&& !key.startsWith(SPECIAL_FIELD_PREFIX)) {
+				final Set<String> aliases = aliasRepository.computeIfAbsent(key, it -> {
 					final TreeSet<String> set = new TreeSet<>();
-					set.add(SETTER_FUNCTION_PREFIX + entry.getKey().toLowerCase());
-					for (final String alias : getFieldAliases(entry.getKey())) {
+					set.add(SETTER_FUNCTION_PREFIX + key.toLowerCase());
+					for (final String alias : getFieldAliases(key)) {
 						set.add(SETTER_FUNCTION_PREFIX + alias.toLowerCase());
 					}
 					return set;
 				});
-				final Method method = findSetterMethod(type, aliases, entry.getValue());
+				final Object rawValue = getRawValue(jsonValue);
+				final Method method;
+				if (rawValue != null) {
+					method = findSetterMethod(type, aliases, rawValue);
+				} else {
+					method = null;
+				}
 				if (method != null) {
-					method.invoke(obj, entry.getValue());
-				} else if (failIfNoSetter != null && failIfNoSetter.test(entry)) {
-					throw new IllegalArgumentException("Setter function not found for the attribute: " + entry.getKey() //$NON-NLS-1$
-					+ "; with a value of type: " + entry.getValue().getClass()); //$NON-NLS-1$
+					method.invoke(obj, rawValue);
+				} else if (failIfNoSetter != null && failIfNoSetter.apply(key, rawValue, jsonValue).booleanValue()) {
+					throw new IllegalArgumentException("Setter function not found for the attribute: " + key //$NON-NLS-1$
+							+ "; with a value of type: " + jsonValue); //$NON-NLS-1$
 				}
 			}
 		}
@@ -284,21 +297,20 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param url the URL of the JSON file to read.
 	 * @throws Exception if there is problem for importing.
 	 */
-	@SuppressWarnings("unchecked")
 	public void importToDatabase(URL url) throws Exception {
-		final Gson gson = new Gson();
-		final Map<Object, Object> content; 
+		final JsonNode content;
 		try (final InputStreamReader isr = new InputStreamReader(url.openStream())) {
-			content = gson.fromJson(isr, Map.class);
+			final ObjectMapper mapper = new ObjectMapper();
+			content = mapper.readTree(isr);
 		}
 		if (content != null && !content.isEmpty()) {
 			final Map<String, Object> objectRepository = new TreeMap<>();
 			final Map<String, Set<String>> aliasRepository = new TreeMap<>();
-			final int nb0 = insertOrganizations(get(content, RESEARCHORGANIZATIONS_SECTION, List.class), objectRepository, aliasRepository);
-			final int nb1 = insertPersons(get(content, PERSONS_SECTION, List.class), objectRepository, aliasRepository);
-			final int nb2 = insertMemberships(get(content, MEMBERSHIPS_SECTION, List.class), objectRepository, aliasRepository);
-			final int nb3 = insertJournals(get(content, JOURNALS_SECTION, List.class), objectRepository, aliasRepository);
-			final Pair<Integer, Integer> added = insertPublications(get(content, PUBLICATIONS_SECTION, List.class), objectRepository, aliasRepository);
+			final int nb0 = insertOrganizations(content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository);
+			final int nb1 = insertPersons(content.get(PERSONS_SECTION), objectRepository, aliasRepository);
+			final int nb2 = insertMemberships(content.get(MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
+			final int nb3 = insertJournals(content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
+			final Pair<Integer, Integer> added = insertPublications(content.get(PUBLICATIONS_SECTION), objectRepository, aliasRepository);
 			final int nb4 = added != null ? added.getLeft().intValue() : 0;
 			final int nb5 = added != null ? added.getRight().intValue() : 0;
 			getLogger().info("Summary of inserts: " //$NON-NLS-1$
@@ -318,19 +330,18 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new organizations in the database.
 	 * @throws Exception if an organization cannot be created.
 	 */
-	@SuppressWarnings("unchecked")
-	protected int insertOrganizations(List<?> organizations, Map<String, Object> objectRepository,
+	protected int insertOrganizations(JsonNode organizations_, Map<String, Object> objectRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNew = 0;
-		if (organizations != null && !organizations.isEmpty()) {
-			getLogger().info("Inserting " + organizations.size() + " organizations..."); //$NON-NLS-1$ //$NON-NLS-2$
+		if (organizations_ != null && !organizations_.isEmpty()) {
+			getLogger().info("Inserting " + organizations_.size() + " organizations..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
 			final List<Pair<ResearchOrganization, String>> superOrgas = new ArrayList<>();
-			for (Object orgaObject : organizations) {
-				getLogger().info("> Organization " + (i + 1) + "/" + organizations.size()); //$NON-NLS-1$ //$NON-NLS-2$
+			for (final JsonNode orgaObject : organizations_) {
+				getLogger().info("> Organization " + (i + 1) + "/" + organizations_.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					final String id = getId(orgaObject);
-					ResearchOrganization orga = createObject(ResearchOrganization.class, get(orgaObject, Map.class),
+					ResearchOrganization orga = createObject(ResearchOrganization.class, orgaObject,
 							aliasRepository, null);
 					if (orga != null) {
 						final Optional<ResearchOrganization> existing = this.organizationRepository.findDistinctByAcronymOrName(orga.getAcronym(), orga.getName());
@@ -343,7 +354,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 							if (!Strings.isNullOrEmpty(id)) {
 								objectRepository.put(id, orga);
 							}
-							final String superOrga = getRef(get(orgaObject, SUPERORGANIZATION_KEY, Object.class));
+							final String superOrga = getRef(orgaObject.get(SUPERORGANIZATION_KEY));
 							if (!Strings.isNullOrEmpty(superOrga)) {
 								superOrgas.add(Pair.of(orga, superOrga));
 							}
@@ -360,7 +371,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				++i;
 			}
 			for (final Pair<ResearchOrganization, String> entry : superOrgas) {
-				final ResearchOrganization sup = get(objectRepository, entry.getRight(), ResearchOrganization.class);
+				final ResearchOrganization sup = getAndCast(objectRepository, entry.getRight(), ResearchOrganization.class);
 				if (sup == null) {
 					throw new IllegalArgumentException("Invalid reference to Json element with id: " + entry.getRight()); //$NON-NLS-1$
 				}
@@ -383,18 +394,17 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new persons in the database.
 	 * @throws Exception if a person cannot be created.
 	 */
-	@SuppressWarnings("unchecked")
-	protected int insertPersons(List<?> persons, Map<String, Object> objectRepository,
+	protected int insertPersons(JsonNode persons, Map<String, Object> objectRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNew = 0;
 		if (persons != null && !persons.isEmpty()) {
 			getLogger().info("Inserting " + persons.size() + " persons..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			for (Object personObject : persons) {
+			for (JsonNode personObject : persons) {
 				getLogger().info("> Person " + (i + 1) + "/" + persons.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					final String id = getId(personObject);
-					Person person = createObject(Person.class, get(personObject, Map.class), aliasRepository, null);
+					Person person = createObject(Person.class, personObject, aliasRepository, null);
 					if (person != null) {
 						final Optional<Person> existing = this.personRepository.findDistinctByFirstNameAndLastName(person.getFirstName(), person.getLastName());
 						if (existing.isEmpty()) {
@@ -430,34 +440,32 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new memberships in the database.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	@SuppressWarnings("unchecked")
-	protected int insertMemberships(List<?> memberships, Map<String, Object> objectRepository,
+	protected int insertMemberships(JsonNode memberships, Map<String, Object> objectRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNew = 0;
 		if (memberships != null && !memberships.isEmpty()) {
 			getLogger().info("Inserting " + memberships.size() + " memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			for (Object membershipObject : memberships) {
+			for (JsonNode membershipObject : memberships) {
 				getLogger().info("> Membership " + (i + 1) + "/" + memberships.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					final String id = getId(membershipObject);
-					Membership membership = createObject(Membership.class, get(membershipObject, Map.class),
-							aliasRepository, null);
+					Membership membership = createObject(Membership.class, membershipObject, aliasRepository, null);
 					if (membership != null) {
-						final String personId = getRef(get(membershipObject, PERSON_KEY, Object.class));
+						final String personId = getRef(membershipObject.get(PERSON_KEY));
 						if (Strings.isNullOrEmpty(personId)) {
 							throw new IllegalArgumentException("Invalid person reference for membership with id: " + id); //$NON-NLS-1$
 						}
-						final Person targetPerson = get(objectRepository, personId, Person.class);
+						final Person targetPerson = getAndCast(objectRepository, personId, Person.class);
 						if (targetPerson == null) {
 							throw new IllegalArgumentException("Invalid person reference for membership with id: " + id); //$NON-NLS-1$
 						}
 						//
-						final String orgaId = getRef(get(membershipObject, RESEARCHORGANIZATION_KEY, Object.class));
+						final String orgaId = getRef(membershipObject.get(RESEARCHORGANIZATION_KEY));
 						if (Strings.isNullOrEmpty(orgaId)) {
 							throw new IllegalArgumentException("Invalid organization reference for membership with id: " + id); //$NON-NLS-1$
 						}
-						final ResearchOrganization targetOrganization = get(objectRepository, orgaId, ResearchOrganization.class);
+						final ResearchOrganization targetOrganization = getAndCast(objectRepository, orgaId, ResearchOrganization.class);
 						if (targetOrganization == null) {
 							throw new IllegalArgumentException("Invalid organization reference for membership with id: " + id); //$NON-NLS-1$
 						}
@@ -514,18 +522,17 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new journals in the database.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	@SuppressWarnings("unchecked")
-	protected int insertJournals(List<?> journals, Map<String, Object> objectRepository,
+	protected int insertJournals(JsonNode journals, Map<String, Object> objectRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNew = 0;
 		if (journals != null && !journals.isEmpty()) {
 			getLogger().info("Inserting " + journals.size() + " journals..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			for (Object journalObject : journals) {
+			for (JsonNode journalObject : journals) {
 				getLogger().info("> Journal " + (i + 1) + "/" + journals.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					final String id = getId(journalObject);
-					Journal journal = createObject(Journal.class, get(journalObject, Map.class), aliasRepository, null);
+					Journal journal = createObject(Journal.class, journalObject, aliasRepository, null);
 					if (journal != null) {
 						final Optional<Journal> existing = this.journalRepository.findByJournalName(journal.getJournalName());
 						if (existing.isEmpty()) {
@@ -533,11 +540,19 @@ public class JsonToDatabaseImporter extends JsonTool {
 								journal = this.journalRepository.save(journal);
 							}
 							// Create the quality indicators
-							final Map<String, Object> history = get(journalObject, QUALITYINDICATORSHISTORY_KEY, Map.class);
+							final JsonNode history = journalObject.get(QUALITYINDICATORSHISTORY_KEY);
 							if (history != null && !history.isEmpty()) {
-								for (final Entry<String, Object> historyEntry : history.entrySet()) {
+								final Iterator<Entry<String, JsonNode>> iterator = history.fields();
+								while (iterator.hasNext()) {
+									final Entry<String, JsonNode> historyEntry = iterator.next();
 									final int year = Integer.parseInt(historyEntry.getKey());
-									String str = get(historyEntry.getValue(), SCIMAGOQINDEX_KEY, String.class);
+									String str = null;
+									if (historyEntry.getValue() != null) {
+										final JsonNode n = historyEntry.getValue().get(SCIMAGOQINDEX_KEY);
+										if (n != null) {
+											str = n.asText();
+										}
+									}
 									JournalQualityAnnualIndicators indicators = null; 
 									if (!Strings.isNullOrEmpty(str) ) {
 										final QuartileRanking scimago = QuartileRanking.valueOfCaseInsensitive(str);
@@ -545,7 +560,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 											indicators = journal.setScimagoQIndexByYear(year, scimago);
 										}
 									}
-									str = get(historyEntry.getValue(), WOSQINDEX_KEY, String.class);
+									str = null;
+									if (historyEntry.getValue() != null) {
+										final JsonNode n = historyEntry.getValue().get(WOSQINDEX_KEY);
+										if (n != null) {
+											str = n.asText();
+										}
+									}
 									if (!Strings.isNullOrEmpty(str)) {
 										final QuartileRanking wos = QuartileRanking.valueOfCaseInsensitive(str);
 										if (wos != null) {
@@ -554,7 +575,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 											assert oindicators == null || oindicators == indicators;
 										}
 									}
-									Number flt = get(historyEntry.getValue(), IMPACTFACTOR_KEY, Number.class);
+									Number flt = null;
+									if (historyEntry.getValue() != null) {
+										final JsonNode n = historyEntry.getValue().get(IMPACTFACTOR_KEY);
+										if (n != null) {
+											flt = Double.valueOf(n.asDouble());
+										}
+									}
 									if (flt != null) {
 										final float impactFactor = flt.floatValue();
 										if (impactFactor > 0) {
@@ -594,35 +621,38 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return nbNew;
 	}
 
-	private static int parseMonthField(String value) {
-		if (!Strings.isNullOrEmpty(value)) {
-			switch (value.toLowerCase()) {
-			case "jan": //$NON-NLS-1$
-				return 1;
-			case "feb": //$NON-NLS-1$
-				return 2;
-			case "mar": //$NON-NLS-1$
-				return 3;
-			case "apr": //$NON-NLS-1$
-				return 4;
-			case "may": //$NON-NLS-1$
-				return 5;
-			case "jun": //$NON-NLS-1$
-				return 6;
-			case "jul": //$NON-NLS-1$
-				return 7;
-			case "aug": //$NON-NLS-1$
-				return 8;
-			case "sep": //$NON-NLS-1$
-				return 9;
-			case "oct": //$NON-NLS-1$
-				return 10;
-			case "nov": //$NON-NLS-1$
-				return 11;
-			case "dec": //$NON-NLS-1$
-				return 12;
-			default:
-				//
+	private static int parseMonthField(JsonNode value) {
+		if (value != null) {
+			final String text = value.asText();
+			if (!Strings.isNullOrEmpty(text)) {
+				switch (text.toLowerCase()) {
+				case "jan": //$NON-NLS-1$
+					return 1;
+				case "feb": //$NON-NLS-1$
+					return 2;
+				case "mar": //$NON-NLS-1$
+					return 3;
+				case "apr": //$NON-NLS-1$
+					return 4;
+				case "may": //$NON-NLS-1$
+					return 5;
+				case "jun": //$NON-NLS-1$
+					return 6;
+				case "jul": //$NON-NLS-1$
+					return 7;
+				case "aug": //$NON-NLS-1$
+					return 8;
+				case "sep": //$NON-NLS-1$
+					return 9;
+				case "oct": //$NON-NLS-1$
+					return 10;
+				case "nov": //$NON-NLS-1$
+					return 11;
+				case "dec": //$NON-NLS-1$
+					return 12;
+				default:
+					//
+				}
 			}
 		}
 		return 0;
@@ -637,7 +667,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 *     second number is the is the number of added persons.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	protected Pair<Integer, Integer> insertPublications(List<?> publications, Map<String, Object> objectRepository,
+	protected Pair<Integer, Integer> insertPublications(JsonNode publications, Map<String, Object> objectRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNewPublications = 0;
 		final MutableInt nbNewPersons = new MutableInt();
@@ -646,7 +676,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final List<Publication> allPublications = this.publicationRepository.findAll();
 			getLogger().info("Inserting " + publications.size() + " publications..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			for (Object publicationObject : publications) {
+			for (JsonNode publicationObject : publications) {
 				getLogger().info("> Publication " + (i + 1) + "/" + publications.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					final String id = getId(publicationObject);
@@ -673,9 +703,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 						getLogger().info("  + " + publication.getTitle() + " (id: " + publication.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 						// Attach authors
-						final Iterable<?> authors = get(publicationObject, AUTHORS_KEY, Iterable.class);
+						final JsonNode authors = publicationObject.get(AUTHORS_KEY);
+						if (authors == null || authors.isEmpty()) {
+							throw new IllegalArgumentException("No author for publication with id: " + id); //$NON-NLS-1$
+						}
 						int authorRank = 0;
-						for (final Object authorObject : authors) {
+						final Iterator<JsonNode> iterator = authors.elements();
+						while (iterator.hasNext()) {
+							final JsonNode authorObject = iterator.next();
 							final Person targetAuthor = findOrCreateAuthor(authorObject, objectRepository, nbNewPersons);
 							if (targetAuthor == null) {
 								throw new IllegalArgumentException("Invalid author reference for publication with id: " + id); //$NON-NLS-1$
@@ -706,8 +741,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return Pair.of(Integer.valueOf(nbNewPublications), nbNewPersons.toInteger());
 	}
 
-	@SuppressWarnings("unchecked")
-	private Pair<Publication, Journal> createPublicationInstance(String id, Object publicationObject, Map<String, Object> objectRepository,
+	private Pair<Publication, Journal> createPublicationInstance(String id, JsonNode publicationObject, Map<String, Object> objectRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		// Retrieve the elements that characterize the type of the publication
 		final PublicationType type = getEnum(publicationObject, TYPE_KEY, PublicationType.class);
@@ -718,20 +752,19 @@ public class JsonToDatabaseImporter extends JsonTool {
 		assert publicationClass != null;
 
 		// Create the publication
-		Publication publication = createObject(publicationClass, get(publicationObject, Map.class),
-				aliasRepository, it -> {
-					final String k = it.getKey();
+		Publication publication = createObject(publicationClass, publicationObject,
+				aliasRepository, (attrName, attrValue, attrNode) -> {
 					// Keys "authors" and "journal" are not directly set. They have a specific
 					// code for associating authors and journals to the publication
-					return !AUTHORS_KEY.equalsIgnoreCase(k) && !JOURNAL_KEY.equalsIgnoreCase(k)
-							&& !MONTH_KEY.equalsIgnoreCase(k);
+					return Boolean.valueOf(!AUTHORS_KEY.equalsIgnoreCase(attrName) && !JOURNAL_KEY.equalsIgnoreCase(attrName)
+							&& !MONTH_KEY.equalsIgnoreCase(attrName));
 				});
 		if (publication == null) {
 			throw new IllegalArgumentException("Unable to create the instance of the publication of type: " + publicationClass); //$NON-NLS-1$
 		}
 
 		// Attach month if it is provided
-		final int month = parseMonthField(get(publicationObject, MONTH_KEY, String.class));
+		final int month = parseMonthField(publicationObject.get(MONTH_KEY));
 		if (month > 0 && month <= 12) {
 			final int year = publication.getPublicationYear();
 			if (year != 0) {
@@ -744,11 +777,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 		// Attach journal if needed for the type of publication
 		final Journal targetJournal;
 		if (publication instanceof JournalBasedPublication) {
-			final String journalId = getRef(get(publicationObject, JOURNAL_KEY, Object.class));
+			final String journalId = getRef(publicationObject.get(JOURNAL_KEY));
 			if (Strings.isNullOrEmpty(journalId)) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
 			}
-			targetJournal = get(objectRepository, journalId, Journal.class);
+			targetJournal = getAndCast(objectRepository, journalId, Journal.class);
 			if (targetJournal == null) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
 			}
@@ -773,13 +806,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return Pair.of(publication, targetJournal);
 	}
 
-	private Person findOrCreateAuthor(Object authorObject, Map<String, Object> objectRepository, MutableInt nbNewPersons) {
+	private Person findOrCreateAuthor(JsonNode authorObject, Map<String, Object> objectRepository, MutableInt nbNewPersons) {
 		assert authorObject != null;
 		final String authorId = getRef(authorObject);
 		Person targetAuthor = null;
 		if (Strings.isNullOrEmpty(authorId)) {
 			// The author is not a reference to a defined person
-			final String authorName = authorObject.toString();
+			final String authorName = authorObject.asText();
 			final String firstName = this.personNameParser.parseFirstName(authorName);
 			final String lastName = this.personNameParser.parseLastName(authorName);
 			final Person optPerson = this.personService.getPersonBySimilarName(firstName, lastName);
@@ -798,7 +831,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			}
 		} else {
 			// The author is a referenced to a defined person
-			targetAuthor = get(objectRepository, authorId, Person.class);
+			targetAuthor = getAndCast(objectRepository, authorId, Person.class);
 		}
 		return targetAuthor;
 	}

@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.entities.journal;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -28,6 +29,12 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
+import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -43,7 +50,7 @@ import org.hibernate.annotations.ColumnDefault;
  */
 @Entity
 @Table(name = "JournalAnnualIndicators")
-public class JournalQualityAnnualIndicators implements Serializable {
+public class JournalQualityAnnualIndicators implements Serializable, JsonSerializable, AttributeProvider {
 
 	private static final long serialVersionUID = -3671513001937890573L;
 
@@ -143,6 +150,41 @@ public class JournalQualityAnnualIndicators implements Serializable {
 			return false;
 		}
 		return true;
+	}
+
+	/** {@inheritDoc}
+	 * <p>The attributes that are not considered by this function are:<ul>
+	 * </ul>
+	 */
+	@Override
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+		if (getScimagoQIndex() != null) {
+			consumer.accept("scimagoQIndex", getScimagoQIndex()); //$NON-NLS-1$
+		}
+		if (getWosQIndex() != null) {
+			consumer.accept("wosQIndex", getWosQIndex()); //$NON-NLS-1$
+		}
+		if (getImpactFactor() > 0f) {
+			consumer.accept("impactFactor", Float.valueOf(getImpactFactor())); //$NON-NLS-1$
+		}
+		if (getReferenceYear() > 0) {
+			consumer.accept("referenceYear", Integer.valueOf(getReferenceYear())); //$NON-NLS-1$
+		}
+	}
+
+	@Override
+	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
+		generator.writeStartObject();
+		forEachAttribute((name, value) -> {
+			JsonUtils.writeField(generator, name, value);
+		});
+		generator.writeEndObject();
+	}
+
+	@Override
+	public void serializeWithType(JsonGenerator generator, SerializerProvider serializers, TypeSerializer typeSer)
+			throws IOException {
+		serialize(generator, serializers);
 	}
 
 	/** Replies the year for this history entry.

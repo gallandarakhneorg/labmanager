@@ -16,15 +16,16 @@
 
 package fr.ciadlab.labmanager.entities.journal;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.function.BiConsumer;
 import java.util.function.Predicate;
 
 import javax.persistence.CascadeType;
@@ -40,13 +41,16 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
-import fr.ciadlab.labmanager.utils.JsonExportable;
-import fr.ciadlab.labmanager.utils.JsonUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.util.IntegerList;
@@ -63,7 +67,7 @@ import org.arakhne.afc.util.ListUtil;
  */
 @Entity
 @Table(name = "Journals")
-public class Journal implements Serializable, JsonExportable, AttributeProvider {
+public class Journal implements Serializable, JsonSerializable, AttributeProvider {
 
 	private static final long serialVersionUID = -2046765660549008074L;
 
@@ -267,10 +271,12 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	/** {@inheritDoc}
 	 * <p>The attributes that are not considered by this function are:<ul>
 	 * <li>{@code id}</li>
+	 * <li>{@code publishedPapers}</li>
+	 * <li>{@code qualityIndicators}</li>
 	 * </ul>
 	 */
 	@Override
-	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		if (!Strings.isNullOrEmpty(getJournalName())) {
 			consumer.accept("journalName", getJournalName()); //$NON-NLS-1$
 		}
@@ -281,7 +287,7 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 			consumer.accept("address", getAddress()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getJournalURL())) {
-			consumer.accept("journalUrl", getJournalURL()); //$NON-NLS-1$
+			consumer.accept("journalURL", getJournalURL()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getScimagoId())) {
 			consumer.accept("scimagoId", getScimagoId()); //$NON-NLS-1$
@@ -301,9 +307,35 @@ public class Journal implements Serializable, JsonExportable, AttributeProvider 
 	}
 
 	@Override
-	public void toJson(JsonObject json) {
-		json.addProperty("id", Integer.valueOf(getId())); //$NON-NLS-1$
-		forEachAttribute((name, value) -> JsonUtils.defaultBehavior(json, name, value));
+	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
+		generator.writeStartObject();
+		generator.writeNumberField("id", getId()); //$NON-NLS-1$
+		forEachAttribute((name, value) -> {
+			JsonUtils.writeField(generator, name, value);
+		});
+		if (!getPublishedPapers().isEmpty()) {
+			generator.writeArrayFieldStart("publishedPapers"); //$NON-NLS-1$
+			for (final Publication publication : getPublishedPapers()) {
+				generator.writeNumber(publication.getId());
+			}
+			generator.writeEndArray();
+		}
+		if (!getQualityIndicators().isEmpty()) {
+			generator.writeObjectFieldStart("qualityIndicators"); //$NON-NLS-1$
+			for (final Entry<Integer, JournalQualityAnnualIndicators> indicators : getQualityIndicators().entrySet()) {
+				generator.writeObjectFieldStart(indicators.getKey().toString());
+				indicators.getValue().serialize(generator, serializers);
+				generator.writeEndObject();
+			}
+			generator.writeEndArray();
+		}
+		generator.writeEndObject();
+	}
+
+	@Override
+	public void serializeWithType(JsonGenerator generator, SerializerProvider serializers, TypeSerializer typeSer)
+			throws IOException {
+		serialize(generator, serializers);
 	}
 
 	/** Replies the identifier of the journal in the database.

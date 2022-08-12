@@ -16,7 +16,8 @@
 
 package fr.ciadlab.labmanager.io.json;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Exception thrown when it is impossible to import a JSON.
  * 
@@ -38,8 +39,25 @@ public class UnableToImportJsonException extends Exception {
 	 * @param cause the original cause.
 	 */
 	public UnableToImportJsonException(String mainKey, int elementIdx, Object source, Throwable cause) {
-		super("Unable to import JSON data in " + mainKey + "[" + elementIdx + "] = " //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-				+ (new Gson().toJson(source)), cause);
+		super(buildMessage(mainKey, elementIdx, source), cause);
+	}
+
+	private static String buildMessage(String mainKey, int elementIdx, Object source) {
+		final StringBuilder msg = new StringBuilder();
+		msg.append("Unable to import JSON data in "); //$NON-NLS-1$
+		msg.append(mainKey);
+		msg.append("["); //$NON-NLS-1$
+		msg.append(elementIdx);
+		msg.append("]"); //$NON-NLS-1$
+		try {
+			final ObjectMapper mapper = new ObjectMapper();
+			String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(source);
+			msg.append(" = "); //$NON-NLS-1$
+			msg.append(jsonResult);
+		} catch (JsonProcessingException ex) {
+			//
+		}
+		return msg.toString();
 	}
 
 }

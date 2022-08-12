@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.entities.member;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.Map;
@@ -23,7 +24,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.function.BiConsumer;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -43,15 +43,17 @@ import javax.persistence.Table;
 import javax.transaction.Transactional;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.google.gson.JsonObject;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.AuthorshipComparator;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
-import fr.ciadlab.labmanager.utils.JsonExportable;
-import fr.ciadlab.labmanager.utils.JsonUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Represent a person.
@@ -64,7 +66,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  */
 @Entity
 @Table(name = "Persons")
-public class Person implements Serializable, JsonExportable, AttributeProvider, Comparable<Person> {
+public class Person implements Serializable, JsonSerializable, AttributeProvider, Comparable<Person> {
 
 	private static final long serialVersionUID = -1312811718336186349L;
 
@@ -334,10 +336,12 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	/** {@inheritDoc}
 	 * <p>The attributes that are not considered by this function are:<ul>
 	 * <li>{@code id}</li>
+	 * <li>{@code publications}</li>
+	 * <li>{@code researchOrganizations}</li>
 	 * </ul>
 	 */
 	@Override
-	public void forEachAttribute(BiConsumer<String, Object> consumer) {
+	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
 			consumer.accept("academiaURL", getAcademiaURL()); //$NON-NLS-1$
 		}
@@ -395,9 +399,56 @@ public class Person implements Serializable, JsonExportable, AttributeProvider, 
 	}
 
 	@Override
-	public void toJson(JsonObject json) {
-		json.addProperty("id", Integer.valueOf(getId())); //$NON-NLS-1$
-		forEachAttribute((name, value) -> JsonUtils.defaultBehavior(json, name, value));
+	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
+		generator.writeStartObject();
+		generator.writeNumberField("id", getId()); //$NON-NLS-1$
+		forEachAttribute((name, value) -> {
+			JsonUtils.writeField(generator, name, value);
+		});
+		if (!getPublications().isEmpty()) {
+			generator.writeArrayFieldStart("publications"); //$NON-NLS-1$
+			for (final Authorship authorship : getPublications()) {
+				generator.writeStartObject();
+				if (authorship.getPublication() != null) {
+					generator.writeNumberField("publication", authorship.getPublication().getId()); //$NON-NLS-1$
+				}
+				if (authorship.getAuthorRank() >= 0) {
+					generator.writeNumberField("authorRank", authorship.getAuthorRank()); //$NON-NLS-1$
+				}
+				generator.writeEndObject();
+			}
+			generator.writeEndArray();
+		}
+		if (!getResearchOrganizations().isEmpty()) {
+			generator.writeArrayFieldStart("researchOrganizations"); //$NON-NLS-1$
+			for (final Membership membership : getResearchOrganizations()) {
+				generator.writeStartObject();
+				if (membership.getCnuSection() > 0) {
+					generator.writeNumberField("cnuSection", membership.getCnuSection()); //$NON-NLS-1$
+				}
+				if (membership.getMemberSinceWhen() != null) {
+					generator.writeStringField("memberSinceWhen", membership.getMemberSinceWhen().toString()); //$NON-NLS-1$
+				}
+				if (membership.getMemberToWhen() != null) {
+					generator.writeStringField("memberToWhen", membership.getMemberToWhen().toString()); //$NON-NLS-1$
+				}
+				if (membership.getMemberStatus() != null) {
+					generator.writeStringField("memberStatus", membership.getMemberStatus().name()); //$NON-NLS-1$
+				}
+				if (membership.getResearchOrganization() != null) {
+					generator.writeNumberField("researchOrganization", membership.getResearchOrganization().getId()); //$NON-NLS-1$
+				}
+				generator.writeEndObject();
+			}
+			generator.writeEndArray();
+		}
+		generator.writeEndObject();
+	}
+
+	@Override
+	public void serializeWithType(JsonGenerator generator, SerializerProvider serializers, TypeSerializer typeSer)
+			throws IOException {
+		serialize(generator, serializers);
 	}
 
 	/** Replies the identifier of the person.
