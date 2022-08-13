@@ -74,7 +74,7 @@ public class JournalController extends AbstractController {
 		modelAndView.addObject("currentYear", Integer.valueOf(LocalDate.now().getYear())); //$NON-NLS-1$
 		return modelAndView;
 	}
-	
+
 	/** Replies data about a specific journal from the database.
 	 * This endpoint accepts one of the two parameters: the name or the identifier of the journal.
 	 *

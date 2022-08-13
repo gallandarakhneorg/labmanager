@@ -14,6 +14,8 @@
       <ul>
       	<li><a th:href="@{/organizationList}"
       	       th:utext="#{html.OrganizationsList}"></a></li>
+      	<li><a th:href="@{/getOrganizationData?name=XXX&id=0&acronym=XXX}"
+      	       th:utext="#{html.GetOrganizationData}"></a></li>
       	<li>Add organization</li>
       	<li>Modify organization</li>
       	<li>Delete organization</li>
@@ -24,7 +26,7 @@
       <ul>
       	<li><a th:href="@{/personList}"
       	       th:utext="#{html.PersonsList}"></a></li>
-      	<li><a th:href="@{/getPersonData?name=XXX}"
+      	<li><a th:href="@{/getPersonData?name=XXX&id=0}"
       	       th:utext="#{html.GetPersonData}"></a></li>
       	<li>Add person</li>
       	<li>Modify person</li>
@@ -38,7 +40,7 @@
         <ul>
       	  <li><a th:href="@{/journalList}"
       	         th:utext="#{html.JournalsList}"></a></li>
-      	  <li><a th:href="@{/getJournalData?name=XXX}"
+      	  <li><a th:href="@{/getJournalData?name=XXX&id=0}"
       	         th:utext="#{html.GetJournalData}"></a></li>
       	  <li>Update journals</li>
         </ul>

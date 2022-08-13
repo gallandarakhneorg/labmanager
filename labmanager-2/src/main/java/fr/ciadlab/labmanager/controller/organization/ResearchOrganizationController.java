@@ -16,11 +16,16 @@
 
 package fr.ciadlab.labmanager.controller.organization;
 
+import java.util.Optional;
+
 import fr.ciadlab.labmanager.controller.AbstractController;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -60,6 +65,32 @@ public class ResearchOrganizationController extends AbstractController {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("organizations", this.organizationService.getAllResearchOrganizations()); //$NON-NLS-1$
 		return modelAndView;
+	}
+
+	/** Replies data about a specific research organization from the database.
+	 * This endpoint accepts one of the three parameters: the name, the identifier or the acronym of the organization.
+	 *
+	 * @param name the name of the organization.
+	 * @param id the identifier of the organization.
+	 * @param acronym the acronym of the organization.
+	 * @return the organization.
+	 */
+	@GetMapping("/getOrganizationData")
+	public ResearchOrganization getOrganizationData(@RequestParam(required = false) String name,
+			@RequestParam(required = false) Integer id, @RequestParam(required = false) String acronym) {
+		if (id == null && Strings.isNullOrEmpty(name) && Strings.isNullOrEmpty(acronym)) {
+			throw new IllegalArgumentException("Name, identifier and acronym parameters are missed"); //$NON-NLS-1$
+		}
+		if (id != null) {
+			final Optional<ResearchOrganization> opt = this.organizationService.getResearchOrganizationById(id.intValue());
+			return opt.isPresent() ? opt.get() : null;
+		}
+		if (!Strings.isNullOrEmpty(acronym)) {
+			final Optional<ResearchOrganization> opt = this.organizationService.getResearchOrganizationByAcronym(acronym);
+			return opt.isPresent() ? opt.get() : null;
+		}
+		final Optional<ResearchOrganization> opt = this.organizationService.getResearchOrganizationByName(name);
+		return opt.isPresent() ? opt.get() : null;
 	}
 
 }
