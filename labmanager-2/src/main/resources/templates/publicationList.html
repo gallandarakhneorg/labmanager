@@ -11,6 +11,7 @@
         <th th:utext="#{html.Type}"></th>
         <th th:utext="#{html.Year}"></th>
         <th th:utext="#{html.WherePublished}"></th>
+        <th th:text="#{html.Actions}"></th>
     </thead>
     <tbody>
         <tr th:each="publication : ${publications}">
@@ -32,6 +33,11 @@
             </td>
             <td>
             	<th:block th:utext="${publication.wherePublishedShortDescription}"></th:block>
+            </td>
+            <td>
+            	<a th:href="@{/getPublicationData(id=${publication.id})}">
+            		<img th:src="@{/images/icon/json_file.png}" th:title="#{html.GetJsonFor(${publication.title})}" style="max-width:24px;"></img>
+            	</a>
             </td>
         </tr>
     </tbody>

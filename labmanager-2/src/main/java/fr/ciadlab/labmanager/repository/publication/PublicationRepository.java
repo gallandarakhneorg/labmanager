@@ -38,4 +38,11 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
 	 */
 	List<Publication> findAllByAuthorshipsPersonId(int personId);
 
+	/** Replies the list of publications with the given title.
+	 *
+	 * @param title the title to search for.
+	 * @return the set of publications with the given title.
+	 */
+	List<Publication> findAllByTitle(String title);
+
 }

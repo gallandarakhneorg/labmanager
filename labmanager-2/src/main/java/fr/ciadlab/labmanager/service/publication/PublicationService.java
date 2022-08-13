@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.service.publication;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -35,6 +36,7 @@ import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.member.PersonService;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -106,9 +108,21 @@ public class PublicationService extends AbstractService {
 	 * @param identifier the identifier of the publication.
 	 * @return the publication, or {@code null} if not found.
 	 */
-	public Publication getPublication(int identifier) {
+	public Publication getPublicationById(int identifier) {
 		final Optional<Publication> byId = this.publicationRepository.findById(Integer.valueOf(identifier));
 		return byId.orElse(null);
+	}
+
+	/** Replies the publications with the given title.
+	 *
+	 * @param title the title of the publications.
+	 * @return the publications.
+	 */
+	public List<Publication> getPublicationsByTitle(String title) {
+		if (Strings.isNullOrEmpty(title)) {
+			return Collections.emptyList();
+		}
+		return this.publicationRepository.findAllByTitle(title);
 	}
 
 	/** Remove the publication with the given identifier.

@@ -146,13 +146,22 @@ public class PublicationServiceTest {
 	}
 
 	@Test
-	public void getPublication() {
-		assertNull(this.test.getPublication(-4756));
-		assertNull(this.test.getPublication(0));
-		assertSame(this.pub0, this.test.getPublication(123));
-		assertSame(this.pub1, this.test.getPublication(234));
-		assertSame(this.pub2, this.test.getPublication(345));
-		assertNull(this.test.getPublication(7896));
+	public void getPublicationById() {
+		assertNull(this.test.getPublicationById(-4756));
+		assertNull(this.test.getPublicationById(0));
+		assertSame(this.pub0, this.test.getPublicationById(123));
+		assertSame(this.pub1, this.test.getPublicationById(234));
+		assertSame(this.pub2, this.test.getPublicationById(345));
+		assertNull(this.test.getPublicationById(7896));
+	}
+
+	@Test
+	public void getPublicationsByTitle() {
+		final List<Publication> expected = Arrays.asList(this.pub0, this.pub2);
+		when(this.publicationRepository.findAllByTitle(anyString())).then(it -> expected);
+
+		List<Publication> set = this.test.getPublicationsByTitle("xyz");
+		assertSame(expected, set);
 	}
 
 	@Test
