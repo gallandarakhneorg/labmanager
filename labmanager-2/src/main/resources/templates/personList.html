@@ -18,6 +18,7 @@
         <th th:utext="#{html.CurrentOrganizations}"></th>
         <th th:utext="#{html.FormerOrganizations}"></th>
         <th th:utext="#{html.FutureOrganizations}"></th>
+        <th th:text="#{html.Actions}"></th>
     </thead>
     <tbody>
         <tr th:each="person : ${persons}">
@@ -87,6 +88,11 @@
                        th:title="#{html.FuturePositionFrom(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberSinceWhen.toLocalDate.year})}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
+            </td>
+            <td>
+            	<a th:href="@{/getPersonData(id=${person.id})}">
+            		<img th:src="@{/images/icon/json_file.png}" th:title="#{html.GetJsonFor(${person.fullName})}" style="max-width:24px;"></img>
+            	</a>
             </td>
         </tr>
     </tbody>
