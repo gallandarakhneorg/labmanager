@@ -280,58 +280,29 @@ public class PublicationService extends AbstractService {
 	/**
 	 * Export function for BibTeX using a list of publication identifiers.
 	 *
-	/**
-	 * Export function for HTML using a list of publication identifiers.
-	 *
+	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
-	 * @param identifiers the array of publication identifiers that should be exported.
-	 * @return the HTML description of the publications with the given identifiers.
-	 * @throws Exception if it is impossible to generate the HTML for the publications.
+	 * @return the BibTeX description of the publications with the given identifiers.
 	 */
-	public String exportHtml(ExporterConfigurator configurator, int... identifiers) throws Exception {
-		if (identifiers == null) {
+	public String exportBibTeX(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
+		if (publications == null) {
 			return null;
 		}
-		return exportHtml(Arrays.stream(identifiers).mapToObj(it -> Integer.valueOf(it)), configurator);
+		return this.bibtex.exportPublications(publications, configurator);
 	}
 
 	/**
 	 * Export function for HTML using a list of publication identifiers.
 	 *
-	 * @param identifiers the array of publication identifiers that should be exported.
+	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @return the HTML description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the HTML for the publications.
 	 */
-	public String exportHtml(Collection<Integer> identifiers, ExporterConfigurator configurator) throws Exception {
-		if (identifiers == null) {
+	public String exportHtml(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
+		if (publications == null) {
 			return null;
 		}
-		return exportHtml(identifiers.stream(), configurator);
-	}
-
-	/**
-	 * Export function for HTML using a list of publication identifiers.
-	 *
-	 * @param identifiers the array of publication identifiers that should be exported.
-	 * @param configurator the configurator of the exporter.
-	 * @return the HTML description of the publications with the given identifiers, or {@code null}
-	 *      if there is no publication to export.
-	 * @throws Exception if it is impossible to generate the HTML for the publications.
-	 */
-	public String exportHtml(Stream<Integer> identifiers, ExporterConfigurator configurator) throws Exception {
-		if (identifiers == null) {
-			return null;
-		}
-		final List<Publication> publications = new ArrayList<>();
-		identifiers.forEach(it -> {
-			if (it != null) {
-				final Optional<Publication> optPublication = this.publicationRepository.findById(it);
-				if (optPublication.isPresent()) {
-					publications.add(optPublication.get());
-				}
-			}
-		});
 		return this.html.exportPublications(publications, configurator);
 	}
 

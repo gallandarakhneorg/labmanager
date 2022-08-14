@@ -16,9 +16,14 @@
 
 package fr.ciadlab.labmanager.controller.publication;
 
+import java.util.List;
 import java.util.Random;
 
+import javax.servlet.http.HttpServletResponse;
+
 import fr.ciadlab.labmanager.controller.AbstractController;
+import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
@@ -41,9 +46,13 @@ import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -199,6 +208,82 @@ public class PublicationController extends AbstractController {
 			return this.publicationService.getPublicationById(id.intValue());
 		}
 		return this.publicationService.getPublicationsByTitle(title);
+	}
+
+	private <T> T export(HttpServletResponse response, List<Integer> identifiers, Integer organization, Integer author,
+			Boolean nameHighlight, Boolean color, ExporterCallback<T> callback) throws Exception {
+		if ((identifiers == null || identifiers.isEmpty()) && organization == null && author == null) {
+			throw new IllegalArgumentException("Identifier for publications or organization or author is missed"); //$NON-NLS-1$
+		}
+		// Prepare the exporter
+		final ExporterConfigurator configurator = new ExporterConfigurator();
+		if (nameHighlight != null && !nameHighlight.booleanValue()) {
+			configurator.disableSelectedPersonFormat();
+			configurator.disableResearcherFormat();
+			configurator.disablePostdocEngineerFormat();
+			configurator.disablePhDStudentFormat();
+		}
+		if (color != null && !color.booleanValue()) {
+			configurator.disableTitleColor();
+		}
+		if (organization != null) {
+			configurator.selectOrganization(it -> it.getId() == organization.intValue());
+		}
+		if (author != null) {
+			configurator.selectPerson(it -> it.getId() == author.intValue());
+		}
+		// Get the list of publications
+		final List<Publication> pubs;
+		if (identifiers == null || identifiers.isEmpty()) {
+			if (author != null) {
+				pubs = this.publicationService.getPublicationsByPersonId(author.intValue());
+			} else if (organization != null) {
+				pubs = this.publicationService.getPublicationsByOrganizationId(organization.intValue());
+			} else {
+				pubs = this.publicationService.getAllPublications();
+			}
+		} else {
+			pubs = this.publicationService.getPublicationsByIds(identifiers);
+		}
+		// Export
+		return callback.export(pubs, configurator);
+	}
+
+	/**
+	 * Export publications to HTML.
+	 * This function takes one of the following parameters:<ul>
+	 * <li>{@code identifiers}: a list of publication identifiers to export.</li>
+	 * <li>{@code organization}: the identifier of a research organization for which the publications should be exported.</li>
+	 * <li>{@code author}: the identifier of an author.</li>
+	 * </ul>
+	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
+	 *
+	 * @param response the HTTP response.
+	 * @param identifiers the array of publication identifiers that should be exported.
+	 * @param organization the identifier of the organization for which the publications must be exported.
+	 *     Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @param author the identifier of the author for who the publications must be exported.
+	 *     Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
+	 * @param color indicates if the colors are enabled for producing the HTML output. 
+	 * @return the HTML description of the publications, or {@code null} if there is no publication to export.
+	 * @throws Exception if it is impossible to redirect to the error page.
+	 */
+	@GetMapping(value = "/exportHtml")
+	@ResponseBody
+	public ResponseEntity<String> exportHtml(
+			HttpServletResponse response,
+			@RequestParam(name = "id") List<Integer> identifiers,
+			@RequestParam(required = false) Integer organization,
+			@RequestParam(required = false) Integer author,
+			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
+			@RequestParam(required = false, defaultValue = "true") Boolean color) throws Exception {
+		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportHtml(pubs, configurator);
+		final String content = export(response, identifiers, organization, author, nameHighlight, color, cb);
+		return ResponseEntity.ok()
+				.contentType(MediaType.TEXT_HTML)
+		        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.html\"") //$NON-NLS-1$
+		        .body(content);
 	}
 
 	//	/** Build a list of publication as a Json string.
@@ -1112,92 +1197,7 @@ public class PublicationController extends AbstractController {
 	//			return null;
 	//		}
 	//	}
-	//
-	//	/**
-	//	 * Export function for BibTeX using a list of publication identifiers.
-	//	 *
-	//	 * @param identifiers the array of publication identifiers that should be exported.
-	//	 * @return the BibTeX description of the publications with the given identifiers, or {@code null}
-	//	 *      if there is no publication to export.
-	//	 */
-	//	@PostMapping(value = "/exportBibTeX", headers = "Accept=application/json")
-	//	public String exportBibTeX(Integer[] identifiers) {
-	//		if (identifiers == null) {
-	//			return null;
-	//		}
-	//		return this.publicationService.exportBibTeX(Arrays.asList(identifiers).stream());
-	//	}
-	//
-	//	/**
-	//	 * Export function for HTML using a list of publication identifiers.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @param identifiers the array of publication identifiers that should be exported.
-	//	 * @param organizationId the identifier of the organization for which the publications must be exported.
-	//	 *     Providing this identifier will have an effect on the formatting of the authors' names.
-	//	 * @param authorId the identifier of the author for who the publications must be exported.
-	//	 *     Providing this identifier will have an effect on the formatting of the authors' names.
-	//	 * @return the HTML description of the publications with the given identifiers, or {@code null}
-	//	 *      if there is no publication to export.
-	//	 * @throws Exception if it is impossible to redirect to the error page.
-	//	 */
-	//	@PostMapping(value = "/exportHtml", headers = "Accept=application/json")
-	//	public String exportHtml(HttpServletResponse response, Integer[] identifiers,
-	//			@RequestParam(required = false) Integer organizationId,
-	//			@RequestParam(required = false) Integer authorId) throws Exception {
-	//		if (identifiers == null) {
-	//			return null;
-	//		}
-	//		final ExporterConfigurator configurator = new ExporterConfigurator();
-	//		if (organizationId != null) {
-	//			configurator.selectOrganization(it -> it.getId() == organizationId.intValue());
-	//		}
-	//		if (authorId != null) {
-	//			configurator.selectPerson(it -> it.getId() == authorId.intValue());
-	//		}
-	//		try {
-	//			return this.publicationService.exportHtml(Arrays.asList(identifiers).stream(), configurator);
-	//		} catch (Exception ex) {
-	//			redirectError(response, ex);
-	//			return null;
-	//		}
-	//	}
-	//
-	//	/**
-	//	 * Export function for Open Document Text (ODT) using a list of publication identifiers.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @param identifiers the array of publication identifiers that should be exported.
-	//	 * @param organizationId the identifier of the organization for which the publications must be exported.
-	//	 *     Providing this identifier will have an effect on the formatting of the authors' names.
-	//	 * @param authorId the identifier of the author for who the publications must be exported.
-	//	 *     Providing this identifier will have an effect on the formatting of the authors' names.
-	//	 * @return the ODT description of the publications with the given identifiers, or {@code null}
-	//	 *      if there is no publication to export.
-	//	 * @throws Exception if it is impossible to redirect to the error page.
-	//	 */
-	//	@PostMapping(value = "/exportOdt", headers = "Accept=application/vnd.oasis.opendocument.text")
-	//	public byte[] exportOdt(HttpServletResponse response, Integer[] identifiers,
-	//			@RequestParam(required = false) Integer organizationId,
-	//			@RequestParam(required = false) Integer authorId) throws Exception {
-	//		if (identifiers == null) {
-	//			return null;
-	//		}
-	//		final ExporterConfigurator configurator = new ExporterConfigurator();
-	//		if (organizationId != null) {
-	//			configurator.selectOrganization(it -> it.getId() == organizationId.intValue());
-	//		}
-	//		if (authorId != null) {
-	//			configurator.selectPerson(it -> it.getId() == authorId.intValue());
-	//		}
-	//		try {
-	//			return this.publicationService.exportOdt(Arrays.asList(identifiers).stream(), configurator);
-	//		} catch (Exception ex) {
-	//			redirectError(response, ex);
-	//			return null;
-	//		}
-	//	}
-	//
+
 	//	/** Replies the statistics for the publications and for the author with the given identifier.
 	//	 *
 	//	 * @param identifier the identifier of the author. If it is not provided, all the publications are considered.
@@ -1230,5 +1230,26 @@ public class PublicationController extends AbstractController {
 	//		modelAndView.addObject("globalStats", globalStats); //$NON-NLS-1$
 	//		return modelAndView;
 	//	}
+
+	/** Exporter callback.
+	 * 
+	 * @param <T> the type of data that is the result of an export.
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 */
+	private interface ExporterCallback<T> {
+
+		/** Do the export.
+		 * 
+		 * @param identifiers the identifiers.
+		 * @param configurator the exporter configuration.
+		 * @return the export result.
+		 * @throws Exception if the export cannot be done.
+		 */
+		T export(Iterable<? extends Publication> identifiers, ExporterConfigurator configurator) throws Exception;
+
+	}
 
 }

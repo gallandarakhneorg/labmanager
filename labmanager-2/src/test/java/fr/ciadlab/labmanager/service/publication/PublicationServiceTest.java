@@ -319,38 +319,9 @@ public class PublicationServiceTest {
 	}
 
 	@Test
-	public void exportHtml_Stream_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
-		String html = this.test.exportHtml((Stream<Integer>) null, configurator);
-		assertNull(html);
-	}
-
-	@Test
-	public void exportHtml_Stream() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
-		when(this.html.exportPublications(any(Iterable.class), any())).thenReturn("abc");
-		Stream<Integer> identifiers = Arrays.asList(123, 345).stream();
-
-		String html = this.test.exportHtml(identifiers, configurator);
-
-		assertEquals("abc", html);
-
-		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
-		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		verify(this.html, only()).exportPublications(arg0.capture(), arg1.capture());
-		Iterable<Publication> it = arg0.getValue();
-		assertNotNull(it);
-		Iterator<Publication> iterator = it.iterator();
-		assertSame(this.pub0, iterator.next());
-		assertSame(this.pub2, iterator.next());
-		assertFalse(iterator.hasNext());
-		assertNotNull(arg1.getValue());
-	}
-
-	@Test
 	public void exportHtml_Collection_null() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator();
-		String html = this.test.exportHtml((Collection<Integer>) null, configurator);
+		String html = this.test.exportHtml((Collection<Publication>) null, configurator);
 		assertNull(html);
 	}
 
@@ -358,38 +329,9 @@ public class PublicationServiceTest {
 	public void exportHtml_Collection() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator();
 		when(this.html.exportPublications(any(Iterable.class), any())).thenReturn("abc");
-		Collection<Integer> identifiers = Arrays.asList(123, 345);
+		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		String html = this.test.exportHtml(identifiers, configurator);
-
-		assertEquals("abc", html);
-
-		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
-		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		verify(this.html, only()).exportPublications(arg0.capture(), arg1.capture());
-		Iterable<Publication> it = arg0.getValue();
-		assertNotNull(it);
-		Iterator<Publication> iterator = it.iterator();
-		assertSame(this.pub0, iterator.next());
-		assertSame(this.pub2, iterator.next());
-		assertFalse(iterator.hasNext());
-		assertNotNull(arg1.getValue());
-	}
-
-	@Test
-	public void exportHtml_Array_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
-		String html = this.test.exportHtml(configurator, null);
-		assertNull(html);
-	}
-
-	@Test
-	public void exportHtml_Array() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
-		when(this.html.exportPublications(any(Iterable.class), any())).thenReturn("abc");
-		int[] identifiers = new int[] {123, 345};
-
-		String html = this.test.exportHtml(configurator, identifiers);
+		String html = this.test.exportHtml(pubs, configurator);
 
 		assertEquals("abc", html);
 
@@ -404,6 +346,7 @@ public class PublicationServiceTest {
 		assertFalse(iterator.hasNext());
 		assertNotNull(arg1.getValue());
 	}
+
 	@Test
 	public void exportOdt_Collection_null() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator();

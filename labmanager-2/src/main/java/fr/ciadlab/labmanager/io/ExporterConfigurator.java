@@ -222,11 +222,9 @@ public class ExporterConfigurator {
 						&& (this.organizationSelector == null || this.organizationSelector.test(membership.getResearchOrganization()))) {
 					if (isResearcher(membership)) {
 						status = max(status, ExportedAuthorStatus.RESEARCHER);
-					}
-					if (isPhDStudent(membership)) {
+					} else if (isPhDStudent(membership)) {
 						status = max(status, ExportedAuthorStatus.PHD_STUDENT);
-					}
-					if (isPostdocEngineer(membership)) {
+					} else if (isPostdocEngineer(membership)) {
 						status = max(status, ExportedAuthorStatus.POSTDOC_ENGINEER);
 					}
 				}
