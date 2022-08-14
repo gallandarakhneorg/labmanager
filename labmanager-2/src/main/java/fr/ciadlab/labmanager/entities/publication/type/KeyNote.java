@@ -40,7 +40,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @mavenartifactid $ArtifactId$
  */
 @Entity
-@Table(name = "ConferencePapers")
+@Table(name = "KeyNotes")
 @PrimaryKeyJoinColumn(name = "id")
 public class KeyNote extends Publication {
 
