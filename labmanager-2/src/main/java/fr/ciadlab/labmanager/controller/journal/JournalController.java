@@ -73,7 +73,7 @@ public class JournalController extends AbstractController {
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + DEFAULT_ENDPOINT)
-	public ModelAndView journalList() {
+	public ModelAndView showJournalList() {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("journals", this.journalService.getAllJournals()); //$NON-NLS-1$
 		modelAndView.addObject("currentYear", Integer.valueOf(LocalDate.now().getYear())); //$NON-NLS-1$

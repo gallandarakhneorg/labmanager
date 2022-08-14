@@ -62,7 +62,7 @@ public class ResearchOrganizationController extends AbstractController {
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + DEFAULT_ENDPOINT)
-	public ModelAndView organizationList() {
+	public ModelAndView showOrganizationList() {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("organizations", this.organizationService.getAllResearchOrganizations()); //$NON-NLS-1$
 		return modelAndView;

@@ -70,8 +70,8 @@ public class JournalControllerTest {
 	}
 
 	@Test
-	public void journalList() {
-		final ModelAndView mv = this.test.journalList();
+	public void showJournalList() {
+		final ModelAndView mv = this.test.showJournalList();
 		assertEquals("journalList", mv.getViewName());
 	}
 

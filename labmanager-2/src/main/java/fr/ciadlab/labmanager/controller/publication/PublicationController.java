@@ -142,7 +142,7 @@ public class PublicationController extends AbstractController {
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + DEFAULT_ENDPOINT)
-	public ModelAndView showPublicationTool() {
+	public ModelAndView showPublicationList() {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("publications", this.publicationService.getAllPublications()); //$NON-NLS-1$
 		return modelAndView;

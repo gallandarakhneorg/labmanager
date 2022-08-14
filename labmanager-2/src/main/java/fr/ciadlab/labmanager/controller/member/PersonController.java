@@ -78,7 +78,7 @@ public class PersonController extends AbstractController {
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + DEFAULT_ENDPOINT)
-	public ModelAndView personList() {
+	public ModelAndView showPersonList() {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("persons", this.personService.getAllPersons()); //$NON-NLS-1$
 		return modelAndView;
