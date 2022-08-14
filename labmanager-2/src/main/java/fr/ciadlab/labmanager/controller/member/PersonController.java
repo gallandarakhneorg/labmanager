@@ -28,6 +28,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -96,7 +97,8 @@ public class PersonController extends AbstractController {
 	 * @return the person, or {@code null} if the person with the given name was not found.
 	 * @see PersonNameComparator
 	 */
-	@GetMapping("/getPersonData")
+	@GetMapping(value = "/getPersonData", produces = "application/json; charset=UTF-8")
+	@ResponseBody
 	public Person getPersonData(@RequestParam(required = false) String name,
 			@RequestParam(required = false) Integer id,
 			@RequestParam(defaultValue = "false", required = false) boolean strictName) {

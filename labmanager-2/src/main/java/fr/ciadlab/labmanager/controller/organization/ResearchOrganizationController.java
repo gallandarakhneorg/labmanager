@@ -26,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -75,7 +76,8 @@ public class ResearchOrganizationController extends AbstractController {
 	 * @param acronym the acronym of the organization.
 	 * @return the organization.
 	 */
-	@GetMapping("/getOrganizationData")
+	@GetMapping(value = "/getOrganizationData", produces = "application/json; charset=UTF-8")
+	@ResponseBody
 	public ResearchOrganization getOrganizationData(@RequestParam(required = false) String name,
 			@RequestParam(required = false) Integer id, @RequestParam(required = false) String acronym) {
 		if (id == null && Strings.isNullOrEmpty(name) && Strings.isNullOrEmpty(acronym)) {

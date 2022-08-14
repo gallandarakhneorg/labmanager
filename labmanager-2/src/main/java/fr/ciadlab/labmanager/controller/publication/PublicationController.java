@@ -189,7 +189,8 @@ public class PublicationController extends AbstractController {
 	 * @param id the identifier of the publication.
 	 * @return the publication if a specific identifier is provided, or a list of publications that have the given title.
 	 */
-	@GetMapping("/getPublicationData")
+	@GetMapping(value = "/getPublicationData", produces = "application/json; charset=UTF-8")
+	@ResponseBody
 	public Object getPublicationData(@RequestParam(required = false) String title, @RequestParam(required = false) Integer id) {
 		if (id == null && Strings.isNullOrEmpty(title)) {
 			throw new IllegalArgumentException("Title and identifier parameters are missed"); //$NON-NLS-1$

@@ -27,6 +27,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -82,7 +83,8 @@ public class JournalController extends AbstractController {
 	 * @param id the identifier of the journal.
 	 * @return the journal.
 	 */
-	@GetMapping("/getJournalData")
+	@GetMapping(value = "/getJournalData", produces = "application/json; charset=UTF-8")
+	@ResponseBody
 	public Journal getJournalData(@RequestParam(required = false) String name, @RequestParam(required = false) Integer id) {
 		if (id == null && Strings.isNullOrEmpty(name)) {
 			throw new IllegalArgumentException("Name and identifier parameters are missed"); //$NON-NLS-1$
