@@ -294,72 +294,22 @@ public class PublicationServiceTest {
 	}
 
 	@Test
-	public void exportBibTeX_Stream_null() {
-		String bibtex = this.test.exportBibTeX((Stream<Integer>) null);
-		assertNull(bibtex);
-	}
-
-	@Test
-	public void exportBibTeX_Stream() {
-		when(this.bibtex.exportPublications(any(Iterable.class))).thenReturn("abc");
-		Stream<Integer> identifiers = Arrays.asList(123, 345).stream();
-
-		String bibtex = this.test.exportBibTeX(identifiers);
-
-		assertEquals("abc", bibtex);
-
-		ArgumentCaptor<Iterable> arg = ArgumentCaptor.forClass(Iterable.class);
-		verify(this.bibtex, only()).exportPublications(arg.capture());
-		Iterable<Publication> it = arg.getValue();
-		assertNotNull(it);
-		Iterator<Publication> iterator = it.iterator();
-		assertSame(this.pub0, iterator.next());
-		assertSame(this.pub2, iterator.next());
-		assertFalse(iterator.hasNext());
-	}
-
-	@Test
 	public void exportBibTeX_Collection_null() {
-		String bibtex = this.test.exportBibTeX((Collection<Integer>) null);
+		String bibtex = this.test.exportBibTeX((Collection<Publication>) null, new ExporterConfigurator());
 		assertNull(bibtex);
 	}
 
 	@Test
 	public void exportBibTeX_Collection() {
-		when(this.bibtex.exportPublications(any(Iterable.class))).thenReturn("abc");
-		Collection<Integer> identifiers = Arrays.asList(123, 345);
+		when(this.bibtex.exportPublications(any(Iterable.class), any())).thenReturn("abc");
+		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		String bibtex = this.test.exportBibTeX(identifiers);
-
-		assertEquals("abc", bibtex);
-
-		ArgumentCaptor<Iterable> arg = ArgumentCaptor.forClass(Iterable.class);
-		verify(this.bibtex, only()).exportPublications(arg.capture());
-		Iterable<Publication> it = arg.getValue();
-		assertNotNull(it);
-		Iterator<Publication> iterator = it.iterator();
-		assertSame(this.pub0, iterator.next());
-		assertSame(this.pub2, iterator.next());
-		assertFalse(iterator.hasNext());
-	}
-
-	@Test
-	public void exportBibTeX_Array_null() {
-		String bibtex = this.test.exportBibTeX((int[]) null);
-		assertNull(bibtex);
-	}
-
-	@Test
-	public void exportBibTeX_Array() {
-		when(this.bibtex.exportPublications(any(Iterable.class))).thenReturn("abc");
-		int[] identifiers = new int[] {123, 345};
-
-		String bibtex = this.test.exportBibTeX(identifiers);
+		String bibtex = this.test.exportBibTeX(pubs, new ExporterConfigurator());
 
 		assertEquals("abc", bibtex);
 
 		ArgumentCaptor<Iterable> arg = ArgumentCaptor.forClass(Iterable.class);
-		verify(this.bibtex, only()).exportPublications(arg.capture());
+		verify(this.bibtex, only()).exportPublications(arg.capture(), any());
 		Iterable<Publication> it = arg.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();
@@ -454,40 +404,10 @@ public class PublicationServiceTest {
 		assertFalse(iterator.hasNext());
 		assertNotNull(arg1.getValue());
 	}
-
-	@Test
-	public void exportOdt_Stream_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
-		byte[] odt = this.test.exportOdt((Stream<Integer>) null, configurator);
-		assertNull(odt);
-	}
-
-	@Test
-	public void exportOdt_Stream() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
-		when(this.odt.exportPublications(any(Iterable.class), any())).thenReturn("abc".getBytes());
-		Stream<Integer> identifiers = Arrays.asList(123, 345).stream();
-
-		byte[] odt = this.test.exportOdt(identifiers, configurator);
-
-		assertEquals("abc", new String(odt));
-
-		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
-		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		verify(this.odt, only()).exportPublications(arg0.capture(), arg1.capture());
-		Iterable<Publication> it = arg0.getValue();
-		assertNotNull(it);
-		Iterator<Publication> iterator = it.iterator();
-		assertSame(this.pub0, iterator.next());
-		assertSame(this.pub2, iterator.next());
-		assertFalse(iterator.hasNext());
-		assertNotNull(arg1.getValue());
-	}
-
 	@Test
 	public void exportOdt_Collection_null() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator();
-		byte[] odt = this.test.exportOdt((Collection<Integer>) null, configurator);
+		byte[] odt = this.test.exportOdt((Collection<Publication>) null, configurator);
 		assertNull(odt);
 	}
 
@@ -495,9 +415,9 @@ public class PublicationServiceTest {
 	public void exportOdt_Collection() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator();
 		when(this.odt.exportPublications(any(Iterable.class), any())).thenReturn("abc".getBytes());
-		Collection<Integer> identifiers = Arrays.asList(123, 345);
+		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		byte[] odt = this.test.exportOdt(identifiers, configurator);
+		byte[] odt = this.test.exportOdt(pubs, configurator);
 
 		assertEquals("abc", new String(odt));
 
@@ -514,32 +434,39 @@ public class PublicationServiceTest {
 	}
 
 	@Test
-	public void exportOdt_Array_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
-		byte[] odt = this.test.exportOdt(configurator, null);
-		assertNull(odt);
+	public void getPublicationsByPersonId() {
+		when(this.publicationRepository.findAllByAuthorshipsPersonId(anyInt())).thenReturn(
+				Arrays.asList(this.pub0, this.pub1));
+
+		final List<Publication> list = this.test.getPublicationsByPersonId(2345);
+		assertNotNull(list);
+		assertEquals(2, list.size());
+		assertTrue(list.contains(this.pub0));
+		assertTrue(list.contains(this.pub1));
 	}
 
 	@Test
-	public void exportOdt_Array() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
-		when(this.odt.exportPublications(any(Iterable.class), any())).thenReturn("abc".getBytes());
-		int[] identifiers = new int[] {123, 345};
+	public void getPublicationsByOrganizationId() {
+		when(this.publicationRepository.findAllByAuthorshipsPersonResearchOrganizationsResearchOrganizationId(anyInt())).thenReturn(
+				Arrays.asList(this.pub0, this.pub2));
 
-		byte[] odt = this.test.exportOdt(configurator, identifiers);
+		final List<Publication> list = this.test.getPublicationsByOrganizationId(2345);
+		assertNotNull(list);
+		assertEquals(2, list.size());
+		assertTrue(list.contains(this.pub0));
+		assertTrue(list.contains(this.pub2));
+	}
 
-		assertEquals("abc", new String(odt));
+	@Test
+	public void getPublicationsByIds() {
+		when(this.publicationRepository.findAllById(any())).thenReturn(
+				Arrays.asList(this.pub0, this.pub2));
 
-		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
-		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		verify(this.odt, only()).exportPublications(arg0.capture(), arg1.capture());
-		Iterable<Publication> it = arg0.getValue();
-		assertNotNull(it);
-		Iterator<Publication> iterator = it.iterator();
-		assertSame(this.pub0, iterator.next());
-		assertSame(this.pub2, iterator.next());
-		assertFalse(iterator.hasNext());
-		assertNotNull(arg1.getValue());
+		final List<Publication> list = this.test.getPublicationsByIds(Arrays.asList(2345, 3456));
+		assertNotNull(list);
+		assertEquals(2, list.size());
+		assertTrue(list.contains(this.pub0));
+		assertTrue(list.contains(this.pub2));
 	}
 
 }

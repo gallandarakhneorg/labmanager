@@ -18,14 +18,13 @@ package fr.ciadlab.labmanager.service.publication;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
+import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
@@ -339,55 +338,15 @@ public class PublicationService extends AbstractService {
 	/**
 	 * Export function for Open Document Text using a list of publication identifiers.
 	 *
-	 * @param configurator the configurator of the exporter.
-	 * @param identifiers the array of publication identifiers that should be exported.
-	 * @return the ODT description of the publications with the given identifiers.
-	 * @throws Exception if it is impossible to generate the ODT for the publications.
-	 */
-	public byte[] exportOdt(ExporterConfigurator configurator, int... identifiers) throws Exception {
-		if (identifiers == null) {
-			return null;
-		}
-		return exportOdt(Arrays.stream(identifiers).mapToObj(it -> Integer.valueOf(it)), configurator);
-	}
-
-	/**
-	 * Export function for Open Document Text using a list of publication identifiers.
-	 *
-	 * @param identifiers the array of publication identifiers that should be exported.
+	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @return the ODT description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the ODT for the publications.
 	 */
-	public byte[] exportOdt(Collection<Integer> identifiers, ExporterConfigurator configurator) throws Exception {
-		if (identifiers == null) {
+	public byte[] exportOdt(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
+		if (publications == null) {
 			return null;
 		}
-		return exportOdt(identifiers.stream(), configurator);
-	}
-
-	/**
-	 * Export function for Open Document Text using a list of publication identifiers.
-	 *
-	 * @param identifiers the array of publication identifiers that should be exported.
-	 * @param configurator the configurator of the exporter.
-	 * @return the ODT description of the publications with the given identifiers, or {@code null}
-	 *      if there is no publication to export.
-	 * @throws Exception if it is impossible to generate the ODT for the publications.
-	 */
-	public byte[] exportOdt(Stream<Integer> identifiers, ExporterConfigurator configurator) throws Exception {
-		if (identifiers == null) {
-			return null;
-		}
-		final List<Publication> publications = new ArrayList<>();
-		identifiers.forEach(it -> {
-			if (it != null) {
-				final Optional<Publication> optPublication = this.publicationRepository.findById(it);
-				if (optPublication.isPresent()) {
-					publications.add(optPublication.get());
-				}
-			}
-		});
 		return this.odt.exportPublications(publications, configurator);
 	}
 
