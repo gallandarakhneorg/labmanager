@@ -26,7 +26,6 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
-import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentConstants;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
@@ -71,8 +70,6 @@ public class PublicationController extends AbstractController {
 
 	private PersonService personService;
 
-	private HtmlPageExporter htmlPageExporter;
-
 	private DownloadableFileManager fileManager;
 
 	private PersonNameParser nameParser;
@@ -94,7 +91,6 @@ public class PublicationController extends AbstractController {
 	 * @param publicationService the publication service.
 	 * @param authorshipService the authorship service.
 	 * @param personService the person service.
-	 * @param htmlPageExporter the tool for exporting to HTML page.
 	 * @param fileManager the manager of local files.
 	 * @param nameParser the parser of a person name.
 	 * @param bibtex the tools for manipulating BibTeX data.
@@ -116,7 +112,6 @@ public class PublicationController extends AbstractController {
 			@Autowired PublicationService publicationService,
 			@Autowired AuthorshipService authorshipService,
 			@Autowired PersonService personService,
-			@Autowired HtmlPageExporter htmlPageExporter,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired PersonNameParser nameParser,
 			@Autowired BibTeX bibtex,
@@ -128,7 +123,6 @@ public class PublicationController extends AbstractController {
 		this.publicationService = publicationService;
 		this.authorshipService = authorshipService;
 		this.personService = personService;
-		this.htmlPageExporter = htmlPageExporter;
 		this.fileManager = fileManager;
 		this.nameParser = nameParser;
 		this.bibtex = bibtex;
@@ -150,10 +144,14 @@ public class PublicationController extends AbstractController {
 
 	/** Replies data about a specific publication from the database.
 	 * This endpoint accepts one of the two parameters: the title or the identifier of the publication.
+	 * <p>This function and {@link #exportJson(HttpServletResponse, List, Integer, Integer, Integer)} differ
+	 * from the structure of the JSON output. This function is a direct translation of the publication to
+	 * JSON.
 	 *
 	 * @param title the title of the publication.
 	 * @param id the identifier of the publication.
 	 * @return the publication if a specific identifier is provided, or a list of publications that have the given title.
+	 * @see #exportJson(HttpServletResponse, List, Integer, Integer, Integer)
 	 */
 	@GetMapping(value = "/getPublicationData", produces = "application/json; charset=UTF-8")
 	@ResponseBody
@@ -168,7 +166,8 @@ public class PublicationController extends AbstractController {
 	}
 
 	private <T> T export(HttpServletResponse response, List<Integer> identifiers, Integer organization, Integer author,
-			Integer journal, Boolean nameHighlight, Boolean color, ExporterCallback<T> callback) throws Exception {
+			Integer journal, Boolean nameHighlight, Boolean color, Boolean downloadButtons, Boolean exportButtons, 
+			Boolean editButtons, Boolean deleteButtons, ExporterCallback<T> callback) throws Exception {
 		if ((identifiers == null || identifiers.isEmpty()) && organization == null && author == null && journal == null) {
 			throw new IllegalArgumentException("Identifier for publications or organization or author or journal is missed"); //$NON-NLS-1$
 		}
@@ -182,6 +181,18 @@ public class PublicationController extends AbstractController {
 		}
 		if (color != null && !color.booleanValue()) {
 			configurator.disableTitleColor();
+		}
+		if (downloadButtons != null && !downloadButtons.booleanValue()) {
+			configurator.disableDownloadButtons();
+		}
+		if (exportButtons != null && !exportButtons.booleanValue()) {
+			configurator.disableExportButtons();
+		}
+		if (editButtons != null && !editButtons.booleanValue()) {
+			configurator.disableEditButtons();
+		}
+		if (deleteButtons != null && !deleteButtons.booleanValue()) {
+			configurator.disableDeleteButtons();
 		}
 		if (organization != null) {
 			configurator.selectOrganization(it -> it.getId() == organization.intValue());
@@ -226,7 +237,7 @@ public class PublicationController extends AbstractController {
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
 	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the HTML output. 
-	 * @return the HTML description of the publications, or {@code null} if there is no publication to export.
+	 * @return the HTML description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 */
 	@GetMapping(value = "/exportHtml")
@@ -240,7 +251,8 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportHtml(pubs, configurator);
-		final String content = export(response, identifiers, organization, author, journal, nameHighlight, color, cb);
+		final String content = export(response, identifiers, organization, author, journal, nameHighlight, color,
+				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		return ResponseEntity.ok()
 				.contentType(MediaType.TEXT_HTML)
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.html\"") //$NON-NLS-1$
@@ -262,7 +274,7 @@ public class PublicationController extends AbstractController {
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
-	 * @return the BibTeX description of the publications, or {@code null} if there is no publication to export.
+	 * @return the BibTeX description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 */
 	@GetMapping(value = "/exportBibTeX")
@@ -274,7 +286,8 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false) Integer author,
 			@RequestParam(required = false) Integer journal) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportBibTeX(pubs, configurator);
-		final String content = export(response, identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE, cb);
+		final String content = export(response, identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
+				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		return ResponseEntity.ok()
 				.contentType(BibTeXConstants.MIME_TYPE)
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.bib\"") //$NON-NLS-1$
@@ -299,7 +312,7 @@ public class PublicationController extends AbstractController {
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
 	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the ODT output. 
-	 * @return the OpenDocument description of the publications, or {@code null} if there is no publication to export.
+	 * @return the OpenDocument description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 */
 	@GetMapping(value = "/exportOpenDocumentText")
@@ -313,137 +326,92 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color) throws Exception {
 		final ExporterCallback<byte[]> cb = (pubs, configurator) -> this.publicationService.exportOdt(pubs, configurator);
-		final byte[] content = export(response, identifiers, organization, author, journal, nameHighlight, color, cb);
+		final byte[] content = export(response, identifiers, organization, author, journal, nameHighlight, color,
+				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		return ResponseEntity.ok()
 				.contentType(OpenDocumentConstants.ODT_MIME_TYPE)
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.odt\"") //$NON-NLS-1$
 				.body(content);
 	}
 
-	//	/** Build a list of publication as a Json string.
-	//	 * 
-	//	 * @param authorId the identifier of the person for who the publications must be replied.
-	//	 *     If it is not provided or equal to {@code null}, all the publications are considered.
-	//	 * @param onlyValid indicates if only the valid publications, i.e., those with at least one author,
-	//	 *     are replied. If this argument is not provided or equal to {@code null}, the default value is
-	//	 *     {@code true}.
-	//	 * @return the JSON of the list of publications. THe format of the JSON is the following:
-	//	 *     {@code data} field contains the whole data and with the value as an array of JSON elements.
-	//	 *     Each of these elements is:<ul>
-	//	 *     <li>{@code data} : the map of the publication's fields. The list of fields depends on
-	//	 *         on the type of the publication;</li>
-	//	 *     <li>{@code html} : the map of the HTML buttons for the publication. Three keys are
-	//	 *         provided: {@code downloads}, {@code exports}, {@code edit}.</li>
-	//	 *     </ul>
+
+	/**
+	 * Export publications to JSON.
+	 * This function takes one of the following parameters:<ul>
+	 * <li>{@code identifiers}: a list of publication identifiers to export.</li>
+	 * <li>{@code organization}: the identifier of a research organization for which the publications should be exported.</li>
+	 * <li>{@code author}: the identifier of an author.</li>
+	 * <li>{@code journal}: the identifier of a journal.</li>
+	 * </ul>
+	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
+	 * <p>This function and {@link #getPublicationData(String, Integer)} differ
+	 * from the structure of the JSON output. This function provides for each publication a map with the given pairs:<ul>
+	 * <li>{@code "data"}: the value is the JSON representation of the publication.</li>
+	 * <li>{@code "html/download"}: an array of HTML codes that enable to download things related to the publication.</li>
+	 * <li>{@code "html/export"}: an array of HTML codes that enable to export things related to the publication.</li>
+	 * <li>{@code "html/edit"}: an HTML code that enable to edit the publication.</li>
+	 * <li>{@code "html/delete"}: an HTML code that enable to delete the publication.</li>
+	 * </ul>
+	 *
+	 * @param response the HTTP response.
+	 * @param identifiers the array of publication identifiers that should be exported.
+	 * @param organization the identifier of the organization for which the publications must be exported.
+	 * @param author the identifier of the author for who the publications must be exported.
+	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @return the JSON description of the publications.
+	 * @throws Exception if it is impossible to redirect to the error page.
+	 * @see #getPublicationData(String, Integer)
+	 */
+	@GetMapping(value = "/exportJson")
+	@ResponseBody
+	public ResponseEntity<String> exportJson(
+			HttpServletResponse response,
+			@RequestParam(name = "id", required = false) List<Integer> identifiers,
+			@RequestParam(required = false) Integer organization,
+			@RequestParam(required = false) Integer author,
+			@RequestParam(required = false) Integer journal) throws Exception {
+		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportJson(pubs, configurator);
+		final String content = export(response, identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
+				Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, cb);
+		return ResponseEntity.ok()
+				.contentType(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.json\"") //$NON-NLS-1$
+				.body(content);
+	}
+
+	//	/** Replies the statistics for the publications and for the author with the given identifier.
+	//	 *
+	//	 * @param identifier the identifier of the author. If it is not provided, all the publications are considered.
+	//	 * @return the model-view with the statistics.
 	//	 */
-	//	@GetMapping("/getPublicationsList")
-	//	@ResponseBody
-	//	public String getPublicationList(
-	//			@RequestParam(required = false) Integer authorId,
-	//			@RequestParam(required = false) Boolean onlyValid) {
-	//		List<Publication> publications;
-	//		if (authorId == null) {
+	//	@GetMapping("/publicationsStats")
+	//	public ModelAndView showPublicationsStats(
+	//			@RequestParam(required = false) Integer identifier) {
+	//		final ModelAndView modelAndView = new ModelAndView("publicationsStats"); //$NON-NLS-1$
+	//
+	//		final List<Publication> publications;
+	//		if (identifier == null) {
 	//			publications = this.publicationService.getAllPublications();
 	//		} else {
-	//			publications = this.authorshipService.getPublicationsFor(authorId.intValue());
-	//		}
-	//		if (onlyValid == null || onlyValid.booleanValue()) {
-	//			publications = publications.stream().filter(it -> it.getAuthorships() != null
-	//					&& !it.getAuthorships().isEmpty()).collect(Collectors.toList());
+	//			publications = this.authorshipService.getPublicationsFor(identifier.intValue());
 	//		}
 	//
-	//		final JsonArray publicationArrayJson = new JsonArray();
+	//		final Map<Integer, PublicationsStat> statsPerYear = new TreeMap<>();
+	//		final PublicationsStat globalStats = new PublicationsStat(Integer.MIN_VALUE);
 	//
-	//		for (Publication publication : publications) {
-	//			final JsonObject publicationData = new JsonObject();
-	//			publication.toJson(publicationData);
-	//
-	//			final JsonObject publicationHtml = new JsonObject();
-	//
-	//			final StringBuilder downloads = new StringBuilder();
-	//			boolean htmlAdded = false;
-	//			if (publication.getPathToDownloadablePDF() != null) {
-	//				final String html = this.htmlPageExporter.getButtonToDownloadPublicationPDF(publication.getPathToDownloadablePDF());
-	//				if (!Strings.isNullOrEmpty(html)) {
-	//					downloads.append(html);
-	//					htmlAdded = true;
-	//				}
-	//			}
-	//			if (publication.getPathToDownloadableAwardCertificate() != null) {
-	//				final String html = this.htmlPageExporter.getButtonToDownloadPublicationAwardCertificate(publication.getPathToDownloadableAwardCertificate());
-	//				if (!Strings.isNullOrEmpty(html)) {
-	//					if (htmlAdded) {
-	//						downloads.append(this.htmlPageExporter.doubleSeparator());
-	//					}
-	//					downloads.append(html);
-	//				}
-	//			}
-	//			if (downloads.length() > 0) {
-	//				publicationHtml.addProperty("downloads", downloads.toString()); //$NON-NLS-1$
-	//			}
-	//
-	//			final StringBuilder exports = new StringBuilder();
-	//			String html = this.htmlPageExporter.getButtonToExportPublicationToBibTeX(publication.getId());
-	//			htmlAdded = false;
-	//			if (!Strings.isNullOrEmpty(html)) {
-	//				exports.append(html);
-	//				htmlAdded = true;
-	//			}
-	//			html = this.htmlPageExporter.getButtonToExportPublicationToHtml(publication.getId());
-	//			if (!Strings.isNullOrEmpty(html)) {
-	//				if (htmlAdded) {
-	//					exports.append(this.htmlPageExporter.doubleSeparator());
-	//				}
-	//				exports.append(html);
-	//				htmlAdded = true;
-	//			}
-	//			html = this.htmlPageExporter.getButtonToExportPublicationToOpenDocument(publication.getId());
-	//			if (!Strings.isNullOrEmpty(html)) {
-	//				if (htmlAdded) {
-	//					exports.append(this.htmlPageExporter.doubleSeparator());
-	//				}
-	//				exports.append(html);
-	//			}
-	//			if (exports.length() > 0) {
-	//				publicationHtml.addProperty("exports", exports.toString()); //$NON-NLS-1$
-	//			}
-	//
-	//			final StringBuilder edit = new StringBuilder();
-	//			html = this.htmlPageExporter.getButtonToEditPublication(publication.getId());
-	//			htmlAdded = false;
-	//			if (!Strings.isNullOrEmpty(html)) {
-	//				exports.append(html);
-	//				htmlAdded = true;
-	//			}
-	//			html = this.htmlPageExporter.getButtonToDeletePublication(publication.getId());
-	//			if (!Strings.isNullOrEmpty(html)) {
-	//				if (htmlAdded) {
-	//					exports.append(this.htmlPageExporter.doubleSeparator());
-	//				}
-	//				exports.append(html);
-	//			}
-	//			if (edit.length() > 0) {
-	//				publicationHtml.addProperty("edit", edit.toString()); //$NON-NLS-1$
-	//			}
-	//
-	//			final JsonObject container = new JsonObject();
-	//			if (publicationData.size() > 0) {
-	//				container.add("data", publicationData); //$NON-NLS-1$
-	//			}
-	//			if (publicationHtml.size() > 0) {
-	//				container.add("html", publicationHtml); //$NON-NLS-1$
-	//			}
-	//			if (container.size() > 0) {
-	//				publicationArrayJson.add(container);
-	//			}
+	//		for (final Publication p : publications) {
+	//			final Integer y = Integer.valueOf(p.getPublicationYear());
+	//			final PublicationsStat stats = statsPerYear.computeIfAbsent(y,
+	//					it -> new PublicationsStat(it.intValue()));
+	//			stats.incrementCountForType(p.getType(), p.isRanked(), 1);
+	//			globalStats.incrementCountForType(p.getType(), p.isRanked(), 1);
 	//		}
 	//
-	//		final JsonObject dataJson = new JsonObject();
-	//		dataJson.add("data", publicationArrayJson); //$NON-NLS-1$
-	//		final Gson gson = new Gson();
-	//		return gson.toJson(dataJson);
+	//		modelAndView.addObject("stats", statsPerYear); //$NON-NLS-1$
+	//		modelAndView.addObject("globalStats", globalStats); //$NON-NLS-1$
+	//		return modelAndView;
 	//	}
-	//
+
 	//	/** Redirect to the publication list.
 	//	 *
 	//	 * @param modelAndView the model-view to configure for redirection.
@@ -1230,39 +1198,6 @@ public class PublicationController extends AbstractController {
 	//			redirectError(response, ex);
 	//			return null;
 	//		}
-	//	}
-
-	//	/** Replies the statistics for the publications and for the author with the given identifier.
-	//	 *
-	//	 * @param identifier the identifier of the author. If it is not provided, all the publications are considered.
-	//	 * @return the model-view with the statistics.
-	//	 */
-	//	@GetMapping("/publicationsStats")
-	//	public ModelAndView showPublicationsStats(
-	//			@RequestParam(required = false) Integer identifier) {
-	//		final ModelAndView modelAndView = new ModelAndView("publicationsStats"); //$NON-NLS-1$
-	//
-	//		final List<Publication> publications;
-	//		if (identifier == null) {
-	//			publications = this.publicationService.getAllPublications();
-	//		} else {
-	//			publications = this.authorshipService.getPublicationsFor(identifier.intValue());
-	//		}
-	//
-	//		final Map<Integer, PublicationsStat> statsPerYear = new TreeMap<>();
-	//		final PublicationsStat globalStats = new PublicationsStat(Integer.MIN_VALUE);
-	//
-	//		for (final Publication p : publications) {
-	//			final Integer y = Integer.valueOf(p.getPublicationYear());
-	//			final PublicationsStat stats = statsPerYear.computeIfAbsent(y,
-	//					it -> new PublicationsStat(it.intValue()));
-	//			stats.incrementCountForType(p.getType(), p.isRanked(), 1);
-	//			globalStats.incrementCountForType(p.getType(), p.isRanked(), 1);
-	//		}
-	//
-	//		modelAndView.addObject("stats", statsPerYear); //$NON-NLS-1$
-	//		modelAndView.addObject("globalStats", globalStats); //$NON-NLS-1$
-	//		return modelAndView;
 	//	}
 
 	/** Exporter callback.

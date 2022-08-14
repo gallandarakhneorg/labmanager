@@ -160,4 +160,32 @@ public class ExporterConfiguratorTest {
 		assertFalse(this.test.isColoredTitle());
 	}
 
+	@Test
+	public void disableDownloadButtons() {
+		assertTrue(this.test.isDownloadButtons());
+		this.test.disableDownloadButtons();
+		assertFalse(this.test.isDownloadButtons());
+	}
+
+	@Test
+	public void disableExportButtons() {
+		assertTrue(this.test.isExportButtons());
+		this.test.disableExportButtons();
+		assertFalse(this.test.isExportButtons());
+	}
+
+	@Test
+	public void disableEditButtons() {
+		assertTrue(this.test.isEditButtons());
+		this.test.disableEditButtons();
+		assertFalse(this.test.isEditButtons());
+	}
+
+	@Test
+	public void disableDeleteButtons() {
+		assertTrue(this.test.isDeleteButtons());
+		this.test.disableDeleteButtons();
+		assertFalse(this.test.isDeleteButtons());
+	}
+
 }

@@ -112,8 +112,6 @@ public class PublicationControllerTest {
 
 	private PersonService personService;
 
-	private HtmlPageExporter htmlExporter;
-
 	private OpenDocumentTextExporter odtExporter;
 
 	private DownloadableFileManager fileManager;
@@ -134,7 +132,6 @@ public class PublicationControllerTest {
 	public void setUp() {
 		this.prePublicationFactory = mock(PrePublicationFactory.class);
 		this.publicationService = mock(PublicationService.class);
-		this.htmlExporter = mock(HtmlPageExporter.class);
 		this.odtExporter = mock(OpenDocumentTextExporter.class);
 		this.personService = mock(PersonService.class);
 		this.authorshipService = mock(AuthorshipService.class);
@@ -146,7 +143,7 @@ public class PublicationControllerTest {
 		this.journalPaperService = mock(JournalPaperService.class);
 		this.test = new PublicationController(
 				this.prePublicationFactory, this.publicationService, this.authorshipService,
-				this.personService, this.htmlExporter, this.fileManager,
+				this.personService, this.fileManager,
 				this.nameParser, this.bibtex, this.viewFactory, this.journalService,
 				this.journalPaperService);
 		this.test.setLogger(mock(Logger.class));

@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.io.html;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -62,14 +63,18 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	@Override
 	public String getButtonToDownloadPublicationPDF(String pdfUrl) {
 		final StringBuilder html = new StringBuilder();
-		buildPdfDownloadLink(html, pdfUrl, "PDF"); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(pdfUrl)) {
+			buildPdfDownloadLink(html, pdfUrl, "PDF"); //$NON-NLS-1$
+		}
 		return html.toString();
 	}
 
 	@Override
 	public String getButtonToDownloadPublicationAwardCertificate(String awardUrl) {
 		final StringBuilder html = new StringBuilder();
-		buildPdfDownloadLink(html, awardUrl, "Award"); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(awardUrl)) {
+			buildPdfDownloadLink(html, awardUrl, "Award"); //$NON-NLS-1$
+		}
 		return html.toString();
 	}
 
@@ -86,43 +91,53 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	@Override
 	public String getButtonToExportPublicationToBibTeX(int publicationId) {
 		final StringBuilder html = new StringBuilder();
-		exportPublicationButton(html, "btBibtex", publicationId, "BibTeX"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (publicationId != 0) {
+			exportPublicationButton(html, "btBibtex", publicationId, "BibTeX"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		return html.toString();
 	}
 
 	@Override
 	public String getButtonToExportPublicationToHtml(int publicationId) {
 		final StringBuilder html = new StringBuilder();
-		exportPublicationButton(html, "btHtml", publicationId, "HTML"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (publicationId != 0) {
+			exportPublicationButton(html, "btHtml", publicationId, "HTML"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		return html.toString();
 	}
 
 	@Override
 	public String getButtonToExportPublicationToOpenDocument(int publicationId) {
 		final StringBuilder html = new StringBuilder();
-		exportPublicationButton(html, "btWord", publicationId, "ODT"); //$NON-NLS-1$ //$NON-NLS-2$
+		if (publicationId != 0) {
+			exportPublicationButton(html, "btWord", publicationId, "ODT"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
 		return html.toString();
 	}
 
 	@Override
 	public String getButtonToEditPublication(int publicationId) {
 		final StringBuilder html = new StringBuilder();
-		html.append("<a class=\"btn btn-xs btn-success\" href=\"/SpringRestHibernate/addPublication?publicationId="); //$NON-NLS-1$
-		html.append(publicationId);
-		html.append("\" <i class=\"fa fa-edit\">"); //$NON-NLS-1$
-		html.append(this.messages.getMessage(MESSAGES_PREFIX + "EDIT_BUTTON_LABEL")); //$NON-NLS-1$
-		html.append("</i></a>"); //$NON-NLS-1$
+		if (publicationId != 0) {
+			html.append("<a class=\"btn btn-xs btn-success\" href=\"/SpringRestHibernate/addPublication?publicationId="); //$NON-NLS-1$
+			html.append(publicationId);
+			html.append("\" <i class=\"fa fa-edit\">"); //$NON-NLS-1$
+			html.append(this.messages.getMessage(MESSAGES_PREFIX + "EDIT_BUTTON_LABEL")); //$NON-NLS-1$
+			html.append("</i></a>"); //$NON-NLS-1$
+		}
 		return html.toString();
 	}
 
 	@Override
 	public String getButtonToDeletePublication(int publicationId) {
 		final StringBuilder html = new StringBuilder();
-		html.append("<a class=\"btn btn-xs btn-danger\" href=\"/SpringRestHibernate/deletePublication?publicationId="); //$NON-NLS-1$
-		html.append(publicationId);
-		html.append("\" <i class=\"fa fa-delete\">"); //$NON-NLS-1$
-		html.append(this.messages.getMessage(MESSAGES_PREFIX + "DELETE_BUTTON_LABEL")); //$NON-NLS-1$
-		html.append("</i></a>"); //$NON-NLS-1$
+		if (publicationId != 0) {
+			html.append("<a class=\"btn btn-xs btn-danger\" href=\"/SpringRestHibernate/deletePublication?publicationId="); //$NON-NLS-1$
+			html.append(publicationId);
+			html.append("\" <i class=\"fa fa-delete\">"); //$NON-NLS-1$
+			html.append(this.messages.getMessage(MESSAGES_PREFIX + "DELETE_BUTTON_LABEL")); //$NON-NLS-1$
+			html.append("</i></a>"); //$NON-NLS-1$
+		}
 		return html.toString();
 	}
 

@@ -29,6 +29,7 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
+import fr.ciadlab.labmanager.io.json.JsonExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -69,6 +70,8 @@ public class PublicationService extends AbstractService {
 
 	private OpenDocumentTextExporter odt;
 
+	private JsonExporter json;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -81,6 +84,7 @@ public class PublicationService extends AbstractService {
 	 * @param bibtex the tool for managing BibTeX source.
 	 * @param html the tool for exporting to HTML.
 	 * @param odt the tool for exporting to Open Document Text.
+	 * @param json the tool for exporting to JSON.
 	 */
 	public PublicationService(@Autowired PublicationRepository publicationRepository,
 			@Autowired AuthorshipService authorshipService,
@@ -88,7 +92,8 @@ public class PublicationService extends AbstractService {
 			@Autowired PersonService personService, @Autowired PersonRepository personRepository,
 			@Autowired JournalRepository journalRepository,
 			@Autowired BibTeX bibtex, @Autowired HtmlDocumentExporter html,
-			@Autowired OpenDocumentTextExporter odt) {
+			@Autowired OpenDocumentTextExporter odt,
+			@Autowired JsonExporter json) {
 		this.publicationRepository = publicationRepository;
 		this.authorshipService = authorshipService;
 		this.authorshipRepository = authorshipRepository;
@@ -98,6 +103,7 @@ public class PublicationService extends AbstractService {
 		this.bibtex = bibtex;
 		this.html = html;
 		this.odt = odt;
+		this.json = json;
 	}
 
 	/** Replies all the publications from the database.
@@ -319,6 +325,21 @@ public class PublicationService extends AbstractService {
 			return null;
 		}
 		return this.odt.exportPublications(publications, configurator);
+	}
+
+	/**
+	 * Export function for JSON using a list of publication identifiers.
+	 *
+	 * @param publications the array of publications that should be exported.
+	 * @param configurator the configurator of the exporter.
+	 * @return the JSON description of the publications with the given identifiers.
+	 * @throws Exception if it is impossible to generate the JSON for the publications.
+	 */
+	public String exportJson(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
+		if (publications == null) {
+			return null;
+		}
+		return this.json.exportPublications(publications, configurator);
 	}
 
 }

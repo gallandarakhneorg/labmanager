@@ -50,6 +50,8 @@ import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
+import fr.ciadlab.labmanager.io.json.JacksonJsonExporter;
+import fr.ciadlab.labmanager.io.json.JsonExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -97,6 +99,8 @@ public class PublicationServiceTest {
 
 	private OpenDocumentTextExporter odt;
 
+	private JsonExporter json;
+
 	private PublicationService test;
 
 	@BeforeEach
@@ -110,10 +114,11 @@ public class PublicationServiceTest {
 		this.bibtex = mock(BibTeX.class);
 		this.html = mock(HtmlDocumentExporter.class);
 		this.odt = mock(OpenDocumentTextExporter.class);
+		this.json = mock(JsonExporter.class);
 		this.test = new PublicationService(this.publicationRepository,
 				this.authorshipService, this.authorshipRepository,
 				this.personService, this.personRepository,
-				this.journalRepository, this.bibtex, this.html, this.odt);
+				this.journalRepository, this.bibtex, this.html, this.odt, this.json);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -367,6 +372,36 @@ public class PublicationServiceTest {
 		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
 		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
 		verify(this.odt, only()).exportPublications(arg0.capture(), arg1.capture());
+		Iterable<Publication> it = arg0.getValue();
+		assertNotNull(it);
+		Iterator<Publication> iterator = it.iterator();
+		assertSame(this.pub0, iterator.next());
+		assertSame(this.pub2, iterator.next());
+		assertFalse(iterator.hasNext());
+		assertNotNull(arg1.getValue());
+	}
+
+
+	@Test
+	public void exportJson_Collection_null() throws Exception {
+		ExporterConfigurator configurator = new ExporterConfigurator();
+		String html = this.test.exportJson((Collection<Publication>) null, configurator);
+		assertNull(html);
+	}
+
+	@Test
+	public void exportJson_Collection() throws Exception {
+		ExporterConfigurator configurator = new ExporterConfigurator();
+		when(this.json.exportPublications(any(Iterable.class), any())).thenReturn("abc");
+		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
+
+		String json = this.test.exportJson(pubs, configurator);
+
+		assertEquals("abc", json);
+
+		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
+		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
+		verify(this.html, only()).exportPublications(arg0.capture(), arg1.capture());
 		Iterable<Publication> it = arg0.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();

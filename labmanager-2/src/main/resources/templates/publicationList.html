@@ -44,7 +44,7 @@
             	<a th:href="@{/exportHtml(id=${publication.id})}">
             		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${publication.title})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/getPublicationData(id=${publication.id})}">
+            	<a th:href="@{/exportJson(id=${publication.id})}">
             		<img th:src="@{/images/icon/json_file.svg}" th:title="#{html.GetJsonFor(${publication.title})}" style="max-width:24px;"></img>
             	</a>
             </td>
@@ -61,7 +61,7 @@
             scrollCollapse: true,
             paging: false,
             buttons: [
-                'excelHtml5', 'pdfHtml5', 'csvHtml5'
+                'excelHtml5', 'csvHtml5'
             ],
             responsive: true,
             autoWidth: true,

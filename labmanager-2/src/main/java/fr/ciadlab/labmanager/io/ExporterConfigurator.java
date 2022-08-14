@@ -48,13 +48,98 @@ public class ExporterConfigurator {
 
 	private boolean enableTitleColor = true;
 
+	private boolean enableDownloadButtons = true;
+
+	private boolean enableExportButtons = true;
+
+	private boolean enableEditButtons = true;
+
+	private boolean enableDeleteButtons = true;
+
 	/** Constructor.
 	 */
 	public ExporterConfigurator() {
 		//
 	}
 
+	/** Replies if the edit buttons are included to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return {@code true} for including edit buttons.
+	 */
+	public boolean isEditButtons() {
+		return this.enableEditButtons;
+	}
+
+	/** Disable the inclusion of the edit buttons in the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return this.
+	 */
+	public ExporterConfigurator disableEditButtons() {
+		this.enableEditButtons = false;
+		return this;
+	}
+
+	/** Replies if the delete buttons are included to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return {@code true} for including delete buttons.
+	 */
+	public boolean isDeleteButtons() {
+		return this.enableDeleteButtons;
+	}
+
+	/** Disable the inclusion of the delete buttons in the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return this.
+	 */
+	public ExporterConfigurator disableDeleteButtons() {
+		this.enableDeleteButtons = false;
+		return this;
+	}
+
+	/** Replies if the export buttons are included to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return {@code true} for including export buttons.
+	 */
+	public boolean isExportButtons() {
+		return this.enableExportButtons;
+	}
+
+	/** Disable the inclusion of the export buttons in the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return this.
+	 */
+	public ExporterConfigurator disableExportButtons() {
+		this.enableExportButtons = false;
+		return this;
+	}
+
+	/** Replies if the download buttons are included to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return {@code true} for including download buttons.
+	 */
+	public boolean isDownloadButtons() {
+		return this.enableDownloadButtons;
+	}
+
+	/** Disable the inclusion of the download buttons in the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return this.
+	 */
+	public ExporterConfigurator disableDownloadButtons() {
+		this.enableDownloadButtons = false;
+		return this;
+	}
+
 	/** Replies if the titles could be drawn with color font.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return {@code true} for color font.
 	 */
@@ -63,6 +148,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Disable the coloring of the titles.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return this.
 	 */
@@ -72,6 +158,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Replies if the names of the organization Postdoc/engineer should be formated.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return {@code true} for formatting the names.
 	 */
@@ -80,6 +167,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Disable the format of the names of the organization Postdoc/engineer.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return this.
 	 */
@@ -89,6 +177,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Replies if the names of the organization PhD students should be formated.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return {@code true} for formatting the names.
 	 */
@@ -97,6 +186,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Disable the format of the names of the organization PhD students.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return this.
 	 */
@@ -106,6 +196,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Replies if the names of the organization researchers should be formated.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return {@code true} for formatting the names.
 	 */
@@ -114,6 +205,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Disable the format of the names of the organization researchers.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return this.
 	 */
@@ -123,6 +215,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Replies if the names of the selected authors should be formated.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return {@code true} for formatting the names.
 	 */
@@ -131,6 +224,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Disable the format of the names of the selected authors.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @return this.
 	 */
@@ -140,6 +234,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Change the selector for the persons.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @param selector the selector or {@code null}.
 	 * @return this.
@@ -158,6 +253,7 @@ public class ExporterConfigurator {
 	}
 
 	/** Change the selector for the organization.
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @param selector the selector or {@code null}.
 	 * @return this.
@@ -206,6 +302,7 @@ public class ExporterConfigurator {
 
 	/** Replies the status of an exported author. If there is multiple memberships active at the same time,
 	 * the highest membership position is considered. 
+	 * <p>This feature may be ignored in the implementation of the exporter.
 	 *
 	 * @param person the person to test.
 	 * @param year the current year.
