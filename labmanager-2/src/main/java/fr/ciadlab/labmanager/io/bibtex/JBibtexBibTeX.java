@@ -155,9 +155,17 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 */
 	protected static final Key KEY_PUBLICATION_TYPE = new Key("_publication_type"); //$NON-NLS-1$
 
+	/** Field {@code _publication_type_name}.
+	 */
+	protected static final Key KEY_PUBLICATION_TYPE_NAME = new Key("_publication_type_name"); //$NON-NLS-1$
+
 	/** Field {@code _publication_category}.
 	 */
 	protected static final Key KEY_PUBLICATION_CATEGORY = new Key("_publication_category"); //$NON-NLS-1$
+
+	/** Field {@code _publication_category_name}.
+	 */
+	protected static final Key KEY_PUBLICATION_CATEGORY_NAME = new Key("_publication_category_name"); //$NON-NLS-1$
 
 	/** Field {@code _scimago_qindex}.
 	 */
@@ -607,6 +615,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		case INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE:
 		case NATIONAL_JOURNAL_PAPER:
 		case NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE:
+		case SCIENTIFIC_CULTURE_PAPER:
 			entry = createBibTeXEntry((JournalPaper) publication);
 			break;
 		case INTERNATIONAL_CONFERENCE_PAPER:
@@ -615,7 +624,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		case NATIONAL_CONFERENCE_PAPER:
 		case NATIONAL_ORAL_COMMUNICATION:
 		case NATIONAL_POSTER:
-		case SCIENTIFIC_CULTURE_PAPER:
 			entry = createBibTeXEntry((ConferencePaper) publication);
 			break;
 		case INTERNATIONAL_BOOK:
@@ -770,14 +778,18 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_VIDEO, publication.getVideoURL());
 		addField(entry, KEY_ABSTRACT, publication.getAbstractText());
 		addField(entry, KEY_KEYWORD, publication.getKeywords());
-		addField(entry, KEY_LANGUAGE, publication.getMajorLanguage().toString());
+		addField(entry, KEY_LANGUAGE, publication.getMajorLanguage().name());
 		final PublicationCategory cat = publication.getType().getCategory(publication.isRanked());
 		// Force the Java locale to get the text that is corresponding to the language of the paper
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
-			addField(entry, KEY_PUBLICATION_TYPE, publication.getType().getLabel());
-			addField(entry, KEY_PUBLICATION_CATEGORY, cat.toString());
+			addField(entry, KEY_PUBLICATION_TYPE, publication.getType().name());
+			addField(entry, KEY_PUBLICATION_TYPE_NAME, publication.getType().getLabel());
+			if (cat != null) {
+				addField(entry, KEY_PUBLICATION_CATEGORY, cat.name());
+				addField(entry, KEY_PUBLICATION_CATEGORY_NAME, cat.getLabel());
+			}
 		} finally {
 			java.util.Locale.setDefault(loc);
 		}
@@ -852,7 +864,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_SERIES, paper.getSeries());
 		addField(entry, KEY_SCIMAGO_QINDEX, paper.getScimagoQIndex());
 		addField(entry, KEY_WOS_QINDEX, paper.getWosQIndex());
-		addField(entry, KEY_IMPACT_FACTOR, paper.getImpactFactor());
+		if (paper.getImpactFactor() > 0f) {
+			addField(entry, KEY_IMPACT_FACTOR, this.messages.getMessage(MESSAGE_PREFIX + "RAW_IMPACT_FACTOR", //$NON-NLS-1$
+					new Object[] {Float.valueOf(paper.getImpactFactor())}));
+		}
 		addNoteForJournal(entry, paper.getMajorLanguage(), paper.getScimagoQIndex(),
 				paper.getWosQIndex(), paper.getImpactFactor());
 		return entry;

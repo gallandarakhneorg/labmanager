@@ -54,11 +54,11 @@ public abstract class AbstractBibTeX implements BibTeX {
 
 	/** Field {@code video}.
 	 */
-	protected static final String KEY_VIDEO_NAME = "video"; //$NON-NLS-1$
+	protected static final String KEY_VIDEO_NAME = "_video"; //$NON-NLS-1$
 
 	/** Field {@code language}.
 	 */
-	protected static final String KEY_LANGUAGE_NAME = "language"; //$NON-NLS-1$
+	protected static final String KEY_LANGUAGE_NAME = "_language"; //$NON-NLS-1$
 
 	/** Add curly-braces around the upper-case words of the given text.
 	 * This feature is usually applied in the titles of the BibTeX entries in
