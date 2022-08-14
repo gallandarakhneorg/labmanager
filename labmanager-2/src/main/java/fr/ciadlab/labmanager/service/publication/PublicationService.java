@@ -31,6 +31,7 @@ import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
+import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
@@ -57,6 +58,8 @@ public class PublicationService extends AbstractService {
 
 	private AuthorshipRepository authorshipRepository;
 
+	private JournalRepository journalRepository;
+
 	private PersonRepository personRepository;
 
 	private PersonService personService;
@@ -75,6 +78,7 @@ public class PublicationService extends AbstractService {
 	 * @param authorshipRepository authorshipRepository the repository of authorships.
 	 * @param personService the service for managing the persons.
 	 * @param personRepository the repository of the persons.
+	 * @param journalRepository the repository of the journals.
 	 * @param bibtex the tool for managing BibTeX source.
 	 * @param html the tool for exporting to HTML.
 	 * @param odt the tool for exporting to Open Document Text.
@@ -83,6 +87,7 @@ public class PublicationService extends AbstractService {
 			@Autowired AuthorshipService authorshipService,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonService personService, @Autowired PersonRepository personRepository,
+			@Autowired JournalRepository journalRepository,
 			@Autowired BibTeX bibtex, @Autowired HtmlDocumentExporter html,
 			@Autowired OpenDocumentTextExporter odt) {
 		this.publicationRepository = publicationRepository;
@@ -90,6 +95,7 @@ public class PublicationService extends AbstractService {
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;
 		this.personService = personService;
+		this.journalRepository = journalRepository;
 		this.bibtex = bibtex;
 		this.html = html;
 		this.odt = odt;
@@ -103,6 +109,24 @@ public class PublicationService extends AbstractService {
 		return this.publicationRepository.findAll();
 	}
 
+	/** Replies all the publications from the database that are attached to the given person.
+	 *
+	 * @param identifier the identifier of the person.
+	 * @return the publications.
+	 */
+	public List<Publication> getPublicationsByPersonId(int identifier) {
+		return this.publicationRepository.findAllByAuthorshipsPersonId(identifier);
+	}
+
+	/** Replies all the publications from the database that are attached to the given organization.
+	 *
+	 * @param identifier the identifier of the organization.
+	 * @return the publications.
+	 */
+	public List<Publication> getPublicationsByOrganizationId(int identifier) {
+		return this.publicationRepository.findAllByAuthorshipsPersonResearchOrganizationsResearchOrganizationId(identifier);
+	}
+
 	/** Replies the publication with the given identifier.
 	 *
 	 * @param identifier the identifier of the publication.
@@ -111,6 +135,15 @@ public class PublicationService extends AbstractService {
 	public Publication getPublicationById(int identifier) {
 		final Optional<Publication> byId = this.publicationRepository.findById(Integer.valueOf(identifier));
 		return byId.orElse(null);
+	}
+
+	/** Replies the publications with the given identifiers.
+	 *
+	 * @param identifiers the identifiers of the publications.
+	 * @return the publications.
+	 */
+	public List<Publication> getPublicationsByIds(List<Integer> identifiers) {
+		return this.publicationRepository.findAllById(identifiers);
 	}
 
 	/** Replies the publications with the given title.
@@ -160,6 +193,9 @@ public class PublicationService extends AbstractService {
 			final List<Person> authors = publication.getTemporaryAuthors();
 			publication.setTemporaryAuthors(null);
 			this.publicationRepository.save(publication);
+			if (publication instanceof JournalBasedPublication) {
+				this.journalRepository.save(((JournalBasedPublication) publication).getJournal());
+			}
 			if (authors != null) {
 				for (final Person author : authors) {
 					this.personRepository.save(author);
@@ -245,52 +281,6 @@ public class PublicationService extends AbstractService {
 	/**
 	 * Export function for BibTeX using a list of publication identifiers.
 	 *
-	 * @param identifiers the array of publication identifiers that should be exported.
-	 * @return the BibTeX description of the publications with the given identifiers.
-	 */
-	public String exportBibTeX(int... identifiers) {
-		if (identifiers == null) {
-			return null;
-		}
-		return exportBibTeX(Arrays.stream(identifiers).mapToObj(it -> Integer.valueOf(it)));
-	}
-
-	/**
-	 * Export function for BibTeX using a list of publication identifiers.
-	 *
-	 * @param identifiers the array of publication identifiers that should be exported.
-	 * @return the BibTeX description of the publications with the given identifiers.
-	 */
-	public String exportBibTeX(Collection<Integer> identifiers) {
-		if (identifiers == null) {
-			return null;
-		}
-		return exportBibTeX(identifiers.stream());
-	}
-
-	/**
-	 * Export function for BibTeX using a list of publication identifiers.
-	 *
-	 * @param identifiers the array of publication identifiers that should be exported.
-	 * @return the BibTeX description of the publications with the given identifiers. The string could be {@code null}
-	 *     if there is no publication to export.
-	 */
-	public String exportBibTeX(Stream<Integer> identifiers) {
-		if (identifiers == null) {
-			return null;
-		}
-		final List<Publication> publications = new ArrayList<>();
-		identifiers.forEach(it -> {
-			if (it != null) {
-				final Optional<Publication> optPublication = this.publicationRepository.findById(it);
-				if (optPublication.isPresent()) {
-					publications.add(optPublication.get());
-				}
-			}
-		});
-		return this.bibtex.exportPublications(publications);
-	}
-
 	/**
 	 * Export function for HTML using a list of publication identifiers.
 	 *

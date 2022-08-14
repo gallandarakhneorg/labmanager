@@ -34,6 +34,7 @@ import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -42,14 +43,15 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
+import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
@@ -87,6 +89,8 @@ public class PublicationServiceTest {
 
 	private PersonRepository personRepository;
 
+	private JournalRepository journalRepository;
+
 	private BibTeX bibtex;
 
 	private HtmlDocumentExporter html;
@@ -102,13 +106,14 @@ public class PublicationServiceTest {
 		this.authorshipRepository = mock(AuthorshipRepository.class);
 		this.personService = mock(PersonService.class);
 		this.personRepository = mock(PersonRepository.class);
+		this.journalRepository = mock(JournalRepository.class);
 		this.bibtex = mock(BibTeX.class);
 		this.html = mock(HtmlDocumentExporter.class);
 		this.odt = mock(OpenDocumentTextExporter.class);
 		this.test = new PublicationService(this.publicationRepository,
 				this.authorshipService, this.authorshipRepository,
 				this.personService, this.personRepository,
-				this.bibtex, this.html, this.odt);
+				this.journalRepository, this.bibtex, this.html, this.odt);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -188,11 +193,11 @@ public class PublicationServiceTest {
 		Person pers1 = mock(Person.class);
 		when(pers1.getId()).thenReturn(2345);
 
-		Publication pub0 = mock(Publication.class);
+		Publication pub0 = mock(ConferencePaper.class);
 		when(pub0.getId()).thenReturn(123);
 		doReturn(Arrays.asList(pers0)).when(pub0).getTemporaryAuthors();
 
-		Publication pub1 = mock(Publication.class);
+		Publication pub1 = mock(ConferencePaper.class);
 		when(pub1.getId()).thenReturn(234);
 		doReturn(Arrays.asList(pers1)).when(pub1).getTemporaryAuthors();
 
@@ -209,6 +214,8 @@ public class PublicationServiceTest {
 
 		verify(this.authorshipService).addAuthorship(1234, 123);
 		verify(this.authorshipService).addAuthorship(2345, 234);
+
+		verifyNoInteractions(this.journalRepository);
 	}
 
 	@Test
