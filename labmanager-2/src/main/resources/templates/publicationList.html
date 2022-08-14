@@ -22,7 +22,9 @@
             	<th:block th:each="author, iAuthor : ${publication.authors}">
                     <th:block th:if="${!iAuthor.first}"
                               th:utext="', '"></th:block>
-                    <th:block th:utext="${author.fullName}"></th:block>
+					<a th:href="@{/publicationStats(id=${author.id})}">
+	                    <th:block th:utext="${author.fullName}"></th:block>
+					</a>
             	</th:block>
             </td>
             <td>
@@ -34,7 +36,7 @@
             <td>
             	<th:block th:utext="${publication.wherePublishedShortDescription}"></th:block>
             </td>
-            <td style="white-space:nowrap">
+            <td>
             	<a th:href="@{/exportBibTeX(id=${publication.id})}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${publication.title})}" style="max-width:24px;"></img>
             	</a>
@@ -65,6 +67,17 @@
             ],
             responsive: true,
             autoWidth: true,
+            "columns": [
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+                {
+                    "orderable": false,
+                    "width": "110px"
+                }
+            ],
         });
     });
 

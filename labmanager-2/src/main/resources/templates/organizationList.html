@@ -47,7 +47,7 @@
                     <th:block th:utext="${suborga.acronymOrName}"></th:block>
                 </th:block>
             </td>
-            <td style="white-space:nowrap">
+            <td>
             	<a th:href="@{/exportBibTeX(organization=${organization.id})}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
             	</a>
@@ -78,6 +78,19 @@
             ],
             responsive: true,
             autoWidth: true,
+            "columns": [
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+                {
+                    "orderable": false,
+                    "width": "110px"
+                }
+            ],
         });
     });
 

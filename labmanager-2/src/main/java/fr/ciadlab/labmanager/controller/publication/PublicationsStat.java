@@ -66,7 +66,7 @@ public class PublicationsStat implements Serializable {
 	 * @param count the number of publications for the given type to add to the total number. Only positive values are
 	 *     accepted. If you provide a negative value, it is ignored.
 	 */
-	public void incrementCountForType(PublicationType type, boolean isRanked, int count) {
+	public void increment(PublicationType type, boolean isRanked, int count) {
 		assert type != null;
 		if (count > 0) {
 			Integer total = this.countsPerType.get(type);
@@ -106,7 +106,7 @@ public class PublicationsStat implements Serializable {
 	 * @param type the type of publication.
 	 * @return the number of publications of the given type.
 	 */
-	public int getCountForType(PublicationType type) {
+	public int count(PublicationType type) {
 		assert type != null;
 		Integer count = this.countsPerType.get(type);
 		if (count != null) {
@@ -120,11 +120,27 @@ public class PublicationsStat implements Serializable {
 	 * @param category the category of publication.
 	 * @return the number of publications of the given category.
 	 */
-	public int getCountForCategory(PublicationCategory category) {
+	public int count(PublicationCategory category) {
 		assert category != null;
 		Integer count = this.countsPerCategory.get(category);
 		if (count != null) {
 			return count.intValue();
+		}
+		return 0;
+	}
+
+	/** Replies the number of publications for the given categories.
+	 *
+	 * @param categories the categories of publication.
+	 * @return the number of publications of the given categories.
+	 */
+	public int count(PublicationCategory... categories) {
+		if (categories != null) {
+			int total = 0;
+			for (final PublicationCategory category : categories) {
+				total += count(category);
+			}
+			return total;
 		}
 		return 0;
 	}

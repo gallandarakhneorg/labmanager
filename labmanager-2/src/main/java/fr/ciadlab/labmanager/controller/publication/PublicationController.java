@@ -17,7 +17,9 @@
 package fr.ciadlab.labmanager.controller.publication;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,7 +31,6 @@ import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
 import fr.ciadlab.labmanager.io.od.OpenDocumentConstants;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.service.publication.AuthorshipService;
 import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
@@ -66,8 +67,6 @@ public class PublicationController extends AbstractController {
 
 	private PublicationService publicationService;
 
-	private AuthorshipService authorshipService;
-
 	private PersonService personService;
 
 	private DownloadableFileManager fileManager;
@@ -89,7 +88,6 @@ public class PublicationController extends AbstractController {
 	 *
 	 * @param prePublicationFactory the factory of pre-publications.
 	 * @param publicationService the publication service.
-	 * @param authorshipService the authorship service.
 	 * @param personService the person service.
 	 * @param fileManager the manager of local files.
 	 * @param nameParser the parser of a person name.
@@ -110,7 +108,6 @@ public class PublicationController extends AbstractController {
 	public PublicationController(
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired PublicationService publicationService,
-			@Autowired AuthorshipService authorshipService,
 			@Autowired PersonService personService,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired PersonNameParser nameParser,
@@ -121,7 +118,6 @@ public class PublicationController extends AbstractController {
 		super(DEFAULT_ENDPOINT);
 		this.prePublicationFactory = prePublicationFactory;
 		this.publicationService = publicationService;
-		this.authorshipService = authorshipService;
 		this.personService = personService;
 		this.fileManager = fileManager;
 		this.nameParser = nameParser;
@@ -379,38 +375,37 @@ public class PublicationController extends AbstractController {
 				.body(content);
 	}
 
-	//	/** Replies the statistics for the publications and for the author with the given identifier.
-	//	 *
-	//	 * @param identifier the identifier of the author. If it is not provided, all the publications are considered.
-	//	 * @return the model-view with the statistics.
-	//	 */
-	//	@GetMapping("/publicationsStats")
-	//	public ModelAndView showPublicationsStats(
-	//			@RequestParam(required = false) Integer identifier) {
-	//		final ModelAndView modelAndView = new ModelAndView("publicationsStats"); //$NON-NLS-1$
-	//
-	//		final List<Publication> publications;
-	//		if (identifier == null) {
-	//			publications = this.publicationService.getAllPublications();
-	//		} else {
-	//			publications = this.authorshipService.getPublicationsFor(identifier.intValue());
-	//		}
-	//
-	//		final Map<Integer, PublicationsStat> statsPerYear = new TreeMap<>();
-	//		final PublicationsStat globalStats = new PublicationsStat(Integer.MIN_VALUE);
-	//
-	//		for (final Publication p : publications) {
-	//			final Integer y = Integer.valueOf(p.getPublicationYear());
-	//			final PublicationsStat stats = statsPerYear.computeIfAbsent(y,
-	//					it -> new PublicationsStat(it.intValue()));
-	//			stats.incrementCountForType(p.getType(), p.isRanked(), 1);
-	//			globalStats.incrementCountForType(p.getType(), p.isRanked(), 1);
-	//		}
-	//
-	//		modelAndView.addObject("stats", statsPerYear); //$NON-NLS-1$
-	//		modelAndView.addObject("globalStats", globalStats); //$NON-NLS-1$
-	//		return modelAndView;
-	//	}
+	/** Replies the statistics for the publications and for the author with the given identifier.
+	 *
+	 * @param identifier the identifier of the author. If it is not provided, all the publications are considered.
+	 * @return the model-view with the statistics.
+	 */
+	@GetMapping("/publicationStats")
+	public ModelAndView showPublicationsStats(@RequestParam(required = false) Integer identifier) {
+		final ModelAndView modelAndView = new ModelAndView("publicationStats"); //$NON-NLS-1$
+
+		final List<Publication> publications;
+		if (identifier == null) {
+			publications = this.publicationService.getAllPublications();
+		} else {
+			publications = this.publicationService.getPublicationsByPersonId(identifier.intValue());
+		}
+
+		final Map<Integer, PublicationsStat> statsPerYear = new TreeMap<>();
+		final PublicationsStat globalStats = new PublicationsStat(Integer.MIN_VALUE);
+
+		for (final Publication p : publications) {
+			final Integer y = Integer.valueOf(p.getPublicationYear());
+			final PublicationsStat stats = statsPerYear.computeIfAbsent(y,
+					it -> new PublicationsStat(it.intValue()));
+			stats.increment(p.getType(), p.isRanked(), 1);
+			globalStats.increment(p.getType(), p.isRanked(), 1);
+		}
+
+		modelAndView.addObject("stats", statsPerYear); //$NON-NLS-1$
+		modelAndView.addObject("globalStats", globalStats); //$NON-NLS-1$
+		return modelAndView;
+	}
 
 	//	/** Redirect to the publication list.
 	//	 *

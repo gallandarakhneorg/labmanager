@@ -108,8 +108,6 @@ public class PublicationControllerTest {
 
 	private PublicationService publicationService;
 
-	private AuthorshipService authorshipService;
-
 	private PersonService personService;
 
 	private OpenDocumentTextExporter odtExporter;
@@ -134,7 +132,6 @@ public class PublicationControllerTest {
 		this.publicationService = mock(PublicationService.class);
 		this.odtExporter = mock(OpenDocumentTextExporter.class);
 		this.personService = mock(PersonService.class);
-		this.authorshipService = mock(AuthorshipService.class);
 		this.fileManager = mock(DownloadableFileManager.class);
 		this.nameParser = new DefaultPersonNameParser();
 		this.bibtex = mock(BibTeX.class);
@@ -142,7 +139,7 @@ public class PublicationControllerTest {
 		this.journalService = mock(JournalService.class);
 		this.journalPaperService = mock(JournalPaperService.class);
 		this.test = new PublicationController(
-				this.prePublicationFactory, this.publicationService, this.authorshipService,
+				this.prePublicationFactory, this.publicationService,
 				this.personService, this.fileManager,
 				this.nameParser, this.bibtex, this.viewFactory, this.journalService,
 				this.journalPaperService);

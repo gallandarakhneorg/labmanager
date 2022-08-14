@@ -89,7 +89,7 @@
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>
-            <td style="white-space:nowrap">
+            <td>
             	<a th:href="@{/exportBibTeX(author=${person.id})}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${person.fullName})}" style="max-width:24px;"></img>
             	</a>
@@ -120,6 +120,22 @@
             ],
             responsive: true,
             autoWidth: true,
+            "columns": [
+            	{ },
+            	{ },
+            	{
+                    "orderable": false
+            	},
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+                {
+                    "orderable": false,
+                    "width": "110px"
+                }
+            ],
         });
     });
 

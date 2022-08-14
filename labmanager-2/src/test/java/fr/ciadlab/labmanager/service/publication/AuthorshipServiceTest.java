@@ -252,22 +252,6 @@ public class AuthorshipServiceTest {
 	}
 
 	@Test
-	public void getPublicationsFor() {
-		final List<Publication> list0 = this.test.getPublicationsFor(0);
-		assertTrue(list0.isEmpty());
-
-		final List<Publication> list1 = this.test.getPublicationsFor(12345);
-		assertEquals(1, list1.size());
-		assertTrue(list1.contains(this.pub0));
-
-		final List<Publication> list2 = this.test.getPublicationsFor(23456);
-		assertEquals(2, list2.size());
-		assertTrue(list2.contains(this.pub0));
-		assertTrue(list2.contains(this.pub1));
-
-	}
-
-	@Test
 	public void addAuthorship_IntInt_oldAuthorship() {
 		final boolean r = this.test.addAuthorship(12345, 1234);
 		assertFalse(r);

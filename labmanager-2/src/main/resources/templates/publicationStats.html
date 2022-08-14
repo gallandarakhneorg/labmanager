@@ -1,0 +1,103 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+   <th:block th:replace="fragments/head :: style" />
+   <th:block th:replace="fragments/head :: script" />
+
+
+<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
+	<thead>
+		<th th:utext="#{html.Year}"></th>
+		<th th:utext="#{html.JournalPapers}">ACL/ACLN/ASCL</th>
+		<th th:utext="#{html.ConferencePapers}">C-ACTI/C-ACTN/C-AFF</th>
+		<th th:utext="#{html.Books}">OS/OV</th>
+		<th th:utext="#{html.BookChapters}">COS/COV</th>
+		<th th:utext="#{html.Communications}">C-COM/PV</th>
+		<th th:utext="#{html.Invitations}">C-INV</th>
+		<th th:utext="#{html.Theses}">TH</th>
+		<th th:utext="#{html.Others}">AP/BRE/DO/OR/PAT/PT</th>
+		<th th:utext="#{html.Total}"></th>
+	</thead>
+	<tbody>
+		<tr th:each="stat : ${stats}"
+		    th:with="counts=${stat.value},year=${stat.key},tt=${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory)}">
+		    <!--/*@thymesVar id="counts" type="fr.ciadlab.labmanager.controller.publication.PublicationsStat"*/-->
+			<td th:utext="${year}"></td>
+			<td th:utext="${counts.count(tt.ACL, tt.ACLN, tt.ASCL)}"></td>
+			<td th:utext="${counts.count(tt.C_ACTI, tt.C_ACTN, tt.C_AFF)}"></td>
+			<td th:utext="${counts.count(tt.OS, tt.OV)}"></td>
+			<td th:utext="${counts.count(tt.COS, tt.COV)}"></td>
+			<td th:utext="${counts.count(tt.C_COM, tt.PV)}"></td>
+			<td th:utext="${counts.count(tt.C_INV)}"></td>
+			<td th:utext="${counts.count(tt.TH)}"></td>
+			<td th:utext="${counts.count(tt.AP, tt.BRE, tt.DO, tt.OR, tt.PAT, tt.PT)}"></td>
+			<td th:utext="${counts.total}"></td>
+		</tr>
+		<tr style="border-top: 2px solid #dee2e6;font-weight: bold;"
+		th:with="tt=${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory)}">
+			<td th:text="#{html.Total}"></td>
+			<td th:utext="${globalStats.count(tt.ACL, tt.ACLN, tt.ASCL)}"></td>
+			<td th:utext="${globalStats.count(tt.C_ACTI, tt.C_ACTN, tt.C_AFF)}"></td>
+			<td th:utext="${globalStats.count(tt.OS, tt.OV)}"></td>
+			<td th:utext="${globalStats.count(tt.COS, tt.COV)}"></td>
+			<td th:utext="${globalStats.count(tt.C_COM, tt.PV)}"></td>
+			<td th:utext="${globalStats.count(tt.C_INV)}"></td>
+			<td th:utext="${globalStats.count(tt.TH)}"></td>
+			<td th:utext="${globalStats.count(tt.AP, tt.BRE, tt.DO, tt.OR, tt.PAT, tt.PT)}"></td>
+			<td th:utext="${globalStats.total}"></td>
+		</tr>
+	</tbody>
+
+</table>
+
+<script th:inline="javascript">
+$(document).ready(function() {
+    var tableId = /*[[${uuid}]]*/ '';
+    var table = $('#table'+tableId).DataTable({
+        dom: 'Bfrtip',
+        scrollCollapse: true,
+        paging: false,
+        buttons: [
+            'excelHtml5', 'csvHtml5'
+        ],
+        responsive: true,
+        autoWidth: true,
+        columns: [
+            {
+                "orderable": false,
+                "data": "year"
+            },
+            {
+                "orderable": false
+            },
+            {
+                "orderable": false
+            },
+            {
+                "orderable": false
+            },
+            {
+                "orderable": false
+            },
+            {
+                "orderable": false
+            },
+            {
+                "orderable": false
+            },
+            {
+                "orderable": false
+            },
+            {
+                "orderable": false
+            },
+            {
+                "orderable": false
+            }
+        ]
+    });
+});
+
+</script>
+</html>
+

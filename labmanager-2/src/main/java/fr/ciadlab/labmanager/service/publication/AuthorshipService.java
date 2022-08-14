@@ -86,15 +86,6 @@ public class AuthorshipService extends AbstractService {
 		return this.personRepository.findByPublicationsPublicationIdOrderByPublicationsAuthorRank(publicationId);
 	}
 
-	/** Replies the publications of the person with the given identifier.
-	 *
-	 * @param personId the identifier of the person.
-	 * @return the list of publications.
-	 */
-	public List<Publication> getPublicationsFor(int personId) {
-		return this.publicationRepository.findAllByAuthorshipsPersonId(personId);
-	}
-
 	/** Link a person and a publication.
 	 * The person is added at the end of the list of the authors.
 	 *
