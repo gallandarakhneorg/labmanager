@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.io.od;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.io.PublicationExporter;
 
 /** Utilities for exporting publications to Open Document Text.
  * 
@@ -27,7 +28,7 @@ import fr.ciadlab.labmanager.io.ExporterConfigurator;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public interface OpenDocumentTextExporter {
+public interface OpenDocumentTextExporter extends PublicationExporter<byte[]> {
 
 	/** Replies the ODT representation of the publications that are given as argument.
 	 * <p>The decorators for the names are usually the following (implementation may change them):
@@ -68,6 +69,7 @@ public interface OpenDocumentTextExporter {
 	 * @return the ODT representation of the publications.
 	 * @throws Exception if the publication cannot be converted to ODT.
 	 */
-	byte[] exportPublications(Iterable<Publication> publications, ExporterConfigurator configurator) throws Exception;
+	@Override
+	byte[] exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception;
 
 }

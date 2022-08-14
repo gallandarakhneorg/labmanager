@@ -75,6 +75,7 @@ import fr.ciadlab.labmanager.entities.publication.type.MiscDocument;
 import fr.ciadlab.labmanager.entities.publication.type.Patent;
 import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
+import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.bugfix.BugfixLaTeXPrinter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
@@ -574,8 +575,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	@Override
-	public void exportPublications(Writer output, Iterable<? extends Publication> publications) throws IOException {
-		final BibTeXDatabase database = createDatabase(publications);
+	public void exportPublications(Writer output, Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws IOException {
+		final BibTeXDatabase database = createDatabase(publications, configurator);
 		final BibTeXFormatter bibtexFormatter = new BibTeXFormatter();
 		bibtexFormatter.format(database, output);
 	}
@@ -583,9 +584,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	/** Create a JBibTeX database with the given list of publications.
 	 *
 	 * @param publications the publications to put into the database.
+	 * @param configurator the configurator of the export.
 	 * @return the JBibTeX database.
 	 */
-	protected BibTeXDatabase createDatabase(Iterable<? extends Publication> publications) {
+	protected BibTeXDatabase createDatabase(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
 		final BibTeXDatabase db = new BibTeXDatabase();
 		for (final Publication publication : publications) {
 			addPublication(db, publication);

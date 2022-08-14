@@ -100,7 +100,7 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter implements Open
 
 	@SuppressWarnings("resource")
 	@Override
-	public byte[] exportPublications(Iterable<Publication> publications, ExporterConfigurator configurator) throws Exception {
+	public byte[] exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
 		if (publications == null) {
 			return null;
 		}

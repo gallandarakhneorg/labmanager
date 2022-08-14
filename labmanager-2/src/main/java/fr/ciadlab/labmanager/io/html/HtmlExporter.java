@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.io.html;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.io.PublicationExporter;
 
 /** Utilities for exporting publications to HTML content.
  * This exporter is generic and not dedicated to a specific target.
@@ -28,7 +29,7 @@ import fr.ciadlab.labmanager.io.ExporterConfigurator;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public interface HtmlExporter {
+public interface HtmlExporter extends PublicationExporter<String> {
 
 	/** Replies the unsecable separator.
 	 *
@@ -81,6 +82,7 @@ public interface HtmlExporter {
 	 * @return the HTML representation of the publications.
 	 * @throws Exception if the publication cannot be converted to HTML.
 	 */
-	String exportPublications(Iterable<Publication> publications, ExporterConfigurator configurator) throws Exception;
+	@Override
+	String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception;
 
 }

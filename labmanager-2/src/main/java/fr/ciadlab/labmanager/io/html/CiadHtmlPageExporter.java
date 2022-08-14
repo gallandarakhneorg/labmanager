@@ -128,7 +128,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 
 	@Override
-	public String exportPublications(Iterable<Publication> publications, ExporterConfigurator configurator) throws Exception {
+	public String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
 		assert configurator != null;
 		if (publications == null) {
 			return null;

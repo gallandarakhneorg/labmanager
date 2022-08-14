@@ -21,13 +21,14 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.io.PublicationExporter;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Utilities for BibTeX. BibTeX is reference management software for formatting lists of bibliography references.
@@ -43,7 +44,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @since 2.0.0
  * @see "https://en.wikipedia.org/wiki/BibTeX"
  */
-public interface BibTeX {
+public interface BibTeX extends PublicationExporter<String> {
 
 	/** Convert any special macro from a TeX string into its equivalent in the current character encoding.
 	 * For example, the macros {@code \'e} is translated to {@code é}.
@@ -110,23 +111,10 @@ public interface BibTeX {
 	 */
 	Stream<Publication> getPublicationStreamFrom(Reader bibtex) throws Exception;
 
-	/** Export the given the publications to a BibTeX source.
-	 *
-	 * @param publications the publications to export.
-	 * @return the BibTeX data or {@code null} if none.
-	 */
-	default String exportPublications(Publication... publications) {
-		return exportPublications(Arrays.asList(publications));
-	}
-
-	/** Export the given the publications to a BibTeX source.
-	 *
-	 * @param publications the publications to export.
-	 * @return the BibTeX data or {@code null} if none.
-	 */
-	default String exportPublications(Iterable<? extends Publication> publications) {
+	@Override
+	default String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
 		try (final StringWriter writer = new StringWriter()) {
-			exportPublications(writer, publications);
+			exportPublications(writer, publications, configurator);
 			return Strings.emptyToNull(writer.toString());
 		} catch (IOException ex) {
 			return null;
@@ -137,18 +125,9 @@ public interface BibTeX {
 	 *
 	 * @param output the writer of the BibTeX for saving its content.
 	 * @param publications the publications to export.
+	 * @param configurator the configuration of the exporter.
 	 * @throws IOException if any problem occurred when writing the BibTeX content.
 	 */
-	default void exportPublications(Writer output, Publication... publications) throws IOException {
-		exportPublications(output, Arrays.asList(publications));
-	}
-
-	/** Export the given the publications to a BibTeX source.
-	 *
-	 * @param output the writer of the BibTeX for saving its content.
-	 * @param publications the publications to export.
-	 * @throws IOException if any problem occurred when writing the BibTeX content.
-	 */
-	void exportPublications(Writer output, Iterable<? extends Publication> publications) throws IOException;
+	void exportPublications(Writer output, Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws IOException;
 
 }
