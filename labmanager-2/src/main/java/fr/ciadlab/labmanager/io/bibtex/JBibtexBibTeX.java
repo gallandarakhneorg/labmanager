@@ -324,7 +324,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			return PublicationType.MASTER_THESIS;
 		}
 		if (BibTeXEntry.TYPE_TECHREPORT.equals(entry.getType())) {
-			return PublicationType.TECHNICAL_REPORTS;
+			return PublicationType.TECHNICAL_REPORT;
 		}
 		if (BibTeXEntry.TYPE_MANUAL.equals(entry.getType())) {
 			return PublicationType.TUTORIAL_DOCUMENTATION;
@@ -530,7 +530,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 						field(entry, KEY_ADDRESS),
 						false);
 				break;
-			case TECHNICAL_REPORTS:
+			case TECHNICAL_REPORT:
 				finalPublication = this.reportService.createReport(genericPublication,
 						or(field(entry, KEY_NUMBER), field(entry, KEY_EDITION)),
 						field(entry, KEY_TYPE),
@@ -639,10 +639,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		case NATIONAL_KEYNOTE:
 			entry = createBibTeXEntry((KeyNote) publication);
 			break;
-		case TECHNICAL_REPORTS:
-		case PROJECT_REPORTS:
+		case TECHNICAL_REPORT:
+		case PROJECT_REPORT:
 		case RESEARCH_TRANSFERT_REPORT:
-		case TEACHING_DOCUMENTS:
+		case TEACHING_DOCUMENT:
 		case TUTORIAL_DOCUMENTATION:
 			entry = createBibTeXEntry((Report) publication);
 			break;
@@ -652,7 +652,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			entry = createBibTeXEntry((Patent) publication);
 			break;
 		case ARTISTIC_PRODUCTION:
-		case RESEARCH_TOOLS:
+		case RESEARCH_TOOL:
 		case OTHER:
 			entry = createBibTeXEntry((MiscDocument) publication);
 			break;
@@ -998,7 +998,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(Report report) {
 		final BibTeXEntry entry;
-		if (report.getType() == PublicationType.TEACHING_DOCUMENTS
+		if (report.getType() == PublicationType.TEACHING_DOCUMENT
 				|| report.getType() == PublicationType.TUTORIAL_DOCUMENTATION) {
 			entry = new BibTeXEntry(TYPE_MANUAL, createBibTeXId(report));
 			fillBibTeXEntry(entry, report, KEY_AUTHOR);

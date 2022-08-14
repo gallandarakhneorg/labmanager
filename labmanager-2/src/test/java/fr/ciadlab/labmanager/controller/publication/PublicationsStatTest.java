@@ -193,7 +193,7 @@ public class PublicationsStatTest {
 
 	@Test
 	public void incrementCountForType_researchTools() {
-		testType(PublicationType.RESEARCH_TOOLS);
+		testType(PublicationType.RESEARCH_TOOL);
 	}
 
 	@Test
@@ -218,12 +218,12 @@ public class PublicationsStatTest {
 
 	@Test
 	public void incrementCountForType_technicalReports() {
-		testType(PublicationType.TECHNICAL_REPORTS);
+		testType(PublicationType.TECHNICAL_REPORT);
 	}
 
 	@Test
 	public void incrementCountForType_teachingDocuments() {
-		testType(PublicationType.TEACHING_DOCUMENTS);
+		testType(PublicationType.TEACHING_DOCUMENT);
 	}
 
 	@Test

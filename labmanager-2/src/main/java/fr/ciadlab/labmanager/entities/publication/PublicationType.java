@@ -560,7 +560,7 @@ public enum PublicationType {
 	},
 	/** Research tools (not software).
 	 */
-	RESEARCH_TOOLS {
+	RESEARCH_TOOL {
 		@Override
 		public Class<? extends Publication> getInstanceType() {
 			return MiscDocument.class;
@@ -660,7 +660,7 @@ public enum PublicationType {
 	},
 	/** Technical reports.
 	 */
-	TECHNICAL_REPORTS {
+	TECHNICAL_REPORT {
 		@Override
 		public Class<? extends Publication> getInstanceType() {
 			return Report.class;
@@ -680,7 +680,7 @@ public enum PublicationType {
 	},
 	/** Project reports.
 	 */
-	PROJECT_REPORTS {
+	PROJECT_REPORT {
 		@Override
 		public Class<? extends Publication> getInstanceType() {
 			return Report.class;
@@ -700,7 +700,7 @@ public enum PublicationType {
 	},
 	/** Teaching documents.
 	 */
-	TEACHING_DOCUMENTS {
+	TEACHING_DOCUMENT {
 		@Override
 		public Class<? extends Publication> getInstanceType() {
 			return Report.class;

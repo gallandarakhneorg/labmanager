@@ -715,7 +715,7 @@ public class JBibtexBibTeXTest {
 	@Test
 	public void exportPublications_techreport() {
 		Report pub = mock(Report.class);
-		preparePublicationForExportTest(pub, PublicationType.TECHNICAL_REPORTS);
+		preparePublicationForExportTest(pub, PublicationType.TECHNICAL_REPORT);
 		when(pub.getPreferredStringId()).thenReturn("Report_123");
 		when(pub.getInstitution()).thenReturn("inst/1");
 		when(pub.getAddress()).thenReturn("adr/1");

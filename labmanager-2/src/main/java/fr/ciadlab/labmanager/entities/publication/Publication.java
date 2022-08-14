@@ -55,6 +55,8 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import org.hibernate.annotations.Polymorphism;
+import org.hibernate.annotations.PolymorphismType;
 
 /** Abstract representation of a research publication.
  * This class contains the fields that are usually shared between many of the different types of research publications.
@@ -69,6 +71,7 @@ import fr.ciadlab.labmanager.utils.HashCodeUtils;
 @Entity
 @Table(name = "Publications")
 @Inheritance(strategy = InheritanceType.JOINED)
+@Polymorphism(type = PolymorphismType.IMPLICIT)
 public abstract class Publication implements Serializable, Comparable<Publication>, JsonSerializable, AttributeProvider {
 
 	private static final long serialVersionUID = -5980560007123809890L;
