@@ -125,6 +125,38 @@ public class PersonController extends AbstractController {
 		return null;
 	}
 
+//	/** Replies the names of persons, except those given as arguments.
+//	 *
+//	 * @param excludedAuthors the list of names of authors to exclude from the list of the replied authors.
+//	 * @return the key is the identifier of the person, and the value is the full name of the person.
+//	 */
+//	@GetMapping(value = "/getAuthorsList")
+//	public @ResponseBody Map<Integer, String> getAuthorsList(
+//			@RequestParam(required = true) String[] excludedAuthors) {
+//		Stream<Person> stream = this.personService.getAllPersons().stream();
+//		if (excludedAuthors != null && excludedAuthors.length > 0) {
+//			// Build the list of persons to exclude.
+//			final Set<Person> personsToExclude = new TreeSet<>(PersonComparator.DEFAULT);
+//			for (final String fullName : excludedAuthors) { 
+//				final String firstName = this.nameParser.parseFirstName(fullName); 
+//				final String lastName = this.nameParser.parseLastName(fullName);
+//				final int id = this.personService.getPersonIdByName(firstName, lastName);
+//				if (id >= 0) {
+//					final Person personToIgnore = this.personService.getPerson(id);
+//					if (personToIgnore != null) {
+//						personsToExclude.add(personToIgnore); 
+//					}
+//				}
+//			}
+//			if (!personsToExclude.isEmpty()) {
+//				stream = this.personService.getAllPersons().stream().filter(
+//						it -> !personsToExclude.contains(it));
+//			}
+//		}
+//		return stream.collect(Collectors.toMap(it -> Integer.valueOf(it.getId()), it -> it.getFullName()));
+//	}
+
+
 	//	/** Add a person into the database.
 	//	 *
 	//	 * @param response JEE response.

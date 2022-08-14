@@ -16,40 +16,18 @@
 
 package fr.ciadlab.labmanager.controller.publication;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
-import javax.servlet.http.HttpServletResponse;
 
 import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.controller.member.PersonController;
-import fr.ciadlab.labmanager.entities.member.MemberStatus;
-import fr.ciadlab.labmanager.entities.member.Membership;
-import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.member.PersonComparator;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.service.member.MemberFiltering;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.publication.AuthorshipService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 /** REST Controller for authors.
  * <p>
@@ -156,37 +134,6 @@ public class AuthorController extends AbstractController {
 //		} catch (Exception ex) {
 //			redirectError(response, ex);
 //		}
-//	}
-//
-//	/** Replies the names of authors, except those given as arguments.
-//	 *
-//	 * @param excludedAuthors the list of names of authors to exclude from the list of the replied authors.
-//	 * @return the key is the identifier of the person, and the value is the full name of the person.
-//	 */
-//	@GetMapping(value = "/getAuthorsList")
-//	public @ResponseBody Map<Integer, String> getAuthorsList(
-//			@RequestParam(required = true) String[] excludedAuthors) {
-//		Stream<Person> stream = this.personService.getAllPersons().stream();
-//		if (excludedAuthors != null && excludedAuthors.length > 0) {
-//			// Build the list of persons to exclude.
-//			final Set<Person> personsToExclude = new TreeSet<>(PersonComparator.DEFAULT);
-//			for (final String fullName : excludedAuthors) { 
-//				final String firstName = this.nameParser.parseFirstName(fullName); 
-//				final String lastName = this.nameParser.parseLastName(fullName);
-//				final int id = this.personService.getPersonIdByName(firstName, lastName);
-//				if (id >= 0) {
-//					final Person personToIgnore = this.personService.getPerson(id);
-//					if (personToIgnore != null) {
-//						personsToExclude.add(personToIgnore); 
-//					}
-//				}
-//			}
-//			if (!personsToExclude.isEmpty()) {
-//				stream = this.personService.getAllPersons().stream().filter(
-//						it -> !personsToExclude.contains(it));
-//			}
-//		}
-//		return stream.collect(Collectors.toMap(it -> Integer.valueOf(it.getId()), it -> it.getFullName()));
 //	}
 //
 //	/** Replies the model-view that contains the list of the authors.
