@@ -34,16 +34,22 @@
                           th:utext="#{html.no}"></th:block>
             </td>
             <td th:with="qindex=${journal.getScimagoQIndexByYear(currentYear)}">
-                <th:block th:if="${qindex != null}"
-                          th:utext="${qindex.toString}"></th:block>
+            	<a th:href="@{/getJournalQualityIndicators(id=${journal.id})}">
+	                <th:block th:if="${qindex != null}"
+	                          th:utext="${qindex.toString}"></th:block>
+            	</a>
             </td>
             <td th:with="qindex=${journal.getWosQIndexByYear(currentYear)}">
-                <th:block th:if="${qindex != null}"
-                          th:utext="${qindex.toString}"></th:block>
+            	<a th:href="@{/getJournalQualityIndicators(id=${journal.id})}">
+	                <th:block th:if="${qindex != null}"
+	                          th:utext="${qindex.toString}"></th:block>
+            	</a>
             </td>
             <td th:with="impactFactor=${journal.getImpactFactorByYear(currentYear)}">
-                <th:block th:if="${impactFactor > 0}"
-                          th:utext="${impactFactor}"></th:block>
+            	<a th:href="@{/getJournalQualityIndicators(id=${journal.id})}">
+	                <th:block th:if="${impactFactor > 0}"
+	                          th:utext="${impactFactor}"></th:block>
+            	</a>
             </td>
             <td>
                 <th:block th:utext="${journal.publishedPapers.size}"></th:block>
