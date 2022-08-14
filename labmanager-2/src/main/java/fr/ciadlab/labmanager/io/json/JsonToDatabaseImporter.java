@@ -56,6 +56,7 @@ import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationReposit
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.service.member.PersonService;
+import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -90,6 +91,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private PublicationRepository publicationRepository;
 
+	private PublicationService publicationService;
+
 	private PublicationComparator publicationComparator;
 
 	private AuthorshipRepository authorshipRepository;
@@ -109,6 +112,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param journalRepository the accessor to the journal repository.
 	 * @param journalIndicatorsRepository the accessor to the repository of the journal quality annual indicators.
 	 * @param publicationRepository the accessor to the repository of the publications.
+	 * @param publicationService the service related to the publications.
 	 * @param publicationComparator the comparator of publications.
 	 * @param authorshipRepository the accessor to the authorships.
 	 * @param personNameParser the parser of person names.
@@ -121,6 +125,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired JournalRepository journalRepository,
 			@Autowired JournalQualityAnnualIndicatorsRepository journalIndicatorsRepository,
 			@Autowired PublicationRepository publicationRepository,
+			@Autowired PublicationService publicationService,
 			@Autowired PublicationComparator publicationComparator,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonNameParser personNameParser) {
@@ -131,6 +136,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.journalRepository = journalRepository;
 		this.journalIndicatorsRepository = journalIndicatorsRepository;
 		this.publicationRepository = publicationRepository;
+		this.publicationService = publicationService;
 		this.publicationComparator = publicationComparator;
 		this.authorshipRepository = authorshipRepository;
 		this.personNameParser = personNameParser;
@@ -680,20 +686,16 @@ public class JsonToDatabaseImporter extends JsonTool {
 				getLogger().info("> Publication " + (i + 1) + "/" + publications.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					final String id = getId(publicationObject);
-					final Pair<Publication, Journal> pair = createPublicationInstance(id,
+					final Publication publication = createPublicationInstance(id,
 							publicationObject, objectRepository, aliasRepository);
 					// Test if the publication is already inside the database
-					Publication publication = pair.getLeft();
 					final Publication readOnlyPublication = publication;
 					final Optional<Publication> existing = allPublications.stream().filter(
 							it -> this.publicationComparator.isSimilar(it, readOnlyPublication)).findAny();
 					if (existing.isEmpty()) {
 						// Save the publication
 						if (!isFake()) {
-							publication = this.publicationRepository.save(publication);
-							if (pair.getRight() != null) {
-								this.journalRepository.save(pair.getRight());
-							}
+							this.publicationService.save(publication);
 						}
 						++nbNewPublications;
 						if (!Strings.isNullOrEmpty(id)) {
@@ -741,7 +743,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return Pair.of(Integer.valueOf(nbNewPublications), nbNewPersons.toInteger());
 	}
 
-	private Pair<Publication, Journal> createPublicationInstance(String id, JsonNode publicationObject, Map<String, Object> objectRepository,
+	private Publication createPublicationInstance(String id, JsonNode publicationObject, Map<String, Object> objectRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		// Retrieve the elements that characterize the type of the publication
 		final PublicationType type = getEnum(publicationObject, TYPE_KEY, PublicationType.class);
@@ -803,7 +805,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			throw new IllegalArgumentException("A publication must have a type"); //$NON-NLS-1$
 		}
 
-		return Pair.of(publication, targetJournal);
+		return publication;
 	}
 
 	private Person findOrCreateAuthor(JsonNode authorObject, Map<String, Object> objectRepository, MutableInt nbNewPersons) {
