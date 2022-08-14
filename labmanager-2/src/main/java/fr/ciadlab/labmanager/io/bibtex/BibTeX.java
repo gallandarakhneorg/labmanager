@@ -45,7 +45,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @see "https://en.wikipedia.org/wiki/BibTeX"
  */
 public interface BibTeX extends PublicationExporter<String> {
-
+	
 	/** Convert any special macro from a TeX string into its equivalent in the current character encoding.
 	 * For example, the macros {@code \'e} is translated to {@code é}.
 	 * <p>

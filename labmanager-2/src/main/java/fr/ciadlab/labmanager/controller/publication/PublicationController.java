@@ -25,6 +25,7 @@ import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
+import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
 import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
@@ -283,6 +284,39 @@ public class PublicationController extends AbstractController {
 		return ResponseEntity.ok()
 				.contentType(MediaType.TEXT_HTML)
 		        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.html\"") //$NON-NLS-1$
+		        .body(content);
+	}
+
+	/**
+	 * Export publications to BibTeX.
+	 * This function takes one of the following parameters:<ul>
+	 * <li>{@code identifiers}: a list of publication identifiers to export.</li>
+	 * <li>{@code organization}: the identifier of a research organization for which the publications should be exported.</li>
+	 * <li>{@code author}: the identifier of an author.</li>
+	 * </ul>
+	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
+	 *
+	 * @param response the HTTP response.
+	 * @param identifiers the array of publication identifiers that should be exported.
+	 * @param organization the identifier of the organization for which the publications must be exported.
+	 *     Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @param author the identifier of the author for who the publications must be exported.
+	 *     Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @return the BibTeX description of the publications, or {@code null} if there is no publication to export.
+	 * @throws Exception if it is impossible to redirect to the error page.
+	 */
+	@GetMapping(value = "/exportBibTeX")
+	@ResponseBody
+	public ResponseEntity<String> exportBibTeX(
+			HttpServletResponse response,
+			@RequestParam(name = "id") List<Integer> identifiers,
+			@RequestParam(required = false) Integer organization,
+			@RequestParam(required = false) Integer author) throws Exception {
+		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportBibTeX(pubs, configurator);
+		final String content = export(response, identifiers, organization, author, Boolean.FALSE, Boolean.FALSE, cb);
+		return ResponseEntity.ok()
+				.contentType(BibTeXConstants.MIME_TYPE)
+		        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.bib\"") //$NON-NLS-1$
 		        .body(content);
 	}
 
