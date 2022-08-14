@@ -126,25 +126,7 @@ public class PublicationControllerTest {
 
 	private JournalService journalService;
 
-	private BookService bookService;
-
-	private BookChapterService bookChapterService;
-
-	private ConferencePaperService conferencePaperService;
-
-	private JournalEditionService journalEditionService;
-
 	private JournalPaperService journalPaperService;
-
-	private KeyNoteService keyNoteService;
-
-	private MiscDocumentService miscDocumentService;
-
-	private PatentService patentService;
-
-	private ReportService reportService;
-
-	private ThesisService thesisService;
 
 	private PublicationController test;
 
@@ -161,23 +143,12 @@ public class PublicationControllerTest {
 		this.bibtex = mock(BibTeX.class);
 		this.viewFactory = mock(ViewFactory.class);
 		this.journalService = mock(JournalService.class);
-		this.bookService = mock(BookService.class);
-		this.bookChapterService = mock(BookChapterService.class);
-		this.conferencePaperService = mock(ConferencePaperService.class);
-		this.journalEditionService = mock(JournalEditionService.class);
 		this.journalPaperService = mock(JournalPaperService.class);
-		this.keyNoteService = mock(KeyNoteService.class);
-		this.miscDocumentService = mock(MiscDocumentService.class);
-		this.patentService = mock(PatentService.class);
-		this.reportService = mock(ReportService.class);
-		this.thesisService = mock(ThesisService.class);
 		this.test = new PublicationController(
 				this.prePublicationFactory, this.publicationService, this.authorshipService,
 				this.personService, this.htmlExporter, this.fileManager,
 				this.nameParser, this.bibtex, this.viewFactory, this.journalService,
-				this.bookService, this.bookChapterService, this.conferencePaperService,
-				this.journalEditionService, this.journalPaperService, this.keyNoteService,
-				this.miscDocumentService, this.patentService, this.reportService, this.thesisService);
+				this.journalPaperService);
 		this.test.setLogger(mock(Logger.class));
 	}
 

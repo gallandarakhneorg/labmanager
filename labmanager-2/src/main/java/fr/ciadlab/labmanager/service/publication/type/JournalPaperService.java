@@ -75,6 +75,15 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 		return byId.orElse(null);
 	}
 
+	/** Replies the journal papers that are associated to the journal with the given identifier.
+	 *
+	 * @param journalId the identifier of the journal.
+	 * @return the journal papers.
+	 */
+	public List<Publication> getJournalPapersByJournalId(int journalId) {
+		return this.repository.findAllByJournalId(journalId);
+	}
+
 	/** Create a journal paper.
 	 *
 	 * @param publication the publication to copy.

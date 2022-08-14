@@ -33,16 +33,7 @@ import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.AuthorshipService;
 import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
-import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
-import fr.ciadlab.labmanager.service.publication.type.BookService;
-import fr.ciadlab.labmanager.service.publication.type.ConferencePaperService;
-import fr.ciadlab.labmanager.service.publication.type.JournalEditionService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
-import fr.ciadlab.labmanager.service.publication.type.KeyNoteService;
-import fr.ciadlab.labmanager.service.publication.type.MiscDocumentService;
-import fr.ciadlab.labmanager.service.publication.type.PatentService;
-import fr.ciadlab.labmanager.service.publication.type.ReportService;
-import fr.ciadlab.labmanager.service.publication.type.ThesisService;
 import fr.ciadlab.labmanager.utils.ViewFactory;
 import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
@@ -94,25 +85,7 @@ public class PublicationController extends AbstractController {
 
 	private final Random random = new Random();
 
-	private BookService bookService;
-
-	private BookChapterService bookChapterService;
-
-	private ConferencePaperService conferencePaperService;
-
-	private JournalEditionService journalEditionService;
-
 	private JournalPaperService journalPaperService;
-
-	private KeyNoteService keyNoteService;
-
-	private MiscDocumentService miscDocumentService;
-
-	private PatentService patentService;
-
-	private ReportService reportService;
-
-	private ThesisService thesisService;
 
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
@@ -149,16 +122,7 @@ public class PublicationController extends AbstractController {
 			@Autowired BibTeX bibtex,
 			@Autowired ViewFactory viewFactory,
 			@Autowired JournalService journalService,
-			@Autowired BookService bookService,
-			@Autowired BookChapterService bookChapterService,
-			@Autowired ConferencePaperService conferencePaperService,
-			@Autowired JournalEditionService journalEditionService,
-			@Autowired JournalPaperService journalPaperService,
-			@Autowired KeyNoteService keyNoteService,
-			@Autowired MiscDocumentService miscDocumentService,
-			@Autowired PatentService patentService,
-			@Autowired ReportService reportService,
-			@Autowired ThesisService thesisService) {
+			@Autowired JournalPaperService journalPaperService) {
 		super(DEFAULT_ENDPOINT);
 		this.prePublicationFactory = prePublicationFactory;
 		this.publicationService = publicationService;
@@ -170,16 +134,7 @@ public class PublicationController extends AbstractController {
 		this.bibtex = bibtex;
 		this.viewFactory = viewFactory;
 		this.journalService = journalService;
-		this.bookService = bookService;
-		this.bookChapterService = bookChapterService;
-		this.conferencePaperService = conferencePaperService;
-		this.journalEditionService = journalEditionService;
 		this.journalPaperService = journalPaperService;
-		this.keyNoteService = keyNoteService;
-		this.miscDocumentService = miscDocumentService;
-		this.patentService = patentService;
-		this.reportService = reportService;
-		this.thesisService = thesisService;
 	}
 
 	/** Replies the model-view component for managing the publications.
@@ -213,9 +168,9 @@ public class PublicationController extends AbstractController {
 	}
 
 	private <T> T export(HttpServletResponse response, List<Integer> identifiers, Integer organization, Integer author,
-			Boolean nameHighlight, Boolean color, ExporterCallback<T> callback) throws Exception {
-		if ((identifiers == null || identifiers.isEmpty()) && organization == null && author == null) {
-			throw new IllegalArgumentException("Identifier for publications or organization or author is missed"); //$NON-NLS-1$
+			Integer journal, Boolean nameHighlight, Boolean color, ExporterCallback<T> callback) throws Exception {
+		if ((identifiers == null || identifiers.isEmpty()) && organization == null && author == null && journal == null) {
+			throw new IllegalArgumentException("Identifier for publications or organization or author or journal is missed"); //$NON-NLS-1$
 		}
 		// Prepare the exporter
 		final ExporterConfigurator configurator = new ExporterConfigurator();
@@ -241,6 +196,8 @@ public class PublicationController extends AbstractController {
 				pubs = this.publicationService.getPublicationsByPersonId(author.intValue());
 			} else if (organization != null) {
 				pubs = this.publicationService.getPublicationsByOrganizationId(organization.intValue());
+			} else if (journal != null) {
+				pubs = this.journalPaperService.getJournalPapersByJournalId(journal.intValue());
 			} else {
 				pubs = this.publicationService.getAllPublications();
 			}
@@ -257,16 +214,17 @@ public class PublicationController extends AbstractController {
 	 * <li>{@code identifiers}: a list of publication identifiers to export.</li>
 	 * <li>{@code organization}: the identifier of a research organization for which the publications should be exported.</li>
 	 * <li>{@code author}: the identifier of an author.</li>
+	 * <li>{@code journal}: the identifier of a journal.</li>
 	 * </ul>
 	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
 	 *
 	 * @param response the HTTP response.
 	 * @param identifiers the array of publication identifiers that should be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
-	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param author the identifier of the author for who the publications must be exported.
-	 *     Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @param journal the identifier of the journal for which the publications must be exported.
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
+	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the HTML output. 
 	 * @return the HTML description of the publications, or {@code null} if there is no publication to export.
 	 * @throws Exception if it is impossible to redirect to the error page.
@@ -275,17 +233,18 @@ public class PublicationController extends AbstractController {
 	@ResponseBody
 	public ResponseEntity<String> exportHtml(
 			HttpServletResponse response,
-			@RequestParam(name = "id") List<Integer> identifiers,
+			@RequestParam(name = "id", required = false) List<Integer> identifiers,
 			@RequestParam(required = false) Integer organization,
 			@RequestParam(required = false) Integer author,
+			@RequestParam(required = false) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportHtml(pubs, configurator);
-		final String content = export(response, identifiers, organization, author, nameHighlight, color, cb);
+		final String content = export(response, identifiers, organization, author, journal, nameHighlight, color, cb);
 		return ResponseEntity.ok()
 				.contentType(MediaType.TEXT_HTML)
-		        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.html\"") //$NON-NLS-1$
-		        .body(content);
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.html\"") //$NON-NLS-1$
+				.body(content);
 	}
 
 	/**
@@ -294,15 +253,15 @@ public class PublicationController extends AbstractController {
 	 * <li>{@code identifiers}: a list of publication identifiers to export.</li>
 	 * <li>{@code organization}: the identifier of a research organization for which the publications should be exported.</li>
 	 * <li>{@code author}: the identifier of an author.</li>
+	 * <li>{@code journal}: the identifier of a journal.</li>
 	 * </ul>
 	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
 	 *
 	 * @param response the HTTP response.
 	 * @param identifiers the array of publication identifiers that should be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
-	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param author the identifier of the author for who the publications must be exported.
-	 *     Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @param journal the identifier of the journal for which the publications must be exported.
 	 * @return the BibTeX description of the publications, or {@code null} if there is no publication to export.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 */
@@ -310,15 +269,16 @@ public class PublicationController extends AbstractController {
 	@ResponseBody
 	public ResponseEntity<String> exportBibTeX(
 			HttpServletResponse response,
-			@RequestParam(name = "id") List<Integer> identifiers,
+			@RequestParam(name = "id", required = false) List<Integer> identifiers,
 			@RequestParam(required = false) Integer organization,
-			@RequestParam(required = false) Integer author) throws Exception {
+			@RequestParam(required = false) Integer author,
+			@RequestParam(required = false) Integer journal) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportBibTeX(pubs, configurator);
-		final String content = export(response, identifiers, organization, author, Boolean.FALSE, Boolean.FALSE, cb);
+		final String content = export(response, identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE, cb);
 		return ResponseEntity.ok()
 				.contentType(BibTeXConstants.MIME_TYPE)
-		        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.bib\"") //$NON-NLS-1$
-		        .body(content);
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.bib\"") //$NON-NLS-1$
+				.body(content);
 	}
 
 	/**
@@ -327,16 +287,17 @@ public class PublicationController extends AbstractController {
 	 * <li>{@code identifiers}: a list of publication identifiers to export.</li>
 	 * <li>{@code organization}: the identifier of a research organization for which the publications should be exported.</li>
 	 * <li>{@code author}: the identifier of an author.</li>
+	 * <li>{@code journal}: the identifier of a journal.</li>
 	 * </ul>
 	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
 	 *
 	 * @param response the HTTP response.
 	 * @param identifiers the array of publication identifiers that should be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
-	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param author the identifier of the author for who the publications must be exported.
-	 *     Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @param journal the identifier of the journal for which the publications must be exported.
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
+	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the ODT output. 
 	 * @return the OpenDocument description of the publications, or {@code null} if there is no publication to export.
 	 * @throws Exception if it is impossible to redirect to the error page.
@@ -345,17 +306,18 @@ public class PublicationController extends AbstractController {
 	@ResponseBody
 	public ResponseEntity<byte[]> exportOpenDocumentText(
 			HttpServletResponse response,
-			@RequestParam(name = "id") List<Integer> identifiers,
+			@RequestParam(name = "id", required = false) List<Integer> identifiers,
 			@RequestParam(required = false) Integer organization,
 			@RequestParam(required = false) Integer author,
+			@RequestParam(required = false) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color) throws Exception {
 		final ExporterCallback<byte[]> cb = (pubs, configurator) -> this.publicationService.exportOdt(pubs, configurator);
-		final byte[] content = export(response, identifiers, organization, author, nameHighlight, color, cb);
+		final byte[] content = export(response, identifiers, organization, author, journal, nameHighlight, color, cb);
 		return ResponseEntity.ok()
 				.contentType(OpenDocumentConstants.ODT_MIME_TYPE)
-		        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.odt\"") //$NON-NLS-1$
-		        .body(content);
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.odt\"") //$NON-NLS-1$
+				.body(content);
 	}
 
 	//	/** Build a list of publication as a Json string.

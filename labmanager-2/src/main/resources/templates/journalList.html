@@ -48,7 +48,16 @@
             <td>
                 <th:block th:utext="${journal.publishedPapers.size}"></th:block>
             </td>
-            <td>
+            <td style="white-space:nowrap">
+            	<a th:href="@{/exportBibTeX(journal=${journal.id})}">
+            		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${journal.journalName})}" style="max-width:24px;"></img>
+            	</a>
+            	<a th:href="@{/exportOpenDocumentText(journal=${journal.id})}">
+            		<img th:src="@{/images/icon/odt_file.svg}" th:title="#{html.GetOdtPublicationsFor(${journal.journalName})}" style="max-width:24px;"></img>
+            	</a>
+            	<a th:href="@{/exportHtml(journal=${journal.id})}">
+            		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${journal.journalName})}" style="max-width:24px;"></img>
+            	</a>
             	<a th:href="@{/getJournalData(id=${journal.id})}">
             		<img th:src="@{/images/icon/json_file.svg}" th:title="#{html.GetJsonFor(${journal.getJournalName})}" style="max-width:24px;"></img>
             	</a>

@@ -16,6 +16,9 @@
 
 package fr.ciadlab.labmanager.repository.publication.type;
 
+import java.util.List;
+
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -28,6 +31,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  */
 public interface JournalPaperRepository extends JpaRepository<JournalPaper, Integer> {
-	//
+
+	/** Replies the journal papers that are associated to the journal with the given identifier.
+	 *
+	 * @param journalId the identifier of the journal.
+	 * @return the journal papers.
+	 */
+	List<Publication> findAllByJournalId(int journalId);
+
 }
 
