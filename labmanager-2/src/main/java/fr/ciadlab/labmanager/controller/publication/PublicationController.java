@@ -27,6 +27,7 @@ import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
 import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
+import fr.ciadlab.labmanager.io.od.OpenDocumentConstants;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.AuthorshipService;
@@ -317,6 +318,43 @@ public class PublicationController extends AbstractController {
 		return ResponseEntity.ok()
 				.contentType(BibTeXConstants.MIME_TYPE)
 		        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.bib\"") //$NON-NLS-1$
+		        .body(content);
+	}
+
+	/**
+	 * Export publications to Open Document Text (ODT).
+	 * This function takes one of the following parameters:<ul>
+	 * <li>{@code identifiers}: a list of publication identifiers to export.</li>
+	 * <li>{@code organization}: the identifier of a research organization for which the publications should be exported.</li>
+	 * <li>{@code author}: the identifier of an author.</li>
+	 * </ul>
+	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
+	 *
+	 * @param response the HTTP response.
+	 * @param identifiers the array of publication identifiers that should be exported.
+	 * @param organization the identifier of the organization for which the publications must be exported.
+	 *     Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @param author the identifier of the author for who the publications must be exported.
+	 *     Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
+	 * @param color indicates if the colors are enabled for producing the ODT output. 
+	 * @return the OpenDocument description of the publications, or {@code null} if there is no publication to export.
+	 * @throws Exception if it is impossible to redirect to the error page.
+	 */
+	@GetMapping(value = "/exportOpenDocumentText")
+	@ResponseBody
+	public ResponseEntity<byte[]> exportOpenDocumentText(
+			HttpServletResponse response,
+			@RequestParam(name = "id") List<Integer> identifiers,
+			@RequestParam(required = false) Integer organization,
+			@RequestParam(required = false) Integer author,
+			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
+			@RequestParam(required = false, defaultValue = "true") Boolean color) throws Exception {
+		final ExporterCallback<byte[]> cb = (pubs, configurator) -> this.publicationService.exportOdt(pubs, configurator);
+		final byte[] content = export(response, identifiers, organization, author, nameHighlight, color, cb);
+		return ResponseEntity.ok()
+				.contentType(OpenDocumentConstants.ODT_MIME_TYPE)
+		        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.odt\"") //$NON-NLS-1$
 		        .body(content);
 	}
 
