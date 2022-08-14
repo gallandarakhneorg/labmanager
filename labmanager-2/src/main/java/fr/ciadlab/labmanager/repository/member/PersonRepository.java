@@ -82,11 +82,4 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	 */
 	List<Person> findByPublicationsPublicationIdOrderByPublicationsAuthorRank(int id);
 
-	/** Replies the persons who have an identifier inside the given list.
-	 *
-	 * @param identifiers the identifiers of the persons that must be inside the returned list.
-	 * @return the list of persons.
-	 */
-	List<Person> findByIdIn(List<Integer> identifiers);
-
 }

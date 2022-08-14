@@ -396,7 +396,7 @@ public class AuthorshipService extends AbstractService {
 				newAuthor = personSelector.apply(newAuthors);
 			}
 			if (newAuthor != null) {
-				final List<Person> oldAuthors = this.personRepository.findByIdIn(oldAuthorIds);
+				final List<Person> oldAuthors = this.personRepository.findAllById(oldAuthorIds);
 				return mergeAuthors(oldAuthors, newAuthor);
 			}
 		}

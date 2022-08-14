@@ -187,7 +187,7 @@ public class AuthorshipServiceTest {
 			}
 			return Optional.empty();
 		});
-		lenient().when(this.personRepository.findByIdIn(any(List.class))).thenAnswer(it -> {
+		lenient().when(this.personRepository.findAllById(any(List.class))).thenAnswer(it -> {
 			final List<Person> list = new ArrayList<>();
 			for (final Integer id : (List<Integer>) it.getArgument(0)) {
 				switch (id) {
