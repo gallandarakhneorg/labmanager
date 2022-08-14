@@ -89,7 +89,16 @@
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>
-            <td>
+            <td style="white-space:nowrap">
+            	<a th:href="@{/exportBibTeX(author=${person.id})}">
+            		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${person.fullName})}" style="max-width:24px;"></img>
+            	</a>
+            	<a th:href="@{/exportOpenDocumentText(author=${person.id})}">
+            		<img th:src="@{/images/icon/odt_file.svg}" th:title="#{html.GetOdtPublicationsFor(${person.fullName})}" style="max-width:24px;"></img>
+            	</a>
+            	<a th:href="@{/exportHtml(author=${person.id})}">
+            		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${person.fullName})}" style="max-width:24px;"></img>
+            	</a>
             	<a th:href="@{/getPersonData(id=${person.id})}">
             		<img th:src="@{/images/icon/json_file.svg}" th:title="#{html.GetJsonFor(${person.fullName})}" style="max-width:24px;"></img>
             	</a>
