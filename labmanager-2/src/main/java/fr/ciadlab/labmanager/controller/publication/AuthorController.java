@@ -28,6 +28,7 @@ import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** REST Controller for authors.
  * <p>
@@ -68,7 +69,8 @@ public class AuthorController extends AbstractController {
 	 * @param personService the service for the persons.
 	 * @param nameParser the parser of person names.
 	 */
-	public AuthorController(@Autowired AuthorshipService authorshipService,
+	public AuthorController(
+			@Autowired AuthorshipService authorshipService,
 			@Autowired PersonService personService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired MembershipService memberService,

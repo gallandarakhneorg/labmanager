@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** REST Controller for journals.
  * 
@@ -59,10 +60,13 @@ public class JournalController extends AbstractController {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param uriBuilderFactory the factory of URI builders.
 	 * @param messages the accessor to the localized messages.
 	 * @param journalService the journal service.
 	 */
-	public JournalController(@Autowired MessageSourceAccessor messages, @Autowired JournalService journalService) {
+	public JournalController(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired JournalService journalService) {
 		super(DEFAULT_ENDPOINT);
 		this.messages = messages;
 		this.journalService = journalService;
@@ -77,6 +81,7 @@ public class JournalController extends AbstractController {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("journals", this.journalService.getAllJournals()); //$NON-NLS-1$
 		modelAndView.addObject("currentYear", Integer.valueOf(LocalDate.now().getYear())); //$NON-NLS-1$
+		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
 		return modelAndView;
 	}
 

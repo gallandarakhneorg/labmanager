@@ -25,14 +25,12 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Edition of a journal or a special issue of a journal.
  *
@@ -134,14 +132,6 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		if (!Strings.isNullOrEmpty(getPages())) {
 			consumer.accept("pages", getPages()); //$NON-NLS-1$
 		}		
-	}
-
-	@Override
-	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
-		super.serialize(generator, serializers);
-		if (getJournal() != null) {
-			generator.writeNumberField("journal", getJournal().getId()); //$NON-NLS-1$
-		}
 	}
 
 	@Override

@@ -83,7 +83,7 @@ public class AuthorshipService extends AbstractService {
 	 * @return the authors.
 	 */
 	public List<Person> getAuthorsFor(int publicationId) {
-		return this.personRepository.findByPublicationsPublicationIdOrderByPublicationsAuthorRank(publicationId);
+		return this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(publicationId);
 	}
 
 	/** Link a person and a publication.
@@ -325,7 +325,7 @@ public class AuthorshipService extends AbstractService {
 		int changes = 0;
 		for (final Person oldAuthor : oldAuthors) {
 			if (oldAuthor.getId() != newAuthor.getId()) {
-				final Set<Authorship> autPubs = oldAuthor.getPublications();
+				final Set<Authorship> autPubs = oldAuthor.getAuthorships();
 				// Reassign authorships
 				Set<Integer> autorshipsToRemove = new HashSet<>();
 				for (final Authorship authorship : autPubs) {

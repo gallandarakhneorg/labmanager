@@ -392,7 +392,7 @@ public class PublicationServiceTest {
 	@Test
 	public void exportJson_Collection() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator();
-		when(this.json.exportPublications(any(Iterable.class), any())).thenReturn("abc");
+		when(this.json.exportPublicationsWithRootKeys(any(Iterable.class), any(), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
 		String json = this.test.exportJson(pubs, configurator);
@@ -401,7 +401,7 @@ public class PublicationServiceTest {
 
 		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
 		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		verify(this.html, only()).exportPublications(arg0.capture(), arg1.capture());
+		verify(this.json, only()).exportPublicationsWithRootKeys(arg0.capture(), arg1.capture(), any());
 		Iterable<Publication> it = arg0.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();
@@ -425,7 +425,7 @@ public class PublicationServiceTest {
 
 	@Test
 	public void getPublicationsByOrganizationId() {
-		when(this.publicationRepository.findAllByAuthorshipsPersonResearchOrganizationsResearchOrganizationId(anyInt())).thenReturn(
+		when(this.publicationRepository.findAllByAuthorshipsPersonMembershipsResearchOrganizationId(anyInt())).thenReturn(
 				Arrays.asList(this.pub0, this.pub2));
 
 		final List<Publication> list = this.test.getPublicationsByOrganizationId(2345);

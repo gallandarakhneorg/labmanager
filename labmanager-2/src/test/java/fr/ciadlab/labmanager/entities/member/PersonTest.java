@@ -23,26 +23,19 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.net.URL;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
-import fr.ciadlab.labmanager.entities.publication.Publication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -172,41 +165,41 @@ public class PersonTest {
 	}
 
 	@Test
-	public void getPublications() {
-		assertTrue(this.test.getPublications().isEmpty());
+	public void getAuthorships() {
+		assertTrue(this.test.getAuthorships().isEmpty());
 	}
 
 	@Test
-	public void setPublications() {
+	public void setAuthorships() {
 		final Set<Authorship> authors = new HashSet<>();
 		authors.add(mock(Authorship.class));
 		authors.add(mock(Authorship.class));
 		authors.add(mock(Authorship.class));
 		//
-		this.test.setPublications(authors);
-		assertSame(authors, this.test.getPublications());
+		this.test.setAuthorships(authors);
+		assertSame(authors, this.test.getAuthorships());
 		//
-		this.test.setPublications(null);
-		assertTrue(this.test.getPublications().isEmpty());
+		this.test.setAuthorships(null);
+		assertTrue(this.test.getAuthorships().isEmpty());
 	}
 
 	@Test
-	public void getResearchOrganizations() {
-		assertTrue(this.test.getResearchOrganizations().isEmpty());
+	public void getMemberships() {
+		assertTrue(this.test.getMemberships().isEmpty());
 	}
 
 	@Test
-	public void setResearchOrganizations() {
+	public void setMemberships() {
 		final Set<Membership> orgas = new HashSet<>();
 		orgas.add(mock(Membership.class));
 		orgas.add(mock(Membership.class));
 		orgas.add(mock(Membership.class));
 		//
-		this.test.setResearchOrganizations(orgas);
-		assertSame(orgas, this.test.getResearchOrganizations());
+		this.test.setMemberships(orgas);
+		assertSame(orgas, this.test.getMemberships());
 		//
-		this.test.setResearchOrganizations(null);
-		assertTrue(this.test.getResearchOrganizations().isEmpty());
+		this.test.setMemberships(null);
+		assertTrue(this.test.getMemberships().isEmpty());
 	}
 
 	@Test
@@ -218,7 +211,7 @@ public class PersonTest {
 		authors.add(a0);
 		authors.add(a1);
 		authors.add(a2);
-		this.test.setPublications(authors);
+		this.test.setAuthorships(authors);
 		//
 		this.test.deleteAuthorship(a1);
 		//
@@ -236,7 +229,7 @@ public class PersonTest {
 		authors.add(a0);
 		authors.add(a1);
 		authors.add(a2);
-		this.test.setPublications(authors);
+		this.test.setAuthorships(authors);
 		//
 		this.test.deleteAllAuthorships();
 		//
@@ -513,8 +506,8 @@ public class PersonTest {
 		when(m0.getResearchOrganization()).thenReturn(o0);
 		when(m0.getPerson()).thenReturn(this.test);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
-		when(m0.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-07-22"));
-		when(m0.getMemberToWhen()).thenReturn(Date.valueOf("2022-07-22"));
+		when(m0.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-07-22"));
+		when(m0.getMemberToWhen()).thenReturn(LocalDate.parse("2022-07-22"));
 
 		Membership m1 = mock(Membership.class);
 		when(m1.getResearchOrganization()).thenReturn(o1);
@@ -525,17 +518,17 @@ public class PersonTest {
 		when(m2.getResearchOrganization()).thenReturn(o0);
 		when(m2.getPerson()).thenReturn(this.test);
 		when(m2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
-		when(m2.getMemberSinceWhen()).thenReturn(Date.valueOf("2022-07-23"));
+		when(m2.getMemberSinceWhen()).thenReturn(LocalDate.parse("2022-07-23"));
 
 		Membership m3 = mock(Membership.class);
 		when(m3.getResearchOrganization()).thenReturn(o0);
 		when(m3.getPerson()).thenReturn(this.test);
 		when(m3.getMemberStatus()).thenReturn(MemberStatus.MASTER_STUDENT);
-		when(m3.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-01-01"));
-		when(m0.getMemberToWhen()).thenReturn(Date.valueOf("2021-07-21"));
+		when(m3.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-01-01"));
+		when(m0.getMemberToWhen()).thenReturn(LocalDate.parse("2021-07-21"));
 
 		Set<Membership> mbrs = new HashSet<>(Arrays.asList(m0, m1, m2));
-		this.test.setResearchOrganizations(mbrs);
+		this.test.setMemberships(mbrs);
 
 		Map<ResearchOrganization, Membership> map = this.test.getRecentMemberships();
 
@@ -554,8 +547,8 @@ public class PersonTest {
 		when(m0.getResearchOrganization()).thenReturn(o0);
 		when(m0.getPerson()).thenReturn(this.test);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
-		when(m0.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-07-22"));
-		when(m0.getMemberToWhen()).thenReturn(Date.valueOf("2022-07-22"));
+		when(m0.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-07-22"));
+		when(m0.getMemberToWhen()).thenReturn(LocalDate.parse("2022-07-22"));
 		when(m0.isActiveAt(any())).thenReturn(false);
 
 		Membership m1 = mock(Membership.class);
@@ -568,19 +561,19 @@ public class PersonTest {
 		when(m2.getResearchOrganization()).thenReturn(o0);
 		when(m2.getPerson()).thenReturn(this.test);
 		when(m2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
-		when(m2.getMemberSinceWhen()).thenReturn(Date.valueOf("2022-07-23"));
+		when(m2.getMemberSinceWhen()).thenReturn(LocalDate.parse("2022-07-23"));
 		when(m2.isActiveAt(any())).thenReturn(true);
 
 		Membership m3 = mock(Membership.class);
 		when(m3.getResearchOrganization()).thenReturn(o0);
 		when(m3.getPerson()).thenReturn(this.test);
 		when(m3.getMemberStatus()).thenReturn(MemberStatus.MASTER_STUDENT);
-		when(m3.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-01-01"));
-		when(m3.getMemberToWhen()).thenReturn(Date.valueOf("2021-07-21"));
+		when(m3.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-01-01"));
+		when(m3.getMemberToWhen()).thenReturn(LocalDate.parse("2021-07-21"));
 		when(m3.isActiveAt(any())).thenReturn(false);
 
 		Set<Membership> mbrs = new HashSet<>(Arrays.asList(m0, m1, m2));
-		this.test.setResearchOrganizations(mbrs);
+		this.test.setMemberships(mbrs);
 
 		final LocalDate now = LocalDate.of(2022, 8, 1);
 		Map<ResearchOrganization, Membership> map = this.test.getRecentMemberships(it -> it.isActiveAt(now));
@@ -600,8 +593,8 @@ public class PersonTest {
 		when(m0.getResearchOrganization()).thenReturn(o0);
 		when(m0.getPerson()).thenReturn(this.test);
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
-		when(m0.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-07-22"));
-		when(m0.getMemberToWhen()).thenReturn(Date.valueOf("2022-07-22"));
+		when(m0.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-07-22"));
+		when(m0.getMemberToWhen()).thenReturn(LocalDate.parse("2022-07-22"));
 		when(m0.isActiveAt(any())).thenReturn(true);
 
 		Membership m1 = mock(Membership.class);
@@ -614,19 +607,19 @@ public class PersonTest {
 		when(m2.getResearchOrganization()).thenReturn(o0);
 		when(m2.getPerson()).thenReturn(this.test);
 		when(m2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
-		when(m2.getMemberSinceWhen()).thenReturn(Date.valueOf("2022-07-23"));
+		when(m2.getMemberSinceWhen()).thenReturn(LocalDate.parse("2022-07-23"));
 		when(m2.isActiveAt(any())).thenReturn(true);
 
 		Membership m3 = mock(Membership.class);
 		when(m3.getResearchOrganization()).thenReturn(o0);
 		when(m3.getPerson()).thenReturn(this.test);
 		when(m3.getMemberStatus()).thenReturn(MemberStatus.MASTER_STUDENT);
-		when(m3.getMemberSinceWhen()).thenReturn(Date.valueOf("2021-01-01"));
-		when(m3.getMemberToWhen()).thenReturn(Date.valueOf("2021-07-21"));
+		when(m3.getMemberSinceWhen()).thenReturn(LocalDate.parse("2021-01-01"));
+		when(m3.getMemberToWhen()).thenReturn(LocalDate.parse("2021-07-21"));
 		when(m3.isActiveAt(any())).thenReturn(true);
 
 		Set<Membership> mbrs = new HashSet<>(Arrays.asList(m0, m1, m2));
-		this.test.setResearchOrganizations(mbrs);
+		this.test.setMemberships(mbrs);
 
 		final LocalDate now = LocalDate.of(2022, 8, 1);
 		Map<ResearchOrganization, Membership> map = this.test.getRecentMemberships(it -> it.isActiveAt(now));
@@ -807,93 +800,6 @@ public class PersonTest {
 
 		this.test.setMobilePhone("");
 		assertNull(this.test.getMobilePhone());
-	}
-
-	@Test
-	public void serialize() throws Exception {
-		Publication pub0 = mock(Publication.class);
-		when(pub0.getId()).thenReturn(457786);
-		Authorship aut0 = mock(Authorship.class);
-		when(aut0.getAuthorRank()).thenReturn(457);
-		when(aut0.getPublication()).thenReturn(pub0);
-
-		Publication pub1 = mock(Publication.class);
-		when(pub1.getId()).thenReturn(457787);
-		Authorship aut1 = mock(Authorship.class);
-		when(aut1.getAuthorRank()).thenReturn(456);
-		when(aut1.getPublication()).thenReturn(pub1);
-
-		ResearchOrganization org0 = mock(ResearchOrganization.class);
-		when(org0.getId()).thenReturn(877787);
-		Membership mbr0 = mock(Membership.class);
-		when(mbr0.getCnuSection()).thenReturn(27);
-		when(mbr0.getMemberSinceWhen()).thenReturn(Date.valueOf("2022-07-22"));
-		when(mbr0.getMemberToWhen()).thenReturn(Date.valueOf("2022-09-18"));
-		when(mbr0.getMemberStatus()).thenReturn(MemberStatus.ENGINEER);
-		when(mbr0.getResearchOrganization()).thenReturn(org0);
-
-		this.test.setAcademiaURL("academia0");
-		this.test.setCordisURL("cordis0");
-		this.test.setDblpURL("dblp0");
-		this.test.setEmail("email0");
-		this.test.setFacebookId("fb0");
-		this.test.setFirstName("first0");
-		this.test.setGender(Gender.FEMALE);
-		this.test.setGithubId("github0");
-		this.test.setGoogleScholarHindex(456);
-		this.test.setGravatarId("gravatar0");
-		this.test.setId(951);
-		this.test.setLastName("last0");
-		this.test.setLinkedInId("ln0");
-		this.test.setMobilePhone("mob0");
-		this.test.setOfficePhone("tel0");
-		this.test.setORCID("orcid0");
-		this.test.setResearcherId("rid0");
-		this.test.setResearchGateId("rg0");
-		this.test.setWosHindex(789);
-		this.test.setPublications(new HashSet<>(Arrays.asList(aut0, aut1)));
-		this.test.setResearchOrganizations(new HashSet<>(Arrays.asList(mbr0)));
-		JsonGenerator generator = mock(JsonGenerator.class);
-
-		this.test.serialize(generator, null);
-
-		verify(generator, times(4)).writeStartObject();
-		verify(generator).writeStringField(eq("academiaURL"), eq("academia0"));
-		verify(generator).writeStringField(eq("cordisURL"), eq("cordis0"));
-		verify(generator).writeStringField(eq("dblpURL"), eq("dblp0"));
-		verify(generator).writeStringField(eq("email"), eq("email0"));
-		verify(generator).writeStringField(eq("facebookId"), eq("fb0"));
-		verify(generator).writeStringField(eq("firstName"), eq("first0"));
-		verify(generator).writeStringField(eq("gender"), eq("FEMALE"));
-		verify(generator).writeStringField(eq("githubId"), eq("github0"));
-		verify(generator).writeNumberField(eq("googleScholarHindex"), eq(456));
-		verify(generator).writeStringField(eq("gravatarId"), eq("gravatar0"));
-		verify(generator).writeNumberField(eq("id"), eq(951));
-		verify(generator).writeStringField(eq("lastName"), eq("last0"));
-		verify(generator).writeStringField(eq("linkedInId"), eq("ln0"));
-		verify(generator).writeStringField(eq("mobilePhone"), eq("mob0"));
-		verify(generator).writeStringField(eq("officePhone"), eq("tel0"));
-		verify(generator).writeStringField(eq("orcid"), eq("orcid0"));
-		verify(generator).writeStringField(eq("researcherId"), eq("rid0"));
-		verify(generator).writeStringField(eq("researchGateId"), eq("rg0"));
-		verify(generator).writeNumberField(eq("wosHindex"), eq(789));
-
-		verify(generator).writeArrayFieldStart("publications");
-		verify(generator).writeNumberField(eq("authorRank"), eq(456));
-		verify(generator).writeNumberField(eq("authorRank"), eq(457));
-		verify(generator).writeNumberField(eq("publication"), eq(457786));
-		verify(generator).writeNumberField(eq("publication"), eq(457787));
-
-		verify(generator).writeArrayFieldStart("researchOrganizations");
-		verify(generator).writeNumberField(eq("cnuSection"), eq(27));
-		verify(generator).writeStringField(eq("memberSinceWhen"), eq("2022-07-22"));
-		verify(generator).writeStringField(eq("memberToWhen"), eq("2022-09-18"));
-		verify(generator).writeStringField(eq("memberStatus"), eq("ENGINEER"));
-		verify(generator).writeNumberField(eq("researchOrganization"), eq(877787));
-
-		verify(generator, times(2)).writeEndArray();
-		verify(generator, times(4)).writeEndObject();
-		verifyNoMoreInteractions(generator);
 	}
 
 }

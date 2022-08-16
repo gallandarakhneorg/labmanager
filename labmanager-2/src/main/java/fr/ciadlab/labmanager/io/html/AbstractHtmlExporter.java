@@ -16,7 +16,6 @@
 
 package fr.ciadlab.labmanager.io.html;
 
-import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -383,10 +382,9 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 			throw new IllegalArgumentException("Unsupported publication type: " + publication.getType()); //$NON-NLS-1$
 		}
 
-		final Date date = publication.getPublicationDate();
+		final LocalDate date = publication.getPublicationDate();
 		if (date != null) {
-			final LocalDate localeDate = date.toLocalDate();
-			final Month month = localeDate.getMonth();
+			final Month month = date.getMonth();
 			assert month != null;
 			final String displayName = month.getDisplayName(TextStyle.FULL_STANDALONE, java.util.Locale.getDefault());
 			html.append(displayName);

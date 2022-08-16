@@ -31,7 +31,7 @@ import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
@@ -229,11 +229,11 @@ public class ResearchOrganizationServiceTest {
 
 	@Test
 	public void addMembership() {
-		final Date d0 = Date.valueOf("2022-07-14");
-		final Date d1 = Date.valueOf("2022-07-24");
+		final LocalDate d0 = LocalDate.parse("2022-07-14");
+		final LocalDate d1 = LocalDate.parse("2022-07-24");
 		final Person pers = mock(Person.class);
 		when(this.personRepository.findById(anyInt())).thenReturn(Optional.of(pers));
-		when(pers.getResearchOrganizations()).thenReturn(Collections.emptySet());
+		when(pers.getMemberships()).thenReturn(Collections.emptySet());
 
 		final boolean r = this.test.addMembership(234, 890, d0, d1, MemberStatus.ENGINEER);
 
@@ -263,16 +263,16 @@ public class ResearchOrganizationServiceTest {
 
 	@Test
 	public void addMembership_invalidOrga() {
-		final Date d0 = Date.valueOf("2022-07-14");
-		final Date d1 = Date.valueOf("2022-07-24");
+		final LocalDate d0 = LocalDate.parse("2022-07-14");
+		final LocalDate d1 = LocalDate.parse("2022-07-24");
 		final boolean r = this.test.addMembership(1, 890, d0, d1, MemberStatus.ENGINEER);
 		assertFalse(r);
 	}
 
 	@Test
 	public void addMembership_invalidPerson() {
-		final Date d0 = Date.valueOf("2022-07-14");
-		final Date d1 = Date.valueOf("2022-07-24");
+		final LocalDate d0 = LocalDate.parse("2022-07-14");
+		final LocalDate d1 = LocalDate.parse("2022-07-24");
 		when(this.personRepository.findById(anyInt())).thenReturn(Optional.empty());
 		final boolean r = this.test.addMembership(234, 890, d0, d1, MemberStatus.ENGINEER);
 		assertFalse(r);

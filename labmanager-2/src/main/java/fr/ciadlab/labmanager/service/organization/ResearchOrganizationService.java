@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.service.organization;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -223,7 +224,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param memberStatus the status of the person in the membership.
 	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
 	 */
-	public boolean addMembership(int organizationId, int personId, java.sql.Date startDate, java.sql.Date endDate, MemberStatus memberStatus) {
+	public boolean addMembership(int organizationId, int personId, LocalDate startDate, LocalDate endDate, MemberStatus memberStatus) {
 		assert memberStatus != null;
 		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
 		if (optOrg.isPresent()) {
@@ -231,7 +232,7 @@ public class ResearchOrganizationService extends AbstractService {
 			if (optPerson.isPresent()) {
 				final Person person = optPerson.get();
 				// We don't need to add the membership is the person is already involved in the organization
-				final Optional<Membership> ro = person.getResearchOrganizations().stream().filter(
+				final Optional<Membership> ro = person.getMemberships().stream().filter(
 						it -> it.getResearchOrganization().getId() == organizationId).findAny();
 				if (ro.isEmpty()) {
 					final ResearchOrganization organization = optOrg.get();

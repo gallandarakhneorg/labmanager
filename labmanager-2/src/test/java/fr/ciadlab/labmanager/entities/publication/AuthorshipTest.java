@@ -19,19 +19,9 @@ package fr.ciadlab.labmanager.entities.publication;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.HashSet;
-
-import com.fasterxml.jackson.core.JsonGenerator;
 import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
-import org.arakhne.afc.util.CountryCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -123,28 +113,6 @@ public class AuthorshipTest {
 
 		this.test.setAuthorRank(125);
 		assertEquals(125, this.test.getAuthorRank());
-	}
-
-	@Test
-	public void serialize() throws Exception {
-		Person person = mock(Person.class);
-		when(person.getId()).thenReturn(4789);
-		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(3789);
-		this.test.setAuthorRank(456);
-		this.test.setId(753);
-		this.test.setPerson(person);
-		this.test.setPublication(pub);
-		JsonGenerator generator = mock(JsonGenerator.class);
-
-		this.test.serialize(generator, null);
-
-		verify(generator).writeStartObject();
-		verify(generator).writeNumberField(eq("authorRank"), eq(456));
-		verify(generator).writeNumberField(eq("id"), eq(753));
-		verify(generator).writeNumberField(eq("person"), eq(4789));
-		verify(generator).writeNumberField(eq("publication"), eq(3789));
-		verify(generator).writeEndObject();
 	}
 
 }

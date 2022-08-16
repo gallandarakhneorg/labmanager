@@ -42,19 +42,20 @@ import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.transaction.Transactional;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.AuthorshipComparator;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
-import fr.ciadlab.labmanager.utils.AttributeProvider;
+import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Represent a person.
  * 
@@ -66,7 +67,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  */
 @Entity
 @Table(name = "Persons")
-public class Person implements Serializable, JsonSerializable, AttributeProvider, Comparable<Person> {
+public class Person implements Serializable, JsonSerializable, AttributeProvider, Comparable<Person>, IdentifiableEntity {
 
 	private static final long serialVersionUID = -1312811718336186349L;
 
@@ -187,14 +188,12 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	/** List of research organizations for the person.
 	 */
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JsonIgnore
-	private Set<Membership> researchOrganizations;
+	private Set<Membership> memberships;
 
 	/** List of publications of the person.
 	 */
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JsonIgnore
-	private Set<Authorship> publications;
+	private Set<Authorship> authorships;
 
 	/** Construct a person with the given values.
 	 *
@@ -210,8 +209,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public Person(int id, Set<Authorship> publications, Set<Membership> orgas, String firstName, String lastName,
 			Gender gender, String email, String orcid) {
 		this.id = id;
-		this.publications = publications;
-		this.researchOrganizations = orgas;
+		this.authorships = publications;
+		this.memberships = orgas;
 		this.firstName = firstName;
 		this.lastName = lastName;
 		if (gender == Gender.NOT_SPECIFIED) {
@@ -342,6 +341,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+		if (getId() != 0) {
+			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
 			consumer.accept("academiaURL", getAcademiaURL()); //$NON-NLS-1$
 		}
@@ -401,47 +403,42 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Override
 	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
 		generator.writeStartObject();
-		generator.writeNumberField("id", getId()); //$NON-NLS-1$
-		forEachAttribute((name, value) -> {
-			JsonUtils.writeField(generator, name, value);
+		forEachAttribute((attrName, attrValue) -> {
+			JsonUtils.writeField(generator, attrName, attrValue);
 		});
-		if (!getPublications().isEmpty()) {
-			generator.writeArrayFieldStart("publications"); //$NON-NLS-1$
-			for (final Authorship authorship : getPublications()) {
-				generator.writeStartObject();
-				if (authorship.getPublication() != null) {
-					generator.writeNumberField("publication", authorship.getPublication().getId()); //$NON-NLS-1$
-				}
-				if (authorship.getAuthorRank() >= 0) {
-					generator.writeNumberField("authorRank", authorship.getAuthorRank()); //$NON-NLS-1$
-				}
-				generator.writeEndObject();
-			}
-			generator.writeEndArray();
+		//
+		final CachedGenerator organizations = JsonUtils.cache(generator);
+		final CachedGenerator publications = JsonUtils.cache(generator);
+		final CachedGenerator journals = JsonUtils.cache(generator);
+		//
+		generator.writeArrayFieldStart("memberships"); //$NON-NLS-1$
+		for (final Membership membership : getMemberships()) {
+			generator.writeStartObject();
+			membership.forEachAttribute((attrName, attrValue) -> {
+				JsonUtils.writeField(generator, attrName, attrValue);
+			});
+			organizations.writeReferenceOrObjectField("researchOrganization", membership.getResearchOrganization(), () -> { //$NON-NLS-1$
+				JsonUtils.writeObjectAndAttributes(generator, membership.getResearchOrganization());
+			});
+			generator.writeEndObject();
 		}
-		if (!getResearchOrganizations().isEmpty()) {
-			generator.writeArrayFieldStart("researchOrganizations"); //$NON-NLS-1$
-			for (final Membership membership : getResearchOrganizations()) {
-				generator.writeStartObject();
-				if (membership.getCnuSection() > 0) {
-					generator.writeNumberField("cnuSection", membership.getCnuSection()); //$NON-NLS-1$
-				}
-				if (membership.getMemberSinceWhen() != null) {
-					generator.writeStringField("memberSinceWhen", membership.getMemberSinceWhen().toString()); //$NON-NLS-1$
-				}
-				if (membership.getMemberToWhen() != null) {
-					generator.writeStringField("memberToWhen", membership.getMemberToWhen().toString()); //$NON-NLS-1$
-				}
-				if (membership.getMemberStatus() != null) {
-					generator.writeStringField("memberStatus", membership.getMemberStatus().name()); //$NON-NLS-1$
-				}
-				if (membership.getResearchOrganization() != null) {
-					generator.writeNumberField("researchOrganization", membership.getResearchOrganization().getId()); //$NON-NLS-1$
-				}
-				generator.writeEndObject();
-			}
-			generator.writeEndArray();
+		generator.writeEndArray();
+		//
+		generator.writeArrayFieldStart("authorships"); //$NON-NLS-1$
+		for (final Authorship authorship : getAuthorships()) {
+			generator.writeStartObject();
+			authorship.forEachAttribute((attrName, attrValue) -> {
+				JsonUtils.writeField(generator, attrName, attrValue);
+			});
+			publications.writeReferenceOrObjectField("publication", authorship.getPublication(), () -> { //$NON-NLS-1$
+				journals.writePublicationAndAttributes(authorship.getPublication(), journal -> {
+					JsonUtils.writeObjectAndAttributes(generator, journal);
+				});
+			});
+			generator.writeEndObject();
 		}
+		generator.writeEndArray();
+		//
 		generator.writeEndObject();
 	}
 
@@ -451,10 +448,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		serialize(generator, serializers);
 	}
 
-	/** Replies the identifier of the person.
-	 *
-	 * @return the identifier.
-	 */
+	@Override
 	public int getId() {
 		return this.id;
 	}
@@ -593,30 +587,30 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @return the list of publications.
 	 */
-	public Set<Authorship> getPublications() {
-		if (this.publications == null) {
-			this.publications = new TreeSet<>(AuthorshipComparator.DEFAULT);
+	public Set<Authorship> getAuthorships() {
+		if (this.authorships == null) {
+			this.authorships = new TreeSet<>(AuthorshipComparator.DEFAULT);
 		}
-		return this.publications;
+		return this.authorships;
 	}
 
 	/** Change the list of publications of the person.
 	 *
 	 * @param list the list of publications.
 	 */
-	public void setPublications(Set<Authorship> list) {
-		this.publications = list;
+	public void setAuthorships(Set<Authorship> list) {
+		this.authorships = list;
 	}
 
 	/** Replies the memberships of the person.
 	 *
 	 * @return the research organizations in which the person is involved.
 	 */
-	public Set<Membership> getResearchOrganizations() {
-		if (this.researchOrganizations == null) {
-			this.researchOrganizations = new TreeSet<>(EntityUtils.getPreferredMembershipComparator());
+	public Set<Membership> getMemberships() {
+		if (this.memberships == null) {
+			this.memberships = new TreeSet<>(EntityUtils.getPreferredMembershipComparator());
 		}
-		return this.researchOrganizations;
+		return this.memberships;
 	}
 
 	/** Replies the more recent membership per research organization.
@@ -633,7 +627,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 * @return the recent membership for each organization.
 	 */
 	public Map<ResearchOrganization, Membership> getRecentMemberships(Predicate<? super Membership> filteringCondition) {
-		Stream<Membership> stream = getResearchOrganizations().stream();
+		Stream<Membership> stream = getMemberships().stream();
 		if (filteringCondition != null) {
 			stream = stream.filter(filteringCondition);
 		}
@@ -676,8 +670,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @param orgas the research organizations in which the person is involved.
 	 */
-	public void setResearchOrganizations(Set<Membership> orgas) {
-		this.researchOrganizations = orgas;
+	public void setMemberships(Set<Membership> orgas) {
+		this.memberships = orgas;
 	}
 
 	/** Delete a publication for the person.
@@ -686,8 +680,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	@Transactional
 	public void deleteAuthorship(Authorship pub) {
-		if (this.publications != null) {
-			this.publications.remove(pub);
+		if (this.authorships != null) {
+			this.authorships.remove(pub);
 		}
 	}
 
@@ -695,8 +689,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	@Transactional
 	public void deleteAllAuthorships() {
-		if (this.publications != null) {
-			this.publications.clear();
+		if (this.authorships != null) {
+			this.authorships.clear();
 		}
 	}
 

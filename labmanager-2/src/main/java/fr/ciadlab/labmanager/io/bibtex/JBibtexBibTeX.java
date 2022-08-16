@@ -52,9 +52,7 @@ import static org.jbibtex.BibTeXEntry.TYPE_TECHREPORT;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
-import java.sql.Date;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
@@ -386,7 +384,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return year;
 	}
 
-	private static Date date(BibTeXEntry entry) {
+	private static LocalDate date(BibTeXEntry entry) {
 		final int year = year(entry);
 		final String monthValue = field(entry, KEY_MONTH);
 		if (!Strings.isNullOrEmpty(monthValue)) {
@@ -394,51 +392,51 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			case "01": //$NON-NLS-1$
 			case "jan": //$NON-NLS-1$
 			case "January": //$NON-NLS-1$
-				return Date.valueOf(year + "-01-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-01-01"); //$NON-NLS-1$
 			case "02": //$NON-NLS-1$
 			case "feb": //$NON-NLS-1$
 			case "February": //$NON-NLS-1$
-				return Date.valueOf(year + "-02-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-02-01"); //$NON-NLS-1$
 			case "03": //$NON-NLS-1$
 			case "mar": //$NON-NLS-1$
 			case "March": //$NON-NLS-1$
-				return Date.valueOf(year + "-03-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-03-01"); //$NON-NLS-1$
 			case "04": //$NON-NLS-1$
 			case "apr": //$NON-NLS-1$
 			case "April": //$NON-NLS-1$
-				return Date.valueOf(year + "-04-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-04-01"); //$NON-NLS-1$
 			case "05": //$NON-NLS-1$
 			case "may": //$NON-NLS-1$
 			case "May": //$NON-NLS-1$
-				return Date.valueOf(year + "-05-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-05-01"); //$NON-NLS-1$
 			case "06": //$NON-NLS-1$
 			case "jun": //$NON-NLS-1$
 			case "June": //$NON-NLS-1$
-				return Date.valueOf(year + "-06-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-06-01"); //$NON-NLS-1$
 			case "07": //$NON-NLS-1$
 			case "jul": //$NON-NLS-1$
 			case "July": //$NON-NLS-1$
-				return Date.valueOf(year + "-07-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-07-01"); //$NON-NLS-1$
 			case "08": //$NON-NLS-1$
 			case "aug": //$NON-NLS-1$
 			case "August": //$NON-NLS-1$
-				return Date.valueOf(year + "-08-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-08-01"); //$NON-NLS-1$
 			case "09": //$NON-NLS-1$
 			case "sep": //$NON-NLS-1$
 			case "September": //$NON-NLS-1$
-				return Date.valueOf(year + "-09-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-09-01"); //$NON-NLS-1$
 			case "10": //$NON-NLS-1$
 			case "oct": //$NON-NLS-1$
 			case "October": //$NON-NLS-1$
-				return Date.valueOf(year + "-10-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-10-01"); //$NON-NLS-1$
 			case "11": //$NON-NLS-1$
 			case "nov": //$NON-NLS-1$
 			case "November": //$NON-NLS-1$
-				return Date.valueOf(year + "-11-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-11-01"); //$NON-NLS-1$
 			case "12": //$NON-NLS-1$
 			case "dec": //$NON-NLS-1$
 			case "December": //$NON-NLS-1$
-				return Date.valueOf(year + "-12-01"); //$NON-NLS-1$
+				return LocalDate.parse(year + "-12-01"); //$NON-NLS-1$
 			default:
 				//
 			}
@@ -696,21 +694,14 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		}
 	}
 
-	private static void addField(BibTeXEntry entry, Key key, float value) {
-		if (value > 0f) {
-			final NumberFormat format = new DecimalFormat("#0.000"); //$NON-NLS-1$
-			entry.addField(key, new StringValue(format.format(value), StringValue.Style.BRACED));
-		}
-	}
-
 	private static void addField(BibTeXEntry entry, Key key, int value) {
 		entry.addField(key, new DigitStringValue(Integer.toString(value)));
 	}
 
-	private static void addMonthField(BibTeXEntry entry, Date value) {
+	private static void addMonthField(BibTeXEntry entry, LocalDate value) {
 		if (value != null) {
 			final String monthValue;
-			switch (value.toLocalDate().getMonth()) {
+			switch (value.getMonth()) {
 			case APRIL:
 				monthValue = "apr"; //$NON-NLS-1$
 				break;
@@ -977,7 +968,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_PAGES, edition.getPages());
 		addField(entry, KEY_SCIMAGO_QINDEX, edition.getScimagoQIndex());
 		addField(entry, KEY_WOS_QINDEX, edition.getWosQIndex());
-		addField(entry, KEY_IMPACT_FACTOR, edition.getImpactFactor());
+		if (edition.getImpactFactor() > 0f) {
+			addField(entry, KEY_IMPACT_FACTOR, this.messages.getMessage(MESSAGE_PREFIX + "RAW_IMPACT_FACTOR", //$NON-NLS-1$
+					new Object[] {Float.valueOf(edition.getImpactFactor())}));
+		}
 		addNoteForJournal(entry, edition.getMajorLanguage(), edition.getScimagoQIndex(),
 				edition.getWosQIndex(), edition.getImpactFactor());
 		return entry;

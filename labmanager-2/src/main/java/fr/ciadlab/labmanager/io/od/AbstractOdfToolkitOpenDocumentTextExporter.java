@@ -17,7 +17,6 @@
 package fr.ciadlab.labmanager.io.od;
 
 import java.io.ByteArrayOutputStream;
-import java.sql.Date;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.time.LocalDate;
@@ -462,10 +461,9 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter implements Open
 			throw new IllegalArgumentException("Unsupported publication type: " + publication.getType()); //$NON-NLS-1$
 		}
 
-		final Date date = publication.getPublicationDate();
+		final LocalDate date = publication.getPublicationDate();
 		if (date != null) {
-			final LocalDate localeDate = date.toLocalDate();
-			final Month month = localeDate.getMonth();
+			final Month month = date.getMonth();
 			assert month != null;
 			final String displayName = month.getDisplayName(TextStyle.FULL_STANDALONE, java.util.Locale.getDefault());
 			odtText.newTextNode(displayName);

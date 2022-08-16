@@ -17,7 +17,6 @@
 package fr.ciadlab.labmanager.io.json;
 
 import java.lang.reflect.Method;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collection;
@@ -321,7 +320,6 @@ public abstract class JsonTool {
 							|| Number.class.isAssignableFrom(meth.getReturnType())
 							|| String.class.isAssignableFrom(meth.getReturnType())
 							|| Boolean.class.isAssignableFrom(meth.getReturnType())
-							|| Date.class.isAssignableFrom(meth.getReturnType())
 							|| LocalDate.class.isAssignableFrom(meth.getReturnType())
 							|| Character.class.isAssignableFrom(meth.getReturnType()))
 					&& name.startsWith(GETTER_FUNCTION_PREFIX)) {
@@ -369,9 +367,6 @@ public abstract class JsonTool {
 			}
 			if (value instanceof Enum) {
 				return ((Enum<?>) value).name().toLowerCase();
-			}
-			if (value instanceof Date) {
-				return ((Date) value).toString();
 			}
 			if (value instanceof LocalDate) {
 				return ((LocalDate) value).toString();

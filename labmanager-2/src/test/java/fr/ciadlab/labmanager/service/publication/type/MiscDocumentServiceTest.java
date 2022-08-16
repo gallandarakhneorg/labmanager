@@ -27,6 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
 import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -139,7 +140,7 @@ public class MiscDocumentServiceTest {
 	@Test
 	public void updateMiscDocument() {
 		this.test.updateMiscDocument(234,
-				"title0", PublicationType.ARTISTIC_PRODUCTION, Date.valueOf("2022-07-22"), "abstractText0",
+				"title0", PublicationType.ARTISTIC_PRODUCTION, LocalDate.parse("2022-07-22"), "abstractText0",
 				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				"number0", "how0", "type0", "orga0", "pub0", "address0");

@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.entities.member;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Comparator;
 
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
@@ -87,7 +87,7 @@ public class MembershipComparator implements Comparator<Membership> {
 		return Integer.compare(o1.getId(), o2.getId());
 	}
 
-	private static int compareDate(Date d0, Date d1) {
+	private static int compareDate(LocalDate d0, LocalDate d1) {
 		if (d0 == d1) {
 			return 0;
 		}

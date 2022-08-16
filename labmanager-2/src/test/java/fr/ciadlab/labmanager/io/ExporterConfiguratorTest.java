@@ -96,7 +96,7 @@ public class ExporterConfiguratorTest {
 		when(m1.getResearchOrganization()).thenReturn(orga1);
 		when(m1.isActiveIn(any(), any())).thenReturn(true);
 
-		when(person.getResearchOrganizations()).thenReturn(new HashSet<>(Arrays.asList(m0, m1)));
+		when(person.getMemberships()).thenReturn(new HashSet<>(Arrays.asList(m0, m1)));
 
 		assertSame(ExportedAuthorStatus.RESEARCHER, this.test.getExportedAuthorStatusFor(person, 2022));
 	}
@@ -120,7 +120,7 @@ public class ExporterConfiguratorTest {
 		when(m1.getResearchOrganization()).thenReturn(orga1);
 		when(m1.isActiveIn(any(), any())).thenReturn(true);
 
-		when(person.getResearchOrganizations()).thenReturn(new HashSet<>(Arrays.asList(m0, m1)));
+		when(person.getMemberships()).thenReturn(new HashSet<>(Arrays.asList(m0, m1)));
 
 		assertSame(ExportedAuthorStatus.POSTDOC_ENGINEER, this.test.getExportedAuthorStatusFor(person, 2022));
 	}

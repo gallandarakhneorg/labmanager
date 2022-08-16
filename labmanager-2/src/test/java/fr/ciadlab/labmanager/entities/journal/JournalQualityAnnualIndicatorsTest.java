@@ -19,12 +19,7 @@ package fr.ciadlab.labmanager.entities.journal;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -144,25 +139,6 @@ public class JournalQualityAnnualIndicatorsTest {
 
 		this.test.setImpactFactor(Float.valueOf(-458f));
 		assertEquals(0f, this.test.getImpactFactor());
-	}
-
-	@Test
-	public void serialize() throws Exception {
-		this.test.setImpactFactor(458.256f);
-		this.test.setReferenceYear(2022);
-		this.test.setScimagoQIndex(QuartileRanking.Q3);
-		this.test.setWosQIndex(QuartileRanking.Q4);
-		JsonGenerator generator = mock(JsonGenerator.class);
-
-		this.test.serialize(generator, null);
-
-		verify(generator).writeStartObject();
-		verify(generator).writeNumberField(eq("impactFactor"), eq(458.256f));
-		verify(generator).writeNumberField(eq("referenceYear"), eq(2022));
-		verify(generator).writeStringField(eq("scimagoQIndex"), eq("Q3"));
-		verify(generator).writeStringField(eq("wosQIndex"), eq("Q4"));
-		verify(generator).writeEndObject();
-		verifyNoMoreInteractions(generator);
 	}
 
 }

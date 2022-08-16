@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.service.publication.type;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -142,7 +142,7 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	 * @param address the geographical location of the organization that has published the document. It is usually a city, country pair.
 	 */
 	public void updateMiscDocument(int pubId,
-			String title, PublicationType type, Date date, String abstractText, String keywords,
+			String title, PublicationType type, LocalDate date, String abstractText, String keywords,
 			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String number, String howPublished, String miscDocumentType,

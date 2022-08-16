@@ -19,7 +19,6 @@ package fr.ciadlab.labmanager.io.json;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -490,8 +489,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 						if (existing.isEmpty()) {
 							membership.setPerson(targetPerson);
 							membership.setResearchOrganization(targetOrganization);
-							targetPerson.getResearchOrganizations().add(membership);
-							targetOrganization.getMembers().add(membership);
+							targetPerson.getMemberships().add(membership);
+							targetOrganization.getMemberships().add(membership);
 							if (!isFake()) {
 								membership = this.membershipRepository.save(membership);
 							}
@@ -771,8 +770,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final int year = publication.getPublicationYear();
 			if (year != 0) {
 				final LocalDate localDate = LocalDate.of(year, month, 1);
-				final Date dt = Date.valueOf(localDate);
-				publication.setPublicationDate(dt);
+				publication.setPublicationDate(localDate);
 			}
 		}
 

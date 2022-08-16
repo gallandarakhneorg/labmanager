@@ -18,11 +18,17 @@ package fr.ciadlab.labmanager.controller;
 
 import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.util.Random;
 
 import javax.servlet.http.HttpServletResponse;
 
+import fr.ciadlab.labmanager.Constants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** Abstract implementation of a JEE Controller.
  * 
@@ -34,15 +40,13 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractController {
 
-	/** Default name of organization that is assumed by the author controller.
-	 */
-	public static final String DEFAULT_ORGANIZATION = "CIAD"; //$NON-NLS-1$
-
-	/** Logger of the service. It is lazy loaded.
-	 */
 	private Logger logger;
 
-	private final String majoutEndpointName;
+	private final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
+
+	private final Random random = new Random();
+
+	private final String majorEndpointName;
 
 	/** Constructor.
 	 *
@@ -50,7 +54,7 @@ public abstract class AbstractController {
 	 *     messages.
 	 */
 	public AbstractController(String defaultEndpointName) {
-		this.majoutEndpointName = defaultEndpointName;
+		this.majorEndpointName = defaultEndpointName;
 	}
 
 	/** Replies the logger of this service.
@@ -89,7 +93,7 @@ public abstract class AbstractController {
 	protected void redirectSuccess(HttpServletResponse response, String successReason, String... additionalParameters) throws Exception {
 		final StringBuilder msg = new StringBuilder();
 		msg.append("/SpringRestHibernate/"); //$NON-NLS-1$
-		msg.append(this.majoutEndpointName);
+		msg.append(this.majorEndpointName);
 		msg.append("?success=true&message="); //$NON-NLS-1$
 		msg.append(URLEncoder.encode(successReason, Charset.defaultCharset()));
 		for (int i = 0; i < additionalParameters.length; i += 2) {
@@ -108,7 +112,7 @@ public abstract class AbstractController {
 	 * @throws Exception if the redirection has failed.
 	 */
 	protected void redirectCreated(HttpServletResponse response, String successReason) throws Exception {
-		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?created=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majorEndpointName + "?created=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(successReason, Charset.defaultCharset()));
 	}
 
@@ -119,7 +123,7 @@ public abstract class AbstractController {
 	 * @throws Exception if the redirection has failed.
 	 */
 	protected void redirectUpdated(HttpServletResponse response, String successReason) throws Exception {
-		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?updated=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majorEndpointName + "?updated=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(successReason, Charset.defaultCharset()));
 	}
 
@@ -130,7 +134,7 @@ public abstract class AbstractController {
 	 * @throws Exception if the redirection has failed.
 	 */
 	protected void redirectDeleted(HttpServletResponse response, String successReason) throws Exception {
-		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?deleted=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majorEndpointName + "?deleted=true&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(successReason, Charset.defaultCharset()));
 	}
 
@@ -142,7 +146,7 @@ public abstract class AbstractController {
 	 */
 	protected void redirectError(HttpServletResponse response, Throwable exception) throws Exception {
 		getLogger().error(exception.getLocalizedMessage(), exception);
-		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?error=1&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majorEndpointName + "?error=1&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(exception.getLocalizedMessage(), Charset.defaultCharset()));
 	}
 
@@ -154,8 +158,43 @@ public abstract class AbstractController {
 	 */
 	protected void redirectError(HttpServletResponse response, String errorMessage) throws Exception {
 		getLogger().error(errorMessage);
-		response.sendRedirect("/SpringRestHibernate/" + this.majoutEndpointName + "?error=1&message=" //$NON-NLS-1$ //$NON-NLS-2$
+		response.sendRedirect("/SpringRestHibernate/" + this.majorEndpointName + "?error=1&message=" //$NON-NLS-1$ //$NON-NLS-2$
 				+ URLEncoder.encode(errorMessage, Charset.defaultCharset()));
+	}
+
+	/** Generate an UUID.
+	 *
+	 * @return the UUID.
+	 */
+	protected Integer generateUUID() {
+		return Integer.valueOf(Math.abs(this.random.nextInt()));
+	}
+
+	/** Add the URL to model that permits to retrieve the publication list.
+	 *
+	 * @param modelAndView the model-view to configure for redirection.
+	 * @param organization the identifier of the organization for which the publications must be exported.
+	 * @param author the identifier of the author for who the publications must be exported.
+	 * @param journal the identifier of the journal for which the publications must be exported.
+	 */
+	protected void addUrlToPublicationListEndPoint(ModelAndView modelAndView, Integer organization, Integer author,
+			Integer journal) {
+		final StringBuilder path = new StringBuilder();
+		path.append("/").append(Constants.DEFAULT_SERVER_NAME).append("/").append(Constants.EXPORT_JSON_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
+		UriBuilder uriBuilder = this.uriBuilderFactory.builder();
+		uriBuilder = uriBuilder.path(path.toString());
+		uriBuilder = uriBuilder.queryParam(Constants.FORAJAX_ENDPOINT_PARAMETER, Boolean.TRUE);
+		if (organization != null && organization.intValue() != 0) {
+			uriBuilder = uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, organization);
+		}
+		if (author != null && author.intValue() != 0) {
+			uriBuilder = uriBuilder.queryParam(Constants.AUTHOR_ENDPOINT_PARAMETER, author);
+		}
+		if (journal != null && journal.intValue() != 0) {
+			uriBuilder = uriBuilder.queryParam(Constants.JOURNAL_ENDPOINT_PARAMETER, journal);
+		}
+		final String url = uriBuilder.build().toString();
+		modelAndView.addObject("url", url); //$NON-NLS-1$
 	}
 
 }

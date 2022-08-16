@@ -29,15 +29,11 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializable;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
-import fr.ciadlab.labmanager.io.json.JsonUtils;
-import fr.ciadlab.labmanager.utils.AttributeProvider;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.hibernate.annotations.ColumnDefault;
 
 /** Histoty of the quality indicators for a journal.
@@ -50,7 +46,7 @@ import org.hibernate.annotations.ColumnDefault;
  */
 @Entity
 @Table(name = "JournalAnnualIndicators")
-public class JournalQualityAnnualIndicators implements Serializable, JsonSerializable, AttributeProvider {
+public class JournalQualityAnnualIndicators implements Serializable, AttributeProvider {
 
 	private static final long serialVersionUID = -3671513001937890573L;
 
@@ -59,12 +55,14 @@ public class JournalQualityAnnualIndicators implements Serializable, JsonSeriali
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
+	@JsonIgnore
 	private int id;
 
 	/** Year for the entry.
 	 */
 	@Column
 	@ColumnDefault("0")
+	@JsonIgnore
 	private int referenceYear;
 
 	/** Scimargo Q-Index.
@@ -170,21 +168,6 @@ public class JournalQualityAnnualIndicators implements Serializable, JsonSeriali
 		if (getReferenceYear() > 0) {
 			consumer.accept("referenceYear", Integer.valueOf(getReferenceYear())); //$NON-NLS-1$
 		}
-	}
-
-	@Override
-	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
-		generator.writeStartObject();
-		forEachAttribute((name, value) -> {
-			JsonUtils.writeField(generator, name, value);
-		});
-		generator.writeEndObject();
-	}
-
-	@Override
-	public void serializeWithType(JsonGenerator generator, SerializerProvider serializers, TypeSerializer typeSer)
-			throws IOException {
-		serialize(generator, serializers);
 	}
 
 	/** Replies the year for this history entry.

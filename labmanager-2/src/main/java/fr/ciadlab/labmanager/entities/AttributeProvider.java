@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.utils;
+package fr.ciadlab.labmanager.entities;
 
 import java.io.IOException;
 

@@ -16,26 +16,32 @@
 
 package fr.ciadlab.labmanager.io.json;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
-
-import javax.json.JsonObject;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import fr.ciadlab.labmanager.entities.AttributeProvider;
+import fr.ciadlab.labmanager.entities.IdentifiableEntity;
+import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
+import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
+import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator.CachedGeneratorCreator;
+import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator.CachedGeneratorCreator1;
 import org.assertj.core.util.Arrays;
 import org.junit.jupiter.api.Test;
 
@@ -247,7 +253,163 @@ public class JsonUtilsTest {
 	public void writeValue_null() throws IOException {
 		JsonGenerator generator = mock(JsonGenerator.class);
 		JsonUtils.writeValue(generator, null);
+		verify(generator, times(1)).writeNull();
+		verifyNoMoreInteractions(generator);
+	}
+
+	@Test
+	public void writeObjectRef_null() throws IOException {
+		JsonGenerator generator = mock(JsonGenerator.class);
+		JsonUtils.writeObjectRef(generator, null);
+		verify(generator, times(1)).writeNull();
+		verifyNoMoreInteractions(generator);
+	}
+
+	@Test
+	public void writeObjectRef_obj() throws IOException {
+		IdentifiableEntity obj = mock(IdentifiableEntity.class);
+		when(obj.getId()).thenReturn(14567);
+		JsonGenerator generator = mock(JsonGenerator.class);
+		JsonUtils.writeObjectRef(generator, obj);
+		verify(generator, times(1)).writeStartObject();
+		verify(generator, times(1)).writeNumberField(eq("@id"), eq(14567));
+		verify(generator, times(1)).writeStringField(eq("@type@"), any());
+		verify(generator, times(1)).writeEndObject();
+		verifyNoMoreInteractions(generator);
+	}
+
+	@Test
+	public void writeObjectRefField_null() throws IOException {
+		JsonGenerator generator = mock(JsonGenerator.class);
+		JsonUtils.writeObjectRefField(generator, "xyz", null);
+		verify(generator, times(1)).writeNullField(eq("xyz"));
+		verifyNoMoreInteractions(generator);
+	}
+
+	@Test
+	public void writeObjectRefField_obj() throws IOException {
+		IdentifiableEntity obj = mock(IdentifiableEntity.class);
+		when(obj.getId()).thenReturn(14567);
+		JsonGenerator generator = mock(JsonGenerator.class);
+		JsonUtils.writeObjectRefField(generator, "xyz", obj);
+		verify(generator, times(1)).writeObjectFieldStart(eq("xyz"));
+		verify(generator, times(1)).writeNumberField(eq("@id"), eq(14567));
+		verify(generator, times(1)).writeStringField(eq("@type@"), any());
+		verify(generator, times(1)).writeEndObject();
+		verifyNoMoreInteractions(generator);
+	}
+
+	@Test
+	public void writeObjectAndAttributes() throws Exception {
+		AttributeProvider obj = mock(AttributeProvider.class);
+		JsonGenerator generator = mock(JsonGenerator.class);
+
+		JsonUtils.writeObjectAndAttributes(generator, obj);
+
+		verify(obj, times(1)).forEachAttribute(isNotNull());
+		verifyNoMoreInteractions(obj);
+
+		verify(generator, times(1)).writeStartObject();
+		verify(generator, times(1)).writeEndObject();
+		verifyNoMoreInteractions(generator);
+	}
+
+	@Test
+	public void cache() {
+		assertNotNull(JsonUtils.cache(mock(JsonGenerator.class)));
+	}
+
+	@Test
+	public void cache_writeReferenceOrObject_firstCall() throws Exception {
+		IdentifiableEntity obj = mock(IdentifiableEntity.class);
+		when(obj.getId()).thenReturn(14567);
+		CachedGeneratorCreator creator = mock(CachedGeneratorCreator.class);
+		JsonGenerator generator = mock(JsonGenerator.class);
+		CachedGenerator cache = JsonUtils.cache(generator);
+
+		cache.writeReferenceOrObject(obj, creator);
+	
+		verify(creator, times(1)).create();
 		verifyNoInteractions(generator);
+	}
+
+	@Test
+	public void cache_writeReferenceOrObject_secondCall() throws Exception {
+		IdentifiableEntity obj = mock(IdentifiableEntity.class);
+		when(obj.getId()).thenReturn(14567);
+		CachedGeneratorCreator creator = mock(CachedGeneratorCreator.class);
+		JsonGenerator generator = mock(JsonGenerator.class);
+		CachedGenerator cache = JsonUtils.cache(generator);
+
+		cache.writeReferenceOrObject(obj, creator);
+		reset(creator);
+
+		cache.writeReferenceOrObject(obj, creator);
+	
+		verifyNoInteractions(creator);
+
+		verify(generator, times(1)).writeStartObject();
+		verify(generator, times(1)).writeNumberField(eq("@id"), eq(14567)); //$NON-NLS-1$
+		verify(generator, times(1)).writeStringField(eq("@type@"), any()); //$NON-NLS-1$
+		verify(generator, times(1)).writeEndObject();
+		verifyNoMoreInteractions(generator);
+	}
+
+	@Test
+	public void cache_writeReferenceOrObjectField_firstCall() throws Exception {
+		IdentifiableEntity obj = mock(IdentifiableEntity.class);
+		when(obj.getId()).thenReturn(14567);
+		CachedGeneratorCreator creator = mock(CachedGeneratorCreator.class);
+		JsonGenerator generator = mock(JsonGenerator.class);
+		CachedGenerator cache = JsonUtils.cache(generator);
+
+		cache.writeReferenceOrObjectField("xyz", obj, creator);
+	
+		verify(creator, times(1)).create();
+		
+		verify(generator, times(1)).writeFieldName(eq("xyz"));
+		verifyNoMoreInteractions(generator);
+	}
+
+	@Test
+	public void cache_writeReferenceOrObjectField_secondCall() throws Exception {
+		IdentifiableEntity obj = mock(IdentifiableEntity.class);
+		when(obj.getId()).thenReturn(14567);
+		CachedGeneratorCreator creator = mock(CachedGeneratorCreator.class);
+		JsonGenerator generator = mock(JsonGenerator.class);
+		CachedGenerator cache = JsonUtils.cache(generator);
+
+		cache.writeReferenceOrObjectField("abc", obj, creator);
+		reset(creator);
+		reset(generator);
+
+		cache.writeReferenceOrObjectField("xyz", obj, creator);
+	
+		verifyNoInteractions(creator);
+
+		verify(generator, times(1)).writeFieldName(eq("xyz"));
+		verify(generator, times(1)).writeStartObject();
+		verify(generator, times(1)).writeNumberField(eq("@id"), eq(14567)); //$NON-NLS-1$
+		verify(generator, times(1)).writeStringField(eq("@type@"), any()); //$NON-NLS-1$
+		verify(generator, times(1)).writeEndObject();
+		verifyNoMoreInteractions(generator);
+	}
+
+	@Test
+	public void cache_writePublicationAndAttributes() throws Exception {
+		Publication publication = mock(Publication.class);
+		CachedGeneratorCreator1<Journal> creator = mock(CachedGeneratorCreator1.class);
+		JsonGenerator generator = mock(JsonGenerator.class);
+		CachedGenerator cache = JsonUtils.cache(generator);
+
+		cache.writePublicationAndAttributes(publication, creator);
+
+		verify(publication, times(1)).forEachAttribute(isNotNull());
+		verifyNoMoreInteractions(publication);
+
+		verify(generator, times(1)).writeStartObject();
+		verify(generator, times(1)).writeEndObject();
+		verifyNoMoreInteractions(generator);
 	}
 
 	public static class FakeObject {

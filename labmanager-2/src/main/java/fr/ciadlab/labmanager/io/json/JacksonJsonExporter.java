@@ -16,10 +16,16 @@
 
 package fr.ciadlab.labmanager.io.json;
 
+import java.io.IOException;
+
+import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
@@ -51,10 +57,20 @@ public class JacksonJsonExporter implements JsonExporter {
 	}
 
 	@Override
-	public String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
+	public String exportPublicationsWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
+			String... rootKeys) throws Exception {
 		final ObjectMapper mapper = new ObjectMapper();
 		final JsonNode node = exportPublicationsAsTree(publications, configurator, mapper);
-		return mapper.writer().writeValueAsString(node);
+		JsonNode root = node;
+		if (rootKeys != null) {
+			for (int i = rootKeys.length - 1; i >= 0; --i) {
+				final String rkey = rootKeys[i];
+				final ObjectNode onode = mapper.createObjectNode();
+				onode.set(rkey, root);
+				root = onode; 
+			}
+		}
+		return mapper.writer().writeValueAsString(root);
 	}
 
 	/** Export the publications into a JSON tree.
@@ -71,16 +87,16 @@ public class JacksonJsonExporter implements JsonExporter {
 			return mapper.nullNode();
 		}
 		final ArrayNode array = mapper.createArrayNode();
+		final boolean extraButtons = configurator.isDownloadButtons() || configurator.isExportButtons() || configurator.isEditButtons()
+				|| configurator.isDeleteButtons();
 		for (final Publication publication : publications) {
-			ObjectNode entryNode = null;
-			final JsonNode node = exportPublication(publication, configurator, mapper);
-			if (node != null) {
-				entryNode = mapper.createObjectNode();
-				entryNode.set("data", node); //$NON-NLS-1$
+			final ObjectNode entryNode = exportPublication(publication, configurator, mapper);
+			// Make aliasing
+			if (entryNode.has("publicationYear")) { //$NON-NLS-1$
+				entryNode.set("year", entryNode.get("publicationYear").deepCopy()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			if (configurator.isDownloadButtons() || configurator.isExportButtons() || configurator.isEditButtons()
-					|| configurator.isDeleteButtons()) {
-				final ObjectNode htmlNodes = mapper.createObjectNode();
+			//
+			if (extraButtons) {
 				if (configurator.isDownloadButtons()) {
 					final String button0 = this.htmlPageExporter.getButtonToDownloadPublicationPDF(publication.getPathToDownloadablePDF());
 					final String button1 = this.htmlPageExporter.getButtonToDownloadPublicationAwardCertificate(publication.getPathToDownloadableAwardCertificate());
@@ -91,9 +107,7 @@ public class JacksonJsonExporter implements JsonExporter {
 					if (!Strings.isNullOrEmpty(button1)) {
 						array0.add(mapper.valueToTree(button1));
 					}
-					if (!array0.isEmpty()) {
-						htmlNodes.set("download", array0); //$NON-NLS-1$
-					}
+					entryNode.set("htmlDownloads", array0); //$NON-NLS-1$
 				}
 				if (configurator.isExportButtons()) {
 					final String button0 = this.htmlPageExporter.getButtonToExportPublicationToBibTeX(publication.getId());
@@ -109,32 +123,30 @@ public class JacksonJsonExporter implements JsonExporter {
 					if (!Strings.isNullOrEmpty(button2)) {
 						array0.add(mapper.valueToTree(button2));
 					}
-					if (!array0.isEmpty()) {
-						htmlNodes.set("export", array0); //$NON-NLS-1$
-					}
+					entryNode.set("htmlExports", array0); //$NON-NLS-1$
 				}
-				if (configurator.isEditButtons()) {
-					final String button = this.htmlPageExporter.getButtonToEditPublication(publication.getId());
-					if (!Strings.isNullOrEmpty(button)) {
-						htmlNodes.set("edit", mapper.valueToTree(button)); //$NON-NLS-1$
+				if (configurator.isEditButtons() || configurator.isDeleteButtons()) {
+					final ArrayNode links = mapper.createArrayNode();
+					if (configurator.isEditButtons()) {
+						final String editButton = this.htmlPageExporter.getButtonToEditPublication(publication.getId());
+						if (!Strings.isNullOrEmpty(editButton)) {
+							final JsonNode editNode = mapper.valueToTree(editButton);
+							links.add(editNode.deepCopy());
+							entryNode.set("htmlEdit", editNode); //$NON-NLS-1$
+						}
 					}
-				}
-				if (configurator.isDeleteButtons()) {
-					final String button = this.htmlPageExporter.getButtonToDeletePublication(publication.getId());
-					if (!Strings.isNullOrEmpty(button)) {
-						htmlNodes.set("delete", mapper.valueToTree(button)); //$NON-NLS-1$
+					if (configurator.isDeleteButtons()) {
+						final String deleteButton = this.htmlPageExporter.getButtonToDeletePublication(publication.getId());
+						if (!Strings.isNullOrEmpty(deleteButton)) {
+							final JsonNode deleteNode = mapper.valueToTree(deleteButton);
+							links.add(deleteNode.deepCopy());
+							entryNode.set("htmlDelete", deleteNode); //$NON-NLS-1$
+						}
 					}
-				}
-				if (!htmlNodes.isEmpty()) {
-					if (entryNode == null) {
-						entryNode = mapper.createObjectNode();
-					}
-					entryNode.set("html", htmlNodes); //$NON-NLS-1$
+					entryNode.set("htmlLinks", links); //$NON-NLS-1$
 				}
 			}
-			if (entryNode != null) {
-				array.add(entryNode);
-			}
+			array.add(entryNode);
 		}
 		return array;
 	}
@@ -148,9 +160,27 @@ public class JacksonJsonExporter implements JsonExporter {
 	 * @throws Exception if the publication cannot be converted.
 	 */
 	@SuppressWarnings("static-method")
-	public JsonNode exportPublication(Publication publication, ExporterConfigurator configurator, ObjectMapper mapper) throws Exception  {
+	public ObjectNode exportPublication(Publication publication, ExporterConfigurator configurator, ObjectMapper mapper) throws Exception  {
 		assert publication != null;
 		return mapper.valueToTree(publication);
+	}
+
+	/** Serializer of {@code IdentifiableEntity} that serializes the identifiers.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.0.0
+	 */
+	protected static class IdentifierSerializer extends JsonSerializer<IdentifiableEntity> {
+
+		@Override
+		public void serialize(IdentifiableEntity value, JsonGenerator generator, SerializerProvider serializers)
+				throws IOException {
+			generator.writeNumber(value.getId());
+		}
+
 	}
 
 }

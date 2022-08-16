@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
@@ -50,10 +49,12 @@ import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
-import fr.ciadlab.labmanager.utils.AttributeProvider;
+import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;
@@ -72,7 +73,7 @@ import org.hibernate.annotations.PolymorphismType;
 @Table(name = "Publications")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Polymorphism(type = PolymorphismType.IMPLICIT)
-public abstract class Publication implements Serializable, Comparable<Publication>, JsonSerializable, AttributeProvider {
+public abstract class Publication implements Serializable, JsonSerializable, Comparable<Publication>, AttributeProvider, IdentifiableEntity {
 
 	private static final long serialVersionUID = -5980560007123809890L;
 
@@ -113,7 +114,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 * @see #publicationYear
 	 */
 	@Column
-	private Date publicationDate;
+	private LocalDate publicationDate;
 
 	/** Year of publication.
 	 */
@@ -223,7 +224,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 * @param language the major language used for writing the publication. It cannot be {@code null}.
 	 */
 	public Publication(PublicationType type, String title, String abstractText, String keywords,
-			Date date, String isbn, String issn,
+			LocalDate date, String isbn, String issn,
 			String doi, String halId, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language) {
 		assert type != null;
@@ -358,6 +359,9 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
+		if (getId() != 0) {
+			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+		}
 		if (getPublicationYear() > 0) {
 			consumer.accept("publicationYear", Integer.valueOf(getPublicationYear())); //$NON-NLS-1$
 		}
@@ -411,29 +415,20 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	@Override
 	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
 		generator.writeStartObject();
-		generator.writeNumberField("id", getId()); //$NON-NLS-1$
-		forEachAttribute((name, value) -> {
-			JsonUtils.writeField(generator, name, value);
+		forEachAttribute((attrName, attrValue) -> {
+			JsonUtils.writeField(generator, attrName, attrValue);
 		});
-		if (!getAuthors().isEmpty()) {
-			generator.writeArrayFieldStart("authors"); //$NON-NLS-1$
-			for (final Person author : getAuthors()) {
-				generator.writeNumber(author.getId());
-			}
-			generator.writeEndArray();
+		//
+		final CachedGenerator persons = JsonUtils.cache(generator);
+		//
+		generator.writeArrayFieldStart("authors"); //$NON-NLS-1$
+		for (final Person author : getAuthors()) {
+			persons.writeReferenceOrObject(author, () -> {
+				JsonUtils.writeObjectAndAttributes(generator, author);
+			});
 		}
-		if (!getAuthorships().isEmpty()) {
-			generator.writeArrayFieldStart("authorships"); //$NON-NLS-1$
-			for (final Authorship authorship : getAuthorships()) {
-				generator.writeStartObject();
-				generator.writeNumberField("authorRank", authorship.getAuthorRank()); //$NON-NLS-1$
-				if (authorship.getPerson() !=null) {
-					generator.writeNumberField("person", authorship.getPerson().getId()); //$NON-NLS-1$
-				}
-				generator.writeEndObject();
-			}
-			generator.writeEndArray();
-		}
+		generator.writeEndArray();
+		//
 		generator.writeEndObject();
 	}
 
@@ -508,11 +503,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 		this.authorships.remove(authorship);
 	}
 
-	/** Replies the identifier of the publication. This identifier is useful only from the database point of view. Do not use this
-	 * identifier in your Java code.
-	 *
-	 * @return the identifier
-	 */
+	@Override
 	public int getId() {
 		return this.id;
 	}
@@ -646,7 +637,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 *
 	 * @return the date, or {@code null}.
 	 */
-	public Date getPublicationDate() {
+	public LocalDate getPublicationDate() {
 		return this.publicationDate;
 	}
 
@@ -654,7 +645,7 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 *
 	 * @param date the date, or {@code null}.
 	 */
-	public void setPublicationDate(Date date) {
+	public void setPublicationDate(LocalDate date) {
 		this.publicationDate = date;
 		resetPublicationYear();
 	}
@@ -664,12 +655,15 @@ public abstract class Publication implements Serializable, Comparable<Publicatio
 	 * @param date the date, or {@code null}.
 	 */
 	public final void setPublicationDate(String date) {
-		setPublicationDate(Date.valueOf(date));
+		if (Strings.isNullOrEmpty(date)) {
+			throw new IllegalArgumentException();
+		}
+		setPublicationDate(LocalDate.parse(date));
 	}
 
 	private void resetPublicationYear() {
 		if (this.publicationDate != null) {
-			this.publicationYear = this.publicationDate.toLocalDate().getYear();
+			this.publicationYear = this.publicationDate.getYear();
 		} else {
 			this.publicationYear = getDefaultPublicationYear();
 		}

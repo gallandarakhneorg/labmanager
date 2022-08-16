@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.service.publication;
 
-import java.sql.Date;
+import java.time.LocalDate;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
@@ -53,7 +53,7 @@ public interface PrePublicationFactory {
 	 * @return the fake publication.
 	 */
 	Publication createPrePublication(PublicationType type, String title, String abstractText, String keywords,
-			Date date, String isbn, String issn,
+			LocalDate date, String isbn, String issn,
 			String doi, String halId, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language);
 

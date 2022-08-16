@@ -37,16 +37,16 @@
             	<th:block th:utext="${publication.wherePublishedShortDescription}"></th:block>
             </td>
             <td>
-            	<a th:href="@{/exportBibTeX(id=${publication.id})}">
+            	<a th:href="@{/exportBibTeX(id=${publication.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${publication.title})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/exportOpenDocumentText(id=${publication.id})}">
+            	<a th:href="@{/exportOpenDocumentText(id=${publication.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/odt_file.svg}" th:title="#{html.GetOdtPublicationsFor(${publication.title})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/exportHtml(id=${publication.id})}">
+            	<a th:href="@{/exportHtml(id=${publication.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${publication.title})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/exportJson(id=${publication.id})}">
+            	<a th:href="@{/exportJson(id=${publication.id},inAttachment=false)}">
             		<img th:src="@{/images/icon/json_file.svg}" th:title="#{html.GetJsonFor(${publication.title})}" style="max-width:24px;"></img>
             	</a>
             </td>

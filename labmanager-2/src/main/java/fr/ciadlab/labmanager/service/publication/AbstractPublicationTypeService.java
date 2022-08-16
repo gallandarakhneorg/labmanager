@@ -17,7 +17,7 @@
 package fr.ciadlab.labmanager.service.publication;
 
 import java.net.URL;
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Base64;
 
 import com.google.common.base.Strings;
@@ -72,7 +72,7 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 	 *     the dedicated folder for PDF files.
 	 * @param pathToVideo the path that allows to download the video of the publication.
 	 */
-	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, Date date,
+	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, LocalDate date,
 			String abstractText, String keywords, String doi, String isbn, String issn, URL dblpUrl,
 			URL extraUrl, PublicationLanguage language, String pdfContent, String awardContent,
 			URL pathToVideo) {
@@ -103,7 +103,7 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 	 *     the dedicated folder for PDF files.
 	 * @param pathToVideo the path that allows to download the video of the publication.
 	 */
-	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, Date date,
+	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, LocalDate date,
 			String abstractText, String keywords, String doi, String isbn, String issn, String dblpUrl,
 			String extraUrl, PublicationLanguage language, String pdfContent, String awardContent,
 			String pathToVideo) {

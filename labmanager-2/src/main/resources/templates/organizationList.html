@@ -48,13 +48,13 @@
                 </th:block>
             </td>
             <td>
-            	<a th:href="@{/exportBibTeX(organization=${organization.id})}">
+            	<a th:href="@{/exportBibTeX(organization=${organization.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/exportOpenDocumentText(organization=${organization.id})}">
+            	<a th:href="@{/exportOpenDocumentText(organization=${organization.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/odt_file.svg}" th:title="#{html.GetOdtPublicationsFor(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/exportHtml(organization=${organization.id})}">
+            	<a th:href="@{/exportHtml(organization=${organization.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
             	</a>
             	<a th:href="@{/getOrganizationData(id=${organization.id})}">

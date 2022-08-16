@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** REST Controller for research organizations.
  * 
@@ -52,7 +53,8 @@ public class ResearchOrganizationController extends AbstractController {
 	 *
 	 * @param organizationService the research organizationservice.
 	 */
-	public ResearchOrganizationController(@Autowired ResearchOrganizationService organizationService) {
+	public ResearchOrganizationController(
+			@Autowired ResearchOrganizationService organizationService) {
 		super(DEFAULT_ENDPOINT);
 		this.organizationService = organizationService;
 	}
@@ -65,6 +67,7 @@ public class ResearchOrganizationController extends AbstractController {
 	public ModelAndView showOrganizationList() {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("organizations", this.organizationService.getAllResearchOrganizations()); //$NON-NLS-1$
+		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
 		return modelAndView;
 	}
 

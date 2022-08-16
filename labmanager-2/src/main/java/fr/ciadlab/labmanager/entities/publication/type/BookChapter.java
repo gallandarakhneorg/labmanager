@@ -24,6 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
@@ -222,7 +223,9 @@ public class BookChapter extends Publication {
 			consumer.accept("publisher", getPublisher()); //$NON-NLS-1$
 		}
 	}
+
 	@Override
+	@JsonIgnore
 	public String getWherePublishedShortDescription() {
 		final StringBuilder buf = new StringBuilder();
 		buf.append(getBookTitle());

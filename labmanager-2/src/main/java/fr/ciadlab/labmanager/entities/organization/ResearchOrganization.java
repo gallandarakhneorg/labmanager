@@ -43,10 +43,12 @@ import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
-import fr.ciadlab.labmanager.utils.AttributeProvider;
+import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import org.arakhne.afc.util.CountryCode;
@@ -61,7 +63,7 @@ import org.arakhne.afc.util.CountryCode;
  */
 @Entity
 @Table(name = "ResearchOrgs")
-public class ResearchOrganization implements Serializable, Comparable<ResearchOrganization>, JsonSerializable, AttributeProvider {
+public class ResearchOrganization implements Serializable, JsonSerializable, Comparable<ResearchOrganization>, AttributeProvider, IdentifiableEntity {
 
 	/** Default country for research organizations.
 	 */
@@ -116,7 +118,7 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	/** Members of the organization.
 	 */
 	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	private Set<Membership> members = new HashSet<>();
+	private Set<Membership> memberships = new HashSet<>();
 
 	/** Reference to the super organization.
 	 */
@@ -142,9 +144,9 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 			ResearchOrganization superOrga, String acronym, String name, String description) {
 		this.id = id;
 		if (members == null) {
-			this.members = new HashSet<>();
+			this.memberships = new HashSet<>();
 		} else {
-			this.members = members;
+			this.memberships = members;
 		}
 		if (subOrgas == null) {
 			this.subOrganizations = new HashSet<>();
@@ -229,6 +231,9 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
+		if (getId() != 0) {
+			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getAcronym())) {
 			consumer.accept("acronym", getAcronym()); //$NON-NLS-1$
 		}
@@ -252,20 +257,38 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	@Override
 	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
 		generator.writeStartObject();
-		generator.writeNumberField("id", getId()); //$NON-NLS-1$
-		forEachAttribute((name, value) -> {
-			JsonUtils.writeField(generator, name, value);
+		forEachAttribute((attrName, attrValue) -> {
+			JsonUtils.writeField(generator, attrName, attrValue);
 		});
-		if (getSuperOrganization() != null) {
-			generator.writeNumberField("superOrganization", getSuperOrganization().getId()); //$NON-NLS-1$
+		//
+		final CachedGenerator organizations = JsonUtils.cache(generator);
+		final CachedGenerator persons = JsonUtils.cache(generator);
+		//
+		organizations.writeReferenceOrObjectField("superOrganization", getSuperOrganization(), () -> { //$NON-NLS-1$
+			JsonUtils.writeObjectAndAttributes(generator, getSuperOrganization());
+		});
+		//
+		generator.writeArrayFieldStart("subOrganizations"); //$NON-NLS-1$
+		for (final ResearchOrganization suborga : getSubOrganizations()) {
+			organizations.writeReferenceOrObject(suborga, () -> {
+				JsonUtils.writeObjectAndAttributes(generator, suborga);
+			});
 		}
-		if (!getSubOrganizations().isEmpty()) {
-			generator.writeArrayFieldStart("subOrganizations"); //$NON-NLS-1$
-			for (final ResearchOrganization suborga : getSubOrganizations()) {
-				generator.writeNumber(suborga.getId());
-			}
-			generator.writeEndArray();
+		generator.writeEndArray();
+		//
+		generator.writeArrayFieldStart("memberships"); //$NON-NLS-1$
+		for (final Membership membership : getMemberships()) {
+			generator.writeStartObject();
+			membership.forEachAttribute((attrName, attrValue) -> {
+				JsonUtils.writeField(generator, attrName, attrValue);
+			});
+			persons.writeReferenceOrObjectField("person", membership.getPerson(), () -> { //$NON-NLS-1$
+				JsonUtils.writeObjectAndAttributes(generator, membership.getPerson());
+			});
+			generator.writeEndObject();
 		}
+		generator.writeEndArray();
+		//
 		generator.writeEndObject();
 	}
 
@@ -275,10 +298,7 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 		serialize(generator, serializers);
 	}
 
-	/** Replies the identifier of the research organization.
-	 *
-	 * @return the identifier.
-	 */
+	@Override
 	public int getId() {
 		return this.id;
 	}
@@ -295,19 +315,19 @@ public class ResearchOrganization implements Serializable, Comparable<ResearchOr
 	 *
 	 * @return the members.
 	 */
-	public Set<Membership> getMembers() {
-		return this.members;
+	public Set<Membership> getMemberships() {
+		return this.memberships;
 	}
 
 	/** Change the members of the organization.
 	 *
 	 * @param members the members.
 	 */
-	public void setMembers(Set<Membership> members) {
+	public void setMemberships(Set<Membership> members) {
 		if (members == null) {
-			this.members = new HashSet<>();
+			this.memberships = new HashSet<>();
 		} else {
-			this.members = members;
+			this.memberships = members;
 		}
 	}
 

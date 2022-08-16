@@ -28,6 +28,10 @@ spring:
               create-target: schema-derby-gen.sql
               create-source: metadata
 
+  jackson:
+    serialization:
+      indent-output: true
+
 management:
   endpoint:
     logfile:

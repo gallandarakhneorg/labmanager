@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.service.publication.type;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -148,7 +148,7 @@ public class BookService extends AbstractPublicationTypeService {
 	 * @param address the geographical location of the event, usually a city and a country.
 	 */
 	public void updateBook(int pubId,
-			String title, PublicationType type, Date date, String abstractText, String keywords,
+			String title, PublicationType type, LocalDate date, String abstractText, String keywords,
 			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, String edition, String editors,

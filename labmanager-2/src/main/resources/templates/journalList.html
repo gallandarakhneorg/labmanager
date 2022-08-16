@@ -55,13 +55,13 @@
                 <th:block th:utext="${journal.publishedPapers.size}"></th:block>
             </td>
             <td>
-            	<a th:href="@{/exportBibTeX(journal=${journal.id})}">
+            	<a th:href="@{/exportBibTeX(journal=${journal.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${journal.journalName})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/exportOpenDocumentText(journal=${journal.id})}">
+            	<a th:href="@{/exportOpenDocumentText(journal=${journal.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/odt_file.svg}" th:title="#{html.GetOdtPublicationsFor(${journal.journalName})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/exportHtml(journal=${journal.id})}">
+            	<a th:href="@{/exportHtml(journal=${journal.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${journal.journalName})}" style="max-width:24px;"></img>
             	</a>
             	<a th:href="@{/getJournalData(id=${journal.id})}">

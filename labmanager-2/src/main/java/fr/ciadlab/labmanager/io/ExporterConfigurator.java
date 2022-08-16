@@ -314,7 +314,7 @@ public class ExporterConfigurator {
 				return ExportedAuthorStatus.SELECTED_PERSON;
 			}
 			ExportedAuthorStatus status = ExportedAuthorStatus.OTHER;
-			for (final Membership membership : person.getResearchOrganizations()) {
+			for (final Membership membership : person.getMemberships()) {
 				if (isValidPeriod(membership, year)
 						&& (this.organizationSelector == null || this.organizationSelector.test(membership.getResearchOrganization()))) {
 					if (isResearcher(membership)) {

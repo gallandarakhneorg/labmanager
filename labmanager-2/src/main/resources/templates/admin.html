@@ -32,18 +32,19 @@
 
       <h2 th:utext="#{html.PublicationManagement}"></h2>
 
-      <h3>Journals</h3>
+      <h3 th:utext="#{html.Journals}"></h3>
         <ul>
       	  <li><a th:href="@{/journalList}"
       	         th:utext="#{html.JournalsList}"></a></li>
       	  <li>Update journals</li>
         </ul>
 
-      <h3>List</h3>
+      <h3 th:utext="#{html.PublicationList}">List</h3>
         <ul>
       	  <li><a th:href="@{/publicationList}"
-      	       th:utext="#{html.PublicationList}"></a></li>
-      	  <li>Publication stats</li>
+      	       th:utext="#{html.BackPublicationList}"></a></li>
+      	  <li><a th:href="@{/showPublications}"
+      	       th:utext="#{html.FrontPublicationList}"></a></li>
         </ul>
 
       <h3>Update</h3>

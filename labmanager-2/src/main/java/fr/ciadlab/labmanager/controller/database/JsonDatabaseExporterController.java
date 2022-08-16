@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** This controller provides a tool for exporting the content of the database according
  * to a specific JSON format that is independent of any database engine.
@@ -45,9 +46,11 @@ public class JsonDatabaseExporterController extends AbstractController {
 
 	/** Constructor.
 	 *
+	 * @param uriBuilderFactory the factory of URI builders;
 	 * @param exporter the exporter.
 	 */
-	public JsonDatabaseExporterController(@Autowired DatabaseToJsonExporter exporter) {
+	public JsonDatabaseExporterController(
+			@Autowired DatabaseToJsonExporter exporter) {
 		super(DEFAULT_ENDPOINT);
 		this.exporter = exporter;
 	}

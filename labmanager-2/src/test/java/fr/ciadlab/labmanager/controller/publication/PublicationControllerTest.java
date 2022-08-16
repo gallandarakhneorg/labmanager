@@ -16,82 +16,33 @@
 
 package fr.ciadlab.labmanager.controller.publication;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.only;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.google.common.base.Strings;
-import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
-import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
-import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
-import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
-import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.service.publication.AuthorshipService;
 import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
-import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
-import fr.ciadlab.labmanager.service.publication.type.BookService;
-import fr.ciadlab.labmanager.service.publication.type.ConferencePaperService;
-import fr.ciadlab.labmanager.service.publication.type.JournalEditionService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
-import fr.ciadlab.labmanager.service.publication.type.KeyNoteService;
-import fr.ciadlab.labmanager.service.publication.type.MiscDocumentService;
-import fr.ciadlab.labmanager.service.publication.type.PatentService;
-import fr.ciadlab.labmanager.service.publication.type.ReportService;
-import fr.ciadlab.labmanager.service.publication.type.ThesisService;
 import fr.ciadlab.labmanager.utils.ViewFactory;
 import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import fr.ciadlab.labmanager.utils.names.DefaultPersonNameParser;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
-import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
-import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 /** Tests for {@link PublicationController}.
  * 
@@ -170,7 +121,7 @@ public class PublicationControllerTest {
 		lenient().when(pub.getType()).thenReturn(PublicationType.INTERNATIONAL_JOURNAL_PAPER);
 		lenient().when(pub.getTitle()).thenReturn("title" + id);
 		lenient().doReturn(mockAuthors(id)).when(pub).getAuthors();
-		lenient().when(pub.getPublicationDate()).thenReturn(Date.valueOf("2022-07-28"));
+		lenient().when(pub.getPublicationDate()).thenReturn(LocalDate.parse("2022-07-28"));
 		lenient().when(pub.getPublicationYear()).thenReturn(2022);
 		lenient().when(pub.getAbstractText()).thenReturn("abs" + id);
 		lenient().when(pub.getKeywords()).thenReturn("kw" + id);

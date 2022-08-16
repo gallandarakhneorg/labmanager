@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.service.publication.type;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -116,7 +116,7 @@ public class PatentService extends AbstractPublicationTypeService {
 	 * @param address the geographical address of the institution. Usually a city and a country.
 	 */
 	public void updatePatent(int pubId,
-			String title, PublicationType type, Date date, String abstractText, String keywords,
+			String title, PublicationType type, LocalDate date, String abstractText, String keywords,
 			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String number, String patentType, String institution, String address) {

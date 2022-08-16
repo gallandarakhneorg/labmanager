@@ -32,7 +32,7 @@ import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -170,7 +170,7 @@ public class MembershipServiceTest {
 			}
 			return Optional.empty();
 		});
-		lenient().when(this.personRepository.findDistinctByResearchOrganizationsResearchOrganizationId(anyInt())).then(it -> {
+		lenient().when(this.personRepository.findDistinctByMembershipsResearchOrganizationId(anyInt())).then(it -> {
 			final int orgaId = ((Integer) it.getArgument(0)).intValue();
 			switch (orgaId) {
 			case 1234:
@@ -180,7 +180,7 @@ public class MembershipServiceTest {
 			}
 			return Collections.emptySet();
 		});
-		lenient().when(this.personRepository.findDistinctByResearchOrganizationsResearchOrganizationNameAndResearchOrganizationsMemberStatus(anyString(), any())).then(it -> {
+		lenient().when(this.personRepository.findDistinctByMembershipsResearchOrganizationNameAndMembershipsMemberStatus(anyString(), any())).then(it -> {
 			final String orgaName = it.getArgument(0).toString();
 			final MemberStatus status = (MemberStatus) it.getArgument(1);
 			switch (orgaName) {
@@ -203,7 +203,7 @@ public class MembershipServiceTest {
 			}
 			return Collections.emptySet();
 		});
-		lenient().when(this.personRepository.findDistinctByResearchOrganizationsResearchOrganizationAcronymAndResearchOrganizationsMemberStatus(anyString(), any())).then(it -> {
+		lenient().when(this.personRepository.findDistinctByMembershipsResearchOrganizationAcronymAndMembershipsMemberStatus(anyString(), any())).then(it -> {
 			final String orgaAcro = it.getArgument(0).toString();
 			final MemberStatus status = (MemberStatus) it.getArgument(1);
 			switch (orgaAcro) {
@@ -397,8 +397,8 @@ public class MembershipServiceTest {
 
 	@Test
 	public void getOrganizationMembers_ResearchOrganizationMemberFilteringPredicate() {
-		when(this.o1.getMembers()).thenReturn(Sets.newHashSet(this.ms0, this.ms1));
-		when(this.o2.getMembers()).thenReturn(Sets.newHashSet(this.ms2, this.ms3));
+		when(this.o1.getMemberships()).thenReturn(Sets.newHashSet(this.ms0, this.ms1));
+		when(this.o2.getMemberships()).thenReturn(Sets.newHashSet(this.ms2, this.ms3));
 
 		final List<Membership> mbrs0 = this.test.getOrganizationMembers(null, null, null);
 		assertTrue(mbrs0.isEmpty());
@@ -440,8 +440,8 @@ public class MembershipServiceTest {
 
 	@Test
 	public void getOrganizationMembers_IntMemberFilteringPredicate() {
-		when(this.o1.getMembers()).thenReturn(Sets.newHashSet(this.ms0, this.ms1));
-		when(this.o2.getMembers()).thenReturn(Sets.newHashSet(this.ms2, this.ms3));
+		when(this.o1.getMemberships()).thenReturn(Sets.newHashSet(this.ms0, this.ms1));
+		when(this.o2.getMemberships()).thenReturn(Sets.newHashSet(this.ms2, this.ms3));
 
 		final List<Membership> mbrs0 = this.test.getOrganizationMembers(0, null, null);
 		assertTrue(mbrs0.isEmpty());
@@ -538,15 +538,15 @@ public class MembershipServiceTest {
 
 	@Test
 	public void addMembership() {
-		final boolean state = this.test.addMembership(2345, 34567, Date.valueOf("2022-07-12"), Date.valueOf("2022-07-28"), MemberStatus.ENGINEER);
+		final boolean state = this.test.addMembership(2345, 34567, LocalDate.parse("2022-07-12"), LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER);
 		assertTrue(state);
 
 		final ArgumentCaptor<Membership> arg = ArgumentCaptor.forClass(Membership.class);
 		verify(this.membershipRepository, only()).save(arg.capture());
 		final Membership actual = arg.getValue();
 		assertNotNull(actual);
-		assertEquals(Date.valueOf("2022-07-12"), actual.getMemberSinceWhen());
-		assertEquals(Date.valueOf("2022-07-28"), actual.getMemberToWhen());
+		assertEquals(LocalDate.parse("2022-07-12"), actual.getMemberSinceWhen());
+		assertEquals(LocalDate.parse("2022-07-28"), actual.getMemberToWhen());
 		assertSame(MemberStatus.ENGINEER, actual.getMemberStatus());
 		assertSame(this.p3, actual.getPerson());
 		assertSame(this.o2, actual.getResearchOrganization());
@@ -554,7 +554,7 @@ public class MembershipServiceTest {
 
 	@Test
 	public void updateMembership() {
-		final boolean r = this.test.updateMembership(1234, 23456, Date.valueOf("2019-07-12"), Date.valueOf("2019-07-28"), MemberStatus.MASTER_STUDENT);
+		final boolean r = this.test.updateMembership(1234, 23456, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"), MemberStatus.MASTER_STUDENT);
 		assertTrue(r);
 
 		final ArgumentCaptor<Membership> arg0 = ArgumentCaptor.forClass(Membership.class);
@@ -562,13 +562,13 @@ public class MembershipServiceTest {
 		final Membership actual0 = arg0.getValue();
 		assertSame(this.ms1, actual0);
 
-		final ArgumentCaptor<Date> arg1 = ArgumentCaptor.forClass(Date.class);
+		final ArgumentCaptor<LocalDate> arg1 = ArgumentCaptor.forClass(LocalDate.class);
 		verify(actual0).setMemberSinceWhen(arg1.capture());
-		assertEquals(Date.valueOf("2019-07-12"), arg1.getValue());
+		assertEquals(LocalDate.parse("2019-07-12"), arg1.getValue());
 
-		final ArgumentCaptor<Date> arg2 = ArgumentCaptor.forClass(Date.class);
+		final ArgumentCaptor<LocalDate> arg2 = ArgumentCaptor.forClass(LocalDate.class);
 		verify(actual0).setMemberToWhen(arg2.capture());
-		assertEquals(Date.valueOf("2019-07-28"), arg2.getValue());
+		assertEquals(LocalDate.parse("2019-07-28"), arg2.getValue());
 
 		final ArgumentCaptor<MemberStatus> arg3 = ArgumentCaptor.forClass(MemberStatus.class);
 		verify(actual0).setMemberStatus(arg3.capture());

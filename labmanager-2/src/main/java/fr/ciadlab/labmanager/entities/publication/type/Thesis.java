@@ -24,6 +24,7 @@ import javax.persistence.Entity;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -108,6 +109,7 @@ public class Thesis extends Publication {
 	}
 
 	@Override
+	@JsonIgnore
 	public String getWherePublishedShortDescription() {
 		final StringBuilder buf = new StringBuilder();
 		buf.append(getInstitution());

@@ -25,8 +25,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.SerializerProvider;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -148,15 +146,6 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 		if (!Strings.isNullOrEmpty(getSeries())) {
 			consumer.accept("series", getSeries()); //$NON-NLS-1$
 		}
-	}
-
-	@Override
-	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
-		super.serialize(generator, serializers);
-		if (getJournal() != null) {
-			generator.writeNumberField("journal", getJournal().getId()); //$NON-NLS-1$
-		}
-
 	}
 
 	@Override

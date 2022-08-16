@@ -129,7 +129,7 @@ public class PublicationService extends AbstractService {
 	 * @return the publications.
 	 */
 	public List<Publication> getPublicationsByOrganizationId(int identifier) {
-		return this.publicationRepository.findAllByAuthorshipsPersonResearchOrganizationsResearchOrganizationId(identifier);
+		return this.publicationRepository.findAllByAuthorshipsPersonMembershipsResearchOrganizationId(identifier);
 	}
 
 	/** Replies the publication with the given identifier.
@@ -332,14 +332,16 @@ public class PublicationService extends AbstractService {
 	 *
 	 * @param publications the array of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
+	 * @param rootKeys the sequence of keys for building the root of the tree. The exported data is then
+	 *     output into the last created node with the {@code rootKeys}.
 	 * @return the JSON description of the publications with the given identifiers.
 	 * @throws Exception if it is impossible to generate the JSON for the publications.
 	 */
-	public String exportJson(Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws Exception {
+	public String exportJson(Iterable<? extends Publication> publications, ExporterConfigurator configurator, String... rootKeys) throws Exception {
 		if (publications == null) {
 			return null;
 		}
-		return this.json.exportPublications(publications, configurator);
+		return this.json.exportPublicationsWithRootKeys(publications, configurator, rootKeys);
 	}
 
 }

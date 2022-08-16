@@ -144,13 +144,13 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 		when(m0.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		when(m0.isActiveIn(any(), any())).thenReturn(true);
 
-		when(a0.getResearchOrganizations()).thenReturn(Collections.singleton(m0));
+		when(a0.getMemberships()).thenReturn(Collections.singleton(m0));
 
 		Membership m1 = mock(Membership.class);
 		when(m1.getMemberStatus()).thenReturn(MemberStatus.PHD_STUDENT);
 		when(m1.isActiveIn(any(), any())).thenReturn(true);
 
-		when(a1.getResearchOrganizations()).thenReturn(Collections.singleton(m1));
+		when(a1.getMemberships()).thenReturn(Collections.singleton(m1));
 
 		ExporterConfigurator configurator = new ExporterConfigurator();
 

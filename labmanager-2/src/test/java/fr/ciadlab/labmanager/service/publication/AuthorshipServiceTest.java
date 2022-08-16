@@ -141,8 +141,8 @@ public class AuthorshipServiceTest {
 		lenient().when(this.pub0.getAuthorships()).thenReturn(Arrays.asList(this.a2, this.a0));
 		lenient().when(this.pub1.getAuthorships()).thenReturn(Arrays.asList(this.a1));
 
-		lenient().when(this.pers0.getPublications()).thenReturn(Collections.singleton(this.a0));
-		lenient().when(this.pers1.getPublications()).thenReturn(Sets.newHashSet(this.a1, this.a2));
+		lenient().when(this.pers0.getAuthorships()).thenReturn(Collections.singleton(this.a0));
+		lenient().when(this.pers1.getAuthorships()).thenReturn(Sets.newHashSet(this.a1, this.a2));
 
 		lenient().when(this.authorshipRepository.findAll()).thenReturn(
 				Arrays.asList(this.a0, this.a1, this.a2));
@@ -167,7 +167,7 @@ public class AuthorshipServiceTest {
 			}
 			return Optional.empty();
 		});
-		lenient().when(this.personRepository.findByPublicationsPublicationIdOrderByPublicationsAuthorRank(anyInt())).thenAnswer(it -> {
+		lenient().when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyInt())).thenAnswer(it -> {
 			switch (((Integer) it.getArgument(0)).intValue()) {
 			case 1234:
 				return Arrays.asList(this.pers1, this.pers0);

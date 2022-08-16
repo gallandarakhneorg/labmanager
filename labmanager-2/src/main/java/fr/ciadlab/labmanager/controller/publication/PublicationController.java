@@ -18,12 +18,14 @@ package fr.ciadlab.labmanager.controller.publication;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import fr.ciadlab.labmanager.Constants;
 import fr.ciadlab.labmanager.controller.AbstractController;
+import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
@@ -42,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -78,8 +81,6 @@ public class PublicationController extends AbstractController {
 	private JournalService journalService;
 
 	private ViewFactory viewFactory;
-
-	private final Random random = new Random();
 
 	private JournalPaperService journalPaperService;
 
@@ -128,13 +129,50 @@ public class PublicationController extends AbstractController {
 	}
 
 	/** Replies the model-view component for managing the publications.
+	 * This endpoint is designed for the database management.
 	 *
 	 * @return the model-view component.
+	 * @see #showFrontPublicationList(Integer, Integer, Integer, Boolean)
 	 */
 	@GetMapping("/" + DEFAULT_ENDPOINT)
-	public ModelAndView showPublicationList() {
+	public ModelAndView showBackPublicationList() {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("publications", this.publicationService.getAllPublications()); //$NON-NLS-1$
+		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
+		return modelAndView;
+	}
+
+	/** Replies the list of publications for the given author.
+	 * This function differs to {@link #showBackPublicationList()} because it is dedicated to
+	 * the public front-end of the research organization. The function {@link #showBackPublicationList()}
+	 * is more dedicated to the administration of the data-set.
+	 * <p> This function may provide to the front-end the map of the person identifiers to
+	 * their full names. The type of the map is: {@code Map&lt;Integer, String&gt;}.
+	 *
+	 * @param organization the identifier of the organization for which the publications must be exported.
+	 * @param author the identifier of the author for who the publications must be exported.
+	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @param provideNames indicates if the model provides to the front-end the map from the identifiers to the full names.
+	 * @return the model-view of the list of publications.
+	 * @see #showBackPublicationList()
+	 * @see #exportJson(HttpServletResponse, List, Integer, Integer, Integer)
+	 */
+	@GetMapping("/showPublications")
+	public ModelAndView showFrontPublicationList(
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
+			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
+			@RequestParam(required = false, defaultValue = "true") Boolean provideNames) {
+		final ModelAndView modelAndView = new ModelAndView("showPublications"); //$NON-NLS-1$
+		if (provideNames == null || provideNames.booleanValue()) {
+			final List<Person> persons = this.personService.getAllPersons();
+			modelAndView.addObject("authorsMap", persons.parallelStream() //$NON-NLS-1$
+					.collect(Collectors.toConcurrentMap(
+							it -> Integer.valueOf(it.getId()),
+							it -> it.getFullName())));
+		}
+		addUrlToPublicationListEndPoint(modelAndView, organization, author, journal);
+		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
 		return modelAndView;
 	}
 
@@ -161,12 +199,9 @@ public class PublicationController extends AbstractController {
 		return this.publicationService.getPublicationsByTitle(title);
 	}
 
-	private <T> T export(HttpServletResponse response, List<Integer> identifiers, Integer organization, Integer author,
+	private <T> T export(List<Integer> identifiers, Integer organization, Integer author,
 			Integer journal, Boolean nameHighlight, Boolean color, Boolean downloadButtons, Boolean exportButtons, 
 			Boolean editButtons, Boolean deleteButtons, ExporterCallback<T> callback) throws Exception {
-		if ((identifiers == null || identifiers.isEmpty()) && organization == null && author == null && journal == null) {
-			throw new IllegalArgumentException("Identifier for publications or organization or author or journal is missed"); //$NON-NLS-1$
-		}
 		// Prepare the exporter
 		final ExporterConfigurator configurator = new ExporterConfigurator();
 		if (nameHighlight != null && !nameHighlight.booleanValue()) {
@@ -225,7 +260,6 @@ public class PublicationController extends AbstractController {
 	 * </ul>
 	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
 	 *
-	 * @param response the HTTP response.
 	 * @param identifiers the array of publication identifiers that should be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
@@ -233,26 +267,29 @@ public class PublicationController extends AbstractController {
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
 	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the HTML output. 
+	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
+	 *     {@code false}.
 	 * @return the HTML description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 */
-	@GetMapping(value = "/exportHtml")
+	@GetMapping(value = "/" + Constants.EXPORT_HTML_ENDPOINT)
 	@ResponseBody
 	public ResponseEntity<String> exportHtml(
-			HttpServletResponse response,
-			@RequestParam(name = "id", required = false) List<Integer> identifiers,
-			@RequestParam(required = false) Integer organization,
-			@RequestParam(required = false) Integer author,
-			@RequestParam(required = false) Integer journal,
+			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER, required = false) List<Integer> identifiers,
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
+			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
-			@RequestParam(required = false, defaultValue = "true") Boolean color) throws Exception {
+			@RequestParam(required = false, defaultValue = "true") Boolean color,
+			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportHtml(pubs, configurator);
-		final String content = export(response, identifiers, organization, author, journal, nameHighlight, color,
+		final String content = export(identifiers, organization, author, journal, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
-		return ResponseEntity.ok()
-				.contentType(MediaType.TEXT_HTML)
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.html\"") //$NON-NLS-1$
-				.body(content);
+		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.TEXT_HTML);
+		if (inAttachment != null && inAttachment.booleanValue()) {
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".html\""); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return bb.body(content);
 	}
 
 	/**
@@ -265,29 +302,31 @@ public class PublicationController extends AbstractController {
 	 * </ul>
 	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
 	 *
-	 * @param response the HTTP response.
 	 * @param identifiers the array of publication identifiers that should be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
+	 *     {@code false}.
 	 * @return the BibTeX description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 */
-	@GetMapping(value = "/exportBibTeX")
+	@GetMapping(value = "/" + Constants.EXPORT_BIBTEX_ENDPOINT)
 	@ResponseBody
 	public ResponseEntity<String> exportBibTeX(
-			HttpServletResponse response,
-			@RequestParam(name = "id", required = false) List<Integer> identifiers,
-			@RequestParam(required = false) Integer organization,
-			@RequestParam(required = false) Integer author,
-			@RequestParam(required = false) Integer journal) throws Exception {
+			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER, required = false) List<Integer> identifiers,
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
+			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
+			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportBibTeX(pubs, configurator);
-		final String content = export(response, identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
+		final String content = export(identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
-		return ResponseEntity.ok()
-				.contentType(BibTeXConstants.MIME_TYPE)
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.bib\"") //$NON-NLS-1$
-				.body(content);
+		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE);
+		if (inAttachment != null && inAttachment.booleanValue()) {
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".bib\""); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return bb.body(content);
 	}
 
 	/**
@@ -300,7 +339,6 @@ public class PublicationController extends AbstractController {
 	 * </ul>
 	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
 	 *
-	 * @param response the HTTP response.
 	 * @param identifiers the array of publication identifiers that should be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
@@ -308,28 +346,30 @@ public class PublicationController extends AbstractController {
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
 	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the ODT output. 
+	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
+	 *     {@code false}.
 	 * @return the OpenDocument description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 */
-	@GetMapping(value = "/exportOpenDocumentText")
+	@GetMapping(value = "/" + Constants.EXPORT_ODT_ENDPOINT)
 	@ResponseBody
 	public ResponseEntity<byte[]> exportOpenDocumentText(
-			HttpServletResponse response,
-			@RequestParam(name = "id", required = false) List<Integer> identifiers,
-			@RequestParam(required = false) Integer organization,
-			@RequestParam(required = false) Integer author,
-			@RequestParam(required = false) Integer journal,
+			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER, required = false) List<Integer> identifiers,
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
+			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
-			@RequestParam(required = false, defaultValue = "true") Boolean color) throws Exception {
+			@RequestParam(required = false, defaultValue = "true") Boolean color,
+			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
 		final ExporterCallback<byte[]> cb = (pubs, configurator) -> this.publicationService.exportOdt(pubs, configurator);
-		final byte[] content = export(response, identifiers, organization, author, journal, nameHighlight, color,
+		final byte[] content = export(identifiers, organization, author, journal, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
-		return ResponseEntity.ok()
-				.contentType(OpenDocumentConstants.ODT_MIME_TYPE)
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.odt\"") //$NON-NLS-1$
-				.body(content);
+		BodyBuilder bb = ResponseEntity.ok().contentType(OpenDocumentConstants.ODT_MIME_TYPE);
+		if (inAttachment != null && inAttachment.booleanValue()) {
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".odt\""); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return bb.body(content);
 	}
-
 
 	/**
 	 * Export publications to JSON.
@@ -349,30 +389,44 @@ public class PublicationController extends AbstractController {
 	 * <li>{@code "html/delete"}: an HTML code that enable to delete the publication.</li>
 	 * </ul>
 	 *
-	 * @param response the HTTP response.
 	 * @param identifiers the array of publication identifiers that should be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @param forAjax indicates if the JSON is provided to AJAX. By default, the value is
+	 *     {@code false}. If the JSON is provided to AJAX, the data is included into the root key {@code data} that is expected by AJAX.
+	 *     If this parameter is evaluated to {@code true}, the parameter {@code inAttachment} is ignored.
+	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
+	 *     {@code false}.
+	 *     If the parameter {@code forAjax} is evaluated to {@code true}, this parameter is ignored.
 	 * @return the JSON description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 * @see #getPublicationData(String, Integer)
 	 */
-	@GetMapping(value = "/exportJson")
+	@GetMapping(value = "/" + Constants.EXPORT_JSON_ENDPOINT)
 	@ResponseBody
 	public ResponseEntity<String> exportJson(
-			HttpServletResponse response,
-			@RequestParam(name = "id", required = false) List<Integer> identifiers,
-			@RequestParam(required = false) Integer organization,
-			@RequestParam(required = false) Integer author,
-			@RequestParam(required = false) Integer journal) throws Exception {
-		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportJson(pubs, configurator);
-		final String content = export(response, identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
+			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER, required = false) List<Integer> identifiers,
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
+			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
+			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
+			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
+		final boolean isAjax = forAjax != null && forAjax.booleanValue();
+		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();
+		final ExporterCallback<String> cb = (pubs, configurator) -> {
+			if (isAjax) {
+				return this.publicationService.exportJson(pubs, configurator, "data"); //$NON-NLS-1$
+			}
+			return this.publicationService.exportJson(pubs, configurator);
+		};
+		final String content = export(identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
 				Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, cb);
-		return ResponseEntity.ok()
-				.contentType(MediaType.APPLICATION_JSON)
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"publications.json\"") //$NON-NLS-1$
-				.body(content);
+		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
+		if (isAttachment) {
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return bb.body(content);
 	}
 
 	/** Replies the statistics for the publications and for the author with the given identifier.
@@ -381,7 +435,7 @@ public class PublicationController extends AbstractController {
 	 * @return the model-view with the statistics.
 	 */
 	@GetMapping("/publicationStats")
-	public ModelAndView showPublicationsStats(@RequestParam(required = false) Integer identifier) {
+	public ModelAndView showPublicationsStats(@RequestParam(required = false, name = Constants.ID_ENDPOINT_PARAMETER) Integer identifier) {
 		final ModelAndView modelAndView = new ModelAndView("publicationStats"); //$NON-NLS-1$
 
 		final List<Publication> publications;
@@ -404,106 +458,10 @@ public class PublicationController extends AbstractController {
 
 		modelAndView.addObject("stats", statsPerYear); //$NON-NLS-1$
 		modelAndView.addObject("globalStats", globalStats); //$NON-NLS-1$
+		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
 		return modelAndView;
 	}
 
-	//	/** Redirect to the publication list.
-	//	 *
-	//	 * @param modelAndView the model-view to configure for redirection.
-	//	 * @param authorId the identifier of the author to get the list, or {@code null} if no
-	//	 *     author selection.
-	//	 * @param onlyValid indicates if only the valid authorships are considered. If {@code null},
-	//	 *     the value {@code true} is assumed.
-	//	 */
-	//	protected void redirectToPublicationList(ModelAndView modelAndView, Integer authorId, Boolean onlyValid) {
-	//		final StringBuilder url = new StringBuilder();
-	//		url.append("/SpringRestHibernate/getPublicationsList"); //$NON-NLS-1$
-	//		if (authorId != null && onlyValid != null) {
-	//			url.append("?authorId="); //$NON-NLS-1$
-	//			url.append(authorId.intValue());
-	//			url.append("&onlyValid="); //$NON-NLS-1$
-	//			url.append(onlyValid.booleanValue());
-	//		}
-	//		else if (authorId != null) {
-	//			url.append("?authorId="); //$NON-NLS-1$
-	//			url.append(authorId.intValue());
-	//		}
-	//		else if (onlyValid != null) {
-	//			url.append("?onlyValid="); //$NON-NLS-1$
-	//			url.append(onlyValid.booleanValue());
-	//		}
-	//		modelAndView.addObject("url", url.toString()); //$NON-NLS-1$
-	//		// UUID to generate unique html elements
-	//		modelAndView.addObject("uuid", Integer.valueOf(Math.abs(this.random.nextInt()))); //$NON-NLS-1$
-	//	}
-	//
-	//	/** Provide the map of the authors to the front-end.
-	//	 * The provided map is given to {@code "authorsMap"} attribute and is a map
-	//	 * with the person identifiers as keys and the full names as values.
-	//	 * The type of the map is: {@code Map&lt;Integer, String&gt;}.
-	//	 *
-	//	 * @param modelAndView the model-view to configure for redirection.
-	//	 */
-	//	protected void provideAuthorMapToFontEnd(ModelAndView modelAndView) {
-	//		final List<Person> persons = this.personService.getAllPersons();
-	//		modelAndView.addObject("authorsMap", persons.parallelStream() //$NON-NLS-1$
-	//				.collect(Collectors.toConcurrentMap(
-	//						it -> Integer.valueOf(it.getId()),
-	//						it -> it.getFullName())));
-	//	}
-	//
-	//	/** Replies the list of publications for the given author.
-	//	 * This function provides to the front-end the map of the person identifiers to
-	//	 * their full names.
-	//	 * The type of the map is: {@code Map&lt;Integer, String&gt;}.
-	//	 *
-	//	 * @param authorId the identifier of the author.
-	//	 * @return the model-view of the list of publications.
-	//	 * @see #publicationListLight(Integer)
-	//	 */
-	//	@GetMapping("/publicationList")
-	//	public ModelAndView publicationList(
-	//			@RequestParam Integer authorId) {
-	//		final ModelAndView modelAndView = new ModelAndView("publicationsList"); //$NON-NLS-1$
-	//		provideAuthorMapToFontEnd(modelAndView);
-	//		redirectToPublicationList(modelAndView, authorId, null);
-	//		return modelAndView;
-	//	}
-	//
-	//	/** Replies the list of publications for the given author.
-	//	 * This function does not provides the authors' map to the front-end.
-	//	 *
-	//	 * @param authorId the identifier of the author.
-	//	 * @return the model-view of the list of publications.
-	//	 * @see #publicationList(Integer)
-	//	 */
-	//	@GetMapping("/publicationListLight")
-	//	public ModelAndView publicationListLight(
-	//			@RequestParam Integer authorId) {
-	//		final ModelAndView modelAndView = new ModelAndView("publicationsListLight"); //$NON-NLS-1$
-	//		redirectToPublicationList(modelAndView, authorId, null);
-	//		return modelAndView;
-	//	}
-	//
-	//	/** Replies the list of publications for the given author and even if the publications are not
-	//	 * considered as valid.
-	//	 * This function provides to the front-end the map of the person identifiers to
-	//	 * their full names.
-	//	 * The type of the map is: {@code Map&lt;Integer, String&gt;}.
-	//	 * A valid publication is one that has the author as authorship.
-	//	 *
-	//	 * @param authorId the identifier of the author.
-	//	 * @return the model-view of the list of publications.
-	//	 */
-	//	@GetMapping("/publicationListPrivate")
-	//	public ModelAndView publicationListPrivate(
-	//			@RequestParam(required = false) Integer authorId) {
-	//		final ModelAndView modelAndView = new ModelAndView("publicationsListPrivate"); //$NON-NLS-1$
-	//		provideAuthorMapToFontEnd(modelAndView);
-	//		redirectToPublicationList(modelAndView, authorId, Boolean.FALSE);
-	//		return modelAndView;
-	//	}
-	//
 	//	/** Redirect to the publication list with a "success" state.
 	//	 * This function is usually invoked after the success of an operation.
 	//	 *

@@ -2,12 +2,21 @@
 	"_last-update-date": "2022-08-14",
 	"researchOrganizations": [
 		{
+			"@id": "/ro#1",
+			"acronym": "UTBM",
+			"name": "Université de Technologie de Belfort-Montbéliard",
+			"type": "UNIVERSITY",
+			"organizationURL": "http://www.utbm.fr",
+			"country": "FRANCE"
+		},
+		{
 			"@id": "/ro#0",
 			"acronym": "CIAD",
 			"name": "Laboratoire Connaisance et Intelligence Artificielle Distribuées",
 			"type": "LABORATORY",
 			"organizationURL": "http://www.ciad-lab.fr",
-			"country": "FRANCE"
+			"country": "FRANCE",
+			"superOrganization": {"@id": "/ro#1"}
 		}
 	],
 	"persons": [
@@ -55,7 +64,15 @@
 		{
 			"person": {"@id": "/pers#0"},
 			"researchOrganization": {"@id": "/ro#0"},
+			"memberStatus": "ASSOCIATE_PROFESSOR_HDR",
+			"memberToWhen": "2018-08-31",
+			"cnuSection": 27
+		},
+		{
+			"person": {"@id": "/pers#0"},
+			"researchOrganization": {"@id": "/ro#0"},
 			"memberStatus": "FULL_PROFESSOR",
+			"membersinceWhen": "2018-09-01",
 			"cnuSection": 27
 		},
 		{

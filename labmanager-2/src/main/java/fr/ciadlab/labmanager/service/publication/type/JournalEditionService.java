@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.service.publication.type;
 
-import java.sql.Date;
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
 import java.util.Optional;
@@ -111,7 +111,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param pages the pages in the journal.
 	 */
 	public void updateJournalEdition(int pubId,
-			String title, PublicationType type, Date date, String abstractText, String keywords,
+			String title, PublicationType type, LocalDate date, String abstractText, String keywords,
 			String doi, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages) {

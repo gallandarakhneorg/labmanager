@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.service.member;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Deque;
@@ -87,7 +88,7 @@ public class MembershipService extends AbstractService {
 	public List<Membership> getOrganizationMembers(ResearchOrganization organization, MemberFiltering memberFilter,
 			Predicate<MemberStatus> statusFilter) {
 		if (organization != null) {
-			Stream<Membership> stream = organization.getMembers().stream();
+			Stream<Membership> stream = organization.getMemberships().stream();
 			if (memberFilter != null) {
 				switch (memberFilter) {
 				case ACTIVES:
@@ -196,7 +197,7 @@ public class MembershipService extends AbstractService {
 	 * @param memberStatus the status of the person in the membership.
 	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
 	 */
-	public boolean addMembership(int organizationId, int personId, java.sql.Date startDate, java.sql.Date endDate, MemberStatus memberStatus) {
+	public boolean addMembership(int organizationId, int personId, LocalDate startDate, LocalDate endDate, MemberStatus memberStatus) {
 		assert memberStatus != null;
 		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
 		if (optOrg.isPresent()) {
@@ -204,7 +205,7 @@ public class MembershipService extends AbstractService {
 			if (optPerson.isPresent()) {
 				final Person person = optPerson.get();
 				// We don't need to add the membership is the person is already involved in the organization
-				final Optional<Membership> ro = person.getResearchOrganizations().stream().filter(
+				final Optional<Membership> ro = person.getMemberships().stream().filter(
 						it -> it.getResearchOrganization().getId() == organizationId).findAny();
 				if (ro.isEmpty()) {
 					final ResearchOrganization organization = optOrg.get();
@@ -231,7 +232,7 @@ public class MembershipService extends AbstractService {
 	 * @param memberStatus the new status of the person in the membership.
 	 * @return {@code true} if the link has changed; {@code false} if the link has not changed.
 	 */
-	public boolean updateMembership(int organizationId, int personId, java.sql.Date startDate, java.sql.Date endDate, MemberStatus memberStatus) {
+	public boolean updateMembership(int organizationId, int personId, LocalDate startDate, LocalDate endDate, MemberStatus memberStatus) {
 		final Optional<Membership> res = this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(organizationId, personId);
 		if (res.isPresent()) {
 			final Membership membership = res.get();
@@ -267,7 +268,7 @@ public class MembershipService extends AbstractService {
 	 * @see #getMembersOf(int)
 	 */
 	public Set<Person> getDirectMembersOf(int organizationId) {
-		return this.personRepository.findDistinctByResearchOrganizationsResearchOrganizationId(organizationId);
+		return this.personRepository.findDistinctByMembershipsResearchOrganizationId(organizationId);
 	}
 
 	/** Replies the persons in the organization of the given identifier and its suborganizations.
@@ -306,7 +307,7 @@ public class MembershipService extends AbstractService {
 	 * @return the persons
 	 */
 	public Set<Person> getPersonsByOrganizationNameStatus(String organizationName, MemberStatus status) {
-		return this.personRepository.findDistinctByResearchOrganizationsResearchOrganizationNameAndResearchOrganizationsMemberStatus(
+		return this.personRepository.findDistinctByMembershipsResearchOrganizationNameAndMembershipsMemberStatus(
 				organizationName, status);
 	}
 
@@ -317,7 +318,7 @@ public class MembershipService extends AbstractService {
 	 * @return the persons
 	 */
 	public Set<Person> getPersonsByOrganizationAcronymStatus(String organizationAcronym, MemberStatus status) {
-		return this.personRepository.findDistinctByResearchOrganizationsResearchOrganizationAcronymAndResearchOrganizationsMemberStatus(
+		return this.personRepository.findDistinctByMembershipsResearchOrganizationAcronymAndMembershipsMemberStatus(
 				organizationAcronym, status);
 	}
 

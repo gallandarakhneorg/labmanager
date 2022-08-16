@@ -21,16 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
-import java.sql.Date;
 import java.time.LocalDate;
 
-import com.fasterxml.jackson.core.JsonGenerator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -47,23 +41,18 @@ public class MembershipTest {
 
 	private Membership test;
 
-	private Date now;
+	private LocalDate now;
 
-	private Date past;
+	private LocalDate past;
 
-	private Date future;
-
-	private static Date date(int year, int month, int day) {
-		final LocalDate ld = LocalDate.of(year, month, day);
-		return Date.valueOf(ld.getYear() + "-" + ld.getMonthValue() + "-" + ld.getDayOfMonth());
-	}
+	private LocalDate future;
 
 	@BeforeEach
 	public void setUp() {
 		final LocalDate ld = LocalDate.now();
-		this.now = date(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth());
-		this.past = date(ld.getYear() - 1, ld.getMonthValue(), ld.getDayOfMonth());
-		this.future = date(ld.getYear() + 1, ld.getMonthValue(), ld.getDayOfMonth());
+		this.now = LocalDate.of(ld.getYear(), ld.getMonthValue(), ld.getDayOfMonth());
+		this.past = LocalDate.of(ld.getYear() - 1, ld.getMonthValue(), ld.getDayOfMonth());
+		this.future = LocalDate.of(ld.getYear() + 1, ld.getMonthValue(), ld.getDayOfMonth());
 		//
 		this.test = new Membership();
 	}
@@ -120,19 +109,19 @@ public class MembershipTest {
 	}
 
 	@Test
-	public void setMemberSinceWhen_date() {
+	public void setMemberSinceWhen_LocalDate() {
 		assertNull(this.test.getMemberSinceWhen());
-		final Date d0 = mock(Date.class);
+		final LocalDate d0 = LocalDate.parse("2022-07-22");
 		this.test.setMemberSinceWhen(d0);
 		assertSame(d0, this.test.getMemberSinceWhen());
-		this.test.setMemberSinceWhen((Date) null);
+		this.test.setMemberSinceWhen((LocalDate) null);
 		assertNull(this.test.getMemberSinceWhen());
 	}
 
 	@Test
 	public void setMemberSinceWhen_string() {
 		assertNull(this.test.getMemberSinceWhen());
-		final Date d0 = mock(Date.class);
+		final LocalDate d0 = LocalDate.parse("2022-07-22");
 		this.test.setMemberSinceWhen(d0);
 		assertSame(d0, this.test.getMemberSinceWhen());
 		this.test.setMemberSinceWhen((String) null);
@@ -145,19 +134,19 @@ public class MembershipTest {
 	}
 
 	@Test
-	public void setMemberToWhen_date() {
+	public void setMemberToWhen_LocalDate() {
 		assertNull(this.test.getMemberToWhen());
-		final Date d0 = mock(Date.class);
+		final LocalDate d0 = LocalDate.parse("2022-07-22");
 		this.test.setMemberToWhen(d0);
 		assertSame(d0, this.test.getMemberToWhen());
-		this.test.setMemberToWhen((Date) null);
+		this.test.setMemberToWhen((LocalDate) null);
 		assertNull(this.test.getMemberToWhen());
 	}
 
 	@Test
 	public void setMemberToWhen_string() {
 		assertNull(this.test.getMemberToWhen());
-		final Date d0 = mock(Date.class);
+		final LocalDate d0 = LocalDate.parse("2022-07-22");
 		this.test.setMemberToWhen(d0);
 		assertSame(d0, this.test.getMemberToWhen());
 		this.test.setMemberToWhen((String) null);
@@ -383,13 +372,13 @@ public class MembershipTest {
 	public void isActiveAt_noStart() {
 		final LocalDate ld = LocalDate.of(2022, 5, 5);
 		//
-		this.test.setMemberToWhen(date(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
 		assertFalse(this.test.isActiveAt(ld));
 		//
-		this.test.setMemberToWhen(date(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
 		assertTrue(this.test.isActiveAt(ld));
 		//
-		this.test.setMemberToWhen(date(2023, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
 		assertTrue(this.test.isActiveAt(ld));
 	}
 
@@ -397,13 +386,13 @@ public class MembershipTest {
 	public void isActiveAt_noEnd() {
 		final LocalDate ld = LocalDate.of(2022, 5, 5);
 		//
-		this.test.setMemberSinceWhen(date(2021, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
 		assertTrue(this.test.isActiveAt(ld));
 		//
-		this.test.setMemberSinceWhen(date(2022, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
 		assertTrue(this.test.isActiveAt(ld));
 		//
-		this.test.setMemberSinceWhen(date(2023, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
 		assertFalse(this.test.isActiveAt(ld));
 	}
 
@@ -411,28 +400,28 @@ public class MembershipTest {
 	public void isActiveAt() {
 		final LocalDate ld = LocalDate.of(2022, 5, 5);
 		//
-		this.test.setMemberSinceWhen(date(2021, 5, 5));
-		this.test.setMemberToWhen(date(2021, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
 		assertFalse(this.test.isActiveAt(ld));
 		//
-		this.test.setMemberSinceWhen(date(2021, 5, 5));
-		this.test.setMemberToWhen(date(2022, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
 		assertTrue(this.test.isActiveAt(ld));
 		//
-		this.test.setMemberSinceWhen(date(2021, 5, 5));
-		this.test.setMemberToWhen(date(2023, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
 		assertTrue(this.test.isActiveAt(ld));
 		//
-		this.test.setMemberSinceWhen(date(2022, 5, 5));
-		this.test.setMemberToWhen(date(2022, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
 		assertTrue(this.test.isActiveAt(ld));
 		//
-		this.test.setMemberSinceWhen(date(2022, 5, 5));
-		this.test.setMemberToWhen(date(2023, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
 		assertTrue(this.test.isActiveAt(ld));
 		//
-		this.test.setMemberSinceWhen(date(2023, 5, 5));
-		this.test.setMemberToWhen(date(2023, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
 		assertFalse(this.test.isActiveAt(ld));
 	}
 
@@ -449,19 +438,19 @@ public class MembershipTest {
 		final LocalDate s = LocalDate.of(2022, 1, 1);
 		final LocalDate e = LocalDate.of(2022, 12, 31);
 		//
-		this.test.setMemberToWhen(date(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
 		assertFalse(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberToWhen(date(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberToWhen(date(2023, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberToWhen(date(2022, 1, 1));
+		this.test.setMemberToWhen(LocalDate.of(2022, 1, 1));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberToWhen(date(2021, 12, 31));
+		this.test.setMemberToWhen(LocalDate.of(2021, 12, 31));
 		assertFalse(this.test.isActiveIn(s, e));
 	}
 
@@ -470,19 +459,19 @@ public class MembershipTest {
 		final LocalDate s = LocalDate.of(2022, 1, 1);
 		final LocalDate e = LocalDate.of(2022, 12, 31);
 		//
-		this.test.setMemberSinceWhen(date(2021, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberSinceWhen(date(2022, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberSinceWhen(date(2023, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
 		assertFalse(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberSinceWhen(date(2022, 12, 31));
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 12, 31));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberSinceWhen(date(2023, 01, 01));
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 01, 01));
 		assertFalse(this.test.isActiveIn(s, e));
 	}
 
@@ -491,58 +480,29 @@ public class MembershipTest {
 		final LocalDate s = LocalDate.of(2022, 1, 1);
 		final LocalDate e = LocalDate.of(2022, 12, 31);
 		//
-		this.test.setMemberSinceWhen(date(2021, 5, 5));
-		this.test.setMemberToWhen(date(2021, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
 		assertFalse(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberSinceWhen(date(2021, 5, 5));
-		this.test.setMemberToWhen(date(2022, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberSinceWhen(date(2021, 5, 5));
-		this.test.setMemberToWhen(date(2023, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberSinceWhen(date(2022, 5, 5));
-		this.test.setMemberToWhen(date(2022, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberSinceWhen(date(2022, 5, 5));
-		this.test.setMemberToWhen(date(2023, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
 		assertTrue(this.test.isActiveIn(s, e));
 		//
-		this.test.setMemberSinceWhen(date(2023, 5, 5));
-		this.test.setMemberToWhen(date(2023, 5, 5));
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
 		assertFalse(this.test.isActiveIn(s, e));
-	}
-
-	@Test
-	public void serialize() throws Exception {
-		Person person = mock(Person.class);
-		when(person.getId()).thenReturn(753);
-		ResearchOrganization orga = mock(ResearchOrganization.class);
-		when(orga.getId()).thenReturn(951);
-		this.test.setId(369);
-		this.test.setCnuSection(27);
-		this.test.setMemberSinceWhen(Date.valueOf("2022-07-22"));
-		this.test.setMemberStatus(MemberStatus.ENGINEER);
-		this.test.setMemberToWhen(Date.valueOf("2022-09-18"));
-		this.test.setPerson(person);
-		this.test.setResearchOrganization(orga);
-		JsonGenerator generator = mock(JsonGenerator.class);
-
-		this.test.serialize(generator, null);
-
-		verify(generator).writeStartObject();
-		verify(generator).writeNumberField(eq("id"), eq(369));
-		verify(generator).writeNumberField(eq("cnuSection"), eq(27));
-		verify(generator).writeStringField(eq("memberSinceWhen"), eq("2022-07-22"));
-		verify(generator).writeStringField(eq("memberToWhen"), eq("2022-09-18"));
-		verify(generator).writeStringField(eq("memberStatus"), eq("ENGINEER"));
-		verify(generator).writeNumberField(eq("person"), eq(753));
-		verify(generator).writeNumberField(eq("researchOrganization"), eq(951));
-		verify(generator).writeEndObject();
-		verifyNoMoreInteractions(generator);
 	}
 
 }

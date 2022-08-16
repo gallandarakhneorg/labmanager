@@ -17,25 +17,10 @@
 package fr.ciadlab.labmanager.controller.journal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-import java.util.Locale;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletResponse;
 
 import fr.ciadlab.labmanager.configuration.BaseMessageSource;
-import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.service.journal.JournalService;
-import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

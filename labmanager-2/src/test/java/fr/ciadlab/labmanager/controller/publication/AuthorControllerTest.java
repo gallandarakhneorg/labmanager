@@ -16,35 +16,8 @@
 
 package fr.ciadlab.labmanager.controller.publication;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import javax.servlet.http.HttpServletResponse;
-
-import fr.ciadlab.labmanager.entities.member.Membership;
-import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.service.member.MemberFiltering;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
@@ -52,11 +25,9 @@ import fr.ciadlab.labmanager.service.publication.AuthorshipService;
 import fr.ciadlab.labmanager.utils.names.DefaultPersonNameParser;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
-import org.springframework.web.servlet.ModelAndView;
 
 /** Tests for {@link AuthorController}.
  * 
@@ -88,7 +59,8 @@ public class AuthorControllerTest {
 		this.memberService = mock(MembershipService.class);
 		this.personService = mock(PersonService.class);
 		this.nameParser = new DefaultPersonNameParser();
-		this.test = new AuthorController(this.authorshipService, this.personService,
+		this.test = new AuthorController(
+				this.authorshipService, this.personService,
 				this.organizationService, this.memberService, this.nameParser);
 		this.test.setLogger(mock(Logger.class));
 	}

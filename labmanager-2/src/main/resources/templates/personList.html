@@ -23,17 +23,17 @@
     <tbody>
         <tr th:each="person : ${persons}">
             <td th:with="actives = ${person.activeMemberships}">
-                <s th:if="${actives.isEmpty() && !person.researchOrganizations.isEmpty()}"
+                <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
                    th:utext="${person.lastName}"></s>
-                <i th:if="${actives.isEmpty() && person.researchOrganizations.isEmpty()}"
+                <i th:if="${actives.isEmpty() && person.memberships.isEmpty()}"
                           th:utext="${person.lastName}"></i>
                 <th:block th:if="${!actives.isEmpty()}"
                           th:utext="${person.lastName}"></th:block>
             </td>
             <td th:with="actives = ${person.activeMemberships}">
-                <s th:if="${actives.isEmpty() && !person.researchOrganizations.isEmpty()}"
+                <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
                      th:utext="${person.firstName}"></s>
-                <i th:if="${actives.isEmpty() && person.researchOrganizations.isEmpty()}"
+                <i th:if="${actives.isEmpty() && person.memberships.isEmpty()}"
                           th:utext="${person.firstName}"></i>
                 <th:block th:if="${!actives.isEmpty()}"
                           th:utext="${person.firstName}"></th:block>
@@ -74,7 +74,7 @@
                               th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
                     <a th:if="${mbr.value.memberStatus != null}"
                        th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
-                       th:title="#{html.FormerPositionTo(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberToWhen.toLocalDate.year})}"
+                       th:title="#{html.FormerPositionTo(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberToWhen.year})}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>
@@ -85,18 +85,18 @@
                               th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
                     <a th:if="${mbr.value.memberStatus != null}"
                        th:href="@{/memberList(organization=${mbr.key.acronymOrName})}"
-                       th:title="#{html.FuturePositionFrom(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberSinceWhen.toLocalDate.year})}"
+                       th:title="#{html.FuturePositionFrom(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberSinceWhen.year})}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>
             <td>
-            	<a th:href="@{/exportBibTeX(author=${person.id})}">
+            	<a th:href="@{/exportBibTeX(author=${person.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${person.fullName})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/exportOpenDocumentText(author=${person.id})}">
+            	<a th:href="@{/exportOpenDocumentText(author=${person.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/odt_file.svg}" th:title="#{html.GetOdtPublicationsFor(${person.fullName})}" style="max-width:24px;"></img>
             	</a>
-            	<a th:href="@{/exportHtml(author=${person.id})}">
+            	<a th:href="@{/exportHtml(author=${person.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${person.fullName})}" style="max-width:24px;"></img>
             	</a>
             	<a th:href="@{/getPersonData(id=${person.id})}">

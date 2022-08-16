@@ -18,7 +18,6 @@ package fr.ciadlab.labmanager.entities.member;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Objects;
 
@@ -33,15 +32,11 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializable;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.io.json.JsonUtils;
-import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 
 /** Relation between a person and a research organization.
@@ -54,7 +49,7 @@ import fr.ciadlab.labmanager.utils.HashCodeUtils;
  */
 @Entity
 @Table(name = "Memberships")
-public class Membership implements Serializable, JsonSerializable, AttributeProvider, Comparable<Membership> {
+public class Membership implements Serializable, AttributeProvider, Comparable<Membership>, IdentifiableEntity {
 
 	private static final long serialVersionUID = 297499358606685801L;
 
@@ -68,12 +63,12 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	/** First date of involvement.
 	 */
 	@Column
-	private Date memberSinceWhen;
+	private LocalDate memberSinceWhen;
 
 	/** Last dat eof involvement.
 	 */
 	@Column
-	private Date memberToWhen;
+	private LocalDate memberToWhen;
 
 	/** Status of the person in the research organization.
 	 */
@@ -105,7 +100,7 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 * @param status the status.
 	 * @param cnuSection is the number of the CNU section, or {@code 0} if it is unknown or irrelevant.
 	 */
-	public Membership(Person person, ResearchOrganization orga, Date since, Date to, MemberStatus status, int cnuSection) {
+	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status, int cnuSection) {
 		this.person = person;
 		this.researchOrganization = orga;
 		this.memberSinceWhen = since;
@@ -200,31 +195,6 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	}
 
 	@Override
-	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
-		generator.writeStartObject();
-		generator.writeNumberField("id", getId()); //$NON-NLS-1$
-		forEachAttribute((name, value) -> {
-			JsonUtils.writeField(generator, name, value);
-		});
-		if (getPerson() != null) {
-			generator.writeNumberField("person", getPerson().getId()); //$NON-NLS-1$
-		}
-		if (getResearchOrganization() != null) {
-			generator.writeNumberField("researchOrganization", getResearchOrganization().getId()); //$NON-NLS-1$
-		}
-		generator.writeEndObject();
-	}
-
-	@Override
-	public void serializeWithType(JsonGenerator generator, SerializerProvider serializers, TypeSerializer typeSer)
-			throws IOException {
-		serialize(generator, serializers);
-	}
-
-	/** Replies the membership identifier.
-	 *
-	 * @return the identifier.
-	 */
 	public int getId() {
 		return this.id;
 	}
@@ -273,7 +243,7 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 *
 	 * @return the date.
 	 */
-	public Date getMemberSinceWhen() {
+	public LocalDate getMemberSinceWhen() {
 		return this.memberSinceWhen;
 	}
 
@@ -281,7 +251,7 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 *
 	 * @param date the date.
 	 */
-	public void setMemberSinceWhen(Date date) {
+	public void setMemberSinceWhen(LocalDate date) {
 		this.memberSinceWhen = date;
 	}
 
@@ -291,9 +261,9 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 */
 	public final void setMemberSinceWhen(String date) {
 		if (Strings.isNullOrEmpty(date)) {
-			setMemberSinceWhen((Date) null);
+			setMemberSinceWhen((LocalDate) null);
 		} else {
-			setMemberSinceWhen(Date.valueOf(date));
+			setMemberSinceWhen(LocalDate.parse(date));
 		}
 	}
 
@@ -301,7 +271,7 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 *
 	 * @return the date.
 	 */
-	public Date getMemberToWhen() {
+	public LocalDate getMemberToWhen() {
 		return this.memberToWhen;
 	}
 
@@ -309,7 +279,7 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 *
 	 * @param date the date.
 	 */
-	public void setMemberToWhen(Date date) {
+	public void setMemberToWhen(LocalDate date) {
 		this.memberToWhen = date;
 	}
 
@@ -319,9 +289,9 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 */
 	public final void setMemberToWhen(String date) {
 		if (Strings.isNullOrEmpty(date)) {
-			setMemberToWhen((Date) null);
+			setMemberToWhen((LocalDate) null);
 		} else {
-			setMemberToWhen(Date.valueOf(date));
+			setMemberToWhen(LocalDate.parse(date));
 		}
 	}
 
@@ -405,19 +375,13 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 * @return {@code true} if the membership time windows contains the given date.
 	 */
 	public boolean isActiveAt(LocalDate now) {
-		final Date s = getMemberSinceWhen();
-		if (s != null) {
-			final LocalDate start = s.toLocalDate();
-			if (now.isBefore(start)) {
-				return false;
-			}
+		final LocalDate start = getMemberSinceWhen();
+		if (start != null && now.isBefore(start)) {
+			return false;
 		}
-		final Date e = getMemberToWhen();
-		if (e != null) {
-			final LocalDate end = e.toLocalDate();
-			if (now.isAfter(end)) {
-				return false;
-			}
+		final LocalDate end = getMemberToWhen();
+		if (end != null && now.isAfter(end)) {
+			return false;
 		}
 		return true;
 	}
@@ -432,18 +396,15 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	public boolean isActiveIn(LocalDate windowStart, LocalDate windowEnd) {
 		assert windowStart != null;
 		assert windowEnd != null;
-		final Date s = getMemberSinceWhen();
-		final Date e = getMemberToWhen();
-		if (s != null) {
-			final LocalDate start = s.toLocalDate();
-			if (e != null) {
-				final LocalDate end = e.toLocalDate();
+		final LocalDate start = getMemberSinceWhen();
+		final LocalDate end = getMemberToWhen();
+		if (start != null) {
+			if (end != null) {
 				return !windowEnd.isBefore(start) && !windowStart.isAfter(end);
 			}
 			return !windowEnd.isBefore(start);
 		}
-		if (e != null) {
-			final LocalDate end = e.toLocalDate();
+		if (end != null) {
 			return !windowStart.isAfter(end);
 		}
 		return true;
@@ -455,15 +416,14 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 * @return {@code true} if the membership is finished.
 	 */
 	public boolean isFormer() {
-		final Date dt = getMemberToWhen();
+		final LocalDate dt = getMemberToWhen();
 		if (dt == null) {
 			// Without a end date, the membership is active for ever.
 			// So that it cannot be for a former member.
 			return false;
 		}
 		final LocalDate now = LocalDate.now();
-		final LocalDate end = dt.toLocalDate();
-		return now.isAfter(end);
+		return now.isAfter(dt);
 	}
 
 	/** Replies if the membership is for future member.
@@ -472,15 +432,14 @@ public class Membership implements Serializable, JsonSerializable, AttributeProv
 	 * @return {@code true} if the membership is not yet started.
 	 */
 	public boolean isFuture() {
-		final Date dt = getMemberSinceWhen();
+		final LocalDate dt = getMemberSinceWhen();
 		if (dt == null) {
 			// Without a start date, the membership is active since ever.
 			// So that it cannot be for a future member.
 			return false;
 		}
 		final LocalDate now = LocalDate.now();
-		final LocalDate end = dt.toLocalDate();
-		return now.isBefore(end);
+		return now.isBefore(dt);
 	}
 
 }

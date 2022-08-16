@@ -27,13 +27,9 @@ import javax.persistence.Id;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.databind.JsonSerializable;
-import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import fr.ciadlab.labmanager.entities.AttributeProvider;
+import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.io.json.JsonUtils;
-import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 
 /** Author link between a person and a research publication.
@@ -46,7 +42,7 @@ import fr.ciadlab.labmanager.utils.HashCodeUtils;
  */
 @Entity
 @Table(name = "Authorship")
-public class Authorship implements Serializable, JsonSerializable, AttributeProvider, Comparable<Authorship> {
+public class Authorship implements Serializable, AttributeProvider, Comparable<Authorship>, IdentifiableEntity {
 
 	private static final long serialVersionUID = -6870718668893845051L;
 
@@ -55,6 +51,11 @@ public class Authorship implements Serializable, JsonSerializable, AttributeProv
 	@Id
 	@GeneratedValue
 	private int id;
+
+	/** Author rank determines the order of the author in the list of authors for the concerned publication.
+	 */
+	@Column(nullable = false)
+	private int authorRank;
 
 	/** Reference to the publication.
 	 */
@@ -65,11 +66,6 @@ public class Authorship implements Serializable, JsonSerializable, AttributeProv
 	 */
 	@ManyToOne(fetch = FetchType.EAGER)
 	private Person person;
-
-	/** Author rank determines the order of the author in the list of authors for the concerned publication.
-	 */
-	@Column(nullable = false)
-	private int authorRank;
 
 	/** Construct the authorship with empty fields.
 	 */
@@ -139,31 +135,6 @@ public class Authorship implements Serializable, JsonSerializable, AttributeProv
 	}
 
 	@Override
-	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
-		generator.writeStartObject();
-		generator.writeNumberField("id", getId()); //$NON-NLS-1$
-		forEachAttribute((name, value) -> {
-			JsonUtils.writeField(generator, name, value);
-		});
-		if (getPerson() != null) {
-			generator.writeNumberField("person", getPerson().getId()); //$NON-NLS-1$
-		}
-		if (getPublication() != null) {
-			generator.writeNumberField("publication", getPublication().getId()); //$NON-NLS-1$
-		}
-		generator.writeEndObject();
-	}
-
-	@Override
-	public void serializeWithType(JsonGenerator generator, SerializerProvider serializers, TypeSerializer typeSer)
-			throws IOException {
-		serialize(generator, serializers);
-	}
-
-	/** Replies the identifier of the authorship.
-	 *
-	 * @return the identifier.
-	 */
 	public int getId() {
 		return this.id;
 	}

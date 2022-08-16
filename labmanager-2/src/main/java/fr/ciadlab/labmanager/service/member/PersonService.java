@@ -153,7 +153,7 @@ public class PersonService extends AbstractService {
 		if (optPerson.isPresent()) {
 			final Person person = optPerson.get();
 			//When removing an author, reduce the ranks of the other authorships for the pubs he made.
-			for (final Authorship authorship : person.getPublications()) {
+			for (final Authorship authorship : person.getAuthorships()) {
 				final int rank = authorship.getAuthorRank();
 				final Optional<Publication> optPub = this.publicationRepository.findById(
 						Integer.valueOf(authorship.getPublication().getId()));

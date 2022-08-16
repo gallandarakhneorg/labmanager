@@ -56,7 +56,7 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	 * @param status the member status
 	 * @return the persons.
 	 */
-	Set<Person> findDistinctByResearchOrganizationsResearchOrganizationNameAndResearchOrganizationsMemberStatus(
+	Set<Person> findDistinctByMembershipsResearchOrganizationNameAndMembershipsMemberStatus(
 			String organizationName, MemberStatus status);
 
 	/** Replies the persons in the organization with the given acronym and who have the given status.
@@ -65,7 +65,7 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	 * @param status the member status
 	 * @return the persons.
 	 */
-	Set<Person> findDistinctByResearchOrganizationsResearchOrganizationAcronymAndResearchOrganizationsMemberStatus(
+	Set<Person> findDistinctByMembershipsResearchOrganizationAcronymAndMembershipsMemberStatus(
 			String organizationAcronym, MemberStatus status);
 
 	/** Replies the persons in the organization with the given identifier.
@@ -73,13 +73,13 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	 * @param id the identifier of the organization.
 	 * @return the persons.
 	 */
-	Set<Person> findDistinctByResearchOrganizationsResearchOrganizationId(int id);
+	Set<Person> findDistinctByMembershipsResearchOrganizationId(int id);
 
 	/** Replies the persons who authored the publication with the given identifier.
 	 *
 	 * @param id the identifier of the publication.
 	 * @return the persons.
 	 */
-	List<Person> findByPublicationsPublicationIdOrderByPublicationsAuthorRank(int id);
+	List<Person> findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(int id);
 
 }

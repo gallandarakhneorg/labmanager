@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** REST Controller for persons.
  * <p>
@@ -65,7 +66,8 @@ public class PersonController extends AbstractController {
 	 * @param personService the person service.
 	 * @param nameParser the parser of person names.
 	 */
-	public PersonController(@Autowired MessageSourceAccessor messages,
+	public PersonController(
+			@Autowired MessageSourceAccessor messages,
 			@Autowired PersonService personService, @Autowired PersonNameParser nameParser) {
 		super(DEFAULT_ENDPOINT);
 		this.messages = messages;
@@ -81,6 +83,7 @@ public class PersonController extends AbstractController {
 	public ModelAndView showPersonList() {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		modelAndView.addObject("persons", this.personService.getAllPersons()); //$NON-NLS-1$
+		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
 		return modelAndView;
 	}
 

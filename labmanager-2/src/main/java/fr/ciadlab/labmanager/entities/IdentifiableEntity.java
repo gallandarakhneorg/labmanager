@@ -14,30 +14,22 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.entities.publication;
+package fr.ciadlab.labmanager.entities;
 
-import fr.ciadlab.labmanager.entities.IdentifiableEntity;
-import fr.ciadlab.labmanager.entities.journal.Journal;
-
-/** A publication that is associated to a journal.
+/** Interface that represents an object that has an database identifier.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 2.0.0
  */
-public interface JournalBasedPublication extends IdentifiableEntity {
+public interface IdentifiableEntity {
 
-	/** Replies the journal in which the publication was published.
+	/** Replies the database identifier for this entity.
 	 *
-	 * @return the journal.
+	 * @return the identifier.
 	 */
-	Journal getJournal();
-
-	/** Change the journal in which the publication was published.
-	 *
-	 * @param journal the journal.
-	 */
-	public void setJournal(Journal journal);
+	int getId();
 
 }

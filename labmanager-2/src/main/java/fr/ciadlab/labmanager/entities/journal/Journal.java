@@ -40,19 +40,18 @@ import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
-import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
-import fr.ciadlab.labmanager.utils.AttributeProvider;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.util.IntegerList;
 import org.arakhne.afc.util.ListUtil;
 
@@ -67,7 +66,7 @@ import org.arakhne.afc.util.ListUtil;
  */
 @Entity
 @Table(name = "Journals")
-public class Journal implements Serializable, JsonSerializable, AttributeProvider {
+public class Journal implements Serializable, JsonSerializable, AttributeProvider, IdentifiableEntity {
 
 	private static final long serialVersionUID = -2046765660549008074L;
 
@@ -131,7 +130,6 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	/** List of papers that are published in this journal.
 	 */
 	@OneToMany(mappedBy = "journal")
-	@JsonIgnore
 	private Set<JournalPaper> publishedPapers;
 
 	/** History of the quality indicators for this journal.
@@ -145,7 +143,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 			@JoinColumn(name = "indicators_id", referencedColumnName = "id")
 	})
 	@MapKey(name = "referenceYear")
-	private Map<Integer, JournalQualityAnnualIndicators> qualityIndicatorsHistory;
+	private Map<Integer, JournalQualityAnnualIndicators> qualityIndicators;
 
 	/** Construct a journal with the given values.
 	 * 
@@ -174,7 +172,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		this.wosId = wosId;
 		this.isbn = isbn;
 		this.issn = issn;
-		this.qualityIndicatorsHistory = indicators;
+		this.qualityIndicators = indicators;
 	}
 
 	/** Construct a journal with the given values.
@@ -277,6 +275,9 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 */
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+		if (getId() != 0) {
+			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getJournalName())) {
 			consumer.accept("journalName", getJournalName()); //$NON-NLS-1$
 		}
@@ -309,25 +310,16 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	@Override
 	public void serialize(JsonGenerator generator, SerializerProvider serializers) throws IOException {
 		generator.writeStartObject();
-		generator.writeNumberField("id", getId()); //$NON-NLS-1$
-		forEachAttribute((name, value) -> {
-			JsonUtils.writeField(generator, name, value);
+		forEachAttribute((attrName, attrValue) -> {
+			JsonUtils.writeField(generator, attrName, attrValue);
 		});
-		if (!getPublishedPapers().isEmpty()) {
-			generator.writeArrayFieldStart("publishedPapers"); //$NON-NLS-1$
-			for (final Publication publication : getPublishedPapers()) {
-				generator.writeNumber(publication.getId());
-			}
-			generator.writeEndArray();
+		//
+		generator.writeObjectFieldStart("qualityIndicators"); //$NON-NLS-1$
+		for (final Entry<Integer, JournalQualityAnnualIndicators> indicators : getQualityIndicators().entrySet()) {
+			generator.writeFieldId(indicators.getKey().intValue());
+			generator.writeObject(indicators.getValue());
 		}
-		if (!getQualityIndicators().isEmpty()) {
-			generator.writeObjectFieldStart("qualityIndicators"); //$NON-NLS-1$
-			for (final Entry<Integer, JournalQualityAnnualIndicators> indicators : getQualityIndicators().entrySet()) {
-				generator.writeFieldName(indicators.getKey().toString());
-				indicators.getValue().serialize(generator, serializers);
-			}
-			generator.writeEndObject();
-		}
+		//
 		generator.writeEndObject();
 	}
 
@@ -337,10 +329,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		serialize(generator, serializers);
 	}
 
-	/** Replies the identifier of the journal in the database.
-	 *
-	 * @return the identifier.
-	 */
+	@Override
 	public int getId() {
 		return this.id;
 	}
@@ -538,11 +527,11 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @return the indicators.
 	 * @since 2.0
 	 */
-	public final Map<Integer, JournalQualityAnnualIndicators> getQualityIndicators() {
-		if (this.qualityIndicatorsHistory == null) {
-			this.qualityIndicatorsHistory = new TreeMap<>();
+	public Map<Integer, JournalQualityAnnualIndicators> getQualityIndicators() {
+		if (this.qualityIndicators == null) {
+			this.qualityIndicators = new TreeMap<>();
 		}
-		return this.qualityIndicatorsHistory;
+		return this.qualityIndicators;
 	}
 
 	/** Replies the quality indicators of the journal for the given year.
@@ -552,10 +541,10 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @since 2.0
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsForYear(int year) {
-		if (this.qualityIndicatorsHistory == null) {
+		if (this.qualityIndicators == null) {
 			return null;
 		}
-		return this.qualityIndicatorsHistory.get(Integer.valueOf(year));
+		return this.qualityIndicators.get(Integer.valueOf(year));
 	}
 
 	/** Replies the quality indicators that is fitting the given predicates and with an year lower or equal
@@ -567,11 +556,11 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @since 2.0
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsFor(int year, Predicate<JournalQualityAnnualIndicators> selector) {
-		if (this.qualityIndicatorsHistory != null) {
-			final IntegerList ids = new IntegerList(this.qualityIndicatorsHistory.keySet());
+		if (this.qualityIndicators != null) {
+			final IntegerList ids = new IntegerList(this.qualityIndicators.keySet());
 			final int start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
 			for (int i = start; i >= 0; --i) {
-				final JournalQualityAnnualIndicators indicators = this.qualityIndicatorsHistory.get(ids.get(i));
+				final JournalQualityAnnualIndicators indicators = this.qualityIndicators.get(ids.get(i));
 				if (indicators != null && selector.test(indicators)) {
 					return indicators;
 				}
@@ -616,10 +605,10 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 			indicators.setScimagoQIndex(quartile);
 		} else {
 			indicators = new JournalQualityAnnualIndicators(year, quartile, null, 0f);
-			if (this.qualityIndicatorsHistory == null) {
-				this.qualityIndicatorsHistory = new TreeMap<>();
+			if (this.qualityIndicators == null) {
+				this.qualityIndicators = new TreeMap<>();
 			}
-			this.qualityIndicatorsHistory.put(Integer.valueOf(year), indicators);
+			this.qualityIndicators.put(Integer.valueOf(year), indicators);
 		}
 		return indicators;
 	}
@@ -662,10 +651,10 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 			indicators.setWosQIndex(quartile);
 		} else {
 			indicators = new JournalQualityAnnualIndicators(year, null, quartile, 0f);
-			if (this.qualityIndicatorsHistory == null) {
-				this.qualityIndicatorsHistory = new TreeMap<>();
+			if (this.qualityIndicators == null) {
+				this.qualityIndicators = new TreeMap<>();
 			}
-			this.qualityIndicatorsHistory.put(Integer.valueOf(year), indicators);
+			this.qualityIndicators.put(Integer.valueOf(year), indicators);
 		}
 		return indicators;
 	}
@@ -709,10 +698,10 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 			indicators.setImpactFactor(impactFactor);
 		} else {
 			indicators = new JournalQualityAnnualIndicators(year, null, null, impactFactor);
-			if (this.qualityIndicatorsHistory == null) {
-				this.qualityIndicatorsHistory = new TreeMap<>();
+			if (this.qualityIndicators == null) {
+				this.qualityIndicators = new TreeMap<>();
 			}
-			this.qualityIndicatorsHistory.put(Integer.valueOf(year), indicators);
+			this.qualityIndicators.put(Integer.valueOf(year), indicators);
 		}
 		return indicators;
 	}
