@@ -39,7 +39,8 @@
 			"githubId": "gallandarakhneorg",
 			"linkedInId": "sgalland",
 			"researcherId": "F-3789-2011",
-			"researchGateId": "Stephane_Galland"
+			"researchGateId": "Stephane_Galland",
+			"webPageNaming": "FIRST_LAST"
 		},
 		{
 			"@id": "/pers#1",
@@ -325,7 +326,14 @@
 			"title": "Méthodologie de filtrage et de traitement de données de signalisation de la téléphonie mobile pour la construction de matrice origine-destination. Application à la Région Rhône-Alpes.",
 			"journal": {"@id":"/jour#1"},
 			"year": 2019,
-			"language": "FRENCH"
+			"language": "FRENCH",
+			"abstractText": "This is a summary of the paper",
+			"keywords": "Keyword 1, Keyword 2, Keyword 3",
+			"dblpUrl": "http://dblp.org/somewhere",
+			"doi": "XYZ/123-456-789",
+			"pathToDownloadablePDF": "/some/invalid/path/to/file.pdf",
+			"volume": "123",
+			"pages": "1-12"
 		},
 		{
 			"@id": "/publi#18",

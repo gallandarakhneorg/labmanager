@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -259,14 +260,71 @@ public class PersonTest {
 	public void setGender_string() {
 		assertSame(Gender.NOT_SPECIFIED, this.test.getGender());
 
-		this.test.setGender(Gender.MALE);
+		this.test.setGender(Gender.MALE.name());
 		assertSame(Gender.MALE, this.test.getGender());
 
 		this.test.setGender((String) null);
 		assertSame(Gender.NOT_SPECIFIED, this.test.getGender());
 
-		this.test.setGender(Gender.FEMALE);
+		this.test.setGender(Gender.FEMALE.name());
 		assertSame(Gender.FEMALE, this.test.getGender());
+	}
+
+	@Test
+	public void getWebPageNaming() {
+		assertSame(WebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void setWebPageNaming_naming() {
+		assertSame(WebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+
+		this.test.setWebPageNaming(WebPageNaming.AUTHOR_ID);
+		assertSame(WebPageNaming.AUTHOR_ID, this.test.getWebPageNaming());
+
+		this.test.setWebPageNaming((WebPageNaming) null);
+		assertSame(WebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+
+		this.test.setWebPageNaming(WebPageNaming.EMAIL_ID);
+		assertSame(WebPageNaming.EMAIL_ID, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void setWebPageNaming_string() {
+		assertSame(WebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+
+		this.test.setWebPageNaming(WebPageNaming.FIRST_LAST.name());
+		assertSame(WebPageNaming.FIRST_LAST, this.test.getWebPageNaming());
+
+		this.test.setWebPageNaming((String) null);
+		assertSame(WebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+
+		this.test.setWebPageNaming(WebPageNaming.EMAIL_ID.name());
+		assertSame(WebPageNaming.EMAIL_ID, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void getWebPageURI_onlyFirst() throws Exception {
+		this.test.setWebPageNaming(WebPageNaming.FIRST_LAST);
+		this.test.setFirstName("I am Stéphane");
+		this.test.setLastName(null);
+		assertEquals(new URI("/iamstephane"), this.test.getWebPageURI());
+	}
+
+	@Test
+	public void getWebPageURI_onlyLast() throws Exception {
+		this.test.setWebPageNaming(WebPageNaming.FIRST_LAST);
+		this.test.setFirstName(null);
+		this.test.setLastName("I am Stéphane");
+		assertEquals(new URI("/iamstephane"), this.test.getWebPageURI());
+	}
+
+	@Test
+	public void getWebPageURI() throws Exception {
+		this.test.setWebPageNaming(WebPageNaming.FIRST_LAST);
+		this.test.setFirstName("I am Stéphane");
+		this.test.setLastName("My last name");
+		assertEquals(new URI("/iamstephane_mylastname"), this.test.getWebPageURI());
 	}
 
 	@Test

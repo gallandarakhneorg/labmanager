@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.entities.member;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.net.URL;
 import java.util.Map;
 import java.util.Objects;
@@ -114,6 +115,12 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	@Column
 	private String email;
+
+	/** Naming convention for the webpage of the person..
+	 */
+	@Column(nullable = true)
+	@Enumerated(EnumType.STRING)
+	private WebPageNaming webPageNaming;
 
 	/** ORCID of the person.
 	 */
@@ -398,6 +405,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (getWosHindex() > 0) {
 			consumer.accept("wosHindex", Integer.valueOf(getWosHindex())); //$NON-NLS-1$
 		}
+		consumer.accept("webPageURI", getWebPageURI()); //$NON-NLS-1$
 	}
 
 	@Override
@@ -515,6 +523,45 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public void setEmail(String email) {
 		this.email = Strings.emptyToNull(email);
+	}
+
+	/** Replies the naming convention for the webpage of the person.
+	 *
+	 * @return the convention.
+	 */
+	public WebPageNaming getWebPageNaming() {
+		if (this.webPageNaming == null) {
+			return WebPageNaming.UNSPECIFIED;
+		}
+		return this.webPageNaming;
+	}
+
+	/** Change the naming convention for the webpage of the person.
+	 *
+	 * @param namingConvention the new naming convention.
+	 */
+	public void setWebPageNaming(WebPageNaming namingConvention) {
+		this.webPageNaming = namingConvention;
+	}
+
+	/** Change the naming convention for the webpage of the person.
+	 *
+	 * @param namingConvention the new naming convention.
+	 */
+	public final void setWebPageNaming(String namingConvention) {
+		if (Strings.isNullOrEmpty(namingConvention)) {
+			setWebPageNaming((WebPageNaming) null);
+		} else {
+			setWebPageNaming(WebPageNaming.valueOfCaseInsensitive(namingConvention));
+		}
+	}
+
+	/** Replies the URI of the webpage of the person.
+	 *
+	 * @return the URI or {@code null} if none.
+	 */
+	public URI getWebPageURI() {
+		return getWebPageNaming().getWebpageURIFor(this);
 	}
 
 	/** Replies the ORCID of the person.
