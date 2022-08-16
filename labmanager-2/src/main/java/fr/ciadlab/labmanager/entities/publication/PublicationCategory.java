@@ -33,26 +33,6 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @see PublicationType
  */
 public enum PublicationCategory {
-	/** Patents.
-	 */
-	BRE {
-		@Override
-		public boolean isScientificJournalPaper() {
-			return false;
-		}
-		@Override
-		public boolean isPatent() {
-			return true;
-		}
-		@Override
-		public boolean isScientificEventPaper() {
-			return false;
-		}
-		@Override
-		public boolean isScientificCultureDissemination() {
-			return false;
-		}
-	},
 	/** Articles in international or national journals with selection commitee and ranked in international databases.
 	 */
 	ACL {
@@ -283,6 +263,26 @@ public enum PublicationCategory {
 		@Override
 		public boolean isPatent() {
 			return false;
+		}
+		@Override
+		public boolean isScientificEventPaper() {
+			return false;
+		}
+		@Override
+		public boolean isScientificCultureDissemination() {
+			return false;
+		}
+	},
+	/** Patents.
+	 */
+	BRE {
+		@Override
+		public boolean isScientificJournalPaper() {
+			return false;
+		}
+		@Override
+		public boolean isPatent() {
+			return true;
 		}
 		@Override
 		public boolean isScientificEventPaper() {
