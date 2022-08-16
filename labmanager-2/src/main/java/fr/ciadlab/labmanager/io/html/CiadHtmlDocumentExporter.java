@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.io.html;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -38,9 +39,10 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 	/** Constructor.
 	 *
 	 * @param messages the accessor to the localized messages.
+	 * @param doiTools the tools for managning DOI links.
 	 */
-	public CiadHtmlDocumentExporter(@Autowired MessageSourceAccessor messages) {
-		super(messages);
+	public CiadHtmlDocumentExporter(@Autowired MessageSourceAccessor messages, DoiTools doiTools) {
+		super(messages, doiTools);
 	}
 	
 	@Override
@@ -72,7 +74,7 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
-			exportAuthors(html, publication, configurator);
+			exportAuthors(html, publication, configurator, true);
 			exportDescription(html, publication, configurator);
 		} finally {
 			java.util.Locale.setDefault(loc);

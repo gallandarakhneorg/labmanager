@@ -30,7 +30,9 @@ import fr.ciadlab.labmanager.entities.publication.type.Patent;
 import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.eclipse.xtext.xbase.lib.Functions.Function2;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Utilities for exporting publications to HTML content based on the CIAD standard HTML style.
@@ -56,13 +58,14 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 	protected static final String ROOT_URL = "http://www.ciad-lab.fr/"; //$NON-NLS-1$
 
 	private static final String MESSAGES_PREFIX = "abstractCiadHtmlExporter."; //$NON-NLS-1$
-	
+
 	/** Constructor.
 	 *
 	 * @param messages the accessor to the localized messages.
+	 * @param doiTools the tools for managning DOI links.
 	 */
-	public AbstractCiadHtmlExporter(MessageSourceAccessor messages) {
-		super(messages);
+	public AbstractCiadHtmlExporter(MessageSourceAccessor messages, DoiTools doiTools) {
+		super(messages, doiTools);
 	}
 
 	@Override
@@ -367,10 +370,26 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
 	 * @param configurator the configurator for the exporter.
+	 * @param appendEndPoint indicates if a point must be added at the end.
 	 */
-	protected void exportAuthors(StringBuilder html, Publication publication, ExporterConfigurator configurator) {
+	protected final void exportAuthors(StringBuilder html, Publication publication, ExporterConfigurator configurator, boolean appendEndPoint) {
+		exportAuthors(html, publication, configurator, appendEndPoint, null);
+	}
+
+	/** Export in HTML the authors of a single publication.
+	 *
+	 * @param html the receiver of the HTML.
+	 * @param publication the publication, never {@code null}.
+	 * @param configurator the configurator for the exporter.
+	 * @param appendEndPoint indicates if a point must be added at the end.
+	 * @param formatter a lambda expression that permits to format the names. It takes the name as argument and replies
+	 *     the formatted name.
+	 */
+	protected void exportAuthors(StringBuilder html, Publication publication, ExporterConfigurator configurator, boolean appendEndPoint,
+			Function2<Person, Integer, String> formatter) {
 		assert configurator != null;
 		final int year = publication.getPublicationYear();
+		final Integer oyear = Integer.valueOf(year);
 		boolean first = true;
 		for (final Person person : publication.getAuthors()) {
 			if (first) {
@@ -378,9 +397,17 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 			} else {
 				html.append(", "); //$NON-NLS-1$
 			}
-			html.append(formatAuthorName(person, year, configurator));
+			final String name0;
+			if (formatter != null) {
+				name0 = formatter.apply(person, oyear);
+			} else {
+				name0 = formatAuthorName(person, year, configurator);
+			}
+			html.append(name0);
 		}
-		html.append(". "); //$NON-NLS-1$
+		if (appendEndPoint) {
+			html.append(". "); //$NON-NLS-1$
+		}
 	}
 
 }

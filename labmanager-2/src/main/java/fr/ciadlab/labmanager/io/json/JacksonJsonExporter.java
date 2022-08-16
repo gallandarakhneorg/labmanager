@@ -32,6 +32,7 @@ import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
 /** Exporter of publications to JSON using the Jackson API.
@@ -44,15 +45,18 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Primary
-public class JacksonJsonExporter implements JsonExporter {
+public class JacksonJsonExporter extends AbstractJsonExporter {
 
 	private HtmlPageExporter htmlPageExporter;
 
 	/** Constructor.
 	 * 
+	 * @param messages the accessors to the localized messages.
 	 * @param htmlPageExporter the exporter for HTML pages.
+	 * @param doiTools the tools for managing the DOI.
 	 */
-	public JacksonJsonExporter(@Autowired HtmlPageExporter htmlPageExporter) {
+	public JacksonJsonExporter(@Autowired MessageSourceAccessor messages, @Autowired HtmlPageExporter htmlPageExporter) {
+		super(messages);
 		this.htmlPageExporter = htmlPageExporter;
 	}
 
@@ -88,12 +92,22 @@ public class JacksonJsonExporter implements JsonExporter {
 		}
 		final ArrayNode array = mapper.createArrayNode();
 		final boolean extraButtons = configurator.isDownloadButtons() || configurator.isExportButtons() || configurator.isEditButtons()
-				|| configurator.isDeleteButtons();
+				|| configurator.isDeleteButtons() || configurator.isFormattedAuthorList() || configurator.isFormattedPublicationDetails()
+				|| configurator.isFormattedLinks() || configurator.isTypeAndCategoryLabels();
 		for (final Publication publication : publications) {
 			final ObjectNode entryNode = exportPublication(publication, configurator, mapper);
-			// Make aliasing
+			// Make aliasing of the year
 			if (entryNode.has("publicationYear")) { //$NON-NLS-1$
 				entryNode.set("year", entryNode.get("publicationYear").deepCopy()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			// Add labels for type and category
+			if (configurator.isTypeAndCategoryLabels()) {
+				if (entryNode.has("type")) { //$NON-NLS-1$
+					entryNode.set("htmlTypeLabel", mapper.valueToTree(publication.getType().getLabel())); //$NON-NLS-1$
+				}
+				if (entryNode.has("category")) { //$NON-NLS-1$
+					entryNode.set("htmlCategoryLabel", mapper.valueToTree(publication.getType().getCategory(publication.isRanked()).getLabel())); //$NON-NLS-1$
+				}
 			}
 			//
 			if (extraButtons) {
@@ -125,25 +139,28 @@ public class JacksonJsonExporter implements JsonExporter {
 					}
 					entryNode.set("htmlExports", array0); //$NON-NLS-1$
 				}
-				if (configurator.isEditButtons() || configurator.isDeleteButtons()) {
-					final ArrayNode links = mapper.createArrayNode();
-					if (configurator.isEditButtons()) {
-						final String editButton = this.htmlPageExporter.getButtonToEditPublication(publication.getId());
-						if (!Strings.isNullOrEmpty(editButton)) {
-							final JsonNode editNode = mapper.valueToTree(editButton);
-							links.add(editNode.deepCopy());
-							entryNode.set("htmlEdit", editNode); //$NON-NLS-1$
-						}
+				if (configurator.isEditButtons()) {
+					final String editButton = this.htmlPageExporter.getButtonToEditPublication(publication.getId());
+					if (!Strings.isNullOrEmpty(editButton)) {
+						final JsonNode editNode = mapper.valueToTree(editButton);
+						entryNode.set("htmlEdit", editNode); //$NON-NLS-1$
 					}
-					if (configurator.isDeleteButtons()) {
-						final String deleteButton = this.htmlPageExporter.getButtonToDeletePublication(publication.getId());
-						if (!Strings.isNullOrEmpty(deleteButton)) {
-							final JsonNode deleteNode = mapper.valueToTree(deleteButton);
-							links.add(deleteNode.deepCopy());
-							entryNode.set("htmlDelete", deleteNode); //$NON-NLS-1$
-						}
+				}
+				if (configurator.isDeleteButtons()) {
+					final String deleteButton = this.htmlPageExporter.getButtonToDeletePublication(publication.getId());
+					if (!Strings.isNullOrEmpty(deleteButton)) {
+						final JsonNode deleteNode = mapper.valueToTree(deleteButton);
+						entryNode.set("htmlDelete", deleteNode); //$NON-NLS-1$
 					}
-					entryNode.set("htmlLinks", links); //$NON-NLS-1$
+				}
+				if (configurator.isFormattedAuthorList()) {
+					entryNode.set("htmlAuthors", mapper.valueToTree(this.htmlPageExporter.generateHtmlAuthors(publication, configurator))); //$NON-NLS-1$
+				}
+				if (configurator.isFormattedPublicationDetails()) {
+					entryNode.set("htmlPublicationDetails", mapper.valueToTree(this.htmlPageExporter.generateHtmlPublicationDetails(publication, configurator))); //$NON-NLS-1$
+				}
+				if (configurator.isFormattedLinks()) {
+					entryNode.set("htmlLinks", mapper.valueToTree(this.htmlPageExporter.generateHtmlLinks(publication, configurator))); //$NON-NLS-1$
 				}
 			}
 			array.add(entryNode);

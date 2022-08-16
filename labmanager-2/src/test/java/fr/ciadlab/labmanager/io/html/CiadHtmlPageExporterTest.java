@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -37,6 +38,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -57,12 +59,16 @@ public class CiadHtmlPageExporterTest {
 
 	private MessageSourceAccessor messages;
 
+	private DoiTools doiTools;
+
 	private CiadHtmlPageExporter test;
 
 	@BeforeEach
-	public void setUp() {
+	public void setUp() throws Exception {
 		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
-		this.test = new CiadHtmlPageExporter(this.messages);
+		this.doiTools = mock(DoiTools.class);
+		when(this.doiTools.getDOIUrlFromDOINumber(any())).thenReturn(new URL("https://doi.org/XXX"));
+		this.test = new CiadHtmlPageExporter(this.messages, this.doiTools);
 	}
 
 	@Test
@@ -92,7 +98,7 @@ public class CiadHtmlPageExporterTest {
 		Journal j = mock(Journal.class);
 		when(j.getJournalName()).thenReturn("Int. Journal of Science");
 		when(j.getPublisher()).thenReturn("The Publisher");
-		
+
 		JournalPaper p1 = mock(JournalPaper.class);
 		when(p1.getDOI()).thenReturn("doinumber1");
 		when(p1.getISBN()).thenReturn("isbn1");

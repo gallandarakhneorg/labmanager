@@ -132,6 +132,11 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		if (!Strings.isNullOrEmpty(getPages())) {
 			consumer.accept("pages", getPages()); //$NON-NLS-1$
 		}		
+		if (isRanked()) {
+			consumer.accept("scimagoQIndex", getScimagoQIndex()); //$NON-NLS-1$
+			consumer.accept("wosQIndex", getWosQIndex()); //$NON-NLS-1$
+			consumer.accept("impactFactor", Float.valueOf(getImpactFactor())); //$NON-NLS-1$
+		}
 	}
 
 	@Override
@@ -229,10 +234,7 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		this.journal = journal;
 	}
 
-	/** Replies the Scimago Q-index.
-	 *
-	 * @return the Scimago ranking.
-	 */
+	@Override
 	public QuartileRanking getScimagoQIndex() {
 		final Journal journal = getJournal();
 		if (journal != null) {
@@ -241,10 +243,7 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		return null;
 	}
 
-	/** Replies the JCR/Web-of-Science Q-index.
-	 *
-	 * @return the JCR/WOS ranking.
-	 */
+	@Override
 	public QuartileRanking getWosQIndex() {
 		final Journal journal = getJournal();
 		if (journal != null) {
@@ -253,10 +252,7 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		return null;
 	}
 
-	/** Replies the journal impact factor.
-	 *
-	 * @return the IF or zero.
-	 */
+	@Override
 	public float getImpactFactor() {
 		final Journal journal = getJournal();
 		if (journal != null) {

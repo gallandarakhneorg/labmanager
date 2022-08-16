@@ -56,10 +56,94 @@ public class ExporterConfigurator {
 
 	private boolean enableDeleteButtons = true;
 
+	private boolean enableFormattedLinks = true;
+
+	private boolean enableFormattedAuthorList = true;
+
+	private boolean enableFormattedPublicationDetails = true;
+
+	private boolean enableTypeAndCategoryLabels = true;
+
 	/** Constructor.
 	 */
 	public ExporterConfigurator() {
 		//
+	}
+
+	/** Replies if the labels of the publication type and category are included to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return {@code true} for including HTML labels.
+	 */
+	public boolean isTypeAndCategoryLabels() {
+		return this.enableTypeAndCategoryLabels;
+	}
+
+	/** Disable the generation of the labels of the publication type and category are included to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return this.
+	 */
+	public ExporterConfigurator disableTypeAndCategoryLabels() {
+		this.enableTypeAndCategoryLabels = false;
+		return this;
+	}
+
+	/** Replies if the HTML links is included to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return {@code true} for including HTML publication details.
+	 */
+	public boolean isFormattedLinks() {
+		return this.enableFormattedLinks;
+	}
+
+	/** Disable the generation of the HTML links to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return this.
+	 */
+	public ExporterConfigurator disableFormattedLinks() {
+		this.enableFormattedLinks = false;
+		return this;
+	}
+
+	/** Replies if the HTML publication details is included to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return {@code true} for including HTML publication details.
+	 */
+	public boolean isFormattedPublicationDetails() {
+		return this.enableFormattedPublicationDetails;
+	}
+
+	/** Disable the generation of the HTML list of authors to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return this.
+	 */
+	public ExporterConfigurator disableFormattedPublicationDetails() {
+		this.enableFormattedPublicationDetails = false;
+		return this;
+	}
+
+	/** Replies if the HTML list of authors is included to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return {@code true} for including HTML author list .
+	 */
+	public boolean isFormattedAuthorList() {
+		return this.enableFormattedAuthorList;
+	}
+
+	/** Disable the generation of the HTML list of authors to the exported data.
+	 * <p>This feature may be ignored in the implementation of the exporter.
+	 *
+	 * @return this.
+	 */
+	public ExporterConfigurator disableFormattedAuthorList() {
+		this.enableFormattedAuthorList = false;
+		return this;
 	}
 
 	/** Replies if the edit buttons are included to the exported data.

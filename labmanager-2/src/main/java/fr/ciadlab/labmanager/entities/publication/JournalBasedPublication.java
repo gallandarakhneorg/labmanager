@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.entities.publication;
 
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 
 /** A publication that is associated to a journal.
  * 
@@ -38,6 +39,24 @@ public interface JournalBasedPublication extends IdentifiableEntity {
 	 *
 	 * @param journal the journal.
 	 */
-	public void setJournal(Journal journal);
+	void setJournal(Journal journal);
+
+	/** Replies the Scimago Q-index.
+	 *
+	 * @return the Scimago ranking.
+	 */
+	QuartileRanking getScimagoQIndex();
+
+	/** Replies the JCR/Web-of-Science Q-index.
+	 *
+	 * @return the JCR/WOS ranking.
+	 */
+	QuartileRanking getWosQIndex();
+
+	/** Replies the journal impact factor.
+	 *
+	 * @return the IF or zero.
+	 */
+	float getImpactFactor();
 
 }

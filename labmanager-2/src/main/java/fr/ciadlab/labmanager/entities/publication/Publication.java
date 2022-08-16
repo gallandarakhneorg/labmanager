@@ -407,8 +407,11 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		if (!Strings.isNullOrEmpty(getTitle())) {
 			consumer.accept("title", getTitle()); //$NON-NLS-1$
 		}
+		final boolean ranked = isRanked();
+		consumer.accept("ranked", Boolean.valueOf(ranked)); //$NON-NLS-1$
 		if (getType() != null) {
 			consumer.accept("type", getType()); //$NON-NLS-1$
+			consumer.accept("category", getType().getCategory(ranked)); //$NON-NLS-1$
 		}
 	}
 

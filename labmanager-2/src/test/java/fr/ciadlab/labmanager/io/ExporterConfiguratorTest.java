@@ -188,4 +188,32 @@ public class ExporterConfiguratorTest {
 		assertFalse(this.test.isDeleteButtons());
 	}
 
+	@Test
+	public void disableFormattedAuthorList() {
+		assertTrue(this.test.isFormattedAuthorList());
+		this.test.disableFormattedAuthorList();
+		assertFalse(this.test.isFormattedAuthorList());
+	}
+
+	@Test
+	public void disableFormattedPublicationDetails() {
+		assertTrue(this.test.isFormattedPublicationDetails());
+		this.test.disableFormattedPublicationDetails();
+		assertFalse(this.test.isFormattedPublicationDetails());
+	}
+
+	@Test
+	public void disableFormattedLinks() {
+		assertTrue(this.test.isFormattedLinks());
+		this.test.disableFormattedLinks();
+		assertFalse(this.test.isFormattedLinks());
+	}
+
+	@Test
+	public void disableTypeAndCategoryLabels() {
+		assertTrue(this.test.isTypeAndCategoryLabels());
+		this.test.disableTypeAndCategoryLabels();
+		assertFalse(this.test.isTypeAndCategoryLabels());
+	}
+
 }

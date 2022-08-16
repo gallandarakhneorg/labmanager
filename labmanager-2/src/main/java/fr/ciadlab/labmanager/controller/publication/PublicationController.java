@@ -173,6 +173,9 @@ public class PublicationController extends AbstractController {
 		}
 		addUrlToPublicationListEndPoint(modelAndView, organization, author, journal);
 		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
+		modelAndView.addObject("endpoint_export_bibtex", "/" + Constants.DEFAULT_SERVER_NAME + "/" + Constants.EXPORT_BIBTEX_ENDPOINT ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		modelAndView.addObject("endpoint_export_odt", "/" + Constants.DEFAULT_SERVER_NAME + "/" + Constants.EXPORT_ODT_ENDPOINT ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		modelAndView.addObject("endpoint_export_html", "/" + Constants.DEFAULT_SERVER_NAME + "/" + Constants.EXPORT_HTML_ENDPOINT ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return modelAndView;
 	}
 
@@ -201,7 +204,8 @@ public class PublicationController extends AbstractController {
 
 	private <T> T export(List<Integer> identifiers, Integer organization, Integer author,
 			Integer journal, Boolean nameHighlight, Boolean color, Boolean downloadButtons, Boolean exportButtons, 
-			Boolean editButtons, Boolean deleteButtons, ExporterCallback<T> callback) throws Exception {
+			Boolean editButtons, Boolean deleteButtons, Boolean htmlAuthors, Boolean htmlPublicationDetails,
+			Boolean htmlTypeAndCategory, ExporterCallback<T> callback) throws Exception {
 		// Prepare the exporter
 		final ExporterConfigurator configurator = new ExporterConfigurator();
 		if (nameHighlight != null && !nameHighlight.booleanValue()) {
@@ -224,6 +228,15 @@ public class PublicationController extends AbstractController {
 		}
 		if (deleteButtons != null && !deleteButtons.booleanValue()) {
 			configurator.disableDeleteButtons();
+		}
+		if (htmlAuthors != null && !htmlAuthors.booleanValue()) {
+			configurator.disableFormattedAuthorList();
+		}
+		if (htmlPublicationDetails != null && !htmlPublicationDetails.booleanValue()) {
+			configurator.disableFormattedPublicationDetails();
+		}
+		if (htmlTypeAndCategory != null && !htmlTypeAndCategory.booleanValue()) {
+			configurator.disableTypeAndCategoryLabels();
 		}
 		if (organization != null) {
 			configurator.selectOrganization(it -> it.getId() == organization.intValue());
@@ -284,7 +297,7 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportHtml(pubs, configurator);
 		final String content = export(identifiers, organization, author, journal, nameHighlight, color,
-				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
+				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.TEXT_HTML);
 		if (inAttachment != null && inAttachment.booleanValue()) {
 			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".html\""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -321,7 +334,7 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportBibTeX(pubs, configurator);
 		final String content = export(identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
-				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
+				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE);
 		if (inAttachment != null && inAttachment.booleanValue()) {
 			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".bib\""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -363,7 +376,7 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
 		final ExporterCallback<byte[]> cb = (pubs, configurator) -> this.publicationService.exportOdt(pubs, configurator);
 		final byte[] content = export(identifiers, organization, author, journal, nameHighlight, color,
-				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
+				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(OpenDocumentConstants.ODT_MIME_TYPE);
 		if (inAttachment != null && inAttachment.booleanValue()) {
 			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".odt\""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -413,6 +426,7 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
 			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
+		final Boolean isAjaxObj = Boolean.valueOf(isAjax);
 		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();
 		final ExporterCallback<String> cb = (pubs, configurator) -> {
 			if (isAjax) {
@@ -420,8 +434,8 @@ public class PublicationController extends AbstractController {
 			}
 			return this.publicationService.exportJson(pubs, configurator);
 		};
-		final String content = export(identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
-				Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, Boolean.TRUE, cb);
+		final String content = export(identifiers, organization, author, journal, isAjaxObj, Boolean.FALSE,
+				isAjaxObj, isAjaxObj, isAjaxObj, isAjaxObj, isAjaxObj, isAjaxObj, isAjaxObj, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
 		if (isAttachment) {
 			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$

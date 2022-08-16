@@ -16,6 +16,9 @@
 
 package fr.ciadlab.labmanager.io.html;
 
+import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.io.ExporterConfigurator;
+
 /** Utilities for exporting publications to HTML content for a website.
  * This exporter is not dedicated to standalone HTML documents but for a specific website.
  * 
@@ -75,5 +78,29 @@ public interface HtmlPageExporter extends HtmlExporter {
 	 * @return the HTML code.
 	 */
 	String getButtonToDeletePublication(int publicationId);
+
+	/** Generate the HTML links for the given publication.
+	 *
+	 * @param publication the publication to export.
+	 * @param configurator the export configurator.
+	 * @return the HTML code for the links.
+	 */
+	String generateHtmlLinks(Publication publication, ExporterConfigurator configurator);
+
+	/** Generate the HTML authors for the given publication.
+	 *
+	 * @param publication the publication to export.
+	 * @param configurator the export configurator.
+	 * @return the HTML code for the authors.
+	 */
+	String generateHtmlAuthors(Publication publication, ExporterConfigurator configurator);
+
+	/** Generate the HTML publication details for the given publication.
+	 *
+	 * @param publication the publication to export.
+	 * @param configurator the export configurator.
+	 * @return the HTML code for the publication details.
+	 */
+	String generateHtmlPublicationDetails(Publication publication, ExporterConfigurator configurator);
 
 }

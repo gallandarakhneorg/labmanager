@@ -24,6 +24,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -37,6 +38,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -56,13 +58,17 @@ public class CiadHtmlDocumentExporterTest {
 	private static final String OUTPUT_FILE = null;
 
 	private MessageSourceAccessor messages;
+
+	private DoiTools doiTools;
 	
 	private CiadHtmlDocumentExporter test;
 
 	@BeforeEach
-	public void setUp() {
+	public void setUp() throws Exception {
 		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
-		this.test = new CiadHtmlDocumentExporter(this.messages);
+		this.doiTools = mock(DoiTools.class);
+		when(this.doiTools.getDOIUrlFromDOINumber(any())).thenReturn(new URL("https://doi.org/XXX"));
+		this.test = new CiadHtmlDocumentExporter(this.messages, this.doiTools);
 	}
 
 	@Test

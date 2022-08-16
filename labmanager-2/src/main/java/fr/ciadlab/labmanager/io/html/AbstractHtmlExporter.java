@@ -36,6 +36,7 @@ import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExportedAuthorStatus;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -51,6 +52,10 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 
 	private static final String MESSAGES_PREFIX = "abstractHtmlExporter."; //$NON-NLS-1$
 
+	/** Tools for managing DOI.
+	 */
+	protected final DoiTools doiTools;
+
 	/** Provider of localized messages.
 	 */
 	protected final MessageSourceAccessor messages;
@@ -58,9 +63,11 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 	/** Constructor.
 	 *
 	 * @param messages the accessor to the localized messages.
+	 * @param doiTools the accessor to the DOI tools.
 	 */
-	public AbstractHtmlExporter(MessageSourceAccessor messages) {
+	public AbstractHtmlExporter(MessageSourceAccessor messages, DoiTools doiTools) {
 		this.messages = messages;
+		this.doiTools = doiTools;
 	}
 
 	/** Replies the string representation of left quotes.
@@ -177,10 +184,9 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 	 * @param doi the DOI identifier.
 	 * @return the link or {@code null}.
 	 */
-	@SuppressWarnings("static-method")
 	protected String buildDoiLink(String doi) {
 		if (!Strings.isNullOrEmpty(doi)) {
-			return "<a href=\"https://doi.org/" + doi + "\">" //$NON-NLS-1$ //$NON-NLS-2$
+			return "<a href=\"" + this.doiTools.getDOIUrlFromDOINumber(doi).toExternalForm() + "\">" //$NON-NLS-1$ //$NON-NLS-2$
 					+ doi + "</a>"; //$NON-NLS-1$
 		}
 		return null;
