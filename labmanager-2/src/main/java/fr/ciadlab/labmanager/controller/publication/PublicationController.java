@@ -45,6 +45,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
+import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -412,6 +413,7 @@ public class PublicationController extends AbstractController {
 	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
 	 *     {@code false}.
 	 *     If the parameter {@code forAjax} is evaluated to {@code true}, this parameter is ignored.
+	 * @param username the name of the logged-in user.
 	 * @return the JSON description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 * @see #getPublicationData(String, Integer)
@@ -424,9 +426,11 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
-			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
+			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment,
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
 		final Boolean isAjaxObj = Boolean.valueOf(isAjax);
+		final Boolean isLoggingIn = Boolean.valueOf(isAjax && !Strings.isNullOrEmpty(username));
 		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();
 		final ExporterCallback<String> cb = (pubs, configurator) -> {
 			if (isAjax) {
@@ -435,7 +439,7 @@ public class PublicationController extends AbstractController {
 			return this.publicationService.exportJson(pubs, configurator);
 		};
 		final String content = export(identifiers, organization, author, journal, isAjaxObj, Boolean.FALSE,
-				isAjaxObj, isAjaxObj, isAjaxObj, isAjaxObj, isAjaxObj, isAjaxObj, isAjaxObj, cb);
+				isAjaxObj, isAjaxObj, isLoggingIn, isLoggingIn, isAjaxObj, isAjaxObj, isAjaxObj, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
 		if (isAttachment) {
 			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$

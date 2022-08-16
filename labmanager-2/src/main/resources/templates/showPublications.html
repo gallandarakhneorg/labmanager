@@ -225,16 +225,20 @@
 	}
 
 	function formatPublicationDetails ( d ) {
-        var links = d.htmlLinks && d.htmlLinks != "" ? "<tr><td>[(#{html.Links})]</td><td>" + d.htmlLinks +'</td></tr>' : "";
         var abstractText = d.abstractText && d.abstractText != "" ? "<tr><td>[(#{html.Abstract})]</td><td>" + d.abstractText + '</td></tr>' : "";
-        var downloads = d.htmlDownloads && d.htmlDownloads != "" ? "<tr><td>[(#{html.Downloads})]</td><td>" + d.htmlDownloads + '</td></tr>' : "";
-        var exports = d.htmlExports && d.htmlExports != "" ? "<tr><td>[(#{html.Exports})]</td><td>" + d.htmlExports + '</td></tr>' : "";
         var note = d.note && d.note != "" ? "<tr><td>[(#{html.Note})]</td><td>" + d.note + '</td></tr>' : "";
         var keywords = d.keywords && d.keywords != "" ? "<tr><td>[(#{html.Keywords})]</td><td>" + d.keywords + '</td></tr>' : "";
         var scimagoQuartile = d.scimagoQIndex && d.scimagoQIndex != "" ? "<tr><td>[(#{html.ScimagoQIndex})]</td><td>" + d.scimagoQIndex + '</td></tr>' : "";
         var wosQuartile = d.wosQIndex && d.wosQIndex != "" ? "<tr><td>[(#{html.WosQIndex})]</td><td>" + d.wosQIndex + '</td></tr>' : "";
         var coreRanking = d.coreRanking && d.coreRanking != "" ? "<tr><td>[(#{html.CoreRanking})]</td><td>" + d.coreRanking + '</td></tr>' : "";
         var impactFactor = d.impactFactor && d.impactFactor != "" ? "<tr><td>[(#{html.ImpactFactor1})]</td><td>" + d.impactFactor + '</td></tr>' : "";
+        var links = d.htmlLinks && d.htmlLinks != "" ? "<tr><td>[(#{html.Links})]</td><td>" + d.htmlLinks +'</td></tr>' : "";
+        var downloads = d.htmlDownloads && d.htmlDownloads != "" ? "<tr><td>[(#{html.Downloads})]</td><td>" + d.htmlDownloads + '</td></tr>' : "";
+        var exports = d.htmlExports && d.htmlExports != "" ? "<tr><td>[(#{html.Exports})]</td><td>" + d.htmlExports + '</td></tr>' : "";
+        var management = '';
+		if (sessionStorage.getItem('status') != null && ((d.htmlEdit && d.htmlEdit != "") || (d.htmlDelete && d.htmlDelete != ""))) {
+			management = "<tr><td>[(#{html.Management})]</td><td>" + d.htmlEdit + d.htmlDelete + '</td></tr>';
+		}
         return '<div class="table-responsive"><table class="table" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%">'
             + "<tr><td>[(#{html.Authors1})]</td><td class=\"publicationAuthors\">" + d.htmlAuthors + '</td></tr>'
             + "<tr><td>[(#{html.Type1})]</td><td>" + d.htmlCategoryLabel + ' (' + d.category + ') / '
@@ -249,10 +253,11 @@
             + impactFactor
             + downloads
             + exports
+            + management
             + '</table></div>';
     }
 
-	$(document).ready(function() {
+    $(document).ready(function() {
 		$.fn.dataTableExt.oSort["rank-asc"] = function (x, y) {
 			var categoryRankX = getCategoryRank(x);
 			var categoryRankY = getCategoryRank(y);
