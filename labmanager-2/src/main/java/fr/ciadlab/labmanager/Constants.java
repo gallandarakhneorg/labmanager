@@ -73,8 +73,32 @@ public interface Constants {
 	 */
 	public static final String INATTACHMENT_ENDPOINT_PARAMETER = "inAttachment"; //$NON-NLS-1$
 
+	/** Name of the endpoint parameter "success".
+	 */
+	public static final String SUCCESS_ENDPOINT_PARAMETER = "success"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "failure".
+	 */
+	public static final String FAILURE_ENDPOINT_PARAMETER = "failure"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "message".
+	 */
+	public static final String MESSAGE_ENDPOINT_PARAMETER = "message"; //$NON-NLS-1$
+
 	/** Default basename of the files in attachment.
 	 */
 	public static final String DEFAULT_ATTACHMENT_BASENAME = "publications"; //$NON-NLS-1$
+
+	/** Name of the endpoint for editing an organization.
+	 *
+	 * @see #ORGANIZATION_SAVING_ENDPOINT
+	 */
+	public static final String ORGANIZATION_EDITING_ENDPOINT = "organizationEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving an organization.
+	 *
+	 * @see #ORGANIZATION_EDITING_ENDPOINT
+	 */
+	public static final String ORGANIZATION_SAVING_ENDPOINT = "organizationSave"; //$NON-NLS-1$
 
 }

@@ -117,9 +117,11 @@
     							  "[(#{html.Deleted})]",
     							  successMsg,
     							  'success'
-    							);
-    							successCallback();
-        			    		return response.text();
+    							).then(result => {
+    			    				if (result.isConfirmed) {
+    	    							successCallback();
+    			    				}
+    							});
     			    		} else {
     			    			var boxmsg = '' + response.status;
     			    			if (response.statusText) {
@@ -130,7 +132,6 @@
     							  failureMsg.format(elementName, boxmsg),
     							  'error'
     							);
-        			    		return response.text();
     			    		}
     			    	} ).catch(err => {
     						Swal.fire(
@@ -139,6 +140,7 @@
     						  'error'
     						);
     			    	} );
+			    		return response.text();
     				}
     	   		} );
     	    } );

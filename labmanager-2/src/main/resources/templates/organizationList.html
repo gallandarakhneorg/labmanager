@@ -57,6 +57,11 @@
                 </th:block>
             </td>
             <td>
+            	<a th:href="@{/organizationEditor(organization=${organization.id})}" th:if="${changeEnabled}">
+            		<img th:src="@{/images/icon/edit_icon.svg}" th:title="#{html.EditOrganization1(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
+            	</a>
+           		<img th:src="@{/images/icon/edit_icon.svg}" th:unless="${changeEnabled}"
+           		     th:title="#{html.EditOrganization1(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
            		<img th:id="${'btDeleteButton' + organization.id}"
            		     th:src="@{/images/icon/delete_icon.svg}" th:title="#{html.DeleteOrganization1(${organization.getAcronymOrName})}"
            		     th:style="${changeEnabled} ? 'max-width:24px;cursor: pointer;' : 'max-width:24px;'"></img>

@@ -26,10 +26,12 @@ import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
+import org.arakhne.afc.util.CountryCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -107,18 +109,38 @@ public class ResearchOrganizationService extends AbstractService {
 
 	/** Create a research organization.
 	 *
-	 * @param acronym the acronum of the organization.
-	 * @param name the name of the organization.
-	 * @param description the description of the organization.
-	 * @return the identifier of the organization in the database.
+	 * @param acronym the new acronym for the research organization.
+	 * @param name the new name for the research organization.
+	 * @param description the new description for the research organization.
+	 * @param type the type of the research organization.
+	 * @param organizationURL the web-site URL of the research organization.
+	 * @param country the country of the research organization.
+	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
+	 * @return the created organization in the database.
 	 */
-	public int createResearchOrganization(String acronym, String name, String description) {
+	public Optional<ResearchOrganization> createResearchOrganization(String acronym, String name, String description,
+			ResearchOrganizationType type, String organizationURL, CountryCode country, Integer superOrganization) {
+		final Optional<ResearchOrganization> sres;
+		if (superOrganization != null && superOrganization.intValue() != 0) {
+			sres = this.organizationRepository.findById(superOrganization);
+			if (sres.isEmpty()) {
+				throw new IllegalArgumentException("Research organization not found with id: " + superOrganization); //$NON-NLS-1$
+			}
+		} else {
+			sres = Optional.empty();
+		}
 		final ResearchOrganization res = new ResearchOrganization();
-		res.setAcronym(acronym);
-		res.setName(name);
-		res.setDescription(description);
+		res.setAcronym(Strings.emptyToNull(acronym));
+		res.setName(Strings.emptyToNull(name));
+		res.setDescription(Strings.emptyToNull(description));
+		res.setType(type);
+		res.setOrganizationURL(Strings.emptyToNull(organizationURL));
+		res.setCountry(country);
+		if (sres.isPresent()) {
+			res.setSuperOrganization(sres.get());
+		}
 		this.organizationRepository.save(res);
-		return res.getId();
+		return Optional.of(res);
 	}
 
 	/** Remove a research organization from the database.
@@ -145,10 +167,26 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param acronym the new acronym for the research organization.
 	 * @param name the new name for the research organization.
 	 * @param description the new description for the research organization.
+	 * @param type the type of the research organization.
+	 * @param organizationURL the web-site URL of the research organization.
+	 * @param country the country of the research organization.
+	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
+	 * @return the organization object that was updated.
 	 */
-	public void updateResearchOrganization(int identifier, String acronym, String name, String description) {
+	public Optional<ResearchOrganization> updateResearchOrganization(int identifier, String acronym, String name, String description,
+			ResearchOrganizationType type, String organizationURL, CountryCode country, Integer superOrganization) {
 		final Optional<ResearchOrganization> res = this.organizationRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
+			final Optional<ResearchOrganization> sres;
+			if (superOrganization != null && superOrganization.intValue() != 0) {
+				sres = this.organizationRepository.findById(superOrganization);
+				if (sres.isEmpty()) {
+					throw new IllegalArgumentException("Research organization not found with id: " + superOrganization); //$NON-NLS-1$
+				}
+			} else {
+				sres = Optional.empty();
+			}
+			//
 			final ResearchOrganization organization = res.get();
 			if (!Strings.isNullOrEmpty(acronym)) {
 				organization.setAcronym(acronym);
@@ -157,8 +195,16 @@ public class ResearchOrganizationService extends AbstractService {
 				organization.setName(name);
 			}
 			organization.setDescription(Strings.emptyToNull(description));
+			organization.setType(type);
+			organization.setOrganizationURL(Strings.emptyToNull(organizationURL));
+			organization.setCountry(country);
+			if (sres.isPresent()) {
+				organization.setSuperOrganization(sres.get());
+			}
+			//
 			this.organizationRepository.save(organization);
 		}
+		return res;
 	}
 
 	/** Link a suborganization to a super organization.

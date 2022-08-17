@@ -14,9 +14,8 @@
       <ul>
       	<li><a th:href="@{/organizationList}"
       	       th:utext="#{html.OrganizationsList}"></a></li>
-      	<li>Add organization</li>
-      	<li>Modify organization</li>
-      	<li>Delete organization</li>
+      	<li><a th:href="@{/organizationEditor}"
+      	       th:utext="#{html.AddOrganization}"></a></li>
       </ul>
       
       <h2 th:utext="#{html.PersonManagement}"></h2>

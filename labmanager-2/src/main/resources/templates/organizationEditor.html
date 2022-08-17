@@ -1,0 +1,163 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="fragments/head :: style"/>
+	<th:block th:replace="fragments/head :: script"/>
+	
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/umd/string-similarity.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+	
+	<style>
+	    .form-control.is-valid {
+	        border-color: #0d64c1;
+	        border-width:2px;
+	    }
+	</style>
+</head>
+<body>
+	<div class="horizontal-main-wrapper">
+	    <!-- main content area start -->
+	    <div class="main-content">
+	        <div class="main-content-inner" th:if="${#bools.isTrue(success) or #bools.isTrue(failure)}">
+	            <div class="row" th:if="${#bools.isTrue(failure)}">
+	                <div class="col-lg-12">
+	                    <div class="card bg-danger">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:utext="#{html.InvalidFormData}"></h4>
+	                            <p th:if="${message != null}" th:utext="${message}"></p>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	            <div class="row" th:if="${#bools.isTrue(success)}">
+	                <div class="col-lg-12">
+	                    <div class="card bg-success">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:utext="#{html.ValidFormData}"></h4>
+	                            <p th:if="${message != null}" th:utext="${message}"></p>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	            <script th:inline="javascript">
+	            setTimeout(function (e) {
+					document.location.href="[(@{/organizationList})]";
+				}, 3000);
+	            </script>
+	        </div>
+	        <div class="main-content-inner">
+	            <div class="row">
+	                <div class="col-lg-12">
+	                    <div class="card">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:if="${organization} != null" th:utext="#{html.EditOrganization}"></h4>
+	                            <h4 class="header-title" th:if="${organization} == null" th:utext="#{html.AddOrganization}"></h4>
+	                            <form id="form" enctype="multipart/form-data" th:action="@{${formActionUrl}}" method="post" >
+	                                <input name="organization" th:if="${organization != null}" hidden="true" th:value="${organization.id}" />
+	                                <div class="form-group">
+	                                    <label for="organizationAcronym" class="col-form-label"
+	                                           th:utext="#{html.Acronym}"></label>
+										<input class="form-control" type="text" th:value="${organization != null ? organization.acronym : ''}"
+										       th:placeholder="#{html.PlaceHolderOrganizationAcronym}" id="organizationAcronym" name="acronym">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="organizationName" class="col-form-label"
+	                                           th:utext="#{html.Name}"></label>
+										<input class="form-control" type="text" th:value="${organization != null ? organization.name : ''}"
+										       th:placeholder="#{html.PlaceHolderOrganizationName}" id="organizationName" name="name">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="organizationDescription" class="col-form-label"
+	                                           th:utext="#{html.Description}"></label>
+										<input class="form-control" type="text" th:value="${organization != null ? organization.description : ''}"
+										       th:placeholder="#{html.PlaceHolderOrganizationDescription}" id="organizationDescription"
+										       name="description">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="organizationType" class="col-form-label"
+	                                           th:utext="#{html.Type}"></label>
+										<select class="form-control selectType list-group-item list-group-item-action"
+										        id="organizationType" name="type" style="width: 100%">
+											<option th:each="type : ${T(fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType).values}"
+											        th:selected="${(organization == null && type == defaultOrganizationType) || (organization != null && organization.type == type)}"
+											        th:value="${type.name}"
+											        th:utext="${type.getLabel(locale)}"></option>
+										</select>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="organizationURL" class="col-form-label"
+	                                           th:utext="#{html.WebsiteAddress}"></label>
+										<input class="form-control" type="text" th:value="${organization != null ? organization.organizationURL : ''}"
+										       th:placeholder="#{html.PlaceHolderOrganizationURL}" id="organizationURL" name="organizationURL">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="organizationCountry" class="col-form-label"
+	                                           th:utext="#{html.Country}"></label>
+										<select class="form-control selectCountry list-group-item list-group-item-action"
+										        id="organizationCountry" name="country" style="width: 100%">
+											<option th:each="country : ${T(org.arakhne.afc.util.CountryCode).values}"
+											        th:selected="${(organization == null && country == defaultCountry) || (organization != null && organization.country == country)}"
+											        th:value="${country.name}"
+											        th:utext="${countryLabels.get(country) + ' (' + country.code + ')'}"></option>
+										</select>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="organizationSuperOrganization" class="col-form-label">Super-Organization</label>
+										<select class="form-control selectSuperOrganization list-group-item list-group-item-action"
+										        id="organizationSuperOrganization" name="superOrganization" style="width: 100%">
+											<option th:selected="${organization == null || organization.superOrganization == null}"
+											        value="0"
+											        th:utext="#{html.NoSuperOrganization}"></option>
+											<option th:each="otherOrganization : ${otherOrganizations}"
+											        th:selected="${organization != null && organization.superOrganization != null && organization.superOrganization.id == otherOrganization.id}"
+											        th:value="${otherOrganization.id}"
+											        th:utext="${otherOrganization.acronym + ' - ' + otherOrganization.name}"></option>
+										</select>
+	                                </div>
+									<button id="submitButton" type="submit" class="btn btn-success mt-4 pr-4 pl-4"
+									        th:if="${changeEnabled}" th:utext="#{html.Submit}"></button>
+	                            </form>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    <!-- main content area end -->
+	</div>
+	<!-- page container area end -->
+</body>
+<script th:inline="javascript">
+$(document).ready(function () {
+    $('#form').validate({
+        rules: {
+        	acronym: {
+                required: true,
+                minlength: 2
+            },
+            name: {
+                required: true,
+                minlength: 2
+            }
+        },
+        messages: {
+            acronym: {
+                required: "[(#{html.PleaseEnterAcronym})]",
+                minlength: "[(#{html.AcronymLengthMin})]"
+            },
+            name: {
+                required: "[(#{html.PleaseEnterName})]",
+                minlength: "[(#{html.NameLengthMin})"
+            }
+        }
+    });
+});
+</script>
+</html>
+

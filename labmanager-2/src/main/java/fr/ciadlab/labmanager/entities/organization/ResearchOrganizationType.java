@@ -52,6 +52,10 @@ public enum ResearchOrganizationType {
 	 */
 	OTHER;
 
+	/** Default organization type.
+	 */
+	public static final ResearchOrganizationType DEFAULT = LABORATORY;
+
 	private static final String MESSAGE_PREFIX = "researchOrganizationType."; //$NON-NLS-1$
 
 	private MessageSourceAccessor messages;

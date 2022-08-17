@@ -21,11 +21,11 @@ import java.util.Map;
 import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.io.json.DatabaseToJsonExporter;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriBuilderFactory;
 
 /** This controller provides a tool for exporting the content of the database according
  * to a specific JSON format that is independent of any database engine.
@@ -46,12 +46,13 @@ public class JsonDatabaseExporterController extends AbstractController {
 
 	/** Constructor.
 	 *
-	 * @param uriBuilderFactory the factory of URI builders;
+	 * @param messages the provider of messages.
 	 * @param exporter the exporter.
 	 */
 	public JsonDatabaseExporterController(
+			@Autowired MessageSourceAccessor messages,
 			@Autowired DatabaseToJsonExporter exporter) {
-		super(DEFAULT_ENDPOINT);
+		super(DEFAULT_ENDPOINT, messages);
 		this.exporter = exporter;
 	}
 

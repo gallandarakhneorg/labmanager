@@ -43,9 +43,11 @@ import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
+import org.arakhne.afc.util.CountryCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -170,17 +172,21 @@ public class ResearchOrganizationServiceTest {
 
 	@Test
 	public void createResearchOrganization() {
-		final int id = this.test.createResearchOrganization("NA", "NN", "ND");
-		assertEquals(0, id);
+		final Optional<ResearchOrganization> res = this.test.createResearchOrganization("NA", "NN", "ND",
+				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, 0);
+		assertNotNull(res);
+		assertNotNull(res.get());
 
 		final ArgumentCaptor<ResearchOrganization> arg = ArgumentCaptor.forClass(ResearchOrganization.class);
 		verify(this.organizationRepository, only()).save(arg.capture());
 		final ResearchOrganization actual = arg.getValue();
 		assertNotNull(actual);
-		assertEquals(id, actual.getId());
 		assertEquals("NA", actual.getAcronym());
 		assertEquals("NN", actual.getName());
 		assertEquals("ND", actual.getDescription());
+		assertSame(ResearchOrganizationType.FACULTY, actual.getType());
+		assertEquals("NURL", actual.getOrganizationURL());
+		assertSame(CountryCode.GERMANY, actual.getCountry());
 	}
 
 	@Test
@@ -202,7 +208,10 @@ public class ResearchOrganizationServiceTest {
 
 	@Test
 	public void updateResearchOrganization() {
-		this.test.updateResearchOrganization(234, "NA", "NN", "ND");
+		Optional<ResearchOrganization> res = this.test.updateResearchOrganization(234, "NA", "NN", "ND",
+				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, 0);
+		assertNotNull(res);
+		assertNotNull(res.get());
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.organizationRepository, atLeastOnce()).findById(arg0.capture());
@@ -216,6 +225,8 @@ public class ResearchOrganizationServiceTest {
 		assertSame(this.orga1, actual1);
 
 		final ArgumentCaptor<String> arg2 = ArgumentCaptor.forClass(String.class);
+		final ArgumentCaptor<ResearchOrganizationType> arg3 = ArgumentCaptor.forClass(ResearchOrganizationType.class);
+		final ArgumentCaptor<CountryCode> arg4 = ArgumentCaptor.forClass(CountryCode.class);
 
 		verify(this.orga1, atLeastOnce()).setAcronym(arg2.capture());
 		assertEquals("NA", arg2.getValue());
@@ -225,6 +236,18 @@ public class ResearchOrganizationServiceTest {
 
 		verify(this.orga1, atLeastOnce()).setDescription(arg2.capture());
 		assertEquals("ND", arg2.getValue());
+
+		verify(this.orga1, atLeastOnce()).setDescription(arg2.capture());
+		assertEquals("ND", arg2.getValue());
+
+		verify(this.orga1, atLeastOnce()).setType(arg3.capture());
+		assertEquals(ResearchOrganizationType.FACULTY, arg3.getValue());
+
+		verify(this.orga1, atLeastOnce()).setOrganizationURL(arg2.capture());
+		assertEquals("NURL", arg2.getValue());
+
+		verify(this.orga1, atLeastOnce()).setCountry(arg4.capture());
+		assertEquals(CountryCode.GERMANY, arg4.getValue());
 	}
 
 	@Test

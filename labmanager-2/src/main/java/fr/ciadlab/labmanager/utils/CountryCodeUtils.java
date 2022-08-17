@@ -17,6 +17,8 @@
 package fr.ciadlab.labmanager.utils;
 
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 import com.google.common.base.Strings;
 import org.arakhne.afc.util.CountryCode;
@@ -30,6 +32,10 @@ import org.arakhne.afc.util.CountryCode;
  * @since 2.0.0
  */
 public final class CountryCodeUtils {
+
+	/** Default country.
+	 */
+	public static final CountryCode DEFAULT = CountryCode.FRANCE;
 
 	private CountryCodeUtils() {
 		//
@@ -53,7 +59,6 @@ public final class CountryCodeUtils {
 		throw new IllegalArgumentException("Invalid country code: " + name); //$NON-NLS-1$
 	}
 
-
 	/** Replies the display name of the country.
 	 *
 	 * @param code the country code to use.
@@ -61,6 +66,18 @@ public final class CountryCodeUtils {
 	 */
 	public static String getDisplayCountry(CountryCode code) {
 		return new Locale(code.getCode(), code.getCode()).getDisplayCountry();
+	}
+
+	/** Replies all the display names of the countries.
+	 *
+	 * @return the display names of the countries.
+	 */
+	public static Map<CountryCode, String> getAllDisplayCountries() {
+		final Map<CountryCode, String> labels = new TreeMap<>();
+		for (final CountryCode code : CountryCode.values()) {
+			labels.put(code, getDisplayCountry(code));
+		}
+		return labels;
 	}
 
 }
