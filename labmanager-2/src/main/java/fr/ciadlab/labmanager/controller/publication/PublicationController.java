@@ -52,6 +52,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** REST Controller for publications.
  * 
@@ -174,10 +177,34 @@ public class PublicationController extends AbstractController {
 		}
 		addUrlToPublicationListEndPoint(modelAndView, organization, author, journal);
 		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
-		modelAndView.addObject("endpoint_export_bibtex", "/" + Constants.DEFAULT_SERVER_NAME + "/" + Constants.EXPORT_BIBTEX_ENDPOINT ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		modelAndView.addObject("endpoint_export_odt", "/" + Constants.DEFAULT_SERVER_NAME + "/" + Constants.EXPORT_ODT_ENDPOINT ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		modelAndView.addObject("endpoint_export_html", "/" + Constants.DEFAULT_SERVER_NAME + "/" + Constants.EXPORT_HTML_ENDPOINT ); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		//
+		final UriBuilderFactory factory = new DefaultUriBuilderFactory();
+		modelAndView.addObject("endpoint_export_bibtex", //$NON-NLS-1$
+				buildUri(factory, organization, author, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
+		//
+		modelAndView.addObject("endpoint_export_odt", //$NON-NLS-1$
+				buildUri(factory, organization, author, journal, Constants.EXPORT_ODT_ENDPOINT));
+		//
+		modelAndView.addObject("endpoint_export_html", //$NON-NLS-1$
+				buildUri(factory, organization, author, journal, Constants.EXPORT_HTML_ENDPOINT));
 		return modelAndView;
+	}
+
+	private static String buildUri(UriBuilderFactory factory, Integer organization, Integer author,
+			Integer journal, String endpoint) {
+		UriBuilder uriBuilder = factory.builder();
+		uriBuilder = uriBuilder.path("/" + Constants.DEFAULT_SERVER_NAME + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
+		uriBuilder.queryParam(Constants.INATTACHMENT_ENDPOINT_PARAMETER, Boolean.TRUE);
+		if (organization != null) {
+			uriBuilder = uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, organization);
+		}
+		if (author != null) {
+			uriBuilder = uriBuilder.queryParam(Constants.AUTHOR_ENDPOINT_PARAMETER, author);
+		}
+		if (journal != null) {
+			uriBuilder = uriBuilder.queryParam(Constants.JOURNAL_ENDPOINT_PARAMETER, journal);
+		}
+		return uriBuilder.build().toString();
 	}
 
 	/** Replies data about a specific publication from the database.
@@ -239,11 +266,17 @@ public class PublicationController extends AbstractController {
 		if (htmlTypeAndCategory != null && !htmlTypeAndCategory.booleanValue()) {
 			configurator.disableTypeAndCategoryLabels();
 		}
+		//
 		if (organization != null) {
 			configurator.selectOrganization(it -> it.getId() == organization.intValue());
+			configurator.addUriQueryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, organization);
 		}
 		if (author != null) {
 			configurator.selectPerson(it -> it.getId() == author.intValue());
+			configurator.addUriQueryParam(Constants.AUTHOR_ENDPOINT_PARAMETER, author);
+		}
+		if (journal != null) {
+			configurator.addUriQueryParam(Constants.JOURNAL_ENDPOINT_PARAMETER, journal);
 		}
 		// Get the list of publications
 		final List<Publication> pubs;
@@ -295,7 +328,7 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color,
-			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
+			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportHtml(pubs, configurator);
 		final String content = export(identifiers, organization, author, journal, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
@@ -332,7 +365,7 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
-			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
+			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportBibTeX(pubs, configurator);
 		final String content = export(identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
@@ -374,7 +407,7 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color,
-			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment) throws Exception {
+			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<byte[]> cb = (pubs, configurator) -> this.publicationService.exportOdt(pubs, configurator);
 		final byte[] content = export(identifiers, organization, author, journal, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
@@ -426,7 +459,7 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
-			@RequestParam(required = false, defaultValue = "false") Boolean inAttachment,
+			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
 		final Boolean isAjaxObj = Boolean.valueOf(isAjax);

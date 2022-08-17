@@ -124,9 +124,9 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 					entryNode.set("htmlDownloads", array0); //$NON-NLS-1$
 				}
 				if (configurator.isExportButtons()) {
-					final String button0 = this.htmlPageExporter.getButtonToExportPublicationToBibTeX(publication.getId());
-					final String button1 = this.htmlPageExporter.getButtonToExportPublicationToOpenDocument(publication.getId());
-					final String button2 = this.htmlPageExporter.getButtonToExportPublicationToHtml(publication.getId());
+					final String button0 = this.htmlPageExporter.getButtonToExportPublicationToBibTeX(publication.getId(), configurator);
+					final String button1 = this.htmlPageExporter.getButtonToExportPublicationToOpenDocument(publication.getId(), configurator);
+					final String button2 = this.htmlPageExporter.getButtonToExportPublicationToHtml(publication.getId(), configurator);
 					final ArrayNode array0 = mapper.createArrayNode();
 					if (!Strings.isNullOrEmpty(button0)) {
 						array0.add(mapper.valueToTree(button0));

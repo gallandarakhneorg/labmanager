@@ -10,6 +10,7 @@
 
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
+        <th th:text="#{html.Id}"></th>
         <th th:utext="#{html.LastName}"></th>
         <th th:utext="#{html.FirstName}"></th>
         <th th:utext="#{html.Gravatar}"></th>
@@ -22,6 +23,9 @@
     </thead>
     <tbody>
         <tr th:each="person : ${persons}">
+            <td>
+                <th:block th:utext="${person.id}"></th:block>
+            </td>
             <td th:with="actives = ${person.activeMemberships}">
                 <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
                    th:utext="${person.lastName}"></s>
@@ -120,7 +124,9 @@
             ],
             responsive: true,
             autoWidth: true,
+            order: [ [1, 'asc'] ],
             "columns": [
+            	{ },
             	{ },
             	{ },
             	{

@@ -17,12 +17,16 @@
 package fr.ciadlab.labmanager.io;
 
 import java.time.LocalDate;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import org.springframework.web.util.UriBuilder;
 
 /** Configurator for an exporter.
  * 
@@ -37,6 +41,8 @@ public class ExporterConfigurator {
 	private Predicate<Person> personSelector;
 
 	private Predicate<ResearchOrganization> organizationSelector;
+
+	private final Map<String, Object> queryParameters = new HashMap<>();
 
 	private boolean enableSelectedPersonFormat = true;
 
@@ -413,6 +419,28 @@ public class ExporterConfigurator {
 			return status;
 		}
 		return ExportedAuthorStatus.OTHER;
+	}
+
+	/** Register a parameter that should be added to the URLs as query parameter.
+	 *
+	 * @param name the name of the parameter.
+	 * @param value the value of the parameter.
+	 */
+	public void addUriQueryParam(String name, Integer value) {
+		this.queryParameters.put(name, value);
+	}
+
+	/** Add the registered qyery parameters to the given builder.
+	 *
+	 * @param uriBuilder the builder to fill up.
+	 * @return the {@code uriBuilder}.
+	 */
+	public UriBuilder applyQueryParams(UriBuilder uriBuilder) {
+		UriBuilder b = uriBuilder;
+		for (final Entry<String, Object> query : this.queryParameters.entrySet()) {
+			b = b.queryParam(query.getKey(), query.getValue());			
+		}
+		return b;
 	}
 
 }

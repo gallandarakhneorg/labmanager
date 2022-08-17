@@ -6,6 +6,7 @@
 
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
+        <th th:text="#{html.Id}"></th>
         <th th:text="#{html.Acronym}"></th>
         <th th:text="#{html.Name}"></th>
         <th th:text="#{html.Type}"></th>
@@ -17,6 +18,9 @@
     </thead>
     <tbody>
         <tr th:each="organization : ${organizations}">
+            <td>
+                <th:block th:utext="${organization.id}"></th:block>
+            </td>
             <td>
                 <a th:if="${organization.organizationURL != null}"
                    th:href="${organization.organizationURL}"
@@ -78,7 +82,9 @@
             ],
             responsive: true,
             autoWidth: true,
+            order: [ [1, 'asc'] ],
             "columns": [
+            	{ },
             	{ },
             	{ },
             	{ },

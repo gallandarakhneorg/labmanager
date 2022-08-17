@@ -6,6 +6,7 @@
 
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
+        <th th:text="#{html.Id}"></th>
         <th th:utext="#{html.Title}"></th>
         <th th:utext="#{html.Authors}"></th>
         <th th:utext="#{html.Type}"></th>
@@ -15,6 +16,9 @@
     </thead>
     <tbody>
         <tr th:each="publication : ${publications}">
+            <td>
+                <th:block th:utext="${publication.id}"></th:block>
+            </td>
             <td>
             	<th:block th:utext="${publication.title}"></th:block>
             </td>
@@ -67,7 +71,9 @@
             ],
             responsive: true,
             autoWidth: true,
+            order: [ [4, 'desc'], [2, 'asc'], [1, 'asc'] ],
             "columns": [
+            	{ },
             	{ },
             	{ },
             	{ },

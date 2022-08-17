@@ -28,6 +28,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
 
 /** Utilities for exporting publications to HTML content based on the CIAD standard HTML style.
  * 
@@ -92,39 +94,47 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		return html.toString();
 	}
 
-	private static void exportPublicationButton(StringBuilder html, String buttonClass, String endpoint, int id, String label) {
+	private static void exportPublicationButton(StringBuilder html, String buttonClass, String endpoint, int id, String label,
+			ExporterConfigurator configurator) {
+		UriBuilder builder = new DefaultUriBuilderFactory().builder();
+		builder = builder.path("/" + Constants.DEFAULT_SERVER_NAME + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
+		builder = configurator.applyQueryParams(builder);
+		builder = builder.queryParam("id", Integer.valueOf(id)); //$NON-NLS-1$
+		builder = builder.queryParam("inAttachment", Boolean.TRUE); //$NON-NLS-1$
 		html.append("<a class=\"btn btn-xs btn-success "); //$NON-NLS-1$
 		html.append(buttonClass);
-		html.append("\" href=\"/"); //$NON-NLS-1$
-		html.append(Constants.DEFAULT_SERVER_NAME).append("/").append(endpoint); //$NON-NLS-1$
-		html.append("?id=").append(id).append("&inAttachment=true\"><i class=\"fa fa-file-text-o\">"); //$NON-NLS-1$ //$NON-NLS-2$
+		html.append("\" href=\"").append(builder.build().toString()); //$NON-NLS-1$
+		html.append("\"><i class=\"fa fa-file-text-o\">"); //$NON-NLS-1$
 		html.append(label);
 		html.append("</i></a>"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getButtonToExportPublicationToBibTeX(int publicationId) {
+	public String getButtonToExportPublicationToBibTeX(int publicationId, ExporterConfigurator configurator) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
-			exportPublicationButton(html, "btBibtex", Constants.EXPORT_BIBTEX_ENDPOINT, publicationId, "BibTeX"); //$NON-NLS-1$ //$NON-NLS-2$
+			exportPublicationButton(html, "btBibtex", Constants.EXPORT_BIBTEX_ENDPOINT, //$NON-NLS-1$
+					publicationId, "BibTeX", configurator); //$NON-NLS-1$
 		}
 		return html.toString();
 	}
 
 	@Override
-	public String getButtonToExportPublicationToHtml(int publicationId) {
+	public String getButtonToExportPublicationToHtml(int publicationId, ExporterConfigurator configurator) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
-			exportPublicationButton(html, "btHtml", Constants.EXPORT_HTML_ENDPOINT, publicationId, "HTML"); //$NON-NLS-1$ //$NON-NLS-2$
+			exportPublicationButton(html, "btHtml", Constants.EXPORT_HTML_ENDPOINT, //$NON-NLS-1$
+					publicationId, "HTML", configurator); //$NON-NLS-1$
 		}
 		return html.toString();
 	}
 
 	@Override
-	public String getButtonToExportPublicationToOpenDocument(int publicationId) {
+	public String getButtonToExportPublicationToOpenDocument(int publicationId, ExporterConfigurator configurator) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
-			exportPublicationButton(html, "btWord", Constants.EXPORT_ODT_ENDPOINT, publicationId, "ODT"); //$NON-NLS-1$ //$NON-NLS-2$
+			exportPublicationButton(html, "btWord", Constants.EXPORT_ODT_ENDPOINT, //$NON-NLS-1$
+					publicationId, "ODT", configurator); //$NON-NLS-1$
 		}
 		return html.toString();
 	}

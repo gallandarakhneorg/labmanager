@@ -6,6 +6,7 @@
 
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
+        <th th:utext="#{html.Id}"></th>
         <th th:utext="#{html.Name}"></th>
         <th th:utext="#{html.Publisher}"></th>
         <th th:utext="#{html.OpenAccess}"></th>
@@ -17,6 +18,9 @@
     </thead>
     <tbody>
         <tr th:each="journal : ${journals}">
+            <td>
+                <th:block th:utext="${journal.id}"></th:block>
+            </td>
             <td th:with="urlObject=${journal.journalURLObject}">
                 <a th:if="${urlObject != null}"
                    th:href="${journal.journalURL}"
@@ -85,7 +89,9 @@
             ],
             responsive: true,
             autoWidth: true,
+            order: [ [1, 'asc'] ],
             "columns": [
+            	{ },
             	{ },
             	{ },
             	{ },

@@ -47,23 +47,29 @@ public interface HtmlPageExporter extends HtmlExporter {
 	/** Replies the button for exporting the publication to BibTeX.
 	 *
 	 * @param publicationId the identifier of the publication.
+	 * @param configurator the configuration for the exporter.
 	 * @return the HTML code.
 	 */
-	String getButtonToExportPublicationToBibTeX(int publicationId);
+	String getButtonToExportPublicationToBibTeX(int publicationId,
+			ExporterConfigurator configurator);
 
 	/** Replies the button for exporting the publication to HTML page.
 	 *
 	 * @param publicationId the identifier of the publication.
+	 * @param configurator the configuration for the exporter.
 	 * @return the HTML code.
 	 */
-	String getButtonToExportPublicationToHtml(int publicationId);
+	String getButtonToExportPublicationToHtml(int publicationId,
+			ExporterConfigurator configurator);
 
 	/** Replies the button for exporting the publication to Open Document.
 	 *
 	 * @param publicationId the identifier of the publication.
+	 * @param configurator the configuration for the exporter.
 	 * @return the HTML code.
 	 */
-	String getButtonToExportPublicationToOpenDocument(int publicationId);
+	String getButtonToExportPublicationToOpenDocument(int publicationId,
+			ExporterConfigurator configurator);
 
 	/** Replies the button for editing the publication.
 	 *

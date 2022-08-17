@@ -332,8 +332,12 @@
                             /*[# th:each="a : ${authorsMap}"]*/
                             {
                                 label: "[(${a.value})]",
-                                value: function(rowData, rowIdx){
-                                    return rowData.authors.includes("[(${a.value})]");
+                                value: function(rowData, rowIdx) {
+                                    //return rowData.authors.includes("[(${a.value})]");
+                                	var index = rowData.authors.findIndex(element => {
+                                		  return element.fullName.toLowerCase() === "[(${a.value.toLowerCase})]";
+                                		});
+                                    return index >= 0;
                                 },
                             },
                             /*[/]*/
@@ -462,7 +466,7 @@
             table.rows( { filter : 'applied'} ).data().each(function (r){
                 list += r.id + ",";
             });
-            window.open("[(${endpoint_export_bibtex})]?inAttachment=true&id=" + list, "_self");
+            window.open("[(${endpoint_export_bibtex})]&id=" + list, "_self");
         })
 
         $('#btWordGlobal').on('click' , function(e) {
@@ -470,7 +474,7 @@
             table.rows( { filter : 'applied'} ).data().each(function (r){
                 list += r.id + ",";
             });
-            window.open("[(${endpoint_export_odt})]?inAttachment=true&id=" + list, "_self");
+            window.open("[(${endpoint_export_odt})]&id=" + list, "_self");
         })
 
         $('#btHtmlGlobal').on('click' , function(e) {
@@ -478,7 +482,7 @@
             table.rows( { filter : 'applied'} ).data().each(function (r){
                 list += r.id + ",";
             });
-            window.open("[(${endpoint_export_html})]?inAttachment=true&id=" + list, "_self");
+            window.open("[(${endpoint_export_html})]&id=" + list, "_self");
         })
 
     });

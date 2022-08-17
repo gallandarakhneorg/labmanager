@@ -69,6 +69,10 @@ public interface Constants {
 	 */
 	public static final String JOURNAL_ENDPOINT_PARAMETER = "journal"; //$NON-NLS-1$
 
+	/** Name of the endpoint parameter "inAttachment".
+	 */
+	public static final String INATTACHMENT_ENDPOINT_PARAMETER = "inAttachment"; //$NON-NLS-1$
+
 	/** Default basename of the files in attachment.
 	 */
 	public static final String DEFAULT_ATTACHMENT_BASENAME = "publications"; //$NON-NLS-1$
