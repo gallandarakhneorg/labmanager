@@ -26,9 +26,9 @@ import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.publication.AuthorshipService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.util.UriBuilderFactory;
 
 /** REST Controller for authors.
  * <p>
@@ -63,6 +63,7 @@ public class AuthorController extends AbstractController {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of messages.
 	 * @param authorshipService the authorship service.
 	 * @param organizationService the service for managing the organizations.
 	 * @param memberService the service for managing the memberships to organization.
@@ -70,12 +71,13 @@ public class AuthorController extends AbstractController {
 	 * @param nameParser the parser of person names.
 	 */
 	public AuthorController(
+			@Autowired MessageSourceAccessor messages,
 			@Autowired AuthorshipService authorshipService,
 			@Autowired PersonService personService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired MembershipService memberService,
 			@Autowired PersonNameParser nameParser) {
-		super(TOOL_NAME);
+		super(TOOL_NAME, messages);
 		this.authorshipService = authorshipService;
 		this.organizationService = organizationService;
 		this.memberService = memberService;

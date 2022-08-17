@@ -31,7 +31,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.util.UriBuilderFactory;
 
 /** REST Controller for persons.
  * <p>
@@ -53,8 +52,6 @@ public class PersonController extends AbstractController {
 
 	private static final String MESSAGES_PREFIX = "personController."; //$NON-NLS-1$
 
-	private MessageSourceAccessor messages;
-
 	private PersonService personService;
 
 	private PersonNameParser nameParser;
@@ -69,8 +66,7 @@ public class PersonController extends AbstractController {
 	public PersonController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired PersonService personService, @Autowired PersonNameParser nameParser) {
-		super(DEFAULT_ENDPOINT);
-		this.messages = messages;
+		super(DEFAULT_ENDPOINT, messages);
 		this.personService = personService;
 		this.nameParser = nameParser;
 	}

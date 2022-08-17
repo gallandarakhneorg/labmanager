@@ -34,7 +34,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.util.UriBuilderFactory;
 
 /** REST Controller for journals.
  * 
@@ -53,22 +52,18 @@ public class JournalController extends AbstractController {
 
 	private static final String MESSAGES_PREFIX = "journalController."; //$NON-NLS-1$
 
-	private MessageSourceAccessor messages;
-
 	private JournalService journalService;
 
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
-	 * @param uriBuilderFactory the factory of URI builders.
 	 * @param messages the accessor to the localized messages.
 	 * @param journalService the journal service.
 	 */
 	public JournalController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired JournalService journalService) {
-		super(DEFAULT_ENDPOINT);
-		this.messages = messages;
+		super(DEFAULT_ENDPOINT, messages);
 		this.journalService = journalService;
 	}
 

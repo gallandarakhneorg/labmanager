@@ -33,9 +33,8 @@
                     width: 100% !important;
                 }
         </style>
-
-
     </th:block>
+    
     <th:block th:fragment="script">
         <!-- modernizr css -->
         <script th:src="@{/js/vendor/modernizr-2.8.3.min.js}"></script>
@@ -80,5 +79,72 @@
         <!-- others plugins -->
         <script th:src="@{/js/plugins.js}"></script>
         <script th:src="@{/js/scripts.js}"></script>
+        
+        <script th:inline="javascript">
+    	String.prototype.format = function () {
+    		// store arguments in an array
+    		var args = arguments;
+    		// use replace to iterate over the string
+    		// select the match and check if the related argument is present
+    		// if yes, replace the match with the argument
+    		return this.replace(/{([0-9]+)}/g, function (match, index) {
+    			// check if the argument is present
+    			return typeof args[index] == 'undefined' ? match : args[index];
+    		});
+    	};
+    	</script>
     </th:block>
+ 
+    <th:block th:fragment="scriptDeletionButton">
+        <script>
+     	function installDeletionButtonCallback( bt, bxTitle, bxMessage, deletionUrl, successMsg, failureMsg, elementName, successCallback ) {
+    	    bt.on('click', function(e) {
+    	    	Swal.fire( {
+    	   		  title: bxTitle,
+    	   		  text: bxMessage,
+    	   		  icon: 'warning',
+    	   		  showCancelButton: true,
+    	   		  confirmButtonColor: '#d33',
+    	   		  cancelButtonColor: '#99cc00',
+    	   		  confirmButtonText: "[(#{html.YesDeleteIt})]"
+    	   		} ).then(result => {
+    				if (result.isConfirmed) {
+    					fetch(deletionUrl, {
+    			    	    method:'DELETE'
+    			    	} ).then(response => {
+    			    		if (response.ok) {
+    							Swal.fire(
+    							  "[(#{html.Deleted})]",
+    							  successMsg,
+    							  'success'
+    							);
+    							successCallback();
+        			    		return response.text();
+    			    		} else {
+    			    			var boxmsg = '' + response.status;
+    			    			if (response.statusText) {
+    			    				boxmsg = boxmsg + ' - ' + response.statusText;
+    			    			}
+    							Swal.fire(
+    							  "[(#{html.Error})]",
+    							  failureMsg.format(elementName, boxmsg),
+    							  'error'
+    							);
+        			    		return response.text();
+    			    		}
+    			    	} ).catch(err => {
+    						Swal.fire(
+    						  "[(#{html.Error})]",
+    						  failureMsg.format(elementName, err),
+    						  'error'
+    						);
+    			    	} );
+    				}
+    	   		} );
+    	    } );
+    	}
+        </script>
+     </th:block>
+ 
+    
 </html>

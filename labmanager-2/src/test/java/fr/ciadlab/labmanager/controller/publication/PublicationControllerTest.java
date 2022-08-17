@@ -43,6 +43,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PublicationController}.
  * 
@@ -54,6 +55,8 @@ import org.slf4j.Logger;
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
 public class PublicationControllerTest {
+
+	private MessageSourceAccessor messages;
 
 	private PrePublicationFactory prePublicationFactory;
 
@@ -79,6 +82,7 @@ public class PublicationControllerTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.prePublicationFactory = mock(PrePublicationFactory.class);
 		this.publicationService = mock(PublicationService.class);
 		this.odtExporter = mock(OpenDocumentTextExporter.class);
@@ -90,7 +94,7 @@ public class PublicationControllerTest {
 		this.journalService = mock(JournalService.class);
 		this.journalPaperService = mock(JournalPaperService.class);
 		this.test = new PublicationController(
-				this.prePublicationFactory, this.publicationService,
+				this.messages, this.prePublicationFactory, this.publicationService,
 				this.personService, this.fileManager,
 				this.nameParser, this.bibtex, this.viewFactory, this.journalService,
 				this.journalPaperService);

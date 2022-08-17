@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Svg Vector Icons : http://www.onlinewebfonts.com/icon -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 1000 1000"
+   enable-background="new 0 0 1000 1000"
+   xml:space="preserve"
+   id="svg8"
+   sodipodi:docname="delete_icon.svg"
+   inkscape:version="0.92.5 (2060ec1f9f, 2020-04-08)"><defs
+   id="defs12" /><sodipodi:namedview
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1"
+   objecttolerance="10"
+   gridtolerance="10"
+   guidetolerance="10"
+   inkscape:pageopacity="0"
+   inkscape:pageshadow="2"
+   inkscape:window-width="1920"
+   inkscape:window-height="1016"
+   id="namedview10"
+   showgrid="false"
+   inkscape:zoom="0.236"
+   inkscape:cx="500"
+   inkscape:cy="500"
+   inkscape:window-x="0"
+   inkscape:window-y="27"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="svg8" />
+<metadata
+   id="metadata2"> Svg Vector Icons : http://www.onlinewebfonts.com/icon <rdf:RDF><cc:Work
+     rdf:about=""><dc:format>image/svg+xml</dc:format><dc:type
+       rdf:resource="http://purl.org/dc/dcmitype/StillImage" /></cc:Work></rdf:RDF></metadata>
+<g
+   id="g6"
+   transform="matrix(0.62383259,0,0,0.69733657,194.43965,134.38256)"><path
+     d="M 211.8,990 C 149.7,990 99.3,939.5 99.3,877.5 V 362.2 c 0,-24.2 19.7,-43.9 43.9,-43.9 24.2,0 43.9,19.7 43.9,43.9 v 515.2 c 0,13.6 11.1,24.7 24.7,24.7 h 576.5 c 13.6,0 24.7,-11.1 24.7,-24.7 V 363.6 c 0,-24.2 19.7,-43.9 43.9,-43.9 24.2,0 43.9,19.7 43.9,43.9 v 513.8 c 0,62.1 -50.5,112.5 -112.6,112.5 H 211.8 Z M 627,832.2 c -24.2,0 -43.9,-19.7 -43.9,-43.9 V 362.7 c 0,-24.2 19.7,-43.9 43.9,-43.9 24.2,0 43.9,19.7 43.9,43.9 v 425.5 c 0,24.3 -19.7,44 -43.9,44 z m -254,0 c -24.2,0 -43.9,-19.7 -43.9,-43.9 V 362.7 c 0,-24.2 19.7,-43.9 43.9,-43.9 24.2,0 43.9,19.7 43.9,43.9 v 425.5 c 0.1,24.3 -19.6,44 -43.9,44 z M 53.9,269.4 C 29.7,269.4 10,249.7 10,225.5 10,201.3 29.7,181.6 53.9,181.6 h 162 v -59 C 215.9,60.5 266.4,10 328.4,10 h 343.9 c 61.6,0 111.8,50.5 111.8,112.5 v 59 h 162 c 24.2,0 43.9,19.7 43.9,43.9 0,24.2 -19.7,43.9 -43.9,43.9 H 53.9 Z m 642.4,-87.8 v -59 c 0,-13.9 -10.5,-24.7 -23.9,-24.7 h -344 c -13.6,0 -24.7,11.1 -24.7,24.7 v 59 z"
+     id="path4"
+     inkscape:connector-curvature="0" /></g>
+</svg>

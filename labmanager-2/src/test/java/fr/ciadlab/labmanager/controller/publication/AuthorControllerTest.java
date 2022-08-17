@@ -28,6 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.Logger;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link AuthorController}.
  * 
@@ -39,6 +40,8 @@ import org.slf4j.Logger;
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
 public class AuthorControllerTest {
+
+	private MessageSourceAccessor messages;
 
 	private AuthorshipService authorshipService;
 
@@ -54,13 +57,14 @@ public class AuthorControllerTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.authorshipService = mock(AuthorshipService.class);
 		this.organizationService = mock(ResearchOrganizationService.class);
 		this.memberService = mock(MembershipService.class);
 		this.personService = mock(PersonService.class);
 		this.nameParser = new DefaultPersonNameParser();
 		this.test = new AuthorController(
-				this.authorshipService, this.personService,
+				this.messages, this.authorshipService, this.personService,
 				this.organizationService, this.memberService, this.nameParser);
 		this.test.setLogger(mock(Logger.class));
 	}

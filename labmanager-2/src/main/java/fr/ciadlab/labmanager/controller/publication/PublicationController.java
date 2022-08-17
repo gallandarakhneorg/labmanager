@@ -41,6 +41,7 @@ import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -91,6 +92,7 @@ public class PublicationController extends AbstractController {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of messages.
 	 * @param prePublicationFactory the factory of pre-publications.
 	 * @param publicationService the publication service.
 	 * @param personService the person service.
@@ -111,6 +113,7 @@ public class PublicationController extends AbstractController {
 	 * @param thesisService the service for theses.
 	 */
 	public PublicationController(
+			@Autowired MessageSourceAccessor messages,
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired PublicationService publicationService,
 			@Autowired PersonService personService,
@@ -120,7 +123,7 @@ public class PublicationController extends AbstractController {
 			@Autowired ViewFactory viewFactory,
 			@Autowired JournalService journalService,
 			@Autowired JournalPaperService journalPaperService) {
-		super(DEFAULT_ENDPOINT);
+		super(DEFAULT_ENDPOINT, messages);
 		this.prePublicationFactory = prePublicationFactory;
 		this.publicationService = publicationService;
 		this.personService = personService;

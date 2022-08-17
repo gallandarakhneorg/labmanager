@@ -37,3 +37,6 @@ management:
     logfile:
       # Path to the log file
       external-file: /home/sgalland/tmp/ciadlab/CIADSpringRestHibernate.log
+
+ciadlab:
+  debug: true
