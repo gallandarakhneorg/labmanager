@@ -1,0 +1,251 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="fragments/head :: style"/>
+	<th:block th:replace="fragments/head :: script"/>
+	
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/umd/string-similarity.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+	
+	<style>
+	    .form-control.is-valid {
+	        border-color: #0d64c1;
+	        border-width:2px;
+	    }
+	</style>
+</head>
+<body>
+	<div class="horizontal-main-wrapper">
+	    <!-- main content area start -->
+	    <div class="main-content">
+	        <div class="main-content-inner" th:if="${#bools.isTrue(success) or #bools.isTrue(failure)}">
+	            <div class="row" th:if="${#bools.isTrue(failure)}">
+	                <div class="col-lg-12">
+	                    <div class="card bg-danger">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:utext="#{html.InvalidFormData}"></h4>
+	                            <p th:if="${message != null}" th:utext="${message}"></p>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	            <div class="row" th:if="${#bools.isTrue(success)}">
+	                <div class="col-lg-12">
+	                    <div class="card bg-success">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:utext="#{html.ValidFormData}"></h4>
+	                            <p th:if="${message != null}" th:utext="${message}"></p>
+	                        </div>
+	                    </div>
+	                </div>
+		            <script th:inline="javascript">
+		            setTimeout(function (e) {
+						document.location.href="[(@{/personList})]";
+					}, 3000);
+		            </script>
+	            </div>
+	        </div>
+	        <div class="main-content-inner">
+	            <div class="row">
+	                <div class="col-lg-12">
+	                    <div class="card">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:if="${person} != null" th:utext="#{html.EditPerson}"></h4>
+	                            <h4 class="header-title" th:if="${person} == null" th:utext="#{html.AddPerson}"></h4>
+	                            <form id="form" enctype="multipart/form-data" th:action="@{${formActionUrl}}" method="post" >
+	                                <input name="person" th:if="${person != null}" hidden="true" th:value="${person.id}" />
+	                                <div class="form-group">
+	                                    <label for="personLastName" class="col-form-label"
+	                                           th:utext="#{html.LastName}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.lastName : ''}"
+										       id="personLastName" name="lastName">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personFirstName" class="col-form-label"
+	                                           th:utext="#{html.FirstName}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.firstName : ''}"
+										       id="personFirstName" name="firstName">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personGender" class="col-form-label"
+	                                           th:utext="#{html.Gender}"></label>
+										<select class="form-control selectType list-group-item list-group-item-action"
+										        id="personGender" name="gender" style="width: 100%">
+											<option th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values}"
+											        th:selected="${(person == null && gender == defaultGender) || (person != null && person.gender == gender)}"
+											        th:value="${gender.name}"
+											        th:utext="${gender.getLabel(locale)}"></option>
+										</select>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personEmail" class="col-form-label"
+	                                           th:utext="#{html.Email}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.email : ''}"
+										       id="personEmail" name="email">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personOfficePhone" class="col-form-label"
+	                                           th:utext="#{html.OfficePhone}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.officePhone : ''}"
+										       id="personOfficePhone" name="officePhone">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personMobilePhone" class="col-form-label"
+	                                           th:utext="#{html.MobilePhone}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.mobilePhone : ''}"
+										       id="personMobilePhone" name="mobilePhone">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personGravatarId" class="col-form-label"
+	                                           th:utext="#{html.GravatarId}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.gravatarId : ''}"
+										       id="personGravatarId" name="gravatarId">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personOrcid" class="col-form-label"
+	                                           th:utext="#{html.ORCID}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.getORCID() : ''}"
+										       id="personOrcid" name="orcid">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personResearcherId" class="col-form-label"
+	                                           th:utext="#{html.ResearcherId}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.researcherId : ''}"
+										       id="personResearcherId" name="researcherId">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personLinkedInId" class="col-form-label"
+	                                           th:utext="#{html.LinkedInId}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.linkedInId : ''}"
+										       id="personLinkedInId" name="linkedInId">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personGithubId" class="col-form-label"
+	                                           th:utext="#{html.GithubId}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.githubId : ''}"
+										       id="personGithubId" name="githubId">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personResearchGateId" class="col-form-label"
+	                                           th:utext="#{html.ResearchGateId}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.researchGateId : ''}"
+										       id="personResearchGateId" name="researchGateId">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personFacebookId" class="col-form-label"
+	                                           th:utext="#{html.FacebookId}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.facebookId : ''}"
+										       id="personFacebookId" name="facebookId">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personDblpURL" class="col-form-label"
+	                                           th:utext="#{html.DblpURL}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.dblpURL : ''}"
+										       id="personDblpURL" name="dblpURL">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personAcademiaURL" class="col-form-label"
+	                                           th:utext="#{html.AcademiaURL}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.academiaURL : ''}"
+										       id="personAcademiaURL" name="academiaURL">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personCordisURL" class="col-form-label"
+	                                           th:utext="#{html.CordisURL}"></label>
+										<input class="form-control" type="text" th:value="${person != null ? person.cordisURL : ''}"
+										       id="personCordisURL" name="CordisURL">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personWebPageNaming" class="col-form-label"
+	                                           th:utext="#{html.WebPageNaming}"></label>
+										<select class="form-control selectType list-group-item list-group-item-action"
+										        id="personWebPageNaming" name="webPageNaming" style="width: 100%">
+											<option th:each="naming : ${T(fr.ciadlab.labmanager.entities.member.WebPageNaming).values}"
+											        th:selected="${(person == null && naming == defaultNaming) || (person != null && person.webPageNaming == naming)}"
+											        th:value="${naming.name}"
+											        th:utext="${naming.getLabel(locale)}"></option>
+										</select>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personScholarHindex" class="col-form-label"
+	                                           th:utext="#{html.hindexOnScholar}"></label>
+										<input class="form-control" type="number" th:value="${person != null ? person.googleScholarHindex : ''}"
+										       id="personScholarHindex" name="googleScholarHindex">
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="personWosHindex" class="col-form-label"
+	                                           th:utext="#{html.hindexOnWoS}"></label>
+										<input class="form-control" type="number" th:value="${person != null ? person.wosHindex : ''}"
+										       id="personWosHindex" name="wosHindex">
+	                                </div>
+									<button id="submitButton" type="submit" class="btn btn-success mt-4 pr-4 pl-4"
+									        th:if="${changeEnabled}" th:utext="#{html.Submit}"></button>
+	                            </form>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    <!-- main content area end -->
+	</div>
+	<!-- page container area end -->
+</body>
+<script th:inline="javascript">
+$(document).ready(function () {
+    $('#form').validate({
+        rules: {
+        	firstName: {
+                required: true,
+                minlength: 2
+            },
+            lastName: {
+                required: true,
+                minlength: 2
+            },
+            email: {
+                email: true
+            },
+            dblpURL: {
+                url: true
+            },
+            academiaURL: {
+                url: true
+            },
+            cordisURL: {
+                url: true
+            },
+            personScholarHindex: {
+                min: 0
+            },
+            wosHindex: {
+                min: 0
+            }
+        },
+        messages: {
+            acronym: {
+                required: "[(#{html.PleaseEnterFirstName})]",
+                minlength: "[(#{html.FirstNameLengthMin})]"
+            },
+            name: {
+                required: "[(#{html.PleaseEnterLastName})]",
+                minlength: "[(#{html.LastNameLengthMin})]"
+            },
+            personScholarHindex: {
+                min: "[(#{html.PleaseEnterPositiveOrZero})]"
+            },
+            wosHindex: {
+                min: "[(#{html.PleaseEnterPositiveOrZero})]"
+            }
+        }
+    });
+});
+</script>
+</html>
+

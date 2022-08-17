@@ -23,9 +23,8 @@
       <ul>
       	<li><a th:href="@{/personList}"
       	       th:utext="#{html.PersonsList}"></a></li>
-      	<li>Add person</li>
-      	<li>Modify person</li>
-      	<li>Delete person</li>
+      	<li><a th:href="@{/personEditor}"
+      	       th:utext="#{html.AddPerson}"></a></li>
       	<li>Merge persons</li>
       </ul>
 

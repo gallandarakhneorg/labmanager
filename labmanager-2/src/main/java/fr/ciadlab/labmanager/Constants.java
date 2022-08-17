@@ -101,4 +101,16 @@ public interface Constants {
 	 */
 	public static final String ORGANIZATION_SAVING_ENDPOINT = "organizationSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for editing a person.
+	 *
+	 * @see #PERSON_SAVING_ENDPOINT
+	 */
+	public static final String PERSON_EDITING_ENDPOINT = "personEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving a person.
+	 *
+	 * @see #PERSON_EDITING_ENDPOINT
+	 */
+	public static final String PERSON_SAVING_ENDPOINT = "personSave"; //$NON-NLS-1$
+
 }

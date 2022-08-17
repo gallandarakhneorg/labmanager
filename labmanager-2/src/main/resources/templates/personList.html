@@ -4,9 +4,10 @@
 <th:block th:replace="fragments/head :: style" />
 <th:block th:replace="fragments/head :: script" />
 
-<!-- created=true&message=first0+last0+%3Cemail0%3E -->
-<!-- updated=true&message=abc+xyz -->
-<!-- error=1&message=Person+with+the+name+%27abc+xyz%27+was+not+found -->
+<th:block th:if="${changeEnabled}">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+	<th:block th:replace="fragments/head :: scriptDeletionButton"></th:block>
+</th:block>
 
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
@@ -94,6 +95,14 @@
                 </th:block>
             </td>
             <td>
+            	<a th:href="@{/personEditor(person=${person.id})}" th:if="${changeEnabled}">
+            		<img th:src="@{/images/icon/edit_icon.svg}" th:title="#{html.EditPerson1(${person.fullName})}" style="max-width:24px;"></img>
+            	</a>
+           		<img th:src="@{/images/icon/edit_icon.svg}" th:unless="${changeEnabled}"
+           		     th:title="#{html.EditPerson1(${person.fullName})}" style="max-width:24px;"></img>
+           		<img th:id="${'btDeleteButton' + person.id}"
+           		     th:src="@{/images/icon/delete_icon.svg}" th:title="#{html.DeletePerson1(${person.fullName})}"
+           		     th:style="${changeEnabled} ? 'max-width:24px;cursor: pointer;' : 'max-width:24px;'"></img>
             	<a th:href="@{/exportBibTeX(author=${person.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${person.fullName})}" style="max-width:24px;"></img>
             	</a>
@@ -139,11 +148,27 @@
             	{ },
                 {
                     "orderable": false,
-                    "width": "110px"
+                    "width": "165px"
                 }
             ],
         });
     });
+
+
+    /*[# th:if="${changeEnabled}" th:each="person : ${persons}"]*/
+    installDeletionButtonCallback(
+    		$("[(${'#btDeleteButton' + person.id})]"),
+    		"[(#{html.DeletePerson1(${person.fullName})})]",
+    		"[(#{html.AreYouSureToDelete(${person.fullName})})]",
+    		"[(@{/deletePerson(person=${person.id})})]",
+    		"[(#{html.PersonDeleted})]",
+    		"[(#{html.CannotDeletePerson})]",
+    		"[(${person.fullName})]",
+    		function (e) {
+    			location.reload();
+    		} );
+
+    /*[/]*/
 
 </script>
 </html>

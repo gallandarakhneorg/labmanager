@@ -16,7 +16,11 @@
 
 package fr.ciadlab.labmanager.entities.member;
 
+import java.util.Locale;
+
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.configuration.BaseMessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Gender of a person.
  * 
@@ -40,6 +44,47 @@ public enum Gender {
 	 */
 	OTHER;
 
+	private static final String MESSAGE_PREFIX = "gender."; //$NON-NLS-1$
+
+	private MessageSourceAccessor messages;
+	
+	/** Replies the message accessor to be used.
+	 *
+	 * @return the accessor.
+	 */
+	public MessageSourceAccessor getMessageSourceAccessor() {
+		if (this.messages == null) {
+			this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
+		}
+		return this.messages;
+	}
+
+	/** Change the message accessor to be used.
+	 *
+	 * @param messages the accessor.
+	 */
+	public void setMessageSourceAccessor(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
+
+	/** Replies the label of the status in the current language.
+	 *
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel() {
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name());
+		return Strings.nullToEmpty(label);
+	}
+
+	/** Replies the label of the status in the current language.
+	 *
+	 * @param locale the locale to use.
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(Locale locale) {
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name(), locale);
+		return Strings.nullToEmpty(label);
+	}
 
 	/** Replies the gender that corresponds to the given name, with a case-insensitive
 	 * test of the name.

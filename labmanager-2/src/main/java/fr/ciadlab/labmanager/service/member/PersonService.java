@@ -26,6 +26,7 @@ import java.util.TreeSet;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.member.WebPageNaming;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -92,7 +93,7 @@ public class PersonService extends AbstractService {
 	 * @param identifier the identifier of the person.
 	 * @return the person, or {@code null} if none.
 	 */
-	public Person getPerson(int identifier) {
+	public Person getPersonById(int identifier) {
 		final Optional<Person> byId = this.personRepository.findById(Integer.valueOf(identifier));
 		return byId.orElse(null);
 	}
@@ -101,22 +102,52 @@ public class PersonService extends AbstractService {
 	 *
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
-	 * @param gender the string representation of the gender.
+	 * @param gender the gender.
 	 * @param email the email of the person.
+	 * @param officePhone the phone number at office.
+	 * @param mobilePhone the mobile phone number.
+	 * @param gravatarId the identifier for obtaining a photo on Gravatar.
 	 * @param orcid the ORCID of the person.
-	 * @return the identifier of the person in the database.
+	 * @param researcherId the identifier of the person on ResearchId/WOS/Publon.
+	 * @param linkedInId the identifier of the person on LinkedIn.
+	 * @param githubId the identifier of the person on Github.
+	 * @param researchGateId the identifier of the person on ResearchGate.
+	 * @param facebookId the identifier of the person on Facebook.
+	 * @param dblpURL the URL of the person's page on DBLP.
+	 * @param academiaURL the URL of the person's page on Academia.edu.
+	 * @param cordisURL the URL of the person's page on European Commission's Cordis.
+	 * @param webPageNaming the type of naming for the person's webpage on the organization server.
+	 * @param scholarHindex the Hindex of the person on Google Scholar.
+	 * @param wosHindex the Hindex of the person on WOS.
+	 * @return the person in the database.
 	 * @see Gender
 	 */
-	public int createPerson(String firstName, String lastName, String gender, String email, String orcid) {
+	public Person createPerson(String firstName, String lastName, Gender gender, String email, String officePhone,
+			String mobilePhone, String gravatarId, String orcid, String researcherId, String linkedInId,
+			String githubId, String researchGateId, String facebookId, String dblpURL, String academiaURL,
+			String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex) {
 		final Person res = new Person();
 		res.setFirstName(firstName);
 		res.setLastName(lastName);
-		res.setGender(Gender.valueOfCaseInsensitive(gender));
+		res.setGender(gender);
 		res.setEmail(email);
+		res.setOfficePhone(officePhone);
+		res.setMobilePhone(mobilePhone);
+		res.setGravatarId(gravatarId);
 		res.setORCID(orcid);
+		res.setResearcherId(researcherId);
+		res.setLinkedInId(linkedInId);
+		res.setGithubId(githubId);
+		res.setResearchGateId(researchGateId);
+		res.setFacebookId(facebookId);
+		res.setDblpURL(dblpURL);
+		res.setAcademiaURL(academiaURL);
+		res.setCordisURL(cordisURL);
+		res.setWebPageNaming(webPageNaming);
+		res.setGoogleScholarHindex(scholarHindex);
+		res.setWosHindex(wosHindex);
 		this.personRepository.save(res);
-
-		return res.getId();
+		return res;
 	}
 
 	/** Change the attributes of a person in the database.
@@ -124,10 +155,29 @@ public class PersonService extends AbstractService {
 	 * @param identifier the identifier of the person in the database.
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
+	 * @param gender the gender.
 	 * @param email the email of the person.
+	 * @param officePhone the phone number at office.
+	 * @param mobilePhone the mobile phone number.
+	 * @param gravatarId the identifier for obtaining a photo on Gravatar.
 	 * @param orcid the ORCID of the person.
+	 * @param researcherId the identifier of the person on ResearchId/WOS/Publon.
+	 * @param linkedInId the identifier of the person on LinkedIn.
+	 * @param githubId the identifier of the person on Github.
+	 * @param researchGateId the identifier of the person on ResearchGate.
+	 * @param facebookId the identifier of the person on Facebook.
+	 * @param dblpURL the URL of the person's page on DBLP.
+	 * @param academiaURL the URL of the person's page on Academia.edu.
+	 * @param cordisURL the URL of the person's page on European Commission's Cordis.
+	 * @param webPageNaming the type of naming for the person's webpage on the organization server.
+	 * @param scholarHindex the Hindex of the person on Google Scholar.
+	 * @param wosHindex the Hindex of the person on WOS.
+	 * @return the updated person.
 	 */
-	public void updatePerson(int identifier, String firstName, String lastName, String email, String orcid) {
+	public Person updatePerson(int identifier, String firstName, String lastName, Gender gender, String email, String officePhone,
+			String mobilePhone, String gravatarId, String orcid, String researcherId, String linkedInId,
+			String githubId, String researchGateId, String facebookId, String dblpURL, String academiaURL,
+			String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex) {
 		final Optional<Person> res = this.personRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
 			final Person person = res.get();
@@ -137,10 +187,27 @@ public class PersonService extends AbstractService {
 			if (!Strings.isNullOrEmpty(lastName)) {
 				person.setLastName(lastName);
 			}
+			person.setGender(gender);
 			person.setEmail(email);
+			person.setOfficePhone(officePhone);
+			person.setMobilePhone(mobilePhone);
+			person.setGravatarId(gravatarId);
 			person.setORCID(orcid);
+			person.setResearcherId(researcherId);
+			person.setLinkedInId(linkedInId);
+			person.setGithubId(githubId);
+			person.setResearchGateId(researchGateId);
+			person.setFacebookId(facebookId);
+			person.setDblpURL(dblpURL);
+			person.setAcademiaURL(academiaURL);
+			person.setCordisURL(cordisURL);
+			person.setWebPageNaming(webPageNaming);
+			person.setGoogleScholarHindex(scholarHindex);
+			person.setWosHindex(wosHindex);
 			this.personRepository.save(person);
+			return person;
 		}
+		return null;
 	}
 
 	/** Remove the person with the given identifier from the database.
@@ -252,7 +319,7 @@ public class PersonService extends AbstractService {
 			final int id = getPersonIdByName(firstname.toString(), ln);
 			Person person = null;
 			if (id != 0) {
-				person = getPerson(id);
+				person = getPersonById(id);
 			}
 			if (person == null) {
 				person = new Person();

@@ -62,7 +62,7 @@ public class PersonControllerTest {
 
 	@Test
 	public void showPersonList() {
-		final ModelAndView mv = this.test.showPersonList();
+		final ModelAndView mv = this.test.showPersonList("username");
 		assertEquals("personList", mv.getViewName());
 	}
 

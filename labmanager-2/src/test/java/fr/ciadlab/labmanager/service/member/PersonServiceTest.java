@@ -23,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -39,6 +41,7 @@ import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.member.WebPageNaming;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
@@ -159,14 +162,14 @@ public class PersonServiceTest {
 	}
 
 	@Test
-	public void getPerson() {
-		assertNull(this.test.getPerson(-4756));
-		assertNull(this.test.getPerson(0));
-		assertSame(this.pers0, this.test.getPerson(123));
-		assertSame(this.pers1, this.test.getPerson(234));
-		assertSame(this.pers2, this.test.getPerson(345));
-		assertSame(this.pers3, this.test.getPerson(456));
-		assertNull(this.test.getPerson(7896));
+	public void getPersonById() {
+		assertNull(this.test.getPersonById(-4756));
+		assertNull(this.test.getPersonById(0));
+		assertSame(this.pers0, this.test.getPersonById(123));
+		assertSame(this.pers1, this.test.getPersonById(234));
+		assertSame(this.pers2, this.test.getPersonById(345));
+		assertSame(this.pers3, this.test.getPersonById(456));
+		assertNull(this.test.getPersonById(7896));
 	}
 
 	@Test
@@ -238,23 +241,45 @@ public class PersonServiceTest {
 
 	@Test
 	public void createPerson() {
-		final int id = this.test.createPerson("NFN", "NLN", "male", "NE", "NORCID");
+		final Person person = this.test.createPerson("NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2",
+				"NGRAV", "NORCID", "NRID", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
+				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
+
+		assertNotNull(person);
 
 		final ArgumentCaptor<Person> arg = ArgumentCaptor.forClass(Person.class);
 		verify(this.personRepository, only()).save(arg.capture());
 		final Person actual = arg.getValue();
 		assertNotNull(actual);
-		assertEquals(id, actual.getId());
+		assertSame(person, actual);
 		assertEquals("NFN", actual.getFirstName());
 		assertEquals("NLN", actual.getLastName());
-		assertSame(Gender.MALE, actual.getGender());
+		assertSame(Gender.FEMALE, actual.getGender());
 		assertEquals("NE", actual.getEmail());
+		assertEquals("NP1", actual.getOfficePhone());
+		assertEquals("NP2", actual.getMobilePhone());
+		assertEquals("NGRAV", actual.getGravatarId());
 		assertEquals("NORCID", actual.getORCID());
+		assertEquals("NRID", actual.getResearcherId());
+		assertEquals("NLIN", actual.getLinkedInId());
+		assertEquals("NGIT", actual.getGithubId());
+		assertEquals("NRGID", actual.getResearchGateId());
+		assertEquals("NFB", actual.getFacebookId());
+		assertEquals("NDBLP", actual.getDblpURL());
+		assertEquals("NACA", actual.getAcademiaURL());
+		assertEquals("NCORDIS", actual.getCordisURL());
+		assertSame(WebPageNaming.EMAIL_ID, actual.getWebPageNaming());
+		assertEquals(159, actual.getGoogleScholarHindex());
+		assertEquals(357, actual.getWosHindex());
 	}
 
 	@Test
 	public void updatePerson() {
-		this.test.updatePerson(234, "NFN", "NLN", "NE", "NORCID");
+		Person person = this.test.updatePerson(234, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2",
+				"NGRAV", "NORCID", "NRID", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
+				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
+
+		assertNotNull(person);
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.personRepository, atLeastOnce()).findById(arg0.capture());
@@ -267,21 +292,25 @@ public class PersonServiceTest {
 		final Person actual1 = arg1.getValue();
 		assertSame(this.pers1, actual1);
 
-		ArgumentCaptor<String> arg2 = ArgumentCaptor.forClass(String.class);
-		verify(this.pers1, atLeastOnce()).setFirstName(arg2.capture());
-		assertEquals("NFN", arg2.getValue());
-
-		arg2 = ArgumentCaptor.forClass(String.class);
-		verify(this.pers1, atLeastOnce()).setLastName(arg2.capture());
-		assertEquals("NLN", arg2.getValue());
-
-		arg2 = ArgumentCaptor.forClass(String.class);
-		verify(this.pers1, atLeastOnce()).setEmail(arg2.capture());
-		assertEquals("NE", arg2.getValue());
-
-		arg2 = ArgumentCaptor.forClass(String.class);
-		verify(this.pers1, atLeastOnce()).setORCID(arg2.capture());
-		assertEquals("NORCID", arg2.getValue());
+		verify(this.pers1, atLeastOnce()).setFirstName(eq("NFN"));
+		verify(this.pers1, atLeastOnce()).setLastName(eq("NLN"));
+		verify(this.pers1, atLeastOnce()).setGender(same(Gender.FEMALE));
+		verify(this.pers1, atLeastOnce()).setEmail(eq("NE"));
+		verify(this.pers1, atLeastOnce()).setOfficePhone(eq("NP1"));
+		verify(this.pers1, atLeastOnce()).setMobilePhone(eq("NP2"));
+		verify(this.pers1, atLeastOnce()).setGravatarId(eq("NGRAV"));
+		verify(this.pers1, atLeastOnce()).setORCID(eq("NORCID"));
+		verify(this.pers1, atLeastOnce()).setResearcherId(eq("NRID"));
+		verify(this.pers1, atLeastOnce()).setLinkedInId(eq("NLIN"));
+		verify(this.pers1, atLeastOnce()).setGithubId(eq("NGIT"));
+		verify(this.pers1, atLeastOnce()).setResearchGateId(eq("NRGID"));
+		verify(this.pers1, atLeastOnce()).setFacebookId(eq("NFB"));
+		verify(this.pers1, atLeastOnce()).setDblpURL(eq("NDBLP"));
+		verify(this.pers1, atLeastOnce()).setAcademiaURL(eq("NACA"));
+		verify(this.pers1, atLeastOnce()).setCordisURL(eq("NCORDIS"));
+		verify(this.pers1, atLeastOnce()).setWebPageNaming(same(WebPageNaming.EMAIL_ID));
+		verify(this.pers1, atLeastOnce()).setGoogleScholarHindex(eq(159));
+		verify(this.pers1, atLeastOnce()).setWosHindex(eq(357));
 	}
 
 	@Test

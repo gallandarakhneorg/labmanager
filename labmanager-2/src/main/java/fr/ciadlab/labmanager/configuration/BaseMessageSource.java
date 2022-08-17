@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 
+import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
@@ -132,6 +133,9 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (PublicationType item : EnumSet.allOf(PublicationType.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (Gender item : EnumSet.allOf(Gender.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 		}

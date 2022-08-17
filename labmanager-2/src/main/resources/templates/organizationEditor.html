@@ -44,12 +44,12 @@
 	                        </div>
 	                    </div>
 	                </div>
+		            <script th:inline="javascript">
+		            setTimeout(function (e) {
+						document.location.href="[(@{/organizationList})]";
+					}, 3000);
+		            </script>
 	            </div>
-	            <script th:inline="javascript">
-	            setTimeout(function (e) {
-					document.location.href="[(@{/organizationList})]";
-				}, 3000);
-	            </script>
 	        </div>
 	        <div class="main-content-inner">
 	            <div class="row">
