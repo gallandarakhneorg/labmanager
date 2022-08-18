@@ -1,0 +1,171 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="fragments/head :: style"/>
+	<th:block th:replace="fragments/head :: script"/>
+	
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/umd/string-similarity.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+	
+	<style>
+	    .form-control.is-valid {
+	        border-color: #0d64c1;
+	        border-width:2px;
+	    }
+	</style>
+</head>
+<body>
+	<div class="horizontal-main-wrapper">
+	    <!-- main content area start -->
+	    <div class="main-content">
+	        <div class="main-content-inner" th:if="${#bools.isTrue(success) or #bools.isTrue(failure)}">
+	            <div class="row" th:if="${#bools.isTrue(failure)}">
+	                <div class="col-lg-12">
+	                    <div class="card bg-danger">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:utext="#{html.InvalidFormData}"></h4>
+	                            <p th:if="${message != null}" th:utext="${message}"></p>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	            <div class="row" th:if="${#bools.isTrue(success)}">
+	                <div class="col-lg-12">
+	                    <div class="card bg-success">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:utext="#{html.ValidFormData}"></h4>
+	                            <p th:if="${message != null}" th:utext="${message}"></p>
+	                        </div>
+	                    </div>
+	                </div>
+		            <script th:inline="javascript">
+		            setTimeout(function (e) {
+						document.location.href="[(@{/journalList})]";
+					}, 3000);
+		            </script>
+	            </div>
+	        </div>
+	        <div class="main-content-inner">
+	            <div class="row">
+	                <div class="col-lg-12">
+	                    <div class="card">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:if="${journal} != null" th:utext="#{html.EditJournal}"></h4>
+	                            <h4 class="header-title" th:if="${journal} == null" th:utext="#{html.AddJournal}"></h4>
+	                            <form id="form" enctype="multipart/form-data" th:action="@{${formActionUrl}}" method="post" >
+	                                <input name="journal" th:if="${journal != null}" hidden="true" th:value="${journal.id}" />
+	                                <div class="form-group">
+	                                    <label for="journalName" class="col-form-label"
+	                                           th:utext="#{html.Name}"></label>
+										<input class="form-control" type="text" th:value="${journal != null ? journal.journalName : ''}"
+										       th:placeholder="#{html.PlaceHolderJournalName}" id="journalName" name="name"></input>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="journalAddress" class="col-form-label"
+	                                           th:utext="#{html.Address}"></label>
+										<input class="form-control" type="text" th:value="${journal != null ? journal.address : ''}"
+										       th:placeholder="#{html.PlaceHolderAddress}" id="journalAddress" name="address"></input>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="journalPublisher" class="col-form-label"
+	                                           th:utext="#{html.Publisher}"></label>
+										<input class="form-control" type="text" th:value="${journal != null ? journal.publisher : ''}"
+										       th:placeholder="#{html.PlaceHolderPublisher}" id="journalPublisher" name="publisher"></input>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="journalISBN" class="col-form-label"
+	                                           th:utext="#{html.ISBN}"></label>
+										<input class="form-control" type="text" th:value="${journal != null ? journal.getISBN() : ''}"
+										       th:placeholder="#{html.PlaceHolderISBN}" id="journalISBN" name="isbn"></input>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="journalISSN" class="col-form-label"
+	                                           th:utext="#{html.ISSN}"></label>
+										<input class="form-control" type="text" th:value="${journal != null ? journal.getISSN() : ''}"
+										       th:placeholder="#{html.PlaceHolderISBN}" id="journalISBN" name="issn"></input>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="journalOpenAccess" class="col-form-label"
+	                                           th:utext="#{html.OpenAccess}"></label>
+										<select class="form-control selectOpenAccess list-group-item list-group-item-action"
+										        id="journalOpenAccess" name="openAccess" style="width: 100%">
+											<option th:selected="${journal == null || journal.openAccess == null}"
+											        value=""
+											        th:utext="#{html.NotSpecified}"></option>
+											<option th:selected="${journal != null && journal.openAccess != null && #bools.isTrue(journal.openAccess)}"
+											        value="true"
+											        th:utext="#{html.OpenAccessJournal}"></option>
+											<option th:selected="${journal != null && journal.openAccess != null && #bools.isFalse(journal.openAccess)}"
+											        value="false"
+											        th:utext="#{html.NoOpenAccessJournal}"></option>
+										</select>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="journalURL" class="col-form-label"
+	                                           th:utext="#{html.JournalURL}"></label>
+										<input class="form-control" type="text" th:value="${journal != null ? journal.journalURL : ''}"
+										       th:placeholder="#{html.PlaceHolderURL}" id="journalURL" name="journalUrl"></input>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="journalScimagoId" class="col-form-label"
+	                                           th:utext="#{html.JournalScimagoId}"></label>
+										<input class="form-control" type="text" th:value="${journal != null ? journal.scimagoId : ''}"
+										       th:placeholder="#{html.PlaceHolderIdentifier}" id="journalScimagoId" name="scimagoId"></input>
+	                                </div>
+	                                <div class="form-group">
+	                                    <label for="journalWosId" class="col-form-label"
+	                                           th:utext="#{html.JournalWosId}"></label>
+										<input class="form-control" type="text" th:value="${journal != null ? journal.wosId : ''}"
+										       th:placeholder="#{html.PlaceHolderIdentifier}" id="journalWosId" name="wosId"></input>
+	                                </div>
+									<button id="submitButton" type="submit" class="btn btn-success mt-4 pr-4 pl-4"
+									        th:if="${changeEnabled}" th:utext="#{html.Submit}"></button>
+	                            </form>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    <!-- main content area end -->
+	</div>
+	<!-- page container area end -->
+</body>
+<script th:inline="javascript">
+
+// Force intermediate state of the checkboxes
+var journalOpenAccessValue = "[(${journal != null ? ((journal.openAccess == null) ? '' : journal.openAccess.toString()) : ''})]";
+if (journalOpenAccessValue == '') {
+	$("#journalOpenAccess").prop("indeterminate", true);
+	$("#journalOpenAccess").prop("checked", false);
+} else if (journalOpenAccessValue == 'true') {
+	$("#journalOpenAccess").prop("indeterminate", false);
+	$("#journalOpenAccess").prop("checked", true);
+} else {
+	$("#journalOpenAccess").prop("indeterminate", false);
+	$("#journalOpenAccess").prop("checked", false);
+}
+
+$(document).ready(function () {
+    $('#form').validate({
+        rules: {
+        	name: {
+                required: true,
+                minlength: 2
+            },
+        	publisher: {
+                required: true,
+                minlength: 2
+            },
+        }
+    });
+});
+</script>
+</html>
+

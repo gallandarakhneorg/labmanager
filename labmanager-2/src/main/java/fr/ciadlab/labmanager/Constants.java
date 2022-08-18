@@ -113,4 +113,16 @@ public interface Constants {
 	 */
 	public static final String PERSON_SAVING_ENDPOINT = "personSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for editing a journal.
+	 *
+	 * @see #JOURNAL_SAVING_ENDPOINT
+	 */
+	public static final String JOURNAL_EDITING_ENDPOINT = "journalEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving a journal.
+	 *
+	 * @see #JOURNAL_EDITING_ENDPOINT
+	 */
+	public static final String JOURNAL_SAVING_ENDPOINT = "journalSave"; //$NON-NLS-1$
+
 }

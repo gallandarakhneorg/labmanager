@@ -120,41 +120,30 @@ public class JournalService extends AbstractService {
 	/** Create a journal into the database.
 	 *
 	 * @param name the name of the journal.
+	 * @param address the address of the publisher of the journal.
 	 * @param publisher the name of the publisher of the journal.
+	 * @param isbn the ISBN number for the journal.
+	 * @param issn the ISSN number for the journal.
+	 * @param openAccess indicates if the journal is open access or not.
 	 * @param journalUrl the URL to the page of the journal on the publisher website.
 	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
-	 * @return the identifier of the created journal.
+	 * @return the created journal.
 	 */
-	public int createJournal(String name, String publisher, String journalUrl, String scimagoId, String wosId) {
+	public Journal createJournal(String name, String address, String publisher, String isbn, String issn,
+			Boolean openAccess, String journalUrl, String scimagoId, String wosId) {
 		final Journal res = new Journal();
 		res.setJournalName(name);
+		res.setAddress(address);
 		res.setPublisher(publisher);
+		res.setISBN(isbn);
+		res.setISSN(issn);
+		res.setOpenAccess(openAccess);
 		res.setJournalURL(journalUrl);
 		res.setScimagoId(scimagoId);
 		res.setWosId(wosId);
 		this.journalRepository.save(res);
-		return res.getId();
-	}
-
-	/** Create a journal into the database.
-	 *
-	 * @param name the name of the journal.
-	 * @param publisher the name of the publisher of the journal.
-	 * @param journalUrl the URL to the page of the journal on the publisher website.
-	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
-	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
-	 * @return the identifier of the created journal.
-	 */
-	public int createJournal(String name, String publisher, URL journalUrl, String scimagoId, String wosId) {
-		final Journal res = new Journal();
-		res.setJournalName(name);
-		res.setPublisher(publisher);
-		res.setJournalURL(journalUrl);
-		res.setScimagoId(scimagoId);
-		res.setWosId(wosId);
-		this.journalRepository.save(res);
-		return res.getId();
+		return res;
 	}
 
 	/** Remove the journal with the given identifier.
@@ -178,13 +167,19 @@ public class JournalService extends AbstractService {
 	/** Update the information of a journal.
 	 *
 	 * @param identifier the identifier of the journal for which information must be updated.
-	 * @param name the new name of the journal.
-	 * @param publisher the new name of the publisher of the journal.
-	 * @param journalUrl the new URL of the journal on the publisher website.
-	 * @param scimagoId the new identifier of the journal on the Scimago website.
-	 * @param wosId the new identifier of the journal on the Web-Of-Science website.
+	 * @param name the name of the journal.
+	 * @param address the address of the publisher of the journal.
+	 * @param publisher the name of the publisher of the journal.
+	 * @param isbn the ISBN number for the journal.
+	 * @param issn the ISSN number for the journal.
+	 * @param openAccess indicates if the journal is open access or not.
+	 * @param journalUrl the URL to the page of the journal on the publisher website.
+	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
+	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
+	 * @return the updated journal.
 	 */
-	public void updateJournal(int identifier, String name, String publisher, String journalUrl, String scimagoId, String wosId) {
+	public Journal updateJournal(int identifier, String name, String address, String publisher, String isbn, String issn,
+			Boolean openAccess, String journalUrl, String scimagoId, String wosId) {
 		final Optional<Journal> res = this.journalRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
 			final Journal journal = res.get();
@@ -192,13 +187,20 @@ public class JournalService extends AbstractService {
 				if (!Strings.isNullOrEmpty(name)) {
 					journal.setJournalName(name);
 				}
+				journal.setJournalName(Strings.emptyToNull(name));
+				journal.setAddress(Strings.emptyToNull(address));
 				journal.setPublisher(Strings.emptyToNull(publisher));
+				journal.setISBN(Strings.emptyToNull(isbn));
+				journal.setISSN(Strings.emptyToNull(issn));
+				journal.setOpenAccess(openAccess);
 				journal.setJournalURL(Strings.emptyToNull(journalUrl));
 				journal.setScimagoId(Strings.emptyToNull(scimagoId));
 				journal.setWosId(Strings.emptyToNull(wosId));
 				this.journalRepository.save(journal);
+				return journal; 
 			}
 		}
+		return null;
 	}
 
 	/** Create a link between a journal and a paper.

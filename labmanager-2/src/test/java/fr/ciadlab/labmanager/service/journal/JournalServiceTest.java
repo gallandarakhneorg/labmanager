@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.service.journal;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
@@ -24,12 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -183,33 +183,23 @@ public class JournalServiceTest {
 	}
 
 	@Test
-	public void createJournal_StringStringStringStringString() {
-		final int id = this.test.createJournal("NN", "NP", "NURL", "NSCI", "NWOS");
+	public void createJournal() {
+		final Journal journal = this.test.createJournal("NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NWOS");
+		
+		assertNotNull(journal);
 
 		final ArgumentCaptor<Journal> arg = ArgumentCaptor.forClass(Journal.class);
 		verify(this.journalRepository, only()).save(arg.capture());
 		final Journal actual = arg.getValue();
 		assertNotNull(actual);
-		assertEquals(id, actual.getId());
+		assertSame(journal, actual);
 		assertEquals("NN", actual.getJournalName());
+		assertEquals("NA", actual.getAddress());
 		assertEquals("NP", actual.getPublisher());
+		assertEquals("NISBN", actual.getISBN());
+		assertEquals("NISSN", actual.getISSN());
+		assertTrue(actual.getOpenAccess());
 		assertEquals("NURL", actual.getJournalURL());
-		assertEquals("NSCI", actual.getScimagoId());
-		assertEquals("NWOS", actual.getWosId());
-	}
-
-	@Test
-	public void createJournal_StringStringURLStringString() throws Exception {
-		final int id = this.test.createJournal("NN", "NP", new URL("http://NURL.org"), "NSCI", "NWOS");
-
-		final ArgumentCaptor<Journal> arg = ArgumentCaptor.forClass(Journal.class);
-		verify(this.journalRepository, only()).save(arg.capture());
-		final Journal actual = arg.getValue();
-		assertNotNull(actual);
-		assertEquals(id, actual.getId());
-		assertEquals("NN", actual.getJournalName());
-		assertEquals("NP", actual.getPublisher());
-		assertEquals("http://NURL.org", actual.getJournalURL());
 		assertEquals("NSCI", actual.getScimagoId());
 		assertEquals("NWOS", actual.getWosId());
 	}
@@ -233,7 +223,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void updateJournal() {
-		this.test.updateJournal(234, "NN", "NP", "NURL", "NSCI", "NWOS");
+		this.test.updateJournal(234, "NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NWOS");
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.journalRepository, atLeastOnce()).findById(arg0.capture());
@@ -248,20 +238,15 @@ public class JournalServiceTest {
 
 		final ArgumentCaptor<String> arg2 = ArgumentCaptor.forClass(String.class);
 
-		verify(this.jour1, atLeastOnce()).setJournalName(arg2.capture());
-		assertEquals("NN", arg2.getValue());
-
-		verify(this.jour1, atLeastOnce()).setPublisher(arg2.capture());
-		assertEquals("NP", arg2.getValue());
-
-		verify(this.jour1, atLeastOnce()).setJournalURL(arg2.capture());
-		assertEquals("NURL", arg2.getValue());
-
-		verify(this.jour1, atLeastOnce()).setScimagoId(arg2.capture());
-		assertEquals("NSCI", arg2.getValue());
-
-		verify(this.jour1, atLeastOnce()).setWosId(arg2.capture());
-		assertEquals("NWOS", arg2.getValue());
+		verify(this.jour1, atLeastOnce()).setJournalName(eq("NN"));
+		verify(this.jour1, atLeastOnce()).setAddress(eq("NA"));
+		verify(this.jour1, atLeastOnce()).setPublisher(eq("NP"));
+		verify(this.jour1, atLeastOnce()).setISBN(eq("NISBN"));
+		verify(this.jour1, atLeastOnce()).setISSN(eq("NISSN"));
+		verify(this.jour1, atLeastOnce()).setOpenAccess(eq(Boolean.TRUE));
+		verify(this.jour1, atLeastOnce()).setJournalURL(eq("NURL"));
+		verify(this.jour1, atLeastOnce()).setScimagoId(eq("NSCI"));
+		verify(this.jour1, atLeastOnce()).setWosId(eq("NWOS"));
 	}
 
 	@Test

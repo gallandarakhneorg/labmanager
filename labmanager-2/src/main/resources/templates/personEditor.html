@@ -64,13 +64,13 @@
 	                                    <label for="personLastName" class="col-form-label"
 	                                           th:utext="#{html.LastName}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.lastName : ''}"
-										       id="personLastName" name="lastName">
+										       th:placeholder="#{html.PlaceHolderPersonLastName}" id="personLastName" name="lastName"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personFirstName" class="col-form-label"
 	                                           th:utext="#{html.FirstName}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.firstName : ''}"
-										       id="personFirstName" name="firstName">
+										       th:placeholder="#{html.PlaceHolderPersonFirstName}" id="personFirstName" name="firstName"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personGender" class="col-form-label"
@@ -87,79 +87,79 @@
 	                                    <label for="personEmail" class="col-form-label"
 	                                           th:utext="#{html.Email}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.email : ''}"
-										       id="personEmail" name="email">
+										       th:placeholder="#{html.PlaceHolderEmail}" id="personEmail" name="email"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personOfficePhone" class="col-form-label"
 	                                           th:utext="#{html.OfficePhone}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.officePhone : ''}"
-										       id="personOfficePhone" name="officePhone">
+										       th:placeholder="#{html.PlaceHolderPhone}" id="personOfficePhone" name="officePhone"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personMobilePhone" class="col-form-label"
 	                                           th:utext="#{html.MobilePhone}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.mobilePhone : ''}"
-										       id="personMobilePhone" name="mobilePhone">
+										       th:placeholder="#{html.PlaceHolderPhone}" id="personMobilePhone" name="mobilePhone"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personGravatarId" class="col-form-label"
 	                                           th:utext="#{html.GravatarId}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.gravatarId : ''}"
-										       id="personGravatarId" name="gravatarId">
+										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personGravatarId" name="gravatarId"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personOrcid" class="col-form-label"
 	                                           th:utext="#{html.ORCID}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.getORCID() : ''}"
-										       id="personOrcid" name="orcid">
+										       th:placeholder="#{html.PlaceHolderIdentifierOrcid}" id="personOrcid" name="orcid"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personResearcherId" class="col-form-label"
 	                                           th:utext="#{html.ResearcherId}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.researcherId : ''}"
-										       id="personResearcherId" name="researcherId">
+										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personResearcherId" name="researcherId"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personLinkedInId" class="col-form-label"
 	                                           th:utext="#{html.LinkedInId}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.linkedInId : ''}"
-										       id="personLinkedInId" name="linkedInId">
+										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personLinkedInId" name="linkedInId"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personGithubId" class="col-form-label"
 	                                           th:utext="#{html.GithubId}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.githubId : ''}"
-										       id="personGithubId" name="githubId">
+										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personGithubId" name="githubId"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personResearchGateId" class="col-form-label"
 	                                           th:utext="#{html.ResearchGateId}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.researchGateId : ''}"
-										       id="personResearchGateId" name="researchGateId">
+										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personResearchGateId" name="researchGateId"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personFacebookId" class="col-form-label"
 	                                           th:utext="#{html.FacebookId}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.facebookId : ''}"
-										       id="personFacebookId" name="facebookId">
+										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personFacebookId" name="facebookId"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personDblpURL" class="col-form-label"
 	                                           th:utext="#{html.DblpURL}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.dblpURL : ''}"
-										       id="personDblpURL" name="dblpURL">
+										       th:placeholder="#{html.PlaceHolderURL}" id="personDblpURL" name="dblpURL"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personAcademiaURL" class="col-form-label"
 	                                           th:utext="#{html.AcademiaURL}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.academiaURL : ''}"
-										       id="personAcademiaURL" name="academiaURL">
+										       th:placeholder="#{html.PlaceHolderURL}" id="personAcademiaURL" name="academiaURL"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personCordisURL" class="col-form-label"
 	                                           th:utext="#{html.CordisURL}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.cordisURL : ''}"
-										       id="personCordisURL" name="CordisURL">
+										       th:placeholder="#{html.PlaceHolderURL}" id="personCordisURL" name="cordisURL"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personWebPageNaming" class="col-form-label"
@@ -176,13 +176,13 @@
 	                                    <label for="personScholarHindex" class="col-form-label"
 	                                           th:utext="#{html.hindexOnScholar}"></label>
 										<input class="form-control" type="number" th:value="${person != null ? person.googleScholarHindex : ''}"
-										       id="personScholarHindex" name="googleScholarHindex">
+										       th:placeholder="#{html.PlaceHolderPositiveInteger}" id="personScholarHindex" name="googleScholarHindex"></input>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personWosHindex" class="col-form-label"
 	                                           th:utext="#{html.hindexOnWoS}"></label>
 										<input class="form-control" type="number" th:value="${person != null ? person.wosHindex : ''}"
-										       id="personWosHindex" name="wosHindex">
+										       th:placeholder="#{html.PlaceHolderPositiveInteger}" id="personWosHindex" name="wosHindex"></input>
 	                                </div>
 									<button id="submitButton" type="submit" class="btn btn-success mt-4 pr-4 pl-4"
 									        th:if="${changeEnabled}" th:utext="#{html.Submit}"></button>
