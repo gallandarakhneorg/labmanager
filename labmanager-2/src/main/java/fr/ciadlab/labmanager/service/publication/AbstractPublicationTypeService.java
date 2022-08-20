@@ -86,6 +86,18 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 				pathToVideo.toExternalForm());
 	}
 
+	/** Check if the given publication instance correspons to the given type.
+	 *
+	 * @param type the publication type to test.
+	 * @param publication the publication to test.
+	 * @return {@code true} if the publication is of a valid instance regarding the publication type.
+	 */
+	@SuppressWarnings("static-method")
+	protected boolean isValidPublicationType(PublicationType type, Publication publication) {
+		final Class<? extends Publication> expectedType = type.getInstanceType();
+		return expectedType.isInstance(publication);
+	}
+
 	/** Update the book chapter with the given identifier.
 	 * This function do not save the publication into the database. You must call the saving function
 	 * explicitly.
@@ -102,23 +114,22 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 	 * @param dblpUrl the new URL to the DBLP page of the publication.
 	 * @param extraUrl the new URL to the page of the publication.
 	 * @param language the new major language of the publication.
-	 * @param pdfContent the content of the publication PDF that is encoded in {@link Base64}. The content will be saved into
-	 *     the dedicated folder for PDF files.
-	 * @param awardContent the content of the publication award certificate that is encoded in {@link Base64}. The content will be saved into
-	 *     the dedicated folder for PDF files.
+	 * @param pathToPdfFile the path of the publication PDF.
+	 * @param pathToAwardCertificate the path of the publication award certificate.
 	 * @param pathToVideo the path that allows to download the video of the publication.
 	 */
 	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, LocalDate date,
 			String abstractText, String keywords, String doi, String isbn, String issn, String dblpUrl,
-			String extraUrl, PublicationLanguage language, String pdfContent, String awardContent,
+			String extraUrl, PublicationLanguage language, String pathToPdfFile, String pathToAwardCertificate,
 			String pathToVideo) {
 		if (!Strings.isNullOrEmpty(title)) {
 			publication.setTitle(title);
 		}
 		if (type != null) {
-			final Class<? extends Publication> expectedType = type.getInstanceType();
-			if (!expectedType.isInstance(publication)) {
-				throw new IllegalArgumentException("The publication type does not corresponds to the implementation class of the publication"); //$NON-NLS-1$
+			if (!isValidPublicationType(type, publication)) {
+				throw new IllegalArgumentException("The publication type does not corresponds to the " //$NON-NLS-1$
+						+ "implementation class of the publication. Expected type: " + type.getInstanceType() //$NON-NLS-1$
+						+ "; Publication type: " + publication.getClass()); //$NON-NLS-1$
 			}
 			publication.setType(type);
 		}
@@ -137,7 +148,7 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 		publication.setMajorLanguage(language);
 		publication.setVideoURL(Strings.emptyToNull(pathToVideo));
 
-		if (Strings.isNullOrEmpty(pdfContent)) {
+		if (Strings.isNullOrEmpty(pathToPdfFile)) {
 			publication.setPathToDownloadablePDF(null);
 			try {
 				// Force delete in case the file is still here
@@ -146,10 +157,10 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 				getLogger().error(ex.getLocalizedMessage(), ex);
 			}
 		} else {
-			publication.setPathToDownloadablePDF(pdfContent);
+			publication.setPathToDownloadablePDF(pathToPdfFile);
 		}
 
-		if (Strings.isNullOrEmpty(awardContent)) {
+		if (Strings.isNullOrEmpty(pathToAwardCertificate)) {
 			publication.setPathToDownloadableAwardCertificate(null);
 			try {
 				// Force delete in case the file is still here
@@ -158,7 +169,7 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 				getLogger().error(ex.getLocalizedMessage(), ex);
 			}
 		} else {
-			publication.setPathToDownloadableAwardCertificate(awardContent);
+			publication.setPathToDownloadableAwardCertificate(pathToAwardCertificate);
 		}
 	}
 

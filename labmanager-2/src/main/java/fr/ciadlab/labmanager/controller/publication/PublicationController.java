@@ -260,7 +260,7 @@ public class PublicationController extends AbstractController {
 			Boolean editButtons, Boolean deleteButtons, Boolean htmlAuthors, Boolean htmlPublicationDetails,
 			Boolean htmlTypeAndCategory, ExporterCallback<T> callback) throws Exception {
 		// Prepare the exporter
-		final ExporterConfigurator configurator = new ExporterConfigurator();
+		final ExporterConfigurator configurator = new ExporterConfigurator(this.journalService);
 		if (nameHighlight != null && !nameHighlight.booleanValue()) {
 			configurator.disableSelectedPersonFormat();
 			configurator.disableResearcherFormat();

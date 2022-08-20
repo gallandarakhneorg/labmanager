@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.io.json;
 
 import java.io.IOException;
+import java.net.URL;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -26,6 +27,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
+import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
@@ -99,6 +101,14 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 			// Make aliasing of the year
 			if (entryNode.has("publicationYear")) { //$NON-NLS-1$
 				entryNode.set("year", entryNode.get("publicationYear").deepCopy()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			// Make aliasing for the Scimago Quartiles
+			if (entryNode.has("scimagoQIndex") && publication instanceof JournalBasedPublication) { //$NON-NLS-1$
+				final JournalBasedPublication jbp = (JournalBasedPublication) publication;
+				final URL url = configurator.getJournalService().getScimagoQuartileImageURLByJournal(jbp.getJournal());
+				if (url != null) {
+					entryNode.set("scimagoQIndex_imageUrl", entryNode.textNode(url.toExternalForm())); //$NON-NLS-1$
+				}
 			}
 			// Add labels for type and category
 			if (configurator.isTypeAndCategoryLabels()) {

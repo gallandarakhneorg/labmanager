@@ -281,6 +281,20 @@ public class JournalService extends AbstractService {
 		return null;
 	}
 
+	/** Replies the URL of the image that shows up the scimago quartile.
+	 *
+	 * @param journal the journal for which the quartile should be replied.
+	 * @return the URL of the image.
+	 */
+	public URL getScimagoQuartileImageURLByJournal(Journal journal) {
+		try {
+			return new URL(SCIMAGO_URL_PREFIX + journal.getScimagoId());
+		} catch (Throwable ex) {
+			getLogger().warn(ex.getLocalizedMessage(), ex);
+			return null;
+		}
+	}
+
 	/** Download the quartile information from the Scimago website.
 	 *
 	 * @param journal the journal for which the quartile must be downloaded.
@@ -291,21 +305,23 @@ public class JournalService extends AbstractService {
 			final String scimagoId = journal.getScimagoId();
 			if (!Strings.isNullOrEmpty(scimagoId)) {
 				try {
-					final BufferedImage image = this.netConnection.getImageFromURL(
-							new URL(SCIMAGO_URL_PREFIX + journal.getScimagoId()));
-					final int rgba = image.getRGB(5, 55);
-					final int red = (rgba >> 16) & 0xff;
-					switch (red) {
-					case 164:
-						return QuartileRanking.Q1;
-					case 232:
-						return QuartileRanking.Q2;
-					case 251:
-						return QuartileRanking.Q3;
-					case 221:
-						return QuartileRanking.Q4;
-					default:
-						//
+					final URL url = getScimagoQuartileImageURLByJournal(journal);
+					if (url != null) {
+						final BufferedImage image = this.netConnection.getImageFromURL(url);
+						final int rgba = image.getRGB(5, 55);
+						final int red = (rgba >> 16) & 0xff;
+						switch (red) {
+						case 164:
+							return QuartileRanking.Q1;
+						case 232:
+							return QuartileRanking.Q2;
+						case 251:
+							return QuartileRanking.Q3;
+						case 221:
+							return QuartileRanking.Q4;
+						default:
+							//
+						}
 					}
 				} catch (Throwable ex) {
 					getLogger().warn(ex.getLocalizedMessage(), ex);

@@ -57,6 +57,11 @@
 		    max-height: 150px;
 		}
 
+		img.publicationDetailsScimagoQuartile {
+		    max-height: 150px;
+		    float: right;
+		}
+
         .odd {
             background-color: white !important;
         }
@@ -220,7 +225,9 @@
         var abstractText = d.abstractText && d.abstractText != "" ? "<tr><td>[(#{html.Abstract})]</td><td>" + d.abstractText + '</td></tr>' : "";
         var note = d.note && d.note != "" ? "<tr><td>[(#{html.Note})]</td><td>" + d.note + '</td></tr>' : "";
         var keywords = d.keywords && d.keywords != "" ? "<tr><td>[(#{html.Keywords})]</td><td>" + d.keywords + '</td></tr>' : "";
-        var scimagoQuartile = d.scimagoQIndex && d.scimagoQIndex != "" ? "<tr><td>[(#{html.ScimagoQIndex})]</td><td>" + d.scimagoQIndex + '</td></tr>' : "";
+        var scimagoQuartile = d.scimagoQIndex && d.scimagoQIndex != "" ? ("<tr><td>[(#{html.ScimagoQIndex})]</td><td>" + d.scimagoQIndex
+        		+ (d.scimagoQIndex_imageUrl && d.scimagoQIndex_imageUrl != "" ? '<img class="publicationDetailsScimagoQuartile" src="' + d.scimagoQIndex_imageUrl + '" />' : '')
+        		+ '</td></tr>') : "";
         var wosQuartile = d.wosQIndex && d.wosQIndex != "" ? "<tr><td>[(#{html.WosQIndex})]</td><td>" + d.wosQIndex + '</td></tr>' : "";
         var coreRanking = d.coreRanking && d.coreRanking != "" ? "<tr><td>[(#{html.CoreRanking})]</td><td>" + d.coreRanking + '</td></tr>' : "";
         var impactFactor = d.impactFactor && d.impactFactor != "" ? "<tr><td>[(#{html.ImpactFactor1})]</td><td>" + d.impactFactor + '</td></tr>' : "";
