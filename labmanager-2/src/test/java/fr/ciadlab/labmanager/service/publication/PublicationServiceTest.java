@@ -59,6 +59,7 @@ import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
+import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
 import fr.ciadlab.labmanager.service.publication.type.BookService;
@@ -354,7 +355,7 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportBibTeX_Collection_null() {
-		String bibtex = this.test.exportBibTeX((Collection<Publication>) null, new ExporterConfigurator());
+		String bibtex = this.test.exportBibTeX((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class)));
 		assertNull(bibtex);
 	}
 
@@ -363,7 +364,7 @@ public class PublicationServiceTest {
 		when(this.bibtex.exportPublications(any(Iterable.class), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		String bibtex = this.test.exportBibTeX(pubs, new ExporterConfigurator());
+		String bibtex = this.test.exportBibTeX(pubs, new ExporterConfigurator(mock(JournalService.class)));
 
 		assertEquals("abc", bibtex);
 
@@ -379,14 +380,14 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportHtml_Collection_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
 		String html = this.test.exportHtml((Collection<Publication>) null, configurator);
 		assertNull(html);
 	}
 
 	@Test
 	public void exportHtml_Collection() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
 		when(this.html.exportPublications(any(Iterable.class), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
@@ -408,14 +409,14 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportOdt_Collection_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
 		byte[] odt = this.test.exportOdt((Collection<Publication>) null, configurator);
 		assertNull(odt);
 	}
 
 	@Test
 	public void exportOdt_Collection() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
 		when(this.odt.exportPublications(any(Iterable.class), any())).thenReturn("abc".getBytes());
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
@@ -438,14 +439,14 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportJson_Collection_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
 		String html = this.test.exportJson((Collection<Publication>) null, configurator);
 		assertNull(html);
 	}
 
 	@Test
 	public void exportJson_Collection() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator();
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
 		when(this.json.exportPublicationsWithRootKeys(any(Iterable.class), any(), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 

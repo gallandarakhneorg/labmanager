@@ -70,7 +70,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 	@Test
 	public void exportPublications_Iterable_null() throws Exception {
-		assertNull(this.test.exportPublications(null, new ExporterConfigurator()));
+		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null)));
 	}
 
 	@Test
@@ -152,7 +152,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 		when(a1.getMemberships()).thenReturn(Collections.singleton(m1));
 
-		ExporterConfigurator configurator = new ExporterConfigurator();
+		ExporterConfigurator configurator = new ExporterConfigurator(null);
 
 		byte[] content = this.test.exportPublications(Arrays.asList(p0, p1, p2), configurator);
 

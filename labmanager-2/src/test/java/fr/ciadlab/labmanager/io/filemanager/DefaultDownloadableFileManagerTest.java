@@ -19,11 +19,7 @@ package fr.ciadlab.labmanager.io.filemanager;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -31,7 +27,6 @@ import java.io.IOException;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.web.multipart.MultipartFile;
 
 /** Tests for {@link DefaultDownloadableFileManager}.
  * 
@@ -88,24 +83,6 @@ public class DefaultDownloadableFileManagerTest {
 	@Test
 	public void makeAwardFilename() {
 		assertNotNull(this.test.makeAwardFilename(123));
-	}
-
-	@Test
-	public void saveFile() throws Exception {
-		final MultipartFile file = mock(MultipartFile.class);
-		when(file.getInputStream()).thenAnswer(it -> {
-			return new ByteArrayInputStream("the content".getBytes());
-		});
-		final File outTarget = FileSystem.createTempDirectory("tests", "dir");
-		try {
-			this.test.saveFiles(new File(outTarget, "out-file.pdf"), new File(outTarget, "out-file.jpg"), file);
-			File f = new File(outTarget, "out-file.pdf");
-			assertTrue(f.exists());
-			f = new File(outTarget, "out-file.jpg");
-			assertTrue(f.exists());
-		} finally {
-			FileSystem.delete(outTarget);
-		}
 	}
 
 }

@@ -67,6 +67,10 @@ public class AbstractPublicationTypeServiceTest {
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.test = new AbstractPublicationTypeService(this.messages, this.downloadableFileManager) {
 			@Override
+			protected boolean isValidPublicationType(PublicationType type, Publication publication) {
+				return true;
+			}
+			@Override
 			public void updatePublicationNoSave(Publication publication, String title, PublicationType type,
 					LocalDate date, String abstractText, String keywords, String doi, String isbn, String issn,
 					String dblpUrl, String extraUrl, PublicationLanguage language, String pdfContent,
@@ -88,7 +92,6 @@ public class AbstractPublicationTypeServiceTest {
 	@Test
 	public void updatePublicationNoSave_0() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
 				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
@@ -107,16 +110,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
-
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
-
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 	}
 
 	@Test
 	public void updatePublicationNoSave_0_notitle() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, null, PublicationType.ARTISTIC_PRODUCTION,
 				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
@@ -135,16 +135,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
-
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
-
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 	}
 
 	@Test
 	public void updatePublicationNoSave_0_notype() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", null,
 				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
@@ -163,16 +160,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
-
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
-
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 	}
 
 	@Test
 	public void updatePublicationNoSave_0_nodate() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
 				null, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
@@ -191,10 +185,8 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
-
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
-
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 	}
 
 	@Test
@@ -219,11 +211,10 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 
 		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadablePublicationPdfFile(123);
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
-
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
@@ -248,17 +239,15 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
-
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 
 		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadableAwardPdfFile(123);
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 	}
 
 	@Test
 	public void updatePublicationNoSave_1() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
 				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
@@ -277,16 +266,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
-
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
-
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 	}
 
 	@Test
 	public void updatePublicationNoSave_1_notitle() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, null, PublicationType.ARTISTIC_PRODUCTION,
 				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
@@ -305,16 +291,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
-
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
-
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 	}
 
 	@Test
 	public void updatePublicationNoSave_1_notype() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", null,
 				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
@@ -334,15 +317,14 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
 
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 	}
 
 	@Test
 	public void updatePublicationNoSave_1_nodate() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
 				null, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
@@ -361,10 +343,8 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
-
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
-
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 	}
 
 	@Test
@@ -389,11 +369,10 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("awardContent0");
 
 		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadablePublicationPdfFile(123);
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
-
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
@@ -418,11 +397,10 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setExtraURL("http://extra.org");
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
-
-		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
+		verify(pub, atLeastOnce()).setPathToDownloadablePDF("pdfContent0");
+		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 
 		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadableAwardPdfFile(123);
-		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 	}
 
 }

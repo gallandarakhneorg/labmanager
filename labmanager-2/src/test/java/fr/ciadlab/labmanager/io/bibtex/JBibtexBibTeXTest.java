@@ -449,7 +449,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPages()).thenReturn("pages/1");
 		when(pub.getScimagoQIndex()).thenReturn(QuartileRanking.Q2);
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@article{JournalPaper_123,",
@@ -495,7 +495,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPublisher()).thenReturn("publisher/1");
 		when(pub.getSeries()).thenReturn("series/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@book{Book_123,",
@@ -541,7 +541,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPublisher()).thenReturn("publisher/1");
 		when(pub.getSeries()).thenReturn("series/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@incollection{BookChapter_123,",
@@ -581,7 +581,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getInstitution()).thenReturn("inst/1");
 		when(pub.getAddress()).thenReturn("adr/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@phdthesis{Thesis_123,",
@@ -616,7 +616,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getInstitution()).thenReturn("inst/1");
 		when(pub.getAddress()).thenReturn("adr/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@mastersthesis{Thesis_123,",
@@ -658,7 +658,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPages()).thenReturn("pages/1");
 		when(pub.getScimagoQIndex()).thenReturn(QuartileRanking.Q2);
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@book{JournalEdition_123,",
@@ -700,7 +700,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getEditors()).thenReturn("Editor1, Editor2 and Editor3, Editor4");
 		when(pub.getScientificEventName()).thenReturn("event/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@inproceedings{Keynote_123,",
@@ -739,7 +739,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getReportNumber()).thenReturn("num/1");
 		when(pub.getReportType()).thenReturn("type/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@techreport{Report_123,",
@@ -777,7 +777,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getReportNumber()).thenReturn("num/1");
 		when(pub.getReportType()).thenReturn("type/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@manual{Doc_123,",
@@ -815,7 +815,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPatentNumber()).thenReturn("bre/1");
 		when(pub.getPatentType()).thenReturn("int./1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@misc{Patent_123,",
@@ -854,7 +854,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getOrganization()).thenReturn("orga/1");
 		when(pub.getPublisher()).thenReturn("publisher/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator());
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
 				"@misc{Art_123,",

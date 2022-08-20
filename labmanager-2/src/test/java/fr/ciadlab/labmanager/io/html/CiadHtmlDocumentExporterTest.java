@@ -73,7 +73,7 @@ public class CiadHtmlDocumentExporterTest {
 
 	@Test
 	public void exportPublications_Iterable_null() throws Exception {
-		assertNull(this.test.exportPublications(null, new ExporterConfigurator()));
+		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null)));
 	}
 
 	@Test
@@ -159,7 +159,7 @@ public class CiadHtmlDocumentExporterTest {
 
 		when(a1.getMemberships()).thenReturn(Collections.singleton(m1));
 
-		ExporterConfigurator configurator = new ExporterConfigurator();
+		ExporterConfigurator configurator = new ExporterConfigurator(null);
 
 		String content = this.test.exportPublications(Arrays.asList(p0), configurator);
 

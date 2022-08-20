@@ -30,6 +30,7 @@ import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.service.journal.JournalService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -47,7 +48,7 @@ public class ExporterConfiguratorTest {
 
 	@BeforeEach
 	public void setUp() {
-		this.test = new ExporterConfigurator();
+		this.test = new ExporterConfigurator(mock(JournalService.class));
 	}
 
 	@Test

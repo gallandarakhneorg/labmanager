@@ -147,7 +147,7 @@ public class JournalPaperServiceTest {
 	public void updateJournalPaper() {
 		final Journal jour = mock(Journal.class);
 		this.test.updateJournalPaper(234,
-				"title0", PublicationType.ARTISTIC_PRODUCTION, LocalDate.parse("2022-07-22"), "abstractText0",
+				"title0", PublicationType.INTERNATIONAL_JOURNAL_PAPER, LocalDate.parse("2022-07-22"), "abstractText0",
 				"keywords0", "doi0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				"volume0", "number0", "pages0", "series0", jour);
