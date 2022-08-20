@@ -239,14 +239,16 @@
 										<input class="form-control" type="text" th:value="${shared_address ?: ''}"
 										       th:placeholder="#{html.PlaceHolderAddress}" id="publicationAddress" name="address"></input>
 	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationISBN" class="col-form-label"
+	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-isbn">
+	                                    <label for="publicationISBN"
+	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-isbn') ? ' required' : '')}"
 	                                           th:utext="#{html.ISBN}"></label>
 										<input class="form-control" type="text" th:value="${publication != null ? publication.getISBN() : ''}"
 										       th:placeholder="#{html.PlaceHolderISBN}" id="publicationISBN" name="isbn"></input>
 	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationISSN" class="col-form-label"
+	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-issn">
+	                                    <label for="publicationISSN"
+	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-issn') ? ' required' : '')}"
 	                                           th:utext="#{html.ISSN}"></label>
 										<input class="form-control" type="text" th:value="${publication != null ? publication.getISSN() : ''}"
 										       th:placeholder="#{html.PlaceHolderISBN}" id="publicationISBN" name="issn"></input>
