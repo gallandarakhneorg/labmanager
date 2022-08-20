@@ -43,6 +43,10 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-devtools</artifactId>
+        </dependency>
+        <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
             <scope>runtime</scope>
@@ -91,10 +95,11 @@
             <artifactId>util</artifactId>
             <version>17.0</version>
         </dependency>
-        <dependency>
-        	<groupId>org.springframework.boot</groupId>
-        	<artifactId>spring-boot-devtools</artifactId>
-        </dependency>
+		<dependency>
+		  <groupId>com.luhuiguo</groupId>
+		  <artifactId>aspose-pdf</artifactId>
+		  <version>22.4</version>
+		</dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

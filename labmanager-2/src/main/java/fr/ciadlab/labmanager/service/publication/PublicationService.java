@@ -16,18 +16,36 @@
 
 package fr.ciadlab.labmanager.service.publication;
 
+import java.io.File;
+import java.io.IOException;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
+import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
+import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.entities.publication.type.Book;
+import fr.ciadlab.labmanager.entities.publication.type.BookChapter;
+import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
+import fr.ciadlab.labmanager.entities.publication.type.JournalEdition;
+import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.entities.publication.type.KeyNote;
+import fr.ciadlab.labmanager.entities.publication.type.MiscDocument;
+import fr.ciadlab.labmanager.entities.publication.type.Patent;
+import fr.ciadlab.labmanager.entities.publication.type.Report;
+import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.json.JsonExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
@@ -37,9 +55,22 @@ import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.member.PersonService;
+import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
+import fr.ciadlab.labmanager.service.publication.type.BookService;
+import fr.ciadlab.labmanager.service.publication.type.ConferencePaperService;
+import fr.ciadlab.labmanager.service.publication.type.JournalEditionService;
+import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
+import fr.ciadlab.labmanager.service.publication.type.KeyNoteService;
+import fr.ciadlab.labmanager.service.publication.type.MiscDocumentService;
+import fr.ciadlab.labmanager.service.publication.type.PatentService;
+import fr.ciadlab.labmanager.service.publication.type.ReportService;
+import fr.ciadlab.labmanager.service.publication.type.ThesisService;
+import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /** Service for managing the publications.
  * 
@@ -72,10 +103,36 @@ public class PublicationService extends AbstractService {
 
 	private JsonExporter json;
 
+	private DownloadableFileManager fileManager;
+
+	private PrePublicationFactory prePublicationFactory;
+
+	private BookService bookService;
+
+	private BookChapterService bookChapterService;
+
+	private ConferencePaperService conferencePaperService;
+
+	private JournalEditionService journalEditionService;
+
+	private JournalPaperService journalPaperService;
+
+	private KeyNoteService keyNoteService;
+
+	private MiscDocumentService miscDocumentService;
+
+	private PatentService patentService;
+
+	private ReportService reportService;
+
+	private ThesisService thesisService;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param publicationRepository the publication repository.
+	 * @param prePublicationFactory factory of pre-publications.
 	 * @param authorshipService the service for managing the authorships.
 	 * @param authorshipRepository authorshipRepository the repository of authorships.
 	 * @param personService the service for managing the persons.
@@ -85,16 +142,43 @@ public class PublicationService extends AbstractService {
 	 * @param html the tool for exporting to HTML.
 	 * @param odt the tool for exporting to Open Document Text.
 	 * @param json the tool for exporting to JSON.
+	 * @param fileManager the manager of downloadable files.
+	 * @param bookService the service for books.
+	 * @param bookChapterService the service for book chapters.
+	 * @param conferencePaperService the service for conference papers.
+	 * @param journalEditionService the service for journal editions.
+	 * @param journalPaperService the service for journal papers.
+	 * @param keyNoteService the service for key-notes.
+	 * @param miscDocumentService the service for misc documents.
+	 * @param patentService the service for patents.
+	 * @param reportService the service for reports.
+	 * @param thesisService the service for theses.
 	 */
-	public PublicationService(@Autowired PublicationRepository publicationRepository,
+	public PublicationService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired PublicationRepository publicationRepository,
+			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired AuthorshipService authorshipService,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonService personService, @Autowired PersonRepository personRepository,
 			@Autowired JournalRepository journalRepository,
 			@Autowired BibTeX bibtex, @Autowired HtmlDocumentExporter html,
 			@Autowired OpenDocumentTextExporter odt,
-			@Autowired JsonExporter json) {
+			@Autowired JsonExporter json,
+			@Autowired DownloadableFileManager fileManager,
+			@Autowired BookService bookService,
+			@Autowired BookChapterService bookChapterService,
+			@Autowired ConferencePaperService conferencePaperService,
+			@Autowired JournalEditionService journalEditionService,
+			@Autowired JournalPaperService journalPaperService,
+			@Autowired KeyNoteService keyNoteService,
+			@Autowired MiscDocumentService miscDocumentService,
+			@Autowired PatentService patentService,
+			@Autowired ReportService reportService,
+			@Autowired ThesisService thesisService) {
+		super(messages);
 		this.publicationRepository = publicationRepository;
+		this.prePublicationFactory = prePublicationFactory;
 		this.authorshipService = authorshipService;
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;
@@ -104,6 +188,17 @@ public class PublicationService extends AbstractService {
 		this.html = html;
 		this.odt = odt;
 		this.json = json;
+		this.fileManager = fileManager;
+		this.bookService = bookService;
+		this.bookChapterService = bookChapterService;
+		this.conferencePaperService = conferencePaperService;
+		this.journalEditionService = journalEditionService;
+		this.journalPaperService = journalPaperService;
+		this.keyNoteService = keyNoteService;
+		this.miscDocumentService = miscDocumentService;
+		this.patentService = patentService;
+		this.reportService = reportService;
+		this.thesisService = thesisService;
 	}
 
 	/** Replies all the publications from the database.
@@ -166,15 +261,23 @@ public class PublicationService extends AbstractService {
 	/** Remove the publication with the given identifier.
 	 *
 	 * @param identifier the identifier of the publication to remove.
+	 * @param removeAssociatedFiles indicates if the associated files (PDF, Award...) should be also deleted.
 	 */
-	public void removePublication(int identifier) {
+	public void removePublication(int identifier, boolean removeAssociatedFiles) {
 		final Integer id = Integer.valueOf(identifier);
-		final Optional<Publication> res = this.publicationRepository.findById(id);
-		if (res.isPresent()) {
-			final Publication publication = res.get();
-			this.publicationRepository.save(publication);
-			this.publicationRepository.deleteById(id);
+		if (removeAssociatedFiles) {
+			try {
+				this.fileManager.deleteDownloadablePublicationPdfFile(identifier);
+			} catch (Throwable ex) {
+				// Silent
+			}
+			try {
+				this.fileManager.deleteDownloadableAwardPdfFile(identifier);
+			} catch (Throwable ex) {
+				// Silent
+			}
 		}
+		this.publicationRepository.deleteById(id);
 	}
 
 	/** Save the given publications into the database.
@@ -199,7 +302,10 @@ public class PublicationService extends AbstractService {
 			publication.setTemporaryAuthors(null);
 			this.publicationRepository.save(publication);
 			if (publication instanceof JournalBasedPublication) {
-				this.journalRepository.save(((JournalBasedPublication) publication).getJournal());
+				final Journal jour = ((JournalBasedPublication) publication).getJournal();
+				if (jour != null) {
+					this.journalRepository.save(jour);
+				}
 			}
 			if (authors != null) {
 				for (final Person author : authors) {
@@ -342,6 +448,588 @@ public class PublicationService extends AbstractService {
 			return null;
 		}
 		return this.json.exportPublicationsWithRootKeys(publications, configurator, rootKeys);
+	}
+
+	/** Get the journal instance that is corresponding to the identifier from the given map for an attribute with the given name.
+	 * <p>This function generates an exception if the journal is {@code null}.
+	 *
+	 * @param attributes the set of attributes
+	 * @param name the name to search for.
+	 * @return the value
+	 */
+	protected Journal ensureJournalInstance(Map<String, String> attributes, String name) {
+		final String journalIdStr = ensureString(attributes, name);
+		if (Strings.isNullOrEmpty(journalIdStr)) {
+			throw new IllegalArgumentException("Missed journal: " + name); //$NON-NLS-1$
+		}
+		int journalId;
+		try {
+			journalId = Integer.parseInt(journalIdStr);
+		} catch (Throwable ex) {
+			journalId = 0;
+		}
+		if (journalId == 0) {
+			throw new IllegalArgumentException("Missed journal: " + name); //$NON-NLS-1$
+		}
+		final Optional<Journal> optJournal = this.journalRepository.findById(Integer.valueOf(journalId));
+		if (optJournal.isEmpty()) {
+			throw new IllegalArgumentException("Unknown journal: " + name); //$NON-NLS-1$
+		}
+		return optJournal.get();
+	}
+
+	/** Create a publication in the database from values stored in the given map.
+	 * This function ignore the attributes related to uploaded files.
+	 *
+	 * @param attributes the values of the attributes for the publication's creation.
+	 * @param downloadablePDF the uploaded PDF file for the publication.
+	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @return the created publication.
+	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 */
+	public Optional<Publication> createPublicationFromMap(Map<String, String> attributes,
+			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
+		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
+		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
+		final LocalDate date = ensureDate(attributes, "publicationDate"); //$NON-NLS-1$
+
+		// First step : create the publication
+		final Publication publication = this.prePublicationFactory.createPrePublication(
+				typeEnum,
+				ensureString(attributes, "title"), //$NON-NLS-1$
+				optionalString(attributes, "abstractText"), //$NON-NLS-1$
+				optionalString(attributes, "keywords"), //$NON-NLS-1$
+				date,
+				optionalString(attributes, "isbn"), //$NON-NLS-1$
+				optionalString(attributes, "issn"), //$NON-NLS-1$
+				optionalString(attributes, "doi"), //$NON-NLS-1$
+				optionalString(attributes, "halId"), //$NON-NLS-1$
+				optionalString(attributes, "extraURL"), //$NON-NLS-1$
+				optionalString(attributes, "videoURL"), //$NON-NLS-1$
+				optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+				optionalString(attributes, "pathToDownloadablePDF"), //$NON-NLS-1$
+				optionalString(attributes, "pathToDownloadableAwardCertificate"), //$NON-NLS-1$
+				languageEnum);
+
+		// Second step: save late attributes of the fake publication
+		publication.setPublicationYear(date.getYear());
+
+		// Third step : create the specific publication type
+		final Class<? extends Publication> publicationClass = typeEnum.getInstanceType();
+		final Publication createdPublication;
+
+		if (publicationClass.equals(Book.class)) {
+			createdPublication = this.bookService.createBook(publication,
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					optionalString(attributes, "edition"), //$NON-NLS-1$
+					optionalString(attributes, "editors"), //$NON-NLS-1$
+					optionalString(attributes, "series"), //$NON-NLS-1$
+					optionalString(attributes, "publisher"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(BookChapter.class)) {
+			createdPublication = this.bookChapterService.createBookChapter(publication,
+					ensureString(attributes, "bookTitle"), //$NON-NLS-1$
+					optionalString(attributes, "chapterNumber"), //$NON-NLS-1$
+					optionalString(attributes, "edition"), //$NON-NLS-1$
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					optionalString(attributes, "editors"), //$NON-NLS-1$
+					optionalString(attributes, "series"), //$NON-NLS-1$
+					optionalString(attributes, "publisher"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(ConferencePaper.class)) {
+			createdPublication = this.conferencePaperService.createConferencePaper(publication,
+					ensureString(attributes, "scientificEventName"), //$NON-NLS-1$
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					optionalString(attributes, "editors"), //$NON-NLS-1$
+					optionalString(attributes, "series"), //$NON-NLS-1$
+					optionalString(attributes, "organization"), //$NON-NLS-1$
+					optionalString(attributes, "address"), //$NON-NLS-1$
+					optionalString(attributes, "publisher")); //$NON-NLS-1$
+		} else if (publicationClass.equals(JournalEdition.class)) {
+			createdPublication = this.journalEditionService.createJournalEdition(publication,
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					ensureJournalInstance(attributes, "journal")); //$NON-NLS-1$
+		} else if (publicationClass.equals(JournalPaper.class)) {
+			createdPublication = this.journalPaperService.createJournalPaper(publication,
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					optionalString(attributes, "series"), //$NON-NLS-1$
+					ensureJournalInstance(attributes, "journal")); //$NON-NLS-1$
+		} else if (publicationClass.equals(KeyNote.class)) {
+			createdPublication = this.keyNoteService.createKeyNote(publication,
+					ensureString(attributes, "scientificEventName"), //$NON-NLS-1$
+					optionalString(attributes, "editors"), //$NON-NLS-1$
+					optionalString(attributes, "organization"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(MiscDocument.class)) {
+			createdPublication = this.miscDocumentService.createMiscDocument(publication,
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					ensureString(attributes, "howPublished"), //$NON-NLS-1$
+					optionalString(attributes, "documentType"), //$NON-NLS-1$
+					optionalString(attributes, "organization"), //$NON-NLS-1$
+					optionalString(attributes, "publisher"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(Patent.class)) {
+			createdPublication = this.patentService.createPatent(publication,
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "documentType"), //$NON-NLS-1$
+					ensureString(attributes, "institution"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(Report.class)) {
+			createdPublication = this.reportService.createReport(publication,
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "documentType"), //$NON-NLS-1$
+					ensureString(attributes, "institution"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(Thesis.class)) {
+			createdPublication = this.thesisService.createThesis(publication,
+					ensureString(attributes, "institution"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else {
+			throw new IllegalArgumentException("Unsupported publication type: " + typeEnum); //$NON-NLS-1$
+		}
+
+		// Fourth step: create the authors and link them to the publication
+		/*int i = 0;
+		for (final String publicationAuthor : publicationAuthors) {
+			final String firstName = this.nameParser.parseFirstName(publicationAuthor);
+			final String lastName = this.nameParser.parseLastName(publicationAuthor);
+			int authorId = this.personService.getPersonIdByName(firstName, lastName);
+			if (authorId == 0) {
+				// The author does not exist yet
+				authorId = this.personService.createPerson(firstName, lastName, null, null, null);
+				getLogger().info("New person \"" + publicationAuthor + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			this.authorshipService.addAuthorship(authorId, publicationId, i);
+			getLogger().info("Author \"" + publicationAuthor + "\" added to publication with id " + publicationId); //$NON-NLS-1$ //$NON-NLS-2$
+			i++;
+		}*/
+
+		updateUploadedPDFs(createdPublication, attributes, downloadablePDF, downloadableAwardCertificate, true);
+
+		getLogger().info("Publication instance " + createdPublication.getId() + " created of type " + publicationClass.getSimpleName()); //$NON-NLS-1$ //$NON-NLS-2$
+
+		return Optional.of(createdPublication);
+	}
+
+	/** Update an existing publication in the database from values stored in the given map.
+	 *
+	 * @param id the identifier of the publication.
+	 * @param attributes the values of the attributes for the publication's creation.
+	 * @param downloadablePDF the uploaded PDF file for the publication.
+	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @return the updated publication.
+	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 */
+	public Optional<Publication> updatePublicationFromMap(int id, Map<String, String> attributes,
+			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
+		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
+		// First step : find the publication
+		Optional<Publication> optPublication = this.publicationRepository.findById(Integer.valueOf(id));
+		if (optPublication.isEmpty()) {
+			throw new IllegalArgumentException("Publication not found with id: " + id); //$NON-NLS-1$
+		}
+		final Publication publication = optPublication.get();
+		// Second step: check for any change of publication type
+		if (isInstanceTypeChangeNeeded(publication, typeEnum)) {
+			removePublication(id, false);
+			optPublication = createPublicationFromMap(attributes, downloadablePDF, downloadableAwardCertificate);
+			if (optPublication.isPresent()) {
+				final Publication newPublication = optPublication.get();
+				final int newId = newPublication.getId();
+				final MutableBoolean associatedFilesChanged = new MutableBoolean(false);
+				this.fileManager.moveFiles(id, newId, (key, source, target) -> {
+					switch (key) {
+					case "pdf": //$NON-NLS-1$
+						if (downloadablePDF != null && downloadablePDF.isEmpty()) {
+							// PDF file was associated and no new one was provided in the POST query.
+							// Re-associate the previously associated file.
+							newPublication.setPathToDownloadablePDF(target);
+							associatedFilesChanged.setTrue();
+						}
+						break;
+					case "award": //$NON-NLS-1$
+						if (downloadableAwardCertificate != null && downloadableAwardCertificate.isEmpty()) {
+							// PDF file was associated and no new one was provided in the POST query.
+							// Re-associate the previously associated file.
+							newPublication.setPathToDownloadableAwardCertificate(target);
+							associatedFilesChanged.setTrue();
+						}
+						break;
+					default:
+						// silent
+					}
+				});
+				if (associatedFilesChanged.isTrue()) {
+					save(newPublication);
+				}
+			}
+			return optPublication;
+		}
+		// Third step: update of an existing publication
+		updateExistingPublicationFromMap(publication, typeEnum, attributes, downloadablePDF, downloadableAwardCertificate);
+		return optPublication;
+	}
+
+	private static boolean isInstanceTypeChangeNeeded(Publication publication, PublicationType expectedType) {
+		final Class<? extends Publication> clazz = expectedType.getInstanceType();
+		return !clazz.isInstance(publication);
+	}
+
+	/** Update an existing publication in the database from values stored in the given map.
+	 *
+	 * @param publication the publication.
+	 * @param type the type of the publication to be set-up.
+	 * @param attributes the values of the attributes for the publication's creation.
+	 * @param downloadablePDF the uploaded PDF file for the publication.
+	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 */
+	protected void updateExistingPublicationFromMap(Publication publication, PublicationType type, Map<String, String> attributes,
+			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
+		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
+		final LocalDate date = ensureDate(attributes, "publicationDate"); //$NON-NLS-1$
+
+
+		// First step: Update the list of authors.
+
+		/*final List<Person> oldAuthors = this.authorshipService.getAuthorsFor(publicationId.intValue());
+		final List<Integer> oldAuthorIds = oldAuthors.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toList());
+
+		int i = 0;
+		for (final String publicationAuthor : publicationAuthors) {
+			final String firstName = this.nameParser.parseFirstName(publicationAuthor);
+			final String lastName = this.nameParser.parseLastName(publicationAuthor);
+			int authorId = this.personService.getPersonIdByName(firstName, lastName);
+			if (authorId == 0) {
+				// The author does not exist yet
+				authorId = this.personService.createPerson(firstName, lastName, null, null, null);
+				getLogger().info("New person \"" + publicationAuthor + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				oldAuthorIds.remove(Integer.valueOf(authorId));
+			}
+			final int finalAuthorId = authorId;
+			final Optional<Person> optPerson = oldAuthors.stream().filter(it -> it.getId() == finalAuthorId).findFirst();
+			if (optPerson.isPresent()) {
+				// Author is already present
+				this.authorshipService.updateAuthorship(authorId, publicationId.intValue(), i);
+				getLogger().info("Author \"" + publicationAuthor + "\" updated for the publication with id " + publicationId); //$NON-NLS-1$ //$NON-NLS-2$
+			} else {
+				// Author was not associated yet
+				this.authorshipService.addAuthorship(authorId, publicationId.intValue(), i);
+				getLogger().info("Author \"" + publicationAuthor + "\" added to publication with id " + publicationId); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			i++;
+		}
+
+		// Remove the old author ships
+		for (final Integer id : oldAuthorIds) {
+			this.authorshipService.removeAuthorship(id.intValue(), publicationId.intValue());
+		}*/
+
+		// Second step: treat associated files
+		updateUploadedPDFs(publication, attributes, downloadablePDF, downloadableAwardCertificate, false);
+
+		// Third step : update the specific publication
+		final Class<? extends Publication> publicationClass = type.getInstanceType();
+
+		if (publicationClass.equals(Book.class)) {
+			this.bookService.updateBook(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "isbn"), //$NON-NLS-1$
+					optionalString(attributes, "issn"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					optionalString(attributes, "edition"), //$NON-NLS-1$
+					optionalString(attributes, "editors"), //$NON-NLS-1$
+					optionalString(attributes, "series"), //$NON-NLS-1$
+					optionalString(attributes, "publisher"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(BookChapter.class)) {
+			this.bookChapterService.updateBookChapter(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "isbn"), //$NON-NLS-1$
+					optionalString(attributes, "issn"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					ensureString(attributes, "bookTitle"), //$NON-NLS-1$
+					optionalString(attributes, "chapterNumber"), //$NON-NLS-1$
+					optionalString(attributes, "edition"), //$NON-NLS-1$
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					optionalString(attributes, "editors"), //$NON-NLS-1$
+					optionalString(attributes, "series"), //$NON-NLS-1$
+					optionalString(attributes, "publisher"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(ConferencePaper.class)) {
+			this.conferencePaperService.updateConferencePaper(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "isbn"), //$NON-NLS-1$
+					optionalString(attributes, "issn"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					ensureString(attributes, "scientificEventName"), //$NON-NLS-1$
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					optionalString(attributes, "editors"), //$NON-NLS-1$
+					optionalString(attributes, "series"), //$NON-NLS-1$
+					optionalString(attributes, "organizer"), //$NON-NLS-1$
+					optionalString(attributes, "publisher"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(JournalEdition.class)) {
+			final Journal journal = ensureJournalInstance(attributes, "journal"); //$NON-NLS-1$
+			this.journalEditionService.updateJournalEdition(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					journal);
+		} else if (publicationClass.equals(JournalPaper.class)) {
+			final Journal journal = ensureJournalInstance(attributes, "journal"); //$NON-NLS-1$
+			this.journalPaperService.updateJournalPaper(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					optionalString(attributes, "volume"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "pages"), //$NON-NLS-1$
+					optionalString(attributes, "series"), //$NON-NLS-1$
+					journal);
+		} else if (publicationClass.equals(KeyNote.class)) {
+			this.keyNoteService.updateKeyNote(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "isbn"), //$NON-NLS-1$
+					optionalString(attributes, "issn"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					ensureString(attributes, "scientificEventName"), //$NON-NLS-1$
+					optionalString(attributes, "editors"), //$NON-NLS-1$
+					optionalString(attributes, "organization"), //$NON-NLS-1$
+					optionalString(attributes, "organization")); //$NON-NLS-1$
+		} else if (publicationClass.equals(MiscDocument.class)) {
+			this.miscDocumentService.updateMiscDocument(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "isbn"), //$NON-NLS-1$
+					optionalString(attributes, "issn"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					ensureString(attributes, "howPublished"), //$NON-NLS-1$
+					optionalString(attributes, "documentType"), //$NON-NLS-1$
+					optionalString(attributes, "organization"), //$NON-NLS-1$
+					optionalString(attributes, "publisher"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(Patent.class)) {
+			this.patentService.updatePatent(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "isbn"), //$NON-NLS-1$
+					optionalString(attributes, "issn"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "documentType"), //$NON-NLS-1$
+					ensureString(attributes, "institution"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(Report.class)) {
+			this.reportService.updateReport(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "isbn"), //$NON-NLS-1$
+					optionalString(attributes, "issn"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					optionalString(attributes, "number"), //$NON-NLS-1$
+					optionalString(attributes, "documentType"), //$NON-NLS-1$
+					ensureString(attributes, "institution"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else if (publicationClass.equals(Thesis.class)) {
+			this.thesisService.updateThesis(
+					publication.getId(),
+					ensureString(attributes, "title"), //$NON-NLS-1$
+					type,
+					date,
+					optionalString(attributes, "abstractText"), //$NON-NLS-1$
+					optionalString(attributes, "keywords"), //$NON-NLS-1$
+					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "isbn"), //$NON-NLS-1$
+					optionalString(attributes, "issn"), //$NON-NLS-1$
+					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
+					optionalString(attributes, "extraURL"), //$NON-NLS-1$
+					languageEnum,
+					publication.getPathToDownloadablePDF(),
+					publication.getPathToDownloadableAwardCertificate(),
+					optionalString(attributes, "videoURL"), //$NON-NLS-1$
+					ensureString(attributes, "institution"), //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
+		} else {
+			throw new IllegalArgumentException("Unsupported publication type: " + type); //$NON-NLS-1$
+		}
+
+		getLogger().info("Publication instance updated: " + publication.getId()); //$NON-NLS-1$
+	}
+
+	/** Update the references to the downloadable files for the given publication based on the 
+	 * inputs.
+	 * The just-uploaded files are given as argument.
+	 * The attributes may contains two boolean files named {@code @pathToDownloadablePDF_previousValue}
+	 * or {@code @pathToDownloadableAwardCertificate_previousValue} that indicates if the publication
+	 * has associated files before the update query.
+	 * 
+	 * @param publication the publication to update.
+	 * @param attributes the values of the attributes for the publication's creation.
+	 * @param downloadablePDF the uploaded PDF file for the publication.
+	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @param saveInDb indicates if the changes must be saved in the database.
+	 * @throws IOException if the uploaded files cannot be treated correctly.
+	 */
+	protected void updateUploadedPDFs(Publication publication, Map<String, String> attributes,
+			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate, boolean saveInDb) throws IOException {
+		// Treat the uploaded files
+		boolean hasUploaded = false;
+		final boolean expliteRemove0 = optionalBoolean(attributes, "@pathToDownloadablePDF_explicitRemove"); //$NON-NLS-1$
+		if (expliteRemove0) {
+			try {
+				this.fileManager.deleteDownloadablePublicationPdfFile(publication.getId());
+			} catch (Throwable ex) {
+				// Silent
+			}
+			publication.setPathToDownloadablePDF(null);
+			hasUploaded = true;
+		}
+		if (downloadablePDF != null && !downloadablePDF.isEmpty()) {
+			final File pdfFilename = this.fileManager.makePdfFilename(publication.getId());
+			final File jpgFilename = this.fileManager.makePdfPictureFilename(publication.getId());
+			this.fileManager.saveFiles(pdfFilename, jpgFilename, downloadablePDF);
+			publication.setPathToDownloadablePDF(pdfFilename.getPath());
+			hasUploaded = true;
+			getLogger().info("PDF uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$
+		}
+		final boolean expliteRemove1 = optionalBoolean(attributes, "@pathToDownloadableAwardCertificate_explicitRemove"); //$NON-NLS-1$
+		if (expliteRemove1) {
+			try {
+				this.fileManager.deleteDownloadableAwardPdfFile(publication.getId());
+			} catch (Throwable ex) {
+				// Silent
+			}
+			publication.setPathToDownloadableAwardCertificate(null);
+			hasUploaded = true;
+		}
+		if (downloadableAwardCertificate != null && !downloadableAwardCertificate.isEmpty()) {
+			final File pdfFilename = this.fileManager.makeAwardFilename(publication.getId());
+			final File jpgFilename = this.fileManager.makeAwardPictureFilename(publication.getId());
+			this.fileManager.saveFiles(pdfFilename, jpgFilename, downloadableAwardCertificate);
+			publication.setPathToDownloadableAwardCertificate(pdfFilename.getPath());
+			hasUploaded = true;
+			getLogger().info("Award certificate uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$
+		}
+		if (saveInDb && hasUploaded) {
+			save(publication);
+		}
 	}
 
 }

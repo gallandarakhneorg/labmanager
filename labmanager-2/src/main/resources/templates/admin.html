@@ -44,12 +44,8 @@
       	       th:utext="#{html.BackPublicationList}"></a></li>
       	  <li><a th:href="@{/showPublications}"
       	       th:utext="#{html.FrontPublicationList}"></a></li>
-        </ul>
-
-      <h3>Update</h3>
-        <ul>
-      	  <li>Add publication</li>
-      	  <li>Modify publication</li>
+      	<li><a th:href="@{/publicationEditor}"
+      	       th:utext="#{html.AddPublication}"></a></li>
         </ul>
 
       <h3>Import</h3>

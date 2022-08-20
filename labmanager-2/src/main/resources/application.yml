@@ -40,3 +40,7 @@ management:
   security:
     enabled: false
     roles: ROLE_ADMIN
+
+ciadlab:
+  file:
+    upload-directory: /tmp/ciadlab

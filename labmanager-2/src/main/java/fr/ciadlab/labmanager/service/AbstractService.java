@@ -16,8 +16,8 @@
 
 package fr.ciadlab.labmanager.service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import fr.ciadlab.labmanager.AbstractComponent;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of a Spring boot service.
  * 
@@ -27,37 +27,14 @@ import org.slf4j.LoggerFactory;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public abstract class AbstractService {
+public abstract class AbstractService extends AbstractComponent {
 
-	/** Logger of the service. It is lazy loaded.
-	 */
-	private Logger logger;
-
-	/** Replies the logger of this service.
+	/** Constructor.
 	 *
-	 * @return the logger.
+	 * @param messages the provider of messages.
 	 */
-	public Logger getLogger() {
-		if (this.logger == null) {
-			this.logger = createLogger();
-		}
-		return this.logger;
-	}
-
-	/** Set the logger of this service.
-	 *
-	 * @param logger the logger.
-	 */
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	/** Factory method for creating the service logger.
-	 *
-	 * @return the logger.
-	 */
-	protected Logger createLogger() {
-		return LoggerFactory.getLogger(getClass());
+	public AbstractService(MessageSourceAccessor messages) {
+		super(messages);
 	}
 
 }

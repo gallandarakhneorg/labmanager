@@ -18,15 +18,12 @@ package fr.ciadlab.labmanager.controller;
 
 import java.io.IOError;
 import java.io.IOException;
-import java.util.Random;
 
 import javax.servlet.http.HttpServletResponse;
 
+import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.Constants;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -41,20 +38,11 @@ import org.springframework.web.util.UriBuilderFactory;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public abstract class AbstractController {
-
-	private MessageSourceAccessor messages;
-
-	private Logger logger;
+public abstract class AbstractController extends AbstractComponent {
 
 	private final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
 
-	private final Random random = new Random();
-
 	private final String majorEndpointName;
-
-	@Value("${ciadlab.debug}")
-	private boolean debugVersion;
 
 	/** Constructor.
 	 *
@@ -63,79 +51,8 @@ public abstract class AbstractController {
 	 * @param messages the provider of messages.
 	 */
 	public AbstractController(String defaultEndpointName, MessageSourceAccessor messages) {
+		super(messages);
 		this.majorEndpointName = defaultEndpointName;
-		this.messages = messages;
-	}
-
-	/** Replies the logger of this service.
-	 *
-	 * @return the logger.
-	 */
-	public Logger getLogger() {
-		if (this.logger == null) {
-			this.logger = createLogger();
-		}
-		return this.logger;
-	}
-
-	/** Change the logger of this controller.
-	 *
-	 * @param logger the logger.
-	 */
-	public void setLogger(Logger logger) {
-		this.logger = logger;
-	}
-
-	/** Factory method for creating the controller logger.
-	 *
-	 * @return the logger.
-	 */
-	protected Logger createLogger() {
-		return LoggerFactory.getLogger(getClass());
-	}
-
-	/** Replies the message provider of this controller.
-	 *
-	 * @return the accessor.
-	 */
-	public MessageSourceAccessor getMessageSourceAccessor() {
-		return this.messages;
-	}
-
-	/** Short-hand function for {@link #getMessageSourceAccessor()} and {@link MessageSourceAccessor#getMessage(String, Object[])}.
-	 *
-	 * @param key the message id.
-	 * @param args the arguments to inject in the string.
-	 * @return the string.
-	 */
-	public String getMessage(String key, Object... args) {
-		return getMessageSourceAccessor().getMessage(key, args);
-	}
-
-	/** Change the message provider of this controller.
-	 *
-	 * @param accessor the accessor.
-	 */
-	public void setMessageSourceAccessor(MessageSourceAccessor accessor) {
-		this.messages = accessor;
-	}
-
-	/** Replies if the given username corresponds to a logged user.
-	 * <p>This function replies always {@code Boolean#TRUE} if the backend is in debug mode.
-	 *
-	 * @param username the username to test.
-	 * @return {@code Boolean#TRUE} if a user is logged.
-	 */
-	protected Boolean isLoggedUser(String username) {
-		return Boolean.valueOf(this.debugVersion || !Strings.isNullOrEmpty(username));
-	}
-
-	/** Generate an UUID.
-	 *
-	 * @return the UUID.
-	 */
-	protected Integer generateUUID() {
-		return Integer.valueOf(Math.abs(this.random.nextInt()));
 	}
 
 	/** Fill the attributes of the given model-view with the standard properties.

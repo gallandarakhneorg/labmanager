@@ -14,12 +14,12 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.utils.files;
+package fr.ciadlab.labmanager.io.filemanager;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -27,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
 
 import org.arakhne.afc.vmutil.FileSystem;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,32 +45,29 @@ public class DefaultDownloadableFileManagerTest {
 
 	private DefaultDownloadableFileManager test;
 
-	private StreamFactory factory;
-
 	private ByteArrayOutputStream stream;
+
+	private File root;
 
 	@BeforeEach
 	public void setUp() throws IOException {
 		this.stream = new ByteArrayOutputStream();
-		this.factory = mock(StreamFactory.class);
-		when(this.factory.openStream(any(File.class))).thenReturn(this.stream);
-		this.test = new DefaultDownloadableFileManager(this.factory);
+		this.root = new File(File.listRoots()[0], "rootuploads");
+		this.test = new DefaultDownloadableFileManager(this.root.toString());
 	}
 
 	@Test
-	public void saveDownloadablePublicationPdfFile() throws Exception {
-		final String encoded = Base64.getEncoder().encodeToString("abc".getBytes());
-		final String url = this.test.saveDownloadablePublicationPdfFile(1234, encoded);
-		assertEquals("abc", new String(this.stream.toByteArray()));
-		assertEquals(FileSystem.join(new File("Downloadables"), "PDFs", "PDF1234.pdf").toString(), url);
+	public void normalizeForServerSide_null() {
+		assertNull(this.test.normalizeForServerSide(null));
 	}
 
 	@Test
-	public void saveDownloadableAwardPdfFile() throws Exception {
-		final String encoded = Base64.getEncoder().encodeToString("abc".getBytes());
-		final String url = this.test.saveDownloadableAwardPdfFile(1234, encoded);
-		assertEquals("abc", new String(this.stream.toByteArray()));
-		assertEquals(FileSystem.join(new File("Downloadables"), "Awards", "Award1234.pdf").toString(), url);
+	public void normalizeForServerSide_empty() {
+		final File file = FileSystem.join(new File("Downloadables"), "PDFs", "PDF1234.pdf");
+		final File actual = this.test.normalizeForServerSide(file);
+		assertNotNull(actual);
+		final String expected = FileSystem.join(this.root, file).toString(); 
+		assertEquals(expected, actual.getAbsolutePath());
 	}
 
 	@Test
@@ -102,8 +98,10 @@ public class DefaultDownloadableFileManagerTest {
 		});
 		final File outTarget = FileSystem.createTempDirectory("tests", "dir");
 		try {
-			this.test.saveFile(outTarget, "out.file", file);
-			final File f = new File(outTarget, "out.file");
+			this.test.saveFiles(new File(outTarget, "out-file.pdf"), new File(outTarget, "out-file.jpg"), file);
+			File f = new File(outTarget, "out-file.pdf");
+			assertTrue(f.exists());
+			f = new File(outTarget, "out-file.jpg");
 			assertTrue(f.exists());
 		} finally {
 			FileSystem.delete(outTarget);

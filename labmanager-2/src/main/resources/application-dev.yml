@@ -39,4 +39,8 @@ management:
       external-file: /home/sgalland/tmp/ciadlab/CIADSpringRestHibernate.log
 
 ciadlab:
+  file:
+    upload-directory: /home/sgalland/tmp/ciadlab
+  web:
+    publish-resources: /home/sgalland/tmp/ciadlab/Downloadables/
   debug: true

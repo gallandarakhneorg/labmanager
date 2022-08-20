@@ -14,17 +14,15 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.utils.files;
+package fr.ciadlab.labmanager.utils;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Component;
-
-/** Factory of stream for local file system.
+/** Annotation for marking a getter method and corresponding to a field that is required
+ * to be input in a online form.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -32,13 +30,8 @@ import org.springframework.stereotype.Component;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-@Component
-@Primary
-public class LocalFileStreamFactory implements StreamFactory {
-
-	@Override
-	public OutputStream openStream(File file) throws IOException {
-		return new FileOutputStream(file);
-	}
-
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface RequiredFieldInForm {
+	//
 }

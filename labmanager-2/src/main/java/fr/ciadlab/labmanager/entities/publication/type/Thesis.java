@@ -27,6 +27,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** A thesis (HDR, PHD or Master).
@@ -132,6 +133,7 @@ public class Thesis extends Publication {
 	 *
 	 * @return the name of the institution.
 	 */
+	@RequiredFieldInForm
 	public String getInstitution() {
 		return this.institution;
 	}

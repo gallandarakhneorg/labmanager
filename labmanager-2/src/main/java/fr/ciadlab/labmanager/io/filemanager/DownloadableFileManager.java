@@ -14,11 +14,12 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.utils.files;
+package fr.ciadlab.labmanager.io.filemanager;
 
 import java.io.File;
 import java.io.IOException;
 
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure3;
 import org.springframework.web.multipart.MultipartFile;
 
 /** Utilities for managing the downloadable files.
@@ -31,30 +32,12 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface DownloadableFileManager {
 
-	/** Save the content of the publication PDF file into the server.
-	 *
-	 * @param id the identifier of the publication.
-	 * @param pdfContent the content of the publication's PDF file.
-	 * @return the URL for downloading the PDF file.
-	 * @throws Exception if the file cannot be saved.
-	 */
-	String saveDownloadablePublicationPdfFile(int id, String pdfContent) throws Exception;
-
 	/** Delete from the server the downloadable PDF file associated to the publication with given identifier.
 	 *
 	 * @param id the identifier of the publication.
 	 * @throws Exception if the file cannot be deleted.
 	 */
 	void deleteDownloadablePublicationPdfFile(int id) throws Exception;
-
-	/** Save the content of the award PDF file into the server.
-	 *
-	 * @param id the identifier of the publication.
-	 * @param awardContent the content of the publication's award PDF file.
-	 * @return the URL for downloading the award PDF file.
-	 * @throws Exception if the file cannot be saved.
-	 */
-	String saveDownloadableAwardPdfFile(int id, String awardContent) throws Exception;
 
 	/** Delete from the server the downloadable award's PDF file associated to the publication with given identifier.
 	 *
@@ -82,6 +65,13 @@ public interface DownloadableFileManager {
 	 */
 	File makePdfFilename(int publicationId);
 
+	/** Make the path to the image that corresponds to the PDF downloadable file for the publication with the given identifier.
+	 *
+	 * @param publicationId the identifier of the publication.
+	 * @return the path to the JPEG image associated to the downloadable file.
+	 */
+	File makePdfPictureFilename(int publicationId);
+
 	/** Make the path to the award downloadable file for the publication with the given identifier.
 	 *
 	 * @param publicationId the identifier of the publication.
@@ -89,21 +79,38 @@ public interface DownloadableFileManager {
 	 */
 	File makeAwardFilename(int publicationId);
 
-	/** Save an uploaded file.
+	/** Make the path to the image that corresponds to the award downloadable file for the publication with the given identifier.
 	 *
-	 * @param uploadDir the target folder on the local file system.
-	 * @param basename the base name of the target file. 
-	 * @param multipartFile the content of the file.
-	 * @throws IOException if the file cannot be created.
+	 * @param publicationId the identifier of the publication.
+	 * @return the path to the JPEG image associated to the downloadable file.
 	 */
-    void saveFile(File uploadDir, String basename, MultipartFile multipartFile) throws IOException;
+	File makeAwardPictureFilename(int publicationId);
 
-	/** Read an uploaded file as a text file.
+	/** Normalize a relative filename to be absolute for the server.
 	 *
-	 * @param multipartFile the content of the file to read.
-	 * @return the content of the file.
+	 * @param file the relative filename.
+	 * @return the absolute filename.
+	 */
+	File normalizeForServerSide(File file);
+
+	/** Save the uploaded PDF file and its associated picture.
+	 *
+	 * @param pdfFilename the filename of the PDF file to upload.
+	 * @param pictureFilename the filename of the JPEG file to create. 
+	 * @param multipartPdfFile the content of the PDF file.
 	 * @throws IOException if the file cannot be created.
 	 */
-   String readTextFile(MultipartFile multipartFile) throws IOException;
+	void saveFiles(File pdfFilename, File pictureFilename, MultipartFile multipartPdfFile) throws IOException;
+
+	/** Move the uploaded files from one publication to another publication.
+	 * If the target files exist, they must not be replaced by the source files; but the source files
+	 * must disappear from the file system.
+	 *
+	 * @param sourceId the identifier of the publication that is currently associated to the uploaded files. 
+	 * @param targetId the identifier of the publication that should be associated to the uploaded files in place of the previous publication.
+	 * @param callback lambda that is invoked each time a file has changed. THe arguments are the id of the file, the old name and the new name. 
+	 * @throws IOException if the files cannot be moved.
+	 */
+	void moveFiles(int sourceId, int targetId, Procedure3<String, String, String> callback) throws IOException;
 
 }

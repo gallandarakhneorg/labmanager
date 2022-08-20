@@ -33,6 +33,7 @@ import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationReposit
 import fr.ciadlab.labmanager.service.AbstractService;
 import org.arakhne.afc.util.CountryCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 /** Service for research organizations.
@@ -55,12 +56,17 @@ public class ResearchOrganizationService extends AbstractService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param organizationRepository the organization repository.
 	 * @param membershipRepository the membership repository.
 	 * @param personRepository the person repository.
 	 */
-	public ResearchOrganizationService(@Autowired ResearchOrganizationRepository organizationRepository,
-			@Autowired MembershipRepository membershipRepository, @Autowired PersonRepository personRepository) {
+	public ResearchOrganizationService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired ResearchOrganizationRepository organizationRepository,
+			@Autowired MembershipRepository membershipRepository,
+			@Autowired PersonRepository personRepository) {
+		super(messages);
 		this.organizationRepository = organizationRepository;
 		this.membershipRepository = membershipRepository;
 		this.personRepository = personRepository;

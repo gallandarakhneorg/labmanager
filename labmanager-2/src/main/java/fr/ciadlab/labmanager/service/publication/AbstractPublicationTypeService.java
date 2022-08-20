@@ -25,9 +25,10 @@ import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.AbstractService;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Provides tool for the implemenation of a service for a specific type of publication.
  * 
@@ -44,9 +45,13 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param downloadableFileManager downloadable file manager.
 	 */
-	public AbstractPublicationTypeService(@Autowired DownloadableFileManager downloadableFileManager) {
+	public AbstractPublicationTypeService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired DownloadableFileManager downloadableFileManager) {
+		super(messages);
 		this.downloadableFileManager = downloadableFileManager;
 	}
 
@@ -111,7 +116,8 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 			publication.setTitle(title);
 		}
 		if (type != null) {
-			if (type.getInstanceType().equals(publication.getClass())) {
+			final Class<? extends Publication> expectedType = type.getInstanceType();
+			if (!expectedType.isInstance(publication)) {
 				throw new IllegalArgumentException("The publication type does not corresponds to the implementation class of the publication"); //$NON-NLS-1$
 			}
 			publication.setType(type);
@@ -134,37 +140,25 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 		if (Strings.isNullOrEmpty(pdfContent)) {
 			publication.setPathToDownloadablePDF(null);
 			try {
+				// Force delete in case the file is still here
 				this.downloadableFileManager.deleteDownloadablePublicationPdfFile(publication.getId());
 			} catch (Exception ex) {
 				getLogger().error(ex.getLocalizedMessage(), ex);
 			}
 		} else {
-			try {
-				final String url = this.downloadableFileManager.saveDownloadablePublicationPdfFile(
-						publication.getId(), pdfContent);
-				publication.setPathToDownloadablePDF(url);
-			} catch (Exception ex) {
-				getLogger().error(ex.getLocalizedMessage(), ex);
-				publication.setPathToDownloadablePDF(null);
-			}
+			publication.setPathToDownloadablePDF(pdfContent);
 		}
 
 		if (Strings.isNullOrEmpty(awardContent)) {
 			publication.setPathToDownloadableAwardCertificate(null);
 			try {
+				// Force delete in case the file is still here
 				this.downloadableFileManager.deleteDownloadableAwardPdfFile(publication.getId());
 			} catch (Exception ex) {
 				getLogger().error(ex.getLocalizedMessage(), ex);
 			}
 		} else {
-			try {
-				final String url = this.downloadableFileManager.saveDownloadableAwardPdfFile(
-						publication.getId(), awardContent);
-				publication.setPathToDownloadableAwardCertificate(url);
-			} catch (Exception ex) {
-				getLogger().error(ex.getLocalizedMessage(), ex);
-				publication.setPathToDownloadableAwardCertificate(null);
-			}
+			publication.setPathToDownloadableAwardCertificate(awardContent);
 		}
 	}
 

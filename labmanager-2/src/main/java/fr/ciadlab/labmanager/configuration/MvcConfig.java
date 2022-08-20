@@ -16,12 +16,17 @@
 
 package fr.ciadlab.labmanager.configuration;
 
+import java.net.URL;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.vmutil.FileSystem;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.CacheControl;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -56,6 +61,9 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
 @EnableWebMvc
 public class MvcConfig implements WebMvcConfigurer {
 
+	@Autowired
+	private Environment env;
+	
 	/** Bean for converting the HTTP message.
 	 *
 	 * @return the converter.
@@ -109,8 +117,26 @@ public class MvcConfig implements WebMvcConfigurer {
 
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		registry.addResourceHandler("/**").addResourceLocations("classpath:/static/").setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));  //$NON-NLS-1$//$NON-NLS-2$
-		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/").setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS)); //$NON-NLS-1$ //$NON-NLS-2$
+		registry.addResourceHandler("/**").addResourceLocations("classpath:/static/") //$NON-NLS-1$//$NON-NLS-2$
+			.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
+		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/") //$NON-NLS-1$ //$NON-NLS-2$
+			.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
+		if (this.env != null) {
+			String resources = this.env.getProperty("ciadlab.web.publish-resources"); //$NON-NLS-1$
+			if (!Strings.isNullOrEmpty(resources)) {
+				for (final String resource : resources.split("\\s*[,;:]+\\s*")) { //$NON-NLS-1$
+					final String basename = FileSystem.basename(resource);
+					final URL url = FileSystem.convertStringToURL("file:" + resource, false); //$NON-NLS-1$
+					String resourcePath = url.toExternalForm();
+					if (!resourcePath.endsWith(FileSystem.URL_PATH_SEPARATOR)) {
+						resourcePath += FileSystem.URL_PATH_SEPARATOR;
+					}
+					registry.addResourceHandler("/" + basename + "/**") //$NON-NLS-1$//$NON-NLS-2$
+						.addResourceLocations(resourcePath)
+						.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
+				}
+			}
+		}
 	}
 
 	@Override

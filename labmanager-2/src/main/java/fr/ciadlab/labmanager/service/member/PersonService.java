@@ -36,6 +36,7 @@ import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.utils.names.PersonNameComparator;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 /** Service for managing the persons.
@@ -62,17 +63,21 @@ public class PersonService extends AbstractService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param publicationRepository the publication repository.
 	 * @param authorshipRepository the authorship repository.
 	 * @param personRepository the person repository.
 	 * @param nameParser the parser of person names.
 	 * @param nameComparator the comparator of person names.
 	 */
-	public PersonService(@Autowired PublicationRepository publicationRepository,
+	public PersonService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired PublicationRepository publicationRepository,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired PersonNameParser nameParser,
 			@Autowired PersonNameComparator nameComparator) {
+		super(messages);
 		this.publicationRepository = publicationRepository;
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;

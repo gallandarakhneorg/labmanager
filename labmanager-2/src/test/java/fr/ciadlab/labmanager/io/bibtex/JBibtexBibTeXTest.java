@@ -25,6 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
@@ -308,7 +309,7 @@ public class JBibtexBibTeXTest {
 
 		JournalPaper jp = mock(JournalPaper.class);
 		when(this.journalPaperService.createJournalPaper(
-				any(), any(), any(), any(), any(), anyBoolean())).thenReturn(jp);
+				any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(jp);
 
 		ConferencePaper cp = mock(ConferencePaper.class);
 		when(this.conferencePaperService.createConferencePaper(
@@ -354,6 +355,7 @@ public class JBibtexBibTeXTest {
 				eq("2"),
 				isNull(),
 				isNull(),
+				same(journal),
 				eq(false));
 		verify(p).setTemporaryAuthors(any());
 		verify(this.personService).extractPersonsFrom(

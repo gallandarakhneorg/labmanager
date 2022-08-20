@@ -22,14 +22,16 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.JournalEdition;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.JournalEditionRepository;
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 /** Service for managing editions of journal and journal special issues.
@@ -48,12 +50,15 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param repository the repository for this service.
 	 */
-	public JournalEditionService(@Autowired DownloadableFileManager downloadableFileManager,
+	public JournalEditionService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired JournalEditionRepository repository) {
-		super(downloadableFileManager);
+		super(messages, downloadableFileManager);
 		this.repository = repository;
 	}
 
@@ -81,10 +86,12 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
+	 * @param journal the associated journal.
 	 * @return the created journal edition.
 	 */
-	public JournalEdition createJournalEdition(Publication publication, String volume, String number, String pages) {
+	public JournalEdition createJournalEdition(Publication publication, String volume, String number, String pages, Journal journal) {
 		final JournalEdition res = new JournalEdition(publication, volume, number, pages);
+		res.setJournal(journal);
 		this.repository.save(res);
 		return res;
 	}
@@ -108,13 +115,14 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param pathToVideo the path that allows to download the video of the publication.
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
+	 * @param journal the associated journal.
 	 * @param pages the pages in the journal.
 	 */
 	public void updateJournalEdition(int pubId,
 			String title, PublicationType type, LocalDate date, String abstractText, String keywords,
 			String doi, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
-			String volume, String number, String pages) {
+			String volume, String number, String pages, Journal journal) {
 		final Optional<JournalEdition> res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
 			final JournalEdition edition = res.get();
@@ -127,6 +135,8 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 			edition.setVolume(Strings.emptyToNull(volume));
 			edition.setNumber(Strings.emptyToNull(number));
 			edition.setPages(Strings.emptyToNull(pages));
+			
+			edition.setJournal(journal);
 
 			this.repository.save(res.get());
 		}

@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Chapter of a book.
@@ -234,21 +235,15 @@ public class BookChapter extends Publication {
 			buf.append(getChapterNumber());
 			buf.append(")"); //$NON-NLS-1$
 		}
-		final boolean b0 = !Strings.isNullOrEmpty(getVolume());
-		final boolean b1 = !Strings.isNullOrEmpty(getNumber());
-		if (b0 || b1) {
-			buf.append(", "); //$NON-NLS-1$
-			if (b0) {
-				buf.append(getVolume());
-			}
-			if (b1) {
-				buf.append("("); //$NON-NLS-1$
-				buf.append(getNumber());
-				buf.append(")"); //$NON-NLS-1$
-			}
+		if (!Strings.isNullOrEmpty(getVolume())) {
+			buf.append(", vol. "); //$NON-NLS-1$
+			buf.append(getVolume());
 		}
-		final boolean b2 = !Strings.isNullOrEmpty(getPages());
-		if (b2) {
+		if (!Strings.isNullOrEmpty(getNumber())) {
+			buf.append(", n. "); //$NON-NLS-1$
+			buf.append(getNumber());
+		}
+		if (!Strings.isNullOrEmpty(getPages())) {
 			buf.append(", pp. "); //$NON-NLS-1$
 			buf.append(getPages());
 		}
@@ -407,6 +402,7 @@ public class BookChapter extends Publication {
 	 *
 	 * @return the book title.
 	 */
+	@RequiredFieldInForm
 	public String getBookTitle() {
 		return this.bookTitle;
 	}

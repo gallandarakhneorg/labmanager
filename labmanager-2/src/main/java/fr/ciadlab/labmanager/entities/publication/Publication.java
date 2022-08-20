@@ -56,6 +56,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;
 
@@ -536,6 +537,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 *
 	 * @return the type, never {@code null}.
 	 */
+	@RequiredFieldInForm
 	public PublicationType getType() {
 		return this.type;
 	}
@@ -590,6 +592,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 *
 	 * @return the title.
 	 */
+	@RequiredFieldInForm
 	public String getTitle() {
 		return this.title;
 	}
@@ -640,6 +643,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 *
 	 * @return the date, or {@code null}.
 	 */
+	@RequiredFieldInForm
 	public LocalDate getPublicationDate() {
 		return this.publicationDate;
 	}
@@ -960,6 +964,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 *
 	 * @return the language, never {@code null}.
 	 */
+	@RequiredFieldInForm
 	public PublicationLanguage getMajorLanguage() {
 		return this.majorLanguage;
 	}

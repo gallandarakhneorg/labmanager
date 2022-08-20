@@ -27,6 +27,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** A patent.
@@ -143,17 +144,17 @@ public class Patent extends Publication {
 		buf.append(getInstitution());
 		final boolean b0 = !Strings.isNullOrEmpty(getPatentNumber());
 		final boolean b1 = !Strings.isNullOrEmpty(getPatentType());
-		if (b0 || b1) {
-			buf.append(", "); //$NON-NLS-1$
-			if (b0 && b1) {
-				buf.append(getPatentNumber());
-				buf.append("/"); //$NON-NLS-1$
-				buf.append(getPatentType());
-			} else if (b0) {
-				buf.append(getPatentNumber());
-			} else {
-				buf.append(getPatentType());
-			}
+		if (b0 && b1) {
+			buf.append(", n. "); //$NON-NLS-1$
+			buf.append(getPatentNumber());
+			buf.append(" ("); //$NON-NLS-1$
+			buf.append(getPatentType());
+			buf.append(")"); //$NON-NLS-1$
+		} else if (b0) {
+			buf.append("n. "); //$NON-NLS-1$
+			buf.append(getPatentNumber());
+		} else if (b1) {
+			buf.append(getPatentType());
 		}
 		if (!Strings.isNullOrEmpty(getAddress())) {
 			buf.append(", "); //$NON-NLS-1$
@@ -174,6 +175,7 @@ public class Patent extends Publication {
 	 *
 	 * @return the name of the institution.
 	 */
+	@RequiredFieldInForm
 	public String getInstitution() {
 		return this.institution;
 	}

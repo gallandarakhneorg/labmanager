@@ -57,6 +57,7 @@ import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link JournalService}.
  * 
@@ -77,6 +78,8 @@ public class JournalServiceTest {
 
 	private Journal jour3;
 
+	private MessageSourceAccessor messages;
+
 	private JournalRepository journalRepository;
 
 	private JournalPaperRepository publicationRepository;
@@ -87,10 +90,11 @@ public class JournalServiceTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.journalRepository = mock(JournalRepository.class);
 		this.publicationRepository = mock(JournalPaperRepository.class);
 		this.netConnection = mock(NetConnection.class);
-		this.test = new JournalService(this.journalRepository, this.publicationRepository, this.netConnection);
+		this.test = new JournalService(this.messages, this.journalRepository, this.publicationRepository, this.netConnection);
 
 		// Prepare some journals to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -612,7 +616,7 @@ public class JournalServiceTest {
 	public void downloadScimagoQuartileByJournal_fromInternet() throws Exception {
 		// Force the connection to Internet
 		this.netConnection = new DirectNetConnection();
-		this.test = new JournalService(this.journalRepository, this.publicationRepository, this.netConnection);
+		this.test = new JournalService(this.messages, this.journalRepository, this.publicationRepository, this.netConnection);
 
 		// The following id is for the Int. Journal of Artificial Intelligence
 		when(this.jour3.getScimagoId()).thenReturn("23675");

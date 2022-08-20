@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.io.html;
 
+import java.io.File;
 import java.net.URI;
 import java.net.URL;
 
@@ -24,6 +25,7 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -62,16 +64,17 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		super(messages, doiTools);
 	}
 
-	private static String fixFilename(String filename) {
-		String fn = filename.replace("/var/www/ciad-lab.fr", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		return fn;
-	}
-
 	private static void buildPdfDownloadLink(StringBuilder html, String path, String label) {
-		html.append("<a class=\"btn btn-xs btn-success\" href=\""); //$NON-NLS-1$
-		html.append(ROOT_URL);
-		html.append(fixFilename(path));
-		html.append("\"><i class=\"fa fa-file-pdf-o\">"); //$NON-NLS-1$
+		final String jpeg = FileSystem.replaceExtension(new File(path), ".jpg").toString(); //$NON-NLS-1$
+		html.append("<a class=\"btn btn-xs btn-success\" href=\"/"); //$NON-NLS-1$
+		html.append(Constants.DEFAULT_SERVER_NAME);
+		html.append("/"); //$NON-NLS-1$
+		html.append(path);
+		html.append("\"><i class=\"fa\"><img src=\"/"); //$NON-NLS-1$
+		html.append(Constants.DEFAULT_SERVER_NAME);
+		html.append("/"); //$NON-NLS-1$
+		html.append(jpeg);
+		html.append("\" class=\"publicationDetailsDownloadAttachment\" /><br/>"); //$NON-NLS-1$
 		html.append(label);
 		html.append("</i></a>"); //$NON-NLS-1$
 	}

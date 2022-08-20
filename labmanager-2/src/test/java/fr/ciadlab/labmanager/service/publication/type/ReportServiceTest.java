@@ -36,12 +36,13 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.Report;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.ReportRepository;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ReportService}.
  * 
@@ -62,6 +63,8 @@ public class ReportServiceTest {
 
 	private Publication base;
 
+	private MessageSourceAccessor messages;
+
 	private DownloadableFileManager downloadableFileManager;
 
 	private ReportRepository repository;
@@ -70,9 +73,10 @@ public class ReportServiceTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(ReportRepository.class);
-		this.test = new ReportService(this.downloadableFileManager, this.repository);
+		this.test = new ReportService(this.messages, this.downloadableFileManager, this.repository);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

@@ -27,6 +27,7 @@ import javax.persistence.Table;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** A report (scientific, technical, manual).
@@ -143,17 +144,19 @@ public class Report extends Publication {
 		buf.append(getInstitution());
 		final boolean b0 = !Strings.isNullOrEmpty(getReportNumber());
 		final boolean b1 = !Strings.isNullOrEmpty(getReportType());
-		if (b0 || b1) {
-			buf.append(", "); //$NON-NLS-1$
-			if (b0 && b1) {
-				buf.append(getReportNumber());
-				buf.append("/"); //$NON-NLS-1$
-				buf.append(getReportType());
-			} else if (b0) {
-				buf.append(getReportNumber());
-			} else {
-				buf.append(getReportType());
-			}
+		if (b0 && b1) {
+			buf.append(", n. "); //$NON-NLS-1$
+			buf.append(getReportNumber());
+			buf.append(" ("); //$NON-NLS-1$
+			buf.append(getReportType());
+			buf.append(")"); //$NON-NLS-1$
+		} else if (b0) {
+			buf.append(", n. "); //$NON-NLS-1$
+			buf.append(getReportNumber());
+		} else if (b1) {
+			buf.append(" ("); //$NON-NLS-1$
+			buf.append(getReportType());
+			buf.append(")"); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getAddress())) {
 			buf.append(", "); //$NON-NLS-1$
@@ -174,6 +177,7 @@ public class Report extends Publication {
 	 *
 	 * @return the name of the institution.
 	 */
+	@RequiredFieldInForm
 	public String getInstitution() {
 		return this.institution;
 	}

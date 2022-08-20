@@ -26,10 +26,11 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.Book;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.BookRepository;
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 /** Service for managing books.
@@ -48,12 +49,15 @@ public class BookService extends AbstractPublicationTypeService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param repository the repository for this service.
 	 */
-	public BookService(@Autowired DownloadableFileManager downloadableFileManager,
+	public BookService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired BookRepository repository) {
-		super(downloadableFileManager);
+		super(messages, downloadableFileManager);
 		this.repository = repository;
 	}
 
@@ -119,6 +123,7 @@ public class BookService extends AbstractPublicationTypeService {
 	}
 
 	/** Update the book with the given identifier.
+	 * <p>This function does not check the associated between the given publication type and the book class. 
 	 *
 	 * @param pubId identifier of the book to change.
 	 * @param title the new title of the publication, never {@code null} or empty.
@@ -146,8 +151,9 @@ public class BookService extends AbstractPublicationTypeService {
 	 * @param series the number or the name of the series for the conference proceedings.
 	 * @param publisher the name of the publisher of the book.
 	 * @param address the geographical location of the event, usually a city and a country.
+	 * @return the updated book.
 	 */
-	public void updateBook(int pubId,
+	public Optional<Book> updateBook(int pubId,
 			String title, PublicationType type, LocalDate date, String abstractText, String keywords,
 			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
@@ -173,6 +179,7 @@ public class BookService extends AbstractPublicationTypeService {
 			
 			this.repository.save(res.get());
 		}
+		return res;
 	}
 
 	/** Remove the book from the database.

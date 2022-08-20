@@ -53,10 +53,6 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 	 */
 	public static final String CIAD_DARK_GREEN = "4b5e08"; //$NON-NLS-1$
 
-	/** Root URL of the CIAD lab website.
-	 */
-	protected static final String ROOT_URL = "http://www.ciad-lab.fr/"; //$NON-NLS-1$
-
 	private static final String MESSAGES_PREFIX = "abstractCiadHtmlExporter."; //$NON-NLS-1$
 
 	/** Constructor.

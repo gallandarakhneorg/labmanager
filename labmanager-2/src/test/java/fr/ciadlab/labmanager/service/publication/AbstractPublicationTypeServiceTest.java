@@ -31,11 +31,12 @@ import java.time.LocalDate;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link AbstractPublicationTypeService}.
  * 
@@ -56,12 +57,15 @@ public class AbstractPublicationTypeServiceTest {
 
 	private DownloadableFileManager downloadableFileManager;
 
+	private MessageSourceAccessor messages;
+
 	private AbstractPublicationTypeService test;
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
-		this.test = new AbstractPublicationTypeService(this.downloadableFileManager) {
+		this.test = new AbstractPublicationTypeService(this.messages, this.downloadableFileManager) {
 			@Override
 			public void updatePublicationNoSave(Publication publication, String title, PublicationType type,
 					LocalDate date, String abstractText, String keywords, String doi, String isbn, String issn,
@@ -83,9 +87,6 @@ public class AbstractPublicationTypeServiceTest {
 
 	@Test
 	public void updatePublicationNoSave_0() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -107,18 +108,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_0_notitle() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -140,18 +136,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_0_notype() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -173,18 +164,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_0_nodate() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -206,17 +192,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_0_nopdfcontent() throws Exception {
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -238,18 +220,14 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, never()).saveDownloadablePublicationPdfFile(anyInt(), anyString());
 		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadablePublicationPdfFile(123);
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_0_noaward() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -271,19 +249,14 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, never()).saveDownloadableAwardPdfFile(anyInt(), anyString());
 		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadableAwardPdfFile(123);
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 	}
 
 	@Test
 	public void updatePublicationNoSave_1() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -305,18 +278,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_1_notitle() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -338,18 +306,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_1_notype() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -371,18 +334,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_1_nodate() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -404,17 +362,13 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_1_nopdfcontent() throws Exception {
-		when(this.downloadableFileManager.saveDownloadableAwardPdfFile(anyInt(), anyString())).thenReturn("path/to/award");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -436,18 +390,14 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, never()).saveDownloadablePublicationPdfFile(anyInt(), anyString());
 		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadablePublicationPdfFile(123);
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF(null);
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadableAwardPdfFile(123, "awardContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate("path/to/award");
 	}
 
 	@Test
 	public void updatePublicationNoSave_1_noaward() throws Exception {
-		when(this.downloadableFileManager.saveDownloadablePublicationPdfFile(anyInt(), anyString())).thenReturn("path/to/pdf");
-
 		Publication pub = mock(Publication.class);
 		when(pub.getId()).thenReturn(123);
 
@@ -469,10 +419,8 @@ public class AbstractPublicationTypeServiceTest {
 		verify(pub, atLeastOnce()).setMajorLanguage(PublicationLanguage.ITALIAN);
 		verify(pub, atLeastOnce()).setVideoURL("http://video.org");
 
-		verify(this.downloadableFileManager, atLeastOnce()).saveDownloadablePublicationPdfFile(123, "pdfContent0");
 		verify(pub, atLeastOnce()).setPathToDownloadablePDF("path/to/pdf");
 
-		verify(this.downloadableFileManager, never()).saveDownloadableAwardPdfFile(anyInt(), anyString());
 		verify(this.downloadableFileManager, atLeastOnce()).deleteDownloadableAwardPdfFile(123);
 		verify(pub, atLeastOnce()).setPathToDownloadableAwardCertificate(null);
 	}

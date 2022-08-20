@@ -35,6 +35,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
@@ -49,6 +50,7 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.json.JacksonJsonExporter;
 import fr.ciadlab.labmanager.io.json.JsonExporter;
@@ -58,11 +60,23 @@ import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.service.member.PersonService;
+import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
+import fr.ciadlab.labmanager.service.publication.type.BookService;
+import fr.ciadlab.labmanager.service.publication.type.ConferencePaperService;
+import fr.ciadlab.labmanager.service.publication.type.JournalEditionService;
+import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
+import fr.ciadlab.labmanager.service.publication.type.KeyNoteService;
+import fr.ciadlab.labmanager.service.publication.type.MiscDocumentService;
+import fr.ciadlab.labmanager.service.publication.type.PatentService;
+import fr.ciadlab.labmanager.service.publication.type.ReportService;
+import fr.ciadlab.labmanager.service.publication.type.ThesisService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PublicationService}.
  * 
@@ -81,7 +95,11 @@ public class PublicationServiceTest {
 
 	private Publication pub2;
 
+	private MessageSourceAccessor messages;
+
 	private PublicationRepository publicationRepository;
+
+	private PrePublicationFactory prePublicationFactory;
 
 	private AuthorshipService authorshipService;
 
@@ -100,11 +118,36 @@ public class PublicationServiceTest {
 	private OpenDocumentTextExporter odt;
 
 	private JsonExporter json;
+	
+	private DownloadableFileManager fileManager;
 
 	private PublicationService test;
 
+	private BookService bookService;
+
+	private BookChapterService bookChapterService;
+
+	private ConferencePaperService conferencePaperService;
+
+	private JournalEditionService journalEditionService;
+
+	private JournalPaperService journalPaperService;
+
+	private KeyNoteService keyNoteService;
+
+	private MiscDocumentService miscDocumentService;
+
+	private PatentService patentService;
+
+	private ReportService reportService;
+
+	private ThesisService thesisService;
+
 	@BeforeEach
 	public void setUp() {
+		this.fileManager = mock(DownloadableFileManager.class);
+		this.messages = mock(MessageSourceAccessor.class);
+		this.prePublicationFactory = mock(PrePublicationFactory.class);
 		this.publicationRepository = mock(PublicationRepository.class);
 		this.authorshipService = mock(AuthorshipService.class);
 		this.authorshipRepository = mock(AuthorshipRepository.class);
@@ -115,10 +158,24 @@ public class PublicationServiceTest {
 		this.html = mock(HtmlDocumentExporter.class);
 		this.odt = mock(OpenDocumentTextExporter.class);
 		this.json = mock(JsonExporter.class);
-		this.test = new PublicationService(this.publicationRepository,
+		this.bookService = mock(BookService.class);
+		this.bookChapterService = mock(BookChapterService.class);
+		this.conferencePaperService = mock(ConferencePaperService.class);
+		this.journalEditionService = mock(JournalEditionService.class);
+		this.journalPaperService = mock(JournalPaperService.class);
+		this.keyNoteService = mock(KeyNoteService.class);
+		this.miscDocumentService = mock(MiscDocumentService.class);
+		this.patentService = mock(PatentService.class);
+		this.reportService = mock(ReportService.class);
+		this.thesisService = mock(ThesisService.class);
+		this.test = new PublicationService(this.messages, this.publicationRepository, this.prePublicationFactory,
 				this.authorshipService, this.authorshipRepository,
 				this.personService, this.personRepository,
-				this.journalRepository, this.bibtex, this.html, this.odt, this.json);
+				this.journalRepository, this.bibtex, this.html, this.odt, this.json, this.fileManager,
+				this.bookService, this.bookChapterService, this.conferencePaperService,
+				this.journalEditionService, this.journalPaperService, this.keyNoteService,
+				this.miscDocumentService, this.patentService, this.reportService,
+				this.thesisService);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -176,19 +233,16 @@ public class PublicationServiceTest {
 
 	@Test
 	public void removePublication() {
-		this.test.removePublication(234);
+		this.test.removePublication(234, false);
 
 		final ArgumentCaptor<Integer> arg = ArgumentCaptor.forClass(Integer.class);
 
-		verify(this.publicationRepository, atLeastOnce()).findById(arg.capture());
+		verify(this.publicationRepository, atLeastOnce()).deleteById(arg.capture());
 		Integer actual = arg.getValue();
 		assertNotNull(actual);
 		assertEquals(234, actual);
-
-		verify(this.publicationRepository, atLeastOnce()).deleteById(arg.capture());
-		actual = arg.getValue();
-		assertNotNull(actual);
-		assertEquals(234, actual);
+		
+		verifyNoMoreInteractions(this.publicationRepository);
 	}
 
 	@Test

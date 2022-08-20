@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Keynote in a conference or a workshop.
@@ -167,6 +168,7 @@ public class KeyNote extends Publication {
 	 * 
 	 * @return the name.
 	 */
+	@RequiredFieldInForm
 	public String getScientificEventName() {
 		return this.scientificEventName;
 	}

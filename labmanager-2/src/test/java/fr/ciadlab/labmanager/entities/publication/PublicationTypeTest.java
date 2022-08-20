@@ -361,22 +361,22 @@ public class PublicationTypeTest {
 
 	@Test
 	public void getLabel_Locale_FR() {
-		assertEquals("Articles dans des journaux internationaux avec comité de lecture", cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).getLabel(Locale.FRANCE));
-		assertEquals("Articles dans des journaux nationaux avec comité de lecture", cons(PublicationType.NATIONAL_JOURNAL_PAPER).getLabel(Locale.FRANCE));
+		assertEquals("Articles dans des revues internationales avec comité de lecture", cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).getLabel(Locale.FRANCE));
+		assertEquals("Articles dans des revues nationales avec comité de lecture", cons(PublicationType.NATIONAL_JOURNAL_PAPER).getLabel(Locale.FRANCE));
 		assertEquals("Articles dans des conférences internationales", cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).getLabel(Locale.FRANCE));
 		assertEquals("Articles dans des conférences nationales", cons(PublicationType.NATIONAL_CONFERENCE_PAPER).getLabel(Locale.FRANCE));
 		assertEquals("Communications orales dans une conférence internationale sans actes", cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).getLabel(Locale.FRANCE));
 		assertEquals("Communications orales dans une conférence nationale sans actes", cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).getLabel(Locale.FRANCE));
 		assertEquals("Posters dans une conférence internationale", cons(PublicationType.INTERNATIONAL_POSTER).getLabel(Locale.FRANCE));
 		assertEquals("Posters dans une conférence nationale", cons(PublicationType.NATIONAL_POSTER).getLabel(Locale.FRANCE));
-		assertEquals("\u00C9ditions d'ouvrage ou de journal scientifique international", cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).getLabel(Locale.FRANCE));
-		assertEquals("\u00C9ditions d'ouvrage ou de journal scientifique national", cons(PublicationType.NATIONAL_JOURNAL_EDITION).getLabel(Locale.FRANCE));
+		assertEquals("\u00C9ditions d'ouvrage ou de revue scientifique international", cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).getLabel(Locale.FRANCE));
+		assertEquals("\u00C9ditions d'ouvrage ou de revue scientifique national", cons(PublicationType.NATIONAL_JOURNAL_EDITION).getLabel(Locale.FRANCE));
 		assertEquals("Ouvrages scientifiques internationaux", cons(PublicationType.INTERNATIONAL_BOOK).getLabel(Locale.FRANCE));
 		assertEquals("Ouvrages scientifiques nationaux", cons(PublicationType.NATIONAL_BOOK).getLabel(Locale.FRANCE));
 		assertEquals("Chapitres dans un ouvrage scientifique international", cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).getLabel(Locale.FRANCE));
 		assertEquals("Chapitres dans un ouvrage scientifique national", cons(PublicationType.NATIONAL_BOOK_CHAPTER).getLabel(Locale.FRANCE));
-		assertEquals("Articles dans des journaux internationaux sans comité de lecture", cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getLabel(Locale.FRANCE));
-		assertEquals("Articles dans des journaux nationaux sans comité de lecture", cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getLabel(Locale.FRANCE));
+		assertEquals("Articles dans des revues internationales sans comité de lecture", cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getLabel(Locale.FRANCE));
+		assertEquals("Articles dans des revues nationales sans comité de lecture", cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).getLabel(Locale.FRANCE));
 		assertEquals("Conférenciers invités dans une conférence internationale", cons(PublicationType.INTERNATIONAL_KEYNOTE).getLabel(Locale.FRANCE));
 		assertEquals("Conférenciers invités dans une conférence nationale", cons(PublicationType.NATIONAL_KEYNOTE).getLabel(Locale.FRANCE));
 		assertEquals("Thèses d'HDR", cons(PublicationType.HDR_THESIS).getLabel(Locale.FRANCE));
@@ -389,7 +389,7 @@ public class PublicationTypeTest {
 		assertEquals("Outils de recherche", cons(PublicationType.RESEARCH_TOOL).getLabel(Locale.FRANCE));
 		assertEquals("Ouvrages de vulgarisation", cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).getLabel(Locale.FRANCE));
 		assertEquals("Chapitres dans un ouvrage de vulgarisation", cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).getLabel(Locale.FRANCE));
-		assertEquals("Article dans un journal de vulgarisation", cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).getLabel(Locale.FRANCE));
+		assertEquals("Article dans une revue de vulgarisation", cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).getLabel(Locale.FRANCE));
 		assertEquals("Productions artistiques théorisées", cons(PublicationType.ARTISTIC_PRODUCTION).getLabel(Locale.FRANCE));
 		assertEquals("Rapports techniques", cons(PublicationType.TECHNICAL_REPORT).getLabel(Locale.FRANCE));
 		assertEquals("Rapports de projet", cons(PublicationType.PROJECT_REPORT).getLabel(Locale.FRANCE));

@@ -26,10 +26,11 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.ThesisRepository;
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 /** Service for managing theses.
@@ -48,12 +49,15 @@ public class ThesisService extends AbstractPublicationTypeService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param repository the repository for this service.
 	 */
-	public ThesisService(@Autowired DownloadableFileManager downloadableFileManager,
+	public ThesisService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired ThesisRepository repository) {
-		super(downloadableFileManager);
+		super(messages, downloadableFileManager);
 		this.repository = repository;
 	}
 

@@ -21,27 +21,30 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
+import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.JournalEdition;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.JournalEditionRepository;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link JournalEditionService}.
  * 
@@ -62,6 +65,8 @@ public class JournalEditionServiceTest {
 
 	private Publication base;
 
+	private MessageSourceAccessor messages;
+
 	private DownloadableFileManager downloadableFileManager;
 
 	private JournalEditionRepository repository;
@@ -70,9 +75,10 @@ public class JournalEditionServiceTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(JournalEditionRepository.class);
-		this.test = new JournalEditionService(this.downloadableFileManager, this.repository);
+		this.test = new JournalEditionService(this.messages, this.downloadableFileManager, this.repository);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -124,29 +130,33 @@ public class JournalEditionServiceTest {
 
 	@Test
 	public void createJournalEdition() {
+		Journal jour = mock(Journal.class);
 		final JournalEdition actual = this.test.createJournalEdition(pub0,
-				"volume0", "number0", "pages0");
+				"volume0", "number0", "pages0", jour);
 
 		assertEquals("volume0", actual.getVolume());
 		assertEquals("number0", actual.getNumber());
 		assertEquals("pages0", actual.getPages());
+		assertSame(jour, actual.getJournal());
 
 		verify(this.repository).save(actual);
 	}
 
 	@Test
 	public void updateJournalEdition() {
+		Journal jour = mock(Journal.class);
 		this.test.updateJournalEdition(234,
 				"title0", PublicationType.ARTISTIC_PRODUCTION, LocalDate.parse("2022-07-22"), "abstractText0",
 				"keywords0", "doi0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
-				"volume0", "number0", "pages0");
+				"volume0", "number0", "pages0", jour);
 
 		verifyNoInteractions(this.pub0);
 
-		verify(this.pub1).setVolume("volume0");
-		verify(this.pub1).setNumber("number0");
-		verify(this.pub1).setPages("pages0");
+		verify(this.pub1).setVolume(eq("volume0"));
+		verify(this.pub1).setNumber(eq("number0"));
+		verify(this.pub1).setPages(eq("pages0"));
+		verify(this.pub1).setJournal(same(jour));
 
 		verifyNoInteractions(this.pub2);
 	}

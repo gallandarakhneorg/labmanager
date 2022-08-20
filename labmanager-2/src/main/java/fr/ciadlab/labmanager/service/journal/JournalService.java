@@ -31,6 +31,7 @@ import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.utils.net.NetConnection;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 /** Service related to the journals.
@@ -55,13 +56,17 @@ public class JournalService extends AbstractService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param journalRepository the journal repository.
 	 * @param publicationRepository the publication repository.
 	 * @param netConnection the tools for accessing the network.
 	 */
-	public JournalService(@Autowired JournalRepository journalRepository,
+	public JournalService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired JournalRepository journalRepository,
 			@Autowired JournalPaperRepository publicationRepository,
 			@Autowired NetConnection netConnection) {
+		super(messages);
 		this.journalRepository = journalRepository;
 		this.publicationRepository = publicationRepository;
 		this.netConnection = netConnection;

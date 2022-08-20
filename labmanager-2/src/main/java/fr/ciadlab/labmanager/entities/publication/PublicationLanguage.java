@@ -69,6 +69,10 @@ public enum PublicationLanguage {
 			assert getDefault() != this;
 			return getDefault().getLocale();
 		}
+		@Override
+		public String getLabel() {
+			return "?"; //$NON-NLS-1$
+		}
 	};
 
 	/** Replies the default publication language.
@@ -102,5 +106,13 @@ public enum PublicationLanguage {
 	 * @return the locale.
 	 */
 	public abstract Locale getLocale();
+
+	/** Replies the label of the current language.
+	 *
+	 * @return the label of the current language.
+	 */
+	public String getLabel() {
+		return getLocale().getDisplayLanguage();
+	}
 
 }

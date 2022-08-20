@@ -22,14 +22,16 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 /** Service for managing journal paper.
@@ -48,12 +50,15 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param repository the repository for this service.
 	 */
-	public JournalPaperService(@Autowired DownloadableFileManager downloadableFileManager,
+	public JournalPaperService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired JournalPaperRepository repository) {
-		super(downloadableFileManager);
+		super(messages, downloadableFileManager);
 		this.repository = repository;
 	}
 
@@ -91,10 +96,11 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
 	 * @param series the series of the journal.
+	 * @param journal the associated journal.
 	 * @return the created journal paper.
 	 */
-	public JournalPaper createJournalPaper(Publication publication, String volume, String number, String pages, String series) {
-		return createJournalPaper(publication, volume, number, pages, series, true);
+	public JournalPaper createJournalPaper(Publication publication, String volume, String number, String pages, String series, Journal journal) {
+		return createJournalPaper(publication, volume, number, pages, series, journal, true);
 	}
 
 	/** Create a journal paper.
@@ -104,12 +110,14 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
 	 * @param series the series of the journal.
+	 * @param journal the associated journal.
 	 * @param saveInDb {@code true} for saving the publication in the database.
 	 * @return the created journal paper.
 	 */
 	public JournalPaper createJournalPaper(Publication publication, String volume, String number, String pages,
-			String series, boolean saveInDb) {
+			String series, Journal journal, boolean saveInDb) {
 		final JournalPaper res = new JournalPaper(publication, volume, number, pages, series);
+		res.setJournal(journal);
 		if (saveInDb) {
 			this.repository.save(res);
 		}
@@ -137,12 +145,13 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
 	 * @param series the series of the journal.
+	 * @param journal the journal.
 	 */
 	public void updateJournalPaper(int pubId,
 			String title, PublicationType type, LocalDate date, String abstractText, String keywords,
 			String doi, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
-			String volume, String number, String pages, String series) {
+			String volume, String number, String pages, String series, Journal journal) {
 		final Optional<JournalPaper> res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
 			final JournalPaper paper = res.get();
@@ -156,6 +165,8 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 			paper.setNumber(Strings.emptyToNull(number));
 			paper.setPages(Strings.emptyToNull(pages));
 			paper.setSeries(Strings.emptyToNull(series));
+
+			paper.setJournal(journal);
 
 			this.repository.save(res.get());
 		}

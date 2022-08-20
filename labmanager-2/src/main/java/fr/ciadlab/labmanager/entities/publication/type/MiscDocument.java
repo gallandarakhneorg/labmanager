@@ -28,6 +28,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Document that is of an unspecified type.
@@ -161,17 +162,19 @@ public class MiscDocument extends Publication {
 		buf.append(getHowPublished());
 		final boolean b0 = !Strings.isNullOrEmpty(getDocumentNumber());
 		final boolean b1 = !Strings.isNullOrEmpty(getDocumentType());
-		if (b0 || b1) {
-			buf.append(", "); //$NON-NLS-1$
-			if (b0 && b1) {
-				buf.append(getDocumentNumber());
-				buf.append("/"); //$NON-NLS-1$
-				buf.append(getDocumentType());
-			} else if (b0) {
-				buf.append(getDocumentNumber());
-			} else {
-				buf.append(getDocumentType());
-			}
+		if (b0 && b1) {
+			buf.append(", n. "); //$NON-NLS-1$
+			buf.append(getDocumentNumber());
+			buf.append(" ("); //$NON-NLS-1$
+			buf.append(getDocumentType());
+			buf.append(")"); //$NON-NLS-1$
+		} else if (b0) {
+			buf.append(", n. "); //$NON-NLS-1$
+			buf.append(getDocumentNumber());
+		} else {
+			buf.append(" ("); //$NON-NLS-1$
+			buf.append(getDocumentType());
+			buf.append(")"); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getOrganization())) {
 			buf.append(", "); //$NON-NLS-1$
@@ -264,6 +267,7 @@ public class MiscDocument extends Publication {
 	 *
 	 * @return the description of the publication means.
 	 */
+	@RequiredFieldInForm
 	public String getHowPublished() {
 		return this.howPublished;
 	}

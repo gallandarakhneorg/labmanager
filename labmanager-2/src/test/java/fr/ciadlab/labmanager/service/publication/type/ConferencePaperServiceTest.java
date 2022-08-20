@@ -36,12 +36,13 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.ConferencePaperRepository;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ConferencePaperService}.
  * 
@@ -62,6 +63,8 @@ public class ConferencePaperServiceTest {
 
 	private Publication base;
 
+	private MessageSourceAccessor messages;
+
 	private DownloadableFileManager downloadableFileManager;
 
 	private ConferencePaperRepository repository;
@@ -70,9 +73,10 @@ public class ConferencePaperServiceTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(ConferencePaperRepository.class);
-		this.test = new ConferencePaperService(this.downloadableFileManager, this.repository);
+		this.test = new ConferencePaperService(this.messages, this.downloadableFileManager, this.repository);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -149,7 +153,7 @@ public class ConferencePaperServiceTest {
 				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				"event0", "volume0", "number0", "pages0", "editors0",
-				"series0", "orga0", "address0");
+				"series0", "orga0", "publisher0", "address0");
 
 		verifyNoInteractions(this.pub0);
 
@@ -160,6 +164,7 @@ public class ConferencePaperServiceTest {
 		verify(this.pub1).setEditors("editors0");
 		verify(this.pub1).setSeries("series0");
 		verify(this.pub1).setOrganization("orga0");
+		verify(this.pub1).setPublisher("publisher0");
 		verify(this.pub1).setAddress("address0");
 
 		verifyNoInteractions(this.pub2);

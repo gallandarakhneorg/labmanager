@@ -16,42 +16,59 @@
 
 package fr.ciadlab.labmanager.controller.publication;
 
+import java.io.IOException;
+import java.lang.reflect.Method;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
 import fr.ciadlab.labmanager.Constants;
 import fr.ciadlab.labmanager.controller.AbstractController;
+import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.od.OpenDocumentConstants;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
+import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import fr.ciadlab.labmanager.utils.ViewFactory;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
@@ -138,12 +155,15 @@ public class PublicationController extends AbstractController {
 	/** Replies the model-view component for managing the publications.
 	 * This endpoint is designed for the database management.
 	 *
+	 * @param username the login of the logged-in person.
 	 * @return the model-view component.
 	 * @see #showFrontPublicationList(Integer, Integer, Integer, Boolean)
 	 */
 	@GetMapping("/" + DEFAULT_ENDPOINT)
-	public ModelAndView showBackPublicationList() {
+	public ModelAndView showBackPublicationList(
+			@CurrentSecurityContext(expression="authentication?.name") String username) {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
+		initModelViewProperties(modelAndView, username);
 		modelAndView.addObject("publications", this.publicationService.getAllPublications()); //$NON-NLS-1$
 		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
 		return modelAndView;
@@ -161,6 +181,7 @@ public class PublicationController extends AbstractController {
 	 * @param journal the identifier of the journal for which the publications must be exported.
 	 * @param provideNames indicates if the model provides to the front-end the map from the identifiers to the full names.
 	 * @return the model-view of the list of publications.
+	 * @param username the login of the logged-in person.
 	 * @see #showBackPublicationList()
 	 * @see #exportJson(HttpServletResponse, List, Integer, Integer, Integer)
 	 */
@@ -169,8 +190,10 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
-			@RequestParam(required = false, defaultValue = "true") Boolean provideNames) {
+			@RequestParam(required = false, defaultValue = "true") Boolean provideNames,
+			@CurrentSecurityContext(expression="authentication?.name") String username) {
 		final ModelAndView modelAndView = new ModelAndView("showPublications"); //$NON-NLS-1$
+		initModelViewProperties(modelAndView, username);
 		if (provideNames == null || provideNames.booleanValue()) {
 			final List<Person> persons = this.personService.getAllPersons();
 			modelAndView.addObject("authorsMap", persons.parallelStream() //$NON-NLS-1$
@@ -179,7 +202,6 @@ public class PublicationController extends AbstractController {
 							it -> it.getFullName())));
 		}
 		addUrlToPublicationListEndPoint(modelAndView, organization, author, journal);
-		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
 		//
 		final UriBuilderFactory factory = new DefaultUriBuilderFactory();
 		modelAndView.addObject("endpoint_export_bibtex", //$NON-NLS-1$
@@ -516,622 +538,248 @@ public class PublicationController extends AbstractController {
 		return modelAndView;
 	}
 
-	//	/** Redirect to the publication list with a "success" state.
-	//	 * This function is usually invoked after the success of an operation.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @throws Exception if the redirection cannot be done.
-	//	 */
-	//	@SuppressWarnings("static-method")
-	//	protected void redirectToPublicationListWithSuccessState(HttpServletResponse response) throws Exception {
-	//		response.sendRedirect("/SpringRestHibernate/publicationsListPrivate?success=1"); //$NON-NLS-1$
-	//	}
-	//
-	//	/** Redirect to the publication list with a "failure" state.
-	//	 * This function is usually invoked after the success of an operation.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @throws Exception if the redirection cannot be done.
-	//	 */
-	//	@SuppressWarnings("static-method")
-	//	protected void redirectToPublicationListWithFailureState(HttpServletResponse response) throws Exception {
-	//		response.sendRedirect("/SpringRestHibernate/publicationsListPrivate?success=0"); //$NON-NLS-1$
-	//	}
-	//
-	//	/** Redirect to the "add publication" page with a "success" state.
-	//	 * This function is usually invoked after the success of an operation.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @throws Exception if the redirection cannot be done.
-	//	 */
-	//	@SuppressWarnings("static-method")
-	//	protected void redirectToAddPublicationWithSuccessState(HttpServletResponse response) throws Exception {
-	//		response.sendRedirect("/SpringRestHibernate/addPublication?success=1"); //$NON-NLS-1$
-	//	}
-	//
-	//	/** Redirect to the "add publication" page with a "success" state and a number of successfully imoprted publications.
-	//	 * This function is usually invoked after the success of an operation.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @param nbImported number of publications that were successfully imported.
-	//	 * @throws Exception if the redirection cannot be done.
-	//	 */
-	//	@SuppressWarnings("static-method")
-	//	protected void redirectToAddPublicationWithSuccessState(HttpServletResponse response, int nbImported) throws Exception {
-	//		response.sendRedirect("/SpringRestHibernate/addPublication?success=1&importedPubs=" + nbImported); //$NON-NLS-1$
-	//	}
-	//
-	//	/** Redirect to the "add publication" page with a "edition" state.
-	//	 * This function is usually invoked for editing a publication.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @param publicationId the identifier of the publication to edit.
-	//	 * @throws Exception if the redirection cannot be done.
-	//	 */
-	//	@SuppressWarnings("static-method")
-	//	protected void redirectToAddPublicationWithEditState(HttpServletResponse response, int publicationId) throws Exception {
-	//		response.sendRedirect("/SpringRestHibernate/addPublication?edit=1&publicationId=" + publicationId); //$NON-NLS-1$
-	//	}
-	//
-	//	/** Delete a publication.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @param publicationId the identifier of the publication.
-	//	 * @throws Exception if the redirection cannot be done.
-	//	 */
-	//	@GetMapping("/deletePublication")
-	//	public void deletePublication(HttpServletResponse response,
-	//			@RequestParam Integer publicationId) throws Exception {
-	//		if (publicationId != null) {
-	//			this.publicationService.removePublication(publicationId.intValue());
-	//			redirectToPublicationListWithSuccessState(response);
-	//		} else {
-	//			redirectToPublicationListWithFailureState(response);
-	//		}
-	//	}
-	//
-	//	/** Create a publication entry into the database.
-	//	 * This function supports the first step for the creation of a publication.
-	//	 * It creates the publication into the database according to the variable parameters
-	//	 * of the function. Then is redirect to the end-point of
-	//	 * {@link #addPublication(HttpServletRequest, HttpServletResponse, boolean, Integer)}
-	//	 * for finalizing the process of publication creation.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @param publicationType the type of publication to be created.
-	//	 * @param publicationTitle the title of the publication.
-	//	 * @param publicationAuthors the ordered list of the authors. This list contains the names of the persons
-	//	 *     with a syntax that is supported by {@link PersonNameParser}, e.g., {@code "FIRST LAST"} or
-	//	 *     {@code "LAST, FIRST"}.
-	//	 * @param publicationYear the year of the publication.
-	//	 * @param publicationDate the full date of the publication in format {@code "YYYY-MM-DD"}.
-	//	 * @param publicationAbstract the text of the publication abstract.
-	//	 * @param publicationKeywords the keywords of the publication.
-	//	 * @param publicationDOI the DOI number of the publication.
-	//	 * @param publicationISBN the ISBN number of the publication.
-	//	 * @param publicationISSN the ISSN numver of the publication.
-	//	 * @param publicationURL an URL to a page that is associated to the publication.
-	//	 * @param publicationVideoURL an URL to a video associated to the publication.
-	//	 * @param publicationDblpURL the URL to the page of the publication on DBLP website.
-	//	 * @param publicationLanguage the major language with which the publication is written. By default,
-	//	 *     it is {@link PublicationLanguage#ENGLISH}.
-	//	 * @param publicationPdf the content of the PDF file of the publication that must be uploaded.
-	//	 * @param publicationAward the content of a document that represents an award certificate that must be uploaded.
-	//	 * @param volume the volume of the publication (common to most of the publication types).
-	//	 * @param number the number of the publication (common to most of the publication types).
-	//	 * @param pages the page range of the publication in its container (common to most of the publication types).
-	//	 * @param editors the list of the names of the editos of the publication's container (common to most of the publication types).
-	//	 * @param address the geographical location of the event in which the publication is published  (common to most of the publication types).
-	//	 *     It is usually a city and/or a country.
-	//	 * @param series the name or the number of series in which the publication is committed.
-	//	 * @param publisher the name of the publisher.
-	//	 * @param edition the number of name of the edition (or version) of the publication.
-	//	 * @param bookTitle the name of the book that contains the publication (usually for {@link PublicationCategory#COS} or
-	//	 *     {@link PublicationCategory#COV}).
-	//	 * @param chapterNumber the number or the name of the chapter that corresponds to the publication (usually for {@link PublicationCategory#COS} or
-	//	 *     {@link PublicationCategory#COV}).
-	//	 * @param scientificEventName the name of the scientific event for which the publication was committed. Usually,
-	//	 *     this event generates proceedings that contain the publication (see {@link PublicationCategory#C_ACTI},
-	//	 *     {@link PublicationCategory#C_ACTN}, {@link PublicationCategory#C_COM} or {@link PublicationCategory#C_INV}).
-	//	 * @param organization the name of the institution which have organized the scientific event in which the
-	//	 *     publication is published  (see {@link PublicationCategory#C_ACTI},
-	//	 *     {@link PublicationCategory#C_ACTN}, {@link PublicationCategory#C_COM} or {@link PublicationCategory#C_INV}).
-	//	 * @param institution the name of the institution that has published the publication (see {@link PublicationCategory#TH}).
-	//	 * @param howPublished a description of the method of publication of a document (usually for {@link PublicationCategory#AP}).
-	//	 * @param documentType the name of a type of document  (usually for {@link PublicationCategory#AP} or
-	//	 *      {@link PublicationCategory#BRE}).
-	//	 * @throws Exception if the redirection to the page that is suporting the second stage has failed.
-	//	 * @see #addPublication(HttpServletRequest, HttpServletResponse, boolean, Integer)
-	//	 */
-	//	@PostMapping(value = "/createPublication", headers = "Accept=application/json")
-	//	public void createPublication(HttpServletResponse response,
-	//			@RequestParam String publicationType,
-	//			@RequestParam String publicationTitle,
-	//			@RequestParam String[] publicationAuthors,
-	//			@RequestParam int publicationYear,
-	//			@RequestParam(required = false) String publicationDate,
-	//			@RequestParam(required = false) String publicationAbstract,
-	//			@RequestParam(required = false) String publicationKeywords,
-	//			@RequestParam(required = false) String publicationDOI,
-	//			@RequestParam(required = false) String publicationISBN,
-	//			@RequestParam(required = false) String publicationISSN,
-	//			@RequestParam(required = false) String publicationURL,
-	//			@RequestParam(required = false) String publicationVideoURL,
-	//			@RequestParam(required = false) String publicationDblpURL,
-	//			@RequestParam(required = false) String publicationLanguage,
-	//			@RequestParam(required = false) MultipartFile publicationPdf,
-	//			@RequestParam(required = false) MultipartFile publicationAward,
-	//			@RequestParam(required = false) String volume,
-	//			@RequestParam(required = false) String number,
-	//			@RequestParam(required = false) String pages,
-	//			@RequestParam(required = false) String editors,
-	//			@RequestParam(required = false) String address,
-	//			@RequestParam(required = false) String series,
-	//			@RequestParam(required = false) String publisher,
-	//			@RequestParam(required = false) String edition,
-	//			@RequestParam(required = false) String bookTitle,
-	//			@RequestParam(required = false) String chapterNumber,
-	//			@RequestParam(required = false) String scientificEventName,
-	//			@RequestParam(required = false) String organization,
-	//			@RequestParam(required = false) String howPublished,
-	//			@RequestParam(required = false) String documentType,
-	//			@RequestParam(required = false) String institution) throws Exception {
-	//		try {
-	//			if (publicationAuthors == null) {
-	//				throw new IllegalArgumentException("You must specify at least one author"); //$NON-NLS-1$
-	//			}
-	//			final PublicationType publicationTypeEnum = PublicationType.valueOfCaseInsensitive(publicationType);
-	//			final Date publicationDateObj;
-	//			if (Strings.isNullOrEmpty(publicationDate)) {
-	//				publicationDateObj = null;
-	//			} else {
-	//				publicationDateObj = Date.valueOf(publicationDate);
-	//			}
-	//			final PublicationLanguage publicationLanguageEnum = PublicationLanguage.valueOfCaseInsensitive(publicationLanguage);
-	//
-	//			// First step : create the publication
-	//			final Publication publication = this.prePublicationFactory.createPrePublication(
-	//					publicationTypeEnum,
-	//					publicationTitle,
-	//					publicationAbstract,
-	//					publicationKeywords,
-	//					publicationDateObj,
-	//					publicationISBN,
-	//					publicationISSN,
-	//					publicationDOI,
-	//					publicationURL,
-	//					publicationVideoURL,
-	//					publicationDblpURL,
-	//					null,
-	//					null,
-	//					publicationLanguageEnum);
-	//			final int publicationId = publication.getId();
-	//
-	//			// Second step: Store PDFs
-	//			String concretePdfString = null;
-	//			if (publicationPdf != null && !publicationPdf.isEmpty()) {
-	//				final File filename = this.fileManager.makePdfFilename(publicationId);
-	//				final File folder = filename.getParentFile().getAbsoluteFile();
-	//				this.fileManager.saveFile(folder, filename.getName(), publicationPdf);
-	//				concretePdfString = filename.getPath();
-	//				getLogger().info("PDF uploaded at: " + concretePdfString); //$NON-NLS-1$
-	//			}
-	//
-	//			String concreteAwardString = null;
-	//			if (publicationAward != null && !publicationAward.isEmpty()) {
-	//				final File filename = this.fileManager.makeAwardFilename(publicationId);
-	//				final File folder = filename.getParentFile().getAbsoluteFile();
-	//				this.fileManager.saveFile(folder, filename.getName(), publicationPdf);
-	//				concreteAwardString = filename.getPath();
-	//				getLogger().info("Award certificate uploaded at: " + concreteAwardString); //$NON-NLS-1$
-	//			}
-	//
-	//			// Third step: save late attributes of the fake publication
-	//			publication.setPublicationYear(publicationYear);
-	//			publication.setPathToDownloadablePDF(concretePdfString);
-	//			publication.setPathToDownloadableAwardCertificate(concreteAwardString);
-	//
-	//			// Fourth step : create the specific publication type
-	//			final Class<? extends Publication> publicationClass = publicationTypeEnum.getInstanceType();
-	//
-	//			if (publicationClass.equals(Book.class)) {
-	//				this.bookService.createBook(publication, volume, number, pages, edition,
-	//						editors, series, publisher, address);
-	//			} else if (publicationClass.equals(BookChapter.class)) {
-	//				this.bookChapterService.createBookChapter(publication, bookTitle, chapterNumber, edition,
-	//						volume, number, pages, editors, series, publisher, address);
-	//			} else if (publicationClass.equals(ConferencePaper.class)) {
-	//				this.conferencePaperService.createConferencePaper(publication, scientificEventName,
-	//						volume, number, pages, editors, series, organization, address);
-	//			} else if (publicationClass.equals(JournalEdition.class)) {
-	//				this.journalEditionService.createJournalEdition(publication, volume, number, pages);
-	//			} else if (publicationClass.equals(JournalPaper.class)) {
-	//				this.journalPaperService.createJournalPaper(publication, volume, number, pages);
-	//			} else if (publicationClass.equals(KeyNote.class)) {
-	//				this.keyNoteService.createKeyNote(publication, scientificEventName, editors, organization, address);
-	//			} else if (publicationClass.equals(MiscDocument.class)) {
-	//				this.miscDocumentService.createMiscDocument(publication, number, howPublished, documentType,
-	//						organization, publisher, address);
-	//			} else if (publicationClass.equals(Patent.class)) {
-	//				this.patentService.createPatent(publication, number, documentType, institution, address);
-	//			} else if (publicationClass.equals(Report.class)) {
-	//				this.reportService.createReport(publication, number, documentType, institution, address);
-	//			} else if (publicationClass.equals(Thesis.class)) {
-	//				this.thesisService.createThesis(publication, institution, address);
-	//			} else {
-	//				throw new IllegalArgumentException("Unsupported publication type: " + publicationType); //$NON-NLS-1$
-	//			}
-	//			getLogger().info("Publication instance created: " + publicationClass.getSimpleName()); //$NON-NLS-1$
-	//
-	//			// Fifth step: create the authors and link them to the publication
-	//			int i = 0;
-	//			for (final String publicationAuthor : publicationAuthors) {
-	//				final String firstName = this.nameParser.parseFirstName(publicationAuthor);
-	//				final String lastName = this.nameParser.parseLastName(publicationAuthor);
-	//				int authorId = this.personService.getPersonIdByName(firstName, lastName);
-	//				if (authorId == 0) {
-	//					// The author does not exist yet
-	//					authorId = this.personService.createPerson(firstName, lastName, null, null, null);
-	//					getLogger().info("New person \"" + publicationAuthor + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
-	//				}
-	//				this.authorshipService.addAuthorship(authorId, publicationId, i);
-	//				getLogger().info("Author \"" + publicationAuthor + "\" added to publication with id " + publicationId); //$NON-NLS-1$ //$NON-NLS-2$
-	//				i++;
-	//			}
-	//
-	//			redirectToAddPublicationWithSuccessState(response);
-	//		} catch (Exception ex) {
-	//			redirectError(response, ex);
-	//		}
-	//	}
-	//
-	//	/** Create a model-view form that enables to edit a publication.
-	//	 * This function supports the second step for the creation of a publication.
-	//	 * It creates an edition form for the publication.
-	//	 * <p>
-	//	 * The "flash map" attributes may contains the {@code "bibtex"} fields that is a 
-	//	 * regular BibTeX description of the fields for the publication.
-	//	 * These BibTeX values are used for pre-filling the publication form.
-	//	 *
-	//	 * @param request the HTTP request.
-	//	 * @param response the HTTP response.
-	//	 * @param filling {@code true} to fill up the model-view form with the values of the publication's fields.
-	//	 *     If it is {@code false}, the fields of the form are not filled up.
-	//	 *     If the filling is turned on, the field values are obtained from a BibTeX description in the
-	//	 *     "flash map" of the HTTP request.
-	//	 * @param publicationId the identifier of the publication to be edited if it is provided.
-	//	 * @return the model-view object.
-	//	 * @throws Exception if the model-view cannot be created.
-	//	 * @see #createPublication(HttpServletResponse, String, String, String[], int, String, String, String, String, String, String, String, String, String, String, MultipartFile, MultipartFile, String, String, String, String, String, String, String, String, String, String, String, String, String, String, String)
-	//	 */
-	//	@GetMapping("/addPublication")
-	//	public ModelAndView addPublication(HttpServletRequest request, HttpServletResponse response,
-	//			@RequestParam(required = false) boolean filling,
-	//			@RequestParam(required = false) Integer publicationId) throws Exception  {
-	//		try {
-	//			Publication publication = null;
-	//			if (filling) {
-	//				final Map<String, ?> inputFlashMap = RequestContextUtils.getInputFlashMap(request);
-	//				if (inputFlashMap != null) {
-	//					String bibtex = (String)inputFlashMap.get("bibtex"); //$NON-NLS-1$
-	//					final List<Publication> pubs = this.bibtex.extractPublications(bibtex);
-	//					// TODO for now, we just take the first bibtex
-	//					publication = pubs.get(0);
-	//				} else {
-	//					throw new Exception("This bibtex does not fit with the publication filling."); //$NON-NLS-1$
-	//				}
-	//			} else if (publicationId != null) {
-	//				publication = this.publicationService.getPublication(publicationId.intValue());
-	//			}
-	//
-	//			final ModelAndView modelView = new ModelAndView("addPublication"); //$NON-NLS-1$
-	//
-	//			modelView.addObject("_journalService", this.journalService); //$NON-NLS-1$
-	//			modelView.addObject("_edit", Boolean.FALSE); //$NON-NLS-1$
-	//
-	//			final List<Journal> journals = this.journalService.getAllJournals();
-	//			modelView.addObject("_journals", journals); //$NON-NLS-1$
-	//
-	//			final List<Person> authors = this.personService.getAllPersons();
-	//			modelView.addObject("_authors", authors); //$NON-NLS-1$
-	//
-	//			final List<PublicationType> publicationsTypes = Arrays.asList(PublicationType.values());
-	//			modelView.addObject("_publicationsTypes", publicationsTypes); //$NON-NLS-1$
-	//
-	//			final List<QuartileRanking> publicationsQuartiles = Arrays.asList(QuartileRanking.values());
-	//			modelView.addObject("_publicationsQuartiles", publicationsQuartiles); //$NON-NLS-1$
-	//
-	//			final List<CoreRanking> jCoreRankings = Arrays.asList(CoreRanking.values());
-	//			modelView.addObject("_journalCoreRankings", jCoreRankings); //$NON-NLS-1$
-	//
-	//			// IF edit mode
-	//			if (publication != null && (publicationId != null || filling)) {
-	//				if (publicationId != null) {
-	//					modelView.addObject("authors", this.authorshipService.getAuthorsFor(publicationId.intValue())); //$NON-NLS-1$
-	//					modelView.addObject("_edit", Boolean.TRUE); //$NON-NLS-1$
-	//				} else if (filling) {
-	//					modelView.addObject("authors", publication.getAuthors()); //$NON-NLS-1$
-	//				}
-	//				modelView.addObject("_publication", publication); //$NON-NLS-1$
-	//
-	//				publication.forEachAttribute((name, value) -> {
-	//					modelView.addObject(name, value);
-	//				});
-	//			}
-	//
-	//			return modelView;
-	//		} catch(Exception ex) {
-	//			redirectError(response,  ex);
-	//		}
-	//		return null;
-	//	}
-	//
-	//	/** Update the fields of a publication.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @param publicationId the identifier of the publication to be edited.
-	//	 * @param publicationType the type of publication to be created.
-	//	 * @param publicationTitle the title of the publication.
-	//	 * @param publicationAuthors the ordered list of the authors. This list contains the names of the persons
-	//	 *     with a syntax that is supported by {@link PersonNameParser}, e.g., {@code "FIRST LAST"} or
-	//	 *     {@code "LAST, FIRST"}.
-	//	 * @param publicationYear the year of the publication.
-	//	 * @param publicationDate the full date of the publication in format {@code "YYYY-MM-DD"}.
-	//	 * @param publicationAbstract the text of the publication abstract.
-	//	 * @param publicationKeywords the keywords of the publication.
-	//	 * @param publicationDOI the DOI number of the publication.
-	//	 * @param publicationISBN the ISBN number of the publication.
-	//	 * @param publicationISSN the ISSN numver of the publication.
-	//	 * @param publicationURL an URL to a page that is associated to the publication.
-	//	 * @param publicationVideoURL an URL to a video associated to the publication.
-	//	 * @param publicationDblpURL the URL to the page of the publication on DBLP website.
-	//	 * @param publicationLanguage the major language with which the publication is written. By default,
-	//	 *     it is {@link PublicationLanguage#ENGLISH}.
-	//	 * @param publicationPdf the content of the PDF file of the publication that must be uploaded.
-	//	 * @param publicationAward the content of a document that represents an award certificate that must be uploaded.
-	//	 * @param volume the volume of the publication (common to most of the publication types).
-	//	 * @param number the number of the publication (common to most of the publication types).
-	//	 * @param pages the page range of the publication in its container (common to most of the publication types).
-	//	 * @param editors the list of the names of the editos of the publication's container (common to most of the publication types).
-	//	 * @param address the geographical location of the event in which the publication is published  (common to most of the publication types).
-	//	 *     It is usually a city and/or a country.
-	//	 * @param series the name or the number of series in which the publication is committed.
-	//	 * @param publisher the name of the publisher.
-	//	 * @param edition the number of name of the edition (or version) of the publication.
-	//	 * @param bookTitle the name of the book that contains the publication (usually for {@link PublicationCategory#COS} or
-	//	 *     {@link PublicationCategory#COV}).
-	//	 * @param chapterNumber the number or the name of the chapter that corresponds to the publication (usually for {@link PublicationCategory#COS} or
-	//	 *     {@link PublicationCategory#COV}).
-	//	 * @param scientificEventName the name of the scientific event for which the publication was committed. Usually,
-	//	 *     this event generates proceedings that contain the publication (see {@link PublicationCategory#C_ACTI},
-	//	 *     {@link PublicationCategory#C_ACTN}, {@link PublicationCategory#C_COM} or {@link PublicationCategory#C_INV}).
-	//	 * @param organization the name of the institution which have organized the scientific event in which the
-	//	 *     publication is published  (see {@link PublicationCategory#C_ACTI},
-	//	 *     {@link PublicationCategory#C_ACTN}, {@link PublicationCategory#C_COM} or {@link PublicationCategory#C_INV}).
-	//	 * @param institution the name of the institution that has published the publication (see {@link PublicationCategory#TH}).
-	//	 * @param howPublished a description of the method of publication of a document (usually for {@link PublicationCategory#AP}).
-	//	 * @param documentType the name of a type of document  (usually for {@link PublicationCategory#AP} or
-	//	 *      {@link PublicationCategory#BRE}).
-	//	 * @throws Exception if the redirection to the page that is suporting the second stage has failed.
-	//	 */
-	//	@PostMapping(value = "/editPublication", headers = "Accept=application/json")
-	//	public void editPublication(HttpServletResponse response,
-	//			@RequestParam Integer publicationId,
-	//			@RequestParam String publicationType,
-	//			@RequestParam String publicationTitle,
-	//			@RequestParam String[] publicationAuthors,
-	//			@RequestParam int publicationYear,
-	//			@RequestParam(required = false) String publicationDate,
-	//			@RequestParam(required = false) String publicationAbstract,
-	//			@RequestParam(required = false) String publicationKeywords,
-	//			@RequestParam(required = false) String publicationDOI,
-	//			@RequestParam(required = false) String publicationISBN,
-	//			@RequestParam(required = false) String publicationISSN,
-	//			@RequestParam(required = false) String publicationURL,
-	//			@RequestParam(required = false) String publicationVideoURL,
-	//			@RequestParam(required = false) String publicationDblpURL,
-	//			@RequestParam(required = false) String publicationLanguage,
-	//			@RequestParam(required = false) MultipartFile publicationPdf,
-	//			@RequestParam(required = false) MultipartFile publicationAward,
-	//			@RequestParam(required = false) String volume,
-	//			@RequestParam(required = false) String number,
-	//			@RequestParam(required = false) String pages,
-	//			@RequestParam(required = false) String editors,
-	//			@RequestParam(required = false) String address,
-	//			@RequestParam(required = false) String series,
-	//			@RequestParam(required = false) String publisher,
-	//			@RequestParam(required = false) String edition,
-	//			@RequestParam(required = false) String bookTitle,
-	//			@RequestParam(required = false) String chapterNumber,
-	//			@RequestParam(required = false) String scientificEventName,
-	//			@RequestParam(required = false) String organization,
-	//			@RequestParam(required = false) String howPublished,
-	//			@RequestParam(required = false) String documentType,
-	//			@RequestParam(required = false) String institution) throws Exception {
-	//		try {
-	//			if (publicationId == null) {
-	//				throw new IllegalArgumentException("null publication identifier"); //$NON-NLS-1$
-	//			}
-	//			if (publicationAuthors == null) {
-	//				throw new IllegalArgumentException("You must specify at least one author"); //$NON-NLS-1$
-	//			}
-	//			final PublicationType publicationTypeEnum = PublicationType.valueOfCaseInsensitive(publicationType);
-	//			final Date publicationDateObj;
-	//			if (Strings.isNullOrEmpty(publicationDate)) {
-	//				publicationDateObj = null;
-	//			} else {
-	//				publicationDateObj = Date.valueOf(publicationDate);
-	//			}
-	//			final PublicationLanguage publicationLanguageEnum = PublicationLanguage.valueOfCaseInsensitive(publicationLanguage);
-	//
-	//			final Publication pub = this.publicationService.getPublication(publicationId.intValue());
-	//			if (pub != null) {
-	//
-	//				// First step: Store PDFs
-	//				String concretePdfString = null;
-	//				if (publicationPdf != null && !publicationPdf.isEmpty()) {
-	//					final File filename = this.fileManager.makePdfFilename(publicationId.intValue());
-	//					final File folder = filename.getParentFile().getAbsoluteFile();
-	//					this.fileManager.saveFile(folder, filename.getName(), publicationPdf);
-	//					concretePdfString = filename.getPath();
-	//					getLogger().info("PDF uploaded at: " + concretePdfString); //$NON-NLS-1$
-	//				}
-	//
-	//				String concreteAwardString = null;
-	//				if (publicationAward != null && !publicationAward.isEmpty()) {
-	//					final File filename = this.fileManager.makeAwardFilename(publicationId.intValue());
-	//					final File folder = filename.getParentFile().getAbsoluteFile();
-	//					this.fileManager.saveFile(folder, filename.getName(), publicationPdf);
-	//					concreteAwardString = filename.getPath();
-	//					getLogger().info("Award certificate uploaded at: " + concreteAwardString); //$NON-NLS-1$
-	//				}
-	//
-	//				// Second step: Update the list of authors.
-	//
-	//				final List<Person> oldAuthors = this.authorshipService.getAuthorsFor(publicationId.intValue());
-	//				final List<Integer> oldAuthorIds = oldAuthors.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toList());
-	//
-	//				int i = 0;
-	//				for (final String publicationAuthor : publicationAuthors) {
-	//					final String firstName = this.nameParser.parseFirstName(publicationAuthor);
-	//					final String lastName = this.nameParser.parseLastName(publicationAuthor);
-	//					int authorId = this.personService.getPersonIdByName(firstName, lastName);
-	//					if (authorId == 0) {
-	//						// The author does not exist yet
-	//						authorId = this.personService.createPerson(firstName, lastName, null, null, null);
-	//						getLogger().info("New person \"" + publicationAuthor + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
-	//					} else {
-	//						oldAuthorIds.remove(Integer.valueOf(authorId));
-	//					}
-	//					final int finalAuthorId = authorId;
-	//					final Optional<Person> optPerson = oldAuthors.stream().filter(it -> it.getId() == finalAuthorId).findFirst();
-	//					if (optPerson.isPresent()) {
-	//						// Author is already present
-	//						this.authorshipService.updateAuthorship(authorId, publicationId.intValue(), i);
-	//						getLogger().info("Author \"" + publicationAuthor + "\" updated for the publication with id " + publicationId); //$NON-NLS-1$ //$NON-NLS-2$
-	//					} else {
-	//						// Author was not associated yet
-	//						this.authorshipService.addAuthorship(authorId, publicationId.intValue(), i);
-	//						getLogger().info("Author \"" + publicationAuthor + "\" added to publication with id " + publicationId); //$NON-NLS-1$ //$NON-NLS-2$
-	//					}
-	//					i++;
-	//				}
-	//
-	//				// Remove the old author ships
-	//				for (final Integer id : oldAuthorIds) {
-	//					this.authorshipService.removeAuthorship(id.intValue(), publicationId.intValue());
-	//				}
-	//
-	//				// Third step : update the specific publication
-	//				final Class<? extends Publication> publicationClass = publicationTypeEnum.getInstanceType();
-	//
-	//				if (publicationClass.equals(Book.class)) {
-	//					this.bookService.updateBook(
-	//							publicationId.intValue(),
-	//							publicationTitle, publicationTypeEnum,
-	//							publicationDateObj, publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL, publicationLanguageEnum,
-	//							concretePdfString, concreteAwardString, publicationVideoURL,
-	//							volume, number, pages, edition, editors,
-	//							series, publisher, address);
-	//				} else if (publicationClass.equals(BookChapter.class)) {
-	//					this.bookChapterService.updateBookChapter(
-	//							publicationId.intValue(), 
-	//							publicationTitle, publicationTypeEnum, publicationDateObj,
-	//							publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL,
-	//							publicationLanguageEnum,
-	//							concretePdfString, concreteAwardString, publicationVideoURL,
-	//							bookTitle, chapterNumber, edition,
-	//							volume, number, pages, editors, series,
-	//							publisher, address);
-	//				} else if (publicationClass.equals(ConferencePaper.class)) {
-	//					this.conferencePaperService.updateConferencePaper(
-	//							publicationId.intValue(),
-	//							publicationTitle, publicationTypeEnum, publicationDateObj,
-	//							publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL,
-	//							publicationLanguageEnum, concretePdfString, concreteAwardString,
-	//							publicationVideoURL, scientificEventName, volume, number,
-	//							pages, editors, series, organization, address);
-	//				} else if (publicationClass.equals(JournalEdition.class)) {
-	//					this.journalEditionService.updateJournalEdition(
-	//							publicationId.intValue(),
-	//							publicationTitle, publicationTypeEnum, publicationDateObj,
-	//							publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL,
-	//							publicationLanguageEnum, concretePdfString, concreteAwardString,
-	//							publicationVideoURL, volume, number, pages);
-	//				} else if (publicationClass.equals(JournalPaper.class)) {
-	//					this.journalPaperService.updateJournalPaper(
-	//							publicationId.intValue(),
-	//							publicationTitle, publicationTypeEnum, publicationDateObj,
-	//							publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL,
-	//							publicationLanguageEnum, concretePdfString, concreteAwardString,
-	//							publicationVideoURL, volume, number, pages);
-	//				} else if (publicationClass.equals(KeyNote.class)) {
-	//					this.keyNoteService.updateKeyNote(
-	//							publicationId.intValue(),
-	//							publicationTitle, publicationTypeEnum, publicationDateObj,
-	//							publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL,
-	//							publicationLanguageEnum, concretePdfString, concreteAwardString,
-	//							publicationVideoURL, scientificEventName, editors, organization, address);
-	//				} else if (publicationClass.equals(MiscDocument.class)) {
-	//					this.miscDocumentService.updateMiscDocument(
-	//							publicationId.intValue(),
-	//							publicationTitle, publicationTypeEnum, publicationDateObj,
-	//							publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL,
-	//							publicationLanguageEnum, concretePdfString, concreteAwardString,
-	//							publicationVideoURL, number, howPublished, documentType,
-	//							organization, publisher, address);
-	//				} else if (publicationClass.equals(Patent.class)) {
-	//					this.patentService.updatePatent(
-	//							publicationId.intValue(),
-	//							publicationTitle, publicationTypeEnum, publicationDateObj,
-	//							publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL,
-	//							publicationLanguageEnum, concretePdfString, concreteAwardString,
-	//							publicationVideoURL, number, documentType, institution, address);
-	//				} else if (publicationClass.equals(Report.class)) {
-	//					this.reportService.updateReport(
-	//							publicationId.intValue(),
-	//							publicationTitle, publicationTypeEnum, publicationDateObj,
-	//							publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL,
-	//							publicationLanguageEnum, concretePdfString, concreteAwardString,
-	//							publicationVideoURL, number, documentType, institution, address);
-	//				} else if (publicationClass.equals(Thesis.class)) {
-	//					this.thesisService.updateThesis(
-	//							publicationId.intValue(),
-	//							publicationTitle, publicationTypeEnum, publicationDateObj,
-	//							publicationAbstract, publicationKeywords,
-	//							publicationDOI, publicationISBN, publicationISSN,
-	//							publicationDblpURL, publicationURL,
-	//							publicationLanguageEnum, concretePdfString, concreteAwardString,
-	//							publicationVideoURL, institution, address);
-	//				} else {
-	//					throw new IllegalArgumentException("Unsupported publication type: " + publicationType); //$NON-NLS-1$
-	//				}
-	//				getLogger().info("Publication instance updated: " + publicationId); //$NON-NLS-1$
-	//			}
-	//			redirectToAddPublicationWithEditState(response, publicationId.intValue());
-	//		} catch (Exception ex) {
-	//			redirectError(response, ex);
-	//		}
-	//	}
-	//
+	/** Show the editor for a publication. This editor permits to create or to edit apublication.
+	 *
+	 * @param publication the identifier of the publication to edit. If it is {@code null}, the endpoint
+	 *     is dedicated to the creation of a publication.
+	 * @param success flag that indicates the previous operation was a success.
+	 * @param failure flag that indicates the previous operation was a failure.
+	 * @param message the message that is associated to the state of the previous operation.
+	 * @param username the login of the logged-in person.
+	 * @return the model-view object.
+	 * @throws IOException if there is some internal IO error when building the form's data.
+	 */
+	@GetMapping(value = "/" + Constants.PUBLICATION_EDITING_ENDPOINT)
+	public ModelAndView showPublicationEditor(
+			@RequestParam(required = false, name = "id") Integer publication,
+			@RequestParam(required = false, defaultValue = "false") Boolean success,
+			@RequestParam(required = false, defaultValue = "false") Boolean failure,
+			@RequestParam(required = false) String message,
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws IOException {
+		final ModelAndView modelAndView = new ModelAndView("publicationEditor"); //$NON-NLS-1$
+		//
+		final Publication publicationObj;
+		if (publication != null && publication.intValue() != 0) {
+			publicationObj = this.publicationService.getPublicationById(publication.intValue());
+			if (publicationObj == null) {
+				throw new IllegalArgumentException("Publication not found: " + publication); //$NON-NLS-1$
+			}
+		} else {
+			publicationObj = null;
+		}
+		//
+		initModelViewProperties(modelAndView, username, success, failure, message);
+		if (publicationObj != null) {
+			// Provide the attributes of the publication
+			publicationObj.forEachAttribute((attrName, attrValue) -> {
+				// Specific treatment of fields that are considered as shared among multiple publication types
+				if ("reportNumber".equals(attrName) || "patentNumber".equals(attrName) || "documentNumber".equals(attrName)) { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					modelAndView.addObject("shared_number", attrValue); //$NON-NLS-1$
+				} else if ("reportType".equals(attrName) || "patentType".equals(attrName)) {  //$NON-NLS-1$//$NON-NLS-2$
+					modelAndView.addObject("shared_documentType", attrValue); //$NON-NLS-1$
+				} else {
+					modelAndView.addObject("shared_" + attrName, attrValue); //$NON-NLS-1$
+				}
+			});
+		}
+
+		// Create the mapping from type name to input field
+		final Map<String, String> requiredFields = new TreeMap<>();
+		final Map<String, Set<String>> typeFieldMapping = new HashMap<>();
+		for (final PublicationType ptype : PublicationType.values()) {
+			final Class<?> ctype = ptype.getInstanceType();
+			final String type = ctype.getSimpleName();
+			typeFieldMapping.computeIfAbsent(type, it -> {
+				return buildHtmlElementMapping(ctype, requiredFields);
+			});
+		}
+		modelAndView.addObject("typeFieldMapping", typeFieldMapping); //$NON-NLS-1$
+		modelAndView.addObject("requiredFields", requiredFields); //$NON-NLS-1$
+
+		// Special injection of attributes
+		if (publicationObj != null) {
+			// Provide more information about uploaded files
+			final Object pdfPath = modelAndView.getModel().get("shared_pathToDownloadablePDF"); //$NON-NLS-1$
+			if (pdfPath != null && !Strings.isNullOrEmpty(pdfPath.toString())) {
+				modelAndView.addObject("pathToDownloadablePDF_basename", FileSystem.largeBasename(pdfPath.toString())); //$NON-NLS-1$
+				modelAndView.addObject("pathToDownloadablePDF_picture", this.fileManager.makePdfPictureFilename(publicationObj.getId())); //$NON-NLS-1$
+			}
+
+			final Object awardPath = modelAndView.getModel().get("shared_pathToDownloadableAwardCertificate"); //$NON-NLS-1$
+			if (awardPath != null && !Strings.isNullOrEmpty(awardPath.toString())) {
+				modelAndView.addObject("pathToDownloadableAwardCertificate_basename", FileSystem.largeBasename(awardPath.toString())); //$NON-NLS-1$
+				modelAndView.addObject("pathToDownloadableAwardCertificate_picture", this.fileManager.makeAwardPictureFilename(publicationObj.getId())); //$NON-NLS-1$
+			}
+
+			// Provide a YEAR-MONTH publication date
+			if (publicationObj.getPublicationDate() != null) {
+				final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM"); //$NON-NLS-1$
+				modelAndView.addObject("dateYearMonth", publicationObj.getPublicationDate().format(formatter)); //$NON-NLS-1$
+			}
+			if (publicationObj instanceof JournalBasedPublication) {
+				final JournalBasedPublication jbp = (JournalBasedPublication) publicationObj;
+				final Journal journal = jbp.getJournal();
+				if (journal != null) {
+					modelAndView.addObject("journalIdentifier", Integer.valueOf(journal.getId())); //$NON-NLS-1$
+				}
+			}
+		}
+
+		// Provide the list of journals
+		modelAndView.addObject("journals", this.journalService.getAllJournals()); //$NON-NLS-1$
+		modelAndView.addObject("publication", publicationObj); //$NON-NLS-1$
+		modelAndView.addObject("defaultPublicationType", PublicationType.INTERNATIONAL_JOURNAL_PAPER); //$NON-NLS-1$
+		modelAndView.addObject("formActionUrl", "/" + Constants.PUBLICATION_SAVING_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
+		//
+		return modelAndView;
+	}
+
+	private static Set<String> buildHtmlElementMapping(Class<?> jtype, Map<String, String> required) {
+		final Set<String> elements = new TreeSet<>();
+		final boolean isJournalType = JournalBasedPublication.class.isAssignableFrom(jtype);
+		if (isJournalType) {
+			elements.add("dynamic-form-group-journal"); //$NON-NLS-1$
+		} else {
+			elements.add("dynamic-form-group-isbn"); //$NON-NLS-1$
+			elements.add("dynamic-form-group-issn"); //$NON-NLS-1$
+		}
+		for (final Method method : jtype.getDeclaredMethods()) {
+			final String bname = method.getName();
+			if (bname.startsWith("get") && method.getParameterCount() == 0 && String.class.equals(method.getReturnType())) { //$NON-NLS-1$
+				try {
+					String attrName = bname.substring(3);
+					final String setterName = "set" + attrName; //$NON-NLS-1$
+					jtype.getDeclaredMethod(setterName, String.class);
+					final String fieldName = StringUtils.uncapitalize(attrName);
+					attrName = attrName.replaceAll("([A-Z]+)", "-$1"); //$NON-NLS-1$ //$NON-NLS-2$
+					attrName = attrName.toLowerCase();
+					if (attrName.endsWith("-number") && !"-chapter-number".equals(attrName)) { //$NON-NLS-1$ //$NON-NLS-2$
+						attrName = "-number"; //$NON-NLS-1$
+					} else if (attrName.endsWith("-type") ) { //$NON-NLS-1$
+						attrName = "-document-type"; //$NON-NLS-1$
+					} else if ("-isbn".equals(attrName) || "-issn".equals(attrName)) { //$NON-NLS-1$ //$NON-NLS-2$
+						attrName = null;
+					}
+					if (attrName != null) {
+						final String htmlElement = "dynamic-form-group" + attrName; //$NON-NLS-1$
+						elements.add(htmlElement);
+						if (method.isAnnotationPresent(RequiredFieldInForm.class)) {
+							required.put(htmlElement, fieldName);
+						}
+					}
+				} catch (Throwable ex) {
+					//
+				}
+			}
+		}
+		return elements;
+	}
+
+	/** Saving information of a publication. 
+	 *
+	 * @param publication the identifier of the publication. If the identifier is not provided, this endpoint is supposed to create
+	 *     a publication in the database.
+	 * @param pathToDownloadablePDF the uploaded PDF file for the publication.
+	 * @param pathToDownloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @param allParameters the map of all the request string-based parameters.
+	 * @param username the login of the logged-in person.
+	 * @param response the HTTP response to the client.
+	 */
+	@PostMapping(value = "/" + Constants.PUBLICATION_SAVING_ENDPOINT)
+	public void savePublication(
+			@RequestParam(required = false) Integer publication,
+			@RequestParam(required = false) MultipartFile pathToDownloadablePDF,
+			@RequestParam(required = false) MultipartFile pathToDownloadableAwardCertificate,
+			@RequestParam Map<String, String> allParameters,
+			@CurrentSecurityContext(expression="authentication?.name") String username,
+			HttpServletResponse response) {
+		if (isLoggedUser(username).booleanValue()) {
+			int uploadedPdfFile = 0;
+			int uploadedAwardFile = 0;
+			Optional<Publication> optPublication = Optional.empty();
+			try {
+				// The "type" parameter format is more complex than a simple enumeration constant.
+				// It it the PublicationType constant followed by the category label.
+				// We must reformat the type value to have only a enumeration constant.
+				String typeValue = ensureString(allParameters, "type"); //$NON-NLS-1$
+				typeValue = StringUtils.substringBefore(typeValue, "/"); //$NON-NLS-1$
+				allParameters.put("type", typeValue); //$NON-NLS-1$
+				//
+				final boolean newPublication;
+				if (publication == null) {
+					newPublication = true;
+					optPublication = this.publicationService.createPublicationFromMap(allParameters,
+							pathToDownloadablePDF, pathToDownloadableAwardCertificate);
+				} else {
+					newPublication = false;
+					optPublication = this.publicationService.updatePublicationFromMap(publication.intValue(), allParameters,
+							pathToDownloadablePDF, pathToDownloadableAwardCertificate);
+				}
+				if (optPublication.isEmpty()) {
+					throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
+				}
+				//
+				redirectSuccessToEndPoint(response, Constants.PUBLICATION_EDITING_ENDPOINT,
+						getMessage(
+								newPublication ? "publicationController.AdditionSuccess" //$NON-NLS-1$
+										: "publicationController.EditionSuccess", //$NON-NLS-1$
+										optPublication.get().getTitle(),	
+										Integer.valueOf(optPublication.get().getId())));
+			} catch (Throwable ex) {
+				// Delete created publication
+				if (optPublication.isPresent()) {
+					try {
+						this.publicationService.removePublication(optPublication.get().getId(), true);
+					} catch (Throwable ex0) {
+						// Silent
+					}
+				}
+				// Delete any uploaded file
+				if (uploadedPdfFile != 0) {
+					try {
+						this.fileManager.deleteDownloadablePublicationPdfFile(uploadedPdfFile);
+					} catch (Throwable ex0) {
+						// Silent
+					}
+				}
+				if (uploadedAwardFile != 0) {
+					try {
+						this.fileManager.deleteDownloadableAwardPdfFile(uploadedAwardFile);
+					} catch (Throwable ex0) {
+						// Silent
+					}
+				}
+				redirectFailureToEndPoint(response, Constants.PUBLICATION_EDITING_ENDPOINT, ex.getLocalizedMessage());
+			}
+		} else {
+			redirectFailureToEndPoint(response, Constants.PUBLICATION_EDITING_ENDPOINT, getMessage("all.notLogged")); //$NON-NLS-1$
+		}
+	}
+
+	/** Delete a publication from the database.
+	 *
+	 * @param publication the identifier of the publication.
+	 * @param username the login of the logged-in person.
+	 * @return the HTTP response.
+	 */
+	@DeleteMapping("/deletePublication")
+	public ResponseEntity<Integer> deletePublication(
+			@RequestParam Integer publication,
+			@CurrentSecurityContext(expression="authentication?.name") String username) {
+		if (isLoggedUser(username).booleanValue()) {
+			try {
+				if (publication == null || publication.intValue() == 0) {
+					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+				}
+				this.publicationService.removePublication(publication.intValue(), true);
+				return new ResponseEntity<>(publication, HttpStatus.OK);
+			} catch (Exception ex) {
+				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			}
+		}
+		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+	}
+
 	//	/** Import publications from a BibTeX string. The format of the BibTeX is a standard that is briefly described
 	//	 * on {@link "https://en.wikipedia.org/wiki/BibTeX"}.
 	//	 * If multiple BibTeX entries are defined into the given input string, each of them is subject

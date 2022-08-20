@@ -29,6 +29,7 @@ import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
@@ -157,21 +158,15 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 	public String getWherePublishedShortDescription() {
 		final StringBuilder buf = new StringBuilder();
 		buf.append(getJournal().getJournalName());
-		final boolean b0 = !Strings.isNullOrEmpty(getVolume());
-		final boolean b1 = !Strings.isNullOrEmpty(getNumber());
-		if (b0 || b1) {
-			buf.append(", "); //$NON-NLS-1$
-			if (b0) {
-				buf.append(getVolume());
-			}
-			if (b1) {
-				buf.append("("); //$NON-NLS-1$
-				buf.append(getNumber());
-				buf.append(")"); //$NON-NLS-1$
-			}
+		if (!Strings.isNullOrEmpty(getVolume())) {
+			buf.append(", vol. "); //$NON-NLS-1$
+			buf.append(getVolume());
 		}
-		final boolean b2 = !Strings.isNullOrEmpty(getPages());
-		if (b2) {
+		if (!Strings.isNullOrEmpty(getNumber())) {
+			buf.append(", n. "); //$NON-NLS-1$
+			buf.append(getNumber());
+		}
+		if (!Strings.isNullOrEmpty(getPages())) {
 			buf.append(", pp. "); //$NON-NLS-1$
 			buf.append(getPages());
 		}
@@ -255,6 +250,7 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 	}
 
 	@Override
+	@RequiredFieldInForm
 	public Journal getJournal() {
 		return this.journal;
 	}

@@ -233,7 +233,7 @@ public class ResearchOrganizationController extends AbstractController {
 	 * @return the HTTP response.
 	 */
 	@DeleteMapping("/deleteOrganization")
-	public ResponseEntity<Integer> deletePerson(
+	public ResponseEntity<Integer> deleteOrganization(
 			@RequestParam Integer organization,
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
 		if (isLoggedUser(username).booleanValue()) {

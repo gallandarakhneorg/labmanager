@@ -54,6 +54,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PersonService}.
  * 
@@ -74,6 +75,8 @@ public class PersonServiceTest {
 
 	private Person pers3;
 
+	private MessageSourceAccessor messages;
+
 	private PublicationRepository publicationRepository;
 
 	private AuthorshipRepository authorshipRepository;
@@ -88,6 +91,7 @@ public class PersonServiceTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.publicationRepository = mock(PublicationRepository.class);
 		this.authorshipRepository = mock(AuthorshipRepository.class);
 		this.personRepository = mock(PersonRepository.class);
@@ -95,7 +99,7 @@ public class PersonServiceTest {
 		this.nameParser = new DefaultPersonNameParser();
 		// Create a real comparator instance to be used in the test
 		this.nameComparator = new SorensenDicePersonNameComparator(this.nameParser);
-		this.test = new PersonService(this.publicationRepository, this.authorshipRepository, this.personRepository,
+		this.test = new PersonService(this.messages, this.publicationRepository, this.authorshipRepository, this.personRepository,
 				this.nameParser, this.nameComparator);
 
 		// Prepare some persons to be inside the repository

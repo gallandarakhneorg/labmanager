@@ -477,18 +477,18 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			final Publication finalPublication;
 			switch (type) {
 			case INTERNATIONAL_JOURNAL_PAPER:
-				final JournalPaper journalPaper = this.journalPaperService.createJournalPaper(genericPublication,
-						field(entry, KEY_VOLUME),
-						field(entry, KEY_NUMBER),
-						field(entry, KEY_PAGES),
-						field(entry, KEY_SERIES),
-						false);
 				final String journalName = field(entry, KEY_JOURNAL);
 				final Journal journal = this.journalService.getJournalByName(journalName);
 				if (journal == null) {
 					throw new IllegalArgumentException("Unknown journal for entry " + key.getValue() + ": " + journalName); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				journalPaper.setJournal(journal);
+				final JournalPaper journalPaper = this.journalPaperService.createJournalPaper(genericPublication,
+						field(entry, KEY_VOLUME),
+						field(entry, KEY_NUMBER),
+						field(entry, KEY_PAGES),
+						field(entry, KEY_SERIES),
+						journal,
+						false);
 				finalPublication = journalPaper;
 				break;
 			case INTERNATIONAL_CONFERENCE_PAPER:

@@ -4,6 +4,11 @@
 <th:block th:replace="fragments/head :: style" />
 <th:block th:replace="fragments/head :: script" />
 
+<th:block th:if="${changeEnabled}">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+	<th:block th:replace="fragments/head :: scriptDeletionButton"></th:block>
+</th:block>
+
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
     <thead>
         <th th:text="#{html.Id}"></th>
@@ -41,6 +46,14 @@
             	<th:block th:utext="${publication.wherePublishedShortDescription}"></th:block>
             </td>
             <td>
+            	<a th:href="@{/publicationEditor(id=${publication.id})}" th:if="${changeEnabled}">
+            		<img th:src="@{/images/icon/edit_icon.svg}" th:title="#{html.EditPublication1(${publication.title})}" style="max-width:24px;"></img>
+            	</a>
+           		<img th:src="@{/images/icon/edit_icon.svg}" th:unless="${changeEnabled}"
+           		     th:title="#{html.EditPublication1(${publication.title})}" style="max-width:24px;"></img>
+           		<img th:id="${'btDeleteButton' + publication.id}"
+           		     th:src="@{/images/icon/delete_icon.svg}" th:title="#{html.DeletePublication1(${publication.title})}"
+           		     th:style="${changeEnabled} ? 'max-width:24px;cursor: pointer;' : 'max-width:24px;'"></img>
             	<a th:href="@{/exportBibTeX(id=${publication.id},inAttachment=true)}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${publication.title})}" style="max-width:24px;"></img>
             	</a>
@@ -81,11 +94,27 @@
             	{ },
                 {
                     "orderable": false,
-                    "width": "110px"
+                    "width": "165px"
                 }
             ],
         });
     });
+
+
+    /*[# th:if="${changeEnabled}" th:each="publication : ${publications}"]*/
+    installDeletionButtonCallback(
+    		$("[(${'#btDeleteButton' + publication.id})]"),
+    		"[(#{html.DeletePublication1(${publication.title})})]",
+    		"[(#{html.AreYouSureToDelete(${publication.title})})]",
+    		"[(@{/deletePublication(publication=${publication.id})})]",
+    		"[(#{html.PublicationDeleted})]",
+    		"[(#{html.CannotDeletePublication})]",
+    		"[(${publication.title})]",
+    		function (e) {
+    			location.reload();
+    		} );
+
+    /*[/]*/
 
 </script>
 </html>

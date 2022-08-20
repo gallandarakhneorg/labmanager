@@ -26,10 +26,11 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.ConferencePaperRepository;
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
-import fr.ciadlab.labmanager.utils.files.DownloadableFileManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
 
 /** Service for managing papers for conferences and workshops.
@@ -48,12 +49,15 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
+	 * @param messages the provider of localized messages.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param repository the repository for this service.
 	 */
-	public ConferencePaperService(@Autowired DownloadableFileManager downloadableFileManager,
+	public ConferencePaperService(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired ConferencePaperRepository repository) {
-		super(downloadableFileManager);
+		super(messages, downloadableFileManager);
 		this.repository = repository;
 	}
 
@@ -149,6 +153,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 *     with {@code AND}.
 	 * @param series the number or the name of the series for the conference proceedings.
 	 * @param orga the name of the organization institution.
+	 * @param publisher the publisher of the proceedings of the conference.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 */
 	public void updateConferencePaper(int pubId,
@@ -156,7 +161,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String scientificEventName, String volume, String number,
-			String pages, String editors, String series, String orga, String address) {
+			String pages, String editors, String series, String orga, String publisher, String address) {
 		final Optional<ConferencePaper> res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
 			final ConferencePaper paper = res.get();
@@ -173,8 +178,9 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 			paper.setEditors(Strings.emptyToNull(editors));
 			paper.setSeries(Strings.emptyToNull(series));
 			paper.setOrganization(Strings.emptyToNull(orga));
+			paper.setPublisher(Strings.emptyToNull(publisher));
 			paper.setAddress(Strings.emptyToNull(address));
-
+			
 			this.repository.save(res.get());
 		}
 	}

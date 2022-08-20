@@ -53,6 +53,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ResearchOrganizationService}.
  * 
@@ -73,6 +74,8 @@ public class ResearchOrganizationServiceTest {
 
 	private ResearchOrganization orga3;
 
+	private MessageSourceAccessor messages;
+
 	private ResearchOrganizationRepository organizationRepository;
 
 	private MembershipRepository membershipRepository;
@@ -83,10 +86,11 @@ public class ResearchOrganizationServiceTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.organizationRepository = mock(ResearchOrganizationRepository.class);
 		this.membershipRepository = mock(MembershipRepository.class);
 		this.personRepository = mock(PersonRepository.class);
-		this.test = new ResearchOrganizationService(this.organizationRepository,
+		this.test = new ResearchOrganizationService(this.messages, this.organizationRepository,
 				this.membershipRepository, this.personRepository);
 
 		// Prepare some organizations to be inside the repository

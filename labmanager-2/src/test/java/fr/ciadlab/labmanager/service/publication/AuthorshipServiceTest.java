@@ -51,6 +51,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link AuthorshipService}.
  * 
@@ -79,6 +80,8 @@ public class AuthorshipServiceTest {
 
 	private Authorship a2;
 
+	private MessageSourceAccessor messages;
+
 	private PublicationRepository publicationRepository;
 
 	private AuthorshipRepository authorshipRepository;
@@ -93,12 +96,13 @@ public class AuthorshipServiceTest {
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = mock(MessageSourceAccessor.class);
 		this.publicationRepository = mock(PublicationRepository.class);
 		this.authorshipRepository = mock(AuthorshipRepository.class);
 		this.personRepository = mock(PersonRepository.class);
 		this.personService = mock(PersonService.class);
 		this.nameParser = mock(PersonNameParser.class);
-		this.test = new AuthorshipService(this.publicationRepository, this.authorshipRepository,
+		this.test = new AuthorshipService(this.messages, this.publicationRepository, this.authorshipRepository,
 				this.personRepository, this.personService, this.nameParser);
 
 		// Prepare some publications to be inside the repository
@@ -470,7 +474,7 @@ public class AuthorshipServiceTest {
 	private void createNameParserInstance() {
 		// Force the name parser to be a real instance
 		this.nameParser = new DefaultPersonNameParser();
-		this.test = new AuthorshipService(this.publicationRepository, this.authorshipRepository,
+		this.test = new AuthorshipService(this.messages, this.publicationRepository, this.authorshipRepository,
 				this.personRepository, this.personService, this.nameParser);
 	}
 
