@@ -2,11 +2,11 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <th:block th:replace="fragments/head :: style" />
-<th:block th:replace="fragments/head :: script" />
+<th:block th:replace="fragments/head :: sharedScript" />
 
 <th:block th:if="${changeEnabled}">
 	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
-	<th:block th:replace="fragments/head :: scriptDeletionButton"></th:block>
+	<th:block th:replace="fragments/head :: sharedScriptDeletionButton"></th:block>
 </th:block>
 
 <table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
@@ -28,11 +28,11 @@
             	<th:block th:utext="${publication.title}"></th:block>
             </td>
             <td>
-            	<th:block th:each="author, iAuthor : ${publication.authors}">
-                    <th:block th:if="${!iAuthor.first}"
+            	<th:block th:each="authorship, iAuthorship : ${publication.authorships}">
+                    <th:block th:if="${!iAuthorship.first}"
                               th:utext="', '"></th:block>
-					<a th:href="@{/publicationStats(id=${author.id})}">
-	                    <th:block th:utext="${author.fullName}"></th:block>
+					<a th:href="@{/publicationStats(id=${authorship.person.id})}">
+	                    <th:block th:utext="${authorship.person.fullName + '(' + authorship.authorRank + ')'}"></th:block>
 					</a>
             	</th:block>
             </td>

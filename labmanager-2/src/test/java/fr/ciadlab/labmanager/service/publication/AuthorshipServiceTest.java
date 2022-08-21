@@ -28,6 +28,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
@@ -256,39 +257,17 @@ public class AuthorshipServiceTest {
 	}
 
 	@Test
-	public void addAuthorship_IntInt_oldAuthorship() {
-		final boolean r = this.test.addAuthorship(12345, 1234);
-		assertFalse(r);
-		final ArgumentCaptor<Authorship> arg = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, never()).save(arg.capture());
-	}
-
-	@Test
-	public void addAuthorship_IntInt_newAuthorship() {
-		final boolean r = this.test.addAuthorship(12345, 2345);
-		assertTrue(r);
-
-		final ArgumentCaptor<Authorship> arg = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, atLeastOnce()).save(arg.capture());
-		final Authorship actual = arg.getValue();
-		assertNotNull(actual);
-		assertSame(this.pers0, actual.getPerson());
-		assertSame(this.pub1, actual.getPublication());
-		assertEquals(1, actual.getAuthorRank());
-	}
-
-	@Test
 	public void addAuthorship_IntIntInt_oldAuthorship() {
-		final boolean r = this.test.addAuthorship(12345, 1234, 1);
-		assertFalse(r);
+		final Authorship autship = this.test.addAuthorship(12345, 1234, 1, true);
+		assertNotNull(autship);
 		final ArgumentCaptor<Authorship> arg = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, never()).save(arg.capture());
+		verify(this.authorshipRepository, times(1)).save(arg.capture());
 	}
 
 	@Test
 	public void addAuthorship_IntIntInt_newAuthorship_insertAsFirstAuthor() {
-		final boolean r = this.test.addAuthorship(12345, 2345, 0);
-		assertTrue(r);
+		final Authorship autship = this.test.addAuthorship(12345, 2345, 0, true);
+		assertNotNull(autship);
 
 		final ArgumentCaptor<Authorship> arg = ArgumentCaptor.forClass(Authorship.class);
 		verify(this.authorshipRepository, atLeastOnce()).save(arg.capture());
@@ -301,8 +280,8 @@ public class AuthorshipServiceTest {
 
 	@Test
 	public void addAuthorship_IntIntInt_newAuthorship_insertAsSecondAuthor() {
-		final boolean r = this.test.addAuthorship(12345, 2345, 1);
-		assertTrue(r);
+		final Authorship autship = this.test.addAuthorship(12345, 2345, 1, true);
+		assertNotNull(autship);
 
 		final ArgumentCaptor<Authorship> arg = ArgumentCaptor.forClass(Authorship.class);
 		verify(this.authorshipRepository, atLeastOnce()).save(arg.capture());
@@ -310,13 +289,13 @@ public class AuthorshipServiceTest {
 		assertNotNull(actual);
 		assertSame(this.pers0, actual.getPerson());
 		assertSame(this.pub1, actual.getPublication());
-		assertEquals(1, actual.getAuthorRank());
+		assertEquals(0, actual.getAuthorRank());
 	}
 
 	@Test
 	public void addAuthorship_IntIntInt_newAuthorship_insertWithOutRangedRank() {
-		final boolean r = this.test.addAuthorship(12345, 2345, 100);
-		assertTrue(r);
+		final Authorship autship = this.test.addAuthorship(12345, 2345, 100, true);
+		assertNotNull(autship);
 
 		final ArgumentCaptor<Authorship> arg = ArgumentCaptor.forClass(Authorship.class);
 		verify(this.authorshipRepository, atLeastOnce()).save(arg.capture());
@@ -324,12 +303,12 @@ public class AuthorshipServiceTest {
 		assertNotNull(actual);
 		assertSame(this.pers0, actual.getPerson());
 		assertSame(this.pub1, actual.getPublication());
-		assertEquals(1, actual.getAuthorRank());
+		assertEquals(0, actual.getAuthorRank());
 	}
 
 	@Test
 	public void removeAuthorship_removeExisting() {
-		final boolean r = this.test.removeAuthorship(12345, 1234);
+		final boolean r = this.test.removeAuthorship(12345, 1234, true);
 		assertTrue(r);
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
@@ -344,7 +323,7 @@ public class AuthorshipServiceTest {
 
 	@Test
 	public void removeAuthorship_removeUnknown() {
-		final boolean r = this.test.removeAuthorship(12345, 2345);
+		final boolean r = this.test.removeAuthorship(12345, 2345, true);
 		assertFalse(r);
 	}
 
@@ -402,7 +381,7 @@ public class AuthorshipServiceTest {
 		assertNotNull(newAuthorship);
 		assertEquals(34567, newAuthorship.getPerson().getId());
 		assertEquals(1234, newAuthorship.getPublication().getId());
-		assertEquals(1, newAuthorship.getAuthorRank());
+		assertEquals(0, newAuthorship.getAuthorRank());
 
 		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());
@@ -438,7 +417,7 @@ public class AuthorshipServiceTest {
 		assertNotNull(newAuthorship);
 		assertEquals(34567, newAuthorship.getPerson().getId());
 		assertEquals(1234, newAuthorship.getPublication().getId());
-		assertEquals(1, newAuthorship.getAuthorRank());
+		assertEquals(0, newAuthorship.getAuthorRank());
 
 		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());
@@ -495,7 +474,7 @@ public class AuthorshipServiceTest {
 		assertNotNull(newAuthorship);
 		assertEquals(34567, newAuthorship.getPerson().getId());
 		assertEquals(1234, newAuthorship.getPublication().getId());
-		assertEquals(1, newAuthorship.getAuthorRank());
+		assertEquals(0, newAuthorship.getAuthorRank());
 
 		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());
@@ -521,7 +500,7 @@ public class AuthorshipServiceTest {
 		assertNotNull(newAuthorship);
 		assertEquals(34567, newAuthorship.getPerson().getId());
 		assertEquals(1234, newAuthorship.getPublication().getId());
-		assertEquals(1, newAuthorship.getAuthorRank());
+		assertEquals(0, newAuthorship.getAuthorRank());
 
 		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());
@@ -546,7 +525,7 @@ public class AuthorshipServiceTest {
 		assertNotNull(newAuthorship);
 		assertEquals(34567, newAuthorship.getPerson().getId());
 		assertEquals(1234, newAuthorship.getPublication().getId());
-		assertEquals(1, newAuthorship.getAuthorRank());
+		assertEquals(0, newAuthorship.getAuthorRank());
 
 		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());

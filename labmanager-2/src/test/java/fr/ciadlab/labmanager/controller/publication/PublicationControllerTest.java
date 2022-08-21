@@ -24,6 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
@@ -95,7 +96,7 @@ public class PublicationControllerTest {
 		this.journalPaperService = mock(JournalPaperService.class);
 		this.test = new PublicationController(
 				this.messages, this.prePublicationFactory, this.publicationService,
-				this.personService, this.fileManager,
+				this.personService, new PersonComparator(), this.fileManager,
 				this.nameParser, this.bibtex, this.viewFactory, this.journalService,
 				this.journalPaperService);
 		this.test.setLogger(mock(Logger.class));

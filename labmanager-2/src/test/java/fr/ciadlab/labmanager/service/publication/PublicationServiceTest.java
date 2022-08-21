@@ -21,10 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
@@ -32,7 +32,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -71,6 +71,8 @@ import fr.ciadlab.labmanager.service.publication.type.MiscDocumentService;
 import fr.ciadlab.labmanager.service.publication.type.PatentService;
 import fr.ciadlab.labmanager.service.publication.type.ReportService;
 import fr.ciadlab.labmanager.service.publication.type.ThesisService;
+import fr.ciadlab.labmanager.utils.names.DefaultPersonNameParser;
+import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -111,6 +113,8 @@ public class PublicationServiceTest {
 	private PersonRepository personRepository;
 
 	private JournalRepository journalRepository;
+
+	private PersonNameParser nameParser;
 
 	private BibTeX bibtex;
 
@@ -155,6 +159,7 @@ public class PublicationServiceTest {
 		this.personService = mock(PersonService.class);
 		this.personRepository = mock(PersonRepository.class);
 		this.journalRepository = mock(JournalRepository.class);
+		this.nameParser = new DefaultPersonNameParser();
 		this.bibtex = mock(BibTeX.class);
 		this.html = mock(HtmlDocumentExporter.class);
 		this.odt = mock(OpenDocumentTextExporter.class);
@@ -172,7 +177,7 @@ public class PublicationServiceTest {
 		this.test = new PublicationService(this.messages, this.publicationRepository, this.prePublicationFactory,
 				this.authorshipService, this.authorshipRepository,
 				this.personService, this.personRepository,
-				this.journalRepository, this.bibtex, this.html, this.odt, this.json, this.fileManager,
+				this.journalRepository, this.nameParser, this.bibtex, this.html, this.odt, this.json, this.fileManager,
 				this.bookService, this.bookChapterService, this.conferencePaperService,
 				this.journalEditionService, this.journalPaperService, this.keyNoteService,
 				this.miscDocumentService, this.patentService, this.reportService,
@@ -238,10 +243,8 @@ public class PublicationServiceTest {
 
 		final ArgumentCaptor<Integer> arg = ArgumentCaptor.forClass(Integer.class);
 
-		verify(this.publicationRepository, atLeastOnce()).deleteById(arg.capture());
-		Integer actual = arg.getValue();
-		assertNotNull(actual);
-		assertEquals(234, actual);
+		verify(this.publicationRepository, atLeastOnce()).findById(eq(234));
+		verify(this.publicationRepository, atLeastOnce()).deleteById(eq(234));
 		
 		verifyNoMoreInteractions(this.publicationRepository);
 	}
@@ -272,8 +275,8 @@ public class PublicationServiceTest {
 		verify(this.personRepository).save(eq(pers0));
 		verify(this.personRepository).save(eq(pers1));
 
-		verify(this.authorshipService).addAuthorship(1234, 123);
-		verify(this.authorshipService).addAuthorship(2345, 234);
+		verify(this.authorshipService).addAuthorship(eq(1234), eq(123), eq(0), eq(false));
+		verify(this.authorshipService).addAuthorship(eq(2345), eq(234), eq(0), eq(false));
 
 		verifyNoInteractions(this.journalRepository);
 	}
@@ -347,10 +350,11 @@ public class PublicationServiceTest {
 
 		verify(p1, atLeastOnce()).setTemporaryAuthors(same(null));
 
-		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(1234), eq(987));
-		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(2345), eq(987));
-		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(2345), eq(874));
-		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(3456), eq(874));
+		verify(this.authorshipService, atLeastOnce()).getAuthorsFor(eq(874));
+		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(1234), eq(987), eq(0), eq(false));
+		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(2345), eq(987), eq(1), eq(false));
+		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(2345), eq(874), eq(0), eq(false));
+		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(3456), eq(874), eq(1), eq(false));
 	}
 
 	@Test

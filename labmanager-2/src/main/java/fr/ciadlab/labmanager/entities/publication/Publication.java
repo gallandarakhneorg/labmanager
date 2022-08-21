@@ -27,7 +27,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -175,7 +174,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 
 	/** Authorships specify the authors of the publication and their position in the list of authors.
 	 */
-	@OneToMany(mappedBy = "publication", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "publication", fetch = FetchType.EAGER)
 	private Set<Authorship> authorships = new HashSet<>();
 
 	@Transient
@@ -442,12 +441,21 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		serialize(generator, serializers);
 	}
 
-	/** Replies the set of authorships.
+	/** Replies the set of authorships. The authorships are replied in the order provided in the paper.
 	 *
 	 * @return the authorships.
 	 */
 	public List<Authorship> getAuthorships() {
-		return this.authorships.stream().sorted(AuthorshipComparator.DEFAULT).collect(Collectors.toList());
+		final List<Authorship> sortedList = this.authorships.stream().sorted(AuthorshipComparator.DEFAULT).collect(Collectors.toList());
+		return sortedList;
+	}
+
+	/** Replies the reference to the storage area without any change or filtering.
+	 *
+	 * @return the authorships.
+	 */
+	public Set<Authorship> getAuthorshipsRaw() {
+		return this.authorships;
 	}
 
 	/** Change the set of authorships.
@@ -461,6 +469,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	}
 
 	/** Replies the ordered list of authors.
+	 * The authors are replied in the order provided in the paper.
 	 *
 	 * @return the list of authors.
 	 * @see #getTemporaryAuthors()

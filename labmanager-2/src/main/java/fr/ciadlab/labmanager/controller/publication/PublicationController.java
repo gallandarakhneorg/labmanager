@@ -34,6 +34,7 @@ import fr.ciadlab.labmanager.Constants;
 import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
@@ -94,6 +95,8 @@ public class PublicationController extends AbstractController {
 
 	private PersonService personService;
 
+	private PersonComparator personComparator;
+
 	private DownloadableFileManager fileManager;
 
 	private PersonNameParser nameParser;
@@ -113,6 +116,7 @@ public class PublicationController extends AbstractController {
 	 * @param prePublicationFactory the factory of pre-publications.
 	 * @param publicationService the publication service.
 	 * @param personService the person service.
+	 * @param personComparator the comparator of persons.
 	 * @param fileManager the manager of local files.
 	 * @param nameParser the parser of a person name.
 	 * @param bibtex the tools for manipulating BibTeX data.
@@ -134,6 +138,7 @@ public class PublicationController extends AbstractController {
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired PublicationService publicationService,
 			@Autowired PersonService personService,
+			@Autowired PersonComparator personComparator,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired PersonNameParser nameParser,
 			@Autowired BibTeX bibtex,
@@ -144,6 +149,7 @@ public class PublicationController extends AbstractController {
 		this.prePublicationFactory = prePublicationFactory;
 		this.publicationService = publicationService;
 		this.personService = personService;
+		this.personComparator = personComparator;
 		this.fileManager = fileManager;
 		this.nameParser = nameParser;
 		this.bibtex = bibtex;
@@ -625,6 +631,9 @@ public class PublicationController extends AbstractController {
 			}
 		}
 
+		// List of all the authors
+		modelAndView.addObject("allPersons", this.personService.getAllPersons().stream().sorted(this.personComparator).iterator()); //$NON-NLS-1$
+
 		// Provide the list of journals
 		modelAndView.addObject("journals", this.journalService.getAllJournals()); //$NON-NLS-1$
 		modelAndView.addObject("publication", publicationObj); //$NON-NLS-1$
@@ -681,6 +690,8 @@ public class PublicationController extends AbstractController {
 	 *     a publication in the database.
 	 * @param pathToDownloadablePDF the uploaded PDF file for the publication.
 	 * @param pathToDownloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
+	 *     (for unknown persons).
 	 * @param allParameters the map of all the request string-based parameters.
 	 * @param username the login of the logged-in person.
 	 * @param response the HTTP response to the client.
@@ -688,6 +699,7 @@ public class PublicationController extends AbstractController {
 	@PostMapping(value = "/" + Constants.PUBLICATION_SAVING_ENDPOINT)
 	public void savePublication(
 			@RequestParam(required = false) Integer publication,
+			@RequestParam(required = false) List<String> authors,
 			@RequestParam(required = false) MultipartFile pathToDownloadablePDF,
 			@RequestParam(required = false) MultipartFile pathToDownloadableAwardCertificate,
 			@RequestParam Map<String, String> allParameters,
@@ -709,11 +721,11 @@ public class PublicationController extends AbstractController {
 				if (publication == null) {
 					newPublication = true;
 					optPublication = this.publicationService.createPublicationFromMap(allParameters,
-							pathToDownloadablePDF, pathToDownloadableAwardCertificate);
+							authors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
 				} else {
 					newPublication = false;
 					optPublication = this.publicationService.updatePublicationFromMap(publication.intValue(), allParameters,
-							pathToDownloadablePDF, pathToDownloadableAwardCertificate);
+							authors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
 				}
 				if (optPublication.isEmpty()) {
 					throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
@@ -774,6 +786,7 @@ public class PublicationController extends AbstractController {
 				this.publicationService.removePublication(publication.intValue(), true);
 				return new ResponseEntity<>(publication, HttpStatus.OK);
 			} catch (Exception ex) {
+				getLogger().error(ex.getLocalizedMessage(), ex);
 				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 			}
 		}

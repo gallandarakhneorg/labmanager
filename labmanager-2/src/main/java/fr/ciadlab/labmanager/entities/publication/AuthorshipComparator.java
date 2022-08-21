@@ -19,6 +19,11 @@ package fr.ciadlab.labmanager.entities.publication;
 import java.util.Comparator;
 
 /** Comparator of authorships.
+ * The order is defined by: <ul>
+ * <li>The author rank in ascending order;</li>
+ * <li>The persons in ascending order, in ascending order;</li>
+ * <li>The database identifiers, in descending order.</li>
+ * </ul>
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -42,15 +47,15 @@ public class AuthorshipComparator implements Comparator<Authorship> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = Integer.compare(o1.getPublication().getId(), o2.getPublication().getId());
+		int n = Integer.compare(o1.getAuthorRank(), o2.getAuthorRank());
 		if (n != 0) {
 			return n;
 		}
-		n = Integer.compare(o1.getAuthorRank(), o2.getAuthorRank());
+		n = Integer.compare(o1.getPerson().getId(), o2.getPerson().getId());
 		if (n != 0) {
 			return n;
 		}
-		return Integer.compare(o1.getPerson().getId(), o2.getPerson().getId());
+		return Integer.compare(o2.getPublication().getId(), o1.getPublication().getId());
 	}
 
 }

@@ -91,15 +91,13 @@ public class AuthorshipService extends AbstractService {
 		return this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(publicationId);
 	}
 
-	/** Link a person and a publication.
-	 * The person is added at the end of the list of the authors.
-	 *
-	 * @param personId the identifier of the person.
+	/** Replies the authorships of the publication with the given identifier.
+	 * 
 	 * @param publicationId the identifier of the publication.
-	 * @return {@code true} if the authorship is added.
+	 * @return the authorships.
 	 */
-	public boolean addAuthorship(int personId, int publicationId) {
-		return addAuthorship(personId, publicationId, -1);
+	public List<Authorship> getAuthorshipsFor(int publicationId) {
+		return this.authorshipRepository.findByPublicationId(publicationId);
 	}
 
 	/** Link a person and a publication.
@@ -109,18 +107,20 @@ public class AuthorshipService extends AbstractService {
 	 *
 	 * @param personId the identifier of the person.
 	 * @param publicationId the identifier of the publication.
-	 * @param rank the position of the person in the list of authors. If the rank is negative, the person is
-	 *     added at the end of the list of authors.
-	 * @return {@code true} if the authorship is added.
+	 * @param rank the position of the person in the list of authors. To be sure to add the authorship at the end,
+	 *     pass {@link Integer#MAX_VALUE}.
+	 * @param updateOtherAuthorshipRanks indicates if the authorships ranks are re-arranged in order to be consistent.
+	 *     If it is {@code false}, the given rank as argument is put into the authorship without change.
+	 * @return the added authorship
 	 */
-	public boolean addAuthorship(int personId, int publicationId, int rank) {
+	public Authorship addAuthorship(int personId, int publicationId, int rank, boolean updateOtherAuthorshipRanks) {
 		final Optional<Person> optPerson = this.personRepository.findById(Integer.valueOf(personId));
 		if (optPerson.isPresent()) {
 			final Optional<Publication> optPub = this.publicationRepository.findById(Integer.valueOf(publicationId));
 			if (optPub.isPresent()) {
 				final Publication publication = optPub.get();
 				// No need to add the authorship if the person is already linked to the publication
-				final List<Authorship> currentAuthors = publication.getAuthorships();
+				final Set<Authorship> currentAuthors = publication.getAuthorshipsRaw();
 				final Optional<Authorship> ro = currentAuthors.stream().filter(
 						it -> it.getPerson().getId() == personId).findAny();
 				if (ro.isEmpty()) {
@@ -129,26 +129,35 @@ public class AuthorshipService extends AbstractService {
 					authorship.setPerson(person);
 					authorship.setPublication(publication);
 					final int realRank;
-					if (rank < 0 || rank >= currentAuthors.size()) {
-						realRank = currentAuthors.size();
-					} else {
-						// Need to be inserted
-						realRank = rank;
-						for (final Authorship currentAuthor : currentAuthors) {
-							final int orank = currentAuthor.getAuthorRank();
-							if (orank >= rank) {
-								currentAuthor.setAuthorRank(orank + 1);
-								this.authorshipRepository.save(currentAuthor);
+					if (updateOtherAuthorshipRanks) {
+						if (rank > currentAuthors.size()) {
+							// Insert at the end
+							realRank = currentAuthors.size();
+						} else {
+							// Need to be inserted
+							realRank = rank < 0 ? 0 : rank;
+							for (final Authorship currentAuthor : currentAuthors) {
+								final int orank = currentAuthor.getAuthorRank();
+								if (orank >= rank) {
+									currentAuthor.setAuthorRank(orank + 1);
+									this.authorshipRepository.save(currentAuthor);
+								}
 							}
 						}
+					} else {
+						realRank = rank;
 					}
 					authorship.setAuthorRank(realRank);
+					currentAuthors.add(authorship);
+					publication.getAuthorshipsRaw().add(authorship);
 					this.authorshipRepository.save(authorship);
-					return true;
+					this.personRepository.save(person);
+					this.publicationRepository.save(publication);
+					return authorship;
 				}
 			}
 		}
-		return false;
+		return null;
 	}
 
 	/** Update the rank of an authorship.
@@ -222,33 +231,39 @@ public class AuthorshipService extends AbstractService {
 	 *
 	 * @param personId the identifier of the person.
 	 * @param publicationId the identifier of the publication.
+	 * @param updateRanksForOtherAuthorships indicates if the rank of the other authorships ar also updated.
 	 * @return {@code true} if the authorship is removed.
 	 */
-	public boolean removeAuthorship(int personId, int publicationId) {
+	public boolean removeAuthorship(int personId, int publicationId, boolean updateRanksForOtherAuthorships) {
 		final Optional<Authorship> optAut = this.authorshipRepository.findByPersonIdAndPublicationId(personId, publicationId);
 		if (optAut.isPresent()) {
-			final Optional<Publication> optPub = this.publicationRepository.findById(Integer.valueOf(publicationId));
-			if (optPub.isPresent()) {
-				final Publication publication = optPub.get();
-				final Authorship authorship = optAut.get();
-
-				// Update the ranks of the other authors
-				final List<Authorship> currentAuthors = publication.getAuthorships();
-				final int oldRank = authorship.getAuthorRank();
-				for (final Authorship currentAuthor : currentAuthors) {
-					if (currentAuthor.getId() != authorship.getId()) {
-						final int crank = currentAuthor.getAuthorRank();
-						if (crank >  oldRank) {
-							currentAuthor.setAuthorRank(crank - 1);
-							this.authorshipRepository.save(currentAuthor);
+			final Authorship authorship = optAut.get();
+			if (updateRanksForOtherAuthorships) {
+				Publication publication = authorship.getPublication();
+				if (publication == null) {
+					final Optional<Publication> optPub = this.publicationRepository.findById(Integer.valueOf(publicationId));
+					if (optPub.isPresent()) {
+						publication = optPub.get();
+					}
+				}
+				if (publication != null) {
+					// Update the ranks of the other authors
+					final List<Authorship> currentAuthors = publication.getAuthorships();
+					final int oldRank = authorship.getAuthorRank();
+					for (final Authorship currentAuthor : currentAuthors) {
+						if (currentAuthor.getId() != authorship.getId()) {
+							final int crank = currentAuthor.getAuthorRank();
+							if (crank >  oldRank) {
+								currentAuthor.setAuthorRank(crank - 1);
+								this.authorshipRepository.save(currentAuthor);
+							}
 						}
 					}
 				}
-
-				this.authorshipRepository.deleteById(Integer.valueOf(authorship.getId()));
-				this.authorshipRepository.flush();
-				return true;
 			}
+			this.authorshipRepository.deleteById(Integer.valueOf(authorship.getId()));
+			this.authorshipRepository.flush();
+			return true;
 		}
 		return false;
 	}
@@ -340,7 +355,7 @@ public class AuthorshipService extends AbstractService {
 					this.publicationRepository.findById(Integer.valueOf(pubId))
 					.ifPresent(it -> it.deleteAuthorship(authorship));
 					// Add new authorship
-					addAuthorship(newAuthor.getId(), pubId, rank);
+					addAuthorship(newAuthor.getId(), pubId, rank, true);
 					//
 					autorshipsToRemove.add(Integer.valueOf(authorship.getId()));
 				}

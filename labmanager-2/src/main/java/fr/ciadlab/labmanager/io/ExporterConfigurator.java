@@ -27,7 +27,6 @@ import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.service.journal.JournalService;
-import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.springframework.web.util.UriBuilder;
 
 /** Configurator for an exporter.

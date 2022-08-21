@@ -22,9 +22,13 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
+import java.util.stream.Collector;
+import java.util.stream.Collectors;
 
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -65,6 +69,7 @@ import fr.ciadlab.labmanager.service.publication.type.MiscDocumentService;
 import fr.ciadlab.labmanager.service.publication.type.PatentService;
 import fr.ciadlab.labmanager.service.publication.type.ReportService;
 import fr.ciadlab.labmanager.service.publication.type.ThesisService;
+import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -94,6 +99,8 @@ public class PublicationService extends AbstractService {
 	private PersonRepository personRepository;
 
 	private PersonService personService;
+
+	private PersonNameParser nameParser;
 
 	private BibTeX bibtex;
 
@@ -138,6 +145,7 @@ public class PublicationService extends AbstractService {
 	 * @param personService the service for managing the persons.
 	 * @param personRepository the repository of the persons.
 	 * @param journalRepository the repository of the journals.
+	 * @param nameParser the parser of person names.
 	 * @param bibtex the tool for managing BibTeX source.
 	 * @param html the tool for exporting to HTML.
 	 * @param odt the tool for exporting to Open Document Text.
@@ -162,7 +170,9 @@ public class PublicationService extends AbstractService {
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonService personService, @Autowired PersonRepository personRepository,
 			@Autowired JournalRepository journalRepository,
-			@Autowired BibTeX bibtex, @Autowired HtmlDocumentExporter html,
+			@Autowired PersonNameParser nameParser,
+			@Autowired BibTeX bibtex,
+			@Autowired HtmlDocumentExporter html,
 			@Autowired OpenDocumentTextExporter odt,
 			@Autowired JsonExporter json,
 			@Autowired DownloadableFileManager fileManager,
@@ -184,6 +194,7 @@ public class PublicationService extends AbstractService {
 		this.personRepository = personRepository;
 		this.personService = personService;
 		this.journalRepository = journalRepository;
+		this.nameParser = nameParser;
 		this.bibtex = bibtex;
 		this.html = html;
 		this.odt = odt;
@@ -265,19 +276,37 @@ public class PublicationService extends AbstractService {
 	 */
 	public void removePublication(int identifier, boolean removeAssociatedFiles) {
 		final Integer id = Integer.valueOf(identifier);
-		if (removeAssociatedFiles) {
-			try {
-				this.fileManager.deleteDownloadablePublicationPdfFile(identifier);
-			} catch (Throwable ex) {
-				// Silent
+		final Optional<Publication> optPublication = this.publicationRepository.findById(Integer.valueOf(identifier));
+		if (optPublication.isPresent()) {
+			final Publication publication = optPublication.get();
+			final Iterator<Authorship> iterator = publication.getAuthorships().iterator();
+			while (iterator.hasNext()) {
+				Authorship autship = iterator.next();
+				final Person person = autship.getPerson();
+				if (person != null) {
+					person.getAuthorships().remove(autship);
+					autship.setPerson(null);
+					this.personRepository.save(person);
+				}
+				autship.setPublication(null);
+				iterator.remove();
+				this.authorshipRepository.save(autship);
 			}
-			try {
-				this.fileManager.deleteDownloadableAwardPdfFile(identifier);
-			} catch (Throwable ex) {
-				// Silent
+			publication.getAuthorshipsRaw().clear();
+			this.publicationRepository.deleteById(id);
+			if (removeAssociatedFiles) {
+				try {
+					this.fileManager.deleteDownloadablePublicationPdfFile(identifier);
+				} catch (Throwable ex) {
+					// Silent
+				}
+				try {
+					this.fileManager.deleteDownloadableAwardPdfFile(identifier);
+				} catch (Throwable ex) {
+					// Silent
+				}
 			}
 		}
-		this.publicationRepository.deleteById(id);
 	}
 
 	/** Save the given publications into the database.
@@ -308,9 +337,12 @@ public class PublicationService extends AbstractService {
 				}
 			}
 			if (authors != null) {
+				// Create the list of authors from the temporary (not yet saved) list. 
+				int rank = 0;
 				for (final Person author : authors) {
 					this.personRepository.save(author);
-					this.authorshipService.addAuthorship(author.getId(), publication.getId());
+					this.authorshipService.addAuthorship(author.getId(), publication.getId(), rank, false);
+					++rank;
 				}
 			}
 		}
@@ -350,6 +382,7 @@ public class PublicationService extends AbstractService {
 				// For every authors assigned to this publication, save them into the database
 				final List<Person> authors = publication.getAuthors();
 				publication.setTemporaryAuthors(null);
+				int rank = 0;
 				for (final Person author : authors) {
 					try {
 						// Search for a person with a "similar name"
@@ -363,7 +396,7 @@ public class PublicationService extends AbstractService {
 							personId = author.getId();
 						}
 						// Assigning authorship
-						this.authorshipService.addAuthorship(personId, publicationId);
+						this.authorshipService.addAuthorship(personId, publicationId, rank, false);
 						this.publicationRepository.save(publication);
 
 						// Check if the newly imported pub has at least one authorship.
@@ -371,6 +404,7 @@ public class PublicationService extends AbstractService {
 						if (this.authorshipService.getAuthorsFor(publicationId).isEmpty()) {
 							throw new IllegalArgumentException("No author for publication id=" + publicationId); //$NON-NLS-1$
 						}
+						++rank;
 					} catch (Exception ex) {
 						// Even if a larger try catch for exceptions exists, we need to delete
 						// first the imported publication and linked authorship
@@ -482,13 +516,15 @@ public class PublicationService extends AbstractService {
 	 * This function ignore the attributes related to uploaded files.
 	 *
 	 * @param attributes the values of the attributes for the publication's creation.
+	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
+	 *     (for unknown persons).
 	 * @param downloadablePDF the uploaded PDF file for the publication.
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @return the created publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
 	public Optional<Publication> createPublicationFromMap(Map<String, String> attributes,
-			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
+			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
 		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
 		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
 		final LocalDate date = ensureDate(attributes, "publicationDate"); //$NON-NLS-1$
@@ -599,21 +635,9 @@ public class PublicationService extends AbstractService {
 		}
 
 		// Fourth step: create the authors and link them to the publication
-		/*int i = 0;
-		for (final String publicationAuthor : publicationAuthors) {
-			final String firstName = this.nameParser.parseFirstName(publicationAuthor);
-			final String lastName = this.nameParser.parseLastName(publicationAuthor);
-			int authorId = this.personService.getPersonIdByName(firstName, lastName);
-			if (authorId == 0) {
-				// The author does not exist yet
-				authorId = this.personService.createPerson(firstName, lastName, null, null, null);
-				getLogger().info("New person \"" + publicationAuthor + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			this.authorshipService.addAuthorship(authorId, publicationId, i);
-			getLogger().info("Author \"" + publicationAuthor + "\" added to publication with id " + publicationId); //$NON-NLS-1$ //$NON-NLS-2$
-			i++;
-		}*/
+		updateAuthorList(true, createdPublication, authors);
 
+		// Fifth step: update the associated PDF files
 		updateUploadedPDFs(createdPublication, attributes, downloadablePDF, downloadableAwardCertificate, true);
 
 		getLogger().info("Publication instance " + createdPublication.getId() + " created of type " + publicationClass.getSimpleName()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -625,13 +649,15 @@ public class PublicationService extends AbstractService {
 	 *
 	 * @param id the identifier of the publication.
 	 * @param attributes the values of the attributes for the publication's creation.
+	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
+	 *     (for unknown persons).
 	 * @param downloadablePDF the uploaded PDF file for the publication.
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @return the updated publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
 	public Optional<Publication> updatePublicationFromMap(int id, Map<String, String> attributes,
-			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
+			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
 		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
 		// First step : find the publication
 		Optional<Publication> optPublication = this.publicationRepository.findById(Integer.valueOf(id));
@@ -642,7 +668,7 @@ public class PublicationService extends AbstractService {
 		// Second step: check for any change of publication type
 		if (isInstanceTypeChangeNeeded(publication, typeEnum)) {
 			removePublication(id, false);
-			optPublication = createPublicationFromMap(attributes, downloadablePDF, downloadableAwardCertificate);
+			optPublication = createPublicationFromMap(attributes, authors, downloadablePDF, downloadableAwardCertificate);
 			if (optPublication.isPresent()) {
 				final Publication newPublication = optPublication.get();
 				final int newId = newPublication.getId();
@@ -676,7 +702,7 @@ public class PublicationService extends AbstractService {
 			return optPublication;
 		}
 		// Third step: update of an existing publication
-		updateExistingPublicationFromMap(publication, typeEnum, attributes, downloadablePDF, downloadableAwardCertificate);
+		updateExistingPublicationFromMap(publication, typeEnum, attributes, authors, downloadablePDF, downloadableAwardCertificate);
 		return optPublication;
 	}
 
@@ -690,51 +716,20 @@ public class PublicationService extends AbstractService {
 	 * @param publication the publication.
 	 * @param type the type of the publication to be set-up.
 	 * @param attributes the values of the attributes for the publication's creation.
+	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
+	 *     (for unknown persons).
 	 * @param downloadablePDF the uploaded PDF file for the publication.
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
 	protected void updateExistingPublicationFromMap(Publication publication, PublicationType type, Map<String, String> attributes,
-			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
+			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
 		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
 		final LocalDate date = ensureDate(attributes, "publicationDate"); //$NON-NLS-1$
 
 
 		// First step: Update the list of authors.
-
-		/*final List<Person> oldAuthors = this.authorshipService.getAuthorsFor(publicationId.intValue());
-		final List<Integer> oldAuthorIds = oldAuthors.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toList());
-
-		int i = 0;
-		for (final String publicationAuthor : publicationAuthors) {
-			final String firstName = this.nameParser.parseFirstName(publicationAuthor);
-			final String lastName = this.nameParser.parseLastName(publicationAuthor);
-			int authorId = this.personService.getPersonIdByName(firstName, lastName);
-			if (authorId == 0) {
-				// The author does not exist yet
-				authorId = this.personService.createPerson(firstName, lastName, null, null, null);
-				getLogger().info("New person \"" + publicationAuthor + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
-			} else {
-				oldAuthorIds.remove(Integer.valueOf(authorId));
-			}
-			final int finalAuthorId = authorId;
-			final Optional<Person> optPerson = oldAuthors.stream().filter(it -> it.getId() == finalAuthorId).findFirst();
-			if (optPerson.isPresent()) {
-				// Author is already present
-				this.authorshipService.updateAuthorship(authorId, publicationId.intValue(), i);
-				getLogger().info("Author \"" + publicationAuthor + "\" updated for the publication with id " + publicationId); //$NON-NLS-1$ //$NON-NLS-2$
-			} else {
-				// Author was not associated yet
-				this.authorshipService.addAuthorship(authorId, publicationId.intValue(), i);
-				getLogger().info("Author \"" + publicationAuthor + "\" added to publication with id " + publicationId); //$NON-NLS-1$ //$NON-NLS-2$
-			}
-			i++;
-		}
-
-		// Remove the old author ships
-		for (final Integer id : oldAuthorIds) {
-			this.authorshipService.removeAuthorship(id.intValue(), publicationId.intValue());
-		}*/
+		updateAuthorList(false, publication, authors);
 
 		// Second step: treat associated files
 		updateUploadedPDFs(publication, attributes, downloadablePDF, downloadableAwardCertificate, false);
@@ -1032,4 +1027,84 @@ public class PublicationService extends AbstractService {
 		}
 	}
 
+	private void updateAuthorList(boolean creation, Publication publication, List<String> authors) {
+		// First step: Update the list of authors.
+		final List<Authorship> oldAuthorships = creation ? Collections.emptyList() : this.authorshipService.getAuthorshipsFor(publication.getId());
+		Collector<Authorship, ?, Map<Integer, Authorship>> col = Collectors.toMap(
+				it -> Integer.valueOf(it.getPerson().getId()),
+				it -> it);
+		final Map<Integer, Authorship> oldIds = oldAuthorships.stream().collect(col);
+		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
+		int rank = 0;
+		for (final String author : authors) {
+			Person person = null;
+			int authorId = 0;
+			if (idPattern.matcher(author).matches()) {
+				// Numeric value means that the person is known.
+				try {
+					authorId = Integer.parseInt(author);
+				} catch (Throwable ex) {
+					// Silent
+				}
+			}
+			if (authorId == 0) {
+				// The author seems to be not in the database already. Check it based on the name.
+				final String firstName = this.nameParser.parseFirstName(author);
+				final String lastName = this.nameParser.parseLastName(author);
+				authorId = this.personService.getPersonIdByName(firstName, lastName);
+				if (authorId == 0) {
+					// Now, it is sure that the person is unknown
+					person = this.personService.createPerson(firstName, lastName);
+					getLogger().info("New person \"" + author + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
+				} else {
+					final Optional<Person> optPers = this.personRepository.findById(Integer.valueOf(authorId));
+					if (optPers.isEmpty()) {
+						throw new IllegalArgumentException("Unknown person with id: " + authorId); //$NON-NLS-1$
+					}
+					person = optPers.get();
+				}
+			} else {
+				// Check if the given author identifier corresponds to a known person.
+				final Optional<Person> optPers = this.personRepository.findById(Integer.valueOf(authorId));
+				if (optPers.isEmpty()) {
+					throw new IllegalArgumentException("Unknown person with id: " + authorId); //$NON-NLS-1$
+				}
+				person = optPers.get();
+			}
+			assert person != null;
+			oldIds.remove(Integer.valueOf(person.getId()));
+			final Person fperson = person;
+			final Optional<Authorship> optAut = oldAuthorships.stream().filter(it -> it.getPerson().getId() == fperson.getId()).findFirst();
+			if (optAut.isPresent()) {
+				// Author is already present in the authorships
+				final Authorship authorship = optAut.get();
+				authorship.setPerson(person);
+				authorship.setAuthorRank(rank);
+				authorship.setPublication(publication);
+				this.authorshipRepository.save(authorship);
+				oldIds.remove(Integer.valueOf(authorship.getId()));
+				getLogger().info("Author \"" + person.getFullName() //$NON-NLS-1$
+						+ "\" updated for the publication with id " //$NON-NLS-1$
+						+ publication.getId());
+			} else {
+				// Author was not associated yet
+				this.authorshipService.addAuthorship(person.getId(), publication.getId(), rank, false);
+				getLogger().info("Author \"" + person.getFullName()+ "\" added to publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+			++rank;
+		}
+		// Remove the old author ships
+		for (final Authorship oldAutshp : oldIds.values()) {
+			publication.getAuthorshipsRaw().remove(oldAutshp);
+			final Person oldAuthor = oldAutshp.getPerson();
+			oldAuthor.getAuthorships().remove(oldAutshp);
+			oldAutshp.setPerson(null);
+			oldAutshp.setPublication(null);
+			this.personRepository.save(oldAuthor);
+			this.authorshipRepository.deleteById(Integer.valueOf(oldAutshp.getId()));
+		}
+		this.publicationRepository.save(publication);
+		this.authorshipRepository.flush();
+	}
+	
 }

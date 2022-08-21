@@ -103,6 +103,35 @@ public class PersonService extends AbstractService {
 		return byId.orElse(null);
 	}
 
+	/** Create a person in the database by providing only the name of the person.
+	 *
+	 * @param firstName the first name of the person.
+	 * @param lastName the last name of the person.
+	 * @return the person in the database.
+	 * @see #createPerson(String, String, Gender, String, String, String, String, String, String, String, String, String, String, String, String, String, WebPageNaming, int, int)
+	 */
+	public Person createPerson(String firstName, String lastName) {
+		return createPerson(
+				firstName, lastName,
+				Gender.NOT_SPECIFIED,
+				null, // email
+				null, // office phone
+				null, // mobile phone
+				null, // Gravatar Id
+				null, // Orcid
+				null, // ResearcherId
+				null, // Linked-In Id
+				null, // Github Id
+				null, // Research Gate Id
+				null, // Facebook Id
+				null, // DBLP URL
+				null, // Academia.edu URL
+				null, // EU Cordis URL
+				WebPageNaming.UNSPECIFIED,
+				0, // Google Scholar H-index
+				0); // WoS H-index
+	}
+
 	/** Create a person in the database.
 	 *
 	 * @param firstName the first name of the person.
@@ -125,6 +154,7 @@ public class PersonService extends AbstractService {
 	 * @param scholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
 	 * @return the person in the database.
+	 * @see #createPerson(String, String)
 	 * @see Gender
 	 */
 	public Person createPerson(String firstName, String lastName, Gender gender, String email, String officePhone,
