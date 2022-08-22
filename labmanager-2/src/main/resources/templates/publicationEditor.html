@@ -297,6 +297,7 @@
 	                                           th:utext="#{html.PdfDocumentFor}"></label>
 										<input class="form-control" type="file"
 										       data-preview-file-type="text"
+										       accept=".pdf,application/pdf"
 										       id="publicationPDF" name="pathToDownloadablePDF"></input>
 	                                </div>
 	                                <input name="@pathToDownloadableAwardCertificate_explicitRemove" 
@@ -307,6 +308,7 @@
 	                                           th:utext="#{html.AwardDocumentFor}"></label>
 										<input class="form-control" type="file"
 										       data-preview-file-type="text"
+										       accept=".pdf,application/pdf"
 										       id="publicationAwardPDF" name="pathToDownloadableAwardCertificate"></input>
 	                                </div>
 									<button id="submitButton" type="submit" class="btn btn-success mt-4 pr-4 pl-4"
@@ -371,6 +373,17 @@ $(document).ready(function () {
 		initialPreviewShowDelete: false,
 		dropZoneEnabled: true,
 		browseOnZoneClick: true,
+		fileTypeSettings: {
+			 pdf: function(vType, vName) {
+		        return (typeof vType !== "undefined") ? vType == 'application/pdf' : vName.match(/\.(pdf)$/i);
+		    },
+		},
+		allowedFileTypes: [
+			'pdf',
+		],
+		allowedFileExtensions: [
+			'pdf',
+		],
 		/*[# th:if="${shared_pathToDownloadablePDF}"]*/
 		initialPreview: [
 			"<img src='[(@{/} + ${pathToDownloadablePDF_picture})]' class='file-preview-image' title='[(${pathToDownloadablePDF_basename})]'>",
@@ -394,6 +407,17 @@ $(document).ready(function () {
 		initialPreviewShowDelete: false,
 		dropZoneEnabled: true,
 		browseOnZoneClick: true,
+		fileTypeSettings: {
+			 pdf: function(vType, vName) {
+		        return (typeof vType !== "undefined") ? vType == 'application/pdf' : vName.match(/\.(pdf)$/i);
+		    },
+		},
+		allowedFileTypes: [
+			'pdf',
+		],
+		allowedFileExtensions: [
+			'pdf',
+		],
         /*[# th:if="${shared_pathToDownloadableAwardCertificate}"]*/
 		initialPreview: [
 			"<img src='[(@{/} + ${pathToDownloadableAwardCertificate_picture})]' class='file-preview-image' title='[(${pathToDownloadableAwardCertificate_basename})]'>",
