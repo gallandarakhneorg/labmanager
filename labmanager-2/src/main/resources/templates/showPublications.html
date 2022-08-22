@@ -225,12 +225,19 @@
         var abstractText = d.abstractText && d.abstractText != "" ? "<tr><td>[(#{html.Abstract})]</td><td>" + d.abstractText + '</td></tr>' : "";
         var note = d.note && d.note != "" ? "<tr><td>[(#{html.Note})]</td><td>" + d.note + '</td></tr>' : "";
         var keywords = d.keywords && d.keywords != "" ? "<tr><td>[(#{html.Keywords})]</td><td>" + d.keywords + '</td></tr>' : "";
-        var scimagoQuartile = d.scimagoQIndex && d.scimagoQIndex != "" ? ("<tr><td>[(#{html.ScimagoQIndex})]</td><td>" + d.scimagoQIndex
+        var scimagoQuartile = d.scimagoQIndex && d.scimagoQIndex != "" ? ("<tr><td>[(#{html.ScimagoQIndex})]<td>" + d.scimagoQIndex
+        		+ "&nbsp;[<span title=\"[(#{html.ScimagoQIndexNote})]\" style=\"cursor:help\">*</span>]"
         		+ (d.scimagoQIndex_imageUrl && d.scimagoQIndex_imageUrl != "" ? '<img class="publicationDetailsScimagoQuartile" src="' + d.scimagoQIndex_imageUrl + '" />' : '')
         		+ '</td></tr>') : "";
-        var wosQuartile = d.wosQIndex && d.wosQIndex != "" ? "<tr><td>[(#{html.WosQIndex})]</td><td>" + d.wosQIndex + '</td></tr>' : "";
-        var coreRanking = d.coreRanking && d.coreRanking != "" ? "<tr><td>[(#{html.CoreRanking})]</td><td>" + d.coreRanking + '</td></tr>' : "";
-        var impactFactor = d.impactFactor && d.impactFactor != "" ? "<tr><td>[(#{html.ImpactFactor1})]</td><td>" + d.impactFactor + '</td></tr>' : "";
+        var wosQuartile = d.wosQIndex && d.wosQIndex != "" ? "<tr><td>[(#{html.WosQIndex})]</td><td>" + d.wosQIndex
+        		+ "&nbsp;[<span title=\"[(#{html.WosQIndexNote})]\" style=\"cursor:help\">*</span>]"
+        		+ '</td></tr>' : "";
+        var coreRanking = d.coreRanking && d.coreRanking != "" ? "<tr><td>[(#{html.CoreRanking})]</td><td>" + d.coreRanking
+        		+ "&nbsp;[<span title=\"[(#{html.CoreRankingNote})]\" style=\"cursor:help\">*</span>]"
+        		+ '</td></tr>' : "";
+        var impactFactor = d.impactFactor && d.impactFactor != "" ? "<tr><td>[(#{html.ImpactFactor1})]</td><td>" + d.impactFactor
+        		+ "&nbsp;[<span title=\"[(#{html.ImpactFactorNote})]\" style=\"cursor:help\">*</span>]"
+        		+ '</td></tr>' : "";
         var links = d.htmlLinks && d.htmlLinks != "" ? "<tr><td>[(#{html.Links})]</td><td>" + d.htmlLinks +'</td></tr>' : "";
         var downloads = d.htmlDownloads && d.htmlDownloads != "" ? "<tr><td>[(#{html.Downloads})]</td><td>" + d.htmlDownloads + '</td></tr>' : "";
         var exports = d.htmlExports && d.htmlExports != "" ? "<tr><td>[(#{html.Exports})]</td><td>" + d.htmlExports + '</td></tr>' : "";
