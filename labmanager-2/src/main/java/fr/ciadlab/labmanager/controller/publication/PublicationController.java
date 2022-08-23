@@ -827,7 +827,6 @@ public class PublicationController extends AbstractController {
 			@RequestParam(required = false) MultipartFile bibtexFile,
 			@RequestParam(required = false) String changes,
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-
 		if (isLoggedUser(username).booleanValue()) {
 			try {
 				// Pass the changes string as JSON to extract the expected types of publications. 

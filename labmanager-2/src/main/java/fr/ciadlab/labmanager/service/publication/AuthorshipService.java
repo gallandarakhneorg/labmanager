@@ -160,114 +160,6 @@ public class AuthorshipService extends AbstractService {
 		return null;
 	}
 
-	/** Update the rank of an authorship.
-	 *
-	 * @param personId the identifier of the person.
-	 * @param publicationId the identifier of the publication.
-	 * @param rank the new position of the person in the list of authors. If the rank is negative, the person is
-	 *     added at the end of the list of authors.
-	 * @return {@code true} if the authorship is added.
-	 */
-	public boolean updateAuthorship(int personId, int publicationId, int rank) {
-		final Optional<Authorship> optAut = this.authorshipRepository.findByPersonIdAndPublicationId(personId, publicationId);
-		if (optAut.isPresent()) {
-			final Authorship authorship = optAut.get();
-			final int oldRank = authorship.getAuthorRank();
-			if (oldRank != rank) {
-				final List<Authorship> currentAuthors = authorship.getPublication().getAuthorships();
-				final int newRank;
-				if (rank < 0 || rank >= currentAuthors.size()) {
-					// The author is moved to the end of the list.
-					// The authors between the old position and the end of the list
-					// change of rank by decrement.
-					for (final Authorship currentAuthor : currentAuthors) {
-						if (currentAuthor != authorship) {
-							final int orank = currentAuthor.getAuthorRank();
-							if (orank > rank) {
-								currentAuthor.setAuthorRank(orank - 1);
-								this.authorshipRepository.save(currentAuthor);
-							}
-						}
-					}
-					newRank = currentAuthors.size() - 1;
-				} else if (rank <= oldRank) {
-					// The author is moved before its current position.
-					// The authors between the new position and the old position (new position <= old position)
-					// change of rank by increment.
-					for (final Authorship currentAuthor : currentAuthors) {
-						if (currentAuthor != authorship) {
-							final int orank = currentAuthor.getAuthorRank();
-							if (orank >= rank && orank <= oldRank) {
-								currentAuthor.setAuthorRank(orank + 1);
-								this.authorshipRepository.save(currentAuthor);
-							}
-						}
-					}
-					newRank = rank;
-				} else {
-					// The author is moved after its current position.
-					// The authors between the old position and the new position (old position <= new position)
-					// change of rank by decrement.
-					for (final Authorship currentAuthor : currentAuthors) {
-						if (currentAuthor != authorship) {
-							final int orank = currentAuthor.getAuthorRank();
-							if (orank >= oldRank && orank <= rank) {
-								currentAuthor.setAuthorRank(orank - 1);
-								this.authorshipRepository.save(currentAuthor);
-							}
-						}
-					}
-					newRank = rank;
-				}
-				authorship.setAuthorRank(newRank);
-				this.authorshipRepository.save(authorship);
-				return true;
-			}
-		}
-		return false;
-	}
-
-	/** Remove an authorship.
-	 *
-	 * @param personId the identifier of the person.
-	 * @param publicationId the identifier of the publication.
-	 * @param updateRanksForOtherAuthorships indicates if the rank of the other authorships ar also updated.
-	 * @return {@code true} if the authorship is removed.
-	 */
-	public boolean removeAuthorship(int personId, int publicationId, boolean updateRanksForOtherAuthorships) {
-		final Optional<Authorship> optAut = this.authorshipRepository.findByPersonIdAndPublicationId(personId, publicationId);
-		if (optAut.isPresent()) {
-			final Authorship authorship = optAut.get();
-			if (updateRanksForOtherAuthorships) {
-				Publication publication = authorship.getPublication();
-				if (publication == null) {
-					final Optional<Publication> optPub = this.publicationRepository.findById(Integer.valueOf(publicationId));
-					if (optPub.isPresent()) {
-						publication = optPub.get();
-					}
-				}
-				if (publication != null) {
-					// Update the ranks of the other authors
-					final List<Authorship> currentAuthors = publication.getAuthorships();
-					final int oldRank = authorship.getAuthorRank();
-					for (final Authorship currentAuthor : currentAuthors) {
-						if (currentAuthor.getId() != authorship.getId()) {
-							final int crank = currentAuthor.getAuthorRank();
-							if (crank >  oldRank) {
-								currentAuthor.setAuthorRank(crank - 1);
-								this.authorshipRepository.save(currentAuthor);
-							}
-						}
-					}
-				}
-			}
-			this.authorshipRepository.deleteById(Integer.valueOf(authorship.getId()));
-			this.authorshipRepository.flush();
-			return true;
-		}
-		return false;
-	}
-
 	/** Merge the authorships by replacing those with an old author name by those with the new author name.
 	 * This function enables to group the publications that are attached to two different author names
 	 * and select one of the name as the final author name.
@@ -278,12 +170,12 @@ public class AuthorshipService extends AbstractService {
 	 * @see PersonNameParser
 	 * @see DefaultPersonNameParser
 	 */
-	public int mergeAuthors(String authorOldName, String authorNewName) {
+	public int mergePersons(String authorOldName, String authorNewName) {
 		final String oldFirstName = this.nameParser.parseFirstName(authorOldName);
 		final String oldLastName = this.nameParser.parseLastName(authorOldName);
 		final String newFirstName = this.nameParser.parseFirstName(authorNewName);
 		final String newLastName = this.nameParser.parseLastName(authorNewName);
-		return mergeAuthors(oldFirstName, oldLastName, newFirstName, newLastName);
+		return mergePersons(oldFirstName, oldLastName, newFirstName, newLastName);
 	}
 
 	/** Merge the authorships by replacing those with an old author name by those with the new author name.
@@ -291,7 +183,7 @@ public class AuthorshipService extends AbstractService {
 	 * and select one of the name as the final author name.
 	 * <p>
 	 * The function selects the target person as the first available person with the given first and last names.
-	 * It is equivalent to a call to {@link #mergeAuthors(String, String, String, String, Function)} with
+	 * It is equivalent to a call to {@link #mergePersons(String, String, String, String, Function)} with
 	 * {@code null} as last argument.
 	 *
 	 * @param oldFirstName the first name of author that should deleted.
@@ -302,8 +194,8 @@ public class AuthorshipService extends AbstractService {
 	 * @see PersonNameParser
 	 * @see DefaultPersonNameParser
 	 */
-	public int mergeAuthors(String oldFirstName, String oldLastName, String newFirstName, String newLastName) {
-		return mergeAuthors(oldFirstName, oldLastName, newFirstName, newLastName, null);
+	public int mergePersons(String oldFirstName, String oldLastName, String newFirstName, String newLastName) {
+		return mergePersons(oldFirstName, oldLastName, newFirstName, newLastName, null);
 	}
 
 	/** Merge the authorships by replacing those with an old author name by those with the new author name.
@@ -320,7 +212,7 @@ public class AuthorshipService extends AbstractService {
 	 * @see PersonNameParser
 	 * @see DefaultPersonNameParser
 	 */
-	public int mergeAuthors(String oldFirstName, String oldLastName,
+	public int mergePersons(String oldFirstName, String oldLastName,
 			String newFirstName, String newLastName, Function<Set<Person>, Person> personSelector) {
 		final Set<Person> oldAuthors = this.personRepository.findByFirstNameAndLastName(oldFirstName, oldLastName);
 		int changes = 0;
@@ -334,14 +226,14 @@ public class AuthorshipService extends AbstractService {
 					newAuthor = newAuthors.iterator().next();
 				}
 				if (newAuthor != null) {
-					return mergeAuthors(oldAuthors, newAuthor);
+					return mergePersons(oldAuthors, newAuthor);
 				}
 			}
 		}
 		return changes;
 	}
 
-	private int mergeAuthors(Iterable<Person> oldAuthors, Person newAuthor) {
+	private int mergePersons(Iterable<Person> oldAuthors, Person newAuthor) {
 		int changes = 0;
 		for (final Person oldAuthor : oldAuthors) {
 			if (oldAuthor.getId() != newAuthor.getId()) {
@@ -374,7 +266,7 @@ public class AuthorshipService extends AbstractService {
 	/** Merges all given authors to one and reset name.
 	 * <p>
 	 * The function selects the target person as the first available person with the given first and last names.
-	 * It is equivalent to a call to {@link #mergeAuthors(List, String, String, Function)} with
+	 * It is equivalent to a call to {@link #mergePersons(List, String, String, Function)} with
 	 * {@code null} as last argument.
 	 *
 	 * @param oldAuthorIds The list of all authors to merge because they are considered as duplicate of the new person.
@@ -383,8 +275,8 @@ public class AuthorshipService extends AbstractService {
 	 * @return number of affected publications
 	 * @throws Exception if at least 2 of the authors have a page
 	 */
-	public int mergeAuthors(List<Integer> oldAuthorIds, String newFirstName, String newLastName) throws Exception {
-		return mergeAuthors(oldAuthorIds, newFirstName, newLastName, null);
+	public int mergePersons(List<Integer> oldAuthorIds, String newFirstName, String newLastName) throws Exception {
+		return mergePersons(oldAuthorIds, newFirstName, newLastName, null);
 	}
 
 	/** Merges all given authors to one and reset name.
@@ -396,7 +288,7 @@ public class AuthorshipService extends AbstractService {
 	 *      all the authorships. If it is {@code null}, the first person found is selected.
 	 * @return number of affected publications
 	 */
-	public int mergeAuthors(List<Integer> oldAuthorIds, String newFirstName, String newLastName,
+	public int mergePersons(List<Integer> oldAuthorIds, String newFirstName, String newLastName,
 			Function<Set<Person>, Person> personSelector) {
 		final Set<Person> newAuthors = this.personRepository.findByFirstNameAndLastName(newFirstName, newLastName);
 		if (!newAuthors.isEmpty()) {
@@ -408,7 +300,7 @@ public class AuthorshipService extends AbstractService {
 			}
 			if (newAuthor != null) {
 				final List<Person> oldAuthors = this.personRepository.findAllById(oldAuthorIds);
-				return mergeAuthors(oldAuthors, newAuthor);
+				return mergePersons(oldAuthors, newAuthor);
 			}
 		}
 		return 0;

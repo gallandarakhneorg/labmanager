@@ -401,14 +401,17 @@ public class PersonServiceTest {
 	@Test
 	public void getPersonDuplicates_oneDuplicate() {
 		Person pers0b = mock(Person.class, "pers0b");
+		when(pers0b.getId()).thenReturn(456852);
 		when(pers0b.getFirstName()).thenReturn("F1");
 		when(pers0b.getLastName()).thenReturn("L1");
 
 		Person pers2b = mock(Person.class, "pers2b");
+		when(pers2b.getId()).thenReturn(456853);
 		when(pers2b.getFirstName()).thenReturn("F3");
 		when(pers2b.getLastName()).thenReturn("L3");
 
 		Person pers2c = mock(Person.class, "pers2c");
+		when(pers2c.getId()).thenReturn(456854);
 		when(pers2c.getFirstName()).thenReturn("F3");
 		when(pers2c.getLastName()).thenReturn("L3");
 

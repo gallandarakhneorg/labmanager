@@ -307,68 +307,20 @@ public class AuthorshipServiceTest {
 	}
 
 	@Test
-	public void removeAuthorship_removeExisting() {
-		final boolean r = this.test.removeAuthorship(12345, 1234, true);
-		assertTrue(r);
-
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.authorshipRepository, atLeastOnce()).deleteById(arg0.capture());
-		assertEquals(123, arg0.getValue());
-
-		final ArgumentCaptor<Authorship> arg1 = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, never()).save(arg1.capture());
-
-		verify(this.authorshipRepository, atLeastOnce()).flush();
-	}
-
-	@Test
-	public void removeAuthorship_removeUnknown() {
-		final boolean r = this.test.removeAuthorship(12345, 2345, true);
-		assertFalse(r);
-	}
-
-	@Test
-	public void updateAuthorship() {
-		final boolean r = this.test.updateAuthorship(12345, 1234, 0);
-		assertTrue(r);
-
-		final ArgumentCaptor<Authorship> arg0 = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, atLeastOnce()).save(arg0.capture());
-		final Authorship actual0 = arg0.getValue();
-		assertSame(this.a0, actual0);
-
-		final ArgumentCaptor<Integer> arg1 = ArgumentCaptor.forClass(Integer.class);
-		verify(actual0).setAuthorRank(arg1.capture());
-		assertEquals(0, arg1.getValue());
-	}
-
-	@Test
-	public void updateAuthorship_unknownPublication() {
-		final boolean r = this.test.updateAuthorship(1234, 1, 0);
-		assertFalse(r);
-	}
-
-	@Test
-	public void updateAuthorship_unknowAuthor() {
-		final boolean r = this.test.updateAuthorship(1, 12345, 0);
-		assertFalse(r);
-	}
-
-	@Test
-	public void mergeAuthors_StringStringStringString_nullArguments() {
-		final int r = this.test.mergeAuthors((String) null, null, null, null);
+	public void mergePersons_StringStringStringString_nullArguments() {
+		final int r = this.test.mergePersons((String) null, null, null, null);
 		assertEquals(0, r);
 	}
 
 	@Test
-	public void mergeAuthors_StringStringStringString_unknownPerson() {
-		final int r = this.test.mergeAuthors("unknown", "unknown", "unknown", "unknown");
+	public void mergePersons_StringStringStringString_unknownPerson() {
+		final int r = this.test.mergePersons("unknown", "unknown", "unknown", "unknown");
 		assertEquals(0, r);
 	}
 
 	@Test
-	public void mergeAuthors_StringStringStringString() {
-		final int r = this.test.mergeAuthors("F0", "L0", "F2", "L2");
+	public void mergePersons_StringStringStringString() {
+		final int r = this.test.mergePersons("F0", "L0", "F2", "L2");
 		assertEquals(1, r);
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
@@ -391,20 +343,20 @@ public class AuthorshipServiceTest {
 	}
 
 	@Test
-	public void mergeAuthors_StringStringStringStringFunction_nullArguments() {
-		final int r = this.test.mergeAuthors(null, null, null, null, null);
+	public void mergePersons_StringStringStringStringFunction_nullArguments() {
+		final int r = this.test.mergePersons(null, null, null, null, null);
 		assertEquals(0, r);
 	}
 
 	@Test
-	public void mergeAuthors_StringStringStringStringFunction_unknownPerson() {
-		final int r = this.test.mergeAuthors("unknown", "unknown", "unknown", "unknown", null);
+	public void mergePersons_StringStringStringStringFunction_unknownPerson() {
+		final int r = this.test.mergePersons("unknown", "unknown", "unknown", "unknown", null);
 		assertEquals(0, r);
 	}
 
 	@Test
-	public void mergeAuthors_StringStringStringStringFunction_nullSelectionFunction() {
-		final int r = this.test.mergeAuthors("F0", "L0", "F2", "L2", null);
+	public void mergePersons_StringStringStringStringFunction_nullSelectionFunction() {
+		final int r = this.test.mergePersons("F0", "L0", "F2", "L2", null);
 		assertEquals(1, r);
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
@@ -427,26 +379,26 @@ public class AuthorshipServiceTest {
 	}
 
 	@Test
-	public void mergeAuthors_StringString_nullArguments() {
-		final int r = this.test.mergeAuthors(null, null);
+	public void mergePersons_StringString_nullArguments() {
+		final int r = this.test.mergePersons(null, null);
 		assertEquals(0, r);
 	}
 
 	@Test
-	public void mergeAuthors_StringString_unknownPerson() {
-		final int r = this.test.mergeAuthors("unknown", "unknown");
+	public void mergePersons_StringString_unknownPerson() {
+		final int r = this.test.mergePersons("unknown", "unknown");
 		assertEquals(0, r);
 	}
 
 	@Test
-	public void mergeAuthors_StringString_invalidFirstLastOrder0() {
-		final int r = this.test.mergeAuthors("F0 L0", "L2 F2");
+	public void mergePersons_StringString_invalidFirstLastOrder0() {
+		final int r = this.test.mergePersons("F0 L0", "L2 F2");
 		assertEquals(0, r);
 	}
 
 	@Test
-	public void mergeAuthors_StringString_invalidFirstLastOrder1() {
-		final int r = this.test.mergeAuthors("L0 F0", "F2 L2");
+	public void mergePersons_StringString_invalidFirstLastOrder1() {
+		final int r = this.test.mergePersons("L0 F0", "F2 L2");
 		assertEquals(0, r);
 	}
 
@@ -458,10 +410,10 @@ public class AuthorshipServiceTest {
 	}
 
 	@Test
-	public void mergeAuthors_StringString_formatFirstLast() {
+	public void mergePersons_StringString_formatFirstLast() {
 		createNameParserInstance();
 
-		final int r = this.test.mergeAuthors("F0 L0", "F2 L2");
+		final int r = this.test.mergePersons("F0 L0", "F2 L2");
 		assertEquals(1, r);
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
@@ -484,10 +436,10 @@ public class AuthorshipServiceTest {
 	}
 
 	@Test
-	public void mergeAuthors_StringString_formatLastFirst() {
+	public void mergePersons_StringString_formatLastFirst() {
 		createNameParserInstance();
 
-		final int r = this.test.mergeAuthors("L0, F0", "L2, F2");
+		final int r = this.test.mergePersons("L0, F0", "L2, F2");
 		assertEquals(1, r);
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
@@ -510,9 +462,9 @@ public class AuthorshipServiceTest {
 	}
 
 	@Test
-	public void mergeAuthors_ListStringStringFunction() {
+	public void mergePersons_ListStringStringFunction() {
 		final List<Integer> olds = Arrays.asList(12345);
-		final int r = this.test.mergeAuthors(olds, "F2", "L2", null);
+		final int r = this.test.mergePersons(olds, "F2", "L2", null);
 		assertEquals(1, r);
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
