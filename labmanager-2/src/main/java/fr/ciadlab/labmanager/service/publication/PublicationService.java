@@ -18,11 +18,13 @@ package fr.ciadlab.labmanager.service.publication;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Reader;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -69,6 +71,7 @@ import fr.ciadlab.labmanager.service.publication.type.MiscDocumentService;
 import fr.ciadlab.labmanager.service.publication.type.PatentService;
 import fr.ciadlab.labmanager.service.publication.type.ReportService;
 import fr.ciadlab.labmanager.service.publication.type.ThesisService;
+import fr.ciadlab.labmanager.utils.ComposedException;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -348,77 +351,146 @@ public class PublicationService extends AbstractService {
 		}
 	}
 
+	/** Parse the given BibTeX file and extract the publications without adding them in the datagase.
+	 * The format of the BibTeX is a standard that is briefly described
+	 * on {@link "https://en.wikipedia.org/wiki/BibTeX"}.
+	 * If multiple BibTeX entries are defined into the given input string, each of them is subject
+	 * of an exportation tentative.
+	 *
+	 * @param bibtex the stream that contains the BibTeX description of the publications.
+	 * @param keepBibTeXId indicates if the BibTeX keys should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the BibTeX keys are provided to the publication.
+	 *     If this argument is {@code false}, the BibTeX keys are ignored.
+	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
+	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
+	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
+	 * @return the list of the publications that are successfully extracted.
+	 * @throws Exception if it is impossible to parse the given BibTeX source.
+	 * @see BibTeX
+	 * @see "https://en.wikipedia.org/wiki/BibTeX"
+	 */
+	public List<Publication> readPublicationsFromBibTeX(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId) throws Exception {
+		return this.bibtex.extractPublications(bibtex, keepBibTeXId, assignRandomId);
+	}
+
 	/** Import publications from a BibTeX string. The format of the BibTeX is a standard that is briefly described
 	 * on {@link "https://en.wikipedia.org/wiki/BibTeX"}.
 	 * If multiple BibTeX entries are defined into the given input string, each of them is subject
 	 * of an importation tentative. If the import process is successful, the database identifier of the publication
 	 * is replied.
 	 *
-	 * @param bibtex the string that contains the BibTeX description of the publications.
+	 * @param bibtex the stream that contains the BibTeX description of the publications.
+	 * @param importedEntriesWithExpectedType a map that list the entries to import (keys corresponds to the BibTeX keys) and the
+	 *      expected publication type (as the map values) or {@code null} map value if we accept the "default" publication type.
+	 *      If this argument is {@code null} or the map is empty, then all the BibTeX entries will be imported.
 	 * @return the list of the identifiers of the publications that are successfully imported.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
 	 */
-	public List<Integer> importPublications(String bibtex) throws Exception {
+	public List<Integer> importPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
-		final List<Publication> importablePublications = this.bibtex.extractPublications(bibtex);
+		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false);
 
 		//Holds the IDs of the successfully imported IDs. We'll need it for type differenciation later.
 		final List<Integer> importedPublicationIdentifiers = new ArrayList<>();
 
 		//We are going to try to import every publication in the list
+		final List<Throwable> errors = new LinkedList<>();
+		final boolean forceImport = importedEntriesWithExpectedType == null || importedEntriesWithExpectedType.isEmpty();
 		for (final Publication publication : importablePublications) {
 			try {
-				// Add the publication to the database and get the new assigned identifier
-				this.publicationRepository.save(publication);
-				final int publicationId = publication.getId();
-				final Integer publicationIdObj = Integer.valueOf(publicationId);
-
-				// Adding the id of the current publication to the list
-				importedPublicationIdentifiers.add(publicationIdObj);
-
-				// For every authors assigned to this publication, save them into the database
-				final List<Person> authors = publication.getAuthors();
-				publication.setTemporaryAuthors(null);
-				int rank = 0;
-				for (final Person author : authors) {
-					try {
-						// Search for a person with a "similar name"
-						int personId = this.personService.getPersonIdBySimilarName(
-								author.getFirstName(), author.getLastName());
-						// Create new author if is not inside the database.
-						// If we've already got the author with the abbreviated first name in DB, 
-						// but the one parsed have the full version, it creates a new author
-						if (personId == 0) {
-							this.personRepository.save(author);
-							personId = author.getId();
-						}
-						// Assigning authorship
-						this.authorshipService.addAuthorship(personId, publicationId, rank, false);
-						this.publicationRepository.save(publication);
-
-						// Check if the newly imported pub has at least one authorship.
-						// If not, it's a bad case and the pub have to be removed and marked as failed
-						if (this.authorshipService.getAuthorsFor(publicationId).isEmpty()) {
-							throw new IllegalArgumentException("No author for publication id=" + publicationId); //$NON-NLS-1$
-						}
-						++rank;
-					} catch (Exception ex) {
-						// Even if a larger try catch for exceptions exists, we need to delete
-						// first the imported publication and linked authorship
-						importedPublicationIdentifiers.remove(publicationIdObj);
-						for (final Authorship toRemove : this.authorshipRepository.findByPublicationId(publicationId)) {
-							this.authorshipRepository.deleteById(Integer.valueOf(toRemove.getId()));
-						}
-						this.publicationRepository.deleteById(publicationIdObj);
-						throw ex;
+				// Test if this publication should be imported
+				final boolean isImport;
+				final PublicationType expectedType;
+				if (forceImport) {
+					isImport = true;
+					if (importedEntriesWithExpectedType != null) {
+						expectedType = importedEntriesWithExpectedType.get(publication.getPreferredStringId());
+					} else {
+						expectedType = null;
 					}
-				}	
-			} catch(Exception ex) {
-				getLogger().error("Error while importing Bibtext publication\nData :\n" + publication + "\nException :", ex); //$NON-NLS-1$ //$NON-NLS-2$
+				} else {
+					assert importedEntriesWithExpectedType != null;
+					isImport = importedEntriesWithExpectedType.containsKey(publication.getPreferredStringId());
+					if (isImport) {
+						expectedType = importedEntriesWithExpectedType.get(publication.getPreferredStringId());
+					} else {
+						expectedType = null;
+					}
+				}
+				if (isImport) {
+					// Change the publication type according to the expected type provided as argument of this function
+					if (expectedType != null) {
+						if (!publication.getType().isCompatibleWith(expectedType)) {
+							throw new IllegalArgumentException(
+									getMessage("publicationService.IncompatibleBibTeXEntryType", //$NON-NLS-1$
+											publication.getPreferredStringId(),
+											publication.getType().name(),
+											publication.getType().getLabel(),
+											expectedType.name(),
+											expectedType.getLabel()));
+						}
+						publication.setType(expectedType);
+					}
+
+					// Add the publication to the database and get the new assigned identifier
+					this.publicationRepository.save(publication);
+					final int publicationId = publication.getId();
+					final Integer publicationIdObj = Integer.valueOf(publicationId);
+		
+					// Adding the id of the current publication to the list
+					importedPublicationIdentifiers.add(publicationIdObj);
+		
+					// For every authors assigned to this publication, save them into the database
+					final List<Person> authors = publication.getAuthors();
+					publication.setTemporaryAuthors(null);
+					int rank = 0;
+					for (final Person author : authors) {
+						try {
+							// Search for a person with a "similar name"
+							int personId = this.personService.getPersonIdBySimilarName(
+									author.getFirstName(), author.getLastName());
+							// Create new author if is not inside the database.
+							// If we've already got the author with the abbreviated first name in DB, 
+							// but the one parsed have the full version, it creates a new author
+							if (personId == 0) {
+								this.personRepository.save(author);
+								personId = author.getId();
+							}
+							// Assigning authorship
+							this.authorshipService.addAuthorship(personId, publicationId, rank, false);
+							this.publicationRepository.save(publication);
+		
+							// Check if the newly imported pub has at least one authorship.
+							// If not, it's a bad case and the pub have to be removed and marked as failed
+							if (this.authorshipService.getAuthorsFor(publicationId).isEmpty()) {
+								throw new IllegalArgumentException("No author for publication id=" + publicationId); //$NON-NLS-1$
+							}
+							++rank;
+						} catch (Exception ex) {
+							// Even if a larger try catch for exceptions exists, we need to delete
+							// first the imported publication and linked authorship
+							importedPublicationIdentifiers.remove(publicationIdObj);
+							for (final Authorship toRemove : this.authorshipRepository.findByPublicationId(publicationId)) {
+								this.authorshipRepository.deleteById(Integer.valueOf(toRemove.getId()));
+							}
+							this.publicationRepository.deleteById(publicationIdObj);
+							throw ex;
+						}
+					}
+				}
+			} catch (Throwable ex) {
+				final Throwable ex0 = new IllegalArgumentException("Unable to import the publication from BibTeX: " //$NON-NLS-1$
+						+ publication.getTitle(), ex);
+				getLogger().error(ex0.getLocalizedMessage(), ex0);
+				errors.add(ex0);
 			}
+		}
+		if (!errors.isEmpty()) {
+			throw new ComposedException(errors);
 		}
 		return importedPublicationIdentifiers;
 	}

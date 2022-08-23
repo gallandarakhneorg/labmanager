@@ -29,17 +29,12 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
-import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
-import fr.ciadlab.labmanager.utils.ViewFactory;
-import fr.ciadlab.labmanager.utils.names.DefaultPersonNameParser;
-import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -59,8 +54,6 @@ public class PublicationControllerTest {
 
 	private MessageSourceAccessor messages;
 
-	private PrePublicationFactory prePublicationFactory;
-
 	private PublicationService publicationService;
 
 	private PersonService personService;
@@ -68,12 +61,6 @@ public class PublicationControllerTest {
 	private OpenDocumentTextExporter odtExporter;
 
 	private DownloadableFileManager fileManager;
-
-	private PersonNameParser nameParser;
-
-	private BibTeX bibtex;
-
-	private ViewFactory viewFactory;
 
 	private JournalService journalService;
 
@@ -84,21 +71,16 @@ public class PublicationControllerTest {
 	@BeforeEach
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
-		this.prePublicationFactory = mock(PrePublicationFactory.class);
 		this.publicationService = mock(PublicationService.class);
 		this.odtExporter = mock(OpenDocumentTextExporter.class);
 		this.personService = mock(PersonService.class);
 		this.fileManager = mock(DownloadableFileManager.class);
-		this.nameParser = new DefaultPersonNameParser();
-		this.bibtex = mock(BibTeX.class);
-		this.viewFactory = mock(ViewFactory.class);
 		this.journalService = mock(JournalService.class);
 		this.journalPaperService = mock(JournalPaperService.class);
 		this.test = new PublicationController(
-				this.messages, this.prePublicationFactory, this.publicationService,
+				this.messages, this.publicationService,
 				this.personService, new PersonComparator(), this.fileManager,
-				this.nameParser, this.bibtex, this.viewFactory, this.journalService,
-				this.journalPaperService);
+				this.journalService, this.journalPaperService);
 		this.test.setLogger(mock(Logger.class));
 	}
 

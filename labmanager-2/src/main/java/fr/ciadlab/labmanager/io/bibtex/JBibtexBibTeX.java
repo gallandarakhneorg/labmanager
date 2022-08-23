@@ -55,6 +55,8 @@ import java.io.Writer;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import fr.ciadlab.labmanager.entities.journal.Journal;
@@ -182,6 +184,28 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	protected static final Key KEY_CORE_RANKING = new Key("_core_ranking"); //$NON-NLS-1$
 
 	private static final String MESSAGE_PREFIX = "jBibtexBibTeX."; //$NON-NLS-1$
+
+	private static final String[] PREFIXES = {
+			"the",	//$NON-NLS-1$
+			"a",	//$NON-NLS-1$
+			"an",	//$NON-NLS-1$
+			"le",	//$NON-NLS-1$
+			"la",	//$NON-NLS-1$
+			"l'",	//$NON-NLS-1$
+			"les",	//$NON-NLS-1$
+			"un",	//$NON-NLS-1$
+			"une",	//$NON-NLS-1$
+			"der",	//$NON-NLS-1$
+			"das",	//$NON-NLS-1$
+			"die",	//$NON-NLS-1$
+			"ein",	//$NON-NLS-1$
+			"el",	//$NON-NLS-1$
+			"la",	//$NON-NLS-1$
+			"las",	//$NON-NLS-1$
+			"los",	//$NON-NLS-1$
+			"un",	//$NON-NLS-1$
+			"una",	//$NON-NLS-1$
+	};
 
 	private MessageSourceAccessor messages;
 
@@ -352,6 +376,16 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return null;
 	}
 
+	private static String fieldCleanPrefix(BibTeXEntry entry, Key key) {
+		String value = field(entry, key);
+		for (final String prefix : PREFIXES) {
+			final Pattern pattern = Pattern.compile("^\\s*" + Pattern.quote(prefix) + "\\s+", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$ //$NON-NLS-2$
+			final Matcher matcher = pattern.matcher(value);
+			value = matcher.replaceFirst(""); //$NON-NLS-1$
+		}
+		return value;
+	}
+
 	private static String field(BibTeXEntry entry, String key) {
 		return field(entry, new Key(key));
 	}
@@ -500,7 +534,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				break;
 			case INTERNATIONAL_CONFERENCE_PAPER:
 				finalPublication = this.conferencePaperService.createConferencePaper(genericPublication,
-						field(entry, KEY_BOOKTITLE),
+						fieldCleanPrefix(entry, KEY_BOOKTITLE),
 						field(entry, KEY_VOLUME),
 						field(entry, KEY_NUMBER),
 						field(entry, KEY_PAGES),

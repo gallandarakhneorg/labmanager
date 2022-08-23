@@ -32,7 +32,7 @@
                     <th:block th:if="${!iAuthorship.first}"
                               th:utext="', '"></th:block>
 					<a th:href="@{/publicationStats(id=${authorship.person.id})}">
-	                    <th:block th:utext="${authorship.person.fullName + '(' + authorship.authorRank + ')'}"></th:block>
+	                    <th:block th:utext="${authorship.person.fullName}"></th:block>
 					</a>
             	</th:block>
             </td>

@@ -16,12 +16,17 @@
 
 package fr.ciadlab.labmanager.controller.publication;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.lang.reflect.Method;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
@@ -30,6 +35,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.Constants;
 import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
@@ -39,18 +45,15 @@ import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
-import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.od.OpenDocumentConstants;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
-import fr.ciadlab.labmanager.utils.ViewFactory;
-import fr.ciadlab.labmanager.utils.names.PersonNameParser;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
@@ -89,8 +92,6 @@ public class PublicationController extends AbstractController {
 
 	private static final String DEFAULT_ENDPOINT = "publicationList"; //$NON-NLS-1$
 
-	private PrePublicationFactory prePublicationFactory;
-
 	private PublicationService publicationService;
 
 	private PersonService personService;
@@ -99,13 +100,7 @@ public class PublicationController extends AbstractController {
 
 	private DownloadableFileManager fileManager;
 
-	private PersonNameParser nameParser;
-
-	private BibTeX bibtex;
-
 	private JournalService journalService;
-
-	private ViewFactory viewFactory;
 
 	private JournalPaperService journalPaperService;
 
@@ -113,47 +108,26 @@ public class PublicationController extends AbstractController {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of messages.
-	 * @param prePublicationFactory the factory of pre-publications.
 	 * @param publicationService the publication service.
 	 * @param personService the person service.
 	 * @param personComparator the comparator of persons.
 	 * @param fileManager the manager of local files.
-	 * @param nameParser the parser of a person name.
-	 * @param bibtex the tools for manipulating BibTeX data.
-	 * @param viewFactory the factory of view.
 	 * @param journalService the tools for manipulating journals.
-	 * @param bookService the book service.
-	 * @param bookChapterService the book chapter service.
-	 * @param conferencePaperService the conference paper service.
-	 * @param journalEditionService the journal edition service.
 	 * @param journalPaperService the journal paper service.
-	 * @param keyNoteService the service for keynotes.
-	 * @param miscDocumentService the service for misc documents.
-	 * @param patentService the service for patents.
-	 * @param reportService the service for reports.
-	 * @param thesisService the service for theses.
 	 */
 	public PublicationController(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired PublicationService publicationService,
 			@Autowired PersonService personService,
 			@Autowired PersonComparator personComparator,
 			@Autowired DownloadableFileManager fileManager,
-			@Autowired PersonNameParser nameParser,
-			@Autowired BibTeX bibtex,
-			@Autowired ViewFactory viewFactory,
 			@Autowired JournalService journalService,
 			@Autowired JournalPaperService journalPaperService) {
 		super(DEFAULT_ENDPOINT, messages);
-		this.prePublicationFactory = prePublicationFactory;
 		this.publicationService = publicationService;
 		this.personService = personService;
 		this.personComparator = personComparator;
 		this.fileManager = fileManager;
-		this.nameParser = nameParser;
-		this.bibtex = bibtex;
-		this.viewFactory = viewFactory;
 		this.journalService = journalService;
 		this.journalPaperService = journalPaperService;
 	}
@@ -793,80 +767,99 @@ public class PublicationController extends AbstractController {
 		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	}
 
-	//	/** Import publications from a BibTeX string. The format of the BibTeX is a standard that is briefly described
-	//	 * on {@link "https://en.wikipedia.org/wiki/BibTeX"}.
-	//	 * If multiple BibTeX entries are defined into the given input string, each of them is subject
-	//	 * of an importation tentative. If the import process is successful, the database identifier of the publication
-	//	 * is replied.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @param bibtex the string that contains the BibTeX description of the publications.
-	//	 * @return the list of the identifiers of the publications that are successfully imported.
-	//	 * @throws Exception if it is impossible to redirect to the error page.
-	//	 * @see BibTeX
-	//	 * @see "https://en.wikipedia.org/wiki/BibTeX"
-	//	 */
-	//	@PostMapping(value = "/importPublications", headers = "Accept=application/json")
-	//	public List<Integer> importPublications(HttpServletResponse response, String bibtex) throws Exception {
-	//		try {
-	//			return this.publicationService.importPublications(bibtex);
-	//		} catch (Exception ex) {
-	//			redirectError(response, ex);
-	//			return Collections.emptyList();
-	//		}
-	//	}
-	//
-	//	/** Import publications from a BibTeX string. The format of the BibTeX is a standard that is briefly described
-	//	 * on {@link "https://en.wikipedia.org/wiki/BibTeX"}.
-	//	 * If multiple BibTeX entries are defined into the given input string, each of them is subject
-	//	 * of an importation tentative. If the import process is successful, the database identifier of the publication
-	//	 * is replied.
-	//	 *
-	//	 * @param response the HTTP response.
-	//	 * @param bibtexFile the file that contains the BibTeX description of the publications.
-	//	 * @throws Exception if it is impossible to import the BibTeX data from the given source file.
-	//	 * @see BibTeX
-	//	 * @see "https://en.wikipedia.org/wiki/BibTeX"
-	//	 */
-	//	@PostMapping(value = "/importBibTeX", headers = "Accept=application/json")
-	//	public void importBibTeX(HttpServletResponse response, MultipartFile bibtexFile) throws Exception {
-	//		try {
-	//			if (bibtexFile != null && !bibtexFile.isEmpty()) {
-	//				final String bibtexContent = this.fileManager.readTextFile(bibtexFile);
-	//				getLogger().debug("BibTeX file read : \n" + bibtexContent); //$NON-NLS-1$
-	//				final List<Integer> publications = importPublications(response, bibtexContent);
-	//				redirectToAddPublicationWithSuccessState(response, publications.size());
-	//			} else {
-	//				throw new Exception("BibTeX input file not provided"); //$NON-NLS-1$
-	//			}
-	//		} catch (Exception ex) {
-	//			redirectError(response, ex);
-	//		}
-	//	}
-	//
-	//	/** Read a BibTeX source and redirect to the publication addition form.
-	//	 *
-	//	 * @param response the HTTP response
-	//	 * @param bibtexFile the BibTeX file to read.
-	//	 * @param redirectAttributes definition of the redirection attributes.
-	//	 * @return the redirection view.
-	//	 * @throws Exception if the BibTeX source cannot be read.
-	//	 */
-	//	@PostMapping(value = "/bibTeXToAddPublication", headers = "Accept=application/json")
-	//	public RedirectView bibTeXToAddPublication(HttpServletResponse response, MultipartFile bibtexFile, RedirectAttributes redirectAttributes) throws Exception {
-	//		try {
-	//			if (bibtexFile != null && !bibtexFile.isEmpty()) {
-	//				final String bibtexContent = this.fileManager.readTextFile(bibtexFile);
-	//				redirectAttributes.addFlashAttribute("bibtex", bibtexContent); //$NON-NLS-1$
-	//				redirectAttributes.addFlashAttribute("publicationService", this.publicationService); //$NON-NLS-1$
-	//				return this.viewFactory.newRedirectView("/addPublication?filling=true", true); //$NON-NLS-1$
-	//			}
-	//			throw new Exception("BibTeX input file not provided"); //$NON-NLS-1$
-	//		} catch (Exception ex) {
-	//			redirectError(response, ex);
-	//			return null;
-	//		}
-	//	}
+	/** Show the view for importing BibTeX files.
+	 *
+	 * @param username the login of the logged-in person.
+	 * @param success flag that indicates the previous operation was a success.
+	 * @param failure flag that indicates the previous operation was a failure.
+	 * @param message the message that is associated to the state of the previous operation.
+	 * @return the model-view object.
+	 * @throws IOException if there is some internal IO error when building the form's data.
+	 */
+	@GetMapping(value = "/" + Constants.IMPORT_BIBTEX_VIEW_ENDPOINT)
+	public ModelAndView showBibTeXImporter(
+			@RequestParam(required = false, defaultValue = "false") Boolean success,
+			@RequestParam(required = false, defaultValue = "false") Boolean failure,
+			@RequestParam(required = false) String message,
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws IOException {
+		final ModelAndView modelAndView = new ModelAndView("importBibTeX"); //$NON-NLS-1$
+		//
+		initModelViewProperties(modelAndView, username, success, failure, message);
+		modelAndView.addObject("bibtexJsonActionUrl", "/" + Constants.GET_JSON_FROM_BIBTEX_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
+		modelAndView.addObject("formActionUrl", "/" + Constants.SAVE_BIBTEX_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
+		//
+		return modelAndView;
+	}
+
+	/** Read a BibTeX file and replies the publications as JSON.
+	 *
+	 * @param bibtexFile the uploaded BibTeX files.
+	 * @return the list of publications from the BibTeX file.
+	 * @throws Exception if the BibTeX file cannot be used.
+	 */
+	@PostMapping(value = "/" + Constants.GET_JSON_FROM_BIBTEX_ENDPOINT)
+	@ResponseBody
+	public List<Publication> getJsonFromBibTeX(
+			@RequestParam(required = false) MultipartFile bibtexFile) throws Exception {
+		if (bibtexFile == null || bibtexFile.isEmpty()) {
+			throw new IllegalArgumentException(getMessage("publicationController.NoBibTeXSource")); //$NON-NLS-1$
+		}
+		try (final InputStream inputStream = bibtexFile.getInputStream()) {
+			try (final Reader reader = new InputStreamReader(inputStream)) {
+				return this.publicationService.readPublicationsFromBibTeX(reader, true, true);
+			}
+		}
+	}
+
+	/** Save a BibTeX file in the database..
+	 *
+	 * @param bibtexFile the uploaded BibTeX files.
+	 * @param changes a JSON string that represents the changes. It is expected to be a map in which the keys are
+	 *     the BibTeX keys, and the values are sub-maps with the key {@code import} indicates if an entry should be
+	 *     imported or not (with boolean value), and the key {@code type} is the string representation of the type of
+	 *     publication to be considered for the BibTeX entry. If this expected publication type does not corresponds
+	 *     to the type of BibTeX entry, an exception is thrown.
+	 * @param username the login of the logged-in person.
+	 * @throws Exception if it is impossible to import the BibTeX file in the database.
+	 */
+	@PostMapping(value = "/" + Constants.SAVE_BIBTEX_ENDPOINT)
+	public void saveBibTeX(
+			@RequestParam(required = false) MultipartFile bibtexFile,
+			@RequestParam(required = false) String changes,
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
+
+		if (isLoggedUser(username).booleanValue()) {
+			try {
+				// Pass the changes string as JSON to extract the expected types of publications. 
+				final ObjectMapper json = new ObjectMapper();
+				final Map<String, Object> jsonChanges;
+				try (final ByteArrayInputStream sis = new ByteArrayInputStream(changes.getBytes())) {
+					jsonChanges = json.readerForMapOf(Map.class).readValue(sis);
+				}
+				final Map<String, PublicationType> expectedTypes = new TreeMap<>();
+				for (final Entry<String, Object> entry : jsonChanges.entrySet()) {
+					@SuppressWarnings("unchecked")
+					final Map<String, Object> sub = (Map<String, Object>) entry.getValue();
+					if (sub != null && BooleanUtils.toBoolean(sub.getOrDefault("import", Boolean.FALSE).toString())) { //$NON-NLS-1$
+						final Object expectedTypeStr = sub.get("type"); //$NON-NLS-1$
+						if (expectedTypeStr != null && !Strings.isNullOrEmpty(expectedTypeStr.toString())) {
+							final PublicationType type = PublicationType.valueOfCaseInsensitive(expectedTypeStr.toString());
+							expectedTypes.put(entry.getKey(), type);
+						}
+					}
+				}
+				// Import the publications that are specified in the map of expected types.
+				try (final Reader reader = new InputStreamReader(bibtexFile.getInputStream())) {
+					this.publicationService.importPublications(reader, expectedTypes);
+				}
+			} catch (Throwable ex) {
+				getLogger().error(ex.getLocalizedMessage(), ex);
+				throw ex;
+			}
+		} else {
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+		}
+	}
 
 	/** Exporter callback.
 	 * 

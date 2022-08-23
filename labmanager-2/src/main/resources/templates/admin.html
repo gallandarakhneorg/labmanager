@@ -48,9 +48,10 @@
       	       th:utext="#{html.AddPublication}"></a></li>
         </ul>
 
-      <h3>Import</h3>
+      <h3 th:utext="#{html.Import}"></h3>
         <ul>
-      	  <li>Import BibTeX</li>
+      	  <li><a th:href="@{/showBibTeXImporter}"
+      	       th:utext="#{html.ImportBibTeX}"></a></li>
         </ul>
 
       <h2>Project Management</h2>

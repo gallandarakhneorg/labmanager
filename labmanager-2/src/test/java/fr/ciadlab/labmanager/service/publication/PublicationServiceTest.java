@@ -38,6 +38,8 @@ import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -283,14 +285,15 @@ public class PublicationServiceTest {
 
 	@Test
 	public void importPublications_null() throws Exception {
-		List<Integer> ids = this.test.importPublications(null);
+		List<Integer> ids = this.test.importPublications(null, null);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
 
 	@Test
 	public void importPublications_empty() throws Exception {
-		List<Integer> ids = this.test.importPublications("");
+		Reader rd = new StringReader("");
+		List<Integer> ids = this.test.importPublications(rd, null);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -314,7 +317,7 @@ public class PublicationServiceTest {
 		Publication p1 = mock(Publication.class);
 		when(p1.getId()).thenReturn(874);
 		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
-		when(this.bibtex.extractPublications(anyString())).thenReturn(Arrays.asList(p0, p1));
+		when(this.bibtex.extractPublications(any(Reader.class), anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
 		when(this.personService.getPersonIdBySimilarName(any(), any())).thenAnswer(it -> {
 			switch (it.getArgument(0).toString()) {
 			case "Fa0":
@@ -334,7 +337,7 @@ public class PublicationServiceTest {
 		});
 		when(this.authorshipService.getAuthorsFor(anyInt())).thenReturn(Collections.singletonList(null));
 
-		List<Integer> ids = this.test.importPublications(bibtex);
+		List<Integer> ids = this.test.importPublications(new StringReader(bibtex), null);
 
 		assertNotNull(ids);
 		assertEquals(2, ids.size());

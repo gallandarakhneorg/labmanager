@@ -137,4 +137,16 @@ public interface Constants {
 	 */
 	public static final String PUBLICATION_SAVING_ENDPOINT = "publicationSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for selecting a BibTeX file to import.
+	 */
+	public static final String IMPORT_BIBTEX_VIEW_ENDPOINT = "showBibTeXImporter"; //$NON-NLS-1$
+
+	/** Name of the endpoint for reading a BibTeX file and providing a JSON description.
+	 */
+	public static final String GET_JSON_FROM_BIBTEX_ENDPOINT = "getJsonFromBibTeX"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving a BibTeX file and providing a JSON description.
+	 */
+	public static final String SAVE_BIBTEX_ENDPOINT = "saveBibTeX"; //$NON-NLS-1$
+
 }

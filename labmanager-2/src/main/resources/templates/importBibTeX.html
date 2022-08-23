@@ -1,0 +1,360 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="fragments/head :: style"/>
+	<th:block th:replace="fragments/head :: sharedScript"/>
+	
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
+	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/umd/string-similarity.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+	
+	<!-- the upload file library -->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.min.css" crossorigin="anonymous">
+	<link href="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.5.0/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+	<script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.5.0/js/fileinput.min.js"></script>
+	
+	<style>
+	    .form-control.is-valid {
+	        border-color: #0d64c1;
+	        border-width:2px;
+	    }
+        .publicationTitle {
+            color: #96c10d !important;
+            font-weight: bold;
+            font-size: larger;
+        }
+        .publicationAuthors {
+            color: #212529 !important;
+            font-weight: bold;
+        }
+	</style>
+</head>
+<body>
+	<div class="horizontal-main-wrapper">
+	    <!-- main content area start -->
+	    <div class="main-content">
+	        <div class="main-content-inner">
+	            <div class="row" th:if="${#bools.isTrue(failure)}">
+	                <div class="col-lg-12">
+	                    <div class="card bg-danger">
+	                        <div class="card-body">
+	                            <p th:if="${message != null}" th:utext="${message}"></p>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	            <div class="row">
+	                <div class="col-lg-12">
+	                    <div class="card">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:utext="#{html.ImportBibTeX}"></h4>
+	                            <form id="form">
+	                                <div class="form-group">
+	                                    <label for="bibtexFile" class="col-form-label"
+	                                           th:utext="#{html.ImportBibTeXFiles}"></label>
+										<input class="form-control" type="file"
+										       data-preview-file-type="text"
+										       accept=".bib,.bibtex,text/x-bibtex"
+										       id="bibtexFile"></input>
+	                                </div>
+	                                <hr/>
+	                                <div id="loadingIndicator" style="display:none">
+										<div class="d-flex justify-content-center">
+		                                	<div class="spinner-border" role="status">
+												<span class="sr-only" th:utext="#{html.Loading}"></span>
+											</div>
+										</div>
+	                                </div>
+	                                <div id="form-dynamic-groups" style="display:none">
+	                                </div>
+									<button id="submitButton" class="btn btn-success mt-4 pr-4 pl-4"
+									        th:utext="#{html.Submit}" disabled="true"></button>
+	                            </form>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    <!-- main content area end -->
+	</div>
+	<!-- page container area end -->
+</body>
+<script th:inline="javascript">
+var GLOBAL_PUBLICATIONS = [];
+
+function resetBibTeXView() {
+	GLOBAL_PUBLICATIONS = [];
+	$('#bibtexFile').fileinput('enable');
+	$('#form-dynamic-groups').hide();
+	$('#submitButton').prop("disabled", true);
+	$('#loadingIndicator').hide();
+}
+function startBibTeXView(file) {
+	if (file) {
+		var fileName = file.name;
+		$('#loadingIndicator').show();
+		$('#bibtexFile').fileinput('disable');
+		$('#form-dynamic-groups').hide();
+		$('#submitButton').prop("disabled", true);
+		var formData = new FormData();
+		formData.append("bibtexFile", file, fileName);
+	    formData.append("upload_file", true);
+		$.ajax({
+			url: "[(@{/} + ${bibtexJsonActionUrl})]",
+			timeout: 50000,
+			type: 'post',
+			data: formData,
+			dataType: 'json',
+			contentType: false,
+			processData: false,
+			cache: false,
+			async:true,
+			success: postProcessingBibTeXJson,
+			error: postProcessingBibTeXJsonError,
+		});
+		return;
+	}
+	Swal.fire(
+		  "[(#{html.Error})]",
+		  "[(#{html.ImportBibTeXError1})]",
+		  'error'
+		);
+}
+function createOption($container, label, value, type) {
+	var $optionElement = $("<option></option>").attr('value', value).text(label);
+	if (value === type) {
+		$optionElement = $optionElement.attr('selected', 'true');
+	}
+	$container.append($optionElement);
+}
+function buildPublicationDetails($parent, pub) {
+	$.each(pub.authors, (index, author) => {
+		if (index > 0) {
+			$parent = $parent.append(', ');
+		}
+		if (author) {
+			var $span = $('<span></span>').attr('class', 'publicationAuthors').text(author.fullName);
+			$parent = $parent.append($span);
+		} else {
+			$parent = $parent.append('?');
+		}
+	});
+	$parent = $parent.append('. ');
+	var $span = $('<span></span>').attr('class', 'publicationTitle').text(pub.title);
+	$parent = $parent.append($span);
+	$parent = $parent.append(". [(#{html.In})] " + pub.wherePublishedShortDescription + '. ' + pub.publicationYear + '.');
+}
+function getCompatiblePublicationTypes(type) {
+	var types = [];
+	switch (type) {
+	/*[# th:each="type : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values}"]*/
+	case "[(${type.name})]":
+		/*[# th:each="type1 : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values}"]*/
+			/*[# th:if="${type.isCompatibleWith(type1)}"]*/
+		types.push({
+			'name': "[(${type1.name})]",
+			'label': "[(${type1.getLabel(locale) + ' ' + type1.categories.toString()})]",
+		});
+		    /*[/]*/
+	    /*[/]*/
+		break;
+    /*[/]*/
+	}
+	return types;
+}
+function postProcessingBibTeXJson(jsonData, textStatus, obj) {
+	$('#loadingIndicator').hide();
+	if (jsonData.length > 0) {
+		$('#form-dynamic-groups').empty();
+
+		var gstats = "[(#{html.ImportBibTeXSummary})]".format(jsonData.length);
+		var $globalStats = $("<div></div>").attr('class', 'form-group');
+		$('#form-dynamic-groups').append($globalStats);
+		var $labelElement0 = $('<label></label>').attr('class', 'col-form-label').text(gstats);
+		$globalStats.append($labelElement0);
+		
+		GLOBAL_PUBLICATIONS = [];
+		
+		$.each(jsonData, (index, jsonPub) => {
+			var id = jsonPub.preferredStringId
+			GLOBAL_PUBLICATIONS.push(id);
+
+			var $groupElement = $("<div></div>").attr('class', 'form-group');
+			$('#form-dynamic-groups').append($groupElement);
+
+			var $firstBlock = $('<div></div>').attr('class', 'col-form-label');
+			$groupElement.append($firstBlock);
+
+			var $checkElement = $('<input></input>').attr('type', 'checkbox');
+			$checkElement = $checkElement.attr('checked', 'true');
+			$checkElement = $checkElement.attr('style', 'vertical-align: top;margin-top:5px;');
+			$checkElement = $checkElement.attr('id', 'publicationImport_' + id );
+			$firstBlock.append($checkElement);
+
+			var $labelElement = $('<label></label>').attr('for', 'publicationImport_' + id );
+			$labelElement = $labelElement.attr('style', 'max-width:85%;margin-left:10px;');
+			buildPublicationDetails($labelElement, jsonPub);
+			$firstBlock.append($labelElement);
+
+			var $selectElement = $("<select></select>").attr('class', 'form-control selectType list-group-item list-group-item-action');
+			$selectElement = $selectElement.attr('style', 'max-width: 85%; margin-left: 25px;');
+			$selectElement = $selectElement.attr('id', 'publicationType_' + id);
+			$groupElement.append($selectElement);
+			var compatibleTypes = getCompatiblePublicationTypes(jsonPub.type);
+			if (compatibleTypes.length > 0) {
+				$.each(compatibleTypes, (index0, ctype0) => {
+			        createOption($selectElement,
+			        		ctype0.label,
+			        		ctype0.name,
+			        		jsonPub.type);
+				});			
+			} else {
+				$selectElement.prop("disabled", true);
+			}
+		});
+		$('#form-dynamic-groups').show();
+		$('#submitButton').prop("disabled", false);
+	} else {
+		resetBibTeXView();
+		Swal.fire(
+				  "[(#{html.Warning})]",
+				  "[(#{html.ImportBibTeXError2})]",
+				  'warning'
+				);
+	}
+}
+function postProcessingBibTeXJsonError(obj, textStatus, errorThrown) {
+	resetBibTeXView();
+	var errCode = obj.status;
+	var errMsg = obj.responseJSON.message ? obj.responseJSON.message : obj.responseJSON.error;
+	var errMessage = "[(#{html.ImportBibTeXError0})]".format(errCode, errMsg);	
+	Swal.fire(
+			  "[(#{html.Error})]",
+			  errMessage,
+			  'error'
+			);
+}
+function setSubmitButtonToAction() {
+	var $bt = $('#submitButton');
+	$bt = $bt.prop("disabled", true);
+	var $span = $('<span></span>').attr('class', 'spinner-border spinner-border-sm');
+	$span = $span.attr('role', 'status');
+	$span = $span.attr('aria-hidden', 'true');
+	$bt.empty();
+	$bt.append($span);
+	$bt.append("&nbsp;");
+	$bt.append("[(#{html.Submit})]");
+}
+function setSubmitButtonToInaction() {
+	var $bt = $('#submitButton');
+	$bt.empty();
+	$bt.append("[(#{html.Submit})]");
+	$bt.prop("disabled", false);
+}
+function postSavingBibTeXJson(jsonData, textStatus, obj) {
+	setSubmitButtonToInaction();
+	resetBibTeXView();
+	Swal.fire(
+			  "[(#{html.Success})]",
+			  "[(#{html.ImportBibTeXSuccess})]",
+			  'success'
+			);
+}
+function postSavingBibTeXJsonError(obj, textStatus, errorThrown) {
+	setSubmitButtonToInaction();
+	var errCode = obj.status;
+	var errMsg = obj.responseJSON.message ? obj.responseJSON.message : obj.responseJSON.error;
+	var errMessage = "[(#{html.ImportBibTeXError3})]".format(errCode, errMsg);
+	Swal.fire(
+			  "[(#{html.Error})]",
+			  errMessage,
+			  'error'
+			);
+}
+$(document).ready(() => {
+	// Initialize file upload library
+	$('#bibtexFile').fileinput({
+		theme: 'fa5',
+		sizeUnits: 'MB',
+		showPreview: true,
+		showRemove: false,
+		showUpload: false,
+		showUploadStats: false,
+		showCancel: false,
+		showPause: false,
+		showClose: false,
+		maxFileCount: 1,
+		autoReplace: true,
+		initialPreviewShowDelete: false,
+		dropZoneEnabled: true,
+		browseOnZoneClick: true,
+		fileTypeSettings: {
+			 bibtex: (vType, vName) => {
+		        return (typeof vType !== "undefined") ? vType == 'text/x-bibtex' : vName.match(/\.(bib|bibtex)$/i);
+		    },
+		},
+		allowedFileTypes: [
+			'bibtex',
+		],
+		allowedFileExtensions: [
+			'bib', 'bibtex',
+		]
+	});
+	
+	$('#bibtexFile').on('fileloaded', (event, file, previewId, fileId, index, reader) => {
+		startBibTeXView(file);
+	});
+
+	$('#form').on('submit', (evt) => {
+		setSubmitButtonToAction();
+		evt.preventDefault();
+		var files = $('#bibtexFile')[0].files;
+		if (files.length > 0) {
+			var file = files[0];
+			var fileName = file.name;
+			var formData = new FormData();
+			formData.append("bibtexFile", file, fileName);
+		    formData.append("upload_file", true);
+		    var changes = {};
+		    $.each(GLOBAL_PUBLICATIONS, (index, id) => {
+		    	var inputElement = $('#publicationImport_' + id);
+		    	var importable = inputElement.is(':checked');
+		    	var typeElement = $('#publicationType_' + id + ' option:selected');
+		    	var selectedType = typeElement.attr('value');
+		    	changes[id] = {
+		    		'import': importable,
+		    		'type': selectedType,
+		    	};
+		    });
+		    formData.append("changes", JSON.stringify(changes));
+			$.ajax({
+				url: "[(@{/} + ${formActionUrl})]",
+				type: 'post',
+				data: formData,
+				contentType: false,
+				processData: false,
+				cache: false,
+				async:true,
+				success: postSavingBibTeXJson,
+				error: postSavingBibTeXJsonError,
+			});
+		} else {
+			setSubmitButtonToInaction();
+			Swal.fire(
+					  "[(#{html.Error})]",
+					  "[(#{html.ImportBibTeXError1})]",
+					  'error'
+					);
+		}
+	});
+});
+
+</script>
+</html>
+
