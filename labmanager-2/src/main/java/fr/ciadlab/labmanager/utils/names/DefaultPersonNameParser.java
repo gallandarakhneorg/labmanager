@@ -79,18 +79,36 @@ public class DefaultPersonNameParser implements PersonNameParser {
 
 	private static final Pattern COMMA_SEPARATED_PATTERN = Pattern.compile(COMMA_SEPARATED_FORMAT);
 
-	private static int extractNames(String text, NameCallback callback, Pattern nameSeparator, Pattern pattern, int fnIndex, int vonIndex, int lnIndex) {
+	private static int extractNames(String text, NameCallback callback, Pattern nameSeparator) {
 		int nb = 0;
 		final String[] names = nameSeparator.split(text);
 		for (final String fn : names) {
-			final Matcher n0 = pattern.matcher(fn);
+			// Check the format: Last, von, First
+			final Matcher n0 = NAME_PATTERN_0.matcher(fn);
 			if (n0.matches()) {
-				final String lastname = n0.group(lnIndex);
-				final String von = vonIndex > 0 ? n0.group(vonIndex) : null;
-				final String firstname = n0.group(fnIndex);
+				final String lastname = n0.group(1);
+				final String von = n0.group(2);
+				final String firstname = n0.group(3);
 				if (!Strings.isNullOrEmpty(firstname) && !Strings.isNullOrEmpty(lastname)) {
 					callback.name(firstname, Strings.emptyToNull(von), lastname, nb);
 					++nb;
+				} else {
+					throw new IllegalArgumentException("Unrecognized name format for: " + fn); //$NON-NLS-1$
+				}
+			} else {
+				// Check the format: First Last (no von part)
+				final Matcher n1 = NAME_PATTERN_1.matcher(fn);
+				if (n1.matches()) {
+					final String lastname = n1.group(2);
+					final String firstname = n1.group(1);
+					if (!Strings.isNullOrEmpty(firstname) && !Strings.isNullOrEmpty(lastname)) {
+						callback.name(firstname, null, lastname, nb);
+						++nb;
+					} else {
+						throw new IllegalArgumentException("Unrecognized name format for: " + fn); //$NON-NLS-1$
+					}
+				} else {
+					throw new IllegalArgumentException("Unrecognized name format for: " + fn); //$NON-NLS-1$
 				}
 			}
 		}
@@ -104,11 +122,11 @@ public class DefaultPersonNameParser implements PersonNameParser {
 		if (!Strings.isNullOrEmpty(text)) {
 			final Matcher m0 = AND_SEPARATED_PATTERN.matcher(text);
 			if (m0.matches()) {
-				nb = extractNames(text, callback, NAME_SEPARATOR_PATTERN_0, NAME_PATTERN_0, 3, 2, 1);
+				nb = extractNames(text, callback, NAME_SEPARATOR_PATTERN_0);
 			} else {
 				final Matcher m1 = COMMA_SEPARATED_PATTERN.matcher(text);
 				if (m1.matches()) {
-					nb = extractNames(text, callback, NAME_SEPARATOR_PATTERN_1, NAME_PATTERN_1, 1, 0, 2);
+					nb = extractNames(text, callback, NAME_SEPARATOR_PATTERN_1);
 				} else {
 					throw new IllegalArgumentException("Invalid format of the list of names: " + text); //$NON-NLS-1$
 				}
