@@ -1,0 +1,192 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:replace="fragments/head :: style"></th:block>
+<th:block th:replace="fragments/head :: sharedScript"></th:block>
+
+<th:block th:if="${changeEnabled}">
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+	<th:block th:replace="fragments/head :: sharedScriptDeletionButton"></th:block>
+</th:block>
+
+
+<p th:utext="#{html.DuplicatePersonIntro}"></p>
+
+<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
+    <thead>
+        <th th:text="#{html.Names}"></th>
+        <th th:text="#{html.Publications}"></th>
+        <th th:text="#{html.Organizations}"></th>
+        <th th:text="#{html.Actions}"></th>
+    </thead>
+    <tbody>
+    	<tr th:each="duplicates, iMatchingPersons : ${matchingPersons}" th:id="${'duplicateGroup_' + iMatchingPersons.index}">
+            <td>
+		    	<th:block th:each="candidate, iDuplicates : ${duplicates}">
+                    <th:block th:unless="${iDuplicates.first}"
+                              th:utext="'<br/>'"></th:block>
+                    <th:block th:utext="${candidate.fullName}"></th:block>
+                </th:block>
+			</td>
+            <td>
+		    	<th:block th:each="candidate, iDuplicates : ${duplicates}">
+                    <th:block th:unless="${iDuplicates.first}"
+                              th:utext="'<br/>'"></th:block>
+                    <th:block th:utext="${candidate.getAuthorships().size()}"></th:block>
+                </th:block>
+			</td>
+            <td>
+		    	<th:block th:each="candidate, iDuplicates : ${duplicates}">
+                    <th:block th:unless="${iDuplicates.first}"
+                              th:utext="'<br/>'"></th:block>
+                    <th:block th:utext="${candidate.getActiveMemberships().size()}"></th:block>
+                </th:block>
+			</td>
+			<td>
+		    	<th:block th:each="candidate, iDuplicates : ${duplicates}">
+                    <th:block th:unless="${iDuplicates.first}"
+                              th:utext="'<br/>'"></th:block>
+					<i th:if="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"
+					   th:id="${'btDelete_' + iMatchingPersons.index + '_' + candidate.id}"
+					   class="fa fa-trash-o"
+					   style="font-size:larger;margin-right:5px;cursor:pointer"
+					   th:title="#{html.DeletePerson1(${candidate.fullName})}"></i>
+					<i th:unless="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"
+					   class="fa fa-lock"
+					   style="font-size:larger;margin-right:5px;cursor:not-allowed"></i>
+					<i th:id="${'btMergeAll_' + iMatchingPersons.index + '_' + candidate.id}"
+					   class="fa fa-angle-double-right"
+					   style="font-size:larger;margin-right:5px;cursor:pointer"
+					   th:title="#{html.DuplicatePersonMergeAll(${candidate.fullName})}"></i>
+					<i th:id="${'btMergePart_' + iMatchingPersons.index + '_' + candidate.id}"
+					   class="fa fa-angle-right"
+					   style="font-size:larger;cursor:pointer"
+					   th:title="#{html.DuplicatePersonMergePart(${candidate.fullName})}"></i>
+		    	</th:block>
+            </td>
+    	</tr>
+    </tbody>
+</table>
+
+
+<script th:inline="javascript">
+	function installMergeButtonCallback( bt, bxTitle, bxMessage, deletionUrl, successMsg, failureMsg, elementName, successCallback ) {
+	    bt.on('click', function(e) {
+	    	Swal.fire( {
+	   		  title: bxTitle,
+	   		  text: bxMessage,
+	   		  icon: 'question',
+	   		  showCancelButton: true,
+	   		  confirmButtonColor: '#d33',
+	   		  cancelButtonColor: '#99cc00',
+	   		  confirmButtonText: "[(#{html.YesMergeThem})]"
+	   		} ).then(result => {
+				if (result.isConfirmed) {
+					fetch(deletionUrl, {
+			    	    method:'PATCH'
+			    	} ).then(response => {
+			    		if (response.ok) {
+							Swal.fire(
+							  "[(#{html.Merged})]",
+							  successMsg,
+							  'success'
+							).then(result => {
+			    				if (result.isConfirmed) {
+	    							successCallback();
+			    				}
+							});
+			    		} else {
+			    			var boxmsg = '' + response.status;
+			    			if (response.statusText) {
+			    				boxmsg = boxmsg + ' - ' + response.statusText;
+			    			}
+							Swal.fire(
+							  "[(#{html.Error})]",
+							  failureMsg.format(elementName, boxmsg),
+							  'error'
+							);
+			    		}
+			    	} ).catch(err => {
+						Swal.fire(
+						  "[(#{html.Error})]",
+						  failureMsg.format(elementName, err),
+						  'error'
+						);
+			    	} );
+		    		return response.text();
+				}
+	   		} );
+	    } );
+	}
+    $(document).ready(function() {
+    	var tableId = /*[[${uuid}]]*/ '';
+        var table = $('#table'+tableId).DataTable({
+            dom: 'Bfrtip',
+            scrollCollapse: true,
+            paging: false,
+            buttons: [
+                'excelHtml5', 'csvHtml5'
+            ],
+            responsive: true,
+            autoWidth: true,
+            order: false,
+            "columns": [
+                {
+                    "orderable": false,
+                },
+                {
+                    "orderable": false,
+                },
+                {
+                    "orderable": false,
+                },
+                {
+                    "orderable": false,
+                    "width": "60px"
+                }
+            ],
+        });
+    });
+
+    /*[# th:if="${changeEnabled}" th:each="duplicates, iMatchingPersons : ${matchingPersons}"]*/
+	    /*[# th:each="candidate : ${duplicates}"]*/
+    		/*[# th:if="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"]*/
+    installDeletionButtonCallback(
+    		$("[(${'#btDelete_' + iMatchingPersons.index + '_' + candidate.id})]"),
+    		"[(#{html.DeletePerson1(${candidate.fullName})})]",
+    		"[(#{html.AreYouSureToDelete(${candidate.fullName})})]",
+    		"[(@{/deletePerson(person=${candidate.id})})]",
+    		"[(#{html.PersonDeleted})]",
+    		"[(#{html.CannotDeletePerson})]",
+    		"[(${candidate.fullName})]",
+    		function (e) {
+    			location.reload();
+    		} );
+    installMergeButtonCallback(
+    		$("[(${'#btMergeAll_' + iMatchingPersons.index + '_' + candidate.id})]"),
+    		"[(#{html.DuplicatePersonMergeAll(${candidate.fullName})})]",
+    		"[(#{html.AreYouSureToMergeAll(${candidate.fullName})})]",
+    		"[(@{/mergePersons})]",
+    		"[(#{html.PersonsMerged})]",
+    		"[(#{html.html.CannotMergePersons(${candidate.fullName})})]",
+    		"[(${candidate.fullName})]",
+    		function (e) {
+    			//location.reload();
+    		} );
+    installMergeButtonCallback(
+    		$("[(${'#btMergePart_' + iMatchingPersons.index + '_' + candidate.id})]"),
+    		"[(#{html.DuplicatePersonMergePart(${candidate.fullName})})]",
+    		"[(#{html.AreYouSureToMergePart(${candidate.fullName})})]",
+    		"[(@{/mergePersons})]",
+    		"[(#{html.PersonsMerged})]",
+    		"[(#{html.html.CannotMergePersons(${candidate.fullName})})]",
+    		"[(${candidate.fullName})]",
+    		function (e) {
+    			//location.reload();
+    		} );
+		    /*[/]*/
+	    /*[/]*/
+    /*[/]*/
+</script>
+</html>
+

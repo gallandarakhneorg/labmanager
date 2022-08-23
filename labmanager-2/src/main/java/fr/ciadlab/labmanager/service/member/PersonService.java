@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.service.member;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
@@ -24,8 +25,10 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -373,29 +376,33 @@ public class PersonService extends AbstractService {
 	}
 
 	/** Replies the duplicate person names.
+	 * The replied list contains groups of persons who have similar names.
 	 *
+	 * @param comparator comparator of persons that is used for sorting the groups of duplicates. If it is {@code null},
+	 *      a {@link PersonComparator} is used.
 	 * @return the duplicate persons.
 	 */
-	public List<Set<Person>> computePersonDuplicate() {
+	public List<Set<Person>> getPersonDuplicates(Comparator<? super Person> comparator) {
 		// Each list represents a group of authors that could be duplicate
 		final List<Set<Person>> matchingAuthors = new ArrayList<>();
 
-		// Copy the list of authors into a linked list in order to have better
-		// performance when going through the list for detecting duplicate
+		// Copy the list of authors into another list in order to enable its
+		// modification during the function's process
 		final List<Person> authorsList = new ArrayList<>(this.personRepository.findAll());
 
-		for (int i = 0; i < authorsList.size(); ++i) {
-			final Person person = authorsList.get(i);
+		final Comparator<? super Person> theComparator = comparator == null ? EntityUtils.getPreferredPersonComparator() : comparator;
 
-			final Set<Person> currentMatching = new TreeSet<>();
-			currentMatching.add(person);
+		for (int i = 0; i < authorsList.size() - 1; ++i) {
+			final Person referencePerson = authorsList.get(i);
+
+			final Set<Person> currentMatching = new TreeSet<>(theComparator);
+			currentMatching.add(referencePerson);
 
 			final ListIterator<Person> iterator2 = authorsList.listIterator(i + 1);
-
 			while (iterator2.hasNext()) {
 				final Person otherPerson = iterator2.next();
 				if (this.nameComparator.isSimilar(
-						person.getFirstName(), person.getLastName(),
+						referencePerson.getFirstName(), referencePerson.getLastName(),
 						otherPerson.getFirstName(), otherPerson.getLastName())) {
 					currentMatching.add(otherPerson);
 					// Consume the other person to avoid to be treated twice times

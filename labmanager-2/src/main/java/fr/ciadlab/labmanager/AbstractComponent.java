@@ -43,7 +43,7 @@ public abstract class AbstractComponent {
 
 	private final Random random = new Random();
 
-	@Value("${ciadlab.debug}")
+	@Value("${labmanager.debug}")
 	private boolean debugVersion;
 
 	@Autowired

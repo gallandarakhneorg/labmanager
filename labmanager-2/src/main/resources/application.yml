@@ -45,3 +45,5 @@ labmanager:
   default-organization: CIAD
   file:
     upload-directory: /tmp/LabManagerApi
+  web:
+    publish-resources: /tmp/LabManagerApi/Downloadables/

@@ -29,7 +29,7 @@
             </td>
             <td>
             	<th:block th:each="authorship, iAuthorship : ${publication.authorships}">
-                    <th:block th:if="${!iAuthorship.first}"
+                    <th:block th:unless="${!Authorship.first}"
                               th:utext="', '"></th:block>
 					<a th:href="@{/publicationStats(id=${authorship.person.id})}">
 	                    <th:block th:utext="${authorship.person.fullName}"></th:block>

@@ -36,7 +36,7 @@ public class AdminController {
 	 * @param model the model.
 	 * @return not used.
 	 */
-	@GetMapping(value = { "/admin" })
+	@GetMapping(value = { "/", "/index.html", "index.htm", "/index.php", "/index.jsp" })
 	public static String admin(Model model) {
 		return "admin"; //$NON-NLS-1$
 	}

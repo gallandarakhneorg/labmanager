@@ -26,7 +26,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -105,19 +106,19 @@ public class PersonServiceTest {
 		// Prepare some persons to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
 		// at the same code location for configuration simplicity
-		this.pers0 = mock(Person.class);
+		this.pers0 = mock(Person.class, "pers0");
 		lenient().when(this.pers0.getId()).thenReturn(123);
 		lenient().when(this.pers0.getFirstName()).thenReturn("F1");
 		lenient().when(this.pers0.getLastName()).thenReturn("L1");
-		this.pers1 = mock(Person.class);
+		this.pers1 = mock(Person.class, "pers1");
 		lenient().when(this.pers1.getId()).thenReturn(234);
 		lenient().when(this.pers1.getFirstName()).thenReturn("F2");
 		lenient().when(this.pers1.getLastName()).thenReturn("L2");
-		this.pers2 = mock(Person.class);
+		this.pers2 = mock(Person.class, "pers2");
 		lenient().when(this.pers2.getId()).thenReturn(345);
 		lenient().when(this.pers2.getFirstName()).thenReturn("F3");
 		lenient().when(this.pers2.getLastName()).thenReturn("L3");
-		this.pers3 = mock(Person.class);
+		this.pers3 = mock(Person.class, "pers3");
 		lenient().when(this.pers3.getId()).thenReturn(456);
 		lenient().when(this.pers3.getFirstName()).thenReturn("F4");
 		lenient().when(this.pers3.getLastName()).thenReturn("L4");
@@ -392,36 +393,36 @@ public class PersonServiceTest {
 	}
 
 	@Test
-	public void computePersonDuplicate_noDuplicate() {
-		List<Set<Person>> duplicate = this.test.computePersonDuplicate();
+	public void getPersonDuplicate_noDuplicate() {
+		List<Set<Person>> duplicate = this.test.getPersonDuplicates(null);
 		assertTrue(duplicate.isEmpty());
 	}
 
 	@Test
-	public void computePersonDuplicate_oneDuplicate() {
-		Person pers0b = mock(Person.class);
+	public void getPersonDuplicates_oneDuplicate() {
+		Person pers0b = mock(Person.class, "pers0b");
 		when(pers0b.getFirstName()).thenReturn("F1");
 		when(pers0b.getLastName()).thenReturn("L1");
 
-		Person pers2b = mock(Person.class);
+		Person pers2b = mock(Person.class, "pers2b");
 		when(pers2b.getFirstName()).thenReturn("F3");
 		when(pers2b.getLastName()).thenReturn("L3");
 
-		Person pers2c = mock(Person.class);
+		Person pers2c = mock(Person.class, "pers2c");
 		when(pers2c.getFirstName()).thenReturn("F3");
 		when(pers2c.getLastName()).thenReturn("L3");
 
 		when(this.personRepository.findAll()).thenReturn(
 				Arrays.asList(this.pers0, pers2c, this.pers1, pers0b, this.pers2, this.pers3, pers2b));
+		
+		List<Set<Person>> allDuplicates = this.test.getPersonDuplicates(null);
 
-		List<Set<Person>> duplicate = this.test.computePersonDuplicate();
+		assertEquals(2, allDuplicates.size());
 
-		assertEquals(2, duplicate.size());
-
-		Set<Person> set1 = duplicate.get(0);
+		Set<Person> set1 = allDuplicates.get(0);
 		assertSet(set1, this.pers0, pers0b);
 
-		Set<Person> set2 = duplicate.get(1);
+		Set<Person> set2 = allDuplicates.get(1);
 		assertSet(set2, this.pers2, pers2b, pers2c);
 	}
 

@@ -38,7 +38,7 @@ management:
       # Path to the log file
       external-file: /home/sgalland/tmp/ciadlab/LabManagerApi.log
 
-ciadlab:
+labmanager:
   file:
     upload-directory: /home/sgalland/tmp/ciadlab
   web:

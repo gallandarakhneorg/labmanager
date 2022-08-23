@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
    <head>
       <meta charset="UTF-8" />
-      <title>Laboratory Management Tools</title>
+      <title th:utext="#{html.LaboratoryManagementTools}"></title>
       <link rel="stylesheet" type="text/css" th:href="@{/css/style.css}"/>
    </head>
    <body>
@@ -25,7 +25,8 @@
       	       th:utext="#{html.PersonsList}"></a></li>
       	<li><a th:href="@{/personEditor}"
       	       th:utext="#{html.AddPerson}"></a></li>
-      	<li>Merge persons</li>
+      	<li><a th:href="@{/personDuplicateList}"
+      	       th:utext="#{html.MergePersons}"></a></li>
       </ul>
 
       <h2 th:utext="#{html.PublicationManagement}"></h2>

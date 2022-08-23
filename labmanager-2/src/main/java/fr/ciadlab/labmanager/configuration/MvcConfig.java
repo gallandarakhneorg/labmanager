@@ -122,7 +122,7 @@ public class MvcConfig implements WebMvcConfigurer {
 		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/") //$NON-NLS-1$ //$NON-NLS-2$
 			.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
 		if (this.env != null) {
-			String resources = this.env.getProperty("ciadlab.web.publish-resources"); //$NON-NLS-1$
+			String resources = this.env.getProperty("labmanager.web.publish-resources"); //$NON-NLS-1$
 			if (!Strings.isNullOrEmpty(resources)) {
 				for (final String resource : resources.split("\\s*[,;:]+\\s*")) { //$NON-NLS-1$
 					final String basename = FileSystem.basename(resource);

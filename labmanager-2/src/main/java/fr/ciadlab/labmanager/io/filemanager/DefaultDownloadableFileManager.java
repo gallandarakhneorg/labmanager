@@ -70,9 +70,9 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	/** Constructor with the given stream factory.
 	 *
 	 * @param factory the factory.
-	 * @param uploadFolder the path of the upload folder. It is defined by the property {@code ciadlab.file.upload-directory}.
+	 * @param uploadFolder the path of the upload folder. It is defined by the property {@code labmanager.file.upload-directory}.
 	 */
-	public DefaultDownloadableFileManager(@Value("${ciadlab.file.upload-directory}") String uploadFolder) {
+	public DefaultDownloadableFileManager(@Value("${labmanager.file.upload-directory}") String uploadFolder) {
 		final String f = Strings.emptyToNull(uploadFolder);
 		if (f == null) {
 			this.uploadFolder = null;

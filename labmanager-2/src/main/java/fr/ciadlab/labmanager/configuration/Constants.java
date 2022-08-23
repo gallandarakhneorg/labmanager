@@ -151,10 +151,10 @@ public class Constants {
 
 	private static final String DEFAULT_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$
 
-	@Value("server.servlet.context-path")
+	@Value("${server.servlet.context-path}")
 	private String serverName;
 
-	@Value("labmanager.default-organization")
+	@Value("${labmanager.default-organization}")
 	private String defaultOganization;
 
 	/** Replies the name of the Spring boot server that is used for accessing the end-points and online resources.
