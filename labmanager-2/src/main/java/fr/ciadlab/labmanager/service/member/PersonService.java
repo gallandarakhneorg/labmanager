@@ -274,6 +274,7 @@ public class PersonService extends AbstractService {
 				}
 			}
 			// membership and autorship are deleted by cascade
+			person.deleteAllAuthorships();
 			this.personRepository.deleteById(id);
 		}
 	}

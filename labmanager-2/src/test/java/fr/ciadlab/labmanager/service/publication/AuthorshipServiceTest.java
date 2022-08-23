@@ -19,12 +19,12 @@ package fr.ciadlab.labmanager.service.publication;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -33,6 +33,7 @@ import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -91,8 +92,6 @@ public class AuthorshipServiceTest {
 
 	private PersonService personService;
 
-	private PersonNameParser nameParser;
-
 	private AuthorshipService test;
 
 	@BeforeEach
@@ -102,22 +101,21 @@ public class AuthorshipServiceTest {
 		this.authorshipRepository = mock(AuthorshipRepository.class);
 		this.personRepository = mock(PersonRepository.class);
 		this.personService = mock(PersonService.class);
-		this.nameParser = mock(PersonNameParser.class);
 		this.test = new AuthorshipService(this.messages, this.publicationRepository, this.authorshipRepository,
-				this.personRepository, this.personService, this.nameParser);
+				this.personRepository, this.personService);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
 		// at the same code location for configuration simplicity
-		this.pers0 = mock(Person.class);
+		this.pers0 = mock(Person.class, "pers0");
 		lenient().when(this.pers0.getId()).thenReturn(12345);
 		lenient().when(this.pers0.getFirstName()).thenReturn("F0");
 		lenient().when(this.pers0.getLastName()).thenReturn("L0");
-		this.pers1 = mock(Person.class);
+		this.pers1 = mock(Person.class, "pers1");
 		lenient().when(this.pers1.getId()).thenReturn(23456);
 		lenient().when(this.pers1.getFirstName()).thenReturn("F1");
 		lenient().when(this.pers1.getLastName()).thenReturn("L1");
-		this.pers2 = mock(Person.class);
+		this.pers2 = mock(Person.class, "pers2");
 		lenient().when(this.pers2.getId()).thenReturn(34567);
 		lenient().when(this.pers2.getFirstName()).thenReturn("F3");
 		lenient().when(this.pers2.getLastName()).thenReturn("L3");
@@ -307,183 +305,79 @@ public class AuthorshipServiceTest {
 	}
 
 	@Test
-	public void mergePersons_StringStringStringString_nullArguments() {
-		final int r = this.test.mergePersons((String) null, null, null, null);
-		assertEquals(0, r);
+	public void mergePersonsById_nullArguments() throws Exception {
+		assertThrows(AssertionError.class, () -> {
+			this.test.mergePersonsById(null, null);
+		});
 	}
 
 	@Test
-	public void mergePersons_StringStringStringString_unknownPerson() {
-		final int r = this.test.mergePersons("unknown", "unknown", "unknown", "unknown");
-		assertEquals(0, r);
-	}
+	public void mergePersonsById() throws Exception {
+		Person pers3 = mock(Person.class, "pers3");
+		lenient().when(pers3.getId()).thenReturn(34567548);
+		lenient().when(pers3.getFirstName()).thenReturn("F3");
+		lenient().when(pers3.getLastName()).thenReturn("L3");
 
-	@Test
-	public void mergePersons_StringStringStringString() {
-		final int r = this.test.mergePersons("F0", "L0", "F2", "L2");
-		assertEquals(1, r);
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch (((Integer) it.getArgument(0)).intValue()) {
+			case 12345:
+				return Optional.of(this.pers0);
+			case 34567548:
+				return Optional.of(pers3);
+			}
+			return Optional.empty();
+		});
 
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.authorshipRepository, atLeastOnce()).deleteById(arg0.capture());
-		assertEquals(123, arg0.getValue());
+		this.test.mergePersonsById(Arrays.asList(12345), 34567548);
 
-		final ArgumentCaptor<Authorship> arg1 = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, atLeastOnce()).save(arg1.capture());
-		final Authorship newAuthorship = arg1.getValue();
+		verify(this.pers0).deleteAllAuthorships();
+		verify(this.personService).removePerson(eq(12345));
+
+		final ArgumentCaptor<Authorship> arg0 = ArgumentCaptor.forClass(Authorship.class);
+		verify(this.authorshipRepository, atLeastOnce()).save(arg0.capture());
+		final Authorship newAuthorship = arg0.getValue();
 		assertNotNull(newAuthorship);
-		assertEquals(34567, newAuthorship.getPerson().getId());
+		assertEquals(34567548, newAuthorship.getPerson().getId());
 		assertEquals(1234, newAuthorship.getPublication().getId());
 		assertEquals(0, newAuthorship.getAuthorRank());
-
-		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());
-		assertEquals(12345, arg2.getValue());
-
-		verify(this.pers0, atLeastOnce()).deleteAllAuthorships();
 	}
 
 	@Test
-	public void mergePersons_StringStringStringStringFunction_nullArguments() {
-		final int r = this.test.mergePersons(null, null, null, null, null);
-		assertEquals(0, r);
+	public void mergePersons_nullArguments() throws Exception {
+		assertThrows(AssertionError.class, () -> {
+			this.test.mergePersons(null, null);
+		});
 	}
 
 	@Test
-	public void mergePersons_StringStringStringStringFunction_unknownPerson() {
-		final int r = this.test.mergePersons("unknown", "unknown", "unknown", "unknown", null);
-		assertEquals(0, r);
-	}
+	public void mergePersons() throws Exception {
+		Person pers3 = mock(Person.class, "pers3");
+		lenient().when(pers3.getId()).thenReturn(34567548);
+		lenient().when(pers3.getFirstName()).thenReturn("F3");
+		lenient().when(pers3.getLastName()).thenReturn("L3");
 
-	@Test
-	public void mergePersons_StringStringStringStringFunction_nullSelectionFunction() {
-		final int r = this.test.mergePersons("F0", "L0", "F2", "L2", null);
-		assertEquals(1, r);
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch (((Integer) it.getArgument(0)).intValue()) {
+			case 12345:
+				return Optional.of(this.pers0);
+			case 34567548:
+				return Optional.of(pers3);
+			}
+			return Optional.empty();
+		});
 
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.authorshipRepository, atLeastOnce()).deleteById(arg0.capture());
-		assertEquals(123, arg0.getValue());
+		this.test.mergePersons(Arrays.asList(this.pers0), pers3);
 
-		final ArgumentCaptor<Authorship> arg1 = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, atLeastOnce()).save(arg1.capture());
-		final Authorship newAuthorship = arg1.getValue();
+		verify(this.pers0).deleteAllAuthorships();
+		verify(this.personService).removePerson(eq(12345));
+
+		final ArgumentCaptor<Authorship> arg0 = ArgumentCaptor.forClass(Authorship.class);
+		verify(this.authorshipRepository, atLeastOnce()).save(arg0.capture());
+		final Authorship newAuthorship = arg0.getValue();
 		assertNotNull(newAuthorship);
-		assertEquals(34567, newAuthorship.getPerson().getId());
+		assertEquals(34567548, newAuthorship.getPerson().getId());
 		assertEquals(1234, newAuthorship.getPublication().getId());
 		assertEquals(0, newAuthorship.getAuthorRank());
-
-		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());
-		assertEquals(12345, arg2.getValue());
-
-		verify(this.pers0, atLeastOnce()).deleteAllAuthorships();
-	}
-
-	@Test
-	public void mergePersons_StringString_nullArguments() {
-		final int r = this.test.mergePersons(null, null);
-		assertEquals(0, r);
-	}
-
-	@Test
-	public void mergePersons_StringString_unknownPerson() {
-		final int r = this.test.mergePersons("unknown", "unknown");
-		assertEquals(0, r);
-	}
-
-	@Test
-	public void mergePersons_StringString_invalidFirstLastOrder0() {
-		final int r = this.test.mergePersons("F0 L0", "L2 F2");
-		assertEquals(0, r);
-	}
-
-	@Test
-	public void mergePersons_StringString_invalidFirstLastOrder1() {
-		final int r = this.test.mergePersons("L0 F0", "F2 L2");
-		assertEquals(0, r);
-	}
-
-	private void createNameParserInstance() {
-		// Force the name parser to be a real instance
-		this.nameParser = new DefaultPersonNameParser();
-		this.test = new AuthorshipService(this.messages, this.publicationRepository, this.authorshipRepository,
-				this.personRepository, this.personService, this.nameParser);
-	}
-
-	@Test
-	public void mergePersons_StringString_formatFirstLast() {
-		createNameParserInstance();
-
-		final int r = this.test.mergePersons("F0 L0", "F2 L2");
-		assertEquals(1, r);
-
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.authorshipRepository, atLeastOnce()).deleteById(arg0.capture());
-		assertEquals(123, arg0.getValue());
-
-		final ArgumentCaptor<Authorship> arg1 = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, atLeastOnce()).save(arg1.capture());
-		final Authorship newAuthorship = arg1.getValue();
-		assertNotNull(newAuthorship);
-		assertEquals(34567, newAuthorship.getPerson().getId());
-		assertEquals(1234, newAuthorship.getPublication().getId());
-		assertEquals(0, newAuthorship.getAuthorRank());
-
-		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());
-		assertEquals(12345, arg2.getValue());
-
-		verify(this.pers0, atLeastOnce()).deleteAllAuthorships();
-	}
-
-	@Test
-	public void mergePersons_StringString_formatLastFirst() {
-		createNameParserInstance();
-
-		final int r = this.test.mergePersons("L0, F0", "L2, F2");
-		assertEquals(1, r);
-
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.authorshipRepository, atLeastOnce()).deleteById(arg0.capture());
-		assertEquals(123, arg0.getValue());
-
-		final ArgumentCaptor<Authorship> arg1 = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, atLeastOnce()).save(arg1.capture());
-		final Authorship newAuthorship = arg1.getValue();
-		assertNotNull(newAuthorship);
-		assertEquals(34567, newAuthorship.getPerson().getId());
-		assertEquals(1234, newAuthorship.getPublication().getId());
-		assertEquals(0, newAuthorship.getAuthorRank());
-
-		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());
-		assertEquals(12345, arg2.getValue());
-
-		verify(this.pers0, atLeastOnce()).deleteAllAuthorships();
-	}
-
-	@Test
-	public void mergePersons_ListStringStringFunction() {
-		final List<Integer> olds = Arrays.asList(12345);
-		final int r = this.test.mergePersons(olds, "F2", "L2", null);
-		assertEquals(1, r);
-
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.authorshipRepository, atLeastOnce()).deleteById(arg0.capture());
-		assertEquals(123, arg0.getValue());
-
-		final ArgumentCaptor<Authorship> arg1 = ArgumentCaptor.forClass(Authorship.class);
-		verify(this.authorshipRepository, atLeastOnce()).save(arg1.capture());
-		final Authorship newAuthorship = arg1.getValue();
-		assertNotNull(newAuthorship);
-		assertEquals(34567, newAuthorship.getPerson().getId());
-		assertEquals(1234, newAuthorship.getPublication().getId());
-		assertEquals(0, newAuthorship.getAuthorRank());
-
-		final ArgumentCaptor<Integer> arg2 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.personService, atLeastOnce()).removePerson(arg2.capture());
-		assertEquals(12345, arg2.getValue());
-
-		verify(this.pers0, atLeastOnce()).deleteAllAuthorships();
 	}
 
 }
