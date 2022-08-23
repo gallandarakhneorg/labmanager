@@ -291,7 +291,7 @@
                     render: function ( data, type, row ) {
                         return '<p class="publicationTitle">' + row.title + '</p><p class="publicationAuthors">'
                         	+ row.htmlAuthors + '</p><p class="publicationDetails">'
-                        	+ row.htmlPublicationDetails + '</p>';
+                        	+ row.htmlPublicationDetails + '. ' + row.publicationYear + '.</p>';
                     }
                 },
                 { "data": "authors",
