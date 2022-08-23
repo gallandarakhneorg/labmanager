@@ -845,6 +845,23 @@ public enum PublicationType {
 		throw new IllegalArgumentException("Invalid publication type: " + name); //$NON-NLS-1$
 	}
 
+	/** Replies if this publication type and the given publication type are considered as compatible.
+	 * The compatibility test is based on the type of the JPA entity associated to the type.
+	 *
+	 * @param type the type to compare to the current type.
+	 * @return {@code true} if both types are associated to the same type of JPA entity.
+	 */
+	public boolean isCompatibleWith(PublicationType type) {
+		if (type == null) {
+			return false;
+		}
+		final Class<? extends Publication> currentClass = getInstanceType();
+		assert currentClass != null;
+		final Class<? extends Publication> otherClass = type.getInstanceType();
+		assert otherClass != null;
+		return currentClass.equals(otherClass);
+	}
+
 }
 
 
