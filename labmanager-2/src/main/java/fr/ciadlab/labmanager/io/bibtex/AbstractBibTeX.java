@@ -16,6 +16,8 @@
 
 package fr.ciadlab.labmanager.io.bibtex;
 
+import java.util.Random;
+
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Abstract implementation of the utilities for BibTeX.
@@ -59,6 +61,16 @@ public abstract class AbstractBibTeX implements BibTeX {
 	/** Field {@code language}.
 	 */
 	protected static final String KEY_LANGUAGE_NAME = "_language"; //$NON-NLS-1$
+
+	private final Random random = new Random();
+	
+	/** Generate an UUID.
+	 *
+	 * @return the UUID.
+	 */
+	protected Integer generateUUID() {
+		return Integer.valueOf(Math.abs(this.random.nextInt()));
+	}
 
 	/** Add curly-braces around the upper-case words of the given text.
 	 * This feature is usually applied in the titles of the BibTeX entries in

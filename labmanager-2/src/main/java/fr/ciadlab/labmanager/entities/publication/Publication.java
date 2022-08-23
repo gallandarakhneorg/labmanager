@@ -180,6 +180,9 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	@Transient
 	private List<Person> temporaryAuthors = null;
 
+	@Transient
+	private String preferredStringId = null;
+
 	/** Constructor by copy.
 	 *
 	 * @param publication is the publication to copy.
@@ -431,6 +434,9 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 			});
 		}
 		generator.writeEndArray();
+		// Additional fields that are not associated to attributes
+		generator.writeStringField("wherePublishedShortDescription", getWherePublishedShortDescription()); //$NON-NLS-1$
+		generator.writeStringField("preferredStringId", getPreferredStringId()); //$NON-NLS-1$
 		//
 		generator.writeEndObject();
 	}
@@ -530,16 +536,38 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		this.id = id;
 	}
 
-	/** Replies the preferred value for a string-based ID for this publication.
+	/** Invoked to compute the default string-based ID for this publication. This ID is not stored in the database
+	 * and may change according to the usage of the publication instance.
 	 *
 	 * @return the identifier
 	 */
-	public String getPreferredStringId() {
+	public String computePreferredStringId() {
 		final StringBuilder b = new StringBuilder();
 		b.append(getClass().getSimpleName());
 		b.append('_');
 		b.append(getId());
 		return b.toString();
+	}
+
+	/** Replies the preferred value for a string-based ID for this publication. This ID is not stored in the database
+	 * and may change according to the usage of the publication instance.
+	 *
+	 * @return the identifier
+	 */
+	public String getPreferredStringId() {
+		if (Strings.isNullOrEmpty(this.preferredStringId)) {
+			this.preferredStringId = computePreferredStringId();
+		}
+		return this.preferredStringId;
+	}
+
+	/** Change the preferred value for a string-based ID for this publication. This ID is not stored in the database
+	 * and may change according to the usage of the publication instance.
+	 *
+	 * @param sid the string-based identifier
+	 */
+	public void setPreferredStringId(String sid) {
+		this.preferredStringId = sid;
 	}
 
 	/** Replies the type of publication.

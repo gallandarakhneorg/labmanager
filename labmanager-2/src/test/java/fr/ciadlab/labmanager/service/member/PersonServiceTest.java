@@ -336,19 +336,19 @@ public class PersonServiceTest {
 
 	@Test
 	public void extractPersonsFrom_null() {
-		List<Person> list = this.test.extractPersonsFrom(null);
+		List<Person> list = this.test.extractPersonsFrom(null, false);
 		assertTrue(list.isEmpty());
 	}
 
 	@Test
 	public void extractPersonsFrom_empty() {
-		List<Person> list = this.test.extractPersonsFrom("");
+		List<Person> list = this.test.extractPersonsFrom("", false);
 		assertTrue(list.isEmpty());
 	}
 
 	@Test
 	public void extractPersonsFrom_unkwownPersons() {
-		List<Person> list = this.test.extractPersonsFrom("L1a, F1a and L2a, F2a and L3a, F3a");
+		List<Person> list = this.test.extractPersonsFrom("L1a, F1a and L2a, F2a and L3a, F3a", false);
 		assertEquals(3, list.size());
 		assertEquals(0, list.get(0).getId());
 		assertEquals("F1a", list.get(0).getFirstName());
@@ -363,7 +363,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void extractPersonsFrom_kwownPersons() {
-		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2, F2 and L3, F3");
+		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2, F2 and L3, F3", false);
 		assertEquals(3, list.size());
 		assertEquals(123, list.get(0).getId());
 		assertEquals("F1", list.get(0).getFirstName());
@@ -378,7 +378,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void extractPersonsFrom_kwownAndUknownPersons() {
-		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2a, F2a and L3, F3");
+		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2a, F2a and L3, F3", false);
 		assertEquals(3, list.size());
 		assertEquals(123, list.get(0).getId());
 		assertEquals("F1", list.get(0).getFirstName());

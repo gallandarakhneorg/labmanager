@@ -338,9 +338,12 @@ public class PersonService extends AbstractService {
 	 * database.
 	 * 
 	 * @param authorText the list of authors to parse.
+	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
+	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
+	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
 	 * @return the list of authors.
 	 */
-	public List<Person> extractPersonsFrom(String authorText) {
+	public List<Person> extractPersonsFrom(String authorText, boolean assignRandomId) {
 		final List<Person> persons = new ArrayList<>();
 		this.nameParser.parseNames(authorText, (fn, von, ln, pos) -> {
 			// Build last name
@@ -360,6 +363,9 @@ public class PersonService extends AbstractService {
 				person = new Person();
 				person.setFirstName(firstname.toString());
 				person.setLastName(ln);
+				if (assignRandomId) {
+					person.setId(generateUUID().intValue());
+				}
 			}
 			persons.add(person);
 		});

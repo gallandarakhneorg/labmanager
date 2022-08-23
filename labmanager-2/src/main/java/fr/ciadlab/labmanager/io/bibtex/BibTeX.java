@@ -62,39 +62,60 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * This function does not save the publication in the database, as well as the authors.
 	 *
 	 * @param bibtex the BibTeX data
+	 * @param keepBibTeXId indicates if the BibTeX keys should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the BibTeX keys are provided to the publication.
+	 *     If this argument is {@code false}, the BibTeX keys are ignored.
+	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
+	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
+	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
 	 * @return the list of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
 	 * @see #extractPublications(String)
 	 */
-	default List<Publication> extractPublications(String bibtex) throws Exception {
-		return getPublicationStreamFrom(bibtex).collect(Collectors.toList());
+	default List<Publication> extractPublications(String bibtex, boolean keepBibTeXId, boolean assignRandomId) throws Exception {
+		return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId).collect(Collectors.toList());
 	}
 
 	/** Extract the publications from a BibTeX source.
 	 * This function does not save the publication in the database.
 	 *
 	 * @param bibtex the BibTeX data
+	 * @param keepBibTeXId indicates if the BibTeX keys should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the BibTeX keys are provided to the publication.
+	 *     If this argument is {@code false}, the BibTeX keys are ignored.
+	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
+	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
+	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
 	 * @return the list of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
 	 * @see #extractPublications(String)
 	 */
-	default List<Publication> extractPublications(Reader bibtex) throws Exception {
-		return getPublicationStreamFrom(bibtex).collect(Collectors.toList());
+	default List<Publication> extractPublications(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId) throws Exception {
+		return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId).collect(Collectors.toList());
 	}
 
 	/** Extract the publications from a BibTeX source.
 	 * This function does not save the publication in the database.
 	 *
 	 * @param bibtex the BibTeX data
+	 * @param keepBibTeXId indicates if the BibTeX keys should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the BibTeX keys are provided to the publication.
+	 *     If this argument is {@code false}, the BibTeX keys are ignored.
+	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
+	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
+	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
 	 * @return the stream of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
 	 * @see #getPublicationStreamFrom(Reader)
 	 * @see #extractPublications(Reader)
 	 */
-	default Stream<Publication> getPublicationStreamFrom(String bibtex) throws Exception {
+	default Stream<Publication> getPublicationStreamFrom(String bibtex, boolean keepBibTeXId, boolean assignRandomId) throws Exception {
 		if (!Strings.isNullOrEmpty(bibtex)) {
 			try (final Reader reader = new StringReader(bibtex)) {
-				return getPublicationStreamFrom(reader);
+				return getPublicationStreamFrom(reader, keepBibTeXId, assignRandomId);
 			}
 		}
 		return Collections.<Publication>emptySet().stream();
@@ -104,12 +125,19 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * This function does not save the publication in the database.
 	 *
 	 * @param bibtex the BibTeX data
+	 * @param keepBibTeXId indicates if the BibTeX keys should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the BibTeX keys are provided to the publication.
+	 *     If this argument is {@code false}, the BibTeX keys are ignored.
+	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
+	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
+	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
 	 * @return the stream of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
 	 * @see #getPublicationStreamFrom(String)
 	 * @see #extractPublications(String)
 	 */
-	Stream<Publication> getPublicationStreamFrom(Reader bibtex) throws Exception;
+	Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId) throws Exception;
 
 	@Override
 	default String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {

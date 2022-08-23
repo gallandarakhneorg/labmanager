@@ -286,7 +286,7 @@ public class JBibtexBibTeXTest {
 	private Stream<Publication> getPublicationStreamFromTest(String filename) throws Exception {
 		URL url = Resources.getResource(JBibtexBibTeXTest.class.getPackageName().replaceAll("\\.", "/") + "/" + filename);
 		try (Reader r = new InputStreamReader(url.openStream())) {
-			return this.test.getPublicationStreamFrom(r);
+			return this.test.getPublicationStreamFrom(r, false, false);
 		}
 	}
 
@@ -321,7 +321,7 @@ public class JBibtexBibTeXTest {
 
 		Person p0 = mock(Person.class);
 		Person p1 = mock(Person.class);
-		when(this.personService.extractPersonsFrom(any())).thenReturn(Arrays.asList(p0, p1));
+		when(this.personService.extractPersonsFrom(any(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
 
 		Stream<Publication> pubs = getPublicationStreamFromTest("bibtex_n.bib");
 		assertNotNull(pubs);
@@ -359,7 +359,8 @@ public class JBibtexBibTeXTest {
 				eq(false));
 		verify(p).setTemporaryAuthors(any());
 		verify(this.personService).extractPersonsFrom(
-				eq("Rehioui, Hajjar and Idrissi, Abdellah and Koukam, Abderrafiaa"));
+				eq("Rehioui, Hajjar and Idrissi, Abdellah and Koukam, Abderrafiaa"),
+				eq(false));
 
 		p = list.get(1);
 		assertTrue(p instanceof ConferencePaper);
@@ -393,7 +394,8 @@ public class JBibtexBibTeXTest {
 				anyBoolean());
 		verify(p).setTemporaryAuthors(any());
 		verify(this.personService).extractPersonsFrom(
-				eq("Andres, Emmanuel and Talha, Samy"));
+				eq("Andres, Emmanuel and Talha, Samy"),
+				eq(false));
 	}
 
 	private String lines(String... lines) {

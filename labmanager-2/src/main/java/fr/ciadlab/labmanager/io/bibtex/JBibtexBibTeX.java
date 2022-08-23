@@ -288,13 +288,13 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	@Override
-	public Stream<Publication> getPublicationStreamFrom(Reader bibtex) throws Exception {
+	public Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId) throws Exception {
 		try (Reader filteredReader = new CharacterFilterReader(bibtex)) {
 			final BibTeXParser bibtexParser = new BibTeXParser();
 			final BibTeXDatabase database = bibtexParser.parse(filteredReader);
 			if (database != null) {
 				return database.getEntries().entrySet().stream().map(it -> {
-					return createPublicationFor(it.getKey(), it.getValue());
+					return createPublicationFor(it.getKey(), it.getValue(), keepBibTeXId, assignRandomId);
 				});
 			}
 		}
@@ -449,9 +449,16 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 *
 	 * @param key the key of the entry.
 	 * @param entry the entry itself.
+	 * @param keepBibTeXId indicates if the BibTeX keys should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the BibTeX keys are provided to the publication.
+	 *     If this argument is {@code false}, the BibTeX keys are ignored.
+	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
+	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
+	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
 	 * @return the publication.
 	 */
-	protected Publication createPublicationFor(Key key, BibTeXEntry entry) {
+	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId) {
 		final PublicationType type = getPublicationTypeFor(entry);
 		if (type != null) {
 			// Create a generic publication
@@ -569,11 +576,20 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 			// Generate the author list
 			final String authorField = or(field(entry, KEY_AUTHOR), field(entry, KEY_EDITOR));
-			final List<Person> authors = this.personService.extractPersonsFrom(authorField);
+			final List<Person> authors = this.personService.extractPersonsFrom(authorField, assignRandomId);
 			if (authors.isEmpty()) {
 				throw new IllegalArgumentException("No author for the BibTeX entry: " + key.getValue()); //$NON-NLS-1$
 			}
 			finalPublication.setTemporaryAuthors(authors);
+
+			if (keeyBibTeXId) {
+				final String cleanKey = entry.getKey().getValue().replaceAll("[^a-zA-Z0-9_-]+", "_"); //$NON-NLS-1$ //$NON-NLS-2$
+				finalPublication.setPreferredStringId(cleanKey);
+			}
+
+			if (assignRandomId) {
+				finalPublication.setId(generateUUID().intValue());
+			}
 
 			return finalPublication;
 		}
