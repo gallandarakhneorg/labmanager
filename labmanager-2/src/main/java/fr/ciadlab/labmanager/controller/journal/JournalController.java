@@ -23,7 +23,7 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletResponse;
 
-import fr.ciadlab.labmanager.Constants;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
@@ -69,7 +69,7 @@ public class JournalController extends AbstractController {
 	public JournalController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired JournalService journalService) {
-		super(DEFAULT_ENDPOINT, messages);
+		super(messages);
 		this.journalService = journalService;
 	}
 

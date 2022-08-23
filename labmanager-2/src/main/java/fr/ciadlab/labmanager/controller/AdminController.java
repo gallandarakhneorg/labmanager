@@ -20,15 +20,16 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
-/** This general controller shows up the list of all the controllers in the backend.
+/** This general controller shows up the administration tools and the list of all the controllers in the backend.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 2.0.0
  */
 @Controller
-public class CentralController {
+public class AdminController {
 
 	/** Shows up the HTML page for the administration entry point.
 	 *

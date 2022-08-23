@@ -29,6 +29,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import fr.ciadlab.labmanager.configuration.BaseMessageSource;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
@@ -68,7 +69,7 @@ public class CiadHtmlDocumentExporterTest {
 		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
 		this.doiTools = mock(DoiTools.class);
 		when(this.doiTools.getDOIUrlFromDOINumber(any())).thenReturn(new URL("https://doi.org/XXX"));
-		this.test = new CiadHtmlDocumentExporter(this.messages, this.doiTools);
+		this.test = new CiadHtmlDocumentExporter(new Constants(), this.messages, this.doiTools);
 	}
 
 	@Test

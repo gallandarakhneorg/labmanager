@@ -18,7 +18,7 @@ package fr.ciadlab.labmanager.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import fr.ciadlab.labmanager.Constants;
+import fr.ciadlab.labmanager.configuration.Constants;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -42,7 +42,7 @@ public class AbstractControllerTest {
 		final UriBuilderFactory factory = new DefaultUriBuilderFactory();
 		
 		final StringBuilder path = new StringBuilder();
-		path.append("/").append(Constants.DEFAULT_SERVER_NAME).append("/").append(Constants.EXPORT_JSON_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
+		path.append("/").append(new Constants().getServerName()).append("/").append(Constants.EXPORT_JSON_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
 		UriBuilder uriBuilder = factory.builder();
 		uriBuilder = uriBuilder.path(path.toString());
 		final String url = uriBuilder.build().toString();

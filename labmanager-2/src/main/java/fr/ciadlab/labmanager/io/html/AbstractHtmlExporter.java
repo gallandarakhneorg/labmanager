@@ -22,6 +22,7 @@ import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.type.Book;
@@ -52,6 +53,10 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 
 	private static final String MESSAGES_PREFIX = "abstractHtmlExporter."; //$NON-NLS-1$
 
+	/** Application constants.
+	 */
+	protected final Constants constants;
+	
 	/** Tools for managing DOI.
 	 */
 	protected final DoiTools doiTools;
@@ -62,10 +67,12 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 
 	/** Constructor.
 	 *
+	 * @param constants the accessor to the application constants.
 	 * @param messages the accessor to the localized messages.
 	 * @param doiTools the accessor to the DOI tools.
 	 */
-	public AbstractHtmlExporter(MessageSourceAccessor messages, DoiTools doiTools) {
+	public AbstractHtmlExporter(Constants constants, MessageSourceAccessor messages, DoiTools doiTools) {
+		this.constants = constants;
 		this.messages = messages;
 		this.doiTools = doiTools;
 	}

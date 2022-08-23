@@ -40,8 +40,6 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class JsonDatabaseExporterController extends AbstractController {
 
-	private static final String DEFAULT_ENDPOINT = "exportDatabaseToJson"; //$NON-NLS-1$
-
 	private DatabaseToJsonExporter exporter;
 
 	/** Constructor.
@@ -52,7 +50,7 @@ public class JsonDatabaseExporterController extends AbstractController {
 	public JsonDatabaseExporterController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired DatabaseToJsonExporter exporter) {
-		super(DEFAULT_ENDPOINT, messages);
+		super(messages);
 		this.exporter = exporter;
 	}
 
@@ -61,7 +59,7 @@ public class JsonDatabaseExporterController extends AbstractController {
 	 * @param model the model.
 	 * @return not used.
 	 */
-	@GetMapping("/" + DEFAULT_ENDPOINT)
+	@GetMapping("/exportDatabaseToJson")
 	public @ResponseBody Map<String, Object> exportDatabaseToJson() {
 		try {
 			return this.exporter.exportFromDatabase();

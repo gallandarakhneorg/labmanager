@@ -41,6 +41,7 @@ management:
     enabled: false
     roles: ROLE_ADMIN
 
-ciadlab:
+labmanager:
+  default-organization: CIAD
   file:
     upload-directory: /tmp/ciadlab

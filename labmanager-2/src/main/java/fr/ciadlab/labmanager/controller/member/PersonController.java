@@ -18,9 +18,8 @@ package fr.ciadlab.labmanager.controller.member;
 
 import javax.servlet.http.HttpServletResponse;
 
-import fr.ciadlab.labmanager.Constants;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.AbstractController;
-import fr.ciadlab.labmanager.controller.publication.AuthorController;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
@@ -74,7 +73,7 @@ public class PersonController extends AbstractController {
 	public PersonController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired PersonService personService, @Autowired PersonNameParser nameParser) {
-		super(DEFAULT_ENDPOINT, messages);
+		super(messages);
 		this.personService = personService;
 		this.nameParser = nameParser;
 	}
@@ -301,6 +300,61 @@ public class PersonController extends AbstractController {
 	//		modelAndView.addObject("matchingAuthors", matchingAuthors); //$NON-NLS-1$
 	//		return modelAndView;
 	//	}
+
+//	/** Replies the model-view component for managing the authors.
+//	 *
+//	 * @return the model-view component.
+//	 */
+//	@SuppressWarnings("static-method")
+//	@GetMapping("/" + TOOL_NAME)
+//	public ModelAndView showAuthorTool() {
+//		final ModelAndView modelAndView = new ModelAndView(TOOL_NAME);
+//		return modelAndView;
+//	}
+//
+//	/** Merge two authors into the database.
+//	 *
+//	 * @param response the HTTP response.
+//	 * @param newAuthor the name of the person who is the real author. The format should be recognized by a {@link PersonNameParser}.
+//	 *     Usually, it is {@code "FIRST LAST"} or {@code "LAST, FIRST"}.
+//	 * @param oldAuthor the name of the person who is invalid author. The format should be recognized by a {@link PersonNameParser}.
+//	 *     Usually, it is {@code "FIRST LAST"} or {@code "LAST, FIRST"}.
+//	 * @throws Exception if the redirection to success/failure page cannot be done.
+//	 */
+//	@PostMapping("/mergeAuthors")
+//	public void mergeAuthors(HttpServletResponse response,
+//			@RequestParam String newAuthor,
+//			@RequestParam String oldAuthor) throws Exception {
+//		try {
+//			final int pubCount = this.authorshipService.mergeAuthors(oldAuthor, newAuthor);
+//			redirectSuccess(response, oldAuthor, "count", Integer.toString(pubCount)); //$NON-NLS-1$
+//		} catch (Exception ex) {
+//			redirectError(response, ex);
+//		}
+//	}
+//
+//	/** Merge multiple authors into the database.
+//	 * Publications for a given list of authors is associated to a target author and
+//	 * unlinked from the old authors.
+//	 *
+//	 * @param response the HTTP response.
+//	 * @param firstName the first name of the target author.
+//	 * @param lastName the last name of the target author.
+//	 * @param authorDuplicates the list of person identifiers that are considered as old authors.
+//	 * @throws Exception if the redirection to success/failure page cannot be done.
+//	 */
+//	@PostMapping("/mergeMultipleAuthors")
+//	public void mergeMultipleAuthors(HttpServletResponse response,
+//			@RequestParam String firstName,
+//			@RequestParam String lastName,
+//			@RequestParam List<Integer> authorDuplicates) throws Exception {
+//		try {
+//			final int pubCount = this.authorshipService.mergeAuthors(authorDuplicates, firstName, lastName);
+//			redirectSuccess(response, firstName + " " + lastName, "count", Integer.toString(pubCount)); //$NON-NLS-1$ //$NON-NLS-2$
+//		} catch (Exception ex) {
+//			redirectError(response, ex);
+//		}
+//	}
 
 }
 

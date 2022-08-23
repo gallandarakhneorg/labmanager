@@ -14,24 +14,22 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager;
+package fr.ciadlab.labmanager.configuration;
 
-/** Definition of global constants.
+import org.apache.jena.ext.com.google.common.base.Strings;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
+
+/** Definition of global constants. Some constants are obtaining from the Spring boot configuration file. That's why they
+ * are not defined as global constants, by replied through static getter methods.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface Constants {
-
-	/** Default name of organization that is assumed by the author controller.
-	 */
-	public static final String DEFAULT_ORGANIZATION = "CIAD"; //$NON-NLS-1$
-
-	/** Default name of the server to build the endpoints' URLs.
-	 */
-	public static final String DEFAULT_SERVER_NAME = "SpringRestHibernate"; //$NON-NLS-1$
+@Component
+public class Constants {
 
 	/** Name of the endpoint for exporting to JSON.
 	 */
@@ -148,5 +146,41 @@ public interface Constants {
 	/** Name of the endpoint for saving a BibTeX file and providing a JSON description.
 	 */
 	public static final String SAVE_BIBTEX_ENDPOINT = "saveBibTeX"; //$NON-NLS-1$
+
+	private static final String DEFAULT_SERVER_NAME = "SpringRestHibernate"; //$NON-NLS-1$
+
+	private static final String DEFAULT_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$
+
+	@Value("server.servlet.context-path")
+	private String serverName;
+
+	@Value("labmanager.default-organization")
+	private String defaultOganization;
+
+	/** Replies the name of the Spring boot server that is used for accessing the end-points and online resources.
+	 *
+	 * @return the name of the Spring Boot application
+	 */
+	public String getServerName() {
+		if (Strings.isNullOrEmpty(this.serverName)) {
+			this.serverName = DEFAULT_SERVER_NAME;
+		} else {
+			while (this.serverName.startsWith("/")) { //$NON-NLS-1$
+				this.serverName = this.serverName.substring(1);
+			}
+		}
+		return this.serverName;
+	}
+
+	/** Replies the name or acronym of the default organization to consider.
+	 *
+	 * @return the name or acronym of the default organization
+	 */
+	public String getDefaultOrganization() {
+		if (Strings.isNullOrEmpty(this.defaultOganization)) {
+			this.serverName = DEFAULT_ORGANIZATION;
+		}
+		return this.defaultOganization;
+	}
 
 }

@@ -36,7 +36,7 @@ import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.ciadlab.labmanager.Constants;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -123,7 +123,7 @@ public class PublicationController extends AbstractController {
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired JournalService journalService,
 			@Autowired JournalPaperService journalPaperService) {
-		super(DEFAULT_ENDPOINT, messages);
+		super(messages);
 		this.publicationService = publicationService;
 		this.personService = personService;
 		this.personComparator = personComparator;
@@ -195,10 +195,10 @@ public class PublicationController extends AbstractController {
 		return modelAndView;
 	}
 
-	private static String buildUri(UriBuilderFactory factory, Integer organization, Integer author,
+	private String buildUri(UriBuilderFactory factory, Integer organization, Integer author,
 			Integer journal, String endpoint) {
 		UriBuilder uriBuilder = factory.builder();
-		uriBuilder = uriBuilder.path("/" + Constants.DEFAULT_SERVER_NAME + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
+		uriBuilder = uriBuilder.path("/" + getApplicationConstants().getServerName() + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
 		uriBuilder.queryParam(Constants.INATTACHMENT_ENDPOINT_PARAMETER, Boolean.TRUE);
 		if (organization != null) {
 			uriBuilder = uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, organization);

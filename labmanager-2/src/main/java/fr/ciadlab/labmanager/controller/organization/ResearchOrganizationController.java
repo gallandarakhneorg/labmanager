@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
-import fr.ciadlab.labmanager.Constants;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
@@ -65,12 +65,12 @@ public class ResearchOrganizationController extends AbstractController {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of messages.
-	 * @param organizationService the research organizationservice.
+	 * @param organizationService the research organization service.
 	 */
 	public ResearchOrganizationController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired ResearchOrganizationService organizationService) {
-		super(DEFAULT_ENDPOINT, messages);
+		super(messages);
 		this.organizationService = organizationService;
 	}
 

@@ -20,7 +20,7 @@ import java.io.File;
 import java.net.URI;
 import java.net.URL;
 
-import fr.ciadlab.labmanager.Constants;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
@@ -57,21 +57,22 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	/** Constructor.
 	 *
+	 * @param constants the accessor to the application constants.
 	 * @param messages the accessor to the localized messages.
 	 * @param doiTools the accessor to the DOI tools.
 	 */
-	public CiadHtmlPageExporter(@Autowired MessageSourceAccessor messages, @Autowired DoiTools doiTools) {
-		super(messages, doiTools);
+	public CiadHtmlPageExporter(@Autowired Constants constants, @Autowired MessageSourceAccessor messages, @Autowired DoiTools doiTools) {
+		super(constants, messages, doiTools);
 	}
 
-	private static void buildPdfDownloadLink(StringBuilder html, String path, String label) {
+	private void buildPdfDownloadLink(StringBuilder html, String path, String label) {
 		final String jpeg = FileSystem.replaceExtension(new File(path), ".jpg").toString(); //$NON-NLS-1$
 		html.append("<a class=\"btn btn-xs btn-success\" href=\"/"); //$NON-NLS-1$
-		html.append(Constants.DEFAULT_SERVER_NAME);
+		html.append(this.constants.getServerName());
 		html.append("/"); //$NON-NLS-1$
 		html.append(path);
 		html.append("\"><i class=\"fa\"><img src=\"/"); //$NON-NLS-1$
-		html.append(Constants.DEFAULT_SERVER_NAME);
+		html.append(this.constants.getServerName());
 		html.append("/"); //$NON-NLS-1$
 		html.append(jpeg);
 		html.append("\" class=\"publicationDetailsDownloadAttachment\" /><br/>"); //$NON-NLS-1$
@@ -97,10 +98,10 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		return html.toString();
 	}
 
-	private static void exportPublicationButton(StringBuilder html, String buttonClass, String endpoint, int id, String label,
+	private void exportPublicationButton(StringBuilder html, String buttonClass, String endpoint, int id, String label,
 			ExporterConfigurator configurator) {
 		UriBuilder builder = new DefaultUriBuilderFactory().builder();
-		builder = builder.path("/" + Constants.DEFAULT_SERVER_NAME + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
+		builder = builder.path("/" + this.constants.getServerName() + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
 		builder = configurator.applyQueryParams(builder);
 		builder = builder.queryParam("id", Integer.valueOf(id)); //$NON-NLS-1$
 		builder = builder.queryParam("inAttachment", Boolean.TRUE); //$NON-NLS-1$
@@ -147,7 +148,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
 			html.append("<a class=\"btn btn-xs btn-success\" href=\"/"); //$NON-NLS-1$
-			html.append(Constants.DEFAULT_SERVER_NAME).append("/"); //$NON-NLS-1$
+			html.append(this.constants.getServerName()).append("/"); //$NON-NLS-1$
 			html.append("addPublication?publicationId="); //$NON-NLS-1$
 			html.append(publicationId);
 			html.append("\" <i class=\"fa fa-edit\">"); //$NON-NLS-1$
@@ -162,7 +163,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
 			html.append("<a class=\"btn btn-xs btn-danger\" href=\"/"); //$NON-NLS-1$
-			html.append(Constants.DEFAULT_SERVER_NAME).append("/deletePublication?publicationId="); //$NON-NLS-1$
+			html.append(this.constants.getServerName()).append("/deletePublication?publicationId="); //$NON-NLS-1$
 			html.append(publicationId);
 			html.append("\" <i class=\"fa fa-delete\">"); //$NON-NLS-1$
 			html.append(this.messages.getMessage(MESSAGES_PREFIX + "DELETE_BUTTON_LABEL")); //$NON-NLS-1$

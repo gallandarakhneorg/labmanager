@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.io.html;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -57,11 +58,12 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 
 	/** Constructor.
 	 *
+	 * @param constants the accessor to the application constants.
 	 * @param messages the accessor to the localized messages.
-	 * @param doiTools the tools for managning DOI links.
+	 * @param doiTools the tools for managing DOI links.
 	 */
-	public AbstractCiadHtmlExporter(MessageSourceAccessor messages, DoiTools doiTools) {
-		super(messages, doiTools);
+	public AbstractCiadHtmlExporter(Constants constants, MessageSourceAccessor messages, DoiTools doiTools) {
+		super(constants, messages, doiTools);
 	}
 
 	@Override

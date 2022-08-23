@@ -20,16 +20,17 @@ import java.time.LocalDate;
 import java.util.Map;
 import java.util.Random;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of a JEE component.
  * 
  * @author $Author: sgalland$
- * @author $Author: tmartine$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
@@ -45,6 +46,9 @@ public abstract class AbstractComponent {
 	@Value("${ciadlab.debug}")
 	private boolean debugVersion;
 
+	@Autowired
+	private Constants constants;
+	
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
@@ -217,6 +221,17 @@ public abstract class AbstractComponent {
 			throw new IllegalArgumentException("Invalid date parameter: " + name); //$NON-NLS-1$
 		}
 		return date;
+	}
+
+	/** Replies the constants associated to this application.
+	 *
+	 * @return the constants.
+	 */
+	protected Constants getApplicationConstants() {
+		if (this.constants == null) {
+			this.constants = new Constants();
+		}
+		return this.constants;
 	}
 
 }
