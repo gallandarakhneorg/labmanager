@@ -68,7 +68,7 @@
                             let correctFirstName = $('.input-first-name').val();
                             let correctLastName = $('.input-last-name').val();
                             $.ajax({
-                                url:"/SpringRestHibernate/mergeMultipleAuthors",
+                                url:"/LabManagerApi/mergeMultipleAuthors",
                                 type:"POST",
                                 data: jQuery.param({
                                     'authorFirstName': correctFirstName,

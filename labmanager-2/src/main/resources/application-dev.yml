@@ -36,7 +36,7 @@ management:
   endpoint:
     logfile:
       # Path to the log file
-      external-file: /home/sgalland/tmp/ciadlab/CIADSpringRestHibernate.log
+      external-file: /home/sgalland/tmp/ciadlab/LabManagerApi.log
 
 ciadlab:
   file:

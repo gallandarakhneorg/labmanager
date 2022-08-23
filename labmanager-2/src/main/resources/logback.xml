@@ -14,7 +14,7 @@
 
     <appender name="APPLICATION-LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
 
-        <file>${LOG_PATH}/CIADSpringRestHibernate.log</file>
+        <file>${LOG_PATH}/LabManagerApi.log</file>
 
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>

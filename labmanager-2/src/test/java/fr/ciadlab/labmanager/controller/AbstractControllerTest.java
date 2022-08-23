@@ -47,7 +47,7 @@ public class AbstractControllerTest {
 		uriBuilder = uriBuilder.path(path.toString());
 		final String url = uriBuilder.build().toString();
 
-		assertEquals("/SpringRestHibernate/exportJson", url);
+		assertEquals("/LabManagerApi/exportJson", url);
 	}
 	
 }

@@ -147,7 +147,7 @@ public class Constants {
 	 */
 	public static final String SAVE_BIBTEX_ENDPOINT = "saveBibTeX"; //$NON-NLS-1$
 
-	private static final String DEFAULT_SERVER_NAME = "SpringRestHibernate"; //$NON-NLS-1$
+	private static final String DEFAULT_SERVER_NAME = "LabManagerApi"; //$NON-NLS-1$
 
 	private static final String DEFAULT_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$
 

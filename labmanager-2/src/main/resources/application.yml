@@ -24,13 +24,13 @@ spring:
 
 server:
   servlet:
-    context-path: /SpringRestHibernate
+    context-path: /LabManagerApi
 
 management:
   endpoint:
     logfile:
       enabled: true
-      external-file: /var/log/tomcat9/CIADSpringRestHibernate.log
+      external-file: /var/log/tomcat9/LabManagerApi.log
   endpoints:
     enabled-by-default: true
     web:
@@ -44,4 +44,4 @@ management:
 labmanager:
   default-organization: CIAD
   file:
-    upload-directory: /tmp/ciadlab
+    upload-directory: /tmp/LabManagerApi
