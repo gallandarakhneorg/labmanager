@@ -101,11 +101,14 @@
 										<input class="form-control" type="text" th:value="${person != null ? person.mobilePhone : ''}"
 										       th:placeholder="#{html.PlaceHolderPhone}" id="personMobilePhone" name="mobilePhone"></input>
 	                                </div>
-	                                <div class="form-group">
+	                                <div class="form-group"
+	                                     th:with="hasGravatarId = ${person != null && person.gravatarId != null && !person.gravatarId.isEmpty()}">
 	                                    <label for="personGravatarId" class="col-form-label"
 	                                           th:utext="#{html.GravatarId}"></label>
 										<input class="form-control" type="text" th:value="${person != null ? person.gravatarId : ''}"
 										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personGravatarId" name="gravatarId"></input>
+										<div id="personGravatarPhoto"
+										     style="max-width:8%"></div>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personOrcid" class="col-form-label"
@@ -180,7 +183,7 @@
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="personWosHindex" class="col-form-label"
-	                                           th:utext="#{html.hindexOnWoS}"></label>
+	                                           th:utext="#{html.hindexOnWos}"></label>
 										<input class="form-control" type="number" th:value="${person != null ? person.wosHindex : ''}"
 										       th:placeholder="#{html.PlaceHolderPositiveInteger}" id="personWosHindex" name="wosHindex"></input>
 	                                </div>
@@ -198,6 +201,17 @@
 	<!-- page container area end -->
 </body>
 <script th:inline="javascript">
+function refreshGravatarPhoto(gravatarId) {
+	var $imageElement = $('#personGravatarPhoto');
+	$imageElement.empty();
+	var gravatarUrl = 'https://www.gravatar.com/avatar/0';
+	if (gravatarId) {
+		gravatarUrl = "https://www.gravatar.com/avatar/{0}".format(gravatarId);
+	}
+	console.log("******* GRAVATAR URL: " + gravatarUrl);
+	var $img = $("<img></img>").attr('src', gravatarUrl);
+	$imageElement.append($img);
+}
 $(document).ready(function () {
     $('#form').validate({
         rules: {
@@ -245,6 +259,13 @@ $(document).ready(function () {
             }
         }
     });
+    $('#personGravatarId').on('change paste keyup', (e) => {
+    	var newGravatarId = $('#personGravatarId').val();
+    	refreshGravatarPhoto(newGravatarId);
+    });
+    /*[# th:if="${person != null && person.gravatarId != null && !person.gravatarId.isEmpty()}"]*/
+    refreshGravatarPhoto("[(${person.gravatarId})]");
+    /*[/]*/    
 });
 </script>
 </html>
