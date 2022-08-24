@@ -72,6 +72,10 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	private static final long serialVersionUID = -1312811718336186349L;
 
+	/** Base URL for gravatar pictures.
+	 */
+	public static final String GRAVATAR_URL = "https://www.gravatar.com/avatar/"; //$NON-NLS-1$
+	
 	private static final String ORCID_URL = "https://orcid.org/"; //$NON-NLS-1$
 
 	private static final String FACEBOOK_URL = "https://www.facebook.com/"; //$NON-NLS-1$
@@ -83,8 +87,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	private static final String RESEARCHERID_URL = "http://www.researcherid.com/rid/"; //$NON-NLS-1$
 
 	private static final String RESEARCHGATE_URL = "http://www.researchgate.net/profile/"; //$NON-NLS-1$
-
-	private static final String GRAVATAR_URL = "https://www.gravatar.com/avatar/"; //$NON-NLS-1$
 
 	private static final String GRAVATAR_SIZE_PARAM = "s"; //$NON-NLS-1$
 

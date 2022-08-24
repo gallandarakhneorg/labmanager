@@ -165,6 +165,7 @@ public class PersonController extends AbstractController {
 		//
 		initModelViewProperties(modelAndView, username, success, failure, message);
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
+		modelAndView.addObject("gravatarLink", Person.GRAVATAR_URL + "{0}"); //$NON-NLS-1$ //$NON-NLS-2$
 		modelAndView.addObject("defaultGender", Gender.NOT_SPECIFIED); //$NON-NLS-1$
 		modelAndView.addObject("defaultNaming", WebPageNaming.UNSPECIFIED); //$NON-NLS-1$
 		modelAndView.addObject("formActionUrl", "/" + Constants.PERSON_SAVING_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$

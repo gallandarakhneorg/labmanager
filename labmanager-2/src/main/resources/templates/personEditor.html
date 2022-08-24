@@ -204,11 +204,10 @@
 function refreshGravatarPhoto(gravatarId) {
 	var $imageElement = $('#personGravatarPhoto');
 	$imageElement.empty();
-	var gravatarUrl = 'https://www.gravatar.com/avatar/0';
+	var gravatarUrl = "[(${gravatarLink})]".format('0');
 	if (gravatarId) {
-		gravatarUrl = "https://www.gravatar.com/avatar/{0}".format(gravatarId);
+		gravatarUrl = "[(${gravatarLink})]".format(gravatarId);
 	}
-	console.log("******* GRAVATAR URL: " + gravatarUrl);
 	var $img = $("<img></img>").attr('src', gravatarUrl);
 	$imageElement.append($img);
 }
