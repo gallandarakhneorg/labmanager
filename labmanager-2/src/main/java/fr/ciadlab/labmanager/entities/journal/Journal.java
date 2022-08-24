@@ -70,7 +70,9 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 
 	private static final long serialVersionUID = -2046765660549008074L;
 
-	private static final String SCIMAGO_URL = "https://www.scimagojr.com/journalsearch.php?tip=sid&clean=0&q="; //$NON-NLS-1$
+	/** Base URL for obtaining the details on a journal on Scimago website.
+	 */
+	public static final String SCIMAGO_URL = "https://www.scimagojr.com/journalsearch.php?tip=sid&clean=0&q="; //$NON-NLS-1$
 
 	/** Identifier of the journal in the database.
 	 * 

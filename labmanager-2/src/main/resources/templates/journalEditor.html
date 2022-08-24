@@ -117,6 +117,7 @@
 	                                           th:utext="#{html.JournalScimagoId}"></label>
 										<input class="form-control" type="text" th:value="${journal != null ? journal.scimagoId : ''}"
 										       th:placeholder="#{html.PlaceHolderIdentifier}" id="journalScimagoId" name="scimagoId"></input>
+										<div id="journalScimagoPicture"></div>
 	                                </div>
 	                                <div class="form-group">
 	                                    <label for="journalWosId" class="col-form-label"
@@ -138,7 +139,6 @@
 	<!-- page container area end -->
 </body>
 <script th:inline="javascript">
-
 // Force intermediate state of the checkboxes
 var journalOpenAccessValue = "[(${journal != null ? ((journal.openAccess == null) ? '' : journal.openAccess.toString()) : ''})]";
 if (journalOpenAccessValue == '') {
@@ -150,6 +150,17 @@ if (journalOpenAccessValue == '') {
 } else {
 	$("#journalOpenAccess").prop("indeterminate", false);
 	$("#journalOpenAccess").prop("checked", false);
+}
+
+function refreshScimagoPhoto(scimagoId) {
+	var $imageElement = $('#journalScimagoPicture');
+	$imageElement.empty();
+	var scimagoUrl = "[(${scimagoQIndex_imageUrl})]".format('0');
+	if (scimagoId) {
+		scimagoUrl = "[(${scimagoQIndex_imageUrl})]".format(scimagoId);
+	}
+	var $img = $("<img></img>").attr('src', scimagoUrl);
+	$imageElement.append($img);
 }
 
 $(document).ready(function () {
@@ -165,6 +176,13 @@ $(document).ready(function () {
             },
         }
     });
+    $('#journalScimagoId').on('change paste keyup', (e) => {
+    	var newScimagoId = $('#journalScimagoId').val();
+    	refreshScimagoPhoto(newScimagoId);
+    });
+    /*[# th:if="${journal != null && journal.scimagoId != null && !journal.scimagoId.isEmpty()}"]*/
+    refreshScimagoPhoto("[(${journal.scimagoId})]");
+    /*[/]*/    
 });
 </script>
 </html>

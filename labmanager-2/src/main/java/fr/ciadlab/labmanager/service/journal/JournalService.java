@@ -45,7 +45,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class JournalService extends AbstractService {
 
-	private static final String SCIMAGO_URL_PREFIX = "https://www.scimagojr.com/journal_img.php?id="; //$NON-NLS-1$
+	/** Base URL for obtaining the picture showing the quartile of a journal.
+	 */
+	public static final String SCIMAGO_URL_PREFIX = "https://www.scimagojr.com/journal_img.php?id="; //$NON-NLS-1$
 	
 	private final JournalRepository journalRepository;
 

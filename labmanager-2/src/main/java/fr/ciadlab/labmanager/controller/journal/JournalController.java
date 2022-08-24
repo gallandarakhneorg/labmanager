@@ -180,6 +180,7 @@ public class JournalController extends AbstractController {
 		}
 		//
 		initModelViewProperties(modelAndView, username, success, failure, message);
+		modelAndView.addObject("scimagoQIndex_imageUrl", JournalService.SCIMAGO_URL_PREFIX + "{0}"); //$NON-NLS-1$ //$NON-NLS-2$
 		modelAndView.addObject("journal", journalObj); //$NON-NLS-1$
 		modelAndView.addObject("formActionUrl", "/" + Constants.JOURNAL_SAVING_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
 		//
