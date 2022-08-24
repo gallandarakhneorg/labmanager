@@ -28,6 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -92,8 +93,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class PublicationService extends AbstractService {
 
 	private PublicationRepository publicationRepository;
-
-	private AuthorshipService authorshipService;
 
 	private AuthorshipRepository authorshipRepository;
 
@@ -169,7 +168,6 @@ public class PublicationService extends AbstractService {
 			@Autowired MessageSourceAccessor messages,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired PrePublicationFactory prePublicationFactory,
-			@Autowired AuthorshipService authorshipService,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonService personService, @Autowired PersonRepository personRepository,
 			@Autowired JournalRepository journalRepository,
@@ -192,7 +190,6 @@ public class PublicationService extends AbstractService {
 		super(messages);
 		this.publicationRepository = publicationRepository;
 		this.prePublicationFactory = prePublicationFactory;
-		this.authorshipService = authorshipService;
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;
 		this.personService = personService;
@@ -272,6 +269,84 @@ public class PublicationService extends AbstractService {
 		return this.publicationRepository.findAllByTitle(title);
 	}
 
+	/** Replies the authors of the publication with the given identifier.
+	 * 
+	 * @param publicationId the identifier of the publication.
+	 * @return the authors.
+	 */
+	public List<Person> getAuthorsFor(int publicationId) {
+		return this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(publicationId);
+	}
+
+	/** Replies the authorships of the publication with the given identifier.
+	 * 
+	 * @param publicationId the identifier of the publication.
+	 * @return the authorships.
+	 */
+	public List<Authorship> getAuthorshipsFor(int publicationId) {
+		return this.authorshipRepository.findByPublicationId(publicationId);
+	}
+
+	/** Link a person and a publication.
+	 * The person is added at the given position in the list of the authors.
+	 * If this list contains authors with a rank greater than or equals to the given rank,
+	 * the ranks of these authors is incremented.
+	 *
+	 * @param personId the identifier of the person.
+	 * @param publicationId the identifier of the publication.
+	 * @param rank the position of the person in the list of authors. To be sure to add the authorship at the end,
+	 *     pass {@link Integer#MAX_VALUE}.
+	 * @param updateOtherAuthorshipRanks indicates if the authorships ranks are re-arranged in order to be consistent.
+	 *     If it is {@code false}, the given rank as argument is put into the authorship without change.
+	 * @return the added authorship
+	 */
+	public Authorship addAuthorship(int personId, int publicationId, int rank, boolean updateOtherAuthorshipRanks) {
+		final Optional<Person> optPerson = this.personRepository.findById(Integer.valueOf(personId));
+		if (optPerson.isPresent()) {
+			final Optional<Publication> optPub = this.publicationRepository.findById(Integer.valueOf(publicationId));
+			if (optPub.isPresent()) {
+				final Publication publication = optPub.get();
+				// No need to add the authorship if the person is already linked to the publication
+				final Set<Authorship> currentAuthors = publication.getAuthorshipsRaw();
+				final Optional<Authorship> ro = currentAuthors.stream().filter(
+						it -> it.getPerson().getId() == personId).findAny();
+				if (ro.isEmpty()) {
+					final Person person = optPerson.get();
+					final Authorship authorship = new Authorship();
+					authorship.setPerson(person);
+					authorship.setPublication(publication);
+					final int realRank;
+					if (updateOtherAuthorshipRanks) {
+						if (rank > currentAuthors.size()) {
+							// Insert at the end
+							realRank = currentAuthors.size();
+						} else {
+							// Need to be inserted
+							realRank = rank < 0 ? 0 : rank;
+							for (final Authorship currentAuthor : currentAuthors) {
+								final int orank = currentAuthor.getAuthorRank();
+								if (orank >= rank) {
+									currentAuthor.setAuthorRank(orank + 1);
+									this.authorshipRepository.save(currentAuthor);
+								}
+							}
+						}
+					} else {
+						realRank = rank;
+					}
+					authorship.setAuthorRank(realRank);
+					currentAuthors.add(authorship);
+					publication.getAuthorshipsRaw().add(authorship);
+					this.authorshipRepository.save(authorship);
+					this.personRepository.save(person);
+					this.publicationRepository.save(publication);
+					return authorship;
+				}
+			}
+		}
+		return null;
+	}
+
 	/** Remove the publication with the given identifier.
 	 *
 	 * @param identifier the identifier of the publication to remove.
@@ -344,7 +419,7 @@ public class PublicationService extends AbstractService {
 				int rank = 0;
 				for (final Person author : authors) {
 					this.personRepository.save(author);
-					this.authorshipService.addAuthorship(author.getId(), publication.getId(), rank, false);
+					addAuthorship(author.getId(), publication.getId(), rank, false);
 					++rank;
 				}
 			}
@@ -461,12 +536,12 @@ public class PublicationService extends AbstractService {
 								personId = author.getId();
 							}
 							// Assigning authorship
-							this.authorshipService.addAuthorship(personId, publicationId, rank, false);
+							addAuthorship(personId, publicationId, rank, false);
 							this.publicationRepository.save(publication);
 		
 							// Check if the newly imported pub has at least one authorship.
 							// If not, it's a bad case and the pub have to be removed and marked as failed
-							if (this.authorshipService.getAuthorsFor(publicationId).isEmpty()) {
+							if (getAuthorsFor(publicationId).isEmpty()) {
 								throw new IllegalArgumentException("No author for publication id=" + publicationId); //$NON-NLS-1$
 							}
 							++rank;
@@ -1101,7 +1176,7 @@ public class PublicationService extends AbstractService {
 
 	private void updateAuthorList(boolean creation, Publication publication, List<String> authors) {
 		// First step: Update the list of authors.
-		final List<Authorship> oldAuthorships = creation ? Collections.emptyList() : this.authorshipService.getAuthorshipsFor(publication.getId());
+		final List<Authorship> oldAuthorships = creation ? Collections.emptyList() : getAuthorshipsFor(publication.getId());
 		Collector<Authorship, ?, Map<Integer, Authorship>> col = Collectors.toMap(
 				it -> Integer.valueOf(it.getPerson().getId()),
 				it -> it);
@@ -1160,7 +1235,7 @@ public class PublicationService extends AbstractService {
 						+ publication.getId());
 			} else {
 				// Author was not associated yet
-				this.authorshipService.addAuthorship(person.getId(), publication.getId(), rank, false);
+				addAuthorship(person.getId(), publication.getId(), rank, false);
 				getLogger().info("Author \"" + person.getFullName()+ "\" added to publication with id " + publication.getId()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			++rank;

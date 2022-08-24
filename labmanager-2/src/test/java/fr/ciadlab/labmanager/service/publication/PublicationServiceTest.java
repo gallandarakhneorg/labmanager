@@ -16,11 +16,6 @@
 
 package fr.ciadlab.labmanager.service.publication;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -28,26 +23,22 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 import java.io.Reader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
@@ -106,8 +97,6 @@ public class PublicationServiceTest {
 
 	private PrePublicationFactory prePublicationFactory;
 
-	private AuthorshipService authorshipService;
-
 	private AuthorshipRepository authorshipRepository;
 
 	private PersonService personService;
@@ -156,7 +145,6 @@ public class PublicationServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.prePublicationFactory = mock(PrePublicationFactory.class);
 		this.publicationRepository = mock(PublicationRepository.class);
-		this.authorshipService = mock(AuthorshipService.class);
 		this.authorshipRepository = mock(AuthorshipRepository.class);
 		this.personService = mock(PersonService.class);
 		this.personRepository = mock(PersonRepository.class);
@@ -177,7 +165,7 @@ public class PublicationServiceTest {
 		this.reportService = mock(ReportService.class);
 		this.thesisService = mock(ThesisService.class);
 		this.test = new PublicationService(this.messages, this.publicationRepository, this.prePublicationFactory,
-				this.authorshipService, this.authorshipRepository,
+				this.authorshipRepository,
 				this.personService, this.personRepository,
 				this.journalRepository, this.nameParser, this.bibtex, this.html, this.odt, this.json, this.fileManager,
 				this.bookService, this.bookChapterService, this.conferencePaperService,
@@ -188,11 +176,11 @@ public class PublicationServiceTest {
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
 		// at the same code location for configuration simplicity
-		this.pub0 = mock(Publication.class);
+		this.pub0 = mock(Publication.class, "pub0");
 		lenient().when(this.pub0.getId()).thenReturn(123);
-		this.pub1 = mock(Publication.class);
+		this.pub1 = mock(Publication.class, "pub1");
 		lenient().when(this.pub1.getId()).thenReturn(234);
-		this.pub2 = mock(Publication.class);
+		this.pub2 = mock(Publication.class, "pub2");
 		lenient().when(this.pub2.getId()).thenReturn(345);
 
 		lenient().when(this.publicationRepository.findAll()).thenReturn(
@@ -257,30 +245,54 @@ public class PublicationServiceTest {
 		when(pers0.getId()).thenReturn(1234);
 		Person pers1 = mock(Person.class);
 		when(pers1.getId()).thenReturn(2345);
-
-		Publication pub0 = mock(ConferencePaper.class);
-		when(pub0.getId()).thenReturn(123);
-		doReturn(Arrays.asList(pers0)).when(pub0).getTemporaryAuthors();
-
-		Publication pub1 = mock(ConferencePaper.class);
-		when(pub1.getId()).thenReturn(234);
-		doReturn(Arrays.asList(pers1)).when(pub1).getTemporaryAuthors();
+		doReturn(Arrays.asList(pers0)).when(this.pub0).getTemporaryAuthors();
+		doReturn(Arrays.asList(pers1)).when(this.pub1).getTemporaryAuthors();
+		
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch ((Integer) it.getArgument(0)) {
+			case 1234:
+				return Optional.of(pers0);
+			case 2345:
+				return Optional.of(pers1);
+			}
+			return Optional.empty();
+		});
 
 		this.test.save(pub0, pub1);
 
 		verify(pub0).setTemporaryAuthors(isNull());
 		verify(pub1).setTemporaryAuthors(isNull());
 
-		verify(this.publicationRepository).save(eq(pub0));
-		verify(this.publicationRepository).save(eq(pub1));
+		verify(this.publicationRepository, atLeastOnce()).save(same(pub0));
+		verify(this.publicationRepository, atLeastOnce()).save(same(pub1));
 
-		verify(this.personRepository).save(eq(pers0));
-		verify(this.personRepository).save(eq(pers1));
+		verify(this.personRepository, atLeastOnce()).save(same(pers0));
+		verify(this.personRepository, atLeastOnce()).save(same(pers1));
 
-		verify(this.authorshipService).addAuthorship(eq(1234), eq(123), eq(0), eq(false));
-		verify(this.authorshipService).addAuthorship(eq(2345), eq(234), eq(0), eq(false));
+		ArgumentCaptor<Authorship> arg0 = ArgumentCaptor.forClass(Authorship.class);
+		verify(this.authorshipRepository, times(2)).save(arg0.capture());
+		assertAuthorship(arg0, 1234, 123, 0);
+		assertAuthorship(arg0, 2345, 234, 0);
 
 		verifyNoInteractions(this.journalRepository);
+	}
+
+	private void assertAuthorship(ArgumentCaptor<Authorship> authorships, int personId, int publicationId, int rank) {
+		for (final Authorship aut : authorships.getAllValues()) {
+			int pid = aut.getPerson().getId();
+			int pubid = aut.getPublication().getId();
+			int r = aut.getAuthorRank();
+			if (personId == pid && publicationId == pubid && rank == r) {
+				return;
+			}
+		}
+		fail("Authorship not found");
+	}
+
+	private void assertAuthorship(Authorship authorship, int personId, int publicationId, int rank) {
+		assertEquals(personId, authorship.getPerson().getId(), "Invalid person");
+		assertEquals(publicationId, authorship.getPublication().getId(), "Invalid publication");
+		assertEquals(rank, authorship.getAuthorRank(), "Invalid rank");
 	}
 
 	@Test
@@ -302,6 +314,7 @@ public class PublicationServiceTest {
 	public void importPublications_0() throws Exception {
 		String bibtex = "--valid-bibtex--";
 		Person a0 = mock(Person.class);
+		when(a0.getId()).thenReturn(1234);
 		when(a0.getFirstName()).thenReturn("Fa0");
 		when(a0.getLastName()).thenReturn("La0");
 		Person a1 = mock(Person.class);
@@ -309,6 +322,7 @@ public class PublicationServiceTest {
 		when(a1.getFirstName()).thenReturn("Fa1");
 		when(a1.getLastName()).thenReturn("La1");
 		Person a2 = mock(Person.class);
+		when(a2.getId()).thenReturn(3456);
 		when(a2.getFirstName()).thenReturn("Fa2");
 		when(a2.getLastName()).thenReturn("La2");
 		Publication p0 = mock(Publication.class);
@@ -318,24 +332,34 @@ public class PublicationServiceTest {
 		when(p1.getId()).thenReturn(874);
 		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
 		when(this.bibtex.extractPublications(any(Reader.class), anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
-		when(this.personService.getPersonIdBySimilarName(any(), any())).thenAnswer(it -> {
-			switch (it.getArgument(0).toString()) {
-			case "Fa0":
-				switch (it.getArgument(1).toString()) {
-				case "La0":
-					return 1234;
-				}
-				break;
-			case "Fa2":
-				switch (it.getArgument(1).toString()) {
-				case "La2":
-					return 3456;
-				}
-				break;
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch ((Integer) it.getArgument(0)) {
+			case 1234:
+				return Optional.of(a0);
+			case 2345:
+				return Optional.of(a1);
+			case 3456:
+				return Optional.of(a2);
 			}
-			return 0;
+			return Optional.empty();
 		});
-		when(this.authorshipService.getAuthorsFor(anyInt())).thenReturn(Collections.singletonList(null));
+		when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyInt())).thenReturn(Collections.singletonList(null));
+
+		lenient().when(this.publicationRepository.findById(anyInt())).then(it -> {
+			switch (((Integer) it.getArgument(0)).intValue()) {
+			case 123:
+				return Optional.of(this.pub0);
+			case 234:
+				return Optional.of(this.pub1);
+			case 345:
+				return Optional.of(this.pub2);
+			case 987:
+				return Optional.of(p0);
+			case 874:
+				return Optional.of(p1);
+			}
+			return Optional.empty();
+		});
 
 		List<Integer> ids = this.test.importPublications(new StringReader(bibtex), null);
 
@@ -353,11 +377,14 @@ public class PublicationServiceTest {
 
 		verify(p1, atLeastOnce()).setTemporaryAuthors(same(null));
 
-		verify(this.authorshipService, atLeastOnce()).getAuthorsFor(eq(874));
-		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(1234), eq(987), eq(0), eq(false));
-		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(2345), eq(987), eq(1), eq(false));
-		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(2345), eq(874), eq(0), eq(false));
-		verify(this.authorshipService, atLeastOnce()).addAuthorship(eq(3456), eq(874), eq(1), eq(false));
+		verify( this.personRepository, atLeastOnce()).findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(eq(874));
+		
+		ArgumentCaptor<Authorship> arg0 = ArgumentCaptor.forClass(Authorship.class);
+		verify(this.authorshipRepository, atLeastOnce()).save(arg0.capture());
+		assertAuthorship(arg0, 1234, 987, 0);
+		assertAuthorship(arg0, 2345, 987, 1);
+		assertAuthorship(arg0, 2345, 874, 0);
+		assertAuthorship(arg0, 3456, 874, 1);
 	}
 
 	@Test
@@ -507,6 +534,183 @@ public class PublicationServiceTest {
 		assertEquals(2, list.size());
 		assertTrue(list.contains(this.pub0));
 		assertTrue(list.contains(this.pub2));
+	}
+
+	@Test
+	public void getAuthorsFor() {
+		Person pers0 = mock(Person.class);
+		Person pers1 = mock(Person.class);
+
+		when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyInt())).thenAnswer(it -> {
+			switch ((Integer) it.getArgument(0)) {
+			case 1234:
+				return Arrays.asList(pers1, pers0);
+			case 2345:
+				return Collections.singletonList(pers1);
+			}
+			return Collections.emptyList();
+		});
+
+		final List<Person> list0 = this.test.getAuthorsFor(0);
+		assertTrue(list0.isEmpty());
+
+		final List<Person> list1 = this.test.getAuthorsFor(1234);
+		assertEquals(2, list1.size());
+		assertSame(pers1, list1.get(0));
+		assertSame(pers0, list1.get(1));
+
+		final List<Person> list2 = this.test.getAuthorsFor(2345);
+		assertEquals(1, list2.size());
+		assertTrue(list2.contains(pers1));
+	}
+
+	@Test
+	public void addAuthorship_IntIntInt_noAuthorship() {
+		Person pers0 = mock(Person.class);
+		when(pers0.getId()).thenReturn(1234);
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch ((Integer) it.getArgument(0)) {
+			case 1234:
+				return Optional.of(pers0);
+			}
+			return Optional.empty();
+		});
+
+		Set<Authorship> rawAuthorships = new HashSet<>();
+		when(this.pub0.getAuthorshipsRaw()).thenReturn(rawAuthorships);
+
+		final Authorship autship = this.test.addAuthorship(1234, 123, 1, true);
+
+		assertNotNull(autship);
+		assertAuthorship(autship, 1234, 123, 0);
+		
+		assertEquals(1, rawAuthorships.size());
+		assertTrue(rawAuthorships.contains(autship));
+
+		verify(this.authorshipRepository, times(1)).save(same(autship));
+	}
+
+	@Test
+	public void addAuthorship_IntIntInt_alreadyInsideAuthorship() {
+		Person pers0 = mock(Person.class);
+		when(pers0.getId()).thenReturn(1234);
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch ((Integer) it.getArgument(0)) {
+			case 1234:
+				return Optional.of(pers0);
+			}
+			return Optional.empty();
+		});
+
+		Set<Authorship> rawAuthorships = new HashSet<>();
+		when(this.pub0.getAuthorshipsRaw()).thenReturn(rawAuthorships);
+
+		Authorship existingAuthorship = mock(Authorship.class);
+		when(existingAuthorship.getPerson()).thenReturn(pers0);
+		rawAuthorships.add(existingAuthorship);
+
+		final Authorship autship = this.test.addAuthorship(1234, 123, 1, true);
+
+		assertNull(autship);
+		
+		assertEquals(1, rawAuthorships.size());
+
+		verify(this.authorshipRepository, never()).save(any());
+	}
+
+	@Test
+	public void addAuthorship_IntIntInt_newAuthorship_insertAsFirstAuthor() {
+		Person pers0 = mock(Person.class);
+		when(pers0.getId()).thenReturn(1234);
+		Person pers1 = mock(Person.class);
+		when(pers1.getId()).thenReturn(2345);
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch ((Integer) it.getArgument(0)) {
+			case 1234:
+				return Optional.of(pers0);
+			case 2345:
+				return Optional.of(pers1);
+			}
+			return Optional.empty();
+		});
+		
+		Set<Authorship> rawAuthorships = new HashSet<>();
+		when(this.pub1.getAuthorshipsRaw()).thenReturn(rawAuthorships);
+
+		Authorship existingAuthorship = mock(Authorship.class);
+		when(existingAuthorship.getPerson()).thenReturn(pers1);
+		when(existingAuthorship.getAuthorRank()).thenReturn(0);
+		rawAuthorships.add(existingAuthorship);
+
+		final Authorship autship = this.test.addAuthorship(1234, 234, 0, true);
+		assertNotNull(autship);
+		assertAuthorship(autship, 1234, 234, 0);
+		
+		verify(existingAuthorship).setAuthorRank(eq(1));
+
+		final ArgumentCaptor<Authorship> arg = ArgumentCaptor.forClass(Authorship.class);
+		verify(this.authorshipRepository, atLeastOnce()).save(same(autship));
+	}
+
+	@Test
+	public void addAuthorship_IntIntInt_newAuthorship_insertAsSecondAuthor() {
+		Person pers0 = mock(Person.class);
+		when(pers0.getId()).thenReturn(1234);
+		Person pers1 = mock(Person.class);
+		when(pers1.getId()).thenReturn(2345);
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch ((Integer) it.getArgument(0)) {
+			case 1234:
+				return Optional.of(pers0);
+			case 2345:
+				return Optional.of(pers1);
+			}
+			return Optional.empty();
+		});
+		
+		Set<Authorship> rawAuthorships = new HashSet<>();
+		when(this.pub1.getAuthorshipsRaw()).thenReturn(rawAuthorships);
+
+		Authorship existingAuthorship = mock(Authorship.class);
+		when(existingAuthorship.getPerson()).thenReturn(pers1);
+		when(existingAuthorship.getAuthorRank()).thenReturn(0);
+		rawAuthorships.add(existingAuthorship);
+		
+		final Authorship autship = this.test.addAuthorship(1234, 234, 1, true);
+		assertNotNull(autship);
+		assertAuthorship(autship, 1234, 234, 1);
+
+		verify(this.authorshipRepository, atLeastOnce()).save(same(autship));
+	}
+
+	@Test
+	public void addAuthorship_IntIntInt_newAuthorship_insertWithOutRangedRank() {
+		Person pers0 = mock(Person.class);
+		when(pers0.getId()).thenReturn(1234);
+		Person pers1 = mock(Person.class);
+		when(pers1.getId()).thenReturn(2345);
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch ((Integer) it.getArgument(0)) {
+			case 1234:
+				return Optional.of(pers0);
+			case 2345:
+				return Optional.of(pers1);
+			}
+			return Optional.empty();
+		});
+		
+		Set<Authorship> rawAuthorships = new HashSet<>();
+		when(this.pub1.getAuthorshipsRaw()).thenReturn(rawAuthorships);
+
+		Authorship existingAuthorship = mock(Authorship.class);
+		when(existingAuthorship.getPerson()).thenReturn(pers1);
+		rawAuthorships.add(existingAuthorship);
+
+		final Authorship autship = this.test.addAuthorship(1234, 234, 100, true);
+		assertNotNull(autship);
+		assertAuthorship(autship, 1234, 234, 1);
+
+		verify(this.authorshipRepository, atLeastOnce()).save(same(autship));
 	}
 
 }

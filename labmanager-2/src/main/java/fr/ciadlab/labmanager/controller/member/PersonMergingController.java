@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller.publication;
+package fr.ciadlab.labmanager.controller.member;
 
 import java.util.List;
 import java.util.Set;
@@ -22,8 +22,8 @@ import java.util.Set;
 import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.service.member.PersonMergingService;
 import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.service.publication.AuthorshipService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -34,36 +34,35 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-/** REST Controller for authorships.
+/** REST Controller for merging persons.
  * 
  * @author $Author: sgalland$
- * @author $Author: tmartine$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
 @RestController
 @CrossOrigin
-public class AuthorshipController extends AbstractController {
+public class PersonMergingController extends AbstractController {
 
 	private PersonService personService;
 
-	private AuthorshipService authorshipService;
+	private PersonMergingService mergingService;
 
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of messages.
 	 * @param personService the person service.
-	 * @param authorshipService the authorship management service.
+	 * @param mergingService the service for merging persons.
 	 */
-	public AuthorshipController(
+	public PersonMergingController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired PersonService personService,
-			@Autowired AuthorshipService authorshipService) {
+			@Autowired PersonMergingService mergingService) {
 		super(messages);
 		this.personService = personService;
-		this.authorshipService = authorshipService;
+		this.mergingService = mergingService;
 	}
 
 	/** Show the view that permits to analyze duplicate persons and merge them.
@@ -116,7 +115,7 @@ public class AuthorshipController extends AbstractController {
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
 			try {
-				this.authorshipService.mergePersonsById(sources, target);
+				this.mergingService.mergePersonsById(sources, target);
 			} catch (Throwable ex) {
 				getLogger().error(ex.getLocalizedMessage(), ex);
 				throw ex;

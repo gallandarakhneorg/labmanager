@@ -2,6 +2,7 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 
 <th:block th:replace="fragments/head :: style"></th:block>
+
 <th:block th:replace="fragments/head :: sharedScript"></th:block>
 
 <th:block th:if="${changeEnabled}">
@@ -61,7 +62,10 @@
 					<i th:id="${'btMergePart_' + iMatchingPersons.index + '_' + candidate.id}"
 					   class="fa fa-angle-right"
 					   style="font-size:larger;cursor:pointer"
-					   th:title="#{html.DuplicatePersonMergePart(${candidate.fullName})}"></i>
+					   th:title="#{html.DuplicatePersonMergePart(${candidate.fullName})}"
+					   data-toggle="popover"
+					   data-trigger="focus"
+					   data-content="And here's some amazing content. It's very engaging. Right?"></i>
 		    	</th:block>
             </td>
     	</tr>
@@ -70,6 +74,48 @@
 
 
 <script th:inline="javascript">
+	function runMergeAction(mergeUrl, successMsg, successCallback, failureMsg, elementName) {
+		var formData = new FormData();
+		formData.append("target", mergeUrl.target);
+		formData.append("sources", mergeUrl.sources);
+		$.ajax({
+			url: mergeUrl.url,
+			timeout: 50000,
+			type: 'post',
+			data: formData,
+			dataType: 'json',
+			contentType: false,
+			processData: false,
+			cache: false,
+			async:true,
+			success: (jsonData, textStatus, obj) => {
+				Swal.fire(
+						  "[(#{html.Merged})]",
+						  successMsg,
+						  'success'
+						).then(result => {
+		    				if (result.isConfirmed) {
+    							successCallback();
+		    				}
+						});
+			},
+			error: (jsonData, textStatus, obj) => {
+				var errCode = jsonData.status;
+				var errMsg = '';
+				if (jsonData.responseJSON) {
+					errMsg = jsonData.responseJSON.message ? jsonData.responseJSON.message : jsonData.responseJSON.error;
+				} else {
+					errMsg = jsonData.statusText ? jsonData.statusText : obj;
+				}
+				var errMessage = errMsg + ' (' + errCode + ')';	
+				Swal.fire(
+				  "[(#{html.Error})]",
+				  failureMsg.format(elementName, errMessage),
+				  'error'
+				);
+			}
+		});
+	}
 	function installMergeButtonCallback( bt, bxTitle, bxMessage, mergeUrl, successMsg, failureMsg, elementName, successCallback ) {
 	    bt.on('click', function(e) {
 	    	Swal.fire( {
@@ -82,46 +128,41 @@
 	   		  confirmButtonText: "[(#{html.YesMergeThem})]"
 	   		} ).then(result => {
 				if (result.isConfirmed) {
-					var formData = new FormData();
-					formData.append("target", mergeUrl.target);
-					formData.append("sources", mergeUrl.sources);
-					$.ajax({
-						url: mergeUrl.url,
-						timeout: 50000,
-						type: 'post',
-						data: formData,
-						dataType: 'json',
-						contentType: false,
-						processData: false,
-						cache: false,
-						async:true,
-						success: (jsonData, textStatus, obj) => {
-							Swal.fire(
-									  "[(#{html.Merged})]",
-									  successMsg,
-									  'success'
-									).then(result => {
-					    				if (result.isConfirmed) {
-			    							successCallback();
-					    				}
-									});
-						},
-						error: (jsonData, textStatus, obj) => {
-							var errCode = jsonData.status;
-							var errMsg = '';
-							if (jsonData.responseJSON) {
-								errMsg = jsonData.responseJSON.message ? jsonData.responseJSON.message : jsonData.responseJSON.error;
-							} else {
-								errMsg = jsonData.statusText ? jsonData.statusText : obj;
-							}
-							var errMessage = errMsg + ' (' + errCode + ')';	
-							Swal.fire(
-							  "[(#{html.Error})]",
-							  failureMsg.format(elementName, errMessage),
-							  'error'
-							);
-						}
-					});
+					runMergeAction(mergeUrl, successMsg, successCallback, failureMsg, elementName);
+				}
+	   		} );
+	    } );
+	}
+	function installMergePartButtonCallback( bt, bxTitle, bxMessage, mergeUrl, successMsg, failureMsg, elementName, successCallback ) {
+		var htmlContent = bxMessage;
+		$.each(mergeUrl.sources, (idx, item) => {
+			htmlContent = htmlContent + "<br/><input id='checkbox_partmerge_" + item.id + "' value='"
+				+ item.id + "' type='checkbox' checked>" + item.label + "</input>";
+		});
+	    bt.on('click', function(e) {
+	    	Swal.fire( {
+	   		  title: bxTitle,
+	   		  text: bxMessage,
+	   		  icon: 'question',
+	   		  html: htmlContent,
+	   		  preConfirm: () => {
+				var selection = [];
+				$.each(mergeUrl.sources, (idx, item) => {
+					var $component = $('#checkbox_partmerge_' + item.id);
+					if ($component.is(':checked')) {
+						selection.push($component.prop('value'));
+					}
+				});
+				return selection;
+	   		  },
+	   		  showCancelButton: true,
+	   		  confirmButtonColor: '#d33',
+	   		  cancelButtonColor: '#99cc00',
+	   		  confirmButtonText: "[(#{html.YesMergeThem})]"
+	   		} ).then(result => {
+				if (result.isConfirmed) {
+					mergeUrl.sources = result.value;
+					runMergeAction(mergeUrl, successMsg, successCallback, failureMsg, elementName);
 				}
 	   		} );
 	    } );
@@ -189,18 +230,25 @@
     		"[(${candidate.fullName})]",
     		function (e) {
     			location.reload();
-    		} );
-    installMergeButtonCallback(
+    		});
+    installMergePartButtonCallback(
     		$("[(${'#btMergePart_' + iMatchingPersons.index + '_' + candidate.id})]"),
     		"[(#{html.DuplicatePersonMergePart(${candidate.fullName})})]",
     		"[(#{html.AreYouSureToMergePart(${candidate.fullName})})]",
     		{
-    			url: "[(@{/mergePersonsXXX})]",
+    			url: "[(@{/mergePersons})]",
     			target: "[(${candidate.id})]",
-    			sources: [],
+    			sources: [
+    			    /*[# th:each="otherCandidate : ${duplicates}" th:if="${otherCandidate.id != candidate.id}"]*/
+    			    {
+    			    	id: "[(${otherCandidate.id})]",
+    			    	label: "[(${otherCandidate.fullName})]",
+    			    },
+    			    /*[/]*/
+    			],
     		},
     		"[(#{html.PersonsMerged})]",
-    		"[(#{html.html.CannotMergePersons(${candidate.fullName})})]",
+    		"[(#{html.CannotMergePersons(${candidate.fullName})})]",
     		"[(${candidate.fullName})]",
     		function (e) {
     			//location.reload();
