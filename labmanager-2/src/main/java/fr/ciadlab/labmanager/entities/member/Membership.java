@@ -38,6 +38,7 @@ import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 
 /** Relation between a person and a research organization.
  * 
@@ -79,7 +80,8 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	/** Number of the CNU section of the person related to which membership.
 	 */
 	@Column
-	private int cnuSection;
+	@Enumerated(EnumType.STRING)
+	private CnuSection cnuSection;
 
 	/** Reference to the person.
 	 */
@@ -98,9 +100,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @param since the start date of involvement.
 	 * @param to the end date of involvement.
 	 * @param status the status.
-	 * @param cnuSection is the number of the CNU section, or {@code 0} if it is unknown or irrelevant.
+	 * @param cnuSection is the number of the CNU section, or {@code null} if it is unknown or irrelevant.
 	 */
-	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status, int cnuSection) {
+	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status, CnuSection cnuSection) {
 		this.person = person;
 		this.researchOrganization = orga;
 		this.memberSinceWhen = since;
@@ -180,8 +182,8 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 */
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
-		if (getCnuSection() > 0) {
-			consumer.accept("cnuSection", Integer.valueOf(getCnuSection())); //$NON-NLS-1$
+		if (getCnuSection() != null) {
+			consumer.accept("cnuSection", Integer.valueOf(getCnuSection().getNumber())); //$NON-NLS-1$
 		}
 		if (getMemberSinceWhen() != null) {
 			consumer.accept("memberSinceWhen", getMemberSinceWhen()); //$NON-NLS-1$
@@ -328,7 +330,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 *
 	 * @return the CNY section number or {@code 0} if unknown.
 	 */
-	public int getCnuSection() {
+	public CnuSection getCnuSection() {
 		return this.cnuSection;
 	}
 
@@ -337,12 +339,8 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 *
 	 * @param cnu the CNU section number or {@code 0} if unknown.
 	 */
-	public void setCnuSection(int cnu) {
-		if (cnu < 0) {
-			this.cnuSection = 0;
-		} else {
-			this.cnuSection = cnu;
-		}
+	public void setCnuSection(CnuSection cnu) {
+		this.cnuSection = cnu;
 	}
 
 	/** Change the CNU section of the member in the research organization.
@@ -352,9 +350,13 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 */
 	public final void setCnuSection(Number cnu) {
 		if (cnu == null) {
-			setCnuSection(0);
+			setCnuSection((CnuSection) null);
 		} else {
-			setCnuSection(cnu.intValue());
+			try {
+				setCnuSection(CnuSection.valueOf(cnu));
+			} catch (Throwable ex) {
+				setCnuSection((CnuSection) null);
+			}
 		}
 	}
 

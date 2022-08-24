@@ -26,6 +26,7 @@ import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -136,6 +137,9 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (Gender item : EnumSet.allOf(Gender.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (CnuSection item : EnumSet.allOf(CnuSection.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 		}

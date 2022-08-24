@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.AbstractController;
+import fr.ciadlab.labmanager.controller.publication.PublicationController;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
@@ -44,14 +45,16 @@ import org.springframework.web.servlet.ModelAndView;
 /** REST Controller for persons.
  * <p>
  * This controller does not manage the memberships' or authorships' databases themselves.
- * You must use {@link AuthorController} for managing the authorships entries.
+ * You must use {@link MembershipController} for managing the memberships, and
+ * {@link PublicationController} for authorships.
  * 
  * @author $Author: sgalland$
  * @author $Author: tmartine$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @see AuthorController
+ * @see MembershipController
+ * @see PublicationController
  */
 @RestController
 @CrossOrigin

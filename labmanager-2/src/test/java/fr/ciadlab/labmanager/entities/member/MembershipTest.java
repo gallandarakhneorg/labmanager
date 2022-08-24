@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import java.time.LocalDate;
 
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -180,18 +181,18 @@ public class MembershipTest {
 
 	@Test
 	public void getCnuSection() {
-		assertEquals(0, this.test.getCnuSection());
+		assertNull(this.test.getCnuSection());
 	}
 
 	@Test
 	public void setCnuSection() {
-		assertEquals(0, this.test.getCnuSection());
+		assertNull(this.test.getCnuSection());
 		this.test.setCnuSection(61);
-		assertEquals(61, this.test.getCnuSection());
+		assertSame(CnuSection.CNU_61, this.test.getCnuSection());
 		this.test.setCnuSection(0);
-		assertEquals(0, this.test.getCnuSection());
+		assertNull(this.test.getCnuSection());
 		this.test.setCnuSection(-1);
-		assertEquals(0, this.test.getCnuSection());
+		assertNull(this.test.getCnuSection());
 	}
 
 	@Test
