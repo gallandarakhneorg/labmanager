@@ -1,0 +1,339 @@
+<!DOCTYPE html >
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<th:block th:replace="fragments/head :: style"/>
+	<th:block th:replace="fragments/head :: sharedScript"/>
+	<th:block th:replace="fragments/head :: sharedScriptDeletionButton"/>
+	
+	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+	
+	<style>
+	    .form-control.is-valid {
+	        border-color: #0d64c1;
+	        border-width:2px;
+	    }
+	    div.form-super-group {
+	    	padding: 10px;
+	    	margin: 20px;
+	    }
+	    div.form-super-group label {
+	    	color: white;
+	    }
+	    div.form-super-group-new {
+	    	background-color: #995555 !important;
+	    }
+	    div.form-super-group-finished {
+	    	background-color: #999999 !important;
+	    }
+	    div.form-super-group-active {
+	    	background-color: #96c10d !important;
+	    }
+	    div.form-super-group-future {
+	    	background-color: #c8960d !important;
+	    }
+	</style>
+</head>
+<body>
+	<div class="horizontal-main-wrapper">
+	    <!-- main content area start -->
+	    <div class="main-content">
+	        <div class="main-content-inner">
+	            <div class="row">
+	                <div class="col-lg-12">
+	                    <div class="card">
+	                        <div class="card-body">
+	                            <h4 class="header-title" th:utext="#{html.EditMemberships(${person.fullName})}"></h4>
+								<button id="btAdd"
+								        class="btn btn-warning mt-4 pr-4 pl-4"
+								        th:if="${changeEnabled}"
+								        th:utext="#{html.AddMembership}"></button>
+                                <th:block th:each="membership : ${sortedMemberships}">
+	                                <div th:class="${'form-super-group ' + (membership.former ? 'form-super-group-finished' : ((membership.future ? 'form-super-group-future' : 'form-super-group-active')))}">
+		                                <div class="form-group">
+		                                    <label th:for="${'organization_' + membership.id}"
+		                                           class="col-form-label required"
+		                                           th:utext="#{html.Organization}"></label>
+											<select class="form-control selectOrganization list-group-item list-group-item-action"
+											        th:id="${'organization_' + membership.id}"
+											        th:name="${'membership[' + membership.id + '][organization]'}"
+											        style="width: 100%">
+												<option th:each="organization : ${organizations}"
+												        th:selected="${membership != null && membership.researchOrganization.id == organization.id}"
+												        th:value="${organization.id}"
+												        th:utext="${organization.acronymOrName}"></option>
+											</select>
+		                                </div>
+		                                <div class="form-group">
+		                                    <label th:for="${'status_' + membership.id}"
+											       class="col-form-label required"
+		                                           th:utext="#{html.Status}"></label>
+											<select class="form-control selectStatus list-group-item list-group-item-action"
+											        th:id="${'status_' + membership.id}"
+											        th:name="${'membership[' + membership.id + '][status]'}"
+											        style="width: 100%">
+												<option th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values}"
+												        th:selected="${membership != null && membership.memberStatus == status}"
+												        th:value="${status.name}"
+												        th:utext="${status.getLabel(locale)}"></option>
+											</select>
+		                                </div>
+		                                <div class="form-group">
+		                                    <label th:for="${'memberSinceWhen_' + membership.id}"
+											       class="col-form-label required"
+		                                           th:utext="#{html.MemberSince}"></label>
+											<input class="form-control"
+											       type="date" th:value="${membership.memberSinceWhen == null ? '' : membership.memberSinceWhen.toString}"
+											       th:id="${'memberSinceWhen_' + membership.id}"
+											       th:name="${'membership[' + membership.id + '][memberSinceWhen]'}"></input>
+		                                </div>                                
+		                                <div class="form-group">
+		                                    <label th:for="${'memberToWhen_' + membership.id}"
+											       class="col-form-label"
+		                                           th:utext="#{html.MemberTo}"></label>
+											<input class="form-control"
+											       type="date" th:value="${membership.memberToWhen == null ? '' : membership.memberToWhen.toString}"
+											       th:id="${'memberToWhen_' + membership.id}"
+											       th:name="${'membership[' + membership.id + '][memberToWhen]'}"></input>
+		                                </div>                                
+		                                <div class="form-group">
+		                                    <label th:for="${'cnuSection_' + membership.id}"
+											       class="col-form-label"
+		                                           th:utext="#{html.CnuSection}"></label>
+											<select class="form-control selectCnu list-group-item list-group-item-action"
+											        th:id="${'cnuSection_' + membership.id}"
+											        th:name="${'membership[' + membership.id + '][cnuSection]'}"
+											        style="width: 100%">
+												<option th:value="0"
+												        th:utext="#{html.NotSpecified}"></option>
+												<option th:each="cnuSection : ${T(fr.ciadlab.labmanager.utils.cnu.CnuSection).values}"
+												        th:selected="${membership != null && membership.cnuSection == cnuSection}"
+												        th:value="${cnuSection.number}"
+												        th:utext="${cnuSection.number + ' - ' + cnuSection.getLabel(locale)}"></option>
+											</select>
+		                                </div>
+										<button th:id="${'btSave_' + membership.id}"
+										        class="btn btn-primary mt-4 pr-4 pl-4"
+										        th:if="${changeEnabled}"
+										        th:utext="#{html.Submit}"></button>
+										<button th:id="${'btDelete_' + membership.id}"
+										        type="button"
+										        class="btn btn-danger mt-4 pr-4 pl-4"
+										        th:if="${changeEnabled}"
+										        th:utext="#{html.DeleteMembership}"></button>
+	                                </div>
+                                </th:block>
+	                        </div>
+	                    </div>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+	    <!-- main content area end -->
+	</div>
+	<!-- page container area end -->
+</body>
+<script th:inline="javascript">
+var nextAvailableIdForMembership = parseInt("[(${minMembershipId})]");
+function setButtonToActionState($button, buttonText) {
+	//$button.prop("disabled", true);
+	var $span = $('<span></span>').attr('class', 'spinner-border spinner-border-sm');
+	$span = $span.attr('role', 'status');
+	$span = $span.attr('aria-hidden', 'true');
+	$button.empty();
+	$button.append($span);
+	$button.append("&nbsp;");
+	$span0 = $('<span></span>').text(buttonText);
+	$button.append($span0);
+}
+function setButtonToDefaultActionState($button, text) {
+	$button.empty();
+	$button.text(text);
+	$button.prop("disabled", false);
+}
+function installSavingButtonCallback(membershipId, isNewMembership) {
+	$('#btSave_' + membershipId).on('click', (e) => {
+		setButtonToActionState($('#btSave_' + membershipId), "[(#{html.Submit})]");
+		var formData = new FormData();
+		formData.append("person", parseInt("[(${person.id})]"));
+		if (!isNewMembership) {
+			formData.append("membership", membershipId);
+		}
+		formData.append("organization", $('#organization_' + membershipId + ' option:selected').attr('value'));
+		formData.append("status", $('#status_' + membershipId + ' option:selected').attr('value'));
+		formData.append("memberSinceWhen", $('#memberSinceWhen_' + membershipId).val());
+		formData.append("memberToWhen", $('#memberToWhen_' + membershipId).val());
+		formData.append("cnuSection", $('#cnuSection_' + membershipId + ' option:selected').attr('value'));
+		$.ajax({
+			url: "[(@{/} + ${savingUrl})]",
+			timeout: 120000,
+			type: 'post',
+			data: formData,
+			contentType: false,
+			processData: false,
+			cache: false,
+			async:true,
+			success: (jsonData, textStatus, obj) => {
+				setButtonToDefaultActionState(
+						$('#btSave_' + membershipId),
+						"[(#{html.Submit})]");
+				Swal.fire(
+						  "[(#{html.Success})]",
+						  "[(#{html.MembershipSavingSuccess})]",
+						  'success'
+						).then(result => {
+							location.reload();
+						});
+			},
+			error: (obj, textStatus, errorThrown) => {
+				setButtonToDefaultActionState(
+						$('#btSave_' + membershipId),
+						"[(#{html.Submit})]");
+				var errCode = obj.status;
+				var errMsg = '';
+				if (obj && obj.responseJSON) {
+					errMsg = obj.responseJSON.message ? obj.responseJSON.message : obj.responseJSON.error;
+				} else {
+					errMsg = obj.statusText;
+				}
+				var errMessage = "[(#{html.MembershipSavingError})]".format(errCode, errMsg);	
+				Swal.fire(
+						  "[(#{html.Error})]",
+						  errMessage,
+						  'error'
+						);
+			},
+		});
+	});
+}
+function getOrganizationName(id) {
+	return $('organization_' + id + " option:selected").text();
+}
+/*[# th:if="${changeEnabled}"]*/
+function createPositionBlock() {
+	var mid = nextAvailableIdForMembership;
+	nextAvailableIdForMembership++;
+
+	var $div0 = $('<div></div>').attr('class', 'form-super-group form-super-group-new');
+	{
+		var $groupDiv = $('<div></div>').attr('class', 'form-group required');
+		$div0.append($groupDiv);
+		var $label = $('<label></label>').attr('for', 'organization_' + mid);
+		$label = $label.attr('class', 'col-form-label').text("[(#{html.Organization})]");
+		$groupDiv.append($label);
+		var $select = $('<select></select>').attr('class', 'form-control selectOrganization list-group-item list-group-item-action');
+		$select = $select.attr('id', 'organization_' + mid).attr('name', 'membership[' + mid + '][organization]');
+		$select = $select.attr('style', 'width: 100%');
+		var $option;
+	    /*[# th:each="organization : ${organizations}"]*/
+	    $option = $('<option></option>').attr('value', "[(${organization.id})]").text('[(${organization.acronymOrName})]');
+		    /*[# th:if="${preferredOrganization != null && organization.id == preferredOrganization.id}"]*/
+	    $option = $option.attr('selected', 'true');
+	    	/*[/]*/
+	    $select.append($option);
+    	/*[/]*/
+		$groupDiv.append($select);
+	}
+	{
+		var $groupDiv = $('<div></div>').attr('class', 'form-group');
+		$div0.append($groupDiv);
+		var $label = $('<label></label>').attr('for', 'status_' + mid);
+		$label = $label.attr('class', 'col-form-label required').text("[(#{html.Status})]");
+		$groupDiv.append($label);
+		var $select = $('<select></select>').attr('class', 'form-control selectStatus list-group-item list-group-item-action');
+		$select = $select.attr('id', 'status_' + mid).attr('name', 'membership[' + mid + '][status]');
+		$select = $select.attr('style', 'width: 100%');
+		var $option;
+	    /*[# th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values}"]*/
+	    $option = $('<option></option>').attr('value', "[(${status.name})]").text('[(${status.getLabel(locale)})]');
+		    /*[# th:if="${preferredStatus != null && status == preferredStatus}"]*/
+	    $option = $option.attr('selected', 'true');
+	    	/*[/]*/
+	    $select.append($option);
+    	/*[/]*/
+		$groupDiv.append($select);
+	}
+	{
+		var $groupDiv = $('<div></div>').attr('class', 'form-group');
+		$div0.append($groupDiv);
+		var $label = $('<label></label>').attr('for', 'memberSinceWhen_' + mid);
+		$label = $label.attr('class', 'col-form-label').text("[(#{html.MemberSince})]");
+		$groupDiv.append($label);
+		var $input = $('<input></input>').attr('class', 'form-control').attr('type', 'date');
+		$input = $input.attr('id', 'memberSinceWhen_' + mid).attr('name', 'membership[' + mid + '][memberSinceWhen]');
+		var now = new Date().toISOString().split('T')[0];
+		$input.val(now);
+		$groupDiv.append($input);
+	}
+	{
+		var $groupDiv = $('<div></div>').attr('class', 'form-group');
+		$div0.append($groupDiv);
+		var $label = $('<label></label>').attr('for', 'memberToWhen_' + mid);
+		$label = $label.attr('class', 'col-form-label').text("[(#{html.MemberTo})]");
+		$groupDiv.append($label);
+		var $input = $('<input></input>').attr('class', 'form-control').attr('type', 'date');
+		$input = $input.attr('id', 'memberToWhen_' + mid).attr('name', 'membership[' + mid + '][memberToWhen]');
+		$groupDiv.append($input);
+	}
+	{
+		var $groupDiv = $('<div></div>').attr('class', 'form-group');
+		$div0.append($groupDiv);
+		var $label = $('<label></label>').attr('for', 'cnuSection_' + mid);
+		$label = $label.attr('class', 'col-form-label').text("[(#{html.CnuSection})]");
+		$groupDiv.append($label);
+		var $select = $('<select></select>').attr('class', 'form-control selectCnu list-group-item list-group-item-action');
+		$select = $select.attr('id', 'cnuSection_' + mid).attr('name', 'membership[' + mid + '][cnuSection]');
+		$select = $select.attr('style', 'width: 100%');
+		var $option = $('<option></option>').attr('value', '0').text('[(#{html.NotSpecified})]');
+	    /*[# th:if="${preferredCnuSection == null}"]*/
+	    $option = $option.attr('selected', 'true');
+    	/*[/]*/
+	    $select.append($option);
+	    /*[# th:each="cnuSection : ${T(fr.ciadlab.labmanager.utils.cnu.CnuSection).values}"]*/
+	    $option = $('<option></option>').attr('value', "[(${cnuSection.number})]").text("[(${cnuSection.number + ' - ' + cnuSection.getLabel(locale)})]");
+		    /*[# th:if="${preferredCnuSection != null && cnuSection == preferredCnuSection}"]*/
+	    $option = $option.attr('selected', 'true');
+	    	/*[/]*/
+	    $select.append($option);
+    	/*[/]*/
+		$groupDiv.append($select);
+	}
+	{
+		var $bt1 = $('<button></button>').attr('id', 'btSave_' + mid).attr('type', 'button');
+		$bt1 = $bt1.attr('class', 'btn btn-primary mt-4 pr-4 pl-4').text("[(#{html.Submit})]");
+		$div0.append($bt1);
+	}
+
+	$div0.insertAfter('#btAdd');
+
+	installSavingButtonCallback(mid, true);
+}
+/*[/]*/
+
+
+$(document).ready(function () {
+    /*[# th:if="${changeEnabled}"]*/
+	$('#btAdd').on('click', () => {
+		$('#btAdd').prop("disabled", true);
+		createPositionBlock();
+	});
+
+	    /*[# th:each="membership : ${sortedMemberships}"]*/
+    installSavingButtonCallback("[(${membership.id})]", false);
+
+    installDeletionButtonCallback0(
+    		$("[(${'#btDelete_' + membership.id})]"),
+    		"[(#{html.DeleteMembership})]",
+    		"[(#{html.AreYouSureToDeleteMembership})]",
+    		"[(@{/} + ${deletionUrl + '?id=' + membership.id})]",
+    		"[(#{html.MembershipDeleted})]",
+    		"[(#{html.CannotDeleteMembership})]",
+    		() => { return getOrganizationName("[(${membership.id})]"); },
+    		function (e) {
+    			location.reload();
+    		} );
+    	/*[/]*/
+    /*[/]*/
+});
+</script>
+</html>
+

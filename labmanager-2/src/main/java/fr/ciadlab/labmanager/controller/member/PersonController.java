@@ -92,7 +92,7 @@ public class PersonController extends AbstractController {
 		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
 		initModelViewProperties(modelAndView, username);
 		modelAndView.addObject("persons", this.personService.getAllPersons()); //$NON-NLS-1$
-		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
+		modelAndView.addObject("deletionUrl", Constants.MEMBERSHIP_DELETION_ENDPOINT); //$NON-NLS-1$
 		return modelAndView;
 	}
 

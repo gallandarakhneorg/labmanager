@@ -97,7 +97,10 @@
     <th:block th:fragment="sharedScriptDeletionButton">
         <script>
      	function installDeletionButtonCallback( bt, bxTitle, bxMessage, deletionUrl, successMsg, failureMsg, elementName, successCallback ) {
-    	    bt.on('click', function(e) {
+     		installDeletionButtonCallback0(bt, bxTitle, bxMessage, deletionUrl, successMsg, failureMsg, () => { return elementName; }, successCallback);
+     	}
+     	function installDeletionButtonCallback0( bt, bxTitle, bxMessage, deletionUrl, successMsg, failureMsg, elementNameCallback, successCallback ) {
+    	    bt.on('click', (e) => {
     	    	Swal.fire( {
     	   		  title: bxTitle,
     	   		  text: bxMessage,
@@ -128,14 +131,14 @@
     			    			}
     							Swal.fire(
     							  "[(#{html.Error})]",
-    							  failureMsg.format(elementName, boxmsg),
+    							  failureMsg.format(elementNameCallback(), boxmsg),
     							  'error'
     							);
     			    		}
     			    	} ).catch(err => {
     						Swal.fire(
     						  "[(#{html.Error})]",
-    						  failureMsg.format(elementName, err),
+    						  failureMsg.format(elementNameCallback(), err),
     						  'error'
     						);
     			    	} );

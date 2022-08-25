@@ -40,13 +40,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
 	 */
 	Optional<Membership> findDistinctByResearchOrganizationIdAndPersonId(int researchoOrganizationId, int personId);
 
-	/** Delete the membership between the organization and the person with the given identifiers.
-	 *
-	 * @param researchoOrganizationId the identifier of the organization.
-	 * @param personId the identifier of the member.
-	 */
-	void deleteByResearchOrganizationIdAndPersonId(int researchoOrganizationId, int personId);
-
 	/** Find the memberships by their organization and member identifiers.
 	 *
 	 * @param researchoOrganizationId the identifier of the organization.

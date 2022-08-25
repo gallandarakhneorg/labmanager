@@ -42,8 +42,11 @@ import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
+import fr.ciadlab.labmanager.utils.cnu.CnuSection;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 /** Service for the memberships to research organizations.
@@ -194,73 +197,118 @@ public class MembershipService extends AbstractService {
 	}
 
 	/** Create the membership that corresponds to the given organization and member identifiers.
+	 * This function may test if an active membership already exists in the organization for the given
+	 * person. In this case, and if the argument {@code forceCreation} is set to {@code false},
+	 * then the function does not create the membership and replies the existing membership.
 	 * 
 	 * @param organizationId the identifier of the organization.
 	 * @param personId the identifier of the member.
 	 * @param startDate the beginning of the membership.
 	 * @param endDate the end of the membership.
 	 * @param memberStatus the status of the person in the membership.
-	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
+	 * @param cnuSection the section of the CNU to which this membership belongs to.
+	 * @param forceCreation indicates if the membership must be created even if there is an active membership
+	 *     in the same organization.
+	 * @return a pair that contains the membership (created or not) and a boolean flag indicating
+	 *     if the replied membership is a new membership or not.
+	 * @throws Exception if the creation cannot be done.
 	 */
-	public boolean addMembership(int organizationId, int personId, LocalDate startDate, LocalDate endDate, MemberStatus memberStatus) {
+	public Pair<Membership, Boolean> addMembership(int organizationId, int personId, LocalDate startDate, LocalDate endDate,
+			MemberStatus memberStatus, CnuSection cnuSection, boolean forceCreation) throws Exception {
 		assert memberStatus != null;
 		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
 		if (optOrg.isPresent()) {
 			final Optional<Person> optPerson = this.personRepository.findById(Integer.valueOf(personId));
 			if (optPerson.isPresent()) {
 				final Person person = optPerson.get();
-				// We don't need to add the membership is the person is already involved in the organization
-				final Optional<Membership> ro = person.getMemberships().stream().filter(
-						it -> it.getResearchOrganization().getId() == organizationId).findAny();
-				if (ro.isEmpty()) {
-					final ResearchOrganization organization = optOrg.get();
-					final Membership mem = new Membership();
-					mem.setPerson(person);
-					mem.setResearchOrganization(organization);
-					mem.setMemberSinceWhen(startDate);
-					mem.setMemberToWhen(endDate);
-					mem.setMemberStatus(memberStatus);
-					this.membershipRepository.save(mem);
-					return true;
+				if (!forceCreation) {
+					// We don't need to add the membership is the person is already involved in the organization
+					final Optional<Membership> ro = person.getMemberships().stream().filter(
+							it -> it.isActive() && it.getResearchOrganization().getId() == organizationId).findAny();
+					if (ro.isPresent()) {
+						final Membership activeMembership = ro.get();
+						final LocalDate sd = activeMembership.getMemberSinceWhen();
+						if (endDate == null || sd == null || !endDate.isBefore(sd)) {
+							return Pair.of(ro.get(), Boolean.FALSE);
+						}
+					}
 				}
+				final ResearchOrganization organization = optOrg.get();
+				final Membership mem = new Membership();
+				mem.setPerson(person);
+				mem.setResearchOrganization(organization);
+				mem.setMemberSinceWhen(startDate);
+				mem.setMemberToWhen(endDate);
+				mem.setMemberStatus(memberStatus);
+				mem.setCnuSection(cnuSection);
+				this.membershipRepository.save(mem);
+				return Pair.of(mem, Boolean.TRUE);
 			}
+			throw new IllegalArgumentException("Person not found with id: " + personId); //$NON-NLS-1$
 		}
-		return false;
+		throw new IllegalArgumentException("Organization not found with id: " + organizationId); //$NON-NLS-1$
 	}
 
-	/** Update the membership that corresponds to the given organization and member identifiers.
+	/** Update the membership that corresponds to the given membership identifier identifiers.
 	 * 
-	 * @param organizationId the identifier of the organization.
-	 * @param personId the identifier of the member.
+	 * @param membershipId the identifier of the membership to update.
+	 * @param organizationId the identifier of the organization. If it is {@code null}, the organization should not change.
 	 * @param startDate the new beginning of the membership.
 	 * @param endDate the new end of the membership.
 	 * @param memberStatus the new status of the person in the membership.
-	 * @return {@code true} if the link has changed; {@code false} if the link has not changed.
+	 * @param cnuSection the new CNU section, or {@code null} if unknown.
+	 * @return the updated membership.
+	 * @throws Exception if the given identifiers cannot be resolved to JPA entities.
 	 */
-	public boolean updateMembership(int organizationId, int personId, LocalDate startDate, LocalDate endDate, MemberStatus memberStatus) {
-		final Optional<Membership> res = this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(organizationId, personId);
+	public Membership updateMembershipById(int membershipId, Integer organizationId, LocalDate startDate, LocalDate endDate,
+			MemberStatus memberStatus, CnuSection cnuSection) throws Exception {
+		final Optional<Membership> res = this.membershipRepository.findById(Integer.valueOf(membershipId));
 		if (res.isPresent()) {
 			final Membership membership = res.get();
+			if (organizationId != null) {
+				final Optional<ResearchOrganization> res0 = this.organizationRepository.findById(organizationId);
+				if (res0.isEmpty()) {
+					throw new IllegalArgumentException("Cannot find organization with id: " + organizationId); //$NON-NLS-1$
+				}
+				membership.setResearchOrganization(res0.get());
+			}
 			membership.setMemberSinceWhen(startDate);
 			membership.setMemberToWhen(endDate);
 			if (memberStatus != null) {
 				membership.setMemberStatus(memberStatus);
 			}
+			membership.setCnuSection(cnuSection);
 			this.membershipRepository.save(membership);
-			return true;
+			return membership;
 		}
-		return false;
+		throw new IllegalArgumentException("Cannot find membership with id: " + membershipId); //$NON-NLS-1$
 	}
 
-	/** Delete the membership between the organization with the given identifier and the person
-	 * with the given identifier.
+	/** Delete the membership with the given identifier.
 	 *
-	 * @param organizationId the identifier of the organization.
-	 * @param personId the identifier of the person.
+	 * @param membershipId the identifier of the membership to be deleted.
+	 * @return the status to reply to the caller of this function.
 	 */
 	@Transactional
-	public void removeMembership(int organizationId, int personId) {
-		this.membershipRepository.deleteByResearchOrganizationIdAndPersonId(organizationId, personId);
+	public HttpStatus removeMembership(int membershipId) {
+		final Integer mid = Integer.valueOf(membershipId);
+		final Optional<Membership> optMbr = this.membershipRepository.findById(mid);
+		if (optMbr.isEmpty()) {
+			return HttpStatus.NOT_FOUND;
+		}
+		final Membership mbr = optMbr.get();
+		final Person person = mbr.getPerson();
+		if (person != null) {
+			person.getMemberships().remove(mbr);
+			mbr.setPerson(null);
+		}
+		final ResearchOrganization organization = mbr.getResearchOrganization();
+		if (organization != null) {
+			organization.getMemberships().remove(mbr);
+			mbr.setResearchOrganization(null);
+		}
+		this.membershipRepository.deleteById(mid);
+		return HttpStatus.OK;
 	}
 
 	/** Replies the persons in the organization of the given identifier.

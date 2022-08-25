@@ -25,11 +25,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
@@ -47,6 +50,8 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
+import fr.ciadlab.labmanager.utils.cnu.CnuSection;
+import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -541,58 +546,64 @@ public class MembershipServiceTest {
 	}
 
 	@Test
-	public void addMembership() {
-		final boolean state = this.test.addMembership(2345, 34567, LocalDate.parse("2022-07-12"), LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER);
-		assertTrue(state);
+	public void addMembership() throws Exception {
+		final Pair<Membership, Boolean> m = this.test.addMembership(2345, 34567, LocalDate.parse("2022-07-12"),
+				LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER, CnuSection.CNU_07, false);
+		assertNotNull(m);
+		assertTrue(m.getRight());
 
 		final ArgumentCaptor<Membership> arg = ArgumentCaptor.forClass(Membership.class);
 		verify(this.membershipRepository, only()).save(arg.capture());
 		final Membership actual = arg.getValue();
 		assertNotNull(actual);
+		assertSame(m.getLeft(), actual);
 		assertEquals(LocalDate.parse("2022-07-12"), actual.getMemberSinceWhen());
 		assertEquals(LocalDate.parse("2022-07-28"), actual.getMemberToWhen());
 		assertSame(MemberStatus.ENGINEER, actual.getMemberStatus());
+		assertSame(CnuSection.CNU_07, actual.getCnuSection());
 		assertSame(this.p3, actual.getPerson());
 		assertSame(this.o2, actual.getResearchOrganization());
 	}
 
 	@Test
-	public void updateMembership() {
-		final boolean r = this.test.updateMembership(1234, 23456, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"), MemberStatus.MASTER_STUDENT);
-		assertTrue(r);
+	public void updateMembershipById() throws Exception {
+		when(this.membershipRepository.findById(anyInt())).then(it -> {
+			final int id = ((Integer) it.getArgument(0)).intValue();
+			switch (id) {
+			case 234:
+				return Optional.of(this.ms1);
+			}
+			return Optional.empty();
+		});
+
+		final Membership m = this.test.updateMembershipById(234, 1234, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"), MemberStatus.MASTER_STUDENT, CnuSection.CNU_05);
+		assertSame(this.ms1, m);
 
 		final ArgumentCaptor<Membership> arg0 = ArgumentCaptor.forClass(Membership.class);
-		verify(this.membershipRepository, atLeastOnce()).save(arg0.capture());
-		final Membership actual0 = arg0.getValue();
-		assertSame(this.ms1, actual0);
+		verify(this.membershipRepository, atLeastOnce()).save(same(this.ms1));
+		verifyNoMoreInteractions(this.membershipRepository);
 
-		final ArgumentCaptor<LocalDate> arg1 = ArgumentCaptor.forClass(LocalDate.class);
-		verify(actual0).setMemberSinceWhen(arg1.capture());
-		assertEquals(LocalDate.parse("2019-07-12"), arg1.getValue());
-
-		final ArgumentCaptor<LocalDate> arg2 = ArgumentCaptor.forClass(LocalDate.class);
-		verify(actual0).setMemberToWhen(arg2.capture());
-		assertEquals(LocalDate.parse("2019-07-28"), arg2.getValue());
-
-		final ArgumentCaptor<MemberStatus> arg3 = ArgumentCaptor.forClass(MemberStatus.class);
-		verify(actual0).setMemberStatus(arg3.capture());
-		assertSame(MemberStatus.MASTER_STUDENT, arg3.getValue());
+		verify(this.ms1).setResearchOrganization(same(this.o1));
+		verify(this.ms1).setMemberSinceWhen(eq(LocalDate.parse("2019-07-12")));
+		verify(this.ms1).setMemberToWhen(eq(LocalDate.parse("2019-07-28")));
+		verify(this.ms1).setMemberStatus(same(MemberStatus.MASTER_STUDENT));
+		verify(this.ms1).setCnuSection(same(CnuSection.CNU_05));
+		verifyNoMoreInteractions(this.ms1);
 	}
 
 	@Test
 	public void removeMembership() {
-		this.test.removeMembership(1234, 23456);
-
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
-		final ArgumentCaptor<Integer> arg1 = ArgumentCaptor.forClass(Integer.class);
-
-		verify(this.membershipRepository, atLeastOnce()).deleteByResearchOrganizationIdAndPersonId(arg0.capture(), arg1.capture());
-		Integer actual0 = arg0.getValue();
-		assertNotNull(actual0);
-		assertEquals(1234, actual0);
-		Integer actual1 = arg1.getValue();
-		assertNotNull(actual1);
-		assertEquals(23456, actual1);
+		when(this.membershipRepository.findById(anyInt())).then(it -> {
+			final int personId = ((Integer) it.getArgument(0)).intValue();
+			switch (personId) {
+			case 234:
+				return Optional.of(this.ms1);
+			}
+			return Optional.empty();
+		});
+		this.test.removeMembership(234);
+		verify(this.membershipRepository, atLeastOnce()).findById(eq(234));
+		verify(this.membershipRepository, atLeastOnce()).deleteById(eq(234));
 	}
 
 }

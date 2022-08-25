@@ -147,6 +147,14 @@ public class Constants {
 	 */
 	public static final String SAVE_BIBTEX_ENDPOINT = "saveBibTeX"; //$NON-NLS-1$
 
+	/** Name of the endpoint for deleting a membership.
+	 */
+	public static final String MEMBERSHIP_DELETION_ENDPOINT = "deleteMembership"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving a membership.
+	 */
+	public static final String MEMBERSHIP_SAVING_ENDPOINT = "saveMembership"; //$NON-NLS-1$
+
 	private static final String DEFAULT_SERVER_NAME = "LabManagerApi"; //$NON-NLS-1$
 
 	private static final String DEFAULT_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$

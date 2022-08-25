@@ -25,8 +25,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-/** Comparator of memberships. First the organizations are considered in the
- * sort, Then, dates are sorted from the highest to the lowest.
+/** Comparator of memberships. Memberships are sorted by date (from future to past), then by organization, person
+ * and CNU section.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -35,7 +35,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Primary
-public class MembershipComparator implements Comparator<Membership> {
+public class ChronoMembershipComparator implements Comparator<Membership> {
 
 	private PersonComparator personComparator;
 
@@ -46,7 +46,7 @@ public class MembershipComparator implements Comparator<Membership> {
 	 * @param personComparator the comparator of persons names.
 	 * @param organizationComparator the comparator of research organizations.
 	 */
-	public MembershipComparator(@Autowired PersonComparator personComparator, @Autowired ResearchOrganizationComparator organizationComparator) {
+	public ChronoMembershipComparator(@Autowired PersonComparator personComparator, @Autowired ResearchOrganizationComparator organizationComparator) {
 		this.personComparator = personComparator;
 		this.organizationComparator = organizationComparator;
 	}
@@ -62,19 +62,23 @@ public class MembershipComparator implements Comparator<Membership> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = this.organizationComparator.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
+		int n = Integer.compare(period(o1), period(o2));
+		if (n != 0) {
+			return n;
+		}
+		n = compareStartDate(o1.getMemberSinceWhen(), o2.getMemberSinceWhen());
+		if (n != 0) {
+			return n;
+		}
+		n = compareEndDate(o1.getMemberToWhen(), o2.getMemberToWhen());
+		if (n != 0) {
+			return n;
+		}
+		n = this.organizationComparator.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
 		if (n != 0) {
 			return n;
 		}
 		n = o1.getMemberStatus().compareTo(o2.getMemberStatus());
-		if (n != 0) {
-			return n;
-		}
-		n = compareDate(o1.getMemberSinceWhen(), o2.getMemberSinceWhen());
-		if (n != 0) {
-			return n;
-		}
-		n = compareDate(o1.getMemberToWhen(), o2.getMemberToWhen());
 		if (n != 0) {
 			return n;
 		}
@@ -89,7 +93,17 @@ public class MembershipComparator implements Comparator<Membership> {
 		return Integer.compare(o1.getId(), o2.getId());
 	}
 
-	private static int compareDate(LocalDate d0, LocalDate d1) {
+	private static int period(Membership d) {
+		if (d.isFormer()) {
+			return 2;
+		}
+		if (d.isFuture()) {
+			return 0;
+		}
+		return 1;
+	}
+
+	private static int compareStartDate(LocalDate d0, LocalDate d1) {
 		if (d0 == d1) {
 			return 0;
 		}
@@ -98,6 +112,19 @@ public class MembershipComparator implements Comparator<Membership> {
 		}
 		if (d1 == null) {
 			return Integer.MAX_VALUE;
+		}
+		return d1.compareTo(d0);
+	}
+
+	private static int compareEndDate(LocalDate d0, LocalDate d1) {
+		if (d0 == d1) {
+			return 0;
+		}
+		if (d0 == null) {
+			return Integer.MAX_VALUE;
+		}
+		if (d1 == null) {
+			return Integer.MIN_VALUE;
 		}
 		return d1.compareTo(d0);
 	}
