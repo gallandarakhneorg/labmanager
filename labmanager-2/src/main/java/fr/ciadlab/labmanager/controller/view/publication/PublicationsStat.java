@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller.publication;
+package fr.ciadlab.labmanager.controller.view.publication;
 
 import java.io.Serializable;
 import java.util.HashMap;

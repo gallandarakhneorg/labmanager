@@ -14,10 +14,11 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller.publication;
+package fr.ciadlab.labmanager.controller.view.publication;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import fr.ciadlab.labmanager.controller.view.publication.PublicationsStat;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import org.junit.jupiter.api.BeforeEach;

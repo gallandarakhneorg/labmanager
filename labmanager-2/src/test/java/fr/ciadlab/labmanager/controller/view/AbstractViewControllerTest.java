@@ -14,11 +14,12 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller;
+package fr.ciadlab.labmanager.controller.view;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -26,7 +27,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
-/** Tests for {@link AbstractController}.
+/** Tests for {@link AbstractViewController}.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -35,7 +36,7 @@ import org.springframework.web.util.UriBuilderFactory;
  */
 @SuppressWarnings("all")
 @ExtendWith(MockitoExtension.class)
-public class AbstractControllerTest {
+public class AbstractViewControllerTest {
 
 	@Test
 	public void addUrlToPublicationListEndPoint() {

@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller;
+package fr.ciadlab.labmanager.controller.view;
 
 import java.io.IOError;
 import java.io.IOException;
@@ -30,7 +30,7 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
-/** Abstract implementation of a JEE Controller.
+/** Abstract implementation of a JEE Controller that provides views.
  * 
  * @author $Author: sgalland$
  * @author $Author: tmartine$
@@ -38,7 +38,7 @@ import org.springframework.web.util.UriBuilderFactory;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public abstract class AbstractController extends AbstractComponent {
+public abstract class AbstractViewController extends AbstractComponent {
 
 	private final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
 
@@ -46,7 +46,7 @@ public abstract class AbstractController extends AbstractComponent {
 	 *
 	 * @param messages the provider of messages.
 	 */
-	public AbstractController(MessageSourceAccessor messages) {
+	public AbstractViewController(MessageSourceAccessor messages) {
 		super(messages);
 	}
 

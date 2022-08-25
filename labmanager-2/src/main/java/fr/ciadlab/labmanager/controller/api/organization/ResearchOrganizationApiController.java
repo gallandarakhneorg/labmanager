@@ -14,16 +14,12 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller.organization;
+package fr.ciadlab.labmanager.controller.api.organization;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletResponse;
-
+import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
@@ -42,7 +38,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 /** REST Controller for research organizations.
  * 
@@ -55,9 +50,7 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @RestController
 @CrossOrigin
-public class ResearchOrganizationController extends AbstractController {
-
-	private static final String DEFAULT_ENDPOINT = "organizationList"; //$NON-NLS-1$
+public class ResearchOrganizationApiController extends AbstractComponent {
 
 	private ResearchOrganizationService organizationService;
 
@@ -67,26 +60,11 @@ public class ResearchOrganizationController extends AbstractController {
 	 * @param messages the provider of messages.
 	 * @param organizationService the research organization service.
 	 */
-	public ResearchOrganizationController(
+	public ResearchOrganizationApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired ResearchOrganizationService organizationService) {
 		super(messages);
 		this.organizationService = organizationService;
-	}
-
-	/** Replies the model-view component for listing the research organizations. It is the main endpoint for this controller.
-	 *
-	 * @param username the login of the logged-in person.
-	 * @return the model-view component.
-	 */
-	@GetMapping("/" + DEFAULT_ENDPOINT)
-	public ModelAndView showOrganizationList(
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
-		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
-		initModelViewProperties(modelAndView, username);
-		modelAndView.addObject("organizations", this.organizationService.getAllResearchOrganizations()); //$NON-NLS-1$
-		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
-		return modelAndView;
 	}
 
 	/** Replies data about a specific research organization from the database.
@@ -118,53 +96,6 @@ public class ResearchOrganizationController extends AbstractController {
 		return opt.isPresent() ? opt.get() : null;
 	}
 
-	/** Show the editor for an organization. This editor permits to create or to edit an organization.
-	 *
-	 * @param organization the identifier of the organization to edit. If it is {@code null}, the endpoint
-	 *     is dedicated to the creation of an organization.
-	 * @param success flag that indicates the previous operation was a success.
-	 * @param failure flag that indicates the previous operation was a failure.
-	 * @param message the message that is associated to the state of the previous operation.
-	 * @param username the login of the logged-in person.
-	 * @return the model-view object.
-	 */
-	@GetMapping(value = "/" + Constants.ORGANIZATION_EDITING_ENDPOINT)
-	public ModelAndView showOrganizationEditor(
-			@RequestParam(required = false) Integer organization,
-			@RequestParam(required = false, defaultValue = "false") Boolean success,
-			@RequestParam(required = false, defaultValue = "false") Boolean failure,
-			@RequestParam(required = false) String message,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
-		final ModelAndView modelAndView = new ModelAndView("organizationEditor"); //$NON-NLS-1$
-		//
-		final ResearchOrganization organizationObj;
-		if (organization != null && organization.intValue() != 0) {
-			Optional<ResearchOrganization> opt = this.organizationService.getResearchOrganizationById(organization.intValue());
-			if (opt.isPresent()) {
-				organizationObj = opt.get();
-			} else {
-				throw new IllegalArgumentException("Organization not found: " + organization); //$NON-NLS-1$
-			}
-		} else {
-			organizationObj = null;
-		}
-		//
-		List<ResearchOrganization> otherOrganizations = this.organizationService.getAllResearchOrganizations();
-		if (organizationObj != null) {
-			otherOrganizations = otherOrganizations.stream().filter(it -> it.getId() != organizationObj.getId()).collect(Collectors.toList());
-		}
-		//
-		initModelViewProperties(modelAndView, username, success, failure, message);
-		modelAndView.addObject("organization", organizationObj); //$NON-NLS-1$
-		modelAndView.addObject("otherOrganizations", otherOrganizations); //$NON-NLS-1$
-		modelAndView.addObject("defaultOrganizationType", ResearchOrganizationType.DEFAULT); //$NON-NLS-1$
-		modelAndView.addObject("defaultCountry", CountryCodeUtils.DEFAULT); //$NON-NLS-1$
-		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
-		modelAndView.addObject("formActionUrl", "/" + Constants.ORGANIZATION_SAVING_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
-		//
-		return modelAndView;
-	}
-
 	/** Saving information of an organization. 
 	 *
 	 * @param organization the identifier of the organization. If the identifier is not provided, this endpoint is supposed to create
@@ -177,7 +108,7 @@ public class ResearchOrganizationController extends AbstractController {
 	 * @param country the country of the organization. It is a constant of {@link CountryCode}.
 	 * @param superOrganization the identifier of the super organization, or {@code 0} if none.
 	 * @param username the login of the logged-in person.
-	 * @param response the HTTP response to the client.
+	 * @throws Exception in case of problem for saving.
 	 */
 	@PostMapping(value = "/" + Constants.ORGANIZATION_SAVING_ENDPOINT)
 	public void saveOrganization(
@@ -189,8 +120,7 @@ public class ResearchOrganizationController extends AbstractController {
 			@RequestParam(required = false) String organizationURL,
 			@RequestParam(required = false) String country,
 			@RequestParam(required = false) Integer superOrganization,
-			@CurrentSecurityContext(expression="authentication?.name") String username,
-			HttpServletResponse response) {
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
 			try {
 				final ResearchOrganizationType typeObj = ResearchOrganizationType.valueOfCaseInsensitive(type);
@@ -198,31 +128,21 @@ public class ResearchOrganizationController extends AbstractController {
 				//
 				final Optional<ResearchOrganization> optOrganization;
 				//
-				final boolean newOrganization;
 				if (organization == null) {
-					newOrganization = true;
 					optOrganization = this.organizationService.createResearchOrganization(
 							acronym, name, description, typeObj, organizationURL, countryObj, superOrganization);
 				} else {
-					newOrganization = false;
 					optOrganization = this.organizationService.updateResearchOrganization(organization.intValue(),
 							acronym, name, description, typeObj, organizationURL, countryObj, superOrganization);
 				}
 				if (optOrganization.isEmpty()) {
 					throw new IllegalStateException("Organization not found"); //$NON-NLS-1$
 				}
-				//
-				redirectSuccessToEndPoint(response, Constants.ORGANIZATION_EDITING_ENDPOINT,
-						getMessage(
-								newOrganization ? "researchOrganizationController.AdditionSuccess" //$NON-NLS-1$
-										: "researchOrganizationController.EditionSuccess", //$NON-NLS-1$
-										optOrganization.get().getAcronymOrName(),
-										Integer.valueOf(optOrganization.get().getId())));
 			} catch (Throwable ex) {
-				redirectFailureToEndPoint(response, Constants.ORGANIZATION_EDITING_ENDPOINT, ex.getLocalizedMessage());
+				throw new IllegalStateException(ex.getLocalizedMessage(), ex);
 			}
 		} else {
-			redirectFailureToEndPoint(response, Constants.ORGANIZATION_EDITING_ENDPOINT, getMessage("all.notLogged")); //$NON-NLS-1$
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
 	}
 

@@ -14,11 +14,11 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller.database;
+package fr.ciadlab.labmanager.controller.api.database;
 
 import java.util.Map;
 
-import fr.ciadlab.labmanager.controller.AbstractController;
+import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.io.json.DatabaseToJsonExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-public class JsonDatabaseExporterController extends AbstractController {
+public class JsonDatabaseExporterApiController extends AbstractViewController {
 
 	private DatabaseToJsonExporter exporter;
 
@@ -47,7 +47,7 @@ public class JsonDatabaseExporterController extends AbstractController {
 	 * @param messages the provider of messages.
 	 * @param exporter the exporter.
 	 */
-	public JsonDatabaseExporterController(
+	public JsonDatabaseExporterApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired DatabaseToJsonExporter exporter) {
 		super(messages);

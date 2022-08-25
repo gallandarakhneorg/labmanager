@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller;
+package fr.ciadlab.labmanager.controller.view;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;

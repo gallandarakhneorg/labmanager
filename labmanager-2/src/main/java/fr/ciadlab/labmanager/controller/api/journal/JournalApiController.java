@@ -14,17 +14,14 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller.journal;
+package fr.ciadlab.labmanager.controller.api.journal;
 
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.servlet.http.HttpServletResponse;
-
+import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.controller.AbstractController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.service.journal.JournalService;
@@ -41,7 +38,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
 /** REST Controller for journals.
  * 
@@ -54,9 +50,7 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @RestController
 @CrossOrigin
-public class JournalController extends AbstractController {
-
-	private static final String DEFAULT_ENDPOINT = "journalList"; //$NON-NLS-1$
+public class JournalApiController extends AbstractComponent {
 
 	private JournalService journalService;
 
@@ -66,27 +60,11 @@ public class JournalController extends AbstractController {
 	 * @param messages the accessor to the localized messages.
 	 * @param journalService the journal service.
 	 */
-	public JournalController(
+	public JournalApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired JournalService journalService) {
 		super(messages);
 		this.journalService = journalService;
-	}
-
-	/** Replies the model-view component for managing the journals.
-	 *
-	 * @param username the login of the logged-in person.
-	 * @return the model-view component.
-	 */
-	@GetMapping("/" + DEFAULT_ENDPOINT)
-	public ModelAndView showJournalList(
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
-		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
-		initModelViewProperties(modelAndView, username);
-		modelAndView.addObject("journals", this.journalService.getAllJournals()); //$NON-NLS-1$
-		modelAndView.addObject("currentYear", Integer.valueOf(LocalDate.now().getYear())); //$NON-NLS-1$
-		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
-		return modelAndView;
 	}
 
 	/** Replies data about a specific journal from the database.
@@ -150,43 +128,6 @@ public class JournalController extends AbstractController {
 		return journal.getQualityIndicators();
 	}
 
-	/** Show the editor for a journal. This editor permits to create or to edit a journal.
-	 *
-	 * @param journal the identifier of the journal to edit. If it is {@code null}, the endpoint
-	 *     is dedicated to the creation of a journal.
-	 * @param success flag that indicates the previous operation was a success.
-	 * @param failure flag that indicates the previous operation was a failure.
-	 * @param message the message that is associated to the state of the previous operation.
-	 * @param username the login of the logged-in person.
-	 * @return the model-view object.
-	 */
-	@GetMapping(value = "/" + Constants.JOURNAL_EDITING_ENDPOINT)
-	public ModelAndView showJournalEditor(
-			@RequestParam(required = false) Integer journal,
-			@RequestParam(required = false, defaultValue = "false") Boolean success,
-			@RequestParam(required = false, defaultValue = "false") Boolean failure,
-			@RequestParam(required = false) String message,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
-		final ModelAndView modelAndView = new ModelAndView("journalEditor"); //$NON-NLS-1$
-		//
-		final Journal journalObj;
-		if (journal != null && journal.intValue() != 0) {
-			journalObj = this.journalService.getJournalById(journal.intValue());
-			if (journalObj == null) {
-				throw new IllegalArgumentException("Journal not found: " + journal); //$NON-NLS-1$
-			}
-		} else {
-			journalObj = null;
-		}
-		//
-		initModelViewProperties(modelAndView, username, success, failure, message);
-		modelAndView.addObject("scimagoQIndex_imageUrl", JournalService.SCIMAGO_URL_PREFIX + "{0}"); //$NON-NLS-1$ //$NON-NLS-2$
-		modelAndView.addObject("journal", journalObj); //$NON-NLS-1$
-		modelAndView.addObject("formActionUrl", "/" + Constants.JOURNAL_SAVING_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
-		//
-		return modelAndView;
-	}
-
 	/** Saving information of a journal. 
 	 *
 	 * @param journal the identifier of the journal. If the identifier is not provided, this endpoint is supposed to create
@@ -201,7 +142,7 @@ public class JournalController extends AbstractController {
 	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
 	 * @param username the login of the logged-in person.
-	 * @param response the HTTP response to the client.
+	 * @throws Exception in case the journal cannot be saved
 	 */
 	@PostMapping(value = "/" + Constants.JOURNAL_SAVING_ENDPOINT)
 	public void saveJournal(
@@ -215,39 +156,24 @@ public class JournalController extends AbstractController {
 			@RequestParam(required = false) String journalUrl,
 			@RequestParam(required = false) String scimagoId,
 			@RequestParam(required = false) String wosId,
-			@CurrentSecurityContext(expression="authentication?.name") String username,
-			HttpServletResponse response) {
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
-			try {
-				final Journal optJournal;
-				//
-				final boolean newJournal;
-				if (journal == null) {
-					newJournal = true;
-					optJournal = this.journalService.createJournal(
-							name, address, publisher, isbn, issn,
-							openAccess, journalUrl, scimagoId, wosId);
-				} else {
-					newJournal = false;
-					optJournal = this.journalService.updateJournal(journal.intValue(),
-							name, address, publisher, isbn, issn,
-							openAccess, journalUrl, scimagoId, wosId);
-				}
-				if (optJournal == null) {
-					throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
-				}
-				//
-				redirectSuccessToEndPoint(response, Constants.JOURNAL_EDITING_ENDPOINT,
-						getMessage(
-								newJournal ? "journalController.AdditionSuccess" //$NON-NLS-1$
-										: "journalController.EditionSuccess", //$NON-NLS-1$
-										optJournal.getJournalName(),
-										Integer.valueOf(optJournal.getId())));
-			} catch (Throwable ex) {
-				redirectFailureToEndPoint(response, Constants.JOURNAL_EDITING_ENDPOINT, ex.getLocalizedMessage());
+			final Journal optJournal;
+			//
+			if (journal == null) {
+				optJournal = this.journalService.createJournal(
+						name, address, publisher, isbn, issn,
+						openAccess, journalUrl, scimagoId, wosId);
+			} else {
+				optJournal = this.journalService.updateJournal(journal.intValue(),
+						name, address, publisher, isbn, issn,
+						openAccess, journalUrl, scimagoId, wosId);
+			}
+			if (optJournal == null) {
+				throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
 			}
 		} else {
-			redirectFailureToEndPoint(response, Constants.JOURNAL_EDITING_ENDPOINT, getMessage("all.notLogged")); //$NON-NLS-1$
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
 	}
 
