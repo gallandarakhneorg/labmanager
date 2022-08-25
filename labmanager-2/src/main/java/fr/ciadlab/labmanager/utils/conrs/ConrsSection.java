@@ -20,6 +20,7 @@ import java.util.Locale;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.BaseMessageSource;
+import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -29,6 +30,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * Usually, a French research in public institution is associated to a major CoNRS section, and
  * may be associated to minor other sections.
  * <p>CoNRS section is one of the two major system used in France with the {@link CnuSection CNU system}.
+ * Not researcher staff is classified according to the {@link FrenchBap French BAP}.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -36,6 +38,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @see "https://www.galaxie.enseignementsup-recherche.gouv.fr/ensup/pdf/qualification/sections.pdf"
  * @see CnuSection
+ * @see FrenchBAP
  */
 public enum ConrsSection {
 	/** CoNRS 01.
@@ -390,31 +393,31 @@ public enum ConrsSection {
 		this.messages = messages;
 	}
 
-	/** Replies the label of the CNU section in the current language.
+	/** Replies the label of the CoNRS section in the current language.
 	 *
-	 * @return the label of the CNU section in the current language.
+	 * @return the label of the CoNRS section in the current language.
 	 */
 	public String getLabel() {
 		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name());
 		return Strings.nullToEmpty(label);
 	}
 
-	/** Replies the label of the status in the current language.
+	/** Replies the label of the CoNRS section in the current language.
 	 *
 	 * @param locale the locale to use.
-	 * @return the label of the status in the current language.
+	 * @return the label of the CoNRS section in the current language.
 	 */
 	public String getLabel(Locale locale) {
 		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
-	/** Replies the CNU section  that corresponds to the given name, with a case-insensitive
+	/** Replies the CoNRS section that corresponds to the given name, with a case-insensitive
 	 * test of the name.
 	 *
-	 * @param name the name of the CNU section, to search for.
-	 * @return the CNU section.
-	 * @throws IllegalArgumentException if the given name does not corresponds to a CNU section.
+	 * @param name the name of the CoNRS section, to search for.
+	 * @return the CoNRS section.
+	 * @throws IllegalArgumentException if the given name does not corresponds to a CoNRS section.
 	 */
 	public static ConrsSection valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
@@ -427,11 +430,11 @@ public enum ConrsSection {
 		throw new IllegalArgumentException("Invalid CoNRS section: " + name); //$NON-NLS-1$
 	}
 
-	/** Replies the CNU section that corresponds to the given number.
+	/** Replies the CoNRS section that corresponds to the given number.
 	 *
-	 * @param number the number of the CNU section, to search for.
-	 * @return the CNU section.
-	 * @throws IllegalArgumentException if the given number does not corresponds to a CNU section.
+	 * @param number the number of the CoNRS section, to search for.
+	 * @return the CoNRS section.
+	 * @throws IllegalArgumentException if the given number does not corresponds to a CoNRS section.
 	 */
 	public static ConrsSection valueOf(Number number) {
 		if (number != null) {
@@ -441,11 +444,11 @@ public enum ConrsSection {
 		throw new IllegalArgumentException("Invalid CoNRS section: " + number); //$NON-NLS-1$
 	}
 
-	/** Replies the CNU section that corresponds to the given number.
+	/** Replies the CoNRS section that corresponds to the given number.
 	 *
-	 * @param number the number of the CNU section, to search for.
-	 * @return the CNU section.
-	 * @throws IllegalArgumentException if the given number does not corresponds to a CNU section.
+	 * @param number the number of the CoNRS section, to search for.
+	 * @return the CoNRS section.
+	 * @throws IllegalArgumentException if the given number does not corresponds to a CoNRS section.
 	 */
 	public static ConrsSection valueOf(int number) {
 		for (final ConrsSection section : values()) {
@@ -456,9 +459,9 @@ public enum ConrsSection {
 		throw new IllegalArgumentException("Invalid CoNRS section: " + number); //$NON-NLS-1$
 	}
 
-	/** Replies the number of the CNU section. 
+	/** Replies the number of the CoNRS section. 
 	 *
-	 * @return the CNU section number, or {@code 0} if the number is undefined.
+	 * @return the CoNRS section number, or {@code 0} if the number is undefined.
 	 */
 	public abstract int getNumber();
 

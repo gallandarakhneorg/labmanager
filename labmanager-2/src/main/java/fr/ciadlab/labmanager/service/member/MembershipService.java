@@ -42,6 +42,7 @@ import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
+import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.apache.commons.lang3.tuple.Pair;
@@ -209,6 +210,7 @@ public class MembershipService extends AbstractService {
 	 * @param memberStatus the status of the person in the membership.
 	 * @param cnuSection the section of the CNU to which this membership belongs to.
 	 * @param conrsSection the section of the CoNRS to which this membership belongs to.
+	 * @param frenchBap the type of job for a not-researcher staff.
 	 * @param forceCreation indicates if the membership must be created even if there is an active membership
 	 *     in the same organization.
 	 * @return a pair that contains the membership (created or not) and a boolean flag indicating
@@ -216,7 +218,8 @@ public class MembershipService extends AbstractService {
 	 * @throws Exception if the creation cannot be done.
 	 */
 	public Pair<Membership, Boolean> addMembership(int organizationId, int personId, LocalDate startDate, LocalDate endDate,
-			MemberStatus memberStatus, CnuSection cnuSection, ConrsSection conrsSection, boolean forceCreation) throws Exception {
+			MemberStatus memberStatus, CnuSection cnuSection, ConrsSection conrsSection,
+			FrenchBap frenchBap, boolean forceCreation) throws Exception {
 		assert memberStatus != null;
 		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
 		if (optOrg.isPresent()) {
@@ -244,6 +247,7 @@ public class MembershipService extends AbstractService {
 				mem.setMemberStatus(memberStatus);
 				mem.setCnuSection(cnuSection);
 				mem.setConrsSection(conrsSection);
+				mem.setFrenchBap(frenchBap);
 				this.membershipRepository.save(mem);
 				return Pair.of(mem, Boolean.TRUE);
 			}
@@ -261,11 +265,12 @@ public class MembershipService extends AbstractService {
 	 * @param memberStatus the new status of the person in the membership.
 	 * @param cnuSection the new CNU section, or {@code null} if unknown.
 	 * @param conrsSection the section of the CoNRS to which this membership belongs to.
+	 * @param frenchBap the type of job for a not-researcher staff.
 	 * @return the updated membership.
 	 * @throws Exception if the given identifiers cannot be resolved to JPA entities.
 	 */
 	public Membership updateMembershipById(int membershipId, Integer organizationId, LocalDate startDate, LocalDate endDate,
-			MemberStatus memberStatus, CnuSection cnuSection, ConrsSection conrsSection) throws Exception {
+			MemberStatus memberStatus, CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap) throws Exception {
 		final Optional<Membership> res = this.membershipRepository.findById(Integer.valueOf(membershipId));
 		if (res.isPresent()) {
 			final Membership membership = res.get();
@@ -283,6 +288,7 @@ public class MembershipService extends AbstractService {
 			}
 			membership.setCnuSection(cnuSection);
 			membership.setConrsSection(conrsSection);
+			membership.setFrenchBap(frenchBap);
 			this.membershipRepository.save(membership);
 			return membership;
 		}

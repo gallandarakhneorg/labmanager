@@ -98,7 +98,7 @@
 											<select class="form-control selectCnu list-group-item list-group-item-action"
 											        th:id="${'cnuSection_' + membership.id}"
 											        style="width: 100%">
-												<option th:value="0"
+												<option value="0"
 												        th:utext="#{html.NotSpecified}"></option>
 												<option th:each="cnuSection : ${T(fr.ciadlab.labmanager.utils.cnu.CnuSection).values}"
 												        th:selected="${membership != null && membership.cnuSection == cnuSection}"
@@ -113,12 +113,27 @@
 											<select class="form-control selectConrs list-group-item list-group-item-action"
 											        th:id="${'conrsSection_' + membership.id}"
 											        style="width: 100%">
-												<option th:value="0"
+												<option value="0"
 												        th:utext="#{html.NotSpecified}"></option>
 												<option th:each="conrsSection : ${T(fr.ciadlab.labmanager.utils.conrs.ConrsSection).values}"
 												        th:selected="${membership != null && membership.conrsSection == conrsSection}"
 												        th:value="${conrsSection.number}"
 												        th:utext="${conrsSection.number + ' - ' + conrsSection.getLabel(locale)}"></option>
+											</select>
+		                                </div>
+		                                <div class="form-group">
+		                                    <label th:for="${'frenchBap_' + membership.id}"
+											       class="col-form-label"
+		                                           th:utext="#{html.FrenchBap}"></label>
+											<select class="form-control selectFrenchBap list-group-item list-group-item-action"
+											        th:id="${'frenchBap_' + membership.id}"
+											        style="width: 100%">
+												<option value=""
+												        th:utext="#{html.NotSpecified}"></option>
+												<option th:each="frenchBap : ${T(fr.ciadlab.labmanager.utils.bap.FrenchBap).values}"
+												        th:selected="${membership != null && membership.frenchBap == frenchBap}"
+												        th:value="${frenchBap.shortName}"
+												        th:utext="${frenchBap.shortName + ' - ' + frenchBap.getLabel(locale)}"></option>
 											</select>
 		                                </div>
 										<button th:id="${'btSave_' + membership.id}"
@@ -174,6 +189,7 @@ function installSavingButtonCallback(membershipId, isNewMembership) {
 		formData.append("memberToWhen", $('#memberToWhen_' + membershipId).val());
 		formData.append("cnuSection", $('#cnuSection_' + membershipId + ' option:selected').attr('value'));
 		formData.append("conrsSection", $('#conrsSection_' + membershipId + ' option:selected').attr('value'));
+		formData.append("frenchBap", $('#frenchBap_' + membershipId + ' option:selected').attr('value'));
 		$.ajax({
 			url: "[(@{/} + ${savingUrl})]",
 			timeout: 120000,
@@ -321,6 +337,28 @@ function createPositionBlock() {
 	    /*[# th:each="conrsSection : ${T(fr.ciadlab.labmanager.utils.conrs.ConrsSection).values}"]*/
 	    $option = $('<option></option>').attr('value', "[(${conrsSection.number})]").text("[(${conrsSection.number + ' - ' + conrsSection.getLabel(locale)})]");
 		    /*[# th:if="${preferredConrsSection != null && conrsSection == preferredConrsSection}"]*/
+	    $option = $option.attr('selected', 'true');
+	    	/*[/]*/
+	    $select.append($option);
+    	/*[/]*/
+		$groupDiv.append($select);
+	}
+	{
+		var $groupDiv = $('<div></div>').attr('class', 'form-group');
+		$div0.append($groupDiv);
+		var $label = $('<label></label>').attr('for', 'frenchBap_' + mid);
+		$label = $label.attr('class', 'col-form-label').text("[(#{html.FrenchBap})]");
+		$groupDiv.append($label);
+		var $select = $('<select></select>').attr('class', 'form-control selectFrenchBap list-group-item list-group-item-action');
+		$select = $select.attr('id', 'frenchBap_' + mid).attr('style', 'width: 100%');
+		var $option = $('<option></option>').attr('value', '').text('[(#{html.NotSpecified})]');
+	    /*[# th:if="${preferredFrenchBap == null}"]*/
+	    $option = $option.attr('selected', 'true');
+    	/*[/]*/
+	    $select.append($option);
+	    /*[# th:each="frenchBap : ${T(fr.ciadlab.labmanager.utils.bap.FrenchBap).values}"]*/
+	    $option = $('<option></option>').attr('value', "[(${frenchBap.shortName})]").text("[(${frenchBap.shortName + ' - ' + frenchBap.getLabel(locale)})]");
+		    /*[# th:if="${preferredFrenchBap != null && frenchBap == preferredFrenchBap}"]*/
 	    $option = $option.attr('selected', 'true');
 	    	/*[/]*/
 	    $select.append($option);

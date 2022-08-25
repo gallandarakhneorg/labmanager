@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import java.time.LocalDate;
 
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.junit.jupiter.api.BeforeEach;
@@ -210,6 +211,22 @@ public class MembershipTest {
 		assertNull(this.test.getConrsSection());
 		this.test.setConrsSection(-1);
 		assertNull(this.test.getConrsSection());
+	}
+
+	@Test
+	public void getFrenchBap() {
+		assertNull(this.test.getFrenchBap());
+	}
+
+	@Test
+	public void setFrenchBap() {
+		assertNull(this.test.getFrenchBap());
+		this.test.setFrenchBap("bap_b");
+		assertSame(FrenchBap.BAP_B, this.test.getFrenchBap());
+		this.test.setFrenchBap("c");
+		assertSame(FrenchBap.BAP_C, this.test.getFrenchBap());
+		this.test.setFrenchBap((FrenchBap) null);
+		assertNull(this.test.getFrenchBap());
 	}
 
 	@Test

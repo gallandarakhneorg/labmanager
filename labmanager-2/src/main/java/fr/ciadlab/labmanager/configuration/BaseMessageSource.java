@@ -26,7 +26,9 @@ import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
+import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -140,6 +142,12 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (CnuSection item : EnumSet.allOf(CnuSection.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (ConrsSection item : EnumSet.allOf(ConrsSection.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (FrenchBap item : EnumSet.allOf(FrenchBap.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 		}

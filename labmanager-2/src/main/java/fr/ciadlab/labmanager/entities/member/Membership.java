@@ -38,6 +38,7 @@ import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 
@@ -90,6 +91,12 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	@Enumerated(EnumType.STRING)
 	private ConrsSection conrsSection;
 
+	/** Type of job of a not-researcher staff.
+	 */
+	@Column
+	@Enumerated(EnumType.STRING)
+	private FrenchBap frenchBap;
+
 	/** Reference to the person.
 	 */
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -107,10 +114,12 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @param since the start date of involvement.
 	 * @param to the end date of involvement.
 	 * @param status the status.
-	 * @param cnuSection is the number of the CNU section, or {@code null} if it is unknown or irrelevant.
-	 * @param conrsSection is the number of the CoNRS section, or {@code null} if it is unknown or irrelevant.
+	 * @param cnuSection the number of the CNU section, or {@code null} if it is unknown or irrelevant.
+	 * @param conrsSection the number of the CoNRS section, or {@code null} if it is unknown or irrelevant.
+	 * @param frenchBap the type of job for a not-researcher staff.
 	 */
-	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status, CnuSection cnuSection, ConrsSection conrsSection) {
+	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status,
+			CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap) {
 		this.person = person;
 		this.researchOrganization = orga;
 		this.memberSinceWhen = since;
@@ -118,6 +127,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		this.memberStatus = status;
 		this.cnuSection = cnuSection;
 		this.conrsSection = conrsSection;
+		this.frenchBap = frenchBap;
 	}
 
 	/** Construct an empty membership.
@@ -139,6 +149,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		int h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.cnuSection);
 		h = HashCodeUtils.add(h, this.conrsSection);
+		h = HashCodeUtils.add(h, this.frenchBap);
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.memberSinceWhen);
 		h = HashCodeUtils.add(h, this.memberStatus);
@@ -161,6 +172,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 			return false;
 		}
 		if (this.conrsSection != other.conrsSection) {
+			return false;
+		}
+		if (this.frenchBap != other.frenchBap) {
 			return false;
 		}
 		if (!Objects.equals(this.memberSinceWhen, other.memberSinceWhen)) {
@@ -197,6 +211,12 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		if (getCnuSection() != null) {
 			consumer.accept("cnuSection", Integer.valueOf(getCnuSection().getNumber())); //$NON-NLS-1$
+		}
+		if (getConrsSection() != null) {
+			consumer.accept("conrsSection", Integer.valueOf(getConrsSection().getNumber())); //$NON-NLS-1$
+		}
+		if (getFrenchBap() != null) {
+			consumer.accept("frenchBap", Integer.valueOf(getFrenchBap().getShortName())); //$NON-NLS-1$
 		}
 		if (getMemberSinceWhen() != null) {
 			consumer.accept("memberSinceWhen", getMemberSinceWhen()); //$NON-NLS-1$
@@ -341,7 +361,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	/** Replies the CNU section of the member in the research organization.
 	 * CNU means "Conseil National des Universités". 
 	 *
-	 * @return the CNY section number or {@code 0} if unknown.
+	 * @return the CNU section number or {@code null} if unknown.
 	 */
 	public CnuSection getCnuSection() {
 		return this.cnuSection;
@@ -350,7 +370,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	/** Change the CNU section of the member in the research organization.
 	 * CNU means "Conseil National des Universités". 
 	 *
-	 * @param cnu the CNU section number or {@code 0} if unknown.
+	 * @param cnu the CNU section number or {@code null} if unknown.
 	 */
 	public void setCnuSection(CnuSection cnu) {
 		this.cnuSection = cnu;
@@ -376,7 +396,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	/** Replies the CoNRS section of the member in the research organization.
 	 * CoNRS means "Comité national de la recherche scientifique". 
 	 *
-	 * @return the CNY section number or {@code 0} if unknown.
+	 * @return the CoNRS section number or {@code null} if unknown.
 	 */
 	public ConrsSection getConrsSection() {
 		return this.conrsSection;
@@ -385,7 +405,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	/** Change the CoNRS section of the member in the research organization.
 	 * CoNRS means "Comité national de la recherche scientifique". 
 	 *
-	 * @param conrs the CoNRS section number or {@code 0} if unknown.
+	 * @param conrs the CoNRS section number or {@code null} if unknown.
 	 */
 	public void setConrsSection(ConrsSection conrs) {
 		this.conrsSection = conrs;
@@ -404,6 +424,38 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 				setConrsSection(ConrsSection.valueOf(conrs));
 			} catch (Throwable ex) {
 				setConrsSection((ConrsSection) null);
+			}
+		}
+	}
+
+	/** Replies the French BAP of the member in the research organization.
+	 *
+	 * @return the CNY section number or {@code null} if unknown.
+	 */
+	public FrenchBap getFrenchBap() {
+		return this.frenchBap;
+	}
+
+	/** Change the French BAP of the member in the research organization.
+	 *
+	 * @param bap the French BAP or {@code null} if unknown.
+	 */
+	public void setFrenchBap(FrenchBap bap) {
+		this.frenchBap = bap;
+	}
+
+	/** Change the French BAP of the member in the research organization.
+	 *
+	 * @param bap the French BAP  or {@code null} if unknown.
+	 */
+	public final void setFrenchBap(String bap) {
+		if (Strings.isNullOrEmpty(bap)) {
+			setFrenchBap((FrenchBap) null);
+		} else {
+			try {
+				setFrenchBap(FrenchBap.valueOfCaseInsensitive(bap));
+			} catch (Throwable ex) {
+				setFrenchBap((FrenchBap) null);
 			}
 		}
 	}

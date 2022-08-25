@@ -50,6 +50,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
+import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.apache.commons.lang3.tuple.Pair;
@@ -549,7 +550,8 @@ public class MembershipServiceTest {
 	@Test
 	public void addMembership() throws Exception {
 		final Pair<Membership, Boolean> m = this.test.addMembership(2345, 34567, LocalDate.parse("2022-07-12"),
-				LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER, CnuSection.CNU_07, ConrsSection.CONRS_08, false);
+				LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER, CnuSection.CNU_07, ConrsSection.CONRS_08,
+				FrenchBap.BAP_E, false);
 		assertNotNull(m);
 		assertTrue(m.getRight());
 
@@ -563,6 +565,7 @@ public class MembershipServiceTest {
 		assertSame(MemberStatus.ENGINEER, actual.getMemberStatus());
 		assertSame(CnuSection.CNU_07, actual.getCnuSection());
 		assertSame(ConrsSection.CONRS_08, actual.getConrsSection());
+		assertSame(FrenchBap.BAP_E, actual.getFrenchBap());
 		assertSame(this.p3, actual.getPerson());
 		assertSame(this.o2, actual.getResearchOrganization());
 	}
@@ -579,7 +582,7 @@ public class MembershipServiceTest {
 		});
 
 		final Membership m = this.test.updateMembershipById(234, 1234, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
-				MemberStatus.MASTER_STUDENT, CnuSection.CNU_05, ConrsSection.CONRS_06);
+				MemberStatus.MASTER_STUDENT, CnuSection.CNU_05, ConrsSection.CONRS_06, FrenchBap.BAP_E);
 		assertSame(this.ms1, m);
 
 		final ArgumentCaptor<Membership> arg0 = ArgumentCaptor.forClass(Membership.class);
@@ -592,6 +595,7 @@ public class MembershipServiceTest {
 		verify(this.ms1).setMemberStatus(same(MemberStatus.MASTER_STUDENT));
 		verify(this.ms1).setCnuSection(same(CnuSection.CNU_05));
 		verify(this.ms1).setConrsSection(same(ConrsSection.CONRS_06));
+		verify(this.ms1).setFrenchBap(same(FrenchBap.BAP_E));
 		verifyNoMoreInteractions(this.ms1);
 	}
 

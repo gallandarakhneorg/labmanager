@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
+import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -95,6 +96,10 @@ public class ChronoMembershipComparator implements Comparator<Membership> {
 		if (n != 0) {
 			return n;
 		}
+		n = compareFrenchBap(o1.getFrenchBap(), o2.getFrenchBap());
+		if (n != 0) {
+			return n;
+		}
 		return Integer.compare(o1.getId(), o2.getId());
 	}
 
@@ -158,6 +163,19 @@ public class ChronoMembershipComparator implements Comparator<Membership> {
 			return Integer.MAX_VALUE;
 		}
 		return s0.compareTo(s1);
+	}
+
+	private static int compareFrenchBap(FrenchBap b0, FrenchBap b1) {
+		if (b0 == b1) {
+			return 0;
+		}
+		if (b0 == null) {
+			return Integer.MIN_VALUE;
+		}
+		if (b1 == null) {
+			return Integer.MAX_VALUE;
+		}
+		return b0.compareTo(b1);
 	}
 
 }

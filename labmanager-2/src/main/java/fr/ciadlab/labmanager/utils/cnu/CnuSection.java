@@ -20,6 +20,7 @@ import java.util.Locale;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.BaseMessageSource;
+import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -29,6 +30,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * Usually, a French research in public institution is associated to a major CNU section, and
  * may be associated to minor other sections.
  * <p>CNU section is one of the two major system used in France with the {@link ConrsSection CoNRS system}.
+ * Not researcher staff is classified according to the {@link FrenchBap French BAP}.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -36,6 +38,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @see "https://www.galaxie.enseignementsup-recherche.gouv.fr/ensup/pdf/qualification/sections.pdf"
  * @see ConrsSection
+ * @see FrenchBAP
  */
 public enum CnuSection {
 	/** CNU 01.
