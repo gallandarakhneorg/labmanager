@@ -21,6 +21,7 @@ import java.util.Comparator;
 
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
+import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -86,6 +87,10 @@ public class MembershipComparator implements Comparator<Membership> {
 		if (n != 0) {
 			return n;
 		}
+		n = compareConrsSection(o1.getConrsSection(), o2.getConrsSection());
+		if (n != 0) {
+			return n;
+		}
 		return Integer.compare(o1.getId(), o2.getId());
 	}
 
@@ -103,6 +108,19 @@ public class MembershipComparator implements Comparator<Membership> {
 	}
 
 	private static int compareCnuSection(CnuSection s0, CnuSection s1) {
+		if (s0 == s1) {
+			return 0;
+		}
+		if (s0 == null) {
+			return Integer.MIN_VALUE;
+		}
+		if (s1 == null) {
+			return Integer.MAX_VALUE;
+		}
+		return s0.compareTo(s1);
+	}
+
+	private static int compareConrsSection(ConrsSection s0, ConrsSection s1) {
 		if (s0 == s1) {
 			return 0;
 		}

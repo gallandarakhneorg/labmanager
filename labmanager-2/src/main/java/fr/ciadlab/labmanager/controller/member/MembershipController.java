@@ -34,6 +34,7 @@ import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationReposit
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
+import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -135,6 +136,7 @@ public class MembershipController extends AbstractController {
 		ResearchOrganization preferredOrganization = null;
 		MemberStatus preferredStatus = null;
 		CnuSection preferredCnuSection = null;
+		ConrsSection preferredConrsSection = null;
 		boolean foundActive = false;
 		int maxId = 0;
 		for (final Membership m : memberships) {
@@ -146,6 +148,7 @@ public class MembershipController extends AbstractController {
 				preferredOrganization = m.getResearchOrganization();
 				preferredStatus = m.getMemberStatus();
 				preferredCnuSection = m.getCnuSection();
+				preferredConrsSection = m.getConrsSection();
 			}
 			if (preferredOrganization == null) {
 				preferredOrganization = m.getResearchOrganization();
@@ -156,10 +159,14 @@ public class MembershipController extends AbstractController {
 			if (preferredCnuSection == null) {
 				preferredCnuSection = m.getCnuSection();
 			}
+			if (preferredConrsSection == null) {
+				preferredConrsSection = m.getConrsSection();
+			}
 		}
 		modelAndView.addObject("preferredOrganization", preferredOrganization); //$NON-NLS-1$
 		modelAndView.addObject("preferredStatus", preferredStatus); //$NON-NLS-1$
 		modelAndView.addObject("preferredCnuSection", preferredCnuSection); //$NON-NLS-1$
+		modelAndView.addObject("preferredConrsSection", preferredConrsSection); //$NON-NLS-1$
 		modelAndView.addObject("minMembershipId", Integer.valueOf(maxId + 1)); //$NON-NLS-1$
 		//
 		final List<ResearchOrganization> sortedOrganizations = this.organizationRepository.findAll().stream()
@@ -186,6 +193,8 @@ public class MembershipController extends AbstractController {
 	 * @param memberToWhen the end date of the membership, or {@code null} to set it as unknown or "for the rest of the time".
 	 * @param cnuSection the number of the CNU section to which this membership belongs to. If {@code null} or empty, the
 	 *     CNU section does not change in the existing membership.
+	 * @param conrsSection the number of the CoNRS section to which this membership belongs to. If {@code null} or empty, the
+	 *     CoNRS section does not change in the existing membership.
 	 * @param closeActive in the case that an active membership exists for the person and the organization, this flag
 	 *     permits to control the behavior of the controller. If it is evaluated to {@code true}, the existing active
 	 *     membership is closed to the date given by {@code memberSinceWhen} (if this date is not given, today is considered.
@@ -202,6 +211,7 @@ public class MembershipController extends AbstractController {
 			@RequestParam(required = false) String memberSinceWhen,
 			@RequestParam(required = false) String memberToWhen,
 			@RequestParam(required = false) Integer cnuSection,
+			@RequestParam(required = false) Integer conrsSection,
 			@RequestParam(required = false, defaultValue = "true") boolean closeActive,
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
@@ -210,7 +220,8 @@ public class MembershipController extends AbstractController {
 				LocalDate startDate = Strings.isNullOrEmpty(memberSinceWhen) ? null : LocalDate.parse(memberSinceWhen);
 				final LocalDate endDate = Strings.isNullOrEmpty(memberToWhen) ? null : LocalDate.parse(memberToWhen);
 				final MemberStatus statusObj = Strings.isNullOrEmpty(status) ? null : MemberStatus.valueOfCaseInsensitive(status);
-				final CnuSection cnuSectionObj = cnuSection == null ? null : CnuSection.valueOf(cnuSection);
+				final CnuSection cnuSectionObj = cnuSection == null || cnuSection.intValue() == 0 ? null : CnuSection.valueOf(cnuSection);
+				final ConrsSection conrsSectionObj = conrsSection == null || conrsSection.intValue() == 0 ? null : ConrsSection.valueOf(conrsSection);
 				
 				// Check validity of dates
 				if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
@@ -234,7 +245,8 @@ public class MembershipController extends AbstractController {
 						final Pair<Membership, Boolean> result = this.membershipService.addMembership(
 								organization.intValue(),
 								person.intValue(),
-								startDate, endDate, statusObj, cnuSectionObj, false);
+								startDate, endDate, statusObj,
+								cnuSectionObj, conrsSectionObj, false);
 						if (!result.getRight().booleanValue()) {
 							// The membership already exists, start the dedicated behavior
 							if (closeActive) {
@@ -252,7 +264,8 @@ public class MembershipController extends AbstractController {
 										Integer.valueOf(otherMembership.getResearchOrganization().getId()),
 										pStart, pEnd,
 										otherMembership.getMemberStatus(),
-										otherMembership.getCnuSection());
+										otherMembership.getCnuSection(),
+										otherMembership.getConrsSection());
 								continueCreation = true;
 							} else {
 								throw new IllegalStateException("A membership is already active. It is not allowed to create multiple active memberships for the same organization"); //$NON-NLS-1$
@@ -263,7 +276,8 @@ public class MembershipController extends AbstractController {
 					// Update an existing membership.
 					this.membershipService.updateMembershipById(
 							membership.intValue(),
-							organization, startDate, endDate, statusObj, cnuSectionObj);
+							organization, startDate, endDate, statusObj,
+							cnuSectionObj, conrsSectionObj);
 				}
 			} catch (Throwable ex) {
 				getLogger().error(ex.getLocalizedMessage(), ex);

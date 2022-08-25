@@ -20,19 +20,22 @@ import java.util.Locale;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.BaseMessageSource;
+import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** The CNU section is the part of the French public research community that is dedicated to
  * a specific domain. CNU means "Conseil National des Universités".
  * Each section is associated to a number and a scientific topic.
  * Usually, a French research in public institution is associated to a major CNU section, and
- * may be associted to minor other sections.
+ * may be associated to minor other sections.
+ * <p>CNU section is one of the two major system used in France with the {@link ConrsSection CoNRS system}.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @see "https://www.galaxie.enseignementsup-recherche.gouv.fr/ensup/pdf/qualification/sections.pdf"
+ * @see ConrsSection
  */
 public enum CnuSection {
 	/** CNU 01.

@@ -27,6 +27,7 @@ import java.time.LocalDate;
 
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
+import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -193,6 +194,22 @@ public class MembershipTest {
 		assertNull(this.test.getCnuSection());
 		this.test.setCnuSection(-1);
 		assertNull(this.test.getCnuSection());
+	}
+
+	@Test
+	public void getConrsSection() {
+		assertNull(this.test.getConrsSection());
+	}
+
+	@Test
+	public void setConrsSection() {
+		assertNull(this.test.getConrsSection());
+		this.test.setConrsSection(31);
+		assertSame(ConrsSection.CONRS_31, this.test.getConrsSection());
+		this.test.setConrsSection(0);
+		assertNull(this.test.getConrsSection());
+		this.test.setConrsSection(-1);
+		assertNull(this.test.getConrsSection());
 	}
 
 	@Test

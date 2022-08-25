@@ -51,6 +51,7 @@ import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
+import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.apache.commons.lang3.tuple.Pair;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -548,7 +549,7 @@ public class MembershipServiceTest {
 	@Test
 	public void addMembership() throws Exception {
 		final Pair<Membership, Boolean> m = this.test.addMembership(2345, 34567, LocalDate.parse("2022-07-12"),
-				LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER, CnuSection.CNU_07, false);
+				LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER, CnuSection.CNU_07, ConrsSection.CONRS_08, false);
 		assertNotNull(m);
 		assertTrue(m.getRight());
 
@@ -561,6 +562,7 @@ public class MembershipServiceTest {
 		assertEquals(LocalDate.parse("2022-07-28"), actual.getMemberToWhen());
 		assertSame(MemberStatus.ENGINEER, actual.getMemberStatus());
 		assertSame(CnuSection.CNU_07, actual.getCnuSection());
+		assertSame(ConrsSection.CONRS_08, actual.getConrsSection());
 		assertSame(this.p3, actual.getPerson());
 		assertSame(this.o2, actual.getResearchOrganization());
 	}
@@ -576,7 +578,8 @@ public class MembershipServiceTest {
 			return Optional.empty();
 		});
 
-		final Membership m = this.test.updateMembershipById(234, 1234, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"), MemberStatus.MASTER_STUDENT, CnuSection.CNU_05);
+		final Membership m = this.test.updateMembershipById(234, 1234, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
+				MemberStatus.MASTER_STUDENT, CnuSection.CNU_05, ConrsSection.CONRS_06);
 		assertSame(this.ms1, m);
 
 		final ArgumentCaptor<Membership> arg0 = ArgumentCaptor.forClass(Membership.class);
@@ -588,6 +591,7 @@ public class MembershipServiceTest {
 		verify(this.ms1).setMemberToWhen(eq(LocalDate.parse("2019-07-28")));
 		verify(this.ms1).setMemberStatus(same(MemberStatus.MASTER_STUDENT));
 		verify(this.ms1).setCnuSection(same(CnuSection.CNU_05));
+		verify(this.ms1).setConrsSection(same(ConrsSection.CONRS_06));
 		verifyNoMoreInteractions(this.ms1);
 	}
 

@@ -39,6 +39,7 @@ import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
+import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 
 /** Relation between a person and a research organization.
  * 
@@ -83,6 +84,12 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	@Enumerated(EnumType.STRING)
 	private CnuSection cnuSection;
 
+	/** Number of the CoNRS section of the person related to which membership.
+	 */
+	@Column
+	@Enumerated(EnumType.STRING)
+	private ConrsSection conrsSection;
+
 	/** Reference to the person.
 	 */
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -101,14 +108,16 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @param to the end date of involvement.
 	 * @param status the status.
 	 * @param cnuSection is the number of the CNU section, or {@code null} if it is unknown or irrelevant.
+	 * @param conrsSection is the number of the CoNRS section, or {@code null} if it is unknown or irrelevant.
 	 */
-	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status, CnuSection cnuSection) {
+	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status, CnuSection cnuSection, ConrsSection conrsSection) {
 		this.person = person;
 		this.researchOrganization = orga;
 		this.memberSinceWhen = since;
 		this.memberToWhen = to;
 		this.memberStatus = status;
 		this.cnuSection = cnuSection;
+		this.conrsSection = conrsSection;
 	}
 
 	/** Construct an empty membership.
@@ -129,6 +138,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	public int hashCode() {
 		int h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.cnuSection);
+		h = HashCodeUtils.add(h, this.conrsSection);
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.memberSinceWhen);
 		h = HashCodeUtils.add(h, this.memberStatus);
@@ -148,6 +158,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		}
 		final Membership other = (Membership) obj;
 		if (this.cnuSection != other.cnuSection) {
+			return false;
+		}
+		if (this.conrsSection != other.conrsSection) {
 			return false;
 		}
 		if (!Objects.equals(this.memberSinceWhen, other.memberSinceWhen)) {
@@ -356,6 +369,41 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 				setCnuSection(CnuSection.valueOf(cnu));
 			} catch (Throwable ex) {
 				setCnuSection((CnuSection) null);
+			}
+		}
+	}
+
+	/** Replies the CoNRS section of the member in the research organization.
+	 * CoNRS means "Comité national de la recherche scientifique". 
+	 *
+	 * @return the CNY section number or {@code 0} if unknown.
+	 */
+	public ConrsSection getConrsSection() {
+		return this.conrsSection;
+	}
+
+	/** Change the CoNRS section of the member in the research organization.
+	 * CoNRS means "Comité national de la recherche scientifique". 
+	 *
+	 * @param conrs the CoNRS section number or {@code 0} if unknown.
+	 */
+	public void setConrsSection(ConrsSection conrs) {
+		this.conrsSection = conrs;
+	}
+
+	/** Change the CoNRS section of the member in the research organization.
+	 * CoNRS means "Comité national de la recherche scientifique". 
+	 *
+	 * @param conrs the CoNRS section number or {@code null} if unknown.
+	 */
+	public final void setConrsSection(Number conrs) {
+		if (conrs == null) {
+			setConrsSection((ConrsSection) null);
+		} else {
+			try {
+				setConrsSection(ConrsSection.valueOf(conrs));
+			} catch (Throwable ex) {
+				setConrsSection((ConrsSection) null);
 			}
 		}
 	}
