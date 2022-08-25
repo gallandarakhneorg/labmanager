@@ -55,6 +55,30 @@ public enum MemberStatus {
 			return false;
 		}
 	},
+	/** Research Director (Directeur de recherche).
+	 */
+	RESEARCH_DIRECTOR {
+		@Override
+		public int getHierachicalLevel() {
+			return 0;
+		}
+		@Override
+		public boolean isResearcher() {
+			return true;
+		}
+		@Override
+		public boolean isTeacher() {
+			return false;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return false;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+	},
 	/** Associate professor (maitre de conferences) with HDR.
 	 */
 	ASSOCIATE_PROFESSOR_HDR {
@@ -127,7 +151,7 @@ public enum MemberStatus {
 			return false;
 		}
 	},
-	/** Researcher (LRU, etc.).
+	/** Researcher (Chargé de recherche, LRU, etc.).
 	 */
 	RESEARCHER {
 		@Override

@@ -57,6 +57,7 @@ public class MemberStatusTest {
 	@Test
 	public void getHierachicalLevel() {
 		assertEquals(0, cons(MemberStatus.FULL_PROFESSOR).getHierachicalLevel());
+		assertEquals(0, cons(MemberStatus.RESEARCH_DIRECTOR).getHierachicalLevel());
 		assertEquals(1, cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getHierachicalLevel());
 		assertEquals(2, cons(MemberStatus.ASSOCIATE_PROFESSOR).getHierachicalLevel());
 		assertEquals(2, cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getHierachicalLevel());
@@ -76,6 +77,7 @@ public class MemberStatusTest {
 	@Test
 	public void isResearcher() {
 		assertTrue(cons(MemberStatus.FULL_PROFESSOR).isResearcher());
+		assertTrue(cons(MemberStatus.RESEARCH_DIRECTOR).isResearcher());
 		assertTrue(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isResearcher());
 		assertTrue(cons(MemberStatus.ASSOCIATE_PROFESSOR).isResearcher());
 		assertTrue(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isResearcher());
@@ -95,6 +97,7 @@ public class MemberStatusTest {
 	@Test
 	public void isTeacher() {
 		assertTrue(cons(MemberStatus.FULL_PROFESSOR).isTeacher());
+		assertFalse(cons(MemberStatus.RESEARCH_DIRECTOR).isTeacher());
 		assertTrue(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isTeacher());
 		assertTrue(cons(MemberStatus.ASSOCIATE_PROFESSOR).isTeacher());
 		assertTrue(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isTeacher());
@@ -114,6 +117,7 @@ public class MemberStatusTest {
 	@Test
 	public void isTechnicalStaff() {
 		assertFalse(cons(MemberStatus.FULL_PROFESSOR).isTechnicalStaff());
+		assertFalse(cons(MemberStatus.RESEARCH_DIRECTOR).isTechnicalStaff());
 		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isTechnicalStaff());
 		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR).isTechnicalStaff());
 		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isTechnicalStaff());
@@ -133,6 +137,7 @@ public class MemberStatusTest {
 	@Test
 	public void isAdministrativeStaff() {
 		assertFalse(cons(MemberStatus.FULL_PROFESSOR).isAdministrativeStaff());
+		assertFalse(cons(MemberStatus.RESEARCH_DIRECTOR).isAdministrativeStaff());
 		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isAdministrativeStaff());
 		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR).isAdministrativeStaff());
 		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isAdministrativeStaff());
@@ -154,6 +159,7 @@ public class MemberStatusTest {
 		// Force the local to be US
 		java.util.Locale.setDefault(java.util.Locale.US);
 		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel());
+		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel());
 		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel());
 		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel());
 		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel());
@@ -175,6 +181,7 @@ public class MemberStatusTest {
 		// Force the local to be FR
 		java.util.Locale.setDefault(java.util.Locale.FRANCE);
 		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel());
+		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel());
 		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel());
 		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel());
 		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel());
@@ -194,6 +201,7 @@ public class MemberStatusTest {
 	@Test
 	public void getLabel_Locale_US() {
 		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(java.util.Locale.US));
+		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(java.util.Locale.US));
 		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(java.util.Locale.US));
 		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(java.util.Locale.US));
 		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(java.util.Locale.US));
@@ -213,6 +221,7 @@ public class MemberStatusTest {
 	@Test
 	public void getLabel_Locale_FR() {
 		assertEquals("Professeur des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(java.util.Locale.FRANCE));
+		assertEquals("Directeur de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(java.util.Locale.FRANCE));
 		assertEquals("Maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(java.util.Locale.FRANCE));
 		assertEquals("Maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(java.util.Locale.FRANCE));
 		assertEquals("Enseignant chercheur contractuel", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(java.util.Locale.FRANCE));
