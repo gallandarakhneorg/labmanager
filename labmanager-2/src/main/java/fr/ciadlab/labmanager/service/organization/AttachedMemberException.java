@@ -16,22 +16,22 @@
 
 package fr.ciadlab.labmanager.service.organization;
 
-/** Exception indicates than an operation if forbidden because an organization contains suborganizations.
+/** Exception indicates than an operation if forbidden because an organization contains members.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public class AttachedSubOrganizationException extends Exception {
+public class AttachedMemberException extends Exception {
 
 	private static final long serialVersionUID = -6687420153049435268L;
 
 	/**
 	 * Constructor.
 	 */
-	public AttachedSubOrganizationException() {
-		super("Unable to do the action because the organization has associated sub-organizations"); //$NON-NLS-1$
+	public AttachedMemberException() {
+		super("Unable to do the action because the organization has associated members"); //$NON-NLS-1$
 	}
 
 }

@@ -154,8 +154,9 @@ public class ResearchOrganizationService extends AbstractService {
 	 *
 	 * @param identifier the identifier of the organization to remove.
 	 * @throws AttachedSubOrganizationException when the organization contains suborganizations.
+	 * @throws AttachedMemberException when the organization contains members.
 	 */
-	public void removeResearchOrganization(int identifier) throws AttachedSubOrganizationException {
+	public void removeResearchOrganization(int identifier) throws AttachedSubOrganizationException, AttachedMemberException {
 		final Integer id = Integer.valueOf(identifier);
 		final Optional<ResearchOrganization> res = this.organizationRepository.findById(id);
 		if (res.isPresent()) {
@@ -163,6 +164,10 @@ public class ResearchOrganizationService extends AbstractService {
 			if (!organization.getSubOrganizations().isEmpty()) {
 				throw new AttachedSubOrganizationException();
 			}
+			if (!organization.getMemberships().isEmpty()) {
+				throw new AttachedMemberException();
+			}
+			//
 			this.organizationRepository.deleteById(id);
 		}
 	}
