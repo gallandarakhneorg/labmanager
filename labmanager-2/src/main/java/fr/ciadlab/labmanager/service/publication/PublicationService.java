@@ -674,7 +674,8 @@ public class PublicationService extends AbstractService {
 			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
 		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
 		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
-		final LocalDate date = ensureDate(attributes, "publicationDate"); //$NON-NLS-1$
+		final LocalDate date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
+		final int year = ensureYear(attributes, "publicationDate"); //$NON-NLS-1$;
 
 		// First step : create the publication
 		final Publication publication = this.prePublicationFactory.createPrePublication(
@@ -682,7 +683,7 @@ public class PublicationService extends AbstractService {
 				ensureString(attributes, "title"), //$NON-NLS-1$
 				optionalString(attributes, "abstractText"), //$NON-NLS-1$
 				optionalString(attributes, "keywords"), //$NON-NLS-1$
-				date,
+				date, year,
 				optionalString(attributes, "isbn"), //$NON-NLS-1$
 				optionalString(attributes, "issn"), //$NON-NLS-1$
 				optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -695,7 +696,7 @@ public class PublicationService extends AbstractService {
 				languageEnum);
 
 		// Second step: save late attributes of the fake publication
-		publication.setPublicationYear(date.getYear());
+		publication.setPublicationYear(year);
 
 		// Third step : create the specific publication type
 		final Class<? extends Publication> publicationClass = typeEnum.getInstanceType();
@@ -872,8 +873,8 @@ public class PublicationService extends AbstractService {
 	protected void updateExistingPublicationFromMap(Publication publication, PublicationType type, Map<String, String> attributes,
 			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
 		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
-		final LocalDate date = ensureDate(attributes, "publicationDate"); //$NON-NLS-1$
-
+		final LocalDate date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
+		final int year = ensureYear(attributes, "publicationDate"); //$NON-NLS-1$;
 
 		// First step: Update the list of authors.
 		updateAuthorList(false, publication, authors);
@@ -889,7 +890,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -914,7 +915,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -941,7 +942,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -968,7 +969,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -988,7 +989,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -1008,7 +1009,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -1029,7 +1030,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -1052,7 +1053,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -1073,7 +1074,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
@@ -1094,7 +1095,7 @@ public class PublicationService extends AbstractService {
 					publication.getId(),
 					ensureString(attributes, "title"), //$NON-NLS-1$
 					type,
-					date,
+					date, year,
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$

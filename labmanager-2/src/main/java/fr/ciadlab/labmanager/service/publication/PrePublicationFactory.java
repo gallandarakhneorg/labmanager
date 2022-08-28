@@ -39,7 +39,8 @@ public interface PrePublicationFactory {
 	 * @param title the title of the publication.
 	 * @param abstractText the text of the abstract for the publication.
 	 * @param keywords the keywords, seperated by coma or column characters 
-	 * @param date the date of publication.
+	 * @param date the date of publication. It may be  {@code null}. In this case only the year should be considered.
+	 * @param year the year of publication.
 	 * @param isbn the ISBN number if any.
 	 * @param issn the ISSN number if any.
 	 * @param doi the DOI reference number if any.
@@ -53,7 +54,7 @@ public interface PrePublicationFactory {
 	 * @return the fake publication.
 	 */
 	Publication createPrePublication(PublicationType type, String title, String abstractText, String keywords,
-			LocalDate date, String isbn, String issn,
+			LocalDate date, int year, String isbn, String issn,
 			String doi, String halId, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language);
 

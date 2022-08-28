@@ -46,6 +46,7 @@ import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewResolverRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.thymeleaf.templateresolver.ITemplateResolver;
 
@@ -63,7 +64,7 @@ public class MvcConfig implements WebMvcConfigurer {
 
 	@Autowired
 	private Environment env;
-	
+
 	/** Bean for converting the HTTP message.
 	 *
 	 * @return the converter.
@@ -74,20 +75,21 @@ public class MvcConfig implements WebMvcConfigurer {
 		return new StringHttpMessageConverter(Charset.forName("UTF-8")); //$NON-NLS-1$
 	}
 
-	/** Bean for resolving the templates.
+	/** Provide a bean for resolving HTML templates.
 	 *
-	 * @return the resolving.
+	 * @return the resolver.
 	 */
 	@SuppressWarnings("static-method")
 	@Bean
-	public ITemplateResolver templateResolver() {
-		final ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
-		resolver.setPrefix("/templates/"); //$NON-NLS-1$
-		resolver.setSuffix(".html"); //$NON-NLS-1$
-		resolver.setTemplateMode("HTML"); //$NON-NLS-1$
-		resolver.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
-		resolver.setCacheable(true);
-		return resolver;
+	ITemplateResolver templateResolver() {
+		final ClassLoaderTemplateResolver htmlResolver = new ClassLoaderTemplateResolver();
+		htmlResolver.setPrefix("/templates/"); //$NON-NLS-1$
+		htmlResolver.setSuffix(".html"); //$NON-NLS-1$
+		htmlResolver.setOrder(Integer.valueOf(0));
+		htmlResolver.setTemplateMode(TemplateMode.HTML);
+		htmlResolver.setCharacterEncoding("UTF-8"); //$NON-NLS-1$
+		htmlResolver.setCacheable(true);
+		return htmlResolver;
 	}
 
 	@Override
@@ -118,9 +120,9 @@ public class MvcConfig implements WebMvcConfigurer {
 	@Override
 	public void addResourceHandlers(ResourceHandlerRegistry registry) {
 		registry.addResourceHandler("/**").addResourceLocations("classpath:/static/") //$NON-NLS-1$//$NON-NLS-2$
-			.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
+		.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
 		registry.addResourceHandler("/webjars/**").addResourceLocations("classpath:/META-INF/resources/webjars/") //$NON-NLS-1$ //$NON-NLS-2$
-			.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
+		.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
 		if (this.env != null) {
 			String resources = this.env.getProperty("labmanager.web.publish-resources"); //$NON-NLS-1$
 			if (!Strings.isNullOrEmpty(resources)) {
@@ -132,8 +134,8 @@ public class MvcConfig implements WebMvcConfigurer {
 						resourcePath += FileSystem.URL_PATH_SEPARATOR;
 					}
 					registry.addResourceHandler("/" + basename + "/**") //$NON-NLS-1$//$NON-NLS-2$
-						.addResourceLocations(resourcePath)
-						.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
+					.addResourceLocations(resourcePath)
+					.setCacheControl(CacheControl.maxAge(15, TimeUnit.DAYS));
 				}
 			}
 		}

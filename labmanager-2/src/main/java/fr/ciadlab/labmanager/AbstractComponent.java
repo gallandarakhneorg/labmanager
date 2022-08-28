@@ -192,14 +192,37 @@ public abstract class AbstractComponent {
 		}
 	}
 
-	/** Get the value from the given map for an attribute with the given name.
-	 * <p>This function generates an exception if the value is {@code null}.
+	/** Get the local date value from the given map for an attribute with the given name.
+	 * The attribute must follow one of the formats: {@code YYYY-MM-DD}, {@code YYYY-MD}.
 	 *
 	 * @param attributes the set of attributes
 	 * @param name the name to search for.
 	 * @return the value
 	 */
-	protected static LocalDate ensureDate(Map<String, String> attributes, String name) {
+	protected static LocalDate optionalDate(Map<String, String> attributes, String name) {
+		final String dateStr = ensureString(attributes, name);
+		LocalDate date;
+		try {
+			date = LocalDate.parse(dateStr);
+		} catch (Throwable ex0) {
+			// Test if the date is only "YYYY-MM"
+			try {
+				date = LocalDate.parse(dateStr + "-01"); //$NON-NLS-1$
+			} catch (Throwable ex1) {
+				date = null;
+			}
+		}
+		return date;
+	}
+
+	/** Get the year value from the given map for an attribute with the given name.
+	 * The attribute must follow one of the formats: {@code YYYY-MM-DD}, {@code YYYY-MD}, or {@code YYYY}.
+	 *
+	 * @param attributes the set of attributes
+	 * @param name the name to search for.
+	 * @return the value
+	 */
+	protected static int ensureYear(Map<String, String> attributes, String name) {
 		final String dateStr = ensureString(attributes, name);
 		LocalDate date;
 		try {
@@ -220,7 +243,7 @@ public abstract class AbstractComponent {
 		if (date == null) {
 			throw new IllegalArgumentException("Invalid date parameter: " + name); //$NON-NLS-1$
 		}
-		return date;
+		return date.getYear();
 	}
 
 	/** Replies the constants associated to this application.

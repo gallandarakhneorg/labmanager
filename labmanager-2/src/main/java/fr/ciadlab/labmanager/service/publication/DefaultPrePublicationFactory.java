@@ -38,10 +38,10 @@ public class DefaultPrePublicationFactory implements PrePublicationFactory {
 
 	@Override
 	public Publication createPrePublication(PublicationType type, String title, String abstractText, String keywords,
-			LocalDate date, String isbn, String issn,
+			LocalDate date, int year, String isbn, String issn,
 			String doi, String halId, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language) {
-		return new PrePublication(type, title, abstractText, keywords, date, isbn, issn, doi, halId, extraUrl,
+		return new PrePublication(type, title, abstractText, keywords, date, year, isbn, issn, doi, halId, extraUrl,
 				videoUrl, dblpUrl, pdfPath, awardPath, language);
 	}
 

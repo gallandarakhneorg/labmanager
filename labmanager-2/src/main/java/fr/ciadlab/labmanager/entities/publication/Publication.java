@@ -214,7 +214,8 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 * @param title the title of the publication.
 	 * @param abstractText the text of the abstract for the publication.
 	 * @param keywords the keywords, seperated by coma or column characters 
-	 * @param date the date of publication.
+	 * @param date the date of publication. If it is {@code null}, then the {@code year} should be considered only.
+	 * @param year the year of publication.
 	 * @param isbn the ISBN number if any.
 	 * @param issn the ISSN number if any.
 	 * @param doi the DOI reference number if any.
@@ -227,7 +228,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 * @param language the major language used for writing the publication. It cannot be {@code null}.
 	 */
 	public Publication(PublicationType type, String title, String abstractText, String keywords,
-			LocalDate date, String isbn, String issn,
+			LocalDate date, int year, String isbn, String issn,
 			String doi, String halId, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language) {
 		assert type != null;
@@ -237,6 +238,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		this.abstractText = abstractText;
 		this.keywords = keywords;
 		this.publicationDate = date;
+		this.publicationYear = year;
 		this.isbn = isbn;
 		this.issn = issn;
 		this.doi = doi;
@@ -247,7 +249,6 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		this.pathToDownloadablePDF = pdfPath;
 		this.pathToDownloadableAwardCertificate = awardPath;
 		this.majorLanguage = language;
-		resetPublicationYear();
 	}
 
 	/** Default constructor that generate a publication with "empty" fields.

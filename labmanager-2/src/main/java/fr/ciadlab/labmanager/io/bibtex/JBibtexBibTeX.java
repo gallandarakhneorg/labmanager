@@ -501,7 +501,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 					field(entry, KEY_TITLE),
 					field(entry, KEY_ABSTRACT_NAME),
 					field(entry, KEY_KEYWORDS_NAME),
-					date(entry),
+					date(entry), year(entry),
 					field(entry, KEY_ISBN_NAME),
 					field(entry, KEY_ISSN_NAME),
 					field(entry, KEY_DOI),

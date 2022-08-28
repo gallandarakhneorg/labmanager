@@ -62,7 +62,8 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 	 * @param publication the publication to update.
 	 * @param title the new title of the publication, never {@code null} or empty.
 	 * @param type the new type of publication, never {@code null}.
-	 * @param date the new date of publication, never {@code null}.
+	 * @param date the new date of publication. It may be {@code null}. In this case only the year should be considered.
+	 * @param year the new year of the publication. 
 	 * @param abstractText the new text of the abstract.
 	 * @param keywords the new list of keywords.
 	 * @param doi the new DOI number.
@@ -78,10 +79,10 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 	 * @param pathToVideo the path that allows to download the video of the publication.
 	 */
 	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, LocalDate date,
-			String abstractText, String keywords, String doi, String isbn, String issn, URL dblpUrl,
+			int year, String abstractText, String keywords, String doi, String isbn, String issn, URL dblpUrl,
 			URL extraUrl, PublicationLanguage language, String pdfContent, String awardContent,
 			URL pathToVideo) {
-		updatePublicationNoSave(publication, title, type, date, abstractText, keywords, doi, isbn,
+		updatePublicationNoSave(publication, title, type, date, year, abstractText, keywords, doi, isbn,
 				issn, dblpUrl.toExternalForm(), extraUrl.toExternalForm(), language, pdfContent, awardContent,
 				pathToVideo.toExternalForm());
 	}
@@ -105,7 +106,8 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 	 * @param publication the publication to update.
 	 * @param title the new title of the publication, never {@code null} or empty.
 	 * @param type the new type of publication, never {@code null}.
-	 * @param date the new date of publication, never {@code null}.
+	 * @param date the new date of publication. It may be {@code null}. In this case only the year should be considered.
+	 * @param year the new year of the publication. 
 	 * @param abstractText the new text of the abstract.
 	 * @param keywords the new list of keywords.
 	 * @param doi the new DOI number.
@@ -119,7 +121,7 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 	 * @param pathToVideo the path that allows to download the video of the publication.
 	 */
 	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, LocalDate date,
-			String abstractText, String keywords, String doi, String isbn, String issn, String dblpUrl,
+			int year, String abstractText, String keywords, String doi, String isbn, String issn, String dblpUrl,
 			String extraUrl, PublicationLanguage language, String pathToPdfFile, String pathToAwardCertificate,
 			String pathToVideo) {
 		if (!Strings.isNullOrEmpty(title)) {
@@ -133,9 +135,8 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 			}
 			publication.setType(type);
 		}
-		if (date != null) {
-			publication.setPublicationDate(date);
-		}
+		publication.setPublicationDate(date);
+		publication.setPublicationYear(year);
 		publication.setAbstractText(Strings.emptyToNull(abstractText));
 		publication.setKeywords(Strings.emptyToNull(keywords));
 		publication.setDOI(Strings.emptyToNull(doi));

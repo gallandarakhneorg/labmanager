@@ -41,7 +41,8 @@ final class PrePublication extends Publication {
 	 * @param title the title of the publication.
 	 * @param abstractText the text of the abstract for the publication.
 	 * @param keywords the keywords, seperated by coma or column characters 
-	 * @param date the date of publication.
+	 * @param date the date of publication. If it is {@code null}, then the {@code year} should be considered only.
+	 * @param year the year of publication.
 	 * @param isbn the ISBN number if any.
 	 * @param issn the ISSN number if any.
 	 * @param doi the DOI reference number if any.
@@ -54,10 +55,10 @@ final class PrePublication extends Publication {
 	 * @param language the major language used for writing the publication. It cannot be {@code null}.
 	 */
 	PrePublication(PublicationType type, String title, String abstractText, String keywords,
-			LocalDate date, String isbn, String issn, String doi, String halId,
+			LocalDate date, int year, String isbn, String issn, String doi, String halId,
 			String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language) {
-		super(type, title, abstractText, keywords, date, isbn, issn, doi, halId, extraUrl,
+		super(type, title, abstractText, keywords, date, year, isbn, issn, doi, halId, extraUrl,
 				videoUrl, dblpUrl, pdfPath, awardPath, language);
 	}
 

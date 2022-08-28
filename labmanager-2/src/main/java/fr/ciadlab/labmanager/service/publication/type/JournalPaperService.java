@@ -129,7 +129,8 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param pubId identifier of the paper to change.
 	 * @param title the new title of the publication, never {@code null} or empty.
 	 * @param type the new type of publication, never {@code null}.
-	 * @param date the new date of publication, never {@code null}.
+	 * @param date the new date of publication. It may be {@code null}. In this case only the year should be considered.
+	 * @param year the new year of the publication. 
 	 * @param abstractText the new text of the abstract.
 	 * @param keywords the new list of keywords.
 	 * @param doi the new DOI number.
@@ -148,7 +149,7 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param journal the journal.
 	 */
 	public void updateJournalPaper(int pubId,
-			String title, PublicationType type, LocalDate date, String abstractText, String keywords,
+			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, String series, Journal journal) {
@@ -156,7 +157,7 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 		if (res.isPresent()) {
 			final JournalPaper paper = res.get();
 
-			updatePublicationNoSave(paper, title, type, date,
+			updatePublicationNoSave(paper, title, type, date, year,
 					abstractText, keywords, doi, null, null, dblpUrl,
 					extraUrl, language, pdfContent, awardContent,
 					pathToVideo);
