@@ -31,8 +31,6 @@ import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -187,25 +185,20 @@ public class MembershipApiController extends AbstractComponent {
 	 *
 	 * @param id the identifier of the membership.
 	 * @param username the login of the logged-in person.
-	 * @return the HTTP response.
+	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/" + Constants.MEMBERSHIP_DELETION_ENDPOINT)
-	public ResponseEntity<String> deleteMembership(
+	public void deleteMembership(
 			@RequestParam Integer id,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
-			try {
-				if (id == null || id.intValue() == 0) {
-					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				}
-				final HttpStatus status = this.membershipService.removeMembership(id.intValue());
-				return new ResponseEntity<>(status);
-			} catch (Exception ex) {
-				return new ResponseEntity<>(ex.getLocalizedMessage(),
-						HttpStatus.INTERNAL_SERVER_ERROR);
+			if (id == null || id.intValue() == 0) {
+				throw new IllegalStateException("Missing the membership id"); //$NON-NLS-1$
 			}
+			this.membershipService.removeMembership(id.intValue());
+		} else {
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
-		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	}
 
 }

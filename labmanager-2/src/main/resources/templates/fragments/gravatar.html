@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<th:block th:fragment="gravatarPicture">
+		<script th:src="@{/js/labmanager/dynamicphoto.js}"></script>
+		<script th:inline="javascript">
+		function refreshGravatarPhoto($imageElement, gravatarId, urlBase = "[(${gravatarLink})]") {
+			refreshDynamicPhoto($imageElement, gravatarId, urlBase);
+		}
+		</script>
+	</th:block>
+
+</html>

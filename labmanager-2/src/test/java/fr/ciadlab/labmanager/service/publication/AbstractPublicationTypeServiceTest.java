@@ -72,18 +72,18 @@ public class AbstractPublicationTypeServiceTest {
 			}
 			@Override
 			public void updatePublicationNoSave(Publication publication, String title, PublicationType type,
-					LocalDate date, String abstractText, String keywords, String doi, String isbn, String issn,
+					LocalDate date, int year, String abstractText, String keywords, String doi, String isbn, String issn,
 					String dblpUrl, String extraUrl, PublicationLanguage language, String pdfContent,
 					String awardContent, String pathToVideo) {
-				super.updatePublicationNoSave(publication, title, type, date, abstractText, keywords, doi, isbn, issn, dblpUrl,
+				super.updatePublicationNoSave(publication, title, type, date, year, abstractText, keywords, doi, isbn, issn, dblpUrl,
 						extraUrl, language, pdfContent, awardContent, pathToVideo);
 			}
 			@Override
 			public void updatePublicationNoSave(Publication publication, String title, PublicationType type,
-					LocalDate date, String abstractText, String keywords, String doi, String isbn, String issn, URL dblpUrl,
+					LocalDate date, int year, String abstractText, String keywords, String doi, String isbn, String issn, URL dblpUrl,
 					URL extraUrl, PublicationLanguage language, String pdfContent, String awardContent,
 					URL pathToVideo) {
-				super.updatePublicationNoSave(publication, title, type, date, abstractText, keywords, doi, isbn, issn, dblpUrl,
+				super.updatePublicationNoSave(publication, title, type, date, year, abstractText, keywords, doi, isbn, issn, dblpUrl,
 						extraUrl, language, pdfContent, awardContent, pathToVideo);
 			}
 		};
@@ -94,13 +94,14 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				"http://video.org");
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -119,13 +120,14 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, null, PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				"http://video.org");
 
 		verify(pub, never()).setTitle(anyString());
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -144,13 +146,14 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", null,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				"http://video.org");
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, never()).setType(any(PublicationType.class));
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -169,13 +172,14 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				null, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				null, 2000, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				"http://video.org");
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, never()).setPublicationDate(any(LocalDate.class));
+		verify(pub, atLeastOnce()).setPublicationYear(2000);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -195,13 +199,14 @@ public class AbstractPublicationTypeServiceTest {
 		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, null, "awardContent0",
 				"http://video.org");
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -223,13 +228,14 @@ public class AbstractPublicationTypeServiceTest {
 		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", null,
 				"http://video.org");
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -250,13 +256,14 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022,"abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				new URL("http://video.org"));
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -275,13 +282,14 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, null, PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				new URL("http://video.org"));
 
 		verify(pub, never()).setTitle(anyString());
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -300,13 +308,14 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", null,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				new URL("http://video.org"));
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, never()).setType(any(PublicationType.class));
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -327,13 +336,14 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				null, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				null, 2001, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				new URL("http://video.org"));
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, never()).setPublicationDate(any(LocalDate.class));
+		verify(pub, atLeastOnce()).setPublicationYear(2001);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -353,13 +363,14 @@ public class AbstractPublicationTypeServiceTest {
 		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, null, "awardContent0",
 				new URL("http://video.org"));
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");
@@ -381,13 +392,14 @@ public class AbstractPublicationTypeServiceTest {
 		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", null,
 				new URL("http://video.org"));
 
 		verify(pub, atLeastOnce()).setTitle("title0");
 		verify(pub, atLeastOnce()).setType(PublicationType.ARTISTIC_PRODUCTION);
 		verify(pub, atLeastOnce()).setPublicationDate(LocalDate.parse("2022-07-23"));
+		verify(pub, atLeastOnce()).setPublicationYear(2022);
 		verify(pub, atLeastOnce()).setAbstractText("abs0");
 		verify(pub, atLeastOnce()).setKeywords("kw0");
 		verify(pub, atLeastOnce()).setDOI("doi/0");

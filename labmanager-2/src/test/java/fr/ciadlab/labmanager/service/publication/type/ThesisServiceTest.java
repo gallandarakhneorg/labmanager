@@ -140,7 +140,7 @@ public class ThesisServiceTest {
 	@Test
 	public void updateThesis() {
 		this.test.updateThesis(234,
-				"title0", PublicationType.PHD_THESIS, LocalDate.parse("2022-07-22"), "abstractText0",
+				"title0", PublicationType.PHD_THESIS, LocalDate.parse("2022-07-22"), 2022, "abstractText0",
 				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				"inst0", "address0");

@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <th:block th:fragment="general">
+		<meta charset="utf-8">
+		<meta http-equiv="x-ua-compatible" content="ie=edge">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+	</th:block>
+
+    <th:block th:fragment="allBaseLibs">
+		<!-- Dependencies -->
+		<th:block th:replace="fragments/general :: general"/>
+		<th:block th:replace="fragments/libs :: jquery"/>
+		<th:block th:replace="fragments/libs :: bootstrap"/>
+		<th:block th:replace="fragments/libs :: modernizr"/>
+		<th:block th:replace="fragments/libs :: fontawesome"/>
+		<th:block th:replace="fragments/libs :: jquery-plugins"/>
+		<th:block th:replace="fragments/libs :: bootstrap-icons"/>
+		<!-- LabManager Style and Functions -->
+		<link rel="stylesheet" th:href="@{/css/labmanager/labmanager.css}"/>
+    	<script th:src="@{/js/labmanager/labmanager-scripts.js}"></script>
+	</th:block>
+
+</html>

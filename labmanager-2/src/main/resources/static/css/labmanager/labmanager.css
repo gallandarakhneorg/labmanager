@@ -1,0 +1,110 @@
+/* Remove the link style */
+a.noLink {
+	all: unset;
+	cursor:pointer;
+}
+a:hover.noLink {
+	all: unset;
+	cursor:pointer;
+}
+a:active.noLink {
+	all: unset;
+	cursor:pointer;
+}
+.form-control.is-valid {
+    border-color: #0d64c1;
+    border-width:2px;
+}
+.dynamic-form-group {
+   	background-color: rgba(150, 193, 13, 0.4);
+   	display: none;
+}
+label.required:after {
+	content:" *";
+	color: red;
+}
+.publicationTitle {
+    color: #96c10d !important;
+    font-weight: bold;
+    font-size: larger;
+}
+.publicationAuthors {
+    color: #212529 !important;
+    font-weight: bold;
+}
+.publicationAuthors a {
+    color: #3b4d05 !important;
+}
+.publicationAuthors a:hover {
+    color: #212529 !important;
+}
+.publicationAuthors a:visited {
+    color: #212529 !important;
+}
+.publicationDetails {
+    font-size: smaller;
+}
+div.form-super-group {
+	padding: 10px;
+	margin: 20px;
+}
+div.form-super-group label {
+	color: white;
+}
+div.form-super-group-new {
+	background-color: #995555 !important;
+}
+div.form-super-group-finished {
+	background-color: #999999 !important;
+}
+div.form-super-group-active {
+	background-color: #96c10d !important;
+}
+div.form-super-group-future {
+	background-color: #c8960d !important;
+}
+td.details-control:before {
+     content: "\f06e";
+}
+td.details-control {
+    cursor: pointer;
+    color: #99cc00;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    font-weight: 900;
+    font: normal normal normal 14px/1 FontAwesome;
+}
+.dataTables_wrapper table thead{
+    display:none;
+}
+img.publicationDetailsDownloadAttachment {
+    max-height: 150px;
+}
+img.publicationDetailsScimagoQuartile {
+    max-height: 150px;
+    float: right;
+}
+.odd {
+    background-color: white !important;
+}
+.even {
+    background-color: white !important;
+}
+.table-responsive {
+    overflow-x: hidden !important;
+}
+table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.dataTable tbody td.selected {
+    color: #96c10d !important;
+    background-color: grey !important;
+}
+.page-item.active .page-link {
+    background-color: #96c10d !important;
+    border-color: #96c10d !important;
+}
+.page-link {
+    color: #96c10d !important;
+}

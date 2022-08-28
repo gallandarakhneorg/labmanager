@@ -68,6 +68,7 @@ public class MembershipViewController extends AbstractViewController {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the accessor to the localized messages.
+	 * @param constants the constants of the app.
 	 * @param nameParser the parser of person names.
 	 * @param personService the service related to the persons.
 	 * @param organizationRepository the repository of the research organizations.
@@ -77,11 +78,12 @@ public class MembershipViewController extends AbstractViewController {
 	 */
 	public MembershipViewController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired PersonNameParser nameParser,
 			@Autowired PersonService personService,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired ChronoMembershipComparator membershipComparator) {
-		super(messages);
+		super(messages, constants);
 		this.nameParser = nameParser;
 		this.personService = personService;
 		this.organizationRepository = organizationRepository;
@@ -167,8 +169,8 @@ public class MembershipViewController extends AbstractViewController {
 		final List<ResearchOrganization> sortedOrganizations = this.organizationRepository.findAll().stream()
 				.sorted(new ResearchOrganizationComparator()).collect(Collectors.toList());
 		//
-		modelAndView.addObject("savingUrl", Constants.MEMBERSHIP_SAVING_ENDPOINT); //$NON-NLS-1$
-		modelAndView.addObject("deletionUrl", Constants.MEMBERSHIP_DELETION_ENDPOINT); //$NON-NLS-1$
+		modelAndView.addObject("savingUrl", rooted(Constants.MEMBERSHIP_SAVING_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("deletionUrl", rooted(Constants.MEMBERSHIP_DELETION_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("person", person); //$NON-NLS-1$
 		modelAndView.addObject("sortedMemberships", memberships); //$NON-NLS-1$
 		modelAndView.addObject("organizations", sortedOrganizations); //$NON-NLS-1$

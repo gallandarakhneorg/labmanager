@@ -1,26 +1,22 @@
-<!DOCTYPE html >
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<!DOCTYPE html>
+<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
 
-<th:block th:replace="fragments/head :: style"></th:block>
-<th:block th:replace="fragments/head :: sharedScript"></th:block>
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
 
-<th:block th:if="${changeEnabled}">
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
-	<th:block th:replace="fragments/head :: sharedScriptDeletionButton"></th:block>
-</th:block>
-
-<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
-    <thead>
-        <th th:text="#{html.Id}"></th>
-        <th th:text="#{html.Acronym}"></th>
-        <th th:text="#{html.Name}"></th>
-        <th th:text="#{html.Type}"></th>
-        <th th:text="#{html.Description}"></th>
-        <th th:text="#{html.Country}"></th>
-        <th th:text="#{html.SuperOrganization}"></th>
-        <th th:text="#{html.SubOrganizations}"></th>
-        <th th:text="#{html.Actions}"></th>
-    </thead>
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+	<thead>
+		<th th:text="#{html.Id}"></th>
+		<th th:text="#{html.Acronym}"></th>
+		<th th:text="#{html.Name}"></th>
+		<th th:text="#{html.Type}"></th>
+		<th th:text="#{html.Description}"></th>
+		<th th:text="#{html.Country}"></th>
+		<th th:text="#{html.SuperOrganization}"></th>
+		<th th:text="#{html.SubOrganizations}"></th>
+		<th th:text="#{html.Actions}"></th>
+	</thead>
     <tbody>
         <tr th:each="organization : ${organizations}">
             <td>
@@ -56,77 +52,31 @@
                     <th:block th:utext="${suborga.acronymOrName}"></th:block>
                 </th:block>
             </td>
-            <td>
-            	<a th:href="@{/organizationEditor(organization=${organization.id})}" th:if="${changeEnabled}">
-            		<img th:src="@{/images/icon/edit_icon.svg}" th:title="#{html.EditOrganization1(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
-            	</a>
-           		<img th:src="@{/images/icon/edit_icon.svg}" th:unless="${changeEnabled}"
-           		     th:title="#{html.EditOrganization1(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
-           		<img th:id="${'btDeleteButton' + organization.id}"
-           		     th:src="@{/images/icon/delete_icon.svg}" th:title="#{html.DeleteOrganization1(${organization.getAcronymOrName})}"
-           		     th:style="${changeEnabled} ? 'max-width:24px;cursor: pointer;' : 'max-width:24px;'"></img>
-            	<a th:href="@{/exportBibTeX(organization=${organization.id},inAttachment=true)}">
-            		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
-            	</a>
-            	<a th:href="@{/exportOpenDocumentText(organization=${organization.id},inAttachment=true)}">
-            		<img th:src="@{/images/icon/odt_file.svg}" th:title="#{html.GetOdtPublicationsFor(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
-            	</a>
-            	<a th:href="@{/exportHtml(organization=${organization.id},inAttachment=true)}">
-            		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
-            	</a>
-            	<a th:href="@{/getOrganizationData(id=${organization.id})}">
-            		<img th:src="@{/images/icon/json_file.svg}" th:title="#{html.GetJsonFor(${organization.getAcronymOrName})}" style="max-width:24px;"></img>
-            	</a>
-            </td>
+            <td th:replace="fragments/table :: adminToolButtons(${organization.id}, ${organization.getAcronymOrName},
+            		#{html.EditOrganization1(${organization.acronymOrName})},
+            		#{html.DeleteOrganization1(${organization.acronymOrName})},
+            		null,
+            		organization, organization, organization,
+            		@{/getOrganizationData(id=${organization.id})} )"></td>
         </tr>
     </tbody>
 </table>
-
-
 <script th:inline="javascript">
-    $(document).ready(function() {
-    	var tableId = /*[[${uuid}]]*/ '';
-        var table = $('#table'+tableId).DataTable({
-            dom: 'Bfrtip',
-            scrollCollapse: true,
-            paging: false,
-            buttons: [
-                'excelHtml5', 'csvHtml5'
-            ],
-            responsive: true,
-            autoWidth: true,
-            order: [ [1, 'asc'] ],
-            "columns": [
-            	{ },
-            	{ },
-            	{ },
-            	{ },
-            	{ },
-            	{ },
-            	{ },
-            	{ },
-                {
-                    "orderable": false,
-                    "width": "165px"
-                }
-            ],
-        });
-
+    $(document).ready(() => {
+    	adminTableDefinitionWithColCount(8);
         /*[# th:if="${changeEnabled}" th:each="organization : ${organizations}"]*/
-        installDeletionButtonCallback(
-        		$("[(${'#btDeleteButton' + organization.id})]"),
-        		"[(#{html.DeleteOrganization1(${organization.getAcronymOrName})})]",
-        		"[(#{html.AreYouSureToDelete(${organization.getAcronymOrName})})]",
+        addDeletionButtonCallback(
+        		"[[${organization.id}]]",
+        		"[(#{html.DeleteOrganization1(${organization.acronymOrName})})]",
+        		"[(#{html.AreYouSureToDelete(${organization.acronymOrName})})]",
         		"[(@{/deleteOrganization(organization=${organization.id})})]",
         		"[(#{html.OrganizationDeleted})]",
         		"[(#{html.CannotDeleteOrganization})]",
-        		"[(${organization.getAcronymOrName})]",
+        		"[(${organization.acronymOrName})]",
         		function (e) {
         			location.reload();
         		} );
         /*[/]*/
-
     });
 </script>
 </html>
-

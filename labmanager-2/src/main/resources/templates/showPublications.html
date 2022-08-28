@@ -1,186 +1,96 @@
-<!DOCTYPE html >
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <th:block th:replace="fragments/head :: style" />
-    <th:block th:replace="fragments/head :: sharedScript" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.68/vfs_fonts.min.js"></script>
+<!DOCTYPE html>
+<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
 
-    <style>
-        td.details-control:before {
-            content: "\f06e";
-        }
-        td.details-control {
-            cursor: pointer;
-            color: #99cc00;
-            -webkit-font-smoothing: antialiased;
-            display: inline-block;
-            font-style: normal;
-            font-variant: normal;
-            text-rendering: auto;
-            line-height: 1;
-            font-weight: 900;
-            font: normal normal normal 14px/1 FontAwesome;
-        }
-        .dataTables_wrapper table thead{
-            display:none;
-        }
-        .publicationTitle {
-            color: #96c10d !important;
-            font-weight: bold;
-            font-size: larger;
-        }
-        .publicationAuthors {
-            color: #212529 !important;
-            font-weight: bold;
-        }
-        .publicationAuthors a {
-            color: #3b4d05 !important;
-        }
-        .publicationAuthors a:hover {
-            color: #212529 !important;
-        }
-        .publicationAuthors a:visited {
-            color: #212529 !important;
-        }
-        .publicationDetails {
-            font-size: smaller;
-        }
-		img.publicationDetailsDownloadAttachment {
-		    max-height: 150px;
-		}
-		img.publicationDetailsScimagoQuartile {
-		    max-height: 150px;
-		    float: right;
-		}
-        .odd {
-            background-color: white !important;
-        }
-        .even {
-            background-color: white !important;
-        }
-        .table-responsive {
-            overflow-x: hidden !important;
-        }
-        table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.dataTable tbody td.selected {
-            color: #96c10d !important;
-            background-color: grey !important;
-        }
-        .page-item.active .page-link {
-            background-color: #96c10d !important;
-            border-color: #96c10d !important;
-        }
-        .page-link {
-            color: #96c10d !important;
-        }
-    </style>
-</head>
-
-<body>
-<!-- preloader area start -->
-<!-- <div id="preloader"> -->
-<!-- 	<div class="loader"></div> -->
-<!-- </div> -->
-<!-- preloader area end -->
-<!-- page container area start -->
-<div class="horizontal-main-wrapper">
-    <!-- main content area start -->
-    <div class="main-content">
-        <div class="main-content-inner">
-            <div class="row">
-
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="header-title" th:utext="#{html.Exports}"></h4>
-                            <div class="mb-xl-3" role="group" id="buttonsContainer">
-                                &nbsp;
-                                <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal">
-                                    <i class="fa fa-file-code-o"></i>&nbsp;&nbsp;<th:block th:utext="#{html.BibTeX}"></th:block>
-                                </button>
-                                <button type="button" class="btn btn-sm btn-success" id="btWordGlobal">
-                                    <i class="fa fa-file-word-o"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Odt}"></th:block>
-                                </button>
-                                <bsutton type="button" class="btn btn-sm btn-success" id="btHtmlGlobal">
-                                    <i class="fa fa-file-text-o"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Html}"></th:block>
-                                </button>
-                            </div>
-                            <h4 class="header-title" th:utext="#{html.Search}"></h4>
-                            <div class="form-group">
-                                <div>
-                                    <input type="text" class="form-control form-control-sm" id="searchInput" th:placeholder="#{html.InputYourSearchedText}">
-                                </div>
-                                <small class="form-text text-muted" id="tableInfos"></small>
-                            </div>
-                        </div>
-                    </div>
+<div class="row">
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title" th:utext="#{html.Exports}"></h4>
+                <div class="mb-xl-3" role="group" id="buttonsContainer">
+                    &nbsp;
+                    <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal">
+                        <i class="fa fa-file-code-o"></i>&nbsp;&nbsp;<th:block th:utext="#{html.BibTeX}"></th:block>
+                    </button>
+                    <button type="button" class="btn btn-sm btn-success" id="btWordGlobal">
+                        <i class="fa fa-file-word-o"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Odt}"></th:block>
+                    </button>
+                    <bsutton type="button" class="btn btn-sm btn-success" id="btHtmlGlobal">
+                        <i class="fa fa-file-text-o"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Html}"></th:block>
+                    </button>
                 </div>
-                <div class="col-lg-6">
-                    <div class="card">
-                        <div class="card-body">
-                            <h4 class="header-title" th:utext="#{html.Control}"></h4>
-                            <form action="#">
-                                <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Sort}"></b>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" id="orderYear" name="order" class="custom-control-input groupOrder">
-                                    <label class="custom-control-label" for="orderYear" th:utext="#{html.PerYear}"></label>
-                                </div>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" id="orderType" name="order" class="custom-control-input groupOrder">
-                                    <label class="custom-control-label" for="orderType" th:utext="#{html.PerType}"></label>
-                                </div>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" id="orderName" name="order" class="custom-control-input groupOrder">
-                                    <label class="custom-control-label" for="orderName" th:utext="#{html.PerAuthor}"></label>
-                                </div>
-                                <div class="custom-control custom-radio custom-control-inline">
-                                    <input type="radio" checked="checked" id="orderDefault" name="order" class="custom-control-input groupOrder">
-                                    <label class="custom-control-label" for="orderDefault" th:utext="#{html.PerDefault}"></label>
-                                </div>
-
-                            </form>
-                            <form action="#">
-                                <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Group}"></b>
-                                <div class="custom-control custom-checkbox custom-control-inline">
-                                    <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupYear">
-                                    <label class="custom-control-label" for="groupYear" th:utext="#{html.PerYear}"></label>
-                                </div>
-                                <div class="custom-control custom-checkbox custom-control-inline">
-                                    <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupType">
-                                    <label class="custom-control-label" for="groupType" th:utext="#{html.PerType}"></label>
-                                </div>
-                            </form>
-                        </div>
+                <h4 class="header-title" th:utext="#{html.Search}"></h4>
+                <div class="form-group">
+                    <div>
+                        <input type="text" class="form-control form-control-sm" id="searchInput" th:placeholder="#{html.InputYourSearchedText}">
                     </div>
-                </div>
-            </div>
-            <br/>
-            <div class="row">
-                <!-- seo fact area start -->
-                <div class="col-lg-12">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table table-responsive">
-                                <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
-                                    <thead>
-                                    <th></th>
-                                    <th th:utext="#{html.Publication}"></th>
-                                    <th th:utext="#{html.Author}"></th>
-                                    <th th:utext="#{html.Year}"></th>
-                                    <th th:utext="#{html.Type}"></th>
-                                    <th th:utext="#{html.Download}"></th>
-                                    </thead>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
+                    <small class="form-text text-muted" id="tableInfos"></small>
                 </div>
             </div>
         </div>
     </div>
-    <!-- main content area end -->
+    <div class="col-lg-6">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="header-title" th:utext="#{html.Control}"></h4>
+                <form action="#">
+                    <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Sort}"></b>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="orderYear" name="order" class="custom-control-input groupOrder">
+                        <label class="custom-control-label" for="orderYear" th:utext="#{html.PerYear}"></label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="orderType" name="order" class="custom-control-input groupOrder">
+                        <label class="custom-control-label" for="orderType" th:utext="#{html.PerType}"></label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" id="orderName" name="order" class="custom-control-input groupOrder">
+                        <label class="custom-control-label" for="orderName" th:utext="#{html.PerAuthor}"></label>
+                    </div>
+                    <div class="custom-control custom-radio custom-control-inline">
+                        <input type="radio" checked="checked" id="orderDefault" name="order" class="custom-control-input groupOrder">
+                        <label class="custom-control-label" for="orderDefault" th:utext="#{html.PerDefault}"></label>
+                    </div>
+
+                </form>
+                <form action="#">
+                    <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Group}"></b>
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupYear">
+                        <label class="custom-control-label" for="groupYear" th:utext="#{html.PerYear}"></label>
+                    </div>
+                    <div class="custom-control custom-checkbox custom-control-inline">
+                        <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupType">
+                        <label class="custom-control-label" for="groupType" th:utext="#{html.PerType}"></label>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 </div>
-<!-- page container area end -->
-</body>
+<br/>
+<div class="row">
+    <!-- seo fact area start -->
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table table-responsive">
+                    <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
+                        <thead>
+                        <th></th>
+                        <th th:utext="#{html.Publication}"></th>
+                        <th th:utext="#{html.Author}"></th>
+                        <th th:utext="#{html.Year}"></th>
+                        <th th:utext="#{html.Type}"></th>
+                        <th th:utext="#{html.Download}"></th>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script th:inline="javascript">
 	function getCategoryRank(category) {
@@ -478,7 +388,5 @@
         })
 
     });
-
 </script>
 </html>
-

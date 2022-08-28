@@ -18,7 +18,7 @@ package fr.ciadlab.labmanager.controller.api.database;
 
 import java.util.Map;
 
-import fr.ciadlab.labmanager.controller.view.AbstractViewController;
+import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.io.json.DatabaseToJsonExporter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-public class JsonDatabaseExporterApiController extends AbstractViewController {
+public class JsonDatabaseExporterApiController extends AbstractComponent {
 
 	private DatabaseToJsonExporter exporter;
 

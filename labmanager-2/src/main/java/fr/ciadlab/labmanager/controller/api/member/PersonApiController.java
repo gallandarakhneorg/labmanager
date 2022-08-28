@@ -28,8 +28,6 @@ import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -199,24 +197,20 @@ public class PersonApiController extends AbstractComponent {
 	 *
 	 * @param person the identifier of the person.
 	 * @param username the login of the logged-in person.
-	 * @return the HTTP response.
+	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/deletePerson")
-	public ResponseEntity<Integer> deletePerson(
+	public void deletePerson(
 			@RequestParam Integer person,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
-			try {
-				if (person == null || person.intValue() == 0) {
-					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				}
-				this.personService.removePerson(person.intValue());
-				return new ResponseEntity<>(person, HttpStatus.OK);
-			} catch (Exception ex) {
-				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			if (person == null || person.intValue() == 0) {
+				throw new IllegalStateException("Person not found"); //$NON-NLS-1$
 			}
+			this.personService.removePerson(person.intValue());
+		} else {
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
-		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	}
 
 }

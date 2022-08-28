@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -301,7 +301,7 @@ public class JBibtexBibTeXTest {
 	@Test
 	public void getPublicationStreamFrom_n() throws Exception {
 		when(this.prePublicationFactory.createPrePublication(
-				any(), any(), any(), any(), any(), any(), any(), any(),
+				any(), any(), any(), any(), any(), anyInt(), any(), any(), any(),
 				any(), any(), any(), any(), any(), any(), any())).thenAnswer(it -> {
 					Publication fake = mock(Publication.class);
 					return fake;		
@@ -339,6 +339,7 @@ public class JBibtexBibTeXTest {
 				eq("{\\\\string_}"),
 				eq("Clustering, nasopharyngeal cancer, medical data"),
 				eq(LocalDate.parse("2019-10-01")),
+				eq(2019),
 				isNull(),
 				isNull(),
 				isNull(),
@@ -370,6 +371,7 @@ public class JBibtexBibTeXTest {
 				eq("Déploiement d?un système de détection automatisé des situations à risque de décompensation de comorbidités."),
 				eq("télémédecine, ontologies, insuffisants cardiaques, esanté,"),
 				eq(LocalDate.parse("2015-04-01")),
+				eq(2015),
 				isNull(),
 				isNull(),
 				isNull(),

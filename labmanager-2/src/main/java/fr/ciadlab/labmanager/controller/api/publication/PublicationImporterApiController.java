@@ -17,10 +17,8 @@
 package fr.ciadlab.labmanager.controller.api.publication;
 
 import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -28,7 +26,6 @@ import java.util.TreeMap;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.apache.commons.lang3.BooleanUtils;
@@ -39,7 +36,6 @@ import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -68,26 +64,6 @@ public class PublicationImporterApiController extends AbstractComponent {
 			@Autowired PublicationService publicationService) {
 		super(messages);
 		this.publicationService = publicationService;
-	}
-
-	/** Read a BibTeX file and replies the publications as JSON.
-	 *
-	 * @param bibtexFile the uploaded BibTeX files.
-	 * @return the list of publications from the BibTeX file.
-	 * @throws Exception if the BibTeX file cannot be used.
-	 */
-	@PostMapping(value = "/" + Constants.GET_JSON_FROM_BIBTEX_ENDPOINT)
-	@ResponseBody
-	public List<Publication> getJsonFromBibTeX(
-			@RequestParam(required = false) MultipartFile bibtexFile) throws Exception {
-		if (bibtexFile == null || bibtexFile.isEmpty()) {
-			throw new IllegalArgumentException(getMessage("publicationImporterApiController.NoBibTeXSource")); //$NON-NLS-1$
-		}
-		try (final InputStream inputStream = bibtexFile.getInputStream()) {
-			try (final Reader reader = new InputStreamReader(inputStream)) {
-				return this.publicationService.readPublicationsFromBibTeX(reader, true, true);
-			}
-		}
 	}
 
 	/** Save a BibTeX file in the database..

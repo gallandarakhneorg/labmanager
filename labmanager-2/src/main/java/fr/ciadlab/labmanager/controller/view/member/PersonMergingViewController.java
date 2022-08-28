@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.controller.view.member;
 import java.util.List;
 import java.util.Set;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -48,12 +49,14 @@ public class PersonMergingViewController extends AbstractViewController {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of messages.
+	 * @param constants the constants of the app.
 	 * @param personService the person service.
 	 */
 	public PersonMergingViewController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired PersonService personService) {
-		super(messages);
+		super(messages, constants);
 		this.personService = personService;
 	}
 

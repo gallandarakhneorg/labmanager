@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <th:block th:fragment="jquery">
+    	<!-- JQuery 3.4.1 -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	</th:block>
+
+    <th:block th:fragment="jquery-validation">
+    	<!--  JQuery Validation 1.19.2 -->
+		<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
+		<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
+	</th:block>
+
+    <th:block th:fragment="select2">
+    	<!--  Bootstrap select2 4.1.0 -->
+		<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
+		<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+	</th:block>
+
+    <th:block th:fragment="bootstrap">
+    	<!-- Bootstrap 4.0 -->
+		<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"/>
+        <script th:src="@{/js/bootstrap.min.js}"></script>
+	</th:block>
+
+    <th:block th:fragment="bootstrap-datatable">
+    	<!-- Bootstrap DataTable 1.10.22 -->
+		<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.22/af-2.3.5/b-1.6.5/b-colvis-1.6.5/b-flash-1.6.5/b-html5-1.6.5/b-print-1.6.5/cr-1.5.3/fc-3.3.2/fh-3.1.7/kt-2.5.3/r-2.2.6/rg-1.1.2/rr-1.2.7/sc-2.0.3/sb-1.0.1/sp-1.2.2/sl-1.3.1/datatables.min.css"/>
+        <script type="text/javascript" src="https://cdn.datatables.net/v/bs4/jszip-2.5.0/dt-1.10.22/af-2.3.5/b-1.6.5/b-colvis-1.6.5/b-flash-1.6.5/b-html5-1.6.5/b-print-1.6.5/cr-1.5.3/fc-3.3.2/fh-3.1.7/kt-2.5.3/r-2.2.6/rg-1.1.2/rr-1.2.7/sc-2.0.3/sb-1.0.1/sp-1.2.2/sl-1.3.1/datatables.min.js"></script>
+	</th:block>
+
+    <th:block th:fragment="bootstrap-icons">
+    	<!-- Bootstrap Icons 1.5.0 -->
+		<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.min.css" crossorigin="anonymous">
+	</th:block>
+
+    <th:block th:fragment="bootstrap-fileinput">
+    	<!-- Bootstrap File-Input 5.5.0 -->
+		<link href="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.5.0/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
+		<script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.5.0/js/fileinput.min.js"></script>
+	</th:block>
+
+    <th:block th:fragment="fontawesome">
+    	<!-- Font Awesome 4.6.3 -->
+		<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}"/>
+	</th:block>
+
+    <th:block th:fragment="modernizr">
+    	<!-- Modernizr 2.8.3 -->
+        <script th:src="@{/js/modernizr-2.8.3.min.js}"></script>
+	</th:block>
+
+    <th:block th:fragment="jquery-plugins">
+    	<!-- JQuery plugins -->
+    	<script th:src="@{/js/jquery-easing-1.4.0.js}"></script>
+	</th:block>
+
+    <th:block th:fragment="sweetalert">
+    	<!-- SweetAlert2 11.2.0 -->
+		<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+	</th:block>
+
+</html>

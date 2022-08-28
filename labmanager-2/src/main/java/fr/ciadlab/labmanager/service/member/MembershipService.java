@@ -48,7 +48,6 @@ import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 /** Service for the memberships to research organizations.
@@ -298,14 +297,14 @@ public class MembershipService extends AbstractService {
 	/** Delete the membership with the given identifier.
 	 *
 	 * @param membershipId the identifier of the membership to be deleted.
-	 * @return the status to reply to the caller of this function.
+	 * @throws Exception in case of error.
 	 */
 	@Transactional
-	public HttpStatus removeMembership(int membershipId) {
+	public void removeMembership(int membershipId) throws Exception {
 		final Integer mid = Integer.valueOf(membershipId);
 		final Optional<Membership> optMbr = this.membershipRepository.findById(mid);
 		if (optMbr.isEmpty()) {
-			return HttpStatus.NOT_FOUND;
+			throw new IllegalStateException("Membership not founnd with id: " + membershipId); //$NON-NLS-1$
 		}
 		final Membership mbr = optMbr.get();
 		final Person person = mbr.getPerson();
@@ -319,7 +318,6 @@ public class MembershipService extends AbstractService {
 			mbr.setResearchOrganization(null);
 		}
 		this.membershipRepository.deleteById(mid);
-		return HttpStatus.OK;
 	}
 
 	/** Replies the persons in the organization of the given identifier.

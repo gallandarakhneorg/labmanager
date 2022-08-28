@@ -28,8 +28,6 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.util.CountryCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -150,24 +148,20 @@ public class ResearchOrganizationApiController extends AbstractComponent {
 	 *
 	 * @param organization the identifier of the organization.
 	 * @param username the login of the logged-in person.
-	 * @return the HTTP response.
+	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/deleteOrganization")
-	public ResponseEntity<Integer> deleteOrganization(
+	public void deleteOrganization(
 			@RequestParam Integer organization,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
-			try {
-				if (organization == null || organization.intValue() == 0) {
-					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				}
-				this.organizationService.removeResearchOrganization(organization.intValue());
-				return new ResponseEntity<>(organization, HttpStatus.OK);
-			} catch (Exception ex) {
-				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			if (organization == null || organization.intValue() == 0) {
+				throw new IllegalStateException("Organization not found"); //$NON-NLS-1$
 			}
+			this.organizationService.removeResearchOrganization(organization.intValue());
+		} else {
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
-		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	}
 
 }

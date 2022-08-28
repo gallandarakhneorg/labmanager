@@ -31,8 +31,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -176,25 +174,19 @@ public class PublicationApiController extends AbstractComponent {
 	 *
 	 * @param publication the identifier of the publication.
 	 * @param username the login of the logged-in person.
-	 * @return the HTTP response.
+	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/deletePublication")
-	public ResponseEntity<Integer> deletePublication(
+	public void deletePublication(
 			@RequestParam Integer publication,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
-			try {
-				if (publication == null || publication.intValue() == 0) {
-					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				}
-				this.publicationService.removePublication(publication.intValue(), true);
-				return new ResponseEntity<>(publication, HttpStatus.OK);
-			} catch (Exception ex) {
-				getLogger().error(ex.getLocalizedMessage(), ex);
-				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			if (publication == null || publication.intValue() == 0) {
+				throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
 			}
+			this.publicationService.removePublication(publication.intValue(), true);
 		}
-		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+		throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 	}
 
 }

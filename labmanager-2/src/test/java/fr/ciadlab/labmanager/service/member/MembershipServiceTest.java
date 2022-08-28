@@ -600,7 +600,7 @@ public class MembershipServiceTest {
 	}
 
 	@Test
-	public void removeMembership() {
+	public void removeMembership() throws Exception {
 		when(this.membershipRepository.findById(anyInt())).then(it -> {
 			final int personId = ((Integer) it.getArgument(0)).intValue();
 			switch (personId) {

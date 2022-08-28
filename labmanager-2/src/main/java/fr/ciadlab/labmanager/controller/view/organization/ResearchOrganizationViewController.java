@@ -48,20 +48,20 @@ import org.springframework.web.servlet.ModelAndView;
 @CrossOrigin
 public class ResearchOrganizationViewController extends AbstractViewController {
 
-	private static final String DEFAULT_ENDPOINT = "organizationList"; //$NON-NLS-1$
-
 	private ResearchOrganizationService organizationService;
 
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of messages.
+	 * @param constants the accessor to the live constants.
 	 * @param organizationService the research organization service.
 	 */
 	public ResearchOrganizationViewController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired ResearchOrganizationService organizationService) {
-		super(messages);
+		super(messages, constants);
 		this.organizationService = organizationService;
 	}
 
@@ -70,13 +70,13 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	 * @param username the login of the logged-in person.
 	 * @return the model-view component.
 	 */
-	@GetMapping("/" + DEFAULT_ENDPOINT)
+	@GetMapping("/" + Constants.ORGANIZATION_LIST_ENDPOINT)
 	public ModelAndView showOrganizationList(
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
-		final ModelAndView modelAndView = new ModelAndView(DEFAULT_ENDPOINT);
+		final ModelAndView modelAndView = new ModelAndView(Constants.ORGANIZATION_LIST_ENDPOINT);
 		initModelViewProperties(modelAndView, username);
+		initAdminTableButtons(modelAndView, endpoint(Constants.ORGANIZATION_EDITING_ENDPOINT, "organization")); //$NON-NLS-1$
 		modelAndView.addObject("organizations", this.organizationService.getAllResearchOrganizations()); //$NON-NLS-1$
-		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
 		return modelAndView;
 	}
 
@@ -84,20 +84,15 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	 *
 	 * @param organization the identifier of the organization to edit. If it is {@code null}, the endpoint
 	 *     is dedicated to the creation of an organization.
-	 * @param success flag that indicates the previous operation was a success.
-	 * @param failure flag that indicates the previous operation was a failure.
-	 * @param message the message that is associated to the state of the previous operation.
 	 * @param username the login of the logged-in person.
 	 * @return the model-view object.
 	 */
 	@GetMapping(value = "/" + Constants.ORGANIZATION_EDITING_ENDPOINT)
 	public ModelAndView showOrganizationEditor(
 			@RequestParam(required = false) Integer organization,
-			@RequestParam(required = false, defaultValue = "false") Boolean success,
-			@RequestParam(required = false, defaultValue = "false") Boolean failure,
-			@RequestParam(required = false) String message,
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
 		final ModelAndView modelAndView = new ModelAndView("organizationEditor"); //$NON-NLS-1$
+		initModelViewProperties(modelAndView, username);
 		//
 		final ResearchOrganization organizationObj;
 		if (organization != null && organization.intValue() != 0) {
@@ -116,14 +111,13 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 			otherOrganizations = otherOrganizations.stream().filter(it -> it.getId() != organizationObj.getId()).collect(Collectors.toList());
 		}
 		//
-		initModelViewProperties(modelAndView, username, success, failure, message);
 		modelAndView.addObject("organization", organizationObj); //$NON-NLS-1$
-		modelAndView.addObject("otherOrganizations", otherOrganizations); //$NON-NLS-1$
+		modelAndView.addObject("formActionUrl", rooted(Constants.ORGANIZATION_SAVING_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("formRedirectUrl", rooted(Constants.ORGANIZATION_LIST_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("defaultOrganizationType", ResearchOrganizationType.DEFAULT); //$NON-NLS-1$
-		modelAndView.addObject("defaultCountry", CountryCodeUtils.DEFAULT); //$NON-NLS-1$
 		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
-		modelAndView.addObject("formActionUrl", "/" + Constants.ORGANIZATION_SAVING_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
-		//
+		modelAndView.addObject("defaultCountry", CountryCodeUtils.DEFAULT); //$NON-NLS-1$
+		modelAndView.addObject("otherOrganizations", otherOrganizations); //$NON-NLS-1$
 		return modelAndView;
 	}
 

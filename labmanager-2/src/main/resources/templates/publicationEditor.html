@@ -1,433 +1,69 @@
-<!DOCTYPE html >
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-	<th:block th:replace="fragments/head :: style"/>
-	<th:block th:replace="fragments/head :: sharedScript"/>
-	<th:block th:replace="fragments/head :: extensionMethodsForSelect2"/>
-	
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
-	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
-	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/umd/string-similarity.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
-	
-	<!-- the upload file library -->
-	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.min.css" crossorigin="anonymous">
-	<link href="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.5.0/css/fileinput.min.css" media="all" rel="stylesheet" type="text/css" />
-	<script src="https://cdn.jsdelivr.net/gh/kartik-v/bootstrap-fileinput@5.5.0/js/fileinput.min.js"></script>
-	
-	<style>
-	    .form-control.is-valid {
-	        border-color: #0d64c1;
-	        border-width:2px;
-	    }
-	    .dynamic-form-group {
-	    	background-color: rgba(150, 193, 13, 0.4);
-	    	display: none;
-	    }
-		label.required:after {
-			content:" *";
-			color: red;
-		}
-	</style>
-</head>
-<body>
-	<div class="horizontal-main-wrapper">
-	    <!-- main content area start -->
-	    <div class="main-content">
-	        <div class="main-content-inner" th:if="${#bools.isTrue(success) or #bools.isTrue(failure)}">
-	            <div class="row" th:if="${#bools.isTrue(failure)}">
-	                <div class="col-lg-12">
-	                    <div class="card bg-danger">
-	                        <div class="card-body">
-	                            <h4 class="header-title" th:utext="#{html.InvalidFormData}"></h4>
-	                            <p th:if="${message != null}" th:utext="${message}"></p>
-	                        </div>
-	                    </div>
-	                </div>
-	            </div>
-	            <div class="row" th:if="${#bools.isTrue(success)}">
-	                <div class="col-lg-12">
-	                    <div class="card bg-success">
-	                        <div class="card-body">
-	                            <h4 class="header-title" th:utext="#{html.ValidFormData}"></h4>
-	                            <p th:if="${message != null}" th:utext="${message}"></p>
-	                        </div>
-	                    </div>
-	                </div>
-		            <script th:inline="javascript">
-		            setTimeout(function (e) {
-						document.location.href="[(@{/publicationList})]";
-					}, 3000);
-		            </script>
-	            </div>
-	        </div>
-	        <div class="main-content-inner">
-	            <div class="row">
-	                <div class="col-lg-12">
-	                    <div class="card">
-	                        <div class="card-body">
-	                            <h4 class="header-title" th:if="${publication} != null" th:utext="#{html.EditPublication}"></h4>
-	                            <h4 class="header-title" th:if="${publication} == null" th:utext="#{html.AddPublication}"></h4>
-	                            <form id="form" enctype="multipart/form-data" th:action="@{${formActionUrl}}" method="post" >
-	                                <input name="publication" th:if="${publication != null}" hidden="true" th:value="${publication.id}" />
-	                                <div class="form-group">
-	                                    <label for="publicationType" class="col-form-label required"
-	                                           th:utext="#{html.Type}"></label>
-										<select class="form-control selectType list-group-item list-group-item-action"
-										        id="publicationType" name="type" style="width: 100%">
-											<option th:each="type : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values}"
-											        th:selected="${(publication == null && defaultPublicationType == type) || (publication != null && publication.type == type)}"
-											        th:value="${type.name + '/' + type.instanceType.simpleName}"
-											        th:utext="${type.getLabel(locale) + ' ' + type.categories.toString()}"></option>
-										</select>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationTitle" class="col-form-label required"
-	                                           th:utext="#{html.Title}"></label>
-										<input class="form-control" type="text" th:value="${publication != null ? publication.title : ''}"
-										       id="publicationTitle" name="title"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationAuthors" class="col-form-label required"
-	                                           th:utext="#{html.Authors}"></label>
-										<select class="form-control selectAuthor list-group-item list-group-item-action"
-										        id="publicationAuthors" name="authors" style="width: 100%"></select>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationDate" class="col-form-label required"
-	                                           th:utext="#{html.PublicationDate}"></label>
-										<input class="form-control" type="month" th:value="${dateYearMonth}"
-										       id="publicationDate" name="publicationDate"></input>
-	                                </div>                                
-	                                <div class="form-group">
-	                                    <label for="publicationAbstract" class="col-form-label"
-	                                           th:utext="#{html.AbstractText}"></label>
-										<textarea class="form-control" rows="10" wrap="soft"
-										          th:placeholder="#{html.PlaceHolderAbstractText}"
-										          th:value="${publication != null ? publication.abstractText : ''}"
-										          id="publicationAbstract" name="abstractText"></textarea>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationKeywords" class="col-form-label"
-	                                           th:utext="#{html.Keywords0}"></label>
-										<input class="form-control" type="text" th:value="${publication != null ? publication.keywords : ''}"
-										       th:placeholder="#{html.PlaceHolderKeywords}" id="publicationKeywords" name="keywords"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-journal">
-	                                    <label for="publicationJournal"
-	                                           class="col-form-label required"
-	                                           th:utext="#{html.Journal}"></label>
-										<select class="form-control selectType list-group-item list-group-item-action"
-										        id="publicationJournal" name="journal" style="width: 100%">
-											<option th:each="journal : ${journals}"
-											        th:selected="${journalIdentifier != null && journal.id == journalIdentifier.intValue()}"
-											        th:value="${journal.id}"
-											        th:utext="${journal.journalName}"></option>
-										</select>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-scientific-event-name">
-	                                    <label for="publicationScientificEventName"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-scientific-event-name') ? ' required' : '')}"
-	                                           th:utext="#{html.ScientificEventName}"></label>
-										<input class="form-control" type="text" th:value="${shared_scientificEventName ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublicationScientificEventName}" id="publicationScientificEventName" name="scientificEventName"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-book-title">
-	                                    <label for="publicationBookTitle"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-book-title') ? ' required' : '')}"
-	                                           th:utext="#{html.BookTitle}"></label>
-										<input class="form-control" type="text" th:value="${shared_bookTitle ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublicationBookTitle}" id="publicationBookTitle" name="bookTitle"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-how-published">
-	                                    <label for="publicationHowPublished"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-how-published') ? ' required' : '')}"
-	                                           th:utext="#{html.HowPublished}"></label>
-										<input class="form-control" type="text" th:value="${shared_howPublished ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublicationHowPublished}" id="publicationHowPublished" name="howPublished"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-document-chapter-number">
-	                                    <label for="publicationChapterNumber"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-chapter-number') ? ' required' : '')}"
-	                                           th:utext="#{html.ChapterNumber}"></label>
-										<input class="form-control" type="text" th:value="${shared_chapterNumber ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublicationChapterNumber}" id="publicationChapterNumber" name="chapterNumber"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-document-type">
-	                                    <label for="publicationDocumentType"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-document-type') ? ' required' : '')}"
-	                                           th:utext="#{html.Edition}"></label>
-										<input class="form-control" type="text" th:value="${shared_documentType ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublicationDocumentType}" id="publicationEdition" name="edition"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-edition">
-	                                    <label for="publicationEdition"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-edition') ? ' required' : '')}"
-	                                           th:utext="#{html.Edition}"></label>
-										<input class="form-control" type="text" th:value="${shared_edition ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublicationEdition}" id="publicationEdition" name="edition"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-series">
-	                                    <label for="publicationSeries"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-series') ? ' required' : '')}"
-	                                           th:utext="#{html.Series}"></label>
-										<input class="form-control" type="text" th:value="${shared_series ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublicationSeries}" id="publicationSeries" name="series"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-volume">
-	                                    <label for="publicationVolume"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-volume') ? ' required' : '')}"
-	                                           th:utext="#{html.Volume}"></label>
-										<input class="form-control" type="text" th:value="${shared_volume ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublicationVolume}" id="publicationVolume" name="volume"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-number">
-	                                    <label for="publicationNumber"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-number') ? ' required' : '')}"
-	                                           th:utext="#{html.Number}"></label>
-										<input class="form-control" type="text" th:value="${shared_number ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublicationNumber}" id="publicationNumber" name="number"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-pages">
-	                                    <label for="publicationPages"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-pages') ? ' required' : '')}"
-	                                           th:utext="#{html.Pages}"></label>
-										<input class="form-control" type="text" th:value="${shared_pages ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPages}" id="publicationPages" name="pages"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-editors">
-	                                    <label for="publicationEditors"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-editors') ? ' required' : '')}"
-	                                           th:utext="#{html.Editors}"></label>
-										<input class="form-control" type="text" th:value="${shared_editors ?: ''}"
-										       th:placeholder="#{html.PlaceHolderEditors}" id="publicationEditors" name="editors"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-organization">
-	                                    <label for="publicationOrganization"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-organization') ? ' required' : '')}"
-	                                           th:utext="#{html.Organization}"></label>
-										<input class="form-control" type="text" th:value="${shared_organization ?: ''}"
-										       th:placeholder="#{html.PlaceHolderOrganizationName}" id="publicationOrganization" name="organization"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-institution">
-	                                    <label for="publicationInstitution"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-institution') ? ' required' : '')}"
-	                                           th:utext="#{html.Institution}"></label>
-										<input class="form-control" type="text" th:value="${shared_institution ?: ''}"
-										       th:placeholder="#{html.PlaceHolderInstitution}" id="publicationInstitution" name="institution"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationDOI" class="col-form-label"
-	                                           th:utext="#{html.DOI}"></label>
-										<input class="form-control" type="text" th:value="${publication != null ? publication.getDOI() : ''}"
-										       th:placeholder="#{html.PlaceHolderDOI}" id="publicationDOI" name="doi"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationHalId" class="col-form-label"
-	                                           th:utext="#{html.HalId}"></label>
-										<input class="form-control" type="text" th:value="${publication != null ? publication.halId : ''}"
-										       th:placeholder="#{html.PlaceHolderIdentifier}" id="publicationHalId" name="halId"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-publisher">
-	                                    <label for="publicationPublisher"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-publisher') ? ' required' : '')}"
-	                                           th:utext="#{html.Publisher}"></label>
-										<input class="form-control" type="text" th:value="${shared_publisher ?: ''}"
-										       th:placeholder="#{html.PlaceHolderPublisher}" id="publicationPublisher" name="publisher"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-address">
-	                                    <label for="publicationAddress"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-address') ? ' required' : '')}"
-	                                           th:utext="#{html.Address}"></label>
-										<input class="form-control" type="text" th:value="${shared_address ?: ''}"
-										       th:placeholder="#{html.PlaceHolderAddress}" id="publicationAddress" name="address"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-isbn">
-	                                    <label for="publicationISBN"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-isbn') ? ' required' : '')}"
-	                                           th:utext="#{html.ISBN}"></label>
-										<input class="form-control" type="text" th:value="${publication != null ? publication.getISBN() : ''}"
-										       th:placeholder="#{html.PlaceHolderISBN}" id="publicationISBN" name="isbn"></input>
-	                                </div>
-	                                <div class="form-group dynamic-form-group" id="dynamic-form-group-issn">
-	                                    <label for="publicationISSN"
-	                                           th:class="${'col-form-label' + (requiredFields.containsKey('dynamic-form-group-issn') ? ' required' : '')}"
-	                                           th:utext="#{html.ISSN}"></label>
-										<input class="form-control" type="text" th:value="${publication != null ? publication.getISSN() : ''}"
-										       th:placeholder="#{html.PlaceHolderISBN}" id="publicationISBN" name="issn"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationExtraURL" class="col-form-label"
-	                                           th:utext="#{html.ExtraURL}"></label>
-										<input class="form-control" type="text" th:value="${publication != null ? publication.extraURL : ''}"
-										       th:placeholder="#{html.PlaceHolderURL}" id="publicationExtraURL" name="extraURL"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationDblpURL" class="col-form-label"
-	                                           th:utext="#{html.DblpURL}"></label>
-										<input class="form-control" type="text" th:value="${publication != null ? publication.dblpURL : ''}"
-										       th:placeholder="#{html.PlaceHolderURL}" id="publicationDblpURL" name="dblpURL"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationVideoURL" class="col-form-label"
-	                                           th:utext="#{html.VideoURL}"></label>
-										<input class="form-control" type="text" th:value="${publication != null ? publication.videoURL : ''}"
-										       th:placeholder="#{html.PlaceHolderURL}" id="publicationVideoURL" name="videoURL"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="publicationLanguage" class="col-form-label required"
-	                                           th:utext="#{html.Language}"></label>
-										<select class="form-control selectType list-group-item list-group-item-action"
-										        id="publicationLanguage" name="majorLanguage" style="width: 100%">
-											<option th:each="language : ${T(fr.ciadlab.labmanager.entities.publication.PublicationLanguage).values}"
-											        th:selected="${publication != null && publication.majorLanguage == language}"
-											        th:value="${language.name}"
-											        th:utext="${language.label}"></option>
-										</select>
-	                                </div>
-	                                <input name="@pathToDownloadablePDF_explicitRemove"
-	                                       id="pathToDownloadablePDF_explicitRemove" 
-	                                       hidden="true" value="false" />
-	                                <div class="form-group">
-	                                    <label for="publicationPDF" class="col-form-label"
-	                                           th:utext="#{html.PdfDocumentFor}"></label>
-										<input class="form-control" type="file"
-										       data-preview-file-type="text"
-										       accept=".pdf,application/pdf"
-										       id="publicationPDF" name="pathToDownloadablePDF"></input>
-	                                </div>
-	                                <input name="@pathToDownloadableAwardCertificate_explicitRemove" 
-	                                       id="pathToDownloadableAwardCertificate_explicitRemove" 
-	                                       hidden="true" value="false" />
-	                                <div class="form-group">
-	                                    <label for="publicationAwardPDF" class="col-form-label"
-	                                           th:utext="#{html.AwardDocumentFor}"></label>
-										<input class="form-control" type="file"
-										       data-preview-file-type="text"
-										       accept=".pdf,application/pdf"
-										       id="publicationAwardPDF" name="pathToDownloadableAwardCertificate"></input>
-	                                </div>
-									<button id="submitButton" type="submit" class="btn btn-success mt-4 pr-4 pl-4"
-									        th:if="${changeEnabled}" th:utext="#{html.Submit}"></button>
-	                            </form>
-	                        </div>
-	                    </div>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
-	    <!-- main content area end -->
+<!DOCTYPE html>
+<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs" />
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/form :: dynamicInputFunctions" />
+<th:block th:replace="fragments/gravatar :: gravatarPicture" />
+<th:block th:replace="fragments/formselect2 :: all" />
+<th:block th:replace="fragments/formfileinput :: all" />
+
+<form th:replace="fragments/form :: entityForm(#{html.Publication}, publication, ${publication == null ? '' : publication.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PublicationSavingError}, ~{::.form-group})">
+	<div class="form-group" th:replace="fragments/form :: comboInput(type, #{html.Type}, ~{::option#option-type})">
+		<option id="option-type"
+		        th:each="type : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values}"
+		        th:selected="${(publication == null && defaultPublicationType == type) || (publication != null && publication.type == type)}"
+		        th:value="${type.name + '/' + type.instanceType.simpleName}"
+		        th:utext="${type.getLabel(locale) + ' ' + type.categories.toString()}"></option>
 	</div>
-	<!-- page container area end -->
-</body>
+	<div class="form-group" th:replace="fragments/form :: textInput(title, #{html.Title}, #{html.PlaceHolderTitle}, ${publication != null ? publication.title : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput(authors, #{html.Authors})"></div>
+	<div class="form-group" th:replace="fragments/form :: monthInput(publicationDate, #{html.PublicationDate}, ${dateYearMonth}, ${maxDateYearMonth}, ${dateYearMonth_enableMonth})"></div>
+	<div class="form-group" th:replace="fragments/form :: textAreaInput(abstractText, #{html.AbstractText}, #{html.PlaceHolderAbstractText}, ${publication != null ? publication.abstractText : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(keywords, #{html.Keywords0}, #{html.PlaceHolderKeywords}, ${publication != null ? publication.keywords : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInputDynamic(journal, #{html.Journal}, ~{::option#option-journal})">
+		<option id="option-journal"
+		        th:each="journal : ${journals}"
+		        th:selected="${journalIdentifier != null && journal.id == journalIdentifier.intValue()}"
+		        th:value="${journal.id}"
+		        th:utext="${journal.journalName}"></option>
+	</div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(scientificEventName, #{html.ScientificEventName}, #{html.PlaceHolderPublicationScientificEventName}, ${shared_scientificEventName ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(bookTitle, #{html.BookTitle}, #{html.PlaceHolderPublicationBookTitle}, ${shared_bookTitle ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(howPublished, #{html.HowPublished}, #{html.PlaceHolderPublicationHowPublished}, ${shared_howPublished ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(chapterNumber, #{html.ChapterNumber}, #{html.PlaceHolderPublicationChapterNumber}, ${shared_chapterNumber ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(documentType, #{html.DocumentType}, #{html.PlaceHolderPublicationDocumentType}, ${shared_documentType ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(edition, #{html.Edition}, #{html.PlaceHolderPublicationEdition}, ${shared_edition ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(series, #{html.Series}, #{html.PlaceHolderPublicationSeries}, ${shared_series ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(volume, #{html.Volume}, #{html.PlaceHolderPublicationVolume}, ${shared_volume ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(number, #{html.Number}, #{html.PlaceHolderPublicationNumber}, ${shared_number ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(pages, #{html.Pages}, #{html.PlaceHolderPages}, ${shared_pages ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(editors, #{html.Editors}, #{html.PlaceHolderEditors}, ${shared_editors ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(organization, #{html.Organization}, #{html.PlaceHolderOrganizationName}, ${shared_organization ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(institution, #{html.Institution}, #{html.PlaceHolderInstitution}, ${shared_institution ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(doi, #{html.DOI}, #{html.PlaceHolderDOI}, ${publication != null ? publication.getDOI() : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(halId, #{html.HalId}, #{html.PlaceHolderIdentifier}, ${publication != null ? publication.halId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(publisher, #{html.Publisher}, #{html.PlaceHolderPublisher}, ${shared_publisher ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(address, #{html.Address}, #{html.PlaceHolderAddress}, ${shared_address ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(isbn, #{html.ISBN}, #{html.PlaceHolderISBN}, ${publication != null ? publication.getISBN() : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputDynamic(issn, #{html.ISSN}, #{html.PlaceHolderISSN}, ${publication != null ? publication.getISSN() : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(extraURL, #{html.ExtraURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.extraURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(dblpURL, #{html.DblpURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.dblpURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(videoURL, #{html.VideoURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.videoURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInput(majorLanguage, #{html.Language}, ~{::option#option-language})">
+		<option id="option-language"
+		        th:each="language : ${T(fr.ciadlab.labmanager.entities.publication.PublicationLanguage).values}"
+		        th:selected="${publication != null && publication.majorLanguage == language}"
+		        th:value="${language.name}"
+		        th:utext="${language.label}"></option>
+	</div>
+	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToDownloadablePDF, #{html.PdfDocumentFor})"></div>
+	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToDownloadableAwardCertificate, #{html.AwardDocumentFor})"></div>
+</form>
 <script th:inline="javascript">
-var CONSTANT_TYPE_FIELD_MAPPING = {
-        /*[# th:each="mapping : ${typeFieldMapping}"]*/
-        "[(${mapping.key})]": [
-            /*[# th:each="htmlElement : ${mapping.value}"]*/
-            "[(${htmlElement})]",
-            /*[/]*/        	
-        ],
-        /*[/]*/
-};
-
-function updateVisibleFieldsFromPublicationType() {
-	for (var obj of document.getElementsByClassName("dynamic-form-group")) {
-		obj.style.display = 'none';
-	}
-    var listElement = $('#publicationType option:selected');
-    if (listElement) {
-        var typeValue = listElement.val();
-        if (typeValue) {
-        	var currentType = typeValue ? typeValue.substring(typeValue.indexOf('/') + 1) : '';
-        	var currentMapping = CONSTANT_TYPE_FIELD_MAPPING[currentType];
-        	if (currentMapping) {
-        		for (var cm of currentMapping) {
-        			var obj = document.getElementById(cm);
-        			if (obj) {
-        	    		obj.style.display = 'block';
-        			}
-        		}
-        	}
-        }
-    }
-}
-
 $(document).ready(function () {
-	// Initialize file upload library
-	$('#publicationPDF').fileinput({
-		sizeUnits: 'MB',
-		showPreview: true,
-		showRemove: true,
-		showUpload: false,
-		showUploadStats: false,
-		showCancel: false,
-		showPause: false,
-		showClose: false,
-		maxFileCount: 1,
-		autoReplace: true,
-		initialPreviewShowDelete: false,
-		dropZoneEnabled: true,
-		browseOnZoneClick: true,
-		fileTypeSettings: {
-			 pdf: function(vType, vName) {
-		        return (typeof vType !== "undefined") ? vType == 'application/pdf' : vName.match(/\.(pdf)$/i);
-		    },
-		},
-		allowedFileTypes: [
-			'pdf',
-		],
-		allowedFileExtensions: [
-			'pdf',
-		],
-		/*[# th:if="${shared_pathToDownloadablePDF}"]*/
-		initialPreview: [
-			"<img src='[(@{/} + ${pathToDownloadablePDF_picture})]' class='file-preview-image' title='[(${pathToDownloadablePDF_basename})]'>",
-		],
-	    /*[/]*/
-	});
-	$('#publicationPDF').on('filecleared', function(event) {
-		document.getElementById("pathToDownloadablePDF_explicitRemove").value = "true";
-	});
-	$('#publicationAwardPDF').fileinput({
-		sizeUnits: 'MB',
-		showPreview: true,
-		showRemove: true,
-		showUpload: false,
-		showUploadStats: false,
-		showCancel: false,
-		showPause: false,
-		showClose: false,
-		maxFileCount: 1,
-		autoReplace: true,
-		initialPreviewShowDelete: false,
-		dropZoneEnabled: true,
-		browseOnZoneClick: true,
-		fileTypeSettings: {
-			 pdf: function(vType, vName) {
-		        return (typeof vType !== "undefined") ? vType == 'application/pdf' : vName.match(/\.(pdf)$/i);
-		    },
-		},
-		allowedFileTypes: [
-			'pdf',
-		],
-		allowedFileExtensions: [
-			'pdf',
-		],
-        /*[# th:if="${shared_pathToDownloadableAwardCertificate}"]*/
-		initialPreview: [
-			"<img src='[(@{/} + ${pathToDownloadableAwardCertificate_picture})]' class='file-preview-image' title='[(${pathToDownloadableAwardCertificate_basename})]'>",
-		],
-	    /*[/]*/
-	});
-	$('#publicationAwardPDF').on('filecleared', function(event) {
-		document.getElementById("pathToDownloadableAwardCertificate_explicitRemove").value = "true";
-	});
-
+	
+	// Initialize form validation
+	
 	$('#form').validate({
         rules: {
         	title: {
@@ -459,36 +95,44 @@ $(document).ready(function () {
             /*[/]*/
         },
     });
-
-	// Initialize the visibility
-	updateVisibleFieldsFromPublicationType();
 	
-	// Change the visibility dynamically
-	$("#publicationType").change(function() {
-		updateVisibleFieldsFromPublicationType();
+	// Initialize file upload components
+	
+	initFileUploadSinglePdf('pathToDownloadablePDF', "[(${pathToDownloadablePDF_basename})]", "[(${pathToDownloadablePDF_picture})]");
+	initFileUploadSinglePdf('pathToDownloadableAwardCertificate', "[(${pathToDownloadableAwardCertificate_basename})]", "[(${pathToDownloadableAwardCertificate_picture})]");
+	
+	// Initialize and configure the hidding and showing of the fields depending on the type of publication
+	
+	var CONSTANT_TYPE_FIELD_MAPPING = {
+	        /*[# th:each="mapping : ${typeFieldMapping}"]*/
+	        "[(${mapping.key})]": [
+	            /*[# th:each="htmlElement : ${mapping.value}"]*/
+	            "[(${htmlElement})]",
+	            /*[/]*/        	
+	        ],
+	        /*[/]*/
+	};
+	initVisibilityUpdatingForDynamicInputsFromSelectOption('#comboInput_type', (typeValue) => {
+		var currentType = typeValue ? typeValue.substring(typeValue.indexOf('/') + 1) : '';
+		return CONSTANT_TYPE_FIELD_MAPPING[currentType];
 	});
 
 	// Build a list of available authors for select2 component
+
 	var completeListOfPersons = [
         /*[# th:each="person : ${allPersons}"]*/
         	{ id: "[(${person.id})]", text: "[(${person.fullName})]" },
 	    /*[/]*/
 	];
-	
-	select2_prepare_multiple( $('#publicationAuthors'), "[(#{html.PlaceHolderAuthors})]", completeListOfPersons );
-
- 	select2_keepInputOrder_dynamic( $("#publicationAuthors"), 'publicationAuthors' );
-
-	/*[# th:if="${publication != null && !publication.authors.isEmpty()}"]*/
 	var initialListOfAuthors = [
-    /*[# th:each="author : ${publication.authors}"]*/
+	/*[# th:if="${publication != null && !publication.authors.isEmpty()}"]*/
+	    /*[# th:each="author : ${publication.authors}"]*/
     	"[(${author.id})]",
+   		/*[/]*/
    	/*[/]*/
-   	];
-	select2_initializeWithOrderKeeping( 'publicationAuthors', initialListOfAuthors );
-	/*[/]*/
-
+	];
+	initMultiSelectionComboWithInputOrder('#multiSelectionTextInput_authors', "[(#{html.PlaceHolderAuthors})]",
+			completeListOfPersons, initialListOfAuthors);
 });
 </script>
 </html>
-

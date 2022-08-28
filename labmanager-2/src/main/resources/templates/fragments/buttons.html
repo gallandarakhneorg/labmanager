@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<th:block th:fragment="interactiveDeletionProcess">
+		<script th:src="@{/js/labmanager/buttons_interactivedeletionprocess.js}"></script>
+    	<script th:inline="javascript">
+    	function addDeletionButtonCallback0( objId, bxTitle, bxMessage, deletionUrl, successMsg, failureMsg, elementNameCallback, successCallback ) {
+    		addDeletionButtonCallback1( objId, bxTitle, bxMessage, deletionUrl, successMsg, failureMsg, elementNameCallback, successCallback,
+    			"[(#{html.YesDeleteIt})]",
+    			"[(#{html.Deleted})]",
+    			"[(#{html.Error})]");
+    	}
+    	function addDeletionButtonCallbackWithButtonObj( bt, bxTitle, bxMessage, deletionUrl, successMsg, failureMsg, elementName, successCallback ) {
+    		addDeletionButtonCallback2( bt, bxTitle, bxMessage, deletionUrl, successMsg, failureMsg, () => { return elementName; }, successCallback,
+        			"[(#{html.YesDeleteIt})]",
+        			"[(#{html.Deleted})]",
+        			"[(#{html.Error})]");
+    	}
+    	</script>
+	</th:block>
+
+	<th:block th:fragment="ajaxButtons" th:inline="javascript">
+		<script th:src="@{/js/labmanager/buttons_ajaxbuttons.js}"></script>
+		<script th:inline="javascript">
+		function addAjaxButtonCallback( $bt, bxTitle, url, failureMsg, preStartCallback, startCallback, successCallback, failureCallback ) {
+			addAjaxButtonCallback0( $bt, bxTitle, url, failureMsg, "[(#{html.Error})]", preStartCallback, startCallback, successCallback, failureCallback )
+		}
+		</script>
+	</th:block>
+
+	<th:block th:fragment="waitButtons">
+		<script th:src="@{/js/labmanager/buttons_waitbuttons.js}"></script>
+	</th:block>
+
+	<th:block th:fragment="conditionButtons">
+		<script th:src="@{/js/labmanager/buttons_conditionbuttons.js}"></script>
+		<script th:inline="javascript">
+		function addConditionButtonCallback( $bt, bxTitle, bxMessage, url, failureMsg, startCallback, successCallback, failureCallback) {
+			addConditionButtonCallback0( $bt, bxTitle, bxMessage, "[(#{html.YesDoIt})]", url, failureMsg, "[(#{html.Error})]", startCallback, successCallback, failureCallback);
+		}
+		function addConditionButtonCallbackHtml( $bt, bxTitle, bxHtml, preConfirm, url, failureMsg, startCallback, successCallback, failureCallback) {
+			addConditionButtonCallback1( $bt, bxTitle, bxHtml, preConfirm, "[(#{html.YesDoIt})]", url, failureMsg, "[(#{html.Error})]", startCallback, successCallback, failureCallback);
+		}
+		</script>
+	</th:block>
+
+</html>

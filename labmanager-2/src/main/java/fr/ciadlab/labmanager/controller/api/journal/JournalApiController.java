@@ -28,8 +28,6 @@ import fr.ciadlab.labmanager.service.journal.JournalService;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -96,8 +94,8 @@ public class JournalApiController extends AbstractComponent {
 	 * @param years the list of years for which the indicators must be replied.
 	 * @return a map of quality indicators per year.
 	 */
-	@GetMapping(value = "/getJournalQualityIndicators", produces = "application/json; charset=UTF-8")
-	@ResponseBody
+	//FIXME @GetMapping(value = "/getJournalQualityIndicators", produces = "application/json; charset=UTF-8")
+	//FIXME @ResponseBody
 	public Map<Integer, JournalQualityAnnualIndicators> getJournalQualityIndicators(
 			@RequestParam(required = false) String name,
 			@RequestParam(required = false) Integer id,
@@ -181,24 +179,20 @@ public class JournalApiController extends AbstractComponent {
 	 *
 	 * @param journal the identifier of the journal .
 	 * @param username the login of the logged-in person.
-	 * @return the HTTP response.
+	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/deleteJournal")
-	public ResponseEntity<Integer> deleteJournal(
+	public void deleteJournal(
 			@RequestParam Integer journal,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
-			try {
-				if (journal == null || journal.intValue() == 0) {
-					return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-				}
-				this.journalService.removeJournal(journal.intValue());
-				return new ResponseEntity<>(journal, HttpStatus.OK);
-			} catch (Exception ex) {
-				return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+			if (journal == null || journal.intValue() == 0) {
+				throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
 			}
+			this.journalService.removeJournal(journal.intValue());
+		} else {
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
-		return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 	}
 
 }

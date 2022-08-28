@@ -87,6 +87,10 @@ public class Constants {
 	 */
 	public static final String DEFAULT_ATTACHMENT_BASENAME = "publications"; //$NON-NLS-1$
 
+	/** Name of the endpoint for list of organizations.
+	 */
+	public static final String ORGANIZATION_LIST_ENDPOINT = "organizationList"; //$NON-NLS-1$
+
 	/** Name of the endpoint for editing an organization.
 	 *
 	 * @see #ORGANIZATION_SAVING_ENDPOINT
@@ -98,6 +102,10 @@ public class Constants {
 	 * @see #ORGANIZATION_EDITING_ENDPOINT
 	 */
 	public static final String ORGANIZATION_SAVING_ENDPOINT = "organizationSave"; //$NON-NLS-1$
+
+	/** Name of the endpoint for list of persons.
+	 */
+	public static final String PERSON_LIST_ENDPOINT = "personList"; //$NON-NLS-1$
 
 	/** Name of the endpoint for editing a person.
 	 *
@@ -111,6 +119,12 @@ public class Constants {
 	 */
 	public static final String PERSON_SAVING_ENDPOINT = "personSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for list of journals.
+	 *
+	 * @see #JOURNAL_SAVING_ENDPOINT
+	 */
+	public static final String JOURNAL_LIST_ENDPOINT = "journalList"; //$NON-NLS-1$
+
 	/** Name of the endpoint for editing a journal.
 	 *
 	 * @see #JOURNAL_SAVING_ENDPOINT
@@ -122,6 +136,10 @@ public class Constants {
 	 * @see #JOURNAL_EDITING_ENDPOINT
 	 */
 	public static final String JOURNAL_SAVING_ENDPOINT = "journalSave"; //$NON-NLS-1$
+
+	/** Name of the endpoint for list of publications.
+	 */
+	public static final String PUBLICATION_LIST_ENDPOINT = "publicationList"; //$NON-NLS-1$
 
 	/** Name of the endpoint for editing a publication.
 	 *

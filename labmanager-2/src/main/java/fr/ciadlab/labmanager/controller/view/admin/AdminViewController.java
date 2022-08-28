@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller.view;
+package fr.ciadlab.labmanager.controller.view.admin;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.GetMapping;
  * @since 2.0.0
  */
 @Controller
-public class AdminController {
+public class AdminViewController {
 
 	/** Shows up the HTML page for the administration entry point.
 	 *

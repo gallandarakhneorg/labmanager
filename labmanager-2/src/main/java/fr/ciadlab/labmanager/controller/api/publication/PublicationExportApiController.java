@@ -16,6 +16,9 @@
 
 package fr.ciadlab.labmanager.controller.api.publication;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
 
 import fr.ciadlab.labmanager.AbstractComponent;
@@ -37,9 +40,11 @@ import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /** REST Controller for exports of publications.
  * 
@@ -326,6 +331,26 @@ public class PublicationExportApiController extends AbstractComponent {
 			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return bb.body(content);
+	}
+
+	/** Read a BibTeX file and replies the publications as JSON.
+	 *
+	 * @param bibtexFile the uploaded BibTeX files.
+	 * @return the list of publications from the BibTeX file.
+	 * @throws Exception if the BibTeX file cannot be used.
+	 */
+	@PostMapping(value = "/" + Constants.GET_JSON_FROM_BIBTEX_ENDPOINT)
+	@ResponseBody
+	public List<Publication> getJsonFromBibTeX(
+			@RequestParam(required = false) MultipartFile bibtexFile) throws Exception {
+		if (bibtexFile == null || bibtexFile.isEmpty()) {
+			throw new IllegalArgumentException(getMessage("publicationImporterApiController.NoBibTeXSource")); //$NON-NLS-1$
+		}
+		try (final InputStream inputStream = bibtexFile.getInputStream()) {
+			try (final Reader reader = new InputStreamReader(inputStream)) {
+				return this.publicationService.readPublicationsFromBibTeX(reader, true, true);
+			}
+		}
 	}
 
 	/** Exporter callback.

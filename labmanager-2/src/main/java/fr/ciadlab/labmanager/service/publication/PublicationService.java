@@ -1134,7 +1134,7 @@ public class PublicationService extends AbstractService {
 			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate, boolean saveInDb) throws IOException {
 		// Treat the uploaded files
 		boolean hasUploaded = false;
-		final boolean expliteRemove0 = optionalBoolean(attributes, "@pathToDownloadablePDF_explicitRemove"); //$NON-NLS-1$
+		final boolean expliteRemove0 = optionalBoolean(attributes, "@fileUpload_removed_pathToDownloadablePDF"); //$NON-NLS-1$
 		if (expliteRemove0) {
 			try {
 				this.fileManager.deleteDownloadablePublicationPdfFile(publication.getId());
@@ -1152,7 +1152,7 @@ public class PublicationService extends AbstractService {
 			hasUploaded = true;
 			getLogger().info("PDF uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$
 		}
-		final boolean expliteRemove1 = optionalBoolean(attributes, "@pathToDownloadableAwardCertificate_explicitRemove"); //$NON-NLS-1$
+		final boolean expliteRemove1 = optionalBoolean(attributes, "@@fileUpload_removed_pathToDownloadableAwardCertificate"); //$NON-NLS-1$
 		if (expliteRemove1) {
 			try {
 				this.fileManager.deleteDownloadableAwardPdfFile(publication.getId());

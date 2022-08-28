@@ -1,216 +1,43 @@
-<!DOCTYPE html >
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-	<th:block th:replace="fragments/head :: style"/>
-	<th:block th:replace="fragments/head :: sharedScript"/>
-	
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/jquery.validate.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.2/dist/additional-methods.min.js"></script>
-	<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/css/select2.min.css" rel="stylesheet" />
-	<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/string-similarity@4.0.4/umd/string-similarity.min.js"></script>
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
-	
-	<style>
-	    .form-control.is-valid {
-	        border-color: #0d64c1;
-	        border-width:2px;
-	    }
-	</style>
-</head>
-<body>
-	<div class="horizontal-main-wrapper">
-	    <!-- main content area start -->
-	    <div class="main-content">
-	        <div class="main-content-inner" th:if="${#bools.isTrue(success) or #bools.isTrue(failure)}">
-	            <div class="row" th:if="${#bools.isTrue(failure)}">
-	                <div class="col-lg-12">
-	                    <div class="card bg-danger">
-	                        <div class="card-body">
-	                            <h4 class="header-title" th:utext="#{html.InvalidFormData}"></h4>
-	                            <p th:if="${message != null}" th:utext="${message}"></p>
-	                        </div>
-	                    </div>
-	                </div>
-	            </div>
-	            <div class="row" th:if="${#bools.isTrue(success)}">
-	                <div class="col-lg-12">
-	                    <div class="card bg-success">
-	                        <div class="card-body">
-	                            <h4 class="header-title" th:utext="#{html.ValidFormData}"></h4>
-	                            <p th:if="${message != null}" th:utext="${message}"></p>
-	                        </div>
-	                    </div>
-	                </div>
-		            <script th:inline="javascript">
-		            setTimeout(function (e) {
-						document.location.href="[(@{/personList})]";
-					}, 3000);
-		            </script>
-	            </div>
-	        </div>
-	        <div class="main-content-inner">
-	            <div class="row">
-	                <div class="col-lg-12">
-	                    <div class="card">
-	                        <div class="card-body">
-	                            <h4 class="header-title" th:if="${person} != null" th:utext="#{html.EditPerson}"></h4>
-	                            <h4 class="header-title" th:if="${person} == null" th:utext="#{html.AddPerson}"></h4>
-	                            <form id="form" enctype="multipart/form-data" th:action="@{${formActionUrl}}" method="post" >
-	                                <input name="person" th:if="${person != null}" hidden="true" th:value="${person.id}" />
-	                                <div class="form-group">
-	                                    <label for="personLastName" class="col-form-label"
-	                                           th:utext="#{html.LastName}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.lastName : ''}"
-										       th:placeholder="#{html.PlaceHolderPersonLastName}" id="personLastName" name="lastName"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personFirstName" class="col-form-label"
-	                                           th:utext="#{html.FirstName}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.firstName : ''}"
-										       th:placeholder="#{html.PlaceHolderPersonFirstName}" id="personFirstName" name="firstName"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personGender" class="col-form-label"
-	                                           th:utext="#{html.Gender}"></label>
-										<select class="form-control selectType list-group-item list-group-item-action"
-										        id="personGender" name="gender" style="width: 100%">
-											<option th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values}"
-											        th:selected="${(person == null && gender == defaultGender) || (person != null && person.gender == gender)}"
-											        th:value="${gender.name}"
-											        th:utext="${gender.getLabel(locale)}"></option>
-										</select>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personEmail" class="col-form-label"
-	                                           th:utext="#{html.Email}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.email : ''}"
-										       th:placeholder="#{html.PlaceHolderEmail}" id="personEmail" name="email"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personOfficePhone" class="col-form-label"
-	                                           th:utext="#{html.OfficePhone}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.officePhone : ''}"
-										       th:placeholder="#{html.PlaceHolderPhone}" id="personOfficePhone" name="officePhone"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personMobilePhone" class="col-form-label"
-	                                           th:utext="#{html.MobilePhone}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.mobilePhone : ''}"
-										       th:placeholder="#{html.PlaceHolderPhone}" id="personMobilePhone" name="mobilePhone"></input>
-	                                </div>
-	                                <div class="form-group"
-	                                     th:with="hasGravatarId = ${person != null && person.gravatarId != null && !person.gravatarId.isEmpty()}">
-	                                    <label for="personGravatarId" class="col-form-label"
-	                                           th:utext="#{html.GravatarId}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.gravatarId : ''}"
-										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personGravatarId" name="gravatarId"></input>
-										<div id="personGravatarPhoto"
-										     style="max-width:8%"></div>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personOrcid" class="col-form-label"
-	                                           th:utext="#{html.ORCID}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.getORCID() : ''}"
-										       th:placeholder="#{html.PlaceHolderIdentifierOrcid}" id="personOrcid" name="orcid"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personResearcherId" class="col-form-label"
-	                                           th:utext="#{html.ResearcherId}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.researcherId : ''}"
-										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personResearcherId" name="researcherId"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personLinkedInId" class="col-form-label"
-	                                           th:utext="#{html.LinkedInId}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.linkedInId : ''}"
-										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personLinkedInId" name="linkedInId"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personGithubId" class="col-form-label"
-	                                           th:utext="#{html.GithubId}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.githubId : ''}"
-										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personGithubId" name="githubId"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personResearchGateId" class="col-form-label"
-	                                           th:utext="#{html.ResearchGateId}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.researchGateId : ''}"
-										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personResearchGateId" name="researchGateId"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personFacebookId" class="col-form-label"
-	                                           th:utext="#{html.FacebookId}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.facebookId : ''}"
-										       th:placeholder="#{html.PlaceHolderIdentifier}" id="personFacebookId" name="facebookId"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personDblpURL" class="col-form-label"
-	                                           th:utext="#{html.DblpURL}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.dblpURL : ''}"
-										       th:placeholder="#{html.PlaceHolderURL}" id="personDblpURL" name="dblpURL"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personAcademiaURL" class="col-form-label"
-	                                           th:utext="#{html.AcademiaURL}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.academiaURL : ''}"
-										       th:placeholder="#{html.PlaceHolderURL}" id="personAcademiaURL" name="academiaURL"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personCordisURL" class="col-form-label"
-	                                           th:utext="#{html.CordisURL}"></label>
-										<input class="form-control" type="text" th:value="${person != null ? person.cordisURL : ''}"
-										       th:placeholder="#{html.PlaceHolderURL}" id="personCordisURL" name="cordisURL"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personWebPageNaming" class="col-form-label"
-	                                           th:utext="#{html.WebPageNaming}"></label>
-										<select class="form-control selectType list-group-item list-group-item-action"
-										        id="personWebPageNaming" name="webPageNaming" style="width: 100%">
-											<option th:each="naming : ${T(fr.ciadlab.labmanager.entities.member.WebPageNaming).values}"
-											        th:selected="${(person == null && naming == defaultNaming) || (person != null && person.webPageNaming == naming)}"
-											        th:value="${naming.name}"
-											        th:utext="${naming.getLabel(locale)}"></option>
-										</select>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personScholarHindex" class="col-form-label"
-	                                           th:utext="#{html.hindexOnScholar}"></label>
-										<input class="form-control" type="number" th:value="${person != null ? person.googleScholarHindex : ''}"
-										       th:placeholder="#{html.PlaceHolderPositiveInteger}" id="personScholarHindex" name="googleScholarHindex"></input>
-	                                </div>
-	                                <div class="form-group">
-	                                    <label for="personWosHindex" class="col-form-label"
-	                                           th:utext="#{html.hindexOnWos}"></label>
-										<input class="form-control" type="number" th:value="${person != null ? person.wosHindex : ''}"
-										       th:placeholder="#{html.PlaceHolderPositiveInteger}" id="personWosHindex" name="wosHindex"></input>
-	                                </div>
-									<button id="submitButton" type="submit" class="btn btn-success mt-4 pr-4 pl-4"
-									        th:if="${changeEnabled}" th:utext="#{html.Submit}"></button>
-	                            </form>
-	                        </div>
-	                    </div>
-	                </div>
-	            </div>
-	        </div>
-	    </div>
-	    <!-- main content area end -->
+<!DOCTYPE html>
+<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs" />
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/gravatar :: gravatarPicture" />
+
+<form th:replace="fragments/form :: entityForm(#{html.Person}, person, ${journal == null ? '' : journal.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.JournalSavingError}, ~{::.form-group})">
+	<div class="form-group" th:replace="fragments/form :: textInput(lastName, #{html.LastName}, #{html.PlaceHolderPersonLastName}, ${person != null ? person.lastName : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(firstName, #{html.FirstName}, #{html.PlaceHolderPersonFirstName}, ${person != null ? person.firstName : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInput(gender, #{html.Gender}, ~{::option#option-openaccess})">
+		<option id="option-openaccess"
+		        th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values}"
+		        th:selected="${(person == null && gender == defaultGender) || (person != null && person.gender == gender)}"
+		        th:value="${gender.name}"
+		        th:utext="${gender.getLabel(locale)}"></option>
 	</div>
-	<!-- page container area end -->
-</body>
+	<div class="form-group" th:replace="fragments/form :: textInput(email, #{html.Email}, #{html.PlaceHolderEmail}, ${person != null ? person.email : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(officePhone, #{html.OfficePhone}, #{html.PlaceHolderPhone}, ${person != null ? person.officePhone : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(mobilePhone, #{html.MobilePhone}, #{html.PlaceHolderPhone}, ${person != null ? person.mobilePhone : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(gravatarId, #{html.GravatarId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.gravatarId : ''}, personGravatarPhoto)"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(orcid, #{html.ORCID}, #{html.PlaceHolderIdentifierOrcid}, ${person != null ? person.getORCID() : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(researcherId, #{html.ResearcherId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.researcherId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(linkedInId, #{html.LinkedInId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.linkedInId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(githubId, #{html.GithubId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.githubId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(researchGateId, #{html.ResearchGateId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.researchGateId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(facebookId, #{html.FacebookId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.facebookId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(dblpURL, #{html.DblpURL}, #{html.PlaceHolderURL}, ${person != null ? person.dblpURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(academiaURL, #{html.AcademiaURL}, #{html.PlaceHolderURL}, ${person != null ? person.academiaURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(cordisURL, #{html.CordisURL}, #{html.PlaceHolderURL}, ${person != null ? person.cordisURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInput(webPageNaming, #{html.WebPageNaming}, ~{::option#option-webpagenaming})">
+		<option id="option-webpagenaming"
+		        th:each="naming : ${T(fr.ciadlab.labmanager.entities.member.WebPageNaming).values}"
+		        th:selected="${(person == null && naming == defaultNaming) || (person != null && person.webPageNaming == naming)}"
+		        th:value="${naming.name}"
+		        th:utext="${naming.getLabel(locale)}"></option>
+	</div>
+	<div class="form-group" th:replace="fragments/form :: textInput(googleScholarHindex, #{html.HindexOnScholar}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.googleScholarHindex : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(wosHindex, #{html.HindexOnWos}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.wosHindex : ''})"></div>
+</form>
 <script th:inline="javascript">
-function refreshGravatarPhoto(gravatarId) {
-	var $imageElement = $('#personGravatarPhoto');
-	$imageElement.empty();
-	var gravatarUrl = "[(${gravatarLink})]".format('0');
-	if (gravatarId) {
-		gravatarUrl = "[(${gravatarLink})]".format(gravatarId);
-	}
-	var $img = $("<img></img>").attr('src', gravatarUrl);
-	$imageElement.append($img);
-}
 $(document).ready(function () {
     $('#form').validate({
         rules: {
@@ -258,14 +85,13 @@ $(document).ready(function () {
             }
         }
     });
-    $('#personGravatarId').on('change paste keyup', (e) => {
-    	var newGravatarId = $('#personGravatarId').val();
-    	refreshGravatarPhoto(newGravatarId);
+    $('#textInput_gravatarId').on('change paste keyup', (e) => {
+    	var newGravatarId = $('#textInput_gravatarId').val();
+    	refreshGravatarPhoto($('#personGravatarPhoto'), newGravatarId);
     });
     /*[# th:if="${person != null && person.gravatarId != null && !person.gravatarId.isEmpty()}"]*/
-    refreshGravatarPhoto("[(${person.gravatarId})]");
+    refreshGravatarPhoto($('#personGravatarPhoto'), "[(${person.gravatarId})]");
     /*[/]*/    
 });
 </script>
 </html>
-

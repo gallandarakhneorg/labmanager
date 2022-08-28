@@ -1,19 +1,14 @@
-<!DOCTYPE html >
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
-<th:block th:replace="fragments/head :: style"></th:block>
-
-<th:block th:replace="fragments/head :: sharedScript"></th:block>
-
-<th:block th:if="${changeEnabled}">
-	<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
-	<th:block th:replace="fragments/head :: sharedScriptDeletionButton"></th:block>
-</th:block>
-
+<!DOCTYPE html>
+<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="fragments/buttons :: ajaxButtons"/>
+<th:block th:replace="fragments/buttons :: conditionButtons"/>
 
 <p th:utext="#{html.DuplicatePersonIntro}"></p>
 
-<table class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width: 100%">
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
     <thead>
         <th th:text="#{html.Names}"></th>
         <th th:text="#{html.Publications}"></th>
@@ -44,217 +39,159 @@
                 </th:block>
 			</td>
 			<td>
-		    	<th:block th:each="candidate, iDuplicates : ${duplicates}">
+		    	<th:block th:if="${changeEnabled}" th:each="candidate, iDuplicates : ${duplicates}">
                     <th:block th:unless="${iDuplicates.first}"
                               th:utext="'<br/>'"></th:block>
-					<i th:if="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"
-					   th:id="${'btDelete_' + iMatchingPersons.index + '_' + candidate.id}"
+					<span th:if="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"
+					   th:id="${'_btDeleteButton_' + iMatchingPersons.index + '_' + candidate.id}"
 					   class="fa fa-trash-o"
 					   style="font-size:larger;margin-right:5px;cursor:pointer"
-					   th:title="#{html.DeletePerson1(${candidate.fullName})}"></i>
-					<i th:unless="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"
+					   th:title="#{html.DeletePerson1(${candidate.fullName})}"></span>
+					<span th:unless="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"
 					   class="fa fa-lock"
-					   style="font-size:larger;margin-right:5px;cursor:not-allowed"></i>
-					<i th:id="${'btMergeAll_' + iMatchingPersons.index + '_' + candidate.id}"
+					   style="font-size:larger;margin-right:5px;cursor:not-allowed"></span>
+					<span th:id="${'btMergeAll_' + iMatchingPersons.index + '_' + candidate.id}"
 					   class="fa fa-angle-double-right"
 					   style="font-size:larger;margin-right:5px;cursor:pointer"
-					   th:title="#{html.DuplicatePersonMergeAll(${candidate.fullName})}"></i>
-					<i th:id="${'btMergePart_' + iMatchingPersons.index + '_' + candidate.id}"
+					   th:title="#{html.DuplicatePersonMergeAll(${candidate.fullName})}"></span>
+					<span th:id="${'btMergePart_' + iMatchingPersons.index + '_' + candidate.id}"
 					   class="fa fa-angle-right"
 					   style="font-size:larger;cursor:pointer"
-					   th:title="#{html.DuplicatePersonMergePart(${candidate.fullName})}"
-					   data-toggle="popover"
-					   data-trigger="focus"
-					   data-content="And here's some amazing content. It's very engaging. Right?"></i>
+					   th:title="#{html.DuplicatePersonMergePart(${candidate.fullName})}"></span>
 		    	</th:block>
             </td>
     	</tr>
     </tbody>
 </table>
-
-
 <script th:inline="javascript">
-	function runMergeAction(mergeUrl, successMsg, successCallback, failureMsg, elementName) {
-		var formData = new FormData();
-		formData.append("target", mergeUrl.target);
-		formData.append("sources", mergeUrl.sources);
-		$.ajax({
-			url: mergeUrl.url,
-			timeout: 50000,
-			type: 'post',
-			data: formData,
-			dataType: 'json',
-			contentType: false,
-			processData: false,
-			cache: false,
-			async:true,
-			success: (jsonData, textStatus, obj) => {
-				Swal.fire(
-						  "[(#{html.Merged})]",
-						  successMsg,
-						  'success'
-						).then(result => {
-		    				if (result.isConfirmed) {
-    							successCallback();
-		    				}
-						});
-			},
-			error: (jsonData, textStatus, obj) => {
-				var errCode = jsonData.status;
-				var errMsg = '';
-				if (jsonData.responseJSON) {
-					errMsg = jsonData.responseJSON.message ? jsonData.responseJSON.message : jsonData.responseJSON.error;
-				} else {
-					errMsg = jsonData.statusText ? jsonData.statusText : obj;
+function addMergePartButtonCallback( bt, bxTitle, bxMessage, mergeUrl, successMsg, failureMsg, elementName, successCallback ) {
+	var htmlContent = bxMessage;
+	$.each(mergeUrl.sources, (idx, item) => {
+		htmlContent = htmlContent + "<br/><input id='checkbox_partmerge_" + item.id + "' value='"
+			+ item.id + "' type='checkbox' checked>" + item.label + "</input>";
+	});
+    bt.on('click', function(e) {
+    	Swal.fire( {
+   		  title: bxTitle,
+   		  text: bxMessage,
+   		  icon: 'question',
+   		  html: htmlContent,
+   		  preConfirm: () => {
+			var selection = [];
+			$.each(mergeUrl.sources, (idx, item) => {
+				var $component = $('#checkbox_partmerge_' + item.id);
+				if ($component.is(':checked')) {
+					selection.push($component.prop('value'));
 				}
-				var errMessage = errMsg + ' (' + errCode + ')';	
-				Swal.fire(
-				  "[(#{html.Error})]",
-				  failureMsg.format(elementName, errMessage),
-				  'error'
-				);
+			});
+			return selection;
+   		  },
+   		  showCancelButton: true,
+   		  confirmButtonColor: '#d33',
+   		  cancelButtonColor: '#99cc00',
+   		  confirmButtonText: "[(#{html.YesMergeThem})]"
+   		} ).then(result => {
+			if (result.isConfirmed) {
+				mergeUrl.sources = result.value;
+				runMergeAction(mergeUrl, successMsg, successCallback, failureMsg, elementName);
 			}
-		});
-	}
-	function installMergeButtonCallback( bt, bxTitle, bxMessage, mergeUrl, successMsg, failureMsg, elementName, successCallback ) {
-	    bt.on('click', function(e) {
-	    	Swal.fire( {
-	   		  title: bxTitle,
-	   		  text: bxMessage,
-	   		  icon: 'question',
-	   		  showCancelButton: true,
-	   		  confirmButtonColor: '#d33',
-	   		  cancelButtonColor: '#99cc00',
-	   		  confirmButtonText: "[(#{html.YesMergeThem})]"
-	   		} ).then(result => {
-				if (result.isConfirmed) {
-					runMergeAction(mergeUrl, successMsg, successCallback, failureMsg, elementName);
-				}
-	   		} );
-	    } );
-	}
-	function installMergePartButtonCallback( bt, bxTitle, bxMessage, mergeUrl, successMsg, failureMsg, elementName, successCallback ) {
-		var htmlContent = bxMessage;
-		$.each(mergeUrl.sources, (idx, item) => {
-			htmlContent = htmlContent + "<br/><input id='checkbox_partmerge_" + item.id + "' value='"
-				+ item.id + "' type='checkbox' checked>" + item.label + "</input>";
-		});
-	    bt.on('click', function(e) {
-	    	Swal.fire( {
-	   		  title: bxTitle,
-	   		  text: bxMessage,
-	   		  icon: 'question',
-	   		  html: htmlContent,
-	   		  preConfirm: () => {
-				var selection = [];
-				$.each(mergeUrl.sources, (idx, item) => {
-					var $component = $('#checkbox_partmerge_' + item.id);
-					if ($component.is(':checked')) {
-						selection.push($component.prop('value'));
-					}
-				});
-				return selection;
-	   		  },
-	   		  showCancelButton: true,
-	   		  confirmButtonColor: '#d33',
-	   		  cancelButtonColor: '#99cc00',
-	   		  confirmButtonText: "[(#{html.YesMergeThem})]"
-	   		} ).then(result => {
-				if (result.isConfirmed) {
-					mergeUrl.sources = result.value;
-					runMergeAction(mergeUrl, successMsg, successCallback, failureMsg, elementName);
-				}
-	   		} );
-	    } );
-	}
-    $(document).ready(function() {
-    	var tableId = /*[[${uuid}]]*/ '';
-        var table = $('#table'+tableId).DataTable({
-            dom: 'Bfrtip',
-            scrollCollapse: true,
-            paging: false,
-            buttons: [
-                'excelHtml5', 'csvHtml5'
-            ],
-            responsive: true,
-            autoWidth: true,
-            order: false,
-            "columns": [
-                {
-                    "orderable": false,
-                },
-                {
-                    "orderable": false,
-                },
-                {
-                    "orderable": false,
-                },
-                {
-                    "orderable": false,
-                    "width": "60px"
-                }
-            ],
-        });
-    });
+   		} );
+    } );
+}
 
+$(document).ready(() => {
+	adminTableDefinitionWithColCount(3, null, true, '60px');
     /*[# th:if="${changeEnabled}" th:each="duplicates, iMatchingPersons : ${matchingPersons}"]*/
 	    /*[# th:each="candidate : ${duplicates}"]*/
-    		/*[# th:if="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"]*/
-    installDeletionButtonCallback(
-    		$("[(${'#btDelete_' + iMatchingPersons.index + '_' + candidate.id})]"),
-    		"[(#{html.DeletePerson1(${candidate.fullName})})]",
-    		"[(#{html.AreYouSureToDelete(${candidate.fullName})})]",
-    		"[(@{/deletePerson(person=${candidate.id})})]",
-    		"[(#{html.PersonDeleted})]",
-    		"[(#{html.CannotDeletePerson})]",
-    		"[(${candidate.fullName})]",
+			/*[# th:if="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"]*/
+	addDeletionButtonCallback(
+    		"[(${iMatchingPersons.index + '_' + candidate.id})]",
+			"[(#{html.DeletePerson1(${candidate.fullName})})]",
+			"[(#{html.AreYouSureToDelete(${candidate.fullName})})]",
+			"[(@{/deletePerson(person=${candidate.id})})]",
+			"[(#{html.PersonDeleted})]",
+			"[(#{html.CannotDeletePerson})]",
+			"[(${candidate.fullName})]",
     		function (e) {
     			location.reload();
     		} );
 		    /*[/]*/
-    installMergeButtonCallback(
-    		$("[(${'#btMergeAll_' + iMatchingPersons.index + '_' + candidate.id})]"),
-    		"[(#{html.DuplicatePersonMergeAll(${candidate.fullName})})]",
-    		"[(#{html.AreYouSureToMergeAll(${candidate.fullName})})]",
-    		{
-    			url: "[(@{/mergePersons})]",
-    			target: "[(${candidate.id})]",
-    			sources: [
-    			    /*[# th:each="otherCandidate : ${duplicates}" th:if="${otherCandidate.id != candidate.id}"]*/
-    			    "[(${otherCandidate.id})]",
-    			    /*[/]*/
-    			],
-    		},
-    		"[(#{html.PersonsMerged})]",
-    		"[(#{html.CannotMergePersons(${candidate.fullName})})]",
-    		"[(${candidate.fullName})]",
-    		function (e) {
-    			location.reload();
-    		});
-    installMergePartButtonCallback(
-    		$("[(${'#btMergePart_' + iMatchingPersons.index + '_' + candidate.id})]"),
-    		"[(#{html.DuplicatePersonMergePart(${candidate.fullName})})]",
-    		"[(#{html.AreYouSureToMergePart(${candidate.fullName})})]",
-    		{
-    			url: "[(@{/mergePersons})]",
-    			target: "[(${candidate.id})]",
-    			sources: [
-    			    /*[# th:each="otherCandidate : ${duplicates}" th:if="${otherCandidate.id != candidate.id}"]*/
-    			    {
-    			    	id: "[(${otherCandidate.id})]",
-    			    	label: "[(${otherCandidate.fullName})]",
-    			    },
-    			    /*[/]*/
-    			],
-    		},
-    		"[(#{html.PersonsMerged})]",
-    		"[(#{html.CannotMergePersons(${candidate.fullName})})]",
-    		"[(${candidate.fullName})]",
-    		function (e) {
-    			location.reload();
-    		} );
-	    /*[/]*/
+
+	addConditionButtonCallback(
+			$("[(${'#btMergeAll_' + iMatchingPersons.index + '_' + candidate.id})]"),
+			"[(#{html.DuplicatePersonMergeAll(${candidate.fullName})})]",
+			"[(#{html.AreYouSureToMergeAll(${candidate.fullName})})]",
+			"[(@{/mergePersons})]",
+			"[(#{html.CannotMergePersons(${candidate.fullName})})]",
+			(formData, param) => {
+				var target = "[(${candidate.id})]";
+				var sources = [
+				    /*[# th:each="otherCandidate : ${duplicates}" th:if="${otherCandidate.id != candidate.id}"]*/
+				    "[(${otherCandidate.id})]",
+				    /*[/]*/
+				];
+				formData.append("target", target);
+				formData.append("sources", sources);
+			},
+			() => {
+				Swal.fire(
+						  "[(#{html.Merged})]",
+						  "[(#{html.PersonsMerged})]",
+						  'success'
+						).then(result => {
+	    					location.reload();
+						});
+			},
+			null);
+	{
+		var sources = [
+		    /*[# th:each="otherCandidate : ${duplicates}" th:if="${otherCandidate.id != candidate.id}"]*/
+		    { id: "[(${otherCandidate.id})]", label: "[(${otherCandidate.fullName})]" },
+		    /*[/]*/
+		];
+		var htmlContent = "[(#{html.AreYouSureToMergePart(${candidate.fullName})})]";
+		$.each(sources, (idx, item) => {
+			htmlContent = htmlContent + "<br/><input id='__dialog_checkbox_partmerge_" + item.id + "' type='checkbox' checked>" + item.label + "</input>";
+		});
+		addConditionButtonCallbackHtml(
+				$("[(${'#btMergePart_' + iMatchingPersons.index + '_' + candidate.id})]"),
+				"[(#{html.DuplicatePersonMergePart(${candidate.fullName})})]",
+				htmlContent,
+				() => {
+					var selection = [];
+					var sources = [
+					    /*[# th:each="otherCandidate : ${duplicates}" th:if="${otherCandidate.id != candidate.id}"]*/
+					    "[(${otherCandidate.id})]",
+					    /*[/]*/
+					];
+					$.each(sources, (idx, item) => {
+						var $component = $('#__dialog_checkbox_partmerge_' + item);
+						if ($component.is(':checked')) {
+							selection.push(item);
+						}
+					});
+					return selection;
+				},
+				"[(@{/mergePersons})]",
+				"[(#{html.CannotMergePersons(${candidate.fullName})})]",
+				(formData, param) => {
+					var target = "[(${candidate.id})]";
+					formData.append("target", target);
+					formData.append("sources", param);
+				},
+				() => {
+					Swal.fire(
+							  "[(#{html.Merged})]",
+							  "[(#{html.PersonsMerged})]",
+							  'success'
+							).then(result => {
+		    					location.reload();
+							});
+				},
+				null);
+	}	    
+		/*[/]*/
     /*[/]*/
+});
 </script>
 </html>
-

@@ -16,14 +16,11 @@
 
 package fr.ciadlab.labmanager.controller.view;
 
-import java.io.IOError;
-import java.io.IOException;
+import java.io.File;
 
-import javax.servlet.http.HttpServletResponse;
-
+import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -40,38 +37,67 @@ import org.springframework.web.util.UriBuilderFactory;
  */
 public abstract class AbstractViewController extends AbstractComponent {
 
-	private final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
+	/** Factory of URI builder.
+	 */
+	protected final UriBuilderFactory uriBuilderFacory = new DefaultUriBuilderFactory();
+	
+	private Constants constants;
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
+	 * @param constants the accessor to the constants.
 	 */
-	public AbstractViewController(MessageSourceAccessor messages) {
+	public AbstractViewController(MessageSourceAccessor messages, Constants constants) {
 		super(messages);
+		this.constants = constants;
 	}
 
-	/** Fill the attributes of the given model-view with the standard properties.
+	/** Build the URL for accessing an endpoint with the given parameter name, but without setting the parameter value. 
 	 *
-	 * @param modelAndView the model-view
-	 * @param username the login of the logged-in person.
-	 * @param success flag that indicates the previous operation was a success.
-	 * @param failure flag that indicates the previous operation was a failure.
-	 * @param message the message that is associated to the state of the previous operation.
+	 * @param endpointName the name of the endpoint.
+	 * @param parameterName the parameter name.
+	 * @return the endpoint URL.
 	 */
-	protected void initModelViewProperties(ModelAndView modelAndView, String username, Boolean success, Boolean failure, String message) {
-		initModelViewProperties(modelAndView, username);
-		if (success != null && success.booleanValue()) {
-			modelAndView.addObject("success", success); //$NON-NLS-1$
+	protected String endpoint(String endpointName, String parameterName) {
+		final UriBuilder b = this.uriBuilderFacory.builder();
+		b.path("/" + this.constants.getServerName() + "/" + endpointName); //$NON-NLS-1$ //$NON-NLS-2$
+		if (!Strings.isNullOrEmpty(parameterName)) {
+			b.queryParam(parameterName, ""); //$NON-NLS-1$
 		}
-		if (failure != null && failure.booleanValue()) {
-			modelAndView.addObject("failure", failure); //$NON-NLS-1$
+		return b.build().toASCIIString();
+	}
+
+	/** Build the URL from the root of the JPA server. 
+	 *
+	 * @param relativeFile the relative path to append to the server's root.
+	 * @return the rooted URL.
+	 */
+	protected String rooted(File relativeFile) {
+		final StringBuilder bb = new StringBuilder();
+		File f = relativeFile;
+		while (f != null) {
+			bb.insert(0, f.getName()).insert(0, "/"); //$NON-NLS-1$
+			f = f.getParentFile();
 		}
-		if (!Strings.isNullOrEmpty(message)) {
-			modelAndView.addObject("message", message); //$NON-NLS-1$
-		}
+		final UriBuilder b = this.uriBuilderFacory.builder();
+		b.path("/" + this.constants.getServerName() + bb.toString()); //$NON-NLS-1$
+		return b.build().toASCIIString();
+	}
+
+	/** Build the URL from the root of the JPA server. 
+	 *
+	 * @param relativeUrl the relative URL to append to the server's root.
+	 * @return the rooted URL.
+	 */
+	protected String rooted(String relativeUrl) {
+		final UriBuilder b = this.uriBuilderFacory.builder();
+		b.path("/" + this.constants.getServerName() + "/" + relativeUrl); //$NON-NLS-1$ //$NON-NLS-2$
+		return b.build().toASCIIString();
 	}
 
 	/** Fill the attributes of the given model-view with the standard properties.
+	 * The added object in the model are: {@code uuid} and {@code changeEnabled}.
 	 *
 	 * @param modelAndView the model-view
 	 * @param username the login of the logged-in person.
@@ -81,65 +107,17 @@ public abstract class AbstractViewController extends AbstractComponent {
 		modelAndView.addObject("changeEnabled", isLoggedUser(username)); //$NON-NLS-1$
 	}
 
-	/** Add the URL to model that permits to retrieve the publication list.
+	/** Fill the attributes that are needed to build up the buttons in an admin table.
 	 *
-	 * @param modelAndView the model-view to configure for redirection.
-	 * @param organization the identifier of the organization for which the publications must be exported.
-	 * @param author the identifier of the author for who the publications must be exported.
-	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @param modelAndView the model-view
+	 * @param editUrl the URL for editing an entity. The id of the entity will be appended to the given URL.
 	 */
-	protected void addUrlToPublicationListEndPoint(ModelAndView modelAndView, Integer organization, Integer author,
-			Integer journal) {
-		final StringBuilder path = new StringBuilder();
-		path.append("/").append(getApplicationConstants().getServerName()).append("/").append(Constants.EXPORT_JSON_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
-		UriBuilder uriBuilder = this.uriBuilderFactory.builder();
-		uriBuilder = uriBuilder.path(path.toString());
-		uriBuilder = uriBuilder.queryParam(Constants.FORAJAX_ENDPOINT_PARAMETER, Boolean.TRUE);
-		if (organization != null && organization.intValue() != 0) {
-			uriBuilder = uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, organization);
-		}
-		if (author != null && author.intValue() != 0) {
-			uriBuilder = uriBuilder.queryParam(Constants.AUTHOR_ENDPOINT_PARAMETER, author);
-		}
-		if (journal != null && journal.intValue() != 0) {
-			uriBuilder = uriBuilder.queryParam(Constants.JOURNAL_ENDPOINT_PARAMETER, journal);
-		}
-		final String url = uriBuilder.build().toString();
-		modelAndView.addObject("url", url); //$NON-NLS-1$
-	}
-
-	private void redirectToEndPoint(HttpServletResponse response, String endpoint, String message, String stateName) {
-		UriBuilder builder = new DefaultUriBuilderFactory().builder();
-		builder = builder.path("/" + getApplicationConstants().getServerName() + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
-		builder = builder.queryParam(stateName, Boolean.TRUE);
-		if (!Strings.isNullOrEmpty(message)) {
-			builder = builder.queryParam(Constants.MESSAGE_ENDPOINT_PARAMETER, message);
-		}
-		try {
-			response.sendRedirect(builder.build().toString());
-		} catch (IOException ex) {
-			throw new IOError(ex);
-		}
-	}
-
-	/** Redirect the controller to the given endpoint with a success state.
-	 *
-	 * @param response the HTTP response.
-	 * @param endpoint the name of the endpoint.
-	 * @param message additional message to provide to the target endpoint.
-	 */
-	protected void redirectSuccessToEndPoint(HttpServletResponse response, String endpoint, String message) {
-		redirectToEndPoint(response, endpoint, message, Constants.SUCCESS_ENDPOINT_PARAMETER);
-	}
-
-	/** Redirect the controller to the given endpoint with a failure state.
-	 *
-	 * @param response the HTTP response.
-	 * @param endpoint the name of the endpoint.
-	 * @param message additional message to provide to the target endpoint.
-	 */
-	protected void redirectFailureToEndPoint(HttpServletResponse response, String endpoint, String message) {
-		redirectToEndPoint(response, endpoint, message, Constants.FAILURE_ENDPOINT_PARAMETER);
+	protected void initAdminTableButtons(ModelAndView modelAndView, String editUrl) {
+		modelAndView.addObject("URLS_edit", editUrl); //$NON-NLS-1$
+		modelAndView.addObject("URLS_exportBibTeX", endpoint(Constants.EXPORT_BIBTEX_ENDPOINT, null)); //$NON-NLS-1$
+		modelAndView.addObject("URLS_exportOdt", endpoint(Constants.EXPORT_ODT_ENDPOINT, null)); //$NON-NLS-1$
+		modelAndView.addObject("URLS_exportHtml", endpoint(Constants.EXPORT_HTML_ENDPOINT, null)); //$NON-NLS-1$
+		modelAndView.addObject("URLS_exportJson", endpoint(Constants.EXPORT_JSON_ENDPOINT, null)); //$NON-NLS-1$
 	}
 
 }

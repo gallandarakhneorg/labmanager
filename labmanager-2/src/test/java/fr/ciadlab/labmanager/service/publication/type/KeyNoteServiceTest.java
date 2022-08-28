@@ -142,7 +142,7 @@ public class KeyNoteServiceTest {
 	@Test
 	public void updateKeyNote() {
 		this.test.updateKeyNote(234,
-				"title0", PublicationType.INTERNATIONAL_KEYNOTE, LocalDate.parse("2022-07-22"), "abstractText0",
+				"title0", PublicationType.INTERNATIONAL_KEYNOTE, LocalDate.parse("2022-07-22"), 2022, "abstractText0",
 				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				"event0", "editors0", "orga0", "address0");

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<table th:fragment="adminTable(thead,tbody)" class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width:100%">
+		<thead th:replace="${thead}"></thead>
+		<tbody th:replace="${tbody}"></tbody>
+    </table>
+
+    <td th:fragment="adminToolButtons(id, name, editLabel, deleteLabel, extraButtons, exportBibTeXUrlParam, exportOdtUrlParam, exportHtmlUrlParam, exportJsonUrl)">
+    	<th:block th:unless="${#strings.isEmpty(editLabel)}">
+	     	<a th:if="${changeEnabled}"
+	     	   th:href="${URLS_edit + id}"
+	     	   class="noLink">
+	     		<span class="fa fa-pencil"
+				      th:title="${editLabel}"
+				      style="font-size:14pt"></span>
+			</a>
+			<span class="fa fa-pencil"
+			      th:unless="${changeEnabled}"
+			      th:title="${editLabel}"
+			      style="font-size:14pt"></span>
+    	</th:block>
+    	<th:block th:unless="${#strings.isEmpty(deleteLabel)}">
+			<span class="fa fa-trash"
+			      th:id="${'_btDeleteButton_' + id}"
+			      th:title="${deleteLabel}"
+			      th:style="${changeEnabled} ? 'font-size:14pt;cursor: pointer;' : 'font-size:14pt'"></span>
+    	</th:block>
+    	<th:block th:if="${extraButtons}" th:replace="${extraButtons}"></th:block>
+    	<th:block th:unless="${#strings.isEmpty(exportBibTeXUrlParam)}">
+            	<a th:href="${URLS_exportBibTeX + '?' + exportBibTeXUrlParam + '=' + id + '&inAttachment=true'}">
+            		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${name})}" style="max-width:24px;"></img>
+            	</a>
+    	</th:block>
+    	<th:block th:unless="${#strings.isEmpty(exportOdtUrlParam)}">
+            	<a th:href="${URLS_exportOdt + '?' + exportOdtUrlParam + '=' + id + '&inAttachment=true'}">
+            		<img th:src="@{/images/icon/odt_file.svg}" th:title="#{html.GetOdtPublicationsFor(${name})}" style="max-width:24px;"></img>
+            	</a>
+    	</th:block>
+    	<th:block th:unless="${#strings.isEmpty(exportHtmlUrlParam)}">
+            	<a th:href="${URLS_exportHtml + '?' + exportHtmlUrlParam + '=' + id + '&inAttachment=true'}">
+            		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${name})}" style="max-width:24px;"></img>
+            	</a>
+    	</th:block>
+    	<th:block th:unless="${#strings.isEmpty(exportJsonUrl)}">
+            	<a th:href="${exportJsonUrl}">
+            		<img th:src="@{/images/icon/json_file.svg}" th:title="#{html.GetJsonFor(${name})}" style="max-width:24px;"></img>
+            	</a>
+    	</th:block>
+	</td>
+
+	<th:block th:fragment="adminTableDefinition(activateModifications)">
+		<script th:src="@{/js/labmanager/table.js}"></script>
+		<script th:inline="javascript">
+		function adminTableDefinition(columns, order = null, addActionColumn = true, actionWidth = '150px') {
+			adminTableDefinition0('#table[[${uuid}]]', columns, order, addActionColumn, actionWidth);
+		}
+		</script>
+		<script th:if="${activateModifications}" src="https://cdn.jsdelivr.net/npm/sweetalert2@11.2.0/dist/sweetalert2.all.min.js"></script>
+		<th:block th:if="${activateModifications}" th:replace="fragments/buttons :: interactiveDeletionProcess"></th:block>
+	</th:block>
+</html>
