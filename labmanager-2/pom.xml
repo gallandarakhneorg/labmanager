@@ -163,6 +163,7 @@
 								<copy todir="${project.basedir}/src/main/resources/static/css" flatten="true">
 									<fileset dir="${project.basedir}/static-resources">
 										<include name="**/*.css"/>
+										<include name="**/*.css.map"/>
 										<exclude name="old/**"/>
 									</fileset>
 								</copy>
@@ -188,6 +189,7 @@
 								<copy todir="${project.basedir}/src/main/resources/static/js" flatten="true">
 									<fileset dir="${project.basedir}/static-resources">
 										<include name="**/*.js"/>
+										<include name="**/*.js.map"/>
 										<exclude name="old/**"/>
 									</fileset>
 								</copy>

@@ -4,7 +4,7 @@
 <th:block th:replace="fragments/form :: formLibs" />
 <th:block th:replace="fragments/scimago :: scimagoPicture" />
 
-<form th:replace="fragments/form :: entityForm(#{html.Journal}, journal, ${journal == null ? '' : journal.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.JournalSavingError}, ~{::.form-group})">
+<form th:replace="fragments/form :: entityForm(journal, ${journal == null ? '' : journal.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.JournalSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderJournalName}, ${journal != null ? journal.journalName : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput*(publisher, #{html.Publisher}, #{html.PlaceHolderPublisher}, ${journal != null ? journal.publisher : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(address, #{html.Address}, #{html.PlaceHolderAddress}, ${journal != null ? journal.address : ''})"></div>
@@ -30,7 +30,7 @@
 </form>
 <script th:inline="javascript">
 $(document).ready(function () {
-    $('#form').validate({
+    $('#form:first').validate({
         rules: {
         	name: {
                 required: true,
@@ -42,12 +42,12 @@ $(document).ready(function () {
             },
         }
     });
-    $('#textInput_scimagoId').on('change paste keyup', (e) => {
-    	var newScimagoId = $('#textInput_scimagoId').val();
-    	refreshScimagoPhoto($('#journalScimagoPicture'), newScimagoId);
+    $('#textInput_scimagoId:first').on('change paste keyup', (e) => {
+    	var newScimagoId = $('#textInput_scimagoId:first').val();
+    	refreshScimagoPhoto($('#journalScimagoPicture:first'), newScimagoId);
     });
     /*[# th:if="${journal != null && journal.scimagoId != null && !journal.scimagoId.isEmpty()}"]*/
-    refreshScimagoPhoto($('#journalScimagoPicture'), "[(${journal.scimagoId})]");
+    refreshScimagoPhoto($('#journalScimagoPicture:first'), "[(${journal.scimagoId})]");
     /*[/]*/    
 });
 </script>

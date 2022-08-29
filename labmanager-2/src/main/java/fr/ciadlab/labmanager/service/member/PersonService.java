@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.service.member;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
@@ -257,21 +258,26 @@ public class PersonService extends AbstractService {
 		final Optional<Person> optPerson = this.personRepository.findById(id);
 		if (optPerson.isPresent()) {
 			final Person person = optPerson.get();
-			//When removing an author, reduce the ranks of the other authorships for the pubs he made.
 			for (final Authorship authorship : person.getAuthorships()) {
 				final int rank = authorship.getAuthorRank();
-				final Optional<Publication> optPub = this.publicationRepository.findById(
-						Integer.valueOf(authorship.getPublication().getId()));
-				if (optPub.isPresent()) {
-					final Publication publication = optPub.get();
-					for (final Authorship otherAuthorsips : publication.getAuthorships()) {
-						final int oRank = otherAuthorsips.getAuthorRank();
+				final Publication publication = authorship.getPublication();
+				authorship.setPerson(null);
+				authorship.setPublication(null);
+				//When removing an author, reduce the ranks of the other authorships for the pubs he made.
+				final Iterator<Authorship> iterator = publication.getAuthorshipsRaw().iterator();
+				while (iterator.hasNext()) {
+					final Authorship otherAuthorsip = iterator.next();
+					if (authorship.getId() != otherAuthorsip.getId()) {
+						final int oRank = otherAuthorsip.getAuthorRank();
 						if (oRank > rank) {
-							otherAuthorsips.setAuthorRank(oRank);
+							otherAuthorsip.setAuthorRank(oRank - 1);
+							this.authorshipRepository.save(otherAuthorsip);
 						}
-						this.authorshipRepository.save(otherAuthorsips);
+					} else {
+						iterator.remove();
 					}
 				}
+				this.publicationRepository.save(publication);
 			}
 			// membership and autorship are deleted by cascade
 			person.deleteAllAuthorships();

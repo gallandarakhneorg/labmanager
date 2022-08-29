@@ -21,10 +21,10 @@
 			      style="font-size:14pt"></span>
     	</th:block>
     	<th:block th:unless="${#strings.isEmpty(deleteLabel)}">
-			<span class="fa-solid fa-trash"
-			      th:id="${'_btDeleteButton_' + id}"
+			<button class="fa-solid fa-trash"
+			      th:id="${'TheDeleteButton_' + id}"
 			      th:title="${deleteLabel}"
-			      th:style="${changeEnabled} ? 'font-size:14pt;cursor: pointer;' : 'font-size:14pt'"></span>
+			      th:style="${changeEnabled} ? 'font-size:14pt;cursor: pointer;' : 'font-size:14pt'"></button>
     	</th:block>
     	<th:block th:if="${extraButtons}">
     		 <th:block th:replace="${extraButtons}"></th:block>
@@ -54,8 +54,24 @@
 	<th:block th:fragment="adminTableDefinition(activateModifications)">
 		<script th:src="@{/js/labmanager/table.js}"></script>
 		<script th:inline="javascript">
-		function adminTableDefinition(columns, order = null, addActionColumn = true, actionWidth = '150px') {
-			adminTableDefinition0('#table[[${uuid}]]', columns, order, addActionColumn, actionWidth);
+		/** Initialize a Bootstrap Datatable for an administrator usage.
+		 * @param config the configuration of the administration table. Keys are:
+		 *      * `id` the identifier of the button that is used for obtaining the button with jQuery. If this `id` is not
+		 *        provided, the `selector` or `obj` must be provided. Default is: `table<id>`.
+		 *      * `selector` the jQuery selector for obtaining the button. If this `selector` is not
+		 *        provided, the `id` or `obj` must be provided.
+		 *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
+		 *        provided, the `selector` or `id` must be provided.
+		 *      * `columns` It may be an array of column definitions, excepting the action column if `actionColumn` is true; or it
+		 *        may be a number of columns. If a number of columns is provided, the array of columns is automatically built up.
+		 *      * `order` an array that is specifying the order to apply to the values/columns. Default is `[ [1,'asc'] ]`.
+		 *      * `actionColumn` a boolean value indicating if the action column is automatically added to the list of columns. Default is true.
+		 *      * `actionWidth` the exepcted size of the "action column". Default is `150px`.
+		 * @return the table object.
+		 */
+		function initAdministrationTable(config) {
+			(!('id' in config)) && (config['id'] = "table[[${uuid}]]");
+			initAdministrationTable_base(config);
 		}
 		</script>
 		<th:block th:replace="fragments/libs :: sweetalert" />

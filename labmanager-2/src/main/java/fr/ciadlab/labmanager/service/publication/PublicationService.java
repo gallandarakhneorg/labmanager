@@ -1152,7 +1152,7 @@ public class PublicationService extends AbstractService {
 			hasUploaded = true;
 			getLogger().info("PDF uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$
 		}
-		final boolean expliteRemove1 = optionalBoolean(attributes, "@@fileUpload_removed_pathToDownloadableAwardCertificate"); //$NON-NLS-1$
+		final boolean expliteRemove1 = optionalBoolean(attributes, "@fileUpload_removed_pathToDownloadableAwardCertificate"); //$NON-NLS-1$
 		if (expliteRemove1) {
 			try {
 				this.fileManager.deleteDownloadableAwardPdfFile(publication.getId());

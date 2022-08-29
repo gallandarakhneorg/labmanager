@@ -4,7 +4,7 @@
 <th:block th:replace="fragments/form :: formLibs" />
 <th:block th:replace="fragments/gravatar :: gravatarPicture" />
 
-<form th:replace="fragments/form :: entityForm(#{html.Person}, person, ${journal == null ? '' : journal.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.JournalSavingError}, ~{::.form-group})">
+<form th:replace="fragments/form :: entityForm(person, ${person == null ? '' : person.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PersonSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: textInput*(lastName, #{html.LastName}, #{html.PlaceHolderPersonLastName}, ${person != null ? person.lastName : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput*(firstName, #{html.FirstName}, #{html.PlaceHolderPersonFirstName}, ${person != null ? person.firstName : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: comboInput(gender, #{html.Gender}, ~{::option#option-openaccess})">
@@ -39,7 +39,7 @@
 </form>
 <script th:inline="javascript">
 $(document).ready(function () {
-    $('#form').validate({
+    $('#form:first').validate({
         rules: {
         	firstName: {
                 required: true,
@@ -85,12 +85,12 @@ $(document).ready(function () {
             }
         }
     });
-    $('#textInput_gravatarId').on('change paste keyup', (e) => {
-    	var newGravatarId = $('#textInput_gravatarId').val();
-    	refreshGravatarPhoto($('#personGravatarPhoto'), newGravatarId);
+    $('#textInput_gravatarId:first').on('change paste keyup', (e) => {
+    	var newGravatarId = $('#textInput_gravatarId:first').val();
+    	refreshGravatarPhoto($('#personGravatarPhoto:first'), newGravatarId);
     });
     /*[# th:if="${person != null && person.gravatarId != null && !person.gravatarId.isEmpty()}"]*/
-    refreshGravatarPhoto($('#personGravatarPhoto'), "[(${person.gravatarId})]");
+    refreshGravatarPhoto($('#personGravatarPhoto:first'), "[(${person.gravatarId})]");
     /*[/]*/    
 });
 </script>

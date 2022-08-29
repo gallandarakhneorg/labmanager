@@ -1,4 +1,5 @@
-// Add the "format()" function to the String type
+/** Add the "format()" function to the String type.
+ */
 String.prototype.format = function () {
 	// store arguments in an array
 	var args = arguments;
@@ -11,7 +12,8 @@ String.prototype.format = function () {
 	});
 };
 
-// Avoid "console" errors in browsers that lack a console.
+/** Avoid "console" errors in browsers that lack a console.
+ */
 (function() {
     var method;
     var noop = function () {};

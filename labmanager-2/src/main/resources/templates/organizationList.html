@@ -63,19 +63,19 @@
 </table>
 <script th:inline="javascript">
     $(document).ready(() => {
-    	adminTableDefinitionWithColCount(8);
+    	initAdministrationTable({
+    		columns: 8,
+    	});
         /*[# th:if="${changeEnabled}" th:each="organization : ${organizations}"]*/
-        addDeletionButtonCallback(
-        		"[[${organization.id}]]",
-        		"[(#{html.DeleteOrganization1(${organization.acronymOrName})})]",
-        		"[(#{html.AreYouSureToDelete(${organization.acronymOrName})})]",
-        		"[(@{/deleteOrganization(organization=${organization.id})})]",
-        		"[(#{html.OrganizationDeleted})]",
-        		"[(#{html.CannotDeleteOrganization})]",
-        		"[(${organization.acronymOrName})]",
-        		function (e) {
-        			location.reload();
-        		} );
+    	attachDeletionHandler({
+    		id: "[[${organization.id}]]",
+    		url: "[(@{/deleteOrganization(organization=${organization.id})})]",
+    		name: "[(${organization.acronymOrName})]",
+    		questionTitle: "[(#{html.DeleteOrganization1(${organization.acronymOrName})})]",
+    		questionText: "[(#{html.AreYouSureToDelete(${organization.acronymOrName})})]",
+    		successText: "[(#{html.OrganizationDeleted})]",
+    		failureText: "[(#{html.CannotDeleteOrganization})]",
+        });
         /*[/]*/
     });
 </script>

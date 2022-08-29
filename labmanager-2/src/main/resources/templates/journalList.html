@@ -70,19 +70,19 @@
 </table>
 <script th:inline="javascript">
     $(document).ready(() => {
-    	adminTableDefinitionWithColCount(8);
+    	initAdministrationTable({
+    		columns: 8,
+    	});
         /*[# th:if="${changeEnabled}" th:each="journal : ${journals}"]*/
-        addDeletionButtonCallback(
-        		"[[${journal.id}]]",
-        		"[(#{html.DeleteJournal1(${journal.journalName})})]",
-        		"[(#{html.AreYouSureToDelete(${journal.journalName})})]",
-        		"[(@{/deleteJournal(journal=${journal.id})})]",
-        		"[(#{html.JournalDeleted})]",
-        		"[(#{html.CannotDeleteJournal})]",
-        		"[(${journal.journalName})]",
-        		function (e) {
-        			location.reload();
-        		} );
+        attachDeletionHandler({
+        	id: "[[${journal.id}]]",
+        	url: "[(@{/deleteJournal(journal=${journal.id})})]",
+        	name: "[(${journal.journalName})]",
+        	questionTitle: "[(#{html.DeleteJournal1(${journal.journalName})})]",
+        	questionText: "[(#{html.AreYouSureToDelete(${journal.journalName})})]",
+        	successText: "[(#{html.JournalDeleted})]",
+        	failureText: "[(#{html.CannotDeleteJournal})]",
+        });
         /*[/]*/
     });
 </script>

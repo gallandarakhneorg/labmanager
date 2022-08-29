@@ -181,53 +181,54 @@ function startBibTeXView(file) {
 
 $(document).ready(() => {
 	// Initialize file upload library
-	initFileUploadSingleBibTeX('bibtexFile', false);
-
-	$('#fileUploadBibTeX_bibtexFile').on('fileloaded', (event, file, previewId, fileId, index, reader) => {
-		startBibTeXView(file);
+	initFileUploadSingleBibTeX({
+		name: 'bibtexFile',
+		enableRemove: false,
+		onSelected: (file) => {
+			startBibTeXView(file);
+		},
 	});
 
-	addWaitButtonCallbackWithFailureCallback(
-			$('#submitButton'),
-			"[(#{html.Submit})]",
-			"[(#{html.Success})]",
-			"[(${formActionUrl})]",
-			"[(#{html.ImportBibTeXError3})]",
-			null,
-			(formData, param) => {
-				var files = $('#fileUploadBibTeX_bibtexFile')[0].files;
-				if (files.length > 0) {
-					var file = files[0];
-					var fileName = file.name;
-					formData.append("bibtexFile", file, fileName);
-				    formData.append("upload_file", true);
-				    var changes = {};
-				    $.each(GLOBAL_PUBLICATIONS, (index, id) => {
-				    	var inputElement = $('#publicationImport_' + id);
-				    	var importable = inputElement.is(':checked');
-				    	var typeElement = $('#publicationType_' + id + ' option:selected');
-				    	var selectedType = typeElement.attr('value');
-				    	changes[id] = {
-				    		'import': importable,
-				    		'type': selectedType,
-				    	};
-				    });
-				    formData.append("changes", JSON.stringify(changes));
-				}
-			},
-			() => {
-				resetBibTeXView();
-				Swal.fire(
-						  "[(#{html.Success})]",
-						  "[(#{html.ImportBibTeXSuccess})]",
-						  'success'
-						).then(result => {
-	    					location.reload();
-						});
-			},
-			() => {
-				resetBibTeXView();
-			});
+	attachSpinnerAjaxHandler({
+		id: "submitButton",
+		url: "[(${formActionUrl})]",
+		text: "[(#{html.Submit})]",
+		prepareData: ($bt, formData) => {
+			var files = $('#fileUploadBibTeX_bibtexFile')[0].files;
+			if (files.length > 0) {
+				var file = files[0];
+				var fileName = file.name;
+				formData.append("bibtexFile", file, fileName);
+			    formData.append("upload_file", true);
+			    var changes = {};
+			    $.each(GLOBAL_PUBLICATIONS, (index, id) => {
+			    	var inputElement = $('#publicationImport_' + id + '');
+			    	var importable = inputElement.is(':checked');
+			    	var typeElement = $('#publicationType_' + id + ' option:selected');
+			    	var selectedType = typeElement.attr('value');
+			    	changes[id] = {
+			    		'import': importable,
+			    		'type': selectedType,
+			    	};
+			    });
+			    formData.append("changes", JSON.stringify(changes));
+			}
+		},
+		failureText: "[(#{html.ImportBibTeXError3})]",
+		onSuccess: () => {
+			resetBibTeXView();
+			Swal.fire(
+					  "[(#{html.Success})]",
+					  "[(#{html.ImportBibTeXSuccess})]",
+					  'success'
+					).then(result => {
+    					location.reload();
+					});
+		},
+		onFailure: () => {
+			resetBibTeXView();
+		},
+	});
 });
 </script>
 </html>

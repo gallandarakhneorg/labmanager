@@ -7,7 +7,7 @@
 <th:block th:replace="fragments/formselect2 :: all" />
 <th:block th:replace="fragments/formfileinput :: all" />
 
-<form th:replace="fragments/form :: entityForm(#{html.Publication}, publication, ${publication == null ? '' : publication.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PublicationSavingError}, ~{::.form-group})">
+<form th:replace="fragments/form :: entityForm(publication, ${publication == null ? '' : publication.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PublicationSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: comboInput*(type, #{html.Type}, ~{::option#option-type})">
 		<option id="option-type"
 		        th:each="type : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values}"
@@ -64,7 +64,7 @@ $(document).ready(function () {
 	
 	// Initialize form validation
 	
-	$('#form').validate({
+	$('#form:first').validate({
         rules: {
         	title: {
                 required: true,
@@ -98,9 +98,17 @@ $(document).ready(function () {
 	
 	// Initialize file upload components
 	
-	initFileUploadSinglePdf('pathToDownloadablePDF', "[(${pathToDownloadablePDF_basename})]", "[(${pathToDownloadablePDF_picture})]");
-	initFileUploadSinglePdf('pathToDownloadableAwardCertificate', "[(${pathToDownloadableAwardCertificate_basename})]", "[(${pathToDownloadableAwardCertificate_picture})]");
-	
+	initFileUploadSinglePdf({
+		name: 'pathToDownloadablePDF',
+		basename: "[(${pathToDownloadablePDF_basename})]",
+		picture: "[(${pathToDownloadablePDF_picture})]",
+	});
+	initFileUploadSinglePdf({
+		name: 'pathToDownloadableAwardCertificate',
+		basename: "[(${pathToDownloadableAwardCertificate_basename})]",
+		picture: "[(${pathToDownloadableAwardCertificate_picture})]",
+	});
+
 	// Initialize and configure the hidding and showing of the fields depending on the type of publication
 	
 	var CONSTANT_TYPE_FIELD_MAPPING = {
@@ -131,8 +139,12 @@ $(document).ready(function () {
    		/*[/]*/
    	/*[/]*/
 	];
-	initMultiSelectionComboWithInputOrder('#multiSelectionTextInput_authors', "[(#{html.PlaceHolderAuthors})]",
-			completeListOfPersons, initialListOfAuthors);
+	initMultiSelectionComboWithInputOrder({
+		id: "multiSelectionTextInput_authors",
+		placeholder: "[(#{html.PlaceHolderAuthors})]",
+		data: completeListOfPersons,
+		selection: initialListOfAuthors,
+	});
 });
 </script>
 </html>

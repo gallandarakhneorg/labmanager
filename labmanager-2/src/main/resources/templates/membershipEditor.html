@@ -101,7 +101,7 @@
 			<button th:id="${'btSave_' + membership.id}" type="button"
 				class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
 				th:utext="#{html.Submit}"></button>
-			<button th:id="${'_btDeleteButton_' + membership.id}" type="button"
+			<button th:id="${'TheDeleteButton_' + membership.id}" type="button"
 				class="btn btn-danger mt-4 pr-4 pl-4" th:if="${changeEnabled}"
 				th:utext="#{html.DeleteMembership}"></button>
 		</div>
@@ -109,35 +109,34 @@
 </form>
 <script th:inline="javascript">
 function addSavingButtonCallback(membershipId, isNewMembership) {
-	addWaitButtonCallback(
-			$('#btSave_' + membershipId),
-			"[(#{html.Submit})]",
-			"[(#{html.Success})]",
-			"[(${savingUrl})]",
-			"[(#{html.MembershipSavingError})]",
-			null,
-			(formData, param) => {
-				formData.append("person", parseInt("[(${person.id})]"));
-				if (!isNewMembership) {
-					formData.append("membership", membershipId);
-				}
-				formData.append("organization", $('#comboInput_organization_' + membershipId + ' option:selected').attr('value'));
-				formData.append("status", $('#comboInput_status_' + membershipId + ' option:selected').attr('value'));
-				formData.append("memberSinceWhen", $('#dateInput_memberSinceWhen_' + membershipId).val());
-				formData.append("memberToWhen", $('#dateInput_memberToWhen_' + membershipId).val());
-				formData.append("cnuSection", $('#comboInput_cnuSection_' + membershipId + ' option:selected').attr('value'));
-				formData.append("conrsSection", $('#comboInput_conrsSection_' + membershipId + ' option:selected').attr('value'));
-				formData.append("frenchBap", $('#comboInput_frenchBap_' + membershipId + ' option:selected').attr('value'));
-			},
-			() => {
-				Swal.fire(
-						  "[(#{html.Success})]",
-						  "[(#{html.MembershipSavingSuccess})]",
-						  'success'
-						).then(result => {
-							location.reload();
-						});
-			});
+	attachSpinnerAjaxHandler({
+		id: 'btSave_' + membershipId,
+		url: "[(${savingUrl})]",
+		text: "[(#{html.Submit})]",
+		prepareData: ($bt, formData) => {
+			formData.append("person", parseInt("[(${person.id})]"));
+			if (!isNewMembership) {
+				formData.append("membership", membershipId);
+			}
+			formData.append("organization", $('#comboInput_organization_' + membershipId + ' option:selected').attr('value'));
+			formData.append("status", $('#comboInput_status_' + membershipId + ' option:selected').attr('value'));
+			formData.append("memberSinceWhen", $('#dateInput_memberSinceWhen_' + membershipId).val());
+			formData.append("memberToWhen", $('#dateInput_memberToWhen_' + membershipId).val());
+			formData.append("cnuSection", $('#comboInput_cnuSection_' + membershipId + ' option:selected').attr('value'));
+			formData.append("conrsSection", $('#comboInput_conrsSection_' + membershipId + ' option:selected').attr('value'));
+			formData.append("frenchBap", $('#comboInput_frenchBap_' + membershipId + ' option:selected').attr('value'));
+		},
+		failureText: "[(#{html.MembershipSavingError})]",
+		onSuccess: () => {
+			Swal.fire(
+					  "[(#{html.Success})]",
+					  "[(#{html.MembershipSavingSuccess})]",
+					  'success'
+					).then(result => {
+						location.reload();
+					});
+		},
+	});
 }
 function getOrganizationName(id) {
 	return $('comboInput_organization_' + id + " option:selected").text();
@@ -146,7 +145,7 @@ function getOrganizationName(id) {
 
 $(document).ready(function () {
     /*[# th:if="${changeEnabled}"]*/
-	$('#btAdd').on('click', () => {
+	$(document).on('click', '#btAdd', () => {
 		$('#btAdd').prop("disabled", true);
 		$('#new-membership-input-area').show();
 	    addSavingButtonCallback("[(${minMembershipId})]", true);
@@ -155,17 +154,15 @@ $(document).ready(function () {
 	    /*[# th:each="membership : ${sortedMemberships}"]*/
     addSavingButtonCallback("[(${membership.id})]", false);
 
-    addDeletionButtonCallback0(
-    		"[(${membership.id})]",
-    		"[(#{html.DeleteMembership})]",
-    		"[(#{html.AreYouSureToDeleteMembership})]",
-    		"[(${deletionUrl + '?id=' + membership.id})]",
-    		"[(#{html.MembershipDeleted})]",
-    		"[(#{html.CannotDeleteMembership})]",
-    		() => { return getOrganizationName("[(${membership.id})]"); },
-    		function (e) {
-    			location.reload();
-    		} );
+	attachDeletionHandler({
+		id: "[(${membership.id})]",
+		url: "[(${deletionUrl + '?id=' + membership.id})]",
+		elementNameCallback: () => { return getOrganizationName("[(${membership.id})]"); },
+		questionTitle: "[(#{html.DeleteMembership})]",
+		questionText: "[(#{html.AreYouSureToDeleteMembership(${person.fullName}, ${membership.researchOrganization.acronymOrName}, ${membership.memberStatus.getLabel(locale)})})]",
+		successText: "[(#{html.MembershipDeleted})]",
+		failureText: "[(#{html.CannotDeleteMembership})]",
+    });
     	/*[/]*/
     /*[/]*/
 });

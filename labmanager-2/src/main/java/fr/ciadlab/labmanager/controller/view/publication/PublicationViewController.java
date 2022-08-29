@@ -137,9 +137,15 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
-	 * @param provideNames indicates if the model provides to the front-end the map from the identifiers to the full names.
-	 * @return the model-view of the list of publications.
+	 * @param enableExports indicates if the "exports" box should be visible.
+	 * @param enableSearch indicates if the "Search" box should be visible.
+	 * @param enableSortChanges indicates if the "Sort Control" box should be visible.
+	 * @param enableFilters indicates if the "Filters" box should be visible.
+	 * @param enableYearFilter indicates if the filter dedicated to years is enabled.
+	 * @param enableTypeFilter indicates if the filter dedicated to types/categories is enabled.
+	 * @param enableAuthorFilter indicates if the filter dedicated to authors is enabled.
 	 * @param username the login of the logged-in person.
+	 * @return the model-view of the list of publications.
 	 * @see #showBackPublicationList()
 	 * @see #exportJson(HttpServletResponse, List, Integer, Integer, Integer)
 	 */
@@ -148,28 +154,45 @@ public class PublicationViewController extends AbstractViewController {
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
-			@RequestParam(required = false, defaultValue = "true") Boolean provideNames,
+			@RequestParam(required = false, defaultValue = "true") boolean enableExports,
+			@RequestParam(required = false, defaultValue = "true") boolean enableSearch,
+			@RequestParam(required = false, defaultValue = "true") boolean enableSortChanges,
+			@RequestParam(required = false, defaultValue = "true") boolean enableFilters,
+			@RequestParam(required = false, defaultValue = "true") boolean enableYearFilter,
+			@RequestParam(required = false, defaultValue = "true") boolean enableTypeFilter,
+			@RequestParam(required = false, defaultValue = "true") boolean enableAuthorFilter,
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
 		final ModelAndView modelAndView = new ModelAndView("showPublications"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);
-		if (provideNames == null || provideNames.booleanValue()) {
-			final List<Person> persons = this.personService.getAllPersons();
-			modelAndView.addObject("authorsMap", persons.parallelStream() //$NON-NLS-1$
-					.collect(Collectors.toConcurrentMap(
-							it -> Integer.valueOf(it.getId()),
-							it -> it.getFullName())));
-		}
+		//
 		addUrlToPublicationListEndPoint(modelAndView, organization, author, journal);
 		//
-		final UriBuilderFactory factory = new DefaultUriBuilderFactory();
-		modelAndView.addObject("endpoint_export_bibtex", //$NON-NLS-1$
-				buildUri(factory, organization, author, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
+		modelAndView.addObject("enableFilters", Boolean.valueOf(enableFilters)); //$NON-NLS-1$
+		modelAndView.addObject("enableYearFilter", Boolean.valueOf(enableYearFilter)); //$NON-NLS-1$
+		modelAndView.addObject("enableTypeFilter", Boolean.valueOf(enableTypeFilter)); //$NON-NLS-1$
+		modelAndView.addObject("enableAuthorFilter", Boolean.valueOf(enableAuthorFilter)); //$NON-NLS-1$
+		if (enableFilters && enableAuthorFilter) {
+			final List<Person> persons = this.personService.getAllPersons();
+			modelAndView.addObject("authorsMap", persons.parallelStream() //$NON-NLS-1$
+					.filter(it -> !it.getAuthorships().isEmpty())
+					.collect(Collectors.toConcurrentMap(
+							it -> Integer.valueOf(it.getId()),
+							it -> it.getFullNameWithLastNameFirst())));
+		}
 		//
-		modelAndView.addObject("endpoint_export_odt", //$NON-NLS-1$
-				buildUri(factory, organization, author, journal, Constants.EXPORT_ODT_ENDPOINT));
+		modelAndView.addObject("enableExports", Boolean.valueOf(enableExports)); //$NON-NLS-1$
+		if (enableExports) {
+			final UriBuilderFactory factory = new DefaultUriBuilderFactory();
+			modelAndView.addObject("endpoint_export_bibtex", //$NON-NLS-1$
+					buildUri(factory, organization, author, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
+			modelAndView.addObject("endpoint_export_odt", //$NON-NLS-1$
+					buildUri(factory, organization, author, journal, Constants.EXPORT_ODT_ENDPOINT));
+			modelAndView.addObject("endpoint_export_html", //$NON-NLS-1$
+					buildUri(factory, organization, author, journal, Constants.EXPORT_HTML_ENDPOINT));
+		}
 		//
-		modelAndView.addObject("endpoint_export_html", //$NON-NLS-1$
-				buildUri(factory, organization, author, journal, Constants.EXPORT_HTML_ENDPOINT));
+		modelAndView.addObject("enableSearch", Boolean.valueOf(enableSearch)); //$NON-NLS-1$
+		modelAndView.addObject("enableSortChanges", Boolean.valueOf(enableSortChanges)); //$NON-NLS-1$
 		return modelAndView;
 	}
 
@@ -177,7 +200,6 @@ public class PublicationViewController extends AbstractViewController {
 			Integer journal, String endpoint) {
 		UriBuilder uriBuilder = factory.builder();
 		uriBuilder = uriBuilder.path(rooted(endpoint));
-		uriBuilder.queryParam(Constants.INATTACHMENT_ENDPOINT_PARAMETER, Boolean.TRUE);
 		if (organization != null) {
 			uriBuilder = uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, organization);
 		}
@@ -193,12 +215,16 @@ public class PublicationViewController extends AbstractViewController {
 	/** Replies the statistics for the publications and for the author with the given identifier.
 	 *
 	 * @param identifier the identifier of the author. If it is not provided, all the publications are considered.
+	 * @param annual indicates if the stats for each year are provided. Default is {@code true}.
+	 * @param global indicates if the global stats are provided. Default is {@code true}.
 	 * @param username the login of the logged-in person.
 	 * @return the model-view with the statistics.
 	 */
 	@GetMapping("/publicationStats")
 	public ModelAndView showPublicationsStats(
 			@RequestParam(required = false, name = Constants.ID_ENDPOINT_PARAMETER) Integer identifier,
+			@RequestParam(required = false, defaultValue = "true") boolean annual,
+			@RequestParam(required = false, defaultValue = "true") boolean global,
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
 		final ModelAndView modelAndView = new ModelAndView("publicationStats"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);
@@ -215,14 +241,20 @@ public class PublicationViewController extends AbstractViewController {
 
 		for (final Publication p : publications) {
 			final Integer y = Integer.valueOf(p.getPublicationYear());
-			final PublicationsStat stats = statsPerYear.computeIfAbsent(y,
-					it -> new PublicationsStat(it.intValue()));
-			stats.increment(p.getType(), p.isRanked(), 1);
-			globalStats.increment(p.getType(), p.isRanked(), 1);
+			if (annual) {
+				final PublicationsStat stats = statsPerYear.computeIfAbsent(y,
+						it -> new PublicationsStat(it.intValue()));
+				stats.increment(p.getType(), p.isRanked(), 1);
+			}
+			if (global) {
+				globalStats.increment(p.getType(), p.isRanked(), 1);
+			}
 		}
 
 		modelAndView.addObject("stats", statsPerYear); //$NON-NLS-1$
-		modelAndView.addObject("globalStats", globalStats); //$NON-NLS-1$
+		if (global) {
+			modelAndView.addObject("globalStats", globalStats); //$NON-NLS-1$
+		}
 		return modelAndView;
 	}
 

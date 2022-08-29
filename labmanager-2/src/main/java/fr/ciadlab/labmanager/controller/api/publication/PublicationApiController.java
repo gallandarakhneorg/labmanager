@@ -185,8 +185,9 @@ public class PublicationApiController extends AbstractComponent {
 				throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
 			}
 			this.publicationService.removePublication(publication.intValue(), true);
+		} else {
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
-		throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 	}
 
 }

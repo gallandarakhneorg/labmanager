@@ -118,43 +118,43 @@
 </table>
 <script th:inline="javascript">
     $(document).ready(() => {
-    	adminTableDefinition([
-        	{ },
-        	{ },
-        	{ },
-        	{
-                "orderable": false
-        	},
-        	{ },
-        	{ },
-        	{ },
-        	{ },
-        	{ }
-        ], null, true, '170px');
+    	initAdministrationTable({
+    		columns: [
+            	{ },
+            	{ },
+            	{ },
+            	{
+                    "orderable": false
+            	},
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+            	{ }
+    		],
+    		order: [ [1, 'asc'], [2, 'asc'] ],
+    		actionWidth: '170px',
+    	});
         /*[# th:if="${changeEnabled}" th:each="person : ${persons}"]*/
-        addDeletionButtonCallback(
-        		"[(${person.id})]",
-        		"[(#{html.DeletePerson1(${person.fullName})})]",
-        		"[(#{html.AreYouSureToDelete(${person.fullName})})]",
-        		"[(@{/deletePerson(person=${person.id})})]",
-        		"[(#{html.PersonDeleted})]",
-        		"[(#{html.CannotDeletePerson})]",
-        		"[(${person.fullName})]",
-        		function (e) {
-        			location.reload();
-        		} );
+		attachDeletionHandler({
+			id: "[(${person.id})]",
+			url: "[(@{/deletePerson(person=${person.id})})]",
+			name: "[(${person.fullName})]",
+			questionTitle: "[(#{html.DeletePerson1(${person.fullName})})]",
+			questionText: "[(#{html.AreYouSureToDelete(${person.fullName})})]",
+			successText: "[(#{html.PersonDeleted})]",
+			failureText: "[(#{html.CannotDeletePerson})]",
+	    });
 	    	/*[# th:each="membership : ${person.activeMemberships}"]*/
-		addDeletionButtonCallbackWithButtonObj(
-				$("#[(${'btPositionResign_' + person.id + '_' + membership.value.id})]"),
-        		"[(#{html.DeleteMembership})]",
-        		"[(#{html.AreYouSureToDeleteMembership})]",
-        		"[(${membershipdeletionUrl + '?id=' + membership.value.id})]",
-        		"[(#{html.MembershipDeleted})]",
-        		"[(#{html.CannotDeleteMembership})]",
-        		"[(${membership.key.acronymOrName})]",
-        		function (e) {
-        			location.reload();
-        		} );
+		attachDeletionHandler({
+			selector: "#[(${'btPositionResign_' + person.id + '_' + membership.value.id})]",
+			url: "[(${membershipdeletionUrl + '?id=' + membership.value.id})]",
+			name: "[(${membership.key.acronymOrName})]",
+			questionTitle: "[(#{html.DeleteMembership})]",
+			questionText: "[(#{html.AreYouSureToDeleteMembership(${person.fullName}, ${membership.key.acronymOrName}, ${membership.value.memberStatus.getLabel(locale)})})]",
+			successText: "[(#{html.MembershipDeleted})]",
+			failureText: "[(#{html.CannotDeleteMembership})]",
+	    });
     		/*[/]*/
         /*[/]*/
     });

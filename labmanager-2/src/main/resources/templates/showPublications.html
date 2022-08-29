@@ -2,76 +2,79 @@
 <html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs"/>
 <th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<script th:src="@{/js/labmanager/showpublications.js}"></script>
 
+<th:block th:if="${enableExports || enableSearch || enableSortChanges}">
+	<div class="row">
+	    <div th:if="${enableExports || enableSearch}"
+	         class="col-lg-6">
+	        <div class="card">
+	            <div class="card-body">
+	                <h4 th:if="${enableExports}" class="header-title" th:utext="#{html.Exports}"></h4>
+	                <div th:if="${enableExports}" class="mb-xl-3" role="group" id="buttonsContainer">
+	                    &nbsp;
+	                    <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal" th:title="#{html.ExportToBibTeX}">
+	                        <i class="fa-solid fa-file-lines"></i>&nbsp;&nbsp;<th:block th:utext="#{html.BibTeX}"></th:block>
+	                    </button>
+	                    <button type="button" class="btn btn-sm btn-success" id="btWordGlobal" th:title="#{html.ExportToOdt}">
+	                        <i class="fa-solid fa-file-word"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Odt}"></th:block>
+	                    </button>
+	                    <button type="button" class="btn btn-sm btn-success" id="btHtmlGlobal" th:title="#{html.ExportToHtml}">
+	                        <i class="fa-solid fa-file-code"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Html}"></th:block>
+	                    </button>
+	                </div>
+					<h4 th:if="${enableSearch}" class="header-title" th:utext="#{html.Search}"></h4>
+	                <div th:if="${enableSearch}" class="form-group">
+	                    <div>
+	                        <input type="text" class="form-control form-control-sm" id="searchInput" th:placeholder="#{html.InputYourSearchedText}">
+	                    </div>
+	                    <small class="form-text text-muted" id="tableInfos"></small>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+		<div th:if="${enableSortChanges}" class="col-lg-6">
+	        <div class="card">
+	            <div class="card-body">
+	                <h4 class="header-title" th:utext="#{html.Control}"></h4>
+	                <form action="#">
+	                    <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Sort}"></b>
+	                    <div class="custom-control custom-radio custom-control-inline">
+	                        <input type="radio" id="orderYear" name="order" class="custom-control-input groupOrder">
+	                        <label class="custom-control-label" for="orderYear" th:utext="#{html.PerYear}"></label>
+	                    </div>
+	                    <div class="custom-control custom-radio custom-control-inline">
+	                        <input type="radio" id="orderType" name="order" class="custom-control-input groupOrder">
+	                        <label class="custom-control-label" for="orderType" th:utext="#{html.PerType}"></label>
+	                    </div>
+	                    <div class="custom-control custom-radio custom-control-inline">
+	                        <input type="radio" id="orderName" name="order" class="custom-control-input groupOrder">
+	                        <label class="custom-control-label" for="orderName" th:utext="#{html.PerAuthor}"></label>
+	                    </div>
+	                    <div class="custom-control custom-radio custom-control-inline">
+	                        <input type="radio" checked="checked" id="orderDefault" name="order" class="custom-control-input groupOrder">
+	                        <label class="custom-control-label" for="orderDefault" th:utext="#{html.PerDefault}"></label>
+	                    </div>
+	
+	                </form>
+	                <form action="#">
+	                    <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Group}"></b>
+	                    <div class="custom-control custom-checkbox custom-control-inline">
+	                        <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupYear">
+	                        <label class="custom-control-label" for="groupYear" th:utext="#{html.PerYear}"></label>
+	                    </div>
+	                    <div class="custom-control custom-checkbox custom-control-inline">
+	                        <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupType">
+	                        <label class="custom-control-label" for="groupType" th:utext="#{html.PerType}"></label>
+	                    </div>
+	                </form>
+	            </div>
+	        </div>
+	    </div>    
+	</div>
+	<br/>
+</th:block>
 <div class="row">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="header-title" th:utext="#{html.Exports}"></h4>
-                <div class="mb-xl-3" role="group" id="buttonsContainer">
-                    &nbsp;
-                    <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal" th:title="#{html.ExportToBibTeX}">
-                        <i class="fa-solid fa-file-lines"></i>&nbsp;&nbsp;<th:block th:utext="#{html.BibTeX}"></th:block>
-                    </button>
-                    <button type="button" class="btn btn-sm btn-success" id="btWordGlobal" th:title="#{html.ExportToOdt}">
-                        <i class="fa-solid fa-file-word"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Odt}"></th:block>
-                    </button>
-                    <bsutton type="button" class="btn btn-sm btn-success" id="btHtmlGlobal" th:title="#{html.ExportToHtml}">
-                        <i class="fa-solid fa-file-code"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Html}"></th:block>
-                    </button>
-                </div>
-                <h4 class="header-title" th:utext="#{html.Search}"></h4>
-                <div class="form-group">
-                    <div>
-                        <input type="text" class="form-control form-control-sm" id="searchInput" th:placeholder="#{html.InputYourSearchedText}">
-                    </div>
-                    <small class="form-text text-muted" id="tableInfos"></small>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-body">
-                <h4 class="header-title" th:utext="#{html.Control}"></h4>
-                <form action="#">
-                    <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Sort}"></b>
-                    <div class="custom-control custom-radio custom-control-inline">
-                        <input type="radio" id="orderYear" name="order" class="custom-control-input groupOrder">
-                        <label class="custom-control-label" for="orderYear" th:utext="#{html.PerYear}"></label>
-                    </div>
-                    <div class="custom-control custom-radio custom-control-inline">
-                        <input type="radio" id="orderType" name="order" class="custom-control-input groupOrder">
-                        <label class="custom-control-label" for="orderType" th:utext="#{html.PerType}"></label>
-                    </div>
-                    <div class="custom-control custom-radio custom-control-inline">
-                        <input type="radio" id="orderName" name="order" class="custom-control-input groupOrder">
-                        <label class="custom-control-label" for="orderName" th:utext="#{html.PerAuthor}"></label>
-                    </div>
-                    <div class="custom-control custom-radio custom-control-inline">
-                        <input type="radio" checked="checked" id="orderDefault" name="order" class="custom-control-input groupOrder">
-                        <label class="custom-control-label" for="orderDefault" th:utext="#{html.PerDefault}"></label>
-                    </div>
-
-                </form>
-                <form action="#">
-                    <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Group}"></b>
-                    <div class="custom-control custom-checkbox custom-control-inline">
-                        <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupYear">
-                        <label class="custom-control-label" for="groupYear" th:utext="#{html.PerYear}"></label>
-                    </div>
-                    <div class="custom-control custom-checkbox custom-control-inline">
-                        <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupType">
-                        <label class="custom-control-label" for="groupType" th:utext="#{html.PerType}"></label>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-<br/>
-<div class="row">
-    <!-- seo fact area start -->
     <div class="col-lg-12">
         <div class="card">
             <div class="card-body">
@@ -93,300 +96,119 @@
 </div>
 
 <script th:inline="javascript">
-	function getCategoryRank(category) {
-		var categorySub = category;
-		var indexOfAccr = categorySub.indexOf("(");
-		if(indexOfAccr >= 0) {
-			categorySub = categorySub.substring(0, indexOfAccr - 1);
-		}
-		switch(categorySub) {
+$(document).ready(() => {
+	const tableId = parseInt("[(${uuid})]");
+	const dtableConfig = {
+		obj: $('#table' + tableId),
+		url: "[(${url})]",
+		categoryLabels: {
 	        /*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
-			case "[(${category.getLabel(locale)})]" : return /*[[${category.ordinal()}]]*/;
+			"[(${category.name})]": "[(${category.getLabel(locale) + ' (' + category.name + ')'})]",
 	        /*[/]*/
-			default : return 1000;
-		}
+		},
+		groupLabelPlurial: "[(#{html.PublicationListGroup2})]",
+		groupLabelSingular: "[(#{html.PublicationListGroup1})]",
+		infoText: "[(#{html.PublicationListTotal})]",
+		detailledInfoLabels: {
+			authors: "[(#{html.Authors1})]",
+			type: "[(#{html.Type1})]",
+			'abstract': "[(#{html.Abstract})]",
+			keywords: "[(#{html.Keywords})]",
+			note: "[(#{html.Note})]",
+			scimago: "[(#{html.ScimagoQIndex})]",
+			scimagoNote: "[(#{html.ScimagoQIndexNote})]",
+			wos: "[(#{html.WosQIndex})]",
+			wosNote: "[(#{html.WosQIndexNote})]",
+			core: "[(#{html.CoreRanking})]",
+			coreNote: "[(#{html.CoreRankingNote})]",
+			impactFactor: "[(#{html.ImpactFactor1})]",
+			impactFactorNote: "[(#{html.ImpactFactorNote})]",
+			links: "[(#{html.Links})]",
+			downloads: "[(#{html.Downloads})]",
+			exports: "[(#{html.Exports})]",
+			management: "[(#{html.Management})]",
+		},
+		enableFilters: "[(${#bools.isTrue(enableFilters).toString})]" === 'true',
+		enableYearFilter: "[(${#bools.isTrue(enableFilters && enableYearFilter).toString})]" === 'true',
+		enableTypeFilter: "[(${#bools.isTrue(enableFilters && enableTypeFilter).toString})]" === 'true',
+		enableAuthorFilter: "[(${#bools.isTrue(enableFilters && enableAuthorFilter).toString})]" === 'true',
+	    /*[# th:if="${enableFilters && enableAuthorFilter}"]*/
+ 		searchPanes: [
+ 			{
+ 				header: "[(#{html.Authors})]",
+ 				options: [
+ 					/*[# th:each="candidate : ${authorsMap}"]*/
+					{
+						label: "[(${candidate.value})]",
+						value: (rowData, rowIndex) => {
+							if (rowData.authors) {
+								var foundElement = rowData.authors.find((elt) => {
+									return elt.id == [(${candidate.key})];
+								});
+								return foundElement;
+							}
+							return false;
+						},
+					},
+				    /*[/]*/
+ 				],
+ 			},
+		],
+	    /*[/]*/
 	}
+	const dtable = initPublicationDataTable(dtableConfig);
+	
+    /*[# th:if="${enableExports}"]*/
+	attachGlobalPublicationDownloadHandler({
+		id: 'btBibtexGlobal',
+		dataSource: dtable,
+		url: "[(${endpoint_export_bibtex})]",
+	});
 
-	function getCategoryLabel(cst) {
-		switch(cst) {
-	        /*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
-			case "[(${category.name})]" : return "[(${category.getLabel(locale) + ' (' + category.name + ')'})]";
-	        /*[/]*/
-			default : return cst;
-		}
-		
-	}
+	attachGlobalPublicationDownloadHandler({
+		id: 'btWordGlobal',
+		dataSource: dtable,
+		url: "[(${endpoint_export_odt})]",
+	});
 
-	function formatPublicationDetails ( d ) {
-        var abstractText = d.abstractText && d.abstractText != "" ? "<tr><td>[(#{html.Abstract})]</td><td>" + d.abstractText + '</td></tr>' : "";
-        var note = d.note && d.note != "" ? "<tr><td>[(#{html.Note})]</td><td>" + d.note + '</td></tr>' : "";
-        var keywords = d.keywords && d.keywords != "" ? "<tr><td>[(#{html.Keywords})]</td><td>" + d.keywords + '</td></tr>' : "";
-        var scimagoQuartile = d.scimagoQIndex && d.scimagoQIndex != "" ? ("<tr><td>[(#{html.ScimagoQIndex})]<td>" + d.scimagoQIndex
-        		+ "&nbsp;[<span title=\"[(#{html.ScimagoQIndexNote})]\" style=\"cursor:help\">*</span>]"
-        		+ (d.scimagoQIndex_imageUrl && d.scimagoQIndex_imageUrl != "" ? '<img class="publicationDetailsScimagoQuartile" src="' + d.scimagoQIndex_imageUrl + '" />' : '')
-        		+ '</td></tr>') : "";
-        var wosQuartile = d.wosQIndex && d.wosQIndex != "" ? "<tr><td>[(#{html.WosQIndex})]</td><td>" + d.wosQIndex
-        		+ "&nbsp;[<span title=\"[(#{html.WosQIndexNote})]\" style=\"cursor:help\">*</span>]"
-        		+ '</td></tr>' : "";
-        var coreRanking = d.coreRanking && d.coreRanking != "" ? "<tr><td>[(#{html.CoreRanking})]</td><td>" + d.coreRanking
-        		+ "&nbsp;[<span title=\"[(#{html.CoreRankingNote})]\" style=\"cursor:help\">*</span>]"
-        		+ '</td></tr>' : "";
-        var impactFactor = d.impactFactor && d.impactFactor != "" ? "<tr><td>[(#{html.ImpactFactor1})]</td><td>" + d.impactFactor
-        		+ "&nbsp;[<span title=\"[(#{html.ImpactFactorNote})]\" style=\"cursor:help\">*</span>]"
-        		+ '</td></tr>' : "";
-        var links = d.htmlLinks && d.htmlLinks != "" ? "<tr><td>[(#{html.Links})]</td><td>" + d.htmlLinks +'</td></tr>' : "";
-        var downloads = d.htmlDownloads && d.htmlDownloads != "" ? "<tr><td>[(#{html.Downloads})]</td><td>" + d.htmlDownloads + '</td></tr>' : "";
-        var exports = d.htmlExports && d.htmlExports != "" ? "<tr><td>[(#{html.Exports})]</td><td>" + d.htmlExports + '</td></tr>' : "";
-        var management = '';
-		if (sessionStorage.getItem('status') != null && ((d.htmlEdit && d.htmlEdit != "") || (d.htmlDelete && d.htmlDelete != ""))) {
-			management = "<tr><td>[(#{html.Management})]</td><td>" + d.htmlEdit + d.htmlDelete + '</td></tr>';
-		}
-        return '<div class="table-responsive"><table class="table" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%">'
-            + "<tr><td>[(#{html.Authors1})]</td><td class=\"publicationAuthors\">" + d.htmlAuthors + '</td></tr>'
-            + "<tr><td>[(#{html.Type1})]</td><td>" + d.htmlCategoryLabel + ' (' + d.category + ') / '
-            + d.htmlTypeLabel + ' (' + d.type + ')</td></tr>'
-            + links
-            + abstractText
-            + note
-            + keywords
-            + scimagoQuartile
-            + wosQuartile
-            + coreRanking
-            + impactFactor
-            + downloads
-            + exports
-            + management
-            + '</table></div>';
-    }
+	attachGlobalPublicationDownloadHandler({
+		id: 'btHtmlGlobal',
+		dataSource: dtable,
+		url: "[(${endpoint_export_html})]",
+	});
+    /*[/]*/
+	
+    /*[# th:if="${enableSearch}"]*/
+	attachSearchCriteriaHandler({
+		id: 'searchInput',
+		table: dtable,
+		infoText: "[(#{html.PublicationListTotal})]",
+		infoTextPartial: "[(#{html.PublicationListSearchResult})]",
+	});
+    /*[/]*/
 
-    $(document).ready(function() {
-		$.fn.dataTableExt.oSort["rank-asc"] = function (x, y) {
-			var categoryRankX = getCategoryRank(x);
-			var categoryRankY = getCategoryRank(y);
-        	if( categoryRankX > categoryRankY ) {
-        		return 1;
-        	} else if (categoryRankX < categoryRankY) {
-        		return -1;
-        	}
-        	return 0;
-        };
-		$.fn.dataTableExt.oSort["rank-desc"] = function (x, y) {
-			var categoryRankX = getCategoryRank(x);
-			var categoryRankY = getCategoryRank(y);
-			if( categoryRankX > categoryRankY ) {
-        		return -1;
-        	} else if (categoryRankX < categoryRankY) {
-        		return 1;
-        	}
-        	return 0;
-        };
-        var tableId = parseInt("[(${uuid})]");
-        var table = $('#table'+tableId).DataTable({
-            "initComplete":function(settings, json) {
-                var info = table.page.info();
-                $('#tableInfos').html("[(#{html.PublicationListTotal})]".format(info.recordsTotal));
-            },
-            "ajax": "[(${url})]",
-            "columns": [
-                {
-                    "className": 'details-control',
-                    "orderable": false,
-                    "data": null,
-                    "defaultContent": ''
-                },
-                { "data": "title",
-                    searchPanes:{
-                        show: false
-                    },
-                    render: function ( data, type, row ) {
-                        return '<p class="publicationTitle">' + row.title + '</p><p class="publicationAuthors">'
-                        	+ row.htmlAuthors + '</p><p class="publicationDetails">'
-                        	+ row.htmlPublicationDetails + '. ' + row.publicationYear + '.</p>';
-                    }
-                },
-                { "data": "authors",
-                	searchPanes:{
-                        show: false
-                    }
-                },
-                { "data": "year",
-                    searchPanes: {
-                        name: 'yearName'
-                    }
-                },
-                { "data": "category",
-                    render: function ( data, type, row ) {
-                        return getCategoryLabel(data);
-                    }
-                },
-                { "data": "htmlDownloads",
-                    searchPanes:{
-                        show: false
-                    }
-                }
-            ],
-            searchPanes:{
-                viewTotal: true,
-                panes: [
-                	{
-                        header: "[(#{html.Authors})]",
-                        options: [
-                            /*[# th:each="a : ${authorsMap}"]*/
-                            {
-                                label: "[(${a.value})]",
-                                value: function(rowData, rowIdx) {
-                                    //return rowData.authors.includes("[(${a.value})]");
-                                	var index = rowData.authors.findIndex(element => {
-                                		  return element.fullName.toLowerCase() === "[(${a.value.toLowerCase})]";
-                                		});
-                                    return index >= 0;
-                                },
-                            },
-                            /*[/]*/
-                        ]
-                    }
-                ],
-                layout: 'columns-3',
-            },
-            columnDefs: [
-            	{ type: "rank", targets: 4 }
-            ],
-            dom: 'Ptp',
-            scrollCollapse: true,
-            paging: true,
-            deferRender:true,
-            order: [ [4, 'asc'], [3, 'desc'], [2, 'asc'] ],
-            rowGroup: {
-                startRender: function ( rows, group ) {
-                    if(rows.count() > 1)
-                        return "[(#{html.PublicationListGroup2})]".format(getCategoryLabel(group), rows.count());
-                    else
-                        return "[(#{html.PublicationListGroup1})]".format(getCategoryLabel(group), rows.count());
-                },
-                endRender: null,
-                dataSrc: ['category', 'year']
-            },
-            buttons: [
-                'excelHtml5', 'csvHtml5'
-            ],
-            responsive: true,
-            autoWidth: true,
-        });
-
-        // Toggle the visibility
-        table.column(2).visible(false);
-        table.column(3).visible(false);
-        table.column(4).visible(false);
-        table.column(5).visible(false);
-
-        // Array to track the ids of the details displayed rows
-        var detailRows = [];
-        $('#table'+tableId +' tbody').on( 'click', 'tr td.details-control', function () {
-            var tr = $(this).closest('tr');
-            var row = table.row( tr );
-
-            if ( row.child.isShown() ) {
-                // This row is already open - close it
-                row.child.hide();
-                tr.removeClass('shown');
-            }
-            else {
-                // Open this row
-                row.child( formatPublicationDetails(row.data()) ).show();
-                tr.addClass('shown');
-            }
-        } );
-        $('#table'+tableId +' tbody').on( 'click', 'tr a.details-control', function (e) {
-            e.preventDefault();
-            var tr = $(this).closest('tr');
-            var row = table.row( tr );
-
-            if ( row.child.isShown() ) {
-                // This row is already open - close it
-                row.child.hide();
-                tr.removeClass('shown');
-            }
-            else {
-                // Open this row
-                row.child( formatPublicationDetails(row.data()) ).show();
-                tr.addClass('shown');
-            }
-        } );
-        $('#searchInput').on( 'keyup', function () {
-            table.search( this.value ).draw();
-            var info = table.page.info();
-            if(this.value.length > 0) {
-                $('#tableInfos').html(
-                		"[(#{html.PublicationListSearchResult})]".format(info.recordsDisplay, info.recordsTotal));
-            }
-            else {
-                $('#tableInfos').html("[(#{html.PublicationListTotal})]".format(info.recordsTotal));
-            }
-        } );
-
-        $('.groupControl').on( 'click', function (e) {
-            if($('#groupYear')[0].checked && $('#groupType')[0].checked) {
-                // Group by year & category
-                table.rowGroup().enable();
-                table.rowGroup().dataSrc(['category', 'year']);
-            }
-            else if($('#groupType')[0].checked) {
-                // Group by year
-                table.rowGroup().enable();
-                table.rowGroup().dataSrc( 'category' );
-            }
-            else if($('#groupYear')[0].checked) {
-                // Group by year
-                table.rowGroup().enable();
-                table.rowGroup().dataSrc( 'year' );
-            }
-            else {
-                table.rowGroup().disable();
-                table.rowGroup().dataSrc();
-            }
-            table.draw();
-        } );
-
-        $('.groupOrder').on( 'click', function (e) {
-            if($('#orderName')[0].checked) {
-                table.column( '2' ).order( 'asc' );
-            }
-            else if($('#orderType')[0].checked) {
-                table.column( '4' ).order( 'asc' );
-            }
-            else if($('#orderYear')[0].checked) {
-                table.column( '3' ).order( 'desc' );
-            }
-            else if($('#orderDefault')[0].checked) {
-            	table.order([ [4, 'asc'], [3, 'desc'], [2, 'asc'] ]);
-            }
-            table.draw();
-        } );
-
-        $('#btBibtexGlobal').on('click' , function(e) {
-            var list = "";
-            table.rows( { filter : 'applied'} ).data().each(function (r){
-                list += r.id + ",";
-            });
-            window.open("[(${endpoint_export_bibtex})]&id=" + list, "_self");
-        })
-
-        $('#btWordGlobal').on('click' , function(e) {
-            var list = "";
-            table.rows( { filter : 'applied'} ).data().each(function (r){
-                list += r.id + ",";
-            });
-            window.open("[(${endpoint_export_odt})]&id=" + list, "_self");
-        })
-
-        $('#btHtmlGlobal').on('click' , function(e) {
-            var list = "";
-            table.rows( { filter : 'applied'} ).data().each(function (r){
-                list += r.id + ",";
-            });
-            window.open("[(${endpoint_export_html})]&id=" + list, "_self");
-        })
-
-    });
+    /*[# th:if="${enableSortChanges}"]*/
+	initSortCriteriaFeature({
+		categoryRanks: {
+			/*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
+			"[(${category.getLabel(locale)})]": parseInt("[(${category.ordinal()})]"),
+			/*[/]*/
+		},
+	});
+	attachSortingCriteriaHandler({
+		selector: '.groupOrder',
+		table: dtable,
+		perNameSelector: '#orderName',
+		perTypeSelector: '#orderType',
+		perYearSelector: '#orderYear',
+	});
+	attachGroupingCriteriaHandler({
+		selector: '.groupControl',
+		table: dtable,
+		perTypeSelector: '#groupType',
+		perYearSelector: '#groupYear',
+	});
+	/*[/]*/
+});
 </script>
 </html>

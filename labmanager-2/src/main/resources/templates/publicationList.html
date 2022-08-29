@@ -13,6 +13,7 @@
         <th th:utext="#{html.Type}"></th>
         <th th:utext="#{html.Year}"></th>
         <th th:utext="#{html.WherePublished}"></th>
+        <th th:utext="#{html.Files}"></th>
         <th th:text="#{html.Actions}"></th>
     </thead>
     <tbody>
@@ -41,6 +42,20 @@
             <td>
             	<th:block th:utext="${publication.wherePublishedShortDescription}"></th:block>
             </td>
+            <td>
+				<a th:href="@{/} + ${publication.pathToDownloadablePDF}"
+				   class="noLink"
+				   th:unless="${#strings.isEmpty(publication.pathToDownloadablePDF)}">
+					<button class="fa-solid fa-file-pdf"
+					        th:title="#{html.PdfDocumentFor}"
+					        style="font-size:14pt"></button></a>
+				<a th:href="@{/} + ${publication.pathToDownloadableAwardCertificate}"
+				   class="noLink"
+				   th:unless="${#strings.isEmpty(publication.pathToDownloadableAwardCertificate)}">
+					<button class="fa-solid fa-award"
+					        th:title="#{html.AwardDocumentFor}"
+					        style="font-size:14pt"></button></a>
+            </td>
             <td th:replace="fragments/table :: adminToolButtons(${publication.id}, ${publication.title},
             		#{html.EditPublication1(${publication.title})},
             		#{html.DeletePublication1(${publication.title})},
@@ -52,19 +67,20 @@
 </table>
 <script th:inline="javascript">
     $(document).ready(() => {
-    	adminTableDefinitionWithColCount(6, [ [4, 'desc'], [2, 'asc'], [1, 'asc'] ], true, '150px');
+    	initAdministrationTable({
+    		columns: 7,
+    		order: [ [4, 'desc'], [2, 'asc'], [1, 'asc'] ],
+    	});
         /*[# th:if="${changeEnabled}" th:each="publication : ${publications}"]*/
-        addDeletionButtonCallback(
-        		"[[${publication.id}]]",
-        		"[(#{html.DeletePublication1(${publication.title})})]",
-        		"[(#{html.AreYouSureToDelete(${publication.title})})]",
-        		"[(@{/deletePublication(publication=${publication.id})})]",
-        		"[(#{html.PublicationDeleted})]",
-        		"[(#{html.CannotDeletePublication})]",
-        		"[(${publication.title})]",
-        		function (e) {
-        			location.reload();
-        		} );
+		attachDeletionHandler({
+			id: "[[${publication.id}]]",
+			url: "[(@{/deletePublication(publication=${publication.id})})]",
+			name: "[(${publication.title})]",
+			questionTitle: "[(#{html.DeletePublication1(${publication.title})})]",
+			questionText: "[(#{html.AreYouSureToDelete(${publication.title})})]",
+			successText: "[(#{html.PublicationDeleted})]",
+			failureText: "[(#{html.CannotDeletePublication})]",
+	    });
         /*[/]*/
     });
 </script>

@@ -32,7 +32,8 @@
 			<td th:utext="${counts.total}"></td>
 		</tr>
 		<tr style="border-top: 2px solid #dee2e6;font-weight: bold;"
-		th:with="tt=${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory)}">
+		    th:if="${globalStats}"
+		    th:with="tt=${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory)}">
 			<td th:text="#{html.Total}"></td>
 			<td th:utext="${globalStats.count(tt.ACL, tt.ACLN, tt.ASCL)}"></td>
 			<td th:utext="${globalStats.count(tt.C_ACTI, tt.C_ACTN, tt.C_AFF)}"></td>
@@ -48,13 +49,10 @@
 </table>
 <script th:inline="javascript">
 $(document).ready(function() {
-    var table = $("#table[(${uuid})]").DataTable({
-        dom: 'Bfrtip',
+    var table = $("#table[(${uuid})]:first").DataTable({
+        dom: '',
         scrollCollapse: true,
         paging: false,
-        buttons: [
-            'excelHtml5', 'csvHtml5'
-        ],
         responsive: true,
         autoWidth: true,
         columns: [

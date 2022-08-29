@@ -509,9 +509,19 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	/** Replies the sequence of first and last names of the person.
 	 *
 	 * @return the full name in the form {@code FIRST LAST}.
+	 * @see #getFullNameWithLastNameFirst()
 	 */
 	public String getFullName() {
 		return getFirstName() + " " + getLastName(); //$NON-NLS-1$
+	}
+
+	/** Replies the sequence of last and first names of the person.
+	 *
+	 * @return the full name in the form {@code LAST FIRST}.
+	 * @see #getFullName()
+	 */
+	public String getFullNameWithLastNameFirst() {
+		return getLastName() + " " + getFirstName(); //$NON-NLS-1$
 	}
 
 	/** Replies the email of the person.

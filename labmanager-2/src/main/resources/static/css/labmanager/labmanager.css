@@ -64,7 +64,10 @@ div.form-super-group-future {
 	background-color: #c8960d !important;
 }
 td.details-control:before {
-     content: "\f06e";
+	content: "\f070";
+}
+td.details-control.opened:before {
+	content: "\f06e";
 }
 td.details-control {
     cursor: pointer;
@@ -77,6 +80,7 @@ td.details-control {
     line-height: 1;
     font-weight: 900;
     font: normal normal normal 14px/1 FontAwesome;
+    margin-top: 8px;
 }
 .dataTables_wrapper table thead{
     display:none;

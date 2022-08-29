@@ -16,7 +16,7 @@
 		        th:utext="#{html.Submit}" th:disabled="${!submitEnabled}"></button>
 	</form>
 
-	<form th:fragment="entityForm(formLabel, hiddenName, hiddenId, url, successUrl, failureMsg, groups)" id="form">
+	<form th:fragment="entityForm(hiddenName, hiddenId, url, successUrl, failureMsg, groups)" id="form">
 		<input th:replace="${groups}"></input>
 		<button id="submitButton" type="button"
 		        class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
@@ -27,25 +27,28 @@
 		        th:utext="#{html.Cancel}"></button>
 		<script th:src="@{/js/labmanager/form_entityform.js}"></script>
 		<script th:inline="javascript">
-		addWaitButtonCallback($('#submitButton'), "[(#{html.Submit})]",
-				"[(${formLabel})]", "[(${url})]", "[(${failureMsg})]",
-				null,
-				(formData, param) => {
-			        /*[# th:unless="${#strings.isEmpty(hiddenName) || #strings.isEmpty(hiddenId)}"]*/
-					formData.append("[(${hiddenName})]", "[(${hiddenId})]");
-			        /*[/]*/
-					fillDataFormInEntityForm(formData);
-				},
-				() => {
-			        /*[# th:if="${#strings.isEmpty(successUrl)}"]*/
-					location.reload();
-			        /*[/]*/
-			        /*[# th:unless="${#strings.isEmpty(successUrl)}"]*/
-					location.href = "[(${successUrl})]";
-			        /*[/]*/
-				});
+		attachSpinnerAjaxHandler({
+			id: "submitButton",
+			url: "[(${url})]",
+			text: "[(#{html.Submit})]",
+			prepareData: ($bt, formData) => {
+		        /*[# th:unless="${#strings.isEmpty(hiddenName) || #strings.isEmpty(hiddenId)}"]*/
+				formData.append("[(${hiddenName})]", "[(${hiddenId})]");
+		        /*[/]*/
+				fillDataFormInEntityForm(formData);
+			},
+			failureText: "[(${failureMsg})]",
+			onSuccess: () => {
+		        /*[# th:if="${#strings.isEmpty(successUrl)}"]*/
+				location.reload();
+		        /*[/]*/
+		        /*[# th:unless="${#strings.isEmpty(successUrl)}"]*/
+				location.href = "[(${successUrl})]";
+		        /*[/]*/
+			},
+		});
         /*[# th:unless="${#strings.isEmpty(successUrl)}"]*/
-        $('#cancelButton').on('click', (e) => {
+        $(document).on('click', '#cancelButton', () => {
 			location.href = "[(${successUrl})]";
         });
         /*[/]*/

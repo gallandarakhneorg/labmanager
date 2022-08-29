@@ -1,3 +1,9 @@
+/** Fill the given FormData object with the values that are associated with the HTML input elements.
+ * This function explores the components with the class `form-context` and applies a specific method
+ * for each of them for setting up the FormData object.
+ * Additionnally, the functions in the global array `GLOBAL_FORM_DATA_INPUT_TRANSFORMERS` are invoked.
+ * @param formData the FormData object to fill up.
+ */
 function fillDataFormInEntityForm(formData) {
 	// Send the text fields: {name: value}
 	$('input.form-control[type="text"]').each( (index, $elt) => {
@@ -34,7 +40,7 @@ function fillDataFormInEntityForm(formData) {
 				var fieldName = $elt.name;
 				if (fieldName) {
 					var fieldId = $elt.id;
-					var $associatedCheckBox = $('#' + fieldId + '_enableMonth').first();
+					var $associatedCheckBox = $('#' + fieldId + '_enableMonth');
 					var checkedValue = $associatedCheckBox.prop('checked');
 					if (!checkedValue) {
 						fieldValue = fieldValue.substring(0, 4);
