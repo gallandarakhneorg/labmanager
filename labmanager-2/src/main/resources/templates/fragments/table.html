@@ -26,7 +26,9 @@
 			      th:title="${deleteLabel}"
 			      th:style="${changeEnabled} ? 'font-size:14pt;cursor: pointer;' : 'font-size:14pt'"></span>
     	</th:block>
-    	<th:block th:if="${extraButtons}" th:replace="${extraButtons}"></th:block>
+    	<th:block th:if="${extraButtons}">
+    		 <th:block th:replace="${extraButtons}"></th:block>
+    	</th:block>
     	<th:block th:unless="${#strings.isEmpty(exportBibTeXUrlParam)}">
             	<a th:href="${URLS_exportBibTeX + '?' + exportBibTeXUrlParam + '=' + id + '&inAttachment=true'}">
             		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${name})}" style="max-width:24px;"></img>

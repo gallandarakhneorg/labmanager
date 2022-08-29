@@ -4,23 +4,23 @@
 <th:block th:replace="fragments/form :: formLibs" />
 
 <form th:replace="fragments/form :: entityForm(#{html.Organization}, organization, ${organization == null ? '' : organization.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.OrganizationSavingError}, ~{::.form-group})">
-	<div class="form-group" th:replace="fragments/form :: textInput(acronym, #{html.Acronym}, #{html.PlaceHolderOrganizationAcronym}, ${organization != null ? organization.acronym : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(name, #{html.Name}, #{html.PlaceHolderOrganizationName}, ${organization != null ? organization.name : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput(type, #{html.Type}, ~{::option#option-type})">
+	<div class="form-group" th:replace="fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderOrganizationAcronym}, ${organization != null ? organization.acronym : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderOrganizationName}, ${organization != null ? organization.name : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInput*(type, #{html.Type}, ~{::option#option-type})">
 		<option id="option-type"
 		        th:each="type : ${T(fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType).values}"
 		        th:selected="${(organization == null && type == defaultOrganizationType) || (organization != null && organization.type == type)}"
 		        th:value="${type.name}"
 		        th:utext="${type.getLabel(locale)}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: textInput(organizationURL, #{html.WebsiteAddress}, #{html.PlaceHolderOrganizationURL}, ${organization != null ? organization.organizationURL : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput(country, #{html.Country}, ~{::option#option-country})">
+	<div class="form-group" th:replace="fragments/form :: comboInput*(country, #{html.Country}, ~{::option#option-country})">
 		<option id="option-country"
 		        th:each="country : ${T(org.arakhne.afc.util.CountryCode).values}"
 		        th:selected="${(organization == null && country == defaultCountry) || (organization != null && organization.country == country)}"
 		        th:value="${country.name}"
 		        th:utext="#{html.CountryNameInList(${countryLabels.get(country)},${country.code})}"></option>
 	</div>
+	<div class="form-group" th:replace="fragments/form :: textInput(organizationURL, #{html.WebsiteAddress}, #{html.PlaceHolderOrganizationURL}, ${organization != null ? organization.organizationURL : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: comboInput(superOrganization, #{html.SuperOrganization}, ~{::option#option-sorg})">
 		<option id="option-sorg"
 		        th:selected="${organization == null || organization.superOrganization == null}"
