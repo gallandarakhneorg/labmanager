@@ -14,12 +14,9 @@ function adminTableDefinition0(selector, columns, order = null, addActionColumn 
         } ]);
 	}
 	var table = $(selector).DataTable({
-	    dom: 'Bfrtip',
-	    scrollCollapse: true,
-	    paging: false,
-	    buttons: [
-	        'excelHtml5', 'csvHtml5'
-	    ],
+	    dom: 'fri',
+	    renderer: 'bootstrap',
+	    scrollCollapse: false,
 	    responsive: true,
 	    autoWidth: true,
 	    order: order,
