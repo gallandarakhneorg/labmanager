@@ -17,6 +17,7 @@ function adminTableDefinition0(selector, columns, order = null, addActionColumn 
 	    dom: 'fri',
 	    renderer: 'bootstrap',
 	    scrollCollapse: false,
+	    paging: false,
 	    responsive: true,
 	    autoWidth: true,
 	    order: order,
