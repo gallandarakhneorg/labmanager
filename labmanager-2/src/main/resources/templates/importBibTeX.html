@@ -217,7 +217,13 @@ $(document).ready(() => {
 			},
 			() => {
 				resetBibTeXView();
-				location.reload();
+				Swal.fire(
+						  "[(#{html.Success})]",
+						  "[(#{html.ImportBibTeXSuccess})]",
+						  'success'
+						).then(result => {
+	    					location.reload();
+						});
 			},
 			() => {
 				resetBibTeXView();
