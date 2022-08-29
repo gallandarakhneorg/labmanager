@@ -167,10 +167,10 @@
 									</fileset>
 								</copy>
 								<delete includeEmptyDirs="true">
-									<fileset dir="${project.basedir}/src/main/resources/static/fonts" includes="**/*"
+									<fileset dir="${project.basedir}/src/main/resources/static/webfonts" includes="**/*"
 									         excludes="labmanager/**"/>
 								</delete>
-								<copy todir="${project.basedir}/src/main/resources/static/fonts" flatten="true">
+								<copy todir="${project.basedir}/src/main/resources/static/webfonts" flatten="true">
 									<fileset dir="${project.basedir}/static-resources">
 										<include name="**/*.otf"/>
 										<include name="**/*.ttf"/>

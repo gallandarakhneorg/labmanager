@@ -10,14 +10,14 @@
                 <h4 class="header-title" th:utext="#{html.Exports}"></h4>
                 <div class="mb-xl-3" role="group" id="buttonsContainer">
                     &nbsp;
-                    <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal">
-                        <i class="fa fa-file-code-o"></i>&nbsp;&nbsp;<th:block th:utext="#{html.BibTeX}"></th:block>
+                    <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal" th:title="#{html.ExportToBibTeX}">
+                        <i class="fa-solid fa-file-lines"></i>&nbsp;&nbsp;<th:block th:utext="#{html.BibTeX}"></th:block>
                     </button>
-                    <button type="button" class="btn btn-sm btn-success" id="btWordGlobal">
-                        <i class="fa fa-file-word-o"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Odt}"></th:block>
+                    <button type="button" class="btn btn-sm btn-success" id="btWordGlobal" th:title="#{html.ExportToOdt}">
+                        <i class="fa-solid fa-file-word"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Odt}"></th:block>
                     </button>
-                    <bsutton type="button" class="btn btn-sm btn-success" id="btHtmlGlobal">
-                        <i class="fa fa-file-text-o"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Html}"></th:block>
+                    <bsutton type="button" class="btn btn-sm btn-success" id="btHtmlGlobal" th:title="#{html.ExportToHtml}">
+                        <i class="fa-solid fa-file-code"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Html}"></th:block>
                     </button>
                 </div>
                 <h4 class="header-title" th:utext="#{html.Search}"></h4>

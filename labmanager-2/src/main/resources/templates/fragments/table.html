@@ -11,17 +11,17 @@
 	     	<a th:if="${changeEnabled}"
 	     	   th:href="${URLS_edit + id}"
 	     	   class="noLink">
-	     		<span class="fa fa-pencil"
+	     		<span class="fa-solid fa-pencil"
 				      th:title="${editLabel}"
 				      style="font-size:14pt"></span>
 			</a>
-			<span class="fa fa-pencil"
+			<span class="fa-solid fa-pencil"
 			      th:unless="${changeEnabled}"
 			      th:title="${editLabel}"
 			      style="font-size:14pt"></span>
     	</th:block>
     	<th:block th:unless="${#strings.isEmpty(deleteLabel)}">
-			<span class="fa fa-trash"
+			<span class="fa-solid fa-trash"
 			      th:id="${'_btDeleteButton_' + id}"
 			      th:title="${deleteLabel}"
 			      th:style="${changeEnabled} ? 'font-size:14pt;cursor: pointer;' : 'font-size:14pt'"></span>
