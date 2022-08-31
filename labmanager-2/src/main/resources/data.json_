@@ -40,7 +40,8 @@
 			"linkedInId": "sgalland",
 			"researcherId": "F-3789-2011",
 			"researchGateId": "Stephane_Galland",
-			"webPageNaming": "FIRST_LAST"
+			"webPageNaming": "FIRST_LAST",
+			"googleScholarId": "2Xita5IAAAAJ"
 		},
 		{
 			"@id": "/pers#1",

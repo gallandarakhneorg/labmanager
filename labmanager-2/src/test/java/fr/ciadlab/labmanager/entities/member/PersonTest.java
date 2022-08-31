@@ -507,19 +507,45 @@ public class PersonTest {
 
 		this.test.setResearcherId("xyz");
 		assertEquals("xyz", this.test.getResearcherId());
-		assertEquals(new URL("http://www.researcherid.com/rid/xyz"), this.test.getResearcherIdURL());
+		assertEquals(new URL("https://www.webofscience.com/wos/author/rid/xyz"), this.test.getResearcherIdURL_());
 
 		this.test.setResearcherId(null);
 		assertNull(this.test.getResearcherId());
-		assertNull(this.test.getResearcherIdURL());
+		assertNull(this.test.getResearcherIdURL_());
 
 		this.test.setResearcherId("xyz");
 		assertEquals("xyz", this.test.getResearcherId());
-		assertEquals(new URL("http://www.researcherid.com/rid/xyz"), this.test.getResearcherIdURL());
+		assertEquals(new URL("https://www.webofscience.com/wos/author/rid/xyz"), this.test.getResearcherIdURL_());
 
 		this.test.setResearcherId("");
 		assertNull(this.test.getResearcherId());
-		assertNull(this.test.getResearcherIdURL());
+		assertNull(this.test.getResearcherIdURL_());
+	}
+
+	@Test
+	public void getGoogleScholarId() {
+		assertNull(this.test.getGoogleScholarId());
+	}
+
+	@Test
+	public void setGoogleScholarId() throws Exception {
+		assertNull(this.test.getGoogleScholarId());
+
+		this.test.setGoogleScholarId("xyz");
+		assertEquals("xyz", this.test.getGoogleScholarId());
+		assertEquals(new URL("https://scholar.google.fr/citations?user=xyz"), this.test.getGoogleScholarURL());
+
+		this.test.setGoogleScholarId(null);
+		assertNull(this.test.getGoogleScholarId());
+		assertNull(this.test.getGoogleScholarURL());
+
+		this.test.setGoogleScholarId("xyz");
+		assertEquals("xyz", this.test.getGoogleScholarId());
+		assertEquals(new URL("https://scholar.google.fr/citations?user=xyz"), this.test.getGoogleScholarURL());
+
+		this.test.setGoogleScholarId("");
+		assertNull(this.test.getGoogleScholarId());
+		assertNull(this.test.getGoogleScholarURL());
 	}
 
 	@Test

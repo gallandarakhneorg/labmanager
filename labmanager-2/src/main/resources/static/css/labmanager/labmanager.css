@@ -112,3 +112,45 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
 .page-link {
     color: #96c10d !important;
 }
+.person-card {
+	width: 100%;
+}
+.person-card-name {
+	display: block;
+	margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+    font-size: calc(1.375rem + 1.5vw);
+    color: #444;
+    font-family: 'Poppins', sans-serif;
+}
+.person-card-photo {
+	float: right;
+	border-radius: 50%;
+	max-width: 150px;
+}
+.person-card-membership {
+    font-weight: 700;
+	font-family: 'Lato', sans-serif;
+	line-height: 30px;
+    color: #444;
+}
+.person-card-email {
+	font-family: 'Lato', sans-serif;
+	line-height: 24px;
+    color: #444;
+}
+.person-card-phone {
+	font-family: 'Lato', sans-serif;
+	line-height: 24px;
+    color: #444;
+}
+.person-card-contact {
+    margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}

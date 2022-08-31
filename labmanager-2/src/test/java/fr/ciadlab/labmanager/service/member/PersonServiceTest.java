@@ -247,7 +247,7 @@ public class PersonServiceTest {
 	@Test
 	public void createPerson() {
 		final Person person = this.test.createPerson("NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2",
-				"NGRAV", "NORCID", "NRID", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
+				"NGRAV", "NORCID", "NRID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
 
 		assertNotNull(person);
@@ -266,6 +266,7 @@ public class PersonServiceTest {
 		assertEquals("NGRAV", actual.getGravatarId());
 		assertEquals("NORCID", actual.getORCID());
 		assertEquals("NRID", actual.getResearcherId());
+		assertEquals("NGSC", actual.getGoogleScholarId());
 		assertEquals("NLIN", actual.getLinkedInId());
 		assertEquals("NGIT", actual.getGithubId());
 		assertEquals("NRGID", actual.getResearchGateId());
@@ -281,7 +282,7 @@ public class PersonServiceTest {
 	@Test
 	public void updatePerson() {
 		Person person = this.test.updatePerson(234, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2",
-				"NGRAV", "NORCID", "NRID", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
+				"NGRAV", "NORCID", "NRID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
 
 		assertNotNull(person);
@@ -306,6 +307,7 @@ public class PersonServiceTest {
 		verify(this.pers1, atLeastOnce()).setGravatarId(eq("NGRAV"));
 		verify(this.pers1, atLeastOnce()).setORCID(eq("NORCID"));
 		verify(this.pers1, atLeastOnce()).setResearcherId(eq("NRID"));
+		verify(this.pers1, atLeastOnce()).setGoogleScholarId(eq("NGSC"));
 		verify(this.pers1, atLeastOnce()).setLinkedInId(eq("NLIN"));
 		verify(this.pers1, atLeastOnce()).setGithubId(eq("NGIT"));
 		verify(this.pers1, atLeastOnce()).setResearchGateId(eq("NRGID"));

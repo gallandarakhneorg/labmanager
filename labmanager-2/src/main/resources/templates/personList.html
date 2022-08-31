@@ -21,15 +21,17 @@
     <tbody>
         <tr th:each="person : ${persons}">
             <td>
-                <th:block th:utext="${person.id}"></th:block>
+            	<a th:href="@{/personCard(person=${person.id})}">
+	                <th:block th:utext="${person.id}"></th:block>
+				</a>
             </td>
             <td th:with="actives = ${person.activeMemberships}">
-                <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
-                   th:utext="${person.lastName}"></s>
-                <i th:if="${actives.isEmpty() && person.memberships.isEmpty()}"
-                          th:utext="${person.lastName}"></i>
-                <th:block th:if="${!actives.isEmpty()}"
-                          th:utext="${person.lastName}"></th:block>
+	                <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
+	                   th:utext="${person.lastName}"></s>
+	                <i th:if="${actives.isEmpty() && person.memberships.isEmpty()}"
+	                          th:utext="${person.lastName}"></i>
+	                <th:block th:if="${!actives.isEmpty()}"
+	                          th:utext="${person.lastName}"></th:block>
             </td>
             <td th:with="actives = ${person.activeMemberships}">
                 <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
@@ -133,7 +135,7 @@
             	{ }
     		],
     		order: [ [1, 'asc'], [2, 'asc'] ],
-    		actionWidth: '170px',
+    		actionWidth: '180px',
     	});
         /*[# th:if="${changeEnabled}" th:each="person : ${persons}"]*/
 		attachDeletionHandler({

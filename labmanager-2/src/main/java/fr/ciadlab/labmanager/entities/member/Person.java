@@ -84,7 +84,13 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	private static final String LINKEDIN_URL = "http://linkedin.com/in/"; //$NON-NLS-1$
 
-	private static final String RESEARCHERID_URL = "http://www.researcherid.com/rid/"; //$NON-NLS-1$
+	/** Before 2022, ResearcherId was linked to Publons.
+	 * Since 2022, Publons was integrated in Web-of-Science.
+	 * The old URL of ResearcherId is {@code http://www.researcherid.com/rid/}.
+	 */
+	private static final String RESEARCHERID_URL = "https://www.webofscience.com/wos/author/rid/"; //$NON-NLS-1$
+
+	private static final String GOOGLESCHOLAR_URL = "https://scholar.google.fr/citations?user="; //$NON-NLS-1$
 
 	private static final String RESEARCHGATE_URL = "http://www.researchgate.net/profile/"; //$NON-NLS-1$
 
@@ -174,6 +180,11 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Column
 	private String researcherId;
 
+	/** Google Scholar Identifier of the person.
+	 */
+	@Column
+	private String googleScholarId;
+
 	/** Identifier of the person on Research Gate.
 	 */
 	@Column
@@ -261,6 +272,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		h = HashCodeUtils.add(h, this.mobilePhone);
 		h = HashCodeUtils.add(h, this.officePhone);
 		h = HashCodeUtils.add(h, this.orcid);
+		h = HashCodeUtils.add(h, this.googleScholarId);
 		h = HashCodeUtils.add(h, this.researcherId);
 		h = HashCodeUtils.add(h, this.researchGateId);
 		h = HashCodeUtils.add(h, this.wosHindex);
@@ -322,6 +334,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			return false;
 		}
 		if (!Objects.equals(this.orcid, other.orcid)) {
+			return false;
+		}
+		if (!Objects.equals(this.googleScholarId, other.googleScholarId)) {
 			return false;
 		}
 		if (!Objects.equals(this.researcherId, other.researcherId)) {
@@ -403,6 +418,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (!Strings.isNullOrEmpty(getResearcherId())) {
 			consumer.accept("researcherId", getResearcherId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
+			consumer.accept("googleScholarId", getGoogleScholarId()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getResearchGateId())) {
 			consumer.accept("researchGateId", getResearchGateId()); //$NON-NLS-1$
@@ -957,7 +975,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @return the URL.
 	 */
-	public final URL getResearcherIdURL() {
+	public final URL getResearcherIdURL_() {
 		if (!Strings.isNullOrEmpty(getResearcherId())) {
 			try {
 
@@ -975,6 +993,38 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public void setResearcherId(String id) {
 		this.researcherId = Strings.emptyToNull(id);
+	}
+
+	/** Replies the Google Scholar ID of the person.
+	 *
+	 * @return the identifier.
+	 */
+	public String getGoogleScholarId() {
+		return this.googleScholarId;
+	}
+
+	/** Replies the URL of the person on Google Scholar.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getGoogleScholarURL() {
+		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
+			try {
+
+				return new URL(GOOGLESCHOLAR_URL + getGoogleScholarId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the Google Scholar Id of the person.
+	 *
+	 * @param id the identifier.
+	 */
+	public void setGoogleScholarId(String id) {
+		this.googleScholarId = Strings.emptyToNull(id);
 	}
 
 	/** Replies the identifier of the person on ResearchGate.

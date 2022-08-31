@@ -20,6 +20,7 @@
 	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(gravatarId, #{html.GravatarId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.gravatarId : ''}, personGravatarPhoto)"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(orcid, #{html.ORCID}, #{html.PlaceHolderIdentifierOrcid}, ${person != null ? person.getORCID() : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(researcherId, #{html.ResearcherId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.researcherId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(googleScholarId, #{html.GoogleScholar}, #{html.PlaceHolderIdentifier}, ${person != null ? person.googleScholarId : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(linkedInId, #{html.LinkedInId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.linkedInId : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(githubId, #{html.GithubId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.githubId : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(researchGateId, #{html.ResearchGateId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.researchGateId : ''})"></div>
