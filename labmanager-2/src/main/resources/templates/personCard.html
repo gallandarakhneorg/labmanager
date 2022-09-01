@@ -1,6 +1,8 @@
 <!DOCTYPE html>
 <html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: sweetalert"/>
+<th:block th:if="${enableQrcode}" th:replace="fragments/libs :: qrcode-js"/>
 <div class="row">
     <div class="col-lg-6">
         <div class="card">
@@ -94,8 +96,34 @@
 				           th:title="#{html.LinksGithubTitle(${person.facebookId})}">
 				           <a th:href="${person.facebookURL}"><span class="person-card-facebook-link"></span></a></span>
 				</div>
+				<div class="person-card-qrcode" th:if="${enableQrcode}">
+				     <div class="person-qrcode" id="person-card-qrcode"></div></div>
             </div>
         </div>
     </div>
 </div>
+<script th:inline="javascript">
+/*[# th:if="${enableQrcode}"]*/
+const PERSON_VCARD = "[(${vcardURL})]";
+new QRCode(document.getElementById("person-card-qrcode"), {
+    text: PERSON_VCARD,
+    useSVG: true,
+});
+$(document).on('click', '#person-card-qrcode', (event) => {
+	Swal.fire({
+		html: '<center><div style="max-width:250px;" id="person-card-qrcode-popup"></div></center>',
+		showCancelButton: false,
+		timerProgressBar: true,
+		timer: 30000,
+		scrollbarPadding: false,
+		willOpen: (popupElt) => {
+			new QRCode(document.getElementById("person-card-qrcode-popup"), {
+			    text: PERSON_VCARD,
+			    useSVG: true,
+			});
+		},
+	});
+});
+/*[/]*/    
+</script>
 </html>

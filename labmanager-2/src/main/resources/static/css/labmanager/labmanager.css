@@ -141,8 +141,16 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
 }
 .person-card-photo {
 	float: right;
-	border-radius: 50%;
 	max-width: 150px;
+}
+.person-card-qrcode {
+	position: relative;
+}
+.person-qrcode {
+	max-width: 50px;
+	position: absolute;
+	bottom: 0;
+	right: 0;
 }
 .person-card-membership {
     font-weight: 700;

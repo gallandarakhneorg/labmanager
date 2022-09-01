@@ -17,7 +17,6 @@
 package fr.ciadlab.labmanager.controller.view.member;
 
 import java.util.Collection;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
@@ -42,6 +41,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponents;
 
 /** REST Controller for persons views.
  * <p>
@@ -158,7 +160,6 @@ public class PersonViewController extends AbstractViewController {
 		return modelAndView;
 	}
 
-
 	/** Show the person's virtual card. This card is a description of the person that could 
 	 * be used for building a Internet page for the person.
 	 *
@@ -166,6 +167,7 @@ public class PersonViewController extends AbstractViewController {
 	 * @param organization the identifier or the name of the organization to restrict the card to.
 	 * @param introText a small text that is output as a status/position.
 	 * @param photo indicates if the photo should be shown on the card.
+	 * @param qrcode indicates if the QR-code should be shown on the card.
 	 * @param status indicates if the member status should be shown on the card.
 	 * @param admin indicates if the administrative position should be shown on the card.
 	 * @param email indicates if the email should be shown on the card.
@@ -181,21 +183,22 @@ public class PersonViewController extends AbstractViewController {
 			@RequestParam(required = false) String organization,
 			@RequestParam(required = false) String introText,
 			@RequestParam(required = false, defaultValue="true") boolean photo,
+			@RequestParam(required = false, defaultValue="true") boolean qrcode,
 			@RequestParam(required = false, defaultValue="true") boolean status,
 			@RequestParam(required = false, defaultValue="true") boolean admin,
 			@RequestParam(required = false, defaultValue="true") boolean email,
 			@RequestParam(required = false, defaultValue="true") boolean officePhone,
-			@RequestParam(required = false, defaultValue="false") boolean mobilePhone,
+			@RequestParam(required = false, defaultValue="true") boolean mobilePhone,
 			@RequestParam(required = false, defaultValue="true") boolean qindexes,
 			@RequestParam(required = false, defaultValue="true") boolean links) {
 		final ModelAndView modelAndView = new ModelAndView("personCard"); //$NON-NLS-1$
 		//
-		final Person personObj = getPersonWith(person);
+		final Person personObj = getPersonWith(person, this.personService, this.nameParser);
 		if (personObj == null) {
 			throw new IllegalArgumentException("Person not found: " + person); //$NON-NLS-1$
 		}
 		//
-		final ResearchOrganization organizationObj = getOrganizarionWith(organization);
+		final ResearchOrganization organizationObj = getOrganizarionWith(organization, this.organizationService);
 		//
 		final Collection<Membership> memberships;
 		if (organizationObj == null) {
@@ -208,7 +211,21 @@ public class PersonViewController extends AbstractViewController {
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		modelAndView.addObject("memberships", memberships); //$NON-NLS-1$
 		modelAndView.addObject("introText", Strings.nullToEmpty(introText).trim()); //$NON-NLS-1$
+		if (qrcode) {
+			final UriComponents currentUri =  ServletUriComponentsBuilder.fromCurrentContextPath().build();
+			final UriBuilder uriBuilder = endpointUriBuilder(Constants.PERSON_VCARD_ENDPOINT);
+			uriBuilder.scheme(currentUri.getScheme());
+			uriBuilder.host(currentUri.getHost());
+			uriBuilder.port(currentUri.getPort());
+			uriBuilder.queryParam(Constants.PERSON_ENDPOINT_PARAMETER, Integer.toString(personObj.getId()));
+			uriBuilder.queryParam(Constants.INATTACHMENT_ENDPOINT_PARAMETER, Boolean.TRUE.toString());
+			if (organizationObj != null) {
+				uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, Integer.toString(organizationObj.getId()));
+			}
+			modelAndView.addObject("vcardURL", uriBuilder.build().toASCIIString()); //$NON-NLS-1$
+		}
 		modelAndView.addObject("enablePhoto", Boolean.valueOf(photo)); //$NON-NLS-1$
+		modelAndView.addObject("enableQrcode", Boolean.valueOf(qrcode)); //$NON-NLS-1$
 		modelAndView.addObject("enableStatus", Boolean.valueOf(status)); //$NON-NLS-1$
 		modelAndView.addObject("enableAdminPosition", Boolean.valueOf(admin)); //$NON-NLS-1$
 		modelAndView.addObject("enableEmail", Boolean.valueOf(email)); //$NON-NLS-1$
@@ -221,6 +238,3 @@ public class PersonViewController extends AbstractViewController {
 	}
 
 }
-
-
-
