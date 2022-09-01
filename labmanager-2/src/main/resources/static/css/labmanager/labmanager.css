@@ -11,6 +11,7 @@ a:active.noLink {
 	all: unset;
 	cursor:pointer;
 }
+
 .form-control.is-valid {
     border-color: #0d64c1;
     border-width:2px;

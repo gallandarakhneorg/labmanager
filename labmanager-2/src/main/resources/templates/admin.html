@@ -1,82 +1,127 @@
-<!DOCTYPE HTML>
-<html xmlns:th="http://www.thymeleaf.org">
-   <head>
-	<link rel="icon" href="data:,">
-      <meta charset="UTF-8" />
-      <title th:utext="#{html.LaboratoryManagementTools}"></title>
-      <link rel="stylesheet" type="text/css" th:href="@{/css/labmanager/labmanager.css}"/>
-   </head>
-   <body>
-      <h1 th:utext="#{html.LaboratoryManagementTools}"></h1>
+<!DOCTYPE html>
+<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
 
-      <h2 th:utext="#{html.ResearchOrganizationManagement}"></h2>
+<div class="row row-cols-1 row-cols-md-4 g-4">
+    <div class="col">
+		<div class="card">
+			<img th:src="@{/images/card/dashboard.jpg}" class="card-img-top"></img>
+		    <div class="card-body">
+			    <h5 class="card-title">Dash Board</h5>
+			    <p class="card-text">
+			    	<button type="button" class="btn btn-labeled btn-success" disabled>
+			    	<span class="fa-solid fa-chart-simple"></span>&nbsp;Charts</button>
+			    	<button type="button" class="btn btn-labeled btn-primary" disabled>
+			    	<span class="fa-solid fa-file-excel"></span>&nbsp;Export to spreadsheet</button>
+			    </p>
+			</div>
+		</div>
+	</div>
+    <div class="col">
+		<div class="card">
+			<img th:src="@{/images/card/organizations.jpg}" class="card-img-top"></img>
+		    <div class="card-body">
+			    <h5 class="card-title" th:utext="#{html.ResearchOrganizationManagement}"></h5>
+			    <p class="card-text">
+			    	<a th:href="@{/organizationList}" class="btn btn-labeled btn-success" role="button">
+			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.OrganizationsList}"></th:block></a>
+			    	<a th:href="@{/organizationEditor}" class="btn btn-labeled btn-primary" role="button">
+			    	<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddOrganization}"></th:block></a>
+			    </p>
+			</div>
+		</div>
+	</div>
+    <div class="col">
+		<div class="card">
+		    <div class="card-body">
+				<img th:src="@{/images/card/staff.jpg}" class="card-img-top"></img>
+			    <h5 class="card-title" th:utext="#{html.PersonManagement}"></h5>
+			    <p class="card-text">
+			    	<a th:href="@{/personList}" class="btn btn-labeled btn-success" role="button">
+			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.PersonsList}"></th:block></a>
+			    	<a th:href="@{/personEditor}" class="btn btn-labeled btn-primary" role="button">
+			    	<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddPerson}"></th:block></a>
+			    	<a th:href="@{/personDuplicateList}" class="btn btn-labeled btn-secondary" role="button">
+			    	<span class="fa-solid fa-code-merge"></span>&nbsp;<th:block th:utext="#{html.MergePersons}"></th:block></a>
+			    </p>
+			</div>
+		</div>
+	</div>
+    <div class="col">
+		<div class="card">
+		    <div class="card-body">
+				<img th:src="@{/images/card/journals.jpg}" class="card-img-top"></img>
+			    <h5 class="card-title" th:utext="#{html.JournalManagement}"></h5>
+			    <p class="card-text">
+			    	<a th:href="@{/journalList}" class="btn btn-labeled btn-success" role="button">
+			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.JournalsList}"></th:block></a>
+			    	<a th:href="@{/journalEditor}" class="btn btn-labeled btn-primary" role="button">
+			    	<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddJournal}"></th:block></a>
+			    </p>
+			</div>
+		</div>
+	</div>
+    <div class="col">
+		<div class="card">
+		    <div class="card-body">
+				<img th:src="@{/images/card/conferences.jpg}" class="card-img-top"></img>
+			    <h5 class="card-title">Conferences</h5>
+			    <p class="card-text">
+			    	<button type="button" class="btn btn-labeled btn-success" disabled>
+			    	<span class="fa-solid fa-list"></span>&nbsp;List of conferences</button>
+			    	<button type="button" class="btn btn-labeled btn-primary" disabled>
+			    	<span class="fa-solid fa-circle-plus"></span>&nbsp;Add a conference</button>
+			    </p>
+			</div>
+		</div>
+	</div>
+    <div class="col">
+		<div class="card">
+		    <div class="card-body">
+				<img th:src="@{/images/card/publications.jpg}" class="card-img-top"></img>
+			    <h5 class="card-title" th:utext="#{html.PublicationManagement}"></h5>
+			    <p class="card-text">
+			    	<a th:href="@{/publicationList}" class="btn btn-labeled btn-success" role="button">
+			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.BackPublicationList}"></th:block></a>
+			    	<a th:href="@{/publicationEditor}" class="btn btn-labeled btn-primary" role="button">
+			    	<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddPublication}"></th:block></a>
+			    	<a th:href="@{/showBibTeXImporter}" class="btn btn-labeled btn-secondary" role="button">
+			    	<span class="fa-solid fa-upload"></span>&nbsp;<th:block th:utext="#{html.ImportBibTeX}"></th:block></a>
+			    </p>
+				<div class="card-footer">
+			    	<a th:href="@{/showPublications}" class="btn btn-labeled btn-info" role="button">
+			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.FrontPublicationList}"></th:block></a>
+				</div>
+			</div>
+		</div>
+	</div>
+    <div class="col">
+		<div class="card">
+			<!--  <img src="..." class="card-img-top" alt="..."> -->
+		    <div class="card-body">
+				<img th:src="@{/images/card/projects.jpg}" class="card-img-top"></img>
+			    <h5 class="card-title">Project Management</h5>
+			    <p class="card-text">
+			    	<button type="button" class="btn btn-labeled btn-success" disabled>
+			    	<span class="fa-solid fa-list"></span>&nbsp;List of projects</button>
+			    	<button type="button" class="btn btn-labeled btn-primary" disabled>
+			    	<span class="fa-solid fa-circle-plus"></span>&nbsp;Add a project</button>
+			    </p>
+			</div>
+		</div>
+	</div>
+    <div class="col">
+		<div class="card">
+		    <div class="card-body">
+				<img th:src="@{/images/card/databases.jpg}" class="card-img-top"></img>
+			    <h5 class="card-title" th:utext="#{html.DatabaseManagement}"></h5>
+			    <p class="card-text">
+			    	<a th:href="@{/exportDatabaseToJson}" class="btn btn-labeled btn-success" role="button">
+			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.DatabaseToJsonExport}"></th:block></a>
+			    </p>
+			</div>
+		</div>
+	</div>
+</div>
 
-      <ul>
-      	<li><a th:href="@{/organizationList}"
-      	       th:utext="#{html.OrganizationsList}"></a></li>
-      	<li><a th:href="@{/organizationEditor}"
-      	       th:utext="#{html.AddOrganization}"></a></li>
-      </ul>
-      
-      <h2 th:utext="#{html.PersonManagement}"></h2>
-
-      <ul>
-      	<li><a th:href="@{/personList}"
-      	       th:utext="#{html.PersonsList}"></a></li>
-      	<li><a th:href="@{/personEditor}"
-      	       th:utext="#{html.AddPerson}"></a></li>
-      	<li><a th:href="@{/personDuplicateList}"
-      	       th:utext="#{html.MergePersons}"></a></li>
-      </ul>
-
-      <h2 th:utext="#{html.PublicationManagement}"></h2>
-
-      <h3 th:utext="#{html.Journals}"></h3>
-        <ul>
-      	  <li><a th:href="@{/journalList}"
-      	         th:utext="#{html.JournalsList}"></a></li>
-      	<li><a th:href="@{/journalEditor}"
-      	       th:utext="#{html.AddJournal}"></a></li>
-        </ul>
-
-      <h3 th:utext="#{html.PublicationList}">List</h3>
-        <ul>
-      	  <li><a th:href="@{/publicationList}"
-      	       th:utext="#{html.BackPublicationList}"></a></li>
-      	  <li><a th:href="@{/showPublications}"
-      	       th:utext="#{html.FrontPublicationList}"></a></li>
-      	<li><a th:href="@{/publicationEditor}"
-      	       th:utext="#{html.AddPublication}"></a></li>
-        </ul>
-
-      <h3 th:utext="#{html.Import}"></h3>
-        <ul>
-      	  <li><a th:href="@{/showBibTeXImporter}"
-      	       th:utext="#{html.ImportBibTeX}"></a></li>
-        </ul>
-
-      <h2>Project Management</h2>
-
-      <ul>
-      	<li>Project List</li>
-      	<li>Add Project</li>
-      	<li>Modify Project</li>
-      	<li>Delete Project</li>
-      </ul>
-
-      <h2>Dash board</h2>
-
-      <ul>
-      	<li>Chart</li>
-      </ul>
-      
-      <h2 th:utext="#{html.DatabaseManagement}"></h2>
-
-      <ul>
-      	<li><a th:href="@{/exportDatabaseToJson}"
-      	         th:utext="#{html.DatabaseToJsonExport}"></a></li>
-      </ul>
-
-   </body>
-   
 </html>
