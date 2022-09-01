@@ -10,6 +10,6 @@ function refreshDynamicPhoto($imageElement, id, urlBase) {
 	if (id) {
 		url = urlBase.format(id);
 	}
-	var $img = $("<img></img>").attr('src', url);
+	var $img = $("<img></img>").attr('src', url).attr('class', 'person-photo');
 	$imageElement.append($img);
 }

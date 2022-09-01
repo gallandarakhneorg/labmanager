@@ -507,19 +507,19 @@ public class PersonTest {
 
 		this.test.setResearcherId("xyz");
 		assertEquals("xyz", this.test.getResearcherId());
-		assertEquals(new URL("https://www.webofscience.com/wos/author/rid/xyz"), this.test.getResearcherIdURL_());
+		assertEquals(new URL("https://www.webofscience.com/wos/author/rid/xyz"), this.test.getResearcherIdURL());
 
 		this.test.setResearcherId(null);
 		assertNull(this.test.getResearcherId());
-		assertNull(this.test.getResearcherIdURL_());
+		assertNull(this.test.getResearcherIdURL());
 
 		this.test.setResearcherId("xyz");
 		assertEquals("xyz", this.test.getResearcherId());
-		assertEquals(new URL("https://www.webofscience.com/wos/author/rid/xyz"), this.test.getResearcherIdURL_());
+		assertEquals(new URL("https://www.webofscience.com/wos/author/rid/xyz"), this.test.getResearcherIdURL());
 
 		this.test.setResearcherId("");
 		assertNull(this.test.getResearcherId());
-		assertNull(this.test.getResearcherIdURL_());
+		assertNull(this.test.getResearcherIdURL());
 	}
 
 	@Test

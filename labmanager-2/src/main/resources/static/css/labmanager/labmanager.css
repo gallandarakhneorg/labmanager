@@ -125,9 +125,19 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
     margin-bottom: 0.5rem;
     font-weight: 700;
     line-height: 1.2;
-    font-size: calc(1.375rem + 1.5vw);
+    font-size: calc(0.25rem + 1.5vw);
     color: #444;
     font-family: 'Poppins', sans-serif;
+}
+.person-card-lastname {
+   	text-transform: uppercase;
+}
+.person-card-firstname {
+   	text-transform: capitalize;
+	font-variant: small-caps;
+}
+.person-photo {
+	border-radius: 50%;
 }
 .person-card-photo {
 	float: right;
@@ -153,4 +163,116 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
 .person-card-contact {
     margin-top: 0.5rem;
 	margin-bottom: 0.5rem;
+}
+.person-card-indexes {
+    margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+.person-card-index {
+	font-family: 'Lato', sans-serif;
+	line-height: 20px;
+    color: #444;
+    margin-left: 0.25rem;
+}
+span.person-card-googlescholar-index:before {
+	background: url("../../images/icon/googlescholar.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	content: "";
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-wos-index:before {
+	background: url("../../images/icon/wos.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	content: "";
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-links {
+    margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+.person-card-orcid-link {
+	background: url("../../images/icon/orcid.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-wos-link {
+	background: url("../../images/icon/wos.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-googlescholar-link {
+	background: url("../../images/icon/googlescholar.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-linkedin-link {
+	background: url("../../images/icon/linkedin.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-researchgate-link {
+	background: url("../../images/icon/researchgate.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-dblp-link {
+	background: url("../../images/icon/dblp.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-academia-link {
+	background: url("../../images/icon/academia-edu.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-cordis-link {
+	background: url("../../images/icon/europe.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-github-link {
+	background: url("../../images/icon/github.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-facebook-link {
+	background: url("../../images/icon/facebook.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
 }

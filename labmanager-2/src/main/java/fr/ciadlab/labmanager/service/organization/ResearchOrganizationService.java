@@ -18,7 +18,6 @@ package fr.ciadlab.labmanager.service.organization;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 
 import com.google.common.base.Strings;
@@ -95,10 +94,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @return the research organization.
 	 */
 	public Optional<ResearchOrganization> getResearchOrganizationByAcronym(String acronym) {
-		final List<ResearchOrganization> allResearchOrganizations = getAllResearchOrganizations();
-		final Optional<ResearchOrganization> ro = allResearchOrganizations.parallelStream()
-				.filter(o -> Objects.equals(o.getAcronym(), acronym)).findFirst();
-		return ro;
+		return this.organizationRepository.findDistinctByAcronym(acronym);
 	}
 
 	/** Replies the research organization with the given name.
@@ -107,10 +103,16 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @return the research organization.
 	 */
 	public Optional<ResearchOrganization> getResearchOrganizationByName(String name) {
-		final List<ResearchOrganization> allResearchOrganizations = getAllResearchOrganizations();
-		final Optional<ResearchOrganization> ro = allResearchOrganizations.parallelStream()
-				.filter(o -> Objects.equals(o.getName(), name)).findFirst();
-		return ro;
+		return this.organizationRepository.findDistinctByName(name);
+	}
+
+	/** Replies the research organization with the given acronym or name.
+	 *
+	 * @param text the text to search for.
+	 * @return the research organization.
+	 */
+	public Optional<ResearchOrganization> getResearchOrganizationByAcronymOrName(String text) {
+		return this.organizationRepository.findDistinctByAcronymOrName(text, text);
 	}
 
 	/** Create a research organization.

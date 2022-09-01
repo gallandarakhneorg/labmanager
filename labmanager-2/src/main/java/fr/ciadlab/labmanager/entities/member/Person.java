@@ -975,7 +975,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @return the URL.
 	 */
-	public final URL getResearcherIdURL_() {
+	public final URL getResearcherIdURL() {
 		if (!Strings.isNullOrEmpty(getResearcherId())) {
 			try {
 

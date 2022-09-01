@@ -137,7 +137,7 @@ public class PersonApiController extends AbstractComponent {
 	 * @param academiaURL the URL of the person's page on Academia.edu.
 	 * @param cordisURL the URL of the person's page on European Commission's Cordis.
 	 * @param webPageNaming the type of naming for the person's webpage on the organization server.
-	 * @param scholarHindex the Hindex of the person on Google Scholar.
+	 * @param googleScholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
 	 * @param username the login of the logged-in person.
 	 * @throws Exception if the person cannot be saved.
@@ -163,13 +163,13 @@ public class PersonApiController extends AbstractComponent {
 			@RequestParam(required = false) String academiaURL,
 			@RequestParam(required = false) String cordisURL,
 			@RequestParam(required = false) String webPageNaming,
-			@RequestParam(required = false) Integer scholarHindex,
+			@RequestParam(required = false) Integer googleScholarHindex,
 			@RequestParam(required = false) Integer wosHindex,
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
 			final Gender genderObj = Strings.isNullOrEmpty(gender) ? Gender.NOT_SPECIFIED : Gender.valueOfCaseInsensitive(gender);
 			final WebPageNaming webPageNamingObj = Strings.isNullOrEmpty(webPageNaming) ? WebPageNaming.UNSPECIFIED : WebPageNaming.valueOfCaseInsensitive(webPageNaming);
-			final int shindex = scholarHindex == null ? 0 : scholarHindex.intValue();
+			final int shindex = googleScholarHindex == null ? 0 : googleScholarHindex.intValue();
 			final int whindex = wosHindex == null ? 0 : wosHindex.intValue();
 			//
 			final Person optPerson;

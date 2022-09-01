@@ -32,12 +32,26 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface ResearchOrganizationRepository extends JpaRepository<ResearchOrganization, Integer> {
 
-	/** Find a research organization with the given acronm or name.
+	/** Find a research organization with the given acronym or name. This function is case sensitive.
 	 *
 	 * @param acronym the acronym to search for.
 	 * @param name the name to search for.
 	 * @return the research organization.
 	 */
 	Optional<ResearchOrganization> findDistinctByAcronymOrName(String acronym, String name);
+
+	/** Find a research organization with the given acronym. This function is case sensitive.
+	 *
+	 * @param acronym the acronym to search for.
+	 * @return the research organization.
+	 */
+	Optional<ResearchOrganization> findDistinctByAcronym(String acronym);
+
+	/** Find a research organization with the given name. This function is case sensitive.
+	 *
+	 * @param name the name to search for.
+	 * @return the research organization.
+	 */
+	Optional<ResearchOrganization> findDistinctByName(String name);
 
 }
