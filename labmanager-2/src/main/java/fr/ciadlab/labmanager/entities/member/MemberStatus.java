@@ -394,6 +394,8 @@ public enum MemberStatus {
 
 	private static final String MESSAGE_PREFIX = "memberStatus."; //$NON-NLS-1$
 
+	private static final String TITLE_POSTFIX = "_title"; //$NON-NLS-1$
+
 	private MessageSourceAccessor messages;
 	
 	/** Replies the message accessor to be used.
@@ -480,6 +482,25 @@ public enum MemberStatus {
 			}
 		}
 		throw new IllegalArgumentException("Invalid member status: " + name); //$NON-NLS-1$
+	}
+
+	/** Replies the civil title associated to this status, if it not a civil title based on gender.
+	 *
+	 * @return the civil title or {@code null} if none is defined.
+	 * @see Gender
+	 */
+	public String getCivilTitle() {
+		return Strings.emptyToNull(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + TITLE_POSTFIX, (String) null));
+	}
+
+	/** Replies the civil title associated to this status, if it not a civil title based on gender.
+	 *
+	 * @param locale the locale that must be used for creating the localized civil title. 
+	 * @return the civil title or {@code null} if none is defined.
+	 * @see Gender
+	 */
+	public String getCivilTitle(Locale locale) {
+		return Strings.emptyToNull(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + TITLE_POSTFIX, (String) null, locale));
 	}
 
 }

@@ -22,12 +22,18 @@ import fr.ciadlab.labmanager.controller.api.publication.PublicationApiController
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.service.member.PersonService;
+import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.names.PersonNameComparator;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
+import fr.ciadlab.labmanager.utils.vcard.VcardBuilder;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -59,19 +65,30 @@ public class PersonApiController extends AbstractComponent {
 
 	private PersonNameParser nameParser;
 
+	private ResearchOrganizationService organizationService;
+
+	private VcardBuilder vcardBuilder;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the accessor to the localized messages.
 	 * @param personService the person service.
+	 * @param organizationService the organization service.
 	 * @param nameParser the parser of person names.
+	 * @param vcardBuilder the builder of Vcards.
 	 */
 	public PersonApiController(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired PersonService personService, @Autowired PersonNameParser nameParser) {
+			@Autowired PersonService personService,
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired PersonNameParser nameParser,
+			@Autowired VcardBuilder vcardBuilder) {
 		super(messages);
 		this.personService = personService;
+		this.organizationService = organizationService;
 		this.nameParser = nameParser;
+		this.vcardBuilder = vcardBuilder;
 	}
 
 	/** Replies the information about a person as a JSON stream.
@@ -213,6 +230,36 @@ public class PersonApiController extends AbstractComponent {
 		} else {
 			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
+	}
+
+	/** Show the person's virtual card. This card is a description of the person that could 
+	 * be used for building a Internet page for the person.
+	 *
+	 * @param person the identifier or the name of the person.
+	 * @param organization the identifier or the name of the organization to restrict the card to.
+	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
+	 *     {@code false}.
+	 * @return the Vcard.
+	 */
+	@GetMapping(value = "/" + Constants.PERSON_VCARD_ENDPOINT)
+	public ResponseEntity<String> getPersonVcard(
+			@RequestParam(required = false) String person,
+			@RequestParam(required = false) String organization,
+			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) {
+		final Person personObj = getPersonWith(person, this.personService, this.nameParser);
+		if (personObj == null) {
+			throw new IllegalArgumentException("Person not found: " + person); //$NON-NLS-1$
+		}
+		//
+		final ResearchOrganization organizationObj = getOrganizarionWith(organization, this.organizationService);
+		//
+		final String content = this.vcardBuilder.build(personObj, organizationObj);
+		//
+		BodyBuilder bb = ResponseEntity.ok().contentType(VcardBuilder.VCARD_MIME_TYPE);
+		if (inAttachment != null && inAttachment.booleanValue()) {
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + personObj.getFullName() + ".vcf\""); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return bb.body(content);
 	}
 
 }

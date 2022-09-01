@@ -18,9 +18,15 @@ package fr.ciadlab.labmanager;
 
 import java.time.LocalDate;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Random;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.service.member.PersonService;
+import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
+import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,7 +54,7 @@ public abstract class AbstractComponent {
 
 	@Autowired
 	private Constants constants;
-	
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
@@ -255,6 +261,58 @@ public abstract class AbstractComponent {
 			this.constants = new Constants();
 		}
 		return this.constants;
+	}
+
+
+	/** Find the person object that corresponds to the given identifier or name.
+	 *
+	 * @param person the identifier or the name of the person.
+	 * @param personService the service thatm ust be used for accessing the person's object.
+	 * @param nameParser the parser of person names to be used for extracting first and last names.
+	 * @return the person or {@code null}.
+	 */
+	protected static Person getPersonWith(String person, PersonService personService, PersonNameParser nameParser) {
+		if (!Strings.isNullOrEmpty(person)) {
+			try {
+				final int id = Integer.parseInt(person);
+				final Person personObj = personService.getPersonById(id);
+				if (personObj != null) {
+					return personObj;
+				}
+			} catch (Throwable ex) {
+				//
+			}
+			final String firstName = nameParser.parseFirstName(person);
+			final String lastName = nameParser.parseLastName(person);
+			final Person personObj = personService.getPersonBySimilarName(firstName, lastName);
+			return personObj;
+		}
+		return null;
+	}
+
+	/** Find the organization object that corresponds to the given identifier, acronym or name.
+	 *
+	 * @param organization the identifier, acronym or the name of the organization.
+	 * @param organizationService the service that permits to access to the organization object.
+	 * @return the organization or {@code null}.
+	 */
+	protected static ResearchOrganization getOrganizarionWith(String organization, ResearchOrganizationService organizationService) {
+		if (!Strings.isNullOrEmpty(organization)) {
+			try {
+				final int id = Integer.parseInt(organization);
+				final Optional<ResearchOrganization> organizationObj = organizationService.getResearchOrganizationById(id);
+				if (organizationObj.isPresent()) {
+					return organizationObj.get();
+				}
+			} catch (Throwable ex) {
+				//
+			}
+			final Optional<ResearchOrganization> organizationObj = organizationService.getResearchOrganizationByAcronymOrName(organization);
+			if (organizationObj.isPresent()) {
+				return organizationObj.get();
+			}
+		}
+		return null;
 	}
 
 }

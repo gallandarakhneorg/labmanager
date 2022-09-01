@@ -20,8 +20,10 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
@@ -388,6 +390,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (getGender() != null) {
 			consumer.accept("gender", getGender()); //$NON-NLS-1$
+		}
+		if (getCivilTitle() != null) {
+			consumer.accept("title", getCivilTitle()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			consumer.accept("githubId", getGithubId()); //$NON-NLS-1$
@@ -1206,6 +1211,59 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public void setMobilePhone(String number) {
 		this.mobilePhone = Strings.emptyToNull(number);
+	}
+
+	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
+	 * on the values replied by {@link #getActiveMemberships()} and {@link #getGender()}.
+	 * The language of the title depends on the current locale.
+	 *
+	 * @return the civil title, or {@code null} if none.
+	 * @see #getCivilTitle(Locale)
+	 */
+	public String getCivilTitle() {
+		final MemberStatus status = findHigherMemberStatus();
+		String title = null;
+		if (status != null) {
+			title = status.getCivilTitle();
+		}
+		if (Strings.isNullOrEmpty(title)) {
+			title = getGender().getCivilTitle();
+		}
+		return Strings.emptyToNull(title);
+	}
+
+	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
+	 * on the values replied by {@link #getActiveMemberships()} and {@link #getGender()}.
+	 *
+	 * @param locale the locale to use for generating the civil title.
+	 * @return the civil title, or {@code null} if none.
+	 * @see #getCivilTitle()
+	 */
+	public String getCivilTitle(Locale locale) {
+		final MemberStatus status = findHigherMemberStatus();
+		String title = null;
+		if (status != null) {
+			title = status.getCivilTitle(locale);
+		}
+		if (Strings.isNullOrEmpty(title)) {
+			title = getGender().getCivilTitle(locale);
+		}
+		return Strings.emptyToNull(title);
+	}
+
+	private MemberStatus findHigherMemberStatus() {
+		final Optional<MemberStatus> status = getActiveMemberships().values().stream().map(it -> it.getMemberStatus())
+				.max((a, b) -> {
+					final int cmp = Integer.compare(a.getHierachicalLevel(), b.getHierachicalLevel());
+					if (cmp != 0) {
+						return cmp;
+					}
+					return b.compareTo(a);
+				});
+		if (status.isEmpty()) {
+			return null;
+		}
+		return status.get();
 	}
 
 }

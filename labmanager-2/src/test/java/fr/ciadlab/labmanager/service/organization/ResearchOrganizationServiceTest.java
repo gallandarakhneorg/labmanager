@@ -20,11 +20,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.atLeast;
-import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
@@ -154,6 +154,21 @@ public class ResearchOrganizationServiceTest {
 
 	@Test
 	public void getResearchOrganizationByAcronym() {
+		when(this.organizationRepository.findDistinctByAcronym(any())).thenAnswer(it -> {
+			if (this.orga0.getAcronym().equals(it.getArgument(0))) {
+				return Optional.of(this.orga0);
+			}
+			if (this.orga1.getAcronym().equals(it.getArgument(0))) {
+				return Optional.of(this.orga1);
+			}
+			if (this.orga2.getAcronym().equals(it.getArgument(0))) {
+				return Optional.of(this.orga2);
+			}
+			if (this.orga3.getAcronym().equals(it.getArgument(0))) {
+				return Optional.of(this.orga3);
+			}
+			return Optional.empty();
+		});
 		assertTrue(this.test.getResearchOrganizationByAcronym(null).isEmpty());
 		assertTrue(this.test.getResearchOrganizationByAcronym("").isEmpty());
 		assertSame(this.orga0, this.test.getResearchOrganizationByAcronym("O1").get());
@@ -165,6 +180,21 @@ public class ResearchOrganizationServiceTest {
 
 	@Test
 	public void getResearchOrganizationByName() {
+		when(this.organizationRepository.findDistinctByName(any())).thenAnswer(it -> {
+			if (this.orga0.getName().equals(it.getArgument(0))) {
+				return Optional.of(this.orga0);
+			}
+			if (this.orga1.getName().equals(it.getArgument(0))) {
+				return Optional.of(this.orga1);
+			}
+			if (this.orga2.getName().equals(it.getArgument(0))) {
+				return Optional.of(this.orga2);
+			}
+			if (this.orga3.getName().equals(it.getArgument(0))) {
+				return Optional.of(this.orga3);
+			}
+			return Optional.empty();
+		});
 		assertTrue(this.test.getResearchOrganizationByName(null).isEmpty());
 		assertTrue(this.test.getResearchOrganizationByName("").isEmpty());
 		assertSame(this.orga0, this.test.getResearchOrganizationByName("N1").get());

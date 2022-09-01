@@ -60,12 +60,22 @@ public abstract class AbstractViewController extends AbstractComponent {
 	 * @return the endpoint URL.
 	 */
 	protected String endpoint(String endpointName, String parameterName) {
-		final UriBuilder b = this.uriBuilderFacory.builder();
-		b.path("/" + this.constants.getServerName() + "/" + endpointName); //$NON-NLS-1$ //$NON-NLS-2$
+		final UriBuilder b = endpointUriBuilder(endpointName);
 		if (!Strings.isNullOrEmpty(parameterName)) {
 			b.queryParam(parameterName, ""); //$NON-NLS-1$
 		}
 		return b.build().toASCIIString();
+	}
+
+	/** Create the URL builder for accessing an endpoint. 
+	 *
+	 * @param endpointName the name of the endpoint.
+	 * @return the endpoint URL. builder
+	 */
+	protected UriBuilder endpointUriBuilder(String endpointName) {
+		final UriBuilder b = this.uriBuilderFacory.builder();
+		b.path("/" + this.constants.getServerName() + "/" + endpointName); //$NON-NLS-1$ //$NON-NLS-2$
+		return b;
 	}
 
 	/** Build the URL from the root of the JPA server. 

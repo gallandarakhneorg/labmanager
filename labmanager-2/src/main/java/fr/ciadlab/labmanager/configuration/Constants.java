@@ -119,6 +119,14 @@ public class Constants {
 	 */
 	public static final String PERSON_SAVING_ENDPOINT = "personSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for obtaining the Vcard of a person.
+	 */
+	public static final String PERSON_VCARD_ENDPOINT = "personVcard"; //$NON-NLS-1$
+
+	/** Name of the name of an endpoint parameter for representing a person.
+	 */
+	public static final String PERSON_ENDPOINT_PARAMETER = "person"; //$NON-NLS-1$
+
 	/** Name of the endpoint for list of journals.
 	 *
 	 * @see #JOURNAL_SAVING_ENDPOINT

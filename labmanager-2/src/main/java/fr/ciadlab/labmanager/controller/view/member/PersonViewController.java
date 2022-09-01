@@ -93,54 +93,6 @@ public class PersonViewController extends AbstractViewController {
 		this.nameParser = nameParser;
 	}
 
-	/** Find the person object that corresponds to the given identifier or name.
-	 *
-	 * @param person the identifier or the name of the person.
-	 * @return the person or {@code null}.
-	 */
-	protected Person getPersonWith(String person) {
-		if (!Strings.isNullOrEmpty(person)) {
-			try {
-				final int id = Integer.parseInt(person);
-				final Person personObj = this.personService.getPersonById(id);
-				if (personObj != null) {
-					return personObj;
-				}
-			} catch (Throwable ex) {
-				//
-			}
-			final String firstName = this.nameParser.parseFirstName(person);
-			final String lastName = this.nameParser.parseLastName(person);
-			final Person personObj = this.personService.getPersonBySimilarName(firstName, lastName);
-			return personObj;
-		}
-		return null;
-	}
-
-	/** Find the organization object that corresponds to the given identifier, acronym or name.
-	 *
-	 * @param organization the identifier, acronym or the name of the organization.
-	 * @return the organization or {@code null}.
-	 */
-	protected ResearchOrganization getOrganizarionWith(String organization) {
-		if (!Strings.isNullOrEmpty(organization)) {
-			try {
-				final int id = Integer.parseInt(organization);
-				final Optional<ResearchOrganization> organizationObj = this.organizationService.getResearchOrganizationById(id);
-				if (organizationObj.isPresent()) {
-					return organizationObj.get();
-				}
-			} catch (Throwable ex) {
-				//
-			}
-			final Optional<ResearchOrganization> organizationObj = this.organizationService.getResearchOrganizationByAcronymOrName(organization);
-			if (organizationObj.isPresent()) {
-				return organizationObj.get();
-			}
-		}
-		return null;
-	}
-
 	/** Replies the model-view component for showing the persons independently of the organization memberships.
 	 *
 	 * @param organization identifier of the organization for which the members must be displayed. If it is ot provided,

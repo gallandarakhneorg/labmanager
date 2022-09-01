@@ -167,7 +167,7 @@ public class PublicationExportApiController extends AbstractComponent {
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
 	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the HTML output. 
-	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
+	 * @param inAttachment indicates if the HTML is provided as attached document or not. By default, the value is
 	 *     {@code false}.
 	 * @return the HTML description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
@@ -206,7 +206,7 @@ public class PublicationExportApiController extends AbstractComponent {
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
-	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
+	 * @param inAttachment indicates if the BibTeX is provided as attached document or not. By default, the value is
 	 *     {@code false}.
 	 * @return the BibTeX description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
@@ -246,7 +246,7 @@ public class PublicationExportApiController extends AbstractComponent {
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
 	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the ODT output. 
-	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
+	 * @param inAttachment indicates if the ODT is provided as attached document or not. By default, the value is
 	 *     {@code false}.
 	 * @return the OpenDocument description of the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.

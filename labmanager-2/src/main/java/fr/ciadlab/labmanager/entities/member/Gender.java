@@ -46,6 +46,8 @@ public enum Gender {
 
 	private static final String MESSAGE_PREFIX = "gender."; //$NON-NLS-1$
 
+	private static final String CIVIL_TITLE_POSTFIX = "_title"; //$NON-NLS-1$
+
 	private MessageSourceAccessor messages;
 	
 	/** Replies the message accessor to be used.
@@ -67,22 +69,41 @@ public enum Gender {
 		this.messages = messages;
 	}
 
-	/** Replies the label of the status in the current language.
+	/** Replies the label of the gender in the current language.
 	 *
-	 * @return the label of the status in the current language.
+	 * @return the label of the gender in the current language.
 	 */
 	public String getLabel() {
 		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name());
 		return Strings.nullToEmpty(label);
 	}
 
-	/** Replies the label of the status in the current language.
+	/** Replies the label of the gender in the current language.
 	 *
 	 * @param locale the locale to use.
-	 * @return the label of the status in the current language.
+	 * @return the label of the gender in the current language.
 	 */
 	public String getLabel(Locale locale) {
 		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name(), locale);
+		return Strings.nullToEmpty(label);
+	}
+
+	/** Replies the civil title of the gender in the current language.
+	 *
+	 * @return the civil title or {@code null} if none is applicable.
+	 */
+	public String getCivilTitle() {
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + CIVIL_TITLE_POSTFIX, (String) null);
+		return Strings.nullToEmpty(label);
+	}
+
+	/** Replies the civil title of the gender in the current language.
+	 *
+	 * @param locale the locale to use.
+	 * @return the civil title or {@code null} if none is applicable.
+	 */
+	public String getCivilTitle(Locale locale) {
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + CIVIL_TITLE_POSTFIX, (String) null, locale);
 		return Strings.nullToEmpty(label);
 	}
 
