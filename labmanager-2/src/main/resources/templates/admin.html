@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
 
 <div class="row row-cols-1 row-cols-md-4 g-4">
     <div class="col">
@@ -24,9 +24,9 @@
 			    <h5 class="card-title" th:utext="#{html.ResearchOrganizationManagement}"></h5>
 			    <p class="card-text">
 			    	<a th:href="@{/organizationList}" class="btn btn-labeled btn-success" role="button">
-			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.OrganizationsList}"></th:block></a>
+			    		<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.OrganizationsList}"></th:block></a>
 			    	<a th:href="@{/organizationEditor}" class="btn btn-labeled btn-primary" role="button">
-			    	<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddOrganization}"></th:block></a>
+			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddOrganization}"></th:block></a>
 			    </p>
 			</div>
 		</div>
@@ -38,12 +38,25 @@
 			    <h5 class="card-title" th:utext="#{html.PersonManagement}"></h5>
 			    <p class="card-text">
 			    	<a th:href="@{/personList}" class="btn btn-labeled btn-success" role="button">
-			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.PersonsList}"></th:block></a>
+				    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.PersonsList}"></th:block></a>
 			    	<a th:href="@{/personEditor}" class="btn btn-labeled btn-primary" role="button">
-			    	<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddPerson}"></th:block></a>
+				    	<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddPerson}"></th:block></a>
 			    	<a th:href="@{/personDuplicateList}" class="btn btn-labeled btn-secondary" role="button">
-			    	<span class="fa-solid fa-code-merge"></span>&nbsp;<th:block th:utext="#{html.MergePersons}"></th:block></a>
+				    	<span class="fa-solid fa-code-merge"></span>&nbsp;<th:block th:utext="#{html.MergePersons}"></th:block></a>
 			    </p>
+				<div class="card-footer">
+					<div class="dropdown">
+				    	<button type="button" class="btn btn-labeled btn-info dropdown-toggle" data-bs-toggle="dropdown"
+			    	            id="dropdownFrontMembers" aria-expanded="false">
+				    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.FrontMemberList}"></th:block></button>
+				    	<ul class="dropdown-menu" aria-labelledby="dropdownFrontMembers">
+							<li th:each="organization : ${organizations}">
+								<a class="dropdown-item"
+								   th:href="@{/showMembers(organization=${organization.id})}"
+								   th:utext="${organization.acronymOrName}"></a></li>
+						</ul>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -89,15 +102,27 @@
 			    	<span class="fa-solid fa-upload"></span>&nbsp;<th:block th:utext="#{html.ImportBibTeX}"></th:block></a>
 			    </p>
 				<div class="card-footer">
-			    	<a th:href="@{/showPublications}" class="btn btn-labeled btn-info" role="button">
-			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.FrontPublicationList}"></th:block></a>
+					<div class="dropdown">
+				    	<button type="button" class="btn btn-labeled btn-info dropdown-toggle" data-bs-toggle="dropdown"
+			    	            id="dropdownPublications" aria-expanded="false">
+				    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.FrontPublicationList}"></th:block></button>
+				    	<ul class="dropdown-menu" aria-labelledby="dropdownPublications">
+							<li><a class="dropdown-item"
+								   th:href="@{/showPublications}"
+								   th:utext="#{html.All}"></a></li>
+							<li><hr class="dropdown-divider"></li>
+							<li th:each="organization : ${organizations}">
+								<a class="dropdown-item"
+								   th:href="@{/showPublications(organization=${organization.id})}"
+								   th:utext="${organization.acronymOrName}"></a></li>
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>
 	</div>
     <div class="col">
 		<div class="card">
-			<!--  <img src="..." class="card-img-top" alt="..."> -->
 		    <div class="card-body">
 				<img th:src="@{/images/card/projects.jpg}" class="card-img-top"></img>
 			    <h5 class="card-title">Project Management</h5>
@@ -117,7 +142,7 @@
 			    <h5 class="card-title" th:utext="#{html.DatabaseManagement}"></h5>
 			    <p class="card-text">
 			    	<a th:href="@{/exportDatabaseToJson}" class="btn btn-labeled btn-success" role="button">
-			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.DatabaseToJsonExport}"></th:block></a>
+			    	<span class="fa-solid fa-download"></span>&nbsp;<th:block th:utext="#{html.DatabaseToJsonExport}"></th:block></a>
 			    </p>
 			</div>
 		</div>
