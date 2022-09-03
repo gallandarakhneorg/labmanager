@@ -126,7 +126,7 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
     margin-bottom: 0.5rem;
     font-weight: 700;
     line-height: 1.2;
-    font-size: calc(0.25rem + 1.5vw);
+	font-size: 140%;
     color: #444;
     font-family: 'Poppins', sans-serif;
 }
@@ -138,7 +138,7 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
 	font-variant: small-caps;
 }
 .person-card-civiltitle {
-	font-size: smaller;
+	font-size: 70%;
 	font-variant: small-caps;
 }
 .person-photo {
@@ -162,6 +162,9 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
 	font-family: 'Lato', sans-serif;
 	line-height: 30px;
     color: #444;
+}
+.person-card-membership-emph {
+    font-weight: 900;
 }
 .person-card-email {
 	font-family: 'Lato', sans-serif;

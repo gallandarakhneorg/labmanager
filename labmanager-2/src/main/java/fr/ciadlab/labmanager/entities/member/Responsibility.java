@@ -22,14 +22,14 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.BaseMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** Type of position in a membership that is not diectly related to the member's status.
+/** Type of responsibility taken by a member of an organization.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public enum PositionType {
+public enum Responsibility {
 
 	/** President or chief executive officer of the organization.
 	 */
@@ -127,6 +127,26 @@ public enum PositionType {
 	 */
 	BUSINESS_UNIT_RESPONSIBLE,
 
+	/** Leader of a team of the organization.
+	 */
+	TEAM_SCIENTFIC_RESPONSIBLE,
+
+	/** Leader of a scientific axis of the organization.
+	 */
+	SCIENTIFIC_AXIS_RESPONSIBLE,
+
+	/** Leader of a application axis of the organization.
+	 */
+	APPLICATION_AXIS_RESPONSIBLE,
+
+	/** Head of a platform of the organization.
+	 */
+	PLATFORM_RESPONSIBLE,
+
+	/** Head of a transverse axis of the organization.
+	 */
+	TRANSVERSE_AXIS_RESPONSIBLE,
+
 	/** Direction secretary of the organization.
 	 */
 	DIRECTION_SECRETARY,
@@ -214,9 +234,9 @@ public enum PositionType {
 	 * @return the status.
 	 * @throws IllegalArgumentException if the given name does not corresponds to a type.
 	 */
-	public static PositionType valueOfCaseInsensitive(String name) {
+	public static Responsibility valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final PositionType status : values()) {
+			for (final Responsibility status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
 					return status;
 				}

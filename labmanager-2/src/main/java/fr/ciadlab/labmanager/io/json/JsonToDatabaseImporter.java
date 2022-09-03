@@ -485,6 +485,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 							assert it.getPerson().getId() == targetPerson.getId();
 							assert it.getResearchOrganization().getId() == targetOrganization.getId();
 							return Objects.equals(it.getMemberStatus(), finalmbr0.getMemberStatus())
+									&& Objects.equals(it.getResponsibility(), finalmbr0.getResponsibility())
 									&& Objects.equals(it.getMemberSinceWhen(), finalmbr0.getMemberSinceWhen())
 									&& Objects.equals(it.getMemberToWhen(), finalmbr0.getMemberToWhen());
 						});

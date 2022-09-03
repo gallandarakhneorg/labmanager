@@ -14,6 +14,7 @@
                         <th></th>
                         <th th:utext="#{html.Members}"></th>
                         <th th:utext="#{html.Status}"></th>
+                        <th th:utext="#{html.Responsibility0}"></th>
                         <th th:utext="#{html.Type}"></th>
                         <th th:utext="#{html.OtherOrganizations}"></th>
                         </thead>
@@ -34,6 +35,13 @@ $(document).ready(() => {
 		statusLabels: {
 	        /*[# th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values()}"]*/
 			"[(${status.name})]": "[(${status.getLabel(locale)})]",
+	        /*[/]*/
+		},
+		responsibilityLabels: {
+	        /*[# th:each="responsibility : ${T(fr.ciadlab.labmanager.entities.member.Responsibility).values()}"]*/
+		        /*[# th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values()}" th:if="${gender.hasLabel()}"]*/
+			"[(${responsibility.name + '_' + gender.name})]": "[(${responsibility.getLabel(gender, locale)})]",
+		        /*[/]*/
 	        /*[/]*/
 		},
 		types: {

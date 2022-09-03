@@ -17,6 +17,9 @@
 package fr.ciadlab.labmanager.controller.view.member;
 
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
@@ -26,6 +29,7 @@ import fr.ciadlab.labmanager.entities.member.ChronoMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.member.Responsibility;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
@@ -98,13 +102,15 @@ public class MembershipViewController extends AbstractViewController {
 	 * @param personId the identifier of the person for who memberships must be edited. If this argument is not
 	 *      provided, {@code personName} must be provided.
 	 * @param username the login of the logged-in person.
+	 * @param locale the current locale.
 	 * @return the model-view that shows the duplicate persons.
 	 */
 	@GetMapping("/membershipEditor")
 	public ModelAndView showMembershipEditor(
 			@RequestParam(required = false) String personName,
 			@RequestParam(required = false) Integer personId,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CurrentSecurityContext(expression="authentication?.name") String username,
+			Locale locale) {
 		if (Strings.isNullOrEmpty(personName) && personId == null) {
 			throw new IllegalArgumentException("You must provide the name or the identifier of the person."); //$NON-NLS-1$
 		}
@@ -127,6 +133,7 @@ public class MembershipViewController extends AbstractViewController {
 		// Preferred values
 		ResearchOrganization preferredOrganization = null;
 		MemberStatus preferredStatus = null;
+		Responsibility preferredResponsibility = null;
 		CnuSection preferredCnuSection = null;
 		ConrsSection preferredConrsSection = null;
 		FrenchBap preferredFrenchBap = null;
@@ -140,6 +147,7 @@ public class MembershipViewController extends AbstractViewController {
 				foundActive = true;
 				preferredOrganization = m.getResearchOrganization();
 				preferredStatus = m.getMemberStatus();
+				preferredResponsibility = m.getResponsibility();
 				preferredCnuSection = m.getCnuSection();
 				preferredConrsSection = m.getConrsSection();
 				preferredFrenchBap = m.getFrenchBap();
@@ -149,6 +157,9 @@ public class MembershipViewController extends AbstractViewController {
 			}
 			if (preferredStatus == null) {
 				preferredStatus = m.getMemberStatus();
+			}
+			if (preferredResponsibility == null) {
+				preferredResponsibility = m.getResponsibility();
 			}
 			if (preferredCnuSection == null) {
 				preferredCnuSection = m.getCnuSection();
@@ -162,11 +173,18 @@ public class MembershipViewController extends AbstractViewController {
 		}
 		modelAndView.addObject("preferredOrganization", preferredOrganization); //$NON-NLS-1$
 		modelAndView.addObject("preferredStatus", preferredStatus); //$NON-NLS-1$
+		modelAndView.addObject("preferredResponsibility", preferredResponsibility); //$NON-NLS-1$
 		modelAndView.addObject("preferredCnuSection", preferredCnuSection); //$NON-NLS-1$
 		modelAndView.addObject("preferredConrsSection", preferredConrsSection); //$NON-NLS-1$
 		modelAndView.addObject("preferredFrenchBap", preferredFrenchBap); //$NON-NLS-1$
 		modelAndView.addObject("preferredIsMainPosition", Boolean.TRUE); //$NON-NLS-1$
 		modelAndView.addObject("minMembershipId", Integer.valueOf(maxId + 10)); //$NON-NLS-1$
+		//
+		final Map<String, Responsibility> allResponsabilities = new TreeMap<>();
+		for (final Responsibility resp : Responsibility.values()) {
+			allResponsabilities.put(resp.getLabel(person.getGender(), locale), resp);
+		}
+		modelAndView.addObject("allResponsabilities", allResponsabilities); //$NON-NLS-1$
 		//
 		final List<ResearchOrganization> sortedOrganizations = this.organizationRepository.findAll().stream()
 				.sorted(new ResearchOrganizationComparator()).collect(Collectors.toList());

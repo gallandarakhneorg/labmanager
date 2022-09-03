@@ -38,6 +38,7 @@ import fr.ciadlab.labmanager.entities.member.ChronoMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.member.Responsibility;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.service.member.MembershipService;
@@ -108,6 +109,7 @@ public class MembershipApiController extends AbstractComponent {
 	 * @param organization the identifier of the organization related to the membership.
 	 * @param status the status of the person related to the membership. If {@code null} or empty, the status does not change in
 	 *     the existing membership.
+	 * @param responsibility the responsibility of the person during the period of the menmbership.
 	 * @param memberSinceWhen the start date of the membership, or {@code null} to set it as unknown or "since always".
 	 * @param memberToWhen the end date of the membership, or {@code null} to set it as unknown or "for the rest of the time".
 	 * @param cnuSection the number of the CNU section to which this membership belongs to. If {@code null} or empty, the
@@ -129,6 +131,7 @@ public class MembershipApiController extends AbstractComponent {
 			@RequestParam(required = false) Integer membership,
 			@RequestParam(required = false) Integer organization,
 			@RequestParam(required = false) String status,
+			@RequestParam(required = false) String responsibility,
 			@RequestParam(required = false) String memberSinceWhen,
 			@RequestParam(required = false) String memberToWhen,
 			@RequestParam(required = false) Integer cnuSection,
@@ -143,6 +146,7 @@ public class MembershipApiController extends AbstractComponent {
 				LocalDate startDate = Strings.isNullOrEmpty(memberSinceWhen) ? null : LocalDate.parse(memberSinceWhen);
 				final LocalDate endDate = Strings.isNullOrEmpty(memberToWhen) ? null : LocalDate.parse(memberToWhen);
 				final MemberStatus statusObj = Strings.isNullOrEmpty(status) ? null : MemberStatus.valueOfCaseInsensitive(status);
+				final Responsibility responsibilityObj = Strings.isNullOrEmpty(responsibility) ? null : Responsibility.valueOfCaseInsensitive(responsibility);
 				final CnuSection cnuSectionObj = cnuSection == null || cnuSection.intValue() == 0 ? null : CnuSection.valueOf(cnuSection);
 				final ConrsSection conrsSectionObj = conrsSection == null || conrsSection.intValue() == 0 ? null : ConrsSection.valueOf(conrsSection);
 				final FrenchBap frenchBapObj = Strings.isNullOrEmpty(frenchBap) ? null : FrenchBap.valueOfCaseInsensitive(frenchBap);
@@ -169,7 +173,7 @@ public class MembershipApiController extends AbstractComponent {
 						final Pair<Membership, Boolean> result = this.membershipService.addMembership(
 								organization.intValue(),
 								person.intValue(),
-								startDate, endDate, statusObj,
+								startDate, endDate, statusObj, responsibilityObj,
 								cnuSectionObj, conrsSectionObj,
 								frenchBapObj, isMainPosition, false);
 						if (!result.getRight().booleanValue()) {
@@ -189,6 +193,7 @@ public class MembershipApiController extends AbstractComponent {
 										Integer.valueOf(otherMembership.getResearchOrganization().getId()),
 										pStart, pEnd,
 										otherMembership.getMemberStatus(),
+										otherMembership.getResponsibility(),
 										otherMembership.getCnuSection(),
 										otherMembership.getConrsSection(),
 										otherMembership.getFrenchBap(),
@@ -203,7 +208,7 @@ public class MembershipApiController extends AbstractComponent {
 					// Update an existing membership.
 					this.membershipService.updateMembershipById(
 							membership.intValue(),
-							organization, startDate, endDate, statusObj,
+							organization, startDate, endDate, statusObj, responsibilityObj,
 							cnuSectionObj, conrsSectionObj, frenchBapObj,
 							isMainPosition);
 				}
@@ -345,7 +350,7 @@ public class MembershipApiController extends AbstractComponent {
 		final Map<String, Object> entry = new HashMap<>();
 		entry.put("person", membership.getPerson()); //$NON-NLS-1$
 		entry.put("memberStatus", membership.getMemberStatus()); //$NON-NLS-1$
-
+		entry.put("responsibility", membership.getResponsibility()); //$NON-NLS-1$
 		entry.put("memberType", type); //$NON-NLS-1$
 		return entry;
 	}

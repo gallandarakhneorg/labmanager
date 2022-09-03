@@ -17,14 +17,21 @@
 					     th:utext="${person.lastName}"></span><th:block th:if="${person.civilTitle}">, <span
 					     class="person-card-civiltitle"
 					     th:utext="${person.civilTitle}"></span></th:block></div>
-				<div th:if="${enableStatus && (!memberships.isEmpty() || !#strings.isEmpty(introText))}"
+				<div th:if="${enableStatus && (!memberships.isEmpty() || !#strings.isEmpty(introText) || !responsibilities.isEmpty())}"
 				     class="person-card-positions">
-					<div class="person-card-membership"
+					<div class="person-card-membership person-card-membership-emph"
 					     th:unless="${#strings.isEmpty(introText)}"
 					     th:utext="${introText}"></div>
+					<div class="person-card-membership person-card-membership-emph"
+					     th:each="resp : ${responsibilities}"
+					     th:if="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}"
+					     th:utext="#{html.ResponsabilityInApos(${resp.responsibility.getLabel(person.gender, locale)},${resp.researchOrganization.acronymOrName})}"></div>
+					<div class="person-card-membership person-card-membership-emph"
+					     th:each="resp : ${responsibilities}"
+					     th:unless="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}"
+					     th:utext="#{html.ResponsabilityInNotApos(${resp.responsibility.getLabel(person.gender, locale)},${resp.researchOrganization.acronymOrName})}"></div>
 					<div class="person-card-membership"
 					     th:each="membership : ${memberships}"
-					     th:if="${membership.isMainPosition()}"
 					     th:title="${membership.researchOrganization.acronymOrName}"
 					     th:utext="${membership.memberStatus.getLabel(locale)}"></div>
 				</div>

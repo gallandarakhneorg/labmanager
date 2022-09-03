@@ -78,20 +78,13 @@ public class ResearchOrganizationServiceTest {
 
 	private ResearchOrganizationRepository organizationRepository;
 
-	private MembershipRepository membershipRepository;
-
-	private PersonRepository personRepository;
-
 	private ResearchOrganizationService test;
 
 	@BeforeEach
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.organizationRepository = mock(ResearchOrganizationRepository.class);
-		this.membershipRepository = mock(MembershipRepository.class);
-		this.personRepository = mock(PersonRepository.class);
-		this.test = new ResearchOrganizationService(this.messages, this.organizationRepository,
-				this.membershipRepository, this.personRepository);
+		this.test = new ResearchOrganizationService(this.messages, this.organizationRepository);
 
 		// Prepare some organizations to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -282,57 +275,6 @@ public class ResearchOrganizationServiceTest {
 
 		verify(this.orga1, atLeastOnce()).setCountry(arg4.capture());
 		assertEquals(CountryCode.GERMANY, arg4.getValue());
-	}
-
-	@Test
-	public void addMembership() {
-		final LocalDate d0 = LocalDate.parse("2022-07-14");
-		final LocalDate d1 = LocalDate.parse("2022-07-24");
-		final Person pers = mock(Person.class);
-		when(this.personRepository.findById(anyInt())).thenReturn(Optional.of(pers));
-		when(pers.getMemberships()).thenReturn(Collections.emptySet());
-
-		final boolean r = this.test.addMembership(234, 890, d0, d1, MemberStatus.ENGINEER);
-
-		assertTrue(r);
-
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
-
-		verify(this.organizationRepository, atLeastOnce()).findById(arg0.capture());
-		Integer actual0 = arg0.getValue();
-		assertNotNull(actual0);
-		assertEquals(234, actual0);
-
-		verify(this.personRepository, atLeastOnce()).findById(arg0.capture());
-		Integer actual1 = arg0.getValue();
-		assertNotNull(actual1);
-		assertEquals(890, actual1);
-
-		final ArgumentCaptor<Membership> arg1 = ArgumentCaptor.forClass(Membership.class);
-		verify(this.membershipRepository, atLeastOnce()).save(arg1.capture());
-		final Membership actual2 = arg1.getValue();
-		assertSame(pers, actual2.getPerson());
-		assertSame(this.orga1, actual2.getResearchOrganization());
-		assertSame(d0, actual2.getMemberSinceWhen());
-		assertSame(d1, actual2.getMemberToWhen());
-		assertSame(MemberStatus.ENGINEER, actual2.getMemberStatus());
-	}
-
-	@Test
-	public void addMembership_invalidOrga() {
-		final LocalDate d0 = LocalDate.parse("2022-07-14");
-		final LocalDate d1 = LocalDate.parse("2022-07-24");
-		final boolean r = this.test.addMembership(1, 890, d0, d1, MemberStatus.ENGINEER);
-		assertFalse(r);
-	}
-
-	@Test
-	public void addMembership_invalidPerson() {
-		final LocalDate d0 = LocalDate.parse("2022-07-14");
-		final LocalDate d1 = LocalDate.parse("2022-07-24");
-		when(this.personRepository.findById(anyInt())).thenReturn(Optional.empty());
-		final boolean r = this.test.addMembership(234, 890, d0, d1, MemberStatus.ENGINEER);
-		assertFalse(r);
 	}
 
 	@Test

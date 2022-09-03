@@ -19,7 +19,9 @@ package fr.ciadlab.labmanager.controller.view.member;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -202,13 +204,22 @@ public class PersonViewController extends AbstractViewController {
 		//
 		final ResearchOrganization organizationObj = getOrganizarionWith(organization, this.organizationService);
 		//
-		final Collection<Membership> memberships;
+		Stream<Membership> stream = personObj.getMemberships().stream().parallel();
 		if (organizationObj == null) {
-			memberships = personObj.getActiveMemberships().values();
+			stream = stream.filter(it -> it.isActive());
 		} else {
-			memberships = personObj.getRecentMemberships(
-					it -> it.isActive() && it.getResearchOrganization().getId() == organizationObj.getId()).values();
+			stream = stream.filter(it -> it.isActive() && it.getResearchOrganization().getId() == organizationObj.getId());
 		}
+		final Collection<Membership> memberships = new ConcurrentLinkedQueue<>();
+		final Collection<Membership> responsibilities = new ConcurrentLinkedQueue<>();
+		stream.forEach(it -> {
+			if (it.getResponsibility() != null) {
+				responsibilities.add(it);
+			}
+			if (it.isMainPosition()) {
+				memberships.add(it);
+			}
+		});
 		//
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		final Map<String, Object> obfuscatedValues = new HashMap<>();
@@ -216,8 +227,9 @@ public class PersonViewController extends AbstractViewController {
 		addObfuscatedPhoneFields(obfuscatedValues, personObj.getOfficePhone(), "o"); //$NON-NLS-1$
 		addObfuscatedPhoneFields(obfuscatedValues, personObj.getMobilePhone(), "m"); //$NON-NLS-1$
 		addObfuscatedValues(modelAndView, obfuscatedValues);
-		modelAndView.addObject("memberships", memberships); //$NON-NLS-1$
 		modelAndView.addObject("introText", Strings.nullToEmpty(introText).trim()); //$NON-NLS-1$
+		modelAndView.addObject("memberships", memberships); //$NON-NLS-1$
+		modelAndView.addObject("responsibilities", responsibilities); //$NON-NLS-1$
 		if (qrcode) {
 			final UriComponents currentUri =  ServletUriComponentsBuilder.fromCurrentContextPath().build();
 			final UriBuilder uriBuilder = endpointUriBuilder(Constants.PERSON_VCARD_ENDPOINT);

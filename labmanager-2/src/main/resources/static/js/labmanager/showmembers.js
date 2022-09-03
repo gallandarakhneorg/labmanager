@@ -12,7 +12,7 @@ function initMemberDataTable(config) {
 
 	var dtconfig = {
 		ajax: config['url'],
-		dom: config['enableFilters'] ? 'tpP' : 'tp',
+		dom: config['enableFilters'] ? 'Pt' : 't',
 		scrollCollapse: true,
 		paging: false,
 		responsive: true,
@@ -62,6 +62,16 @@ function initMemberDataTable(config) {
 				data: "memberStatus",
 				render: (data, type, row) => {
 					return config['statusLabels'][data];
+				},
+				searchPanes: {
+					show: true,
+				},
+			},
+			{
+				data: "responsibility",
+				render: (data, type, row) => {
+					var key = data + '_' + row.person.gender;
+					return config['responsibilityLabels'][key];
 				},
 				searchPanes: {
 					show: true,

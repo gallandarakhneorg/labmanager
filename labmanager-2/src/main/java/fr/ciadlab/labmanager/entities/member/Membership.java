@@ -79,6 +79,12 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	@Enumerated(EnumType.STRING)
 	private MemberStatus memberStatus;
 
+	/** Position of the person in the research organization.
+	 */
+	@Column
+	@Enumerated(EnumType.STRING)
+	private Responsibility responsibility;
+
 	/** Number of the CNU section of the person related to which membership.
 	 */
 	@Column
@@ -121,18 +127,20 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @param since the start date of involvement.
 	 * @param to the end date of involvement.
 	 * @param status the status.
+	 * @param responsibility the responsibility in the organization.
 	 * @param cnuSection the number of the CNU section, or {@code null} if it is unknown or irrelevant.
 	 * @param conrsSection the number of the CoNRS section, or {@code null} if it is unknown or irrelevant.
 	 * @param frenchBap the type of job for a not-researcher staff.
 	 * @param isMainPosition indicates if the membership is associated to the main position of the associated person.
 	 */
 	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status,
-			CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap, boolean isMainPosition) {
+			Responsibility responsibility, CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap, boolean isMainPosition) {
 		this.person = person;
 		this.researchOrganization = orga;
 		this.memberSinceWhen = since;
 		this.memberToWhen = to;
 		this.memberStatus = status;
+		this.responsibility = responsibility;
 		this.cnuSection = cnuSection;
 		this.conrsSection = conrsSection;
 		this.frenchBap = frenchBap;
@@ -162,6 +170,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.memberSinceWhen);
 		h = HashCodeUtils.add(h, this.memberStatus);
+		h = HashCodeUtils.add(h, this.responsibility);
 		h = HashCodeUtils.add(h, this.memberToWhen);
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.researchOrganization);
@@ -191,6 +200,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 			return false;
 		}
 		if (!Objects.equals(this.memberStatus, other.memberStatus)) {
+			return false;
+		}
+		if (!Objects.equals(this.responsibility, other.responsibility)) {
 			return false;
 		}
 		if (!Objects.equals(this.memberToWhen, other.memberSinceWhen)) {
@@ -234,11 +246,14 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		if (getMemberSinceWhen() != null) {
 			consumer.accept("memberSinceWhen", getMemberSinceWhen()); //$NON-NLS-1$
 		}
+		if (getMemberToWhen() != null) {
+			consumer.accept("memberToWhen", getMemberToWhen()); //$NON-NLS-1$
+		}
 		if (getMemberStatus() != null) {
 			consumer.accept("memberStatus", getMemberStatus()); //$NON-NLS-1$
 		}
-		if (getMemberToWhen() != null) {
-			consumer.accept("memberToWhen", getMemberToWhen()); //$NON-NLS-1$
+		if (getResponsibility() != null) {
+			consumer.accept("responsibility", getResponsibility()); //$NON-NLS-1$
 		}
 		consumer.accept("isMainPosition", Boolean.valueOf(isMainPosition())); //$NON-NLS-1$
 	}
@@ -594,6 +609,34 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 			setMainPosition(true);
 		} else {
 			setMainPosition(main.booleanValue());
+		}
+	}
+
+	/** Replies the responsibility of the member in the research organization.
+	 *
+	 * @return the responsibility.
+	 */
+	public Responsibility getResponsibility() {
+		return this.responsibility;
+	}
+
+	/** Change the responsibility of the member in the research organization.
+	 *
+	 * @param responsibility the responsibility.
+	 */
+	public void setResponsibility(Responsibility responsibility) {
+		this.responsibility = responsibility;
+	}
+
+	/** Change the responsibility of the member in the research organization.
+	 *
+	 * @param responsibility the responsibility.
+	 */
+	public final void setResponsibility(String responsibility) {
+		if (Strings.isNullOrEmpty(responsibility)) {
+			setResponsibility((Responsibility) null);
+		} else {
+			setResponsibility(Responsibility.valueOfCaseInsensitive(responsibility));
 		}
 	}
 

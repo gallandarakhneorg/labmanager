@@ -71,6 +71,8 @@ public class DefaultVcardBuilder implements VcardBuilder {
 
 	private static final String PHOTO_TYPE = "PHOTO;MEDIATYPE#image/jpeg:"; //$NON-NLS-1$
 
+	private static final String ROLE = "ROLE:"; //$NON-NLS-1$
+
 	private static final String VCARD_END = "END:VCARD\n"; //$NON-NLS-1$
 
 	private static void append(StringBuilder vcard, String property, String value) {
@@ -147,6 +149,9 @@ public class DefaultVcardBuilder implements VcardBuilder {
 				ro = ro.getSuperOrganization();
 			} while (ro != null);
 			append(vcard, ORGANIZATION, org.toString());
+			if (membership.getResponsibility() != null) {
+				append(vcard, ROLE, membership.getResponsibility().getLabel(membership.getPerson().getGender(), Locale.US));
+			}
 		}
 	}
 

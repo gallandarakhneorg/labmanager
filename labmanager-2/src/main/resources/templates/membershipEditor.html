@@ -28,6 +28,14 @@
 			<div class="form-group" th:replace="fragments/form :: checkInput*(${'isMainPosition_' + minMembershipId}, #{html.MainPositionMembership}, #{html.MainPositionMembership2}, true)"></div>
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'memberSinceWhen_' + minMembershipId}, #{html.MemberSince}, '')"></div>
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'memberToWhen_' + minMembershipId}, #{html.MemberTo}, '')"></div>
+			<div class="form-group" th:replace="fragments/form :: comboInput(${'responsibility_' + minMembershipId}, #{html.Responsibility(${person.fullName})}, ~{::option#option-responsibility-new})">
+				<option id="option-responsibility-new" value="" th:utext="#{html.NotSpecified}"></option>
+				<option id="option-responsibility-new"
+				        th:each="responsibility : ${allResponsabilities.entrySet}"
+				        th:selected="${preferredResponsibility != null && responsibility.value == preferredResponsibility}"
+				        th:value="${responsibility.value.name}"
+				        th:utext="${responsibility.key}"></option>
+			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput(${'cnuSection_' + minMembershipId}, #{html.CnuSection}, ~{::option#option-cnu-new})">
 				<option id="option-cnu-new" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-cnu-new"
@@ -76,6 +84,14 @@
 			<div class="form-group" th:replace="fragments/form :: checkInput*(${'isMainPosition_' + membership.id}, #{html.MainPositionMembership}, #{html.MainPositionMembership2}, ${membership.isMainPosition})"></div>
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'memberSinceWhen_' + membership.id}, #{html.MemberSince}, ${membership.memberSinceWhen == null ? '' : membership.memberSinceWhen.toString})"></div>
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'memberToWhen_' + membership.id}, #{html.MemberTo}, ${membership.memberToWhen == null ? '' : membership.memberToWhen.toString})"></div>
+			<div class="form-group" th:replace="fragments/form :: comboInput(${'responsibility_' + membership.id}, #{html.Responsibility(${person.fullName})}, ~{::option#option-responsibility})">
+				<option id="option-responsibility" value="" th:utext="#{html.NotSpecified}"></option>
+				<option id="option-responsibility"
+				        th:each="responsibility : ${allResponsabilities.entrySet}"
+				        th:selected="${membership != null && membership.responsibility == responsibility.value}"
+				        th:value="${responsibility.value.name}"
+				        th:utext="${responsibility.key}"></option>
+			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput(${'cnuSection_' + membership.id}, #{html.CnuSection}, ~{::option#option-cnu})">
 				<option id="option-cnu" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-cnu"
@@ -126,6 +142,7 @@ function addSavingButtonCallback(membershipId, isNewMembership) {
 			formData.append("isMainPosition", checked);
 			formData.append("memberSinceWhen", $('#dateInput_memberSinceWhen_' + membershipId).val());
 			formData.append("memberToWhen", $('#dateInput_memberToWhen_' + membershipId).val());
+			formData.append("responsibility", $('#comboInput_responsibility_' + membershipId + ' option:selected').attr('value'));
 			formData.append("cnuSection", $('#comboInput_cnuSection_' + membershipId + ' option:selected').attr('value'));
 			formData.append("conrsSection", $('#comboInput_conrsSection_' + membershipId + ' option:selected').attr('value'));
 			formData.append("frenchBap", $('#comboInput_frenchBap_' + membershipId + ' option:selected').attr('value'));

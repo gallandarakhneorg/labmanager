@@ -84,6 +84,10 @@ public class MembershipComparator implements Comparator<Membership> {
 		if (n != 0) {
 			return n;
 		}
+		n = o1.getResponsibility().compareTo(o2.getResponsibility());
+		if (n != 0) {
+			return n;
+		}
 		n = compareCnuSection(o1.getCnuSection(), o2.getCnuSection());
 		if (n != 0) {
 			return n;

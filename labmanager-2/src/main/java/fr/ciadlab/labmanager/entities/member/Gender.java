@@ -33,16 +33,36 @@ import org.springframework.context.support.MessageSourceAccessor;
 public enum Gender {
 	/** Unknown gender.
 	 */
-	NOT_SPECIFIED,
+	NOT_SPECIFIED {
+		@Override
+		public boolean hasLabel() {
+			return false;
+		}
+	},
 	/** Male.
 	 */
-	MALE,
+	MALE {
+		@Override
+		public boolean hasLabel() {
+			return true;
+		}
+	},
 	/** Female.
 	 */
-	FEMALE,
+	FEMALE {
+		@Override
+		public boolean hasLabel() {
+			return true;
+		}
+	},
 	/** Other gender.
 	 */
-	OTHER;
+	OTHER {
+		@Override
+		public boolean hasLabel() {
+			return true;
+		}
+	};
 
 	private static final String MESSAGE_PREFIX = "gender."; //$NON-NLS-1$
 
@@ -68,6 +88,12 @@ public enum Gender {
 	public void setMessageSourceAccessor(MessageSourceAccessor messages) {
 		this.messages = messages;
 	}
+
+	/** Replies if the given gender has a label.
+	 *
+	 * @return {@code true} if the given gender as a label.
+	 */
+	public abstract boolean hasLabel();
 
 	/** Replies the label of the gender in the current language.
 	 *

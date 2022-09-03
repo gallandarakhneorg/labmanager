@@ -568,4 +568,29 @@ public class MembershipTest {
 		assertTrue(this.test.isMainPosition());
 	}
 
+	@Test
+	public void getResponsibility() {
+		assertNull(this.test.getResponsibility());
+	}
+
+	@Test
+	public void setResponsibility_Responsibility() {
+		assertNull(this.test.getResponsibility());
+		final Responsibility r0 = Responsibility.COMMUNICATION_VICE_PRESIDENT;
+		this.test.setResponsibility(r0);
+		assertSame(r0, this.test.getResponsibility());
+		this.test.setResponsibility((Responsibility) null);
+		assertNull(this.test.getResponsibility());
+	}
+
+	@Test
+	public void setResponsibility_String() {
+		assertNull(this.test.getResponsibility());
+		final Responsibility r0 = Responsibility.BUSINESS_UNIT_RESPONSIBLE;
+		this.test.setResponsibility(r0.name().toLowerCase());
+		assertSame(r0, this.test.getResponsibility());
+		this.test.setResponsibility((String) null);
+		assertNull(this.test.getResponsibility());
+	}
+
 }

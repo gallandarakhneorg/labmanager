@@ -82,7 +82,8 @@
 		{
 			"person": {"@id": "/pers#1"},
 			"researchOrganization": {"@id": "/ro#0"},
-			"memberStatus": "ASSOCIATE_PROFESSOR_HDR"
+			"memberStatus": "ASSOCIATE_PROFESSOR_HDR",
+			"responsibility": "BUSINESS_UNIT_RESPONSIBLE"
 		}
 	],
 	"journals": [

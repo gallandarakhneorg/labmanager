@@ -16,18 +16,12 @@
 
 package fr.ciadlab.labmanager.service.organization;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.Strings;
-import fr.ciadlab.labmanager.entities.member.MemberStatus;
-import fr.ciadlab.labmanager.entities.member.Membership;
-import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
-import fr.ciadlab.labmanager.repository.member.MembershipRepository;
-import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import org.arakhne.afc.util.CountryCode;
@@ -48,27 +42,17 @@ public class ResearchOrganizationService extends AbstractService {
 
 	private final ResearchOrganizationRepository organizationRepository;
 
-	private final MembershipRepository membershipRepository;
-
-	private final PersonRepository personRepository;
-
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param organizationRepository the organization repository.
-	 * @param membershipRepository the membership repository.
-	 * @param personRepository the person repository.
 	 */
 	public ResearchOrganizationService(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired ResearchOrganizationRepository organizationRepository,
-			@Autowired MembershipRepository membershipRepository,
-			@Autowired PersonRepository personRepository) {
+			@Autowired ResearchOrganizationRepository organizationRepository) {
 		super(messages);
 		this.organizationRepository = organizationRepository;
-		this.membershipRepository = membershipRepository;
-		this.personRepository = personRepository;
 	}
 
 	/** Replies all the research organizations.
@@ -267,41 +251,6 @@ public class ResearchOrganizationService extends AbstractService {
 					subOrganization.setSuperOrganization(null);
 					this.organizationRepository.save(superOrganization);
 					this.organizationRepository.save(subOrganization);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	/** Create the membership that corresponds to the given organization and member identifiers.
-	 * 
-	 * @param organizationId the identifier of the organization.
-	 * @param personId the identifier of the member.
-	 * @param startDate the beginning of the membership.
-	 * @param endDate the end of the membership.
-	 * @param memberStatus the status of the person in the membership.
-	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
-	 */
-	public boolean addMembership(int organizationId, int personId, LocalDate startDate, LocalDate endDate, MemberStatus memberStatus) {
-		assert memberStatus != null;
-		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
-		if (optOrg.isPresent()) {
-			final Optional<Person> optPerson = this.personRepository.findById(Integer.valueOf(personId));
-			if (optPerson.isPresent()) {
-				final Person person = optPerson.get();
-				// We don't need to add the membership is the person is already involved in the organization
-				final Optional<Membership> ro = person.getMemberships().stream().filter(
-						it -> it.getResearchOrganization().getId() == organizationId).findAny();
-				if (ro.isEmpty()) {
-					final ResearchOrganization organization = optOrg.get();
-					final Membership mem = new Membership();
-					mem.setPerson(person);
-					mem.setResearchOrganization(organization);
-					mem.setMemberSinceWhen(startDate);
-					mem.setMemberToWhen(endDate);
-					mem.setMemberStatus(memberStatus);
-					this.membershipRepository.save(mem);
 					return true;
 				}
 			}
