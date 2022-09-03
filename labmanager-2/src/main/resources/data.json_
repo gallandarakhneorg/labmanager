@@ -67,6 +67,7 @@
 			"person": {"@id": "/pers#0"},
 			"researchOrganization": {"@id": "/ro#0"},
 			"memberStatus": "ASSOCIATE_PROFESSOR_HDR",
+			"isMainPosition": false,
 			"memberToWhen": "2018-08-31",
 			"cnuSection": 27
 		},
@@ -74,6 +75,7 @@
 			"person": {"@id": "/pers#0"},
 			"researchOrganization": {"@id": "/ro#0"},
 			"memberStatus": "FULL_PROFESSOR",
+			"isMainPosition": true,
 			"membersinceWhen": "2018-09-01",
 			"cnuSection": 27
 		},

@@ -97,6 +97,13 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	@Enumerated(EnumType.STRING)
 	private FrenchBap frenchBap;
 
+	/** Indicates if this membership is marked a main position for the associated person.
+	 * This flag may be used by the services of the application to show or hide this membership.
+	 * For example, on the person's card, onyl the main positions are shown.
+	 */
+	@Column(nullable = false)
+	private boolean isMainPosition = true;
+
 	/** Reference to the person.
 	 */
 	@ManyToOne(fetch = FetchType.EAGER)
@@ -117,9 +124,10 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @param cnuSection the number of the CNU section, or {@code null} if it is unknown or irrelevant.
 	 * @param conrsSection the number of the CoNRS section, or {@code null} if it is unknown or irrelevant.
 	 * @param frenchBap the type of job for a not-researcher staff.
+	 * @param isMainPosition indicates if the membership is associated to the main position of the associated person.
 	 */
 	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status,
-			CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap) {
+			CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap, boolean isMainPosition) {
 		this.person = person;
 		this.researchOrganization = orga;
 		this.memberSinceWhen = since;
@@ -128,6 +136,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		this.cnuSection = cnuSection;
 		this.conrsSection = conrsSection;
 		this.frenchBap = frenchBap;
+		this.isMainPosition = isMainPosition;
 	}
 
 	/** Construct an empty membership.
@@ -156,6 +165,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		h = HashCodeUtils.add(h, this.memberToWhen);
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.researchOrganization);
+		h = HashCodeUtils.add(h, this.isMainPosition);
 		return h;
 	}
 
@@ -190,6 +200,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 			return false;
 		}
 		if (!Objects.equals(this.researchOrganization, other.researchOrganization)) {
+			return false;
+		}
+		if (this.isMainPosition != other.isMainPosition) {
 			return false;
 		}
 		return true;
@@ -227,6 +240,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		if (getMemberToWhen() != null) {
 			consumer.accept("memberToWhen", getMemberToWhen()); //$NON-NLS-1$
 		}
+		consumer.accept("isMainPosition", Boolean.valueOf(isMainPosition())); //$NON-NLS-1$
 	}
 
 	@Override
@@ -326,7 +340,11 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		if (Strings.isNullOrEmpty(date)) {
 			setMemberToWhen((LocalDate) null);
 		} else {
-			setMemberToWhen(LocalDate.parse(date));
+			try {
+				setMemberToWhen(LocalDate.parse(date));
+			} catch (Throwable ex) {
+				setMemberToWhen(LocalDate.parse(date));
+			}
 		}
 	}
 
@@ -542,6 +560,41 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		}
 		final LocalDate now = LocalDate.now();
 		return now.isBefore(dt);
+	}
+
+	/** Replies if this membership is marked as a main position for the associated person.
+	 * This flag is used by the services to show or hide the membership. For example,
+	 * on the person's card, only the main position memberships are shown. 
+	 *
+	 * @return {@code true} if the membership is a main position.
+	 */
+	public boolean isMainPosition() {
+		return this.isMainPosition;
+	}
+
+	/** Change the flag that indicates if this membership is marked as a main position for the associated person.
+	 * This flag is used by the services to show or hide the membership. For example,
+	 * on the person's card, only the main position memberships are shown. 
+	 *
+	 * @param main {@code true} if the membership is a main position.
+	 */
+	public void setMainPosition(boolean main) {
+		this.isMainPosition = main;
+	}
+
+	/** Change the flag that indicates if this membership is marked as a main position for the associated person.
+	 * This flag is used by the services to show or hide the membership. For example,
+	 * on the person's card, only the main position memberships are shown. 
+	 *
+	 * @param main {@code Boolean#TRUE} if the membership is a main position. If {@code null}, the {@code true} is
+	 *     assigned.
+	 */
+	public final void setMainPosition(Boolean main) {
+		if (main == null) {
+			setMainPosition(true);
+		} else {
+			setMainPosition(main.booleanValue());
+		}
 	}
 
 }

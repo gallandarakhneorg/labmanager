@@ -551,7 +551,7 @@ public class MembershipServiceTest {
 	public void addMembership() throws Exception {
 		final Pair<Membership, Boolean> m = this.test.addMembership(2345, 34567, LocalDate.parse("2022-07-12"),
 				LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER, CnuSection.CNU_07, ConrsSection.CONRS_08,
-				FrenchBap.BAP_E, false);
+				FrenchBap.BAP_E, false, false);
 		assertNotNull(m);
 		assertTrue(m.getRight());
 
@@ -566,6 +566,7 @@ public class MembershipServiceTest {
 		assertSame(CnuSection.CNU_07, actual.getCnuSection());
 		assertSame(ConrsSection.CONRS_08, actual.getConrsSection());
 		assertSame(FrenchBap.BAP_E, actual.getFrenchBap());
+		assertFalse(actual.isMainPosition());
 		assertSame(this.p3, actual.getPerson());
 		assertSame(this.o2, actual.getResearchOrganization());
 	}
@@ -582,7 +583,7 @@ public class MembershipServiceTest {
 		});
 
 		final Membership m = this.test.updateMembershipById(234, 1234, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
-				MemberStatus.MASTER_STUDENT, CnuSection.CNU_05, ConrsSection.CONRS_06, FrenchBap.BAP_E);
+				MemberStatus.MASTER_STUDENT, CnuSection.CNU_05, ConrsSection.CONRS_06, FrenchBap.BAP_E, false);
 		assertSame(this.ms1, m);
 
 		final ArgumentCaptor<Membership> arg0 = ArgumentCaptor.forClass(Membership.class);
@@ -596,6 +597,7 @@ public class MembershipServiceTest {
 		verify(this.ms1).setCnuSection(same(CnuSection.CNU_05));
 		verify(this.ms1).setConrsSection(same(ConrsSection.CONRS_06));
 		verify(this.ms1).setFrenchBap(same(FrenchBap.BAP_E));
+		verify(this.ms1).setMainPosition(eq(false));
 		verifyNoMoreInteractions(this.ms1);
 	}
 

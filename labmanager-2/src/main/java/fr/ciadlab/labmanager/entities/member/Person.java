@@ -409,6 +409,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (!Strings.isNullOrEmpty(getFullName())) {
 			consumer.accept("fullName", getFullName()); //$NON-NLS-1$
 		}
+		if (!Strings.isNullOrEmpty(getFullNameWithLastNameFirst())) {
+			consumer.accept("fullNameWithLastNameFirst", getFullNameWithLastNameFirst()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getLinkedInId())) {
 			consumer.accept("linkedInId", getLinkedInId()); //$NON-NLS-1$
 		}

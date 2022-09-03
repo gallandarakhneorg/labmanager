@@ -274,6 +274,9 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final Set<String> aliases = aliasRepository.computeIfAbsent(key, it -> {
 					final TreeSet<String> set = new TreeSet<>();
 					set.add(SETTER_FUNCTION_PREFIX + key.toLowerCase());
+					if (key.startsWith(IS_GETTER_FUNCTION_PREFIX)) {
+						set.add(SETTER_FUNCTION_PREFIX + key.substring(IS_GETTER_FUNCTION_PREFIX.length()).toLowerCase());
+					}
 					for (final String alias : getFieldAliases(key)) {
 						set.add(SETTER_FUNCTION_PREFIX + alias.toLowerCase());
 					}

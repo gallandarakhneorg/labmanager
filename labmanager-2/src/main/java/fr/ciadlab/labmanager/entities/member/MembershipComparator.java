@@ -96,6 +96,11 @@ public class MembershipComparator implements Comparator<Membership> {
 		if (n != 0) {
 			return n;
 		}
+		// Main position order is reversed to put the "true" before the "false"
+		n = Boolean.compare(o2.isMainPosition(), o1.isMainPosition());
+		if (n != 0) {
+			return n;
+		}
 		return Integer.compare(o1.getId(), o2.getId());
 	}
 

@@ -164,6 +164,7 @@ public class MembershipViewController extends AbstractViewController {
 		modelAndView.addObject("preferredCnuSection", preferredCnuSection); //$NON-NLS-1$
 		modelAndView.addObject("preferredConrsSection", preferredConrsSection); //$NON-NLS-1$
 		modelAndView.addObject("preferredFrenchBap", preferredFrenchBap); //$NON-NLS-1$
+		modelAndView.addObject("preferredIsMainPosition", Boolean.TRUE); //$NON-NLS-1$
 		modelAndView.addObject("minMembershipId", Integer.valueOf(maxId + 10)); //$NON-NLS-1$
 		//
 		final List<ResearchOrganization> sortedOrganizations = this.organizationRepository.findAll().stream()

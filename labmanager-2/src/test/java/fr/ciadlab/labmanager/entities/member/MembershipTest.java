@@ -540,4 +540,32 @@ public class MembershipTest {
 		assertFalse(this.test.isActiveIn(s, e));
 	}
 
+
+	@Test
+	public void isMainPosition() {
+		assertTrue(this.test.isMainPosition());
+	}
+
+	@Test
+	public void setMainPosition() {
+		assertTrue(this.test.isMainPosition());
+		this.test.setMainPosition(false);
+		assertFalse(this.test.isMainPosition());
+		this.test.setMainPosition(true);
+		assertTrue(this.test.isMainPosition());
+	}
+
+	@Test
+	public void setMainPosition_Boolean() {
+		assertTrue(this.test.isMainPosition());
+		this.test.setMainPosition(Boolean.FALSE);
+		assertFalse(this.test.isMainPosition());
+		this.test.setMainPosition(Boolean.TRUE);
+		assertTrue(this.test.isMainPosition());
+		this.test.setMainPosition(Boolean.FALSE);
+		assertFalse(this.test.isMainPosition());
+		this.test.setMainPosition((Boolean) null);
+		assertTrue(this.test.isMainPosition());
+	}
+
 }

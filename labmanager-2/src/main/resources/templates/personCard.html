@@ -22,6 +22,7 @@
 					     th:utext="${introText}"></div>
 					<div class="person-card-membership"
 					     th:each="membership : ${memberships}"
+					     th:if="${membership.isMainPosition()}"
 					     th:title="${membership.researchOrganization.acronymOrName}"
 					     th:utext="${membership.memberStatus.getLabel(locale)}"></div>
 				</div>
@@ -103,27 +104,29 @@
     </div>
 </div>
 <script th:inline="javascript">
+$(document).ready(() => {
 /*[# th:if="${enableQrcode}"]*/
-const PERSON_VCARD = "[(${vcardURL})]";
-new QRCode(document.getElementById("person-card-qrcode"), {
-    text: PERSON_VCARD,
-    useSVG: true,
-});
-$(document).on('click', '#person-card-qrcode', (event) => {
-	Swal.fire({
-		html: '<center><div style="max-width:250px;" id="person-card-qrcode-popup"></div></center>',
-		showCancelButton: false,
-		timerProgressBar: true,
-		timer: 30000,
-		scrollbarPadding: false,
-		willOpen: (popupElt) => {
-			new QRCode(document.getElementById("person-card-qrcode-popup"), {
-			    text: PERSON_VCARD,
-			    useSVG: true,
-			});
-		},
+	const PERSON_VCARD = "[(${vcardURL})]";
+	new QRCode(document.getElementById("person-card-qrcode"), {
+	    text: PERSON_VCARD,
+	    useSVG: true,
 	});
-});
+	$(document).on('click', '#person-card-qrcode', (event) => {
+		Swal.fire({
+			html: '<center><div style="max-width:250px;" id="person-card-qrcode-popup"></div></center>',
+			showCancelButton: false,
+			timerProgressBar: true,
+			timer: 30000,
+			scrollbarPadding: false,
+			willOpen: (popupElt) => {
+				new QRCode(document.getElementById("person-card-qrcode-popup"), {
+				    text: PERSON_VCARD,
+				    useSVG: true,
+				});
+			},
+		});
+	});
 /*[/]*/    
+});
 </script>
 </html>

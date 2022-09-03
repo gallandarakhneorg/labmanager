@@ -1,5 +1,7 @@
 # Ignore CSS, Fonts and JS files that are copied from static-resources
 src/main/resources/static/css/*.css
+src/main/resources/static/css/*.css.map
 src/main/resources/static/fonts/*
 src/main/resources/static/js/*.js
+src/main/resources/static/js/*.js.map
 

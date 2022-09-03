@@ -88,6 +88,10 @@ public abstract class JsonTool {
 	 */
 	protected static final String GETTER_FUNCTION_PREFIX = "get"; //$NON-NLS-1$
 
+	/** Prefix for for the "is" (boolean) getter functions.
+	 */
+	protected static final String IS_GETTER_FUNCTION_PREFIX = "is"; //$NON-NLS-1$
+
 	/** Main section of the JSON that is dedicated to research organizations.
 	 */
 	protected static final String RESEARCHORGANIZATIONS_SECTION = "researchOrganizations"; //$NON-NLS-1$

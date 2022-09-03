@@ -232,7 +232,7 @@ public class PersonApiController extends AbstractComponent {
 		}
 	}
 
-	/** Show the person's virtual card. This card is a description of the person that could 
+	/** Replies the person's virtual card. This card is a description of the person that could 
 	 * be used for building a Internet page for the person.
 	 *
 	 * @param person the identifier or the name of the person.

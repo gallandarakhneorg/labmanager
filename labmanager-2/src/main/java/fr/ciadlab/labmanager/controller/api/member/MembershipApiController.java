@@ -84,6 +84,7 @@ public class MembershipApiController extends AbstractComponent {
 	 * @param conrsSection the number of the CoNRS section to which this membership belongs to. If {@code null} or empty, the
 	 *     CoNRS section does not change in the existing membership.
 	 * @param frenchBap the type of job for a not-researcher.
+	 * @param isMainPosition indicates if the membership is marked as a main position.
 	 * @param closeActive in the case that an active membership exists for the person and the organization, this flag
 	 *     permits to control the behavior of the controller. If it is evaluated to {@code true}, the existing active
 	 *     membership is closed to the date given by {@code memberSinceWhen} (if this date is not given, today is considered.
@@ -102,6 +103,7 @@ public class MembershipApiController extends AbstractComponent {
 			@RequestParam(required = false) Integer cnuSection,
 			@RequestParam(required = false) Integer conrsSection,
 			@RequestParam(required = false) String frenchBap,
+			@RequestParam(required = false, defaultValue = "true") boolean isMainPosition,
 			@RequestParam(required = false, defaultValue = "true") boolean closeActive,
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
@@ -138,7 +140,7 @@ public class MembershipApiController extends AbstractComponent {
 								person.intValue(),
 								startDate, endDate, statusObj,
 								cnuSectionObj, conrsSectionObj,
-								frenchBapObj, false);
+								frenchBapObj, isMainPosition, false);
 						if (!result.getRight().booleanValue()) {
 							// The membership already exists, start the dedicated behavior
 							if (closeActive) {
@@ -158,7 +160,8 @@ public class MembershipApiController extends AbstractComponent {
 										otherMembership.getMemberStatus(),
 										otherMembership.getCnuSection(),
 										otherMembership.getConrsSection(),
-										otherMembership.getFrenchBap());
+										otherMembership.getFrenchBap(),
+										otherMembership.isMainPosition());
 								continueCreation = true;
 							} else {
 								throw new IllegalStateException("A membership is already active. It is not allowed to create multiple active memberships for the same organization"); //$NON-NLS-1$
@@ -170,7 +173,8 @@ public class MembershipApiController extends AbstractComponent {
 					this.membershipService.updateMembershipById(
 							membership.intValue(),
 							organization, startDate, endDate, statusObj,
-							cnuSectionObj, conrsSectionObj, frenchBapObj);
+							cnuSectionObj, conrsSectionObj, frenchBapObj,
+							isMainPosition);
 				}
 			} catch (Throwable ex) {
 				getLogger().error(ex.getLocalizedMessage(), ex);

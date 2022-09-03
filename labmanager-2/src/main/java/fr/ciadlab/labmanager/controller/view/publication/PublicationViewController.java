@@ -81,8 +81,6 @@ public class PublicationViewController extends AbstractViewController {
 
 	private JournalService journalService;
 
-	private final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
-
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -422,7 +420,6 @@ public class PublicationViewController extends AbstractViewController {
 		//
 		return modelAndView;
 	}
-
 
 	/** Add the URL to model that permits to retrieve the publication list.
 	 *

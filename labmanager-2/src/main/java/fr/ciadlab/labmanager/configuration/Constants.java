@@ -83,9 +83,13 @@ public class Constants {
 	 */
 	public static final String MESSAGE_ENDPOINT_PARAMETER = "message"; //$NON-NLS-1$
 
-	/** Default basename of the files in attachment.
+	/** Default basename of the files in attachment with publications.
 	 */
-	public static final String DEFAULT_ATTACHMENT_BASENAME = "publications"; //$NON-NLS-1$
+	public static final String DEFAULT_PUBLICATION_ATTACHMENT_BASENAME = "publications"; //$NON-NLS-1$
+
+	/** Default basename of the files in attachment with members.
+	 */
+	public static final String DEFAULT_MEMBERS_ATTACHMENT_BASENAME = "members"; //$NON-NLS-1$
 
 	/** Name of the endpoint for list of organizations.
 	 */
