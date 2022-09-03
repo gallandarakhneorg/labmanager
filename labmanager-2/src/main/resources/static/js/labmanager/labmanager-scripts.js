@@ -35,3 +35,25 @@ String.prototype.format = function () {
         }
     }
 }());
+
+/** Add a click handler for opening an obfuscated email.
+ * @param element the jQuery selector for the element to attach to the click event.
+ */
+function addObfuscatedEmailHandler(element) {
+	$(element).css('cursor', 'pointer');
+	$(document).on('click', element, (event) => {
+		var email = event.target.dataset.obfd + event.target.dataset.obfc + '@' + event.target.dataset.obfb + '.' + event.target.dataset.obfa;
+		location.href = 'mailto:' + email;
+	});
+}
+
+/** Add a click handler for opening an obfuscated phone.
+ * @param element the jQuery selector for the element to attach to the click event.
+ */
+function addObfuscatedPhoneHandler(element) {
+	$(element).css('cursor', 'pointer');
+	$(document).on('click', element, (event) => {
+		var phone = event.target.dataset.obfa + event.target.dataset.obfb + event.target.dataset.obfc + event.target.dataset.obfd;
+		location.href = 'tel:' + phone;
+	});
+}

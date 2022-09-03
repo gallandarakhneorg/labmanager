@@ -17,6 +17,9 @@
 package fr.ciadlab.labmanager.controller.view;
 
 import java.io.File;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.AbstractComponent;
@@ -39,8 +42,12 @@ public abstract class AbstractViewController extends AbstractComponent {
 
 	/** Factory of URI builder.
 	 */
-	protected final UriBuilderFactory uriBuilderFacory = new DefaultUriBuilderFactory();
+	protected final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
+
+	private static final String EMAIL_PATTERN_VALUE = "^([^@]+)@(.*?)\\.([^\\.]+)$"; //$NON-NLS-1$
 	
+	private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_PATTERN_VALUE);
+
 	private Constants constants;
 
 	/** Constructor.
@@ -73,7 +80,7 @@ public abstract class AbstractViewController extends AbstractComponent {
 	 * @return the endpoint URL. builder
 	 */
 	protected UriBuilder endpointUriBuilder(String endpointName) {
-		final UriBuilder b = this.uriBuilderFacory.builder();
+		final UriBuilder b = this.uriBuilderFactory.builder();
 		b.path("/" + this.constants.getServerName() + "/" + endpointName); //$NON-NLS-1$ //$NON-NLS-2$
 		return b;
 	}
@@ -90,7 +97,7 @@ public abstract class AbstractViewController extends AbstractComponent {
 			bb.insert(0, f.getName()).insert(0, "/"); //$NON-NLS-1$
 			f = f.getParentFile();
 		}
-		final UriBuilder b = this.uriBuilderFacory.builder();
+		final UriBuilder b = this.uriBuilderFactory.builder();
 		b.path("/" + this.constants.getServerName() + bb.toString()); //$NON-NLS-1$
 		return b.build().toASCIIString();
 	}
@@ -101,7 +108,7 @@ public abstract class AbstractViewController extends AbstractComponent {
 	 * @return the rooted URL.
 	 */
 	protected String rooted(String relativeUrl) {
-		final UriBuilder b = this.uriBuilderFacory.builder();
+		final UriBuilder b = this.uriBuilderFactory.builder();
 		b.path("/" + this.constants.getServerName() + "/" + relativeUrl); //$NON-NLS-1$ //$NON-NLS-2$
 		return b.build().toASCIIString();
 	}
@@ -128,6 +135,91 @@ public abstract class AbstractViewController extends AbstractComponent {
 		modelAndView.addObject("URLS_exportOdt", endpoint(Constants.EXPORT_ODT_ENDPOINT, null)); //$NON-NLS-1$
 		modelAndView.addObject("URLS_exportHtml", endpoint(Constants.EXPORT_HTML_ENDPOINT, null)); //$NON-NLS-1$
 		modelAndView.addObject("URLS_exportJson", endpoint(Constants.EXPORT_JSON_ENDPOINT, null)); //$NON-NLS-1$
+	}
+
+	/** Fill the attributes that describe the components of an obfuscated email.
+	 *
+	 * @param values the attribute values to fill up.
+	 * @param email the email to obfuscate.
+	 * @param id the identifier to add to the attribute names for making them unique.
+	 */
+	@SuppressWarnings("static-method")
+	protected void addObfuscatedEmailFields(Map<String, Object> values, String email, String id) {
+		if (!Strings.isNullOrEmpty(email)) {
+			final Matcher matcher = EMAIL_PATTERN.matcher(email);
+			if (matcher.matches()) {
+				final String name = matcher.group(1);
+				final String name0;
+				final String name1;
+				if (name.length() >= 2) {
+					final int nl = name.length() / 2;
+					name0 = name.substring(0, nl);
+					name1 = name.substring(nl);
+				} else {
+					name0 = name;
+					name1 = ""; //$NON-NLS-1$
+				}
+				final String domain = matcher.group(2);
+				final String tld = matcher.group(3);
+				final String rid = Strings.isNullOrEmpty(id) ? "" : ("_" + id); //$NON-NLS-1$ //$NON-NLS-2$
+				values.put("obfuscatedEmailName0" + rid, name0); //$NON-NLS-1$
+				values.put("obfuscatedEmailName1" + rid, name1); //$NON-NLS-1$
+				values.put("obfuscatedEmailDomain" + rid, domain); //$NON-NLS-1$
+				values.put("obfuscatedEmailTld" + rid, tld); //$NON-NLS-1$
+			}
+		}
+	}
+
+	/** Fill the attributes that describe the components of an obfuscated phone number.
+	 *
+	 * @param values the attribute values to fill up.
+	 * @param phone the phone to obfuscate.
+	 * @param id the identifier to add to the attribute names for making them unique.
+	 */
+	@SuppressWarnings("static-method")
+	protected void addObfuscatedPhoneFields(Map<String, Object> values, String phone, String id) {
+		if (!Strings.isNullOrEmpty(phone)) {
+			final String phone0;
+			final String phone1;
+			final String phone2;
+			final String phone3;
+			if (phone.length() >= 4) {
+				final int nl = phone.length() / 4;
+				int n = 0;
+				phone0 = phone.substring(0, nl);
+				n += nl;
+				phone1 = phone.substring(n, n + nl);
+				n += nl;
+				phone2 = phone.substring(n, n + nl);
+				n += nl;
+				phone3 = phone.substring(n);
+			} else if (phone.length() == 3) {
+				phone0 = ""; //$NON-NLS-1$
+				phone1 = phone.substring(0, 2);
+				phone2 = ""; //$NON-NLS-1$
+				phone3 = phone.substring(2, 3);
+			} else {
+				phone0 = ""; //$NON-NLS-1$
+				phone1 = ""; //$NON-NLS-1$
+				phone2 = phone;
+				phone3 = ""; //$NON-NLS-1$
+			}
+			final String rid = Strings.isNullOrEmpty(id) ? "" : ("_" + id); //$NON-NLS-1$ //$NON-NLS-2$
+			values.put("obfuscatedPhone0" + rid, phone0); //$NON-NLS-1$
+			values.put("obfuscatedPhone1" + rid, phone1); //$NON-NLS-1$
+			values.put("obfuscatedPhone2" + rid, phone2); //$NON-NLS-1$
+			values.put("obfuscatedPhone3" + rid, phone3); //$NON-NLS-1$
+		}
+	}
+
+	/** Fill the attributes that describe the components of an obfuscated email.
+	 *
+	 * @param modelAndView the model-view object to fill up.
+	 * @param values the attribute values to fill up.
+	 */
+	@SuppressWarnings("static-method")
+	protected void addObfuscatedValues(ModelAndView modelAndView, Map<String, Object> values) {
+		modelAndView.addObject("obfuscatedValues", values); //$NON-NLS-1$
 	}
 
 }

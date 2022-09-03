@@ -30,18 +30,18 @@
 				     th:if="${enableEmail || enableOfficePhone || enableMobilePhone}">
 					<div class="person-card-email"
 					     th:unless="${!enableEmail || #strings.isEmpty(person.email)}">
-					     <span class="fa-solid fa-at"></span>
-					     <th:block th:utext="${person.email}"></th:block>
+						<span class="fa-solid fa-at"></span>
+						<th:block th:replace="fragments/general :: obfuscatedEmail(person-card-contact-obfemail,null)"/>
 					</div>
 					<div class="person-card-phone person-card-officephone"
 					     th:unless="${!enableOfficePhone || #strings.isEmpty(person.officePhone)}">
 					     <span class="fa-solid fa-phone"></span>
-					     <th:block th:utext="${person.officePhone}"></th:block>
+						<th:block th:replace="fragments/general :: obfuscatedPhone(person-card-contact-obfophone,o)"/>
 					</div>
 					<div class="person-card-phone person-card-mobilephone"
 					     th:unless="${!enableMobilePhone || #strings.isEmpty(person.mobilePhone)}">
 					     <span class="fa-solid fa-mobile"></span>
-					     <th:block th:utext="${person.mobilePhone}"></th:block>
+						<th:block th:replace="fragments/general :: obfuscatedPhone(person-card-contact-obfmphone,m)"/>
 					</div>
 				</div>
 				<div class="person-card-indexes"
@@ -127,6 +127,15 @@ $(document).ready(() => {
 		});
 	});
 /*[/]*/    
+/*[# th:if="${enableEmail}"]*/
+	addObfuscatedEmailHandler('#person-card-contact-obfemail');
+/*[/]*/
+/*[# th:if="${enableOfficePhone}"]*/
+	addObfuscatedPhoneHandler('#person-card-contact-obfophone');
+/*[/]*/
+	/*[# th:if="${enableMobilePhone}"]*/
+	addObfuscatedPhoneHandler('#person-card-contact-obfmphone');
+/*[/]*/
 });
 </script>
 </html>

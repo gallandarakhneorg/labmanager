@@ -285,3 +285,9 @@ span.person-card-googlescholar-index:before {
 	width: 20px;
 	height: 20px;
 }
+span.obfuscated-em:after {
+	content: attr(data-obfd) attr(data-obfc) "@" attr(data-obfb) "." attr(data-obfa); 
+}
+span.obfuscated-pn:after {
+	content: attr(data-obfa) attr(data-obfb) attr(data-obfc) attr(data-obfd); 
+}

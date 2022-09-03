@@ -36,4 +36,38 @@
     	<script th:src="@{/js/labmanager/labmanager-scripts.js}"></script>
 	</th:block>
 
+    <th:block th:fragment="obfuscatedEmail(id,varPostfix)">
+	     <span th:if="${varPostfix}"
+	           class="obfuscated-em"
+	           th:id="${id}"
+	           th:data-obfa="${obfuscatedValues['obfuscatedEmailTld_' + varPostfix]}"
+	           th:data-obfb="${obfuscatedValues['obfuscatedEmailTld_' + varPostfix]}"
+	           th:data-obfc="${obfuscatedValues['obfuscatedEmailTld_' + varPostfix]}"
+	           th:data-obfd="${obfuscatedValues['obfuscatedEmailTld_' + varPostfix]}"></span>
+	     <span th:unless="${varPostfix}"
+	           class="obfuscated-em"
+	           th:id="${id}"
+	           th:data-obfa="${obfuscatedValues['obfuscatedEmailTld']}"
+	           th:data-obfb="${obfuscatedValues['obfuscatedEmailDomain']}"
+	           th:data-obfc="${obfuscatedValues['obfuscatedEmailName1']}"
+	           th:data-obfd="${obfuscatedValues['obfuscatedEmailName0']}"></span>
+	</th:block>
+
+    <th:block th:fragment="obfuscatedPhone(id,varPostfix)">
+	     <span th:if="${varPostfix}"
+	           class="obfuscated-pn"
+	           th:id="${id}"
+	           th:data-obfa="${obfuscatedValues['obfuscatedPhone0_' + varPostfix]}"
+	           th:data-obfb="${obfuscatedValues['obfuscatedPhone1_' + varPostfix]}"
+	           th:data-obfc="${obfuscatedValues['obfuscatedPhone2_' + varPostfix]}"
+	           th:data-obfd="${obfuscatedValues['obfuscatedPhone3_' + varPostfix]}"></span>
+	     <span th:unless="${varPostfix}"
+	           class="obfuscated-pn"
+	           th:id="${id}"
+	           th:data-obfa="${obfuscatedValues['obfuscatedPhone0']}"
+	           th:data-obfb="${obfuscatedValues['obfuscatedPhone1']}"
+	           th:data-obfc="${obfuscatedValues['obfuscatedPhone2']}"
+	           th:data-obfd="${obfuscatedValues['obfuscatedPhone3']}"></span>
+	</th:block>
+
 </html>

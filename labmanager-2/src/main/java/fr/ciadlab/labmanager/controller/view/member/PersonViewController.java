@@ -17,6 +17,8 @@
 package fr.ciadlab.labmanager.controller.view.member;
 
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
@@ -104,7 +106,7 @@ public class PersonViewController extends AbstractViewController {
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + Constants.PERSON_LIST_ENDPOINT)
-	public ModelAndView showPersonList(
+	public ModelAndView showBackPersonList(
 			@RequestParam(required = false) Integer organization,
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
 		final ModelAndView modelAndView = new ModelAndView(Constants.PERSON_LIST_ENDPOINT);
@@ -209,6 +211,11 @@ public class PersonViewController extends AbstractViewController {
 		}
 		//
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
+		final Map<String, Object> obfuscatedValues = new HashMap<>();
+		addObfuscatedEmailFields(obfuscatedValues, personObj.getEmail(), null);
+		addObfuscatedPhoneFields(obfuscatedValues, personObj.getOfficePhone(), "o"); //$NON-NLS-1$
+		addObfuscatedPhoneFields(obfuscatedValues, personObj.getMobilePhone(), "m"); //$NON-NLS-1$
+		addObfuscatedValues(modelAndView, obfuscatedValues);
 		modelAndView.addObject("memberships", memberships); //$NON-NLS-1$
 		modelAndView.addObject("introText", Strings.nullToEmpty(introText).trim()); //$NON-NLS-1$
 		if (qrcode) {
