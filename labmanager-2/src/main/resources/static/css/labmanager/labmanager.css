@@ -137,6 +137,10 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
    	text-transform: capitalize;
 	font-variant: small-caps;
 }
+.person-card-civiltitle {
+	font-size: smaller;
+	font-variant: small-caps;
+}
 .person-photo {
 	border-radius: 50%;
 }
@@ -290,4 +294,23 @@ span.obfuscated-em:after {
 }
 span.obfuscated-pn:after {
 	content: attr(data-obfa) attr(data-obfb) attr(data-obfc) attr(data-obfd); 
+}
+.researchOrganizationMember {
+    color: #212529 !important;
+    font-weight: bold;
+}
+.researchOrganizationMember a {
+    color: #3b4d05 !important;
+}
+.researchOrganizationMember a:hover {
+    color: #212529 !important;
+}
+.researchOrganizationMember a:visited {
+    font-family: 'Poppins', sans-serif;
+	color: #212529 !important;
+}
+.researchOrganizationMemberCivilTitle {
+    font-family: 'Poppins', sans-serif;
+	font-size: smaller;
+	font-variant: small-caps;	
 }

@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import javax.annotation.PostConstruct;
 
+import fr.ciadlab.labmanager.controller.api.member.GeneralMemberType;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
@@ -148,6 +149,9 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (FrenchBap item : EnumSet.allOf(FrenchBap.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (GeneralMemberType item : EnumSet.allOf(GeneralMemberType.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 		}

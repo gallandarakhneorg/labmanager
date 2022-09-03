@@ -18,22 +18,45 @@ package fr.ciadlab.labmanager.controller.api.member;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Optional;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.member.ChronoMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
+import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.service.member.MembershipService;
+import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
+import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -53,19 +76,27 @@ public class MembershipApiController extends AbstractComponent {
 
 	private MembershipService membershipService;
 
+	private ResearchOrganizationService organizationService;
+
+	private ChronoMembershipComparator membershipComparator;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the accessor to the localized messages.
-	 * @param membershipComparator the comparator of memberships to use for building the views with
-	 *     a chronological point of view.
 	 * @param membershipService the service for managing the memberships.
+	 * @param organizationService the service for accessing the organizations.
+	 * @param membershipComparator the comparator of member for determining the more recents.
 	 */
 	public MembershipApiController(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired MembershipService membershipService) {
+			@Autowired MembershipService membershipService,
+			@Autowired ResearchOrganizationService organizationService,
+			@Autowired ChronoMembershipComparator membershipComparator) {
 		super(messages);
 		this.membershipService = membershipService;
+		this.organizationService = organizationService;
+		this.membershipComparator = membershipComparator;
 	}
 
 	/** Saving information of a membership. 
@@ -203,6 +234,120 @@ public class MembershipApiController extends AbstractComponent {
 		} else {
 			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
+	}
+
+	/** Replies the JSON representation of the members of the given organization.
+	 *
+	 * @param organization the identifier of the organization to export.
+	 * @param otherOrganizationType the type of organization that must be considered as "other organization".
+	 *     Default is {@link ResearchOrganizationType#UNIVERSITY}.
+	 * @param includeSuborganizations indicates if the sub-organizations are included.
+	 * @param forAjax indicates if the JSON is provided to AJAX. By default, the value is
+	 *     {@code false}. If the JSON is provided to AJAX, the data is included into the root key {@code data} that is expected by AJAX.
+	 *     If this parameter is evaluated to {@code true}, the parameter {@code inAttachment} is ignored.
+	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
+	 *     {@code false}.
+	 *     If the parameter {@code forAjax} is evaluated to {@code true}, this parameter is ignored.
+	 * @return the JSON.
+	 */
+	@GetMapping(value = "/" + Constants.EXPORT_MEMBERS_TO_JSON_ENDPOINT)
+	public ResponseEntity<Object> exportMembersToJson(
+			@RequestParam(required = true) int organization,
+			@RequestParam(required = false) String otherOrganizationType,
+			@RequestParam(required = false, name = Constants.INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER, defaultValue = "true") boolean includeSuborganizations,
+			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
+			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) {
+		final boolean isAjax = forAjax != null && forAjax.booleanValue();
+		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();
+		final ResearchOrganizationType otherOrganizationTypeEnum =
+				otherOrganizationType == null ? ResearchOrganizationType.UNIVERSITY
+						: ResearchOrganizationType.valueOfCaseInsensitive(otherOrganizationType);
+		//
+		final Optional<ResearchOrganization> organizationOpt = this.organizationService.getResearchOrganizationById(organization);
+		if (organizationOpt.isEmpty()) {
+			throw new NoSuchElementException("Organization not found with id: " + organization); //$NON-NLS-1$
+		}
+		final ResearchOrganization rootOrganization = organizationOpt.get();
+		//
+		// List of memberships should be built specifically for the front ends
+		final Map<Person, MutablePair<Membership, Set<ResearchOrganization>>> members = new TreeMap<>(EntityUtils.getPreferredPersonComparator());
+		final LinkedList<ResearchOrganization> organizationStack = new LinkedList<>();
+		organizationStack.push(rootOrganization);
+		while (!organizationStack.isEmpty()) {
+			final ResearchOrganization currentOrganization = organizationStack.pop();
+			if (includeSuborganizations) {
+				organizationStack.addAll(currentOrganization.getSubOrganizations());
+			}
+			for (final Membership membership : currentOrganization.getMemberships()) {
+				if (!membership.isFuture()) {
+					final Person person = membership.getPerson();
+					final MutablePair<Membership, Set<ResearchOrganization>> pair = members.computeIfAbsent(person, it -> new MutablePair<>());
+					final Membership previousMembership = pair.getKey();
+					if (previousMembership == null) {
+						pair.setLeft(membership);
+					} else {
+						final int cmp = this.membershipComparator.compare(membership, previousMembership);
+						if (cmp < 0) {
+							pair.setLeft(membership);
+						}
+					}
+					if (otherOrganizationTypeEnum != null) {
+						for (final Membership otherm : person.getMemberships()) {
+							final ResearchOrganization otherro = otherm.getResearchOrganization();
+							if (otherro.getId() != organization && otherOrganizationTypeEnum == otherro.getType()) {
+								Set<ResearchOrganization> orgs = pair.getRight();
+								if (orgs == null) {
+									orgs = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
+									pair.setRight(orgs);
+								}
+								orgs.add(otherro);
+							}
+						}
+					}
+				}
+			}
+		}
+		//
+		// Build the data structure to be serialized to JSON
+		final List<Map<String, Object>> content = new ArrayList<>();
+		for (final MutablePair<Membership, Set<ResearchOrganization>> entry : members.values()) {
+			final Map<String, Object> data = buildMemberEntry(entry.getLeft());
+			if (data != null) {
+				Set<ResearchOrganization> oo = entry.getRight();
+				if (oo == null) {
+					oo = Collections.emptySet();
+				}
+				data.put("otherOrganizations", oo); //$NON-NLS-1$
+				content.add(data);
+			}
+		}
+		//
+		final Object contentObj;
+		if (isAjax) {
+			contentObj = Collections.singletonMap("data", content); //$NON-NLS-1$
+		} else {
+			contentObj = content;
+		}
+		//
+		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
+		if (isAttachment) {
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_MEMBERS_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return bb.body(contentObj);
+	}
+
+	private static Map<String, Object> buildMemberEntry(Membership membership) {
+		final GeneralMemberType type = GeneralMemberType.fromMembership(membership);
+		if (type == null) {
+			return null;
+		}
+
+		final Map<String, Object> entry = new HashMap<>();
+		entry.put("person", membership.getPerson()); //$NON-NLS-1$
+		entry.put("memberStatus", membership.getMemberStatus()); //$NON-NLS-1$
+
+		entry.put("memberType", type); //$NON-NLS-1$
+		return entry;
 	}
 
 }

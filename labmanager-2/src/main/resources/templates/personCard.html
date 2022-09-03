@@ -14,7 +14,9 @@
 					<span class="person-card-firstname"
 					     th:utext="${person.firstName}"></span>&nbsp;<span
 					     class="person-card-lastname"
-					     th:utext="${person.lastName}"></span></div>
+					     th:utext="${person.lastName}"></span><th:block th:if="${person.civilTitle}">, <span
+					     class="person-card-civiltitle"
+					     th:utext="${person.civilTitle}"></span></th:block></div>
 				<div th:if="${enableStatus && (!memberships.isEmpty() || !#strings.isEmpty(introText))}"
 				     class="person-card-positions">
 					<div class="person-card-membership"

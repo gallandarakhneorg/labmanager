@@ -42,6 +42,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.util.UriBuilder;
 
 /** REST Controller for memberships views.
  * 
@@ -176,6 +177,53 @@ public class MembershipViewController extends AbstractViewController {
 		modelAndView.addObject("sortedMemberships", memberships); //$NON-NLS-1$
 		modelAndView.addObject("organizations", sortedOrganizations); //$NON-NLS-1$
 		return modelAndView;
+	}
+
+	/** Replies the list of members for the given organization.
+	 * This function differs to {@link #showBackPersonList(Integer, String)} because it is dedicated to
+	 * the public front-end of the research organization. The function {@link #showBackPersonList(Integer, String)}
+	 * is more dedicated to the administration of the data-set.
+	 *
+	 * @param organization the identifier of the organization for which the publications must be exported.
+	 * @param includeSuborganizations indicates if the sub-organizations are included.
+	 * @param enableFilters indicates if the "Filters" box should be visible.
+	 * @param username the login of the logged-in person.
+	 * @return the model-view of the list of publications.
+	 * @see #showBackPersonList(Integer, String)
+	 */
+	@GetMapping("/showMembers")
+	public ModelAndView showMembers(
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false, name = Constants.INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER, defaultValue = "true") boolean includeSuborganizations,
+			@RequestParam(required = false, defaultValue = "true") boolean enableFilters,
+			@CurrentSecurityContext(expression="authentication?.name") String username) {
+		final ModelAndView modelAndView = new ModelAndView("showMembers"); //$NON-NLS-1$
+		initModelViewProperties(modelAndView, username);
+		//
+		addUrlToMemberListEndPoint(modelAndView, organization, includeSuborganizations);
+		//
+		modelAndView.addObject("enableFilters", Boolean.valueOf(enableFilters)); //$NON-NLS-1$
+		return modelAndView;
+	}
+
+	/** Add the URL to model that permits to retrieve the member list.
+	 *
+	 * @param modelAndView the model-view to configure for redirection.
+	 * @param organization the identifier of the organization for which the members must be exported.
+	 * @param includeSuborganizations indicates if the sub-organizations are included.
+	 */
+	protected void addUrlToMemberListEndPoint(ModelAndView modelAndView, Integer organization, boolean includeSuborganizations) {
+		final StringBuilder path = new StringBuilder();
+		path.append("/").append(getApplicationConstants().getServerName()).append("/").append(Constants.EXPORT_MEMBERS_TO_JSON_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
+		UriBuilder uriBuilder = this.uriBuilderFactory.builder();
+		uriBuilder = uriBuilder.path(path.toString());
+		uriBuilder = uriBuilder.queryParam(Constants.FORAJAX_ENDPOINT_PARAMETER, Boolean.TRUE);
+		if (organization != null && organization.intValue() != 0) {
+			uriBuilder = uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, organization);
+		}
+		uriBuilder = uriBuilder.queryParam(Constants.INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER, Boolean.valueOf(includeSuborganizations));
+		final String url = uriBuilder.build().toString();
+		modelAndView.addObject("url", url); //$NON-NLS-1$
 	}
 
 }

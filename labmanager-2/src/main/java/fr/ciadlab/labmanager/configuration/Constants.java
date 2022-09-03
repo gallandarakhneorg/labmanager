@@ -59,6 +59,10 @@ public class Constants {
 	 */
 	public static final String ORGANIZATION_ENDPOINT_PARAMETER = "organization"; //$NON-NLS-1$
 
+	/** Name of the endpoint parameter "includeSuborganization".
+	 */
+	public static final String INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER = "includeSuborganizations"; //$NON-NLS-1$
+
 	/** Name of the endpoint parameter "author".
 	 */
 	public static final String AUTHOR_ENDPOINT_PARAMETER = "author"; //$NON-NLS-1$
@@ -184,6 +188,10 @@ public class Constants {
 	/** Name of the endpoint for saving a membership.
 	 */
 	public static final String MEMBERSHIP_SAVING_ENDPOINT = "saveMembership"; //$NON-NLS-1$
+
+	/** Name of the endpoint for obtaining the JSON of the members of an organization.
+	 */
+	public static final String EXPORT_MEMBERS_TO_JSON_ENDPOINT = "exportMembersToJson"; //$NON-NLS-1$
 
 	private static final String DEFAULT_SERVER_NAME = "LabManagerApi"; //$NON-NLS-1$
 

@@ -392,7 +392,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			consumer.accept("gender", getGender()); //$NON-NLS-1$
 		}
 		if (getCivilTitle() != null) {
-			consumer.accept("title", getCivilTitle()); //$NON-NLS-1$
+			consumer.accept("civilTitle", getCivilTitle()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			consumer.accept("githubId", getGithubId()); //$NON-NLS-1$
