@@ -24,6 +24,7 @@ import javax.annotation.PostConstruct;
 import fr.ciadlab.labmanager.controller.api.member.GeneralMemberType;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
+import fr.ciadlab.labmanager.entities.member.PositionType;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
@@ -131,6 +132,9 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (MemberStatus item : EnumSet.allOf(MemberStatus.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (PositionType item : EnumSet.allOf(PositionType.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (PublicationCategory item : EnumSet.allOf(PublicationCategory.class)) {
