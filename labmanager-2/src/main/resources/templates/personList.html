@@ -8,6 +8,7 @@
 <table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
     <thead>
         <th th:text="#{html.Id}"></th>
+        <th th:text="#{html.Vcard}"></th>
         <th th:utext="#{html.LastName}"></th>
         <th th:utext="#{html.FirstName}"></th>
         <th th:utext="#{html.Gravatar}"></th>
@@ -22,6 +23,9 @@
         <tr th:each="person : ${persons}">
             <td>
                 <th:block th:utext="${person.id}"></th:block>
+            </td>
+            <td>
+            	<a th:href="@{/personCard(person=${person.id})}" class="noLink"><span class="fa-solid fa-address-card"></span></a>
             </td>
             <td th:with="actives = ${person.activeMemberships}">
 	                <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
@@ -40,14 +44,10 @@
                           th:utext="${person.firstName}"></th:block>
             </td>
             <td>
-            	<a th:if="${person.gravatarId != null}"
-	               th:href="@{/personCard(person=${person.id})}">
-	                <img class="person-photo"
-	                     th:src="${person.getGravatarURL()}"
-	                     th:title="${person.gravatarId}"></img></a>
-            	<a th:unless="${person.gravatarId != null}"
-	               th:href="@{/personCard(person=${person.id})}"
-	               th:utext="#{html.NoPhoto}"></a>
+                <img class="person-photo"
+                     th:if="${person.gravatarId != null}"
+                     th:src="${person.getGravatarURL()}"
+                     th:title="${person.gravatarId}"></img></a>
             </td>
             <td>
                 <a th:if="${person.ORCID != null}"
@@ -126,6 +126,9 @@
     	initAdministrationTable({
     		columns: [
             	{ },
+            	{
+                    "orderable": false
+            	},
             	{ },
             	{ },
             	{
@@ -137,7 +140,7 @@
             	{ },
             	{ }
     		],
-    		order: [ [1, 'asc'], [2, 'asc'] ],
+    		order: [ [2, 'asc'], [3, 'asc'] ],
     		actionWidth: '180px',
     	});
         /*[# th:if="${changeEnabled}" th:each="person : ${persons}"]*/
