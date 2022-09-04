@@ -1222,17 +1222,11 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @return the civil title, or {@code null} if none.
 	 * @see #getCivilTitle(Locale)
+	 * @see #getCivilTitle(boolean)
+	 * @see #getCivilTitle(boolean, Locale)
 	 */
-	public String getCivilTitle() {
-		final MemberStatus status = findHigherMemberStatus();
-		String title = null;
-		if (status != null) {
-			title = status.getCivilTitle();
-		}
-		if (Strings.isNullOrEmpty(title)) {
-			title = getGender().getCivilTitle();
-		}
-		return Strings.emptyToNull(title);
+	public final String getCivilTitle() {
+		return getCivilTitle(true);
 	}
 
 	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
@@ -1241,14 +1235,54 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 * @param locale the locale to use for generating the civil title.
 	 * @return the civil title, or {@code null} if none.
 	 * @see #getCivilTitle()
+	 * @see #getCivilTitle(boolean)
+	 * @see #getCivilTitle(boolean, Locale)
 	 */
-	public String getCivilTitle(Locale locale) {
+	public final String getCivilTitle(Locale locale) {
+		return getCivilTitle(true);
+	}
+
+	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
+	 * on the values replied by {@link #getActiveMemberships()}, and, if {@code includeGenderTitle}
+	 * is evaluated to {@code true}, the value replied by {@link #getGender()}.
+	 * The language of the title depends on the current locale.
+	 *
+	 * @param includeGenderTitle indicates if the gender title should be consider and eventually replied.
+	 * @return the civil title, or {@code null} if none.
+	 * @see #getCivilTitle(Locale)
+	 * @see #getCivilTitle()
+	 * @see #getCivilTitle(boolean, Locale)
+	 */
+	public String getCivilTitle(boolean includeGenderTitle) {
+		final MemberStatus status = findHigherMemberStatus();
+		String title = null;
+		if (status != null) {
+			title = status.getCivilTitle();
+		}
+		if (includeGenderTitle && Strings.isNullOrEmpty(title)) {
+			title = getGender().getCivilTitle();
+		}
+		return Strings.emptyToNull(title);
+	}
+
+	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
+	 * on the values replied by {@link #getActiveMemberships()}, and, if {@code includeGenderTitle}
+	 * is evaluated to {@code true}, the value replied by {@link #getGender()}.
+	 *
+	 * @param includeGenderTitle indicates if the gender title should be consider and eventually replied.
+	 * @param locale the locale to use for generating the civil title.
+	 * @return the civil title, or {@code null} if none.
+	 * @see #getCivilTitle()
+	 * @see #getCivilTitle(boolean)
+	 * @see #getCivilTitle(Locale)
+	 */
+	public String getCivilTitle(boolean includeGenderTitle, Locale locale) {
 		final MemberStatus status = findHigherMemberStatus();
 		String title = null;
 		if (status != null) {
 			title = status.getCivilTitle(locale);
 		}
-		if (Strings.isNullOrEmpty(title)) {
+		if (includeGenderTitle && Strings.isNullOrEmpty(title)) {
 			title = getGender().getCivilTitle(locale);
 		}
 		return Strings.emptyToNull(title);
