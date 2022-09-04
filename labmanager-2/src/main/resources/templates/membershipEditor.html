@@ -34,7 +34,7 @@
 				        th:each="responsibility : ${allResponsabilities.entrySet}"
 				        th:selected="${preferredResponsibility != null && responsibility.value == preferredResponsibility}"
 				        th:value="${responsibility.value.name}"
-				        th:utext="${responsibility.key}"></option>
+				        th:utext="${responsibility.value.isSpecific ? (responsibility.key + ' *') : responsibility.key}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput(${'cnuSection_' + minMembershipId}, #{html.CnuSection}, ~{::option#option-cnu-new})">
 				<option id="option-cnu-new" value="" th:utext="#{html.NotSpecified}"></option>
@@ -90,7 +90,7 @@
 				        th:each="responsibility : ${allResponsabilities.entrySet}"
 				        th:selected="${membership != null && membership.responsibility == responsibility.value}"
 				        th:value="${responsibility.value.name}"
-				        th:utext="${responsibility.key}"></option>
+				        th:utext="${responsibility.value.isSpecific() ? (responsibility.key + ' *') : responsibility.key}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput(${'cnuSection_' + membership.id}, #{html.CnuSection}, ~{::option#option-cnu})">
 				<option id="option-cnu" value="" th:utext="#{html.NotSpecified}"></option>

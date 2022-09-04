@@ -95,6 +95,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsible of an application axis", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.MALE));
 		assertEquals("Responsible of a technological platform", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.MALE));
 		assertEquals("Responsible of a transverse axis", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.MALE));
+		assertEquals("Director of the Computer Science department of engineering training under student status", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Director of the Computer Science department of engineering training under apprentice status", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Director of the Center of Energy and Computer Science", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Director of the Center of Transport and Mobility", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Director of the international relation service", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Member of the Laboratory Council", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.MALE));
 		assertAllTreated();
 	}
 
@@ -138,6 +144,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsible of an application axis", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.FEMALE));
 		assertEquals("Responsible of a technological platform", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.FEMALE));
 		assertEquals("Responsible of a transverse axis", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.FEMALE));
+		assertEquals("Director of the Computer Science department of engineering training under student status", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Director of the Computer Science department of engineering training under apprentice status", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Director of the Center of Energy and Computer Science", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Director of the Center of Transport and Mobility", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Director of the international relation service", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Member of the Laboratory Council", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.FEMALE));
 		assertAllTreated();
 	}
 
@@ -181,6 +193,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsible of an application axis", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.OTHER));
 		assertEquals("Responsible of a technological platform", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.OTHER));
 		assertEquals("Responsible of a transverse axis", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.OTHER));
+		assertEquals("Director of the Computer Science department of engineering training under student status", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Director of the Computer Science department of engineering training under apprentice status", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Director of the Center of Energy and Computer Science", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Director of the Center of Transport and Mobility", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Director of the international relation service", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Member of the Laboratory Council", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.OTHER));
 		assertAllTreated();
 	}
 
@@ -224,6 +242,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsible of an application axis", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.MALE));
 		assertEquals("Responsible of a technological platform", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.MALE));
 		assertEquals("Responsible of a transverse axis", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.MALE));
+		assertEquals("Director of the Computer Science department of engineering training under student status", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Director of the Computer Science department of engineering training under apprentice status", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Director of the Center of Energy and Computer Science", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Director of the Center of Transport and Mobility", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Director of the international relation service", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.MALE));
+		assertEquals("Member of the Laboratory Council", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.MALE));
 		assertAllTreated();
 	}
 
@@ -267,6 +291,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsible of an application axis", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.FEMALE));
 		assertEquals("Responsible of a technological platform", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.FEMALE));
 		assertEquals("Responsible of a transverse axis", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.FEMALE));
+		assertEquals("Director of the Computer Science department of engineering training under student status", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Director of the Computer Science department of engineering training under apprentice status", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Director of the Center of Energy and Computer Science", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Director of the Center of Transport and Mobility", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Director of the international relation service", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.FEMALE));
+		assertEquals("Member of the Laboratory Council", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.FEMALE));
 		assertAllTreated();
 	}
 
@@ -310,6 +340,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsible of an application axis", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.OTHER));
 		assertEquals("Responsible of a technological platform", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.OTHER));
 		assertEquals("Responsible of a transverse axis", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.OTHER));
+		assertEquals("Director of the Computer Science department of engineering training under student status", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Director of the Computer Science department of engineering training under apprentice status", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Director of the Center of Energy and Computer Science", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Director of the Center of Transport and Mobility", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Director of the international relation service", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.OTHER));
+		assertEquals("Member of the Laboratory Council", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.OTHER));
 		assertAllTreated();
 	}
 
@@ -351,6 +387,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsible of an application axis", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.MALE, Locale.US));
 		assertEquals("Responsible of a technological platform", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.MALE, Locale.US));
 		assertEquals("Responsible of a transverse axis", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.MALE, Locale.US));
+		assertEquals("Director of the Computer Science department of engineering training under student status", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.MALE, Locale.US));
+		assertEquals("Director of the Computer Science department of engineering training under apprentice status", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.MALE, Locale.US));
+		assertEquals("Director of the Center of Energy and Computer Science", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.MALE, Locale.US));
+		assertEquals("Director of the Center of Transport and Mobility", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.MALE, Locale.US));
+		assertEquals("Director of the international relation service", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.MALE, Locale.US));
+		assertEquals("Member of the Laboratory Council", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.MALE, Locale.US));
 		assertAllTreated();
 	}
 
@@ -392,6 +434,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsible of an application axis", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.FEMALE, Locale.US));
 		assertEquals("Responsible of a technological platform", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.FEMALE, Locale.US));
 		assertEquals("Responsible of a transverse axis", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.FEMALE, Locale.US));
+		assertEquals("Director of the Computer Science department of engineering training under student status", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.FEMALE, Locale.US));
+		assertEquals("Director of the Computer Science department of engineering training under apprentice status", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.FEMALE, Locale.US));
+		assertEquals("Director of the Center of Energy and Computer Science", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.FEMALE, Locale.US));
+		assertEquals("Director of the Center of Transport and Mobility", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.FEMALE, Locale.US));
+		assertEquals("Director of the international relation service", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.FEMALE, Locale.US));
+		assertEquals("Member of the Laboratory Council", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.FEMALE, Locale.US));
 		assertAllTreated();
 	}
 
@@ -433,6 +481,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsible of an application axis", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.OTHER, Locale.US));
 		assertEquals("Responsible of a technological platform", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.OTHER, Locale.US));
 		assertEquals("Responsible of a transverse axis", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.OTHER, Locale.US));
+		assertEquals("Director of the Computer Science department of engineering training under student status", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.OTHER, Locale.US));
+		assertEquals("Director of the Computer Science department of engineering training under apprentice status", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.OTHER, Locale.US));
+		assertEquals("Director of the Center of Energy and Computer Science", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.OTHER, Locale.US));
+		assertEquals("Director of the Center of Transport and Mobility", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.OTHER, Locale.US));
+		assertEquals("Director of the international relation service", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.OTHER, Locale.US));
+		assertEquals("Member of the Laboratory Council", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.OTHER, Locale.US));
 		assertAllTreated();
 	}
 
@@ -474,6 +528,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsable d'un axe applicatif", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.MALE, Locale.FRANCE));
 		assertEquals("Responsable d'une plateforme technologique", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.MALE, Locale.FRANCE));
 		assertEquals("Responsable d'un axe transversal", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.MALE, Locale.FRANCE));
+		assertEquals("Directeur de la formation en informatique d'ingénieur sous statut étudiant", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.MALE, Locale.FRANCE));
+		assertEquals("Directeur de la formation en informatique d'ingénieur sous statut apprenti", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.MALE, Locale.FRANCE));
+		assertEquals("Directeur du Pôle \u00C9nergie et Informatique", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.MALE, Locale.FRANCE));
+		assertEquals("Directeur du Pôle Transport et Mobilité", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.MALE, Locale.FRANCE));
+		assertEquals("Directeur aux relations internationales", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.MALE, Locale.FRANCE));
+		assertEquals("Membre du Conseil de Laboratoire", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.MALE, Locale.FRANCE));
 		assertAllTreated();
 	}
 
@@ -515,6 +575,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsable d'un axe applicatif", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.FEMALE, Locale.FRANCE));
 		assertEquals("Responsable d'une plateforme technologique", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.FEMALE, Locale.FRANCE));
 		assertEquals("Responsable d'un axe transversal", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.FEMALE, Locale.FRANCE));
+		assertEquals("Directrice de la formation en informatique d'ingénieur sous statut étudiant", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.FEMALE, Locale.FRANCE));
+		assertEquals("Directrice de la formation en informatique d'ingénieur sous statut apprenti", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.FEMALE, Locale.FRANCE));
+		assertEquals("Directrice du Pôle \u00C9nergie et Informatique", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.FEMALE, Locale.FRANCE));
+		assertEquals("Directrice du Pôle Transport et Mobilité", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.FEMALE, Locale.FRANCE));
+		assertEquals("Directrice aux relations internationales", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.FEMALE, Locale.FRANCE));
+		assertEquals("Membre du Conseil de Laboratoire", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.FEMALE, Locale.FRANCE));
 		assertAllTreated();
 	}
 
@@ -556,6 +622,12 @@ public class ResponsibilityTest {
 		assertEquals("Responsable d'un axe applicatif", cons(Responsibility.APPLICATION_AXIS_RESPONSIBLE).getLabel(Gender.OTHER, Locale.FRANCE));
 		assertEquals("Responsable d'une plateforme technologique", cons(Responsibility.PLATFORM_RESPONSIBLE).getLabel(Gender.OTHER, Locale.FRANCE));
 		assertEquals("Responsable d'un axe transversal", cons(Responsibility.TRANSVERSE_AXIS_RESPONSIBLE).getLabel(Gender.OTHER, Locale.FRANCE));
+		assertEquals("Directeur.trice de la formation en informatique d'ingénieur sous statut étudiant", cons(Responsibility.CS_FISE_DIRECTOR).getLabel(Gender.OTHER, Locale.FRANCE));
+		assertEquals("Directeur.trice de la formation en informatique d'ingénieur sous statut apprenti", cons(Responsibility.CS_FISA_DIRECTOR).getLabel(Gender.OTHER, Locale.FRANCE));
+		assertEquals("Directeur.trice du Pôle \u00C9nergie et Informatique", cons(Responsibility.ENERGY_CS_CENTER_DIRECTOR).getLabel(Gender.OTHER, Locale.FRANCE));
+		assertEquals("Directeur.trice du Pôle Transport et Mobilité", cons(Responsibility.TRANSPORT_MOBILITY_CENTER_DIRECTOR).getLabel(Gender.OTHER, Locale.FRANCE));
+		assertEquals("Directeur.trice aux relations internationales", cons(Responsibility.INTERNATIONAL_SERVICE_DIRECTOR).getLabel(Gender.OTHER, Locale.FRANCE));
+		assertEquals("Membre du Conseil de Laboratoire", cons(Responsibility.LABORATORY_COUNCIL_MEMBER).getLabel(Gender.OTHER, Locale.FRANCE));
 		assertAllTreated();
 	}
 

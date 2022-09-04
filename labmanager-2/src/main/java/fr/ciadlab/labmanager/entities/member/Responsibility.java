@@ -33,151 +33,190 @@ public enum Responsibility {
 
 	/** President or chief executive officer of the organization.
 	 */
-	PRESIDENT,
+	PRESIDENT(false),
 
 	/** Dean of the organization.
 	 */
-	DEAN,
+	DEAN(false),
 
 	/** Executive Director of the organization. A executive director is usually an employee of the organization.
 	 */
-	EXECUTIVE_DIRECTOR,
+	EXECUTIVE_DIRECTOR(false),
 
 	/** Director of the organization. A director is usually not an employee of the organization.
 	 */
-	DIRECTOR,
+	DIRECTOR(false),
 
 	/** Vice-president of the organization.
 	 */
-	VICE_PRESIDENT,
+	VICE_PRESIDENT(false),
 
 	/** Deputy director of the organization.
 	 */
-	DEPUTY_DIRECTOR,
+	DEPUTY_DIRECTOR(false),
 
 	/** Research vice-president of the organization.
 	 */
-	RESEARCH_VICE_PRESIDENT,
+	RESEARCH_VICE_PRESIDENT(false),
 
 	/** Research director of the organization.
 	 */
-	RESEARCH_DIRECTOR,
+	RESEARCH_DIRECTOR(false),
 
 	/** Numeric service vice-president of the organization.
 	 */
-	NUMERIC_SERVICE_VICE_PRESIDENT,
+	NUMERIC_SERVICE_VICE_PRESIDENT(false),
 
 	/** Numeric service director of the organization.
 	 */
-	NUMERIC_SERVICE_DIRECTOR,
+	NUMERIC_SERVICE_DIRECTOR(false),
 
 	/** Director for pedagogy of the organization.
 	 */
-	PEDAGOGY_DIRECTOR,
+	PEDAGOGY_DIRECTOR(false),
 
 	/** Communication vice-president of the organization.
 	 */
-	COMMUNICATION_VICE_PRESIDENT,
+	COMMUNICATION_VICE_PRESIDENT(false),
 
 	/** Communication director of the organization.
 	 */
-	COMMUNICATION_DIRECTOR,
+	COMMUNICATION_DIRECTOR(false),
 
 	/** Faculty director of the organization.
 	 */
-	FACULTY_DIRECTOR,
+	FACULTY_DIRECTOR(false),
 
 	/** Faculty dean of the organization.
 	 */
-	FACULTY_DEAN,
+	FACULTY_DEAN(false),
 
-	/** Faculty director of the organization.
+	/** Department director of the organization.
 	 */
-	DEPARTMENT_DIRECTOR,
+	DEPARTMENT_DIRECTOR(false),
 
 	/** Administration council vice-president of the organization.
 	 */
-	ADMINISTRATION_COUNCIL_VICE_PRESIDENT,
+	ADMINISTRATION_COUNCIL_VICE_PRESIDENT(false),
 
 	/** Scientific council vice-president of the organization.
 	 */
-	SCIENTIFIC_COUNCIL_VICE_PRESIDENT,
+	SCIENTIFIC_COUNCIL_VICE_PRESIDENT(false),
 
 	/** Teaching council vice-president of the organization.
 	 */
-	PEDAGOGY_COUNCIL_VICE_PRESIDENT,
+	PEDAGOGY_COUNCIL_VICE_PRESIDENT(false),
 
 	/** Member of the administration council of the organization.
 	 */
-	ADMINISTRATION_COUNCIL_MEMBER,
+	ADMINISTRATION_COUNCIL_MEMBER(false),
 
 	/** Member of the scientific council of the organization.
 	 */
-	SCIENTIFIC_COUNCIL_MEMBER,
+	SCIENTIFIC_COUNCIL_MEMBER(false),
 
 	/** Member of the pedagogy council of the organization.
 	 */
-	PEDAGOGY_COUNCIL_MEMBER,
+	PEDAGOGY_COUNCIL_MEMBER(false),
 
 	/** Member of the numeric council of the organization.
 	 */
-	NUMERIC_COUNCIL_MEMBER,
+	NUMERIC_COUNCIL_MEMBER(false),
+
+	/** Member of the laboratory council of the organization.
+	 */
+	LABORATORY_COUNCIL_MEMBER(false),
 
 	/** Responsible of business unit of the organization.
 	 */
-	BUSINESS_UNIT_RESPONSIBLE,
+	BUSINESS_UNIT_RESPONSIBLE(false),
 
 	/** Leader of a team of the organization.
 	 */
-	TEAM_SCIENTFIC_RESPONSIBLE,
+	TEAM_SCIENTFIC_RESPONSIBLE(false),
 
 	/** Leader of a scientific axis of the organization.
 	 */
-	SCIENTIFIC_AXIS_RESPONSIBLE,
+	SCIENTIFIC_AXIS_RESPONSIBLE(false),
 
 	/** Leader of a application axis of the organization.
 	 */
-	APPLICATION_AXIS_RESPONSIBLE,
+	APPLICATION_AXIS_RESPONSIBLE(false),
 
 	/** Head of a platform of the organization.
 	 */
-	PLATFORM_RESPONSIBLE,
+	PLATFORM_RESPONSIBLE(false),
 
 	/** Head of a transverse axis of the organization.
 	 */
-	TRANSVERSE_AXIS_RESPONSIBLE,
+	TRANSVERSE_AXIS_RESPONSIBLE(false),
 
 	/** Direction secretary of the organization.
 	 */
-	DIRECTION_SECRETARY,
+	DIRECTION_SECRETARY(false),
 
 	/** Responsible of IT of the organization.
 	 */
-	IT_RESPONSIBLE,
+	IT_RESPONSIBLE(false),
 
 	/** Seminar and conference responsible of the organization.
 	 */
-	SEMINAR_RESPONSIBLE,
+	SEMINAR_RESPONSIBLE(false),
 
 	/** Gender-equality responsible of the organization.
 	 */
-	GENDER_EQUALITY_RESPONSIBLE,
+	GENDER_EQUALITY_RESPONSIBLE(false),
 
 	/** Human-resource responsible of the organization.
 	 */
-	HUMAN_RESOURCE_RESPONSIBLE,
+	HUMAN_RESOURCE_RESPONSIBLE(false),
 
 	/** Responsible of Open Science of the organization.
 	 */
-	OPEN_SCIENCE_RESPONSIBLE,
+	OPEN_SCIENCE_RESPONSIBLE(false),
 
 	/** Communication responsible of the organization.
 	 */
-	COMMUNICATION_RESPONSIBLE;
+	COMMUNICATION_RESPONSIBLE(false),
+	
+	/** Director of the department of engineering training under student status in computer science.
+	 *  This responsability is specific to the "Université de Technologie de Belfort Montbeliard".
+	 */
+	CS_FISE_DIRECTOR(true),
+	
+	/** Director of the department of engineering training under apprentice status in computer science 
+	 *  This responsability is specific to the "Université de Technologie de Belfort Montbeliard".
+	 */
+	CS_FISA_DIRECTOR(true),
+
+	/** Director of the Center of Energy and Computer Science.
+	 *  This responsability is specific to the "Université de Technologie de Belfort Montbeliard".
+	 */
+	ENERGY_CS_CENTER_DIRECTOR(true),
+
+	/** Director of the Center of Transport and Mobility.
+	 *  This responsability is specific to the "Université de Technologie de Belfort Montbeliard".
+	 */
+	TRANSPORT_MOBILITY_CENTER_DIRECTOR(true),
+	
+	/** Director of the international service
+	 *  This responsability is specific to the "Université de Technologie de Belfort Montbeliard".
+	 */
+	INTERNATIONAL_SERVICE_DIRECTOR(true);
 
 	private static final String MESSAGE_PREFIX = "positionType."; //$NON-NLS-1$
 
 	private MessageSourceAccessor messages;
+
+	private final boolean isSpecific;
+
+	/** Constructor.
+	 *
+	 * @param specific indicates if this responsability is specific to a research institution.
+	 */
+	private Responsibility(boolean specific) {
+		this.isSpecific = specific;
+	}
 
 	/** Replies the message accessor to be used.
 	 *
@@ -243,6 +282,14 @@ public enum Responsibility {
 			}
 		}
 		throw new IllegalArgumentException("Invalid position type: " + name); //$NON-NLS-1$
+	}
+
+	/** Replies if this responsability is specific to a research organization.
+	 *
+	 * @return {@code true} if the responsability is specific.
+	 */
+	public boolean isSpecific() {
+		return this.isSpecific;
 	}
 
 }
