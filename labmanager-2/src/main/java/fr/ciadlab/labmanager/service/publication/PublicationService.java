@@ -61,6 +61,7 @@ import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
+import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
 import fr.ciadlab.labmanager.service.publication.type.BookService;
@@ -116,6 +117,8 @@ public class PublicationService extends AbstractService {
 
 	private PrePublicationFactory prePublicationFactory;
 
+	private MembershipService membershipService;
+
 	private BookService bookService;
 
 	private BookChapterService bookChapterService;
@@ -153,6 +156,7 @@ public class PublicationService extends AbstractService {
 	 * @param odt the tool for exporting to Open Document Text.
 	 * @param json the tool for exporting to JSON.
 	 * @param fileManager the manager of downloadable files.
+	 * @param membershipService the service for managing memberships.
 	 * @param bookService the service for books.
 	 * @param bookChapterService the service for book chapters.
 	 * @param conferencePaperService the service for conference papers.
@@ -177,6 +181,7 @@ public class PublicationService extends AbstractService {
 			@Autowired OpenDocumentTextExporter odt,
 			@Autowired JsonExporter json,
 			@Autowired DownloadableFileManager fileManager,
+			@Autowired MembershipService membershipService,
 			@Autowired BookService bookService,
 			@Autowired BookChapterService bookChapterService,
 			@Autowired ConferencePaperService conferencePaperService,
@@ -200,6 +205,7 @@ public class PublicationService extends AbstractService {
 		this.odt = odt;
 		this.json = json;
 		this.fileManager = fileManager;
+		this.membershipService = membershipService;
 		this.bookService = bookService;
 		this.bookChapterService = bookChapterService;
 		this.conferencePaperService = conferencePaperService;
@@ -229,13 +235,21 @@ public class PublicationService extends AbstractService {
 		return this.publicationRepository.findAllByAuthorshipsPersonId(identifier);
 	}
 
-	/** Replies all the publications from the database that are attached to the given organization.
+	/** Replies all the publications from the database that are attached to a person involved in the given organization.
 	 *
 	 * @param identifier the identifier of the organization.
+	 * @param includeSubOrganizations indicates if the members of the suborganizations are considered.
 	 * @return the publications.
 	 */
-	public List<Publication> getPublicationsByOrganizationId(int identifier) {
-		return this.publicationRepository.findAllByAuthorshipsPersonMembershipsResearchOrganizationId(identifier);
+	public Set<Publication> getPublicationsByOrganizationId(int identifier, boolean includeSubOrganizations) {
+		final Set<Person> members;
+		if (includeSubOrganizations) {
+			members = this.membershipService.getMembersOf(identifier);
+		} else {
+			members = this.membershipService.getDirectMembersOf(identifier);
+		}
+		final Set<Integer> identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
+		return this.publicationRepository.findAllByAuthorshipsPersonIdIn(identifiers);
 	}
 
 	/** Replies the publication with the given identifier.

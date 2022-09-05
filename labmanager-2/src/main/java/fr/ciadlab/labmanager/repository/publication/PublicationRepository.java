@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.repository.publication;
 
 import java.util.List;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -38,13 +39,13 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
 	 */
 	List<Publication> findAllByAuthorshipsPersonId(int personId);
 
-	/** Replies the list of publications for the organizations with the given identifier.
+	/** Replies the list of publications for the persons with the given identifiers.
 	 *
-	 * @param organizationId the identifier of the organization.
+	 * @param personIds the list of identifiers of the authors.
 	 * @return the list of publications.
 	 */
-	List<Publication> findAllByAuthorshipsPersonMembershipsResearchOrganizationId(int organizationId);
-
+	Set<Publication> findAllByAuthorshipsPersonIdIn(Set<Integer> personIds);
+	
 	/** Replies the list of publications with the given title.
 	 *
 	 * @param title the title to search for.

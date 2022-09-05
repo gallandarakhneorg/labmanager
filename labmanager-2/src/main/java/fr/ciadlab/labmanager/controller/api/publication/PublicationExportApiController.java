@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.controller.api.publication;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.List;
 
 import fr.ciadlab.labmanager.AbstractComponent;
@@ -84,7 +85,8 @@ public class PublicationExportApiController extends AbstractComponent {
 	}
 
 	private <T> T export(List<Integer> identifiers, Integer organization, Integer author,
-			Integer journal, Boolean nameHighlight, Boolean color, Boolean downloadButtons, Boolean exportButtons, 
+			Integer journal, boolean includeSuborganizations, Boolean nameHighlight, Boolean color,
+			Boolean downloadButtons, Boolean exportButtons, 
 			Boolean editButtons, Boolean deleteButtons, Boolean htmlAuthors, Boolean htmlPublicationDetails,
 			Boolean htmlTypeAndCategory, ExporterCallback<T> callback) throws Exception {
 		// Prepare the exporter
@@ -132,12 +134,12 @@ public class PublicationExportApiController extends AbstractComponent {
 			configurator.addUriQueryParam(Constants.JOURNAL_ENDPOINT_PARAMETER, journal);
 		}
 		// Get the list of publications
-		final List<Publication> pubs;
+		final Collection<Publication> pubs;
 		if (identifiers == null || identifiers.isEmpty()) {
 			if (author != null) {
 				pubs = this.publicationService.getPublicationsByPersonId(author.intValue());
 			} else if (organization != null) {
-				pubs = this.publicationService.getPublicationsByOrganizationId(organization.intValue());
+				pubs = this.publicationService.getPublicationsByOrganizationId(organization.intValue(), includeSuborganizations);
 			} else if (journal != null) {
 				pubs = this.journalPaperService.getJournalPapersByJournalId(journal.intValue());
 			} else {
@@ -164,6 +166,8 @@ public class PublicationExportApiController extends AbstractComponent {
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
+	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code false}).
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
 	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the HTML output. 
@@ -179,11 +183,12 @@ public class PublicationExportApiController extends AbstractComponent {
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
+			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportHtml(pubs, configurator);
-		final String content = export(identifiers, organization, author, journal, nameHighlight, color,
+		final String content = export(identifiers, organization, author, journal, includeSuborganizations, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.TEXT_HTML);
 		if (inAttachment != null && inAttachment.booleanValue()) {
@@ -206,6 +211,8 @@ public class PublicationExportApiController extends AbstractComponent {
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
+	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code false}).
 	 * @param inAttachment indicates if the BibTeX is provided as attached document or not. By default, the value is
 	 *     {@code false}.
 	 * @return the BibTeX description of the publications.
@@ -218,9 +225,10 @@ public class PublicationExportApiController extends AbstractComponent {
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
+			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportBibTeX(pubs, configurator);
-		final String content = export(identifiers, organization, author, journal, Boolean.FALSE, Boolean.FALSE,
+		final String content = export(identifiers, organization, author, journal, includeSuborganizations, Boolean.FALSE, Boolean.FALSE,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE);
 		if (inAttachment != null && inAttachment.booleanValue()) {
@@ -243,6 +251,8 @@ public class PublicationExportApiController extends AbstractComponent {
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
+	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code false}).
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
 	 *     Providing this identifier will have an effect on the formatting of the authors' names.
 	 * @param color indicates if the colors are enabled for producing the ODT output. 
@@ -258,11 +268,12 @@ public class PublicationExportApiController extends AbstractComponent {
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
+			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<byte[]> cb = (pubs, configurator) -> this.publicationService.exportOdt(pubs, configurator);
-		final byte[] content = export(identifiers, organization, author, journal, nameHighlight, color,
+		final byte[] content = export(identifiers, organization, author, journal, includeSuborganizations, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(OpenDocumentConstants.ODT_MIME_TYPE);
 		if (inAttachment != null && inAttachment.booleanValue()) {
@@ -293,6 +304,8 @@ public class PublicationExportApiController extends AbstractComponent {
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
+	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code false}).
 	 * @param forAjax indicates if the JSON is provided to AJAX. By default, the value is
 	 *     {@code false}. If the JSON is provided to AJAX, the data is included into the root key {@code data} that is expected by AJAX.
 	 *     If this parameter is evaluated to {@code true}, the parameter {@code inAttachment} is ignored.
@@ -311,6 +324,7 @@ public class PublicationExportApiController extends AbstractComponent {
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
+			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
@@ -324,7 +338,7 @@ public class PublicationExportApiController extends AbstractComponent {
 			}
 			return this.publicationService.exportJson(pubs, configurator);
 		};
-		final String content = export(identifiers, organization, author, journal, isAjaxObj, Boolean.FALSE,
+		final String content = export(identifiers, organization, author, journal, includeSuborganizations, isAjaxObj, Boolean.FALSE,
 				isAjaxObj, isAjaxObj, isLoggingIn, isLoggingIn, isAjaxObj, isAjaxObj, isAjaxObj, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
 		if (isAttachment) {

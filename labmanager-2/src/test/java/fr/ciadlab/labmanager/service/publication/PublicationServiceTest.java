@@ -53,6 +53,7 @@ import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.service.journal.JournalService;
+import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
 import fr.ciadlab.labmanager.service.publication.type.BookService;
@@ -118,6 +119,8 @@ public class PublicationServiceTest {
 	private DownloadableFileManager fileManager;
 
 	private PublicationService test;
+	
+	private MembershipService membershipService;
 
 	private BookService bookService;
 
@@ -154,6 +157,7 @@ public class PublicationServiceTest {
 		this.html = mock(HtmlDocumentExporter.class);
 		this.odt = mock(OpenDocumentTextExporter.class);
 		this.json = mock(JsonExporter.class);
+		this.membershipService = mock(MembershipService.class);
 		this.bookService = mock(BookService.class);
 		this.bookChapterService = mock(BookChapterService.class);
 		this.conferencePaperService = mock(ConferencePaperService.class);
@@ -168,6 +172,7 @@ public class PublicationServiceTest {
 				this.authorshipRepository,
 				this.personService, this.personRepository,
 				this.journalRepository, this.nameParser, this.bibtex, this.html, this.odt, this.json, this.fileManager,
+				this.membershipService,
 				this.bookService, this.bookChapterService, this.conferencePaperService,
 				this.journalEditionService, this.journalPaperService, this.keyNoteService,
 				this.miscDocumentService, this.patentService, this.reportService,
@@ -514,10 +519,10 @@ public class PublicationServiceTest {
 
 	@Test
 	public void getPublicationsByOrganizationId() {
-		when(this.publicationRepository.findAllByAuthorshipsPersonMembershipsResearchOrganizationId(anyInt())).thenReturn(
-				Arrays.asList(this.pub0, this.pub2));
+		when(this.publicationRepository.findAllByAuthorshipsPersonIdIn(any())).thenReturn(
+				new HashSet<>(Arrays.asList(this.pub0, this.pub2)));
 
-		final List<Publication> list = this.test.getPublicationsByOrganizationId(2345);
+		final Set<Publication> list = this.test.getPublicationsByOrganizationId(2345, false);
 		assertNotNull(list);
 		assertEquals(2, list.size());
 		assertTrue(list.contains(this.pub0));
