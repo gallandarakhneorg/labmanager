@@ -107,14 +107,20 @@
 			    	            id="dropdownPublications" aria-expanded="false">
 				    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.FrontPublicationList}"></th:block></button>
 				    	<ul class="dropdown-menu" aria-labelledby="dropdownPublications">
-							<li><a class="dropdown-item"
-								   th:href="@{/showPublications}"
-								   th:utext="#{html.All}"></a></li>
+							<li><a class="dropdown-item" th:href="@{/showPublications}" th:utext="#{html.All}"></a></li>
 							<li><hr class="dropdown-divider"></li>
 							<li th:each="organization : ${organizations}">
-								<a class="dropdown-item"
-								   th:href="@{/showPublications(organization=${organization.id})}"
-								   th:utext="${organization.acronymOrName}"></a></li>
+								<button type="button" class="dropdown-item"
+								   th:utext="${organization.acronymOrName}"></button>
+								<ul class="dropdown-menu dropdown-submenu">
+									<li><a class="dropdown-item" th:href="@{/showPublications(organization=${organization.id})}" th:utext="#{html.All}"></a></li>
+									<li><hr class="dropdown-divider"></li>
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
+									       class="dropdown-item"
+									       th:href="@{/showPublications(author=${membership.person.id})}"
+									       th:utext="${membership.person.fullNameWithLastNameFirst}"></a></li>
+								</ul> 
 						</ul>
 					</div>
 				</div>

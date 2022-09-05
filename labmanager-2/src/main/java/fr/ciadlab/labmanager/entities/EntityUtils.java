@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.entities;
 
 import fr.ciadlab.labmanager.entities.member.MembershipComparator;
+import fr.ciadlab.labmanager.entities.member.NameBasedMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.member.PersonListComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
@@ -51,6 +52,8 @@ public final class EntityUtils {
 	private static PersonListComparator PERSONLIST_COMPARATOR; 
 
 	private static MembershipComparator MEMBERSHIP_COMPARATOR; 
+
+	private static NameBasedMembershipComparator PERSON_NAME_MEMBERSHIP_COMPARATOR; 
 
 	private static ResearchOrganizationComparator ORGANIZATION_COMPARATOR; 
 
@@ -173,6 +176,30 @@ public final class EntityUtils {
 	public static void setPreferredPublicationComparator(PublicationComparator comparator) {
 		synchronized (EntityUtils.class) {
 			PUBLICATION_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of memberships based on the person's names.
+	 *
+	 * @return the comparator.
+	 */
+	public static NameBasedMembershipComparator getPreferredPersonNameBasedMembershipComparator() {
+		synchronized (EntityUtils.class) {
+			if (PERSON_NAME_MEMBERSHIP_COMPARATOR == null) {
+				PERSON_NAME_MEMBERSHIP_COMPARATOR = new NameBasedMembershipComparator(
+						getPreferredPersonComparator(), getPreferredResearchOrganizationComparator());
+			}
+			return PERSON_NAME_MEMBERSHIP_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of memberships based on the person's names.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredPersonNameBasedMembershipComparator(NameBasedMembershipComparator comparator) {
+		synchronized (EntityUtils.class) {
+			PERSON_NAME_MEMBERSHIP_COMPARATOR = comparator;
 		}
 	}
 
