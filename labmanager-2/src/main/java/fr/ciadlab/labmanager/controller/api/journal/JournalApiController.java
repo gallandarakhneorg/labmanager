@@ -89,41 +89,32 @@ public class JournalApiController extends AbstractComponent {
 	 * If the years are provided, only the quality indicators for these years are replied. Otherwise,
 	 * all the quality indicators are replied.
 	 *
-	 * @param name the name of the journal.
-	 * @param id the identifier of the journal.
+	 * @param journal the name or the identifier of the journal. If this argument is numeric, it is assumed to be the journal identifier.
+	 *     otherwise it is the name of the journal.
 	 * @param years the list of years for which the indicators must be replied.
 	 * @return a map of quality indicators per year.
 	 */
-	//FIXME @GetMapping(value = "/getJournalQualityIndicators", produces = "application/json; charset=UTF-8")
-	//FIXME @ResponseBody
+	@GetMapping(value = "/getJournalQualityIndicators")
+	@ResponseBody
 	public Map<Integer, JournalQualityAnnualIndicators> getJournalQualityIndicators(
-			@RequestParam(required = false) String name,
-			@RequestParam(required = false) Integer id,
+			@RequestParam(required = true) String journal,
 			@RequestParam(required = false, name = "year") List<Integer> years) {
-		if (id == null && Strings.isNullOrEmpty(name)) {
-			throw new IllegalArgumentException("Name and identifier parameters are missed"); //$NON-NLS-1$
-		}
-		final Journal journal;
-		if (id != null) {
-			journal = this.journalService.getJournalById(id.intValue());
-		} else {
-			journal = this.journalService.getJournalByName(name);
-		}
-		if (journal == null) {
-			throw new IllegalArgumentException("Journal not found"); //$NON-NLS-1$
+		final Journal journalObj = getJournalWith(journal, this.journalService);
+		if (journalObj == null) {
+			throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
 		}
 		if (years != null && !years.isEmpty()) {
 			final Map<Integer, JournalQualityAnnualIndicators> indicators = new HashMap<>();
 			for (final Integer year : years) {
 				if (year != null) {
 					indicators.computeIfAbsent(year, it -> {
-						return journal.getQualityIndicatorsFor(year.intValue(), null);
+						return journalObj.getQualityIndicatorsFor(year.intValue(), null);
 					});
 				}
 			}
 			return indicators;
 		}
-		return journal.getQualityIndicators();
+		return journalObj.getQualityIndicators();
 	}
 
 	/** Saving information of a journal. 

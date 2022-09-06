@@ -22,8 +22,10 @@ import java.util.Optional;
 import java.util.Random;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
@@ -263,11 +265,33 @@ public abstract class AbstractComponent {
 		return this.constants;
 	}
 
+	/** Find the journal object that corresponds to the given identifier or name.
+	 *
+	 * @param journal the identifier or the name of the journal.
+	 * @param jorunalService the service that must be used for accessing the journal's object.
+	 * @return the journal or {@code null}.
+	 */
+	protected static Journal getJournalWith(String journal, JournalService journalService) {
+		if (!Strings.isNullOrEmpty(journal)) {
+			try {
+				final int id = Integer.parseInt(journal);
+				final Journal journalObj = journalService.getJournalById(id);
+				if (journalObj != null) {
+					return journalObj;
+				}
+			} catch (Throwable ex) {
+				//
+			}
+			final Journal journalObj = journalService.getJournalByName(journal);
+			return journalObj;
+		}
+		return null;
+	}
 
 	/** Find the person object that corresponds to the given identifier or name.
 	 *
 	 * @param person the identifier or the name of the person.
-	 * @param personService the service thatm ust be used for accessing the person's object.
+	 * @param personService the service that must be used for accessing the person's object.
 	 * @param nameParser the parser of person names to be used for extracting first and last names.
 	 * @return the person or {@code null}.
 	 */
