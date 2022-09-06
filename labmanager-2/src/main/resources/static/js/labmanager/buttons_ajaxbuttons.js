@@ -15,13 +15,18 @@
  *        the two arguments, the button object, and the form-data object.
  *      * `url` the URL to pass to Ajax.
  *      * `timeout` the timeout to cinsider after launching the Ajax query. Default value is `100000`.
+ *      * `dataType` the type of data that is expected inthe answer. Default is `null`.
  *      * `failureTitle` the title of the dialog box that indicates the deletion is a failure.
  *      * `failureText` the message to show up when deletion was a failure. The message has two internal arguments:
- *      * `onSuccess` a function that is inoked on success. This function takes the button as argument. If it is not provided, i.e.,
- *        the key is not in the map, the function will considered to run `location.reload()`.
+ *      * `onSuccess` a function that is inoked on success. This function is defined as: `function(button,answer)`, where
+ *        `button` is the clicked button, and `answer` is the data replied by the backend. The type of the answer depends
+ *         on the given `dataType` above.
  *      * `onFailure` a function that is inoked on failure. This function takes button as argument.
  */
 function attachAjaxHandler_base( config ) {
+	(!('timeout' in config)) && (config['timeout'] = 100000);
+	(!('dataType' in config)) && (config['dataType'] = null);
+
     var handler = (event) => {
 		const $bt = $(event.target);
 		const formData = new FormData();
@@ -30,23 +35,36 @@ function attachAjaxHandler_base( config ) {
 		}
 		$.ajax({
 			url: config['url'],
-			timeout: ('timeout' in config && config['timeout']) ? config['timeout'] : 100000,
+			timeout: config['timeout'],
 			type: 'post',
 			data: formData,
+			dataType: config['dataType'],
 			contentType: false,
 			processData: false,
 			cache: false,
 			async:true,
-			success: (jsonData, textStatus, obj) => {
+			success: (answer, textStatus, obj) => {
 				if ('onSuccess' in config && config['onSuccess']) {
-					(config['onSuccess'])($bt);
+					(config['onSuccess'])($bt, answer);
 				}					
 			},
 			error: (obj, textStatus, errorThrown) => {
-				const errCode = obj.status;
+				var errCode = obj.statucCode || obj.status;
 				var errMsg = '';
 				if (obj.responseJSON) {
 					errMsg = obj.responseJSON.message ? obj.responseJSON.message : obj.responseJSON.error;
+				} else if (obj.responseText) {
+					try {
+						const json = JSON.parse(obj.responseText);
+						if (json) {
+							errCode = json.status;
+							errMsg = json.message || json.error;
+						} else {
+							errMsg = obj.responseText;
+						}
+					} catch (ignored_error) {
+						errMsg = obj.responseText;
+					}
 				} else {
 					errMsg = obj.statusText;
 				}

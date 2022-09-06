@@ -34,10 +34,12 @@ function setButtonStandardState($bt, text) {
  *      * `text` the text of the button.
  *      * `prepareData` the function that is invoked for initializing the form data to pass to Ajax. This function takes
  *        the form-data object as argument.
+ *      * `dataType` the type of data that is expected inthe answer. Default is `null`.
  *      * `failureTitle` the title of the dialog box that indicates the deletion is a failure.
  *      * `failureText` the message to show up when deletion was a failure. The message has two internal arguments:
- *      * `onSuccess` a function that is inoked on success. This function takes the button as argument. If it is not provided, i.e.,
- *        the key is not in the map, the function will considered to run `location.reload()`.
+ *      * `onSuccess` a function that is inoked on success. This function is defined as: `function(button,answer)`, where
+ *        `button` is the clicked button, and `answer` is the data replied by the backend. The type of the answer depends
+ *         on the given `dataType` above.
  *      * `onFailure` a function that is inoked on failure. This function takes the button as argument.
  */
 function attachSpinnerAjaxHandler_base( config ) {
@@ -54,9 +56,9 @@ function attachSpinnerAjaxHandler_base( config ) {
 	}
 	if ('onSuccess' in config && config['onSuccess']) {
 		const prev = config['onSuccess'];
-		config['onSuccess'] = ($bt) => {
+		config['onSuccess'] = ($bt, answer) => {
+			prev($bt, answer);
 			setButtonStandardState($bt, config['text']);
-			prev();
 		};
 	} else {
 		config['onSuccess'] = ($bt) => {
@@ -66,8 +68,8 @@ function attachSpinnerAjaxHandler_base( config ) {
 	if ('onFailure' in config && config['onFailure']) {
 		const prev = config['onFailure'];
 		config['onFailure'] = ($bt) => {
-			setButtonStandardState($bt, config['text']);
 			prev();
+			setButtonStandardState($bt, config['text']);
 		};
 	} else {
 		config['onFailure'] = ($bt) => {
