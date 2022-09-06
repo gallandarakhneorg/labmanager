@@ -46,7 +46,7 @@ function initAdministrationTable_base(config) {
 	}
 
 	var table = $component.DataTable({
-	    dom: 'fri',
+	    //dom: 'lfrtip',
 	    renderer: 'bootstrap',
 	    scrollCollapse: false,
 	    paging: false,
