@@ -70,11 +70,11 @@
     	attachDeletionHandler({
     		id: "[[${organization.id}]]",
     		url: "[(@{/deleteOrganization(organization=${organization.id})})]",
-    		name: "[(${organization.acronymOrName})]",
-    		questionTitle: "[(#{html.DeleteOrganization1(${organization.acronymOrName})})]",
-    		questionText: "[(#{html.AreYouSureToDelete(${organization.acronymOrName})})]",
-    		successText: "[(#{html.OrganizationDeleted})]",
-    		failureText: "[(#{html.CannotDeleteOrganization})]",
+    		name: [[${organization.acronymOrName}]],
+    		questionTitle: [[#{html.DeleteOrganization1(${organization.acronymOrName})}]],
+    		questionText: [[#{html.AreYouSureToDelete(${organization.acronymOrName})}]],
+    		successText: [[#{html.OrganizationDeleted}]],
+    		failureText: [[#{html.CannotDeleteOrganization}]],
         });
         /*[/]*/
     });

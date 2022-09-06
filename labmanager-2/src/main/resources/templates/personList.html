@@ -147,21 +147,21 @@
 		attachDeletionHandler({
 			id: "[(${person.id})]",
 			url: "[(@{/deletePerson(person=${person.id})})]",
-			name: "[(${person.fullName})]",
-			questionTitle: "[(#{html.DeletePerson1(${person.fullName})})]",
-			questionText: "[(#{html.AreYouSureToDelete(${person.fullName})})]",
-			successText: "[(#{html.PersonDeleted})]",
-			failureText: "[(#{html.CannotDeletePerson})]",
+			name: [[${person.fullName}]],
+			questionTitle: [[#{html.DeletePerson1(${person.fullName})}]],
+			questionText: [[#{html.AreYouSureToDelete(${person.fullName})}]],
+			successText: [[#{html.PersonDeleted}]],
+			failureText: [[#{html.CannotDeletePerson}]],
 	    });
 	    	/*[# th:each="membership : ${person.activeMemberships}"]*/
 		attachDeletionHandler({
 			selector: "#[(${'btPositionResign_' + person.id + '_' + membership.value.id})]",
 			url: "[(${membershipdeletionUrl + '?id=' + membership.value.id})]",
-			name: "[(${membership.key.acronymOrName})]",
-			questionTitle: "[(#{html.DeleteMembership})]",
-			questionText: "[(#{html.AreYouSureToDeleteMembership(${person.fullName}, ${membership.key.acronymOrName}, ${membership.value.memberStatus.getLabel(locale)})})]",
-			successText: "[(#{html.MembershipDeleted})]",
-			failureText: "[(#{html.CannotDeleteMembership})]",
+			name: [[${membership.key.acronymOrName}]],
+			questionTitle: [[#{html.DeleteMembership}]],
+			questionText: [[#{html.AreYouSureToDeleteMembership(${person.fullName}, ${membership.key.acronymOrName}, ${membership.value.memberStatus.getLabel(locale)})}]],
+			successText: [[#{html.MembershipDeleted}]],
+			failureText: [[#{html.CannotDeleteMembership}]],
 	    });
     		/*[/]*/
         /*[/]*/

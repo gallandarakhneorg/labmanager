@@ -75,11 +75,11 @@
 		attachDeletionHandler({
 			id: "[[${publication.id}]]",
 			url: "[(@{/deletePublication(publication=${publication.id})})]",
-			name: "[(${publication.title})]",
-			questionTitle: "[(#{html.DeletePublication1(${publication.title})})]",
-			questionText: "[(#{html.AreYouSureToDelete(${publication.title})})]",
-			successText: "[(#{html.PublicationDeleted})]",
-			failureText: "[(#{html.CannotDeletePublication})]",
+			name: [[${publication.title}]],
+			questionTitle: [[#{html.DeletePublication1(${publication.title})}]],
+			questionText: [[#{html.AreYouSureToDelete(${publication.title})}]],
+			successText: [[#{html.PublicationDeleted}]],
+			failureText: [[#{html.CannotDeletePublication}]],
 	    });
         /*[/]*/
     });

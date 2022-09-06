@@ -78,11 +78,11 @@
         attachDeletionHandler({
         	id: "[[${journal.id}]]",
         	url: "[(@{/deleteJournal(journal=${journal.id})})]",
-        	name: "[(${journal.journalName})]",
-        	questionTitle: "[(#{html.DeleteJournal1(${journal.journalName})})]",
-        	questionText: "[(#{html.AreYouSureToDelete(${journal.journalName})})]",
-        	successText: "[(#{html.JournalDeleted})]",
-        	failureText: "[(#{html.CannotDeleteJournal})]",
+        	name: [[${journal.journalName}]],
+        	questionTitle: [[#{html.DeleteJournal1(${journal.journalName})}]],
+        	questionText: [[#{html.AreYouSureToDelete(${journal.journalName})}]],
+        	successText: [[#{html.JournalDeleted}]],
+        	failureText: [[#{html.CannotDeleteJournal}]],
         });
         /*[/]*/
     });
