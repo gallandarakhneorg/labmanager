@@ -318,7 +318,11 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			final BibTeXDatabase database = bibtexParser.parse(filteredReader);
 			if (database != null) {
 				return database.getEntries().entrySet().stream().map(it -> {
-					return createPublicationFor(it.getKey(), it.getValue(), keepBibTeXId, assignRandomId);
+					try {
+						return createPublicationFor(it.getKey(), it.getValue(), keepBibTeXId, assignRandomId);
+					} catch (Exception ex) {
+						throw new RuntimeException(ex);
+					}
 				});
 			}
 		}
@@ -368,25 +372,27 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		throw new IllegalArgumentException("Unsupported type of the BibTeX entry: " + entry.getType()); //$NON-NLS-1$
 	}
 
-	private static String field(BibTeXEntry entry, Key key) {
+	private String field(BibTeXEntry entry, Key key) throws Exception {
 		final Value value = entry.getField(key);
 		if (value != null) {
-			return Strings.emptyToNull(value.toUserString());
+			return Strings.emptyToNull(parseTeXString(value.toUserString()));
 		}
 		return null;
 	}
 
-	private static String fieldCleanPrefix(BibTeXEntry entry, Key key) {
+	private String fieldCleanPrefix(BibTeXEntry entry, Key key) throws Exception {
 		String value = field(entry, key);
-		for (final String prefix : PREFIXES) {
-			final Pattern pattern = Pattern.compile("^\\s*" + Pattern.quote(prefix) + "\\s+", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$ //$NON-NLS-2$
-			final Matcher matcher = pattern.matcher(value);
-			value = matcher.replaceFirst(""); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(value)) {
+			for (final String prefix : PREFIXES) {
+				final Pattern pattern = Pattern.compile("^\\s*" + Pattern.quote(prefix) + "\\s+", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$ //$NON-NLS-2$
+				final Matcher matcher = pattern.matcher(value);
+				value = matcher.replaceFirst(""); //$NON-NLS-1$
+			}
 		}
 		return value;
 	}
 
-	private static String field(BibTeXEntry entry, String key) {
+	private String field(BibTeXEntry entry, String key) throws Exception {
 		return field(entry, new Key(key));
 	}
 
@@ -399,12 +405,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return null;
 	}
 
-	private static PublicationLanguage language(BibTeXEntry entry) {
+	private PublicationLanguage language(BibTeXEntry entry) throws Exception {
 		final String label = field(entry, new Key(KEY_LANGUAGE_NAME));
 		return PublicationLanguage.valueOfCaseInsensitive(label);
 	}
 
-	private static int year(BibTeXEntry entry) {
+	private int year(BibTeXEntry entry) throws Exception {
 		final String yearValue = field(entry, KEY_YEAR);
 		if (Strings.isNullOrEmpty(yearValue)) {
 			throw new IllegalArgumentException("Invalid year format for: " + entry.getKey().getValue()); //$NON-NLS-1$
@@ -418,7 +424,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return year;
 	}
 
-	private static LocalDate date(BibTeXEntry entry) {
+	private LocalDate date(BibTeXEntry entry) throws Exception {
 		final int year = year(entry);
 		final String monthValue = field(entry, KEY_MONTH);
 		if (!Strings.isNullOrEmpty(monthValue)) {
@@ -491,8 +497,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
 	 * @return the publication.
+	 * @throws Exception if LaTeX code cannot be parsed.
 	 */
-	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId) {
+	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId) throws Exception {
 		final PublicationType type = getPublicationTypeFor(entry);
 		if (type != null) {
 			// Create a generic publication
