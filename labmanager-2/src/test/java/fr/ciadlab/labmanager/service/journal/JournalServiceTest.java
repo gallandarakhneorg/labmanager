@@ -16,20 +16,23 @@
 
 package fr.ciadlab.labmanager.service.journal;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -38,13 +41,17 @@ import java.awt.image.BufferedImage;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
 import fr.ciadlab.labmanager.utils.TestUtils;
@@ -82,6 +89,8 @@ public class JournalServiceTest {
 
 	private JournalRepository journalRepository;
 
+	private JournalQualityAnnualIndicatorsRepository indicatorRepository;
+
 	private JournalPaperRepository publicationRepository;
 
 	private NetConnection netConnection;
@@ -93,8 +102,9 @@ public class JournalServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.journalRepository = mock(JournalRepository.class);
 		this.publicationRepository = mock(JournalPaperRepository.class);
+		this.indicatorRepository = mock(JournalQualityAnnualIndicatorsRepository.class);
 		this.netConnection = mock(NetConnection.class);
-		this.test = new JournalService(this.messages, this.journalRepository, this.publicationRepository, this.netConnection);
+		this.test = new JournalService(this.messages, this.journalRepository, this.indicatorRepository, this.publicationRepository, this.netConnection);
 
 		// Prepare some journals to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -616,13 +626,41 @@ public class JournalServiceTest {
 	public void downloadScimagoQuartileByJournal_fromInternet() throws Exception {
 		// Force the connection to Internet
 		this.netConnection = new DirectNetConnection();
-		this.test = new JournalService(this.messages, this.journalRepository, this.publicationRepository, this.netConnection);
+		this.test = new JournalService(this.messages, this.journalRepository, this.indicatorRepository,this.publicationRepository, this.netConnection);
 
 		// The following id is for the Int. Journal of Artificial Intelligence
 		when(this.jour3.getScimagoId()).thenReturn("23675");
 
 		final QuartileRanking r = this.test.downloadScimagoQuartileByJournal(this.jour3);
 		assertSame(QuartileRanking.Q1, r);
+	}
+
+	@Test
+	public void setQualityIndicators() throws Exception {
+		Journal journal = mock(Journal.class);
+		JournalQualityAnnualIndicators indicators = mock(JournalQualityAnnualIndicators.class);
+		when(journal.setImpactFactorByYear(anyInt(), anyFloat())).thenReturn(indicators);
+		this.test.setQualityIndicators(journal, 2022, 123.456f, QuartileRanking.Q2, QuartileRanking.Q3);
+		verify(journal).setImpactFactorByYear(eq(2022), eq(123.456f));
+		verify(indicators).setScimagoQIndex(same(QuartileRanking.Q2));
+		verify(indicators).setWosQIndex(same(QuartileRanking.Q3));
+		verify(this.journalRepository).save(same(journal));
+		verify(this.indicatorRepository).save(same(indicators));
+	}
+
+	@Test
+	public void deleteQualityIndicators() throws Exception {
+		Journal journal = mock(Journal.class);
+		JournalQualityAnnualIndicators inds = mock(JournalQualityAnnualIndicators.class);
+		Map<Integer, JournalQualityAnnualIndicators> indicators = new HashMap<>();
+		indicators.put(2022, inds);
+		when(journal.getQualityIndicators()).thenReturn(indicators);
+		
+		this.test.deleteQualityIndicators(journal, 2022);
+		
+		assertTrue(indicators.isEmpty());
+		verify(this.journalRepository).save(same(journal));
+		verify(this.indicatorRepository).delete(same(inds));
 	}
 
 }

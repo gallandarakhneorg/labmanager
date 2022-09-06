@@ -24,7 +24,9 @@ import java.util.Set;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
@@ -51,6 +53,8 @@ public class JournalService extends AbstractService {
 	
 	private final JournalRepository journalRepository;
 
+	private final JournalQualityAnnualIndicatorsRepository indicatorRepository;
+
 	private final JournalPaperRepository publicationRepository;
 
 	private final NetConnection netConnection;
@@ -60,16 +64,19 @@ public class JournalService extends AbstractService {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param journalRepository the journal repository.
+	 * @param indicatorRepository the repository for journal indicators.
 	 * @param publicationRepository the publication repository.
 	 * @param netConnection the tools for accessing the network.
 	 */
 	public JournalService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired JournalRepository journalRepository,
+			@Autowired JournalQualityAnnualIndicatorsRepository indicatorRepository,
 			@Autowired JournalPaperRepository publicationRepository,
 			@Autowired NetConnection netConnection) {
 		super(messages);
 		this.journalRepository = journalRepository;
+		this.indicatorRepository = indicatorRepository;
 		this.publicationRepository = publicationRepository;
 		this.netConnection = netConnection;
 	}
@@ -331,6 +338,38 @@ public class JournalService extends AbstractService {
 			}
 		}
 		return null;
+	}
+
+	/** Save the given quality indicators for the journal.
+	 *
+	 * @param journal the journal.
+	 * @param year the reference year of the quality indicators.
+	 * @param impactFactor the impact factor.
+	 * @param scimagoQIndex the Scimago Q-Index.
+	 * @param wosQIndex  the WoS Q-Index.
+	 * @return the indicators.
+	 */
+	public JournalQualityAnnualIndicators setQualityIndicators(Journal journal, int year, float impactFactor,
+			QuartileRanking scimagoQIndex, QuartileRanking wosQIndex) {
+		final JournalQualityAnnualIndicators indicators = journal.setImpactFactorByYear(year, impactFactor);
+		indicators.setScimagoQIndex(scimagoQIndex);
+		indicators.setWosQIndex(wosQIndex);
+		this.indicatorRepository.save(indicators);
+		this.journalRepository.save(journal);
+		return indicators;
+	}
+
+	/** Delete the quality indicators for the given journal and year.
+	 *
+	 * @param journal the journal.
+	 * @param year the reference year.
+	 */
+	public void deleteQualityIndicators(Journal journal, int year) {
+		final JournalQualityAnnualIndicators indicators = journal.getQualityIndicators().remove(Integer.valueOf(year));
+		if (indicators != null) {
+			this.indicatorRepository.delete(indicators);
+			this.journalRepository.save(journal);
+		}
 	}
 
 }

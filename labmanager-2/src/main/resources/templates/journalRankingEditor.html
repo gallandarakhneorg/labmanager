@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs" />
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/buttons :: ajaxButtons" />
+<th:block th:replace="fragments/buttons :: waitButtons" />
+<th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
+
+<!-- 
+<div class="form-group" th:replace="fragments/form :: textInput(${'referenceYear' + ranking.referenceYear}, #{html.Year}, #{html.PlaceHolderReferenceYear}, ranking.referenceYear)"></div>
+ -->
+ 
+<div class="card" th:if="${lastScimagoQIndex != null || lastWosQIndex != null || lastImpactFactor > 0}">
+	<div class="card-body">
+		<p th:if="${lastScimagoQIndex != null}"
+		   th:utext="#{html.ScimagoQIndex} + ' ' + ${lastScimagoQIndex.name}"></p>
+		<p th:if="${lastWosQIndex != null}"
+		   th:utext="#{html.WosQIndex} + ' ' + ${lastWosQIndex.name}"></p>
+		<p th:if="${lastImpactFactor > 0}"
+		   th:utext="#{html.ImpactFactor1} + ' ' + ${lastImpactFactor}"></p>
+	</div>
+</div>
+<form id="form">
+	<button id="btAdd" class="btn btn-warning mt-4 pr-4 pl-4"
+		th:if="${changeEnabled}" th:utext="#{html.AddRanking}"></button>
+	<th:block th:if="${changeEnabled && currentYear >= lastReferenceYear}">
+		<div id="new-ranking-input-area" class="form-super-group form-super-group-new" style="display:none">
+			<div class="form-group" th:replace="fragments/form :: comboInput*(year, #{html.Year}, ~{::option#option-year-new})">
+				<option id="option-year-new"
+				        th:each="year : ${years}"
+				        th:value="${year}"
+				        th:utext="${year}"></option>
+			</div>
+			<div class="form-group" th:replace="fragments/form :: textInput(impactFactor_new, #{html.ImpactFactor}, #{html.PlaceHolderImpactFactor},'')"></div>
+			<div class="form-group" th:replace="fragments/form :: comboInput(scimagoQIndex_new, #{html.ScimagoQIndex0}, ~{::option#option-scimago-new})">
+				<option id="option-scimago-new" value="" th:utext="#{html.NotSpecified}"></option>
+				<option id="option-scimago-new"
+				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values}"
+				        th:value="${quartile.name}"
+				        th:utext="${quartile.name}"></option>
+			</div>
+			<div class="form-group" th:replace="fragments/form :: comboInput(wosQIndex_new, #{html.WosQIndex0}, ~{::option#option-wos-new})">
+				<option id="option-wos-new" value="" th:utext="#{html.NotSpecified}"></option>
+				<option id="option-wos-new"
+				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values}"
+				        th:value="${quartile.name}"
+				        th:utext="${quartile.name}"></option>
+			</div>
+			<button th:id="${'btSave_new'}" type="button"
+				class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
+				th:utext="#{html.Submit}"></button>
+		</div>
+	</th:block>
+	<th:block th:each="rankingPair : ${qualityIndicators}"
+	          th:with="ranking = ${rankingPair.value}">
+		<div class="form-super-group form-super-group-active">
+			<div class="form-group">
+				<label class="col-form-label" th:utext="${ranking.referenceYear}"></label>
+			</div>
+			<div class="form-group" th:replace="fragments/form :: textInput(${'impactFactor_' + ranking.referenceYear}, #{html.ImpactFactor}, #{html.PlaceHolderImpactFactor}, ${(ranking.impactFactor>0) ? ranking.impactFactor : ''})"></div>
+			<div class="form-group" th:replace="fragments/form :: comboInput(${'scimagoQIndex_' + ranking.referenceYear}, #{html.ScimagoQIndex0}, ~{::option#option-scimago})">
+				<option id="option-scimago" value="" th:utext="#{html.NotSpecified}"></option>
+				<option id="option-scimago"
+				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values}"
+				        th:value="${quartile.name}"
+				        th:selected="${quartile == ranking.getScimagoQIndex()}"
+				        th:utext="${quartile.name}"></option>
+			</div>
+			<div class="form-group" th:replace="fragments/form :: comboInput(${'wosQIndex_' + ranking.referenceYear}, #{html.WosQIndex0}, ~{::option#option-wos})">
+				<option id="option-wos" value="" th:utext="#{html.NotSpecified}"></option>
+				<option id="option-wos"
+				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values}"
+				        th:selected="${quartile == ranking.getWosQIndex()}"
+				        th:value="${quartile.name}"
+				        th:utext="${quartile.name}"></option>
+			</div>
+			<button th:id="${'btSave_' + ranking.referenceYear}" type="button"
+				class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
+				th:utext="#{html.Submit}"></button>
+			<button th:id="${'TheDeleteButton_' + ranking.referenceYear}" type="button"
+				class="btn btn-danger mt-4 pr-4 pl-4" th:if="${changeEnabled}"
+				th:utext="#{html.DeleteRanking}"></button>
+		</div>
+	</th:block>
+</form>
+<script th:inline="javascript">
+function addSavingButtonCallback(year, isNewRankingGroup) {
+	attachSpinnerAjaxHandler({
+		id: 'btSave_' + year,
+		url: "[(${savingUrl})]",
+		text: "[(#{html.Submit})]",
+		prepareData: ($bt, formData) => {
+			formData.append("journal", parseInt("[(${journal.id})]"));
+			var iyear = year;
+			if (isNewRankingGroup) {
+				iyear = $('#comboInput_year option:selected').attr('value');
+			}
+			formData.append("year", iyear);
+			var ifactor = $('#textInput_impactFactor_' + year).val();
+			formData.append("impactFactor", ifactor);
+			var quartile = $('#comboInput_scimagoQIndex_' + year + ' option:selected').attr('value');
+			formData.append("scimagoQIndex", quartile);
+			quartile = $('#comboInput_wosQIndex_' + year + ' option:selected').attr('value');
+			formData.append("wosQIndex", quartile);
+		},
+		failureText: "[(#{html.JournalRankingSavingError})]",
+		onSuccess: () => {
+			Swal.fire(
+					  "[(#{html.Success})]",
+					  "[(#{html.JournalRankingSavingSuccess})]",
+					  'success'
+					).then(result => {
+						location.reload();
+					});
+		},
+	});
+}
+$(document).ready(function () {
+    /*[# th:if="${changeEnabled}"]*/
+	    /*[# th:if="${currentYear >= lastReferenceYear}"]*/
+	$(document).on('click', '#btAdd', () => {
+		$('#btAdd').prop("disabled", true);
+		$('#new-ranking-input-area').show();
+	    addSavingButtonCallback('new', true);
+	});
+		/*[/]*/
+	    /*[# th:unless="${currentYear >= lastReferenceYear}"]*/
+	$('#btAdd').prop("disabled", true);
+		/*[/]*/
+	    /*[# th:each="rankingPair : ${qualityIndicators}"]*/
+    addSavingButtonCallback("[(${rankingPair.value.referenceYear})]", false);
+
+	attachDeletionHandler({
+		id: "[(${rankingPair.value.referenceYear})]",
+		url: "[(${deletionUrl + '?journal=' + journal.id + '&year=' + rankingPair.value.referenceYear})]",
+		elementNameCallback: () => { return "[(${rankingPair.value.referenceYear})]"; },
+		questionTitle: "[(#{html.DeleteJournalRanking})]",
+		questionText: "[(#{html.AreYouSureToDeleteJournalRanking(${journal.journalName}, ${rankingPair.value.referenceYear})})]",
+		successText: "[(#{html.JournalRankingDeleted})]",
+		failureText: "[(#{html.CannotDeleteJournalRanking(${journal.journalName}, ${rankingPair.value.referenceYear})})]",
+    });
+    	/*[/]*/
+    /*[/]*/
+});
+</script>
+</html>

@@ -25,6 +25,7 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.service.journal.JournalService;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -168,7 +169,7 @@ public class JournalApiController extends AbstractComponent {
 
 	/** Delete a journal from the database.
 	 *
-	 * @param journal the identifier of the journal .
+	 * @param journal the identifier of the journal.
 	 * @param username the login of the logged-in person.
 	 * @throws Exception in case of error.
 	 */
@@ -181,6 +182,61 @@ public class JournalApiController extends AbstractComponent {
 				throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
 			}
 			this.journalService.removeJournal(journal.intValue());
+		} else {
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+		}
+	}
+
+	/** Saving ranking of a journal. 
+	 *
+	 * @param journal the identifier of the journal.
+	 * @param year the identifier of the journal.
+	 * @param impactFactor the impact factor of the journal for the given year.
+	 * @param scimagoQIndex the Scimago's Q-Index of the journal for the given year.
+	 * @param wosQIndex the WoS's Q-Index of the journal for the given year.
+	 * @param username the login of the logged-in person.
+	 * @throws Exception in case the journal ranking cannot be saved
+	 */
+	@PostMapping(value = "/" + Constants.SAVE_JOURNAL_RANKING_ENDPOINT)
+	public void saveJournalRanking(
+			@RequestParam(required = true) int journal,
+			@RequestParam(required = true) int year,
+			@RequestParam(required = false) Float impactFactor,
+			@RequestParam(required = false) String scimagoQIndex,
+			@RequestParam(required = false) String wosQIndex,
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
+		if (isLoggedUser(username).booleanValue()) {
+			final Journal journalObj = this.journalService.getJournalById(journal);
+			if (journalObj == null) {
+				throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
+			}
+			final float realImpactFactor = impactFactor == null || impactFactor.floatValue() < 0f ? 0f : impactFactor.floatValue();
+			final QuartileRanking scimago = Strings.isNullOrEmpty(scimagoQIndex) ? null : QuartileRanking.valueOf(scimagoQIndex);
+			final QuartileRanking wos = Strings.isNullOrEmpty(wosQIndex) ? null : QuartileRanking.valueOf(wosQIndex);
+			this.journalService.setQualityIndicators(journalObj, year, realImpactFactor, scimago, wos);
+		} else {
+			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+		}
+	}
+
+	/** Delete a journal ranking from the database.
+	 *
+	 * @param journal the identifier of the journal.
+	 * @param year the identifier of the journal.
+	 * @param username the login of the logged-in person.
+	 * @throws Exception in case of error.
+	 */
+	@DeleteMapping("/" + Constants.DELETE_JOURNAL_RANKING_ENDPOINT)
+	public void deleteJournalRanking(
+			@RequestParam(required = true) int journal,
+			@RequestParam(required = true) int year,
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
+		if (isLoggedUser(username).booleanValue()) {
+			final Journal journalObj = this.journalService.getJournalById(journal);
+			if (journalObj == null) {
+				throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
+			}
+			this.journalService.deleteQualityIndicators(journalObj, year);
 		} else {
 			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
 		}

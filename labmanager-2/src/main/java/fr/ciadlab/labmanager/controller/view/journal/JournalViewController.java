@@ -17,11 +17,18 @@
 package fr.ciadlab.labmanager.controller.view.journal;
 
 import java.time.LocalDate;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.service.journal.JournalService;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.annotation.CurrentSecurityContext;
@@ -105,6 +112,90 @@ public class JournalViewController extends AbstractViewController {
 		modelAndView.addObject("formActionUrl", rooted(Constants.JOURNAL_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.JOURNAL_LIST_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("scimagoQIndex_imageUrl", JournalService.SCIMAGO_URL_PREFIX + "{0}"); //$NON-NLS-1$ //$NON-NLS-2$
+		//
+		return modelAndView;
+	}
+
+	/** Show the editor for a journal ranking.
+	 *
+	 * @param id the identifier of the journal to edit.
+	 * @param username the login of the logged-in person.
+	 * @return the model-view object.
+	 */
+	@GetMapping(value = "/journalRankingEditor")
+	public ModelAndView showJournalEditor(
+			@RequestParam(required = true) int id,
+			@CurrentSecurityContext(expression="authentication?.name") String username) {
+		final ModelAndView modelAndView = new ModelAndView("journalRankingEditor"); //$NON-NLS-1$
+		initModelViewProperties(modelAndView, username);
+		//
+		final Journal journal = this.journalService.getJournalById(id);
+		if (journal == null) {
+			throw new IllegalArgumentException("Journal not found: " + id); //$NON-NLS-1$
+		}
+		//
+		modelAndView.addObject("savingUrl", endpoint(Constants.SAVE_JOURNAL_RANKING_ENDPOINT, null)); //$NON-NLS-1$
+		modelAndView.addObject("deletionUrl", endpoint(Constants.DELETE_JOURNAL_RANKING_ENDPOINT, null)); //$NON-NLS-1$
+		modelAndView.addObject("journal", journal); //$NON-NLS-1$
+		final Map<Integer, JournalQualityAnnualIndicators> sortedMap = new TreeMap<>((a, b) -> {
+			if (a == b) {
+				return 0;
+			}
+			if (a == null) {
+				return 1;
+			}
+			if (b == null) {
+				return -1;
+			}
+			return Integer.compare(b.intValue(), a.intValue());
+		});
+		sortedMap.putAll(journal.getQualityIndicators());
+		modelAndView.addObject("qualityIndicators", sortedMap); //$NON-NLS-1$
+		//
+		Integer year = null;
+		QuartileRanking scimago = null;
+		QuartileRanking wos = null;
+		float impactFactor = 0f;
+		final Iterator<JournalQualityAnnualIndicators> iterator = sortedMap.values().iterator();
+		while (iterator.hasNext() && (scimago == null || wos == null || impactFactor <= 0f)) {
+			final JournalQualityAnnualIndicators indicators = iterator.next();
+			if (year == null) {
+				year = Integer.valueOf(indicators.getReferenceYear());
+			}
+			if (scimago == null && indicators.getScimagoQIndex() != null) {
+				scimago = indicators.getScimagoQIndex();
+			}
+			if (wos == null && indicators.getWosQIndex() != null) {
+				wos = indicators.getWosQIndex();
+			}
+			if (impactFactor <= 0f && indicators.getImpactFactor() > 0f) {
+				impactFactor = indicators.getImpactFactor();
+			}
+		}
+		final int currentYear = LocalDate.now().getYear();
+		modelAndView.addObject("currentYear", Integer.valueOf(currentYear)); //$NON-NLS-1$
+		modelAndView.addObject("lastReferenceYear", year); //$NON-NLS-1$
+		modelAndView.addObject("lastScimagoQIndex", scimago); //$NON-NLS-1$
+		modelAndView.addObject("lastWosQIndex", wos); //$NON-NLS-1$
+		modelAndView.addObject("lastImpactFactor", Float.valueOf(impactFactor)); //$NON-NLS-1$
+		final Set<Integer> years = new TreeSet<>((a, b) -> {
+			if (a == b) {
+				return 0;
+			}
+			if (a == null) {
+				return 1;
+			}
+			if (b == null) {
+				return -1;
+			}
+			return Integer.compare(b.intValue(), a.intValue());
+		});
+		for (int y = currentYear - 20; y <= currentYear; ++y) {
+			if (!sortedMap.containsKey(Integer.valueOf(y))) {
+				years.add(Integer.valueOf(y));
+			}
+		}
+		modelAndView.addObject("years", years); //$NON-NLS-1$
 		//
 		return modelAndView;
 	}

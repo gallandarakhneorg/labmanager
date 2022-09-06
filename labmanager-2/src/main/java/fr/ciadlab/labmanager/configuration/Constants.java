@@ -197,6 +197,14 @@ public class Constants {
 	 */
 	public static final String GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT = "getJsonFromDatabaseAndBibTeX"; //$NON-NLS-1$
 
+	/** Name of the endpoint for saving a jorunal ranking.
+	 */
+	public static final String SAVE_JOURNAL_RANKING_ENDPOINT = "saveJournalRanking"; //$NON-NLS-1$
+
+	/** Name of the endpoint for deleting a jorunal ranking.
+	 */
+	public static final String DELETE_JOURNAL_RANKING_ENDPOINT = "deleteJournalRanking"; //$NON-NLS-1$
+
 	private static final String DEFAULT_SERVER_NAME = "LabManagerApi"; //$NON-NLS-1$
 
 	private static final String DEFAULT_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$

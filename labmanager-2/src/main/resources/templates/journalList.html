@@ -62,9 +62,21 @@
             <td th:replace="fragments/table :: adminToolButtons(${journal.id}, ${journal.journalName},
             		#{html.EditJournal1(${journal.journalName})},
             		#{html.DeleteJournal1(${journal.journalName})},
-            		null,
+            		~{::.admin-tool-buttons},
             		journal, journal, journal,
-            		@{/getJournalData(id=${journal.id})} )"></td>
+            		@{/getJournalData(id=${journal.id})} )">
+            	<a th:href="@{/journalRankingEditor(id=${journal.id})}"
+				   th:if="${changeEnabled}"
+				   class="noLink admin-tool-buttons">
+            		<span class="fa-solid fa-ranking-star"
+            		   th:title="#{html.EditRankingOf(${journal.journalName})}"
+                       style="font-size:14pt"></span>
+            	</a>
+           		<span class="fa fa-ranking-star admin-tool-buttons"
+				   th:unless="${changeEnabled}"
+           		   th:title="#{html.EditRankingOf(${journal.journalName})}"
+                   style="font-size:14pt"></span>
+            </td>
         </tr>
     </tbody>
 </table>
