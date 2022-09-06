@@ -10,10 +10,14 @@
 	</th:block>
 
 	<form th:fragment="genericForm(submitEnabled, groups)" id="form">
+		<th:block th:replace="fragments/form :: genericForm2(${submitEnabled}, #{html.Submit}, ${groups})"></th:block>
+	</form>
+
+	<form th:fragment="genericForm2(submitEnabled, submitText, groups)" id="form">
 		<input th:replace="${groups}"></input>
 		<button id="submitButton" type="button"
 		        class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
-		        th:utext="#{html.Submit}" th:disabled="${!submitEnabled}"></button>
+		        th:utext="${submitText}" th:disabled="${!submitEnabled}"></button>
 	</form>
 
 	<form th:fragment="entityForm(hiddenName, hiddenId, url, successUrl, failureMsg, groups)" id="form">
