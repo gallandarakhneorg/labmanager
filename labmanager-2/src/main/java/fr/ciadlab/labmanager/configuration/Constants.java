@@ -193,6 +193,10 @@ public class Constants {
 	 */
 	public static final String EXPORT_MEMBERS_TO_JSON_ENDPOINT = "exportMembersToJson"; //$NON-NLS-1$
 
+	/** Name of the endpoint for merging the database and a given BibTeX for obtaining a new JSON file.
+	 */
+	public static final String GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT = "getJsonFromDatabaseAndBibTeX"; //$NON-NLS-1$
+
 	private static final String DEFAULT_SERVER_NAME = "LabManagerApi"; //$NON-NLS-1$
 
 	private static final String DEFAULT_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$

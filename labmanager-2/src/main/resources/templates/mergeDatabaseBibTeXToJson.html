@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs" />
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/formfileinput :: all" />
+<th:block th:replace="fragments/buttons :: ajaxButtons" />
+<th:block th:replace="fragments/buttons :: waitButtons" />
+
+<form th:replace="fragments/form :: genericForm2(true, #{html.GenerateJson}, ~{::.form-group})">
+	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadBibTeX(bibtexFile, #{html.ImportBibTeXFiles})"></div>
+</form>
+<script th:inline="javascript">
+$(document).ready(() => {
+	// Initialize file upload library
+	initFileUploadSingleBibTeX({
+		name: 'bibtexFile',
+	});
+
+	attachSpinnerAjaxHandler({
+		id: "submitButton",
+		url: "[(${formActionUrl})]",
+		text: "[(#{html.GenerateJson})]",
+		prepareData: ($bt, formData) => {
+			var files = $('#fileUploadBibTeX_bibtexFile')[0].files;
+			if (files.length > 0) {
+				var file = files[0];
+				var fileName = file.name;
+				formData.append("bibtexFile", file, fileName);
+			    formData.append("upload_file", true);
+			}
+		},
+		timeout: 300000, // 5 minutes
+		dataType: 'text',
+		failureText: "[(#{html.ImportBibTeXError3})]",
+		onSuccess: ($bt, answer) => {
+			download('database.json', answer, 'application/json');
+		},
+	});
+});
+</script>
+</html>

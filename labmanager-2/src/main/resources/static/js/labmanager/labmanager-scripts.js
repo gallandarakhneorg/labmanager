@@ -57,3 +57,25 @@ function addObfuscatedPhoneHandler(element) {
 		location.href = 'tel:' + phone;
 	});
 }
+
+/** Generate a file with Javascript and force it to be downloaded by the browser.
+ * Credits: {@link "https://stackoverflow.com/users/2438165/mat%c4%9bj-pokorn%c3%bd"Matěj Pokorný} and
+ * {@link "https://stackoverflow.com/users/476716/orangedog" OrangeDog}.
+ * @param filename the filename of the file to be downloaded.
+ * @param text the content of the file.
+ * @param mimeType the MIME type of the content. Default is `text/plain`.
+ */
+function download(filename, text, mimeType) {
+	(!mimeType) && (mimeType = 'text/plain');
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:' + mimeType + ';charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', filename);
+    if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+    }
+    else {
+        pom.click();
+    }
+}

@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.controller.view.admin;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -73,6 +74,24 @@ public class AdminViewController extends AbstractViewController {
 		final List<ResearchOrganization> list = this.organizationService.getAllResearchOrganizations().stream()
 				.sorted(EntityUtils.getPreferredResearchOrganizationComparator()).collect(Collectors.toList());
 		modelAndView.addObject("organizations", list); //$NON-NLS-1$
+		return modelAndView;
+	}
+
+
+	/** Show the view for merging the database JSON and a given BibTeX for generating a new JSON file to be download.
+	 *
+	 * @param username the login of the logged-in person.
+	 * @return the model-view object.
+	 * @throws IOException if there is some internal IO error when building the form's data.
+	 */
+	@GetMapping(value = "/mergeDatabaseBibTeXToJson")
+	public ModelAndView showBibTeXImporter(
+			@CurrentSecurityContext(expression="authentication?.name") String username) throws IOException {
+		final ModelAndView modelAndView = new ModelAndView("mergeDatabaseBibTeXToJson"); //$NON-NLS-1$
+		initModelViewProperties(modelAndView, username);
+		//
+		modelAndView.addObject("formActionUrl", rooted(Constants.GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT)); //$NON-NLS-1$
+		//
 		return modelAndView;
 	}
 

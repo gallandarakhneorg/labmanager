@@ -93,10 +93,22 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @return the JSON content or {@code null} if empty.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	@SuppressWarnings("unchecked")
 	public Map<String, Object> exportFromDatabase() throws Exception {
+		return exportFromDatabase(null);
+	}
+
+	/** Run the exporter.
+	 *
+	 * @param similarPublicationProvider a provider of a publication that is similar to a given publication. 
+	 *      If this argument is not {@code null} and if it replies a similar publication, the information in this
+	 *      similar publication is used to complete the JSON file that is initially filled up with the source publication.
+	 * @return the JSON content or {@code null} if empty.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String, Object> exportFromDatabase(SimilarPublicationProvider similarPublicationProvider) throws Exception {
 		final ObjectMapper mapper = new ObjectMapper();
-		final JsonNode obj = exportFromDatabaseToJsonObject(mapper.getNodeFactory());
+		final JsonNode obj = exportFromDatabaseToJsonObject(mapper.getNodeFactory(), similarPublicationProvider);
 		if (obj != null) {
 			return mapper.treeToValue(obj, Map.class);
 		}
@@ -110,13 +122,26 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory) throws Exception {
+		return exportFromDatabaseToJsonObject(factory, null);
+	}
+
+	/** Run the exporter for creating JSON objects.
+	 *
+	 * @param factory the factory of nodes.
+	 * @param similarPublicationProvider a provider of a publication that is similar to a given publication. 
+	 *      If this argument is not {@code null} and if it replies a similar publication, the information in this
+	 *      similar publication is used to complete the JSON file that is initially filled up with the source publication.
+	 * @return the JSON content.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory, SimilarPublicationProvider similarPublicationProvider) throws Exception {
 		final ObjectNode root = factory.objectNode();
 		final Map<Object, String> repository = new HashMap<>();
 		exportOrganizations(root, repository);
 		exportPersons(root, repository);
 		exportMemberships(root, repository);
 		exportJournals(root, repository);
-		exportPublications(root, repository);
+		exportPublications(root, repository, similarPublicationProvider);
 		if (root.size() > 0) {
 			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;
@@ -130,10 +155,12 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param id the identifier.
 	 * @param object the object to export.
 	 * @param factory the factory of nodes.
+	 * @param complement the object that is of the same type of {@code object} but that could be used for obtaining additional data
+	 *     that is missed from the original object.
 	 * @throws Exception if there is problem for exporting.
 	 */
 	@SuppressWarnings("static-method")
-	protected void exportObject(JsonNode receiver, String id, Object object, JsonNodeCreator factory) throws Exception {
+	protected void exportObject(JsonNode receiver, String id, Object object, JsonNodeCreator factory, Object complement) throws Exception {
 		if (object != null) {
 			final ObjectNode rec = (ObjectNode) receiver;
 			if (!Strings.isNullOrEmpty(id)) {
@@ -141,7 +168,10 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			final Map<String, Method> meths = findGetterMethods(object.getClass());
 			for (final Entry<String, Method> entry : meths.entrySet()) {
-				final Object objValue = convertValue(entry.getValue().invoke(object));
+				Object objValue = convertValue(entry.getValue().invoke(object));
+				if (objValue == null && complement != null) {
+					objValue = convertValue(entry.getValue().invoke(complement));
+				}
 				if (objValue instanceof String) {
 					rec.set(entry.getKey(), factory.textNode((String) objValue));
 				} else if (objValue instanceof Byte) {
@@ -184,7 +214,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				final ObjectNode jsonOrganization = array.objectNode();
 
 				final String id = RESEARCHORGANIZATION_ID_PREFIX + i;
-				exportObject(jsonOrganization, id, organization, jsonOrganization);
+				exportObject(jsonOrganization, id, organization, jsonOrganization, null);
 
 				if (jsonOrganization.size() > 0) {
 					repository.put(organization, id);
@@ -214,7 +244,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				final ObjectNode jsonPerson = array.objectNode();
 
 				final String id = PERSON_ID_PREFIX + i;
-				exportObject(jsonPerson, id, person, jsonPerson);
+				exportObject(jsonPerson, id, person, jsonPerson, null);
 
 				if (jsonPerson.size() > 0) {
 					repository.put(person, id);
@@ -246,7 +276,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 					final ObjectNode jsonMembership = array.objectNode();
 
 					final String id = RESEARCHORGANIZATION_ID_PREFIX + i;
-					exportObject(jsonMembership, id, membership, jsonMembership);
+					exportObject(jsonMembership, id, membership, jsonMembership, null);
 
 					// Person and organization must be added explicitly because the "exportObject" function
 					// ignore the getter functions for both.
@@ -280,14 +310,14 @@ public class DatabaseToJsonExporter extends JsonTool {
 				final ObjectNode jsonJournal = array.objectNode();
 
 				final String id = JOURNAL_ID_PREFIX + i;
-				exportObject(jsonJournal, id, journal, jsonJournal);
+				exportObject(jsonJournal, id, journal, jsonJournal, null);
 
 				// Add the publication indicators by hand because they are not exported implicitly by
 				// the "exportObject" function
 				final ObjectNode indicatorMap = jsonJournal.objectNode();
 				for (final JournalQualityAnnualIndicators indicators : journal.getQualityIndicators().values()) {
 					final ObjectNode jsonIndicator = indicatorMap.objectNode();
-					exportObject(jsonIndicator, null, indicators, jsonIndicator);
+					exportObject(jsonIndicator, null, indicators, jsonIndicator, null);
 					// Remove the year because it is not necessary into the JSON map as value and the year is the key.
 					jsonIndicator.remove(REFERENCEYEAR_KEY);
 					if (jsonIndicator.size() > 0) {
@@ -314,9 +344,12 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 *
 	 * @param root the receiver of the JSON elements.
 	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @param similarPublicationProvider a provider of a publication that is similar to a given publication. 
+	 *      If this argument is not {@code null} and if it replies a similar publication, the information in this
+	 *      similar publication is used to complete the JSON file that is initially filled up with the source publication.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	protected void exportPublications(ObjectNode root, Map<Object, String> repository) throws Exception {
+	protected void exportPublications(ObjectNode root, Map<Object, String> repository, SimilarPublicationProvider similarPublicationProvider) throws Exception {
 		final List<Publication> publications = this.publicationRepository.findAll();
 		if (!publications.isEmpty()) {
 			final ArrayNode array = root.arrayNode();
@@ -324,8 +357,19 @@ public class DatabaseToJsonExporter extends JsonTool {
 			for (final Publication publication : publications) {
 				final ObjectNode jsonPublication = array.objectNode();
 
+				// Add missed information from any similar publication
+				final Publication similarPublication;
+				if (similarPublicationProvider != null) {
+					similarPublication = similarPublicationProvider.get(publication);
+					if (similarPublication != null) {
+						getLogger().info("Found similar publication for: " + publication.getTitle()); //$NON-NLS-1$
+					}
+				} else {
+					similarPublication = null;
+				}
+
 				final String id = PUBLICATION_ID_PREFIX + i;
-				exportObject(jsonPublication, id, publication, jsonPublication);
+				exportObject(jsonPublication, id, publication, jsonPublication, similarPublication);
 
 				// Add the authors by hand because they are not exported implicitly by
 				// the "exportObject" function.
