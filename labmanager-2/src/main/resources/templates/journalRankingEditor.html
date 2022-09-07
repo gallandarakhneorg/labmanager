@@ -6,9 +6,7 @@
 <th:block th:replace="fragments/buttons :: waitButtons" />
 <th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
 
-<!-- 
-<div class="form-group" th:replace="fragments/form :: textInput(${'referenceYear' + ranking.referenceYear}, #{html.Year}, #{html.PlaceHolderReferenceYear}, ranking.referenceYear)"></div>
- -->
+<th:block th:replace="fragments/nav :: journalListBar*(#{html.EditRankingOf(${journal.journalName})})"/>
  
 <div class="card" th:if="${lastScimagoQIndex != null || lastWosQIndex != null || lastImpactFactor > 0}">
 	<div class="card-body">

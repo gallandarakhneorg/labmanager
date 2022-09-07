@@ -6,6 +6,8 @@
 <th:block th:replace="fragments/buttons :: ajaxButtons" />
 <th:block th:replace="fragments/buttons :: waitButtons" />
 
+<th:block th:replace="fragments/nav :: simpleBar(#{html.DatabaseBibTeXToJsonExport})"/>
+
 <form th:replace="fragments/form :: genericForm2(true, #{html.GenerateJson}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadBibTeX(bibtexFile, #{html.ImportBibTeXFiles})"></div>
 </form>

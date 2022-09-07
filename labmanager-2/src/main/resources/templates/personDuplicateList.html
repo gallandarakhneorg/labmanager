@@ -6,6 +6,8 @@
 <th:block th:replace="fragments/buttons :: ajaxButtons"/>
 <th:block th:replace="fragments/buttons :: conditionButtons"/>
 
+<th:block th:replace="fragments/nav :: personListBar*(#{html.MergePersons})"/>
+
 <p th:utext="#{html.DuplicatePersonIntro}"></p>
 
 <table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">

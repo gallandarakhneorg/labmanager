@@ -6,6 +6,8 @@
 <th:block th:replace="fragments/buttons :: waitButtons" />
 <th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
 
+<th:block th:replace="fragments/nav :: personListBar*(#{html.EditMemberships(${person.fullName})})"/>
+
 <form id="form">
 	<button id="btAdd" class="btn btn-warning mt-4 pr-4 pl-4"
 		th:if="${changeEnabled}" th:utext="#{html.AddMembership}"></button>

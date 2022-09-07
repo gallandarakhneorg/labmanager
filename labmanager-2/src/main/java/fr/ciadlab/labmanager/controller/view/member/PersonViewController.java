@@ -181,7 +181,7 @@ public class PersonViewController extends AbstractViewController {
 	 * @param links indicates if the links to external sites should be shown on the card.
 	 * @return the model-view object.
 	 */
-	@GetMapping(value = "/personCard")
+	@GetMapping(value = "/showPersonCard")
 	public ModelAndView showPersonCard(
 			@RequestParam(required = false) String person,
 			@RequestParam(required = false) String organization,
@@ -195,7 +195,7 @@ public class PersonViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue="true") boolean mobilePhone,
 			@RequestParam(required = false, defaultValue="true") boolean qindexes,
 			@RequestParam(required = false, defaultValue="true") boolean links) {
-		final ModelAndView modelAndView = new ModelAndView("personCard"); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("showPersonCard"); //$NON-NLS-1$
 		//
 		final Person personObj = getPersonWith(person, this.personService, this.nameParser);
 		if (personObj == null) {

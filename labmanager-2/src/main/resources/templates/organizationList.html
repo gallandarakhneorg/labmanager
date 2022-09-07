@@ -5,6 +5,8 @@
 
 <th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
 
+<th:block th:replace="fragments/nav :: organizationListBar"/>
+
 <table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
 	<thead>
 		<th th:text="#{html.Id}"></th>

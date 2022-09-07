@@ -335,3 +335,6 @@ span.obfuscated-pn:after {
 .dropdown-menu > li:hover > .dropdown-submenu {
 	display: block;
 }
+nav.labmanager-administration-navigation {
+	--bs-breadcrumb-divider: '>';	
+}

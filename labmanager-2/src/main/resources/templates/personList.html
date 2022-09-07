@@ -5,6 +5,8 @@
 
 <th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
 
+<th:block th:replace="fragments/nav :: personListBar"/>
+
 <table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
     <thead>
         <th th:text="#{html.Id}"></th>
@@ -25,7 +27,7 @@
                 <th:block th:utext="${person.id}"></th:block>
             </td>
             <td>
-            	<a th:href="@{/personCard(person=${person.id})}" class="noLink"><span class="fa-solid fa-address-card"></span></a>
+            	<a th:href="@{/showPersonCard(person=${person.id})}" class="noLink"><span class="fa-solid fa-address-card"></span></a>
             </td>
             <td th:with="actives = ${person.activeMemberships}">
 	                <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"

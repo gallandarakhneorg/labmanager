@@ -218,13 +218,13 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param username the login of the logged-in person.
 	 * @return the model-view with the statistics.
 	 */
-	@GetMapping("/publicationStats")
+	@GetMapping("/showPublicationStats")
 	public ModelAndView showPublicationsStats(
 			@RequestParam(required = false, name = Constants.ID_ENDPOINT_PARAMETER) Integer identifier,
 			@RequestParam(required = false, defaultValue = "true") boolean annual,
 			@RequestParam(required = false, defaultValue = "true") boolean global,
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
-		final ModelAndView modelAndView = new ModelAndView("publicationStats"); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("showPublicationStats"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);
 
 		final List<Publication> publications;

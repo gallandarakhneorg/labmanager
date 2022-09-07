@@ -7,6 +7,8 @@
 <th:block th:replace="fragments/formselect2 :: all" />
 <th:block th:replace="fragments/formfileinput :: all" />
 
+<th:block th:replace="fragments/nav :: publicationListBar*(#{html.EditPublication1(${publication.title})})"/>
+
 <form th:replace="fragments/form :: entityForm(publication, ${publication == null ? '' : publication.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PublicationSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: comboInput*(type, #{html.Type}, ~{::option#option-type})">
 		<option id="option-type"

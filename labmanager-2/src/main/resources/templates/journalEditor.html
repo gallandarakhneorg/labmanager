@@ -4,6 +4,8 @@
 <th:block th:replace="fragments/form :: formLibs" />
 <th:block th:replace="fragments/scimago :: scimagoPicture" />
 
+<th:block th:replace="fragments/nav :: journalListBar*(#{html.EditJournal1(${journal.journalName})})"/>
+
 <form th:replace="fragments/form :: entityForm(journal, ${journal == null ? '' : journal.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.JournalSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderJournalName}, ${journal != null ? journal.journalName : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput*(publisher, #{html.Publisher}, #{html.PlaceHolderPublisher}, ${journal != null ? journal.publisher : ''})"></div>

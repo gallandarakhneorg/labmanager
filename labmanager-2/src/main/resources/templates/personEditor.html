@@ -4,6 +4,8 @@
 <th:block th:replace="fragments/form :: formLibs" />
 <th:block th:replace="fragments/gravatar :: gravatarPicture" />
 
+<th:block th:replace="fragments/nav :: personListBar*(#{html.EditPerson1(${person.fullName})})"/>
+
 <form th:replace="fragments/form :: entityForm(person, ${person == null ? '' : person.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PersonSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: textInput*(lastName, #{html.LastName}, #{html.PlaceHolderPersonLastName}, ${person != null ? person.lastName : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput*(firstName, #{html.FirstName}, #{html.PlaceHolderPersonFirstName}, ${person != null ? person.firstName : ''})"></div>
