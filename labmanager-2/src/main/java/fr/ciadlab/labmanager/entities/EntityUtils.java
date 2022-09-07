@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.entities;
 
+import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.member.MembershipComparator;
 import fr.ciadlab.labmanager.entities.member.NameBasedMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
@@ -58,6 +59,8 @@ public final class EntityUtils {
 	private static ResearchOrganizationComparator ORGANIZATION_COMPARATOR; 
 
 	private static PublicationComparator PUBLICATION_COMPARATOR; 
+
+	private static JournalComparator JOURNAL_COMPARATOR; 
 
 	private EntityUtils() {
 		//
@@ -200,6 +203,29 @@ public final class EntityUtils {
 	public static void setPreferredPersonNameBasedMembershipComparator(NameBasedMembershipComparator comparator) {
 		synchronized (EntityUtils.class) {
 			PERSON_NAME_MEMBERSHIP_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of journals.
+	 *
+	 * @return the comparator.
+	 */
+	public static JournalComparator getPreferredJournalComparator() {
+		synchronized (EntityUtils.class) {
+			if (JOURNAL_COMPARATOR == null) {
+				JOURNAL_COMPARATOR = new JournalComparator();
+			}
+			return JOURNAL_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of journals.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredJournalComparator(JournalComparator comparator) {
+		synchronized (EntityUtils.class) {
+			JOURNAL_COMPARATOR = comparator;
 		}
 	}
 

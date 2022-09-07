@@ -22,10 +22,10 @@
 	<div class="form-group" th:replace="fragments/form :: monthInput*(publicationDate, #{html.PublicationDate}, ${dateYearMonth}, ${maxDateYearMonth}, ${dateYearMonth_enableMonth})"></div>
 	<div class="form-group" th:replace="fragments/form :: comboInputDynamic*(journal, #{html.Journal}, ~{::option#option-journal})">
 		<option id="option-journal"
-		        th:each="journal : ${journals}"
+		        th:each="journal : ${#lists.sort(journals, T(fr.ciadlab.labmanager.entities.EntityUtils).getPreferredJournalComparator())}"
 		        th:selected="${journalIdentifier != null && journal.id == journalIdentifier.intValue()}"
 		        th:value="${journal.id}"
-		        th:utext="${journal.journalName}"></option>
+		        th:utext="${journal.journalName + ' - ' + journal.publisher}"></option>
 	</div>
 	<div class="form-group" th:replace="fragments/form :: textInputDynamic*(scientificEventName, #{html.ScientificEventName}, #{html.PlaceHolderPublicationScientificEventName}, ${shared_scientificEventName ?: ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInputDynamic*(bookTitle, #{html.BookTitle}, #{html.PlaceHolderPublicationBookTitle}, ${shared_bookTitle ?: ''})"></div>
