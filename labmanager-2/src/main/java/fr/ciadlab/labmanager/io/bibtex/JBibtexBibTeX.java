@@ -20,12 +20,15 @@ import static org.jbibtex.BibTeXEntry.KEY_ADDRESS;
 import static org.jbibtex.BibTeXEntry.KEY_AUTHOR;
 import static org.jbibtex.BibTeXEntry.KEY_BOOKTITLE;
 import static org.jbibtex.BibTeXEntry.KEY_CHAPTER;
+import static org.jbibtex.BibTeXEntry.KEY_CROSSREF;
 import static org.jbibtex.BibTeXEntry.KEY_DOI;
 import static org.jbibtex.BibTeXEntry.KEY_EDITION;
 import static org.jbibtex.BibTeXEntry.KEY_EDITOR;
+import static org.jbibtex.BibTeXEntry.KEY_EPRINT;
 import static org.jbibtex.BibTeXEntry.KEY_HOWPUBLISHED;
 import static org.jbibtex.BibTeXEntry.KEY_INSTITUTION;
 import static org.jbibtex.BibTeXEntry.KEY_JOURNAL;
+import static org.jbibtex.BibTeXEntry.KEY_KEY;
 import static org.jbibtex.BibTeXEntry.KEY_MONTH;
 import static org.jbibtex.BibTeXEntry.KEY_NOTE;
 import static org.jbibtex.BibTeXEntry.KEY_NUMBER;
@@ -270,12 +273,37 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	@Override
 	public String parseTeXString(String texString) throws Exception {
+		return parseTeXString(texString, null);
+	}
+	
+	/** Convert any special macro from a TeX string into its equivalent in the current character encoding.
+	 * For example, the macros {@code \'e} is translated to {@code é}.
+	 * <p>
+	 * The conversion in the opposite direction is supported by {@link #toTeXString(String)}.
+	 *
+	 * @param texString the TeX data.
+	 * @param entry the BibTeX entry in which the LaTeX string is appearing. If this argument is {@code null},
+	 *     the BibTeX entry is unknown.
+	 * @return the Java string that corresponds to the given TeX data.
+	 * @throws Exception if the TeX string cannot be parsed.
+	 * @see #toTeXString(String)
+	 */
+	protected static String parseTeXString(String texString, BibTeXEntry entry) throws Exception {
 		if (!Strings.isNullOrEmpty(texString)) {
-			final LaTeXParser latexParser = new LaTeXParser();
-			List<LaTeXObject> latexObjects = latexParser.parse(texString);
-			final LaTeXPrinter latexPrinter = new BugfixLaTeXPrinter();
-			final String plainTextString = latexPrinter.print(latexObjects);
-			return plainTextString;
+			try {
+				final LaTeXParser latexParser = new LaTeXParser();
+				List<LaTeXObject> latexObjects = latexParser.parse(texString);
+				final LaTeXPrinter latexPrinter = new BugfixLaTeXPrinter();
+				final String plainTextString = latexPrinter.print(latexObjects);
+				return plainTextString;
+			} catch (Throwable ex) {
+				final String bibtexEntry = entry != null ? entry.getKey().getValue() : null;
+				throw new RuntimeException(
+						"Unable to parse the following LaTeX text: " + texString //$NON-NLS-1$
+						+ "\nSource error is: " + ex.getLocalizedMessage() //$NON-NLS-1$
+						+ "\nBibTeX entry is: " + (Strings.isNullOrEmpty(bibtexEntry) ? "n/c" : bibtexEntry), //$NON-NLS-1$ //$NON-NLS-2$
+						ex);
+			}
 		}
 		return null;
 	}
@@ -372,15 +400,35 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		throw new IllegalArgumentException("Unsupported type of the BibTeX entry: " + entry.getType()); //$NON-NLS-1$
 	}
 
-	private String field(BibTeXEntry entry, Key key) throws Exception {
+	/** Replies if the given field may contains LaTeX markup.
+	 *
+	 * @param field the field to test.
+	 * @return {@code true} if the field's value may contain LaTeX markup.
+	 */
+	protected static boolean isLaTeXField(Key field) {
+		return !(KEY_CROSSREF.equals(field)
+				|| KEY_DOI.equals(field)
+				|| KEY_EPRINT.equals(field)
+				|| KEY_KEY.equals(field)
+				|| KEY_URL.equals(field)
+				|| KEY_HALID.equals(field)
+				|| KEY_DBLP.equals(field)
+				|| KEY_VIDEO.equals(field));
+	}
+
+	private static String field(BibTeXEntry entry, Key key) throws Exception {
 		final Value value = entry.getField(key);
 		if (value != null) {
-			return Strings.emptyToNull(parseTeXString(value.toUserString()));
+			String strValue = value.toUserString();
+			if (isLaTeXField(key)) {
+				strValue = parseTeXString(strValue, entry);
+			}
+			return Strings.emptyToNull(strValue);
 		}
 		return null;
 	}
 
-	private String fieldCleanPrefix(BibTeXEntry entry, Key key) throws Exception {
+	private static String fieldCleanPrefix(BibTeXEntry entry, Key key) throws Exception {
 		String value = field(entry, key);
 		if (!Strings.isNullOrEmpty(value)) {
 			for (final String prefix : PREFIXES) {
@@ -392,7 +440,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return value;
 	}
 
-	private String field(BibTeXEntry entry, String key) throws Exception {
+	private static String field(BibTeXEntry entry, String key) throws Exception {
 		return field(entry, new Key(key));
 	}
 
@@ -405,12 +453,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return null;
 	}
 
-	private PublicationLanguage language(BibTeXEntry entry) throws Exception {
+	private static PublicationLanguage language(BibTeXEntry entry) throws Exception {
 		final String label = field(entry, new Key(KEY_LANGUAGE_NAME));
 		return PublicationLanguage.valueOfCaseInsensitive(label);
 	}
 
-	private int year(BibTeXEntry entry) throws Exception {
+	private static int year(BibTeXEntry entry) throws Exception {
 		final String yearValue = field(entry, KEY_YEAR);
 		if (Strings.isNullOrEmpty(yearValue)) {
 			throw new IllegalArgumentException("Invalid year format for: " + entry.getKey().getValue()); //$NON-NLS-1$
@@ -424,7 +472,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return year;
 	}
 
-	private LocalDate date(BibTeXEntry entry) throws Exception {
+	private static LocalDate date(BibTeXEntry entry) throws Exception {
 		final int year = year(entry);
 		final String monthValue = field(entry, KEY_MONTH);
 		if (!Strings.isNullOrEmpty(monthValue)) {
