@@ -66,7 +66,7 @@ public class PublicationImporterApiController extends AbstractComponent {
 		this.publicationService = publicationService;
 	}
 
-	/** Save a BibTeX file in the database..
+	/** Save a BibTeX file in the database.
 	 *
 	 * @param bibtexFile the uploaded BibTeX files.
 	 * @param changes a JSON string that represents the changes. It is expected to be a map in which the keys are

@@ -24,6 +24,7 @@ import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.EntityUtils;
@@ -39,6 +40,7 @@ import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.utils.names.PersonNameComparator;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -356,9 +358,13 @@ public class PersonService extends AbstractService {
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
+	 * @param ensureAtLeastOneMember if {@code true}, at least one member of a research organization is required from the
+	 *     the list of the persons. If {@code false}, the list of persons could contain no organization member.
 	 * @return the list of authors.
+	 * @see #containsAMember(List)
 	 */
-	public List<Person> extractPersonsFrom(String authorText, boolean assignRandomId) {
+	public List<Person> extractPersonsFrom(String authorText, boolean assignRandomId, boolean ensureAtLeastOneMember) {
+		final MutableInt memberCount = new MutableInt();
 		final List<Person> persons = new ArrayList<>();
 		this.nameParser.parseNames(authorText, (fn, von, ln, pos) -> {
 			// Build last name
@@ -381,9 +387,14 @@ public class PersonService extends AbstractService {
 				if (assignRandomId) {
 					person.setId(generateUUID().intValue());
 				}
+			} else {
+				memberCount.increment();
 			}
 			persons.add(person);
 		});
+		if (ensureAtLeastOneMember && memberCount.intValue() <= 0) {
+			throw new IllegalArgumentException("The list of the authors does not contain a member of a known research organization."); //$NON-NLS-1$
+		}
 		return persons;
 	}
 
@@ -428,6 +439,42 @@ public class PersonService extends AbstractService {
 		}
 
 		return matchingAuthors;
+	}
+
+	/** Replies if the given list of authors contains at least one person who is associated to a research organization,
+	 * i.e., with a membership.
+	 *
+	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
+	 *     (for unknown persons).
+	 * @return {@code true} if one person with a membership was found.
+	 */
+	public boolean containsAMember(List<String> authors) {
+		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
+		for (final String author : authors) {
+			int authorId = 0;
+			if (idPattern.matcher(author).matches()) {
+				// Numeric value means that the person is known.
+				try {
+					authorId = Integer.parseInt(author);
+				} catch (Throwable ex) {
+					// Silent
+				}
+			}
+			if (authorId == 0) {
+				// The author seems to be not in the database already. Check it based on the name.
+				final String firstName = this.nameParser.parseFirstName(author);
+				final String lastName = this.nameParser.parseLastName(author);
+				authorId = getPersonIdByName(firstName, lastName);
+			}
+			if (authorId != 0) {
+				// Check if the given author identifier corresponds to a known person with memberships.
+				final Optional<Person> optPers = this.personRepository.findById(Integer.valueOf(authorId));
+				if (optPers.isPresent() && !optPers.get().getMemberships().isEmpty()) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 }

@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.service.member;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -41,6 +41,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.member.Gender;
+import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -339,19 +340,19 @@ public class PersonServiceTest {
 
 	@Test
 	public void extractPersonsFrom_null() {
-		List<Person> list = this.test.extractPersonsFrom(null, false);
+		List<Person> list = this.test.extractPersonsFrom(null, false, false);
 		assertTrue(list.isEmpty());
 	}
 
 	@Test
 	public void extractPersonsFrom_empty() {
-		List<Person> list = this.test.extractPersonsFrom("", false);
+		List<Person> list = this.test.extractPersonsFrom("", false, false);
 		assertTrue(list.isEmpty());
 	}
 
 	@Test
 	public void extractPersonsFrom_unkwownPersons() {
-		List<Person> list = this.test.extractPersonsFrom("L1a, F1a and L2a, F2a and L3a, F3a", false);
+		List<Person> list = this.test.extractPersonsFrom("L1a, F1a and L2a, F2a and L3a, F3a", false, false);
 		assertEquals(3, list.size());
 		assertEquals(0, list.get(0).getId());
 		assertEquals("F1a", list.get(0).getFirstName());
@@ -366,7 +367,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void extractPersonsFrom_kwownPersons() {
-		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2, F2 and L3, F3", false);
+		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2, F2 and L3, F3", false, false);
 		assertEquals(3, list.size());
 		assertEquals(123, list.get(0).getId());
 		assertEquals("F1", list.get(0).getFirstName());
@@ -381,7 +382,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void extractPersonsFrom_kwownAndUknownPersons() {
-		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2a, F2a and L3, F3", false);
+		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2a, F2a and L3, F3", false, false);
 		assertEquals(3, list.size());
 		assertEquals(123, list.get(0).getId());
 		assertEquals("F1", list.get(0).getFirstName());
@@ -437,6 +438,44 @@ public class PersonServiceTest {
 			assertTrue(exp.removeIf(it -> it == p), "Unexpected element: " + p);
 		}
 		assertTrue(exp.isEmpty(), "Missed elements: " + exp);
+	}
+
+	@Test
+	public void containsAMember_oneMember_name() {
+		when(this.pers0.getMemberships()).thenReturn(Collections.singleton(mock(Membership.class)));
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "L1, F1"));
+		assertTrue(r);
+	}
+
+	@Test
+	public void containsAMember_oneMember_id() {
+		when(this.pers0.getMemberships()).thenReturn(Collections.singleton(mock(Membership.class)));
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "123"));
+		assertTrue(r);
+	}
+
+	@Test
+	public void containsAMember_noMember_name_noMembership() {
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "L1, F1"));
+		assertFalse(r);
+	}
+
+	@Test
+	public void containsAMember_oneMember_id_noMembership() {
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "123"));
+		assertFalse(r);
+	}
+
+	@Test
+	public void containsAMember_noMember_name() {
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "X, y"));
+		assertFalse(r);
+	}
+
+	@Test
+	public void containsAMember_noMember_id() {
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "1234560"));
+		assertFalse(r);
 	}
 
 }

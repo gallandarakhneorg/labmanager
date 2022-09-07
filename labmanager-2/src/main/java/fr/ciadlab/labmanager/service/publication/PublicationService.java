@@ -454,13 +454,16 @@ public class PublicationService extends AbstractService {
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
+	 * @param ensureAtLeastOneMember if {@code true}, at least one member of a research organization is required from the
+	 *     the list of the persons. If {@code false}, the list of persons could contain no organization member.
 	 * @return the list of the publications that are successfully extracted.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
 	 */
-	public List<Publication> readPublicationsFromBibTeX(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId) throws Exception {
-		return this.bibtex.extractPublications(bibtex, keepBibTeXId, assignRandomId);
+	public List<Publication> readPublicationsFromBibTeX(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
+			boolean ensureAtLeastOneMember) throws Exception {
+		return this.bibtex.extractPublications(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember);
 	}
 
 	/** Import publications from a BibTeX string. The format of the BibTeX is a standard that is briefly described
@@ -481,7 +484,7 @@ public class PublicationService extends AbstractService {
 	public List<Integer> importPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
-		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false);
+		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true);
 
 		//Holds the IDs of the successfully imported IDs. We'll need it for type differenciation later.
 		final List<Integer> importedPublicationIdentifiers = new ArrayList<>();
@@ -673,12 +676,24 @@ public class PublicationService extends AbstractService {
 		return optJournal.get();
 	}
 
+	/** Replies publications from the database that are similar to a publication with the given attributes
+	 * and authors.
+	 *
+	 * @param attributes the values of the attributes for the publication.
+	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
+	 *     (for unknown persons).
+	 * @return the similar publications.
+	 */
+	public List<Publication> getSimilarPublications(Map<String, String> attributes, List<String> authors) {
+		throw new UnsupportedOperationException();
+	}
+
 	/** Create a publication in the database from values stored in the given map.
 	 * This function ignore the attributes related to uploaded files.
 	 *
 	 * @param attributes the values of the attributes for the publication's creation.
 	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
-	 *     (for unknown persons).
+	 *     (for unknown persons). It is assumed that this list contains at least one author that is associated to a research organization.
 	 * @param downloadablePDF the uploaded PDF file for the publication.
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @return the created publication.
@@ -812,7 +827,7 @@ public class PublicationService extends AbstractService {
 	 * @param id the identifier of the publication.
 	 * @param attributes the values of the attributes for the publication's creation.
 	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
-	 *     (for unknown persons).
+	 *     (for unknown persons). It is assumed that this list contains at least one author that is associated to a research organization.
 	 * @param downloadablePDF the uploaded PDF file for the publication.
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @return the updated publication.

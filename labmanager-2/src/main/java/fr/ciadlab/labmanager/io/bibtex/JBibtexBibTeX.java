@@ -340,14 +340,15 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	@Override
-	public Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId) throws Exception {
+	public Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
+			boolean ensureAtLeastOneMember) throws Exception {
 		try (Reader filteredReader = new CharacterFilterReader(bibtex)) {
 			final BibTeXParser bibtexParser = new BibTeXParser();
 			final BibTeXDatabase database = bibtexParser.parse(filteredReader);
 			if (database != null) {
 				return database.getEntries().entrySet().stream().map(it -> {
 					try {
-						return createPublicationFor(it.getKey(), it.getValue(), keepBibTeXId, assignRandomId);
+						return createPublicationFor(it.getKey(), it.getValue(), keepBibTeXId, assignRandomId, ensureAtLeastOneMember);
 					} catch (Exception ex) {
 						throw new RuntimeException(ex);
 					}
@@ -544,10 +545,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
+	 * @param ensureAtLeastOneMember if {@code true}, at least one member of a research organization is required from the
+	 *     the list of the persons. If {@code false}, the list of persons could contain no organization member.
 	 * @return the publication.
 	 * @throws Exception if LaTeX code cannot be parsed.
 	 */
-	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId) throws Exception {
+	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId, boolean ensureAtLastOneMember) throws Exception {
 		final PublicationType type = getPublicationTypeFor(entry);
 		if (type != null) {
 			// Create a generic publication
@@ -665,7 +668,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 			// Generate the author list
 			final String authorField = or(field(entry, KEY_AUTHOR), field(entry, KEY_EDITOR));
-			final List<Person> authors = this.personService.extractPersonsFrom(authorField, assignRandomId);
+			final List<Person> authors = this.personService.extractPersonsFrom(authorField, assignRandomId, ensureAtLastOneMember);
 			if (authors.isEmpty()) {
 				throw new IllegalArgumentException("No author for the BibTeX entry: " + key.getValue()); //$NON-NLS-1$
 			}

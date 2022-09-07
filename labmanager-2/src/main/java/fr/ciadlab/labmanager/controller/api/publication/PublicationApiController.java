@@ -26,6 +26,7 @@ import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -55,6 +56,8 @@ public class PublicationApiController extends AbstractComponent {
 
 	private PublicationService publicationService;
 
+	private PersonService personService;
+
 	private DownloadableFileManager fileManager;
 
 	/** Constructor for injector.
@@ -62,14 +65,17 @@ public class PublicationApiController extends AbstractComponent {
 	 *
 	 * @param messages the provider of messages.
 	 * @param publicationService the publication service.
+	 * @param personService the person service.
 	 * @param fileManager the manager of local files.
 	 */
 	public PublicationApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired PublicationService publicationService,
+			@Autowired PersonService personService,
 			@Autowired DownloadableFileManager fileManager) {
 		super(messages);
 		this.publicationService = publicationService;
+		this.personService = personService;
 		this.fileManager = fileManager;
 	}
 
@@ -117,6 +123,11 @@ public class PublicationApiController extends AbstractComponent {
 			@RequestParam Map<String, String> allParameters,
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
+			// First check if the authors follows the contraints
+			if (!this.personService.containsAMember(authors)) {
+				throw new IllegalArgumentException("The list of authors does not contains a member of one of the known research organizations."); //$NON-NLS-1$
+			}
+			
 			int uploadedPdfFile = 0;
 			int uploadedAwardFile = 0;
 			Optional<Publication> optPublication = Optional.empty();

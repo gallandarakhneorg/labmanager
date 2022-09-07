@@ -286,7 +286,7 @@ public class JBibtexBibTeXTest {
 	private Stream<Publication> getPublicationStreamFromTest(String filename) throws Exception {
 		URL url = Resources.getResource(JBibtexBibTeXTest.class.getPackageName().replaceAll("\\.", "/") + "/" + filename);
 		try (Reader r = new InputStreamReader(url.openStream())) {
-			return this.test.getPublicationStreamFrom(r, false, false);
+			return this.test.getPublicationStreamFrom(r, false, false, false);
 		}
 	}
 
@@ -321,7 +321,7 @@ public class JBibtexBibTeXTest {
 
 		Person p0 = mock(Person.class);
 		Person p1 = mock(Person.class);
-		when(this.personService.extractPersonsFrom(any(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
+		when(this.personService.extractPersonsFrom(any(), anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
 
 		Stream<Publication> pubs = getPublicationStreamFromTest("bibtex_n.bib");
 		assertNotNull(pubs);
@@ -336,7 +336,7 @@ public class JBibtexBibTeXTest {
 		verify(this.prePublicationFactory, atLeastOnce()).createPrePublication(
 				eq(PublicationType.INTERNATIONAL_JOURNAL_PAPER),
 				eq("On the Use of Clustering Algorithms in Medical Domain"),
-				eq("{\\\\string_}"),
+				isNull(),
 				eq("Clustering, nasopharyngeal cancer, medical data"),
 				eq(LocalDate.parse("2019-10-01")),
 				eq(2019),
@@ -361,6 +361,7 @@ public class JBibtexBibTeXTest {
 		verify(p).setTemporaryAuthors(any());
 		verify(this.personService).extractPersonsFrom(
 				eq("Rehioui, Hajjar and Idrissi, Abdellah and Koukam, Abderrafiaa"),
+				eq(false),
 				eq(false));
 
 		p = list.get(1);
@@ -397,6 +398,7 @@ public class JBibtexBibTeXTest {
 		verify(p).setTemporaryAuthors(any());
 		verify(this.personService).extractPersonsFrom(
 				eq("Andres, Emmanuel and Talha, Samy"),
+				eq(false),
 				eq(false));
 	}
 

@@ -362,7 +362,7 @@ public class PublicationExportApiController extends AbstractComponent {
 		}
 		try (final InputStream inputStream = bibtexFile.getInputStream()) {
 			try (final Reader reader = new InputStreamReader(inputStream)) {
-				return this.publicationService.readPublicationsFromBibTeX(reader, true, true);
+				return this.publicationService.readPublicationsFromBibTeX(reader, true, true, true);
 			}
 		}
 	}

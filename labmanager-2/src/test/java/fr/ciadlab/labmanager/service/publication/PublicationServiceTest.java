@@ -336,7 +336,7 @@ public class PublicationServiceTest {
 		Publication p1 = mock(Publication.class);
 		when(p1.getId()).thenReturn(874);
 		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
-		when(this.bibtex.extractPublications(any(Reader.class), anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
+		when(this.bibtex.extractPublications(any(Reader.class), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
 		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
 			switch ((Integer) it.getArgument(0)) {
 			case 1234:

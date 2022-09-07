@@ -148,7 +148,7 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 		 */
 		BibTeXSimilarPublicationProvider(PublicationService publicationService, MultipartFile bibtexFile) throws Exception {
 			try (final Reader reader = new InputStreamReader(bibtexFile.getInputStream())) {
-				this.publications = publicationService.readPublicationsFromBibTeX(reader, true, false);
+				this.publications = publicationService.readPublicationsFromBibTeX(reader, true, false, true);
 			}
 		}
 
