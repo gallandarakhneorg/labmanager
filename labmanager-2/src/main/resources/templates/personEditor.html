@@ -4,7 +4,12 @@
 <th:block th:replace="fragments/form :: formLibs" />
 <th:block th:replace="fragments/gravatar :: gravatarPicture" />
 
-<th:block th:replace="fragments/nav :: personListBar*(#{html.EditPerson1(${person.fullName})})"/>
+<th:block th:if="${person != null}">
+	<th:block th:replace="fragments/nav :: personListBar*(#{html.EditPerson1(${person.fullName})})"/>
+</th:block>
+<th:block th:if="${person == null}">
+	<th:block th:replace="fragments/nav :: personListBar*(#{html.AddPerson})"/>
+</th:block>
 
 <form th:replace="fragments/form :: entityForm(person, ${person == null ? '' : person.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PersonSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: textInput*(lastName, #{html.LastName}, #{html.PlaceHolderPersonLastName}, ${person != null ? person.lastName : ''})"></div>

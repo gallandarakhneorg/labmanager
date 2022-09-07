@@ -3,7 +3,12 @@
 <th:block th:replace="fragments/general :: allBaseLibs" />
 <th:block th:replace="fragments/form :: formLibs" />
 
-<th:block th:replace="fragments/nav :: organizationListBar*(#{html.EditOrganization1(${organization.acronymOrName})})"/>
+<th:block th:if="${organization != null}">
+	<th:block th:replace="fragments/nav :: organizationListBar*(#{html.EditOrganization1(${organization.acronymOrName})})"/>
+</th:block>
+<th:block th:if="${organization == null}">
+	<th:block th:replace="fragments/nav :: organizationListBar*(#{html.AddOrganization})"/>
+</th:block>
 
 <form th:replace="fragments/form :: entityForm(organization, ${organization == null ? '' : organization.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.OrganizationSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderOrganizationAcronym}, ${organization != null ? organization.acronym : ''})"></div>
