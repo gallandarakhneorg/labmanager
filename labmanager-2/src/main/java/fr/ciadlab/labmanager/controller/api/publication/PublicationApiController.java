@@ -124,7 +124,7 @@ public class PublicationApiController extends AbstractComponent {
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
 		if (isLoggedUser(username).booleanValue()) {
 			// First check if the authors follows the contraints
-			if (!this.personService.containsAMember(authors)) {
+			if (!this.personService.containsAMember(authors, true)) {
 				throw new IllegalArgumentException("The list of authors does not contains a member of one of the known research organizations."); //$NON-NLS-1$
 			}
 			

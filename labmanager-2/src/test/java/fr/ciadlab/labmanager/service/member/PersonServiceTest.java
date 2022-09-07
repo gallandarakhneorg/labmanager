@@ -340,19 +340,19 @@ public class PersonServiceTest {
 
 	@Test
 	public void extractPersonsFrom_null() {
-		List<Person> list = this.test.extractPersonsFrom(null, false, false);
+		List<Person> list = this.test.extractPersonsFrom(null, false, false, false);
 		assertTrue(list.isEmpty());
 	}
 
 	@Test
 	public void extractPersonsFrom_empty() {
-		List<Person> list = this.test.extractPersonsFrom("", false, false);
+		List<Person> list = this.test.extractPersonsFrom("", false, false, false);
 		assertTrue(list.isEmpty());
 	}
 
 	@Test
 	public void extractPersonsFrom_unkwownPersons() {
-		List<Person> list = this.test.extractPersonsFrom("L1a, F1a and L2a, F2a and L3a, F3a", false, false);
+		List<Person> list = this.test.extractPersonsFrom("L1a, F1a and L2a, F2a and L3a, F3a", false, false, false);
 		assertEquals(3, list.size());
 		assertEquals(0, list.get(0).getId());
 		assertEquals("F1a", list.get(0).getFirstName());
@@ -367,7 +367,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void extractPersonsFrom_kwownPersons() {
-		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2, F2 and L3, F3", false, false);
+		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2, F2 and L3, F3", false, false, false);
 		assertEquals(3, list.size());
 		assertEquals(123, list.get(0).getId());
 		assertEquals("F1", list.get(0).getFirstName());
@@ -382,7 +382,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void extractPersonsFrom_kwownAndUknownPersons() {
-		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2a, F2a and L3, F3", false, false);
+		List<Person> list = this.test.extractPersonsFrom("L1, F1 and L2a, F2a and L3, F3", false, false, false);
 		assertEquals(3, list.size());
 		assertEquals(123, list.get(0).getId());
 		assertEquals("F1", list.get(0).getFirstName());
@@ -443,38 +443,38 @@ public class PersonServiceTest {
 	@Test
 	public void containsAMember_oneMember_name() {
 		when(this.pers0.getMemberships()).thenReturn(Collections.singleton(mock(Membership.class)));
-		boolean r = this.test.containsAMember(Arrays.asList("A, B", "L1, F1"));
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "L1, F1"), false);
 		assertTrue(r);
 	}
 
 	@Test
 	public void containsAMember_oneMember_id() {
 		when(this.pers0.getMemberships()).thenReturn(Collections.singleton(mock(Membership.class)));
-		boolean r = this.test.containsAMember(Arrays.asList("A, B", "123"));
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "123"), false);
 		assertTrue(r);
 	}
 
 	@Test
 	public void containsAMember_noMember_name_noMembership() {
-		boolean r = this.test.containsAMember(Arrays.asList("A, B", "L1, F1"));
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "L1, F1"), false);
 		assertFalse(r);
 	}
 
 	@Test
 	public void containsAMember_oneMember_id_noMembership() {
-		boolean r = this.test.containsAMember(Arrays.asList("A, B", "123"));
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "123"), false);
 		assertFalse(r);
 	}
 
 	@Test
 	public void containsAMember_noMember_name() {
-		boolean r = this.test.containsAMember(Arrays.asList("A, B", "X, y"));
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "X, y"), false);
 		assertFalse(r);
 	}
 
 	@Test
 	public void containsAMember_noMember_id() {
-		boolean r = this.test.containsAMember(Arrays.asList("A, B", "1234560"));
+		boolean r = this.test.containsAMember(Arrays.asList("A, B", "1234560"), false);
 		assertFalse(r);
 	}
 

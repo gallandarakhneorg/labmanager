@@ -668,11 +668,15 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 			// Generate the author list
 			final String authorField = or(field(entry, KEY_AUTHOR), field(entry, KEY_EDITOR));
-			final List<Person> authors = this.personService.extractPersonsFrom(authorField, assignRandomId, ensureAtLastOneMember);
-			if (authors.isEmpty()) {
-				throw new IllegalArgumentException("No author for the BibTeX entry: " + key.getValue()); //$NON-NLS-1$
+			try {
+				final List<Person> authors = this.personService.extractPersonsFrom(authorField, true, assignRandomId, ensureAtLastOneMember);
+				if (authors.isEmpty()) {
+					throw new IllegalArgumentException("No author for the BibTeX entry: " + key.getValue()); //$NON-NLS-1$
+				}
+				finalPublication.setTemporaryAuthors(authors);
+			} catch (Throwable ex) {
+				throw new IllegalArgumentException("Invalid BibTeX entry: " + key.getValue() + ". " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			finalPublication.setTemporaryAuthors(authors);
 
 			if (keeyBibTeXId) {
 				final String cleanKey = entry.getKey().getValue().replaceAll("[^a-zA-Z0-9_-]+", "_"); //$NON-NLS-1$ //$NON-NLS-2$

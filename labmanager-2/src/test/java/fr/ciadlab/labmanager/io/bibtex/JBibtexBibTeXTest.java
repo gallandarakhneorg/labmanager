@@ -321,7 +321,7 @@ public class JBibtexBibTeXTest {
 
 		Person p0 = mock(Person.class);
 		Person p1 = mock(Person.class);
-		when(this.personService.extractPersonsFrom(any(), anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
+		when(this.personService.extractPersonsFrom(any(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
 
 		Stream<Publication> pubs = getPublicationStreamFromTest("bibtex_n.bib");
 		assertNotNull(pubs);
@@ -361,6 +361,7 @@ public class JBibtexBibTeXTest {
 		verify(p).setTemporaryAuthors(any());
 		verify(this.personService).extractPersonsFrom(
 				eq("Rehioui, Hajjar and Idrissi, Abdellah and Koukam, Abderrafiaa"),
+				eq(true),
 				eq(false),
 				eq(false));
 
@@ -398,6 +399,7 @@ public class JBibtexBibTeXTest {
 		verify(p).setTemporaryAuthors(any());
 		verify(this.personService).extractPersonsFrom(
 				eq("Andres, Emmanuel and Talha, Samy"),
+				eq(true),
 				eq(false),
 				eq(false));
 	}

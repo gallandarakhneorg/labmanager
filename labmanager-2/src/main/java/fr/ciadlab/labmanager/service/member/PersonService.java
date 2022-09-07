@@ -355,6 +355,8 @@ public class PersonService extends AbstractService {
 	 * database.
 	 * 
 	 * @param authorText the list of authors to parse.
+	 * @param useNameSimilarity indicates of the member search from their name is based on similar names, if {@code true};
+	 *     or on exact names, if {@code false}.
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
@@ -363,7 +365,7 @@ public class PersonService extends AbstractService {
 	 * @return the list of authors.
 	 * @see #containsAMember(List)
 	 */
-	public List<Person> extractPersonsFrom(String authorText, boolean assignRandomId, boolean ensureAtLeastOneMember) {
+	public List<Person> extractPersonsFrom(String authorText, boolean useNameSimilarity, boolean assignRandomId, boolean ensureAtLeastOneMember) {
 		final MutableInt memberCount = new MutableInt();
 		final List<Person> persons = new ArrayList<>();
 		this.nameParser.parseNames(authorText, (fn, von, ln, pos) -> {
@@ -375,7 +377,12 @@ public class PersonService extends AbstractService {
 				firstname.append(von);
 			}
 			//
-			final int id = getPersonIdByName(firstname.toString(), ln);
+			final int id;
+			if (useNameSimilarity) {
+				id = getPersonIdBySimilarName(firstname.toString(), ln);
+			} else {
+				id = getPersonIdByName(firstname.toString(), ln);
+			}
 			Person person = null;
 			if (id != 0) {
 				person = getPersonById(id);
@@ -442,13 +449,15 @@ public class PersonService extends AbstractService {
 	}
 
 	/** Replies if the given list of authors contains at least one person who is associated to a research organization,
-	 * i.e., with a membership.
+	 * i.e., with a membership. The name similarity is used for searching the members based on their names.
 	 *
 	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
 	 *     (for unknown persons).
+	 * @param useNameSimilarity indicates of the member search from their name is based on similar names, if {@code true};
+	 *     or on exact names, if {@code false}.
 	 * @return {@code true} if one person with a membership was found.
 	 */
-	public boolean containsAMember(List<String> authors) {
+	public boolean containsAMember(List<String> authors, boolean useNameSimilarity) {
 		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
 		for (final String author : authors) {
 			int authorId = 0;
@@ -464,7 +473,11 @@ public class PersonService extends AbstractService {
 				// The author seems to be not in the database already. Check it based on the name.
 				final String firstName = this.nameParser.parseFirstName(author);
 				final String lastName = this.nameParser.parseLastName(author);
-				authorId = getPersonIdByName(firstName, lastName);
+				if (useNameSimilarity) {
+					authorId = getPersonIdBySimilarName(firstName, lastName);
+				} else {
+					authorId = getPersonIdByName(firstName, lastName);
+				}
 			}
 			if (authorId != 0) {
 				// Check if the given author identifier corresponds to a known person with memberships.
