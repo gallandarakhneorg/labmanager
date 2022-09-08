@@ -59,7 +59,10 @@
             	</a>
             </td>
             <td>
-                <th:block th:utext="${journal.publishedPapers.size}"></th:block>
+                <th:block th:if="${journal.publishedPapers.size <= 0}" th:utext="${journal.publishedPapers.size}"></th:block>
+                <a th:if="${journal.publishedPapers.size > 0}"
+                   th:href="@{/publicationList(journal=${journal.id})}">
+	                <th:block th:utext="${journal.publishedPapers.size}"></th:block></a>
             </td>
             <td th:replace="fragments/table :: adminToolButtons(${journal.id}, ${journal.journalName},
             		#{html.EditJournal1(${journal.journalName})},

@@ -21,6 +21,7 @@ import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -111,17 +112,29 @@ public class PublicationViewController extends AbstractViewController {
 	/** Replies the model-view component for managing the publications.
 	 * This endpoint is designed for the database management.
 	 *
+	 * @param journal the identifier of the journal for which the publications must be displayed.
 	 * @param username the login of the logged-in person.
 	 * @return the model-view component.
 	 * @see #showFrontPublicationList(Integer, Integer, Integer, Boolean)
 	 */
 	@GetMapping("/" + Constants.PUBLICATION_LIST_ENDPOINT)
 	public ModelAndView showBackPublicationList(
+			@RequestParam(required = false) Integer journal,
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
 		final ModelAndView modelAndView = new ModelAndView(Constants.PUBLICATION_LIST_ENDPOINT);
 		initModelViewProperties(modelAndView, username);
 		initAdminTableButtons(modelAndView, endpoint(Constants.PUBLICATION_EDITING_ENDPOINT, "publication")); //$NON-NLS-1$
-		modelAndView.addObject("publications", this.publicationService.getAllPublications()); //$NON-NLS-1$
+		Collection<? extends Publication> pubs = null;
+		if (journal != null) {
+			final Journal journalObj = this.journalService.getJournalById(journal.intValue());
+			if (journalObj != null) {
+				pubs = journalObj.getPublishedPapers();
+			}
+		}
+		if (pubs == null) {
+			pubs = this.publicationService.getAllPublications();
+		}
+		modelAndView.addObject("publications", pubs); //$NON-NLS-1$
 		return modelAndView;
 	}
 
