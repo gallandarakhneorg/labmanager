@@ -40,6 +40,17 @@ import org.jbibtex.LaTeXString;
  */
 @SuppressWarnings("all")
 public class BugfixLaTeXPrinter extends LaTeXPrinter {
+	
+	private final boolean replaceSingleQuote;
+	
+	/** Constructor.
+	 * 
+	 * @param replaceSingleQuote indicates if the single quotes must be replaced by their
+	 *    Unicode equivalent.
+	 */
+	public BugfixLaTeXPrinter(boolean replaceSingleQuote) {
+		this.replaceSingleQuote = replaceSingleQuote;
+	}
 
 	public String print(List<LaTeXObject> objects){
 		TextBuilder builder = new TextBuilder();
@@ -104,7 +115,9 @@ public class BugfixLaTeXPrinter extends LaTeXPrinter {
 
 		if(value.contains("'")){
 			value = value.replace("''", "\u201d");
-			value = value.replace("'", "\u2019");
+			if (this.replaceSingleQuote) {
+				value = value.replace("'", "\u2019");
+			}
 		}
 
 		builder.append(value);

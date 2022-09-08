@@ -293,7 +293,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			try {
 				final LaTeXParser latexParser = new LaTeXParser();
 				List<LaTeXObject> latexObjects = latexParser.parse(texString);
-				final LaTeXPrinter latexPrinter = new BugfixLaTeXPrinter();
+				final LaTeXPrinter latexPrinter = new BugfixLaTeXPrinter(false);
 				final String plainTextString = latexPrinter.print(latexObjects);
 				return plainTextString;
 			} catch (Throwable ex) {
@@ -576,8 +576,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			final Publication finalPublication;
 			switch (type) {
 			case INTERNATIONAL_JOURNAL_PAPER:
-				final String journalName = field(entry, KEY_JOURNAL);
-				final Journal journal = this.journalService.getJournalByName(journalName);
+				String journalName = field(entry, KEY_JOURNAL);
+				Journal journal = this.journalService.getJournalByName(journalName);
 				if (journal == null) {
 					throw new IllegalArgumentException("Unknown journal for entry " + key.getValue() + ": " + journalName); //$NON-NLS-1$ //$NON-NLS-2$
 				}
