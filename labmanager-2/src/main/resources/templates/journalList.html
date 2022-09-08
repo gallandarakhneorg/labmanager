@@ -12,6 +12,7 @@
         <th th:utext="#{html.Id}"></th>
         <th th:utext="#{html.Name}"></th>
         <th th:utext="#{html.Publisher}"></th>
+        <th th:utext="#{html.ISSN}"></th>
         <th th:utext="#{html.OpenAccess}"></th>
         <th th:utext="#{html.Scimago}"></th>
         <th th:utext="#{html.WoS}"></th>
@@ -33,6 +34,9 @@
             </td>
             <td>
                 <th:block th:utext="${journal.publisher}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${journal.getISSN()}"></th:block>
             </td>
             <td>
                 <th:block th:if="${journal.openAccess != null && journal.openAccess.booleanValue}"
@@ -88,7 +92,7 @@
 <script th:inline="javascript">
     $(document).ready(() => {
     	initAdministrationTable({
-    		columns: 8,
+    		columns: 9,
     		actionWidth: '180px',
     	});
         /*[# th:if="${changeEnabled}" th:each="journal : ${journals}"]*/
