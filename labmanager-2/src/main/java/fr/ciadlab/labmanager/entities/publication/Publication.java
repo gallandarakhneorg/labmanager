@@ -171,7 +171,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 * the validated ones may be considered as part of the the reference and the other may be removed from the database. 
 	 */
 	@Column(nullable = false)
-	private boolean isManualValidationForced;
+	private boolean manualValidationForced;
 
 	/** The major language used for writing the publication. The default language depends on the definition in {@link PublicationLanguage}.
 	 */
@@ -213,7 +213,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		this.majorLanguage = publication.getMajorLanguage();
 		this.pathToDownloadableAwardCertificate = publication.getPathToDownloadableAwardCertificate();
 		this.type = publication.getType();
-		this.isManualValidationForced = publication.getManualValidationForced();
+		this.manualValidationForced = publication.getManualValidationForced();
 	}
 
 	/** Create a publication with the given field values.
@@ -290,7 +290,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		h = HashCodeUtils.add(h, this.title);
 		h = HashCodeUtils.add(h, this.type);
 		h = HashCodeUtils.add(h, this.videoUrl);
-		h = HashCodeUtils.add(h, this.isManualValidationForced);
+		h = HashCodeUtils.add(h, this.manualValidationForced);
 		return h;
 	}
 
@@ -354,7 +354,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		if (!Objects.equals(this.videoUrl, other.videoUrl)) {
 			return false;
 		}
-		if (this.isManualValidationForced != other.isManualValidationForced) {
+		if (this.manualValidationForced != other.manualValidationForced) {
 			return false;
 		}
 		return true;
@@ -1073,7 +1073,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 * @return {@code true} if publication was manually validated.
 	 */
 	public boolean getManualValidationForced() {
-		return this.isManualValidationForced;
+		return this.manualValidationForced;
 	}
 
 	/** Change the flag that indicates if the administrator of the database content has manually validated this publication to be accepted in
@@ -1083,7 +1083,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 * @param validated {@code true} if publication was manually validated.
 	 */
 	public void setManualValidationForced(boolean validated) {
-		this.isManualValidationForced = validated;
+		this.manualValidationForced = validated;
 	}
 
 	/** Change the flag that indicates if the administrator of the database content has manually validated this publication to be accepted in
