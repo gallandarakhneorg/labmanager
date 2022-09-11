@@ -77,12 +77,10 @@ function fillDataFormInEntityForm(formData) {
 	// Send the boolean 'positive' value of a checkbox: {name: "true"}
 	$('input.form-control[type="checkbox"]').each( (index, $elt) => {
 		if ($($elt).is(':visible')) {
-			var fieldValue = $elt.value;
-			if (fieldValue && (fieldValue === 'on' || fieldValue === 'true' || fieldValue === 'yes')) {
-				var fieldName = $elt.name;
-				if (fieldName) {
-					formData.append(fieldName, "true");
-				}
+			var fieldName = $elt.name;
+			if (fieldName) {
+				var fieldValue = $($elt).is(':checked');
+				formData.append(fieldName, fieldValue);
 			}
 		}
 	});
