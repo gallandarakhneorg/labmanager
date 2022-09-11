@@ -210,6 +210,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		if (!organizations.isEmpty()) {
 			final ArrayNode array = root.arrayNode();
 			int i = 0;
+			final Map<Integer, ObjectNode> nodes = new TreeMap<>();
 			for (final ResearchOrganization organization : organizations) {
 				final ObjectNode jsonOrganization = array.objectNode();
 
@@ -220,6 +221,21 @@ public class DatabaseToJsonExporter extends JsonTool {
 					repository.put(organization, id);
 					array.add(jsonOrganization);
 					++i;
+				}
+			}
+			// Export the super organization for enabling the building of the organization hierarchy
+			// This loop is externalized to be sure all the organizations are in the repository.
+			for (final ResearchOrganization organization : organizations) {
+				if (organization.getSuperOrganization() != null) {
+					final String id = repository.get(organization.getSuperOrganization());
+					if (Strings.isNullOrEmpty(id)) {
+						throw new IllegalStateException("Organization not found: " + organization.getAcronymOrName()); //$NON-NLS-1$
+					}
+					final ObjectNode objNode = nodes.get(Integer.valueOf(organization.getId()));
+					if (objNode == null) {
+						throw new IllegalStateException("No JSON node created for organization: " + organization.getAcronymOrName()); //$NON-NLS-1$
+					}
+					addReference(objNode, SUPERORGANIZATION_KEY, id);
 				}
 			}
 			if (array.size() > 0) {
@@ -275,7 +291,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				if (!Strings.isNullOrEmpty(personId) && !Strings.isNullOrEmpty(organizationId)) {
 					final ObjectNode jsonMembership = array.objectNode();
 
-					final String id = RESEARCHORGANIZATION_ID_PREFIX + i;
+					final String id = MEMBERSHIP_ID_PREFIX + i;
 					exportObject(jsonMembership, id, membership, jsonMembership, null);
 
 					// Person and organization must be added explicitly because the "exportObject" function
