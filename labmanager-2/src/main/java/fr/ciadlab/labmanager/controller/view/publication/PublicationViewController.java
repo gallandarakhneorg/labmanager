@@ -279,7 +279,7 @@ public class PublicationViewController extends AbstractViewController {
 	 */
 	@GetMapping(value = "/" + Constants.PUBLICATION_EDITING_ENDPOINT)
 	public ModelAndView showPublicationEditor(
-			@RequestParam(required = false) Integer publication,
+			@RequestParam(required = false, name = Constants.PUBLICATION_ENDPOINT_PARAMETER) Integer publication,
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws IOException {
 		final ModelAndView modelAndView = new ModelAndView("publicationEditor"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);

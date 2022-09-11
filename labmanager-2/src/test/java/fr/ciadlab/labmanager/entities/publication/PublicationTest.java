@@ -528,4 +528,31 @@ public class PublicationTest {
 		assertTrue(this.test.getAuthorships().contains(as[2]));
 	}
 
+	@Test
+	public void getManualValidationForced() {
+		assertFalse(this.test.getManualValidationForced());
+	}
+
+	@Test
+	public void setManualValidationForced_boolean() {
+		assertFalse(this.test.getManualValidationForced());
+		this.test.setManualValidationForced(true);
+		assertTrue(this.test.getManualValidationForced());
+		this.test.setManualValidationForced(false);
+		assertFalse(this.test.getManualValidationForced());
+	}
+
+	@Test
+	public void setManualValidationForced_Boolean() {
+		assertFalse(this.test.getManualValidationForced());
+		this.test.setManualValidationForced(Boolean.TRUE);
+		assertTrue(this.test.getManualValidationForced());
+		this.test.setManualValidationForced(Boolean.FALSE);
+		assertFalse(this.test.getManualValidationForced());
+		this.test.setManualValidationForced(Boolean.TRUE);
+		assertTrue(this.test.getManualValidationForced());
+		this.test.setManualValidationForced(null);
+		assertFalse(this.test.getManualValidationForced());
+	}
+
 }

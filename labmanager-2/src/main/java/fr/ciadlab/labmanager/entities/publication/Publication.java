@@ -166,6 +166,13 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String pathToDownloadableAwardCertificate;
 
+	/** Indicates if the administrator of the database content has manually validated this publication to be accepted in
+	 * the database. This validation may make the difference when multiple publications are similar. In this case,
+	 * the validated ones may be considered as part of the the reference and the other may be removed from the database. 
+	 */
+	@Column(nullable = false)
+	private boolean isManualValidationForced;
+
 	/** The major language used for writing the publication. The default language depends on the definition in {@link PublicationLanguage}.
 	 */
 	@Column
@@ -206,6 +213,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		this.majorLanguage = publication.getMajorLanguage();
 		this.pathToDownloadableAwardCertificate = publication.getPathToDownloadableAwardCertificate();
 		this.type = publication.getType();
+		this.isManualValidationForced = publication.getManualValidationForced();
 	}
 
 	/** Create a publication with the given field values.
@@ -282,6 +290,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		h = HashCodeUtils.add(h, this.title);
 		h = HashCodeUtils.add(h, this.type);
 		h = HashCodeUtils.add(h, this.videoUrl);
+		h = HashCodeUtils.add(h, this.isManualValidationForced);
 		return h;
 	}
 
@@ -343,6 +352,9 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 			return false;
 		}
 		if (!Objects.equals(this.videoUrl, other.videoUrl)) {
+			return false;
+		}
+		if (this.isManualValidationForced != other.isManualValidationForced) {
 			return false;
 		}
 		return true;
@@ -417,6 +429,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 			consumer.accept("type", getType()); //$NON-NLS-1$
 			consumer.accept("category", getType().getCategory(ranked)); //$NON-NLS-1$
 		}
+		consumer.accept("manualValidationForced", Boolean.valueOf(getManualValidationForced())); //$NON-NLS-1$
 	}
 
 	@Override
@@ -1039,5 +1052,40 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 * @return the description.
 	 */
 	public abstract String getWherePublishedShortDescription();
+
+
+	/** Indicates if the administrator of the database content has manually validated this publication to be accepted in
+	 * the database. This validation may make the difference when multiple publications are similar. In this case,
+	 * the validated ones may be considered as part of the the reference and the other may be removed from the database.
+	 *
+	 * @return {@code true} if publication was manually validated.
+	 */
+	public boolean getManualValidationForced() {
+		return this.isManualValidationForced;
+	}
+
+	/** Change the flag that indicates if the administrator of the database content has manually validated this publication to be accepted in
+	 * the database. This validation may make the difference when multiple publications are similar. In this case,
+	 * the validated ones may be considered as part of the the reference and the other may be removed from the database.
+	 *
+	 * @param validated {@code true} if publication was manually validated.
+	 */
+	public void setManualValidationForced(boolean validated) {
+		this.isManualValidationForced = validated;
+	}
+
+	/** Change the flag that indicates if the administrator of the database content has manually validated this publication to be accepted in
+	 * the database. This validation may make the difference when multiple publications are similar. In this case,
+	 * the validated ones may be considered as part of the the reference and the other may be removed from the database.
+	 *
+	 * @param validated {@code true} if publication was manually validated.
+	 */
+	public final void setManualValidationForced(Boolean validated) {
+		if (validated == null) {
+			setManualValidationForced(false);
+		} else {
+			setManualValidationForced(validated.booleanValue());
+		}
+	}
 
 }

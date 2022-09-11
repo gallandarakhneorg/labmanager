@@ -726,6 +726,7 @@ public class PublicationService extends AbstractService {
 
 		// Second step: save late attributes of the fake publication
 		publication.setPublicationYear(year);
+		publication.setManualValidationForced(optionalBoolean(attributes, "manualValidationForced")); //$NON-NLS-1$
 
 		// Third step : create the specific publication type
 		final Class<? extends Publication> publicationClass = typeEnum.getInstanceType();

@@ -67,6 +67,10 @@ public class Constants {
 	 */
 	public static final String AUTHOR_ENDPOINT_PARAMETER = "author"; //$NON-NLS-1$
 
+	/** Name of the endpoint parameter "publication".
+	 */
+	public static final String PUBLICATION_ENDPOINT_PARAMETER = "publication"; //$NON-NLS-1$
+
 	/** Name of the endpoint parameter "journal".
 	 */
 	public static final String JOURNAL_ENDPOINT_PARAMETER = "journal"; //$NON-NLS-1$
@@ -74,18 +78,6 @@ public class Constants {
 	/** Name of the endpoint parameter "inAttachment".
 	 */
 	public static final String INATTACHMENT_ENDPOINT_PARAMETER = "inAttachment"; //$NON-NLS-1$
-
-	/** Name of the endpoint parameter "success".
-	 */
-	public static final String SUCCESS_ENDPOINT_PARAMETER = "success"; //$NON-NLS-1$
-
-	/** Name of the endpoint parameter "failure".
-	 */
-	public static final String FAILURE_ENDPOINT_PARAMETER = "failure"; //$NON-NLS-1$
-
-	/** Name of the endpoint parameter "message".
-	 */
-	public static final String MESSAGE_ENDPOINT_PARAMETER = "message"; //$NON-NLS-1$
 
 	/** Default basename of the files in attachment with publications.
 	 */

@@ -37,6 +37,7 @@ import java.io.Reader;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -317,7 +318,7 @@ public class JBibtexBibTeXTest {
 				any(), any(), any(), anyBoolean())).thenReturn(cp);
 
 		Journal journal = mock(Journal.class);
-		when(this.journalService.getJournalByName(any())).thenReturn(journal);
+		when(this.journalService.getJournalsByName(any())).thenReturn(Collections.singleton(journal));
 
 		Person p0 = mock(Person.class);
 		Person p1 = mock(Person.class);
