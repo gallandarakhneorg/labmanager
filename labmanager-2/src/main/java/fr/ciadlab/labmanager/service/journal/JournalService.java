@@ -108,11 +108,20 @@ public class JournalService extends AbstractService {
 	 * @return the journal, or {@code null} if none is defined.
 	 */
 	public Journal getJournalByName(String name) {
-		final Set<Journal> res = this.journalRepository.findDistinctByJournalName(name);
+		final Set<Journal> res = getJournalsByName(name);
 		if (res.isEmpty()) {
 			return null;
 		}
 		return res.iterator().next();
+	}
+
+	/** Replies the journals with the given name.
+	 *
+	 * @param name the name to search for.
+	 * @return the journals.
+	 */
+	public Set<Journal> getJournalsByName(String name) {
+		return this.journalRepository.findDistinctByJournalName(name);
 	}
 
 	/** Replies the identifier of a journal with the given name. If multiple journals have the same name, one is selected (usually the first replied by the iterator).

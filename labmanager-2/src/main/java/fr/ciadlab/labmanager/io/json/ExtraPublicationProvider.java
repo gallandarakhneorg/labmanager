@@ -16,11 +16,11 @@
 
 package fr.ciadlab.labmanager.io.json;
 
-import java.util.List;
+import java.util.Collection;
 
 import fr.ciadlab.labmanager.entities.publication.Publication;
 
-/** Provider of publication that could be used for completing a given publication.
+/** Provider of publication that are not coming from the database.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -28,15 +28,12 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public interface SimilarPublicationProvider {
+public interface ExtraPublicationProvider {
 
-	/** Replies the publications that corresponds to the given source. The replied publication is
-	 * assumed to be different than the source. The similarity between the source publication and
-	 * the replied publication depends on the implementation of the {@code SimilarPublicationProvider}.
+	/** Replies the extra publications that are not provided by the database.
 	 *
-	 * @param source the publication source.
-	 * @return the similar publications.
+	 * @return the publications.
 	 */
-	List<Publication> get(Publication source);
+	Collection<Publication> getPublications();
 
 }

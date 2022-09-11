@@ -24,7 +24,14 @@
                 <th:block th:utext="${publication.id}"></th:block>
             </td>
             <td>
-            	<th:block th:utext="${publication.title}"></th:block>
+            	<th:block th:if="${#bools.isTrue(publication.manualValidationForced)}">
+	            	<th:block th:utext="${publication.title}"></th:block>
+	            	<span th:title="#{html.ValidatedByOrganizationRepresentative}">
+						<span class="fa-solid fa-user-check" style="font-size:14pt;"></span>
+					</span>
+            	</th:block>
+            	<th:block th:if="${#bools.isFalse(publication.manualValidationForced)}"
+            	          th:utext="${publication.title}"></th:block>
             </td>
             <td>
             	<th:block th:each="authorship, iAuthorship : ${publication.authorships}">

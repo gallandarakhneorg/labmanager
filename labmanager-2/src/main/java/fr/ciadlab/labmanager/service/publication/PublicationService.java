@@ -894,13 +894,16 @@ public class PublicationService extends AbstractService {
 		final LocalDate date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
 		final int year = ensureYear(attributes, "publicationDate"); //$NON-NLS-1$;
 
-		// First step: Update the list of authors.
+		// First step: Update the specific fields.
+		publication.setManualValidationForced(optionalBoolean(attributes, "manualValidationForced")); //$NON-NLS-1$
+
+		// Second step: Update the list of authors.
 		updateAuthorList(false, publication, authors);
 
-		// Second step: treat associated files
+		// Third step: treat associated files
 		updateUploadedPDFs(publication, attributes, downloadablePDF, downloadableAwardCertificate, false);
 
-		// Third step : update the specific publication
+		// Fourth step : update the specific publication
 		final Class<? extends Publication> publicationClass = type.getInstanceType();
 
 		if (publicationClass.equals(Book.class)) {

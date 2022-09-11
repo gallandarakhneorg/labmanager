@@ -77,7 +77,6 @@ public class AdminViewController extends AbstractViewController {
 		return modelAndView;
 	}
 
-
 	/** Show the view for merging the database JSON and a given BibTeX for generating a new JSON file to be download.
 	 *
 	 * @param username the login of the logged-in person.
@@ -85,12 +84,14 @@ public class AdminViewController extends AbstractViewController {
 	 * @throws IOException if there is some internal IO error when building the form's data.
 	 */
 	@GetMapping(value = "/mergeDatabaseBibTeXToJson")
-	public ModelAndView showBibTeXImporter(
+	public ModelAndView mergeDatabaseBibTeXToJson(
 			@CurrentSecurityContext(expression="authentication?.name") String username) throws IOException {
 		final ModelAndView modelAndView = new ModelAndView("mergeDatabaseBibTeXToJson"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);
 		//
 		modelAndView.addObject("formActionUrl", rooted(Constants.GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("URLS_edit", rooted(Constants.PUBLICATION_EDITING_ENDPOINT) + "?" //$NON-NLS-1$ //$NON-NLS-2$
+				+ Constants.PUBLICATION_ENDPOINT_PARAMETER + "="); //$NON-NLS-1$
 		//
 		return modelAndView;
 	}

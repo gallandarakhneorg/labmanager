@@ -51,15 +51,103 @@ public abstract class JsonTool {
 
 	/** Prefix for hidden JSON fields.
 	 */
-	protected static final String HIDDEN_FIELD_PREFIX = "_"; //$NON-NLS-1$
+	public static final String HIDDEN_FIELD_PREFIX = "_"; //$NON-NLS-1$
 
 	/** Prefix for special JSON fields.
 	 */
-	protected  static final String SPECIAL_FIELD_PREFIX = "@"; //$NON-NLS-1$
+	public static final String SPECIAL_FIELD_PREFIX = "@"; //$NON-NLS-1$
+
+	/** Main section of the JSON that is dedicated to research organizations.
+	 */
+	public static final String RESEARCHORGANIZATIONS_SECTION = "researchOrganizations"; //$NON-NLS-1$
+
+	/** Main section of the JSON that is dedicated to persons.
+	 */
+	public static final String PERSONS_SECTION = "persons"; //$NON-NLS-1$
+
+	/** Main section of the JSON that is dedicated to memberships.
+	 */
+	public static final String MEMBERSHIPS_SECTION = "memberships"; //$NON-NLS-1$
+
+	/** Main section of the JSON that is dedicated to journals.
+	 */
+	public static final String JOURNALS_SECTION = "journals"; //$NON-NLS-1$
+
+	/** Main section of the JSON that is dedicated to publications.
+	 */
+	public static final String PUBLICATIONS_SECTION = "publications"; //$NON-NLS-1$
+
+	/** Name of the field that contains the source of the data. Value of this field may be
+	 * {@code :db} or the name of the source.
+	 */
+	public static final String HIDDEN_INTERNAL_DATA_SOURCE_KEY = HIDDEN_FIELD_PREFIX + "internalDataSource"; //$NON-NLS-1$
+
+	/** Value of the field {@link #HIDDEN_INTERNAL_DATA_SOURCE_KEY} that represents the database source.
+	 */
+	public static final String HIDDEN_INTERNAL_DATABASE_SOURCE_VALUE = ":db"; //$NON-NLS-1$
+
+	/** Value of the field {@link #HIDDEN_INTERNAL_DATA_SOURCE_KEY} that represents an external source.
+	 */
+	public static final String HIDDEN_INTERNAL_EXTERNAL_SOURCE_VALUE = ":ext"; //$NON-NLS-1$
+
+	/** Name of the field for the year. This field is usually for {@link Publication}.
+	 *
+	 * @see #YEAR_KEY
+	 * @see #REFERENCEYEAR_KEY
+	 */
+	public static final String PUBLICATIONYEAR_KEY = "publicationYear"; //$NON-NLS-1$
+
+	/** Name of the field for the title. This field is usually for {@link Publication}.
+	 */
+	public static final String TITLE_KEY = "title"; //$NON-NLS-1$
+
+	/** Name of the field for the DOI. This field is usually for {@link Publication}.
+	 */
+	public static final String DOI_KEY = "doi"; //$NON-NLS-1$
+
+	/** Name of the field for the ISSN. This field is usually for {@link Publication}.
+	 */
+	public static final String ISSN_KEY = "issn"; //$NON-NLS-1$
+
+	/** Name of the field for the Edition. This field is usually for {@link Publication}.
+	 */
+	public static final String EDITION_KEY = "edition"; //$NON-NLS-1$
+
+	/** Name of the field for the publisher. This field is usually for {@link Publication}.
+	 */
+	public static final String PUBLISHER_KEY = "publisher"; //$NON-NLS-1$
+
+	/** Name of the field for the book title. This field is usually for {@link Publication}.
+	 */
+	public static final String BOOKTITLE_KEY = "bookTitle"; //$NON-NLS-1$
+
+	/** Name of the field for the event name. This field is usually for {@link Publication}.
+	 */
+	public static final String SCIENTIFICEVENTNAME_KEY = "scientificEventName"; //$NON-NLS-1$
+
+	/** Name of the field for the "how published". This field is usually for {@link Publication}.
+	 */
+	public static final String HOWPUBLISHED_KEY = "howPublished"; //$NON-NLS-1$
+
+	/** Name of the field for the institution. This field is usually for {@link Publication}.
+	 */
+	public static final String INSTITUTION_KEY = "institution"; //$NON-NLS-1$
+
+	/** Name of the field for the journal of a journal paper.
+	 */
+	public static final String JOURNAL_KEY = "journal"; //$NON-NLS-1$
+
+	/** Name of the field for indicating of a published was manually validated. This field is usually for {@link Publication}.
+	 */
+	public static final String MANUALVALIDATIONFORCED_KEY = "manualValidationForced"; //$NON-NLS-1$
 
 	/** Prefix for research organization identifiers.
 	 */
 	protected  static final String RESEARCHORGANIZATION_ID_PREFIX = "/ro#"; //$NON-NLS-1$
+
+	/** Prefix for membership identifiers.
+	 */
+	protected  static final String MEMBERSHIP_ID_PREFIX = "/mbr#"; //$NON-NLS-1$
 
 	/** Prefix for person identifiers.
 	 */
@@ -79,6 +167,10 @@ public abstract class JsonTool {
 
 	/** The name of the field that is the date of the last modification of the file.
 	 */
+	protected static final String DATABASE_ID_FIELDNAME = HIDDEN_FIELD_PREFIX + "database-id"; //$NON-NLS-1$
+
+	/** The name of the field that is the date of the last modification of the file.
+	 */
 	protected static final String LAST_CHANGE_FIELDNAME = HIDDEN_FIELD_PREFIX + "last-update-date"; //$NON-NLS-1$
 
 	/** Prefix for for the setter functions.
@@ -92,26 +184,6 @@ public abstract class JsonTool {
 	/** Prefix for for the "is" (boolean) getter functions.
 	 */
 	protected static final String IS_GETTER_FUNCTION_PREFIX = "is"; //$NON-NLS-1$
-
-	/** Main section of the JSON that is dedicated to research organizations.
-	 */
-	protected static final String RESEARCHORGANIZATIONS_SECTION = "researchOrganizations"; //$NON-NLS-1$
-
-	/** Main section of the JSON that is dedicated to persons.
-	 */
-	protected static final String PERSONS_SECTION = "persons"; //$NON-NLS-1$
-
-	/** Main section of the JSON that is dedicated to memberships.
-	 */
-	protected static final String MEMBERSHIPS_SECTION = "memberships"; //$NON-NLS-1$
-
-	/** Main section of the JSON that is dedicated to journals.
-	 */
-	protected static final String JOURNALS_SECTION = "journals"; //$NON-NLS-1$
-
-	/** Main section of the JSON that is dedicated to publications.
-	 */
-	protected static final String PUBLICATIONS_SECTION = "publications"; //$NON-NLS-1$
 
 	/** Name of the field for the super organization reference.
 	 */
@@ -149,23 +221,12 @@ public abstract class JsonTool {
 	 */
 	protected static final String AUTHORS_KEY = "authors"; //$NON-NLS-1$
 
-	/** Name of the field for the journal of a journal paper.
-	 */
-	protected static final String JOURNAL_KEY = "journal"; //$NON-NLS-1$
-
 	/** Name of the field for the year. This field is usually for {@link Publication}.
 	 *
 	 * @see #PUBLICATIONYEAR_KEY
 	 * @see #REFERENCEYEAR_KEY
 	 */
 	protected static final String YEAR_KEY = "year"; //$NON-NLS-1$
-
-	/** Name of the field for the year. This field is usually for {@link Publication}.
-	 *
-	 * @see #YEAR_KEY
-	 * @see #REFERENCEYEAR_KEY
-	 */
-	protected static final String PUBLICATIONYEAR_KEY = "publicationYear"; //$NON-NLS-1$
 
 	/** Name of the field for the year. This field is usually for {@link JournalQualityAnnualIndicators}.
 	 *
