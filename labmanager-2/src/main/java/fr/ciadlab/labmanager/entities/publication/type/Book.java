@@ -252,6 +252,17 @@ public class Book extends Publication {
 		return buf.toString();
 	}
 
+	@Override
+	public String getPublicationTarget() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getEdition());
+		if (!Strings.isNullOrEmpty(getPublisher())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getPublisher());
+		}
+		return buf.toString();
+	}
+
 	/** Replies the volume number of the book.
 	 * 
 	 * @return the volume number.

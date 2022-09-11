@@ -676,18 +676,6 @@ public class PublicationService extends AbstractService {
 		return optJournal.get();
 	}
 
-	/** Replies publications from the database that are similar to a publication with the given attributes
-	 * and authors.
-	 *
-	 * @param attributes the values of the attributes for the publication.
-	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
-	 *     (for unknown persons).
-	 * @return the similar publications.
-	 */
-	public List<Publication> getSimilarPublications(Map<String, String> attributes, List<String> authors) {
-		throw new UnsupportedOperationException();
-	}
-
 	/** Create a publication in the database from values stored in the given map.
 	 * This function ignore the attributes related to uploaded files.
 	 *

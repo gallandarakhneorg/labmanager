@@ -56,6 +56,11 @@ public class PublicationTest {
 			public String getWherePublishedShortDescription() {
 				throw new UnsupportedOperationException();
 			}
+
+			@Override
+			public String getPublicationTarget() {
+				throw new UnsupportedOperationException();
+			}
 		};
 	}
 

@@ -57,7 +57,7 @@
 		/** Initialize a Bootstrap Datatable for an administrator usage.
 		 * @param config the configuration of the administration table. Keys are:
 		 *      * `id` the identifier of the button that is used for obtaining the button with jQuery. If this `id` is not
-		 *        provided, the `selector` or `obj` must be provided. Default is: `table<id>`.
+		 *        provided, the `selector` or `obj` must be provided. DEfault id is computed.
 		 *      * `selector` the jQuery selector for obtaining the button. If this `selector` is not
 		 *        provided, the `id` or `obj` must be provided.
 		 *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
@@ -67,11 +67,12 @@
 		 *      * `order` an array that is specifying the order to apply to the values/columns. Default is `[ [1,'asc'] ]`.
 		 *      * `actionColumn` a boolean value indicating if the action column is automatically added to the list of columns. Default is true.
 		 *      * `actionWidth` the exepcted size of the "action column". Default is `150px`.
+		 *      * `data` the array of the rows to be displayed.
 		 * @return the table object.
 		 */
 		function initAdministrationTable(config) {
 			(!('id' in config)) && (config['id'] = "table[[${uuid}]]");
-			initAdministrationTable_base(config);
+			return initAdministrationTable_base(config);
 		}
 		</script>
 		<th:block th:replace="fragments/libs :: sweetalert" />

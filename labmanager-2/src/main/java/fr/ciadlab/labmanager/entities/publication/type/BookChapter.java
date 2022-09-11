@@ -266,6 +266,17 @@ public class BookChapter extends Publication {
 		return buf.toString();
 	}
 
+	@Override
+	public String getPublicationTarget() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getBookTitle());
+		if (!Strings.isNullOrEmpty(getPublisher())) {
+			buf.append(", "); //$NON-NLS-1$
+			buf.append(getPublisher());
+		}
+		return buf.toString();
+	}
+
 	/** Replies the volume number of the book chapter.
 	 * 
 	 * @return the volume number.

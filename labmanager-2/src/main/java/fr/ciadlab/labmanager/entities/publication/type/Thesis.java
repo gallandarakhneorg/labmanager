@@ -129,6 +129,13 @@ public class Thesis extends Publication {
 		return buf.toString();
 	}
 
+	@Override
+	public String getPublicationTarget() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getInstitution());
+		return buf.toString();
+	}
+
 	/** Replies the name of the institution in which the thesis was passed.
 	 *
 	 * @return the name of the institution.

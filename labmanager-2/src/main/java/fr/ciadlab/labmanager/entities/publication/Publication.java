@@ -1048,11 +1048,23 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 * This function is a general place-holder for obtaining the place where publication
 	 * was published. The returned value depends strongly of the type of the publication,
 	 * and therefore of the function implementation in the sub-types.
+	 * Comparing to {@link #getPublicationTarget()}, this function may provides a longer
+	 * description with additional information such as the volume number for example.
 	 *
 	 * @return the description.
+	 * @see #getPublicationTarget()
 	 */
 	public abstract String getWherePublishedShortDescription();
 
+	/** Replies a target of the publication. Depending on the type of the publication,
+	 * the target may be a journal, a conference, a school, etc.
+	 * Comparing to {@link #getWherePublishedShortDescription()}, this function
+	 * provides less information and focuses on the publication's target.
+	 *
+	 * @return the publication target.
+	 * @see #getWherePublishedShortDescription()
+	 */
+	public abstract String getPublicationTarget();
 
 	/** Indicates if the administrator of the database content has manually validated this publication to be accepted in
 	 * the database. This validation may make the difference when multiple publications are similar. In this case,

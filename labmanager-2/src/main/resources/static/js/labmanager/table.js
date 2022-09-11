@@ -11,6 +11,8 @@
  *      * `order` an array that is specifying the order to apply to the values/columns. Default is `[ [1,'asc'] ]`.
  *      * `actionColumn` a boolean value indicating if the action column is automatically added to the list of columns. Default is true.
  *      * `actionWidth` the exepcted size of the "action column". Default is `150px`.
+ *      * `data` the array of the rows to be displayed.
+ *      * `tableParams` the map of values to pass directly to Datatable.
  * @return the table object.
  */
 function initAdministrationTable_base(config) {
@@ -45,7 +47,7 @@ function initAdministrationTable_base(config) {
 		throw 'You must specify one of the following parameters: obj, selector, id';
 	}
 
-	var table = $component.DataTable({
+	var tableConfig = {
 	    dom: 'frip',
 	    renderer: 'bootstrap',
 	    scrollCollapse: false,
@@ -54,6 +56,15 @@ function initAdministrationTable_base(config) {
 	    autoWidth: true,
 	    order: config['order'],
 	    columns: config['columns'],
-	});
+	};
+	if ('data' in config) {
+		tableConfig['data'] = config['data'];
+	}
+	if ('tableParams' in config) {
+		$.each(config['tableParams'], (key, value) => {
+			tableConfig[key] = value;
+		});
+	}
+	var table = $component.DataTable(tableConfig);
 	return table;
 }

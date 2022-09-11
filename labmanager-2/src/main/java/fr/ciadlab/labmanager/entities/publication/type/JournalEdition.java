@@ -171,6 +171,20 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		return buf.toString();
 	}
 
+	@Override
+	public String getPublicationTarget() {
+		final StringBuilder buf = new StringBuilder();
+		final Journal journal = getJournal();
+		if (journal != null) {
+			buf.append(journal.getJournalName());
+			if (!Strings.isNullOrEmpty(journal.getPublisher())) {
+				buf.append(", "); //$NON-NLS-1$
+				buf.append(journal.getPublisher());
+			}
+		}
+		return buf.toString();
+	}
+
 	/** Replies the volume number of the journal in which the publication was published.
 	 * 
 	 * @return the volume number.
@@ -262,7 +276,7 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		final Journal journal = getJournal();
 		if (journal != null) {
 			return journal.getScimagoQIndexByYear(getPublicationYear()) != null
-				|| journal.getWosQIndexByYear(getPublicationYear()) != null;
+					|| journal.getWosQIndexByYear(getPublicationYear()) != null;
 		}
 		return false;
 	}
@@ -277,7 +291,10 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 	@Override
 	@Deprecated(since = "2.0.0")
 	public String getISBN() {
-		return this.journal.getISBN();
+		if (this.journal != null) {
+			return this.journal.getISBN();
+		}
+		return null;
 	}
 
 	/** Change the ISBN number that is associated to this publication.
@@ -290,7 +307,9 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 	@Override
 	@Deprecated(since = "2.0.0")
 	public void setISBN(String isbn) {
-		this.journal.setISBN(isbn);
+		if (this.journal != null) {
+			this.journal.setISBN(isbn);
+		}
 	}
 
 	/** Replies the ISSN number that is associated to this publication.
@@ -303,7 +322,10 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 	@Override
 	@Deprecated(since = "2.0.0")
 	public String getISSN() {
-		return this.journal.getISSN();
+		if (this.journal != null) {
+			return this.journal.getISSN();
+		}
+		return null;
 	}
 
 	/** Change the ISSN number that is associated to this publication.
@@ -316,7 +338,9 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 	@Override
 	@Deprecated(since = "2.0.0")
 	public final void setISSN(String issn) {
-		this.journal.setISSN(issn);
+		if (this.journal != null) {
+			this.journal.setISSN(issn);
+		}
 	}
 
 }

@@ -252,6 +252,13 @@ public class ConferencePaper extends Publication {
 		return buf.toString();
 	}
 
+	@Override
+	public String getPublicationTarget() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getScientificEventName());
+		return buf.toString();
+	}
+
 	/** Replies the name of event (conference or workshop) in which the publication was published.
 	 * 
 	 * @return the name.

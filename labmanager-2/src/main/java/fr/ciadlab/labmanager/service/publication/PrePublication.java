@@ -72,4 +72,9 @@ final class PrePublication extends Publication {
 		throw new UnsupportedOperationException();
 	}
 
+	@Override
+	public String getPublicationTarget() {
+		throw new UnsupportedOperationException();
+	}
+
 }

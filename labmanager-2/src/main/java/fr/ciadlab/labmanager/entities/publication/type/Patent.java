@@ -171,6 +171,13 @@ public class Patent extends Publication {
 		return buf.toString();
 	}
 
+	@Override
+	public String getPublicationTarget() {
+		final StringBuilder buf = new StringBuilder();
+		buf.append(getInstitution());
+		return buf.toString();
+	}
+
 	/** Replies the name of the institution in which the patent was published.
 	 *
 	 * @return the name of the institution.
