@@ -57,7 +57,10 @@ import java.io.Reader;
 import java.io.Writer;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -121,6 +124,10 @@ import org.springframework.stereotype.Component;
 @Component
 @Primary
 public class JBibtexBibTeX extends AbstractBibTeX {
+
+	/** Field {@code _internal_db_id}.
+	 */
+	protected static final Key KEY_INTERNAL_DB_ID = new Key("_internal_db_id"); //$NON-NLS-1$
 
 	/** Field {@code abstract}.
 	 */
@@ -429,7 +436,22 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return null;
 	}
 
-	private static String fieldCleanPrefix(BibTeXEntry entry, Key key) throws Exception {
+	private static String fieldRequired(BibTeXEntry entry, Key key) throws Exception {
+		final Value value = entry.getField(key);
+		if (value != null) {
+			String strValue = value.toUserString();
+			if (isLaTeXField(key)) {
+				strValue = parseTeXString(strValue, entry);
+			}
+			strValue = Strings.emptyToNull(strValue);
+			if (!Strings.isNullOrEmpty(strValue)) {
+				return strValue;
+			}
+		}
+		throw new IllegalStateException("Field '" + key.getValue() + "' is required for entry: " + entry.getKey().getValue()); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	private static String fieldRequiredCleanPrefix(BibTeXEntry entry, Key key) throws Exception {
 		String value = field(entry, key);
 		if (!Strings.isNullOrEmpty(value)) {
 			for (final String prefix : PREFIXES) {
@@ -438,20 +460,33 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				value = matcher.replaceFirst(""); //$NON-NLS-1$
 			}
 		}
-		return value;
+		if (!Strings.isNullOrEmpty(value)) {
+			return value;
+		}
+		throw new IllegalStateException("Field '" + key.getValue() + "' is required for entry: " + entry.getKey().getValue()); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	private static String field(BibTeXEntry entry, String key) throws Exception {
 		return field(entry, new Key(key));
 	}
 
-	private static String or(String... v) {
-		for (final String value : v) {
-			if (!Strings.isNullOrEmpty(value)) {
-				return value;
-			}
+	private static String or(String v1, String v2) {
+		if (!Strings.isNullOrEmpty(v1)) {
+			return v1;
+		}
+		if (!Strings.isNullOrEmpty(v2)) {
+			return v2;
 		}
 		return null;
+	}
+
+	private static String orRequired(BibTeXEntry entry, Key k1, Key k2) throws Exception {
+		final String value = or(field(entry, k1), field(entry, k2));
+		if (!Strings.isNullOrEmpty(value)) {
+			return value;
+		}
+		throw new IllegalStateException("Field '" + k1.getValue() + "' or '" + k2.getValue() //$NON-NLS-1$ //$NON-NLS-2$
+				+ "' is required for entry: " + entry.getKey().getValue()); //$NON-NLS-1$
 	}
 
 	private static PublicationLanguage language(BibTeXEntry entry) throws Exception {
@@ -533,6 +568,46 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return null;
 	}
 
+	private Journal findJournal(Key key, String journalName, String dbId, String referencePublisher, String referenceIssn) {
+		if (!Strings.isNullOrEmpty(dbId)) {
+			try {
+				final int id = Integer.parseInt(dbId);
+				final Journal journal = this.journalService.getJournalById(id);
+				if (journal != null) {
+					return journal;
+				}
+			} catch (Throwable ex) {
+				// Silent
+			}
+		}
+		Set<Journal> journals = this.journalService.getJournalsByName(journalName);
+		if (journals == null || journals.isEmpty()) {
+			throw new IllegalArgumentException("Unknown journal for entry " + key.getValue() + ": " + journalName); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		if (journals.size() == 1) {
+			return journals.iterator().next();
+		}
+		final List<Journal> js = new LinkedList<>();
+		final StringBuilder msg = new StringBuilder();
+		for (final Journal journal : journals) {
+			if (Objects.equals(journal.getISSN(), referenceIssn)
+				|| journal.getPublisher().contains(referencePublisher)) {
+				js.add(journal);
+			}
+			msg.append("<br>\n* Id: ").append(journal.getId()); //$NON-NLS-1$
+			msg.append("<br/>\n  Journal name: ").append(journal.getJournalName()); //$NON-NLS-1$
+			msg.append("<br/>\n  Publisher: ").append(journal.getPublisher()); //$NON-NLS-1$
+			msg.append("<br/>\n  ISSN: ").append(journal.getISSN()); //$NON-NLS-1$
+		}
+		if (js.size() == 1) {
+			return js.get(0);
+		}
+		throw new IllegalArgumentException("Too many journals for entry " + key.getValue() //$NON-NLS-1$
+				+ " with the journal name: " + journalName //$NON-NLS-1$
+				+ "<br/>\nPlease fix the publisher and ISSN in your BibTeX. If the ambiguity is still present, select one in the following list and write the Id in the field " + KEY_INTERNAL_DB_ID.getValue() //$NON-NLS-1$
+				+ " field in your BibTeX:<pre>" + msg.toString() + "</pre>"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	/** Extract the publication from a BibTeX entry.
 	 * This function does not save the publication in the database.
 	 *
@@ -550,13 +625,13 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the publication.
 	 * @throws Exception if LaTeX code cannot be parsed.
 	 */
-	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId, boolean ensureAtLastOneMember) throws Exception {
+	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId, boolean ensureAtLeastOneMember) throws Exception {
 		final PublicationType type = getPublicationTypeFor(entry);
 		if (type != null) {
 			// Create a generic publication
 			final Publication genericPublication = this.prePublicationFactory.createPrePublication(
 					type,
-					field(entry, KEY_TITLE),
+					fieldRequired(entry, KEY_TITLE),
 					field(entry, KEY_ABSTRACT_NAME),
 					field(entry, KEY_KEYWORDS_NAME),
 					date(entry), year(entry),
@@ -577,10 +652,11 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			switch (type) {
 			case INTERNATIONAL_JOURNAL_PAPER:
 				String journalName = field(entry, KEY_JOURNAL);
-				Journal journal = this.journalService.getJournalByName(journalName);
-				if (journal == null) {
-					throw new IllegalArgumentException("Unknown journal for entry " + key.getValue() + ": " + journalName); //$NON-NLS-1$ //$NON-NLS-2$
-				}
+				final Journal journal = findJournal(key, journalName,
+						field(entry, KEY_INTERNAL_DB_ID),
+						field(entry, KEY_PUBLISHER),
+						genericPublication.getISSN());
+				assert journal != null;
 				final JournalPaper journalPaper = this.journalPaperService.createJournalPaper(genericPublication,
 						field(entry, KEY_VOLUME),
 						field(entry, KEY_NUMBER),
@@ -592,7 +668,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				break;
 			case INTERNATIONAL_CONFERENCE_PAPER:
 				finalPublication = this.conferencePaperService.createConferencePaper(genericPublication,
-						fieldCleanPrefix(entry, KEY_BOOKTITLE),
+						fieldRequiredCleanPrefix(entry, KEY_BOOKTITLE),
 						field(entry, KEY_VOLUME),
 						field(entry, KEY_NUMBER),
 						field(entry, KEY_PAGES),
@@ -617,7 +693,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				break;
 			case INTERNATIONAL_BOOK_CHAPTER:
 				finalPublication = this.bookChapterService.createBookChapter(genericPublication,
-						field(entry, KEY_BOOKTITLE),
+						fieldRequired(entry, KEY_BOOKTITLE),
 						field(entry, KEY_CHAPTER),
 						field(entry, KEY_EDITION),
 						field(entry, KEY_VOLUME),
@@ -632,7 +708,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			case PHD_THESIS:
 			case MASTER_THESIS:
 				finalPublication = this.thesisService.createThesis(genericPublication,
-						or(field(entry, KEY_SCHOOL), field(entry, KEY_INSTITUTION)),
+						orRequired(entry, KEY_SCHOOL, KEY_INSTITUTION),
 						field(entry, KEY_ADDRESS),
 						false);
 				break;
@@ -640,7 +716,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				finalPublication = this.reportService.createReport(genericPublication,
 						or(field(entry, KEY_NUMBER), field(entry, KEY_EDITION)),
 						field(entry, KEY_TYPE),
-						field(entry, KEY_INSTITUTION),
+						fieldRequired(entry, KEY_INSTITUTION),
 						field(entry, KEY_ADDRESS),
 						false);
 				break;
@@ -648,14 +724,14 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				finalPublication = this.reportService.createReport(genericPublication,
 						or(field(entry, KEY_NUMBER), field(entry, KEY_EDITION)),
 						field(entry, KEY_TYPE),
-						or(field(entry, KEY_ORGANIZATION), field(entry, KEY_PUBLISHER)),
+						orRequired(entry, KEY_ORGANIZATION, KEY_PUBLISHER),
 						field(entry, KEY_ADDRESS),
 						false);
 				break;
 			case OTHER:
 				finalPublication = this.miscDocumentService.createMiscDocument(genericPublication,
 						field(entry, KEY_NUMBER),
-						field(entry, KEY_HOWPUBLISHED),
+						fieldRequired(entry, KEY_HOWPUBLISHED),
 						field(entry, KEY_TYPE),
 						field(entry, KEY_ORGANIZATION),
 						field(entry, KEY_PUBLISHER),
@@ -667,9 +743,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			}
 
 			// Generate the author list
-			final String authorField = or(field(entry, KEY_AUTHOR), field(entry, KEY_EDITOR));
+			final String authorField = orRequired(entry, KEY_AUTHOR, KEY_EDITOR);
 			try {
-				final List<Person> authors = this.personService.extractPersonsFrom(authorField, true, assignRandomId, ensureAtLastOneMember);
+				final List<Person> authors = this.personService.extractPersonsFrom(authorField, true, assignRandomId, ensureAtLeastOneMember);
 				if (authors.isEmpty()) {
 					throw new IllegalArgumentException("No author for the BibTeX entry: " + key.getValue()); //$NON-NLS-1$
 				}
