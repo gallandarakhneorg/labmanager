@@ -18,6 +18,8 @@ package fr.ciadlab.labmanager.controller.api.admin;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.nio.charset.Charset;
+import java.text.Normalizer;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -332,11 +334,13 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 			return this.similarity.similarity(a, b) >= SIMILARITY;
 		}
 
-		private static String toLower(String a) {
+		private static String normalize(String a) {
 			if (a == null) {
 				return null;
 			}
-			return a.toLowerCase().trim();
+			String str = a.toLowerCase().trim();
+			str = Normalizer.normalize(str, Normalizer.Form.NFD);
+			return str.replaceAll("\\P{InBasic_Latin}", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 
 		/** Check if the information from two publications correspond to similar publications.
@@ -356,37 +360,37 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 		public boolean isSimilar(int baseYear0, String baseTitle0, String baseDOI0, String baseISSN0, String baseTarget0,
 				int baseYear1, String baseTitle1, String baseDOI1, String baseISSN1, String baseTarget1) {
 			return isSimilar(baseYear0, baseYear1)
-					&& isSimilar(toLower(baseTitle0), baseTitle1)
-					&& isSimilar(toLower(baseDOI0), baseDOI1)
-					&& isSimilar(toLower(baseISSN0), baseISSN1)
-					&& isSimilar(toLower(baseTarget0), baseTarget1);
+					&& isSimilar(normalize(baseTitle0), baseTitle1)
+					&& isSimilar(normalize(baseDOI0), baseDOI1)
+					&& isSimilar(normalize(baseISSN0), baseISSN1)
+					&& isSimilar(normalize(baseTarget0), baseTarget1);
 		}
 
 		private boolean isSimilar0(int baseYear0, String baseTitle0, String baseDOI0, String baseISSN0, String baseTarget0,
 				int baseYear1, String baseTitle1, String baseDOI1, String baseISSN1, String baseTarget1) {
 			return isSimilar(baseYear0, baseYear1)
-					&& isSimilar(baseTitle0, toLower(baseTitle1))
-					&& isSimilar(baseDOI0, toLower(baseDOI1))
-					&& isSimilar(baseISSN0, toLower(baseISSN1))
-					&& isSimilar(baseTarget0, toLower(baseTarget1));
+					&& isSimilar(baseTitle0, normalize(baseTitle1))
+					&& isSimilar(baseDOI0, normalize(baseDOI1))
+					&& isSimilar(baseISSN0, normalize(baseISSN1))
+					&& isSimilar(baseTarget0, normalize(baseTarget1));
 		}
 
 		@Override
 		public List<Publication> get(Publication source) {
 			final int baseYear = source.getPublicationYear();
-			final String baseTitle = toLower(source.getTitle());
-			final String baseDOI = toLower(source.getDOI());
-			final String baseISSN = toLower(source.getISSN());
-			final String baseTarget = toLower(source.getPublicationTarget());
+			final String baseTitle = normalize(source.getTitle());
+			final String baseDOI = normalize(source.getDOI());
+			final String baseISSN = normalize(source.getISSN());
+			final String baseTarget = normalize(source.getPublicationTarget());
 			final List<Publication> similarPublications = new LinkedList<>();
 			final Iterator<Publication> iterator = this.publications.iterator();
 			while (iterator.hasNext()) {
 				final Publication candidate = iterator.next();
 				final int baseYear1 = candidate.getPublicationYear();
-				final String baseTitle1 = toLower(candidate.getTitle());
-				final String baseDOI1 = toLower(candidate.getDOI());
-				final String baseISSN1 = toLower(candidate.getISSN());
-				final String baseTarget1 = toLower(candidate.getPublicationTarget());
+				final String baseTitle1 = normalize(candidate.getTitle());
+				final String baseDOI1 = normalize(candidate.getDOI());
+				final String baseISSN1 = normalize(candidate.getISSN());
+				final String baseTarget1 = normalize(candidate.getPublicationTarget());
 				if (isSimilar0(baseYear, baseTitle, baseDOI, baseISSN, baseTarget,
 						baseYear1, baseTitle1, baseDOI1, baseISSN1, baseTarget1)) {
 					iterator.remove();
