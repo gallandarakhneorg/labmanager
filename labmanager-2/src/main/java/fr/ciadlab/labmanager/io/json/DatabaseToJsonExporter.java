@@ -390,7 +390,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		if (!publications.isEmpty()) {
 			for (final Publication publication : publications) {
 				final ObjectNode jsonPublication = array.objectNode();
-				final String id = exportPublication(i, publication, jsonPublication, repository, similarPublicationProvider);
+				final String id = exportPublication(i, publication, root, jsonPublication, repository, similarPublicationProvider);
 				if (jsonPublication.size() > 0) {
 					jsonPublication.set(HIDDEN_INTERNAL_DATA_SOURCE_KEY, jsonPublication.textNode(HIDDEN_INTERNAL_DATABASE_SOURCE_VALUE));
 					repository.put(publication, id);
@@ -403,7 +403,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		if (extraPublicationProvider != null) {
 			for (final Publication publication : extraPublicationProvider.getPublications()) {
 				final ObjectNode jsonPublication = array.objectNode();
-				final String id = exportPublication(i, publication, jsonPublication, repository, null);
+				final String id = exportPublication(i, publication, root, jsonPublication, repository, null);
 				if (jsonPublication.size() > 0) {
 					jsonPublication.set(HIDDEN_INTERNAL_DATA_SOURCE_KEY, jsonPublication.textNode(HIDDEN_INTERNAL_EXTERNAL_SOURCE_VALUE));
 					repository.put(publication, id);
@@ -422,6 +422,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 *
 	 * @param index the index of the publication in the list of publications.
 	 * @param publication the publication to export.
+	 * @param root the JSON root.
 	 * @param jsonPublication the receiver of the JSON elements.
 	 * @param repository the repository of elements that maps an object to its JSON id.
 	 * @param similarPublicationProvider a provider of a publication that is similar to a given publication. 
@@ -430,7 +431,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @return the identifier of the exported publication.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	protected String exportPublication(int index, Publication publication, ObjectNode jsonPublication, 
+	protected String exportPublication(int index, Publication publication, ObjectNode root, ObjectNode jsonPublication, 
 			Map<Object, String> repository, SimilarPublicationProvider similarPublicationProvider) throws Exception {
 		// Add missed information from any similar publication
 		final List<Publication> similarPublications;
@@ -456,11 +457,18 @@ public class DatabaseToJsonExporter extends JsonTool {
 		// It is due to the reference to person entities.
 		final ArrayNode authorArray = jsonPublication.arrayNode();
 		for (final Person author : publication.getAuthors()) {
-			final String authorId = repository.get(author);
+			String authorId = repository.get(author);
 			if (Strings.isNullOrEmpty(authorId)) {
-				// Author not found in the repository. It is an unexpected behavior but
-				// the full name of the person is output to JSON
-				authorArray.add(author.getFullName());
+				// Author not found in the repository. It is a behavior that may
+				// occur when the authors are provided by a BibTeX source and the
+				// person is not yet known.
+				authorId = createPerson(root, repository, author);
+				if (Strings.isNullOrEmpty(authorId)) {
+					// Unexpected behavior. But add the name as text to have it inside the output.
+					authorArray.add(author.getFullName());
+				} else {
+					authorArray.add(createReference(authorId, authorArray));
+				}
 			} else {
 				authorArray.add(createReference(authorId, authorArray));
 			}
@@ -488,6 +496,19 @@ public class DatabaseToJsonExporter extends JsonTool {
 		}
 
 		return id;
+	}
+
+	private String createPerson(ObjectNode root, Map<Object, String> repository, Person person) throws Exception {
+		final ArrayNode personNode = (ArrayNode) root.get(PERSONS_SECTION);
+		if (personNode != null) {
+			final ObjectNode jsonPerson = personNode.objectNode();
+			final String id = PERSON_ID_PREFIX + personNode.size();
+			exportObject(jsonPerson, id, person, jsonPerson, null);
+			repository.put(person, id);
+			personNode.add(jsonPerson);
+			return id;
+		}
+		return null;
 	}
 
 }

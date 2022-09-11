@@ -263,6 +263,18 @@ public abstract class JsonTool {
 	 */
 	protected static final String EXTRAURL_KEY = "extraURL"; //$NON-NLS-1$
 
+	/** Name of the field for the first name of a person.
+	 */
+	protected static final String FIRSTNAME_KEY = "firstName"; //$NON-NLS-1$
+
+	/** Name of the field for the last name of a person.
+	 */
+	protected static final String LASTNAME_KEY = "lastName"; //$NON-NLS-1$
+
+	/** Name of the field for the full name of a person.
+	 */
+	protected static final String FULLNAME_KEY = "fullName"; //$NON-NLS-1$
+
 	/** Logger of the service. It is lazy loaded.
 	 */
 	private Logger logger;

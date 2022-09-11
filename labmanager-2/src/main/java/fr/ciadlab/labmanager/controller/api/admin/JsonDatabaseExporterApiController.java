@@ -18,7 +18,6 @@ package fr.ciadlab.labmanager.controller.api.admin;
 
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.Charset;
 import java.text.Normalizer;
 import java.util.Collections;
 import java.util.Iterator;
