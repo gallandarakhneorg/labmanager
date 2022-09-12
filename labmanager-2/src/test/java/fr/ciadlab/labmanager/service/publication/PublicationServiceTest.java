@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -226,7 +227,7 @@ public class PublicationServiceTest {
 	@Test
 	public void getPublicationsByTitle() {
 		final List<Publication> expected = Arrays.asList(this.pub0, this.pub2);
-		when(this.publicationRepository.findAllByTitle(anyString())).then(it -> expected);
+		when(this.publicationRepository.findAllByTitleIgnoreCase(anyString())).then(it -> expected);
 
 		List<Publication> set = this.test.getPublicationsByTitle("xyz");
 		assertSame(expected, set);
@@ -475,7 +476,6 @@ public class PublicationServiceTest {
 		assertNotNull(arg1.getValue());
 	}
 
-
 	@Test
 	public void exportJson_Collection_null() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
@@ -492,6 +492,36 @@ public class PublicationServiceTest {
 		String json = this.test.exportJson(pubs, configurator);
 
 		assertEquals("abc", json);
+
+		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
+		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
+		verify(this.json, only()).exportPublicationsWithRootKeys(arg0.capture(), arg1.capture(), any());
+		Iterable<Publication> it = arg0.getValue();
+		assertNotNull(it);
+		Iterator<Publication> iterator = it.iterator();
+		assertSame(this.pub0, iterator.next());
+		assertSame(this.pub2, iterator.next());
+		assertFalse(iterator.hasNext());
+		assertNotNull(arg1.getValue());
+	}
+
+	@Test
+	public void exportJsonAsTree_Collection_null() throws Exception {
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		JsonNode json = this.test.exportJsonAsTree((Collection<Publication>) null, configurator, null);
+		assertNull(json);
+	}
+
+	@Test
+	public void exportJsonAsTree_Collection() throws Exception {
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		JsonNode root = mock(JsonNode.class);
+		when(this.json.exportPublicationsAsTreeWithRootKeys(any(Iterable.class), any(), any())).thenReturn(root);
+		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
+
+		JsonNode json = this.test.exportJsonAsTree(pubs, configurator, null);
+
+		assertSame(root, json);
 
 		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
 		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);

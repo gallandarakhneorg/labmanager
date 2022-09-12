@@ -428,7 +428,8 @@ public class PublicationViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView("importBibTeX"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);
 		//
-		modelAndView.addObject("bibtexJsonActionUrl", rooted(Constants.GET_JSON_FROM_BIBTEX_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("bibtexJsonActionUrl", endpoint(Constants.GET_JSON_FROM_BIBTEX_ENDPOINT, //$NON-NLS-1$
+				Constants.CHECKINDB_ENDPOINT_PARAMETER, Boolean.TRUE));
 		modelAndView.addObject("formActionUrl", rooted(Constants.SAVE_BIBTEX_ENDPOINT)); //$NON-NLS-1$
 		//
 		return modelAndView;

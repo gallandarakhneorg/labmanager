@@ -151,7 +151,7 @@ public class Patent extends Publication {
 			buf.append(getPatentType());
 			buf.append(")"); //$NON-NLS-1$
 		} else if (b0) {
-			buf.append("n. "); //$NON-NLS-1$
+			buf.append(", n. "); //$NON-NLS-1$
 			buf.append(getPatentNumber());
 		} else if (b1) {
 			buf.append(getPatentType());

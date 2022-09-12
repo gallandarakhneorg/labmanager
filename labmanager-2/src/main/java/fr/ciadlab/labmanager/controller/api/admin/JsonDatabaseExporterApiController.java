@@ -16,9 +16,11 @@
 
 package fr.ciadlab.labmanager.controller.api.admin;
 
+import static fr.ciadlab.labmanager.entities.EntityUtils.isSimilarWithoutNormalization;
+import static fr.ciadlab.labmanager.entities.EntityUtils.normalizeForSimularityTest;
+
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.text.Normalizer;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -33,8 +35,6 @@ import fr.ciadlab.labmanager.io.json.ExtraPublicationProvider;
 import fr.ciadlab.labmanager.io.json.JsonTool;
 import fr.ciadlab.labmanager.io.json.SimilarPublicationProvider;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
-import info.debatty.java.stringsimilarity.SorensenDice;
-import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -139,7 +139,7 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 	private static String getString(Map<String, Object> source, String key) {
 		final Object value = source.get(key);
 		if (value != null) {
-			return value.toString();
+			return normalizeForSimularityTest(value.toString());
 		}
 		return null;
 	}
@@ -235,27 +235,27 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 				for (int i = 0; i < max; ++i) {
 					final Map<String, Object> publication0 = pubs.get(i);
 					if (!publication0.containsKey(DUPLICATED_ENTRY_FIELD)) {
-						final int baseYear0 = getInt(publication0, JsonTool.PUBLICATIONYEAR_KEY);
-						final String baseTitle0 = getString(publication0, JsonTool.TITLE_KEY);
-						final String baseDOI0 = getString(publication0, JsonTool.DOI_KEY);
-						final String baseISSN0 = getString(publication0, JsonTool.ISSN_KEY);
-						final String baseTarget0 = getTarget(publication0);
+						final int year0 = getInt(publication0, JsonTool.PUBLICATIONYEAR_KEY);
+						final String title0 = getString(publication0, JsonTool.TITLE_KEY);
+						final String doi0 = getString(publication0, JsonTool.DOI_KEY);
+						final String issn0 = getString(publication0, JsonTool.ISSN_KEY);
+						final String target0 = getTarget(publication0);
 						final boolean isNotValidated0 = !isValidated(publication0);
 						int isDup = Integer.MAX_VALUE;
 						for (int j = i + 1; j < pubs.size(); ++j) {
 							final Map<String, Object> publication1 = pubs.get(j);
 							if (!publication1.containsKey(DUPLICATED_ENTRY_FIELD)) {
-								final int baseYear1 = getInt(publication1, JsonTool.PUBLICATIONYEAR_KEY);
-								final String baseTitle1 = getString(publication1, JsonTool.TITLE_KEY);
-								final String baseDOI1 = getString(publication1, JsonTool.DOI_KEY);
-								final String baseISSN1 = getString(publication1, JsonTool.ISSN_KEY);
-								final String baseTarget1 = getTarget(publication1);
-								if (provider.isSimilar(baseYear0, baseTitle0, baseDOI0, baseISSN0, baseTarget0,
-										baseYear1, baseTitle1, baseDOI1, baseISSN1, baseTarget1)) {
+								final int year1 = getInt(publication1, JsonTool.PUBLICATIONYEAR_KEY);
+								final String title1 = getString(publication1, JsonTool.TITLE_KEY);
+								final String doi1 = getString(publication1, JsonTool.DOI_KEY);
+								final String issn1 = getString(publication1, JsonTool.ISSN_KEY);
+								final String target1 = getTarget(publication1);
+								if (isSimilarWithoutNormalization(year0, title0, doi0, issn0, target0,
+										year1, title1, doi1, issn1, target1)) {
 									// This case cannot be ignored
 									isDup = SIMILARE_ENTRY_VALUE;
 									publication1.put(DUPLICATED_ENTRY_FIELD, Integer.valueOf(SIMILARE_ENTRY_VALUE));
-								} else if (provider.isSimilar(baseTitle0, baseTitle1)) {
+								} else if (isSimilarWithoutNormalization(title0, title1)) {
 									// Ignore this case if one of the publications was validated.
 									if (isNotValidated0) {
 										isDup = Math.min(isDup, SIMILARE_TITLE_VALUE);
@@ -289,11 +289,7 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 	 */
 	private static class BibTeXSimilarPublicationProvider implements SimilarPublicationProvider, ExtraPublicationProvider {
 
-		private static final double SIMILARITY = 0.95;
-
 		private final List<Publication> publications;
-
-		private final NormalizedStringSimilarity similarity = new SorensenDice();
 
 		/** Constructor that is reading the BibTeX file.
 		 *
@@ -316,82 +312,24 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 			return this.publications;
 		}
 
-		private static boolean isSimilar(int a, int b) {
-			return Math.abs(a - b) <= 1;
-		}
-
-		/** Check if the two strings are similar.
-		 *
-		 * @param a the first string.
-		 * @param b the second string.
-		 * @return {@code true} if the two strings are similar.
-		 */
-		public boolean isSimilar(String a, String b) {
-			if (a == null || b == null) {
-				return true;
-			}
-			return this.similarity.similarity(a, b) >= SIMILARITY;
-		}
-
-		private static String normalize(String a) {
-			if (a == null) {
-				return null;
-			}
-			String str = a.toLowerCase().trim();
-			str = Normalizer.normalize(str, Normalizer.Form.NFD);
-			return str.replaceAll("\\P{InBasic_Latin}", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		}
-
-		/** Check if the information from two publications correspond to similar publications.
-		 * 
-		 * @param baseYear0 the publication year of the first publication.
-		 * @param baseTitle0 the title of the first publication.
-		 * @param baseDOI0 the DOI of the first publication.
-		 * @param baseISSN0 the ISSN of the first publication.
-		 * @param baseTarget0 the target of the first publication.
-		 * @param baseYear1 the publication year of the second publication.
-		 * @param baseTitle1 the title of the second publication.
-		 * @param baseDOI1 the DOI of the second publication.
-		 * @param baseISSN1 the ISSN of the second publication.
-		 * @param baseTarget1 the target of the second publication.
-		 * @return {@code true} if the two publications are similar.
-		 */
-		public boolean isSimilar(int baseYear0, String baseTitle0, String baseDOI0, String baseISSN0, String baseTarget0,
-				int baseYear1, String baseTitle1, String baseDOI1, String baseISSN1, String baseTarget1) {
-			return isSimilar(baseYear0, baseYear1)
-					&& isSimilar(normalize(baseTitle0), baseTitle1)
-					&& isSimilar(normalize(baseDOI0), baseDOI1)
-					&& isSimilar(normalize(baseISSN0), baseISSN1)
-					&& isSimilar(normalize(baseTarget0), baseTarget1);
-		}
-
-		private boolean isSimilar0(int baseYear0, String baseTitle0, String baseDOI0, String baseISSN0, String baseTarget0,
-				int baseYear1, String baseTitle1, String baseDOI1, String baseISSN1, String baseTarget1) {
-			return isSimilar(baseYear0, baseYear1)
-					&& isSimilar(baseTitle0, normalize(baseTitle1))
-					&& isSimilar(baseDOI0, normalize(baseDOI1))
-					&& isSimilar(baseISSN0, normalize(baseISSN1))
-					&& isSimilar(baseTarget0, normalize(baseTarget1));
-		}
-
 		@Override
 		public List<Publication> get(Publication source) {
-			final int baseYear = source.getPublicationYear();
-			final String baseTitle = normalize(source.getTitle());
-			final String baseDOI = normalize(source.getDOI());
-			final String baseISSN = normalize(source.getISSN());
-			final String baseTarget = normalize(source.getPublicationTarget());
+			final int year0 = source.getPublicationYear();
+			final String title0 = normalizeForSimularityTest(source.getTitle());
+			final String doi0 = normalizeForSimularityTest(source.getDOI());
+			final String issn0 = normalizeForSimularityTest(source.getISSN());
+			final String target0 = normalizeForSimularityTest(source.getPublicationTarget());
 			final List<Publication> similarPublications = new LinkedList<>();
 			final Iterator<Publication> iterator = this.publications.iterator();
 			while (iterator.hasNext()) {
 				final Publication candidate = iterator.next();
-				final int baseYear1 = candidate.getPublicationYear();
-				final String baseTitle1 = normalize(candidate.getTitle());
-				final String baseDOI1 = normalize(candidate.getDOI());
-				final String baseISSN1 = normalize(candidate.getISSN());
-				final String baseTarget1 = normalize(candidate.getPublicationTarget());
-				if (isSimilar0(baseYear, baseTitle, baseDOI, baseISSN, baseTarget,
-						baseYear1, baseTitle1, baseDOI1, baseISSN1, baseTarget1)) {
+				final int year1 = candidate.getPublicationYear();
+				final String title1 = normalizeForSimularityTest(candidate.getTitle());
+				final String doi1 = normalizeForSimularityTest(candidate.getDOI());
+				final String issn1 = normalizeForSimularityTest(candidate.getISSN());
+				final String target1 = normalizeForSimularityTest(candidate.getPublicationTarget());
+				if (isSimilarWithoutNormalization(year0, title0, doi0, issn0, target0,
+						year1, title1, doi1, issn1, target1)) {
 					iterator.remove();
 					similarPublications.add(candidate);
 				}

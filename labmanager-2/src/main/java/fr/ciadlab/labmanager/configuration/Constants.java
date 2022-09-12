@@ -169,6 +169,11 @@ public class Constants {
 	 */
 	public static final String GET_JSON_FROM_BIBTEX_ENDPOINT = "getJsonFromBibTeX"; //$NON-NLS-1$
 
+	/** Name of the endpoint parameter for checking that an entity is already in the database and
+	 * marking accordingly the entity in the output.
+	 */
+	public static final String CHECKINDB_ENDPOINT_PARAMETER = "checkInDb"; //$NON-NLS-1$
+
 	/** Name of the endpoint for saving a BibTeX file and providing a JSON description.
 	 */
 	public static final String SAVE_BIBTEX_ENDPOINT = "saveBibTeX"; //$NON-NLS-1$

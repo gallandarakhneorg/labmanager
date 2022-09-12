@@ -32,6 +32,7 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.html.HtmlPageExporter;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -65,8 +66,16 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	@Override
 	public String exportPublicationsWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
 			String... rootKeys) throws Exception {
+		final JsonNode root = exportPublicationsAsTreeWithRootKeys(publications, configurator, null, rootKeys);
 		final ObjectMapper mapper = new ObjectMapper();
-		final JsonNode node = exportPublicationsAsTree(publications, configurator, mapper);
+		return mapper.writer().writeValueAsString(root);
+	}
+
+	@Override
+	public JsonNode exportPublicationsAsTreeWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
+			Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
+		final ObjectMapper mapper = new ObjectMapper();
+		final JsonNode node = exportPublicationsAsTree(publications, configurator, callback, mapper);
 		JsonNode root = node;
 		if (rootKeys != null) {
 			for (int i = rootKeys.length - 1; i >= 0; --i) {
@@ -76,19 +85,21 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 				root = onode; 
 			}
 		}
-		return mapper.writer().writeValueAsString(root);
+		return root;
 	}
 
 	/** Export the publications into a JSON tree.
 	 * 
 	 * @param publications the publications to export.
 	 * @param configurator the configurator for the export, never {@code null}.
+	 * @param callback a function that is invoked for each publication for giving the opportunity
+	 *     to fill up the Json node of the publication.
 	 * @param mapper the JSON object creator and mapper.
 	 * @return the representation of the publications.
 	 * @throws Exception if the publication cannot be converted.
 	 */
 	public JsonNode exportPublicationsAsTree(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
-			ObjectMapper mapper) throws Exception {
+			Procedure2<Publication, ObjectNode> callback, ObjectMapper mapper) throws Exception {
 		if (publications == null) {
 			return mapper.nullNode();
 		}
@@ -98,6 +109,10 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 				|| configurator.isFormattedLinks() || configurator.isTypeAndCategoryLabels();
 		for (final Publication publication : publications) {
 			final ObjectNode entryNode = exportPublication(publication, configurator, mapper);
+			// Add additional fields by the callback function
+			if (callback != null) {
+				callback.apply(publication, entryNode);
+			}
 			// Make aliasing of the year
 			if (entryNode.has("publicationYear")) { //$NON-NLS-1$
 				entryNode.set("year", entryNode.get("publicationYear").deepCopy()); //$NON-NLS-1$ //$NON-NLS-2$

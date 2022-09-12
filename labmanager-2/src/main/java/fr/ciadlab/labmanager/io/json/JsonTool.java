@@ -90,6 +90,15 @@ public abstract class JsonTool {
 	 */
 	public static final String HIDDEN_INTERNAL_EXTERNAL_SOURCE_VALUE = ":ext"; //$NON-NLS-1$
 
+	/** Name of the field that contains the identifier of the data in the database.
+	 */
+	public static final String HIDDEN_INTERNAL_DATA_SOURCE_ID_KEY = HIDDEN_FIELD_PREFIX + "internalDataSourceId"; //$NON-NLS-1$
+
+	/** Name of the field that indicates if an entity could be imported in the database.
+	 * The reason why an entity cannot be imported is not explicitly explained in this field.
+	 */
+	public static final String HIDDEN_INTERNAL_IMPORTABLE_KEY = HIDDEN_FIELD_PREFIX + "internalImportable"; //$NON-NLS-1$
+
 	/** Name of the field for the year. This field is usually for {@link Publication}.
 	 *
 	 * @see #YEAR_KEY

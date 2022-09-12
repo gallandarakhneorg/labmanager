@@ -33,6 +33,8 @@ import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
@@ -77,6 +79,7 @@ import fr.ciadlab.labmanager.utils.ComposedException;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -280,7 +283,7 @@ public class PublicationService extends AbstractService {
 		if (Strings.isNullOrEmpty(title)) {
 			return Collections.emptyList();
 		}
-		return this.publicationRepository.findAllByTitle(title);
+		return this.publicationRepository.findAllByTitleIgnoreCase(title);
 	}
 
 	/** Replies the authors of the publication with the given identifier.
@@ -646,6 +649,26 @@ public class PublicationService extends AbstractService {
 			return null;
 		}
 		return this.json.exportPublicationsWithRootKeys(publications, configurator, rootKeys);
+	}
+
+	/**
+	 * Export function for JSON using a list of publication identifiers.
+	 *
+	 * @param publications the array of publications that should be exported.
+	 * @param configurator the configurator of the exporter.
+	 * @param callback a function that is invoked for each publication for giving the opportunity
+	 *     to fill up the Json node of the publication.
+	 * @param rootKeys the sequence of keys for building the root of the tree. The exported data is then
+	 *     output into the last created node with the {@code rootKeys}.
+	 * @return the Jackson JSON description of the publications with the given identifiers.
+	 * @throws Exception if it is impossible to generate the JSON for the publications.
+	 */
+	public JsonNode exportJsonAsTree(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
+			Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
+		if (publications == null) {
+			return null;
+		}
+		return this.json.exportPublicationsAsTreeWithRootKeys(publications, configurator, callback, rootKeys);
 	}
 
 	/** Get the journal instance that is corresponding to the identifier from the given map for an attribute with the given name.

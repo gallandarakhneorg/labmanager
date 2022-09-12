@@ -16,6 +16,8 @@
 
 package fr.ciadlab.labmanager.entities;
 
+import java.text.Normalizer;
+
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.member.MembershipComparator;
 import fr.ciadlab.labmanager.entities.member.NameBasedMembershipComparator;
@@ -24,6 +26,8 @@ import fr.ciadlab.labmanager.entities.member.PersonListComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.SorensenDicePublicationComparator;
+import info.debatty.java.stringsimilarity.SorensenDice;
+import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 
 /** Tools and configuration for the JPA entities.
  * 
@@ -48,6 +52,8 @@ public final class EntityUtils {
 	 */
 	public static final int VERY_SMALL_TEXT_SIZE = 32;
 
+	private static final double SIMILARITY = 0.95;
+
 	private static PersonComparator PERSON_COMPARATOR; 
 
 	private static PersonListComparator PERSONLIST_COMPARATOR; 
@@ -61,6 +67,8 @@ public final class EntityUtils {
 	private static PublicationComparator PUBLICATION_COMPARATOR; 
 
 	private static JournalComparator JOURNAL_COMPARATOR; 
+
+	private static final NormalizedStringSimilarity SIMILARITY_COMPUTER = new SorensenDice();
 
 	private EntityUtils() {
 		//
@@ -227,6 +235,67 @@ public final class EntityUtils {
 		synchronized (EntityUtils.class) {
 			JOURNAL_COMPARATOR = comparator;
 		}
+	}
+
+	/** Check if the information from two publications correspond to similar publications, WITHOUT
+	 * normalization of the strings. It is assumed that the given strings are already normalized.
+	 * 
+	 * @param year0 the publication year of the first publication.
+	 * @param title0 the title of the first publication.
+	 * @param doi0 the DOI of the first publication.
+	 * @param issn0 the ISSN of the first publication.
+	 * @param target0 the target of the first publication.
+	 * @param year1 the publication year of the second publication.
+	 * @param title1 the title of the second publication.
+	 * @param doi1 the DOI of the second publication.
+	 * @param issn1 the ISSN of the second publication.
+	 * @param target1 the target of the second publication.
+	 * @return {@code true} if the two publications are similar.
+	 * @see #normalizeForSimularityTest(String)
+	 */
+	public static boolean isSimilarWithoutNormalization(
+			int year0, String title0, String doi0, String issn0, String target0,
+			int year1, String title1, String doi1, String issn1, String target1) {
+		return isSimilar(year0, year1)
+				&& isSimilarWithoutNormalization(title0, title1)
+				&& isSimilarWithoutNormalization(doi0, doi1)
+				&& isSimilarWithoutNormalization(issn0, issn1)
+				&& isSimilarWithoutNormalization(target0, target1);
+	}
+
+	/** Normalize a string for enabling its similarity computation.
+	 *
+	 * @param a the string to normalize.
+	 * @return the normalized string.
+	 * @see #isSimilarWithoutNormalization(int, String, String, String, String, int, String, String, String, String)
+	 * @see #isSimilarWithoutNormalization(String, String)
+	 */
+	public static String normalizeForSimularityTest(String a) {
+		if (a == null) {
+			return null;
+		}
+		String str = a.toLowerCase().trim();
+		str = Normalizer.normalize(str, Normalizer.Form.NFD);
+		return str.replaceAll("\\P{InBasic_Latin}", ""); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	private static boolean isSimilar(int a, int b) {
+		return Math.abs(a - b) <= 1;
+	}
+
+	/** Replies if the two given strings are considered as similar.
+	 * The two given strings are supposed to be normalized with {@link #normalizeForSimularityTest(String)}.
+	 *
+	 * @param a the first string to test.
+	 * @param b the second string to test.
+	 * @return {@code true} if the two strings are similar.
+	 * @see #normalizeForSimularityTest(String)
+	 */
+	public static boolean isSimilarWithoutNormalization(String a, String b) {
+		if (a == null || b == null) {
+			return true;
+		}
+		return SIMILARITY_COMPUTER.similarity(a, b) >= SIMILARITY;
 	}
 
 }

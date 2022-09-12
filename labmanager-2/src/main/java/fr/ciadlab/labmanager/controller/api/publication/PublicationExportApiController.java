@@ -16,22 +16,28 @@
 
 package fr.ciadlab.labmanager.controller.api.publication;
 
+import static fr.ciadlab.labmanager.entities.EntityUtils.*;
+
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.util.Collection;
 import java.util.List;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
+import fr.ciadlab.labmanager.io.json.JsonTool;
 import fr.ciadlab.labmanager.io.od.OpenDocumentConstants;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
@@ -350,21 +356,65 @@ public class PublicationExportApiController extends AbstractComponent {
 	/** Read a BibTeX file and replies the publications as JSON.
 	 *
 	 * @param bibtexFile the uploaded BibTeX files.
+	 * @param checkInDb indicates if the entries from the BibTeX should be searched in the database and marked
+	 *    if a similar publication is inside the database.
 	 * @return the list of publications from the BibTeX file.
 	 * @throws Exception if the BibTeX file cannot be used.
 	 */
 	@PostMapping(value = "/" + Constants.GET_JSON_FROM_BIBTEX_ENDPOINT)
 	@ResponseBody
-	public List<Publication> getJsonFromBibTeX(
-			@RequestParam(required = false) MultipartFile bibtexFile) throws Exception {
+	public JsonNode getJsonFromBibTeX(
+			@RequestParam(required = false) MultipartFile bibtexFile,
+			@RequestParam(required = false, name = Constants.CHECKINDB_ENDPOINT_PARAMETER, defaultValue = "false") boolean checkInDb) throws Exception {
 		if (bibtexFile == null || bibtexFile.isEmpty()) {
 			throw new IllegalArgumentException(getMessage("publicationImporterApiController.NoBibTeXSource")); //$NON-NLS-1$
 		}
+		List<Publication> publications;
 		try (final InputStream inputStream = bibtexFile.getInputStream()) {
 			try (final Reader reader = new InputStreamReader(inputStream)) {
-				return this.publicationService.readPublicationsFromBibTeX(reader, true, true, true);
+				publications = this.publicationService.readPublicationsFromBibTeX(reader, true, true, true);
 			}
 		}
+		if (publications != null && !publications.isEmpty()) {
+			final ExporterConfigurator configurator = new ExporterConfigurator(this.journalService);
+			final Procedure2<Publication, ObjectNode> callback;
+			if (checkInDb) {
+				callback = this::checkDuplicates;
+			} else {
+				callback = null;
+			}
+			final JsonNode root = this.publicationService.exportJsonAsTree(publications, configurator, callback, "data"); //$NON-NLS-1$
+			getLogger().info("Providing the JSON representation of the BibTeX publications"); //$NON-NLS-1$
+			return root;
+		}
+		throw new IllegalArgumentException("No publication in the BibTeX file"); //$NON-NLS-1$
+	}
+
+	private void checkDuplicates(Publication publication, ObjectNode json) {
+		final List<Publication> candidates = this.publicationService.getPublicationsByTitle(publication.getTitle());
+		if (!candidates.isEmpty()) {
+			final int year0 = publication.getPublicationYear();
+			final String title0 = normalizeForSimularityTest(publication.getTitle());
+			final String doi0 = normalizeForSimularityTest(publication.getDOI());
+			final String issn0 = normalizeForSimularityTest(publication.getISSN());
+			final String target0 = normalizeForSimularityTest(publication.getPublicationTarget());
+			for (final Publication candidate : candidates) {
+				final int year1 = candidate.getPublicationYear();
+				final String title1 = normalizeForSimularityTest(candidate.getTitle());
+				final String doi1 = normalizeForSimularityTest(candidate.getDOI());
+				final String issn1 = normalizeForSimularityTest(candidate.getISSN());
+				final String target1 = normalizeForSimularityTest(candidate.getPublicationTarget());
+				if (isSimilarWithoutNormalization(
+						year0, title0, doi0, issn0, target0,
+						year1, title1, doi1, issn1, target1)) {
+					json.set(JsonTool.HIDDEN_INTERNAL_DATA_SOURCE_ID_KEY, json.numberNode(candidate.getId()));
+					json.set(JsonTool.HIDDEN_INTERNAL_IMPORTABLE_KEY, json.booleanNode(false));
+					return;
+ 				}
+			}
+		}
+		// By default, indicates that the publication could be imported.
+		json.set(JsonTool.HIDDEN_INTERNAL_IMPORTABLE_KEY, json.booleanNode(true));
 	}
 
 	/** Exporter callback.

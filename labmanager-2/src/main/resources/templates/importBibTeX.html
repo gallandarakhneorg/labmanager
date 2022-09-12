@@ -77,8 +77,12 @@ function getCompatiblePublicationTypes(type) {
 	}
 	return types;
 }
-function postProcessingBibTeXJson(jsonData, textStatus, obj) {
+function postProcessingBibTeXJson(jsonData0, textStatus, obj) {
 	$('#loadingIndicator').hide();
+	var jsonData = jsonData0;
+	if ('data' in jsonData) {
+		jsonData = jsonData['data'];
+	}
 	if (jsonData.length > 0) {
 		$('#form-dynamic-groups').empty();
 
@@ -101,7 +105,8 @@ function postProcessingBibTeXJson(jsonData, textStatus, obj) {
 			$groupElement.append($firstBlock);
 
 			var $checkElement = $('<input></input>').attr('type', 'checkbox');
-			$checkElement = $checkElement.attr('checked', 'true');
+			var isImportable = jsonPub._internalImportable;
+			$checkElement = $checkElement.attr('checked', isImportable);
 			$checkElement = $checkElement.attr('style', 'vertical-align: top;margin-top:5px;');
 			$checkElement = $checkElement.attr('id', 'publicationImport_' + id );
 			$firstBlock.append($checkElement);
@@ -194,6 +199,7 @@ $(document).ready(() => {
 	attachSpinnerAjaxHandler({
 		id: "submitButton",
 		url: "[(${formActionUrl})]",
+		timeout: 500000,
 		text: "[(#{html.Submit})]",
 		prepareData: ($bt, formData) => {
 			var files = $('#fileUploadBibTeX_bibtexFile')[0].files;

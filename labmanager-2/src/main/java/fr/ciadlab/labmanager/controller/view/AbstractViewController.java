@@ -67,9 +67,20 @@ public abstract class AbstractViewController extends AbstractComponent {
 	 * @return the endpoint URL.
 	 */
 	protected String endpoint(String endpointName, String parameterName) {
+		return endpoint(endpointName, parameterName, ""); //$NON-NLS-1$
+	}
+
+	/** Build the URL for accessing an endpoint with the given parameter name, but without setting the parameter value. 
+	 *
+	 * @param endpointName the name of the endpoint.
+	 * @param parameterName the parameter name.
+	 * @param parameterValue the parameter value.
+	 * @return the endpoint URL.
+	 */
+	protected String endpoint(String endpointName, String parameterName, Object value) {
 		final UriBuilder b = endpointUriBuilder(endpointName);
 		if (!Strings.isNullOrEmpty(parameterName)) {
-			b.queryParam(parameterName, ""); //$NON-NLS-1$
+			b.queryParam(parameterName, value);
 		}
 		return b.build().toASCIIString();
 	}

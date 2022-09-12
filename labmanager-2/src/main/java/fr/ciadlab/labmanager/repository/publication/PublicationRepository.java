@@ -48,9 +48,9 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
 	
 	/** Replies the list of publications with the given title.
 	 *
-	 * @param title the title to search for.
+	 * @param title the title to search for, with case insensitive test.
 	 * @return the set of publications with the given title.
 	 */
-	List<Publication> findAllByTitle(String title);
+	List<Publication> findAllByTitleIgnoreCase(String title);
 
 }
