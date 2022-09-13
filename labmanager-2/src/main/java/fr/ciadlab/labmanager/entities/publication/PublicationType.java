@@ -598,6 +598,46 @@ public enum PublicationType {
 			return false;
 		}
 	},
+	/** Seminar in scientific institution at international level.
+	 */
+	INTERNATIONAL_PRESENTATION {
+		@Override
+		public Class<? extends Publication> getInstanceType() {
+			return MiscDocument.class;
+		}
+		@Override
+		public Set<PublicationCategory> getCategories() {
+			return Sets.newHashSet(PublicationCategory.AP);
+		}
+		@Override
+		public PublicationCategory getCategory(boolean isRankedPublication) {
+			return PublicationCategory.AP;
+		}
+		@Override
+		public boolean isInternational() {
+			return true;
+		}
+	},
+	/** Seminar in scientific institution at national level.
+	 */
+	NATIONAL_PRESENTATION {
+		@Override
+		public Class<? extends Publication> getInstanceType() {
+			return MiscDocument.class;
+		}
+		@Override
+		public Set<PublicationCategory> getCategories() {
+			return Sets.newHashSet(PublicationCategory.AP);
+		}
+		@Override
+		public PublicationCategory getCategory(boolean isRankedPublication) {
+			return PublicationCategory.AP;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+	},
 	/** Chapters in a book for scientific culture dissemination.
 	 */
 	SCIENTIFIC_CULTURE_BOOK_CHAPTER {
@@ -632,6 +672,46 @@ public enum PublicationType {
 		@Override
 		public PublicationCategory getCategory(boolean isRankedPublication) {
 			return PublicationCategory.PV;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+	},
+	/** Fourm, public conference or seminar for scientific culture dissemination at international level.
+	 */
+	INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION {
+		@Override
+		public Class<? extends Publication> getInstanceType() {
+			return MiscDocument.class;
+		}
+		@Override
+		public Set<PublicationCategory> getCategories() {
+			return Sets.newHashSet(PublicationCategory.AP);
+		}
+		@Override
+		public PublicationCategory getCategory(boolean isRankedPublication) {
+			return PublicationCategory.AP;
+		}
+		@Override
+		public boolean isInternational() {
+			return true;
+		}
+	},
+	/** Public conference or seminar for scientific culture dissemination at national level.
+	 */
+	NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION {
+		@Override
+		public Class<? extends Publication> getInstanceType() {
+			return MiscDocument.class;
+		}
+		@Override
+		public Set<PublicationCategory> getCategories() {
+			return Sets.newHashSet(PublicationCategory.AP);
+		}
+		@Override
+		public PublicationCategory getCategory(boolean isRankedPublication) {
+			return PublicationCategory.AP;
 		}
 		@Override
 		public boolean isInternational() {

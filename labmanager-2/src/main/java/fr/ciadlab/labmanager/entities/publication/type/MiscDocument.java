@@ -171,7 +171,7 @@ public class MiscDocument extends Publication {
 		} else if (b0) {
 			buf.append(", n. "); //$NON-NLS-1$
 			buf.append(getDocumentNumber());
-		} else {
+		} else if (b1) {
 			buf.append(" ("); //$NON-NLS-1$
 			buf.append(getDocumentType());
 			buf.append(")"); //$NON-NLS-1$

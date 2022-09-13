@@ -68,6 +68,7 @@ import fr.ciadlab.labmanager.service.publication.type.ReportService;
 import fr.ciadlab.labmanager.service.publication.type.ThesisService;
 import fr.ciadlab.labmanager.utils.names.DefaultPersonNameParser;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -525,7 +526,8 @@ public class PublicationServiceTest {
 
 		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
 		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		verify(this.json, only()).exportPublicationsWithRootKeys(arg0.capture(), arg1.capture(), any());
+		ArgumentCaptor<Procedure2> arg2 = ArgumentCaptor.forClass(Procedure2.class);
+		verify(this.json, only()).exportPublicationsAsTreeWithRootKeys(arg0.capture(), arg1.capture(), arg2.capture(), any());
 		Iterable<Publication> it = arg0.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();
@@ -533,6 +535,7 @@ public class PublicationServiceTest {
 		assertSame(this.pub2, iterator.next());
 		assertFalse(iterator.hasNext());
 		assertNotNull(arg1.getValue());
+		assertNull(arg2.getValue());
 	}
 
 	@Test

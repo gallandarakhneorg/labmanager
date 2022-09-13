@@ -112,6 +112,10 @@ public class PublicationTypeTest {
 		assertEquals(PublicationCategory.AP, cons(PublicationType.TEACHING_DOCUMENT).getCategory(true));
 		assertEquals(PublicationCategory.AP, cons(PublicationType.TUTORIAL_DOCUMENTATION).getCategory(true));
 		assertEquals(PublicationCategory.AP, cons(PublicationType.OTHER).getCategory(true));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.INTERNATIONAL_PRESENTATION).getCategory(true));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.NATIONAL_PRESENTATION).getCategory(true));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getCategory(true));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getCategory(true));
 		assertAllTreated();
 	}
 
@@ -152,6 +156,10 @@ public class PublicationTypeTest {
 		assertEquals(PublicationCategory.AP, cons(PublicationType.TEACHING_DOCUMENT).getCategory(false));
 		assertEquals(PublicationCategory.AP, cons(PublicationType.TUTORIAL_DOCUMENTATION).getCategory(false));
 		assertEquals(PublicationCategory.AP, cons(PublicationType.OTHER).getCategory(false));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.INTERNATIONAL_PRESENTATION).getCategory(false));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.NATIONAL_PRESENTATION).getCategory(false));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getCategory(false));
+		assertEquals(PublicationCategory.AP, cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getCategory(false));
 		assertAllTreated();
 	}
 
@@ -192,6 +200,10 @@ public class PublicationTypeTest {
 		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.TEACHING_DOCUMENT).getCategories());
 		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.TUTORIAL_DOCUMENTATION).getCategories());
 		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.OTHER).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.INTERNATIONAL_PRESENTATION).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.NATIONAL_PRESENTATION).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getCategories());
+		assertEquals(Collections.singleton(PublicationCategory.AP), cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getCategories());
 		assertAllTreated();
 	}
 
@@ -232,6 +244,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isInternational());
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isInternational());
 		assertFalse(cons(PublicationType.OTHER).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_PRESENTATION).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isInternational());
+		assertTrue(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isInternational());
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isInternational());
 		assertAllTreated();
 	}
 
@@ -274,6 +290,10 @@ public class PublicationTypeTest {
 		assertEquals("Teaching documents", cons(PublicationType.TEACHING_DOCUMENT).getLabel());
 		assertEquals("Tutorials or documentations", cons(PublicationType.TUTORIAL_DOCUMENTATION).getLabel());
 		assertEquals("Other productions", cons(PublicationType.OTHER).getLabel());
+		assertEquals("International presentation or seminar", cons(PublicationType.INTERNATIONAL_PRESENTATION).getLabel());
+		assertEquals("National presentation or seminar", cons(PublicationType.NATIONAL_PRESENTATION).getLabel());
+		assertEquals("International presentation for scientific culture dissemination", cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getLabel());
+		assertEquals("National presentation for scientific culture dissemination", cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getLabel());
 		assertAllTreated();
 	}
 
@@ -316,6 +336,10 @@ public class PublicationTypeTest {
 		assertEquals("Teaching documents", cons(PublicationType.TEACHING_DOCUMENT).getLabel());
 		assertEquals("Tutorials or documentations", cons(PublicationType.TUTORIAL_DOCUMENTATION).getLabel());
 		assertEquals("Other productions", cons(PublicationType.OTHER).getLabel());
+		assertEquals("International presentation or seminar", cons(PublicationType.INTERNATIONAL_PRESENTATION).getLabel());
+		assertEquals("National presentation or seminar", cons(PublicationType.NATIONAL_PRESENTATION).getLabel());
+		assertEquals("International presentation for scientific culture dissemination", cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getLabel());
+		assertEquals("National presentation for scientific culture dissemination", cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getLabel());
 		assertAllTreated();
 	}
 
@@ -356,6 +380,10 @@ public class PublicationTypeTest {
 		assertEquals("Teaching documents", cons(PublicationType.TEACHING_DOCUMENT).getLabel(Locale.US));
 		assertEquals("Tutorials or documentations", cons(PublicationType.TUTORIAL_DOCUMENTATION).getLabel(Locale.US));
 		assertEquals("Other productions", cons(PublicationType.OTHER).getLabel(Locale.US));
+		assertEquals("International presentation or seminar", cons(PublicationType.INTERNATIONAL_PRESENTATION).getLabel(Locale.US));
+		assertEquals("National presentation or seminar", cons(PublicationType.NATIONAL_PRESENTATION).getLabel(Locale.US));
+		assertEquals("International presentation for scientific culture dissemination", cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getLabel(Locale.US));
+		assertEquals("National presentation for scientific culture dissemination", cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getLabel(Locale.US));
 		assertAllTreated();
 	}
 
@@ -396,6 +424,10 @@ public class PublicationTypeTest {
 		assertEquals("Documents d'enseignement", cons(PublicationType.TEACHING_DOCUMENT).getLabel(Locale.FRANCE));
 		assertEquals("Tutoriels ou documentations", cons(PublicationType.TUTORIAL_DOCUMENTATION).getLabel(Locale.FRANCE));
 		assertEquals("Autres productions", cons(PublicationType.OTHER).getLabel(Locale.FRANCE));
+		assertEquals("Présentation ou séminaire international", cons(PublicationType.INTERNATIONAL_PRESENTATION).getLabel(Locale.FRANCE));
+		assertEquals("Présentation ou séminaire national", cons(PublicationType.NATIONAL_PRESENTATION).getLabel(Locale.FRANCE));
+		assertEquals("Présentation internationale de vulgarisation", cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getLabel(Locale.FRANCE));
+		assertEquals("Présentation nationale de vulgarisation", cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).getLabel(Locale.FRANCE));
 		assertAllTreated();
 	}
 
@@ -469,6 +501,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -510,6 +546,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -551,6 +591,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -592,6 +636,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -633,6 +681,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -674,6 +726,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -715,6 +771,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -756,6 +816,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -797,6 +861,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -838,6 +906,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -879,6 +951,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -920,6 +996,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -961,6 +1041,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1002,6 +1086,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1043,6 +1131,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1084,6 +1176,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1125,6 +1221,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1166,6 +1266,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1207,6 +1311,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1248,6 +1356,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1289,6 +1401,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1330,6 +1446,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1371,6 +1491,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1412,6 +1536,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1453,6 +1581,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1494,6 +1626,10 @@ public class PublicationTypeTest {
 		assertTrue(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertTrue(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1535,6 +1671,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertTrue(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1576,6 +1716,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1617,6 +1761,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1658,6 +1806,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertTrue(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1699,6 +1851,10 @@ public class PublicationTypeTest {
 		assertTrue(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertTrue(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1740,6 +1896,10 @@ public class PublicationTypeTest {
 		assertTrue(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertTrue(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1781,6 +1941,10 @@ public class PublicationTypeTest {
 		assertTrue(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertTrue(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1822,6 +1986,10 @@ public class PublicationTypeTest {
 		assertTrue(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertTrue(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1863,6 +2031,10 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertTrue(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 
@@ -1904,6 +2076,190 @@ public class PublicationTypeTest {
 		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
 		assertFalse(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertAllTreated();
+	}
+
+	@Test
+	public void isCompatibleWith_35() {
+		PublicationType input = PublicationType.INTERNATIONAL_PRESENTATION;
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_CONFERENCE_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_POSTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_POSTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_EDITION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_KEYNOTE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_KEYNOTE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.HDR_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.PHD_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.MASTER_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.EUROPEAN_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.RESEARCH_TRANSFERT_REPORT).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.RESEARCH_TOOL).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.ARTISTIC_PRODUCTION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TECHNICAL_REPORT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.PROJECT_REPORT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertAllTreated();
+	}
+
+	@Test
+	public void isCompatibleWith_36() {
+		PublicationType input = PublicationType.NATIONAL_PRESENTATION;
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_CONFERENCE_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_POSTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_POSTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_EDITION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_KEYNOTE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_KEYNOTE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.HDR_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.PHD_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.MASTER_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.EUROPEAN_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.RESEARCH_TRANSFERT_REPORT).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.RESEARCH_TOOL).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.ARTISTIC_PRODUCTION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TECHNICAL_REPORT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.PROJECT_REPORT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertAllTreated();
+	}
+
+	@Test
+	public void isCompatibleWith_37() {
+		PublicationType input = PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION;
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_CONFERENCE_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_POSTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_POSTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_EDITION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_KEYNOTE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_KEYNOTE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.HDR_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.PHD_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.MASTER_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.EUROPEAN_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.RESEARCH_TRANSFERT_REPORT).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.RESEARCH_TOOL).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.ARTISTIC_PRODUCTION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TECHNICAL_REPORT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.PROJECT_REPORT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertAllTreated();
+	}
+
+	@Test
+	public void isCompatibleWith_38() {
+		PublicationType input = PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION;
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_CONFERENCE_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_CONFERENCE_PAPER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_ORAL_COMMUNICATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_ORAL_COMMUNICATION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_POSTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_POSTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_EDITION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_EDITION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_KEYNOTE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_KEYNOTE).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.HDR_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.PHD_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.MASTER_THESIS).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.INTERNATIONAL_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.EUROPEAN_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.NATIONAL_PATENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.RESEARCH_TRANSFERT_REPORT).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.RESEARCH_TOOL).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_BOOK_CHAPTER).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.SCIENTIFIC_CULTURE_PAPER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.ARTISTIC_PRODUCTION).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TECHNICAL_REPORT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.PROJECT_REPORT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TEACHING_DOCUMENT).isCompatibleWith(input));
+		assertFalse(cons(PublicationType.TUTORIAL_DOCUMENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.OTHER).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
+		assertTrue(cons(PublicationType.NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION).isCompatibleWith(input));
 		assertAllTreated();
 	}
 

@@ -169,6 +169,8 @@ $(document).ready(() => {
 										return row['institution'];
 									} else if (row['publisher']) {
 										return row['publisher'];
+									} else if (row['howPublished']) {
+										return row['howPublished'];
 									} else {
 										console.error("Unknown publication source for:" + JSON.stringify(row));
 										return '<font color="magenta">???</font>';
