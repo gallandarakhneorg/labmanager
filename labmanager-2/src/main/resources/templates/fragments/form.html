@@ -157,7 +157,7 @@
 		       th:value="${value}" th:placeholder="${placeholder}"
 		       min="1980-01" th:max="${maxValue}" pattern="[0-9]{4}-[0-9]{2}"></input>
 		<label th:for="${'monthInput_' + name + '_enableMonth'}" class="col-form-label" th:utext="#{html.EnableMonth}"></label>
-		<input class="form-control" type="checkbox" th:id="${'monthInput_' + name + '_enableMonth'}"
+		<input class="form-control form-check-input" type="checkbox" th:id="${'monthInput_' + name + '_enableMonth'}"
 		       th:checked="${enableMonth}"></input>
     </th:block>
 
