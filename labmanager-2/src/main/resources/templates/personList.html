@@ -13,7 +13,7 @@
         <th th:text="#{html.Vcard}"></th>
         <th th:utext="#{html.LastName}"></th>
         <th th:utext="#{html.FirstName}"></th>
-        <th th:utext="#{html.Gravatar}"></th>
+        <th th:utext="#{html.Photo}"></th>
         <th th:utext="#{html.ORCID}"></th>
         <th th:utext="#{html.Hindex}"></th>
         <th th:utext="#{html.CurrentOrganizations}"></th>
@@ -47,9 +47,10 @@
             </td>
             <td>
                 <img class="person-photo"
-                     th:if="${person.gravatarId != null}"
-                     th:src="${person.getGravatarURL()}"
-                     th:title="${person.gravatarId}"></img></a>
+                     th:if="${person.photoURL != null}"
+                     th:src="${person.photoURL}"
+                     th:title="${person.fullName}"
+                     style="max-width:100px;"></img></a>
             </td>
             <td>
                 <a th:if="${person.ORCID != null}"

@@ -184,7 +184,7 @@ public class DefaultVcardBuilder implements VcardBuilder {
 				break;
 			}
 		}
-		appendPhoto(vcard, person.getGravatarURL());
+		appendPhoto(vcard, person.getPhotoURL());
 		vcard.append(VCARD_END);
 		return vcard.toString();
 	}

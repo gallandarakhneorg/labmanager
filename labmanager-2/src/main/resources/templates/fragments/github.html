@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<th:block th:fragment="githubPicture">
+		<script th:src="@{/js/labmanager/dynamicphoto.js}"></script>
+		<script th:inline="javascript">
+		function refreshGithubPhoto($imageElement, githubId, urlBase = "[(${githubLink})]") {
+			refreshDynamicPhoto($imageElement, githubId, urlBase);
+		}
+		</script>
+	</th:block>
+
+</html>

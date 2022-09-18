@@ -157,7 +157,9 @@ public class PersonViewController extends AbstractViewController {
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		modelAndView.addObject("formActionUrl", rooted(Constants.PERSON_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.PERSON_LIST_ENDPOINT)); //$NON-NLS-1$
-		modelAndView.addObject("gravatarLink", Person.GRAVATAR_URL + "{0}"); //$NON-NLS-1$ //$NON-NLS-2$
+		modelAndView.addObject("gravatarLink", Person.GRAVATAR_URL + "{0}?" + Person.GRAVATAR_SIZE_PARAM + "=50"); //$NON-NLS-1$ //$NON-NLS-2$
+		modelAndView.addObject("googleScholarLink", Person.GOOGLE_SCHOLAR_AVATAR_URL + "{0}&" + Person.GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM + "=50"); //$NON-NLS-1$ //$NON-NLS-2$
+		modelAndView.addObject("githubLink", Person.GITHUB_AVATAR_URL + "{0}?" + Person.GITHUB_AVATAR_SIZE_PARAM + "=50"); //$NON-NLS-1$ //$NON-NLS-2$
 		modelAndView.addObject("defaultGender", Gender.NOT_SPECIFIED); //$NON-NLS-1$
 		modelAndView.addObject("defaultNaming", WebPageNaming.UNSPECIFIED); //$NON-NLS-1$
 		//

@@ -3,6 +3,8 @@
 <th:block th:replace="fragments/general :: allBaseLibs" />
 <th:block th:replace="fragments/form :: formLibs" />
 <th:block th:replace="fragments/gravatar :: gravatarPicture" />
+<th:block th:replace="fragments/googlescholar :: googleScholarPicture" />
+<th:block th:replace="fragments/github :: githubPicture" />
 
 <th:block th:if="${person != null}">
 	<th:block th:replace="fragments/nav :: personListBar*(#{html.EditPerson1(${person.fullName})})"/>
@@ -27,9 +29,9 @@
 	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(gravatarId, #{html.GravatarId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.gravatarId : ''}, personGravatarPhoto)"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(orcid, #{html.ORCID}, #{html.PlaceHolderIdentifierOrcid}, ${person != null ? person.getORCID() : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(researcherId, #{html.ResearcherId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.researcherId : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(googleScholarId, #{html.GoogleScholar}, #{html.PlaceHolderIdentifier}, ${person != null ? person.googleScholarId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(googleScholarId, #{html.GoogleScholar}, #{html.PlaceHolderIdentifier}, ${person != null ? person.googleScholarId : ''}, personGoogleScholarPhoto)"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(linkedInId, #{html.LinkedInId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.linkedInId : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(githubId, #{html.GithubId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.githubId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(githubId, #{html.GithubId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.githubId : ''}, personGithubPhoto)"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(researchGateId, #{html.ResearchGateId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.researchGateId : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(facebookId, #{html.FacebookId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.facebookId : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(dblpURL, #{html.DblpURL}, #{html.PlaceHolderURL}, ${person != null ? person.dblpURL : ''})"></div>
@@ -99,6 +101,20 @@ $(document).ready(function () {
     });
     /*[# th:if="${person != null && person.gravatarId != null && !person.gravatarId.isEmpty()}"]*/
     refreshGravatarPhoto($('#personGravatarPhoto:first'), "[(${person.gravatarId})]");
+    /*[/]*/    
+    $('#textInput_googleScholarId:first').on('change paste keyup', (e) => {
+    	var newGoogleScholarId = $('#textInput_googleScholarId:first').val();
+    	refreshGoogleScholarPhoto($('#personGoogleScholarPhoto:first'), newGoogleScholarId);
+    });
+    /*[# th:if="${person != null && person.googleScholarId != null && !person.googleScholarId.isEmpty()}"]*/
+    refreshGoogleScholarPhoto($('#personGoogleScholarPhoto:first'), "[(${person.googleScholarId})]");
+    /*[/]*/    
+    $('#textInput_githubId:first').on('change paste keyup', (e) => {
+    	var newGithubId = $('#textInput_githubId:first').val();
+    	refreshGithubPhoto($('#personGithubPhoto:first'), newGithubId);
+    });
+    /*[# th:if="${person != null && person.githubId != null && !person.githubId.isEmpty()}"]*/
+    refreshGithubPhoto($('#personGithubPhoto:first'), "[(${person.githubId})]");
     /*[/]*/    
 });
 </script>

@@ -450,24 +450,38 @@ public class PersonTest {
 	}
 
 	@Test
+	public void getGithubAvatarURL_size() {
+		assertNull(this.test.getGithubAvatarURL(150));
+	}
+
+	@Test
+	public void getGithubAvatarURL() {
+		assertNull(this.test.getGithubAvatarURL());
+	}
+
+	@Test
 	public void setGithubId() throws Exception {
 		assertNull(this.test.getGithubId());
 
 		this.test.setGithubId("xyz");
 		assertEquals("xyz", this.test.getGithubId());
 		assertEquals(new URL("https://www.github.com/xyz"), this.test.getGithubURL());
+		assertEquals(new URL("https://avatars.githubusercontent.com/xyz"), this.test.getGithubAvatarURL());
 
 		this.test.setGithubId(null);
 		assertNull(this.test.getGithubId());
 		assertNull(this.test.getGithubURL());
+		assertNull(this.test.getGithubAvatarURL());
 
 		this.test.setGithubId("xyz");
 		assertEquals("xyz", this.test.getGithubId());
 		assertEquals(new URL("https://www.github.com/xyz"), this.test.getGithubURL());
+		assertEquals(new URL("https://avatars.githubusercontent.com/xyz"), this.test.getGithubAvatarURL());
 
 		this.test.setGithubId("");
 		assertNull(this.test.getGithubId());
 		assertNull(this.test.getGithubURL());
+		assertNull(this.test.getGithubAvatarURL());
 	}
 
 	@Test
@@ -528,24 +542,33 @@ public class PersonTest {
 	}
 
 	@Test
+	public void getGoogleScholarAvatarURL() {
+		assertNull(this.test.getGoogleScholarAvatarURL());
+	}
+
+	@Test
 	public void setGoogleScholarId() throws Exception {
 		assertNull(this.test.getGoogleScholarId());
 
 		this.test.setGoogleScholarId("xyz");
 		assertEquals("xyz", this.test.getGoogleScholarId());
 		assertEquals(new URL("https://scholar.google.fr/citations?user=xyz"), this.test.getGoogleScholarURL());
+		assertEquals(new URL("https://scholar.googleusercontent.com/citations?view_op=view_photo&user=xyz"), this.test.getGoogleScholarAvatarURL());
 
 		this.test.setGoogleScholarId(null);
 		assertNull(this.test.getGoogleScholarId());
 		assertNull(this.test.getGoogleScholarURL());
+		assertNull(this.test.getGoogleScholarAvatarURL());
 
 		this.test.setGoogleScholarId("xyz");
 		assertEquals("xyz", this.test.getGoogleScholarId());
 		assertEquals(new URL("https://scholar.google.fr/citations?user=xyz"), this.test.getGoogleScholarURL());
+		assertEquals(new URL("https://scholar.googleusercontent.com/citations?view_op=view_photo&user=xyz"), this.test.getGoogleScholarAvatarURL());
 
 		this.test.setGoogleScholarId("");
 		assertNull(this.test.getGoogleScholarId());
 		assertNull(this.test.getGoogleScholarURL());
+		assertNull(this.test.getGoogleScholarAvatarURL());
 	}
 
 	@Test
@@ -884,6 +907,54 @@ public class PersonTest {
 
 		this.test.setMobilePhone("");
 		assertNull(this.test.getMobilePhone());
+	}
+
+	@Test
+	public void getPhotoURL_none() {
+		assertNull(this.test.getPhotoURL());
+	}
+
+	@Test
+	public void getPhotoURL_gravatar() throws Exception {
+		this.test.setGravatarId("xyz");
+		assertEquals(new URL("https://www.gravatar.com/avatar/xyz"), this.test.getPhotoURL());
+	}
+
+	@Test
+	public void getPhotoURL_github() throws Exception {
+		this.test.setGithubId("xyz");
+		assertEquals(new URL("https://avatars.githubusercontent.com/xyz"), this.test.getPhotoURL());
+	}
+
+	@Test
+	public void getPhotoURL_gravatar_github() throws Exception {
+		this.test.setGravatarId("xyz");
+		this.test.setGithubId("abc");
+		assertEquals(new URL("https://www.gravatar.com/avatar/xyz"), this.test.getPhotoURL());
+	}
+
+	@Test
+	public void getPhotoURL_size_none() {
+		assertNull(this.test.getPhotoURL(150));
+	}
+
+	@Test
+	public void getPhotoURL_size_gravatar() throws Exception {
+		this.test.setGravatarId("xyz");
+		assertEquals(new URL("https://www.gravatar.com/avatar/xyz?s=150"), this.test.getPhotoURL(150));
+	}
+
+	@Test
+	public void getPhotoURL_size_github() throws Exception {
+		this.test.setGithubId("xyz");
+		assertEquals(new URL("https://avatars.githubusercontent.com/xyz?s=150"), this.test.getPhotoURL(150));
+	}
+
+	@Test
+	public void getPhotoURL_size_gravatar_github() throws Exception {
+		this.test.setGravatarId("xyz");
+		this.test.setGithubId("abc");
+		assertEquals(new URL("https://www.gravatar.com/avatar/xyz?s=150"), this.test.getPhotoURL(150));
 	}
 
 }

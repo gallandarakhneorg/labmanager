@@ -8,8 +8,8 @@
         <div class="card">
             <div class="card-body person-card">
 				<img class="person-card-photo person-photo"
-				     th:unless="${!enablePhoto || #strings.isEmpty(person.gravatarId)}"
-				     th:src="${person.getGravatarURL(150).toString()}"></img>
+				     th:if="${enablePhoto && person.photoURL != null}"
+				     th:src="${person.getPhotoURL(150).toString()}"></img>
 				<div class="person-card-name">
 					<span class="person-card-firstname"
 					     th:utext="${person.firstName}"></span>&nbsp;<span

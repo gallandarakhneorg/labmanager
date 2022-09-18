@@ -77,13 +77,33 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	/** Base URL for gravatar pictures.
 	 */
 	public static final String GRAVATAR_URL = "https://www.gravatar.com/avatar/"; //$NON-NLS-1$
+
+	/** HTML query parameter name for specifying the size of an avatar on Gravatar.
+	 */
+	public static final String GRAVATAR_SIZE_PARAM = "s"; //$NON-NLS-1$
+
+	/** Base URL for github pictures.
+	 */
+	public static final String GITHUB_AVATAR_URL = "https://avatars.githubusercontent.com/"; //$NON-NLS-1$
 	
+	/** HTML query parameter name for specifying the size of an avatar on Github.
+	 */
+	public static final String GITHUB_AVATAR_SIZE_PARAM = "s"; //$NON-NLS-1$
+
+	/** Base URL for Google scholar pictures.
+	 */
+	public static final String GOOGLE_SCHOLAR_AVATAR_URL = "https://scholar.googleusercontent.com/citations?view_op=view_photo&user="; //$NON-NLS-1$
+	
+	/** HTML query parameter name for specifying the size of an avatar on Google Scholar.
+	 */
+	public static final String GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM = "s"; //$NON-NLS-1$
+
 	private static final String ORCID_URL = "https://orcid.org/"; //$NON-NLS-1$
 
 	private static final String FACEBOOK_URL = "https://www.facebook.com/"; //$NON-NLS-1$
 
 	private static final String GITHUB_URL = "https://www.github.com/"; //$NON-NLS-1$
-
+	
 	private static final String LINKEDIN_URL = "http://linkedin.com/in/"; //$NON-NLS-1$
 
 	/** Before 2022, ResearcherId was linked to Publons.
@@ -95,8 +115,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	private static final String GOOGLESCHOLAR_URL = "https://scholar.google.fr/citations?user="; //$NON-NLS-1$
 
 	private static final String RESEARCHGATE_URL = "http://www.researchgate.net/profile/"; //$NON-NLS-1$
-
-	private static final String GRAVATAR_SIZE_PARAM = "s"; //$NON-NLS-1$
 
 	/** Identifier of a person.
 	 */
@@ -918,12 +936,50 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	/** Replies the URL of the person on Github.
 	 *
 	 * @return the URL.
+	 * @see #getGithubAvatarURL()
 	 */
 	public final URL getGithubURL() {
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
 
 				return new URL(GITHUB_URL + getGithubId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Replies the URL of the person's avatar on Github.
+	 *
+	 * @return the URL.
+	 * @see #getGithubURL()
+	 * @see #getPhotoURL()
+	 */
+	public final URL getGithubAvatarURL() {
+		if (!Strings.isNullOrEmpty(getGithubId())) {
+			try {
+
+				return new URL(GITHUB_AVATAR_URL + getGithubId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Replies the URL of the person's avatar on Github with a specific size.
+	 *
+	 * @param size the expecting size of the photo, in pixels.
+	 * @return the URL.
+	 * @see #getGithubURL()
+	 * @see #getPhotoURL()
+	 */
+	public final URL getGithubAvatarURL(int size) {
+		if (!Strings.isNullOrEmpty(getGithubId())) {
+			try {
+
+				return new URL(GITHUB_AVATAR_URL + getGithubId() + "?" + GITHUB_AVATAR_SIZE_PARAM + "=" + Integer.toString(size));
 			} catch (Throwable ex) {
 				//
 			}
@@ -1020,6 +1076,41 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			try {
 
 				return new URL(GOOGLESCHOLAR_URL + getGoogleScholarId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Replies the URL of the person's avatar on Google scholar.
+	 *
+	 * @return the URL.
+	 * @see #getGoogleScholarURL()
+	 * @see #getPhotoURL()
+	 */
+	public final URL getGoogleScholarAvatarURL() {
+		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
+			try {
+				return new URL(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Replies the URL of the person's avatar on Google Scholar with a specific size.
+	 *
+	 * @param size the expecting size of the photo, in pixels.
+	 * @return the URL.
+	 * @see #getGoogleScholarURL()
+	 * @see #getPhotoURL()
+	 */
+	public final URL getGoogleScholarAvatarURL(int size) {
+		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
+			try {
+				return new URL(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId() + "&" + GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM + "=" + Integer.toString(size));
 			} catch (Throwable ex) {
 				//
 			}
@@ -1142,6 +1233,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	/** Replies the URL to the photo of the person that is provided by Gravatar.
 	 *
 	 * @return the URL, or {@code null} if none.
+	 * @see #getPhotoURL()
 	 */
 	public final URL getGravatarURL() {
 		final String id = getGravatarId();
@@ -1159,6 +1251,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @param size the expecting size of the photo, in pixels.
 	 * @return the URL, or {@code null} if none.
+	 * @see #getPhotoURL(int)
 	 */
 	public final URL getGravatarURL(int size) {
 		final String id = getGravatarId();
@@ -1301,6 +1394,54 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			return null;
 		}
 		return status.get();
+	}
+
+
+	/** Replies the URL to the photo of the person that is provided by one of the sources (Gravatar, Github, ...).
+	 *
+	 * @return the URL, or {@code null} if none.
+	 * @see #getGravatarURL()
+	 * @see #getGithubAvatarURL()
+	 * @see #getGoogleScholarAvatarURL()
+	 */
+	public final URL getPhotoURL() {
+		URL url = getGravatarURL();
+		if (url != null) {
+			return url;
+		}
+		url = getGithubAvatarURL();
+		if (url != null) {
+			return url;
+		}
+		url = getGoogleScholarAvatarURL();
+		if (url != null) {
+			return url;
+		}
+		return null;
+	}
+
+	/** Replies the URL to the photo of the person that is provided by one of the sources (Gravatar, Github, ...).
+	 *
+	 * @param size the expecting size of the photo, in pixels.
+	 * @return the URL, or {@code null} if none.
+	 * @see #getGravatarURL(int)
+	 * @see #getGithubAvatarURL(int)
+	 * @see #getGoogleScholarAvatarURL(int)
+	 */
+	public final URL getPhotoURL(int size) {
+		URL url = getGravatarURL(size);
+		if (url != null) {
+			return url;
+		}
+		url = getGithubAvatarURL(size);
+		if (url != null) {
+			return url;
+		}
+		url = getGoogleScholarAvatarURL(size);
+		if (url != null) {
+			return url;
+		}
+		return null;
 	}
 
 }
