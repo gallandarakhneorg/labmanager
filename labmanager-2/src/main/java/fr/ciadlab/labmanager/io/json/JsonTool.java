@@ -409,9 +409,15 @@ public abstract class JsonTool {
 							|| Boolean.class.isAssignableFrom(meth.getReturnType())
 							|| LocalDate.class.isAssignableFrom(meth.getReturnType())
 							|| Character.class.isAssignableFrom(meth.getReturnType()))
-					&& name.startsWith(GETTER_FUNCTION_PREFIX)) {
-				final String attrName = toLowerFirst(meth.getName().substring(GETTER_FUNCTION_PREFIX.length()));
-				getters.put(attrName, meth);
+					&& (name.startsWith(GETTER_FUNCTION_PREFIX)
+							|| name.startsWith(IS_GETTER_FUNCTION_PREFIX))) {
+				if (name.startsWith(IS_GETTER_FUNCTION_PREFIX)) {
+					final String attrName = toLowerFirst(meth.getName().substring(IS_GETTER_FUNCTION_PREFIX.length()));
+					getters.put(attrName, meth);
+				} else {
+					final String attrName = toLowerFirst(meth.getName().substring(GETTER_FUNCTION_PREFIX.length()));
+					getters.put(attrName, meth);
+				}
 			}
 		}
 		//
