@@ -241,7 +241,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 			consumer.accept("conrsSection", Integer.valueOf(getConrsSection().getNumber())); //$NON-NLS-1$
 		}
 		if (getFrenchBap() != null) {
-			consumer.accept("frenchBap", Integer.valueOf(getFrenchBap().getShortName())); //$NON-NLS-1$
+			consumer.accept("frenchBap", getFrenchBap().getShortName()); //$NON-NLS-1$
 		}
 		if (getMemberSinceWhen() != null) {
 			consumer.accept("memberSinceWhen", getMemberSinceWhen()); //$NON-NLS-1$
