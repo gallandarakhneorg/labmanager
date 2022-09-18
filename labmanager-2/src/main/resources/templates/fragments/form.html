@@ -148,7 +148,7 @@
 	<div th:fragment="textAreaInput(name, label, placeholder, value)" class="form-group">
 		<label th:for="${'textAreaInput_' + name}" class="col-form-label" th:utext="${label}"></label>
 		<textarea class="form-control" rows="10" wrap="soft" th:placeholder="${placeholder}"
-		          th:value="${value}" th:id="${'textAreaInput_' + name}" th:name="${name}"></textarea>
+		          th:utext="${value}" th:id="${'textAreaInput_' + name}" th:name="${name}"></textarea>
     </div>
 
 	<th:block th:fragment="monthInputBase(name, label, value, maxValue, enableMonth, className)" class="form-group">
