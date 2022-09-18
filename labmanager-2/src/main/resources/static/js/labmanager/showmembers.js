@@ -21,8 +21,12 @@ function initMemberDataTable(config) {
 		columns: [
 			{
 				data: "memberType",
+				defaultContent: '',
 				render: (data, type, row) => {
-					return config['types'][data]['order'];
+					if (data in config['types'] && 'order' in config['types'][data] && config['types'][data]['order']) {
+						return config['types'][data]['order'];
+					}
+					return '';
 				},
 				type: 'num',
 				visible: false,
@@ -32,6 +36,7 @@ function initMemberDataTable(config) {
 			},
 			{
 				data: "person",
+				defaultContent: '',
 				render: (data, type, row) => {
 					var name = data.fullNameWithLastNameFirst;
 					if (!name) {
@@ -60,8 +65,12 @@ function initMemberDataTable(config) {
 			},
 			{
 				data: "memberStatus",
+				defaultContent: '',
 				render: (data, type, row) => {
-					return config['statusLabels'][data];
+					if (data in config['statusLabels'] && config['statusLabels'][data]) {
+						return config['statusLabels'][data];
+					}
+					return '';
 				},
 				searchPanes: {
 					show: true,
@@ -69,9 +78,13 @@ function initMemberDataTable(config) {
 			},
 			{
 				data: "responsibility",
+				defaultContent: '',
 				render: (data, type, row) => {
 					var key = data + '_' + row.person.gender;
-					return config['responsibilityLabels'][key];
+					if (key in config['responsibilityLabels'] && config['responsibilityLabels'][key]) {
+						return config['responsibilityLabels'][key];
+					}
+					return '';
 				},
 				searchPanes: {
 					show: true,
@@ -79,6 +92,7 @@ function initMemberDataTable(config) {
 			},
 			{
 				data: "memberType",
+				defaultContent: '',
 				visible: false,
 				searchPanes: {
 					show: false,
@@ -86,6 +100,7 @@ function initMemberDataTable(config) {
 			},
 			{
 				data: "otherOrganizations",
+				defaultContent: '',
 				render: (data, type, row) => {
 					if (data) {
 						return data.map((it) => {

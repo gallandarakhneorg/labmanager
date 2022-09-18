@@ -47,7 +47,7 @@ $(document).ready(() => {
 		types: {
 	        /*[# th:each="type : ${T(fr.ciadlab.labmanager.controller.api.member.GeneralMemberType).values()}"]*/
 			"[(${type.name})]": {
-				label: "[(${type.getLabel(locale)})]",
+				label: [[${type.getLabel(locale)}]],
 				order: [[${type.ordinal}]],
 			},
 	        /*[/]*/
