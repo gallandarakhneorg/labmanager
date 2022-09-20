@@ -74,6 +74,7 @@ Consquently, a publication (i.e., the result of an academic publishing) is assoc
 
 
 Each publication type is associated to a category that is defined by the French research agencies (ANR, HCERES, CNU): 
+
 * ACL: Articles in international or national journals with selection commitee and ranked in international databases.
 * ACLN: Articles in international or national journals with selection committee and not ranked in international databases.
 * ASCL: Articles in international or national journals without selection committee.
