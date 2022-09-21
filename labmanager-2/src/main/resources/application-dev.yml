@@ -1,5 +1,11 @@
 # This configuration is activated if you active the "dev" profile:
-#   -Dspring.profiles.active=default,dev
+#   -Dspring.profiles.active=dev
+
+logging:
+  level:
+    fr.ciadlab: DEBUG
+  file:
+    path: /tmp/ciadlab
 
 spring:
   datasource:

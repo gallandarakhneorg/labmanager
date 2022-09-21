@@ -979,7 +979,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
 
-				return new URL(GITHUB_AVATAR_URL + getGithubId() + "?" + GITHUB_AVATAR_SIZE_PARAM + "=" + Integer.toString(size));
+				return new URL(GITHUB_AVATAR_URL + getGithubId() + "?" + GITHUB_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Throwable ex) {
 				//
 			}
@@ -1110,7 +1110,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getGoogleScholarAvatarURL(int size) {
 		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
 			try {
-				return new URL(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId() + "&" + GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM + "=" + Integer.toString(size));
+				return new URL(GOOGLE_SCHOLAR_AVATAR_URL + getGoogleScholarId() + "&" + GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Throwable ex) {
 				//
 			}

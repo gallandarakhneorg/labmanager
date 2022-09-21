@@ -61,6 +61,8 @@ public class EntityComparatorInjector {
 	@Autowired
 	private JournalComparator journalComparator;
 
+	/** Invoked by the Spring engine is started and this injector is created in memory.
+	 */
 	@PostConstruct
 	public void postConstruct() {
 		EntityUtils.setPreferredResearchOrganizationComparator(this.organizationComparator);

@@ -100,13 +100,21 @@ public class BaseMessageSource {
 		return new MessageSourceAccessor(source, Locale.US);
 	}
 
-
+	/** Replies the source of the localized messages.
+	 *
+	 * @return the manager of the messages.
+	 */
 	@SuppressWarnings("static-method")
 	@Bean(name = "messageSource")
 	public MessageSource getMessageSource() {
 		return createMessageSource();
 	}
 
+	/** Replies the tool for accessing to the localized source that is provided as argument.
+	 *
+	 * @param messageSource the source to embed.
+	 * @return the accessor to the message source.
+	 */
 	@SuppressWarnings("static-method")
 	@Bean
 	public MessageSourceAccessor getMessageSourceAccessor(final MessageSource messageSource) {
@@ -126,6 +134,9 @@ public class BaseMessageSource {
 		@Autowired
 		private MessageSourceAccessor messages;
 
+		/**
+		 * Invoked by Spring engine after the class is created in memory.
+		 */
 		@PostConstruct
 		public void postConstruct() {
 			for (final ResearchOrganizationType item : EnumSet.allOf(ResearchOrganizationType.class)) {

@@ -484,6 +484,7 @@ public class PublicationService extends AbstractService {
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
 	 */
+	@SuppressWarnings("null")
 	public List<Integer> importPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.

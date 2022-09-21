@@ -35,6 +35,10 @@ import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 @EnableSpringConfigured
 public class LabManagerApplication extends SpringBootServletInitializer {
 
+	/** Main program for the LabManager server.
+	 *
+	 * @param args arguments.
+	 */
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
 		SpringApplication.run(LabManagerApplication.class, args);

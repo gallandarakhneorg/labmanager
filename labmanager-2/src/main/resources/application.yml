@@ -1,3 +1,12 @@
+logging:
+  level:
+    root: WARN
+    org.springframework.web: WARN
+    org.hibernate: WARN
+    fr.ciadlab: INFO
+  file:
+    path: /var/log/tomcat9
+
 spring:
   jpa:
     open-in-view: true
@@ -13,8 +22,8 @@ spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/labmanager?serverTimezone=UTC
-    #username: root
-    #password: JeSuisUnNouveauMotDePasse!1
+    username: ciadlabwpbdd
+    password: ci@dlAbpas$
 
   servlet:
     multipart:
@@ -43,7 +52,10 @@ management:
 
 labmanager:
   default-organization: CIAD
+  init:
+    enable: true
+    data-source: /var/www/ciad-lab.fr/
   file:
-    upload-directory: /tmp/LabManagerApi
+    upload-directory: /var/www/ciad-lab.fr/
   web:
-    publish-resources: /tmp/LabManagerApi/Downloadables/
+    publish-resources: /var/www/ciad-lab.fr/Downloadables/
