@@ -59,3 +59,4 @@ labmanager:
     upload-directory: /var/www/ciad-lab.fr/
   web:
     publish-resources: /var/www/ciad-lab.fr/Downloadables/
+  debug: false
