@@ -28,6 +28,9 @@
             </td>
             <td>
             	<a th:href="@{/showPersonCard(person=${person.id})}" class="noLink"><span class="fa-solid fa-address-card"></span></a>
+            	<a th:href="${person.webPageURI}"
+            	   th:if="${person.webPageURI != null}"
+            	   class="noLink"><span class="fa-solid fa-house"></span></a>
             </td>
             <td th:with="actives = ${person.activeMemberships}">
 	                <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
