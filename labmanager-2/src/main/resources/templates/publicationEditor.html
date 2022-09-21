@@ -22,7 +22,7 @@
 		        th:value="${type.name + '/' + type.instanceType.simpleName}"
 		        th:utext="${type.getLabel(locale) + ' ' + type.categories.toString()}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(title, #{html.Title}, #{html.PlaceHolderTitle}, ${shared_itle ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput*(title, #{html.Title}, #{html.PlaceHolderTitle}, ${shared_title ?: ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(authors, #{html.Authors})"></div>
 	<div class="form-group" th:replace="fragments/form :: monthInput*(publicationDate, #{html.PublicationDate}, ${dateYearMonth}, ${maxDateYearMonth}, ${dateYearMonth_enableMonth})"></div>
 	<div class="form-group" th:replace="fragments/form :: comboInputDynamic*(journal, #{html.Journal}, ~{::option#option-journal})">
