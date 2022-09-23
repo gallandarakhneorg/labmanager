@@ -34,6 +34,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.service.member.PersonService;
+import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
@@ -65,6 +66,8 @@ public class MembershipViewController extends AbstractViewController {
 
 	private PersonService personService;
 
+	private ResearchOrganizationService organizationService;
+
 	private ResearchOrganizationRepository organizationRepository;
 
 	private ChronoMembershipComparator membershipComparator;
@@ -76,6 +79,7 @@ public class MembershipViewController extends AbstractViewController {
 	 * @param constants the constants of the app.
 	 * @param nameParser the parser of person names.
 	 * @param personService the service related to the persons.
+	 * @param organizationService the service related to the research organizations.
 	 * @param organizationRepository the repository of the research organizations.
 	 * @param membershipComparator the comparator of memberships to use for building the views with
 	 *     a chronological point of view.
@@ -86,11 +90,13 @@ public class MembershipViewController extends AbstractViewController {
 			@Autowired Constants constants,
 			@Autowired PersonNameParser nameParser,
 			@Autowired PersonService personService,
+			@Autowired ResearchOrganizationService organizationService,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired ChronoMembershipComparator membershipComparator) {
 		super(messages, constants);
 		this.nameParser = nameParser;
 		this.personService = personService;
+		this.organizationService = organizationService;
 		this.organizationRepository = organizationRepository;
 		this.membershipComparator = membershipComparator;
 	}
@@ -203,6 +209,7 @@ public class MembershipViewController extends AbstractViewController {
 	 * is more dedicated to the administration of the data-set.
 	 *
 	 * @param organization the identifier of the organization for which the publications must be exported.
+	 * @param organizationAcronym the acronym of the organization for which the publications must be exported.
 	 * @param includeSuborganizations indicates if the sub-organizations are included.
 	 * @param enableFilters indicates if the "Filters" box should be visible.
 	 * @param username the login of the logged-in person.
@@ -212,13 +219,29 @@ public class MembershipViewController extends AbstractViewController {
 	@GetMapping("/showMembers")
 	public ModelAndView showMembers(
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false) String organizationAcronym,
 			@RequestParam(required = false, name = Constants.INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "true") boolean enableFilters,
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
 		final ModelAndView modelAndView = new ModelAndView("showMembers"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);
 		//
-		addUrlToMemberListEndPoint(modelAndView, organization, includeSuborganizations);
+		int organizationId = 0;
+		final Integer organizationIdObj;
+		if (organization != null && organization.intValue() != 0) {
+			organizationIdObj = Integer.valueOf(organizationId);
+		} else if (!Strings.isNullOrEmpty(organizationAcronym)) {
+			final ResearchOrganization org = getOrganizationWith(organizationAcronym, this.organizationService);
+			if (org != null) {
+				organizationIdObj = Integer.valueOf(org.getId());
+			} else {
+				organizationIdObj = null;
+			}
+		} else {
+			organizationIdObj = null;
+		}
+		//
+		addUrlToMemberListEndPoint(modelAndView, organizationIdObj, includeSuborganizations);
 		//
 		modelAndView.addObject("enableFilters", Boolean.valueOf(enableFilters)); //$NON-NLS-1$
 		return modelAndView;

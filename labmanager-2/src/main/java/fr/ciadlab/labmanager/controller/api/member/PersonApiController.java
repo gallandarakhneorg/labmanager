@@ -237,7 +237,7 @@ public class PersonApiController extends AbstractComponent {
 			throw new IllegalArgumentException("Person not found"); //$NON-NLS-1$
 		}
 		//
-		final ResearchOrganization organizationObj = getOrganizarionWith(organization, this.organizationService);
+		final ResearchOrganization organizationObj = getOrganizationWith(organization, this.organizationService);
 		//
 		final String content = this.vcardBuilder.build(personObj, organizationObj);
 		//

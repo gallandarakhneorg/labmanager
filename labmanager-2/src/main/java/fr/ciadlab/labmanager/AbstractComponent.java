@@ -321,7 +321,7 @@ public abstract class AbstractComponent {
 	 * @param organizationService the service that permits to access to the organization object.
 	 * @return the organization or {@code null}.
 	 */
-	protected static ResearchOrganization getOrganizarionWith(String organization, ResearchOrganizationService organizationService) {
+	protected static ResearchOrganization getOrganizationWith(String organization, ResearchOrganizationService organizationService) {
 		if (!Strings.isNullOrEmpty(organization)) {
 			try {
 				final int id = Integer.parseInt(organization);

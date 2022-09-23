@@ -206,7 +206,7 @@ public class PersonViewController extends AbstractViewController {
 			throw new IllegalArgumentException("Person not found"); //$NON-NLS-1$
 		}
 		//
-		final ResearchOrganization organizationObj = getOrganizarionWith(organization, this.organizationService);
+		final ResearchOrganization organizationObj = getOrganizationWith(organization, this.organizationService);
 		//
 		Stream<Membership> stream = personObj.getMemberships().stream().parallel();
 		if (organizationObj == null) {

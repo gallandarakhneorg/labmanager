@@ -37,12 +37,14 @@ import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
+import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +78,8 @@ public class PublicationViewController extends AbstractViewController {
 
 	private PersonService personService;
 
+	private ResearchOrganizationService organizationService;
+
 	private PersonComparator personComparator;
 
 	private DownloadableFileManager fileManager;
@@ -89,6 +93,7 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param constants the constants of the app.
 	 * @param publicationService the publication service.
 	 * @param personService the person service.
+	 * @param organizationService the research organization service.
 	 * @param personComparator the comparator of persons.
 	 * @param fileManager the manager of local files.
 	 * @param journalService the tools for manipulating journals.
@@ -98,12 +103,14 @@ public class PublicationViewController extends AbstractViewController {
 			@Autowired Constants constants,
 			@Autowired PublicationService publicationService,
 			@Autowired PersonService personService,
+			@Autowired ResearchOrganizationService organizationService,
 			@Autowired PersonComparator personComparator,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired JournalService journalService) {
 		super(messages, constants);
 		this.publicationService = publicationService;
 		this.personService = personService;
+		this.organizationService = organizationService;
 		this.personComparator = personComparator;
 		this.fileManager = fileManager;
 		this.journalService = journalService;
@@ -148,6 +155,7 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param dbId the database identifier of the author for who the publications must be exported.
 	 * @param webId the webpage identifier of the author for who the publications must be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
+	 * @param organizationAcronym the acronym of the organization for which the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
 	 * @param enableExports indicates if the "exports" box should be visible.
 	 * @param enableSearch indicates if the "Search" box should be visible.
@@ -166,6 +174,7 @@ public class PublicationViewController extends AbstractViewController {
 			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
 			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false) String organizationAcronym,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") boolean enableExports,
 			@RequestParam(required = false, defaultValue = "true") boolean enableSearch,
@@ -178,7 +187,22 @@ public class PublicationViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView("showPublications"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);
 		//
-		addUrlToPublicationListEndPoint(modelAndView, dbId, webId, organization, journal);
+		int organizationId = 0;
+		final Integer organizationIdObj;
+		if (organization != null && organization.intValue() != 0) {
+			organizationIdObj = Integer.valueOf(organizationId);
+		} else if (!Strings.isNullOrEmpty(organizationAcronym)) {
+			final ResearchOrganization org = getOrganizationWith(organizationAcronym, this.organizationService);
+			if (org != null) {
+				organizationIdObj = Integer.valueOf(org.getId());
+			} else {
+				organizationIdObj = null;
+			}
+		} else {
+			organizationIdObj = null;
+		}
+		//
+		addUrlToPublicationListEndPoint(modelAndView, dbId, webId, organizationIdObj, journal);
 		//
 		modelAndView.addObject("enableFilters", Boolean.valueOf(enableFilters)); //$NON-NLS-1$
 		modelAndView.addObject("enableYearFilter", Boolean.valueOf(enableYearFilter)); //$NON-NLS-1$
@@ -197,11 +221,11 @@ public class PublicationViewController extends AbstractViewController {
 		if (enableExports) {
 			final UriBuilderFactory factory = new DefaultUriBuilderFactory();
 			modelAndView.addObject("endpoint_export_bibtex", //$NON-NLS-1$
-					buildUri(factory, dbId, webId, organization, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
+					buildUri(factory, dbId, webId, organizationIdObj, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
 			modelAndView.addObject("endpoint_export_odt", //$NON-NLS-1$
-					buildUri(factory, dbId, webId, organization, journal, Constants.EXPORT_ODT_ENDPOINT));
+					buildUri(factory, dbId, webId, organizationIdObj, journal, Constants.EXPORT_ODT_ENDPOINT));
 			modelAndView.addObject("endpoint_export_html", //$NON-NLS-1$
-					buildUri(factory, dbId, webId, organization, journal, Constants.EXPORT_HTML_ENDPOINT));
+					buildUri(factory, dbId, webId, organizationIdObj, journal, Constants.EXPORT_HTML_ENDPOINT));
 		}
 		//
 		modelAndView.addObject("enableSearch", Boolean.valueOf(enableSearch)); //$NON-NLS-1$
