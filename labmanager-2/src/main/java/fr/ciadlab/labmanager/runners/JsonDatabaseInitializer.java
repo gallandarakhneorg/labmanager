@@ -154,7 +154,7 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	protected URL getDataScriptURL() {
 		final URL url = getDataScriptURLInWar();
 		if (url != null) {
-			return null;
+			return url;
 		}
 		return getDataScriptURLInLocalFileSystem();
 	}
