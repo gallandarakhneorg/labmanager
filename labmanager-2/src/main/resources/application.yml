@@ -21,9 +21,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/labmanager?serverTimezone=UTC
-    username: ciadlabwpbdd
-    password: ci@dlAbpas$
+    url: jdbc:mysql://localhost:3306/*****?serverTimezone=UTC
+    username: *****
+    password: *****
 
   servlet:
     multipart:
