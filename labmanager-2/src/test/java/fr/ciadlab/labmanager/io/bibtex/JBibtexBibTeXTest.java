@@ -5,8 +5,8 @@
  * All rights reserved.
  *
  * This software is the confidential and proprietary information
- * of the CIAD laboratory and the Université de Technologie
- * de Belfort-Montbéliard ("Confidential Information").
+ * of the CIAD laboratory and the Universite de Technologie
+ * de Belfort-Montbeliard ("Confidential Information").
  * You shall not disclose such Confidential Information and shall use
  * it only in accordance with the terms of the license agreement
  * you entered into with the CIAD-UTBM.
@@ -370,9 +370,9 @@ public class JBibtexBibTeXTest {
 		assertTrue(p instanceof ConferencePaper);
 		verify(this.prePublicationFactory).createPrePublication(
 				eq(PublicationType.INTERNATIONAL_CONFERENCE_PAPER),
-				eq("Déploiement d?un système de détection automatisé des situations à risque de décompensation de comorbidités."),
-				eq("Déploiement d?un système de détection automatisé des situations à risque de décompensation de comorbidités."),
-				eq("télémédecine, ontologies, insuffisants cardiaques, esanté,"),
+				eq("Deploiement d?un systeme de detection automatise des situations a risque de decompensation de comorbidites."),
+				eq("Deploiement d?un systeme de detection automatise des situations a risque de decompensation de comorbidites."),
+				eq("telemedecine, ontologies, insuffisants cardiaques, esante,"),
 				eq(LocalDate.parse("2015-04-01")),
 				eq(2015),
 				isNull(),
@@ -387,7 +387,7 @@ public class JBibtexBibTeXTest {
 				eq(PublicationLanguage.ENGLISH));
 		verify(this.conferencePaperService).createConferencePaper(
 				any(),
-				eq("Communication au Congrès de la Société Française d?Hématologie, Paris"),
+				eq("Communication au Congres de la Societe Française d?Hematologie, Paris"),
 				isNull(),
 				isNull(),
 				isNull(),
