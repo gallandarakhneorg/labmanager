@@ -109,6 +109,16 @@ public class PersonService extends AbstractService {
 		return byId.orElse(null);
 	}
 
+	/** Replies the person with the given webpage identifier.
+	 *
+	 * @param identifier the identifier of the webpage of the person.
+	 * @return the person, or {@code null} if none.
+	 */
+	public Person getPersonByWebPageId(String identifier) {
+		final Optional<Person> byId = this.personRepository.findDistinctByWebPageId(identifier);
+		return byId.orElse(null);
+	}
+
 	/** Create a person in the database by providing only the name of the person.
 	 *
 	 * @param firstName the first name of the person.

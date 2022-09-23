@@ -238,6 +238,15 @@ public class PublicationService extends AbstractService {
 		return this.publicationRepository.findAllByAuthorshipsPersonId(identifier);
 	}
 
+	/** Replies all the publications from the database that are attached to the person with the given webpage identifier.
+	 *
+	 * @param identifier the identifier of the person's webpage.
+	 * @return the publications.
+	 */
+	public List<Publication> getPublicationsByPersonWebPageId(String identifier) {
+		return this.publicationRepository.findAllByAuthorshipsPersonWebPageId(identifier);
+	}
+
 	/** Replies all the publications from the database that are attached to a person involved in the given organization.
 	 *
 	 * @param identifier the identifier of the organization.

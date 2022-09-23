@@ -37,7 +37,12 @@
             	<th:block th:each="authorship, iAuthorship : ${publication.authorships}">
                     <th:block th:unless="${iAuthorship.first}"
                               th:utext="', '"></th:block>
-					<a th:href="@{/showPublicationStats(id=${authorship.person.id})}">
+					<a th:if="${authorship.person.webPageId != null}"
+					   th:href="@{/showPublicationStats(webId=${authorship.person.webPageId})}">
+	                    <th:block th:utext="${authorship.person.fullName}"></th:block>
+					</a>
+					<a th:if="${authorship.person.webPageId == null}"
+					   th:href="@{/showPublicationStats(dbId=${authorship.person.id})}">
 	                    <th:block th:utext="${authorship.person.fullName}"></th:block>
 					</a>
             	</th:block>

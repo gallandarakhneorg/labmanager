@@ -144,11 +144,17 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Column
 	private String email;
 
-	/** Naming convention for the webpage of the person..
+	/** Naming convention for the webpage of the person.
 	 */
 	@Column(nullable = true)
 	@Enumerated(EnumType.STRING)
 	private WebPageNaming webPageNaming;
+
+	/** Identifier for the wb page of the person.
+	 * This information is stored in the database for accelerating the JPA queries.
+	 */
+	@Column(nullable = true)
+	private String webPageId;
 
 	/** ORCID of the person.
 	 */
@@ -454,7 +460,15 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (getWosHindex() > 0) {
 			consumer.accept("wosHindex", Integer.valueOf(getWosHindex())); //$NON-NLS-1$
 		}
-		consumer.accept("webPageURI", getWebPageURI()); //$NON-NLS-1$
+		if (getWebPageNaming() != null) {
+			consumer.accept("webPageNaming", getWebPageNaming()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getWebPageId())) {
+			consumer.accept("webPageId", getWebPageId()); //$NON-NLS-1$
+		}
+		if (getWebPageURI() != null) {
+			consumer.accept("webPageURI", getWebPageURI()); //$NON-NLS-1$
+		}
 	}
 
 	@Override
@@ -532,6 +546,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public void setFirstName(String name) {
 		this.firstName = Strings.emptyToNull(name);
+		resetWebPageId();
 	}
 
 	/** Replies the last name of the person.
@@ -548,6 +563,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public void setLastName(String name) {
 		this.lastName = Strings.emptyToNull(name);
+		resetWebPageId();
 	}
 
 	/** Replies the sequence of first and last names of the person.
@@ -582,6 +598,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public void setEmail(String email) {
 		this.email = Strings.emptyToNull(email);
+		resetWebPageId();
 	}
 
 	/** Replies the naming convention for the webpage of the person.
@@ -595,12 +612,24 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		return this.webPageNaming;
 	}
 
+	/** Recompute and reset the field for the webpage id.
+	 */
+	protected void resetWebPageId() {
+		final WebPageNaming naming = getWebPageNaming();
+		if (naming == null) {
+			this.webPageId = null;
+		} else {
+			this.webPageId = naming.getWebpageIdFor(this);
+		}
+	}
+
 	/** Change the naming convention for the webpage of the person.
 	 *
 	 * @param namingConvention the new naming convention.
 	 */
 	public void setWebPageNaming(WebPageNaming namingConvention) {
 		this.webPageNaming = namingConvention;
+		resetWebPageId();
 	}
 
 	/** Change the naming convention for the webpage of the person.
@@ -621,6 +650,22 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public URI getWebPageURI() {
 		return getWebPageNaming().getWebpageURIFor(this);
+	}
+
+	/** Replies the identifier of the webpage of the person.
+	 *
+	 * @param id the identifier or {@code null}.
+	 */
+	public void setWebPageId(String id) {
+		this.webPageId = Strings.emptyToNull(id);
+	}
+
+	/** Replies the identifier of the webpage of the person.
+	 *
+	 * @return the identifier or {@code null}.
+	 */
+	public String getWebPageId() {
+		return this.webPageId;
 	}
 
 	/** Replies the ORCID of the person.

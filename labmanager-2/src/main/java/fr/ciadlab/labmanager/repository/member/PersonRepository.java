@@ -42,6 +42,13 @@ public interface PersonRepository extends JpaRepository<Person, Integer> {
 	 */
 	Optional<Person> findDistinctByFirstNameAndLastName(String firstName, String lastName);
 
+	/** Replies a person who has the given identifier for her/his webpage.
+	 * 
+	 * @param identifier the expected identifier of the webpage of the person.
+	 * @return the person.
+	 */
+	Optional<Person> findDistinctByWebPageId(String identifier);
+
 	/** Replies the persons who have the given first and last names.
 	 * 
 	 * @param firstName the first name of the person.

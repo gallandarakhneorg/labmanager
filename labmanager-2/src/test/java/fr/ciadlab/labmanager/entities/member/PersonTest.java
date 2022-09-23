@@ -304,6 +304,28 @@ public class PersonTest {
 	}
 
 	@Test
+	public void getWebPageId() {
+		assertNull(this.test.getWebPageId());
+	}
+
+	@Test
+	public void setWebPageId() {
+		assertNull(this.test.getWebPageId());
+
+		this.test.setWebPageId("xyz");
+		assertEquals("xyz", this.test.getWebPageId());
+
+		this.test.setWebPageId(null);
+		assertNull(this.test.getWebPageId());
+
+		this.test.setWebPageId("abc");
+		assertEquals("abc", this.test.getWebPageId());
+
+		this.test.setWebPageId("");
+		assertNull(this.test.getWebPageId());
+	}
+
+	@Test
 	public void getWebPageURI_onlyFirst() throws Exception {
 		this.test.setWebPageNaming(WebPageNaming.FIRST_LAST);
 		this.test.setFirstName("I am Stéphane");

@@ -27,7 +27,8 @@
                 <th:block th:utext="${person.id}"></th:block>
             </td>
             <td>
-            	<a th:href="@{/showPersonCard(person=${person.id})}" class="noLink"><span class="fa-solid fa-address-card"></span></a>
+            	<a th:if="${person.webPageId != null}"
+            	   th:href="@{/showPersonCard(webId=${person.webPageId})}" class="noLink"><span class="fa-solid fa-address-card"></span></a>
             	<a th:href="${person.webPageURI}"
             	   th:if="${person.webPageURI != null}"
             	   class="noLink"><span class="fa-solid fa-house"></span></a>
@@ -109,8 +110,8 @@
             		#{html.EditPerson1(${person.fullName})},
             		#{html.DeletePerson1(${person.fullName})},
             		~{::.admin-tool-buttons},
-            		author, author, author,
-            		@{/getPersonData(id=${person.id})} )">
+            		dbId, dbId, dbId,
+            		@{/getPersonData(dbId=${person.id})} )">
             	<a th:href="@{/membershipEditor(personId=${person.id})}"
 				   th:if="${changeEnabled}"
 				   class="noLink admin-tool-buttons">

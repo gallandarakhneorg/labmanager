@@ -96,9 +96,8 @@ public class PersonApiController extends AbstractComponent {
 	 * The name test is based on
 	 * {@link PersonNameComparator#isSimilar(String, String) name similarity}, and not on strict equality.
 	 *
-	 * @param name the name of the person. The format should be recognized by a {@link PersonNameParser}.
-	 *     Usually, it is {@code "FIRST LAST"} or {@code "LAST, FIRST"}.
-	 * @param id the identifier of the person.
+	 * @param dbId the database identifier of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
+	 * @param webId the identifier of the webpage of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
 	 * @param strictName indicates if the name test must be strict (equality test) or not (similarity test).
 	 *     By default, this parameter has the value {@code false}.
 	 * @return the person, or {@code null} if the person with the given name was not found.
@@ -106,30 +105,15 @@ public class PersonApiController extends AbstractComponent {
 	 */
 	@GetMapping(value = "/getPersonData", produces = "application/json; charset=UTF-8")
 	@ResponseBody
-	public Person getPersonData(@RequestParam(required = false) String name,
-			@RequestParam(required = false) Integer id,
+	public Person getPersonData(
+			@RequestParam(required = false) Integer dbId,
+			@RequestParam(required = false) String webId,
 			@RequestParam(defaultValue = "false", required = false) boolean strictName) {
-		if (id == null && Strings.isNullOrEmpty(name)) {
-			throw new IllegalArgumentException("Name and identifier parameters are missed"); //$NON-NLS-1$
+		final Person person = getPersonWith(dbId, webId, null, this.personService, this.nameParser);
+		if (person == null) {
+			throw new IllegalArgumentException("Person not found"); //$NON-NLS-1$
 		}
-		int pid = 0;
-		if (Strings.isNullOrEmpty(name)) {
-			if (id != null) {
-				pid = id.intValue();
-			}
-		} else {
-			final String firstName = this.nameParser.parseFirstName(name);
-			final String lastName = this.nameParser.parseLastName(name);
-			if (strictName) {
-				pid = this.personService.getPersonIdByName(firstName, lastName);
-			} else {
-				pid = this.personService.getPersonIdBySimilarName(firstName, lastName);
-			}
-		}
-		if (pid != 0) {
-			return this.personService.getPersonById(pid);
-		}
-		return null;
+		return person;
 	}
 
 	/** Saving information of a person. 
@@ -235,7 +219,8 @@ public class PersonApiController extends AbstractComponent {
 	/** Replies the person's virtual card. This card is a description of the person that could 
 	 * be used for building a Internet page for the person.
 	 *
-	 * @param person the identifier or the name of the person.
+	 * @param dbId the database identifier of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
+	 * @param webId the identifier of the webpage of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
 	 * @param organization the identifier or the name of the organization to restrict the card to.
 	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
 	 *     {@code false}.
@@ -243,12 +228,13 @@ public class PersonApiController extends AbstractComponent {
 	 */
 	@GetMapping(value = "/" + Constants.PERSON_VCARD_ENDPOINT)
 	public ResponseEntity<String> getPersonVcard(
-			@RequestParam(required = false) String person,
+			@RequestParam(required = false) Integer dbId,
+			@RequestParam(required = false) String webId,
 			@RequestParam(required = false) String organization,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) {
-		final Person personObj = getPersonWith(person, this.personService, this.nameParser);
+		final Person personObj = getPersonWith(dbId, webId, null, this.personService, this.nameParser);
 		if (personObj == null) {
-			throw new IllegalArgumentException("Person not found: " + person); //$NON-NLS-1$
+			throw new IllegalArgumentException("Person not found"); //$NON-NLS-1$
 		}
 		//
 		final ResearchOrganization organizationObj = getOrganizarionWith(organization, this.organizationService);

@@ -16,7 +16,6 @@
 
 package fr.ciadlab.labmanager.entities.member;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Locale;
 
@@ -41,7 +40,7 @@ public enum WebPageNaming {
 	 */
 	UNSPECIFIED {
 		@Override
-		public URI getWebpageURIFor(Person person) {
+		public String getWebpageIdFor(Person person) {
 			return null;
 		}
 	},
@@ -50,10 +49,8 @@ public enum WebPageNaming {
 	 */
 	AUTHOR_ID {
 		@Override
-		public URI getWebpageURIFor(Person person) {
-			UriBuilder b = FACTORY.builder();
-			b = b.path("/author-" + person.getId()); //$NON-NLS-1$
-			return b.build();
+		public String getWebpageIdFor(Person person) {
+			return "author-" + person.getId(); //$NON-NLS-1$
 		}
 	},
 
@@ -61,15 +58,10 @@ public enum WebPageNaming {
 	 */
 	EMAIL_ID {
 		@Override
-		public URI getWebpageURIFor(Person person) {
+		public String getWebpageIdFor(Person person) {
 			final String email = person.getEmail();
 			final String id = StringUtils.substringBefore(email, "@"); //$NON-NLS-1$
-			if (Strings.isNullOrEmpty(id)) {
-				throw new IllegalStateException("Cannot build an URI from email for: " + person); //$NON-NLS-1$
-			}
-			UriBuilder b = FACTORY.builder();
-			b = b.path("/" + id); //$NON-NLS-1$
-			return b.build();
+			return id;
 		}
 	},
 
@@ -79,19 +71,21 @@ public enum WebPageNaming {
 	 */
 	FIRST_LAST {
 		@Override
-		public URI getWebpageURIFor(Person person) {
-			UriBuilder b = FACTORY.builder();
+		public String getWebpageIdFor(Person person) {
 			final String first = StringUtils.stripAccents(person.getFirstName());
 			final String last = StringUtils.stripAccents(person.getLastName());
 			final String ref;
 			if (Strings.isNullOrEmpty(last)) {
+				if (Strings.isNullOrEmpty(first)) {
+					return null;
+				}
 				ref = first.toLowerCase();
 			} else if (Strings.isNullOrEmpty(first)) {
 				ref = last.toLowerCase();
 			} else {
 				ref = first.toLowerCase() + "_" + last.toLowerCase(); //$NON-NLS-1$
 			}
-			return b.path("/" + ref.replaceAll("[^a-z0-9_\\-\\.]+", "")).build(); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			return ref.replaceAll("[^a-z0-9_\\-\\.]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 	};
 
@@ -142,10 +136,28 @@ public enum WebPageNaming {
 	/** Replies the URI of the webpage for the given person.
 	 *
 	 * @param person the person.
-	 * @return the URI.
-	 * @throws MalformedURLException if the URL is malformed. This problem should never appear.
+	 * @return the URI, or {@code null}.
 	 */
-	public abstract URI getWebpageURIFor(Person person);
+	public URI getWebpageURIFor(Person person) {
+		final String id = getWebpageIdFor(person);
+		if (Strings.isNullOrEmpty(id)) {
+			return null;
+		}
+		try {
+			UriBuilder b = FACTORY.builder();
+			b = b.path("/" + id); //$NON-NLS-1$
+			return b.build();
+		} catch (Throwable ex) {
+			return null;
+		}
+	}
+
+	/** Replies the identifier of the webpage for the given person.
+	 *
+	 * @param person the person.
+	 * @return the identifier.
+	 */
+	public abstract String getWebpageIdFor(Person person);
 
 	/** Replies the naming that corresponds to the given name, with a case-insensitive
 	 * test of the name.

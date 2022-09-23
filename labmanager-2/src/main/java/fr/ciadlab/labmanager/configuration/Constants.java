@@ -63,9 +63,13 @@ public class Constants {
 	 */
 	public static final String INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER = "includeSuborganizations"; //$NON-NLS-1$
 
-	/** Name of the endpoint parameter "author".
+	/** Name of the endpoint parameter "dbId".
 	 */
-	public static final String AUTHOR_ENDPOINT_PARAMETER = "author"; //$NON-NLS-1$
+	public static final String DBID_ENDPOINT_PARAMETER = "dbId"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "webId".
+	 */
+	public static final String WEBID_ENDPOINT_PARAMETER = "webId"; //$NON-NLS-1$
 
 	/** Name of the endpoint parameter "publication".
 	 */

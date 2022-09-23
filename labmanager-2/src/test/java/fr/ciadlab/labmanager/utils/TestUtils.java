@@ -42,6 +42,7 @@ public class TestUtils {
 				try {
 					final URL url = new URL("http://www.google.com");
 					final URLConnection connection = url.openConnection();
+					connection.setConnectTimeout(5000);
 					connection.connect();
 					networkEnable = Boolean.TRUE;
 				} catch (Exception ex) {

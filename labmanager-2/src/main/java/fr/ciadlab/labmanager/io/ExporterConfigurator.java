@@ -443,6 +443,15 @@ public class ExporterConfigurator {
 		this.queryParameters.put(name, value);
 	}
 
+	/** Register a parameter that should be added to the URLs as query parameter.
+	 *
+	 * @param name the name of the parameter.
+	 * @param value the value of the parameter.
+	 */
+	public void addUriQueryParam(String name, String value) {
+		this.queryParameters.put(name, value);
+	}
+
 	/** Add the registered qyery parameters to the given builder.
 	 *
 	 * @param uriBuilder the builder to fill up.

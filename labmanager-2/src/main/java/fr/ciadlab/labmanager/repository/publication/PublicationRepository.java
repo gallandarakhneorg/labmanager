@@ -39,6 +39,13 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
 	 */
 	List<Publication> findAllByAuthorshipsPersonId(int personId);
 
+	/** Replies the list of publications for the person with the given webpage identifier.
+	 *
+	 * @param webpageId the identifier of the webpage of the person.
+	 * @return the list of publications.
+	 */
+	List<Publication> findAllByAuthorshipsPersonWebPageId(String webpageId);
+
 	/** Replies the list of publications for the persons with the given identifiers.
 	 *
 	 * @param personIds the list of identifiers of the authors.

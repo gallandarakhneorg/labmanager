@@ -145,8 +145,9 @@ public class PublicationViewController extends AbstractViewController {
 	 * <p> This function may provide to the front-end the map of the person identifiers to
 	 * their full names. The type of the map is: {@code Map&lt;Integer, String&gt;}.
 	 *
+	 * @param dbId the database identifier of the author for who the publications must be exported.
+	 * @param webId the webpage identifier of the author for who the publications must be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
-	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
 	 * @param enableExports indicates if the "exports" box should be visible.
 	 * @param enableSearch indicates if the "Search" box should be visible.
@@ -162,8 +163,9 @@ public class PublicationViewController extends AbstractViewController {
 	 */
 	@GetMapping("/showPublications")
 	public ModelAndView showFrontPublicationList(
+			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
+			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
-			@RequestParam(required = false, name = Constants.AUTHOR_ENDPOINT_PARAMETER) Integer author,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") boolean enableExports,
 			@RequestParam(required = false, defaultValue = "true") boolean enableSearch,
@@ -176,7 +178,7 @@ public class PublicationViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView("showPublications"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);
 		//
-		addUrlToPublicationListEndPoint(modelAndView, organization, author, journal);
+		addUrlToPublicationListEndPoint(modelAndView, dbId, webId, organization, journal);
 		//
 		modelAndView.addObject("enableFilters", Boolean.valueOf(enableFilters)); //$NON-NLS-1$
 		modelAndView.addObject("enableYearFilter", Boolean.valueOf(enableYearFilter)); //$NON-NLS-1$
@@ -195,11 +197,11 @@ public class PublicationViewController extends AbstractViewController {
 		if (enableExports) {
 			final UriBuilderFactory factory = new DefaultUriBuilderFactory();
 			modelAndView.addObject("endpoint_export_bibtex", //$NON-NLS-1$
-					buildUri(factory, organization, author, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
+					buildUri(factory, dbId, webId, organization, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
 			modelAndView.addObject("endpoint_export_odt", //$NON-NLS-1$
-					buildUri(factory, organization, author, journal, Constants.EXPORT_ODT_ENDPOINT));
+					buildUri(factory, dbId, webId, organization, journal, Constants.EXPORT_ODT_ENDPOINT));
 			modelAndView.addObject("endpoint_export_html", //$NON-NLS-1$
-					buildUri(factory, organization, author, journal, Constants.EXPORT_HTML_ENDPOINT));
+					buildUri(factory, dbId, webId, organization, journal, Constants.EXPORT_HTML_ENDPOINT));
 		}
 		//
 		modelAndView.addObject("enableSearch", Boolean.valueOf(enableSearch)); //$NON-NLS-1$
@@ -207,15 +209,17 @@ public class PublicationViewController extends AbstractViewController {
 		return modelAndView;
 	}
 
-	private String buildUri(UriBuilderFactory factory, Integer organization, Integer author,
+	private String buildUri(UriBuilderFactory factory, Integer dbId, String webId, Integer organization,
 			Integer journal, String endpoint) {
 		UriBuilder uriBuilder = factory.builder();
 		uriBuilder = uriBuilder.path(rooted(endpoint));
 		if (organization != null) {
 			uriBuilder = uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, organization);
 		}
-		if (author != null) {
-			uriBuilder = uriBuilder.queryParam(Constants.AUTHOR_ENDPOINT_PARAMETER, author);
+		if (dbId != null && dbId.intValue() != 0) {
+			uriBuilder = uriBuilder.queryParam(Constants.DBID_ENDPOINT_PARAMETER, dbId);
+		} else if (!Strings.isNullOrEmpty(webId)) {
+			uriBuilder = uriBuilder.queryParam(Constants.WEBID_ENDPOINT_PARAMETER, webId);
 		}
 		if (journal != null) {
 			uriBuilder = uriBuilder.queryParam(Constants.JOURNAL_ENDPOINT_PARAMETER, journal);
@@ -225,7 +229,9 @@ public class PublicationViewController extends AbstractViewController {
 
 	/** Replies the statistics for the publications and for the author with the given identifier.
 	 *
-	 * @param identifier the identifier of the author. If it is not provided, all the publications are considered.
+	 * @param dbId the database identifier of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
+	 * @param webId the identifier of the webpage of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
+	 * @param name the name of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
 	 * @param annual indicates if the stats for each year are provided. Default is {@code true}.
 	 * @param global indicates if the global stats are provided. Default is {@code true}.
 	 * @param username the login of the logged-in person.
@@ -233,7 +239,8 @@ public class PublicationViewController extends AbstractViewController {
 	 */
 	@GetMapping("/showPublicationStats")
 	public ModelAndView showPublicationsStats(
-			@RequestParam(required = false, name = Constants.ID_ENDPOINT_PARAMETER) Integer identifier,
+			@RequestParam(required = false) Integer dbId,
+			@RequestParam(required = false) String webId,
 			@RequestParam(required = false, defaultValue = "true") boolean annual,
 			@RequestParam(required = false, defaultValue = "true") boolean global,
 			@CurrentSecurityContext(expression="authentication?.name") String username) {
@@ -241,10 +248,12 @@ public class PublicationViewController extends AbstractViewController {
 		initModelViewProperties(modelAndView, username);
 
 		final List<Publication> publications;
-		if (identifier == null) {
-			publications = this.publicationService.getAllPublications();
+		if (dbId != null && dbId.intValue() != 0) {
+			publications = this.publicationService.getPublicationsByPersonId(dbId.intValue());
+		} else if (!Strings.isNullOrEmpty(webId)) {
+			publications = this.publicationService.getPublicationsByPersonWebPageId(webId);
 		} else {
-			publications = this.publicationService.getPublicationsByPersonId(identifier.intValue());
+			publications = this.publicationService.getAllPublications();
 		}
 
 		final Map<Integer, PublicationsStat> statsPerYear = new TreeMap<>();
@@ -438,12 +447,13 @@ public class PublicationViewController extends AbstractViewController {
 	/** Add the URL to model that permits to retrieve the publication list.
 	 *
 	 * @param modelAndView the model-view to configure for redirection.
+	 * @param dbId the database identifier of the author for who the publications must be exported.
+	 * @param webId the webpage identifier of the author for who the publications must be exported.
 	 * @param organization the identifier of the organization for which the publications must be exported.
-	 * @param author the identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
 	 */
-	protected void addUrlToPublicationListEndPoint(ModelAndView modelAndView, Integer organization, Integer author,
-			Integer journal) {
+	protected void addUrlToPublicationListEndPoint(ModelAndView modelAndView, Integer dbId, String webId,
+			Integer organization, Integer journal) {
 		final StringBuilder path = new StringBuilder();
 		path.append("/").append(getApplicationConstants().getServerName()).append("/").append(Constants.EXPORT_JSON_ENDPOINT); //$NON-NLS-1$ //$NON-NLS-2$
 		UriBuilder uriBuilder = this.uriBuilderFactory.builder();
@@ -452,8 +462,10 @@ public class PublicationViewController extends AbstractViewController {
 		if (organization != null && organization.intValue() != 0) {
 			uriBuilder = uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, organization);
 		}
-		if (author != null && author.intValue() != 0) {
-			uriBuilder = uriBuilder.queryParam(Constants.AUTHOR_ENDPOINT_PARAMETER, author);
+		if (dbId != null && dbId.intValue() != 0) {
+			uriBuilder = uriBuilder.queryParam(Constants.DBID_ENDPOINT_PARAMETER, dbId);
+		} else if (!Strings.isNullOrEmpty(webId)) {
+			uriBuilder = uriBuilder.queryParam(Constants.WEBID_ENDPOINT_PARAMETER, webId);
 		}
 		if (journal != null && journal.intValue() != 0) {
 			uriBuilder = uriBuilder.queryParam(Constants.JOURNAL_ENDPOINT_PARAMETER, journal);

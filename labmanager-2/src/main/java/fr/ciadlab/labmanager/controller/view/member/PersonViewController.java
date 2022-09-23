@@ -169,7 +169,8 @@ public class PersonViewController extends AbstractViewController {
 	/** Show the person's virtual card. This card is a description of the person that could 
 	 * be used for building a Internet page for the person.
 	 *
-	 * @param person the identifier or the name of the person.
+	 * @param dbId the database identifier of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
+	 * @param webId the identifier of the webpage of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
 	 * @param organization the identifier or the name of the organization to restrict the card to.
 	 * @param introText a small text that is output as a status/position.
 	 * @param photo indicates if the photo should be shown on the card.
@@ -185,7 +186,8 @@ public class PersonViewController extends AbstractViewController {
 	 */
 	@GetMapping(value = "/showPersonCard")
 	public ModelAndView showPersonCard(
-			@RequestParam(required = false) String person,
+			@RequestParam(required = false) Integer dbId,
+			@RequestParam(required = false) String webId,
 			@RequestParam(required = false) String organization,
 			@RequestParam(required = false) String introText,
 			@RequestParam(required = false, defaultValue="true") boolean photo,
@@ -199,9 +201,9 @@ public class PersonViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue="true") boolean links) {
 		final ModelAndView modelAndView = new ModelAndView("showPersonCard"); //$NON-NLS-1$
 		//
-		final Person personObj = getPersonWith(person, this.personService, this.nameParser);
+		final Person personObj = getPersonWith(dbId, webId, null, this.personService, this.nameParser);
 		if (personObj == null) {
-			throw new IllegalArgumentException("Person not found: " + person); //$NON-NLS-1$
+			throw new IllegalArgumentException("Person not found"); //$NON-NLS-1$
 		}
 		//
 		final ResearchOrganization organizationObj = getOrganizarionWith(organization, this.organizationService);

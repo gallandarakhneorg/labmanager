@@ -290,24 +290,25 @@ public abstract class AbstractComponent {
 
 	/** Find the person object that corresponds to the given identifier or name.
 	 *
-	 * @param person the identifier or the name of the person.
+	 * @param dbId the database identifier of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
+	 * @param webId the identifier of the webpage of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
+	 * @param name the name of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
 	 * @param personService the service that must be used for accessing the person's object.
 	 * @param nameParser the parser of person names to be used for extracting first and last names.
 	 * @return the person or {@code null}.
 	 */
-	protected static Person getPersonWith(String person, PersonService personService, PersonNameParser nameParser) {
-		if (!Strings.isNullOrEmpty(person)) {
-			try {
-				final int id = Integer.parseInt(person);
-				final Person personObj = personService.getPersonById(id);
-				if (personObj != null) {
-					return personObj;
-				}
-			} catch (Throwable ex) {
-				//
-			}
-			final String firstName = nameParser.parseFirstName(person);
-			final String lastName = nameParser.parseLastName(person);
+	protected static Person getPersonWith(
+			Integer dbId, String webId, String name,
+			PersonService personService, PersonNameParser nameParser) {
+		if (dbId != null && dbId.intValue() != 0) {
+			return personService.getPersonById(dbId.intValue());
+		}
+		if (!Strings.isNullOrEmpty(webId)) {
+			return personService.getPersonByWebPageId(webId);
+		}
+		if (!Strings.isNullOrEmpty(name)) {
+			final String firstName = nameParser.parseFirstName(name);
+			final String lastName = nameParser.parseLastName(name);
 			final Person personObj = personService.getPersonBySimilarName(firstName, lastName);
 			return personObj;
 		}
