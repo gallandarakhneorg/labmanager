@@ -849,6 +849,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			break;
 		case ARTISTIC_PRODUCTION:
 		case RESEARCH_TOOL:
+		case INTERNATIONAL_PRESENTATION:
+		case NATIONAL_PRESENTATION:
+		case INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
+		case NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
 		case OTHER:
 			entry = createBibTeXEntry((MiscDocument) publication);
 			break;

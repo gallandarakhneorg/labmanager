@@ -893,4 +893,27 @@ public class JBibtexBibTeXTest {
 				"}"), bibtex);
 	}
 
+
+	@Test
+	public void exportPublications_perPublicationType() {
+		for (final PublicationType type : PublicationType.values()) {
+			Publication pub = mock(type.getInstanceType());
+			preparePublicationForExportTest(pub, type);
+			lenient().when(pub.getPreferredStringId()).thenReturn("Pub/" + type.name());
+			lenient().when(pub.getAbstractText()).thenReturn("abs/" + type.name());
+			lenient().when(pub.getDblpURL()).thenReturn("dblp/" + type.name());
+			lenient().when(pub.getDOI()).thenReturn("doi/" + type.name());
+			lenient().when(pub.getExtraURL()).thenReturn("extra/" + type.name());
+			lenient().when(pub.getHalId()).thenReturn("hal/" + type.name());
+			lenient().when(pub.getISBN()).thenReturn("isbn/" + type.name());
+			lenient().when(pub.getISSN()).thenReturn("issn/" + type.name());
+			lenient().when(pub.getPublicationYear()).thenReturn(2022);
+			lenient().when(pub.getTitle()).thenReturn("title/" + type.name());
+
+			final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+
+			assertFalse(Strings.isNullOrEmpty(bibtex));
+		}
+	}
+
 }
