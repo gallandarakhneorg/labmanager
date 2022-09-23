@@ -144,9 +144,12 @@
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
-					<packagingExcludes>WEB-INF/classes/data*.json*</packagingExcludes>
-					<packagingExcludes>WEB-INF/classes/schema-*.sql*</packagingExcludes>
-					<packagingExcludes>WEB-INF/classes/application-*.yml</packagingExcludes>
+					<packagingExcludes>
+						WEB-INF/classes/schema-*.sql*,
+						WEB-INF/classes/application-*.yml,
+						WEB-INF/classes/*.json,
+						WEB-INF/classes/*.json_
+					</packagingExcludes>
 				</configuration>
 			</plugin>
             <plugin>
