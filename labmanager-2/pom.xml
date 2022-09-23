@@ -140,20 +140,12 @@
 
     <build>
         <finalName>LabManagerApi</finalName>
-        <resources>
-			<resource>
-				<directory>src/main/resources</directory>
-				<excludes>
-					<exclude>data*.json*</exclude>
-					<exclude>schema-*.sql*</exclude>
-				</excludes>
-				<filtering>false</filtering>
-			</resource>
-		</resources>
         <plugins>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
 				<configuration>
+					<packagingExcludes>WEB-INF/classes/data*.json*</packagingExcludes>
+					<packagingExcludes>WEB-INF/classes/schema-*.sql*</packagingExcludes>
 					<packagingExcludes>WEB-INF/classes/application-*.yml</packagingExcludes>
 				</configuration>
 			</plugin>
