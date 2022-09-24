@@ -54,6 +54,10 @@ public enum MemberStatus {
 		public boolean isAdministrativeStaff() {
 			return false;
 		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
 	},
 	/** Research Director (Directeur de recherche).
 	 */
@@ -77,6 +81,10 @@ public enum MemberStatus {
 		@Override
 		public boolean isAdministrativeStaff() {
 			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
 		}
 	},
 	/** Associate professor (maitre de conferences) with HDR.
@@ -102,6 +110,10 @@ public enum MemberStatus {
 		public boolean isAdministrativeStaff() {
 			return false;
 		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
 	},
 	/** Associate professor (maitre de conferences) without HDR.
 	 */
@@ -126,8 +138,40 @@ public enum MemberStatus {
 		public boolean isAdministrativeStaff() {
 			return false;
 		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
 	},
-	/** Contractual teacher-researcher (enseignant chercheur contractuel).
+	/** Contractual teacher-researcher (enseignant chercheur contractuel) with PhD.
+	 */
+	CONTRACTUAL_RESEARCHER_TEACHER_PHD {
+		@Override
+		public int getHierachicalLevel() {
+			return 2;
+		}
+		@Override
+		public boolean isResearcher() {
+			return true;
+		}
+		@Override
+		public boolean isTeacher() {
+			return true;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return false;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
+	},
+	/** Contractual teacher-researcher (enseignant chercheur contractuel) without PhD.
 	 */
 	CONTRACTUAL_RESEARCHER_TEACHER {
 		@Override
@@ -148,6 +192,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
 			return false;
 		}
 	},
@@ -174,6 +222,10 @@ public enum MemberStatus {
 		public boolean isAdministrativeStaff() {
 			return false;
 		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
 	},
 	/** Postdoc.
 	 */
@@ -198,8 +250,40 @@ public enum MemberStatus {
 		public boolean isAdministrativeStaff() {
 			return false;
 		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
 	},
-	/** Research engineer (IGR).
+	/** Research engineer (IGR) with PhD.
+	 */
+	RESEARCH_ENGINEER_PHD {
+		@Override
+		public int getHierachicalLevel() {
+			return 3;
+		}
+		@Override
+		public boolean isResearcher() {
+			return false;
+		}
+		@Override
+		public boolean isTeacher() {
+			return false;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return true;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
+	},
+	/** Research engineer (IGR) without PhD.
 	 */
 	RESEARCH_ENGINEER {
 		@Override
@@ -220,6 +304,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
 			return false;
 		}
 	},
@@ -246,8 +334,40 @@ public enum MemberStatus {
 		public boolean isAdministrativeStaff() {
 			return false;
 		}
+		@Override
+		public boolean isPhDOwner() {
+			return false;
+		}
 	},
-	/** Engineer (IGE).
+	/** Engineer (IGE) with PhD.
+	 */
+	ENGINEER_PHD {
+		@Override
+		public int getHierachicalLevel() {
+			return 4;
+		}
+		@Override
+		public boolean isResearcher() {
+			return false;
+		}
+		@Override
+		public boolean isTeacher() {
+			return false;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return true;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
+	},
+	/** Engineer (IGE) without PhD.
 	 */
 	ENGINEER {
 		@Override
@@ -268,6 +388,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
 			return false;
 		}
 	},
@@ -294,8 +418,40 @@ public enum MemberStatus {
 		public boolean isAdministrativeStaff() {
 			return true;
 		}
+		@Override
+		public boolean isPhDOwner() {
+			return false;
+		}
 	},
-	/** Teacher (PRAG, etc.).
+	/** Teacher (PRAG, etc.) with PhD.
+	 */
+	TEACHER_PHD {
+		@Override
+		public int getHierachicalLevel() {
+			return 4;
+		}
+		@Override
+		public boolean isResearcher() {
+			return false;
+		}
+		@Override
+		public boolean isTeacher() {
+			return true;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return false;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
+	},
+	/** Teacher (PRAG, etc.) without PhD.
 	 */
 	TEACHER {
 		@Override
@@ -316,6 +472,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
 			return false;
 		}
 	},
@@ -342,6 +502,10 @@ public enum MemberStatus {
 		public boolean isAdministrativeStaff() {
 			return false;
 		}
+		@Override
+		public boolean isPhDOwner() {
+			return false;
+		}
 	},
 	/** Bachelor student (internship).
 	 */
@@ -366,8 +530,40 @@ public enum MemberStatus {
 		public boolean isAdministrativeStaff() {
 			return false;
 		}
+		@Override
+		public boolean isPhDOwner() {
+			return false;
+		}
 	},
-	/** Associate member.
+	/** Associate member with PhD.
+	 */
+	ASSOCIATED_MEMBER_PHD {
+		@Override
+		public int getHierachicalLevel() {
+			return 7;
+		}
+		@Override
+		public boolean isResearcher() {
+			return true;
+		}
+		@Override
+		public boolean isTeacher() {
+			return false;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return false;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
+	},
+	/** Associate member without PhD.
 	 */
 	ASSOCIATED_MEMBER {
 		@Override
@@ -388,6 +584,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
 			return false;
 		}
 	};
@@ -416,6 +616,12 @@ public enum MemberStatus {
 	public void setMessageSourceAccessor(MessageSourceAccessor messages) {
 		this.messages = messages;
 	}
+
+	/** Replies if the status supposes that the member owns a PhD.
+	 *
+	 * @return {@code true} if the member is supposed to own a PhD.
+	 */
+	public abstract boolean isPhDOwner();
 
 	/** Replies the hierarchical level.
 	 *

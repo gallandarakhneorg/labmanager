@@ -25,7 +25,7 @@
 				        th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values}"
 				        th:selected="${preferredStatus != null && status == preferredStatus}"
 				        th:value="${status.name}"
-				        th:utext="${status.getLabel(locale)}"></option>
+				        th:utext="${status.getLabel(person.gender, locale) + (status.isPhDOwner() ? ' (PhD)' : '')}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: checkInput*(${'isMainPosition_' + minMembershipId}, #{html.MainPositionMembership}, #{html.MainPositionMembership2}, true)"></div>
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'memberSinceWhen_' + minMembershipId}, #{html.MemberSince}, '')"></div>
@@ -81,7 +81,7 @@
 				        th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values}"
 				        th:selected="${membership != null && membership.memberStatus == status}"
 				        th:value="${status.name}"
-				        th:utext="${status.getLabel(locale)}"></option>
+				        th:utext="${status.getLabel(locale) + (status.isPhDOwner() ? ' (PhD)' : '')}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: checkInput*(${'isMainPosition_' + membership.id}, #{html.MainPositionMembership}, #{html.MainPositionMembership2}, ${membership.isMainPosition})"></div>
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'memberSinceWhen_' + membership.id}, #{html.MemberSince}, ${membership.memberSinceWhen == null ? '' : membership.memberSinceWhen.toString})"></div>
