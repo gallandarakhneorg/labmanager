@@ -67,8 +67,9 @@ function initMemberDataTable(config) {
 				data: "memberStatus",
 				defaultContent: '',
 				render: (data, type, row) => {
-					if (data in config['statusLabels'] && config['statusLabels'][data]) {
-						return config['statusLabels'][data];
+					var key = data + '_' + row.person.gender;
+					if (key in config['statusLabels'] && config['statusLabels'][key]) {
+						return config['statusLabels'][key];
 					}
 					return '';
 				},

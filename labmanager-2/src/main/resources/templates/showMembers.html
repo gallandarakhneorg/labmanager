@@ -34,7 +34,9 @@ $(document).ready(() => {
 		enableFilters: "[(${#bools.isTrue(enableFilters).toString})]" === 'true',
 		statusLabels: {
 	        /*[# th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values()}"]*/
-			"[(${status.name})]": "[(${status.getLabel(locale)})]",
+		        /*[# th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values()}" th:if="${gender.hasLabel()}"]*/
+			"[(${status.name + '_' + gender.name})]": "[(${status.getLabel(gender, locale)})]",
+		        /*[/]*/
 	        /*[/]*/
 		},
 		responsibilityLabels: {
