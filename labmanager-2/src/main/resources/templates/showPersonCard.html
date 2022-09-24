@@ -4,113 +4,111 @@
 <th:block th:replace="fragments/libs :: sweetalert"/>
 <th:block th:if="${enableQrcode}" th:replace="fragments/libs :: qrcode-js"/>
 <div class="row">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-body person-card">
-				<img class="person-card-photo person-photo"
-				     th:if="${enablePhoto && person.photoURL != null}"
-				     th:src="${person.getPhotoURL(150).toString()}"></img>
-				<div class="person-card-name">
-					<span class="person-card-firstname"
-					     th:utext="${person.firstName}"></span>&nbsp;<span
-					     class="person-card-lastname"
-					     th:utext="${person.lastName}"></span><th:block th:if="${person.getCivilTitle(false)}">, <span
-					     class="person-card-civiltitle"
-					     th:utext="${person.getCivilTitle(false)}"></span></th:block></div>
-				<div th:if="${enableStatus && (!memberships.isEmpty() || !#strings.isEmpty(introText) || !responsibilities.isEmpty())}"
-				     class="person-card-positions">
-					<div class="person-card-membership person-card-membership-emph"
-					     th:unless="${#strings.isEmpty(introText)}"
-					     th:utext="${introText}"></div>
-					<div class="person-card-membership person-card-membership-emph"
-					     th:each="resp : ${responsibilities}"
-					     th:if="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}"
-					     th:utext="#{html.ResponsabilityInApos(${resp.responsibility.getLabel(person.gender, locale)},${resp.researchOrganization.acronymOrName})}"></div>
-					<div class="person-card-membership person-card-membership-emph"
-					     th:each="resp : ${responsibilities}"
-					     th:unless="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}"
-					     th:utext="#{html.ResponsabilityInNotApos(${resp.responsibility.getLabel(person.gender, locale)},${resp.researchOrganization.acronymOrName})}"></div>
-					<div class="person-card-membership"
-					     th:each="membership : ${memberships}"
-					     th:title="${membership.researchOrganization.acronymOrName}"
-					     th:utext="${membership.memberStatus.getLabel(person.gender, locale)}"></div>
+       <div class="card">
+           <div class="card-body person-card">
+			<img class="person-card-photo person-photo"
+			     th:if="${enablePhoto && person.photoURL != null}"
+			     th:src="${person.getPhotoURL(150).toString()}"></img>
+			<div class="person-card-name">
+				<span class="person-card-firstname"
+				     th:utext="${person.firstName}"></span>&nbsp;<span
+				     class="person-card-lastname"
+				     th:utext="${person.lastName}"></span><th:block th:if="${person.getCivilTitle(false)}">, <span
+				     class="person-card-civiltitle"
+				     th:utext="${person.getCivilTitle(false)}"></span></th:block></div>
+			<div th:if="${enableStatus && (!memberships.isEmpty() || !#strings.isEmpty(introText) || !responsibilities.isEmpty())}"
+			     class="person-card-positions">
+				<div class="person-card-membership person-card-membership-emph"
+				     th:unless="${#strings.isEmpty(introText)}"
+				     th:utext="${introText}"></div>
+				<div class="person-card-membership person-card-membership-emph"
+				     th:each="resp : ${responsibilities}"
+				     th:if="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}"
+				     th:utext="#{html.ResponsabilityInApos(${resp.responsibility.getLabel(person.gender, locale)},${resp.researchOrganization.acronymOrName})}"></div>
+				<div class="person-card-membership person-card-membership-emph"
+				     th:each="resp : ${responsibilities}"
+				     th:unless="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}"
+				     th:utext="#{html.ResponsabilityInNotApos(${resp.responsibility.getLabel(person.gender, locale)},${resp.researchOrganization.acronymOrName})}"></div>
+				<div class="person-card-membership"
+				     th:each="membership : ${memberships}"
+				     th:title="${membership.researchOrganization.acronymOrName}"
+				     th:utext="${membership.memberStatus.getLabel(person.gender, locale)}"></div>
+			</div>
+			<div class="person-card-contact"
+			     th:if="${enableEmail || enableOfficePhone || enableMobilePhone}">
+				<div class="person-card-email"
+				     th:unless="${!enableEmail || #strings.isEmpty(person.email)}">
+					<span class="fa-solid fa-at"></span>
+					<th:block th:replace="fragments/general :: obfuscatedEmail(person-card-contact-obfemail,null)"/>
 				</div>
-				<div class="person-card-contact"
-				     th:if="${enableEmail || enableOfficePhone || enableMobilePhone}">
-					<div class="person-card-email"
-					     th:unless="${!enableEmail || #strings.isEmpty(person.email)}">
-						<span class="fa-solid fa-at"></span>
-						<th:block th:replace="fragments/general :: obfuscatedEmail(person-card-contact-obfemail,null)"/>
-					</div>
-					<div class="person-card-phone person-card-officephone"
-					     th:unless="${!enableOfficePhone || #strings.isEmpty(person.officePhone)}">
-					     <span class="fa-solid fa-phone"></span>
-						<th:block th:replace="fragments/general :: obfuscatedPhone(person-card-contact-obfophone,o)"/>
-					</div>
-					<div class="person-card-phone person-card-mobilephone"
-					     th:unless="${!enableMobilePhone || #strings.isEmpty(person.mobilePhone)}">
-					     <span class="fa-solid fa-mobile"></span>
-						<th:block th:replace="fragments/general :: obfuscatedPhone(person-card-contact-obfmphone,m)"/>
-					</div>
+				<div class="person-card-phone person-card-officephone"
+				     th:unless="${!enableOfficePhone || #strings.isEmpty(person.officePhone)}">
+				     <span class="fa-solid fa-phone"></span>
+					<th:block th:replace="fragments/general :: obfuscatedPhone(person-card-contact-obfophone,o)"/>
 				</div>
-				<div class="person-card-indexes"
-				     th:if="${enableQindexes && (person.googleScholarHindex > 0 || person.wosHindex > 0)}">
-				     <th:block th:utext="#{html.CardIndex}"></th:block>
-				     <span class="person-card-index person-card-googlescholar-index"
-				           th:title="#{html.GoogleScholarHindexSource}">
-				           <a th:href="${person.googleScholarURL}" th:utext="${person.googleScholarHindex}"></a></span>
-				     <span class="person-card-index person-card-wos-index"
-				           th:title="#{html.WosHindexSource}">
-				           <a th:href="${person.researcherIdURL}" th:utext="${person.wosHindex}"></a></span>
+				<div class="person-card-phone person-card-mobilephone"
+				     th:unless="${!enableMobilePhone || #strings.isEmpty(person.mobilePhone)}">
+				     <span class="fa-solid fa-mobile"></span>
+					<th:block th:replace="fragments/general :: obfuscatedPhone(person-card-contact-obfmphone,m)"/>
 				</div>
-				<div class="person-card-links"
-				     th:if="${enableLinks}">
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.getORCID)}"
-				           th:title="#{html.LinksOrcidTitle(${person.getORCID})}">
-				           <a th:href="${person.orcidURL}"><span class="person-card-orcid-link"></span></a></span>
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.researcherId)}"
-				           th:title="#{html.LinksWosTitle(${person.researcherId})}">
-				           <a th:href="${person.researcherIdURL}"><span class="person-card-wos-link"></span></a></span>
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.googleScholarId)}"
-				           th:title="#{html.LinksGoogleScholarTitle(${person.googleScholarId})}">
-				           <a th:href="${person.googleScholarURL}"><span class="person-card-googlescholar-link"></span></a></span>
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.linkedInId)}"
-				           th:title="#{html.LinksLinkedInTitle(${person.linkedInId})}">
-				           <a th:href="${person.linkedInURL}"><span class="person-card-linkedin-link"></span></a></span>
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.dblpURL)}"
-				           th:title="#{html.LinksDblpTitle}">
-				           <a th:href="${person.dblpURL}"><span class="person-card-dblp-link"></span></a></span>
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.researchGateId)}"
-				           th:title="#{html.LinksResearchGateTitle(${person.researchGateId})}">
-				           <a th:href="${person.researchGateURL}"><span class="person-card-researchgate-link"></span></a></span>
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.academiaURL)}"
-				           th:title="#{html.LinksAcademiaTitle}">
-				           <a th:href="${person.academiaURL}"><span class="person-card-academia-link"></span></a></span>
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.cordisURL)}"
-				           th:title="#{html.LinksCordisTitle}">
-				           <a th:href="${person.cordisURL}"><span class="person-card-cordis-link"></span></a></span>
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.githubId)}"
-				           th:title="#{html.LinksGithubTitle(${person.githubId})}">
-				           <a th:href="${person.githubURL}"><span class="person-card-github-link"></span></a></span>
-				     <span class="person-card-link"
-				           th:unless="${#strings.isEmpty(person.facebookId)}"
-				           th:title="#{html.LinksGithubTitle(${person.facebookId})}">
-				           <a th:href="${person.facebookURL}"><span class="person-card-facebook-link"></span></a></span>
-				</div>
-				<div class="person-card-qrcode" th:if="${enableQrcode}">
-				     <div class="person-qrcode" id="person-card-qrcode"></div></div>
-            </div>
-        </div>
-    </div>
+			</div>
+			<div class="person-card-indexes"
+			     th:if="${enableQindexes && (person.googleScholarHindex > 0 || person.wosHindex > 0)}">
+			     <th:block th:utext="#{html.CardIndex}"></th:block>
+			     <span class="person-card-index person-card-googlescholar-index"
+			           th:title="#{html.GoogleScholarHindexSource}">
+			           <a th:href="${person.googleScholarURL}" th:utext="${person.googleScholarHindex}"></a></span>
+			     <span class="person-card-index person-card-wos-index"
+			           th:title="#{html.WosHindexSource}">
+			           <a th:href="${person.researcherIdURL}" th:utext="${person.wosHindex}"></a></span>
+			</div>
+			<div class="person-card-links"
+			     th:if="${enableLinks}">
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.getORCID)}"
+			           th:title="#{html.LinksOrcidTitle(${person.getORCID})}">
+			           <a th:href="${person.orcidURL}"><span class="person-card-orcid-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.researcherId)}"
+			           th:title="#{html.LinksWosTitle(${person.researcherId})}">
+			           <a th:href="${person.researcherIdURL}"><span class="person-card-wos-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.googleScholarId)}"
+			           th:title="#{html.LinksGoogleScholarTitle(${person.googleScholarId})}">
+			           <a th:href="${person.googleScholarURL}"><span class="person-card-googlescholar-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.linkedInId)}"
+			           th:title="#{html.LinksLinkedInTitle(${person.linkedInId})}">
+			           <a th:href="${person.linkedInURL}"><span class="person-card-linkedin-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.dblpURL)}"
+			           th:title="#{html.LinksDblpTitle}">
+			           <a th:href="${person.dblpURL}"><span class="person-card-dblp-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.researchGateId)}"
+			           th:title="#{html.LinksResearchGateTitle(${person.researchGateId})}">
+			           <a th:href="${person.researchGateURL}"><span class="person-card-researchgate-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.academiaURL)}"
+			           th:title="#{html.LinksAcademiaTitle}">
+			           <a th:href="${person.academiaURL}"><span class="person-card-academia-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.cordisURL)}"
+			           th:title="#{html.LinksCordisTitle}">
+			           <a th:href="${person.cordisURL}"><span class="person-card-cordis-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.githubId)}"
+			           th:title="#{html.LinksGithubTitle(${person.githubId})}">
+			           <a th:href="${person.githubURL}"><span class="person-card-github-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.facebookId)}"
+			           th:title="#{html.LinksGithubTitle(${person.facebookId})}">
+			           <a th:href="${person.facebookURL}"><span class="person-card-facebook-link"></span></a></span>
+			</div>
+			<div class="person-card-qrcode" th:if="${enableQrcode}">
+			     <div class="person-qrcode" id="person-card-qrcode"></div></div>
+           </div>
+       </div>
 </div>
 <script th:inline="javascript">
 $(document).ready(() => {

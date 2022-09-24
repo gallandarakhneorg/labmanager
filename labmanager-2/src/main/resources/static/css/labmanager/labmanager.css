@@ -115,6 +115,7 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
 }
 .person-card {
 	width: 100%;
+	margin-bottom: 5px;
 }
 .person-card-name {
 	display: block;
