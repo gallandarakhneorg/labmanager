@@ -226,10 +226,9 @@ public class MembershipViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView("showMembers"); //$NON-NLS-1$
 		initModelViewProperties(modelAndView, username);
 		//
-		int organizationId = 0;
 		final Integer organizationIdObj;
 		if (organization != null && organization.intValue() != 0) {
-			organizationIdObj = Integer.valueOf(organizationId);
+			organizationIdObj = Integer.valueOf(organization.intValue());
 		} else if (!Strings.isNullOrEmpty(organizationAcronym)) {
 			final ResearchOrganization org = getOrganizationWith(organizationAcronym, this.organizationService);
 			if (org != null) {
