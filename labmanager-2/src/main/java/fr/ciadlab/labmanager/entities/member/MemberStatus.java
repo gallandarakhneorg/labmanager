@@ -452,8 +452,7 @@ public enum MemberStatus {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel() {
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name());
-		return Strings.nullToEmpty(label);
+		return getLabel((Gender) null);
 	}
 
 	/** Replies the label of the status in the current language.
@@ -462,7 +461,30 @@ public enum MemberStatus {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(Locale locale) {
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name(), locale);
+		return getLabel(null, locale);
+	}
+
+
+	/** Replies the label of the status in the current language.
+	 *
+	 * @param gender the gender of the person concerned by the member status.
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(Gender gender) {
+		final Gender gndr = gender == null || gender == Gender.NOT_SPECIFIED ? Gender.OTHER : gender;
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + gndr.name()); //$NON-NLS-1$
+		return Strings.nullToEmpty(label);
+	}
+
+	/** Replies the label of the status in the current language.
+	 *
+	 * @param gender the gender of the person concerned by the member status.
+	 * @param locale the locale to use.
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(Gender gender, Locale locale) {
+		final Gender gndr = gender == null || gender == Gender.NOT_SPECIFIED ? Gender.OTHER : gender;
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + gndr.name(), locale); //$NON-NLS-1$
 		return Strings.nullToEmpty(label);
 	}
 

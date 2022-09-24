@@ -33,7 +33,7 @@
 					<div class="person-card-membership"
 					     th:each="membership : ${memberships}"
 					     th:title="${membership.researchOrganization.acronymOrName}"
-					     th:utext="${membership.memberStatus.getLabel(locale)}"></div>
+					     th:utext="${membership.memberStatus.getLabel(person.gender, locale)}"></div>
 				</div>
 				<div class="person-card-contact"
 				     th:if="${enableEmail || enableOfficePhone || enableMobilePhone}">
