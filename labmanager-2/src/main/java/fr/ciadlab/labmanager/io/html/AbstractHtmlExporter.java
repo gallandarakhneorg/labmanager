@@ -56,7 +56,7 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 	/** Application constants.
 	 */
 	protected final Constants constants;
-	
+
 	/** Tools for managing DOI.
 	 */
 	protected final DoiTools doiTools;
@@ -115,9 +115,9 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 		assert configurator != null;
 		final ExportedAuthorStatus status = configurator.getExportedAuthorStatusFor(person, year);
 		final StringBuilder innerName = new StringBuilder();
-		innerName.append(person.getFirstName());
+		innerName.append(toHtml(person.getFirstName()));
 		innerName.append(" "); //$NON-NLS-1$
-		innerName.append(person.getLastName().toUpperCase());
+		innerName.append(toHtml(person.getLastName().toUpperCase()));
 
 		final StringBuilder formattedName = new StringBuilder();
 		switch (status) {
@@ -186,6 +186,64 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 		return null;
 	}
 
+	/** Replies the HTML string representation of the given UTF8 string.
+	 * 
+	 * @param utfString the UTF8 string.
+	 * @return the HTML string.
+	 */
+	protected static String toHtml(CharSequence utfString) {
+		if (utfString == null || utfString.length() == 0) {
+			return Strings.nullToEmpty(null);
+		}
+		int len = utfString.length();
+		final StringBuffer buffer = new StringBuffer(len);
+		// true if last char was blank
+		boolean lastWasBlankChar = false;
+		for (int i = 0; i < len; i++) {
+			final char c = utfString.charAt(i);
+			if (c == ' ') {
+				// blank gets extra work,
+				// this solves the problem you get if you replace all
+				// blanks with &nbsp;, if you do that you loss 
+				// word breaking
+				if (lastWasBlankChar) {
+					lastWasBlankChar = false;
+					buffer.append("&nbsp;"); //$NON-NLS-1$
+				} else {
+					lastWasBlankChar = true;
+					buffer.append(' ');
+				}
+			} else {
+				lastWasBlankChar = false;
+				// HTML Special Chars
+				if (c == '"')
+					buffer.append("&quot;"); //$NON-NLS-1$
+				else if (c == '&')
+					buffer.append("&amp;"); //$NON-NLS-1$
+				else if (c == '<')
+					buffer.append("&lt;"); //$NON-NLS-1$
+				else if (c == '>')
+					buffer.append("&gt;"); //$NON-NLS-1$
+				else if (c == '\n')
+					// Handle Newline
+					buffer.append("<br/>"); //$NON-NLS-1$
+				else {
+					int ci = 0xffff & c;
+					if (ci < 160)
+						// nothing special only 7 Bit
+						buffer.append(c);
+					else {
+						// Not 7 Bit use the unicode system
+						buffer.append("&#"); //$NON-NLS-1$
+						buffer.append(Integer.toString(ci));
+						buffer.append(';');
+					}
+				}
+			}
+		}
+		return buffer.toString();
+	}
+
 	/** Build the DOI link if the DOI is not empty.
 	 *
 	 * @param doi the DOI identifier.
@@ -194,7 +252,7 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 	protected String buildDoiLink(String doi) {
 		if (!Strings.isNullOrEmpty(doi)) {
 			return "<a href=\"" + this.doiTools.getDOIUrlFromDOINumber(doi).toExternalForm() + "\">" //$NON-NLS-1$ //$NON-NLS-2$
-					+ doi + "</a>"; //$NON-NLS-1$
+					+ toHtml(doi) + "</a>"; //$NON-NLS-1$
 		}
 		return null;
 	}
@@ -249,8 +307,8 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 		String rank = null;
 		if (scimago != null && wos != null) {
 			if (wos != scimago) {
-				final String scimagoStr = scimago.toString();
-				final String wosStr = wos.toString();
+				final String scimagoStr = toHtml(scimago.toString());
+				final String wosStr = toHtml(wos.toString());
 				if (append(receiver, ", ", //$NON-NLS-1$
 						decorateBefore(scimagoStr, this.messages.getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX")), //$NON-NLS-1$
 						decorateBefore(wosStr, this.messages.getMessage(MESSAGES_PREFIX + "WOS_PREFIX")), //$NON-NLS-1$
@@ -259,12 +317,12 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 					return true;
 				}		
 			} else {
-				rank = scimago.toString();
+				rank = toHtml(scimago.toString());
 			}
 		} else if (scimago != null) {
-			rank = scimago.toString();
+			rank = toHtml(scimago.toString());
 		} else if (wos != null) {
-			rank = wos.toString();
+			rank = toHtml(wos.toString());
 		}
 		if (append(receiver, ", ", //$NON-NLS-1$
 				decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX")), //$NON-NLS-1$
@@ -400,7 +458,7 @@ public abstract class AbstractHtmlExporter implements HtmlExporter {
 			final Month month = date.getMonth();
 			assert month != null;
 			final String displayName = month.getDisplayName(TextStyle.FULL_STANDALONE, java.util.Locale.getDefault());
-			html.append(displayName);
+			html.append(toHtml(displayName));
 			html.append(", "); //$NON-NLS-1$
 		}
 		final int year = publication.getPublicationYear();
