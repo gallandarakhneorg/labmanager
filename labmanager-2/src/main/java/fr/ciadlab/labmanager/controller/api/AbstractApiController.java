@@ -14,28 +14,27 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.service;
+package fr.ciadlab.labmanager.controller.api;
 
-import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.AbstractCredentialController;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** Abstract implementation of a Spring boot service.
+/** Abstract implementation of a JEE Controller that provides regular API.
  * 
  * @author $Author: sgalland$
- * @author $Author: tmartine$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public abstract class AbstractService extends AbstractComponent {
+public abstract class AbstractApiController extends AbstractCredentialController {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 */
-	public AbstractService(MessageSourceAccessor messages, Constants constants) {
+	public AbstractApiController(MessageSourceAccessor messages, Constants constants) {
 		super(messages, constants);
 	}
 

@@ -34,6 +34,7 @@ import java.util.stream.Stream;
 
 import javax.transaction.Transactional;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -72,16 +73,18 @@ public class MembershipService extends AbstractService {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
 	 * @param organizationRepository the organization repository.
 	 * @param membershipRepository the membership repository.
 	 * @param personRepository the person repository.
 	 */
 	public MembershipService(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired PersonRepository personRepository) {
-		super(messages);
+		super(messages, constants);
 		this.organizationRepository = organizationRepository;
 		this.membershipRepository = membershipRepository;
 		this.personRepository = personRepository;

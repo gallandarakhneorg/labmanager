@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import java.util.Base64;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
@@ -46,12 +47,14 @@ public abstract class AbstractPublicationTypeService extends AbstractService {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
 	 * @param downloadableFileManager downloadable file manager.
 	 */
 	public AbstractPublicationTypeService(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired DownloadableFileManager downloadableFileManager) {
-		super(messages);
+		super(messages, constants);
 		this.downloadableFileManager = downloadableFileManager;
 	}
 

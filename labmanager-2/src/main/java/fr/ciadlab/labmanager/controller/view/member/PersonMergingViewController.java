@@ -26,7 +26,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -62,14 +62,15 @@ public class PersonMergingViewController extends AbstractViewController {
 
 	/** Show the view that permits to analyze duplicate persons and merge them.
 	 *
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view that shows the duplicate persons.
 	 */
 	@GetMapping("/personDuplicateList")
 	public ModelAndView showPersonDuplicateList(
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("personDuplicateList"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		final List<Set<Person>> matchingAuthors = this.personService.getPersonDuplicates((a, b) -> {
 			if (a == b) {
 				return 0;

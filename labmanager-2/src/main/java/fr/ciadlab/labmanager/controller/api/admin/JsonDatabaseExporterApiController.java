@@ -27,8 +27,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.json.DatabaseToJsonExporter;
 import fr.ciadlab.labmanager.io.json.ExtraPublicationProvider;
@@ -42,7 +42,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,7 +62,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @CrossOrigin
-public class JsonDatabaseExporterApiController extends AbstractComponent {
+public class JsonDatabaseExporterApiController extends AbstractApiController {
 
 	private static final String DUPLICATED_ENTRY_FIELD = "_duplicatedEntry"; //$NON-NLS-1$
 	
@@ -77,36 +77,36 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
+	 * @param constants the constants of the app.
 	 * @param exporter the exporter.
 	 * @param publicationService the service for extracting publications from a BibTeX file.
 	 */
 	public JsonDatabaseExporterApiController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired DatabaseToJsonExporter exporter,
 			@Autowired PublicationService publicationService) {
-		super(messages);
+		super(messages, constants);
 		this.exporter = exporter;
 		this.publicationService = publicationService;
 	}
 
 	/** Export the JSON.
 	 *
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return The JSON data.
 	 * @throws Exception in case of error.
 	 */
 	@GetMapping("/exportDatabaseToJson")
 	public ResponseEntity<Map<String, Object>> exportDatabaseToJson(
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			final Map<String, Object> content = this.exporter.exportFromDatabase();
-			final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
-			final ResponseEntity<Map<String, Object>> result = bb.body(content);
-			getLogger().info("JSON was generated from the Database only"); //$NON-NLS-1$
-			return result;
-		}
-		throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		final Map<String, Object> content = this.exporter.exportFromDatabase();
+		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+		final ResponseEntity<Map<String, Object>> result = bb.body(content);
+		getLogger().info("JSON was generated from the Database only"); //$NON-NLS-1$
+		return result;
 	}
 
 	private static int getInt(Map<String, Object> source, String key) {
@@ -182,7 +182,7 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 	 *     Default value is {@code true}.
 	 * @param markDuplicateTitles indicates if the publications with the same title must be marked with a specific field named
 	 *     {@code _duplicatedEntry}.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the result of the merging as a JSON data.
 	 * @throws Exception in case of error.
 	 */
@@ -192,38 +192,36 @@ public class JsonDatabaseExporterApiController extends AbstractComponent {
 			@RequestParam(required = false) MultipartFile bibtexFile,
 			@RequestParam(required = false, defaultValue = "true") boolean addNewBibTeXEntries,
 			@RequestParam(required = false, defaultValue = "false") boolean markDuplicateTitles,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			//
-			// Read the BibTeX file obtaining informations that could be injected into the JSON if needed.
-			final BibTeXSimilarPublicationProvider provider = new BibTeXSimilarPublicationProvider(this.publicationService, bibtexFile);
-			//
-			// Export the content of the database, and complete the missed data
-			final int bibtexCount0 = provider.getPublications().size();
-			final Map<String, Object> content = this.exporter.exportFromDatabase(
-					provider,
-					addNewBibTeXEntries ? provider : null);
-			final int bibtexCount1 = provider.getPublications().size();
-			getLogger().info("Number of publications that are merged into the database: " + (bibtexCount0 - bibtexCount1)); //$NON-NLS-1$
-			getLogger().info("Number of publications that are added from BibTeX: " + bibtexCount1); //$NON-NLS-1$
-			//
-			// Try to mark the publications with duplicated titles
-			if (markDuplicateTitles) {
-				markDuplicates(content, provider);
-			}
-			//
-			// Generate the answer
-			final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-					.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
-			final ResponseEntity<Map<String, Object>> result = bb.body(content);
-			if (bibtexFile != null) {
-				getLogger().info("JSON was generated from the Database and the BibTeX file: " + bibtexFile.getOriginalFilename()); //$NON-NLS-1$
-			} else {
-				getLogger().info("JSON was generated from the Database"); //$NON-NLS-1$
-			}
-			return result;
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		//
+		// Read the BibTeX file obtaining informations that could be injected into the JSON if needed.
+		final BibTeXSimilarPublicationProvider provider = new BibTeXSimilarPublicationProvider(this.publicationService, bibtexFile);
+		//
+		// Export the content of the database, and complete the missed data
+		final int bibtexCount0 = provider.getPublications().size();
+		final Map<String, Object> content = this.exporter.exportFromDatabase(
+				provider,
+				addNewBibTeXEntries ? provider : null);
+		final int bibtexCount1 = provider.getPublications().size();
+		getLogger().info("Number of publications that are merged into the database: " + (bibtexCount0 - bibtexCount1)); //$NON-NLS-1$
+		getLogger().info("Number of publications that are added from BibTeX: " + bibtexCount1); //$NON-NLS-1$
+		//
+		// Try to mark the publications with duplicated titles
+		if (markDuplicateTitles) {
+			markDuplicates(content, provider);
 		}
-		throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+		//
+		// Generate the answer
+		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+		final ResponseEntity<Map<String, Object>> result = bb.body(content);
+		if (bibtexFile != null) {
+			getLogger().info("JSON was generated from the Database and the BibTeX file: " + bibtexFile.getOriginalFilename()); //$NON-NLS-1$
+		} else {
+			getLogger().info("JSON was generated from the Database"); //$NON-NLS-1$
+		}
+		return result;
 	}
 
 	private static void markDuplicates(Map<String, Object> content, BibTeXSimilarPublicationProvider provider) {

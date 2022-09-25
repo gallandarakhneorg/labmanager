@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -68,7 +69,7 @@ public class PersonMergingServiceTest {
 		this.personRepository = mock(PersonRepository.class);
 		this.personService = mock(PersonService.class);
 
-		this.test = new PersonMergingService(this.messages, this.personRepository, this.personService);
+		this.test = new PersonMergingService(this.messages, new Constants(), this.personRepository, this.personService);
 	}
 
 	@Test

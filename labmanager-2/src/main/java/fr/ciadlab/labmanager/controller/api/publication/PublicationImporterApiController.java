@@ -24,15 +24,15 @@ import java.util.Map.Entry;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -49,7 +49,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @CrossOrigin
-public class PublicationImporterApiController extends AbstractComponent {
+public class PublicationImporterApiController extends AbstractApiController {
 
 	private PublicationService publicationService;
 
@@ -57,12 +57,14 @@ public class PublicationImporterApiController extends AbstractComponent {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of messages.
+	 * @param constants the constants of the app.
 	 * @param publicationService the publication service.
 	 */
 	public PublicationImporterApiController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired PublicationService publicationService) {
-		super(messages);
+		super(messages, constants);
 		this.publicationService = publicationService;
 	}
 
@@ -74,44 +76,41 @@ public class PublicationImporterApiController extends AbstractComponent {
 	 *     imported or not (with boolean value), and the key {@code type} is the string representation of the type of
 	 *     publication to be considered for the BibTeX entry. If this expected publication type does not corresponds
 	 *     to the type of BibTeX entry, an exception is thrown.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception if it is impossible to import the BibTeX file in the database.
 	 */
 	@PostMapping(value = "/" + Constants.SAVE_BIBTEX_ENDPOINT)
 	public void saveBibTeX(
 			@RequestParam(required = false) MultipartFile bibtexFile,
 			@RequestParam(required = false) String changes,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			try {
-				// Pass the changes string as JSON to extract the expected types of publications. 
-				final ObjectMapper json = new ObjectMapper();
-				final Map<String, Object> jsonChanges;
-				try (final ByteArrayInputStream sis = new ByteArrayInputStream(changes.getBytes())) {
-					jsonChanges = json.readerForMapOf(Map.class).readValue(sis);
-				}
-				final Map<String, PublicationType> expectedTypes = new TreeMap<>();
-				for (final Entry<String, Object> entry : jsonChanges.entrySet()) {
-					@SuppressWarnings("unchecked")
-					final Map<String, Object> sub = (Map<String, Object>) entry.getValue();
-					if (sub != null && BooleanUtils.toBoolean(sub.getOrDefault("import", Boolean.FALSE).toString())) { //$NON-NLS-1$
-						final Object expectedTypeStr = sub.get("type"); //$NON-NLS-1$
-						if (expectedTypeStr != null && !Strings.isNullOrEmpty(expectedTypeStr.toString())) {
-							final PublicationType type = PublicationType.valueOfCaseInsensitive(expectedTypeStr.toString());
-							expectedTypes.put(entry.getKey(), type);
-						}
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		try {
+			// Pass the changes string as JSON to extract the expected types of publications. 
+			final ObjectMapper json = new ObjectMapper();
+			final Map<String, Object> jsonChanges;
+			try (final ByteArrayInputStream sis = new ByteArrayInputStream(changes.getBytes())) {
+				jsonChanges = json.readerForMapOf(Map.class).readValue(sis);
+			}
+			final Map<String, PublicationType> expectedTypes = new TreeMap<>();
+			for (final Entry<String, Object> entry : jsonChanges.entrySet()) {
+				@SuppressWarnings("unchecked")
+				final Map<String, Object> sub = (Map<String, Object>) entry.getValue();
+				if (sub != null && BooleanUtils.toBoolean(sub.getOrDefault("import", Boolean.FALSE).toString())) { //$NON-NLS-1$
+					final Object expectedTypeStr = sub.get("type"); //$NON-NLS-1$
+					if (expectedTypeStr != null && !Strings.isNullOrEmpty(expectedTypeStr.toString())) {
+						final PublicationType type = PublicationType.valueOfCaseInsensitive(expectedTypeStr.toString());
+						expectedTypes.put(entry.getKey(), type);
 					}
 				}
-				// Import the publications that are specified in the map of expected types.
-				try (final Reader reader = new InputStreamReader(bibtexFile.getInputStream())) {
-					this.publicationService.importPublications(reader, expectedTypes);
-				}
-			} catch (Throwable ex) {
-				getLogger().error(ex.getLocalizedMessage(), ex);
-				throw ex;
 			}
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			// Import the publications that are specified in the map of expected types.
+			try (final Reader reader = new InputStreamReader(bibtexFile.getInputStream())) {
+				this.publicationService.importPublications(reader, expectedTypes);
+			}
+		} catch (Throwable ex) {
+			getLogger().error(ex.getLocalizedMessage(), ex);
+			throw ex;
 		}
 	}
 

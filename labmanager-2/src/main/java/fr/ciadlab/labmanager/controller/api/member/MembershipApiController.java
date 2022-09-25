@@ -31,8 +31,8 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 
 import com.google.common.base.Strings;
-import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.ChronoMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
@@ -54,7 +54,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,7 +73,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-public class MembershipApiController extends AbstractComponent {
+public class MembershipApiController extends AbstractApiController {
 
 	private MembershipService membershipService;
 
@@ -85,16 +85,18 @@ public class MembershipApiController extends AbstractComponent {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the accessor to the localized messages.
+	 * @param constants the constants of the app.
 	 * @param membershipService the service for managing the memberships.
 	 * @param organizationService the service for accessing the organizations.
 	 * @param membershipComparator the comparator of member for determining the more recents.
 	 */
 	public MembershipApiController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired MembershipService membershipService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired ChronoMembershipComparator membershipComparator) {
-		super(messages);
+		super(messages, constants);
 		this.membershipService = membershipService;
 		this.organizationService = organizationService;
 		this.membershipComparator = membershipComparator;
@@ -122,7 +124,7 @@ public class MembershipApiController extends AbstractComponent {
 	 *     permits to control the behavior of the controller. If it is evaluated to {@code true}, the existing active
 	 *     membership is closed to the date given by {@code memberSinceWhen} (if this date is not given, today is considered.
 	 *     If argument {@code closeActive} is evaluated to {@code false}, an error is thrown. 
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception if it is impossible to save the membership in the database.
 	 */
 	@PostMapping(value = "/" + Constants.MEMBERSHIP_SAVING_ENDPOINT)
@@ -139,106 +141,100 @@ public class MembershipApiController extends AbstractComponent {
 			@RequestParam(required = false) String frenchBap,
 			@RequestParam(required = false, defaultValue = "true") boolean isMainPosition,
 			@RequestParam(required = false, defaultValue = "true") boolean closeActive,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			try {
-				// Parse values to Java objects
-				LocalDate startDate = Strings.isNullOrEmpty(memberSinceWhen) ? null : LocalDate.parse(memberSinceWhen);
-				final LocalDate endDate = Strings.isNullOrEmpty(memberToWhen) ? null : LocalDate.parse(memberToWhen);
-				final MemberStatus statusObj = Strings.isNullOrEmpty(status) ? null : MemberStatus.valueOfCaseInsensitive(status);
-				final Responsibility responsibilityObj = Strings.isNullOrEmpty(responsibility) ? null : Responsibility.valueOfCaseInsensitive(responsibility);
-				final CnuSection cnuSectionObj = cnuSection == null || cnuSection.intValue() == 0 ? null : CnuSection.valueOf(cnuSection);
-				final ConrsSection conrsSectionObj = conrsSection == null || conrsSection.intValue() == 0 ? null : ConrsSection.valueOf(conrsSection);
-				final FrenchBap frenchBapObj = Strings.isNullOrEmpty(frenchBap) ? null : FrenchBap.valueOfCaseInsensitive(frenchBap);
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		try {
+			// Parse values to Java objects
+			LocalDate startDate = Strings.isNullOrEmpty(memberSinceWhen) ? null : LocalDate.parse(memberSinceWhen);
+			final LocalDate endDate = Strings.isNullOrEmpty(memberToWhen) ? null : LocalDate.parse(memberToWhen);
+			final MemberStatus statusObj = Strings.isNullOrEmpty(status) ? null : MemberStatus.valueOfCaseInsensitive(status);
+			final Responsibility responsibilityObj = Strings.isNullOrEmpty(responsibility) ? null : Responsibility.valueOfCaseInsensitive(responsibility);
+			final CnuSection cnuSectionObj = cnuSection == null || cnuSection.intValue() == 0 ? null : CnuSection.valueOf(cnuSection);
+			final ConrsSection conrsSectionObj = conrsSection == null || conrsSection.intValue() == 0 ? null : ConrsSection.valueOf(conrsSection);
+			final FrenchBap frenchBapObj = Strings.isNullOrEmpty(frenchBap) ? null : FrenchBap.valueOfCaseInsensitive(frenchBap);
 
-				// Check validity of dates
-				if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
-					throw new IllegalArgumentException("The end date cannot be fore the start date"); //$NON-NLS-1$
-				}
-
-				if (membership == null || membership.intValue() == 0) {
-					// Create the membership
-					if (person == null || person.intValue() == 0) {
-						throw new IllegalArgumentException("Person identifier is missed"); //$NON-NLS-1$
-					}
-					if (organization == null || organization.intValue() == 0) {
-						throw new IllegalArgumentException("Organization identifier is missed"); //$NON-NLS-1$
-					}
-					if (statusObj == null) {
-						throw new IllegalArgumentException("Member status is missed"); //$NON-NLS-1$
-					}
-					boolean continueCreation;
-					do {
-						continueCreation = false;
-						final Pair<Membership, Boolean> result = this.membershipService.addMembership(
-								organization.intValue(),
-								person.intValue(),
-								startDate, endDate, statusObj, responsibilityObj,
-								cnuSectionObj, conrsSectionObj,
-								frenchBapObj, isMainPosition, false);
-						if (!result.getRight().booleanValue()) {
-							// The membership already exists, start the dedicated behavior
-							if (closeActive) {
-								final Membership otherMembership = result.getLeft();
-								if (startDate == null) {
-									startDate = LocalDate.now();
-								}
-								final LocalDate pEnd = startDate.minus(1, ChronoUnit.DAYS);
-								LocalDate pStart = otherMembership.getMemberSinceWhen();
-								if (pStart != null && pEnd.isBefore(pStart)) {
-									pStart = pEnd;
-								}
-								this.membershipService.updateMembershipById(
-										otherMembership.getId(),
-										Integer.valueOf(otherMembership.getResearchOrganization().getId()),
-										pStart, pEnd,
-										otherMembership.getMemberStatus(),
-										otherMembership.getResponsibility(),
-										otherMembership.getCnuSection(),
-										otherMembership.getConrsSection(),
-										otherMembership.getFrenchBap(),
-										otherMembership.isMainPosition());
-								continueCreation = true;
-							} else {
-								throw new IllegalStateException("A membership is already active. It is not allowed to create multiple active memberships for the same organization"); //$NON-NLS-1$
-							}
-						}
-					} while (continueCreation);
-				} else {
-					// Update an existing membership.
-					this.membershipService.updateMembershipById(
-							membership.intValue(),
-							organization, startDate, endDate, statusObj, responsibilityObj,
-							cnuSectionObj, conrsSectionObj, frenchBapObj,
-							isMainPosition);
-				}
-			} catch (Throwable ex) {
-				getLogger().error(ex.getLocalizedMessage(), ex);
-				throw ex;
+			// Check validity of dates
+			if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
+				throw new IllegalArgumentException("The end date cannot be fore the start date"); //$NON-NLS-1$
 			}
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+
+			if (membership == null || membership.intValue() == 0) {
+				// Create the membership
+				if (person == null || person.intValue() == 0) {
+					throw new IllegalArgumentException("Person identifier is missed"); //$NON-NLS-1$
+				}
+				if (organization == null || organization.intValue() == 0) {
+					throw new IllegalArgumentException("Organization identifier is missed"); //$NON-NLS-1$
+				}
+				if (statusObj == null) {
+					throw new IllegalArgumentException("Member status is missed"); //$NON-NLS-1$
+				}
+				boolean continueCreation;
+				do {
+					continueCreation = false;
+					final Pair<Membership, Boolean> result = this.membershipService.addMembership(
+							organization.intValue(),
+							person.intValue(),
+							startDate, endDate, statusObj, responsibilityObj,
+							cnuSectionObj, conrsSectionObj,
+							frenchBapObj, isMainPosition, false);
+					if (!result.getRight().booleanValue()) {
+						// The membership already exists, start the dedicated behavior
+						if (closeActive) {
+							final Membership otherMembership = result.getLeft();
+							if (startDate == null) {
+								startDate = LocalDate.now();
+							}
+							final LocalDate pEnd = startDate.minus(1, ChronoUnit.DAYS);
+							LocalDate pStart = otherMembership.getMemberSinceWhen();
+							if (pStart != null && pEnd.isBefore(pStart)) {
+								pStart = pEnd;
+							}
+							this.membershipService.updateMembershipById(
+									otherMembership.getId(),
+									Integer.valueOf(otherMembership.getResearchOrganization().getId()),
+									pStart, pEnd,
+									otherMembership.getMemberStatus(),
+									otherMembership.getResponsibility(),
+									otherMembership.getCnuSection(),
+									otherMembership.getConrsSection(),
+									otherMembership.getFrenchBap(),
+									otherMembership.isMainPosition());
+							continueCreation = true;
+						} else {
+							throw new IllegalStateException("A membership is already active. It is not allowed to create multiple active memberships for the same organization"); //$NON-NLS-1$
+						}
+					}
+				} while (continueCreation);
+			} else {
+				// Update an existing membership.
+				this.membershipService.updateMembershipById(
+						membership.intValue(),
+						organization, startDate, endDate, statusObj, responsibilityObj,
+						cnuSectionObj, conrsSectionObj, frenchBapObj,
+						isMainPosition);
+			}
+		} catch (Throwable ex) {
+			getLogger().error(ex.getLocalizedMessage(), ex);
+			throw ex;
 		}
 	}
 
 	/** Delete a membership from the database.
 	 *
 	 * @param id the identifier of the membership.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/" + Constants.MEMBERSHIP_DELETION_ENDPOINT)
 	public void deleteMembership(
 			@RequestParam Integer id,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			if (id == null || id.intValue() == 0) {
-				throw new IllegalStateException("Missing the membership id"); //$NON-NLS-1$
-			}
-			this.membershipService.removeMembership(id.intValue());
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		if (id == null || id.intValue() == 0) {
+			throw new IllegalStateException("Missing the membership id"); //$NON-NLS-1$
 		}
+		this.membershipService.removeMembership(id.intValue());
 	}
 
 	/** Replies the JSON representation of the members of the given organization.
@@ -253,6 +249,7 @@ public class MembershipApiController extends AbstractComponent {
 	 * @param inAttachment indicates if the JSON is provided as attached document or not. By default, the value is
 	 *     {@code false}.
 	 *     If the parameter {@code forAjax} is evaluated to {@code true}, this parameter is ignored.
+	 * @param username the name of the logged-in user.
 	 * @return the JSON.
 	 */
 	@GetMapping(value = "/" + Constants.EXPORT_MEMBERS_TO_JSON_ENDPOINT)
@@ -261,7 +258,9 @@ public class MembershipApiController extends AbstractComponent {
 			@RequestParam(required = false) String otherOrganizationType,
 			@RequestParam(required = false, name = Constants.INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
-			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) {
+			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		readCredentials(username);
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
 		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();
 		final ResearchOrganizationType otherOrganizationTypeEnum =

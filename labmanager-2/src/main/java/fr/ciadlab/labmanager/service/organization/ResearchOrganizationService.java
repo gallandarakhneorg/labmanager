@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
@@ -46,12 +47,14 @@ public class ResearchOrganizationService extends AbstractService {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
 	 * @param organizationRepository the organization repository.
 	 */
 	public ResearchOrganizationService(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired ResearchOrganizationRepository organizationRepository) {
-		super(messages);
+		super(messages, constants);
 		this.organizationRepository = organizationRepository;
 	}
 

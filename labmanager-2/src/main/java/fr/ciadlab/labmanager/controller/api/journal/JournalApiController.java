@@ -20,8 +20,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.service.journal.JournalService;
@@ -29,7 +29,7 @@ import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -49,7 +49,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-public class JournalApiController extends AbstractComponent {
+public class JournalApiController extends AbstractApiController {
 
 	private JournalService journalService;
 
@@ -57,12 +57,14 @@ public class JournalApiController extends AbstractComponent {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the accessor to the localized messages.
+	 * @param constants the constants of the app.
 	 * @param journalService the journal service.
 	 */
 	public JournalApiController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired JournalService journalService) {
-		super(messages);
+		super(messages, constants);
 		this.journalService = journalService;
 	}
 
@@ -131,7 +133,7 @@ public class JournalApiController extends AbstractComponent {
 	 * @param journalUrl the URL to the page of the journal on the publisher website.
 	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception in case the journal cannot be saved
 	 */
 	@PostMapping(value = "/" + Constants.JOURNAL_SAVING_ENDPOINT)
@@ -146,45 +148,39 @@ public class JournalApiController extends AbstractComponent {
 			@RequestParam(required = false) String journalUrl,
 			@RequestParam(required = false) String scimagoId,
 			@RequestParam(required = false) String wosId,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			final Journal optJournal;
-			//
-			if (journal == null) {
-				optJournal = this.journalService.createJournal(
-						name, address, publisher, isbn, issn,
-						openAccess, journalUrl, scimagoId, wosId);
-			} else {
-				optJournal = this.journalService.updateJournal(journal.intValue(),
-						name, address, publisher, isbn, issn,
-						openAccess, journalUrl, scimagoId, wosId);
-			}
-			if (optJournal == null) {
-				throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
-			}
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		final Journal optJournal;
+		//
+		if (journal == null) {
+			optJournal = this.journalService.createJournal(
+					name, address, publisher, isbn, issn,
+					openAccess, journalUrl, scimagoId, wosId);
 		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			optJournal = this.journalService.updateJournal(journal.intValue(),
+					name, address, publisher, isbn, issn,
+					openAccess, journalUrl, scimagoId, wosId);
+		}
+		if (optJournal == null) {
+			throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
 		}
 	}
 
 	/** Delete a journal from the database.
 	 *
 	 * @param journal the identifier of the journal.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/deleteJournal")
 	public void deleteJournal(
 			@RequestParam Integer journal,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			if (journal == null || journal.intValue() == 0) {
-				throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
-			}
-			this.journalService.removeJournal(journal.intValue());
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		if (journal == null || journal.intValue() == 0) {
+			throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
 		}
+		this.journalService.removeJournal(journal.intValue());
 	}
 
 	/** Saving ranking of a journal. 
@@ -194,7 +190,7 @@ public class JournalApiController extends AbstractComponent {
 	 * @param impactFactor the impact factor of the journal for the given year.
 	 * @param scimagoQIndex the Scimago's Q-Index of the journal for the given year.
 	 * @param wosQIndex the WoS's Q-Index of the journal for the given year.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception in case the journal ranking cannot be saved
 	 */
 	@PostMapping(value = "/" + Constants.SAVE_JOURNAL_RANKING_ENDPOINT)
@@ -204,42 +200,36 @@ public class JournalApiController extends AbstractComponent {
 			@RequestParam(required = false) Float impactFactor,
 			@RequestParam(required = false) String scimagoQIndex,
 			@RequestParam(required = false) String wosQIndex,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			final Journal journalObj = this.journalService.getJournalById(journal);
-			if (journalObj == null) {
-				throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
-			}
-			final float realImpactFactor = impactFactor == null || impactFactor.floatValue() < 0f ? 0f : impactFactor.floatValue();
-			final QuartileRanking scimago = Strings.isNullOrEmpty(scimagoQIndex) ? null : QuartileRanking.valueOf(scimagoQIndex);
-			final QuartileRanking wos = Strings.isNullOrEmpty(wosQIndex) ? null : QuartileRanking.valueOf(wosQIndex);
-			this.journalService.setQualityIndicators(journalObj, year, realImpactFactor, scimago, wos);
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		final Journal journalObj = this.journalService.getJournalById(journal);
+		if (journalObj == null) {
+			throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
 		}
+		final float realImpactFactor = impactFactor == null || impactFactor.floatValue() < 0f ? 0f : impactFactor.floatValue();
+		final QuartileRanking scimago = Strings.isNullOrEmpty(scimagoQIndex) ? null : QuartileRanking.valueOf(scimagoQIndex);
+		final QuartileRanking wos = Strings.isNullOrEmpty(wosQIndex) ? null : QuartileRanking.valueOf(wosQIndex);
+		this.journalService.setQualityIndicators(journalObj, year, realImpactFactor, scimago, wos);
 	}
 
 	/** Delete a journal ranking from the database.
 	 *
 	 * @param journal the identifier of the journal.
 	 * @param year the identifier of the journal.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/" + Constants.DELETE_JOURNAL_RANKING_ENDPOINT)
 	public void deleteJournalRanking(
 			@RequestParam(required = true) int journal,
 			@RequestParam(required = true) int year,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			final Journal journalObj = this.journalService.getJournalById(journal);
-			if (journalObj == null) {
-				throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
-			}
-			this.journalService.deleteQualityIndicators(journalObj, year);
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		final Journal journalObj = this.journalService.getJournalById(journal);
+		if (journalObj == null) {
+			throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
 		}
+		this.journalService.deleteQualityIndicators(journalObj, year);
 	}
 
 }

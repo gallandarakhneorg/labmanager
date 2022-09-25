@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -84,7 +85,7 @@ public class ResearchOrganizationServiceTest {
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.organizationRepository = mock(ResearchOrganizationRepository.class);
-		this.test = new ResearchOrganizationService(this.messages, this.organizationRepository);
+		this.test = new ResearchOrganizationService(this.messages, new Constants(), this.organizationRepository);
 
 		// Prepare some organizations to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

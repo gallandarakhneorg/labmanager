@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
@@ -63,6 +64,7 @@ public class JournalService extends AbstractService {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
 	 * @param journalRepository the journal repository.
 	 * @param indicatorRepository the repository for journal indicators.
 	 * @param publicationRepository the publication repository.
@@ -70,11 +72,12 @@ public class JournalService extends AbstractService {
 	 */
 	public JournalService(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired JournalRepository journalRepository,
 			@Autowired JournalQualityAnnualIndicatorsRepository indicatorRepository,
 			@Autowired JournalPaperRepository publicationRepository,
 			@Autowired NetConnection netConnection) {
-		super(messages);
+		super(messages, constants);
 		this.journalRepository = journalRepository;
 		this.indicatorRepository = indicatorRepository;
 		this.publicationRepository = publicationRepository;

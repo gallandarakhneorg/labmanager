@@ -48,6 +48,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
@@ -104,7 +105,7 @@ public class JournalServiceTest {
 		this.publicationRepository = mock(JournalPaperRepository.class);
 		this.indicatorRepository = mock(JournalQualityAnnualIndicatorsRepository.class);
 		this.netConnection = mock(NetConnection.class);
-		this.test = new JournalService(this.messages, this.journalRepository, this.indicatorRepository, this.publicationRepository, this.netConnection);
+		this.test = new JournalService(this.messages, new Constants(), this.journalRepository, this.indicatorRepository, this.publicationRepository, this.netConnection);
 
 		// Prepare some journals to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -626,7 +627,7 @@ public class JournalServiceTest {
 	public void downloadScimagoQuartileByJournal_fromInternet() throws Exception {
 		// Force the connection to Internet
 		this.netConnection = new DirectNetConnection();
-		this.test = new JournalService(this.messages, this.journalRepository, this.indicatorRepository,this.publicationRepository, this.netConnection);
+		this.test = new JournalService(this.messages, new Constants(), this.journalRepository, this.indicatorRepository,this.publicationRepository, this.netConnection);
 
 		// The following id is for the Int. Journal of Artificial Intelligence
 		when(this.jour3.getScimagoId()).thenReturn("23675");

@@ -31,6 +31,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class Constants {
 
+	/** Anonymous user name.
+	 */
+	public static final String ANONYMOUS = "anonymous"; //$NON-NLS-1$
+
 	/** Name of the endpoint for exporting to JSON.
 	 */
 	public static final String EXPORT_JSON_ENDPOINT = "exportJson"; //$NON-NLS-1$

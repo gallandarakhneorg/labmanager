@@ -43,6 +43,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -107,7 +108,7 @@ public class MembershipServiceTest {
 		this.organizationRepository = mock(ResearchOrganizationRepository.class);
 		this.membershipRepository = mock(MembershipRepository.class);
 		this.personRepository = mock(PersonRepository.class);
-		this.test = new MembershipService(this.messages, this.organizationRepository, this.membershipRepository, this.personRepository);
+		this.test = new MembershipService(this.messages, new Constants(), this.organizationRepository, this.membershipRepository, this.personRepository);
 
 		// Prepare some memberships to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

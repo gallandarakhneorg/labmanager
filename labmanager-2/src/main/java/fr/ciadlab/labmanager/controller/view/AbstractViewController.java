@@ -22,8 +22,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
-import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.AbstractCredentialController;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -38,7 +38,7 @@ import org.springframework.web.util.UriBuilderFactory;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public abstract class AbstractViewController extends AbstractComponent {
+public abstract class AbstractViewController extends AbstractCredentialController {
 
 	/** Factory of URI builder.
 	 */
@@ -48,16 +48,13 @@ public abstract class AbstractViewController extends AbstractComponent {
 	
 	private static final Pattern EMAIL_PATTERN = Pattern.compile(EMAIL_PATTERN_VALUE);
 
-	private Constants constants;
-
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 */
 	public AbstractViewController(MessageSourceAccessor messages, Constants constants) {
-		super(messages);
-		this.constants = constants;
+		super(messages, constants);
 	}
 
 	/** Build the URL for accessing an endpoint with the given parameter name, but without setting the parameter value. 
@@ -128,11 +125,10 @@ public abstract class AbstractViewController extends AbstractComponent {
 	 * The added object in the model are: {@code uuid} and {@code changeEnabled}.
 	 *
 	 * @param modelAndView the model-view
-	 * @param username the login of the logged-in person.
 	 */
-	protected void initModelViewProperties(ModelAndView modelAndView, String username) {
+	protected void initModelViewWithInternalProperties(ModelAndView modelAndView) {
 		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
-		modelAndView.addObject("changeEnabled", isLoggedUser(username)); //$NON-NLS-1$
+		modelAndView.addObject("changeEnabled", Boolean.valueOf(!Strings.isNullOrEmpty(this.username))); //$NON-NLS-1$
 	}
 
 	/** Fill the attributes that are needed to build up the buttons in an admin table.

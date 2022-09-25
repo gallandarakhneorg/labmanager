@@ -32,7 +32,6 @@ import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -45,24 +44,29 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractComponent {
 
+	/** Constants of the application.
+	 */
+	protected Constants constants;
+
 	private MessageSourceAccessor messages;
 
 	private Logger logger;
 
 	private final Random random = new Random();
 
+	/** Indicates if the component is launched in debug mode.
+	 */
 	@Value("${labmanager.debug}")
-	private boolean debugVersion;
-
-	@Autowired
-	private Constants constants;
+	protected boolean debugVersion;
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
+	 * @param constants the accessor to the constants.
 	 */
-	public AbstractComponent(MessageSourceAccessor messages) {
+	public AbstractComponent(MessageSourceAccessor messages, Constants constants) {
 		this.messages = messages;
+		this.constants = constants;
 	}
 
 	/** Replies the logger of this service.
@@ -116,16 +120,6 @@ public abstract class AbstractComponent {
 	 */
 	public void setMessageSourceAccessor(MessageSourceAccessor accessor) {
 		this.messages = accessor;
-	}
-
-	/** Replies if the given username corresponds to a logged user.
-	 * <p>This function replies always {@code Boolean#TRUE} if the backend is in debug mode.
-	 *
-	 * @param username the username to test.
-	 * @return {@code Boolean#TRUE} if a user is logged.
-	 */
-	protected Boolean isLoggedUser(String username) {
-		return Boolean.valueOf(this.debugVersion || !Strings.isNullOrEmpty(username));
 	}
 
 	/** Generate an UUID.

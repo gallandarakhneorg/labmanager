@@ -16,8 +16,8 @@
 
 package fr.ciadlab.labmanager.controller.api.member;
 
-import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.controller.api.publication.PublicationApiController;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -34,7 +34,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,7 +59,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-public class PersonApiController extends AbstractComponent {
+public class PersonApiController extends AbstractApiController {
 
 	private PersonService personService;
 
@@ -73,6 +73,7 @@ public class PersonApiController extends AbstractComponent {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the accessor to the localized messages.
+	 * @param constants the constants of the app.
 	 * @param personService the person service.
 	 * @param organizationService the organization service.
 	 * @param nameParser the parser of person names.
@@ -80,11 +81,12 @@ public class PersonApiController extends AbstractComponent {
 	 */
 	public PersonApiController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired PersonService personService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired PersonNameParser nameParser,
 			@Autowired VcardBuilder vcardBuilder) {
-		super(messages);
+		super(messages, constants);
 		this.personService = personService;
 		this.organizationService = organizationService;
 		this.nameParser = nameParser;
@@ -100,6 +102,7 @@ public class PersonApiController extends AbstractComponent {
 	 * @param webId the identifier of the webpage of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
 	 * @param strictName indicates if the name test must be strict (equality test) or not (similarity test).
 	 *     By default, this parameter has the value {@code false}.
+	 * @param username the name of the logged-in user.
 	 * @return the person, or {@code null} if the person with the given name was not found.
 	 * @see PersonNameComparator
 	 */
@@ -108,7 +111,9 @@ public class PersonApiController extends AbstractComponent {
 	public Person getPersonData(
 			@RequestParam(required = false) Integer dbId,
 			@RequestParam(required = false) String webId,
-			@RequestParam(defaultValue = "false", required = false) boolean strictName) {
+			@RequestParam(defaultValue = "false", required = false) boolean strictName,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		ensureCredentials(username);
 		final Person person = getPersonWith(dbId, webId, null, this.personService, this.nameParser);
 		if (person == null) {
 			throw new IllegalArgumentException("Person not found"); //$NON-NLS-1$
@@ -140,7 +145,7 @@ public class PersonApiController extends AbstractComponent {
 	 * @param webPageNaming the type of naming for the person's webpage on the organization server.
 	 * @param googleScholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception if the person cannot be saved.
 	 */
 	@PostMapping(value = "/" + Constants.PERSON_SAVING_ENDPOINT)
@@ -166,54 +171,48 @@ public class PersonApiController extends AbstractComponent {
 			@RequestParam(required = false) String webPageNaming,
 			@RequestParam(required = false) Integer googleScholarHindex,
 			@RequestParam(required = false) Integer wosHindex,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			final Gender genderObj = Strings.isNullOrEmpty(gender) ? Gender.NOT_SPECIFIED : Gender.valueOfCaseInsensitive(gender);
-			final WebPageNaming webPageNamingObj = Strings.isNullOrEmpty(webPageNaming) ? WebPageNaming.UNSPECIFIED : WebPageNaming.valueOfCaseInsensitive(webPageNaming);
-			final int shindex = googleScholarHindex == null ? 0 : googleScholarHindex.intValue();
-			final int whindex = wosHindex == null ? 0 : wosHindex.intValue();
-			//
-			final Person optPerson;
-			//
-			if (person == null) {
-				optPerson = this.personService.createPerson(
-						firstName, lastName, genderObj, email, officePhone, mobilePhone,
-						gravatarId, orcid, researcherId, googleScholarId, linkedInId, githubId, researchGateId,
-						facebookId, dblpURL, academiaURL, cordisURL, webPageNamingObj,
-						shindex, whindex);
-			} else {
-				optPerson = this.personService.updatePerson(person.intValue(),
-						firstName, lastName, genderObj, email, officePhone, mobilePhone,
-						gravatarId, orcid, researcherId, googleScholarId, linkedInId, githubId, researchGateId,
-						facebookId, dblpURL, academiaURL, cordisURL, webPageNamingObj,
-						shindex, whindex);
-			}
-			if (optPerson == null) {
-				throw new IllegalStateException("Person not found"); //$NON-NLS-1$
-			}
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		final Gender genderObj = Strings.isNullOrEmpty(gender) ? Gender.NOT_SPECIFIED : Gender.valueOfCaseInsensitive(gender);
+		final WebPageNaming webPageNamingObj = Strings.isNullOrEmpty(webPageNaming) ? WebPageNaming.UNSPECIFIED : WebPageNaming.valueOfCaseInsensitive(webPageNaming);
+		final int shindex = googleScholarHindex == null ? 0 : googleScholarHindex.intValue();
+		final int whindex = wosHindex == null ? 0 : wosHindex.intValue();
+		//
+		final Person optPerson;
+		//
+		if (person == null) {
+			optPerson = this.personService.createPerson(
+					firstName, lastName, genderObj, email, officePhone, mobilePhone,
+					gravatarId, orcid, researcherId, googleScholarId, linkedInId, githubId, researchGateId,
+					facebookId, dblpURL, academiaURL, cordisURL, webPageNamingObj,
+					shindex, whindex);
 		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			optPerson = this.personService.updatePerson(person.intValue(),
+					firstName, lastName, genderObj, email, officePhone, mobilePhone,
+					gravatarId, orcid, researcherId, googleScholarId, linkedInId, githubId, researchGateId,
+					facebookId, dblpURL, academiaURL, cordisURL, webPageNamingObj,
+					shindex, whindex);
+		}
+		if (optPerson == null) {
+			throw new IllegalStateException("Person not found"); //$NON-NLS-1$
 		}
 	}
 
 	/** Delete a person from the database.
 	 *
 	 * @param person the identifier of the person.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/deletePerson")
 	public void deletePerson(
 			@RequestParam Integer person,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			if (person == null || person.intValue() == 0) {
-				throw new IllegalStateException("Person not found"); //$NON-NLS-1$
-			}
-			this.personService.removePerson(person.intValue());
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		if (person == null || person.intValue() == 0) {
+			throw new IllegalStateException("Person not found"); //$NON-NLS-1$
 		}
+		this.personService.removePerson(person.intValue());
 	}
 
 	/** Replies the person's virtual card. This card is a description of the person that could 

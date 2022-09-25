@@ -31,7 +31,7 @@ import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -70,14 +70,15 @@ public class JournalViewController extends AbstractViewController {
 
 	/** Replies the model-view component for managing the journals.
 	 *
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + Constants.JOURNAL_LIST_ENDPOINT)
 	public ModelAndView showJournalList(
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView(Constants.JOURNAL_LIST_ENDPOINT);
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		initAdminTableButtons(modelAndView, endpoint(Constants.JOURNAL_EDITING_ENDPOINT, "journal")); //$NON-NLS-1$
 		modelAndView.addObject("journals", this.journalService.getAllJournals()); //$NON-NLS-1$
 		modelAndView.addObject("currentYear", Integer.valueOf(LocalDate.now().getYear())); //$NON-NLS-1$
@@ -88,15 +89,16 @@ public class JournalViewController extends AbstractViewController {
 	 *
 	 * @param journal the identifier of the journal to edit. If it is {@code null}, the endpoint
 	 *     is dedicated to the creation of a journal.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view object.
 	 */
 	@GetMapping(value = "/" + Constants.JOURNAL_EDITING_ENDPOINT)
 	public ModelAndView showJournalEditor(
 			@RequestParam(required = false) Integer journal,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("journalEditor"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		//
 		final Journal journalObj;
 		if (journal != null && journal.intValue() != 0) {
@@ -119,15 +121,16 @@ public class JournalViewController extends AbstractViewController {
 	/** Show the editor for a journal ranking.
 	 *
 	 * @param id the identifier of the journal to edit.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view object.
 	 */
 	@GetMapping(value = "/journalRankingEditor")
 	public ModelAndView showJournalEditor(
 			@RequestParam(required = true) int id,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("journalRankingEditor"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		//
 		final Journal journal = this.journalService.getJournalById(id);
 		if (journal == null) {

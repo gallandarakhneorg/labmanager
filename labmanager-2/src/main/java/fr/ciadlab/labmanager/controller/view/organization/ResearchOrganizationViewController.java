@@ -28,7 +28,7 @@ import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -67,14 +67,15 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 
 	/** Replies the model-view component for listing the research organizations. It is the main endpoint for this controller.
 	 *
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + Constants.ORGANIZATION_LIST_ENDPOINT)
 	public ModelAndView showOrganizationList(
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView(Constants.ORGANIZATION_LIST_ENDPOINT);
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		initAdminTableButtons(modelAndView, endpoint(Constants.ORGANIZATION_EDITING_ENDPOINT, "organization")); //$NON-NLS-1$
 		modelAndView.addObject("organizations", this.organizationService.getAllResearchOrganizations()); //$NON-NLS-1$
 		return modelAndView;
@@ -84,15 +85,16 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	 *
 	 * @param organization the identifier of the organization to edit. If it is {@code null}, the endpoint
 	 *     is dedicated to the creation of an organization.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view object.
 	 */
 	@GetMapping(value = "/" + Constants.ORGANIZATION_EDITING_ENDPOINT)
 	public ModelAndView showOrganizationEditor(
 			@RequestParam(required = false) Integer organization,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("organizationEditor"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		//
 		final ResearchOrganization organizationObj;
 		if (organization != null && organization.intValue() != 0) {

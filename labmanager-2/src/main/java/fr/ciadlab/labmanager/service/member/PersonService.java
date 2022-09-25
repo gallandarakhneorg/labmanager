@@ -27,6 +27,7 @@ import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -70,6 +71,7 @@ public class PersonService extends AbstractService {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
 	 * @param publicationRepository the publication repository.
 	 * @param authorshipRepository the authorship repository.
 	 * @param personRepository the person repository.
@@ -78,12 +80,13 @@ public class PersonService extends AbstractService {
 	 */
 	public PersonService(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired PersonNameParser nameParser,
 			@Autowired PersonNameComparator nameComparator) {
-		super(messages);
+		super(messages, constants);
 		this.publicationRepository = publicationRepository;
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;

@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -48,14 +49,16 @@ public class PersonMergingService extends AbstractService {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
 	 * @param personRepository the person repository.
 	 * @param personService the person service.
 	 */
 	public PersonMergingService(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired PersonRepository personRepository,
 			@Autowired PersonService personService) {
-		super(messages);
+		super(messages, constants);
 		this.personRepository = personRepository;
 		this.personService = personService;
 	}

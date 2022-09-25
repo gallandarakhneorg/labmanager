@@ -52,7 +52,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -120,16 +120,17 @@ public class PublicationViewController extends AbstractViewController {
 	 * This endpoint is designed for the database management.
 	 *
 	 * @param journal the identifier of the journal for which the publications must be displayed.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view component.
 	 * @see #showFrontPublicationList(Integer, Integer, Integer, Boolean)
 	 */
 	@GetMapping("/" + Constants.PUBLICATION_LIST_ENDPOINT)
 	public ModelAndView showBackPublicationList(
 			@RequestParam(required = false) Integer journal,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PUBLICATION_LIST_ENDPOINT);
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		initAdminTableButtons(modelAndView, endpoint(Constants.PUBLICATION_EDITING_ENDPOINT, "publication")); //$NON-NLS-1$
 		Collection<? extends Publication> pubs = null;
 		if (journal != null) {
@@ -164,7 +165,7 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param enableYearFilter indicates if the filter dedicated to years is enabled.
 	 * @param enableTypeFilter indicates if the filter dedicated to types/categories is enabled.
 	 * @param enableAuthorFilter indicates if the filter dedicated to authors is enabled.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view of the list of publications.
 	 * @see #showBackPublicationList()
 	 * @see #exportJson(HttpServletResponse, List, Integer, Integer, Integer)
@@ -183,9 +184,10 @@ public class PublicationViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue = "true") boolean enableYearFilter,
 			@RequestParam(required = false, defaultValue = "true") boolean enableTypeFilter,
 			@RequestParam(required = false, defaultValue = "true") boolean enableAuthorFilter,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("showPublications"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		//
 		final Integer organizationIdObj;
 		if (organization != null && organization.intValue() != 0) {
@@ -257,7 +259,7 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param name the name of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
 	 * @param annual indicates if the stats for each year are provided. Default is {@code true}.
 	 * @param global indicates if the global stats are provided. Default is {@code true}.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view with the statistics.
 	 */
 	@GetMapping("/showPublicationStats")
@@ -266,9 +268,10 @@ public class PublicationViewController extends AbstractViewController {
 			@RequestParam(required = false) String webId,
 			@RequestParam(required = false, defaultValue = "true") boolean annual,
 			@RequestParam(required = false, defaultValue = "true") boolean global,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("showPublicationStats"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 
 		final List<Publication> publications;
 		if (dbId != null && dbId.intValue() != 0) {
@@ -305,16 +308,17 @@ public class PublicationViewController extends AbstractViewController {
 	 *
 	 * @param publication the identifier of the publication to edit. If it is {@code null}, the endpoint
 	 *     is dedicated to the creation of a publication.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view object.
 	 * @throws IOException if there is some internal IO error when building the form's data.
 	 */
 	@GetMapping(value = "/" + Constants.PUBLICATION_EDITING_ENDPOINT)
 	public ModelAndView showPublicationEditor(
 			@RequestParam(required = false, name = Constants.PUBLICATION_ENDPOINT_PARAMETER) Integer publication,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws IOException {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws IOException {
+		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("publicationEditor"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		//
 		final Publication publicationObj;
 		if (publication != null && publication.intValue() != 0) {
@@ -450,15 +454,16 @@ public class PublicationViewController extends AbstractViewController {
 
 	/** Show the view for importing BibTeX files.
 	 *
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view object.
 	 * @throws IOException if there is some internal IO error when building the form's data.
 	 */
 	@GetMapping(value = "/" + Constants.IMPORT_BIBTEX_VIEW_ENDPOINT)
 	public ModelAndView showBibTeXImporter(
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws IOException {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws IOException {
+		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("importBibTeX"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		//
 		modelAndView.addObject("bibtexJsonActionUrl", endpoint(Constants.GET_JSON_FROM_BIBTEX_ENDPOINT, //$NON-NLS-1$
 				Constants.CHECKINDB_ENDPOINT_PARAMETER, Boolean.TRUE));

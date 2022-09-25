@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 import java.net.URL;
 import java.time.LocalDate;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
@@ -65,7 +66,7 @@ public class AbstractPublicationTypeServiceTest {
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
-		this.test = new AbstractPublicationTypeService(this.messages, this.downloadableFileManager) {
+		this.test = new AbstractPublicationTypeService(this.messages, new Constants(), this.downloadableFileManager) {
 			@Override
 			protected boolean isValidPublicationType(PublicationType type, Publication publication) {
 				return true;

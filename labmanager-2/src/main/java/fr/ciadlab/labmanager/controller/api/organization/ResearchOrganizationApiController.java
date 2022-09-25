@@ -18,8 +18,8 @@ package fr.ciadlab.labmanager.controller.api.organization;
 
 import java.util.Optional;
 
-import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
@@ -28,7 +28,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.util.CountryCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -48,7 +48,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-public class ResearchOrganizationApiController extends AbstractComponent {
+public class ResearchOrganizationApiController extends AbstractApiController {
 
 	private ResearchOrganizationService organizationService;
 
@@ -56,12 +56,14 @@ public class ResearchOrganizationApiController extends AbstractComponent {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of messages.
+	 * @param constants the constants of the app.
 	 * @param organizationService the research organization service.
 	 */
 	public ResearchOrganizationApiController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired ResearchOrganizationService organizationService) {
-		super(messages);
+		super(messages, constants);
 		this.organizationService = organizationService;
 	}
 
@@ -105,7 +107,7 @@ public class ResearchOrganizationApiController extends AbstractComponent {
 	 * @param organizationURL the web-site of the organization.
 	 * @param country the country of the organization. It is a constant of {@link CountryCode}.
 	 * @param superOrganization the identifier of the super organization, or {@code 0} if none.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of problem for saving.
 	 */
 	@PostMapping(value = "/" + Constants.ORGANIZATION_SAVING_ENDPOINT)
@@ -118,50 +120,44 @@ public class ResearchOrganizationApiController extends AbstractComponent {
 			@RequestParam(required = false) String organizationURL,
 			@RequestParam(required = false) String country,
 			@RequestParam(required = false) Integer superOrganization,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			try {
-				final ResearchOrganizationType typeObj = ResearchOrganizationType.valueOfCaseInsensitive(type);
-				final CountryCode countryObj = CountryCodeUtils.valueOfCaseInsensitive(country);
-				//
-				final Optional<ResearchOrganization> optOrganization;
-				//
-				if (organization == null) {
-					optOrganization = this.organizationService.createResearchOrganization(
-							acronym, name, description, typeObj, organizationURL, countryObj, superOrganization);
-				} else {
-					optOrganization = this.organizationService.updateResearchOrganization(organization.intValue(),
-							acronym, name, description, typeObj, organizationURL, countryObj, superOrganization);
-				}
-				if (optOrganization.isEmpty()) {
-					throw new IllegalStateException("Organization not found"); //$NON-NLS-1$
-				}
-			} catch (Throwable ex) {
-				throw new IllegalStateException(ex.getLocalizedMessage(), ex);
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		try {
+			final ResearchOrganizationType typeObj = ResearchOrganizationType.valueOfCaseInsensitive(type);
+			final CountryCode countryObj = CountryCodeUtils.valueOfCaseInsensitive(country);
+			//
+			final Optional<ResearchOrganization> optOrganization;
+			//
+			if (organization == null) {
+				optOrganization = this.organizationService.createResearchOrganization(
+						acronym, name, description, typeObj, organizationURL, countryObj, superOrganization);
+			} else {
+				optOrganization = this.organizationService.updateResearchOrganization(organization.intValue(),
+						acronym, name, description, typeObj, organizationURL, countryObj, superOrganization);
 			}
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			if (optOrganization.isEmpty()) {
+				throw new IllegalStateException("Organization not found"); //$NON-NLS-1$
+			}
+		} catch (Throwable ex) {
+			throw new IllegalStateException(ex.getLocalizedMessage(), ex);
 		}
 	}
 
 	/** Delete a research organization from the database.
 	 *
 	 * @param organization the identifier of the organization.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/deleteOrganization")
 	public void deleteOrganization(
 			@RequestParam Integer organization,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			if (organization == null || organization.intValue() == 0) {
-				throw new IllegalStateException("Organization not found"); //$NON-NLS-1$
-			}
-			this.organizationService.removeResearchOrganization(organization.intValue());
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		if (organization == null || organization.intValue() == 0) {
+			throw new IllegalStateException("Organization not found"); //$NON-NLS-1$
 		}
+		this.organizationService.removeResearchOrganization(organization.intValue());
 	}
 
 }

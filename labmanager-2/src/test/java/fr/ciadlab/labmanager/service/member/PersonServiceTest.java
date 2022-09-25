@@ -40,6 +40,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -101,7 +102,7 @@ public class PersonServiceTest {
 		this.nameParser = new DefaultPersonNameParser();
 		// Create a real comparator instance to be used in the test
 		this.nameComparator = new SorensenDicePersonNameComparator(this.nameParser);
-		this.test = new PersonService(this.messages, this.publicationRepository, this.authorshipRepository, this.personRepository,
+		this.test = new PersonService(this.messages, new Constants(), this.publicationRepository, this.authorshipRepository, this.personRepository,
 				this.nameParser, this.nameComparator);
 
 		// Prepare some persons to be inside the repository

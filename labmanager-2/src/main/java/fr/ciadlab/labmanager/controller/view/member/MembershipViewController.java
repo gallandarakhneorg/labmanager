@@ -41,7 +41,7 @@ import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -107,7 +107,7 @@ public class MembershipViewController extends AbstractViewController {
 	 *      provided, {@code personId} must be provided.
 	 * @param personId the identifier of the person for who memberships must be edited. If this argument is not
 	 *      provided, {@code personName} must be provided.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @param locale the current locale.
 	 * @return the model-view that shows the duplicate persons.
 	 */
@@ -115,8 +115,10 @@ public class MembershipViewController extends AbstractViewController {
 	public ModelAndView showMembershipEditor(
 			@RequestParam(required = false) String personName,
 			@RequestParam(required = false) Integer personId,
-			@CurrentSecurityContext(expression="authentication?.name") String username,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username,
 			Locale locale) {
+		ensureCredentials(username);
+		//
 		if (Strings.isNullOrEmpty(personName) && personId == null) {
 			throw new IllegalArgumentException("You must provide the name or the identifier of the person."); //$NON-NLS-1$
 		}
@@ -133,7 +135,7 @@ public class MembershipViewController extends AbstractViewController {
 		}
 		//
 		final ModelAndView modelAndView = new ModelAndView("membershipEditor"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		//
 		final List<Membership> memberships = person.getMemberships().stream().sorted(this.membershipComparator).collect(Collectors.toList());
 		// Preferred values
@@ -212,7 +214,7 @@ public class MembershipViewController extends AbstractViewController {
 	 * @param organizationAcronym the acronym of the organization for which the publications must be exported.
 	 * @param includeSuborganizations indicates if the sub-organizations are included.
 	 * @param enableFilters indicates if the "Filters" box should be visible.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @return the model-view of the list of publications.
 	 * @see #showBackPersonList(Integer, String)
 	 */
@@ -222,9 +224,10 @@ public class MembershipViewController extends AbstractViewController {
 			@RequestParam(required = false) String organizationAcronym,
 			@RequestParam(required = false, name = Constants.INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "true") boolean enableFilters,
-			@CurrentSecurityContext(expression="authentication?.name") String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("showMembers"); //$NON-NLS-1$
-		initModelViewProperties(modelAndView, username);
+		initModelViewWithInternalProperties(modelAndView);
 		//
 		final Integer organizationIdObj;
 		if (organization != null && organization.intValue() != 0) {

@@ -18,11 +18,12 @@ package fr.ciadlab.labmanager.controller.api.member;
 
 import java.util.List;
 
-import fr.ciadlab.labmanager.AbstractComponent;
+import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.service.member.PersonMergingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -37,7 +38,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-public class PersonMergingApiController extends AbstractComponent {
+public class PersonMergingApiController extends AbstractApiController {
 
 	private PersonMergingService mergingService;
 
@@ -45,12 +46,14 @@ public class PersonMergingApiController extends AbstractComponent {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of messages.
+	 * @param constants the constants of the app.
 	 * @param mergingService the service for merging persons.
 	 */
 	public PersonMergingApiController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired PersonMergingService mergingService) {
-		super(messages);
+		super(messages, constants);
 		this.mergingService = mergingService;
 	}
 
@@ -60,23 +63,20 @@ public class PersonMergingApiController extends AbstractComponent {
 	 *
 	 * @param target the identifier of the target person.
 	 * @param sources the list of person identifiers that are considered as old persons.
-	 * @param username the login of the logged-in person.
+	 * @param username the name of the logged-in user.
 	 * @throws Exception if it is impossible to merge the persons.
 	 */
 	@PostMapping("/mergePersons")
 	public void mergePersons(
 			@RequestParam(required = true) Integer target,
 			@RequestParam(required = true) List<Integer> sources,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
-		if (isLoggedUser(username).booleanValue()) {
-			try {
-				this.mergingService.mergePersonsById(sources, target);
-			} catch (Throwable ex) {
-				getLogger().error(ex.getLocalizedMessage(), ex);
-				throw ex;
-			}
-		} else {
-			throw new IllegalAccessException(getMessage("all.notLogged")); //$NON-NLS-1$
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		ensureCredentials(username);
+		try {
+			this.mergingService.mergePersonsById(sources, target);
+		} catch (Throwable ex) {
+			getLogger().error(ex.getLocalizedMessage(), ex);
+			throw ex;
 		}
 	}
 

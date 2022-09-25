@@ -35,6 +35,7 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
@@ -146,6 +147,7 @@ public class PublicationService extends AbstractService {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
 	 * @param publicationRepository the publication repository.
 	 * @param prePublicationFactory factory of pre-publications.
 	 * @param authorshipService the service for managing the authorships.
@@ -173,6 +175,7 @@ public class PublicationService extends AbstractService {
 	 */
 	public PublicationService(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired AuthorshipRepository authorshipRepository,
@@ -195,7 +198,7 @@ public class PublicationService extends AbstractService {
 			@Autowired PatentService patentService,
 			@Autowired ReportService reportService,
 			@Autowired ThesisService thesisService) {
-		super(messages);
+		super(messages, constants);
 		this.publicationRepository = publicationRepository;
 		this.prePublicationFactory = prePublicationFactory;
 		this.authorshipRepository = authorshipRepository;

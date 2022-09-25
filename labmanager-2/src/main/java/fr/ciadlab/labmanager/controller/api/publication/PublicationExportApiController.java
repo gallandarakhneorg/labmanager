@@ -16,7 +16,8 @@
 
 package fr.ciadlab.labmanager.controller.api.publication;
 
-import static fr.ciadlab.labmanager.entities.EntityUtils.*;
+import static fr.ciadlab.labmanager.entities.EntityUtils.isSimilarWithoutNormalization;
+import static fr.ciadlab.labmanager.entities.EntityUtils.normalizeForSimularityTest;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,8 +27,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
@@ -44,7 +45,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
-import org.springframework.security.core.annotation.CurrentSecurityContext;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -63,7 +64,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @CrossOrigin
-public class PublicationExportApiController extends AbstractComponent {
+public class PublicationExportApiController extends AbstractApiController {
 
 	private PublicationService publicationService;
 
@@ -75,16 +76,18 @@ public class PublicationExportApiController extends AbstractComponent {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of messages.
+	 * @param constants the constants of the app.
 	 * @param publicationService the publication service.
 	 * @param journalService the tools for manipulating journals.
 	 * @param journalPaperService the journal paper service.
 	 */
 	public PublicationExportApiController(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired PublicationService publicationService,
 			@Autowired JournalService journalService,
 			@Autowired JournalPaperService journalPaperService) {
-		super(messages);
+		super(messages, constants);
 		this.publicationService = publicationService;
 		this.journalService = journalService;
 		this.journalPaperService = journalPaperService;
@@ -346,10 +349,11 @@ public class PublicationExportApiController extends AbstractComponent {
 			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
-			@CurrentSecurityContext(expression="authentication?.name") String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		readCredentials(username);
+		final Boolean isLoggedIn = Boolean.valueOf(isLoggedIn());
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
 		final Boolean isAjaxObj = Boolean.valueOf(isAjax);
-		final Boolean isLoggingIn = Boolean.valueOf(isAjax && !Strings.isNullOrEmpty(username));
 		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();
 		final ExporterCallback<String> cb = (pubs, configurator) -> {
 			if (isAjax) {
@@ -358,7 +362,7 @@ public class PublicationExportApiController extends AbstractComponent {
 			return this.publicationService.exportJson(pubs, configurator);
 		};
 		final String content = export(identifiers, dbId, webId, organization, journal, includeSuborganizations, isAjaxObj, Boolean.FALSE,
-				isAjaxObj, isAjaxObj, isLoggingIn, isLoggingIn, isAjaxObj, isAjaxObj, isAjaxObj, cb);
+				isAjaxObj, isAjaxObj, isLoggedIn, isLoggedIn, isAjaxObj, isAjaxObj, isAjaxObj, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
 		if (isAttachment) {
 			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$

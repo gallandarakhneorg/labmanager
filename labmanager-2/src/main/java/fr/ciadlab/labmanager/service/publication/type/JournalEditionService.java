@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.google.common.base.Strings;
+import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
@@ -51,14 +52,16 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
+	 * @param constants the accessor to the live constants.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param repository the repository for this service.
 	 */
 	public JournalEditionService(
 			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
 			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired JournalEditionRepository repository) {
-		super(messages, downloadableFileManager);
+		super(messages, constants, downloadableFileManager);
 		this.repository = repository;
 	}
 
