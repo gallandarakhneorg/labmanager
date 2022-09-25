@@ -128,7 +128,7 @@ public abstract class AbstractViewController extends AbstractCredentialControlle
 	 */
 	protected void initModelViewWithInternalProperties(ModelAndView modelAndView) {
 		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
-		modelAndView.addObject("changeEnabled", Boolean.valueOf(!Strings.isNullOrEmpty(this.username))); //$NON-NLS-1$
+		modelAndView.addObject("changeEnabled", Boolean.valueOf(isLoggedIn())); //$NON-NLS-1$
 	}
 
 	/** Fill the attributes that are needed to build up the buttons in an admin table.
