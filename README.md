@@ -97,7 +97,28 @@ Each publication type is associated to a category that is defined by the French 
 * AP: Other productions.
 
 
-## 3. Software License
+## 5. Installation Notes
+
+This section provides some inputs for the installation of this software on a real-life server.
+
+After installing the WAR on the server, and configuring the SQL server, it is important to enable Tomcat to write into the uploadable files.
+
+Let the server path to the upload folder be `/var/www/mysite/Downloadables/` (this folder name is defined in the `application.yml` file).
+You must configure Tomcat9 for enabling the writing in this folder. In order to do so, and because Tomcat9 is sandboxed by systemd on Ubuntu operating system, you have to edit the file `/etc/systemd/system/multi-user.target.wants/tomcat9.service'.
+
+In this file, you have to add:
+```
+[Service]
+ReadWritePaths=/var/www/mysite/Downloadables/
+```
+
+Then, it is necessary to restart the services:
+```
+systemctl daemon-reload
+systemctl restart tomcat9
+```
+
+## 4. Software License
 
 ```
 Copyright (c) 2019-22, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
