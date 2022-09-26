@@ -32,8 +32,16 @@ public interface BibTeXConstants {
 	 */
 	String MIME_TYPE_VALUE = "application/x-bibtex"; //$NON-NLS-1$
 
+	/** Mime type and charset (UTF-8) for BibTeX.
+	 */
+	String MIME_TYPE_UTF8_VALUE = MIME_TYPE_VALUE + ";charset=utf-8"; //$NON-NLS-1$
+
 	/** Mime type for BibTeX.
 	 */
 	MediaType MIME_TYPE = MediaType.parseMediaType(MIME_TYPE_VALUE);
+
+	/** Mime type and charset (UTF-8) for BibTeX.
+	 */
+	MediaType MIME_TYPE_UTF8 = MediaType.parseMediaType(MIME_TYPE_UTF8_VALUE);
 
 }

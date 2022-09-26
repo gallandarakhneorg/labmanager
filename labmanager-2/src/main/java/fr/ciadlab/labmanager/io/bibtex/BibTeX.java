@@ -58,6 +58,17 @@ public interface BibTeX extends PublicationExporter<String> {
 	 */
 	String parseTeXString(String texString) throws Exception;
 
+	/** Convert the given Java string to its equivalent TeX string.
+	 * For example, the macros {@code é} is translated to {@code \'e}.
+	 * <p>
+	 * The conversion in the opposite direction is supported by {@link #parserTeXString(String)}.
+	 *
+	 * @param jString the Java data.
+	 * @return the TeX string that corresponds to the given Java data.
+	 * @see #parseTeXString(String)
+	 */
+	String toTeXString(String jString);
+
 	/** Extract the publications from a BibTeX source.
 	 * This function does not save the publication in the database, as well as the authors.
 	 *

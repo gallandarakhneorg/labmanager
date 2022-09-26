@@ -916,4 +916,11 @@ public class JBibtexBibTeXTest {
 		}
 	}
 
+	@Test
+	public void exportSpecialUnicodeChars() {
+		String input = "éàç(D-λLBP++HOG)";
+		String output = this.test.toTeXString(input);
+		assertEquals("{\\'{e}}{\\`{a}}{\\c{c}}(D-λLBP++HOG)", output);
+	}
+
 }

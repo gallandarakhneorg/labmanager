@@ -868,9 +868,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return new Key(publication.getPreferredStringId());
 	}
 
-	private static void addField(BibTeXEntry entry, Key key, String value) {
+	private void addField(BibTeXEntry entry, Key key, String value) {
 		if (!Strings.isNullOrEmpty(value)) {
-			entry.addField(key, new StringValue(value, StringValue.Style.BRACED));
+			entry.addField(key, new StringValue(toTeXString(value), StringValue.Style.BRACED));
 		}
 	}
 
@@ -937,7 +937,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		}
 	}
 
-	private static void fillBibTeXEntry(BibTeXEntry entry, Publication publication, Key authorKey) {
+	private void fillBibTeXEntry(BibTeXEntry entry, Publication publication, Key authorKey) {
 		addField(entry, KEY_TITLE, publication.getTitle());
 
 		final StringBuilder authorNames = new StringBuilder();
@@ -1082,7 +1082,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param book the book to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(Book book) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_BOOK, createBibTeXId(book));
 		fillBibTeXEntry(entry, book, KEY_AUTHOR);
@@ -1102,7 +1101,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param chapter the book chapter to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(BookChapter chapter) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_INCOLLECTION, createBibTeXId(chapter));
 		fillBibTeXEntry(entry, chapter, KEY_AUTHOR);
@@ -1124,7 +1122,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param thesis the thesis to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(Thesis thesis) {
 		final Key pubType = thesis.getType() == PublicationType.MASTER_THESIS ? TYPE_MASTERSTHESIS : TYPE_PHDTHESIS;
 		final BibTeXEntry entry = new BibTeXEntry(pubType, createBibTeXId(thesis));
@@ -1174,7 +1171,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param keynote the keynote to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(KeyNote keynote) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(keynote));
 		fillBibTeXEntry(entry, keynote, KEY_AUTHOR);
@@ -1198,7 +1194,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param report the report to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(Report report) {
 		final BibTeXEntry entry;
 		if (report.getType() == PublicationType.TEACHING_DOCUMENT
@@ -1258,7 +1253,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param document the misc document to put into the database.
 	 * @return the JBibTeX entry.
 	 */
-	@SuppressWarnings("static-method")
 	protected BibTeXEntry createBibTeXEntry(MiscDocument document) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_MISC, createBibTeXId(document));
 		fillBibTeXEntry(entry, document, KEY_AUTHOR);

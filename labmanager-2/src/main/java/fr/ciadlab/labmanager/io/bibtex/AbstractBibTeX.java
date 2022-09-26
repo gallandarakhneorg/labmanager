@@ -16,8 +16,10 @@
 
 package fr.ciadlab.labmanager.io.bibtex;
 
+import java.text.Normalizer;
 import java.util.Random;
 
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Abstract implementation of the utilities for BibTeX.
@@ -99,6 +101,86 @@ public abstract class AbstractBibTeX implements BibTeX {
 					.replaceAll(lastWordAcronymRegex, "$1{$2}"); //$NON-NLS-1$
 
 			return titleEncaps;
+		}
+		return null;
+	}
+
+
+	@Override
+	public String toTeXString(String jString) {
+		if (Strings.isNullOrEmpty(jString)) {
+			return Strings.nullToEmpty(null);
+		}
+		final String normalizedString = Normalizer.normalize(jString, Normalizer.Form.NFKD);
+		// Accents follow the associated characters in the normalized form.
+		final StringBuilder content = new StringBuilder();
+		final MutableInt prev = new MutableInt(0);
+		normalizedString.chars().forEach(it -> {
+			final String accent = getAccent(it);
+			final char current = (char) prev.intValue();
+			if (accent != null) {
+				if (current != 0) {
+					content.append("{\\").append(accent).append("{"); //$NON-NLS-1$ //$NON-NLS-2$
+					if (current == 'i' || current == 'j') {
+						content.append("\\").append(current); //$NON-NLS-1$
+					} else {
+						content.append(current);
+					}
+					content.append("}}"); //$NON-NLS-1$
+				}
+				prev.setValue(0);
+			} else {
+				if (current != 0) {
+					content.append(current);
+				}
+				prev.setValue(it);
+			}
+		});
+		if (prev.intValue() != 0) {
+			content.append((char) prev.intValue());
+		}
+		return content.toString();
+	}
+
+	private static String getAccent(int code) {
+		// List of accents are: https://en.wikipedia.org/wiki/List_of_Unicode_characters
+		switch (code) {
+		case 768:
+			return "`"; //$NON-NLS-1$
+		case 769:
+			return "'"; //$NON-NLS-1$
+		case 770:
+			return "^"; //$NON-NLS-1$
+		case 771:
+			return "~"; //$NON-NLS-1$
+		case 772:
+			return "="; //$NON-NLS-1$
+		case 773:
+			return "textoverline"; //$NON-NLS-1$
+		case 774:
+			return "u"; //$NON-NLS-1$
+		case 775:
+			return "."; //$NON-NLS-1$
+		case 776:
+			return "\""; //$NON-NLS-1$
+		case 778:
+			return "r"; //$NON-NLS-1$
+		case 779:
+			return "H"; //$NON-NLS-1$
+		case 780:
+			return "v"; //$NON-NLS-1$
+		case 782:
+			return "\""; //$NON-NLS-1$
+		case 785:
+			return "t"; //$NON-NLS-1$
+		case 803:
+			return "d"; //$NON-NLS-1$
+		case 807:
+			return "c"; //$NON-NLS-1$
+		case 818:
+			return "b"; //$NON-NLS-1$
+		default:
+			//
 		}
 		return null;
 	}
