@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs" />
 <th:block th:replace="fragments/form :: formLibs" />
 <th:block th:replace="fragments/formfileinput :: all" />
@@ -68,7 +68,7 @@ function getCompatiblePublicationTypes(type) {
 			/*[# th:if="${type.isCompatibleWith(type1)}"]*/
 		types.push({
 			'name': "[(${type1.name})]",
-			'label': "[(${type1.getLabel(locale) + ' ' + type1.categories.toString()})]",
+			'label': "[(${type1.getLabel() + ' ' + type1.categories.toString()})]",
 		});
 		    /*[/]*/
 	    /*[/]*/

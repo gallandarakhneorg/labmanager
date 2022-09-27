@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs" />
 <th:block th:replace="fragments/form :: formLibs" />
 <th:block th:replace="fragments/buttons :: ajaxButtons" />
@@ -25,7 +25,7 @@
 				        th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values}"
 				        th:selected="${preferredStatus != null && status == preferredStatus}"
 				        th:value="${status.name}"
-				        th:utext="${status.getLabel(person.gender, locale) + (status.isPhDOwner() ? ' (PhD)' : '')}"></option>
+				        th:utext="${status.getLabel(person.gender) + (status.isPhDOwner() ? ' (PhD)' : '')}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: checkInput*(${'isMainPosition_' + minMembershipId}, #{html.MainPositionMembership}, #{html.MainPositionMembership2}, true)"></div>
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'memberSinceWhen_' + minMembershipId}, #{html.MemberSince}, '')"></div>
@@ -44,7 +44,7 @@
 				        th:each="cnuSection : ${T(fr.ciadlab.labmanager.utils.cnu.CnuSection).values}"
 				        th:selected="${preferredCnuSection != null && cnuSection == preferredCnuSection}"
 				        th:value="${cnuSection.number}"
-				        th:utext="${cnuSection.number + ' - ' + cnuSection.getLabel(locale)}"></option>
+				        th:utext="${cnuSection.number + ' - ' + cnuSection.getLabel()}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput(${'conrsSection_' + minMembershipId}, #{html.ConrsSection}, ~{::option#option-conrs-new})">
 				<option id="option-conrs-new" value="" th:utext="#{html.NotSpecified}"></option>
@@ -52,7 +52,7 @@
 				        th:each="conrsSection : ${T(fr.ciadlab.labmanager.utils.conrs.ConrsSection).values}"
 				        th:selected="${preferredConrsSection != null && conrsSection == preferredConrsSection}"
 				        th:value="${conrsSection.number}"
-				        th:utext="${conrsSection.number + ' - ' + conrsSection.getLabel(locale)}"></option>
+				        th:utext="${conrsSection.number + ' - ' + conrsSection.getLabel()}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput(${'frenchBap_' + minMembershipId}, #{html.FrenchBap}, ~{::option#option-fbap-new})">
 				<option id="option-fbap-new" value="" th:utext="#{html.NotSpecified}"></option>
@@ -60,7 +60,7 @@
 				        th:each="frenchBap : ${T(fr.ciadlab.labmanager.utils.bap.FrenchBap).values}"
 				        th:selected="${preferredFrenchBap != null && frenchBap == preferredFrenchBap}"
 				        th:value="${frenchBap.shortName}"
-				        th:utext="${frenchBap.shortName + ' - ' + frenchBap.getLabel(locale)}"></option>
+				        th:utext="${frenchBap.shortName + ' - ' + frenchBap.getLabel()}"></option>
 			</div>
 			<button th:id="${'btSave_' + minMembershipId}" type="button"
 				class="btn btn-primary mt-4 pr-4 pl-4"
@@ -81,7 +81,7 @@
 				        th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values}"
 				        th:selected="${membership != null && membership.memberStatus == status}"
 				        th:value="${status.name}"
-				        th:utext="${status.getLabel(locale) + (status.isPhDOwner() ? ' (PhD)' : '')}"></option>
+				        th:utext="${status.getLabel() + (status.isPhDOwner() ? ' (PhD)' : '')}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: checkInput*(${'isMainPosition_' + membership.id}, #{html.MainPositionMembership}, #{html.MainPositionMembership2}, ${membership.isMainPosition})"></div>
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'memberSinceWhen_' + membership.id}, #{html.MemberSince}, ${membership.memberSinceWhen == null ? '' : membership.memberSinceWhen.toString})"></div>
@@ -100,7 +100,7 @@
 				        th:each="cnuSection : ${T(fr.ciadlab.labmanager.utils.cnu.CnuSection).values}"
 				        th:selected="${membership != null && membership.cnuSection == cnuSection}"
 				        th:value="${cnuSection.number}"
-				        th:utext="${cnuSection.number + ' - ' + cnuSection.getLabel(locale)}"></option>
+				        th:utext="${cnuSection.number + ' - ' + cnuSection.getLabel()}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput(${'conrsSection_' + membership.id}, #{html.ConrsSection}, ~{::option#option-conrs})">
 				<option id="option-conrs" value="" th:utext="#{html.NotSpecified}"></option>
@@ -108,7 +108,7 @@
 				        th:each="conrsSection : ${T(fr.ciadlab.labmanager.utils.conrs.ConrsSection).values}"
 				        th:selected="${membership != null && membership.conrsSection == conrsSection}"
 				        th:value="${conrsSection.number}"
-				        th:utext="${conrsSection.number + ' - ' + conrsSection.getLabel(locale)}"></option>
+				        th:utext="${conrsSection.number + ' - ' + conrsSection.getLabel()}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput(${'frenchBap_' + membership.id}, #{html.FrenchBap}, ~{::option#option-fbap})">
 				<option id="option-fbap" value="" th:utext="#{html.NotSpecified}"></option>
@@ -116,7 +116,7 @@
 				        th:each="frenchBap : ${T(fr.ciadlab.labmanager.utils.bap.FrenchBap).values}"
 				        th:selected="${membership != null && membership.frenchBap == frenchBap}"
 				        th:value="${frenchBap.shortName}"
-				        th:utext="${frenchBap.shortName + ' - ' + frenchBap.getLabel(locale)}"></option>
+				        th:utext="${frenchBap.shortName + ' - ' + frenchBap.getLabel()}"></option>
 			</div>
 			<button th:id="${'btSave_' + membership.id}" type="button"
 				class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
@@ -182,7 +182,7 @@ $(document).ready(function () {
 		url: "[(${deletionUrl + '?id=' + membership.id})]",
 		elementNameCallback: () => { return getOrganizationName("[(${membership.id})]"); },
 		questionTitle: "[(#{html.DeleteMembership})]",
-		questionText: "[(#{html.AreYouSureToDeleteMembership(${person.fullName}, ${membership.researchOrganization.acronymOrName}, ${membership.memberStatus.getLabel(locale)})})]",
+		questionText: "[(#{html.AreYouSureToDeleteMembership(${person.fullName}, ${membership.researchOrganization.acronymOrName}, ${membership.memberStatus.getLabel()})})]",
 		successText: "[(#{html.MembershipDeleted})]",
 		failureText: "[(#{html.CannotDeleteMembership})]",
     });

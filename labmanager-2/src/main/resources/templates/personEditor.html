@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs" />
 <th:block th:replace="fragments/form :: formLibs" />
 <th:block th:replace="fragments/gravatar :: gravatarPicture" />
@@ -21,7 +21,7 @@
 		        th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values}"
 		        th:selected="${(person == null && gender == defaultGender) || (person != null && person.gender == gender)}"
 		        th:value="${gender.name}"
-		        th:utext="${gender.getLabel(locale)}"></option>
+		        th:utext="${gender.getLabel()}"></option>
 	</div>
 	<div class="form-group" th:replace="fragments/form :: textInput(email, #{html.Email}, #{html.PlaceHolderEmail}, ${person != null ? person.email : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(officePhone, #{html.OfficePhone}, #{html.PlaceHolderPhone}, ${person != null ? person.officePhone : ''})"></div>
@@ -42,7 +42,7 @@
 		        th:each="naming : ${T(fr.ciadlab.labmanager.entities.member.WebPageNaming).values}"
 		        th:selected="${(person == null && naming == defaultNaming) || (person != null && person.webPageNaming == naming)}"
 		        th:value="${naming.name}"
-		        th:utext="${naming.getLabel(locale)}"></option>
+		        th:utext="${naming.getLabel()}"></option>
 	</div>
 	<div class="form-group" th:replace="fragments/form :: textInput(googleScholarHindex, #{html.HindexOnScholar}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.googleScholarHindex : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(wosHindex, #{html.HindexOnWos}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.wosHindex : ''})"></div>

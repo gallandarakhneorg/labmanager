@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs"/>
 <th:block th:replace="fragments/libs :: bootstrap-datatable"/>
 <script th:src="@{/js/labmanager/showpublications.js}"></script>
@@ -103,7 +103,7 @@ $(document).ready(() => {
 		url: "[(${url})]",
 		categoryLabels: {
 	        /*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
-			"[(${category.name})]": "[(${category.getLabel(locale) + ' (' + category.name + ')'})]",
+			"[(${category.name})]": "[(${category.getLabel() + ' (' + category.name + ')'})]",
 	        /*[/]*/
 		},
 		groupLabelPlurial: "[(#{html.PublicationListGroup2})]",
@@ -191,7 +191,7 @@ $(document).ready(() => {
 	initSortCriteriaFeature({
 		categoryRanks: {
 			/*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
-			"[(${category.getLabel(locale)})]": parseInt("[(${category.ordinal()})]"),
+			"[(${category.getLabel()})]": parseInt("[(${category.ordinal()})]"),
 			/*[/]*/
 		},
 	});

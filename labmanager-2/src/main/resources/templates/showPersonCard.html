@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs"/>
 <th:block th:replace="fragments/libs :: sweetalert"/>
 <th:block th:if="${enableQrcode}" th:replace="fragments/libs :: qrcode-js"/>
@@ -24,15 +24,15 @@
 				<div class="person-card-membership person-card-membership-emph"
 				     th:each="resp : ${responsibilities}"
 				     th:if="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}"
-				     th:utext="#{html.ResponsabilityInApos(${resp.responsibility.getLabel(person.gender, locale)},${resp.researchOrganization.acronymOrName})}"></div>
+				     th:utext="#{html.ResponsabilityInApos(${resp.responsibility.getLabel(person.gender)},${resp.researchOrganization.acronymOrName})}"></div>
 				<div class="person-card-membership person-card-membership-emph"
 				     th:each="resp : ${responsibilities}"
 				     th:unless="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}"
-				     th:utext="#{html.ResponsabilityInNotApos(${resp.responsibility.getLabel(person.gender, locale)},${resp.researchOrganization.acronymOrName})}"></div>
+				     th:utext="#{html.ResponsabilityInNotApos(${resp.responsibility.getLabel(person.gender)},${resp.researchOrganization.acronymOrName})}"></div>
 				<div class="person-card-membership"
 				     th:each="membership : ${memberships}"
 				     th:title="${membership.researchOrganization.acronymOrName}"
-				     th:utext="${membership.memberStatus.getLabel(person.gender, locale)}"></div>
+				     th:utext="${membership.memberStatus.getLabel(person.gender)}"></div>
 			</div>
 			<div class="person-card-contact"
 			     th:if="${enableEmail || enableOfficePhone || enableMobilePhone}">

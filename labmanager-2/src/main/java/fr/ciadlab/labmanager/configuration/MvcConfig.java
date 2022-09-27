@@ -26,6 +26,7 @@ import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.core.env.Environment;
 import org.springframework.format.FormatterRegistry;
 import org.springframework.http.CacheControl;
@@ -60,6 +61,7 @@ import org.thymeleaf.templateresolver.ITemplateResolver;
  */
 @Configuration
 @EnableWebMvc
+@Import(DefaultWebMvcConfiguration.class)
 public class MvcConfig implements WebMvcConfigurer {
 
 	@Autowired

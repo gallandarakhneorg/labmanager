@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html th:lang="${#locale}" xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs"/>
 <th:block th:replace="fragments/libs :: bootstrap-datatable"/>
 
@@ -76,7 +76,7 @@
                               th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
                     <a th:if="${mbr.value.memberStatus != null}"
                        th:href="@{/personList(organization=${mbr.key.id})}"
-                       th:title="${mbr.value.memberStatus.getLabel(locale)}"
+                       th:title="${mbr.value.memberStatus.getLabel()}"
                        th:utext="${mbr.key.acronymOrName}"></a>
 					<span th:id="${'btPositionResign_' + person.id + '_' + mbr.value.id}"
 					   class="fa fa-unlink"
@@ -91,7 +91,7 @@
                               th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
                     <a th:if="${mbr.value.memberStatus != null}"
                        th:href="@{/personList(organization=${mbr.key.id})}"
-                       th:title="#{html.FormerPositionTo(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberToWhen.year})}"
+                       th:title="#{html.FormerPositionTo(${mbr.value.memberStatus.getLabel()},${mbr.value.memberToWhen.year})}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>
@@ -102,7 +102,7 @@
                               th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
                     <a th:if="${mbr.value.memberStatus != null}"
                        th:href="@{/personList(organization=${mbr.key.id})}"
-                       th:title="#{html.FuturePositionFrom(${mbr.value.memberStatus.getLabel(locale)},${mbr.value.memberSinceWhen.year})}"
+                       th:title="#{html.FuturePositionFrom(${mbr.value.memberStatus.getLabel()},${mbr.value.memberSinceWhen.year})}"
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>
@@ -166,7 +166,7 @@
 			url: "[(${membershipdeletionUrl + '?id=' + membership.value.id})]",
 			name: [[${membership.key.acronymOrName}]],
 			questionTitle: [[#{html.DeleteMembership}]],
-			questionText: [[#{html.AreYouSureToDeleteMembership(${person.fullName}, ${membership.key.acronymOrName}, ${membership.value.memberStatus.getLabel(locale)})}]],
+			questionText: [[#{html.AreYouSureToDeleteMembership(${person.fullName}, ${membership.key.acronymOrName}, ${membership.value.memberStatus.getLabel()})}]],
 			successText: [[#{html.MembershipDeleted}]],
 			failureText: [[#{html.CannotDeleteMembership}]],
 	    });
