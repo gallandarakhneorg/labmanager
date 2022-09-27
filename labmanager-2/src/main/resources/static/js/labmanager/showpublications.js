@@ -31,7 +31,7 @@ function formatPublicationDetails(d, config) {
 	var links = d.htmlLinks && d.htmlLinks != "" ? ("<tr><td>"
 		+ labels['links'] + "</td><td>" + d.htmlLinks +'</td></tr>') : "";
 	var downloads = '';
-	if (d.htmlDownloads) {
+	if (d.htmlDownloads && d.htmlDownloads.length > 0) {
 		downloads = "<tr><td>" + labels['downloads'] + "</td><td>";
 		d.htmlDownloads.forEach((elt) => {
 			downloads += elt + ' ';
@@ -39,7 +39,7 @@ function formatPublicationDetails(d, config) {
 		downloads += '</td></tr>';	
 	};
 	var exports = '';
-	if (d.htmlExports) {
+	if (d.htmlExports && d.htmlExports.length > 0) {
 		exports = "<tr><td>" + labels['exports'] + "</td><td>";
 		d.htmlExports.forEach((elt) => {
 			exports += elt + ' ';
