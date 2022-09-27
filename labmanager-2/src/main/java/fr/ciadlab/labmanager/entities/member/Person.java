@@ -808,6 +808,15 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		return getRecentMemberships(it -> it.isFormer());
 	}
 
+	/** Replies the active or finished membership per research organization.
+	 * The current system date is used as the temporal reference.
+	 *
+	 * @return the active or finished membership for each organization.
+	 */
+	public Map<ResearchOrganization, Membership> getActiveOrFinishedMemberships() {
+		return getRecentMemberships(it -> !it.isFuture());
+	}
+
 	/** Replies the future membership per research organization.
 	 * The current system date is used as the temporal reference.
 	 *
@@ -1355,7 +1364,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	}
 
 	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
-	 * on the values replied by {@link #getActiveMemberships()} and {@link #getGender()}.
+	 * on the values replied by {@link #getActiveOrFinishedMemberships()} and {@link #getGender()}.
 	 * The language of the title depends on the current locale.
 	 *
 	 * @return the civil title, or {@code null} if none.
@@ -1368,7 +1377,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	}
 
 	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
-	 * on the values replied by {@link #getActiveMemberships()} and {@link #getGender()}.
+	 * on the values replied by {@link #getActiveOrFinishedMemberships()} and {@link #getGender()}.
 	 *
 	 * @param locale the locale to use for generating the civil title.
 	 * @return the civil title, or {@code null} if none.
@@ -1381,7 +1390,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	}
 
 	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
-	 * on the values replied by {@link #getActiveMemberships()}, and, if {@code includeGenderTitle}
+	 * on the values replied by {@link #getActiveOrFinishedMemberships()}, and, if {@code includeGenderTitle}
 	 * is evaluated to {@code true}, the value replied by {@link #getGender()}.
 	 * The language of the title depends on the current locale.
 	 *
@@ -1404,7 +1413,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	}
 
 	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
-	 * on the values replied by {@link #getActiveMemberships()}, and, if {@code includeGenderTitle}
+	 * on the values replied by {@link #getActiveOrFinishedMemberships()}, and, if {@code includeGenderTitle}
 	 * is evaluated to {@code true}, the value replied by {@link #getGender()}.
 	 *
 	 * @param includeGenderTitle indicates if the gender title should be consider and eventually replied.
@@ -1427,8 +1436,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	}
 
 	private MemberStatus findHigherMemberStatus() {
-		final Optional<MemberStatus> status = getActiveMemberships().values().stream().map(it -> it.getMemberStatus())
-				.max((a, b) -> {
+		final Optional<MemberStatus> status = getActiveOrFinishedMemberships().values().stream().map(it -> it.getMemberStatus())
+				.min((a, b) -> {
 					final int cmp = Integer.compare(a.getHierachicalLevel(), b.getHierachicalLevel());
 					if (cmp != 0) {
 						return cmp;
