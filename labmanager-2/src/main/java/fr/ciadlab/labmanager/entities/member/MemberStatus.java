@@ -199,7 +199,35 @@ public enum MemberStatus {
 			return false;
 		}
 	},
-	/** Researcher (Chargé de recherche, LRU, etc.).
+	/** Researcher (Chargé de recherche, LRU, etc.) with PhD.
+	 */
+	RESEARCHER_PHD {
+		@Override
+		public int getHierachicalLevel() {
+			return 2;
+		}
+		@Override
+		public boolean isResearcher() {
+			return true;
+		}
+		@Override
+		public boolean isTeacher() {
+			return false;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return false;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
+	},
+	/** Researcher (Chargé de recherche, LRU, etc.) without PhD.
 	 */
 	RESEARCHER {
 		@Override
@@ -224,7 +252,7 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
-			return true;
+			return false;
 		}
 	},
 	/** Postdoc.
