@@ -71,13 +71,13 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		html.append(this.constants.getServerName());
 		html.append("/"); //$NON-NLS-1$
 		html.append(path);
-		html.append("\"><i class=\"fa\"><img src=\"/"); //$NON-NLS-1$
+		html.append("\"><img src=\"/"); //$NON-NLS-1$
 		html.append(this.constants.getServerName());
 		html.append("/"); //$NON-NLS-1$
 		html.append(jpeg);
-		html.append("\" class=\"publicationDetailsDownloadAttachment\" /><br/>"); //$NON-NLS-1$
+		html.append("\" class=\"publicationDetailsDownloadAttachment\" alt=\"?\"/><br/>"); //$NON-NLS-1$
 		html.append(label);
-		html.append("</i></a>"); //$NON-NLS-1$
+		html.append("</a>"); //$NON-NLS-1$
 	}
 
 	@Override

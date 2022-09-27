@@ -124,7 +124,7 @@
 									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
 									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
 									       class="dropdown-item"
-									       th:href="@{/showPublications(author=${membership.person.id})}"
+									       th:href="@{/showPublications(dbId=${membership.person.id})}"
 									       th:utext="${membership.person.fullNameWithLastNameFirst}"></a></li>
 								</ul> 
 						</ul>

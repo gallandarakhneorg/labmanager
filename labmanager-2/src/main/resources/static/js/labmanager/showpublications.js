@@ -30,10 +30,22 @@ function formatPublicationDetails(d, config) {
 		+ '</td></tr>') : "";
 	var links = d.htmlLinks && d.htmlLinks != "" ? ("<tr><td>"
 		+ labels['links'] + "</td><td>" + d.htmlLinks +'</td></tr>') : "";
-	var downloads = d.htmlDownloads && d.htmlDownloads != "" ? ("<tr><td>"
-		+ labels['downloads'] + "</td><td>" + d.htmlDownloads + '</td></tr>') : "";
-	var exports = d.htmlExports && d.htmlExports != "" ? ("<tr><td>"
-		+ labels['exports'] + "</td><td>" + d.htmlExports + '</td></tr>') : "";
+	var downloads = '';
+	if (d.htmlDownloads) {
+		downloads = "<tr><td>" + labels['downloads'] + "</td><td>";
+		d.htmlDownloads.forEach((elt) => {
+			downloads += elt + ' ';
+		});
+		downloads += '</td></tr>';	
+	};
+	var exports = '';
+	if (d.htmlExports) {
+		exports = "<tr><td>" + labels['exports'] + "</td><td>";
+		d.htmlExports.forEach((elt) => {
+			exports += elt + ' ';
+		});
+		exports += '</td></tr>';	
+	}
 	var management = '';
 	if (sessionStorage.getItem('status') != null && ((d.htmlEdit && d.htmlEdit != "") || (d.htmlDelete && d.htmlDelete != ""))) {
 		management = "<tr><td>" + labels['management'] + "</td><td>" + d.htmlEdit + d.htmlDelete + '</td></tr>';
