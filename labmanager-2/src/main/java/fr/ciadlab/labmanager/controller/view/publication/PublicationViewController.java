@@ -128,6 +128,7 @@ public class PublicationViewController extends AbstractViewController {
 	public ModelAndView showBackPublicationList(
 			@RequestParam(required = false) Integer journal,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		getLogger().info("Opening /" + Constants.PUBLICATION_LIST_ENDPOINT + " by " + username + " for journal " + journal); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PUBLICATION_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView);
@@ -316,6 +317,7 @@ public class PublicationViewController extends AbstractViewController {
 	public ModelAndView showPublicationEditor(
 			@RequestParam(required = false, name = Constants.PUBLICATION_ENDPOINT_PARAMETER) Integer publication,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws IOException {
+		getLogger().info("Opening /" + Constants.PUBLICATION_EDITING_ENDPOINT + " by " + username + " for publication " + publication); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("publicationEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView);
@@ -461,6 +463,7 @@ public class PublicationViewController extends AbstractViewController {
 	@GetMapping(value = "/" + Constants.IMPORT_BIBTEX_VIEW_ENDPOINT)
 	public ModelAndView showBibTeXImporter(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws IOException {
+		getLogger().info("Opening /" + Constants.IMPORT_BIBTEX_VIEW_ENDPOINT + " by " + username); //$NON-NLS-1$ //$NON-NLS-2$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("importBibTeX"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView);

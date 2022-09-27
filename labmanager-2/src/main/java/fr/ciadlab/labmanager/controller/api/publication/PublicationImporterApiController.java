@@ -84,6 +84,7 @@ public class PublicationImporterApiController extends AbstractApiController {
 			@RequestParam(required = false) MultipartFile bibtexFile,
 			@RequestParam(required = false) String changes,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		getLogger().info("Opening /" + Constants.SAVE_BIBTEX_ENDPOINT + " by " + username); //$NON-NLS-1$ //$NON-NLS-2$
 		ensureCredentials(username);
 		try {
 			// Pass the changes string as JSON to extract the expected types of publications. 

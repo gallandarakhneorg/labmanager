@@ -113,6 +113,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) String webId,
 			@RequestParam(defaultValue = "false", required = false) boolean strictName,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		getLogger().info("Opening /getPersonData by " + username + " for dbId " + dbId + " or webId " + webId); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		final Person person = getPersonWith(dbId, webId, null, this.personService, this.nameParser);
 		if (person == null) {
@@ -172,6 +173,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer googleScholarHindex,
 			@RequestParam(required = false) Integer wosHindex,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		getLogger().info("Opening /" + Constants.PERSON_SAVING_ENDPOINT + " by " + username + " for person " + person); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		final Gender genderObj = Strings.isNullOrEmpty(gender) ? Gender.NOT_SPECIFIED : Gender.valueOfCaseInsensitive(gender);
 		final WebPageNaming webPageNamingObj = Strings.isNullOrEmpty(webPageNaming) ? WebPageNaming.UNSPECIFIED : WebPageNaming.valueOfCaseInsensitive(webPageNaming);
@@ -208,6 +210,7 @@ public class PersonApiController extends AbstractApiController {
 	public void deletePerson(
 			@RequestParam Integer person,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		getLogger().info("Opening /deletePerson by " + username + " for person " + person); //$NON-NLS-1$ //$NON-NLS-2$
 		ensureCredentials(username);
 		if (person == null || person.intValue() == 0) {
 			throw new IllegalStateException("Person not found"); //$NON-NLS-1$

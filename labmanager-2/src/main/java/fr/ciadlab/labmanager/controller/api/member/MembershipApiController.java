@@ -142,6 +142,7 @@ public class MembershipApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") boolean isMainPosition,
 			@RequestParam(required = false, defaultValue = "true") boolean closeActive,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		getLogger().info("Opening /" + Constants.MEMBERSHIP_SAVING_ENDPOINT + " by " + username + " for person " + person); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		try {
 			// Parse values to Java objects
@@ -230,6 +231,7 @@ public class MembershipApiController extends AbstractApiController {
 	public void deleteMembership(
 			@RequestParam Integer id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+		getLogger().info("Opening /" + Constants.MEMBERSHIP_DELETION_ENDPOINT + " by " + username + " for membership " + id); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		if (id == null || id.intValue() == 0) {
 			throw new IllegalStateException("Missing the membership id"); //$NON-NLS-1$
@@ -260,6 +262,7 @@ public class MembershipApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		getLogger().info("Opening /" + Constants.EXPORT_MEMBERS_TO_JSON_ENDPOINT + " by " + username + " for organization " + organization); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		readCredentials(username);
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
 		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();

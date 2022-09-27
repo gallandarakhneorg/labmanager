@@ -73,6 +73,7 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	@GetMapping("/" + Constants.ORGANIZATION_LIST_ENDPOINT)
 	public ModelAndView showOrganizationList(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		getLogger().info("Opening /" + Constants.ORGANIZATION_LIST_ENDPOINT + " by " + username); //$NON-NLS-1$ //$NON-NLS-2$
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView(Constants.ORGANIZATION_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView);
@@ -92,6 +93,7 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	public ModelAndView showOrganizationEditor(
 			@RequestParam(required = false) Integer organization,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+		getLogger().info("Opening /" + Constants.ORGANIZATION_EDITING_ENDPOINT + " by " + username + " for organization " + organization); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("organizationEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView);
