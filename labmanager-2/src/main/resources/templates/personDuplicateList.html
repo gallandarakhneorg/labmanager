@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="fragments/buttons :: ajaxButtons"/>
+<th:block th:replace="fragments/buttons :: conditionButtons"/>
+
+<th:block th:replace="fragments/nav :: personListBar*(#{html.MergePersons})"/>
+
+<p th:utext="#{html.DuplicatePersonIntro}"></p>
+
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+    <thead>
+        <th th:text="#{html.Names}"></th>
+        <th th:text="#{html.Publications}"></th>
+        <th th:text="#{html.Organizations}"></th>
+        <th th:text="#{html.Actions}"></th>
+    </thead>
+    <tbody>
+    	<tr th:each="duplicates, iMatchingPersons : ${matchingPersons}" th:id="${'duplicateGroup_' + iMatchingPersons.index}">
+            <td>
+		    	<th:block th:each="candidate, iDuplicates : ${duplicates}">
+                    <th:block th:unless="${iDuplicates.first}"
+                              th:utext="'<br/>'"></th:block>
+                    <th:block th:utext="${candidate.fullName}"></th:block>
+                </th:block>
+			</td>
+            <td>
+		    	<th:block th:each="candidate, iDuplicates : ${duplicates}">
+                    <th:block th:unless="${iDuplicates.first}"
+                              th:utext="'<br/>'"></th:block>
+                    <th:block th:utext="${candidate.getAuthorships().size()}"></th:block>
+                </th:block>
+			</td>
+            <td>
+		    	<th:block th:each="candidate, iDuplicates : ${duplicates}">
+                    <th:block th:unless="${iDuplicates.first}"
+                              th:utext="'<br/>'"></th:block>
+                    <th:block th:utext="${candidate.getActiveMemberships().size()}"></th:block>
+                </th:block>
+			</td>
+			<td>
+		    	<th:block th:if="${changeEnabled}" th:each="candidate, iDuplicates : ${duplicates}">
+                    <th:block th:unless="${iDuplicates.first}"
+                              th:utext="'<br/>'"></th:block>
+					<span th:if="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"
+					   th:id="${'TheDeleteButton_' + iMatchingPersons.index + '_' + candidate.id}"
+					   class="fa-solid fa-trash"
+					   style="font-size:larger;margin-right:5px;cursor:pointer"
+					   th:title="#{html.DeletePerson1(${candidate.fullName})}"></span>
+					<span th:unless="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"
+					   class="fa-solid fa-lock"
+					   style="font-size:larger;margin-right:5px;cursor:not-allowed"></span>
+					<span th:id="${'btMergeAll_' + iMatchingPersons.index + '_' + candidate.id}"
+					   class="fa-solid fa-angle-double-right"
+					   style="font-size:larger;margin-right:5px;cursor:pointer"
+					   th:title="#{html.DuplicatePersonMergeAll(${candidate.fullName})}"></span>
+					<span th:id="${'btMergePart_' + iMatchingPersons.index + '_' + candidate.id}"
+					   class="fa-solid fa-angle-right"
+					   style="font-size:larger;cursor:pointer"
+					   th:title="#{html.DuplicatePersonMergePart(${candidate.fullName})}"></span>
+		    	</th:block>
+            </td>
+    	</tr>
+    </tbody>
+</table>
+<script th:inline="javascript">
+function addMergePartButtonCallback( bt, bxTitle, bxMessage, mergeUrl, successMsg, failureMsg, elementName, successCallback ) {
+	var htmlContent = bxMessage;
+	$.each(mergeUrl.sources, (idx, item) => {
+		htmlContent = htmlContent + "<br/><input id='checkbox_partmerge_" + item.id + "' value='"
+			+ item.id + "' type='checkbox' checked>" + item.label + "</input>";
+	});
+    bt.on('click', (e) => {
+    	Swal.fire( {
+   		  title: bxTitle,
+   		  text: bxMessage,
+   		  icon: 'question',
+   		  html: htmlContent,
+   		  preConfirm: () => {
+			var selection = [];
+			$.each(mergeUrl.sources, (idx, item) => {
+				var $component = $('#checkbox_partmerge_' + item.id + ':first');
+				if ($component.is(':checked')) {
+					selection.push($component.prop('value'));
+				}
+			});
+			return selection;
+   		  },
+   		  showCancelButton: true,
+   		  confirmButtonColor: '#d33',
+   		  cancelButtonColor: '#99cc00',
+   		  confirmButtonText: "[(#{html.YesMergeThem})]"
+   		} ).then(result => {
+			if (result.isConfirmed) {
+				mergeUrl.sources = result.value;
+				runMergeAction(mergeUrl, successMsg, successCallback, failureMsg, elementName);
+			}
+   		} );
+    } );
+}
+
+$(document).ready(() => {
+	initAdministrationTable({
+		columns: 3,
+		actionWidth: '80px',
+	});
+    /*[# th:if="${changeEnabled}" th:each="duplicates, iMatchingPersons : ${matchingPersons}"]*/
+	    /*[# th:each="candidate : ${duplicates}"]*/
+			/*[# th:if="${candidate.getActiveMemberships().isEmpty() && candidate.getAuthorships().isEmpty()}"]*/
+	attachDeletionHandler({
+		id: "[(${iMatchingPersons.index + '_' + candidate.id})]",
+		url: "[(@{/deletePerson(person=${candidate.id})})]",
+		name: "[(${candidate.fullName})]",
+		questionTitle: "[(#{html.DeletePerson1(${candidate.fullName})})]",
+		questionText: "[(#{html.AreYouSureToDelete(${candidate.fullName})})]",
+		successText: "[(#{html.PersonDeleted})]",
+		failureText: "[(#{html.CannotDeletePerson})]",
+    });
+		    /*[/]*/
+	attachConditionalHandler({
+		id: "[(${'btMergeAll_' + iMatchingPersons.index + '_' + candidate.id})]",
+		url: "[(@{/mergePersons})]",
+		title: "[(#{html.DuplicatePersonMergeAll(${candidate.fullName})})]",
+		text: "[(#{html.AreYouSureToMergeAll(${candidate.fullName})})]",
+		failureText: "[(#{html.CannotMergePersons(${candidate.fullName})})]",
+		prepareData: ($bt, formData) => {
+			var target = "[(${candidate.id})]";
+			var sources = [
+			    /*[# th:each="otherCandidate : ${duplicates}" th:if="${otherCandidate.id != candidate.id}"]*/
+			    "[(${otherCandidate.id})]",
+			    /*[/]*/
+			];
+			formData.append("target", target);
+			formData.append("sources", sources);
+		},
+		onSuccess: () => {
+			Swal.fire(
+					  "[(#{html.Merged})]",
+					  "[(#{html.PersonsMerged})]",
+					  'success'
+					).then(result => {
+  					location.reload();
+					});
+		},
+	});
+	{
+		var sources = [
+		    /*[# th:each="otherCandidate : ${duplicates}" th:if="${otherCandidate.id != candidate.id}"]*/
+		    { id: "[(${otherCandidate.id})]", label: "[(${otherCandidate.fullName})]" },
+		    /*[/]*/
+		];
+		var htmlContent = "[(#{html.AreYouSureToMergePart(${candidate.fullName})})]";
+		$.each(sources, (idx, item) => {
+			htmlContent = htmlContent + "<br/><input id='__dialog_checkbox_partmerge_" + item.id + "' type='checkbox' checked>" + item.label + "</input>";
+		});
+		attachConditionalHandler({
+			id: "[(${'btMergePart_' + iMatchingPersons.index + '_' + candidate.id})]",
+			url: "[(@{/mergePersons})]",
+			title: "[(#{html.DuplicatePersonMergePart(${candidate.fullName})})]",
+			html: htmlContent,
+			failureText: "[(#{html.CannotMergePersons(${candidate.fullName})})]",
+			preparePreconditionBox: () => {
+				var selection = [];
+				var sources = [
+				    /*[# th:each="otherCandidate : ${duplicates}" th:if="${otherCandidate.id != candidate.id}"]*/
+				    "[(${otherCandidate.id})]",
+				    /*[/]*/
+				];
+				$.each(sources, (idx, item) => {
+					var $component = $('#__dialog_checkbox_partmerge_' + item + ':first');
+					if ($component.is(':checked')) {
+						selection.push(item);
+					}
+				});
+				return selection;
+			},
+			prepareData: ($bt, formData, preConfirmSelection) => {
+				var target = "[(${candidate.id})]";
+				formData.append("target", target);
+				formData.append("sources", preConfirmSelection);
+			},
+			onSuccess: () => {
+				Swal.fire(
+						  "[(#{html.Merged})]",
+						  "[(#{html.PersonsMerged})]",
+						  'success'
+						).then(result => {
+	    					location.reload();
+						});
+			},
+		});
+	}	    
+		/*[/]*/
+    /*[/]*/
+});
+</script>
+</html>

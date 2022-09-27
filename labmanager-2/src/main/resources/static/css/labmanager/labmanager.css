@@ -1,0 +1,343 @@
+/* Remove the link style */
+a.noLink {
+	all: unset;
+	cursor:pointer;
+}
+a:hover.noLink {
+	all: unset;
+	cursor:pointer;
+}
+a:active.noLink {
+	all: unset;
+	cursor:pointer;
+}
+
+.form-control.is-valid {
+    border-color: #0d64c1;
+    border-width:2px;
+}
+.dynamic-form-group {
+   	background-color: rgba(150, 193, 13, 0.4);
+   	display: none;
+}
+label.required:after {
+	content:" *";
+	color: red;
+}
+.publicationTitle {
+    color: #96c10d !important;
+    font-weight: bold;
+    font-size: larger;
+}
+.publicationAuthors {
+    color: #212529 !important;
+    font-weight: bold;
+}
+.publicationAuthors a {
+    color: #3b4d05 !important;
+}
+.publicationAuthors a:hover {
+    color: #212529 !important;
+}
+.publicationAuthors a:visited {
+    color: #212529 !important;
+}
+.publicationDetails {
+    font-size: smaller;
+}
+div.form-super-group {
+	padding: 10px;
+	margin: 20px;
+}
+div.form-super-group label {
+	color: white;
+}
+div.form-super-group-new {
+	background-color: #995555 !important;
+}
+div.form-super-group-finished {
+	background-color: #999999 !important;
+}
+div.form-super-group-active {
+	background-color: #96c10d !important;
+}
+div.form-super-group-future {
+	background-color: #c8960d !important;
+}
+td.details-control:before {
+	content: "\f070";
+}
+td.details-control.opened:before {
+	content: "\f06e";
+}
+td.details-control {
+    cursor: pointer;
+    color: #99cc00;
+    -webkit-font-smoothing: antialiased;
+    display: inline-block;
+    font-style: normal;
+    font-variant: normal;
+    text-rendering: auto;
+    line-height: 1;
+    font-weight: 900;
+    font: normal normal normal 14px/1 FontAwesome;
+    margin-top: 8px;
+}
+.dataTables_wrapper table thead{
+    display:none;
+}
+img.publicationDetailsDownloadAttachment {
+    max-height: 150px;
+}
+img.publicationDetailsScimagoQuartile {
+    max-height: 150px;
+    float: right;
+}
+.odd {
+    background-color: white !important;
+}
+.even {
+    background-color: white !important;
+}
+.table-responsive {
+    overflow-x: hidden !important;
+}
+table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.dataTable tbody td.selected {
+    color: #96c10d !important;
+    background-color: grey !important;
+}
+.page-item.active .page-link {
+    background-color: #96c10d !important;
+    border-color: #96c10d !important;
+}
+.page-link {
+    color: #96c10d !important;
+}
+.person-card {
+	width: 100%;
+	margin-bottom: 5px;
+}
+.person-card-name {
+	display: block;
+	margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    margin-top: 0;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    line-height: 1.2;
+	font-size: 140%;
+    color: #444;
+    font-family: 'Poppins', sans-serif;
+}
+.person-card-lastname {
+   	text-transform: uppercase;
+}
+.person-card-firstname {
+   	text-transform: capitalize;
+	font-variant: small-caps;
+}
+.person-card-civiltitle {
+	font-size: 70%;
+	font-variant: small-caps;
+}
+.person-photo {
+	border-radius: 50%;
+}
+.person-card-photo {
+	float: right;
+	max-width: 150px;
+}
+.person-card-qrcode {
+	position: relative;
+}
+.person-qrcode {
+	max-width: 50px;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+}
+.person-card-membership {
+    font-weight: 700;
+	font-family: 'Lato', sans-serif;
+	line-height: 30px;
+    color: #444;
+}
+.person-card-membership-emph {
+    font-weight: 900;
+}
+.person-card-email {
+	font-family: 'Lato', sans-serif;
+	line-height: 24px;
+    color: #444;
+}
+.person-card-phone {
+	font-family: 'Lato', sans-serif;
+	line-height: 24px;
+    color: #444;
+}
+.person-card-contact {
+    margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+.person-card-indexes {
+    margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+.person-card-index {
+	font-family: 'Lato', sans-serif;
+	line-height: 20px;
+    color: #444;
+    margin-left: 0.25rem;
+}
+span.person-card-googlescholar-index:before {
+	background: url("../../images/icon/googlescholar.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	content: "";
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-wos-index:before {
+	background: url("../../images/icon/wos.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	content: "";
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-links {
+    margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+.person-card-orcid-link {
+	background: url("../../images/icon/orcid.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-wos-link {
+	background: url("../../images/icon/wos.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-googlescholar-link {
+	background: url("../../images/icon/googlescholar.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-linkedin-link {
+	background: url("../../images/icon/linkedin.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-researchgate-link {
+	background: url("../../images/icon/researchgate.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-dblp-link {
+	background: url("../../images/icon/dblp.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-academia-link {
+	background: url("../../images/icon/academia-edu.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-cordis-link {
+	background: url("../../images/icon/europe.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-github-link {
+	background: url("../../images/icon/github.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-facebook-link {
+	background: url("../../images/icon/facebook.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.dynamically-loaded-image {
+}
+span.obfuscated-em:after {
+	content: attr(data-obfd) attr(data-obfc) "@" attr(data-obfb) "." attr(data-obfa); 
+}
+span.obfuscated-pn:after {
+	content: attr(data-obfa) attr(data-obfb) attr(data-obfc) attr(data-obfd); 
+}
+.researchOrganizationMember {
+    color: #212529 !important;
+    font-weight: bold;
+}
+.researchOrganizationMember a {
+    color: #3b4d05 !important;
+}
+.researchOrganizationMember a:hover {
+    color: #212529 !important;
+}
+.researchOrganizationMember a:visited {
+    font-family: 'Poppins', sans-serif;
+	color: #212529 !important;
+}
+.researchOrganizationMemberCivilTitle {
+    font-family: 'Poppins', sans-serif;
+	font-size: smaller;
+	font-variant: small-caps;	
+}
+
+/* Enable submenus in a dropdown button */
+.dropdown-menu li {
+	position: relative;
+}
+.dropdown-menu .dropdown-submenu {
+	display: none;
+	position: absolute;
+	left: 100%;
+	top: -7px;
+}
+.dropdown-menu .dropdown-submenu-left {
+	right: 100%;
+	left: auto;
+}
+.dropdown-menu > li:hover > .dropdown-submenu {
+	display: block;
+}
+nav.labmanager-administration-navigation {
+	--bs-breadcrumb-divider: '>';	
+}

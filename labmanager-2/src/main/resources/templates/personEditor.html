@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs" />
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/gravatar :: gravatarPicture" />
+<th:block th:replace="fragments/googlescholar :: googleScholarPicture" />
+<th:block th:replace="fragments/github :: githubPicture" />
+
+<th:block th:if="${person != null}">
+	<th:block th:replace="fragments/nav :: personListBar*(#{html.EditPerson1(${person.fullName})})"/>
+</th:block>
+<th:block th:if="${person == null}">
+	<th:block th:replace="fragments/nav :: personListBar*(#{html.AddPerson})"/>
+</th:block>
+
+<form th:replace="fragments/form :: entityForm(person, ${person == null ? '' : person.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PersonSavingError}, ~{::.form-group})">
+	<div class="form-group" th:replace="fragments/form :: textInput*(lastName, #{html.LastName}, #{html.PlaceHolderPersonLastName}, ${person != null ? person.lastName : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput*(firstName, #{html.FirstName}, #{html.PlaceHolderPersonFirstName}, ${person != null ? person.firstName : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInput(gender, #{html.Gender}, ~{::option#option-openaccess})">
+		<option id="option-openaccess"
+		        th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values}"
+		        th:selected="${(person == null && gender == defaultGender) || (person != null && person.gender == gender)}"
+		        th:value="${gender.name}"
+		        th:utext="${gender.getLabel()}"></option>
+	</div>
+	<div class="form-group" th:replace="fragments/form :: textInput(email, #{html.Email}, #{html.PlaceHolderEmail}, ${person != null ? person.email : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(officePhone, #{html.OfficePhone}, #{html.PlaceHolderPhone}, ${person != null ? person.officePhone : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(mobilePhone, #{html.MobilePhone}, #{html.PlaceHolderPhone}, ${person != null ? person.mobilePhone : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(gravatarId, #{html.GravatarId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.gravatarId : ''}, personGravatarPhoto)"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(orcid, #{html.ORCID}, #{html.PlaceHolderIdentifierOrcid}, ${person != null ? person.getORCID() : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(researcherId, #{html.ResearcherId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.researcherId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(googleScholarId, #{html.GoogleScholar}, #{html.PlaceHolderIdentifier}, ${person != null ? person.googleScholarId : ''}, personGoogleScholarPhoto)"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(linkedInId, #{html.LinkedInId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.linkedInId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(githubId, #{html.GithubId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.githubId : ''}, personGithubPhoto)"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(researchGateId, #{html.ResearchGateId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.researchGateId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(facebookId, #{html.FacebookId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.facebookId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(dblpURL, #{html.DblpURL}, #{html.PlaceHolderURL}, ${person != null ? person.dblpURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(academiaURL, #{html.AcademiaURL}, #{html.PlaceHolderURL}, ${person != null ? person.academiaURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(cordisURL, #{html.CordisURL}, #{html.PlaceHolderURL}, ${person != null ? person.cordisURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInput(webPageNaming, #{html.WebPageNaming}, ~{::option#option-webpagenaming})">
+		<option id="option-webpagenaming"
+		        th:each="naming : ${T(fr.ciadlab.labmanager.entities.member.WebPageNaming).values}"
+		        th:selected="${(person == null && naming == defaultNaming) || (person != null && person.webPageNaming == naming)}"
+		        th:value="${naming.name}"
+		        th:utext="${naming.getLabel()}"></option>
+	</div>
+	<div class="form-group" th:replace="fragments/form :: textInput(googleScholarHindex, #{html.HindexOnScholar}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.googleScholarHindex : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(wosHindex, #{html.HindexOnWos}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.wosHindex : ''})"></div>
+</form>
+<script th:inline="javascript">
+$(document).ready(function () {
+    $('#form:first').validate({
+        rules: {
+        	firstName: {
+                required: true,
+                minlength: 2
+            },
+            lastName: {
+                required: true,
+                minlength: 2
+            },
+            email: {
+                email: true
+            },
+            dblpURL: {
+                url: true
+            },
+            academiaURL: {
+                url: true
+            },
+            cordisURL: {
+                url: true
+            },
+            personScholarHindex: {
+                min: 0
+            },
+            wosHindex: {
+                min: 0
+            }
+        },
+        messages: {
+            acronym: {
+                required: "[(#{html.PleaseEnterFirstName})]",
+                minlength: "[(#{html.FirstNameLengthMin})]"
+            },
+            name: {
+                required: "[(#{html.PleaseEnterLastName})]",
+                minlength: "[(#{html.LastNameLengthMin})]"
+            },
+            personScholarHindex: {
+                min: "[(#{html.PleaseEnterPositiveOrZero})]"
+            },
+            wosHindex: {
+                min: "[(#{html.PleaseEnterPositiveOrZero})]"
+            }
+        }
+    });
+    $('#textInput_gravatarId:first').on('change paste keyup', (e) => {
+    	var newGravatarId = $('#textInput_gravatarId:first').val();
+    	refreshGravatarPhoto($('#personGravatarPhoto:first'), newGravatarId);
+    });
+    /*[# th:if="${person != null && person.gravatarId != null && !person.gravatarId.isEmpty()}"]*/
+    refreshGravatarPhoto($('#personGravatarPhoto:first'), "[(${person.gravatarId})]");
+    /*[/]*/    
+    $('#textInput_googleScholarId:first').on('change paste keyup', (e) => {
+    	var newGoogleScholarId = $('#textInput_googleScholarId:first').val();
+    	refreshGoogleScholarPhoto($('#personGoogleScholarPhoto:first'), newGoogleScholarId);
+    });
+    /*[# th:if="${person != null && person.googleScholarId != null && !person.googleScholarId.isEmpty()}"]*/
+    refreshGoogleScholarPhoto($('#personGoogleScholarPhoto:first'), "[(${person.googleScholarId})]");
+    /*[/]*/    
+    $('#textInput_githubId:first').on('change paste keyup', (e) => {
+    	var newGithubId = $('#textInput_githubId:first').val();
+    	refreshGithubPhoto($('#personGithubPhoto:first'), newGithubId);
+    });
+    /*[# th:if="${person != null && person.githubId != null && !person.githubId.isEmpty()}"]*/
+    refreshGithubPhoto($('#personGithubPhoto:first'), "[(${person.githubId})]");
+    /*[/]*/    
+});
+</script>
+</html>

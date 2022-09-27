@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<script th:src="@{/js/labmanager/showpublications.js}"></script>
+
+<th:block th:if="${enableExports || enableSearch || enableSortChanges}">
+	<div class="row">
+	    <div th:if="${enableExports || enableSearch}"
+	         class="col-lg-6">
+	        <div class="card">
+	            <div class="card-body">
+	                <h4 th:if="${enableExports}" class="header-title" th:utext="#{html.Exports}"></h4>
+	                <div th:if="${enableExports}" class="mb-xl-3" role="group" id="buttonsContainer">
+	                    &nbsp;
+	                    <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal" th:title="#{html.ExportToBibTeX}">
+	                        <i class="fa-solid fa-file-lines"></i>&nbsp;&nbsp;<th:block th:utext="#{html.BibTeX}"></th:block>
+	                    </button>
+	                    <button type="button" class="btn btn-sm btn-success" id="btWordGlobal" th:title="#{html.ExportToOdt}">
+	                        <i class="fa-solid fa-file-word"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Odt}"></th:block>
+	                    </button>
+	                    <button type="button" class="btn btn-sm btn-success" id="btHtmlGlobal" th:title="#{html.ExportToHtml}">
+	                        <i class="fa-solid fa-file-code"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Html}"></th:block>
+	                    </button>
+	                </div>
+					<h4 th:if="${enableSearch}" class="header-title" th:utext="#{html.Search}"></h4>
+	                <div th:if="${enableSearch}" class="form-group">
+	                    <div>
+	                        <input type="text" class="form-control form-control-sm" id="searchInput" th:placeholder="#{html.InputYourSearchedText}">
+	                    </div>
+	                    <small class="form-text text-muted" id="tableInfos"></small>
+	                </div>
+	            </div>
+	        </div>
+	    </div>
+		<div th:if="${enableSortChanges}" class="col-lg-6">
+	        <div class="card">
+	            <div class="card-body">
+	                <h4 class="header-title" th:utext="#{html.Control}"></h4>
+	                <form action="#">
+	                    <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Sort}"></b>
+	                    <div class="custom-control custom-radio custom-control-inline">
+	                        <input type="radio" id="orderYear" name="order" class="custom-control-input groupOrder">
+	                        <label class="custom-control-label" for="orderYear" th:utext="#{html.PerYear}"></label>
+	                    </div>
+	                    <div class="custom-control custom-radio custom-control-inline">
+	                        <input type="radio" id="orderType" name="order" class="custom-control-input groupOrder">
+	                        <label class="custom-control-label" for="orderType" th:utext="#{html.PerType}"></label>
+	                    </div>
+	                    <div class="custom-control custom-radio custom-control-inline">
+	                        <input type="radio" id="orderName" name="order" class="custom-control-input groupOrder">
+	                        <label class="custom-control-label" for="orderName" th:utext="#{html.PerAuthor}"></label>
+	                    </div>
+	                    <div class="custom-control custom-radio custom-control-inline">
+	                        <input type="radio" checked="checked" id="orderDefault" name="order" class="custom-control-input groupOrder">
+	                        <label class="custom-control-label" for="orderDefault" th:utext="#{html.PerDefault}"></label>
+	                    </div>
+	
+	                </form>
+	                <form action="#">
+	                    <b class="text-muted mb-3 mt-4 d-block" th:utext="#{html.Group}"></b>
+	                    <div class="custom-control custom-checkbox custom-control-inline">
+	                        <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupYear">
+	                        <label class="custom-control-label" for="groupYear" th:utext="#{html.PerYear}"></label>
+	                    </div>
+	                    <div class="custom-control custom-checkbox custom-control-inline">
+	                        <input type="checkbox" checked="checked" class="custom-control-input groupControl" id="groupType">
+	                        <label class="custom-control-label" for="groupType" th:utext="#{html.PerType}"></label>
+	                    </div>
+	                </form>
+	            </div>
+	        </div>
+	    </div>    
+	</div>
+	<br/>
+</th:block>
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table table-responsive">
+                    <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
+                        <thead>
+                        <th></th>
+                        <th th:utext="#{html.Publication}"></th>
+                        <th th:utext="#{html.Author}"></th>
+                        <th th:utext="#{html.Year}"></th>
+                        <th th:utext="#{html.Type}"></th>
+                        <th th:utext="#{html.Download}"></th>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+$(document).ready(() => {
+	const tableId = parseInt("[(${uuid})]");
+	const dtableConfig = {
+		obj: $('#table' + tableId),
+		url: "[(${url})]",
+		categoryLabels: {
+	        /*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
+			"[(${category.name})]": "[(${category.getLabel() + ' (' + category.name + ')'})]",
+	        /*[/]*/
+		},
+		groupLabelPlurial: "[(#{html.PublicationListGroup2})]",
+		groupLabelSingular: "[(#{html.PublicationListGroup1})]",
+		infoText: "[(#{html.PublicationListTotal})]",
+		detailledInfoLabels: {
+			authors: "[(#{html.Authors1})]",
+			type: "[(#{html.Type1})]",
+			'abstract': "[(#{html.Abstract})]",
+			keywords: "[(#{html.Keywords})]",
+			note: "[(#{html.Note})]",
+			scimago: "[(#{html.ScimagoQIndex})]",
+			scimagoNote: "[(#{html.ScimagoQIndexNote})]",
+			wos: "[(#{html.WosQIndex})]",
+			wosNote: "[(#{html.WosQIndexNote})]",
+			core: "[(#{html.CoreRanking})]",
+			coreNote: "[(#{html.CoreRankingNote})]",
+			impactFactor: "[(#{html.ImpactFactor1})]",
+			impactFactorNote: "[(#{html.ImpactFactorNote})]",
+			links: "[(#{html.Links})]",
+			downloads: "[(#{html.Downloads})]",
+			exports: "[(#{html.Exports})]",
+			management: "[(#{html.Management})]",
+		},
+		enableFilters: "[(${#bools.isTrue(enableFilters).toString})]" === 'true',
+		enableYearFilter: "[(${#bools.isTrue(enableFilters && enableYearFilter).toString})]" === 'true',
+		enableTypeFilter: "[(${#bools.isTrue(enableFilters && enableTypeFilter).toString})]" === 'true',
+		enableAuthorFilter: "[(${#bools.isTrue(enableFilters && enableAuthorFilter).toString})]" === 'true',
+	    /*[# th:if="${enableFilters && enableAuthorFilter}"]*/
+ 		searchPanes: [
+ 			{
+ 				header: "[(#{html.Authors})]",
+ 				options: [
+ 					/*[# th:each="candidate : ${authorsMap}"]*/
+					{
+						label: "[(${candidate.value})]",
+						value: (rowData, rowIndex) => {
+							if (rowData.authors) {
+								var foundElement = rowData.authors.find((elt) => {
+									return elt.id == [(${candidate.key})];
+								});
+								return foundElement;
+							}
+							return false;
+						},
+					},
+				    /*[/]*/
+ 				],
+ 			},
+		],
+	    /*[/]*/
+	}
+	const dtable = initPublicationDataTable(dtableConfig);
+	
+    /*[# th:if="${enableExports}"]*/
+	attachGlobalPublicationDownloadHandler({
+		id: 'btBibtexGlobal',
+		dataSource: dtable,
+		url: "[(${endpoint_export_bibtex})]",
+	});
+
+	attachGlobalPublicationDownloadHandler({
+		id: 'btWordGlobal',
+		dataSource: dtable,
+		url: "[(${endpoint_export_odt})]",
+	});
+
+	attachGlobalPublicationDownloadHandler({
+		id: 'btHtmlGlobal',
+		dataSource: dtable,
+		url: "[(${endpoint_export_html})]",
+	});
+    /*[/]*/
+	
+    /*[# th:if="${enableSearch}"]*/
+	attachSearchCriteriaHandler({
+		id: 'searchInput',
+		table: dtable,
+		infoText: "[(#{html.PublicationListTotal})]",
+		infoTextPartial: "[(#{html.PublicationListSearchResult})]",
+	});
+    /*[/]*/
+
+    /*[# th:if="${enableSortChanges}"]*/
+	initSortCriteriaFeature({
+		categoryRanks: {
+			/*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
+			"[(${category.getLabel()})]": parseInt("[(${category.ordinal()})]"),
+			/*[/]*/
+		},
+	});
+	attachSortingCriteriaHandler({
+		selector: '.groupOrder',
+		table: dtable,
+		perNameSelector: '#orderName',
+		perTypeSelector: '#orderType',
+		perYearSelector: '#orderYear',
+	});
+	attachGroupingCriteriaHandler({
+		selector: '.groupControl',
+		table: dtable,
+		perTypeSelector: '#groupType',
+		perYearSelector: '#groupYear',
+	});
+	/*[/]*/
+});
+</script>
+</html>

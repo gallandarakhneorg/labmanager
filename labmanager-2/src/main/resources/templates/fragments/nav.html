@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<th:block th:fragment="simpleBar(current)">
+		<nav class="labmanager-administration-navigation" aria-label="breadcrumb">
+		  <ol class="breadcrumb">
+		    <li class="breadcrumb-item"><a th:href="@{/admin}" th:utext="#{html.AdministrationPage}"></a></li>
+		    <li class="breadcrumb-item active" aria-current="page" th:utext="${current}"></li>
+		  </ol>
+		</nav>
+	</th:block>
+
+	<th:block th:fragment="standardBar(entries, current)">
+		<nav class="labmanager-administration-navigation" aria-label="breadcrumb">
+		  <ol class="breadcrumb">
+		    <li class="breadcrumb-item"><a th:href="@{/admin}" th:utext="#{html.AdministrationPage}"></a></li>
+			<li class="breadcrumb-item" th:insert="${entries}"></li>
+		    <li class="breadcrumb-item active" aria-current="page" th:utext="${current}"></li>
+		  </ol>
+		</nav>
+	</th:block>
+
+	<th:block th:fragment="publicationListBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.BackPublicationList})"></th:block>
+	</th:block>
+
+	<th:block th:fragment="publicationListBar*(current)">
+		<th:block th:replace="fragments/nav :: standardBar(~{::a#lab-nav-publicationList-item}, ${current})">
+			<a id="lab-nav-publicationList-item" th:href="@{/publicationList}" th:utext="#{html.BackPublicationList}"></a><
+		</th:block>
+	</th:block>
+
+	<th:block th:fragment="personListBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.PersonsList})"></th:block>
+	</th:block>
+
+	<th:block th:fragment="personListBar*(current)">
+		<th:block th:replace="fragments/nav :: standardBar(~{::a#lab-nav-personList-item}, ${current})">
+			<a id="lab-nav-personList-item" th:href="@{/personList}" th:utext="#{html.PersonsList}"></a><
+		</th:block>
+	</th:block>
+
+	<th:block th:fragment="organizationListBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.OrganizationsList})"></th:block>
+	</th:block>
+
+	<th:block th:fragment="organizationListBar*(current)">
+		<th:block th:replace="fragments/nav :: standardBar(~{::a#lab-nav-organizationList-item}, ${current})">
+			<a id="lab-nav-organizationList-item" th:href="@{/organizationList}" th:utext="#{html.OrganizationsList}"></a><
+		</th:block>
+	</th:block>
+
+	<th:block th:fragment="journalListBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.JournalsList})"></th:block>
+	</th:block>
+
+	<th:block th:fragment="journalListBar*(current)">
+		<th:block th:replace="fragments/nav :: standardBar(~{::a#lab-nav-journalList-item}, ${current})">
+			<a id="lab-nav-journalList-item" th:href="@{/journalList}" th:utext="#{html.JournalsList}"></a><
+		</th:block>
+	</th:block>
+
+</html>

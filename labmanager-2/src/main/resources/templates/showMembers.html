@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<script th:src="@{/js/labmanager/showmembers.js}"></script>
+
+<div class="row">
+    <div class="col-lg-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="table table-responsive">
+                    <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
+                        <thead>
+                        <th></th>
+                        <th th:utext="#{html.Members}"></th>
+                        <th th:utext="#{html.Status}"></th>
+                        <th th:utext="#{html.Responsibility0}"></th>
+                        <th th:utext="#{html.Type}"></th>
+                        <th th:utext="#{html.OtherOrganizations}"></th>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+$(document).ready(() => {
+	const tableId = parseInt("[(${uuid})]");
+	const dtableConfig = {
+		obj: $('#table' + tableId),
+		url: "[(${url})]",
+		enableFilters: "[(${#bools.isTrue(enableFilters).toString})]" === 'true',
+		statusLabels: {
+	        /*[# th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values()}"]*/
+		        /*[# th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values()}" th:if="${gender.hasLabel()}"]*/
+			"[(${status.name + '_' + gender.name})]": "[(${status.getLabel(gender)})]",
+		        /*[/]*/
+	        /*[/]*/
+		},
+		responsibilityLabels: {
+	        /*[# th:each="responsibility : ${T(fr.ciadlab.labmanager.entities.member.Responsibility).values()}"]*/
+		        /*[# th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values()}" th:if="${gender.hasLabel()}"]*/
+			"[(${responsibility.name + '_' + gender.name})]": "[(${responsibility.getLabel(gender)})]",
+		        /*[/]*/
+	        /*[/]*/
+		},
+		types: {
+	        /*[# th:each="type : ${T(fr.ciadlab.labmanager.controller.api.member.GeneralMemberType).values()}"]*/
+			"[(${type.name})]": {
+				label: [[${type.getLabel()}]],
+				order: [[${type.ordinal}]],
+			},
+	        /*[/]*/
+		},
+	}
+	const dtable = initMemberDataTable(dtableConfig);
+});
+</script>
+</html>

@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<table th:fragment="adminTable(thead,tbody)" class="table table-responsive-sm table-bordered table-striped table-sm" th:id="${'table'+uuid}" style="width:100%">
+		<thead th:replace="${thead}"></thead>
+		<tbody th:replace="${tbody}"></tbody>
+    </table>
+
+    <td th:fragment="adminToolButtons(id, name, editLabel, deleteLabel, extraButtons, exportBibTeXUrlParam, exportOdtUrlParam, exportHtmlUrlParam, exportJsonUrl)">
+    	<th:block th:unless="${#strings.isEmpty(editLabel)}">
+	     	<a th:if="${changeEnabled}"
+	     	   th:href="${URLS_edit + id}"
+	     	   class="noLink">
+	     		<span class="fa-solid fa-pencil"
+				      th:title="${editLabel}"
+				      style="font-size:14pt"></span>
+			</a>
+			<span class="fa-solid fa-pencil"
+			      th:unless="${changeEnabled}"
+			      th:title="${editLabel}"
+			      style="font-size:14pt"></span>
+    	</th:block>
+    	<th:block th:unless="${#strings.isEmpty(deleteLabel)}">
+			<button class="fa-solid fa-trash"
+			      th:id="${'TheDeleteButton_' + id}"
+			      th:title="${deleteLabel}"
+			      th:style="${changeEnabled} ? 'font-size:14pt;cursor: pointer;' : 'font-size:14pt'"></button>
+    	</th:block>
+    	<th:block th:if="${extraButtons}">
+    		 <th:block th:replace="${extraButtons}"></th:block>
+    	</th:block>
+    	<th:block th:unless="${#strings.isEmpty(exportBibTeXUrlParam)}">
+            	<a th:href="${URLS_exportBibTeX + '?' + exportBibTeXUrlParam + '=' + id + '&inAttachment=true'}">
+            		<img th:src="@{/images/icon/bibtex_file.svg}" th:title="#{html.GetBibTeXPublicationsFor(${name})}" style="max-width:24px;"></img>
+            	</a>
+    	</th:block>
+    	<th:block th:unless="${#strings.isEmpty(exportOdtUrlParam)}">
+            	<a th:href="${URLS_exportOdt + '?' + exportOdtUrlParam + '=' + id + '&inAttachment=true'}">
+            		<img th:src="@{/images/icon/odt_file.svg}" th:title="#{html.GetOdtPublicationsFor(${name})}" style="max-width:24px;"></img>
+            	</a>
+    	</th:block>
+    	<th:block th:unless="${#strings.isEmpty(exportHtmlUrlParam)}">
+            	<a th:href="${URLS_exportHtml + '?' + exportHtmlUrlParam + '=' + id + '&inAttachment=true'}">
+            		<img th:src="@{/images/icon/html_file.svg}" th:title="#{html.GetHtmlPublicationsFor(${name})}" style="max-width:24px;"></img>
+            	</a>
+    	</th:block>
+    	<th:block th:unless="${#strings.isEmpty(exportJsonUrl)}">
+            	<a th:href="${exportJsonUrl}">
+            		<img th:src="@{/images/icon/json_file.svg}" th:title="#{html.GetJsonFor(${name})}" style="max-width:24px;"></img>
+            	</a>
+    	</th:block>
+	</td>
+
+	<th:block th:fragment="adminTableDefinition(activateModifications)">
+		<script th:src="@{/js/labmanager/table.js}"></script>
+		<script th:inline="javascript">
+		/** Initialize a Bootstrap Datatable for an administrator usage.
+		 * @param config the configuration of the administration table. Keys are:
+		 *      * `id` the identifier of the button that is used for obtaining the button with jQuery. If this `id` is not
+		 *        provided, the `selector` or `obj` must be provided. DEfault id is computed.
+		 *      * `selector` the jQuery selector for obtaining the button. If this `selector` is not
+		 *        provided, the `id` or `obj` must be provided.
+		 *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
+		 *        provided, the `selector` or `id` must be provided.
+		 *      * `columns` It may be an array of column definitions, excepting the action column if `actionColumn` is true; or it
+		 *        may be a number of columns. If a number of columns is provided, the array of columns is automatically built up.
+		 *      * `order` an array that is specifying the order to apply to the values/columns. Default is `[ [1,'asc'] ]`.
+		 *      * `actionColumn` a boolean value indicating if the action column is automatically added to the list of columns. Default is true.
+		 *      * `actionWidth` the exepcted size of the "action column". Default is `150px`.
+		 *      * `data` the array of the rows to be displayed.
+		 * @return the table object.
+		 */
+		function initAdministrationTable(config) {
+			(!('id' in config)) && (config['id'] = "table[[${uuid}]]");
+			return initAdministrationTable_base(config);
+		}
+		</script>
+		<th:block th:replace="fragments/libs :: sweetalert" />
+		<th:block th:if="${activateModifications}" th:replace="fragments/buttons :: interactiveDeletionProcess"></th:block>
+	</th:block>
+</html>

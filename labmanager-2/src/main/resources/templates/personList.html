@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+
+<th:block th:replace="fragments/nav :: personListBar"/>
+
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+    <thead>
+        <th th:text="#{html.Id}"></th>
+        <th th:text="#{html.Vcard}"></th>
+        <th th:utext="#{html.LastName}"></th>
+        <th th:utext="#{html.FirstName}"></th>
+        <th th:utext="#{html.Photo}"></th>
+        <th th:utext="#{html.ORCID}"></th>
+        <th th:utext="#{html.Hindex}"></th>
+        <th th:utext="#{html.CurrentOrganizations}"></th>
+        <th th:utext="#{html.FormerOrganizations}"></th>
+        <th th:utext="#{html.FutureOrganizations}"></th>
+        <th th:text="#{html.Actions}"></th>
+    </thead>
+    <tbody>
+        <tr th:each="person : ${persons}">
+            <td>
+                <th:block th:utext="${person.id}"></th:block>
+            </td>
+            <td>
+            	<a th:if="${person.webPageId != null}"
+            	   th:href="@{/showPersonCard(webId=${person.webPageId})}" class="noLink"><span class="fa-solid fa-address-card"></span></a>
+            	<a th:href="${person.webPageURI}"
+            	   th:if="${person.webPageURI != null}"
+            	   class="noLink"><span class="fa-solid fa-house"></span></a>
+            </td>
+            <td th:with="actives = ${person.activeMemberships}">
+	                <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
+	                   th:utext="${person.lastName}"></s>
+	                <i th:if="${actives.isEmpty() && person.memberships.isEmpty()}"
+	                          th:utext="${person.lastName}"></i>
+	                <th:block th:if="${!actives.isEmpty()}"
+	                          th:utext="${person.lastName}"></th:block>
+            </td>
+            <td th:with="actives = ${person.activeMemberships}">
+                <s th:if="${actives.isEmpty() && !person.memberships.isEmpty()}"
+                     th:utext="${person.firstName}"></s>
+                <i th:if="${actives.isEmpty() && person.memberships.isEmpty()}"
+                          th:utext="${person.firstName}"></i>
+                <th:block th:if="${!actives.isEmpty()}"
+                          th:utext="${person.firstName}"></th:block>
+            </td>
+            <td>
+                <img class="person-photo"
+                     th:if="${person.photoURL != null}"
+                     th:src="${person.photoURL}"
+                     th:title="${person.fullName}"
+                     style="max-width:100px;"></img></a>
+            </td>
+            <td>
+                <a th:if="${person.ORCID != null}"
+                   th:href="${person.orcidURL}"
+                   th:utext="${person.ORCID}"></a>
+            </td>
+            <td>
+                <th:block th:if="${person.googleScholarHindex > 0}"
+                          th:utext="#{html.GoogleScholarHindex(${person.googleScholarHindex})}"></th:block>
+                <th:block th:if="${person.googleScholarHindex > 0 && person.wosHindex > 0}"
+                          th:utext="', '"></th:block>
+                <th:block th:if="${person.wosHindex > 0}"
+                          th:utext="#{html.WosHindex(${person.wosHindex})}"></th:block>
+            </td>
+            <td>
+                <th:block th:each="mbr, iMbr : ${person.activeMemberships}">
+                    <th:block th:if="${!iMbr.first}">, </th:block>
+                    <th:block th:if="${mbr.value.memberStatus == null}"
+                              th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
+                    <a th:if="${mbr.value.memberStatus != null}"
+                       th:href="@{/personList(organization=${mbr.key.id})}"
+                       th:title="${mbr.value.memberStatus.getLabel()}"
+                       th:utext="${mbr.key.acronymOrName}"></a>
+					<span th:id="${'btPositionResign_' + person.id + '_' + mbr.value.id}"
+					   class="fa fa-unlink"
+					   th:title="#{html.PositionResign(${mbr.key.acronymOrName})}"
+					   th:style="${changeEnabled} ? 'cursor: pointer;' : ''"></span>
+                </th:block>
+            </td>
+            <td>
+                <th:block th:each="mbr, iMbr : ${person.finishedMemberships}">
+                    <th:block th:if="${!iMbr.first}">, </th:block>
+                    <th:block th:if="${mbr.value.memberStatus == null}"
+                              th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
+                    <a th:if="${mbr.value.memberStatus != null}"
+                       th:href="@{/personList(organization=${mbr.key.id})}"
+                       th:title="#{html.FormerPositionTo(${mbr.value.memberStatus.getLabel()},${mbr.value.memberToWhen.year})}"
+                       th:utext="${mbr.key.acronymOrName}"></a>
+                </th:block>
+            </td>
+            <td>
+                <th:block th:each="mbr, iMbr : ${person.futureMemberships}">
+                    <th:block th:if="${!iMbr.first}">, </th:block>
+                    <th:block th:if="${mbr.value.memberStatus == null}"
+                              th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
+                    <a th:if="${mbr.value.memberStatus != null}"
+                       th:href="@{/personList(organization=${mbr.key.id})}"
+                       th:title="#{html.FuturePositionFrom(${mbr.value.memberStatus.getLabel()},${mbr.value.memberSinceWhen.year})}"
+                       th:utext="${mbr.key.acronymOrName}"></a>
+                </th:block>
+            </td>
+            <td th:replace="fragments/table :: adminToolButtons(${person.id}, ${person.fullName},
+            		#{html.EditPerson1(${person.fullName})},
+            		#{html.DeletePerson1(${person.fullName})},
+            		~{::.admin-tool-buttons},
+            		dbId, dbId, dbId,
+            		@{/getPersonData(dbId=${person.id})} )">
+            	<a th:href="@{/membershipEditor(personId=${person.id})}"
+				   th:if="${changeEnabled}"
+				   class="noLink admin-tool-buttons">
+            		<span class="fa-solid fa-sitemap"
+            		   th:title="#{html.EditMemberships(${person.fullName})}"
+                       style="font-size:14pt"></span>
+            	</a>
+           		<span class="fa fa-sitemap admin-tool-buttons"
+				   th:unless="${changeEnabled}"
+           		   th:id="${'btEditMemberships' + person.id}"
+           		   th:title="#{html.EditMemberships(${person.fullName})}"
+                   style="font-size:14pt"></span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<script th:inline="javascript">
+    $(document).ready(() => {
+    	initAdministrationTable({
+    		columns: [
+            	{ },
+            	{
+                    "orderable": false
+            	},
+            	{ },
+            	{ },
+            	{
+                    "orderable": false
+            	},
+            	{ },
+            	{ },
+            	{ },
+            	{ },
+            	{ }
+    		],
+    		order: [ [2, 'asc'], [3, 'asc'] ],
+    		actionWidth: '180px',
+    	});
+        /*[# th:if="${changeEnabled}" th:each="person : ${persons}"]*/
+		attachDeletionHandler({
+			id: "[(${person.id})]",
+			url: "[(@{/deletePerson(person=${person.id})})]",
+			name: [[${person.fullName}]],
+			questionTitle: [[#{html.DeletePerson1(${person.fullName})}]],
+			questionText: [[#{html.AreYouSureToDelete(${person.fullName})}]],
+			successText: [[#{html.PersonDeleted}]],
+			failureText: [[#{html.CannotDeletePerson}]],
+	    });
+	    	/*[# th:each="membership : ${person.activeMemberships}"]*/
+		attachDeletionHandler({
+			selector: "#[(${'btPositionResign_' + person.id + '_' + membership.value.id})]",
+			url: "[(${membershipdeletionUrl + '?id=' + membership.value.id})]",
+			name: [[${membership.key.acronymOrName}]],
+			questionTitle: [[#{html.DeleteMembership}]],
+			questionText: [[#{html.AreYouSureToDeleteMembership(${person.fullName}, ${membership.key.acronymOrName}, ${membership.value.memberStatus.getLabel()})}]],
+			successText: [[#{html.MembershipDeleted}]],
+			failureText: [[#{html.CannotDeleteMembership}]],
+	    });
+    		/*[/]*/
+        /*[/]*/
+    });
+</script>
+</html>

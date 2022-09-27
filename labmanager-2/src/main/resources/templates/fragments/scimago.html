@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+	<th:block th:fragment="scimagoPicture">
+		<script th:src="@{/js/labmanager/dynamicphoto.js}"></script>
+		<script th:inline="javascript">
+		function refreshScimagoPhoto($imageElement, scimagoId, urlBase = "[(${scimagoQIndex_imageUrl})]") {
+			refreshDynamicImage($imageElement, scimagoId, urlBase);
+		}
+		</script>
+	</th:block>
+
+</html>

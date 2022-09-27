@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+
+<th:block th:replace="fragments/nav :: publicationListBar"/>
+
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+    <thead>
+        <th th:text="#{html.Id}"></th>
+        <th th:utext="#{html.Title}"></th>
+        <th th:utext="#{html.Authors}"></th>
+        <th th:utext="#{html.Type}"></th>
+        <th th:utext="#{html.Year}"></th>
+        <th th:utext="#{html.WherePublished}"></th>
+        <th th:utext="#{html.Files}"></th>
+        <th th:text="#{html.Actions}"></th>
+    </thead>
+    <tbody>
+        <tr th:each="publication : ${publications}">
+            <td>
+                <th:block th:utext="${publication.id}"></th:block>
+            </td>
+            <td>
+            	<th:block th:if="${#bools.isTrue(publication.manualValidationForced)}">
+	            	<th:block th:utext="${publication.title}"></th:block>
+	            	<span th:title="#{html.ValidatedByOrganizationRepresentative}">
+						<span class="fa-solid fa-user-check" style="font-size:14pt;"></span>
+					</span>
+            	</th:block>
+            	<th:block th:if="${#bools.isFalse(publication.manualValidationForced)}"
+            	          th:utext="${publication.title}"></th:block>
+            </td>
+            <td>
+            	<th:block th:each="authorship, iAuthorship : ${publication.authorships}">
+                    <th:block th:unless="${iAuthorship.first}"
+                              th:utext="', '"></th:block>
+					<a th:if="${authorship.person.webPageId != null}"
+					   th:href="@{/showPublicationStats(webId=${authorship.person.webPageId})}">
+	                    <th:block th:utext="${authorship.person.fullName}"></th:block>
+					</a>
+					<a th:if="${authorship.person.webPageId == null}"
+					   th:href="@{/showPublicationStats(dbId=${authorship.person.id})}">
+	                    <th:block th:utext="${authorship.person.fullName}"></th:block>
+					</a>
+            	</th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${publication.type.getLabel()}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${publication.publicationYear}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${publication.wherePublishedShortDescription}"></th:block>
+            </td>
+            <td>
+				<a th:href="@{/} + ${publication.pathToDownloadablePDF}"
+				   class="noLink"
+				   th:unless="${#strings.isEmpty(publication.pathToDownloadablePDF)}">
+					<button class="fa-solid fa-file-pdf"
+					        th:title="#{html.PdfDocumentFor}"
+					        style="font-size:14pt"></button></a>
+				<a th:href="@{/} + ${publication.pathToDownloadableAwardCertificate}"
+				   class="noLink"
+				   th:unless="${#strings.isEmpty(publication.pathToDownloadableAwardCertificate)}">
+					<button class="fa-solid fa-award"
+					        th:title="#{html.AwardDocumentFor}"
+					        style="font-size:14pt"></button></a>
+            </td>
+            <td th:replace="fragments/table :: adminToolButtons(${publication.id}, ${publication.title},
+            		#{html.EditPublication1(${publication.title})},
+            		#{html.DeletePublication1(${publication.title})},
+            		null,
+            		id, id, id,
+            		@{/exportJson(id=${publication.id},inAttachment=false)} )"></td>
+        </tr>
+    </tbody>
+</table>
+<script th:inline="javascript">
+    $(document).ready(() => {
+    	initAdministrationTable({
+    		columns: 7,
+    		order: [ [4, 'desc'], [2, 'asc'], [1, 'asc'] ],
+    	});
+        /*[# th:if="${changeEnabled}" th:each="publication : ${publications}"]*/
+		attachDeletionHandler({
+			id: "[[${publication.id}]]",
+			url: "[(@{/deletePublication(publication=${publication.id})})]",
+			name: [[${publication.title}]],
+			questionTitle: [[#{html.DeletePublication1(${publication.title})}]],
+			questionText: [[#{html.AreYouSureToDelete(${publication.title})}]],
+			successText: [[#{html.PublicationDeleted}]],
+			failureText: [[#{html.CannotDeletePublication}]],
+	    });
+        /*[/]*/
+    });
+</script>
+</html>

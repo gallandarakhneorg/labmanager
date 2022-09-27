@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+
+<th:block th:replace="fragments/nav :: organizationListBar"/>
+
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+	<thead>
+		<th th:text="#{html.Id}"></th>
+		<th th:text="#{html.Acronym}"></th>
+		<th th:text="#{html.Name}"></th>
+		<th th:text="#{html.Type}"></th>
+		<th th:text="#{html.Description}"></th>
+		<th th:text="#{html.Country}"></th>
+		<th th:text="#{html.SuperOrganization}"></th>
+		<th th:text="#{html.SubOrganizations}"></th>
+		<th th:text="#{html.Actions}"></th>
+	</thead>
+    <tbody>
+        <tr th:each="organization : ${organizations}">
+            <td>
+                <th:block th:utext="${organization.id}"></th:block>
+            </td>
+            <td>
+                <a th:if="${organization.organizationURL != null}"
+                   th:href="${organization.organizationURL}"
+                   th:utext="${organization.acronym}"></a>
+                <th:block th:if="${organization.organizationURL == null}"
+                          th:utext="${organization.acronym}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${organization.name}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${organization.type.getLabel()}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${organization.description}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${organization.countryDisplayName}"></th:block>
+            </td>
+            <td>
+                <th:block th:if="${organization.superOrganization != null}"
+                          th:utext="${organization.superOrganization.acronymOrName}"></th:block>
+            </td>
+            <td>
+                <th:block th:each="suborga, iOrga : ${#lists.sort(organization.subOrganizations, new fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator())}">
+                    <th:block th:if="${!iOrga.first}"
+                              th:utext="', '"></th:block>
+                    <th:block th:utext="${suborga.acronymOrName}"></th:block>
+                </th:block>
+            </td>
+            <td th:replace="fragments/table :: adminToolButtons(${organization.id}, ${organization.getAcronymOrName},
+            		#{html.EditOrganization1(${organization.acronymOrName})},
+            		#{html.DeleteOrganization1(${organization.acronymOrName})},
+            		null,
+            		organization, organization, organization,
+            		@{/getOrganizationData(id=${organization.id})} )"></td>
+        </tr>
+    </tbody>
+</table>
+<script th:inline="javascript">
+    $(document).ready(() => {
+    	initAdministrationTable({
+    		columns: 8,
+    	});
+        /*[# th:if="${changeEnabled}" th:each="organization : ${organizations}"]*/
+    	attachDeletionHandler({
+    		id: "[[${organization.id}]]",
+    		url: "[(@{/deleteOrganization(organization=${organization.id})})]",
+    		name: [[${organization.acronymOrName}]],
+    		questionTitle: [[#{html.DeleteOrganization1(${organization.acronymOrName})}]],
+    		questionText: [[#{html.AreYouSureToDelete(${organization.acronymOrName})}]],
+    		successText: [[#{html.OrganizationDeleted}]],
+    		failureText: [[#{html.CannotDeleteOrganization}]],
+        });
+        /*[/]*/
+    });
+</script>
+</html>

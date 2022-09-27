@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <th:block th:fragment="all">
+		<th:block th:replace="fragments/libs :: bootstrap-fileinput"/>
+		<script th:src="@{/js/labmanager/formfileinput.js}"></script>
+	</th:block>
+
+	<div th:fragment="fileUploadPdf(name, label)" class="form-group">
+		<input type="text" class="form-control"
+		       th:id="${'fileUploadPdf_removed_' + name}" 
+		       hidden="true" value="false" />
+		<label th:for="${'fileUploadPdf_' + name}" class="col-form-label" th:utext="${label}"></label>
+		<input class="form-control" type="file"
+		       data-preview-file-type="text"
+		       accept=".pdf,application/pdf"
+		       th:id="${'fileUploadPdf_' + name}" th:name="${name}"></input>
+    </div>
+
+	<div th:fragment="fileUploadBibTeX(name, label)" class="form-group">
+		<input type="text" class="form-control"
+		       th:id="${'fileUploadBibTeX_removed_' + name}" 
+		       hidden="true" value="false" />
+		<label th:for="${'fileUploadBibTeX_' + name}" class="col-form-label" th:utext="${label}"></label>
+		<input class="form-control" type="file"
+		       data-preview-file-type="text"
+		       accept=".bib,.bibtex,text/x-bibtex"
+		       th:id="${'fileUploadBibTeX_' + name}" th:name="${name}"></input>
+    </div>
+
+</html>
