@@ -60,6 +60,7 @@ public class ResponsibilityTest {
 		// Force the local to be US
 		java.util.Locale.setDefault(java.util.Locale.US);
 		assertEquals("Vice-President of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.MALE));
+		assertEquals("President of the Restricted Administration Council", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.MALE));
 		assertEquals("Member of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.MALE));
 		assertEquals("Responsible of the business unit", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.MALE));
 		assertEquals("Director of Communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.MALE));
@@ -109,6 +110,7 @@ public class ResponsibilityTest {
 		// Force the local to be US
 		java.util.Locale.setDefault(java.util.Locale.US);
 		assertEquals("Vice-President of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.FEMALE));
+		assertEquals("President of the Restricted Administration Council", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.FEMALE));
 		assertEquals("Member of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.FEMALE));
 		assertEquals("Responsible of the business unit", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.FEMALE));
 		assertEquals("Director of Communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.FEMALE));
@@ -158,6 +160,7 @@ public class ResponsibilityTest {
 		// Force the local to be US
 		java.util.Locale.setDefault(java.util.Locale.US);
 		assertEquals("Vice-President of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.OTHER));
+		assertEquals("President of the Restricted Administration Council", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.OTHER));
 		assertEquals("Member of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.OTHER));
 		assertEquals("Responsible of the business unit", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.OTHER));
 		assertEquals("Director of Communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.OTHER));
@@ -207,6 +210,7 @@ public class ResponsibilityTest {
 		// Force the local to be FR
 		java.util.Locale.setDefault(java.util.Locale.FRANCE);
 		assertEquals("Vice-President of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.MALE));
+		assertEquals("President of the Restricted Administration Council", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.MALE));
 		assertEquals("Member of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.MALE));
 		assertEquals("Responsible of the business unit", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.MALE));
 		assertEquals("Director of Communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.MALE));
@@ -256,6 +260,7 @@ public class ResponsibilityTest {
 		// Force the local to be FR
 		java.util.Locale.setDefault(java.util.Locale.FRANCE);
 		assertEquals("Vice-President of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.FEMALE));
+		assertEquals("President of the Restricted Administration Council", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.FEMALE));
 		assertEquals("Member of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.FEMALE));
 		assertEquals("Responsible of the business unit", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.FEMALE));
 		assertEquals("Director of Communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.FEMALE));
@@ -305,6 +310,7 @@ public class ResponsibilityTest {
 		// Force the local to be FR
 		java.util.Locale.setDefault(java.util.Locale.FRANCE);
 		assertEquals("Vice-President of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.OTHER));
+		assertEquals("President of the Restricted Administration Council", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.OTHER));
 		assertEquals("Member of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.OTHER));
 		assertEquals("Responsible of the business unit", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.OTHER));
 		assertEquals("Director of Communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.OTHER));
@@ -352,6 +358,7 @@ public class ResponsibilityTest {
 	@Test
 	public void getLabel_Locale_US_MALE() {
 		assertEquals("Vice-President of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.MALE, Locale.US));
+		assertEquals("President of the Restricted Administration Council", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.MALE, Locale.US));
 		assertEquals("Member of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.MALE, Locale.US));
 		assertEquals("Responsible of the business unit", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.MALE, Locale.US));
 		assertEquals("Director of Communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.MALE, Locale.US));
@@ -399,6 +406,7 @@ public class ResponsibilityTest {
 	@Test
 	public void getLabel_Locale_US_FEMALE() {
 		assertEquals("Vice-President of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.FEMALE, Locale.US));
+		assertEquals("President of the Restricted Administration Council", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.FEMALE, Locale.US));
 		assertEquals("Member of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.FEMALE, Locale.US));
 		assertEquals("Responsible of the business unit", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.FEMALE, Locale.US));
 		assertEquals("Director of Communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.FEMALE, Locale.US));
@@ -446,6 +454,7 @@ public class ResponsibilityTest {
 	@Test
 	public void getLabel_Locale_US_OTHER() {
 		assertEquals("Vice-President of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.OTHER, Locale.US));
+		assertEquals("President of the Restricted Administration Council", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.OTHER, Locale.US));
 		assertEquals("Member of the Administration Council", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.OTHER, Locale.US));
 		assertEquals("Responsible of the business unit", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.OTHER, Locale.US));
 		assertEquals("Director of Communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.OTHER, Locale.US));
@@ -493,6 +502,7 @@ public class ResponsibilityTest {
 	@Test
 	public void getLabel_Locale_FR_MALE() {
 		assertEquals("Vice-président du Conseil d'Administration", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.MALE, Locale.FRANCE));
+		assertEquals("Président du Conseil d'Administration en Formation Restreinte", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.MALE, Locale.FRANCE));
 		assertEquals("Membre du Conseil d'Administration", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.MALE, Locale.FRANCE));
 		assertEquals("Responsable de la valorisation", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.MALE, Locale.FRANCE));
 		assertEquals("Directeur de la communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.MALE, Locale.FRANCE));
@@ -540,6 +550,7 @@ public class ResponsibilityTest {
 	@Test
 	public void getLabel_Locale_FR_FEMALE() {
 		assertEquals("Vice-présidente du Conseil d'Administration", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.FEMALE, Locale.FRANCE));
+		assertEquals("Présidente du Conseil d'Administration en Formation Restreinte", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.FEMALE, Locale.FRANCE));
 		assertEquals("Membre du Conseil d'Administration", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.FEMALE, Locale.FRANCE));
 		assertEquals("Responsable de la valorisation", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.FEMALE, Locale.FRANCE));
 		assertEquals("Directrice de la communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.FEMALE, Locale.FRANCE));
@@ -587,6 +598,7 @@ public class ResponsibilityTest {
 	@Test
 	public void getLabel_Locale_FR_OTHER() {
 		assertEquals("Vice-président.e du Conseil d'Administration", cons(Responsibility.ADMINISTRATION_COUNCIL_VICE_PRESIDENT).getLabel(Gender.OTHER, Locale.FRANCE));
+		assertEquals("Président.e du Conseil d'Administration en Formation Restreinte", cons(Responsibility.RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT).getLabel(Gender.OTHER, Locale.FRANCE));
 		assertEquals("Membre du Conseil d'Administration", cons(Responsibility.ADMINISTRATION_COUNCIL_MEMBER).getLabel(Gender.OTHER, Locale.FRANCE));
 		assertEquals("Responsable de la valorisation", cons(Responsibility.BUSINESS_UNIT_RESPONSIBLE).getLabel(Gender.OTHER, Locale.FRANCE));
 		assertEquals("Directeur.trice de la communication", cons(Responsibility.COMMUNICATION_DIRECTOR).getLabel(Gender.OTHER, Locale.FRANCE));

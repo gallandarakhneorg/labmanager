@@ -99,6 +99,10 @@ public enum Responsibility {
 	 */
 	ADMINISTRATION_COUNCIL_VICE_PRESIDENT(false),
 
+	/** President of the Restricted Administration Council of the organization.
+	 */
+	RESTRICTED_ADMINISTRATION_COUNCIL_PRESIDENT(false),
+
 	/** Scientific council vice-president of the organization.
 	 */
 	SCIENTIFIC_COUNCIL_VICE_PRESIDENT(false),
