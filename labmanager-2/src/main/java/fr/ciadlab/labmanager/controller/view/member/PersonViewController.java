@@ -184,6 +184,7 @@ public class PersonViewController extends AbstractViewController {
 	 * @param email indicates if the email should be shown on the card.
 	 * @param officePhone indicates if the office phone should be shown on the card.
 	 * @param mobilePhone indicates if the mobile phone should be shown on the card.
+	 * @param officeRoom indicates if the number of the office room should be shown on the card.
 	 * @param qindexes indicates if the Q-indexes should be shown on the card.
 	 * @param links indicates if the links to external sites should be shown on the card.
 	 * @return the model-view object.
@@ -201,6 +202,7 @@ public class PersonViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue="true") boolean email,
 			@RequestParam(required = false, defaultValue="true") boolean officePhone,
 			@RequestParam(required = false, defaultValue="true") boolean mobilePhone,
+			@RequestParam(required = false, defaultValue="true") boolean officeRoom,
 			@RequestParam(required = false, defaultValue="true") boolean qindexes,
 			@RequestParam(required = false, defaultValue="true") boolean links) {
 		final ModelAndView modelAndView = new ModelAndView("showPersonCard"); //$NON-NLS-1$
@@ -258,6 +260,7 @@ public class PersonViewController extends AbstractViewController {
 		modelAndView.addObject("enableEmail", Boolean.valueOf(email)); //$NON-NLS-1$
 		modelAndView.addObject("enableOfficePhone", Boolean.valueOf(officePhone)); //$NON-NLS-1$
 		modelAndView.addObject("enableMobilePhone", Boolean.valueOf(mobilePhone)); //$NON-NLS-1$
+		modelAndView.addObject("enableOfficeRoom", Boolean.valueOf(officeRoom)); //$NON-NLS-1$
 		modelAndView.addObject("enableQindexes", Boolean.valueOf(qindexes)); //$NON-NLS-1$
 		modelAndView.addObject("enableLinks", Boolean.valueOf(links)); //$NON-NLS-1$
 		//

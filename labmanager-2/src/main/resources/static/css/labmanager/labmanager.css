@@ -181,6 +181,20 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
     margin-top: 0.5rem;
 	margin-bottom: 0.5rem;
 }
+.person-card-addresses {
+    margin-top: 0.5rem;
+	margin-bottom: 0.5rem;
+}
+.person-card-officeroom {
+	font-family: 'Lato', sans-serif;
+	line-height: 24px;
+    color: #444;
+}
+.person-card-postaladdress {
+	font-family: 'Lato', sans-serif;
+	line-height: 24px;
+    color: #444;
+}
 .person-card-indexes {
     margin-top: 0.5rem;
 	margin-bottom: 0.5rem;

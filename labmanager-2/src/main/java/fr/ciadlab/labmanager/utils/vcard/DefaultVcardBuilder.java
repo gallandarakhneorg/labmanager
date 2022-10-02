@@ -57,6 +57,8 @@ public class DefaultVcardBuilder implements VcardBuilder {
 
 	private static final String MOBILE_PHONE = "mobile,voice"; //$NON-NLS-1$
 
+	private static final String OFFICE_ROOM = "office,room"; //$NON-NLS-1$
+
 	private static final String NAME = "N:"; //$NON-NLS-1$
 
 	private static final String FULLNAME = "FN:"; //$NON-NLS-1$
@@ -75,6 +77,10 @@ public class DefaultVcardBuilder implements VcardBuilder {
 
 	private static final String VCARD_END = "END:VCARD\n"; //$NON-NLS-1$
 
+	private static final String ADR_TYPE = "ADR:TYPE="; //$NON-NLS-1$
+
+	private static final String ADR_VALUE = ":"; //$NON-NLS-1$
+	
 	private static void append(StringBuilder vcard, String property, String value) {
 		if (!Strings.isNullOrEmpty(value)) {
 			vcard.append(property).append(value).append("\n"); //$NON-NLS-1$
@@ -96,6 +102,31 @@ public class DefaultVcardBuilder implements VcardBuilder {
 				}
 			}
 			vcard.append("\n"); //$NON-NLS-1$
+		}
+	}
+
+	private static void appendTo(StringBuilder buffer, String value) {
+		if (!Strings.isNullOrEmpty(value)) {
+			if (buffer.length() > 0) {
+				buffer.append(";"); //$NON-NLS-1$
+			}
+			buffer.append(value);
+		}
+	}
+
+	private static void appendAdr(StringBuilder vcard, String type, String postOfficeBox, String additionalNumber, String numberStreetAddress,
+			String locality, String region, String zipCode, String country) {
+		final StringBuilder value = new StringBuilder();
+		appendTo(value, postOfficeBox);
+		appendTo(value, additionalNumber);
+		appendTo(value, numberStreetAddress);
+		appendTo(value, locality);
+		appendTo(value, region);
+		appendTo(value, zipCode);
+		appendTo(value, country);
+		if (value.length() > 0) {
+			vcard.append(ADR_TYPE).append(type).append(ADR_VALUE);
+			vcard.append(value.toString()).append("\n"); //$NON-NLS-1$
 		}
 	}
 
@@ -173,6 +204,14 @@ public class DefaultVcardBuilder implements VcardBuilder {
 		append(vcard, URL_PREFIX, person.getGithubURL());
 		appendTel(vcard, OFFICE_PHONE, person.getOfficePhone());
 		appendTel(vcard, MOBILE_PHONE, person.getMobilePhone());
+		appendAdr(vcard, OFFICE_ROOM,
+				null, // B.O.
+				person.getOfficeRoom(),
+				null, // Street
+				null, // Locality
+				null, // Region
+				null, // Zip code
+				organization == null ? null : organization.getCountryDisplayName());
 		for (final Membership membership : person.getActiveMemberships().values()) {
 			if (organization != null) {
 				if (organization.getId() == membership.getResearchOrganization().getId()) {

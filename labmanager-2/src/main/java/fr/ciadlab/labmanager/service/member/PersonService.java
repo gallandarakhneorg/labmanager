@@ -136,6 +136,7 @@ public class PersonService extends AbstractService {
 				null, // email
 				null, // office phone
 				null, // mobile phone
+				null, // office room
 				null, // Gravatar Id
 				null, // Orcid
 				null, // ResearcherId
@@ -160,6 +161,7 @@ public class PersonService extends AbstractService {
 	 * @param email the email of the person.
 	 * @param officePhone the phone number at office.
 	 * @param mobilePhone the mobile phone number.
+	 * @param officeRoom the number of the office room.
 	 * @param gravatarId the identifier for obtaining a photo on Gravatar.
 	 * @param orcid the ORCID of the person.
 	 * @param researcherId the identifier of the person on ResearchId/WOS/Publon.
@@ -179,9 +181,10 @@ public class PersonService extends AbstractService {
 	 * @see Gender
 	 */
 	public Person createPerson(String firstName, String lastName, Gender gender, String email, String officePhone,
-			String mobilePhone, String gravatarId, String orcid, String researcherId, String scholarId, String linkedInId,
-			String githubId, String researchGateId, String facebookId, String dblpURL, String academiaURL,
-			String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex) {
+			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId,
+			String scholarId, String linkedInId, String githubId, String researchGateId, String facebookId,
+			String dblpURL, String academiaURL, String cordisURL, WebPageNaming webPageNaming,
+			int scholarHindex, int wosHindex) {
 		final Person res = new Person();
 		res.setFirstName(firstName);
 		res.setLastName(lastName);
@@ -189,6 +192,7 @@ public class PersonService extends AbstractService {
 		res.setEmail(email);
 		res.setOfficePhone(officePhone);
 		res.setMobilePhone(mobilePhone);
+		res.setOfficeRoom(officeRoom);
 		res.setGravatarId(gravatarId);
 		res.setORCID(orcid);
 		res.setResearcherId(researcherId);
@@ -216,6 +220,7 @@ public class PersonService extends AbstractService {
 	 * @param email the email of the person.
 	 * @param officePhone the phone number at office.
 	 * @param mobilePhone the mobile phone number.
+	 * @param officeRoom the number of the office room.
 	 * @param gravatarId the identifier for obtaining a photo on Gravatar.
 	 * @param orcid the ORCID of the person.
 	 * @param researcherId the identifier of the person on ResearchId/WOS/Publon.
@@ -233,8 +238,8 @@ public class PersonService extends AbstractService {
 	 * @return the updated person.
 	 */
 	public Person updatePerson(int identifier, String firstName, String lastName, Gender gender, String email, String officePhone,
-			String mobilePhone, String gravatarId, String orcid, String researcherId, String scholarId, String linkedInId,
-			String githubId, String researchGateId, String facebookId, String dblpURL, String academiaURL,
+			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scholarId,
+			String linkedInId, String githubId, String researchGateId, String facebookId, String dblpURL, String academiaURL,
 			String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex) {
 		final Optional<Person> res = this.personRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
@@ -249,6 +254,7 @@ public class PersonService extends AbstractService {
 			person.setEmail(email);
 			person.setOfficePhone(officePhone);
 			person.setMobilePhone(mobilePhone);
+			person.setOfficeRoom(officeRoom);
 			person.setGravatarId(gravatarId);
 			person.setORCID(orcid);
 			person.setResearcherId(researcherId);

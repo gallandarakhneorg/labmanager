@@ -132,6 +132,7 @@ public class PersonApiController extends AbstractApiController {
 	 * @param email the email of the person.
 	 * @param officePhone the phone number at office.
 	 * @param mobilePhone the mobile phone number.
+	 * @param officeRoom the number of the office room.
 	 * @param gravatarId the identifier for obtaining a photo on Gravatar.
 	 * @param orcid the ORCID of the person.
 	 * @param researcherId the identifier of the person on ResearchId/WOS/Publon.
@@ -158,6 +159,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) String email,
 			@RequestParam(required = false) String officePhone,
 			@RequestParam(required = false) String mobilePhone,
+			@RequestParam(required = false) String officeRoom,
 			@RequestParam(required = false) String gravatarId,
 			@RequestParam(required = false) String orcid,
 			@RequestParam(required = false) String researcherId,
@@ -184,13 +186,13 @@ public class PersonApiController extends AbstractApiController {
 		//
 		if (person == null) {
 			optPerson = this.personService.createPerson(
-					firstName, lastName, genderObj, email, officePhone, mobilePhone,
+					firstName, lastName, genderObj, email, officePhone, mobilePhone, officeRoom,
 					gravatarId, orcid, researcherId, googleScholarId, linkedInId, githubId, researchGateId,
 					facebookId, dblpURL, academiaURL, cordisURL, webPageNamingObj,
 					shindex, whindex);
 		} else {
 			optPerson = this.personService.updatePerson(person.intValue(),
-					firstName, lastName, genderObj, email, officePhone, mobilePhone,
+					firstName, lastName, genderObj, email, officePhone, mobilePhone, officeRoom,
 					gravatarId, orcid, researcherId, googleScholarId, linkedInId, githubId, researchGateId,
 					facebookId, dblpURL, academiaURL, cordisURL, webPageNamingObj,
 					shindex, whindex);

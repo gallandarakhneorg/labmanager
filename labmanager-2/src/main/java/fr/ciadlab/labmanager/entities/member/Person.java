@@ -176,6 +176,11 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Column(length = EntityUtils.VERY_SMALL_TEXT_SIZE)
 	private String mobilePhone;
 
+	/** Number of the office room.
+	 */
+	@Column
+	private String officeRoom;
+
 	/** URL of the person on {@code cordis.europa.eu}.
 	 */
 	@Column
@@ -292,6 +297,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		h = HashCodeUtils.add(h, this.linkedInId);
 		h = HashCodeUtils.add(h, this.mobilePhone);
 		h = HashCodeUtils.add(h, this.officePhone);
+		h = HashCodeUtils.add(h, this.officeRoom);
 		h = HashCodeUtils.add(h, this.orcid);
 		h = HashCodeUtils.add(h, this.googleScholarId);
 		h = HashCodeUtils.add(h, this.researcherId);
@@ -352,6 +358,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			return false;
 		}
 		if (!Objects.equals(this.officePhone, other.officePhone)) {
+			return false;
+		}
+		if (!Objects.equals(this.officeRoom, other.officeRoom)) {
 			return false;
 		}
 		if (!Objects.equals(this.orcid, other.orcid)) {
@@ -439,6 +448,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (!Strings.isNullOrEmpty(getOfficePhone())) {
 			consumer.accept("officePhone", getOfficePhone()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getOfficeRoom())) {
+			consumer.accept("officeRoom", getOfficeRoom()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getORCID())) {
 			consumer.accept("orcid", getORCID()); //$NON-NLS-1$
@@ -1356,6 +1368,22 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public void setMobilePhone(String number) {
 		this.mobilePhone = Strings.emptyToNull(number);
+	}
+
+	/** Replies the office room's number of the person.
+	 *
+	 * @return the number.
+	 */
+	public String getOfficeRoom() {
+		return this.officeRoom;
+	}
+
+	/** Change the office room's number of the person.
+	 *
+	 * @param room the number.
+	 */
+	public void setOfficeRoom(String room) {
+		this.officeRoom = Strings.emptyToNull(room);
 	}
 
 	/** Replies the preferred civil title for this person. This civil title is not stored and computed based

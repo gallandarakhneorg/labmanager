@@ -52,6 +52,14 @@
 					<th:block th:replace="fragments/general :: obfuscatedPhone(person-card-contact-obfmphone,m)"/>
 				</div>
 			</div>
+			<div class="person-card-addresses"
+			     th:if="${enableOfficeRoom || enablePostalAddress}">
+				<div class="person-card-officeroom"
+				     th:unless="${!enableOfficeRoom || #strings.isEmpty(person.officeRoom)}">
+					<span class="fa-solid fa-building"></span>
+					<th:block th:utext="${person.officeRoom}"/>
+				</div>
+			</div>
 			<div class="person-card-indexes"
 			     th:if="${enableQindexes && (person.googleScholarHindex > 0 || person.wosHindex > 0)}">
 			     <th:block th:utext="#{html.CardIndex}"></th:block>

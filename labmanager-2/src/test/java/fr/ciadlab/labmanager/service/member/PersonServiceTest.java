@@ -248,7 +248,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void createPerson() {
-		final Person person = this.test.createPerson("NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2",
+		final Person person = this.test.createPerson("NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
 				"NGRAV", "NORCID", "NRID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
 
@@ -265,6 +265,7 @@ public class PersonServiceTest {
 		assertEquals("NE", actual.getEmail());
 		assertEquals("NP1", actual.getOfficePhone());
 		assertEquals("NP2", actual.getMobilePhone());
+		assertEquals("NR1", actual.getOfficeRoom());
 		assertEquals("NGRAV", actual.getGravatarId());
 		assertEquals("NORCID", actual.getORCID());
 		assertEquals("NRID", actual.getResearcherId());
@@ -283,7 +284,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void updatePerson() {
-		Person person = this.test.updatePerson(234, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2",
+		Person person = this.test.updatePerson(234, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
 				"NGRAV", "NORCID", "NRID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
 
@@ -306,6 +307,7 @@ public class PersonServiceTest {
 		verify(this.pers1, atLeastOnce()).setEmail(eq("NE"));
 		verify(this.pers1, atLeastOnce()).setOfficePhone(eq("NP1"));
 		verify(this.pers1, atLeastOnce()).setMobilePhone(eq("NP2"));
+		verify(this.pers1, atLeastOnce()).setOfficeRoom(eq("NR1"));
 		verify(this.pers1, atLeastOnce()).setGravatarId(eq("NGRAV"));
 		verify(this.pers1, atLeastOnce()).setORCID(eq("NORCID"));
 		verify(this.pers1, atLeastOnce()).setResearcherId(eq("NRID"));
