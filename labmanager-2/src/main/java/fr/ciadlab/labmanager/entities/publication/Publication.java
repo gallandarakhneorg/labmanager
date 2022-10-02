@@ -181,7 +181,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 
 	/** Authorships specify the authors of the publication and their position in the list of authors.
 	 */
-	@OneToMany(mappedBy = "publication", fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "publication", fetch = FetchType.LAZY)
 	private Set<Authorship> authorships = new HashSet<>();
 
 	@Transient
@@ -263,11 +263,6 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 */
 	protected Publication() {
 		//
-	}
-
-	@Override
-	public String toString() {
-		return "{" + getTitle() + "}:" + this.id; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override

@@ -233,12 +233,12 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	/** List of research organizations for the person.
 	 */
-	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Membership> memberships;
 
 	/** List of publications of the person.
 	 */
-	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Authorship> authorships;
 
 	/** Construct a person with the given values.
@@ -272,11 +272,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public Person() {
 		//
-	}
-
-	@Override
-	public String toString() {
-		return getFullName() + ":" + this.id; //$NON-NLS-1$
 	}
 
 	@Override
@@ -1355,7 +1350,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	}
 
 	/** Change the mobile phone number of the person. This phone number is supposed to follows the international
-	 * standards
+	 * standards.
 	 *
 	 * @param number the number.
 	 */

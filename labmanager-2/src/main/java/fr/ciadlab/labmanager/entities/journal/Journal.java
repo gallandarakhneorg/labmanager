@@ -31,6 +31,7 @@ import java.util.function.Predicate;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -131,12 +132,12 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 
 	/** List of papers that are published in this journal.
 	 */
-	@OneToMany(mappedBy = "journal")
+	@OneToMany(mappedBy = "journal", fetch = FetchType.LAZY)
 	private Set<JournalPaper> publishedPapers;
 
 	/** History of the quality indicators for this journal.
 	 */
-	@OneToMany(cascade = CascadeType.ALL)
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	@JoinTable(name = "journal_journal_annual_indicators_mapping", 
 	joinColumns = {
 			@JoinColumn(name = "journal_id", referencedColumnName = "id")
@@ -203,11 +204,6 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 */
 	public Journal() {
 		//
-	}
-
-	@Override
-	public String toString() {
-		return getJournalName() + ":" + getId(); //$NON-NLS-1$
 	}
 
 	@Override

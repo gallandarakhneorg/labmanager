@@ -62,6 +62,8 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Functions.Function3;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -76,6 +78,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class JsonToDatabaseImporter extends JsonTool {
 
+	private SessionFactory sessionFactory;
+	
 	private ResearchOrganizationRepository organizationRepository;
 
 	private PersonRepository personRepository;
@@ -104,6 +108,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	/** Constructor.
 	 * 
+	 * @param sessionFactory the factory of an hibernate session.
 	 * @param organizationRepository the accessor to the organization repository.
 	 * @param personRepository the accessor to the person repository.
 	 * @param personService the accessor to the high-level person services.
@@ -117,6 +122,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param personNameParser the parser of person names.
 	 */
 	public JsonToDatabaseImporter(
+			@Autowired SessionFactory sessionFactory,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired PersonService personService,
@@ -128,6 +134,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired PublicationComparator publicationComparator,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonNameParser personNameParser) {
+		this.sessionFactory = sessionFactory;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
 		this.personService = personService;
@@ -173,16 +180,6 @@ public class JsonToDatabaseImporter extends JsonTool {
 	public Collection<String> getFieldAliases(String sourceName) {
 		assert !Strings.isNullOrEmpty(sourceName);
 		return this.fieldAliases.get(sourceName);
-	}
-
-	private static <T> T getAndCast(Map<String, Object> content, String key, Class<T> type) {
-		if (content != null && !Strings.isNullOrEmpty(key)) {
-			final Object value = content.get(key);
-			if (value != null && type.isInstance(value)) {
-				return type.cast(value);
-			}
-		}
-		return null;
 	}
 
 	private static <T extends Enum<T>> T getEnum(JsonNode content, String key, Class<T> type) {
@@ -312,43 +309,50 @@ public class JsonToDatabaseImporter extends JsonTool {
 			content = mapper.readTree(isr);
 		}
 		if (content != null && !content.isEmpty()) {
-			final Map<String, Object> objectRepository = new TreeMap<>();
+			final Map<String, Integer> objectRepository = new TreeMap<>();
 			final Map<String, Set<String>> aliasRepository = new TreeMap<>();
-			final int nb0 = insertOrganizations(content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository);
-			final int nb1 = insertPersons(content.get(PERSONS_SECTION), objectRepository, aliasRepository);
-			final int nb2 = insertMemberships(content.get(MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
-			final int nb3 = insertJournals(content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
-			final Pair<Integer, Integer> added = insertPublications(content.get(PUBLICATIONS_SECTION), objectRepository, aliasRepository);
-			final int nb4 = added != null ? added.getLeft().intValue() : 0;
-			final int nb5 = added != null ? added.getRight().intValue() : 0;
-			getLogger().info("Summary of inserts: " //$NON-NLS-1$
-					+ nb0 + " organizations; " //$NON-NLS-1$
-					+ (nb1 + nb5) + " persons; " //$NON-NLS-1$
-					+ nb2 + " memberships; " //$NON-NLS-1$
-					+ nb3 + " journals; " //$NON-NLS-1$
-					+ nb4 + " publications."); //$NON-NLS-1$
+
+			try (final Session session = this.sessionFactory.openSession()) {
+				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository);
+				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
+				final int nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
+				final int nb3 = insertMemberships(session, content.get(MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
+				final Pair<Integer, Integer> added = insertPublications(session, content.get(PUBLICATIONS_SECTION), objectRepository, aliasRepository);
+				final int nb4 = added != null ? added.getLeft().intValue() : 0;
+				final int nb5 = added != null ? added.getRight().intValue() : 0;
+				getLogger().info("Summary of inserts:\n" //$NON-NLS-1$
+						+ nb0 + " organizations;\n" //$NON-NLS-1$
+						+ nb2 + " journals;\n" //$NON-NLS-1$
+						+ nb1 + " explicit persons;\n" //$NON-NLS-1$
+						+ nb5 + " external authors;\n" //$NON-NLS-1$
+						+ nb3 + " memberships;\n" //$NON-NLS-1$
+						+ nb4 + " publications."); //$NON-NLS-1$
+			}
 		}
 	}
 
 	/** Create the research organizations in the database.
 	 *
+	 * @param session the JPA session for managing transations.
 	 * @param organizations the list of organizations in the Json source.
-	 * @param objectRepository the repository of the JSON elements with {@code "@id"} field.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
 	 * @param aliasRepository the repository of field aliases.
 	 * @return the number of new organizations in the database.
 	 * @throws Exception if an organization cannot be created.
 	 */
-	protected int insertOrganizations(JsonNode organizations_, Map<String, Object> objectRepository,
+	protected int insertOrganizations(Session session, JsonNode organizations, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNew = 0;
-		if (organizations_ != null && !organizations_.isEmpty()) {
-			getLogger().info("Inserting " + organizations_.size() + " organizations..."); //$NON-NLS-1$ //$NON-NLS-2$
+		if (organizations != null && !organizations.isEmpty()) {
+			final Map<String, ResearchOrganization> objectInstanceRepository = new TreeMap<>();
+			getLogger().info("Inserting " + organizations.size() + " organizations..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
 			final List<Pair<ResearchOrganization, String>> superOrgas = new ArrayList<>();
-			for (final JsonNode orgaObject : organizations_) {
-				getLogger().info("> Organization " + (i + 1) + "/" + organizations_.size()); //$NON-NLS-1$ //$NON-NLS-2$
+			for (final JsonNode orgaObject : organizations) {
+				getLogger().info("> Organization " + (i + 1) + "/" + organizations.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
 					final String id = getId(orgaObject);
+					session.beginTransaction();
 					ResearchOrganization orga = createObject(ResearchOrganization.class, orgaObject,
 							aliasRepository, null);
 					if (orga != null) {
@@ -360,7 +364,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 							++nbNew;
 							getLogger().info("  + " + orga.getAcronymOrName() + " (id: " + orga.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectRepository.put(id, orga);
+								objectInstanceRepository.put(id, orga);
+								objectIdRepository.put(id, Integer.valueOf(orga.getId()));
 							}
 							final String superOrga = getRef(orgaObject.get(SUPERORGANIZATION_KEY));
 							if (!Strings.isNullOrEmpty(superOrga)) {
@@ -369,26 +374,30 @@ public class JsonToDatabaseImporter extends JsonTool {
 						} else {
 							getLogger().info("  X " + existing.get().getAcronymOrName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectRepository.put(id, existing.get());
+								objectInstanceRepository.put(id, existing.get());
+								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
 							}
 						}
 					}
+					session.getTransaction().commit();
 				} catch (Throwable ex) {
 					throw new UnableToImportJsonException(RESEARCHORGANIZATIONS_SECTION, i, orgaObject,ex);
 				}
 				++i;
 			}
 			for (final Pair<ResearchOrganization, String> entry : superOrgas) {
-				final ResearchOrganization sup = getAndCast(objectRepository, entry.getRight(), ResearchOrganization.class);
+				final ResearchOrganization sup = objectInstanceRepository.get(entry.getRight());
 				if (sup == null) {
 					throw new IllegalArgumentException("Invalid reference to Json element with id: " + entry.getRight()); //$NON-NLS-1$
 				}
+				session.beginTransaction();
 				entry.getLeft().setSuperOrganization(sup);
 				sup.getSubOrganizations().add(entry.getLeft());
 				if (!isFake()) {
 					this.organizationRepository.save(entry.getLeft());
 					this.organizationRepository.save(sup);
 				}
+				session.getTransaction().commit();
 			}
 		}
 		return nbNew;
@@ -396,13 +405,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	/** Create the persons in the database.
 	 *
+	 * @param session the JPA session for managing transations.
 	 * @param persons the list of persons in the Json source.
-	 * @param objectRepository the repository of the JSON elements with {@code "@id"} field.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
 	 * @param aliasRepository the repository of field aliases.
 	 * @return the number of new persons in the database.
 	 * @throws Exception if a person cannot be created.
 	 */
-	protected int insertPersons(JsonNode persons, Map<String, Object> objectRepository,
+	protected int insertPersons(Session session, JsonNode persons, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNew = 0;
 		if (persons != null && !persons.isEmpty()) {
@@ -414,6 +424,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 					final String id = getId(personObject);
 					Person person = createObject(Person.class, personObject, aliasRepository, null);
 					if (person != null) {
+						session.beginTransaction();
 						final Optional<Person> existing = this.personRepository.findDistinctByFirstNameAndLastName(person.getFirstName(), person.getLastName());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
@@ -422,14 +433,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 							++nbNew;
 							getLogger().info("  + " + person.getFullName() + " (id: " + person.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectRepository.put(id, person);
+								objectIdRepository.put(id, Integer.valueOf(person.getId()));
 							}
 						} else {
 							getLogger().info("  X " + existing.get().getFullName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectRepository.put(id, existing.get());
+								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
 							}
 						}
+						session.getTransaction().commit();
 					}
 				} catch (Throwable ex) {
 					throw new UnableToImportJsonException(PERSONS_SECTION, i, personObject, ex);
@@ -442,13 +454,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	/** Create the memberships in the database.
 	 *
+	 * @param session the JPA session for managing transations.
 	 * @param memberships the list of memberships in the Json source.
-	 * @param objectRepository the repository of the JSON elements with {@code "@id"} field.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
 	 * @param aliasRepository the repository of field aliases.
 	 * @return the number of new memberships in the database.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	protected int insertMemberships(JsonNode memberships, Map<String, Object> objectRepository,
+	protected int insertMemberships(Session session, JsonNode memberships, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNew = 0;
 		if (memberships != null && !memberships.isEmpty()) {
@@ -460,12 +473,17 @@ public class JsonToDatabaseImporter extends JsonTool {
 					final String id = getId(membershipObject);
 					Membership membership = createObject(Membership.class, membershipObject, aliasRepository, null);
 					if (membership != null) {
+						session.beginTransaction();
 						final String personId = getRef(membershipObject.get(PERSON_KEY));
 						if (Strings.isNullOrEmpty(personId)) {
 							throw new IllegalArgumentException("Invalid person reference for membership with id: " + id); //$NON-NLS-1$
 						}
-						final Person targetPerson = getAndCast(objectRepository, personId, Person.class);
-						if (targetPerson == null) {
+						final Integer personDbId = objectIdRepository.get(personId);
+						if (personDbId == null || personDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid person reference for membership with id: " + id); //$NON-NLS-1$
+						}
+						final Optional<Person> targetPerson = this.personRepository.findById(personDbId);
+						if (targetPerson.isEmpty()) {
 							throw new IllegalArgumentException("Invalid person reference for membership with id: " + id); //$NON-NLS-1$
 						}
 						//
@@ -473,17 +491,21 @@ public class JsonToDatabaseImporter extends JsonTool {
 						if (Strings.isNullOrEmpty(orgaId)) {
 							throw new IllegalArgumentException("Invalid organization reference for membership with id: " + id); //$NON-NLS-1$
 						}
-						final ResearchOrganization targetOrganization = getAndCast(objectRepository, orgaId, ResearchOrganization.class);
-						if (targetOrganization == null) {
+						final Integer orgaDbId = objectIdRepository.get(orgaId);
+						if (orgaDbId == null || orgaDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid organization reference for membership with id: " + id); //$NON-NLS-1$
+						}
+						final Optional<ResearchOrganization> targetOrganization = this.organizationRepository.findById(orgaDbId);
+						if (targetOrganization.isEmpty()) {
 							throw new IllegalArgumentException("Invalid organization reference for membership with id: " + id); //$NON-NLS-1$
 						}
 						//
 						final Set<Membership> existings = this.membershipRepository.findByResearchOrganizationIdAndPersonId(
-								targetOrganization.getId(), targetPerson.getId());
+								targetOrganization.get().getId(), targetPerson.get().getId());
 						final Membership finalmbr0 = membership;
 						final Stream<Membership> existing0 = existings.stream().filter(it -> {
-							assert it.getPerson().getId() == targetPerson.getId();
-							assert it.getResearchOrganization().getId() == targetOrganization.getId();
+							assert it.getPerson().getId() == targetPerson.get().getId();
+							assert it.getResearchOrganization().getId() == targetOrganization.get().getId();
 							return Objects.equals(it.getMemberStatus(), finalmbr0.getMemberStatus())
 									&& Objects.equals(it.getResponsibility(), finalmbr0.getResponsibility())
 									&& Objects.equals(it.getMemberSinceWhen(), finalmbr0.getMemberSinceWhen())
@@ -491,28 +513,29 @@ public class JsonToDatabaseImporter extends JsonTool {
 						});
 						final Optional<Membership> existing = existing0.findAny();
 						if (existing.isEmpty()) {
-							membership.setPerson(targetPerson);
-							membership.setResearchOrganization(targetOrganization);
-							targetPerson.getMemberships().add(membership);
-							targetOrganization.getMemberships().add(membership);
+							membership.setPerson(targetPerson.get());
+							membership.setResearchOrganization(targetOrganization.get());
 							if (!isFake()) {
 								membership = this.membershipRepository.save(membership);
+								this.personRepository.save(targetPerson.get());
+								this.organizationRepository.save(targetOrganization.get());
 							}
 							++nbNew;
-							getLogger().info("  + " + targetOrganization.getAcronymOrName() //$NON-NLS-1$
-							+ " - " + targetPerson.getFullName() //$NON-NLS-1$
-							+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+							getLogger().info("  + " + targetOrganization.get().getAcronymOrName() //$NON-NLS-1$
+								+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
+								+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectRepository.put(id, membership);
+								objectIdRepository.put(id, Integer.valueOf(membership.getId()));
 							}
 						} else {
-							getLogger().info("  X " + targetOrganization.getAcronymOrName() //$NON-NLS-1$
-							+ " - " + targetPerson.getFullName() //$NON-NLS-1$
-							+ " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+							getLogger().info("  X " + targetOrganization.get().getAcronymOrName() //$NON-NLS-1$
+								+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
+								+ " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectRepository.put(id, existing.get());
+								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
 							}
 						}
+						session.getTransaction().commit();
 					}
 				} catch (Throwable ex) {
 					throw new UnableToImportJsonException(MEMBERSHIPS_SECTION, i, membershipObject, ex);
@@ -525,13 +548,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	/** Create the journals in the database.
 	 *
+	 * @param session the JPA session for managing transations.
 	 * @param journals the list of journals in the Json source.
-	 * @param objectRepository the repository of the JSON elements with {@code "@id"} field.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
 	 * @param aliasRepository the repository of field aliases.
 	 * @return the number of new journals in the database.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	protected int insertJournals(JsonNode journals, Map<String, Object> objectRepository,
+	protected int insertJournals(Session session, JsonNode journals, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNew = 0;
 		if (journals != null && !journals.isEmpty()) {
@@ -543,6 +567,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 					final String id = getId(journalObject);
 					Journal journal = createObject(Journal.class, journalObject, aliasRepository, null);
 					if (journal != null) {
+						session.beginTransaction();
 						final Optional<Journal> existing = this.journalRepository.findByJournalName(journal.getJournalName());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
@@ -612,14 +637,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 							//
 							getLogger().info("  + " + journal.getJournalName() + " (id: " + journal.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectRepository.put(id, journal);
+								objectIdRepository.put(id, Integer.valueOf(journal.getId()));
 							}
 						} else {
 							getLogger().info("  X " + existing.get().getJournalName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectRepository.put(id, existing.get());
+								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
 							}
 						}
+						session.getTransaction().commit();
 					}
 				} catch (Throwable ex) {
 					throw new UnableToImportJsonException(JOURNALS_SECTION, i, journalObject, ex);
@@ -669,14 +695,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	/** Create the publications (and additional authors) in the database.
 	 *
+	 * @param session the JPA session for managing transations.
 	 * @param publications the list of publications in the Json source.
-	 * @param objectRepository the repository of the JSON elements with {@code "@id"} field.
+	 * @param objectIdRepository the repository of the JSON elements with {@code "@id"} field.
 	 * @param aliasRepository the repository of field aliases.
 	 * @return the pair of numbers, never {@code null}. The first number is the number of added publication; the
 	 *     second number is the is the number of added persons.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	protected Pair<Integer, Integer> insertPublications(JsonNode publications, Map<String, Object> objectRepository,
+	protected Pair<Integer, Integer> insertPublications(Session session, JsonNode publications, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNewPublications = 0;
 		final MutableInt nbNewPersons = new MutableInt();
@@ -690,19 +717,20 @@ public class JsonToDatabaseImporter extends JsonTool {
 				try {
 					final String id = getId(publicationObject);
 					final Publication publication = createPublicationInstance(id,
-							publicationObject, objectRepository, aliasRepository);
+							publicationObject, objectIdRepository, aliasRepository);
 					// Test if the publication is already inside the database
 					final Publication readOnlyPublication = publication;
 					final Optional<Publication> existing = allPublications.stream().filter(
 							it -> this.publicationComparator.isSimilar(it, readOnlyPublication)).findAny();
 					if (existing.isEmpty()) {
+						session.beginTransaction();
 						// Save the publication
 						if (!isFake()) {
 							this.publicationService.save(publication);
 						}
 						++nbNewPublications;
 						if (!Strings.isNullOrEmpty(id)) {
-							objectRepository.put(id, publication);
+							objectIdRepository.put(id, Integer.valueOf(publication.getId()));
 						}
 						//
 						getLogger().info("  + " + publication.getTitle() + " (id: " + publication.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -716,7 +744,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						final Iterator<JsonNode> iterator = authors.elements();
 						while (iterator.hasNext()) {
 							final JsonNode authorObject = iterator.next();
-							final Person targetAuthor = findOrCreateAuthor(authorObject, objectRepository, nbNewPersons);
+							final Person targetAuthor = findOrCreateAuthor(authorObject, objectIdRepository, nbNewPersons);
 							if (targetAuthor == null) {
 								throw new IllegalArgumentException("Invalid author reference for publication with id: " + id); //$NON-NLS-1$
 							}
@@ -730,11 +758,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 							}
 							++authorRank;
 						}
+						session.getTransaction().commit();
 					} else {
 						// Publication is already in the database
 						getLogger().info("  X " + existing.get().getTitle() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						if (!Strings.isNullOrEmpty(id)) {
-							objectRepository.put(id, existing.get());
+							objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
 						}
 					}
 				} catch (Throwable ex) {
@@ -746,7 +775,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return Pair.of(Integer.valueOf(nbNewPublications), nbNewPersons.toInteger());
 	}
 
-	private Publication createPublicationInstance(String id, JsonNode publicationObject, Map<String, Object> objectRepository,
+	private Publication createPublicationInstance(String id, JsonNode publicationObject, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		// Retrieve the elements that characterize the type of the publication
 		final PublicationType type = getEnum(publicationObject, TYPE_KEY, PublicationType.class);
@@ -785,10 +814,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 			if (Strings.isNullOrEmpty(journalId)) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
 			}
-			targetJournal = getAndCast(objectRepository, journalId, Journal.class);
-			if (targetJournal == null) {
+			final Integer journalDbId = objectIdRepository.get(journalId);
+			if (journalDbId == null || journalDbId.intValue() == 0) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
 			}
+			final Optional<Journal> optJournal = this.journalRepository.findById(journalDbId);
+			if (optJournal.isEmpty()) {
+				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
+			}
+			targetJournal = optJournal.get();
 			final JournalBasedPublication journalPaper = (JournalBasedPublication) publication;
 			journalPaper.setJournal(targetJournal);
 		} else {
@@ -810,11 +844,17 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return publication;
 	}
 
-	private Person findOrCreateAuthor(JsonNode authorObject, Map<String, Object> objectRepository, MutableInt nbNewPersons) {
+	private Person findOrCreateAuthor(JsonNode authorObject, Map<String, Integer> objectIdRepository, MutableInt nbNewPersons) {
 		assert authorObject != null;
-		final String authorId = getRef(authorObject);
 		Person targetAuthor = null;
-		if (Strings.isNullOrEmpty(authorId)) {
+		final String authorId = getRef(authorObject);
+		if (!Strings.isNullOrEmpty(authorId)) {
+			final Integer personId = objectIdRepository.get(authorId);
+			if (personId != null && personId.intValue() != 0) {
+				targetAuthor = this.personService.getPersonById(personId.intValue());
+			}
+		}
+		if (targetAuthor == null) {
 			// The author is not a reference to a defined person
 			final String authorName = authorObject.asText();
 			final String firstName = this.personNameParser.parseFirstName(authorName);
@@ -833,9 +873,6 @@ public class JsonToDatabaseImporter extends JsonTool {
 			} else {
 				targetAuthor = optPerson;
 			}
-		} else {
-			// The author is a referenced to a defined person
-			targetAuthor = getAndCast(objectRepository, authorId, Person.class);
 		}
 		return targetAuthor;
 	}

@@ -117,18 +117,23 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 
 	/** Members of the organization.
 	 */
-	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Membership> memberships = new HashSet<>();
 
 	/** Reference to the super organization.
 	 */
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private ResearchOrganization superOrganization;
 
 	/** References to the sub organizations.
 	 */
-	@OneToMany(mappedBy = "superOrganization")
+	@OneToMany(mappedBy = "superOrganization", fetch = FetchType.LAZY)
 	private Set<ResearchOrganization> subOrganizations = new HashSet<>();
+
+	/** References to the postal addresses of the organization.
+	 */
+	@OneToMany(fetch = FetchType.LAZY)
+	private Set<OrganizationAddress> addresses = new HashSet<>();
 
 	/** Construct a research organization from the given values.
 	 * 
@@ -163,11 +168,6 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	public ResearchOrganization() {
 		//
-	}
-
-	@Override
-	public String toString() {
-		return getAcronymOrName() + ":" + this.id; //$NON-NLS-1$
 	}
 
 	@Override

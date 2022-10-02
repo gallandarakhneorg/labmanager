@@ -21,6 +21,7 @@ import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
@@ -72,7 +73,7 @@ public class JournalPaper extends Publication implements JournalBasedPublication
 
 	/** Reference to the journal.
 	 */
-	@ManyToOne
+	@ManyToOne(fetch = FetchType.LAZY)
 	private Journal journal;
 
 	/** Construct a journal paper with the given values.
