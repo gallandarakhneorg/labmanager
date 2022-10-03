@@ -57,6 +57,10 @@ public abstract class JsonTool {
 	 */
 	public static final String SPECIAL_FIELD_PREFIX = "@"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to organization addresses.
+	 */
+	public static final String ORGANIZATIONADDRESSES_SECTION = "organizationAddresses"; //$NON-NLS-1$
+
 	/** Main section of the JSON that is dedicated to research organizations.
 	 */
 	public static final String RESEARCHORGANIZATIONS_SECTION = "researchOrganizations"; //$NON-NLS-1$
@@ -149,6 +153,10 @@ public abstract class JsonTool {
 	/** Name of the field for indicating of a published was manually validated. This field is usually for {@link Publication}.
 	 */
 	public static final String MANUALVALIDATIONFORCED_KEY = "manualValidationForced"; //$NON-NLS-1$
+
+	/** Prefix for organization address identifiers.
+	 */
+	protected  static final String ORGANIZATIONADDRESS_ID_PREFIX = "/adr#"; //$NON-NLS-1$
 
 	/** Prefix for research organization identifiers.
 	 */

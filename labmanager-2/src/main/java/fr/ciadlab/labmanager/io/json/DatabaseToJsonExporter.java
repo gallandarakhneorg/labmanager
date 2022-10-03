@@ -37,12 +37,14 @@ import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
+import fr.ciadlab.labmanager.repository.organization.OrganizationAddressRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -60,6 +62,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class DatabaseToJsonExporter extends JsonTool {
 
+	private OrganizationAddressRepository addressRepository;
+
 	private ResearchOrganizationRepository organizationRepository;
 
 	private PersonRepository personRepository;
@@ -72,6 +76,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	/** Constructor.
 	 * 
+	 * @param addressRepository the accessor to the organization address repository.
 	 * @param organizationRepository the accessor to the organization repository.
 	 * @param personRepository the accessor to the person repository.
 	 * @param membershipRepository the accessor to the membership repository.
@@ -79,11 +84,13 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param publicationRepository the accessor to the repository of the publications.
 	 */
 	public DatabaseToJsonExporter(
+			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired JournalRepository journalRepository,
 			@Autowired PublicationRepository publicationRepository) {
+		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
 		this.membershipRepository = membershipRepository;
@@ -146,6 +153,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			ExtraPublicationProvider extraPublicationProvider) throws Exception {
 		final ObjectNode root = factory.objectNode();
 		final Map<Object, String> repository = new HashMap<>();
+		exportAddresses(root, repository);
 		exportOrganizations(root, repository);
 		exportPersons(root, repository);
 		exportMemberships(root, repository);
@@ -213,6 +221,37 @@ public class DatabaseToJsonExporter extends JsonTool {
 		}
 	}
 
+	/** Export the organization addresses to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	protected void exportAddresses(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<OrganizationAddress> addresses = this.addressRepository.findAll();
+		if (!addresses.isEmpty()) {
+			final ArrayNode array = root.arrayNode();
+			int i = 0;
+			final Map<Integer, ObjectNode> nodes = new TreeMap<>();
+			for (final OrganizationAddress address : addresses) {
+				final ObjectNode jsonAddress = array.objectNode();
+
+				final String id = ORGANIZATIONADDRESS_ID_PREFIX + i;
+				exportObject(jsonAddress, id, address, jsonAddress, null);
+
+				if (jsonAddress.size() > 0) {
+					repository.put(address, id);
+					nodes.put(Integer.valueOf(address.getId()), jsonAddress);
+					array.add(jsonAddress);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.set(ORGANIZATIONADDRESSES_SECTION, array);
+			}
+		}
+	}
+
 	/** Export the research organizations to the given JSON root element.
 	 *
 	 * @param root the receiver of the JSON elements.
@@ -258,7 +297,6 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 		}
 	}
-
 
 	/** Export the persons to the given JSON root element.
 	 *

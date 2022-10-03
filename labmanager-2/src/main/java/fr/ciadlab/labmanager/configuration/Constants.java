@@ -99,6 +99,10 @@ public class Constants {
 	 */
 	public static final String ORGANIZATION_LIST_ENDPOINT = "organizationList"; //$NON-NLS-1$
 
+	/** Name of the endpoint for list of organization addresses.
+	 */
+	public static final String ORGANIZATION_ADDRESS_LIST_ENDPOINT = "addressList"; //$NON-NLS-1$
+
 	/** Name of the endpoint for editing an organization.
 	 *
 	 * @see #ORGANIZATION_SAVING_ENDPOINT
@@ -110,6 +114,18 @@ public class Constants {
 	 * @see #ORGANIZATION_EDITING_ENDPOINT
 	 */
 	public static final String ORGANIZATION_SAVING_ENDPOINT = "organizationSave"; //$NON-NLS-1$
+
+	/** Name of the endpoint for editing an organization address.
+	 *
+	 * @see #ORGANIZATION_ADDRESS_SAVING_ENDPOINT
+	 */
+	public static final String ORGANIZATION_ADDRESS_EDITING_ENDPOINT = "addressEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving an organization address.
+	 *
+	 * @see #ORGANIZATION_ADDRESS_EDITING_ENDPOINT
+	 */
+	public static final String ORGANIZATION_ADDRESS_SAVING_ENDPOINT = "addressSave"; //$NON-NLS-1$
 
 	/** Name of the endpoint for list of persons.
 	 */

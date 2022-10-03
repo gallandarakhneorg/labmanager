@@ -28,6 +28,11 @@
 			    	<a th:if="${changeEnabled}"
 			    	   th:href="@{/organizationEditor}" class="btn btn-labeled btn-primary" role="button">
 			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddOrganization}"></th:block></a>
+			    	<a th:href="@{/addressList}" class="btn btn-labeled btn-secondary" role="button">
+			    		<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.AddressList}"></th:block></a>
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/addressEditor}" class="btn btn-labeled btn-warning" role="button">
+			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddAddress}"></th:block></a>
 			    </p>
 			</div>
 		</div>

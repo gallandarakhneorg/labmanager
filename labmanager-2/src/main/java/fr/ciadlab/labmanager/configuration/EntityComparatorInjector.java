@@ -24,6 +24,7 @@ import fr.ciadlab.labmanager.entities.member.MembershipComparator;
 import fr.ciadlab.labmanager.entities.member.NameBasedMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.member.PersonListComparator;
+import fr.ciadlab.labmanager.entities.organization.OrganizationAddressComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,6 +57,9 @@ public class EntityComparatorInjector {
 	private ResearchOrganizationComparator organizationComparator;
 
 	@Autowired
+	private OrganizationAddressComparator organizationAddressComparator;
+
+	@Autowired
 	private PublicationComparator publicationComparator;
 
 	@Autowired
@@ -66,6 +70,7 @@ public class EntityComparatorInjector {
 	@PostConstruct
 	public void postConstruct() {
 		EntityUtils.setPreferredResearchOrganizationComparator(this.organizationComparator);
+		EntityUtils.setPreferredOrganizationAddressComparator(this.organizationAddressComparator);
 		EntityUtils.setPreferredPersonComparator(this.personComparator);
 		EntityUtils.setPreferredPersonListComparator(this.personListComparator);
 		EntityUtils.setPreferredMembershipComparator(this.membershipComparator);

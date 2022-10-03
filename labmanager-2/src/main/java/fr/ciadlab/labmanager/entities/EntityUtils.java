@@ -23,6 +23,7 @@ import fr.ciadlab.labmanager.entities.member.MembershipComparator;
 import fr.ciadlab.labmanager.entities.member.NameBasedMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.member.PersonListComparator;
+import fr.ciadlab.labmanager.entities.organization.OrganizationAddressComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.SorensenDicePublicationComparator;
@@ -63,6 +64,8 @@ public final class EntityUtils {
 	private static NameBasedMembershipComparator PERSON_NAME_MEMBERSHIP_COMPARATOR; 
 
 	private static ResearchOrganizationComparator ORGANIZATION_COMPARATOR; 
+
+	private static OrganizationAddressComparator ORGANIZATION_ADDRESS_COMPARATOR; 
 
 	private static PublicationComparator PUBLICATION_COMPARATOR; 
 
@@ -164,6 +167,29 @@ public final class EntityUtils {
 	public static void setPreferredResearchOrganizationComparator(ResearchOrganizationComparator comparator) {
 		synchronized (EntityUtils.class) {
 			ORGANIZATION_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of organization addresses.
+	 *
+	 * @return the comparator.
+	 */
+	public static OrganizationAddressComparator getPreferredOrganizationAddressComparator() {
+		synchronized (EntityUtils.class) {
+			if (ORGANIZATION_ADDRESS_COMPARATOR == null) {
+				ORGANIZATION_ADDRESS_COMPARATOR = new OrganizationAddressComparator();
+			}
+			return ORGANIZATION_ADDRESS_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of organization addresses.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredOrganizationAddressComparator(OrganizationAddressComparator comparator) {
+		synchronized (EntityUtils.class) {
+			ORGANIZATION_ADDRESS_COMPARATOR = comparator;
 		}
 	}
 

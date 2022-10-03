@@ -40,6 +40,16 @@
 		</th:block>
 	</th:block>
 
+	<th:block th:fragment="addressListBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.AddressList})"></th:block>
+	</th:block>
+
+	<th:block th:fragment="addressListBar*(current)">
+		<th:block th:replace="fragments/nav :: standardBar(~{::a#lab-nav-addressList-item}, ${current})">
+			<a id="lab-nav-addressList-item" th:href="@{/addressList}" th:utext="#{html.AddressList}"></a><
+		</th:block>
+	</th:block>
+
 	<th:block th:fragment="organizationListBar">
 		<th:block th:replace="fragments/nav :: simpleBar(#{html.OrganizationsList})"></th:block>
 	</th:block>

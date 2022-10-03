@@ -41,6 +41,7 @@ import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
@@ -51,6 +52,7 @@ import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRe
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
+import fr.ciadlab.labmanager.repository.organization.OrganizationAddressRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
@@ -80,6 +82,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private SessionFactory sessionFactory;
 	
+	private OrganizationAddressRepository addressRepository;
+
 	private ResearchOrganizationRepository organizationRepository;
 
 	private PersonRepository personRepository;
@@ -109,6 +113,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	/** Constructor.
 	 * 
 	 * @param sessionFactory the factory of an hibernate session.
+	 * @param addressRepository the accessor to the address repository.
 	 * @param organizationRepository the accessor to the organization repository.
 	 * @param personRepository the accessor to the person repository.
 	 * @param personService the accessor to the high-level person services.
@@ -123,6 +128,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	public JsonToDatabaseImporter(
 			@Autowired SessionFactory sessionFactory,
+			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
 			@Autowired PersonService personService,
@@ -135,6 +141,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonNameParser personNameParser) {
 		this.sessionFactory = sessionFactory;
+		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
 		this.personService = personService;
@@ -313,6 +320,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final Map<String, Set<String>> aliasRepository = new TreeMap<>();
 
 			try (final Session session = this.sessionFactory.openSession()) {
+				final int nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository);
 				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository);
 				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
 				final int nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
@@ -321,6 +329,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final int nb4 = added != null ? added.getLeft().intValue() : 0;
 				final int nb5 = added != null ? added.getRight().intValue() : 0;
 				getLogger().info("Summary of inserts:\n" //$NON-NLS-1$
+						+ nb6 + " addresses;\n" //$NON-NLS-1$
 						+ nb0 + " organizations;\n" //$NON-NLS-1$
 						+ nb2 + " journals;\n" //$NON-NLS-1$
 						+ nb1 + " explicit persons;\n" //$NON-NLS-1$
@@ -329,6 +338,56 @@ public class JsonToDatabaseImporter extends JsonTool {
 						+ nb4 + " publications."); //$NON-NLS-1$
 			}
 		}
+	}
+
+	/** Create the organization addresses in the database.
+	 *
+	 * @param session the JPA session for managing transations.
+	 * @param addresses the list of addresses in the Json source.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
+	 * @param aliasRepository the repository of field aliases.
+	 * @return the number of new addresses in the database.
+	 * @throws Exception if an address cannot be created.
+	 */
+	protected int insertAddresses(Session session, JsonNode addresses, Map<String, Integer> objectIdRepository,
+			Map<String, Set<String>> aliasRepository) throws Exception {
+		int nbNew = 0;
+		if (addresses != null && !addresses.isEmpty()) {
+			getLogger().info("Inserting " + addresses.size() + " addresses..."); //$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (final JsonNode adrObject : addresses) {
+				getLogger().info("> Address " + (i + 1) + "/" + addresses.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final String id = getId(adrObject);
+					session.beginTransaction();
+					OrganizationAddress adr = createObject(OrganizationAddress.class, adrObject,
+							aliasRepository, null);
+					if (adr != null) {
+						final Optional<OrganizationAddress> existing = this.addressRepository.findDistinctByName(adr.getName());
+						if (existing.isEmpty()) {
+							if (!isFake()) {
+								adr = this.addressRepository.save(adr);
+							}
+							++nbNew;
+							getLogger().info("  + " + adr.getName() + " (id: " + adr.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							if (!Strings.isNullOrEmpty(id)) {
+								objectIdRepository.put(id, Integer.valueOf(adr.getId()));
+							}
+						} else {
+							getLogger().info("  X " + existing.get().getName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							if (!Strings.isNullOrEmpty(id)) {
+								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+							}
+						}
+					}
+					session.getTransaction().commit();
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(ORGANIZATIONADDRESSES_SECTION, i, adrObject,ex);
+				}
+				++i;
+			}
+		}
+		return nbNew;
 	}
 
 	/** Create the research organizations in the database.
