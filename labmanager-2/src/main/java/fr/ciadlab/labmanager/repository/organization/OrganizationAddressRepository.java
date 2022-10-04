@@ -16,7 +16,9 @@
 
 package fr.ciadlab.labmanager.repository.organization;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -37,5 +39,13 @@ public interface OrganizationAddressRepository extends JpaRepository<Organizatio
 	 * @return the result of the search.
 	 */
 	Optional<OrganizationAddress> findDistinctByName(String name);
+
+	
+	/** Replies the organization addresses with the given identifiers.
+	 *
+	 * @param addresses the identifiers to match.
+	 * @return the list of addresses with the given identifiers.
+	 */
+	Set<OrganizationAddress> findAllByIdIn(List<Integer> addresses);
 
 }

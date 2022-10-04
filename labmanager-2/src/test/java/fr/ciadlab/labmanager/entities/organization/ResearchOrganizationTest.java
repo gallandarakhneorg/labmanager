@@ -16,15 +16,17 @@
 
 package fr.ciadlab.labmanager.entities.organization;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import fr.ciadlab.labmanager.entities.member.Membership;
 import org.arakhne.afc.util.CountryCode;
@@ -252,6 +254,41 @@ public class ResearchOrganizationTest {
 
 		this.test.setType((String) null);
 		assertSame(ResearchOrganizationType.LABORATORY, this.test.getType());
+	}
+
+	@Test
+	public void getAddresses() {
+		assertTrue(this.test.getAddresses().isEmpty());
+	}
+
+	@Test
+	public void setAddresses() {
+		OrganizationAddress a0 = mock(OrganizationAddress.class);
+		OrganizationAddress a1 = mock(OrganizationAddress.class);
+		Set<OrganizationAddress> addresses = new TreeSet<>();
+		addresses.add(a0);
+		addresses.add(a1);
+
+		this.test.setAddresses(addresses);
+		assertNotSame(addresses, this.test.getAddresses());
+		assertEquals(2, this.test.getAddresses().size());
+		assertTrue(this.test.getAddresses().contains(a0));
+		assertTrue(this.test.getAddresses().contains(a1));
+	}
+
+	@Test
+	public void setAddresses_null() {
+		// Prepare the set of addresses to be not empty.
+		OrganizationAddress a0 = mock(OrganizationAddress.class);
+		OrganizationAddress a1 = mock(OrganizationAddress.class);
+		Set<OrganizationAddress> addresses = new TreeSet<>();
+		addresses.add(a0);
+		addresses.add(a1);
+		this.test.setAddresses(addresses);
+
+		this.test.setAddresses(null);
+		
+		assertTrue(this.test.getAddresses().isEmpty());
 	}
 
 }

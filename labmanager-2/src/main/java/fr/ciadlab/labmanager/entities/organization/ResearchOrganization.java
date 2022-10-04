@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -538,6 +539,34 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 			setType((ResearchOrganizationType) null);
 		} else {
 			setType(ResearchOrganizationType.valueOfCaseInsensitive(type));
+		}
+	}
+
+	/** Replies the addresses of this organization.
+	 *
+	 * @return the addresses.
+	 * @since 2.0
+	 */
+	public Set<OrganizationAddress> getAddresses() {
+		if (this.addresses == null) {
+			this.addresses = new TreeSet<>(EntityUtils.getPreferredOrganizationAddressComparator());
+		}
+		return this.addresses;
+	}
+
+	/** Change the addresses of this organization.
+	 *
+	 * @param addresses the addresses.
+	 * @since 2.0
+	 */
+	public void setAddresses(Set<OrganizationAddress> addresses) {
+		if (this.addresses == null) {
+			this.addresses = new TreeSet<>(EntityUtils.getPreferredOrganizationAddressComparator());
+		} else {
+			this.addresses.clear();
+		}
+		if (addresses != null) {
+			this.addresses.addAll(addresses);
 		}
 	}
 

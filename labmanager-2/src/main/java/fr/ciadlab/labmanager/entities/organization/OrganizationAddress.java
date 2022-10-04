@@ -66,7 +66,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	
 	/** Complementatry information that may appear before the rest.
 	 */
-	@Column(nullable = false, length = EntityUtils.LARGE_TEXT_SIZE)
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String complement;
 
 	/** Building number and street in the address.

@@ -18,11 +18,14 @@ package fr.ciadlab.labmanager.service.organization;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
+import fr.ciadlab.labmanager.repository.organization.OrganizationAddressRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import org.arakhne.afc.util.CountryCode;
@@ -41,6 +44,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ResearchOrganizationService extends AbstractService {
 
+	private final OrganizationAddressRepository addressRepository;
+
 	private final ResearchOrganizationRepository organizationRepository;
 
 	/** Constructor for injector.
@@ -48,13 +53,16 @@ public class ResearchOrganizationService extends AbstractService {
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
+	 * @param addressRepository the address repository.
 	 * @param organizationRepository the organization repository.
 	 */
 	public ResearchOrganizationService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
+			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository) {
 		super(messages, constants);
+		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 	}
 
@@ -110,11 +118,12 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param type the type of the research organization.
 	 * @param organizationURL the web-site URL of the research organization.
 	 * @param country the country of the research organization.
+	 * @param addresses the identifiers of the addresses of the organization.
 	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
 	 * @return the created organization in the database.
 	 */
 	public Optional<ResearchOrganization> createResearchOrganization(String acronym, String name, String description,
-			ResearchOrganizationType type, String organizationURL, CountryCode country, Integer superOrganization) {
+			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization) {
 		final Optional<ResearchOrganization> sres;
 		if (superOrganization != null && superOrganization.intValue() != 0) {
 			sres = this.organizationRepository.findById(superOrganization);
@@ -124,6 +133,14 @@ public class ResearchOrganizationService extends AbstractService {
 		} else {
 			sres = Optional.empty();
 		}
+		//
+		final Set<OrganizationAddress> adrs;
+		if (addresses != null && !addresses.isEmpty()) {
+			adrs = this.addressRepository.findAllByIdIn(addresses);
+		} else {
+			adrs = null;
+		}
+		//
 		final ResearchOrganization res = new ResearchOrganization();
 		res.setAcronym(Strings.emptyToNull(acronym));
 		res.setName(Strings.emptyToNull(name));
@@ -131,6 +148,9 @@ public class ResearchOrganizationService extends AbstractService {
 		res.setType(type);
 		res.setOrganizationURL(Strings.emptyToNull(organizationURL));
 		res.setCountry(country);
+		if (adrs != null && !adrs.isEmpty()) {
+			res.setAddresses(adrs);
+		}
 		if (sres.isPresent()) {
 			res.setSuperOrganization(sres.get());
 		}
@@ -170,11 +190,12 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param type the type of the research organization.
 	 * @param organizationURL the web-site URL of the research organization.
 	 * @param country the country of the research organization.
+	 * @param addresses the identifiers of the addresses of the organization.
 	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
 	 * @return the organization object that was updated.
 	 */
 	public Optional<ResearchOrganization> updateResearchOrganization(int identifier, String acronym, String name, String description,
-			ResearchOrganizationType type, String organizationURL, CountryCode country, Integer superOrganization) {
+			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization) {
 		final Optional<ResearchOrganization> res = this.organizationRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
 			final Optional<ResearchOrganization> sres;
@@ -185,6 +206,13 @@ public class ResearchOrganizationService extends AbstractService {
 				}
 			} else {
 				sres = Optional.empty();
+			}
+			//
+			final Set<OrganizationAddress> adrs;
+			if (addresses != null && !addresses.isEmpty()) {
+				adrs = this.addressRepository.findAllByIdIn(addresses);
+			} else {
+				adrs = null;
 			}
 			//
 			final ResearchOrganization organization = res.get();
@@ -198,6 +226,7 @@ public class ResearchOrganizationService extends AbstractService {
 			organization.setType(type);
 			organization.setOrganizationURL(Strings.emptyToNull(organizationURL));
 			organization.setCountry(country);
+			organization.setAddresses(adrs);
 			if (sres.isPresent()) {
 				organization.setSuperOrganization(sres.get());
 			}

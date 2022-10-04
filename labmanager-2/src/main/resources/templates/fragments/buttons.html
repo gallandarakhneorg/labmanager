@@ -10,6 +10,12 @@
     		(!('failureTitle' in config)) && (config['failureTitle'] = "[(#{html.Error})]");
     		attachDeletionHandler_base(config);
     	}
+    	function attachDeletionHandlerNoAjax( config ) {
+    		(!('confirmButtonText' in config)) && (config.confirmButtonText = "[(#{html.YesDeleteIt})]");
+    		(!('successTitle' in config)) && (config['successTitle'] = "[(#{html.Deleted})]");
+    		(!('failureTitle' in config)) && (config['failureTitle'] = "[(#{html.Error})]");
+    		attachDeletionHandlerNoAjax_base(config);
+    	}
     	</script>
 	</th:block>
 

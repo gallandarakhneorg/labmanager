@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.controller.api.organization;
 
+import java.util.List;
 import java.util.Optional;
 
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -106,6 +107,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	 * @param type the type of the organization. It is a constant of {@link ResearchOrganizationType}.
 	 * @param organizationURL the web-site of the organization.
 	 * @param country the country of the organization. It is a constant of {@link CountryCode}.
+	 * @param organizationAddress the list of the identifiers of the addresses that are associated to the organization.
 	 * @param superOrganization the identifier of the super organization, or {@code 0} if none.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of problem for saving.
@@ -119,6 +121,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@RequestParam(required = true) String type,
 			@RequestParam(required = false) String organizationURL,
 			@RequestParam(required = false) String country,
+			@RequestParam(required = false) List<Integer> organizationAddress,
 			@RequestParam(required = false) Integer superOrganization,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
 		getLogger().info("Opening /" + Constants.ORGANIZATION_SAVING_ENDPOINT + " by " + username + " for organization " + organization); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -128,13 +131,12 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			final CountryCode countryObj = CountryCodeUtils.valueOfCaseInsensitive(country);
 			//
 			final Optional<ResearchOrganization> optOrganization;
-			//
 			if (organization == null) {
 				optOrganization = this.organizationService.createResearchOrganization(
-						acronym, name, description, typeObj, organizationURL, countryObj, superOrganization);
+						acronym, name, description, typeObj, organizationURL, countryObj, organizationAddress, superOrganization);
 			} else {
 				optOrganization = this.organizationService.updateResearchOrganization(organization.intValue(),
-						acronym, name, description, typeObj, organizationURL, countryObj, superOrganization);
+						acronym, name, description, typeObj, organizationURL, countryObj, organizationAddress, superOrganization);
 			}
 			if (optOrganization.isEmpty()) {
 				throw new IllegalStateException("Organization not found"); //$NON-NLS-1$

@@ -106,6 +106,12 @@ table.dataTable tbody tr.selected, table.dataTable tbody th.selected, table.data
     color: #96c10d !important;
     background-color: grey !important;
 }
+table#addressTable {
+	width: 100%;
+}
+table#addressTable td.dataCell {
+    padding: 2px;
+}
 .page-item.active .page-link {
     background-color: #96c10d !important;
     border-color: #96c10d !important;
