@@ -104,15 +104,20 @@ function initMemberDataTable(config) {
 				defaultContent: '',
 				render: (data, type, row) => {
 					if (data) {
+						var cntr = row.country;
 						return data.map((it) => {
 							var orgName = it.acronym;
 							if (!orgName) {
 								orgName = it.name;
 							}
+							var nm = orgName;
 							if (it.url) {
-								return "<a href=\"" + it.url + "\">" + orgName + "</a>";
+								nm = "<a href=\"" + it.url + "\">" + orgName + "</a>";
 							}
-							return orgName;
+							if (it.countryLabel != cntr) {
+								nm += " (" + it.countryLabel + ")";
+							}
+							return nm;
 						}).join(', ');
 					}
 					return '';

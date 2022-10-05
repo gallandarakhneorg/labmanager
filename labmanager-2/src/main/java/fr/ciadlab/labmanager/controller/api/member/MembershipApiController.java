@@ -29,6 +29,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -267,9 +268,13 @@ public class MembershipApiController extends AbstractApiController {
 		readCredentials(username);
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
 		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();
-		final ResearchOrganizationType otherOrganizationTypeEnum =
-				otherOrganizationType == null ? ResearchOrganizationType.UNIVERSITY
-						: ResearchOrganizationType.valueOfCaseInsensitive(otherOrganizationType);
+		final Predicate<ResearchOrganization> otherOrganizationTypePredicate;
+		if (otherOrganizationType == null) {
+			otherOrganizationTypePredicate = it -> it.getType() == ResearchOrganizationType.UNIVERSITY || it.getType() == ResearchOrganizationType.OTHER;
+		} else {
+			final ResearchOrganizationType expectedType = ResearchOrganizationType.valueOfCaseInsensitive(otherOrganizationType);
+			otherOrganizationTypePredicate = it -> it.getType() == expectedType;
+		}
 		//
 		final Optional<ResearchOrganization> organizationOpt = this.organizationService.getResearchOrganizationById(organization);
 		if (organizationOpt.isEmpty()) {
@@ -299,17 +304,15 @@ public class MembershipApiController extends AbstractApiController {
 							pair.setLeft(membership);
 						}
 					}
-					if (otherOrganizationTypeEnum != null) {
-						for (final Membership otherm : person.getMemberships()) {
-							final ResearchOrganization otherro = otherm.getResearchOrganization();
-							if (otherro.getId() != organization && otherOrganizationTypeEnum == otherro.getType()) {
-								Set<ResearchOrganization> orgs = pair.getRight();
-								if (orgs == null) {
-									orgs = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
-									pair.setRight(orgs);
-								}
-								orgs.add(otherro);
+					for (final Membership otherm : person.getMemberships()) {
+						final ResearchOrganization otherro = otherm.getResearchOrganization();
+						if (otherro.getId() != organization && otherOrganizationTypePredicate.test(otherro)) {
+							Set<ResearchOrganization> orgs = pair.getRight();
+							if (orgs == null) {
+								orgs = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
+								pair.setRight(orgs);
 							}
+							orgs.add(otherro);
 						}
 					}
 				}
@@ -317,10 +320,17 @@ public class MembershipApiController extends AbstractApiController {
 		}
 		//
 		// Build the data structure to be serialized to JSON
+		final String countryLabel;
+		if (rootOrganization.getCountry() != null) {
+			countryLabel = rootOrganization.getCountryDisplayName();
+		} else {
+			countryLabel = null;
+		}
 		final List<Map<String, Object>> content = new ArrayList<>();
 		for (final MutablePair<Membership, Set<ResearchOrganization>> entry : members.values()) {
 			final Map<String, Object> data = buildMemberEntry(entry.getLeft());
 			if (data != null) {
+				data.put("country", countryLabel); //$NON-NLS-1$
 				Set<ResearchOrganization> oo = entry.getRight();
 				if (oo == null) {
 					oo = Collections.emptySet();

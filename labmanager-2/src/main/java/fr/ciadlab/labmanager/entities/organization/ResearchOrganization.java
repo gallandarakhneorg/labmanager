@@ -240,6 +240,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 		if (getCountry() != null) {
 			consumer.accept("country", getCountry()); //$NON-NLS-1$
+			consumer.accept("countryLabel", getCountryDisplayName()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getDescription())) {
 			consumer.accept("description", getDescription()); //$NON-NLS-1$
