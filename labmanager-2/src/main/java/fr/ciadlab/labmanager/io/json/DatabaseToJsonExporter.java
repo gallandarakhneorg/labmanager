@@ -277,6 +277,29 @@ public class DatabaseToJsonExporter extends JsonTool {
 					++i;
 				}
 			}
+			// Export the addresses of the organization
+			for (final ResearchOrganization organization : organizations) {
+				if (!organization.getAddresses().isEmpty()) {
+					final ArrayNode jsonAddresses = array.arrayNode();
+					for (final OrganizationAddress adr : organization.getAddresses()) {
+						final String id = repository.get(adr);
+						if (Strings.isNullOrEmpty(id)) {
+							throw new IllegalStateException("Address not found: " + adr.getName()); //$NON-NLS-1$
+						}
+						final JsonNode ref = createReference(id, jsonAddresses);
+						if (ref != null) {
+							jsonAddresses.add(ref);
+						}
+					}
+					if (!jsonAddresses.isEmpty()) {
+						final ObjectNode objNode = nodes.get(Integer.valueOf(organization.getId()));
+						if (objNode == null) {
+							throw new IllegalStateException("No JSON node created for organization: " + organization.getAcronymOrName()); //$NON-NLS-1$
+						}
+						objNode.set(ADDRESSES_KEY, jsonAddresses);
+					}
+				}
+			}
 			// Export the super organization for enabling the building of the organization hierarchy
 			// This loop is externalized to be sure all the organizations are in the repository.
 			for (final ResearchOrganization organization : organizations) {

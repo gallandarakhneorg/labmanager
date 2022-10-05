@@ -265,6 +265,14 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		final CachedGenerator organizations = JsonUtils.cache(generator);
 		final CachedGenerator persons = JsonUtils.cache(generator);
 		//
+		generator.writeArrayFieldStart("addresses"); //$NON-NLS-1$
+		for (final OrganizationAddress address : getAddresses()) {
+			organizations.writeReferenceOrObject(address, () -> {
+				JsonUtils.writeObjectAndAttributes(generator, address);
+			});
+		}
+		generator.writeEndArray();
+		//
 		organizations.writeReferenceOrObjectField("superOrganization", getSuperOrganization(), () -> { //$NON-NLS-1$
 			JsonUtils.writeObjectAndAttributes(generator, getSuperOrganization());
 		});
