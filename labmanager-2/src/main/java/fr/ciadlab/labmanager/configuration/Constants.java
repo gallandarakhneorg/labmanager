@@ -87,9 +87,13 @@ public class Constants {
 	 */
 	public static final String INATTACHMENT_ENDPOINT_PARAMETER = "inAttachment"; //$NON-NLS-1$
 
+	/** Default basename of the files in attachment with DB content.
+	 */
+	public static final String DEFAULT_DBCONTENT_ATTACHMENT_BASENAME = "dbcontent"; //$NON-NLS-1$
+
 	/** Default basename of the files in attachment with publications.
 	 */
-	public static final String DEFAULT_PUBLICATION_ATTACHMENT_BASENAME = "publications"; //$NON-NLS-1$
+	public static final String DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME = "publications"; //$NON-NLS-1$
 
 	/** Default basename of the files in attachment with members.
 	 */

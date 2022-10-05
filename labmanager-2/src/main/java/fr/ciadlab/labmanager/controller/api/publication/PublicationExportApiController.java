@@ -208,7 +208,7 @@ public class PublicationExportApiController extends AbstractApiController {
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.TEXT_HTML);
 		if (inAttachment != null && inAttachment.booleanValue()) {
-			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".html\""); //$NON-NLS-1$ //$NON-NLS-2$
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME + ".html\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return bb.body(content);
 	}
@@ -250,7 +250,7 @@ public class PublicationExportApiController extends AbstractApiController {
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE_UTF8);
 		if (inAttachment != null && inAttachment.booleanValue()) {
-			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".bib\""); //$NON-NLS-1$ //$NON-NLS-2$
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME + ".bib\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return bb.body(content);
 	}
@@ -297,7 +297,7 @@ public class PublicationExportApiController extends AbstractApiController {
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(OpenDocumentConstants.ODT_MIME_TYPE);
 		if (inAttachment != null && inAttachment.booleanValue()) {
-			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".odt\""); //$NON-NLS-1$ //$NON-NLS-2$
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME + ".odt\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return bb.body(content);
 	}
@@ -365,7 +365,7 @@ public class PublicationExportApiController extends AbstractApiController {
 				isAjaxObj, isAjaxObj, isLoggedIn, isLoggedIn, isAjaxObj, isAjaxObj, isAjaxObj, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
 		if (isAttachment) {
-			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return bb.body(content);
 	}

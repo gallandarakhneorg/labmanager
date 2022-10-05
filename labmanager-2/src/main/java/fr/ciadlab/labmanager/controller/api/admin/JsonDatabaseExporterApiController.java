@@ -104,7 +104,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		ensureCredentials(username);
 		final Map<String, Object> content = this.exporter.exportFromDatabase();
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
 		final ResponseEntity<Map<String, Object>> result = bb.body(content);
 		getLogger().info("JSON was generated from the Database only"); //$NON-NLS-1$
 		return result;
@@ -216,7 +216,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		//
 		// Generate the answer
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATION_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
 		final ResponseEntity<Map<String, Object>> result = bb.body(content);
 		if (bibtexFile != null) {
 			getLogger().info("JSON was generated from the Database and the BibTeX file: " + bibtexFile.getOriginalFilename()); //$NON-NLS-1$
