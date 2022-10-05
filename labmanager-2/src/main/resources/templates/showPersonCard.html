@@ -55,9 +55,14 @@
 			<div class="person-card-addresses"
 			     th:if="${enableOfficeRoom || enablePostalAddress}">
 				<div class="person-card-officeroom"
-				     th:unless="${!enableOfficeRoom || #strings.isEmpty(person.officeRoom)}">
-					<span class="fa-solid fa-building"></span>
+				     th:if="${enableOfficeRoom && !#strings.isEmpty(person.officeRoom)}">
+					<span class="fa-solid fa-door-closed"></span>
 					<th:block th:utext="${person.officeRoom}"/>
+				</div>
+				<div class="person-card-postaladdress"
+				     th:if="${enablePostalAddress && postalAddress != null}">
+					<span class="fa-solid fa-mail-bulk"></span>
+					<th:block th:utext="${postalAddress.fullAddress}"/>
 				</div>
 			</div>
 			<div class="person-card-indexes"

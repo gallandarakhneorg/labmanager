@@ -32,11 +32,13 @@ import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
+import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
+import org.apache.commons.lang3.mutable.MutableObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -185,6 +187,7 @@ public class PersonViewController extends AbstractViewController {
 	 * @param officePhone indicates if the office phone should be shown on the card.
 	 * @param mobilePhone indicates if the mobile phone should be shown on the card.
 	 * @param officeRoom indicates if the number of the office room should be shown on the card.
+	 * @param postalAddress indicates if the postal address should be shown on the card.
 	 * @param qindexes indicates if the Q-indexes should be shown on the card.
 	 * @param links indicates if the links to external sites should be shown on the card.
 	 * @return the model-view object.
@@ -203,6 +206,7 @@ public class PersonViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue="true") boolean officePhone,
 			@RequestParam(required = false, defaultValue="true") boolean mobilePhone,
 			@RequestParam(required = false, defaultValue="true") boolean officeRoom,
+			@RequestParam(required = false, defaultValue="true") boolean postalAddress,
 			@RequestParam(required = false, defaultValue="true") boolean qindexes,
 			@RequestParam(required = false, defaultValue="true") boolean links) {
 		final ModelAndView modelAndView = new ModelAndView("showPersonCard"); //$NON-NLS-1$
@@ -222,11 +226,15 @@ public class PersonViewController extends AbstractViewController {
 		}
 		final Collection<Membership> memberships = new ConcurrentLinkedQueue<>();
 		final Collection<Membership> responsibilities = new ConcurrentLinkedQueue<>();
+		MutableObject<OrganizationAddress> postalAddressObj = new MutableObject<>();
 		stream.forEach(it -> {
 			if (it.getResponsibility() != null) {
 				responsibilities.add(it);
 			}
 			if (it.isMainPosition()) {
+				if (postalAddressObj.getValue() == null && it.getOrganizationAddress() != null) {
+					postalAddressObj.setValue(it.getOrganizationAddress());
+				}
 				memberships.add(it);
 			}
 		});
@@ -239,6 +247,9 @@ public class PersonViewController extends AbstractViewController {
 		addObfuscatedValues(modelAndView, obfuscatedValues);
 		modelAndView.addObject("introText", Strings.nullToEmpty(introText).trim()); //$NON-NLS-1$
 		modelAndView.addObject("memberships", memberships); //$NON-NLS-1$
+		if (postalAddressObj.getValue() != null) {
+			modelAndView.addObject("postalAddress", postalAddressObj.getValue()); //$NON-NLS-1$
+		}
 		modelAndView.addObject("responsibilities", responsibilities); //$NON-NLS-1$
 		if (qrcode) {
 			final UriComponents currentUri =  ServletUriComponentsBuilder.fromCurrentContextPath().build();
@@ -261,6 +272,7 @@ public class PersonViewController extends AbstractViewController {
 		modelAndView.addObject("enableOfficePhone", Boolean.valueOf(officePhone)); //$NON-NLS-1$
 		modelAndView.addObject("enableMobilePhone", Boolean.valueOf(mobilePhone)); //$NON-NLS-1$
 		modelAndView.addObject("enableOfficeRoom", Boolean.valueOf(officeRoom)); //$NON-NLS-1$
+		modelAndView.addObject("enablePostalAddress", Boolean.valueOf(postalAddress)); //$NON-NLS-1$
 		modelAndView.addObject("enableQindexes", Boolean.valueOf(qindexes)); //$NON-NLS-1$
 		modelAndView.addObject("enableLinks", Boolean.valueOf(links)); //$NON-NLS-1$
 		//
