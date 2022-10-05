@@ -69,10 +69,12 @@
 			     th:if="${enableQindexes && (person.googleScholarHindex > 0 || person.wosHindex > 0)}">
 			     <th:block th:utext="#{html.CardIndex}"></th:block>
 			     <span class="person-card-index person-card-googlescholar-index"
-			           th:title="#{html.GoogleScholarHindexSource}">
+			           th:title="#{html.GoogleScholarHindexSource}"
+			           th:if="${person.googleScholarHindex > 0}">
 			           <a th:href="${person.googleScholarURL}" th:utext="${person.googleScholarHindex}"></a></span>
 			     <span class="person-card-index person-card-wos-index"
-			           th:title="#{html.WosHindexSource}">
+			           th:title="#{html.WosHindexSource}"
+			           th:if="${person.wosHindex > 0}">
 			           <a th:href="${person.researcherIdURL}" th:utext="${person.wosHindex}"></a></span>
 			</div>
 			<div class="person-card-links"
