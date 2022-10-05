@@ -465,6 +465,23 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		}
 	}
 
+	/** Change the CNU section of the member in the research organization.
+	 * CNU means "Conseil National des Universités". 
+	 *
+	 * @param cnu the CNU section number or {@code null} if unknown.
+	 */
+	public final void setCnuSection(String cnu) {
+		if (Strings.isNullOrEmpty(cnu)) {
+			setCnuSection((CnuSection) null);
+		} else {
+			try {
+				setCnuSection(CnuSection.valueOfCaseInsensitive(cnu));
+			} catch (Throwable ex) {
+				setCnuSection((CnuSection) null);
+			}
+		}
+	}
+
 	/** Replies the CoNRS section of the member in the research organization.
 	 * CoNRS means "Comité national de la recherche scientifique". 
 	 *
@@ -494,6 +511,23 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		} else {
 			try {
 				setConrsSection(ConrsSection.valueOf(conrs));
+			} catch (Throwable ex) {
+				setConrsSection((ConrsSection) null);
+			}
+		}
+	}
+
+	/** Change the CoNRS section of the member in the research organization.
+	 * CoNRS means "Comité national de la recherche scientifique". 
+	 *
+	 * @param conrs the CoNRS section number or {@code null} if unknown.
+	 */
+	public final void setConrsSection(String conrs) {
+		if (Strings.isNullOrEmpty(conrs)) {
+			setConrsSection((ConrsSection) null);
+		} else {
+			try {
+				setConrsSection(ConrsSection.valueOfCaseInsensitive(conrs));
 			} catch (Throwable ex) {
 				setConrsSection((ConrsSection) null);
 			}
