@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*	;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -551,7 +551,7 @@ public class MembershipServiceTest {
 
 	@Test
 	public void addMembership() throws Exception {
-		final Pair<Membership, Boolean> m = this.test.addMembership(2345, 34567, LocalDate.parse("2022-07-12"),
+		final Pair<Membership, Boolean> m = this.test.addMembership(2345, null, 34567, LocalDate.parse("2022-07-12"),
 				LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER, Responsibility.DEAN,
 				CnuSection.CNU_07, ConrsSection.CONRS_08, FrenchBap.BAP_E, false, false);
 		assertNotNull(m);
@@ -585,7 +585,7 @@ public class MembershipServiceTest {
 			return Optional.empty();
 		});
 
-		final Membership m = this.test.updateMembershipById(234, 1234, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
+		final Membership m = this.test.updateMembershipById(234, 1234, null, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
 				MemberStatus.MASTER_STUDENT, Responsibility.IT_RESPONSIBLE, CnuSection.CNU_05, ConrsSection.CONRS_06, FrenchBap.BAP_E, false);
 		assertSame(this.ms1, m);
 
@@ -594,6 +594,7 @@ public class MembershipServiceTest {
 		verifyNoMoreInteractions(this.membershipRepository);
 
 		verify(this.ms1).setResearchOrganization(same(this.o1));
+		verify(this.ms1).setOrganizationAddress(isNull());
 		verify(this.ms1).setMemberSinceWhen(eq(LocalDate.parse("2019-07-12")));
 		verify(this.ms1).setMemberToWhen(eq(LocalDate.parse("2019-07-28")));
 		verify(this.ms1).setMemberStatus(same(MemberStatus.MASTER_STUDENT));

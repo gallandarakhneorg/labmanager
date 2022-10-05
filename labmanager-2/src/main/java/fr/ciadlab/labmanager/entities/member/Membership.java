@@ -36,6 +36,7 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
+import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
@@ -120,10 +121,16 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	@ManyToOne(fetch = FetchType.EAGER)
 	private ResearchOrganization researchOrganization;
 
+	/** Reference to the address of the research organization.
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
+	private OrganizationAddress organizationAddress;
+
 	/** Construct a membership with the given values.
 	 *
 	 * @param person the person.
 	 * @param orga the research organization.
+	 * @param address the address of the research organization.
 	 * @param since the start date of involvement.
 	 * @param to the end date of involvement.
 	 * @param status the status.
@@ -133,10 +140,11 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @param frenchBap the type of job for a not-researcher staff.
 	 * @param isMainPosition indicates if the membership is associated to the main position of the associated person.
 	 */
-	public Membership(Person person, ResearchOrganization orga, LocalDate since, LocalDate to, MemberStatus status,
+	public Membership(Person person, ResearchOrganization orga, OrganizationAddress address, LocalDate since, LocalDate to, MemberStatus status,
 			Responsibility responsibility, CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap, boolean isMainPosition) {
 		this.person = person;
 		this.researchOrganization = orga;
+		this.organizationAddress = validateAddress(address, this.researchOrganization);
 		this.memberSinceWhen = since;
 		this.memberToWhen = to;
 		this.memberStatus = status;
@@ -166,6 +174,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		h = HashCodeUtils.add(h, this.memberToWhen);
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.researchOrganization);
+		h = HashCodeUtils.add(h, this.organizationAddress);
 		h = HashCodeUtils.add(h, this.isMainPosition);
 		return h;
 	}
@@ -204,6 +213,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 			return false;
 		}
 		if (!Objects.equals(this.researchOrganization, other.researchOrganization)) {
+			return false;
+		}
+		if (!Objects.equals(this.organizationAddress, other.organizationAddress)) {
 			return false;
 		}
 		if (this.isMainPosition != other.isMainPosition) {
@@ -246,6 +258,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		}
 		if (getResponsibility() != null) {
 			consumer.accept("responsibility", getResponsibility()); //$NON-NLS-1$
+		}
+		if (getOrganizationAddress() != null) {
+			consumer.accept("organizationAddress", getOrganizationAddress()); //$NON-NLS-1$
 		}
 		consumer.accept("isMainPosition", Boolean.valueOf(isMainPosition())); //$NON-NLS-1$
 	}
@@ -293,6 +308,38 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 */
 	public void setResearchOrganization(ResearchOrganization orga) {
 		this.researchOrganization = orga;
+	}
+
+	/** Replies the organization address related to this membership.
+	 *
+	 * @return the address or {@code null} if unknown.
+	 */
+	public OrganizationAddress getOrganizationAddress() {
+		return this.organizationAddress;
+	}
+
+	/** Change the organization address related to this membership.
+	 *
+	 * @param address the address.
+	 */
+	public void setOrganizationAddress(OrganizationAddress address) {
+		this.organizationAddress = validateAddress(address, getResearchOrganization());
+	}
+
+	/** Validate the given address against the addresses that are associated to the given organization.
+	 * If the given address does not corresponds to an address of the given organization, this function
+	 * is not validating it.
+	 *
+	 * @param address the address to validate.
+	 * @param organization the organization that must serve as reference.
+	 * @return the validated address, or {@code null} if the address is not valid.
+	 */
+	@SuppressWarnings("static-method")
+	protected OrganizationAddress validateAddress(OrganizationAddress address, ResearchOrganization organization) {
+		if (address != null && organization != null && organization.getAddresses().contains(address)) {
+			return address;
+		}
+		return null;
 	}
 
 	/** Replies the first date of involvement in the research organization.

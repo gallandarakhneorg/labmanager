@@ -328,22 +328,30 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	 * @return the full address.
 	 */
 	public String getFullAddress() {
+		String separator = " "; //$NON-NLS-1$
 		final StringBuilder builder = new StringBuilder();
 		if (!Strings.isNullOrEmpty(getComplement())) {
 			builder.append(getComplement());
+			separator = ", "; //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getStreet())) {
+			if (builder.length() > 0) {
+				builder.append(separator);
+				separator = " "; //$NON-NLS-1$
+			}
 			builder.append(getStreet());
 		}
 		if (!Strings.isNullOrEmpty(getZipCode())) {
 			if (builder.length() > 0) {
-				builder.append(' ');
+				builder.append(separator);
+				separator = " "; //$NON-NLS-1$
 			}
 			builder.append(getZipCode());
 		}
 		if (!Strings.isNullOrEmpty(getCity())) {
 			if (builder.length() > 0) {
-				builder.append(' ');
+				builder.append(separator);
+				separator = " "; //$NON-NLS-1$
 			}
 			builder.append(getCity());
 		}

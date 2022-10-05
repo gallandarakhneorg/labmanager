@@ -20,6 +20,8 @@
 				        th:value="${organization.id}"
 				        th:utext="${organization.acronymOrName}"></option>
 			</div>
+			<div class="form-group" th:replace="fragments/form :: comboInputEmpty*(${'organizationAddress_' + minMembershipId}, #{html.OrganizationAddress})">
+			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(${'status_' + minMembershipId}, #{html.Status}, ~{::option#option-status-new})">
 				<option id="option-status-new"
 				        th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values}"
@@ -75,6 +77,8 @@
 				        th:selected="${membership != null && membership.researchOrganization.id == organization.id}"
 				        th:value="${organization.id}"
 				        th:utext="${organization.acronymOrName}"></option>
+			</div>
+			<div class="form-group" th:replace="fragments/form :: comboInputEmpty*(${'organizationAddress_' + membership.id}, #{html.OrganizationAddress})">
 			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(${'status_' + membership.id}, #{html.Status}, ~{::option#option-status})">
 				<option id="option-status"
@@ -139,6 +143,7 @@ function addSavingButtonCallback(membershipId, isNewMembership) {
 				formData.append("membership", membershipId);
 			}
 			formData.append("organization", $('#comboInput_organization_' + membershipId + ' option:selected').attr('value'));
+			formData.append("organizationAddress", $('#comboInput_organizationAddress_' + membershipId + ' option:selected').attr('value'));
 			formData.append("status", $('#comboInput_status_' + membershipId + ' option:selected').attr('value'));
 			var checked = $('#checkInput_isMainPosition_' + membershipId).is(':checked');
 			formData.append("isMainPosition", checked);
@@ -164,7 +169,36 @@ function addSavingButtonCallback(membershipId, isNewMembership) {
 function getOrganizationName(id) {
 	return $('comboInput_organization_' + id + " option:selected").text();
 }
-
+var ALL_ADDRESSES_PER_ORGANIZATION = {
+    /*[# th:each="organization : ${organizations}"]*/
+    "[(${organization.id})]": {
+        /*[# th:each="address : ${organization.addresses}"]*/
+        "[(${address.id})]": [[${address.name}]],
+        /*[/]*/		
+    },
+    /*[/]*/		
+};
+function updateAddressCombo(id, selectAddress) {
+	var orga = $('#comboInput_organization_' + id + ' option:selected').attr('value');
+	var $combo = $('#comboInput_organizationAddress_' + id);
+	$combo.empty();
+	var $option0 = $("<option/>").attr('value', '').text([[#{html.NotSpecified}]]);
+	$combo.append($option0);
+	var addresses = ALL_ADDRESSES_PER_ORGANIZATION[orga];
+	$.each(addresses, (index, value) => {
+		var $option1 = $("<option/>").attr('value', index).text(value);
+		if (selectAddress && selectAddress == index) {
+			$option1 = $option1.attr('selected', 'true');
+		}
+		$combo.append($option1);
+	});
+}
+function addOrganizationChangeCallback(id) {
+	var $combo = $('#comboInput_organization_' + id);
+	$combo.change(() => {
+		updateAddressCombo(id, null);
+	});
+}
 
 $(document).ready(function () {
     /*[# th:if="${changeEnabled}"]*/
@@ -173,10 +207,13 @@ $(document).ready(function () {
 		$('#new-membership-input-area').show();
 	    addSavingButtonCallback("[(${minMembershipId})]", true);
 	});
-
+	updateAddressCombo("[(${minMembershipId})]", null);
+	addOrganizationChangeCallback("[(${minMembershipId})]");
 	    /*[# th:each="membership : ${sortedMemberships}"]*/
+	updateAddressCombo("[(${membership.id})]",
+		"[(${membership.organizationAddress != null ? membership.organizationAddress.id : ''})]");
+	addOrganizationChangeCallback("[(${membership.id})]");
     addSavingButtonCallback("[(${membership.id})]", false);
-
 	attachDeletionHandler({
 		id: "[(${membership.id})]",
 		url: "[(${deletionUrl + '?id=' + membership.id})]",

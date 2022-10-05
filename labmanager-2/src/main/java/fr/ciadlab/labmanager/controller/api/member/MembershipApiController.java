@@ -109,6 +109,7 @@ public class MembershipApiController extends AbstractApiController {
 	 * @param membership the identifier of the membership. If the identifier is not provided, this endpoint is supposed to create
 	 *     a membership in the database.
 	 * @param organization the identifier of the organization related to the membership.
+	 * @param organizationAddress the identifier of the specific address of the organization where the person is located.
 	 * @param status the status of the person related to the membership. If {@code null} or empty, the status does not change in
 	 *     the existing membership.
 	 * @param responsibility the responsibility of the person during the period of the menmbership.
@@ -132,6 +133,7 @@ public class MembershipApiController extends AbstractApiController {
 			@RequestParam(required = true) Integer person,
 			@RequestParam(required = false) Integer membership,
 			@RequestParam(required = false) Integer organization,
+			@RequestParam(required = false) Integer organizationAddress,
 			@RequestParam(required = false) String status,
 			@RequestParam(required = false) String responsibility,
 			@RequestParam(required = false) String memberSinceWhen,
@@ -175,6 +177,7 @@ public class MembershipApiController extends AbstractApiController {
 					continueCreation = false;
 					final Pair<Membership, Boolean> result = this.membershipService.addMembership(
 							organization.intValue(),
+							organizationAddress,
 							person.intValue(),
 							startDate, endDate, statusObj, responsibilityObj,
 							cnuSectionObj, conrsSectionObj,
@@ -187,14 +190,12 @@ public class MembershipApiController extends AbstractApiController {
 								startDate = LocalDate.now();
 							}
 							final LocalDate pEnd = startDate.minus(1, ChronoUnit.DAYS);
-							LocalDate pStart = otherMembership.getMemberSinceWhen();
-							if (pStart != null && pEnd.isBefore(pStart)) {
-								pStart = pEnd;
-							}
 							this.membershipService.updateMembershipById(
 									otherMembership.getId(),
 									Integer.valueOf(otherMembership.getResearchOrganization().getId()),
-									pStart, pEnd,
+									otherMembership.getOrganizationAddress() != null 
+									? Integer.valueOf(otherMembership.getOrganizationAddress().getId()) : null,
+									otherMembership.getMemberSinceWhen(), pEnd,
 									otherMembership.getMemberStatus(),
 									otherMembership.getResponsibility(),
 									otherMembership.getCnuSection(),
@@ -211,7 +212,7 @@ public class MembershipApiController extends AbstractApiController {
 				// Update an existing membership.
 				this.membershipService.updateMembershipById(
 						membership.intValue(),
-						organization, startDate, endDate, statusObj, responsibilityObj,
+						organization, organizationAddress, startDate, endDate, statusObj, responsibilityObj,
 						cnuSectionObj, conrsSectionObj, frenchBapObj,
 						isMainPosition);
 			}

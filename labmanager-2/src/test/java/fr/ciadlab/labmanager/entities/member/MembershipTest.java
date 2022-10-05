@@ -22,9 +22,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.Collections;
 
+import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
@@ -104,6 +107,54 @@ public class MembershipTest {
 		assertSame(r0, this.test.getResearchOrganization());
 		this.test.setResearchOrganization(null);
 		assertNull(this.test.getResearchOrganization());
+	}
+
+	@Test
+	public void getOrganizationAddress() {
+		assertNull(this.test.getOrganizationAddress());
+	}
+
+	@Test
+	public void setOrganizationAddress_notNull_valid() {
+		OrganizationAddress adr = mock(OrganizationAddress.class);
+		ResearchOrganization orga = mock(ResearchOrganization.class);
+		when(orga.getAddresses()).thenReturn(Collections.singleton(adr));
+		this.test.setResearchOrganization(orga);
+
+		this.test.setOrganizationAddress(adr);
+
+		assertSame(adr, this.test.getOrganizationAddress());
+	}
+
+	@Test
+	public void setOrganizationAddress_notNull_invalid0() {
+		OrganizationAddress adr = mock(OrganizationAddress.class);
+		ResearchOrganization orga = mock(ResearchOrganization.class);
+		when(orga.getAddresses()).thenReturn(Collections.emptySet());
+		this.test.setResearchOrganization(orga);
+
+		this.test.setOrganizationAddress(adr);
+
+		assertNull(this.test.getOrganizationAddress());
+	}
+
+	@Test
+	public void setOrganizationAddress_notNull_invalid1() {
+		OrganizationAddress adr = mock(OrganizationAddress.class);
+		OrganizationAddress adr1 = mock(OrganizationAddress.class);
+		ResearchOrganization orga = mock(ResearchOrganization.class);
+		when(orga.getAddresses()).thenReturn(Collections.singleton(adr1));
+		this.test.setResearchOrganization(orga);
+
+		this.test.setOrganizationAddress(adr);
+
+		assertNull(this.test.getOrganizationAddress());
+	}
+
+	@Test
+	public void setOrganizationAddress_null() {
+		this.test.setOrganizationAddress(null);
+		assertNull(this.test.getOrganizationAddress());
 	}
 
 	@Test
