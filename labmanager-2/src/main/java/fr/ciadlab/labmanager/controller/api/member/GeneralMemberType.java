@@ -36,6 +36,10 @@ public enum GeneralMemberType {
 	 */
 	RESEARCHERS,
 
+	/** Associated members.
+	 */
+	ASSOCIATED_MEMBERS,
+
 	/** Post-Docs.
 	 */
 	POSTDOCS,
@@ -44,13 +48,13 @@ public enum GeneralMemberType {
 	 */
 	PHDS,
 
+	/** Members that are engineers.
+	 */
+	ENGINEERS,
+
 	/** Members that are not inside in one of the other general member types.
 	 */
 	OTHER_MEMBERS,
-
-	/** Associated members.
-	 */
-	ASSOCIATED_MEMBERS,
 
 	/** Master students.
 	 */
@@ -115,21 +119,24 @@ public enum GeneralMemberType {
 		final MemberStatus ms = membership.getMemberStatus();
 		if (membership.isActive()) {
 			if (ms.isResearcher()) {
+				if (ms == MemberStatus.ASSOCIATED_MEMBER || ms == MemberStatus.ASSOCIATED_MEMBER_PHD) {
+					return GeneralMemberType.ASSOCIATED_MEMBERS;
+				}
 				if (ms == MemberStatus.POSTDOC) {
 					return GeneralMemberType.POSTDOCS;
 				}
 				if (ms == MemberStatus.PHD_STUDENT) {
 					return GeneralMemberType.PHDS;
 				}
-				if (ms == MemberStatus.ASSOCIATED_MEMBER) {
-					return GeneralMemberType.ASSOCIATED_MEMBERS;
-				}
 				return GeneralMemberType.RESEARCHERS;
+			}
+			if (ms.isTechnicalStaff()) {
+				return GeneralMemberType.ENGINEERS;
 			}
 			if (ms == MemberStatus.MASTER_STUDENT) {
 				return GeneralMemberType.MASTER_STUDENTS;
 			}
-			if (ms.isAdministrativeStaff() || ms.isTechnicalStaff()) {
+			if (ms.isAdministrativeStaff()) {
 				return GeneralMemberType.OTHER_MEMBERS;
 			}
 			return null;
