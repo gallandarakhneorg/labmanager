@@ -22,6 +22,7 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.BaseMessageSource;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
+import fr.ciadlab.labmanager.entities.member.Responsibility;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Describe the type of a member for the member list front end.
@@ -32,6 +33,10 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  */
 public enum GeneralMemberType {
+	/** Laboratory Direction.
+	 */
+	DIRECTION,
+
 	/** Researchers.
 	 */
 	RESEARCHERS,
@@ -116,6 +121,12 @@ public enum GeneralMemberType {
 		if (membership.isFuture()) {
 			return null;
 		}
+		// Classification on the responsabilities
+		Responsibility res = membership.getResponsibility();
+		if (res != null && res.isDirectionLevel()) {
+			return GeneralMemberType.DIRECTION;
+		}
+		// Classification on member status
 		final MemberStatus ms = membership.getMemberStatus();
 		if (membership.isActive()) {
 			if (ms.isResearcher()) {
