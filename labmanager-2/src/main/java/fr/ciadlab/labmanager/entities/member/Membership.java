@@ -323,7 +323,20 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @param address the address.
 	 */
 	public void setOrganizationAddress(OrganizationAddress address) {
-		this.organizationAddress = validateAddress(address, getResearchOrganization());
+		setOrganizationAddress(address, true);
+	}
+
+	/** Change the organization address related to this membership.
+	 *
+	 * @param address the address.
+	 * @param validate indicates if the address ust be validated against the current organization.
+	 */
+	public void setOrganizationAddress(OrganizationAddress address, boolean validate) {
+		if (validate) {
+			this.organizationAddress = validateAddress(address, getResearchOrganization());
+		} else {
+			this.organizationAddress = address;
+		}
 	}
 
 	/** Validate the given address against the addresses that are associated to the given organization.

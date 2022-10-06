@@ -362,6 +362,12 @@ public class DatabaseToJsonExporter extends JsonTool {
 			final ArrayNode array = root.arrayNode();
 			int i = 0;
 			for (final Membership membership : memberships) {
+				final String adrId;
+				if (membership.getOrganizationAddress() != null) {
+					adrId = repository.get(membership.getOrganizationAddress());
+				} else {
+					adrId = null;
+				}
 				final String personId = repository.get(membership.getPerson());
 				final String organizationId = repository.get(membership.getResearchOrganization());
 				if (!Strings.isNullOrEmpty(personId) && !Strings.isNullOrEmpty(organizationId)) {
@@ -370,8 +376,11 @@ public class DatabaseToJsonExporter extends JsonTool {
 					final String id = MEMBERSHIP_ID_PREFIX + i;
 					exportObject(jsonMembership, id, membership, jsonMembership, null);
 
-					// Person and organization must be added explicitly because the "exportObject" function
-					// ignore the getter functions for both.
+					// Address, person and organization must be added explicitly because the "exportObject" function
+					// ignore the getter functions for all.
+					if (!Strings.isNullOrEmpty(adrId)) {
+						addReference(jsonMembership, ADDRESS_KEY, adrId);
+					}
 					addReference(jsonMembership, PERSON_KEY, personId);
 					addReference(jsonMembership, RESEARCHORGANIZATION_KEY, organizationId);
 

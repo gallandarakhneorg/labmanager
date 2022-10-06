@@ -549,6 +549,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		int nbNew = 0;
 		if (memberships != null && !memberships.isEmpty()) {
 			getLogger().info("Inserting " + memberships.size() + " memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
+			final List<Pair<Membership, Integer>> addressPostProcessing = new ArrayList<>();
 			int i = 0;
 			for (JsonNode membershipObject : memberships) {
 				getLogger().info("> Membership " + (i + 1) + "/" + memberships.size()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -557,6 +558,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 					Membership membership = createObject(Membership.class, membershipObject, aliasRepository, null);
 					if (membership != null) {
 						session.beginTransaction();
+						final String adrId = getRef(membershipObject.get(ADDRESS_KEY));
+						if (!Strings.isNullOrEmpty(adrId)) {
+							final Integer adrDbId = objectIdRepository.get(adrId);
+							if (adrDbId == null || adrDbId.intValue() == 0) {
+								throw new IllegalArgumentException("Invalid address reference for membership with id: " + id); //$NON-NLS-1$
+							}
+							addressPostProcessing.add(Pair.of(membership, adrDbId));
+						}
+						//
 						final String personId = getRef(membershipObject.get(PERSON_KEY));
 						if (Strings.isNullOrEmpty(personId)) {
 							throw new IllegalArgumentException("Invalid person reference for membership with id: " + id); //$NON-NLS-1$
@@ -624,6 +634,20 @@ public class JsonToDatabaseImporter extends JsonTool {
 					throw new UnableToImportJsonException(MEMBERSHIPS_SECTION, i, membershipObject, ex);
 				}
 				++i;
+			}
+			// Post processing of the addresses for avoiding lazy loading errors
+			if (!addressPostProcessing.isEmpty()) {
+				session.beginTransaction();
+				for (final Pair<Membership, Integer> pair : addressPostProcessing) {
+					final Membership membership = pair.getLeft();
+					final Optional<OrganizationAddress> targetAddress = this.addressRepository.findById(pair.getRight());
+					if (targetAddress.isEmpty()) {
+						throw new IllegalArgumentException("Invalid address reference for membership with id: " + pair.getRight()); //$NON-NLS-1$
+					}
+					membership.setOrganizationAddress(targetAddress.get(), false);
+					this.membershipRepository.save(membership);
+				}
+				session.getTransaction().commit();
 			}
 		}
 		return nbNew;

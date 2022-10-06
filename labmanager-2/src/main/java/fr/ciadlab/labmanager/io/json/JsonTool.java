@@ -206,6 +206,10 @@ public abstract class JsonTool {
 	 */
 	protected static final String ADDRESSES_KEY = "addresses"; //$NON-NLS-1$
 
+	/** Name of the field for the address reference.
+	 */
+	protected static final String ADDRESS_KEY = "address"; //$NON-NLS-1$
+
 	/** Name of the field for the super organization reference.
 	 */
 	protected static final String SUPERORGANIZATION_KEY = "superOrganization"; //$NON-NLS-1$
