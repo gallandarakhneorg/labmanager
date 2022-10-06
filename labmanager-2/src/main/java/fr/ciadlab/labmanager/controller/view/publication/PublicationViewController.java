@@ -212,11 +212,11 @@ public class PublicationViewController extends AbstractViewController {
 		modelAndView.addObject("enableAuthorFilter", Boolean.valueOf(enableAuthorFilter)); //$NON-NLS-1$
 		if (enableFilters && enableAuthorFilter) {
 			final List<Person> persons = this.personService.getAllPersons();
-			modelAndView.addObject("authorsMap", persons.parallelStream() //$NON-NLS-1$
-					.filter(it -> !it.getAuthorships().isEmpty())
-					.collect(Collectors.toConcurrentMap(
+			final Map<Integer, String> personMap = persons.stream()
+					.collect(Collectors.toMap(
 							it -> Integer.valueOf(it.getId()),
-							it -> it.getFullNameWithLastNameFirst())));
+							it -> it.getFullNameWithLastNameFirst()));
+			modelAndView.addObject("authorsMap", personMap); //$NON-NLS-1$
 		}
 		//
 		modelAndView.addObject("enableExports", Boolean.valueOf(enableExports)); //$NON-NLS-1$
