@@ -85,7 +85,7 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 		getLogger().info("Opening /" + Constants.ORGANIZATION_LIST_ENDPOINT + " by " + username); //$NON-NLS-1$ //$NON-NLS-2$
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView(Constants.ORGANIZATION_LIST_ENDPOINT);
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.ORGANIZATION_EDITING_ENDPOINT, "organization")); //$NON-NLS-1$
 		modelAndView.addObject("organizations", this.organizationService.getAllResearchOrganizations()); //$NON-NLS-1$
 		return modelAndView;
@@ -106,7 +106,7 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 		getLogger().info("Opening /" + Constants.ORGANIZATION_EDITING_ENDPOINT + " by " + username + " for organization " + organization); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("organizationEditor"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		final ResearchOrganization organizationObj;
 		if (organization != null && organization.intValue() != 0) {

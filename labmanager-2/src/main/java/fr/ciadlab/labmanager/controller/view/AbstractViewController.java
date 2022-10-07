@@ -125,10 +125,12 @@ public abstract class AbstractViewController extends AbstractCredentialControlle
 	 * The added object in the model are: {@code uuid} and {@code changeEnabled}.
 	 *
 	 * @param modelAndView the model-view
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
 	 */
-	protected void initModelViewWithInternalProperties(ModelAndView modelAndView) {
+	protected void initModelViewWithInternalProperties(ModelAndView modelAndView, boolean embedded) {
 		modelAndView.addObject("uuid", generateUUID()); //$NON-NLS-1$
 		modelAndView.addObject("changeEnabled", Boolean.valueOf(isLoggedIn())); //$NON-NLS-1$
+		modelAndView.addObject("isEmbeddedPage", Boolean.valueOf(embedded)); //$NON-NLS-1$
 	}
 
 	/** Fill the attributes that are needed to build up the buttons in an admin table.

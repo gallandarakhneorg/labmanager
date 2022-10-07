@@ -131,7 +131,7 @@ public class PublicationViewController extends AbstractViewController {
 		getLogger().info("Opening /" + Constants.PUBLICATION_LIST_ENDPOINT + " by " + username + " for journal " + journal); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PUBLICATION_LIST_ENDPOINT);
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.PUBLICATION_EDITING_ENDPOINT, "publication")); //$NON-NLS-1$
 		Collection<? extends Publication> pubs = null;
 		if (journal != null) {
@@ -166,6 +166,7 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param enableYearFilter indicates if the filter dedicated to years is enabled.
 	 * @param enableTypeFilter indicates if the filter dedicated to types/categories is enabled.
 	 * @param enableAuthorFilter indicates if the filter dedicated to authors is enabled.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
 	 * @param username the name of the logged-in user.
 	 * @return the model-view of the list of publications.
 	 * @see #showBackPublicationList()
@@ -185,10 +186,11 @@ public class PublicationViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue = "true") boolean enableYearFilter,
 			@RequestParam(required = false, defaultValue = "true") boolean enableTypeFilter,
 			@RequestParam(required = false, defaultValue = "true") boolean enableAuthorFilter,
+			@RequestParam(required = false, defaultValue = "false") boolean embedded,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("showPublications"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
 		final Integer organizationIdObj;
 		if (organization != null && organization.intValue() != 0) {
@@ -260,6 +262,7 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param name the name of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
 	 * @param annual indicates if the stats for each year are provided. Default is {@code true}.
 	 * @param global indicates if the global stats are provided. Default is {@code true}.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
 	 * @param username the name of the logged-in user.
 	 * @return the model-view with the statistics.
 	 */
@@ -269,10 +272,11 @@ public class PublicationViewController extends AbstractViewController {
 			@RequestParam(required = false) String webId,
 			@RequestParam(required = false, defaultValue = "true") boolean annual,
 			@RequestParam(required = false, defaultValue = "true") boolean global,
+			@RequestParam(required = false, defaultValue = "true") boolean embedded,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("showPublicationStats"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, embedded);
 
 		final List<Publication> publications;
 		if (dbId != null && dbId.intValue() != 0) {
@@ -320,7 +324,7 @@ public class PublicationViewController extends AbstractViewController {
 		getLogger().info("Opening /" + Constants.PUBLICATION_EDITING_ENDPOINT + " by " + username + " for publication " + publication); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("publicationEditor"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		final Publication publicationObj;
 		if (publication != null && publication.intValue() != 0) {
@@ -466,7 +470,7 @@ public class PublicationViewController extends AbstractViewController {
 		getLogger().info("Opening /" + Constants.IMPORT_BIBTEX_VIEW_ENDPOINT + " by " + username); //$NON-NLS-1$ //$NON-NLS-2$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("importBibTeX"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		modelAndView.addObject("bibtexJsonActionUrl", endpoint(Constants.GET_JSON_FROM_BIBTEX_ENDPOINT, //$NON-NLS-1$
 				Constants.CHECKINDB_ENDPOINT_PARAMETER, Boolean.TRUE));

@@ -79,7 +79,7 @@ public class JournalViewController extends AbstractViewController {
 		getLogger().info("Opening /" + Constants.JOURNAL_LIST_ENDPOINT + " by " + username); //$NON-NLS-1$ //$NON-NLS-2$
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView(Constants.JOURNAL_LIST_ENDPOINT);
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.JOURNAL_EDITING_ENDPOINT, "journal")); //$NON-NLS-1$
 		modelAndView.addObject("journals", this.journalService.getAllJournals()); //$NON-NLS-1$
 		modelAndView.addObject("currentYear", Integer.valueOf(LocalDate.now().getYear())); //$NON-NLS-1$
@@ -100,7 +100,7 @@ public class JournalViewController extends AbstractViewController {
 		getLogger().info("Opening /" + Constants.JOURNAL_EDITING_ENDPOINT + " by " + username + " for journal " + journal); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("journalEditor"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		final Journal journalObj;
 		if (journal != null && journal.intValue() != 0) {
@@ -133,7 +133,7 @@ public class JournalViewController extends AbstractViewController {
 		getLogger().info("Opening /journalRankingEditor by " + username + " for journal " + id); //$NON-NLS-1$ //$NON-NLS-2$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("journalRankingEditor"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		final Journal journal = this.journalService.getJournalById(id);
 		if (journal == null) {

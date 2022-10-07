@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:unless="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs"/>
+</th:block>
+<th:block th:if="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+</th:block>
 <th:block th:replace="fragments/libs :: sweetalert"/>
 <th:block th:if="${enableQrcode}" th:replace="fragments/libs :: qrcode-js"/>
 <div class="row">
@@ -125,7 +130,7 @@
            </div>
        </div>
 </div>
-<script th:inline="javascript">
+<script type="text/javascript" th:inline="javascript">
 $(document).ready(() => {
 /*[# th:if="${enableQrcode}"]*/
 	const PERSON_VCARD = "[(${vcardURL})]";

@@ -116,7 +116,7 @@ public class PersonViewController extends AbstractViewController {
 		getLogger().info("Opening /" + Constants.PERSON_LIST_ENDPOINT + " by " + username + " for organization " + organization); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PERSON_LIST_ENDPOINT);
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.PERSON_EDITING_ENDPOINT, "person")); //$NON-NLS-1$
 		Collection<Person> persons = null;
 		if (organization != null) {
@@ -148,7 +148,7 @@ public class PersonViewController extends AbstractViewController {
 		getLogger().info("Opening /" + Constants.PERSON_EDITING_ENDPOINT + " by " + username + " for person " + person); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("personEditor"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		final Person personObj;
 		if (person != null && person.intValue() != 0) {
@@ -190,6 +190,7 @@ public class PersonViewController extends AbstractViewController {
 	 * @param postalAddress indicates if the postal address should be shown on the card.
 	 * @param qindexes indicates if the Q-indexes should be shown on the card.
 	 * @param links indicates if the links to external sites should be shown on the card.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
 	 * @return the model-view object.
 	 */
 	@GetMapping(value = "/showPersonCard")
@@ -208,8 +209,10 @@ public class PersonViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue="true") boolean officeRoom,
 			@RequestParam(required = false, defaultValue="true") boolean postalAddress,
 			@RequestParam(required = false, defaultValue="true") boolean qindexes,
-			@RequestParam(required = false, defaultValue="true") boolean links) {
+			@RequestParam(required = false, defaultValue="true") boolean links,
+			@RequestParam(required = false, defaultValue="false") boolean embedded) {
 		final ModelAndView modelAndView = new ModelAndView("showPersonCard"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
 		final Person personObj = getPersonWith(dbId, webId, null, this.personService, this.nameParser);
 		if (personObj == null) {

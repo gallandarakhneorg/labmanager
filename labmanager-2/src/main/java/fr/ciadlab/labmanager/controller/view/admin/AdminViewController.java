@@ -74,7 +74,7 @@ public class AdminViewController extends AbstractViewController {
 		getLogger().info("Opening /admin by " + username); //$NON-NLS-1$
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("admin"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		final List<ResearchOrganization> list = this.organizationService.getAllResearchOrganizations().stream()
 				.sorted(EntityUtils.getPreferredResearchOrganizationComparator()).collect(Collectors.toList());
 		modelAndView.addObject("organizations", list); //$NON-NLS-1$
@@ -94,7 +94,7 @@ public class AdminViewController extends AbstractViewController {
 		getLogger().info("Opening /mergeDatabaseBibTeXToJson by " + username); //$NON-NLS-1$
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("mergeDatabaseBibTeXToJson"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		modelAndView.addObject("formActionUrl", rooted(Constants.GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("URLS_edit", rooted(Constants.PUBLICATION_EDITING_ENDPOINT) + "?" //$NON-NLS-1$ //$NON-NLS-2$

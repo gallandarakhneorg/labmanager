@@ -135,7 +135,7 @@ public class MembershipViewController extends AbstractViewController {
 		}
 		//
 		final ModelAndView modelAndView = new ModelAndView("membershipEditor"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		final List<Membership> memberships = person.getMemberships().stream().sorted(this.membershipComparator).collect(Collectors.toList());
 		// Preferred values
@@ -214,6 +214,7 @@ public class MembershipViewController extends AbstractViewController {
 	 * @param organizationAcronym the acronym of the organization for which the publications must be exported.
 	 * @param includeSuborganizations indicates if the sub-organizations are included.
 	 * @param enableFilters indicates if the "Filters" box should be visible.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
 	 * @param username the name of the logged-in user.
 	 * @return the model-view of the list of publications.
 	 * @see #showBackPersonList(Integer, String)
@@ -224,10 +225,11 @@ public class MembershipViewController extends AbstractViewController {
 			@RequestParam(required = false) String organizationAcronym,
 			@RequestParam(required = false, name = Constants.INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "true") boolean enableFilters,
+			@RequestParam(required = false, defaultValue = "false") boolean embedded,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
 		readCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("showMembers"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
 		final Integer organizationIdObj;
 		if (organization != null && organization.intValue() != 0) {

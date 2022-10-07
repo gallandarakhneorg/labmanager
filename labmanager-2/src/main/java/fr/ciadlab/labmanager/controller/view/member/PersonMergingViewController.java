@@ -70,7 +70,7 @@ public class PersonMergingViewController extends AbstractViewController {
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
 		ensureCredentials(username);
 		final ModelAndView modelAndView = new ModelAndView("personDuplicateList"); //$NON-NLS-1$
-		initModelViewWithInternalProperties(modelAndView);
+		initModelViewWithInternalProperties(modelAndView, false);
 		final List<Set<Person>> matchingAuthors = this.personService.getPersonDuplicates((a, b) -> {
 			if (a == b) {
 				return 0;

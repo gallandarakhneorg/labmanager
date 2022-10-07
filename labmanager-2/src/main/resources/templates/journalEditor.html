@@ -35,7 +35,7 @@
 	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(scimagoId, #{html.JournalScimagoId}, #{html.PlaceHolderIdentifier}, ${journal != null ? journal.scimagoId : ''}, journalScimagoPicture)"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(wosId, #{html.JournalWosId}, #{html.PlaceHolderIdentifier}, ${journal != null ? journal.wosId : ''})"></div>
 </form>
-<script th:inline="javascript">
+<script type="text/javascript" th:inline="javascript">
 $(document).ready(function () {
     $('#form:first').validate({
         rules: {

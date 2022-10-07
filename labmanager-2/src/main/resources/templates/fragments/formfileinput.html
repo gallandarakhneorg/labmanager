@@ -3,7 +3,7 @@
 
     <th:block th:fragment="all">
 		<th:block th:replace="fragments/libs :: bootstrap-fileinput"/>
-		<script th:src="@{/js/labmanager/formfileinput.js}"></script>
+		<script type="text/javascript" th:src="@{/js/labmanager/formfileinput.js}"></script>
 	</th:block>
 
 	<div th:fragment="fileUploadPdf(name, label)" class="form-group">
