@@ -124,8 +124,7 @@ public class PublicationApiController extends AbstractApiController {
 			@RequestParam(required = false) MultipartFile pathToDownloadableAwardCertificate,
 			@RequestParam Map<String, String> allParameters,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /" + Constants.PUBLICATION_SAVING_ENDPOINT + " by " + username + " for publication " + publication); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.PUBLICATION_SAVING_ENDPOINT, publication);
 		// First check if the authors follows the contraints
 		if (!this.personService.containsAMember(authors, true)) {
 			throw new IllegalArgumentException("The list of authors does not contains a member of one of the known research organizations."); //$NON-NLS-1$
@@ -191,8 +190,7 @@ public class PublicationApiController extends AbstractApiController {
 	public void deletePublication(
 			@RequestParam Integer publication,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /deletePublication by " + username + " for publication " + publication); //$NON-NLS-1$ //$NON-NLS-2$
-		ensureCredentials(username);
+		ensureCredentials(username, "deletePublication", publication); //$NON-NLS-1$
 		if (publication == null || publication.intValue() == 0) {
 			throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
 		}

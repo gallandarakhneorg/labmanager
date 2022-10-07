@@ -83,8 +83,7 @@ public class OrganizationAddressApiController extends AbstractApiController {
 			@RequestParam(required = true) String city,
 			@RequestParam(required = false) String mapCoordinates,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /" + Constants.ORGANIZATION_ADDRESS_SAVING_ENDPOINT + " by " + username + " for address " + address); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.ORGANIZATION_ADDRESS_SAVING_ENDPOINT, address);
 		try {
 			final Optional<OrganizationAddress> optAddress;
 			//
@@ -113,8 +112,7 @@ public class OrganizationAddressApiController extends AbstractApiController {
 	public void deleteOrganization(
 			@RequestParam Integer address,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /deleteAddress by " + username + " for address " + address); //$NON-NLS-1$ //$NON-NLS-2$
-		ensureCredentials(username);
+		ensureCredentials(username, "deleteAddress", address); //$NON-NLS-1$
 		if (address == null || address.intValue() == 0) {
 			throw new IllegalStateException("Address not found"); //$NON-NLS-1$
 		}

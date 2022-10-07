@@ -113,8 +113,7 @@ public class PersonViewController extends AbstractViewController {
 	public ModelAndView showBackPersonList(
 			@RequestParam(required = false) Integer organization,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
-		getLogger().info("Opening /" + Constants.PERSON_LIST_ENDPOINT + " by " + username + " for organization " + organization); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		readCredentials(username);
+		readCredentials(username, Constants.PERSON_LIST_ENDPOINT, organization);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PERSON_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.PERSON_EDITING_ENDPOINT, "person")); //$NON-NLS-1$
@@ -145,8 +144,7 @@ public class PersonViewController extends AbstractViewController {
 	public ModelAndView showPersonEditor(
 			@RequestParam(required = false) Integer person,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
-		getLogger().info("Opening /" + Constants.PERSON_EDITING_ENDPOINT + " by " + username + " for person " + person); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.PERSON_EDITING_ENDPOINT, person);
 		final ModelAndView modelAndView = new ModelAndView("personEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
 		//

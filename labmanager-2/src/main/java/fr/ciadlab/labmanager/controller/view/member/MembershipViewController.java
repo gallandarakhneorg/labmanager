@@ -117,7 +117,7 @@ public class MembershipViewController extends AbstractViewController {
 			@RequestParam(required = false) Integer personId,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username,
 			Locale locale) {
-		ensureCredentials(username);
+		ensureCredentials(username, "membershipEditor"); //$NON-NLS-1$
 		//
 		if (Strings.isNullOrEmpty(personName) && personId == null) {
 			throw new IllegalArgumentException("You must provide the name or the identifier of the person."); //$NON-NLS-1$
@@ -227,7 +227,7 @@ public class MembershipViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue = "true") boolean enableFilters,
 			@RequestParam(required = false, defaultValue = "false") boolean embedded,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
-		readCredentials(username);
+		readCredentials(username, "showMembers"); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("showMembers"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//

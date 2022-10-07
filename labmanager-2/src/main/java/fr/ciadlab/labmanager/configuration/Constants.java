@@ -35,6 +35,10 @@ public class Constants {
 	 */
 	public static final String ANONYMOUS = "anonymous"; //$NON-NLS-1$
 
+	/** Anonymous user name for developers.
+	 */
+	public static final String DEVELOPER = "developer"; //$NON-NLS-1$
+
 	/** Name of the endpoint for exporting to JSON.
 	 */
 	public static final String EXPORT_JSON_ENDPOINT = "exportJson"; //$NON-NLS-1$

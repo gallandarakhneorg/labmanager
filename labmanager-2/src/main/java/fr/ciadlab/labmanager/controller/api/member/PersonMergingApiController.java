@@ -71,8 +71,7 @@ public class PersonMergingApiController extends AbstractApiController {
 			@RequestParam(required = true) Integer target,
 			@RequestParam(required = true) List<Integer> sources,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /mergePersons by " + username + " for target " + target); //$NON-NLS-1$ //$NON-NLS-2$
-		ensureCredentials(username);
+		ensureCredentials(username, "mergePersons", target); //$NON-NLS-1$
 		try {
 			this.mergingService.mergePersonsById(sources, target);
 		} catch (Throwable ex) {

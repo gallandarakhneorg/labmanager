@@ -71,8 +71,7 @@ public class AdminViewController extends AbstractViewController {
 	@GetMapping(value = "/admin")
 	public ModelAndView admin(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
-		getLogger().info("Opening /admin by " + username); //$NON-NLS-1$
-		readCredentials(username);
+		readCredentials(username, "admin"); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("admin"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
 		final List<ResearchOrganization> list = this.organizationService.getAllResearchOrganizations().stream()
@@ -91,8 +90,7 @@ public class AdminViewController extends AbstractViewController {
 	@GetMapping(value = "/mergeDatabaseBibTeXToJson")
 	public ModelAndView mergeDatabaseBibTeXToJson(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws IOException {
-		getLogger().info("Opening /mergeDatabaseBibTeXToJson by " + username); //$NON-NLS-1$
-		ensureCredentials(username);
+		ensureCredentials(username, "mergeDatabaseBibTeXToJson"); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("mergeDatabaseBibTeXToJson"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
 		//

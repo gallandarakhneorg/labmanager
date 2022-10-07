@@ -76,8 +76,7 @@ public class JournalViewController extends AbstractViewController {
 	@GetMapping("/" + Constants.JOURNAL_LIST_ENDPOINT)
 	public ModelAndView showJournalList(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
-		getLogger().info("Opening /" + Constants.JOURNAL_LIST_ENDPOINT + " by " + username); //$NON-NLS-1$ //$NON-NLS-2$
-		readCredentials(username);
+		readCredentials(username, Constants.JOURNAL_LIST_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.JOURNAL_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.JOURNAL_EDITING_ENDPOINT, "journal")); //$NON-NLS-1$
@@ -97,8 +96,7 @@ public class JournalViewController extends AbstractViewController {
 	public ModelAndView showJournalEditor(
 			@RequestParam(required = false) Integer journal,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
-		getLogger().info("Opening /" + Constants.JOURNAL_EDITING_ENDPOINT + " by " + username + " for journal " + journal); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.JOURNAL_EDITING_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView("journalEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
 		//
@@ -130,8 +128,7 @@ public class JournalViewController extends AbstractViewController {
 	public ModelAndView showJournalEditor(
 			@RequestParam(required = true) int id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
-		getLogger().info("Opening /journalRankingEditor by " + username + " for journal " + id); //$NON-NLS-1$ //$NON-NLS-2$
-		ensureCredentials(username);
+		ensureCredentials(username, "journalRankingEditor", Integer.valueOf(id)); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("journalRankingEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
 		//

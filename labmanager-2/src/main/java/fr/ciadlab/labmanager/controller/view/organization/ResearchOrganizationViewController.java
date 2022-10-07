@@ -82,8 +82,7 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	@GetMapping("/" + Constants.ORGANIZATION_LIST_ENDPOINT)
 	public ModelAndView showOrganizationList(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
-		getLogger().info("Opening /" + Constants.ORGANIZATION_LIST_ENDPOINT + " by " + username); //$NON-NLS-1$ //$NON-NLS-2$
-		readCredentials(username);
+		readCredentials(username, Constants.ORGANIZATION_LIST_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.ORGANIZATION_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.ORGANIZATION_EDITING_ENDPOINT, "organization")); //$NON-NLS-1$
@@ -103,8 +102,7 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	public ModelAndView showOrganizationEditor(
 			@RequestParam(required = false) Integer organization,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws JsonProcessingException {
-		getLogger().info("Opening /" + Constants.ORGANIZATION_EDITING_ENDPOINT + " by " + username + " for organization " + organization); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.ORGANIZATION_EDITING_ENDPOINT, organization);
 		final ModelAndView modelAndView = new ModelAndView("organizationEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
 		//

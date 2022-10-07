@@ -100,8 +100,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	@GetMapping("/exportDatabaseToJson")
 	public ResponseEntity<Map<String, Object>> exportDatabaseToJson(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /exportDatabaseToJson by " + username); //$NON-NLS-1$
-		ensureCredentials(username);
+		ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
 		final Map<String, Object> content = this.exporter.exportFromDatabase();
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -194,8 +193,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") boolean addNewBibTeXEntries,
 			@RequestParam(required = false, defaultValue = "false") boolean markDuplicateTitles,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /" + Constants.GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT + " by " + username); //$NON-NLS-1$ //$NON-NLS-2$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT);
 		//
 		// Read the BibTeX file obtaining informations that could be injected into the JSON if needed.
 		final BibTeXSimilarPublicationProvider provider = new BibTeXSimilarPublicationProvider(this.publicationService, bibtexFile);

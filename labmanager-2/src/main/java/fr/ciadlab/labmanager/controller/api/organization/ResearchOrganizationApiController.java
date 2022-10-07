@@ -124,8 +124,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@RequestParam(required = false) List<Integer> organizationAddress,
 			@RequestParam(required = false) Integer superOrganization,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /" + Constants.ORGANIZATION_SAVING_ENDPOINT + " by " + username + " for organization " + organization); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.ORGANIZATION_SAVING_ENDPOINT, organization);
 		try {
 			final ResearchOrganizationType typeObj = ResearchOrganizationType.valueOfCaseInsensitive(type);
 			final CountryCode countryObj = CountryCodeUtils.valueOfCaseInsensitive(country);
@@ -156,8 +155,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	public void deleteOrganization(
 			@RequestParam Integer organization,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /deleteOrganization by " + username + " for organization " + organization); //$NON-NLS-1$ //$NON-NLS-2$
-		ensureCredentials(username);
+		ensureCredentials(username, "deleteOrganization", organization); //$NON-NLS-1$
 		if (organization == null || organization.intValue() == 0) {
 			throw new IllegalStateException("Organization not found"); //$NON-NLS-1$
 		}

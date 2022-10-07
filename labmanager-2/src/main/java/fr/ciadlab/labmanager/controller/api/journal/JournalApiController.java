@@ -149,8 +149,7 @@ public class JournalApiController extends AbstractApiController {
 			@RequestParam(required = false) String scimagoId,
 			@RequestParam(required = false) String wosId,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /" + Constants.JOURNAL_SAVING_ENDPOINT + " by " + username + " for journal " + journal); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.JOURNAL_SAVING_ENDPOINT, journal);
 		final Journal optJournal;
 		//
 		if (journal == null) {
@@ -177,8 +176,7 @@ public class JournalApiController extends AbstractApiController {
 	public void deleteJournal(
 			@RequestParam Integer journal,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /deleteJournal by " + username + " for journal " + journal); //$NON-NLS-1$ //$NON-NLS-2$
-		ensureCredentials(username);
+		ensureCredentials(username, "deleteJournal", journal); //$NON-NLS-1$
 		if (journal == null || journal.intValue() == 0) {
 			throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
 		}
@@ -203,8 +201,7 @@ public class JournalApiController extends AbstractApiController {
 			@RequestParam(required = false) String scimagoQIndex,
 			@RequestParam(required = false) String wosQIndex,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /" + Constants.SAVE_JOURNAL_RANKING_ENDPOINT + " by " + username + " for journal " + journal); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.SAVE_JOURNAL_RANKING_ENDPOINT, Integer.valueOf(journal));
 		final Journal journalObj = this.journalService.getJournalById(journal);
 		if (journalObj == null) {
 			throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
@@ -227,8 +224,7 @@ public class JournalApiController extends AbstractApiController {
 			@RequestParam(required = true) int journal,
 			@RequestParam(required = true) int year,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
-		getLogger().info("Opening /" + Constants.DELETE_JOURNAL_RANKING_ENDPOINT + " by " + username + " for journal " + journal + " and year " + year); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
-		ensureCredentials(username);
+		ensureCredentials(username, Constants.DELETE_JOURNAL_RANKING_ENDPOINT, Integer.valueOf(journal), Integer.valueOf(year));
 		final Journal journalObj = this.journalService.getJournalById(journal);
 		if (journalObj == null) {
 			throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
