@@ -28,6 +28,7 @@ import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -59,12 +60,14 @@ public class JournalApiController extends AbstractApiController {
 	 * @param messages the accessor to the localized messages.
 	 * @param constants the constants of the app.
 	 * @param journalService the journal service.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public JournalApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired JournalService journalService) {
-		super(messages, constants);
+			@Autowired JournalService journalService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.journalService = journalService;
 	}
 
@@ -148,7 +151,7 @@ public class JournalApiController extends AbstractApiController {
 			@RequestParam(required = false) String journalUrl,
 			@RequestParam(required = false) String scimagoId,
 			@RequestParam(required = false) String wosId,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.JOURNAL_SAVING_ENDPOINT, journal);
 		final Journal optJournal;
 		//
@@ -175,7 +178,7 @@ public class JournalApiController extends AbstractApiController {
 	@DeleteMapping("/deleteJournal")
 	public void deleteJournal(
 			@RequestParam Integer journal,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "deleteJournal", journal); //$NON-NLS-1$
 		if (journal == null || journal.intValue() == 0) {
 			throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
@@ -200,7 +203,7 @@ public class JournalApiController extends AbstractApiController {
 			@RequestParam(required = false) Float impactFactor,
 			@RequestParam(required = false) String scimagoQIndex,
 			@RequestParam(required = false) String wosQIndex,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.SAVE_JOURNAL_RANKING_ENDPOINT, Integer.valueOf(journal));
 		final Journal journalObj = this.journalService.getJournalById(journal);
 		if (journalObj == null) {
@@ -223,7 +226,7 @@ public class JournalApiController extends AbstractApiController {
 	public void deleteJournalRanking(
 			@RequestParam(required = true) int journal,
 			@RequestParam(required = true) int year,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.DELETE_JOURNAL_RANKING_ENDPOINT, Integer.valueOf(journal), Integer.valueOf(year));
 		final Journal journalObj = this.journalService.getJournalById(journal);
 		if (journalObj == null) {

@@ -52,9 +52,10 @@ public abstract class AbstractViewController extends AbstractCredentialControlle
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
-	public AbstractViewController(MessageSourceAccessor messages, Constants constants) {
-		super(messages, constants);
+	public AbstractViewController(MessageSourceAccessor messages, Constants constants, String usernameKey) {
+		super(messages, constants, usernameKey);
 	}
 
 	/** Build the URL for accessing an endpoint with the given parameter name, but without setting the parameter value. 

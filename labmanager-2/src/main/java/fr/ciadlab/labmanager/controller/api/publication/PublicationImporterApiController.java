@@ -31,6 +31,7 @@ import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -59,12 +60,14 @@ public class PublicationImporterApiController extends AbstractApiController {
 	 * @param messages the provider of messages.
 	 * @param constants the constants of the app.
 	 * @param publicationService the publication service.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PublicationImporterApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired PublicationService publicationService) {
-		super(messages, constants);
+			@Autowired PublicationService publicationService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.publicationService = publicationService;
 	}
 
@@ -83,7 +86,7 @@ public class PublicationImporterApiController extends AbstractApiController {
 	public void saveBibTeX(
 			@RequestParam(required = false) MultipartFile bibtexFile,
 			@RequestParam(required = false) String changes,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.SAVE_BIBTEX_ENDPOINT);
 		try {
 			// Pass the changes string as JSON to extract the expected types of publications. 

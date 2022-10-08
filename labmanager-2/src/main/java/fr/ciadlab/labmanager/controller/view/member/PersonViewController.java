@@ -40,6 +40,7 @@ import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -86,6 +87,7 @@ public class PersonViewController extends AbstractViewController {
 	 * @param membershipService the service for managing the memberships.
 	 * @param organizationService the service for organizations.
 	 * @param nameParser the parser for person names.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PersonViewController(
 			@Autowired MessageSourceAccessor messages,
@@ -93,8 +95,9 @@ public class PersonViewController extends AbstractViewController {
 			@Autowired PersonService personService,
 			@Autowired MembershipService membershipService,
 			@Autowired ResearchOrganizationService organizationService,
-			@Autowired PersonNameParser nameParser) {
-		super(messages, constants);
+			@Autowired PersonNameParser nameParser,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.personService = personService;
 		this.membershipService = membershipService;
 		this.organizationService = organizationService;
@@ -112,7 +115,7 @@ public class PersonViewController extends AbstractViewController {
 	@GetMapping("/" + Constants.PERSON_LIST_ENDPOINT)
 	public ModelAndView showBackPersonList(
 			@RequestParam(required = false) Integer organization,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.PERSON_LIST_ENDPOINT, organization);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PERSON_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
@@ -143,7 +146,7 @@ public class PersonViewController extends AbstractViewController {
 	@GetMapping(value = "/" + Constants.PERSON_EDITING_ENDPOINT)
 	public ModelAndView showPersonEditor(
 			@RequestParam(required = false) Integer person,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.PERSON_EDITING_ENDPOINT, person);
 		final ModelAndView modelAndView = new ModelAndView("personEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);

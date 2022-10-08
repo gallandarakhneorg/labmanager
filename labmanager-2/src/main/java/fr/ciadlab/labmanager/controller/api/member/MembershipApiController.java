@@ -50,6 +50,7 @@ import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -90,14 +91,16 @@ public class MembershipApiController extends AbstractApiController {
 	 * @param membershipService the service for managing the memberships.
 	 * @param organizationService the service for accessing the organizations.
 	 * @param membershipComparator the comparator of member for determining the more recents.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public MembershipApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired MembershipService membershipService,
 			@Autowired ResearchOrganizationService organizationService,
-			@Autowired ChronoMembershipComparator membershipComparator) {
-		super(messages, constants);
+			@Autowired ChronoMembershipComparator membershipComparator,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.membershipService = membershipService;
 		this.organizationService = organizationService;
 		this.membershipComparator = membershipComparator;
@@ -144,7 +147,7 @@ public class MembershipApiController extends AbstractApiController {
 			@RequestParam(required = false) String frenchBap,
 			@RequestParam(required = false, defaultValue = "true") boolean isMainPosition,
 			@RequestParam(required = false, defaultValue = "true") boolean closeActive,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.MEMBERSHIP_SAVING_ENDPOINT, person);
 		try {
 			// Parse values to Java objects
@@ -231,7 +234,7 @@ public class MembershipApiController extends AbstractApiController {
 	@DeleteMapping("/" + Constants.MEMBERSHIP_DELETION_ENDPOINT)
 	public void deleteMembership(
 			@RequestParam Integer id,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.MEMBERSHIP_DELETION_ENDPOINT, id);
 		if (id == null || id.intValue() == 0) {
 			throw new IllegalStateException("Missing the membership id"); //$NON-NLS-1$
@@ -261,7 +264,7 @@ public class MembershipApiController extends AbstractApiController {
 			@RequestParam(required = false, name = Constants.INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.EXPORT_MEMBERS_TO_JSON_ENDPOINT, Integer.valueOf(organization));
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
 		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();

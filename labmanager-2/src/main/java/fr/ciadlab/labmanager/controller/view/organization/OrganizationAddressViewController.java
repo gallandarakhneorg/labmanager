@@ -22,6 +22,7 @@ import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.service.organization.OrganizationAddressService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -51,12 +52,14 @@ public class OrganizationAddressViewController extends AbstractViewController {
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the live constants.
 	 * @param addressService the service for managing the addresses.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public OrganizationAddressViewController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired OrganizationAddressService addressService) {
-		super(messages, constants);
+			@Autowired OrganizationAddressService addressService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.addressService = addressService;
 	}
 
@@ -67,7 +70,7 @@ public class OrganizationAddressViewController extends AbstractViewController {
 	 */
 	@GetMapping("/" + Constants.ORGANIZATION_ADDRESS_LIST_ENDPOINT)
 	public ModelAndView showAddressList(
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.ORGANIZATION_ADDRESS_LIST_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.ORGANIZATION_ADDRESS_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
@@ -86,7 +89,7 @@ public class OrganizationAddressViewController extends AbstractViewController {
 	@GetMapping(value = "/" + Constants.ORGANIZATION_ADDRESS_EDITING_ENDPOINT)
 	public ModelAndView showAddressEditor(
 			@RequestParam(required = false) Integer address,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.ORGANIZATION_ADDRESS_EDITING_ENDPOINT, address);
 		final ModelAndView modelAndView = new ModelAndView("addressEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);

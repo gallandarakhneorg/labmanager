@@ -22,6 +22,7 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.service.member.PersonMergingService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -48,12 +49,14 @@ public class PersonMergingApiController extends AbstractApiController {
 	 * @param messages the provider of messages.
 	 * @param constants the constants of the app.
 	 * @param mergingService the service for merging persons.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PersonMergingApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired PersonMergingService mergingService) {
-		super(messages, constants);
+			@Autowired PersonMergingService mergingService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.mergingService = mergingService;
 	}
 
@@ -70,7 +73,7 @@ public class PersonMergingApiController extends AbstractApiController {
 	public void mergePersons(
 			@RequestParam(required = true) Integer target,
 			@RequestParam(required = true) List<Integer> sources,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "mergePersons", target); //$NON-NLS-1$
 		try {
 			this.mergingService.mergePersonsById(sources, target);

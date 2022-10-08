@@ -51,6 +51,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -97,6 +98,7 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param personComparator the comparator of persons.
 	 * @param fileManager the manager of local files.
 	 * @param journalService the tools for manipulating journals.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PublicationViewController(
 			@Autowired MessageSourceAccessor messages,
@@ -106,8 +108,9 @@ public class PublicationViewController extends AbstractViewController {
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired PersonComparator personComparator,
 			@Autowired DownloadableFileManager fileManager,
-			@Autowired JournalService journalService) {
-		super(messages, constants);
+			@Autowired JournalService journalService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.publicationService = publicationService;
 		this.personService = personService;
 		this.organizationService = organizationService;
@@ -127,7 +130,7 @@ public class PublicationViewController extends AbstractViewController {
 	@GetMapping("/" + Constants.PUBLICATION_LIST_ENDPOINT)
 	public ModelAndView showBackPublicationList(
 			@RequestParam(required = false) Integer journal,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.PUBLICATION_LIST_ENDPOINT, journal);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PUBLICATION_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
@@ -186,7 +189,7 @@ public class PublicationViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue = "true") boolean enableTypeFilter,
 			@RequestParam(required = false, defaultValue = "true") boolean enableAuthorFilter,
 			@RequestParam(required = false, defaultValue = "false") boolean embedded,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, "showPublications", dbId, webId, organization, organizationAcronym, journal); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("showPublications"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
@@ -272,7 +275,7 @@ public class PublicationViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue = "true") boolean annual,
 			@RequestParam(required = false, defaultValue = "true") boolean global,
 			@RequestParam(required = false, defaultValue = "true") boolean embedded,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, "showPublicationStats", dbId, webId); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("showPublicationStats"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
@@ -319,7 +322,7 @@ public class PublicationViewController extends AbstractViewController {
 	@GetMapping(value = "/" + Constants.PUBLICATION_EDITING_ENDPOINT)
 	public ModelAndView showPublicationEditor(
 			@RequestParam(required = false, name = Constants.PUBLICATION_ENDPOINT_PARAMETER) Integer publication,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws IOException {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws IOException {
 		ensureCredentials(username, Constants.PUBLICATION_EDITING_ENDPOINT, publication);
 		final ModelAndView modelAndView = new ModelAndView("publicationEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
@@ -464,7 +467,7 @@ public class PublicationViewController extends AbstractViewController {
 	 */
 	@GetMapping(value = "/" + Constants.IMPORT_BIBTEX_VIEW_ENDPOINT)
 	public ModelAndView showBibTeXImporter(
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws IOException {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws IOException {
 		ensureCredentials(username, Constants.IMPORT_BIBTEX_VIEW_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView("importBibTeX"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);

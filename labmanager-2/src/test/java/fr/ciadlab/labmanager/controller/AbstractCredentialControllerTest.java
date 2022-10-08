@@ -17,30 +17,15 @@
 package fr.ciadlab.labmanager.controller;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.Mockito.mock;
 
-import static org.mockito.Mockito.*;
-
-import java.security.spec.AlgorithmParameterSpec;
-import java.security.spec.KeySpec;
-import java.util.Base64;
-import java.util.UUID;
-
-import javax.crypto.Cipher;
-import javax.crypto.SecretKey;
-import javax.crypto.SecretKeyFactory;
-import javax.crypto.spec.PBEKeySpec;
-import javax.crypto.spec.PBEParameterSpec;
+import java.nio.charset.StandardCharsets;
 
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.controller.view.AbstractViewController;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilder;
-import org.springframework.web.util.UriBuilderFactory;
 
 /** Tests for {@link AbstractCredentialController}.
  * 
@@ -53,18 +38,23 @@ import org.springframework.web.util.UriBuilderFactory;
 @ExtendWith(MockitoExtension.class)
 public class AbstractCredentialControllerTest {
 
-	private String hash;
-	
-	private String iv;
-	
-	private AbstractCredentialController test;
+	private static final String HASH1 = "76c3299759c8512c";
 
-	@BeforeEach
-	public void setUp() {
-	    this.iv = "4f76476692be7171";
-	    this.hash = "76c3299759c8512c";
-		MessageSourceAccessor messages = mock(MessageSourceAccessor.class);
-		this.test = new AbstractCredentialController(messages, new Constants(), this.hash, this.iv) {
+	private static final byte[] INPUT1 = new byte[] {
+			0x6e, 0x65, 0x79, 0x64, 0x53, 0x4f, 0x70, 0x4a,
+			0x4a, 0x59, 0x68, 0x52, 0x45, 0x33, 0x45, 0x62,
+			0x46, 0x5a, 0x67, 0x57, 0x45, 0x77, 0x3d, 0x3d,
+			0x3a, 0x4e, 0x47, 0x59, 0x33, 0x4e, 0x6a, 0x51,
+			0x33, 0x4e, 0x6a, 0x59, 0x35, 0x4d, 0x6d, 0x4a,
+			0x6c, 0x4e, 0x7a, 0x45, 0x33, 0x4d, 0x51, 0x3d,
+			0x3d
+	};
+
+	private static final String OUTPUT1 = "mylogin";
+
+	private static AbstractCredentialController create(String hash) {
+		final MessageSourceAccessor messages = mock(MessageSourceAccessor.class);
+		return new AbstractCredentialController(messages, new Constants(), hash) {
 			@Override
 			public String readCredentials(String username, String serviceName, Object... serviceParams) {
 				return super.readCredentials(username, serviceName, serviceParams);
@@ -73,9 +63,26 @@ public class AbstractCredentialControllerTest {
 	}
 
 	@Test
-	public void readCredentials() throws Exception {
-		final String input = "neydSOpJJYhRE3EbFZgWEw==:NGY3NjQ3NjY5MmJlNzE3MQ==";
-		final String username = this.test.readCredentials(input, "myserv");
+	public void readCredentials1_utf8() throws Exception {
+		final String input1 = new String(INPUT1, StandardCharsets.UTF_8);
+		final AbstractCredentialController test = create(HASH1);
+		final String username = test.readCredentials(input1, "myserv");
+		assertEquals("mylogin", username);
+	}
+
+	@Test
+	public void readCredentials1_ascii() throws Exception {
+		final String input1 = new String(INPUT1, StandardCharsets.US_ASCII);
+		final AbstractCredentialController test = create(HASH1);
+		final String username = test.readCredentials(input1, "myserv");
+		assertEquals("mylogin", username);
+	}
+
+	@Test
+	public void readCredentials1_iso88591() throws Exception {
+		final String input1 = new String(INPUT1, StandardCharsets.ISO_8859_1);
+		final AbstractCredentialController test = create(HASH1);
+		final String username = test.readCredentials(input1, "myserv");
 		assertEquals("mylogin", username);
 	}
 

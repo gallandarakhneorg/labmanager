@@ -31,6 +31,7 @@ import fr.ciadlab.labmanager.service.organization.OrganizationAddressService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -63,13 +64,15 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	 * @param constants the accessor to the live constants.
 	 * @param addressService the service for manaing the addresses.
 	 * @param organizationService the research organization service.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public ResearchOrganizationViewController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired OrganizationAddressService addressService,
-			@Autowired ResearchOrganizationService organizationService) {
-		super(messages, constants);
+			@Autowired ResearchOrganizationService organizationService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.addressService = addressService;
 		this.organizationService = organizationService;
 	}
@@ -81,7 +84,7 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	 */
 	@GetMapping("/" + Constants.ORGANIZATION_LIST_ENDPOINT)
 	public ModelAndView showOrganizationList(
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.ORGANIZATION_LIST_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.ORGANIZATION_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
@@ -101,7 +104,7 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 	@GetMapping(value = "/" + Constants.ORGANIZATION_EDITING_ENDPOINT)
 	public ModelAndView showOrganizationEditor(
 			@RequestParam(required = false) Integer organization,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws JsonProcessingException {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws JsonProcessingException {
 		ensureCredentials(username, Constants.ORGANIZATION_EDITING_ENDPOINT, organization);
 		final ModelAndView modelAndView = new ModelAndView("organizationEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);

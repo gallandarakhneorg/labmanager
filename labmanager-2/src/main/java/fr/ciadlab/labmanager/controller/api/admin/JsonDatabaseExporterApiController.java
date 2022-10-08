@@ -37,6 +37,7 @@ import fr.ciadlab.labmanager.io.json.SimilarPublicationProvider;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -80,13 +81,15 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	 * @param constants the constants of the app.
 	 * @param exporter the exporter.
 	 * @param publicationService the service for extracting publications from a BibTeX file.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public JsonDatabaseExporterApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired DatabaseToJsonExporter exporter,
-			@Autowired PublicationService publicationService) {
-		super(messages, constants);
+			@Autowired PublicationService publicationService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.exporter = exporter;
 		this.publicationService = publicationService;
 	}
@@ -99,7 +102,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	 */
 	@GetMapping("/exportDatabaseToJson")
 	public ResponseEntity<Map<String, Object>> exportDatabaseToJson(
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
 		final Map<String, Object> content = this.exporter.exportFromDatabase();
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
@@ -192,7 +195,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 			@RequestParam(required = false) MultipartFile bibtexFile,
 			@RequestParam(required = false, defaultValue = "true") boolean addNewBibTeXEntries,
 			@RequestParam(required = false, defaultValue = "false") boolean markDuplicateTitles,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT);
 		//
 		// Read the BibTeX file obtaining informations that could be injected into the JSON if needed.

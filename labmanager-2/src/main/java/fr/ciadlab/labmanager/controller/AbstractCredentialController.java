@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.controller;
 
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -27,7 +28,6 @@ import javax.servlet.http.HttpServletRequest;
 import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of a JEE Controller that provides support for logged users.
@@ -48,34 +48,18 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 
 	/** Hash for encoding the username.
 	 */
-	@Value("labmanager.security.username-hash")
-	private String usernameHash;
-
-	/** IV for encoding the username.
-	 */
-	@Value("labmanager.security.username-iv")
-	private String usernameIv;
+	private final byte[] usernameKey;
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
-	 * @param usernameHash the hash string for encrypting the usernames.
-	 * @param usernameIv the hash string for encrypting the usernames.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
-	public AbstractCredentialController(MessageSourceAccessor messages, Constants constants, String usernameHash, String usernameIv) {
+	public AbstractCredentialController(MessageSourceAccessor messages, Constants constants, String usernameKey) {
 		super(messages, constants);
-		this.usernameHash = usernameHash;
-		this.usernameIv = usernameIv;
-	}
-
-	/** Constructor.
-	 *
-	 * @param messages the provider of messages.
-	 * @param constants the accessor to the constants.
-	 */
-	public AbstractCredentialController(MessageSourceAccessor messages, Constants constants) {
-		super(messages, constants);
+		final String key = Strings.isNullOrEmpty(usernameKey) ? "the-key" : usernameKey; //$NON-NLS-1$
+		this.usernameKey = key.getBytes(StandardCharsets.US_ASCII);
 	}
 
 	/** Replies if a user is logged-in.
@@ -90,14 +74,31 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 	/** Validate the credentials for the given username.
 	 * <p>This function always validates if the backend is in debug mode.
 	 *
-	 * @param username the encrypted username of the logged-in user.
+	 * @param encryptedUsername the encrypted username of the logged-in user.
 	 * @param serviceName the name of the service that is accessed.
 	 * @param serviceParams the significant parameters that are passed to the service. They are used for building the log messages.
 	 * @return the uncrypted username.
 	 * @throws IllegalAccessError if there is no logged user.
 	 */
-	protected String ensureCredentials(String username, String serviceName, Object... serviceParams) {
-		final String uname = readCredentials(username, serviceName, serviceParams);
+	protected String ensureCredentials(byte[] encryptedUsername, String serviceName, Object... serviceParams) {
+		final String uname = readCredentials(encryptedUsername, serviceName, serviceParams);
+		if (!isLoggedIn()) {
+			throw new IllegalAccessError(getMessage("all.notLogged")); //$NON-NLS-1$
+		}
+		return uname;
+	}
+
+	/** Validate the credentials for the given username.
+	 * <p>This function always validates if the backend is in debug mode.
+	 *
+	 * @param encryptedUsername the encrypted username of the logged-in user.
+	 * @param serviceName the name of the service that is accessed.
+	 * @param serviceParams the significant parameters that are passed to the service. They are used for building the log messages.
+	 * @return the uncrypted username.
+	 * @throws IllegalAccessError if there is no logged user.
+	 */
+	protected String ensureCredentials(String encryptedUsername, String serviceName, Object... serviceParams) {
+		final String uname = readCredentials(encryptedUsername, serviceName, serviceParams);
 		if (!isLoggedIn()) {
 			throw new IllegalAccessError(getMessage("all.notLogged")); //$NON-NLS-1$
 		}
@@ -107,20 +108,36 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 	/** Read the credentials for the given username without validating them.
 	 * <p>This function always validates if the backend is in debug mode.
 	 *
-	 * @param username the encrypted username of the logged-in user.
+	 * @param encryptedUsername the encrypted username of the logged-in user.
 	 * @param serviceName the name of the service that is accessed.
 	 * @param serviceParams the significant parameters that are passed to the service. They are used for building the log messages.
 	 * @return the uncrypted username.
 	 * @throws IllegalAccessError if there is no logged user.
 	 */
-	protected String readCredentials(String username, String serviceName, Object... serviceParams) {
+	protected String readCredentials(byte[] encryptedUsername, String serviceName, Object... serviceParams) {
+		getLogger().debug("Receiving credential: " + Arrays.toString(encryptedUsername)); //$NON-NLS-1$
+		final String str = new String(encryptedUsername, StandardCharsets.US_ASCII);
+		return readCredentials(str, serviceName, serviceParams);
+	}
+
+	/** Read the credentials for the given username without validating them.
+	 * <p>This function always validates if the backend is in debug mode.
+	 *
+	 * @param encryptedUsername the encrypted username of the logged-in user.
+	 * @param serviceName the name of the service that is accessed.
+	 * @param serviceParams the significant parameters that are passed to the service. They are used for building the log messages.
+	 * @return the uncrypted username.
+	 * @throws IllegalAccessError if there is no logged user.
+	 */
+	protected String readCredentials(String encryptedUsername, String serviceName, Object... serviceParams) {
 		if (this.debugVersion) {
 			this.username = Constants.DEVELOPER;
 		} else {
 			String decodedUsername = null;
-			if (!Strings.isNullOrEmpty(username)) {
+			if (!Strings.isNullOrEmpty(encryptedUsername)) {
 				try {
-					decodedUsername = decode(username);
+					decodedUsername = decode(encryptedUsername);
+					getLogger().debug("Decoding " + encryptedUsername + " to " + decodedUsername); //$NON-NLS-1$ //$NON-NLS-2$
 				} catch (Throwable ex) {
 					decodedUsername = null;
 				}
@@ -142,16 +159,20 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 	private String decode(String username) throws Exception {
 		try {
 			final String[] parts = username.split(":"); //$NON-NLS-1$
-            final IvParameterSpec iv = new IvParameterSpec(Base64.getDecoder().decode(parts[1]));
-            final SecretKeySpec skeySpec = new SecretKeySpec(this.usernameHash.getBytes("UTF-8"), "AES"); //$NON-NLS-1$ //$NON-NLS-2$
-            final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING"); //$NON-NLS-1$
-            cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
-            final byte[] decodedEncryptedData = Base64.getDecoder().decode(parts[0]);
-            final byte[] original = cipher.doFinal(decodedEncryptedData);
-            return new String(original, "UTF-8"); //$NON-NLS-1$
+			final String data64 = parts[0];
+			final String iv64 = parts[1];
+			final IvParameterSpec iv = new IvParameterSpec(Base64.getDecoder().decode(iv64));
+			getLogger().debug("Using key: " + Arrays.toString(this.usernameKey)); //$NON-NLS-1$
+			final SecretKeySpec skeySpec = new SecretKeySpec(this.usernameKey, "AES"); //$NON-NLS-1$
+			final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING"); //$NON-NLS-1$
+			cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+			final byte[] decodedEncryptedData = Base64.getDecoder().decode(data64);
+			final byte[] original = cipher.doFinal(decodedEncryptedData);
+			return new String(original);
 		} catch (Throwable ex) {
-			return null;
+			getLogger().error("Unable to decode: " + username, ex); //$NON-NLS-1$
 		}
+		return null;
 	}
 
 }

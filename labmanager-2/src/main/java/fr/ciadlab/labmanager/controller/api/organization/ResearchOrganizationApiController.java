@@ -28,6 +28,7 @@ import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.util.CountryCode;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -59,12 +60,14 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	 * @param messages the provider of messages.
 	 * @param constants the constants of the app.
 	 * @param organizationService the research organization service.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public ResearchOrganizationApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired ResearchOrganizationService organizationService) {
-		super(messages, constants);
+			@Autowired ResearchOrganizationService organizationService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.organizationService = organizationService;
 	}
 
@@ -123,7 +126,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@RequestParam(required = false) String country,
 			@RequestParam(required = false) List<Integer> organizationAddress,
 			@RequestParam(required = false) Integer superOrganization,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.ORGANIZATION_SAVING_ENDPOINT, organization);
 		try {
 			final ResearchOrganizationType typeObj = ResearchOrganizationType.valueOfCaseInsensitive(type);
@@ -154,7 +157,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	@DeleteMapping("/deleteOrganization")
 	public void deleteOrganization(
 			@RequestParam Integer organization,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "deleteOrganization", organization); //$NON-NLS-1$
 		if (organization == null || organization.intValue() == 0) {
 			throw new IllegalStateException("Organization not found"); //$NON-NLS-1$

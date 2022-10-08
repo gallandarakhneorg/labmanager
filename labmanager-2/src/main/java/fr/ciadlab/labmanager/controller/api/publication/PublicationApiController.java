@@ -31,6 +31,7 @@ import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -68,14 +69,16 @@ public class PublicationApiController extends AbstractApiController {
 	 * @param publicationService the publication service.
 	 * @param personService the person service.
 	 * @param fileManager the manager of local files.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PublicationApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired PublicationService publicationService,
 			@Autowired PersonService personService,
-			@Autowired DownloadableFileManager fileManager) {
-		super(messages, constants);
+			@Autowired DownloadableFileManager fileManager,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.publicationService = publicationService;
 		this.personService = personService;
 		this.fileManager = fileManager;
@@ -123,7 +126,7 @@ public class PublicationApiController extends AbstractApiController {
 			@RequestParam(required = false) MultipartFile pathToDownloadablePDF,
 			@RequestParam(required = false) MultipartFile pathToDownloadableAwardCertificate,
 			@RequestParam Map<String, String> allParameters,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PUBLICATION_SAVING_ENDPOINT, publication);
 		// First check if the authors follows the contraints
 		if (!this.personService.containsAMember(authors, true)) {
@@ -189,7 +192,7 @@ public class PublicationApiController extends AbstractApiController {
 	@DeleteMapping("/deletePublication")
 	public void deletePublication(
 			@RequestParam Integer publication,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "deletePublication", publication); //$NON-NLS-1$
 		if (publication == null || publication.intValue() == 0) {
 			throw new IllegalStateException("Publication not found"); //$NON-NLS-1$

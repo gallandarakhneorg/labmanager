@@ -40,6 +40,7 @@ import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -80,14 +81,16 @@ public class PublicationExportApiController extends AbstractApiController {
 	 * @param publicationService the publication service.
 	 * @param journalService the tools for manipulating journals.
 	 * @param journalPaperService the journal paper service.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PublicationExportApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired PublicationService publicationService,
 			@Autowired JournalService journalService,
-			@Autowired JournalPaperService journalPaperService) {
-		super(messages, constants);
+			@Autowired JournalPaperService journalPaperService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.publicationService = publicationService;
 		this.journalService = journalService;
 		this.journalPaperService = journalPaperService;
@@ -349,7 +352,7 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		readCredentials(username, Constants.EXPORT_JSON_ENDPOINT);
 		final Boolean isLoggedIn = Boolean.valueOf(isLoggedIn());
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();

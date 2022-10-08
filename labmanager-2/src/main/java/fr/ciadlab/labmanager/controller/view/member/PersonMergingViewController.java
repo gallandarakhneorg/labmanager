@@ -25,6 +25,7 @@ import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -51,12 +52,14 @@ public class PersonMergingViewController extends AbstractViewController {
 	 * @param messages the provider of messages.
 	 * @param constants the constants of the app.
 	 * @param personService the person service.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PersonMergingViewController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired PersonService personService) {
-		super(messages, constants);
+			@Autowired PersonService personService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.personService = personService;
 	}
 
@@ -67,7 +70,7 @@ public class PersonMergingViewController extends AbstractViewController {
 	 */
 	@GetMapping("/personDuplicateList")
 	public ModelAndView showPersonDuplicateList(
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, "personDuplicateList"); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("personDuplicateList"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);

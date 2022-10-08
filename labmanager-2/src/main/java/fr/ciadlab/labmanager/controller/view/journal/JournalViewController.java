@@ -30,6 +30,7 @@ import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -59,12 +60,14 @@ public class JournalViewController extends AbstractViewController {
 	 * @param messages the accessor to the localized messages.
 	 * @param constants the constants of the app.
 	 * @param journalService the journal service.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public JournalViewController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired JournalService journalService) {
-		super(messages, constants);
+			@Autowired JournalService journalService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.journalService = journalService;
 	}
 
@@ -75,7 +78,7 @@ public class JournalViewController extends AbstractViewController {
 	 */
 	@GetMapping("/" + Constants.JOURNAL_LIST_ENDPOINT)
 	public ModelAndView showJournalList(
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.JOURNAL_LIST_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.JOURNAL_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
@@ -95,7 +98,7 @@ public class JournalViewController extends AbstractViewController {
 	@GetMapping(value = "/" + Constants.JOURNAL_EDITING_ENDPOINT)
 	public ModelAndView showJournalEditor(
 			@RequestParam(required = false) Integer journal,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.JOURNAL_EDITING_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView("journalEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
@@ -127,7 +130,7 @@ public class JournalViewController extends AbstractViewController {
 	@GetMapping(value = "/journalRankingEditor")
 	public ModelAndView showJournalEditor(
 			@RequestParam(required = true) int id,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, "journalRankingEditor", Integer.valueOf(id)); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("journalRankingEditor"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);

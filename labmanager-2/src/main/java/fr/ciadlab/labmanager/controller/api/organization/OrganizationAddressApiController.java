@@ -23,6 +23,7 @@ import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.service.organization.OrganizationAddressService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -51,12 +52,14 @@ public class OrganizationAddressApiController extends AbstractApiController {
 	 * @param messages the provider of messages.
 	 * @param constants the constants of the app.
 	 * @param addressService the organization address service.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public OrganizationAddressApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired OrganizationAddressService addressService) {
-		super(messages, constants);
+			@Autowired OrganizationAddressService addressService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.addressService = addressService;
 	}
 
@@ -82,7 +85,7 @@ public class OrganizationAddressApiController extends AbstractApiController {
 			@RequestParam(required = false) String zipCode,
 			@RequestParam(required = true) String city,
 			@RequestParam(required = false) String mapCoordinates,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.ORGANIZATION_ADDRESS_SAVING_ENDPOINT, address);
 		try {
 			final Optional<OrganizationAddress> optAddress;
@@ -111,7 +114,7 @@ public class OrganizationAddressApiController extends AbstractApiController {
 	@DeleteMapping("/deleteAddress")
 	public void deleteOrganization(
 			@RequestParam Integer address,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "deleteAddress", address); //$NON-NLS-1$
 		if (address == null || address.intValue() == 0) {
 			throw new IllegalStateException("Address not found"); //$NON-NLS-1$

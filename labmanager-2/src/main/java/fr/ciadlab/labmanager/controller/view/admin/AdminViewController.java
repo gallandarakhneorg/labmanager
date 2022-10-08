@@ -27,6 +27,7 @@ import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -54,12 +55,14 @@ public class AdminViewController extends AbstractViewController {
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the live constants.
 	 * @param organizationService the research organization service.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public AdminViewController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired ResearchOrganizationService organizationService) {
-		super(messages, constants);
+			@Autowired ResearchOrganizationService organizationService,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.organizationService = organizationService;
 	}
 
@@ -70,7 +73,7 @@ public class AdminViewController extends AbstractViewController {
 	 */
 	@GetMapping(value = "/admin")
 	public ModelAndView admin(
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, "admin"); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("admin"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
@@ -89,7 +92,7 @@ public class AdminViewController extends AbstractViewController {
 	 */
 	@GetMapping(value = "/mergeDatabaseBibTeXToJson")
 	public ModelAndView mergeDatabaseBibTeXToJson(
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws IOException {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws IOException {
 		ensureCredentials(username, "mergeDatabaseBibTeXToJson"); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("mergeDatabaseBibTeXToJson"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);

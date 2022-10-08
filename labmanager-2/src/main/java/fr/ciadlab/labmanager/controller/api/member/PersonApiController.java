@@ -30,6 +30,7 @@ import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import fr.ciadlab.labmanager.utils.vcard.VcardBuilder;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
@@ -78,6 +79,7 @@ public class PersonApiController extends AbstractApiController {
 	 * @param organizationService the organization service.
 	 * @param nameParser the parser of person names.
 	 * @param vcardBuilder the builder of Vcards.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PersonApiController(
 			@Autowired MessageSourceAccessor messages,
@@ -85,8 +87,9 @@ public class PersonApiController extends AbstractApiController {
 			@Autowired PersonService personService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired PersonNameParser nameParser,
-			@Autowired VcardBuilder vcardBuilder) {
-		super(messages, constants);
+			@Autowired VcardBuilder vcardBuilder,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.personService = personService;
 		this.organizationService = organizationService;
 		this.nameParser = nameParser;
@@ -112,7 +115,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer dbId,
 			@RequestParam(required = false) String webId,
 			@RequestParam(defaultValue = "false", required = false) boolean strictName,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, "getPersonData", dbId, webId); //$NON-NLS-1$
 		final Person person = getPersonWith(dbId, webId, null, this.personService, this.nameParser);
 		if (person == null) {
@@ -173,7 +176,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) String webPageNaming,
 			@RequestParam(required = false) Integer googleScholarHindex,
 			@RequestParam(required = false) Integer wosHindex,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PERSON_SAVING_ENDPOINT, person);
 		final Gender genderObj = Strings.isNullOrEmpty(gender) ? Gender.NOT_SPECIFIED : Gender.valueOfCaseInsensitive(gender);
 		final WebPageNaming webPageNamingObj = Strings.isNullOrEmpty(webPageNaming) ? WebPageNaming.UNSPECIFIED : WebPageNaming.valueOfCaseInsensitive(webPageNaming);
@@ -209,7 +212,7 @@ public class PersonApiController extends AbstractApiController {
 	@DeleteMapping("/deletePerson")
 	public void deletePerson(
 			@RequestParam Integer person,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) throws Exception {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "deletePerson", person); //$NON-NLS-1$
 		if (person == null || person.intValue() == 0) {
 			throw new IllegalStateException("Person not found"); //$NON-NLS-1$

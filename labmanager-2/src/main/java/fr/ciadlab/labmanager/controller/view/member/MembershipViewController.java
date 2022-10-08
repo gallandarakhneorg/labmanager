@@ -40,6 +40,7 @@ import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -84,6 +85,7 @@ public class MembershipViewController extends AbstractViewController {
 	 * @param membershipComparator the comparator of memberships to use for building the views with
 	 *     a chronological point of view.
 	 * @param membershipService the service for managing the memberships.
+	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public MembershipViewController(
 			@Autowired MessageSourceAccessor messages,
@@ -92,8 +94,9 @@ public class MembershipViewController extends AbstractViewController {
 			@Autowired PersonService personService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired ResearchOrganizationRepository organizationRepository,
-			@Autowired ChronoMembershipComparator membershipComparator) {
-		super(messages, constants);
+			@Autowired ChronoMembershipComparator membershipComparator,
+			@Value("${labmanager.security.username-key}") String usernameKey) {
+		super(messages, constants, usernameKey);
 		this.nameParser = nameParser;
 		this.personService = personService;
 		this.organizationService = organizationService;
@@ -115,7 +118,7 @@ public class MembershipViewController extends AbstractViewController {
 	public ModelAndView showMembershipEditor(
 			@RequestParam(required = false) String personName,
 			@RequestParam(required = false) Integer personId,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username,
 			Locale locale) {
 		ensureCredentials(username, "membershipEditor"); //$NON-NLS-1$
 		//
@@ -226,7 +229,7 @@ public class MembershipViewController extends AbstractViewController {
 			@RequestParam(required = false, name = Constants.INCLUDESUBORGANIZATION_ENDPOINT_PARAMETER, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "true") boolean enableFilters,
 			@RequestParam(required = false, defaultValue = "false") boolean embedded,
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) String username) {
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, "showMembers"); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("showMembers"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
