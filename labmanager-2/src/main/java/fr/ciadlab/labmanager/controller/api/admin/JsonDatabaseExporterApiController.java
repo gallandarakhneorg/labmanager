@@ -27,10 +27,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletResponse;
+
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.json.DatabaseToJsonExporter;
+import fr.ciadlab.labmanager.io.json.DatabaseToZipExporter;
+import fr.ciadlab.labmanager.io.json.DatabaseToZipExporter.ZipExporter;
 import fr.ciadlab.labmanager.io.json.ExtraPublicationProvider;
 import fr.ciadlab.labmanager.io.json.JsonTool;
 import fr.ciadlab.labmanager.io.json.SimilarPublicationProvider;
@@ -51,6 +55,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 /** This controller provides a tool for exporting the content of the database according
  * to a specific JSON format that is independent of any database engine.
@@ -66,12 +71,14 @@ import org.springframework.web.multipart.MultipartFile;
 public class JsonDatabaseExporterApiController extends AbstractApiController {
 
 	private static final String DUPLICATED_ENTRY_FIELD = "_duplicatedEntry"; //$NON-NLS-1$
-	
+
 	private static final int SIMILARE_ENTRY_VALUE = 0;
-	
+
 	private static final int SIMILARE_TITLE_VALUE = 1;
 
-	private DatabaseToJsonExporter exporter;
+	private DatabaseToZipExporter zipExporter;
+
+	private DatabaseToJsonExporter jsonExporter;
 
 	private PublicationService publicationService;
 
@@ -79,19 +86,48 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the constants of the app.
-	 * @param exporter the exporter.
+	 * @param zipExporter the ZIP exporter.
+	 * @param jsonExporter the JSON exporter.
 	 * @param publicationService the service for extracting publications from a BibTeX file.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public JsonDatabaseExporterApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired DatabaseToJsonExporter exporter,
+			@Autowired DatabaseToZipExporter zipExporter,
+			@Autowired DatabaseToJsonExporter jsonExporter,
 			@Autowired PublicationService publicationService,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
-		this.exporter = exporter;
+		this.zipExporter = zipExporter;
+		this.jsonExporter = jsonExporter;
 		this.publicationService = publicationService;
+	}
+
+	/** Export the JSON and the associated files into a single ZIP file.
+	 *
+	 * @param response the HTTP response.
+	 * @param username the name of the logged-in user.
+	 * @return The ZIP file.
+	 * @throws Exception in case of error.
+	 */
+	@GetMapping("/exportDatabaseToZip")
+	public ResponseEntity<StreamingResponseBody> exportDatabaseToZip(
+			HttpServletResponse response,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
+		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.valueOf("application/zip")) //$NON-NLS-1$
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip\""); //$NON-NLS-1$ //$NON-NLS-2$
+		final ZipExporter exporter = this.zipExporter.startExportFromDatabase();
+		@SuppressWarnings("resource")
+		final ResponseEntity<StreamingResponseBody> result = bb.body(out -> {
+			try {
+				exporter.exportToZip(response.getOutputStream());
+			} catch (Exception ex) {
+				throw new RuntimeException(ex);
+			}
+		});
+		return result;
 	}
 
 	/** Export the JSON.
@@ -104,7 +140,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	public ResponseEntity<Map<String, Object>> exportDatabaseToJson(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
-		final Map<String, Object> content = this.exporter.exportFromDatabase();
+		final Map<String, Object> content = this.jsonExporter.exportFromDatabase();
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
 		final ResponseEntity<Map<String, Object>> result = bb.body(content);
@@ -203,7 +239,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		//
 		// Export the content of the database, and complete the missed data
 		final int bibtexCount0 = provider.getPublications().size();
-		final Map<String, Object> content = this.exporter.exportFromDatabase(
+		final Map<String, Object> content = this.jsonExporter.exportFromDatabase(
 				provider,
 				addNewBibTeXEntries ? provider : null);
 		final int bibtexCount1 = provider.getPublications().size();

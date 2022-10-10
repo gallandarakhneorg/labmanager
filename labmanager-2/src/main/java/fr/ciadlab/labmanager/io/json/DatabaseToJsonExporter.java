@@ -58,6 +58,7 @@ import org.springframework.stereotype.Component;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
+ * @see DatabaseToZipExporter
  */
 @Component
 public class DatabaseToJsonExporter extends JsonTool {

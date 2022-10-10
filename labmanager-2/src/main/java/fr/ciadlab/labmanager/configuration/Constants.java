@@ -96,6 +96,10 @@ public class Constants {
 	 */
 	public static final String DEFAULT_DBCONTENT_ATTACHMENT_BASENAME = "dbcontent"; //$NON-NLS-1$
 
+	/** Default basename of the files in attachment with DB content and attached files.
+	 */
+	public static final String DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME = "allContent"; //$NON-NLS-1$
+
 	/** Default basename of the files in attachment with publications.
 	 */
 	public static final String DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME = "publications"; //$NON-NLS-1$
