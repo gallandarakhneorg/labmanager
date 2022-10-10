@@ -159,16 +159,19 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 	private String decode(String username) throws Exception {
 		try {
 			final String[] parts = username.split(":"); //$NON-NLS-1$
-			final String data64 = parts[0];
-			final String iv64 = parts[1];
-			final IvParameterSpec iv = new IvParameterSpec(Base64.getDecoder().decode(iv64));
-			getLogger().debug("Using key: " + Arrays.toString(this.usernameKey)); //$NON-NLS-1$
-			final SecretKeySpec skeySpec = new SecretKeySpec(this.usernameKey, "AES"); //$NON-NLS-1$
-			final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING"); //$NON-NLS-1$
-			cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
-			final byte[] decodedEncryptedData = Base64.getDecoder().decode(data64);
-			final byte[] original = cipher.doFinal(decodedEncryptedData);
-			return new String(original);
+			if (parts.length == 2) {
+				final String data64 = parts[0];
+				final String iv64 = parts[1];
+				final IvParameterSpec iv = new IvParameterSpec(Base64.getDecoder().decode(iv64));
+				getLogger().debug("Using key: " + Arrays.toString(this.usernameKey)); //$NON-NLS-1$
+				final SecretKeySpec skeySpec = new SecretKeySpec(this.usernameKey, "AES"); //$NON-NLS-1$
+				final Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5PADDING"); //$NON-NLS-1$
+				cipher.init(Cipher.DECRYPT_MODE, skeySpec, iv);
+				final byte[] decodedEncryptedData = Base64.getDecoder().decode(data64);
+				final byte[] original = cipher.doFinal(decodedEncryptedData);
+				return new String(original);
+			}
+			getLogger().error("Unable to decode: " + username); //$NON-NLS-1$
 		} catch (Throwable ex) {
 			getLogger().error("Unable to decode: " + username, ex); //$NON-NLS-1$
 		}

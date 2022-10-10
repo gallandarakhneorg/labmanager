@@ -92,6 +92,7 @@ public class Constants {
 	public static final String INATTACHMENT_ENDPOINT_PARAMETER = "inAttachment"; //$NON-NLS-1$
 
 	/** Default basename of the files in attachment with DB content.
+	 * The name must be always lower case.
 	 */
 	public static final String DEFAULT_DBCONTENT_ATTACHMENT_BASENAME = "dbcontent"; //$NON-NLS-1$
 
