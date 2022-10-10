@@ -139,7 +139,7 @@
 
 
     <build>
-        <finalName>LabManagerApi</finalName>
+    	<finalName>LabManagerApi##${mainVersionNumber}</finalName>
         <plugins>
 			<plugin>
 				<artifactId>maven-war-plugin</artifactId>
@@ -208,6 +208,48 @@
 						</configuration>
 					</execution>
 				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.gmavenplus</groupId>
+				<artifactId>gmavenplus-plugin</artifactId>
+				<version>2.0.0</version>
+				<executions>
+					<execution>
+						<id>compute-project-properties</id>
+						<phase>initialize</phase>
+						<goals>
+							<goal>execute</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<scripts>
+						<script>
+<![CDATA[
+def snapshotTag = "-SNAPSHOT";
+def projectVersion = project.version
+def isDevelVersion = projectVersion.endsWith(snapshotTag)
+def version;
+if (isDevelVersion) {
+	def len = projectVersion.size() - snapshotTag.size();
+	version = projectVersion.substring(0, len);
+} else {
+	version = projectVersion;
+}
+def projectBuildId = (new java.text.SimpleDateFormat("yyyyMMddHHmm")).format(session.getStartTime());
+project.properties["mainVersionNumber"] = version + '-' + projectBuildId;
+]]>
+						</script>
+					</scripts>
+				</configuration>
+				<dependencies>
+					<dependency>
+						<groupId>org.apache.groovy</groupId>
+						<artifactId>groovy-all</artifactId>
+						<type>pom</type> 
+						<version>4.0.3</version>
+					</dependency>
+				</dependencies>
 			</plugin>
         </plugins>
     </build>
