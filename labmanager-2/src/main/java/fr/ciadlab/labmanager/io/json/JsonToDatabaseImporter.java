@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.io.json;
 
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
 import java.net.URL;
@@ -77,12 +78,13 @@ import org.springframework.stereotype.Component;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
+ * @see ZipToDatabaseImporter
  */
 @Component
 public class JsonToDatabaseImporter extends JsonTool {
 
 	private SessionFactory sessionFactory;
-	
+
 	private OrganizationAddressRepository addressRepository;
 
 	private ResearchOrganizationRepository organizationRepository;
@@ -305,40 +307,101 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return obj;
 	}
 
-	/** Run the importer.
+	/** Run the importer for JSON data source only.
+	 * This function calls {@link #importJsonFileToDatabase(URL)} and displays an information
+	 * message.
 	 *
 	 * @param url the URL of the JSON file to read.
 	 * @throws Exception if there is problem for importing.
+	 * @see #importJsonFileToDatabase(URL)
 	 */
-	public void importToDatabase(URL url) throws Exception {
+	public void importDataFileToDatabase(URL url) throws Exception {
+		final Stats stats = importJsonFileToDatabase(url);
+		getLogger().info("Summary of inserts:\n" //$NON-NLS-1$
+				+ stats.addresses + " addresses;\n" //$NON-NLS-1$
+				+ stats.organizations + " organizations;\n" //$NON-NLS-1$
+				+ stats.journals + " journals;\n" //$NON-NLS-1$
+				+ stats.persons + " explicit persons;\n" //$NON-NLS-1$
+				+ stats.authors + " external authors;\n" //$NON-NLS-1$
+				+ stats.memberships + " memberships;\n" //$NON-NLS-1$
+				+ stats.publications + " publications."); //$NON-NLS-1$
+	}
+
+	/** Run the importer for JSON data source only.
+	 *
+	 * @param url the URL of the JSON file to read.
+	 * @return the import stats.
+	 * @throws Exception if there is problem for importing.
+	 * @see #importDataFileToDatabase(URL)
+	 */
+	public Stats importJsonFileToDatabase(URL url) throws Exception {
+		try (final InputStream is = url.openStream()) {
+			return importJsonFileToDatabase(is);
+		}
+	}
+
+	/** Run the importer for JSON data source only.
+	 *
+	 * @param inputStream the input stream of the JSON file to read.
+	 * @return the import stats.
+	 * @throws Exception if there is problem for importing.
+	 * @see #importDataFileToDatabase(URL)
+	 */
+	public Stats importJsonFileToDatabase(InputStream inputStream) throws Exception {
 		final JsonNode content;
-		try (final InputStreamReader isr = new InputStreamReader(url.openStream())) {
+		try (final InputStreamReader isr = new InputStreamReader(inputStream)) {
 			final ObjectMapper mapper = new ObjectMapper();
 			content = mapper.readTree(isr);
 		}
+		return importJsonFileToDatabase(content, false, null);
+	}
+
+	/** Run the importer for JSON data source only.
+	 *
+	 * @param content the input node of the JSON file to read.
+	 * @param clearDatabase indicates if the database is clear before importing.
+	 * @param fileCallback a tool that is invoked when associated file is detected. It could be {@code null}.
+	 * @return the import stats.
+	 * @throws Exception if there is problem for importing.
+	 * @see #importDataFileToDatabase(URL)
+	 */
+	public Stats importJsonFileToDatabase(JsonNode content, boolean clearDatabase, FileCallback fileCallback) throws Exception {
 		if (content != null && !content.isEmpty()) {
 			final Map<String, Integer> objectRepository = new TreeMap<>();
 			final Map<String, Set<String>> aliasRepository = new TreeMap<>();
 
 			try (final Session session = this.sessionFactory.openSession()) {
+				if (clearDatabase) {
+					clearDatabase(session);
+				}
 				final int nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository);
 				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository);
 				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
 				final int nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
 				final int nb3 = insertMemberships(session, content.get(MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
-				final Pair<Integer, Integer> added = insertPublications(session, content.get(PUBLICATIONS_SECTION), objectRepository, aliasRepository);
+				final Pair<Integer, Integer> added = insertPublications(session, content.get(PUBLICATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb4 = added != null ? added.getLeft().intValue() : 0;
 				final int nb5 = added != null ? added.getRight().intValue() : 0;
-				getLogger().info("Summary of inserts:\n" //$NON-NLS-1$
-						+ nb6 + " addresses;\n" //$NON-NLS-1$
-						+ nb0 + " organizations;\n" //$NON-NLS-1$
-						+ nb2 + " journals;\n" //$NON-NLS-1$
-						+ nb1 + " explicit persons;\n" //$NON-NLS-1$
-						+ nb5 + " external authors;\n" //$NON-NLS-1$
-						+ nb3 + " memberships;\n" //$NON-NLS-1$
-						+ nb4 + " publications."); //$NON-NLS-1$
+				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4);
 			}
 		}
+		return new Stats();
+	}
+
+	/** Clear the database content.
+	 *
+	 * @param session the database session.
+	 */
+	protected void clearDatabase(Session session) {
+		getLogger().info("Clearing database content..."); //$NON-NLS-1$
+		this.authorshipRepository.deleteAll();
+		this.publicationRepository.deleteAll();
+		this.membershipRepository.deleteAll();
+		this.journalRepository.deleteAll();
+		this.journalIndicatorsRepository.deleteAll();
+		this.personRepository.deleteAll();
+		this.organizationRepository.deleteAll();
+		this.addressRepository.deleteAll();
 	}
 
 	/** Create the organization addresses in the database.
@@ -615,15 +678,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 							}
 							++nbNew;
 							getLogger().info("  + " + targetOrganization.get().getAcronymOrName() //$NON-NLS-1$
-								+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
-								+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+									+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
+									+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
 								objectIdRepository.put(id, Integer.valueOf(membership.getId()));
 							}
 						} else {
 							getLogger().info("  X " + targetOrganization.get().getAcronymOrName() //$NON-NLS-1$
-								+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
-								+ " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+									+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
+									+ " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
 								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
 							}
@@ -806,12 +869,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param publications the list of publications in the Json source.
 	 * @param objectIdRepository the repository of the JSON elements with {@code "@id"} field.
 	 * @param aliasRepository the repository of field aliases.
+	 * @param fileCallback a tool that is invoked when associated file is detected. It could be {@code null}.
 	 * @return the pair of numbers, never {@code null}. The first number is the number of added publication; the
 	 *     second number is the is the number of added persons.
 	 * @throws Exception if a membership cannot be created.
 	 */
 	protected Pair<Integer, Integer> insertPublications(Session session, JsonNode publications, Map<String, Integer> objectIdRepository,
-			Map<String, Set<String>> aliasRepository) throws Exception {
+			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		int nbNewPublications = 0;
 		final MutableInt nbNewPersons = new MutableInt();
 		if (publications != null && !publications.isEmpty()) {
@@ -834,6 +898,29 @@ public class JsonToDatabaseImporter extends JsonTool {
 						// Save the publication
 						if (!isFake()) {
 							this.publicationService.save(publication);
+						}
+						// Ensure that attached files are correct
+						if (fileCallback != null) {
+							boolean publicationChanged = false;
+							if (!Strings.isNullOrEmpty(publication.getPathToDownloadablePDF())) {
+								final String ofn = publication.getPathToDownloadablePDF();
+								final String fn = fileCallback.publicationPdfFile(publication.getId(), ofn);
+								if (!Objects.equals(ofn, fn)) {
+									publication.setPathToDownloadablePDF(fn);
+									publicationChanged = true;
+								}
+							}
+							if (!Strings.isNullOrEmpty(publication.getPathToDownloadableAwardCertificate())) {
+								final String ofn = publication.getPathToDownloadableAwardCertificate();
+								final String fn = fileCallback.publicationAwardFile(publication.getId(), ofn);
+								if (!Objects.equals(ofn, fn)) {
+									publication.setPathToDownloadableAwardCertificate(fn);
+									publicationChanged = true;
+								}
+							}
+							if (publicationChanged && !isFake()) {
+								this.publicationService.save(publication);
+							}
 						}
 						++nbNewPublications;
 						if (!Strings.isNullOrEmpty(id)) {
@@ -871,6 +958,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 						getLogger().info("  X " + existing.get().getTitle() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						if (!Strings.isNullOrEmpty(id)) {
 							objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+						}
+						if (fileCallback != null) {
+							if (!Strings.isNullOrEmpty(existing.get().getPathToDownloadablePDF())) {
+								fileCallback.publicationPdfFile(existing.get().getId(), existing.get().getPathToDownloadablePDF());
+							}
+							if (!Strings.isNullOrEmpty(existing.get().getPathToDownloadableAwardCertificate())) {
+								fileCallback.publicationAwardFile(existing.get().getId(), existing.get().getPathToDownloadableAwardCertificate());
+							}
 						}
 					}
 				} catch (Throwable ex) {
@@ -982,6 +1077,100 @@ public class JsonToDatabaseImporter extends JsonTool {
 			}
 		}
 		return targetAuthor;
+	}
+
+	/** Callback for files that are associated to elements from the JSON.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.0.0
+	 */
+	public interface FileCallback {
+
+		/** A PDF file was attached to a publication.
+		 *
+		 * @param dbId the identifier of the publication if the database.
+		 * @param filename the filename that is specified in the JSON file.
+		 * @return the fixed filename.
+		 */
+		String publicationPdfFile(int dbId, String filename);
+
+		/** An award file was attached to a publication.
+		 *
+		 * @param dbId the identifier of the publication if the database.
+		 * @param filename the filename that is specified in the JSON file.
+		 * @return the fixed filename.
+		 */
+		String publicationAwardFile(int dbId, String filename);
+
+	}
+
+	/** Stats on the import.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.0.0
+	 */
+	public static class Stats {
+
+		/** Number of created addresses.
+		 */
+		public final int addresses;
+
+		/** Number of created organizations.
+		 */
+		public final int organizations;
+
+		/** Number of created journals.
+		 */
+		public final int journals;
+
+		/** Number of created persons.
+		 */
+		public final int persons;
+
+		/** Number of created authors.
+		 */
+		public final int authors;
+
+		/** Number of created memberships.
+		 */
+		public final int memberships;
+
+		/** Number of created publications.
+		 */
+		public final int publications;
+
+		/** Constructor.
+		 *
+		 * @param addresses the number of created addresses.
+		 * @param organizations the number of created organizations.
+		 * @param journals the number of created journals.
+		 * @param persons the number of created persons.
+		 * @param authors the number of created authors.
+		 * @param memberships the number of created memberships.
+		 * @param publications the number of created publications.
+		 */
+		Stats(int addresses, int organizations, int journals, int persons, int authors, int memberships, int publications) {
+			this.addresses = addresses;
+			this.organizations = organizations;
+			this.journals = journals;
+			this.persons = persons;
+			this.authors = authors;
+			this.memberships = memberships;
+			this.publications = publications;
+		}
+
+		/** Constructor.
+		 */
+		Stats() {
+			this(0, 0, 0, 0, 0, 0, 0);
+		}
+
 	}
 
 }

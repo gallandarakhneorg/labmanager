@@ -53,6 +53,8 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	private static final String DOWNLOADABLE_FOLDER_NAME = "Downloadables"; //$NON-NLS-1$
 
+	private static final String TEMPORARY_FOLDER_NAME = "tmp"; //$NON-NLS-1$
+
 	private static final String PDF_FOLDER_NAME = "PDFs"; //$NON-NLS-1$
 
 	private static final String PDF_FILE_PREFIX = "PDF"; //$NON-NLS-1$
@@ -81,6 +83,11 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 		}
 	}
 
+	@Override
+	public File getTemporaryRootFile() {
+		return new File(TEMPORARY_FOLDER_NAME);
+	}
+	
 	@Override
 	public File getPdfRootFile() {
 		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), PDF_FOLDER_NAME);
@@ -154,6 +161,25 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	}
 
 	@Override
+	public void ensurePictureFile(File pdfFilename, File pictureFilename) throws IOException {
+		final File pdfFilenameAbs = normalizeForServerSide(pdfFilename);
+		if (pdfFilenameAbs.canRead()) {
+			final File pictureFilenameAbs = normalizeForServerSide(pictureFilename);
+			if (!pictureFilenameAbs.exists()) {
+				final File jpgUploadDir = pictureFilenameAbs.getParentFile();
+				if (jpgUploadDir != null) {
+					jpgUploadDir.mkdirs();
+				}
+				try (final OutputStream outputStream = new FileOutputStream(pictureFilenameAbs)) {
+					convertPdfToJpeg(pdfFilenameAbs, outputStream);
+				} catch (IOException ioe) {
+					throw new IOException("Could not save picture file: " + pictureFilenameAbs.getName(), ioe); //$NON-NLS-1$
+				}
+			}
+		}
+	}
+
+	@Override
 	public void saveFiles(File pdfFilename, File pictureFilename, MultipartFile multipartPdfFile) throws IOException {
 		final File normalizedPdfFilename = normalizeForServerSide(pdfFilename);
 		final File pdfUploadDir = normalizedPdfFilename.getParentFile();
@@ -167,7 +193,9 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 		//
 		final File normalizedJpgFilename = normalizeForServerSide(pictureFilename);
 		final File jpgUploadDir = normalizedJpgFilename.getParentFile();
-		jpgUploadDir.mkdirs();
+		if (jpgUploadDir != null) {
+			jpgUploadDir.mkdirs();
+		}
 		try (final OutputStream outputStream = new FileOutputStream(normalizedJpgFilename)) {
 			convertPdfToJpeg(normalizedPdfFilename, outputStream);
 		} catch (IOException ioe) {

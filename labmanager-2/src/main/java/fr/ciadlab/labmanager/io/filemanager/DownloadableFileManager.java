@@ -46,6 +46,12 @@ public interface DownloadableFileManager {
 	 */
 	void deleteDownloadableAwardPdfFile(int id) throws Exception;
 
+	/** Replies the path to the a folder that could be used temporary.
+	 *
+	 * @return the path to the temporary folder.
+	 */
+	File getTemporaryRootFile();
+
 	/** Replies the path to the root folder for pdf files.
 	 *
 	 * @return the path to the root folder.
@@ -101,6 +107,14 @@ public interface DownloadableFileManager {
 	 * @throws IOException if the file cannot be created.
 	 */
 	void saveFiles(File pdfFilename, File pictureFilename, MultipartFile multipartPdfFile) throws IOException;
+
+	/** Ensure that the picture file representing the PDF file is generated.
+	 *
+	 * @param pdfFilename the filename of the PDF file to upload.
+	 * @param pictureFilename the filename of the JPEG file to create. 
+	 * @throws IOException if the file cannot be created.
+	 */
+	void ensurePictureFile(File pdfFilename, File pictureFilename) throws IOException;
 
 	/** Move the uploaded files from one publication to another publication.
 	 * If the target files exist, they must not be replaced by the source files; but the source files
