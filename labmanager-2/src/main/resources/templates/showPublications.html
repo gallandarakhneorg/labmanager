@@ -168,18 +168,24 @@ $(document).ready(() => {
 		id: 'btBibtexGlobal',
 		dataSource: dtable,
 		url: "[(${endpoint_export_bibtex})]",
+		perTypeSelector: '#groupType',
+		perYearSelector: '#groupYear',
 	});
 
 	attachGlobalPublicationDownloadHandler({
 		id: 'btWordGlobal',
 		dataSource: dtable,
 		url: "[(${endpoint_export_odt})]",
+		perTypeSelector: '#groupType',
+		perYearSelector: '#groupYear',
 	});
 
 	attachGlobalPublicationDownloadHandler({
 		id: 'btHtmlGlobal',
 		dataSource: dtable,
 		url: "[(${endpoint_export_html})]",
+		perTypeSelector: '#groupType',
+		perYearSelector: '#groupYear',
 	});
     /*[/]*/
 	

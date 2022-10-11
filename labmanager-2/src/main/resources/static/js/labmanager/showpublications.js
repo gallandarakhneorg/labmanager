@@ -267,6 +267,8 @@ function attachGlobalPublicationDownloadHandler(config) {
 		throw 'You must specify the following parameter: table';
 	}
 	$(document).on('click', componentSelector, () => {
+		const typesel = $(config['perTypeSelector']).is(':checked');
+		const yearsel = $(config['perYearSelector']).is(':checked');
 		const source = config['dataSource'];
 		var list = "";
 		source.rows( { filter : 'applied'} ).data().each((r) => {
@@ -276,6 +278,8 @@ function attachGlobalPublicationDownloadHandler(config) {
 		var u = new URL(config['url'], hostURL.origin);
 		u.searchParams.append('id', list);
 		u.searchParams.append('inAttachment', true);
+		u.searchParams.append('groupByCategory', typesel);
+		u.searchParams.append('groupByYear', yearsel);
 		console.log("*** START DOWNLOADING: " + u.href);
 		location.href = u.href;
 	});

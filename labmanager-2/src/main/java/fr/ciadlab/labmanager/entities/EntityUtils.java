@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.entities;
 
 import java.text.Normalizer;
+import java.util.Comparator;
 
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.member.MembershipComparator;
@@ -25,10 +26,12 @@ import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.member.PersonListComparator;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddressComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.SorensenDicePublicationComparator;
 import info.debatty.java.stringsimilarity.SorensenDice;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
+import org.apache.commons.lang3.StringUtils;
 
 /** Tools and configuration for the JPA entities.
  * 
@@ -72,6 +75,35 @@ public final class EntityUtils {
 	private static JournalComparator JOURNAL_COMPARATOR; 
 
 	private static final NormalizedStringSimilarity SIMILARITY_COMPUTER = new SorensenDice();
+
+	private static Comparator<? super Publication> DEFAULT_PUBLICATION_COMPARATOR = (a, b) -> {
+		if (a == b) {
+			return 0;
+		}
+		if (a == null) {
+			return Integer.MIN_VALUE;
+		}
+		if (b == null) {
+			return Integer.MAX_VALUE;
+		}
+		int cmp = - Integer.compare(a.getPublicationYear(), b.getPublicationYear());
+		if (cmp != 0) {
+			return cmp;
+		}
+		cmp = EntityUtils.getPreferredPersonListComparator().compare(a.getAuthors(), b.getAuthors());
+		if (cmp != 0) {
+			return cmp;
+		}
+		cmp = a.getType().compareTo(b.getType());
+		if (cmp != 0) {
+			return cmp;
+		}
+		cmp = StringUtils.compareIgnoreCase(a.getTitle(), b.getTitle(), true);
+		if (cmp != 0) {
+			return cmp;
+		}
+		return Integer.compare(a.getId(), b.getId());
+	};
 
 	private EntityUtils() {
 		//
@@ -204,6 +236,16 @@ public final class EntityUtils {
 				PUBLICATION_COMPARATOR = new SorensenDicePublicationComparator();
 			}
 			return PUBLICATION_COMPARATOR;
+		}
+	}
+
+	/** Replies the preferred comparator of publications that is used for sorting the list of publications.
+	 *
+	 * @return the comparator.
+	 */
+	public static Comparator<? super Publication> getPreferredPublicationComparatorInLists() {
+		synchronized (EntityUtils.class) {
+			return DEFAULT_PUBLICATION_COMPARATOR;
 		}
 	}
 
