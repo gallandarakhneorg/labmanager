@@ -478,35 +478,58 @@ public class PersonService extends AbstractService {
 	 */
 	public boolean containsAMember(List<String> authors, boolean useNameSimilarity) {
 		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
-		for (final String author : authors) {
-			int authorId = 0;
-			if (idPattern.matcher(author).matches()) {
-				// Numeric value means that the person is known.
-				try {
-					authorId = Integer.parseInt(author);
-				} catch (Throwable ex) {
-					// Silent
+		try {
+			for (final String author : authors) {
+				if (author != null) {
+					int authorId = 0;
+					if (idPattern.matcher(author).matches()) {
+						// Numeric value means that the person is known.
+						try {
+							authorId = Integer.parseInt(author);
+						} catch (Throwable ex) {
+							// Silent
+						}
+					}
+					if (authorId == 0) {
+						// The author seems to be not in the database already. Check it based on the name.
+						final String firstName = this.nameParser.parseFirstName(author);
+						final String lastName = this.nameParser.parseLastName(author);
+						if (useNameSimilarity) {
+							authorId = getPersonIdBySimilarName(firstName, lastName);
+						} else {
+							authorId = getPersonIdByName(firstName, lastName);
+						}
+					}
+					if (authorId != 0) {
+						// Check if the given author identifier corresponds to a known person with memberships.
+						final Optional<Person> optPers = this.personRepository.findById(Integer.valueOf(authorId));
+						if (optPers.isPresent() && !optPers.get().getMemberships().isEmpty()) {
+							throw new SuccessException();
+						}
+					}
 				}
 			}
-			if (authorId == 0) {
-				// The author seems to be not in the database already. Check it based on the name.
-				final String firstName = this.nameParser.parseFirstName(author);
-				final String lastName = this.nameParser.parseLastName(author);
-				if (useNameSimilarity) {
-					authorId = getPersonIdBySimilarName(firstName, lastName);
-				} else {
-					authorId = getPersonIdByName(firstName, lastName);
-				}
-			}
-			if (authorId != 0) {
-				// Check if the given author identifier corresponds to a known person with memberships.
-				final Optional<Person> optPers = this.personRepository.findById(Integer.valueOf(authorId));
-				if (optPers.isPresent() && !optPers.get().getMemberships().isEmpty()) {
-					return true;
-				}
-			}
+		} catch (SuccessException ex) {
+			return true;
 		}
 		return false;
+	}
+
+	/** Internal exception
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 */
+	private static class SuccessException extends RuntimeException {
+
+		private static final long serialVersionUID = -2814067417193916087L;
+
+		SuccessException() {
+			//
+		}
+
 	}
 
 }

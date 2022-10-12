@@ -88,13 +88,20 @@ public class OrganizationAddressApiController extends AbstractApiController {
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.ORGANIZATION_ADDRESS_SAVING_ENDPOINT, address);
 		try {
+			final String inName = inString(name);
+			final String inComplement = inString(complement);
+			final String inStreet = inString(street);
+			final String inZipCode = inString(zipCode);
+			final String inCity = inString(city);
+			final String inMapCoordinates = inString(mapCoordinates);
+			//
 			final Optional<OrganizationAddress> optAddress;
 			//
 			if (address == null) {
-				optAddress = this.addressService.createAddress(name, complement, street, zipCode, city, mapCoordinates);
+				optAddress = this.addressService.createAddress(inName, inComplement, inStreet, inZipCode, inCity, inMapCoordinates);
 			} else {
 				optAddress = this.addressService.updateAddress(address.intValue(),
-						name, complement, street, zipCode, city, mapCoordinates);
+						inName, inComplement, inStreet, inZipCode, inCity, inMapCoordinates);
 			}
 			if (optAddress.isEmpty()) {
 				throw new IllegalStateException("Address not found"); //$NON-NLS-1$

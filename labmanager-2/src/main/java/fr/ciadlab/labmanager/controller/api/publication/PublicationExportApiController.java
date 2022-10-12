@@ -219,7 +219,7 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") Boolean color,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportHtml(pubs, configurator);
-		final String content = export(identifiers, dbId, webId, organization, journal,
+		final String content = export(identifiers, dbId, inString(webId), organization, journal,
 				groupByCategory, groupByYear,
 				includeSuborganizations, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
@@ -263,7 +263,7 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportBibTeX(pubs, configurator);
-		final String content = export(identifiers, dbId, webId, organization, journal, false, false, includeSuborganizations, Boolean.FALSE, Boolean.FALSE,
+		final String content = export(identifiers, dbId, inString(webId), organization, journal, false, false, includeSuborganizations, Boolean.FALSE, Boolean.FALSE,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE_UTF8);
 		if (inAttachment != null && inAttachment.booleanValue()) {
@@ -314,7 +314,7 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") Boolean color,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<byte[]> cb = (pubs, configurator) -> this.publicationService.exportOdt(pubs, configurator);
-		final byte[] content = export(identifiers, dbId, webId, organization, journal,
+		final byte[] content = export(identifiers, dbId, inString(webId), organization, journal,
 				groupByCategory, groupByYear,
 				includeSuborganizations, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
@@ -384,7 +384,7 @@ public class PublicationExportApiController extends AbstractApiController {
 			}
 			return this.publicationService.exportJson(pubs, configurator);
 		};
-		final String content = export(identifiers, dbId, webId, organization, journal, false, false, includeSuborganizations, isAjaxObj, Boolean.FALSE,
+		final String content = export(identifiers, dbId, inString(webId), organization, journal, false, false, includeSuborganizations, isAjaxObj, Boolean.FALSE,
 				isAjaxObj, isAjaxObj, isLoggedIn, isLoggedIn, isAjaxObj, isAjaxObj, isAjaxObj, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
 		if (isAttachment) {

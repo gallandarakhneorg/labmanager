@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.controller.api.publication;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,7 +30,6 @@ import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -98,13 +98,14 @@ public class PublicationApiController extends AbstractApiController {
 	@GetMapping(value = "/getPublicationData", produces = "application/json; charset=UTF-8")
 	@ResponseBody
 	public Object getPublicationData(@RequestParam(required = false) String title, @RequestParam(required = false) Integer id) {
-		if (id == null && Strings.isNullOrEmpty(title)) {
+		final String inTitle = inString(title);
+		if (id == null && inTitle == null) {
 			throw new IllegalArgumentException("Title and identifier parameters are missed"); //$NON-NLS-1$
 		}
 		if (id != null) {
 			return this.publicationService.getPublicationById(id.intValue());
 		}
-		return this.publicationService.getPublicationsByTitle(title);
+		return this.publicationService.getPublicationsByTitle(inTitle);
 	}
 
 	/** Saving information of a publication. 
@@ -128,8 +129,9 @@ public class PublicationApiController extends AbstractApiController {
 			@RequestParam Map<String, String> allParameters,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PUBLICATION_SAVING_ENDPOINT, publication);
-		// First check if the authors follows the contraints
-		if (!this.personService.containsAMember(authors, true)) {
+		final List<String> inAuthors = authors.stream().map(it -> inString(it)).filter(it -> it != null).collect(Collectors.toList());
+		// First check if the authors follows the constraints
+		if (!this.personService.containsAMember(inAuthors, true)) {
 			throw new IllegalArgumentException("The list of authors does not contains a member of one of the known research organizations."); //$NON-NLS-1$
 		}
 		
@@ -141,15 +143,15 @@ public class PublicationApiController extends AbstractApiController {
 			// It it the PublicationType constant followed by the category label.
 			// We must reformat the type value to have only a enumeration constant.
 			String typeValue = ensureString(allParameters, "type"); //$NON-NLS-1$
-			typeValue = StringUtils.substringBefore(typeValue, "/"); //$NON-NLS-1$
+			typeValue = inString(StringUtils.substringBefore(typeValue, "/")); //$NON-NLS-1$
 			allParameters.put("type", typeValue); //$NON-NLS-1$
 			//
 			if (publication == null) {
 				optPublication = this.publicationService.createPublicationFromMap(allParameters,
-						authors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
+						inAuthors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
 			} else {
 				optPublication = this.publicationService.updatePublicationFromMap(publication.intValue(), allParameters,
-						authors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
+						inAuthors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
 			}
 			if (optPublication.isEmpty()) {
 				throw new IllegalStateException("Publication not found"); //$NON-NLS-1$

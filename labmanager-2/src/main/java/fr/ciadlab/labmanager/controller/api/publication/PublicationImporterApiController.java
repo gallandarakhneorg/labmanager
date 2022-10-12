@@ -91,19 +91,22 @@ public class PublicationImporterApiController extends AbstractApiController {
 		try {
 			// Pass the changes string as JSON to extract the expected types of publications. 
 			final ObjectMapper json = new ObjectMapper();
-			final Map<String, Object> jsonChanges;
-			try (final ByteArrayInputStream sis = new ByteArrayInputStream(changes.getBytes())) {
-				jsonChanges = json.readerForMapOf(Map.class).readValue(sis);
-			}
+			final String inChanges = inString(changes);
 			final Map<String, PublicationType> expectedTypes = new TreeMap<>();
-			for (final Entry<String, Object> entry : jsonChanges.entrySet()) {
-				@SuppressWarnings("unchecked")
-				final Map<String, Object> sub = (Map<String, Object>) entry.getValue();
-				if (sub != null && BooleanUtils.toBoolean(sub.getOrDefault("import", Boolean.FALSE).toString())) { //$NON-NLS-1$
-					final Object expectedTypeStr = sub.get("type"); //$NON-NLS-1$
-					if (expectedTypeStr != null && !Strings.isNullOrEmpty(expectedTypeStr.toString())) {
-						final PublicationType type = PublicationType.valueOfCaseInsensitive(expectedTypeStr.toString());
-						expectedTypes.put(entry.getKey(), type);
+			if (inChanges != null) {
+				final Map<String, Object> jsonChanges;
+				try (final ByteArrayInputStream sis = new ByteArrayInputStream(inChanges.getBytes())) {
+					jsonChanges = json.readerForMapOf(Map.class).readValue(sis);
+				}
+				for (final Entry<String, Object> entry : jsonChanges.entrySet()) {
+					@SuppressWarnings("unchecked")
+					final Map<String, Object> sub = (Map<String, Object>) entry.getValue();
+					if (sub != null && BooleanUtils.toBoolean(sub.getOrDefault("import", Boolean.FALSE).toString())) { //$NON-NLS-1$
+						final Object expectedTypeStr = sub.get("type"); //$NON-NLS-1$
+						if (expectedTypeStr != null && !Strings.isNullOrEmpty(expectedTypeStr.toString())) {
+							final PublicationType type = PublicationType.valueOfCaseInsensitive(expectedTypeStr.toString());
+							expectedTypes.put(entry.getKey(), type);
+						}
 					}
 				}
 			}

@@ -81,13 +81,14 @@ public class JournalApiController extends AbstractApiController {
 	@GetMapping(value = "/getJournalData", produces = "application/json; charset=UTF-8")
 	@ResponseBody
 	public Journal getJournalData(@RequestParam(required = false) String name, @RequestParam(required = false) Integer id) {
-		if (id == null && Strings.isNullOrEmpty(name)) {
+		final String inName = inString(name);
+		if (id == null && Strings.isNullOrEmpty(inName)) {
 			throw new IllegalArgumentException("Name and identifier parameters are missed"); //$NON-NLS-1$
 		}
 		if (id != null) {
 			return this.journalService.getJournalById(id.intValue());
 		}
-		return this.journalService.getJournalByName(name);
+		return this.journalService.getJournalByName(inName);
 	}
 
 	/** Replies the quality indicators for a specific journal.
@@ -105,9 +106,10 @@ public class JournalApiController extends AbstractApiController {
 	public Map<Integer, JournalQualityAnnualIndicators> getJournalQualityIndicators(
 			@RequestParam(required = true) String journal,
 			@RequestParam(required = false, name = "year") List<Integer> years) {
-		final Journal journalObj = getJournalWith(journal, this.journalService);
+		final String inJournal = inString(journal);
+		final Journal journalObj = getJournalWith(inJournal, this.journalService);
 		if (journalObj == null) {
-			throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
+			throw new IllegalArgumentException("Journal not found with: " + inJournal); //$NON-NLS-1$
 		}
 		if (years != null && !years.isEmpty()) {
 			final Map<Integer, JournalQualityAnnualIndicators> indicators = new HashMap<>();
@@ -155,14 +157,23 @@ public class JournalApiController extends AbstractApiController {
 		ensureCredentials(username, Constants.JOURNAL_SAVING_ENDPOINT, journal);
 		final Journal optJournal;
 		//
+		final String inName = inString(name);
+		final String inAddress = inString(address);
+		final String inPublisher = inString(publisher);
+		final String inIsbn = inString(isbn);
+		final String inIssn = inString(issn);
+		final String inJournalUrl = inString(journalUrl);
+		final String inScimagoId = inString(scimagoId);
+		final String inWosId = inString(wosId);
+		//
 		if (journal == null) {
 			optJournal = this.journalService.createJournal(
-					name, address, publisher, isbn, issn,
-					openAccess, journalUrl, scimagoId, wosId);
+					inName, inAddress, inPublisher, inIsbn, inIssn,
+					openAccess, inJournalUrl, inScimagoId, inWosId);
 		} else {
 			optJournal = this.journalService.updateJournal(journal.intValue(),
-					name, address, publisher, isbn, issn,
-					openAccess, journalUrl, scimagoId, wosId);
+					inName, inAddress, inPublisher, inIsbn, inIssn,
+					openAccess, inJournalUrl, inScimagoId, inWosId);
 		}
 		if (optJournal == null) {
 			throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
@@ -210,8 +221,10 @@ public class JournalApiController extends AbstractApiController {
 			throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
 		}
 		final float realImpactFactor = impactFactor == null || impactFactor.floatValue() < 0f ? 0f : impactFactor.floatValue();
-		final QuartileRanking scimago = Strings.isNullOrEmpty(scimagoQIndex) ? null : QuartileRanking.valueOf(scimagoQIndex);
-		final QuartileRanking wos = Strings.isNullOrEmpty(wosQIndex) ? null : QuartileRanking.valueOf(wosQIndex);
+		final String inScimagoQIndex = inString(scimagoQIndex);
+		final QuartileRanking scimago = inScimagoQIndex == null ? null : QuartileRanking.valueOf(inScimagoQIndex);
+		final String inWosQIndex = inString(wosQIndex);
+		final QuartileRanking wos = inWosQIndex == null ? null : QuartileRanking.valueOf(inWosQIndex);
 		this.journalService.setQualityIndicators(journalObj, year, realImpactFactor, scimago, wos);
 	}
 

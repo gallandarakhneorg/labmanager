@@ -122,13 +122,14 @@ public class MembershipViewController extends AbstractViewController {
 			Locale locale) {
 		ensureCredentials(username, "membershipEditor"); //$NON-NLS-1$
 		//
-		if (Strings.isNullOrEmpty(personName) && personId == null) {
+		final String inPersonName = inString(personName);
+		if (Strings.isNullOrEmpty(inPersonName) && personId == null) {
 			throw new IllegalArgumentException("You must provide the name or the identifier of the person."); //$NON-NLS-1$
 		}
 		final Person person;
 		if (personId == null) {
-			final String firstName = this.nameParser.parseFirstName(personName);
-			final String lastName = this.nameParser.parseLastName(personName);
+			final String firstName = this.nameParser.parseFirstName(inPersonName);
+			final String lastName = this.nameParser.parseLastName(inPersonName);
 			person = this.personService.getPersonBySimilarName(firstName, lastName);
 		} else {
 			person = this.personService.getPersonById(personId.intValue());
@@ -237,15 +238,18 @@ public class MembershipViewController extends AbstractViewController {
 		final Integer organizationIdObj;
 		if (organization != null && organization.intValue() != 0) {
 			organizationIdObj = Integer.valueOf(organization.intValue());
-		} else if (!Strings.isNullOrEmpty(organizationAcronym)) {
-			final ResearchOrganization org = getOrganizationWith(organizationAcronym, this.organizationService);
-			if (org != null) {
-				organizationIdObj = Integer.valueOf(org.getId());
+		} else {
+			final String inOrganizationAcronym = inString(organizationAcronym);
+			if (!Strings.isNullOrEmpty(inOrganizationAcronym)) {
+				final ResearchOrganization org = getOrganizationWith(inOrganizationAcronym, this.organizationService);
+				if (org != null) {
+					organizationIdObj = Integer.valueOf(org.getId());
+				} else {
+					organizationIdObj = null;
+				}
 			} else {
 				organizationIdObj = null;
 			}
-		} else {
-			organizationIdObj = null;
 		}
 		//
 		addUrlToMemberListEndPoint(modelAndView, organizationIdObj, includeSuborganizations);

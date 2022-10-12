@@ -85,18 +85,20 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@RequestParam(required = false) String name,
 			@RequestParam(required = false) Integer id,
 			@RequestParam(required = false) String acronym) {
-		if (id == null && Strings.isNullOrEmpty(name) && Strings.isNullOrEmpty(acronym)) {
+		final String inName = inString(name);
+		final String inAcronym = inString(acronym);
+		if (id == null && inName == null && inAcronym == null) {
 			throw new IllegalArgumentException("Name, identifier and acronym parameters are missed"); //$NON-NLS-1$
 		}
 		if (id != null) {
 			final Optional<ResearchOrganization> opt = this.organizationService.getResearchOrganizationById(id.intValue());
 			return opt.isPresent() ? opt.get() : null;
 		}
-		if (!Strings.isNullOrEmpty(acronym)) {
-			final Optional<ResearchOrganization> opt = this.organizationService.getResearchOrganizationByAcronym(acronym);
+		if (!Strings.isNullOrEmpty(inAcronym)) {
+			final Optional<ResearchOrganization> opt = this.organizationService.getResearchOrganizationByAcronym(inAcronym);
 			return opt.isPresent() ? opt.get() : null;
 		}
-		final Optional<ResearchOrganization> opt = this.organizationService.getResearchOrganizationByName(name);
+		final Optional<ResearchOrganization> opt = this.organizationService.getResearchOrganizationByName(inName);
 		return opt.isPresent() ? opt.get() : null;
 	}
 
@@ -129,16 +131,21 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.ORGANIZATION_SAVING_ENDPOINT, organization);
 		try {
-			final ResearchOrganizationType typeObj = ResearchOrganizationType.valueOfCaseInsensitive(type);
-			final CountryCode countryObj = CountryCodeUtils.valueOfCaseInsensitive(country);
+			final ResearchOrganizationType typeObj = ResearchOrganizationType.valueOfCaseInsensitive(inString(type));
+			final CountryCode countryObj = CountryCodeUtils.valueOfCaseInsensitive(inString(country));
+			//
+			final String inAcronym = inString(acronym);
+			final String inName = inString(name);
+			final String inDescription = inString(description);
+			final String inOrganizationURL = inString(organizationURL);
 			//
 			final Optional<ResearchOrganization> optOrganization;
 			if (organization == null) {
 				optOrganization = this.organizationService.createResearchOrganization(
-						acronym, name, description, typeObj, organizationURL, countryObj, organizationAddress, superOrganization);
+						inAcronym, inName, inDescription, typeObj, inOrganizationURL, countryObj, organizationAddress, superOrganization);
 			} else {
 				optOrganization = this.organizationService.updateResearchOrganization(organization.intValue(),
-						acronym, name, description, typeObj, organizationURL, countryObj, organizationAddress, superOrganization);
+						inAcronym, inName, inDescription, typeObj, inOrganizationURL, countryObj, organizationAddress, superOrganization);
 			}
 			if (optOrganization.isEmpty()) {
 				throw new IllegalStateException("Organization not found"); //$NON-NLS-1$

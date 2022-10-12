@@ -190,15 +190,17 @@ public class PublicationViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue = "true") boolean enableAuthorFilter,
 			@RequestParam(required = false, defaultValue = "false") boolean embedded,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		readCredentials(username, "showPublications", dbId, webId, organization, organizationAcronym, journal); //$NON-NLS-1$
+		final String inWebId = inString(webId);
+		final String inOrganizationAcronym = inString(organizationAcronym);
+		readCredentials(username, "showPublications", dbId, inWebId, organization, inOrganizationAcronym, journal); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("showPublications"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
 		final Integer organizationIdObj;
 		if (organization != null && organization.intValue() != 0) {
 			organizationIdObj = Integer.valueOf(organization.intValue());
-		} else if (!Strings.isNullOrEmpty(organizationAcronym)) {
-			final ResearchOrganization org = getOrganizationWith(organizationAcronym, this.organizationService);
+		} else if (!Strings.isNullOrEmpty(inOrganizationAcronym)) {
+			final ResearchOrganization org = getOrganizationWith(inOrganizationAcronym, this.organizationService);
 			if (org != null) {
 				organizationIdObj = Integer.valueOf(org.getId());
 			} else {
@@ -208,7 +210,7 @@ public class PublicationViewController extends AbstractViewController {
 			organizationIdObj = null;
 		}
 		//
-		addUrlToPublicationListEndPoint(modelAndView, dbId, webId, organizationIdObj, journal);
+		addUrlToPublicationListEndPoint(modelAndView, dbId, inWebId, organizationIdObj, journal);
 		//
 		modelAndView.addObject("enableFilters", Boolean.valueOf(enableFilters)); //$NON-NLS-1$
 		modelAndView.addObject("enableYearFilter", Boolean.valueOf(enableYearFilter)); //$NON-NLS-1$
@@ -227,11 +229,11 @@ public class PublicationViewController extends AbstractViewController {
 		if (enableExports) {
 			final UriBuilderFactory factory = new DefaultUriBuilderFactory();
 			modelAndView.addObject("endpoint_export_bibtex", //$NON-NLS-1$
-					buildUri(factory, dbId, webId, organizationIdObj, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
+					buildUri(factory, dbId, inWebId, organizationIdObj, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
 			modelAndView.addObject("endpoint_export_odt", //$NON-NLS-1$
-					buildUri(factory, dbId, webId, organizationIdObj, journal, Constants.EXPORT_ODT_ENDPOINT));
+					buildUri(factory, dbId, inWebId, organizationIdObj, journal, Constants.EXPORT_ODT_ENDPOINT));
 			modelAndView.addObject("endpoint_export_html", //$NON-NLS-1$
-					buildUri(factory, dbId, webId, organizationIdObj, journal, Constants.EXPORT_HTML_ENDPOINT));
+					buildUri(factory, dbId, inWebId, organizationIdObj, journal, Constants.EXPORT_HTML_ENDPOINT));
 		}
 		//
 		modelAndView.addObject("enableSearch", Boolean.valueOf(enableSearch)); //$NON-NLS-1$

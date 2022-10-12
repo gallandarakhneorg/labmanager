@@ -23,7 +23,6 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.member.MembershipApiController;
 import fr.ciadlab.labmanager.controller.api.publication.PublicationApiController;
@@ -215,12 +214,12 @@ public class PersonViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView("showPersonCard"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
-		final Person personObj = getPersonWith(dbId, webId, null, this.personService, this.nameParser);
+		final Person personObj = getPersonWith(dbId, inString(webId), null, this.personService, this.nameParser);
 		if (personObj == null) {
 			throw new IllegalArgumentException("Person not found"); //$NON-NLS-1$
 		}
 		//
-		final ResearchOrganization organizationObj = getOrganizationWith(organization, this.organizationService);
+		final ResearchOrganization organizationObj = getOrganizationWith(inString(organization), this.organizationService);
 		//
 		Stream<Membership> stream = personObj.getMemberships().stream().parallel();
 		if (organizationObj == null) {
@@ -249,7 +248,7 @@ public class PersonViewController extends AbstractViewController {
 		addObfuscatedPhoneFields(obfuscatedValues, personObj.getOfficePhone(), "o"); //$NON-NLS-1$
 		addObfuscatedPhoneFields(obfuscatedValues, personObj.getMobilePhone(), "m"); //$NON-NLS-1$
 		addObfuscatedValues(modelAndView, obfuscatedValues);
-		modelAndView.addObject("introText", Strings.nullToEmpty(introText).trim()); //$NON-NLS-1$
+		modelAndView.addObject("introText", inString(introText)); //$NON-NLS-1$
 		modelAndView.addObject("memberships", memberships); //$NON-NLS-1$
 		if (postalAddressObj.getValue() != null) {
 			modelAndView.addObject("postalAddress", postalAddressObj.getValue()); //$NON-NLS-1$

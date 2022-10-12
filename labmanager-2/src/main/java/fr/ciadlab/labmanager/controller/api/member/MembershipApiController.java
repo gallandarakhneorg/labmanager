@@ -31,7 +31,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.Predicate;
 
-import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.EntityUtils;
@@ -150,14 +149,19 @@ public class MembershipApiController extends AbstractApiController {
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.MEMBERSHIP_SAVING_ENDPOINT, person);
 		try {
+			final String inStatus = inString(status);
+			final String inResponsibility = inString(responsibility);
+			final String inMemberSinceWhen = inString(memberSinceWhen);
+			final String inMemberToWhen = inString(memberToWhen);
+			final String inFrenchBap = inString(frenchBap);
 			// Parse values to Java objects
-			LocalDate startDate = Strings.isNullOrEmpty(memberSinceWhen) ? null : LocalDate.parse(memberSinceWhen);
-			final LocalDate endDate = Strings.isNullOrEmpty(memberToWhen) ? null : LocalDate.parse(memberToWhen);
-			final MemberStatus statusObj = Strings.isNullOrEmpty(status) ? null : MemberStatus.valueOfCaseInsensitive(status);
-			final Responsibility responsibilityObj = Strings.isNullOrEmpty(responsibility) ? null : Responsibility.valueOfCaseInsensitive(responsibility);
+			LocalDate startDate = inMemberSinceWhen == null ? null : LocalDate.parse(inMemberSinceWhen);
+			final LocalDate endDate = inMemberToWhen == null ? null : LocalDate.parse(inMemberToWhen);
+			final MemberStatus statusObj = inStatus == null ? null : MemberStatus.valueOfCaseInsensitive(inStatus);
+			final Responsibility responsibilityObj = inResponsibility == null ? null : Responsibility.valueOfCaseInsensitive(inResponsibility);
 			final CnuSection cnuSectionObj = cnuSection == null || cnuSection.intValue() == 0 ? null : CnuSection.valueOf(cnuSection);
 			final ConrsSection conrsSectionObj = conrsSection == null || conrsSection.intValue() == 0 ? null : ConrsSection.valueOf(conrsSection);
-			final FrenchBap frenchBapObj = Strings.isNullOrEmpty(frenchBap) ? null : FrenchBap.valueOfCaseInsensitive(frenchBap);
+			final FrenchBap frenchBapObj = inFrenchBap == null ? null : FrenchBap.valueOfCaseInsensitive(inFrenchBap);
 
 			// Check validity of dates
 			if (startDate != null && endDate != null && endDate.isBefore(startDate)) {

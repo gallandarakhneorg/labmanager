@@ -139,15 +139,11 @@ public abstract class AbstractComponent {
 	 * @see #optionalString(Map, String)
 	 */
 	protected static String ensureString(Map<String, String> attributes, String name) {
-		final Object param = attributes.get(name);
+		final String param = inString(attributes.get(name));
 		if (param == null) {
 			throw new IllegalArgumentException("Missed string parameter: " + name); //$NON-NLS-1$
 		}
-		final String str = param.toString();
-		if (Strings.isNullOrEmpty(str)) {
-			throw new IllegalArgumentException("Missed string parameter: " + name); //$NON-NLS-1$
-		}
-		return str;
+		return param;
 	}
 
 	/** Get the value from the given map for an attribute with the given name.
@@ -159,15 +155,11 @@ public abstract class AbstractComponent {
 	 * @see #ensureString(Map, String)
 	 */
 	protected static String optionalString(Map<String, String> attributes, String name) {
-		final Object param = attributes.get(name);
+		final String param = inString(attributes.get(name));
 		if (param == null) {
 			return null;
 		}
-		final String str = param.toString();
-		if (Strings.isNullOrEmpty(str)) {
-			return null;
-		}
-		return str;
+		return param;
 	}
 
 	/** Get the value from the given map for an attribute with the given name.
@@ -179,16 +171,12 @@ public abstract class AbstractComponent {
 	 * @see #ensureString(Map, String)
 	 */
 	protected static boolean optionalBoolean(Map<String, String> attributes, String name) {
-		final Object param = attributes.get(name);
+		final String param = inString(attributes.get(name));
 		if (param == null) {
 			return false;
 		}
-		final String str = param.toString();
-		if (Strings.isNullOrEmpty(str)) {
-			return false;
-		}
 		try {
-			return Boolean.parseBoolean(str);
+			return Boolean.parseBoolean(param);
 		} catch (Throwable ex) {
 			return false;
 		}
@@ -332,6 +320,20 @@ public abstract class AbstractComponent {
 			}
 		}
 		return null;
+	}
+
+	/** Clean and noralized a string that is provided as input to an endpoint.
+	 *
+	 * @param input the input string to the endpoint.
+	 * @return the normalized string that is equivalent to the argument.
+	 */
+	public static String inString(String input) {
+		String out = Strings.emptyToNull(input);
+		if (out != null) {
+			out = out.trim();
+			out = Strings.emptyToNull(out);
+		}
+		return out;
 	}
 
 }
