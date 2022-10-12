@@ -43,7 +43,7 @@ GLOBAL_FORM_DATA_INPUT_TRANSFORMERS.push((formData) => {
 function initFileUploadSinglePdf(config) {
  	config['fileTypeName'] = 'pdf';
  	config['mimeType'] = 'application/pdf';
- 	config['fileExtensionMatcher'] = (vName) => { vName.match(/\.(pdf)$/i) };
+ 	config['fileExtensionMatcher'] = (vName) => { return vName.match(/\.(pdf)$/i) };
  	config['fileExtensionArray'] = [ 'pdf' ];
 	(!('componentIdPrefix' in config)) && (config['componentIdPrefix'] = "fileUploadPdf_");
 	initFileUploadSingleFile_base(config);
@@ -63,8 +63,8 @@ function initFileUploadSinglePdf(config) {
  */
 function initFileUploadSingleBibTeX(config) {
  	config['fileTypeName'] = 'bibtex';
- 	config['mimeType'] = 'text/x-bibtex';
- 	config['fileExtensionMatcher'] = (vName) => { vName.match(/\.(bib|bibtex)$/i) };
+ 	config['mimeTypes'] = [ 'text/x-bibtex', 'application/x-bibtex', 'application/x-bibtex-text-file', 'text/x-stex', 'text/plain' ],
+ 	config['fileExtensionMatcher'] = (vName) => { return vName.match(/\.(bib|bibtex)$/i) };
  	config['fileExtensionArray'] = [ 'bib', 'bibtex' ];
 	(!('componentIdPrefix' in config)) && (config['componentIdPrefix'] = "fileUploadBibTeX_");
 	initFileUploadSingleFile_base(config);
@@ -83,6 +83,7 @@ function initFileUploadSingleBibTeX(config) {
  *      * `basename` the basename of the file that is initially shown in the component.
  *      * `picture` the path to the picture that provides a view on the initially selected file.
  *      * `mimeType` the MIME type of the accepted files to upload.
+ *      * `mimeTypes` the array of MIME types of the accepted files to upload.
  *      * `fileTypeName`: the internal name of the type of file.
  *      * `fileExtensionMatcher` the file extension of the accepted files to upload.
  *      * `fileExtensionArray` the array of the accepted file extensions.
@@ -111,7 +112,16 @@ function initFileUploadSingleFile_base(config) {
 		allowedFileExtensions: config['fileExtensionArray'],
 	};
 	ficonfig['fileTypeSettings'][config['fileTypeName']] = (vType, vName) => {
-        return (typeof vType !== "undefined") ? vType == config['mimeType'] : config['fileExtensionMatcher'](vName);
+		if (typeof vType !== "undefined") {
+			if ('mimeType' in config && config['mimeType'] && vType == config['mimeType']) {
+				return true;
+			}
+			if ('mimeTypes' in config && config['mimeTypes'] && config['mimeTypes'].includes(vType)) {
+				return true;
+			}
+		}
+		var result = config['fileExtensionMatcher'](vName);
+		return result;
     };
 	if ('picture' in config && config['picture']) {
 		ficonfig['initialPreview'] = [
