@@ -83,10 +83,13 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 		if (file != null) {
 			final File absFile = this.download.normalizeForServerSide(file);
 			// Remove PDF and JPEG files. Other files are ignored
-			for (final File child : absFile.listFiles(it -> {
+			final File[] files = absFile.listFiles(it -> {
 				return FileSystem.hasExtension(it, ".pdf") || FileSystem.hasExtension(it, ".jpg"); //$NON-NLS-1$ //$NON-NLS-2$
-			})) {
-				FileSystem.delete(child);
+			});
+			if (files != null && files.length > 0) {
+				for (final File child : files) {
+					FileSystem.delete(child);
+				}
 			}
 		}
 	}
@@ -144,6 +147,12 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 		}
 	}
 
+	private static void mkdirs(File file) {
+		if (file != null && file.getParentFile() != null) {
+			file.getParentFile().mkdirs();
+		}
+	}
+
 	/** Copy the file from the ZIP file into the temporary folder.
 	 *
 	 * @param filename the name of the file in the ZIP archive, i.e., in the original file system.
@@ -156,9 +165,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 			outputFile = FileSystem.join(this.download.getTemporaryRootFile(), outputFile);
 			outputFile = this.download.normalizeForServerSide(outputFile);
 			getLogger().info("Copying attached file: " + filename + "; to: " + outputFile.toString()); //$NON-NLS-1$ //$NON-NLS-2$
-			if (outputFile.getParentFile() != null) {
-				outputFile.getParentFile().mkdirs();
-			}
+			mkdirs(outputFile);
 			try (FileOutputStream fos = new FileOutputStream(outputFile)) {
 				// Size of "-1" means that the size of the copy buffer is decided according to the operating system
 				FileSystem.copy(entryStream, -1, fos);
@@ -243,6 +250,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 				final File inFile = FileSystem.join(this.temporaryFolder, inFilename);
 				if (inFile.canRead()) {
 					final File outFile = ZipToDatabaseImporter.this.download.normalizeForServerSide(outFilename);
+					mkdirs(outFile);
 					FileSystem.copy(inFile, outFile);
 					FileSystem.delete(inFile);
 					ZipToDatabaseImporter.this.download.ensurePictureFile(outFilename, outPictureName);
