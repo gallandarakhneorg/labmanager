@@ -470,6 +470,15 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return field(entry, new Key(key));
 	}
 
+	private static String pages(BibTeXEntry entry) throws Exception {
+		String texValue = field(entry, KEY_PAGES);
+		if (!Strings.isNullOrEmpty(texValue)) {
+			// Some person uses the "--" LaTeX operator for representing a range
+			texValue = texValue.replaceAll("\\-+", "-"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return texValue;
+	}
+
 	private static String or(String v1, String v2) {
 		if (!Strings.isNullOrEmpty(v1)) {
 			return v1;
@@ -660,7 +669,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				final JournalPaper journalPaper = this.journalPaperService.createJournalPaper(genericPublication,
 						field(entry, KEY_VOLUME),
 						field(entry, KEY_NUMBER),
-						field(entry, KEY_PAGES),
+						pages(entry),
 						field(entry, KEY_SERIES),
 						journal,
 						false);
@@ -671,7 +680,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 						fieldRequiredCleanPrefix(entry, KEY_BOOKTITLE),
 						field(entry, KEY_VOLUME),
 						field(entry, KEY_NUMBER),
-						field(entry, KEY_PAGES),
+						pages(entry),
 						field(entry, KEY_EDITOR),
 						field(entry, KEY_SERIES),
 						field(entry, KEY_ORGANIZATION),
@@ -683,7 +692,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				finalPublication = this.bookService.createBook(genericPublication,
 						field(entry, KEY_VOLUME),
 						field(entry, KEY_NUMBER),
-						field(entry, KEY_PAGES),
+						pages(entry),
 						field(entry, KEY_EDITION),
 						field(entry, KEY_EDITOR),
 						field(entry, KEY_SERIES),
@@ -698,7 +707,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 						field(entry, KEY_EDITION),
 						field(entry, KEY_VOLUME),
 						field(entry, KEY_NUMBER),
-						field(entry, KEY_PAGES),
+						pages(entry),
 						field(entry, KEY_EDITOR),
 						field(entry, KEY_SERIES),
 						field(entry, KEY_PUBLISHER),
@@ -890,6 +899,17 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		entry.addField(key, new DigitStringValue(Integer.toString(value)));
 	}
 
+	private void addPageField(BibTeXEntry entry, String value) {
+		if (!Strings.isNullOrEmpty(value)) {
+			String texValue = toTeXString(value);
+			if (!Strings.isNullOrEmpty(texValue)) {
+				// Usually the range of values is represented with "--" in LaTeX
+				texValue = texValue.replaceAll("\\-+", "--"); //$NON-NLS-1$ //$NON-NLS-2$
+				entry.addField(KEY_PAGES, new StringValue(texValue, StringValue.Style.BRACED));
+			}
+		}
+	}
+
 	private static void addMonthField(BibTeXEntry entry, LocalDate value) {
 		if (value != null) {
 			final String monthValue;
@@ -1043,7 +1063,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		}
 		addField(entry, KEY_VOLUME, paper.getVolume());
 		addField(entry, KEY_NUMBER, paper.getNumber());
-		addField(entry, KEY_PAGES, paper.getPages());
+		addPageField(entry, paper.getPages());
 		addField(entry, KEY_SERIES, paper.getSeries());
 		addField(entry, KEY_SCIMAGO_QINDEX, paper.getScimagoQIndex());
 		addField(entry, KEY_WOS_QINDEX, paper.getWosQIndex());
@@ -1067,7 +1087,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_BOOKTITLE, paper.getScientificEventName());
 		addField(entry, KEY_VOLUME, paper.getVolume());
 		addField(entry, KEY_NUMBER, paper.getNumber());
-		addField(entry, KEY_PAGES, paper.getPages());
+		addPageField(entry, paper.getPages());
 		addField(entry, KEY_SERIES, paper.getSeries());
 		addField(entry, KEY_EDITOR, paper.getEditors());
 		addField(entry, KEY_ORGANIZATION, paper.getOrganization());
@@ -1089,7 +1109,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_SERIES, book.getSeries());
 		addField(entry, KEY_VOLUME, book.getVolume());
 		addField(entry, KEY_NUMBER, book.getNumber());
-		addField(entry, KEY_PAGES, book.getPages());
+		addPageField(entry, book.getPages());
 		addField(entry, KEY_EDITOR, book.getEditors());
 		addField(entry, KEY_PUBLISHER, book.getPublisher());
 		addField(entry, KEY_ADDRESS, book.getAddress());
@@ -1110,7 +1130,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_SERIES, chapter.getSeries());
 		addField(entry, KEY_VOLUME, chapter.getVolume());
 		addField(entry, KEY_NUMBER, chapter.getNumber());
-		addField(entry, KEY_PAGES, chapter.getPages());
+		addPageField(entry, chapter.getPages());
 		addField(entry, KEY_EDITOR, chapter.getEditors());
 		addField(entry, KEY_PUBLISHER, chapter.getPublisher());
 		addField(entry, KEY_ADDRESS, chapter.getAddress());
@@ -1154,7 +1174,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		}
 		addField(entry, KEY_VOLUME, edition.getVolume());
 		addField(entry, KEY_NUMBER, edition.getNumber());
-		addField(entry, KEY_PAGES, edition.getPages());
+		addPageField(entry, edition.getPages());
 		addField(entry, KEY_SCIMAGO_QINDEX, edition.getScimagoQIndex());
 		addField(entry, KEY_WOS_QINDEX, edition.getWosQIndex());
 		if (edition.getImpactFactor() > 0f) {
