@@ -21,7 +21,9 @@ import static fr.ciadlab.labmanager.entities.EntityUtils.normalizeForSimularityT
 
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.text.SimpleDateFormat;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -116,8 +118,11 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 			HttpServletResponse response,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
+		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.valueOf("application/zip")) //$NON-NLS-1$
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip\""); //$NON-NLS-1$ //$NON-NLS-2$
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
+						+ Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME
+						+ "_" + simpleDateFormat.format(new Date()) + ".zip\""); //$NON-NLS-1$ //$NON-NLS-2$
 		final ZipExporter exporter = this.zipExporter.startExportFromDatabase();
 		@SuppressWarnings("resource")
 		final ResponseEntity<StreamingResponseBody> result = bb.body(out -> {
@@ -141,8 +146,11 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
 		final Map<String, Object> content = this.jsonExporter.exportFromDatabase();
+		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
+						+ Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME
+						+ "_" + simpleDateFormat.format(new Date()) + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
 		final ResponseEntity<Map<String, Object>> result = bb.body(content);
 		getLogger().info("JSON was generated from the Database only"); //$NON-NLS-1$
 		return result;
@@ -252,8 +260,11 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		}
 		//
 		// Generate the answer
+		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
-				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
+						+ Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME
+						+ "_" + simpleDateFormat.format(new Date()) + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
 		final ResponseEntity<Map<String, Object>> result = bb.body(content);
 		if (bibtexFile != null) {
 			getLogger().info("JSON was generated from the Database and the BibTeX file: " + bibtexFile.getOriginalFilename()); //$NON-NLS-1$

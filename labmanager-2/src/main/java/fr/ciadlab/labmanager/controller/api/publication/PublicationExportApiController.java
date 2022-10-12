@@ -22,7 +22,9 @@ import static fr.ciadlab.labmanager.entities.EntityUtils.normalizeForSimularityT
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -225,7 +227,10 @@ public class PublicationExportApiController extends AbstractApiController {
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.TEXT_HTML);
 		if (inAttachment != null && inAttachment.booleanValue()) {
-			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME + ".html\""); //$NON-NLS-1$ //$NON-NLS-2$
+			final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
+					+ Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME
+					+ "_" + simpleDateFormat.format(new Date()) + ".html\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return bb.body(content);
 	}
@@ -267,7 +272,10 @@ public class PublicationExportApiController extends AbstractApiController {
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE_UTF8);
 		if (inAttachment != null && inAttachment.booleanValue()) {
-			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME + ".bib\""); //$NON-NLS-1$ //$NON-NLS-2$
+			final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
+					+ Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME
+					+ "_" + simpleDateFormat.format(new Date()) + ".bib\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return bb.body(content);
 	}
@@ -320,7 +328,10 @@ public class PublicationExportApiController extends AbstractApiController {
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(OpenDocumentConstants.ODT_MIME_TYPE);
 		if (inAttachment != null && inAttachment.booleanValue()) {
-			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME + ".odt\""); //$NON-NLS-1$ //$NON-NLS-2$
+			final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
+					+ Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME
+					+ "_" + simpleDateFormat.format(new Date()) + ".odt\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return bb.body(content);
 	}
@@ -388,7 +399,10 @@ public class PublicationExportApiController extends AbstractApiController {
 				isAjaxObj, isAjaxObj, isLoggedIn, isLoggedIn, isAjaxObj, isAjaxObj, isAjaxObj, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
 		if (isAttachment) {
-			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
+			final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
+					+ Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME
+					+ "_" + simpleDateFormat.format(new Date()) + ".json\""); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return bb.body(content);
 	}
