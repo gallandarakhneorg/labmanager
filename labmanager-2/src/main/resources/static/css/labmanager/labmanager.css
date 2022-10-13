@@ -65,10 +65,13 @@ div.form-super-group-future {
 	background-color: #c8960d !important;
 }
 td.details-control:before {
-	content: "\f070";
+	content: "\f05a";
 }
 td.details-control.opened:before {
-	content: "\f06e";
+	content: "\f2d3";
+}
+td p.publicationTitle {
+    cursor: pointer;
 }
 td.details-control {
     cursor: pointer;

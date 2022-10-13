@@ -214,22 +214,38 @@ function initPublicationDataTable(config) {
 	if (config['enableDetails'] && 'publicationDetails' in config && config['publicationDetails']) {
 		$(document).on('click', "tbody td.details-control", (event) => {
 			var td = $(event.target);
-			var tr = td.closest('tr');
-			var row = dtable.row(tr);
-			if (row.child.isShown()) {
-				td.removeClass('opened');
-				tr.removeClass('shown');
-				row.child('').hide();
-			} else {
-				var details = config['publicationDetails'](row.data(), config);
-				row.child(details).show();
-				td.addClass('opened');
-				tr.addClass('shown');
-	 		}
+			__doOpenOrClosePublicationDetails(config, dtable, td, td, null);
+		});
+		$(document).on('click', "tbody td p.publicationTitle", (event) => {
+			var td = $(event.target);
+			__doOpenOrClosePublicationDetails(config, dtable, td, null, td);
 		});
 	}
 
 	return dtable;
+}
+
+function __doOpenOrClosePublicationDetails(config, dtable, td, icontd, titletd) {
+		var tr = td.closest('tr');
+		var row = dtable.row(tr);
+		if (!icontd) {
+			icontd = tr.find("td.details-control");
+		}
+		if (!titletd) {
+			titletd = tr.find("td p.publicationTitle");
+		}
+		if (row.child.isShown()) {
+			icontd.removeClass('opened');
+			titletd.removeClass('opened');
+			tr.removeClass('shown');
+			row.child('').hide();
+		} else {
+			var details = config['publicationDetails'](row.data(), config);
+			row.child(details).show();
+			icontd.addClass('opened');
+			titletd.addClass('opened');
+			tr.addClass('shown');
+ 		}	
 }
 
 function __getComponentAndSelection(config) {
