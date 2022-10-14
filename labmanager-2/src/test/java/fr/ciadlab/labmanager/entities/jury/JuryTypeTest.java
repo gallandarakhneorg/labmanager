@@ -61,10 +61,10 @@ public class JuryTypeTest {
 	public void getLabel_US() {
 		// Force the local to be US
 		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("HDR jury", cons(JuryType.HDR).getLabel());
-		assertEquals("Doctoral degree jury", cons(JuryType.PHD).getLabel());
-		assertEquals("Master degree jury", cons(JuryType.MASTER).getLabel());
-		assertEquals("Baccalaureat jury", cons(JuryType.BAC).getLabel());
+		assertEquals("HDR", cons(JuryType.HDR).getLabel());
+		assertEquals("PhD", cons(JuryType.PHD).getLabel());
+		assertEquals("Master", cons(JuryType.MASTER).getLabel());
+		assertEquals("Baccalaureat", cons(JuryType.BAC).getLabel());
 		assertAllTreated();
 	}
 
@@ -72,28 +72,28 @@ public class JuryTypeTest {
 	public void getLabel_FR() {
 		// Force the local to be FR
 		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("HDR jury", cons(JuryType.HDR).getLabel());
-		assertEquals("Doctoral degree jury", cons(JuryType.PHD).getLabel());
-		assertEquals("Master degree jury", cons(JuryType.MASTER).getLabel());
-		assertEquals("Baccalaureat jury", cons(JuryType.BAC).getLabel());
+		assertEquals("HDR", cons(JuryType.HDR).getLabel());
+		assertEquals("PhD", cons(JuryType.PHD).getLabel());
+		assertEquals("Master", cons(JuryType.MASTER).getLabel());
+		assertEquals("Baccalaureat", cons(JuryType.BAC).getLabel());
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_Locale_US() {
-		assertEquals("HDR jury", cons(JuryType.HDR).getLabel(Locale.US));
-		assertEquals("Doctoral degree jury", cons(JuryType.PHD).getLabel(Locale.US));
-		assertEquals("Master degree jury", cons(JuryType.MASTER).getLabel(Locale.US));
-		assertEquals("Baccalaureat jury", cons(JuryType.BAC).getLabel(Locale.US));
+		assertEquals("HDR", cons(JuryType.HDR).getLabel(Locale.US));
+		assertEquals("PhD", cons(JuryType.PHD).getLabel(Locale.US));
+		assertEquals("Master", cons(JuryType.MASTER).getLabel(Locale.US));
+		assertEquals("Baccalaureat", cons(JuryType.BAC).getLabel(Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_Locale_FR() {
-		assertEquals("Jury d'HDR", cons(JuryType.HDR).getLabel(Locale.FRANCE));
-		assertEquals("Jury de thèse de doctorat", cons(JuryType.PHD).getLabel(Locale.FRANCE));
-		assertEquals("Jury de Master", cons(JuryType.MASTER).getLabel(Locale.FRANCE));
-		assertEquals("Jury de Baccalauréat", cons(JuryType.BAC).getLabel(Locale.FRANCE));
+		assertEquals("HDR", cons(JuryType.HDR).getLabel(Locale.FRANCE));
+		assertEquals("Doctorat", cons(JuryType.PHD).getLabel(Locale.FRANCE));
+		assertEquals("Master", cons(JuryType.MASTER).getLabel(Locale.FRANCE));
+		assertEquals("Baccalauréat", cons(JuryType.BAC).getLabel(Locale.FRANCE));
 		assertAllTreated();
 	}
 
