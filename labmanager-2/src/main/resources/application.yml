@@ -57,6 +57,7 @@ labmanager:
     data-source: /var/www/ciad-lab.fr/
   file:
     upload-directory: /var/www/ciad-lab.fr/
+    temp-directory: /tmp/ciadlab/
   web:
     publish-resources: /var/www/ciad-lab.fr/Downloadables/
   debug: false

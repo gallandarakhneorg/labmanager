@@ -51,9 +51,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Primary
 public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
-	private static final String DOWNLOADABLE_FOLDER_NAME = "Downloadables"; //$NON-NLS-1$
+	private static final String TEMP_NAME = "labmanager_tmp"; //$NON-NLS-1$
 
-	private static final String TEMPORARY_FOLDER_NAME = "tmp"; //$NON-NLS-1$
+	private static final String DOWNLOADABLE_FOLDER_NAME = "Downloadables"; //$NON-NLS-1$
 
 	private static final String PDF_FOLDER_NAME = "PDFs"; //$NON-NLS-1$
 
@@ -69,23 +69,38 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	private final File uploadFolder;
 
+	private final File temporaryFolder;
+
 	/** Constructor with the given stream factory.
 	 *
 	 * @param factory the factory.
 	 * @param uploadFolder the path of the upload folder. It is defined by the property {@code labmanager.file.upload-directory}.
+	 * @param tempFolder the path of the temporary folder. It is defined by the property {@code labmanager.file.temp-directory}.
 	 */
-	public DefaultDownloadableFileManager(@Value("${labmanager.file.upload-directory}") String uploadFolder) {
-		final String f = Strings.emptyToNull(uploadFolder);
-		if (f == null) {
+	public DefaultDownloadableFileManager(
+			@Value("${labmanager.file.upload-directory}") String uploadFolder,
+			@Value("${labmanager.file.temp-directory}") String tempFolder) {
+		final String f0 = Strings.emptyToNull(uploadFolder);
+		if (f0 == null) {
 			this.uploadFolder = null;
 		} else {
-			this.uploadFolder = FileSystem.convertStringToFile(f).getAbsoluteFile();
+			this.uploadFolder = FileSystem.convertStringToFile(f0).getAbsoluteFile();
+		}
+		final String f1 = Strings.emptyToNull(tempFolder);
+		if (f1 == null) {
+			this.temporaryFolder = null;
+		} else {
+			this.temporaryFolder = FileSystem.convertStringToFile(f1).getAbsoluteFile();
 		}
 	}
 
 	@Override
 	public File getTemporaryRootFile() {
-		return new File(TEMPORARY_FOLDER_NAME);
+		if (this.temporaryFolder == null) {
+			final File tmpRoot = new File(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+			return new File(tmpRoot, TEMP_NAME);
+		}
+		return this.temporaryFolder;
 	}
 	
 	@Override
