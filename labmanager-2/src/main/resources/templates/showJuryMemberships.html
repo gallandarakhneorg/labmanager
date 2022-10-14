@@ -28,18 +28,30 @@
             	<th:block th:utext="${membership.defenseType.getLabel()}"></th:block>
             </td>
             <td>
-            	<th:block class="publicationAuthors" th:utext="${membership.candidate.fullName}"></th:block>
+            	<a th:href="${membership.candidate.webPageURI}"
+            	   th:if="${membership.candidate.webPageURI != null}"
+            	   class="noLink"
+            	   th:utext="${membership.candidate.fullName}"></a>
+            	<th:block th:unless="${membership.candidate.webPageURI != null}"
+            	          th:utext="${membership.candidate.fullName}"></th:block>
             </td>
             <td>
-            	<span class="publicationTitle" th:utext="${membership.title}"></span><br/>
-            	<th:block th:utext="${membership.university + ', ' + countryLabels.get(membership.country)} + '.'"></th:block>
-            	<th:block th:unless="${membership.promoters.isEmpty()}">
-            	<th:block th:utext="#{html.Promoters0}"></th:block>
-            	<th:block th:each="promoter, iPromoter : ${membership.promoters}">
-                    <th:block th:unless="${iPromoter.first}" th:utext="', '"></th:block>
-            		<th:block th:utext="${promoter.fullName}"></th:block>
-            	</th:block>.
-            	</th:block>
+            	<div class="publicationTitle" th:utext="${membership.title}"></div>
+            	<div class="publicationDetails">
+	            	<th:block th:utext="${membership.university + ', ' + countryLabels.get(membership.country)} + '.'"></th:block>
+	            	<th:block th:unless="${membership.promoters.isEmpty()}">
+		            	<br/><th:block th:utext="#{html.Promoters0}"></th:block>
+		            	<th:block th:each="promoter, iPromoter : ${membership.promoters}">
+		                    <th:block th:unless="${iPromoter.first}" th:utext="', '"></th:block>
+			            	<a th:href="${promoter.webPageURI}"
+			            	   th:if="${promoter.webPageURI != null}"
+			            	   class="noLink"
+			            	   th:utext="${promoter.fullName}"></a>
+			            	<th:block th:unless="${promoter.webPageURI != null}"
+			            	          th:utext="${promoter.fullName}"></th:block>
+		            	</th:block>.
+	            	</th:block>
+            	</div>
             </td>
         </tbody>
     </table>
