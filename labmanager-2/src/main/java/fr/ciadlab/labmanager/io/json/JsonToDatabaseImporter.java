@@ -378,7 +378,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository);
 				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
 				final int nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
-				final int nb3 = insertMemberships(session, content.get(MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
+				final int nb3 = insertMemberships(session, content.get(ORGANIZATION_MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
 				final Pair<Integer, Integer> added = insertPublications(session, content.get(PUBLICATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb4 = added != null ? added.getLeft().intValue() : 0;
 				final int nb5 = added != null ? added.getRight().intValue() : 0;
@@ -694,7 +694,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						session.getTransaction().commit();
 					}
 				} catch (Throwable ex) {
-					throw new UnableToImportJsonException(MEMBERSHIPS_SECTION, i, membershipObject, ex);
+					throw new UnableToImportJsonException(ORGANIZATION_MEMBERSHIPS_SECTION, i, membershipObject, ex);
 				}
 				++i;
 			}

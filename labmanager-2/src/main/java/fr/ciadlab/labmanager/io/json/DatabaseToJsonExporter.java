@@ -35,6 +35,7 @@ import com.fasterxml.jackson.databind.node.JsonNodeCreator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
+import fr.ciadlab.labmanager.entities.jury.JuryMembership;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
@@ -42,6 +43,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
+import fr.ciadlab.labmanager.repository.jury.JuryMembershipRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.OrganizationAddressRepository;
@@ -69,34 +71,39 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private PersonRepository personRepository;
 
-	private MembershipRepository membershipRepository;
+	private MembershipRepository organizationMembershipRepository;
 
 	private JournalRepository journalRepository;
 
 	private PublicationRepository publicationRepository;
+
+	private JuryMembershipRepository juryMembershipRepository;
 
 	/** Constructor.
 	 * 
 	 * @param addressRepository the accessor to the organization address repository.
 	 * @param organizationRepository the accessor to the organization repository.
 	 * @param personRepository the accessor to the person repository.
-	 * @param membershipRepository the accessor to the membership repository.
+	 * @param organizationMembershipRepository the accessor to the organization membership repository.
 	 * @param journalRepository the accessor to the journal repository.
 	 * @param publicationRepository the accessor to the repository of the publications.
+	 * @param juryMembershipRepository the accessor to the jury membership repository.
 	 */
 	public DatabaseToJsonExporter(
 			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
-			@Autowired MembershipRepository membershipRepository,
+			@Autowired MembershipRepository organizationMembershipRepository,
 			@Autowired JournalRepository journalRepository,
-			@Autowired PublicationRepository publicationRepository) {
+			@Autowired PublicationRepository publicationRepository,
+			@Autowired JuryMembershipRepository juryMembershipRepository) {
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
-		this.membershipRepository = membershipRepository;
+		this.organizationMembershipRepository = organizationMembershipRepository;
 		this.journalRepository = journalRepository;
 		this.publicationRepository = publicationRepository;
+		this.juryMembershipRepository = juryMembershipRepository;
 	}
 
 	/** Run the exporter.
@@ -157,9 +164,10 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportAddresses(root, repository);
 		exportOrganizations(root, repository);
 		exportPersons(root, repository);
-		exportMemberships(root, repository);
+		exportOrganizationMemberships(root, repository);
 		exportJournals(root, repository);
 		exportPublications(root, repository, similarPublicationProvider, extraPublicationProvider);
+		exportJuryMemberships(root, repository);
 		if (root.size() > 0) {
 			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;
@@ -351,14 +359,14 @@ public class DatabaseToJsonExporter extends JsonTool {
 		}
 	}
 
-	/** Export the memberships to the given JSON root element.
+	/** Export the organization memberships to the given JSON root element.
 	 *
 	 * @param root the receiver of the JSON elements.
 	 * @param repository the repository of elements that maps an object to its JSON id.
 	 * @throws Exception if there is problem for exporting.
 	 */
-	protected void exportMemberships(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<Membership> memberships = this.membershipRepository.findAll();
+	protected void exportOrganizationMemberships(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<Membership> memberships = this.organizationMembershipRepository.findAll();
 		if (!memberships.isEmpty()) {
 			final ArrayNode array = root.arrayNode();
 			int i = 0;
@@ -392,7 +400,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				}
 			}
 			if (array.size() > 0) {
-				root.set(MEMBERSHIPS_SECTION, array);
+				root.set(ORGANIZATION_MEMBERSHIPS_SECTION, array);
 			}
 		}
 	}
@@ -580,6 +588,52 @@ public class DatabaseToJsonExporter extends JsonTool {
 			return id;
 		}
 		return null;
+	}
+
+	/** Export the jury memberships to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	protected void exportJuryMemberships(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<JuryMembership> memberships = this.juryMembershipRepository.findAll();
+		if (!memberships.isEmpty()) {
+			final ArrayNode array = root.arrayNode();
+			int i = 0;
+			for (final JuryMembership membership : memberships) {
+				final ObjectNode jsonMembership = array.objectNode();
+
+				final String id = JURY_MEMBERSHIP_ID_PREFIX + i;
+				exportObject(jsonMembership, id, membership, jsonMembership, null);
+
+				// Persons must be added explicitly because the "exportObject" function
+				// ignore the getter functions for all.
+				final String personId = repository.get(membership.getPerson());
+				if (!Strings.isNullOrEmpty(personId)) {
+					addReference(jsonMembership, PERSON_KEY, personId);
+				}
+				final String candidateId = repository.get(membership.getCandidate());
+				if (!Strings.isNullOrEmpty(candidateId)) {
+					addReference(jsonMembership, CANDIDATE_KEY, candidateId);
+				}
+				final ArrayNode promoterArray = jsonMembership.arrayNode();
+				for (final Person promoter : membership.getPromoters()) {
+					final String promoterId = repository.get(promoter);
+					promoterArray.add(createReference(promoterId, jsonMembership));
+				}
+				if (promoterArray.size() > 0) {
+					jsonMembership.set(PROMOTERS_KEY, promoterArray);
+				}
+				if (jsonMembership.size() > 0) {
+					array.add(jsonMembership);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.set(JURY_MEMBERSHIPS_SECTION, array);
+			}
+		}
 	}
 
 }
