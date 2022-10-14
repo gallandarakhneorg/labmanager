@@ -20,6 +20,7 @@ import java.text.Normalizer;
 import java.util.Comparator;
 
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
+import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.MembershipComparator;
 import fr.ciadlab.labmanager.entities.member.NameBasedMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
@@ -73,6 +74,8 @@ public final class EntityUtils {
 	private static PublicationComparator PUBLICATION_COMPARATOR; 
 
 	private static JournalComparator JOURNAL_COMPARATOR; 
+
+	private static JuryMembershipComparator JURY_MEMBERSHIP_COMPARATOR; 
 
 	private static final NormalizedStringSimilarity SIMILARITY_COMPUTER = new SorensenDice();
 
@@ -365,6 +368,29 @@ public final class EntityUtils {
 			return true;
 		}
 		return SIMILARITY_COMPUTER.similarity(a, b) >= SIMILARITY;
+	}
+
+	/** Replies the preferred comparator of jury memberships.
+	 *
+	 * @return the comparator.
+	 */
+	public static JuryMembershipComparator getPreferredJuryMembershipComparator() {
+		synchronized (EntityUtils.class) {
+			if (JURY_MEMBERSHIP_COMPARATOR == null) {
+				JURY_MEMBERSHIP_COMPARATOR = new JuryMembershipComparator(getPreferredPersonComparator());
+			}
+			return JURY_MEMBERSHIP_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of jury memberships.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredJuryMembershipComparator(JuryMembershipComparator comparator) {
+		synchronized (EntityUtils.class) {
+			JURY_MEMBERSHIP_COMPARATOR = comparator;
+		}
 	}
 
 }

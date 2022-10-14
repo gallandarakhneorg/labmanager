@@ -33,15 +33,20 @@ import java.util.Optional;
 import java.util.Set;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.jury.JuryMembership;
+import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
+import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PersonMergingService}.
@@ -61,6 +66,12 @@ public class PersonMergingServiceTest {
 
 	private PersonService personService;
 
+	private MembershipService organizationMembershipService;
+
+	private MembershipRepository organizationMembershipRepository;
+
+	private JuryMembershipService juryMembershipService;
+	
 	private PersonMergingService test;
 	
 	@BeforeEach
@@ -68,8 +79,13 @@ public class PersonMergingServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.personRepository = mock(PersonRepository.class);
 		this.personService = mock(PersonService.class);
+		this.organizationMembershipService = mock(MembershipService.class);
+		this.organizationMembershipRepository = mock(MembershipRepository.class);
+		this.juryMembershipService = mock(JuryMembershipService.class);
 
-		this.test = new PersonMergingService(this.messages, new Constants(), this.personRepository, this.personService);
+		this.test = new PersonMergingService(this.messages, new Constants(), this.personRepository, this.personService,
+				this.organizationMembershipService, this.organizationMembershipRepository,
+				this.juryMembershipService);
 	}
 
 	@Test
@@ -122,7 +138,9 @@ public class PersonMergingServiceTest {
 			return list;
 		});
 		
+		//
 		this.test.mergePersonsById(Arrays.asList(12345), 34567548);
+		//
 
 		verify(this.personService).removePerson(eq(12345));
 
@@ -144,7 +162,27 @@ public class PersonMergingServiceTest {
 	}
 
 	@Test
-	public void mergePersons() throws Exception {
+	public void mergePersons_nothingInSource() throws Exception {
+		Person pers0 = mock(Person.class, "pers0");
+		when(pers0.getId()).thenReturn(12345);
+
+		Set<Authorship> existingAuthorships0 = new HashSet<>();
+		when(pers0.getAuthorships()).thenReturn(existingAuthorships0);
+
+		Person pers3 = mock(Person.class, "pers3");
+		when(pers3.getId()).thenReturn(34567548);
+
+		//
+		this.test.mergePersons(Arrays.asList(pers0), pers3);
+		//
+
+		verify(this.personService).removePerson(eq(12345));
+
+		verify(this.personRepository, never()).save(any());
+	}
+
+	@Test
+	public void mergePersons_publications() throws Exception {
 		Person pers0 = mock(Person.class, "pers0");
 		when(pers0.getId()).thenReturn(12345);
 
@@ -164,7 +202,9 @@ public class PersonMergingServiceTest {
 		Set<Authorship> existingAuthorships3 = new HashSet<>();
 		when(pers3.getAuthorships()).thenReturn(existingAuthorships3);
 
+		//
 		this.test.mergePersons(Arrays.asList(pers0), pers3);
+		//
 
 		verify(this.personService).removePerson(eq(12345));
 
@@ -176,6 +216,60 @@ public class PersonMergingServiceTest {
 		
 		assertEquals(1, existingAuthorships3.size());
 		assertSame(existingAuthorship0, existingAuthorships3.iterator().next());
+	}
+
+	@Test
+	public void mergePersons_organizationMemberships() throws Exception {
+		Person pers0 = mock(Person.class, "pers0");
+		when(pers0.getId()).thenReturn(12345);
+
+		Membership mbr0 = mock(Membership.class);
+		
+		List<Membership> memberships = new ArrayList<>();
+		memberships.add(mbr0);
+		
+		when(this.organizationMembershipService.getMembershipsForPerson(eq(12345))).thenReturn(memberships);
+		
+		Person pers3 = mock(Person.class, "pers3");
+		when(pers3.getId()).thenReturn(34567548);
+
+		//
+		this.test.mergePersons(Arrays.asList(pers0), pers3);
+		//
+
+		verify(this.personService).removePerson(eq(12345));
+
+		verify(this.personRepository).save(same(pers3));
+
+		verify(mbr0).setPerson(same(pers3));
+		verify(this.organizationMembershipRepository).save(same(mbr0));
+	}
+
+	@Test
+	public void mergePersons_juryMemberships() throws Exception {
+		Person pers0 = mock(Person.class, "pers0");
+		when(pers0.getId()).thenReturn(12345);
+
+		JuryMembership mbr0 = mock(JuryMembership.class);
+		
+		List<JuryMembership> memberships = new ArrayList<>();
+		memberships.add(mbr0);
+		
+		when(this.juryMembershipService.getMembershipsForPerson(eq(12345))).thenReturn(memberships);
+		
+		Person pers3 = mock(Person.class, "pers3");
+		when(pers3.getId()).thenReturn(34567548);
+
+		//
+		this.test.mergePersons(Arrays.asList(pers0), pers3);
+		//
+
+		verify(this.personService).removePerson(eq(12345));
+
+		verify(this.personRepository).save(same(pers3));
+
+		verify(mbr0).setPerson(same(pers3));
+		verify(this.juryMembershipService).save(same(mbr0));
 	}
 
 }

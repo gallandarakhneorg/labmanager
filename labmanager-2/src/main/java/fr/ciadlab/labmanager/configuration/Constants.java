@@ -156,6 +156,18 @@ public class Constants {
 	 */
 	public static final String PERSON_SAVING_ENDPOINT = "personSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for editor of jury memberships.
+	 */
+	public static final String JURY_MEMBERSHIP_EDITING_ENDPOINT = "juryMembershipEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving jury memberships.
+	 */
+	public static final String JURY_MEMBERSHIP_SAVING_ENDPOINT = "juryMembershipSave"; //$NON-NLS-1$
+
+	/** Name of the endpoint for deleting a jury membership.
+	 */
+	public static final String JURY_MEMBERSHIP_DELETION_ENDPOINT = "deleteJuryMembership"; //$NON-NLS-1$
+
 	/** Name of the endpoint for obtaining the Vcard of a person.
 	 */
 	public static final String PERSON_VCARD_ENDPOINT = "personVcard"; //$NON-NLS-1$

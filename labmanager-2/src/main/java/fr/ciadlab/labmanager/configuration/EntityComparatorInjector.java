@@ -20,6 +20,7 @@ import javax.annotation.PostConstruct;
 
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
+import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.MembershipComparator;
 import fr.ciadlab.labmanager.entities.member.NameBasedMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
@@ -65,6 +66,9 @@ public class EntityComparatorInjector {
 	@Autowired
 	private JournalComparator journalComparator;
 
+	@Autowired
+	private JuryMembershipComparator juryMembershipComparator;
+
 	/** Invoked by the Spring engine is started and this injector is created in memory.
 	 */
 	@PostConstruct
@@ -77,6 +81,7 @@ public class EntityComparatorInjector {
 		EntityUtils.setPreferredPersonNameBasedMembershipComparator(this.nameMembershipComparator);
 		EntityUtils.setPreferredPublicationComparator(this.publicationComparator);
 		EntityUtils.setPreferredJournalComparator(this.journalComparator);
+		EntityUtils.setPreferredJuryMembershipComparator(this.juryMembershipComparator);
 	}
 
 }

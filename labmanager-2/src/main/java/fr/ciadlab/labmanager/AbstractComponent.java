@@ -17,9 +17,12 @@
 package fr.ciadlab.labmanager;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.function.Consumer;
+import java.util.regex.Pattern;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
@@ -334,6 +337,79 @@ public abstract class AbstractComponent {
 			out = Strings.emptyToNull(out);
 		}
 		return out;
+	}
+
+	/** Loop on the persons that are described in the provided list.
+	 * This list may contain the identifiers of the persons or the full names of the persons.
+	 *
+	 * @param persons the list of identifiers or full names.
+	 * @param createPerson indicates if any person that is not yet stored in the database must be created on the fly.
+	 * @param personService the service for accessing the persons in the database.
+	 * @param nameParser the parser of person names.
+	 * @param consumer invoked for each person in the list.
+	 */
+	protected void forEarchPerson(List<String> persons, boolean createPerson,
+			PersonService personService, PersonNameParser nameParser, Consumer<Person> consumer) {
+		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
+		for (final String personDesc : persons) {
+			final Person person = extractPerson(personDesc, idPattern, createPerson, personService, nameParser);
+			if (person != null) {
+				consumer.accept(person);
+			}
+		}
+	}
+	
+	/** Extract a person from the description.
+	 * This description may contain the identifier of the person or the full name of the person.
+	 *
+	 * @param personDesc the identifier or full name.
+	 * @param createPerson indicates if any person that is not yet stored in the database must be created on the fly.
+	 * @param personService the service for accessing the persons in the database.
+	 * @param nameParser the parser of person names.
+	 */
+	protected Person extractPerson(String personDesc, boolean createPerson,
+			PersonService personService, PersonNameParser nameParser) {
+		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
+		return extractPerson(personDesc, idPattern, createPerson, personService, nameParser);
+	}
+
+	private Person extractPerson(String personDesc, Pattern idPattern, boolean createPerson,
+			PersonService personService, PersonNameParser nameParser) {
+		Person person = null;
+		int personId = 0;
+		if (idPattern.matcher(personDesc).matches()) {
+			// Numeric value means that the person is known.
+			try {
+				personId = Integer.parseInt(personDesc);
+			} catch (Throwable ex) {
+				// Silent
+			}
+		}
+		if (personId == 0) {
+			// The person seems to be not in the database already. Check it based on the name.
+			final String firstName = nameParser.parseFirstName(personDesc);
+			final String lastName = nameParser.parseLastName(personDesc);
+			personId = personService.getPersonIdByName(firstName, lastName);
+			if (personId == 0) {
+				// Now, it is sure that the person is unknown
+				if (createPerson) {
+					person = personService.createPerson(firstName, lastName);
+					getLogger().info("New person \"" + personDesc + "\" created with id: " + person.getId()); //$NON-NLS-1$ //$NON-NLS-2$
+				}
+			} else {
+				person = personService.getPersonById(personId);
+				if (person == null) {
+					throw new IllegalArgumentException("Unknown person with id: " + personId); //$NON-NLS-1$
+				}
+			}
+		} else {
+			// Check if the given author identifier corresponds to a known person.
+			person = personService.getPersonById(personId);
+			if (person == null) {
+				throw new IllegalArgumentException("Unknown person with id: " + personId); //$NON-NLS-1$
+			}
+		}
+		return person;
 	}
 
 }

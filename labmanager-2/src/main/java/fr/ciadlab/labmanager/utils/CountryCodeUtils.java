@@ -80,4 +80,17 @@ public final class CountryCodeUtils {
 		return labels;
 	}
 
+	/** Replies if the given code corresponds to France and one of its associated territories.
+	 *
+	 * @param code the code to test.
+	 * @return {@code true} if the code corresponds to a French territory.
+	 */
+	public static boolean isFrance(CountryCode code) {
+		if (code != null) {
+			return code == CountryCode.FRANCE || code == CountryCode.FRENCH_GUIANA
+					|| code == CountryCode.FRENCH_POLYNESIA || code == CountryCode.FRENCH_SOUTHERN_TERRITORIES;
+		}
+		return false;
+	}
+
 }

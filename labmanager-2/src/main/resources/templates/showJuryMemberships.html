@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:unless="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs"/>
+</th:block>
+<th:block th:if="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+</th:block>
+<th:block th:replace="fragments/table :: publicTable"/>
+<div class="table table-responsive">
+    <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
+        <thead>
+	        <th th:utext="#{html.Year}"></th>
+	        <th th:utext="#{html.JuryMembershipType}"></th>
+	        <th th:utext="#{html.DefenseType0}"></th>
+	        <th th:utext="#{html.CandidateName0}"></th>
+	        <th th:utext="#{html.Description}"></th>
+        </thead>
+        <tbody>
+        <tr th:each="membership : ${memberships}">
+            <td>
+            	<th:block th:utext="${membership.date.year}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${membership.type.getLabel(person.gender)}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${membership.defenseType.getLabel()}"></th:block>
+            </td>
+            <td>
+            	<th:block class="publicationAuthors" th:utext="${membership.candidate.fullName}"></th:block>
+            </td>
+            <td>
+            	<span class="publicationTitle" th:utext="${membership.title}"></span><br/>
+            	<th:block th:utext="${membership.university + ', ' + countryLabels.get(membership.country)} + '.'"></th:block>
+            	<th:block th:unless="${membership.promoters.isEmpty()}">
+            	<th:block th:utext="#{html.Promoters0}"></th:block>
+            	<th:block th:each="promoter, iPromoter : ${membership.promoters}">
+                    <th:block th:unless="${iPromoter.first}" th:utext="', '"></th:block>
+            		<th:block th:utext="${promoter.fullName}"></th:block>
+            	</th:block>.
+            	</th:block>
+            </td>
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript" th:inline="javascript">
+$(document).ready(() => {
+	initFrontTable( {
+		id: [[${'table'+uuid}]],
+		columns: [
+        	{ },
+        	{ },
+        	{ },
+        	{
+                "orderable": false
+            }
+		],
+	});
+});
+</script>
+</html>

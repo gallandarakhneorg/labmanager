@@ -202,6 +202,15 @@ public class MembershipService extends AbstractService {
 		return null;
 	}
 
+	/** Replies the membership of the given person.
+	 *
+	 * @param memberId the identifier of the person.
+	 * @return the memberships of the person.
+	 */
+	public List<Membership> getMembershipsForPerson(int memberId) {
+		return this.membershipRepository.findAllByPersonId(memberId);
+	}
+
 	/** Create the membership that corresponds to the given organization and member identifiers.
 	 * This function may test if an active membership already exists in the organization for the given
 	 * person. In this case, and if the argument {@code forceCreation} is set to {@code false},
@@ -339,7 +348,7 @@ public class MembershipService extends AbstractService {
 		final Integer mid = Integer.valueOf(membershipId);
 		final Optional<Membership> optMbr = this.membershipRepository.findById(mid);
 		if (optMbr.isEmpty()) {
-			throw new IllegalStateException("Membership not founnd with id: " + membershipId); //$NON-NLS-1$
+			throw new IllegalStateException("Membership not found with id: " + membershipId); //$NON-NLS-1$
 		}
 		final Membership mbr = optMbr.get();
 		final Person person = mbr.getPerson();

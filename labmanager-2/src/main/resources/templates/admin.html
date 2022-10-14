@@ -64,6 +64,23 @@
 								   th:utext="${organization.acronymOrName}"></a></li>
 						</ul>
 					</div>
+					<div class="dropdown">
+				    	<button type="button" class="btn btn-labeled btn-info dropdown-toggle" data-bs-toggle="dropdown"
+			    	            id="dropdownJuryMemberships" aria-expanded="false">
+				    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.JuryMemberships}"></th:block></button>
+				    	<ul class="dropdown-menu" aria-labelledby="dropdownJuryMemberships">
+							<li th:each="organization : ${organizations}">
+								<button type="button" class="dropdown-item"
+								   th:utext="${organization.acronymOrName}"></button>
+								<ul class="dropdown-menu dropdown-submenu">
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
+									       class="dropdown-item"
+									       th:href="@{/showJuryMemberships(dbId=${membership.person.id})}"
+									       th:utext="${membership.person.fullNameWithLastNameFirst}"></a></li>
+								</ul> 
+						</ul>
+					</div>
 				</div>
 			</div>
 		</div>

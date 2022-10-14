@@ -77,7 +77,7 @@ public class JournalViewController extends AbstractViewController {
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + Constants.JOURNAL_LIST_ENDPOINT)
-	public ModelAndView showJournalList(
+	public ModelAndView journalList(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.JOURNAL_LIST_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.JOURNAL_LIST_ENDPOINT);
@@ -96,7 +96,7 @@ public class JournalViewController extends AbstractViewController {
 	 * @return the model-view object.
 	 */
 	@GetMapping(value = "/" + Constants.JOURNAL_EDITING_ENDPOINT)
-	public ModelAndView showJournalEditor(
+	public ModelAndView journalEditor(
 			@RequestParam(required = false) Integer journal,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.JOURNAL_EDITING_ENDPOINT);
@@ -128,7 +128,7 @@ public class JournalViewController extends AbstractViewController {
 	 * @return the model-view object.
 	 */
 	@GetMapping(value = "/journalRankingEditor")
-	public ModelAndView showJournalEditor(
+	public ModelAndView journalRankingEditor(
 			@RequestParam(required = true) int id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, "journalRankingEditor", Integer.valueOf(id)); //$NON-NLS-1$

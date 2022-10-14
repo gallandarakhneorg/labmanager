@@ -66,10 +66,6 @@ import org.arakhne.afc.util.CountryCode;
 @Table(name = "ResearchOrgs")
 public class ResearchOrganization implements Serializable, JsonSerializable, Comparable<ResearchOrganization>, AttributeProvider, IdentifiableEntity {
 
-	/** Default country for research organizations.
-	 */
-	public static final CountryCode DEFAULT_COUNTRY = CountryCode.FRANCE;
-
 	/** Default type for research organizations.
 	 */
 	public static final ResearchOrganizationType DEFAULT_TYPE = ResearchOrganizationType.LABORATORY;
@@ -103,7 +99,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private CountryCode country = DEFAULT_COUNTRY;
+	private CountryCode country = CountryCodeUtils.DEFAULT;
 
 	/** The type of organization.
 	 */
@@ -458,7 +454,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	public void setCountry(CountryCode country) {
 		if (country == null) {
-			this.country = DEFAULT_COUNTRY;
+			this.country = CountryCodeUtils.DEFAULT;
 		} else {
 			this.country = country;
 		}

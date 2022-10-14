@@ -22,6 +22,8 @@ import java.util.Locale;
 import javax.annotation.PostConstruct;
 
 import fr.ciadlab.labmanager.controller.api.member.GeneralMemberType;
+import fr.ciadlab.labmanager.entities.jury.JuryMembershipType;
+import fr.ciadlab.labmanager.entities.jury.JuryType;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Responsibility;
@@ -167,6 +169,12 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (GeneralMemberType item : EnumSet.allOf(GeneralMemberType.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (JuryMembershipType item : EnumSet.allOf(JuryMembershipType.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (JuryType item : EnumSet.allOf(JuryType.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 		}
