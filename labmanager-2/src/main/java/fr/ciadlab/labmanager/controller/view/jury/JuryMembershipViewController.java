@@ -144,6 +144,7 @@ public class JuryMembershipViewController extends AbstractViewController {
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		modelAndView.addObject("memberships", sortedMemberships); //$NON-NLS-1$
 		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
+		modelAndView.addObject("typeLabelKeyOrdering", JuryMembership.getAllLongTypeLabelKeys(personObj.getGender())); //$NON-NLS-1$
 		return modelAndView;
 	}
 

@@ -179,6 +179,10 @@ public class JuryMembershipService extends AbstractService {
 	public void updateJuryMembershipWithoutSaving(JuryMembership membership, Person person, LocalDate date, JuryMembershipType membershipType,
 			JuryType defenseType, String title, String candidate, String university, CountryCode country,
 			List<String> promoters) {
+		if (defenseType == JuryType.BAC && membershipType != JuryMembershipType.PRESIDENT) {
+			throw new IllegalStateException("Unsupported type of jury membership for " + defenseType.name() + " and " + membershipType.name()); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		//
 		membership.setPerson(person);
 		membership.setDate(date);
 		membership.setType(membershipType);

@@ -80,7 +80,7 @@ public enum JuryMembershipType {
 	public String getLabel(Gender gender) {
 		Gender g = gender;
 		if (g == null || g == Gender.NOT_SPECIFIED) {
-			g = Gender.MALE;
+			g = Gender.OTHER;
 		}
 		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + g.name()); //$NON-NLS-1$
 		return Strings.nullToEmpty(label);
@@ -95,7 +95,7 @@ public enum JuryMembershipType {
 	public String getLabel(Gender gender, Locale locale) {
 		Gender g = gender;
 		if (g == null || g == Gender.NOT_SPECIFIED) {
-			g = Gender.MALE;
+			g = Gender.OTHER;
 		}
 		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + g.name(), locale); //$NON-NLS-1$
 		return Strings.nullToEmpty(label);

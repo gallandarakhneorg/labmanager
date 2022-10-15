@@ -10,22 +10,23 @@
 <div class="table table-responsive">
     <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
         <thead>
-	        <th th:utext="#{html.Year}"></th>
+	        <th>Rank</th>
 	        <th th:utext="#{html.JuryMembershipType}"></th>
-	        <th th:utext="#{html.DefenseType0}"></th>
+	        <th th:utext="#{html.Year}"></th>
 	        <th th:utext="#{html.CandidateName0}"></th>
 	        <th th:utext="#{html.Description}"></th>
         </thead>
         <tbody>
-        <tr th:each="membership : ${memberships}">
+        <tr th:each="membership : ${memberships}"
+            th:with="typeLabelKey = ${membership.getLongTypeLabelKey(person.gender)}">
+            <td>
+            	<th:block th:utext="${typeLabelKeyOrdering.get(typeLabelKey)}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="#{${typeLabelKey}}"></th:block>
+            </td>
             <td>
             	<th:block th:utext="${membership.date.year}"></th:block>
-            </td>
-            <td>
-            	<th:block th:utext="${membership.type.getLabel(person.gender)}"></th:block>
-            </td>
-            <td>
-            	<th:block th:utext="${membership.defenseType.getLabel()}"></th:block>
             </td>
             <td>
             	<a th:href="${membership.candidate.webPageURI}"
@@ -58,17 +59,43 @@
 </div>
 <script type="text/javascript" th:inline="javascript">
 $(document).ready(() => {
-	initFrontTable( {
+	var $dtable = initFrontTable( {
 		id: [[${'table'+uuid}]],
+		dom: 't',
 		columns: [
-        	{ },
-        	{ },
-        	{ },
         	{
-                "orderable": false
+                "orderable": false,
+        	},
+        	{
+        		data: 'type',
+                "orderable": false,
+        	},
+        	{
+        		data: 'year',
+                "orderable": false,
+			},
+        	{
+        		data: 'candidate',
+                "orderable": false,
+        	},
+        	{
+                "orderable": false,
             }
 		],
+		order: [ [0, 'asc'], [2, 'desc'], [3, 'asc'] ],
+		tableParams: {
+			rowGroup: {
+				startRender: (rows, group) => {
+					return group;
+				},
+				endRender: null,
+				dataSrc: ['type', 'year'],
+			},
+		},
 	});
+	$dtable.column(0).visible(false);
+	$dtable.column(1).visible(false);
+	$dtable.column(2).visible(false);
 });
 </script>
 </html>

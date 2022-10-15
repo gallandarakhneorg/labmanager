@@ -6,6 +6,7 @@
  *        provided, the `id` or `obj` must be provided.
  *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
  *        provided, the `selector` or `id` must be provided.
+ *      * `dom` It is the specification of the components of the table that are activated.
  *      * `columns` It may be an array of column definitions, excepting the action column if `actionColumn` is true; or it
  *        may be a number of columns. If a number of columns is provided, the array of columns is automatically built up.
  *      * `order` an array that is specifying the order to apply to the values/columns. Default is `[ [1,'asc'] ]`.
@@ -14,6 +15,7 @@
  * @return the table object.
  */
 function initFrontTable(config) {
+	(!('dom' in config)) && (config['dom'] = 'frip');
 	(!('order' in config)) && (config['order'] = [ [1, 'asc'] ]);
 	if ('columns' in config && config['columns']) {
 		if (!(config['columns'] instanceof Array)) {
@@ -36,7 +38,7 @@ function initFrontTable(config) {
 	}
 
 	var tableConfig = {
-	    dom: 'frip',
+	    dom: config['dom'],
 	    renderer: 'bootstrap',
 	    scrollCollapse: false,
 	    paging: false,

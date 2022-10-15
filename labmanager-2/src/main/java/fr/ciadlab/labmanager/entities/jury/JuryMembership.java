@@ -22,7 +22,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.TreeMap;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -40,9 +42,11 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
+import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.arakhne.afc.util.CountryCode;
 
 /** Description of a jury for Master, PhD or HDR.
@@ -466,6 +470,60 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 		}
 		if (names != null) {
 			this.promoters.addAll(names);
+		}
+	}
+
+	/** Replies the localization key for the long label that corresponds to the type of this jury membership.
+	 *
+	 * @param gender the gender of the person.
+	 * @return the key.
+	 * @see #getAllLongTypeLabelKeys
+	 */
+	public String getLongTypeLabelKey(Gender gender) {
+		return buildLongTypeLabelKey(getType(), getDefenseType(), CountryCodeUtils.isFrance(getCountry()), gender);
+	}
+
+	private static String buildLongTypeLabelKey(JuryMembershipType positionType, JuryType defenseType, boolean isFrance, Gender gender) {
+		final StringBuilder key = new StringBuilder("juryMembership."); //$NON-NLS-1$
+		key.append(defenseType.name());
+		key.append("_"); //$NON-NLS-1$
+		key.append(positionType.name());
+		if (isFrance) {
+			key.append("_fr"); //$NON-NLS-1$
+		} else {
+			key.append("_other"); //$NON-NLS-1$
+		}
+		Gender g = gender;
+		if (g == null || g == Gender.NOT_SPECIFIED) {
+			g = Gender.OTHER;
+		}
+		key.append("_"); //$NON-NLS-1$
+		key.append(g.name());
+		return key.toString();
+	}
+
+	/** Replies all the localization key for the long label that corresponds to the type of this jury membership.
+	 * The keys are provided from the most important to the less important.
+	 *
+	 * @param gender the gender of the person.
+	 * @return the ordering index of each key.
+	 * @see #getLongTypeLabelKey
+	 */
+	public static Map<String, Integer> getAllLongTypeLabelKeys(Gender gender) {
+		final Map<String, Integer> keys = new TreeMap<>();
+		final MutableInt index = new MutableInt();
+		buildLongTypeLabelKeys(keys, index, false, gender);
+		buildLongTypeLabelKeys(keys, index, true, gender);
+		return keys;
+	}
+
+	private static void buildLongTypeLabelKeys(Map<String, Integer> keys, MutableInt index, boolean isFrance, Gender gender) {
+		for (final JuryMembershipType positionType : JuryMembershipType.values()) {
+			for (final JuryType defenseType : JuryType.values()) {
+				final String key = buildLongTypeLabelKey(positionType, defenseType, isFrance, gender);
+				keys.put(key, index.getValue());
+				index.increment();
+			}
 		}
 	}
 
