@@ -22,7 +22,6 @@ create table research_orgs (id integer not null, acronym varchar(255), country v
 create table research_orgs_addresses (research_organization_id integer not null, addresses_id integer not null, primary key (research_organization_id, addresses_id));
 create table theses (address varchar(255), institution varchar(255), id integer not null, primary key (id));
 alter table journal_journal_annual_indicators_mapping add constraint UK_lnmbtft9ciq0sc7daxvga0369 unique (indicators_id);
-alter table jury_memberships_promoters add constraint UK_a9dpgrlfusdurlvyo0gaq9xp8 unique (promoters_id);
 alter table research_orgs_addresses add constraint UK_40usjfsr28jkpm237qc03q0am unique (addresses_id);
 alter table authorship add constraint FKgdun3mst3ct6a2rptpvadhtx6 foreign key (person_id) references persons;
 alter table authorship add constraint FK7ftt1eqjsbv0u3ecdx2o2grl2 foreign key (publication_id) references publications;

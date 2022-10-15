@@ -34,12 +34,12 @@
             	   class="noLink"
             	   th:utext="${membership.candidate.fullName}"></a>
             	<th:block th:unless="${membership.candidate.webPageURI != null}"
-            	          th:utext="${membership.candidate.fullName}"></th:block>
+            	          th:utext="${membership.candidate.fullNameWithLastNameFirst}"></th:block>
             </td>
             <td>
             	<div class="publicationTitle" th:utext="${membership.title}"></div>
             	<div class="publicationDetails">
-	            	<th:block th:utext="${membership.university + ', ' + countryLabels.get(membership.country)} + '.'"></th:block>
+	            	<th:block th:utext="${membership.university + ', ' + countryLabels.get(membership.country)}"></th:block>
 	            	<th:block th:unless="${membership.promoters.isEmpty()}">
 		            	<br/><th:block th:utext="#{html.Promoters0}"></th:block>
 		            	<th:block th:each="promoter, iPromoter : ${membership.promoters}">
@@ -47,9 +47,9 @@
 			            	<a th:href="${promoter.webPageURI}"
 			            	   th:if="${promoter.webPageURI != null}"
 			            	   class="noLink"
-			            	   th:utext="${promoter.fullName}"></a>
+			            	   th:utext="${promoter.fullNameWithLastNameFirst}"></a>
 			            	<th:block th:unless="${promoter.webPageURI != null}"
-			            	          th:utext="${promoter.fullName}"></th:block>
+			            	          th:utext="${promoter.fullNameWithLastNameFirst}"></th:block>
 		            	</th:block>
 	            	</th:block>
             	</div>

@@ -138,7 +138,10 @@ public class JuryMembershipViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView("showJuryMemberships"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
-		final Person personObj = getPersonWith(dbId, inString(webId), null, this.personService, this.nameParser);
+		final Person personObj = getPersonWith(dbId, inWebId, null, this.personService, this.nameParser);
+		if (personObj == null) {
+			throw new RuntimeException("Person not found"); //$NON-NLS-1$
+		}
 		final List<JuryMembership> memberships = this.membershipService.getMembershipsForPerson(personObj.getId());
 		final List<JuryMembership> sortedMemberships = memberships.stream().sorted(EntityUtils.getPreferredJuryMembershipComparator()).collect(Collectors.toList()); 
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
