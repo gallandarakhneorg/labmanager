@@ -32,8 +32,8 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
 import javax.persistence.Table;
 
 import com.google.common.base.Strings;
@@ -111,7 +111,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 
 	/** Names of the promoters or directors of the candidate.
 	 */
-	@OneToMany(fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	private List<Person> promoters;
 
 	/** Construct a jury with the given values.
