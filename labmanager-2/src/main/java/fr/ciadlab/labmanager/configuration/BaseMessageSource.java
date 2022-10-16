@@ -33,6 +33,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
+import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -166,6 +167,9 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (FrenchBap item : EnumSet.allOf(FrenchBap.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (FundingScheme item : EnumSet.allOf(FundingScheme.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (GeneralMemberType item : EnumSet.allOf(GeneralMemberType.class)) {
