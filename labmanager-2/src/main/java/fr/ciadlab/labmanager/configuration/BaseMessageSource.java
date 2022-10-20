@@ -30,6 +30,7 @@ import fr.ciadlab.labmanager.entities.member.Responsibility;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
@@ -179,6 +180,9 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (JuryType item : EnumSet.allOf(JuryType.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (SupervisorType item : EnumSet.allOf(SupervisorType.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 		}

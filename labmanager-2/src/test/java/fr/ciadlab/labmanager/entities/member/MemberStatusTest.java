@@ -211,6 +211,32 @@ public class MemberStatusTest {
 	}
 
 	@Test
+	public void isSupervisable() {
+		assertFalse(cons(MemberStatus.FULL_PROFESSOR).isSupervisable());
+		assertFalse(cons(MemberStatus.RESEARCH_DIRECTOR).isSupervisable());
+		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isSupervisable());
+		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR).isSupervisable());
+		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).isSupervisable());
+		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isSupervisable());
+		assertFalse(cons(MemberStatus.RESEARCHER_PHD).isSupervisable());
+		assertFalse(cons(MemberStatus.RESEARCHER).isSupervisable());
+		assertFalse(cons(MemberStatus.RESEARCH_ENGINEER_PHD).isSupervisable());
+		assertFalse(cons(MemberStatus.RESEARCH_ENGINEER).isSupervisable());
+		assertTrue(cons(MemberStatus.POSTDOC).isSupervisable());
+		assertTrue(cons(MemberStatus.PHD_STUDENT).isSupervisable());
+		assertFalse(cons(MemberStatus.ENGINEER_PHD).isSupervisable());
+		assertFalse(cons(MemberStatus.ENGINEER).isSupervisable());
+		assertFalse(cons(MemberStatus.ADMIN).isSupervisable());
+		assertFalse(cons(MemberStatus.TEACHER_PHD).isSupervisable());
+		assertFalse(cons(MemberStatus.TEACHER).isSupervisable());
+		assertTrue(cons(MemberStatus.MASTER_STUDENT).isSupervisable());
+		assertTrue(cons(MemberStatus.OTHER_STUDENT).isSupervisable());
+		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isSupervisable());
+		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isSupervisable());
+		assertAllTreated();
+	}
+
+	@Test
 	public void getLabel_US() {
 		// Force the local to be US
 		java.util.Locale.setDefault(java.util.Locale.US);

@@ -44,7 +44,6 @@ import org.springframework.web.bind.annotation.RestController;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @see AuthorController
  */
 @RestController
 @CrossOrigin

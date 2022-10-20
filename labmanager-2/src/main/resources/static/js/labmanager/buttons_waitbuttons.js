@@ -45,9 +45,9 @@ function setButtonStandardState($bt, text) {
 function attachSpinnerAjaxHandler_base( config ) {
 	if ('prepareData' in config && config['prepareData']) {
 		const prev = config['prepareData'];
-		config['prepareData'] = ($bt, formData) => {
+		config['prepareData'] = ($bt, formData, userData) => {
 			setButtonWaitState($bt, config['text']);
-			prev($bt, formData);
+			prev($bt, formData, userData);
 		};
 	} else {
 		config['prepareData'] = ($bt, formData) => {

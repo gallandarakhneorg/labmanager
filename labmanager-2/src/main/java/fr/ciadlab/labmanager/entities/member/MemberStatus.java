@@ -58,6 +58,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return true;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
 	},
 	/** Research Director (Directeur de recherche).
 	 */
@@ -84,6 +92,14 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
 			return true;
 		}
 	},
@@ -114,6 +130,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return true;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
 	},
 	/** Associate professor (maitre de conferences) without HDR.
 	 */
@@ -140,6 +164,14 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
 			return true;
 		}
 	},
@@ -170,6 +202,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return true;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
 	},
 	/** Contractual teacher-researcher (enseignant chercheur contractuel) without PhD.
 	 */
@@ -198,6 +238,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return false;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
 	},
 	/** Researcher (Chargé de recherche, LRU, etc.) with PhD.
 	 */
@@ -224,6 +272,14 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
 			return true;
 		}
 	},
@@ -254,6 +310,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return false;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
 	},
 	/** Postdoc.
 	 */
@@ -280,6 +344,14 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisor() {
 			return true;
 		}
 	},
@@ -310,6 +382,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return true;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
 	},
 	/** Research engineer (IGR) without PhD.
 	 */
@@ -338,6 +418,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return false;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
 	},
 	/** PHD student.
 	 */
@@ -364,6 +452,14 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisor() {
 			return false;
 		}
 	},
@@ -394,6 +490,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return true;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
 	},
 	/** Engineer (IGE) without PhD.
 	 */
@@ -420,6 +524,14 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
 			return false;
 		}
 	},
@@ -450,6 +562,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return false;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return false;
+		}
 	},
 	/** Teacher (PRAG, etc.) with PhD.
 	 */
@@ -476,6 +596,14 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
 			return true;
 		}
 	},
@@ -506,6 +634,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return false;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return false;
+		}
 	},
 	/** Master student (internship).
 	 */
@@ -532,6 +668,14 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisor() {
 			return false;
 		}
 	},
@@ -562,6 +706,14 @@ public enum MemberStatus {
 		public boolean isPhDOwner() {
 			return false;
 		}
+		@Override
+		public boolean isSupervisable() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return false;
+		}
 	},
 	/** Associate member with PhD.
 	 */
@@ -588,6 +740,14 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
 			return true;
 		}
 	},
@@ -617,6 +777,14 @@ public enum MemberStatus {
 		@Override
 		public boolean isPhDOwner() {
 			return false;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
 		}
 	};
 
@@ -680,6 +848,20 @@ public enum MemberStatus {
 	 * @return {@code true} if the status includes administrative activities.
 	 */
 	public abstract boolean isAdministrativeStaff();
+
+	/** Replies if the status enables to be supervised by another person.
+	 *
+	 * @return {@code true} if the status enables supervision by another person.
+	 * @since 2.1
+	 */
+	public abstract boolean isSupervisable();
+
+	/** Replies if the status enables to be supervisor of another person.
+	 *
+	 * @return {@code true} if the status enables supervisor of another person.
+	 * @since 2.1
+	 */
+	public abstract boolean isSupervisor();
 
 	/** Replies the label of the status in the current language.
 	 *

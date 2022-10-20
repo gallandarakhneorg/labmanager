@@ -28,6 +28,8 @@ import fr.ciadlab.labmanager.entities.member.PersonListComparator;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddressComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
+import fr.ciadlab.labmanager.entities.supervision.SupervisionComparator;
+import fr.ciadlab.labmanager.entities.supervision.SupervisorComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -69,6 +71,12 @@ public class EntityComparatorInjector {
 	@Autowired
 	private JuryMembershipComparator juryMembershipComparator;
 
+	@Autowired
+	private SupervisorComparator supervisorComparator;
+
+	@Autowired
+	private SupervisionComparator supervisionComparator;
+
 	/** Invoked by the Spring engine is started and this injector is created in memory.
 	 */
 	@PostConstruct
@@ -82,6 +90,8 @@ public class EntityComparatorInjector {
 		EntityUtils.setPreferredPublicationComparator(this.publicationComparator);
 		EntityUtils.setPreferredJournalComparator(this.journalComparator);
 		EntityUtils.setPreferredJuryMembershipComparator(this.juryMembershipComparator);
+		EntityUtils.setPreferredSupervisorComparator(this.supervisorComparator);
+		EntityUtils.setPreferredSupervisionComparator(this.supervisionComparator);
 	}
 
 }

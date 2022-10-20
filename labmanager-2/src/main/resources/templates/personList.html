@@ -124,6 +124,13 @@
            		   th:id="${'btEditMemberships' + person.id}"
            		   th:title="#{html.EditMemberships(${person.fullName})}"
                    style="font-size:14pt"></span>
+            	<a th:href="@{/supervisionEditor(person=${person.id})}"
+				   th:if="${changeEnabled && !person.getSupervisableMemberships().isEmpty()}"
+				   class="noLink admin-tool-buttons">
+            		<span class="fa-solid fa-people-arrows"
+            		   th:title="#{html.EditSupervisions(${person.fullName})}"
+                       style="font-size:14pt"></span>
+            	</a>
             	<a th:href="@{/juryMembershipEditor(person=${person.id})}"
 				   th:if="${changeEnabled}"
 				   class="noLink admin-tool-buttons">

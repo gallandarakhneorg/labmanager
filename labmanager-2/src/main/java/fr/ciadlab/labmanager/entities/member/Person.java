@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.net.URI;
 import java.net.URL;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -795,6 +796,26 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 				// Sort the memberships from the highest date to the lowest date
 				BinaryOperator.minBy(EntityUtils.getPreferredMembershipComparator()),
 				() -> new TreeMap<>(EntityUtils.getPreferredResearchOrganizationComparator())));
+	}
+
+	/** Replies the supervisable memberships of the persons.
+	 *
+	 * @return the supervisable memberships.
+	 * @since 2.1
+	 * @see #getSupervisorMemberships()
+	 */
+	public List<Membership> getSupervisableMemberships() {
+		return getMemberships().stream().filter(it -> it.getMemberStatus().isSupervisable()).collect(Collectors.toList());
+	}
+
+	/** Replies the supervisor memberships of the persons.
+	 *
+	 * @return the supervisor memberships.
+	 * @since 2.1
+	 * @see #getSupervisableMemberships()
+	 */
+	public List<Membership> getSupervisorMemberships() {
+		return getMemberships().stream().filter(it -> it.getMemberStatus().isSupervisor()).collect(Collectors.toList());
 	}
 
 	/** Replies the active membership per research organization.

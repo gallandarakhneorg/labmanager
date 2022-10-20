@@ -20,9 +20,13 @@ create table publications (id integer not null, abstract_text clob(32672), dblp_
 create table reports (address varchar(255), institution varchar(255), report_number varchar(255), report_type varchar(255), id integer not null, primary key (id));
 create table research_orgs (id integer not null, acronym varchar(255), country varchar(255) not null, description clob(32672), name varchar(32672), organization_url varchar(32672), type varchar(255) not null, super_organization_id integer, primary key (id));
 create table research_orgs_addresses (research_organization_id integer not null, addresses_id integer not null, primary key (research_organization_id, addresses_id));
+create table supervisions (id integer not null, abandonment boolean, defense_date date, funding varchar(255), funding_details varchar(32672), is_entrepreneur boolean, is_joint_position boolean, number_of_ater_positions integer, position_after_supervision varchar(32672), title varchar(32672), supervised_person_id integer, primary key (id));
+create table supervisions_supervisors (supervision_id integer not null, supervisors_id integer not null);
+create table supervisors (id integer not null, percentage integer, type varchar(255), supervisor_id integer, primary key (id));
 create table theses (address varchar(255), institution varchar(255), id integer not null, primary key (id));
 alter table journal_journal_annual_indicators_mapping add constraint UK_lnmbtft9ciq0sc7daxvga0369 unique (indicators_id);
 alter table research_orgs_addresses add constraint UK_40usjfsr28jkpm237qc03q0am unique (addresses_id);
+alter table supervisions_supervisors add constraint UK_o5o8r39fqy63fkpyybxtxeltf unique (supervisors_id);
 alter table authorship add constraint FKgdun3mst3ct6a2rptpvadhtx6 foreign key (person_id) references persons;
 alter table authorship add constraint FK7ftt1eqjsbv0u3ecdx2o2grl2 foreign key (publication_id) references publications;
 alter table book_chapters add constraint FKp2fqymh9rff53i0h7e97t1m61 foreign key (id) references publications;
@@ -48,4 +52,8 @@ alter table reports add constraint FKdgjytt0cqe08l21pivf12rmu8 foreign key (id) 
 alter table research_orgs add constraint FKeuxupnsj2t89c1rg1ouqwdnlc foreign key (super_organization_id) references research_orgs;
 alter table research_orgs_addresses add constraint FKg60knkij1sthv18q467fxp8iq foreign key (addresses_id) references org_addresses;
 alter table research_orgs_addresses add constraint FKh1vp0ljgruq9fiq204kfa16xl foreign key (research_organization_id) references research_orgs;
+alter table supervisions add constraint FKh6jkdnbsbi8qvvn4roxphiboh foreign key (supervised_person_id) references memberships;
+alter table supervisions_supervisors add constraint FKmixq6xldo02f782xgo56y5l0j foreign key (supervisors_id) references supervisors;
+alter table supervisions_supervisors add constraint FKnnu2geqlwecue1dgnw0u3socc foreign key (supervision_id) references supervisions;
+alter table supervisors add constraint FK80nhp1yw15uvkajg7pwohkebj foreign key (supervisor_id) references persons;
 alter table theses add constraint FKj0vei8vj25t5u0w39mgny07vv foreign key (id) references publications;

@@ -16,11 +16,8 @@
 
 package fr.ciadlab.labmanager.utils.funding;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.ArrayList;
@@ -309,6 +306,7 @@ public class FundingSchemeTest {
 		assertEquals("PIA - Plan d'Investissement d'Avenir", cons(FundingScheme.PIA).getLabel());
 		assertEquals("Bourgogne-Franche-Comté Province", cons(FundingScheme.REGION_BFC).getLabel());
 		assertEquals("Self funded", cons(FundingScheme.SELF_FUNDING).getLabel());
+		assertAllTreated();
 	}
 
 	@Test
@@ -350,6 +348,7 @@ public class FundingSchemeTest {
 		assertEquals("PIA - Plan d'Investissement d'Avenir", cons(FundingScheme.PIA).getLabel(Locale.FRANCE));
 		assertEquals("Région Bourgogne-Franche-Comté", cons(FundingScheme.REGION_BFC).getLabel(Locale.FRANCE));
 		assertEquals("Autofinancement", cons(FundingScheme.SELF_FUNDING).getLabel(Locale.FRANCE));
+		assertAllTreated();
 	}
 
 	@Test

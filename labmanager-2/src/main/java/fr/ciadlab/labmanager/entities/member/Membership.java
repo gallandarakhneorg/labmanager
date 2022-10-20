@@ -726,6 +726,33 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		}
 	}
 
+	/** Replies the short description of this membership. It is composed of the status, organization and dates.
+	 * This short description is usually used in the form for describing the membership.
+	 *
+	 * @return the short description of the membership.
+	 */
+	public String getShortDescription() {
+		final StringBuilder b = new StringBuilder();
+		b.append(getMemberStatus().getLabel(getPerson().getGender()));
+		b.append(" - ").append(getResearchOrganization().getAcronymOrName()); //$NON-NLS-1$
+		b.append(" ["); //$NON-NLS-1$
+		if (getMemberSinceWhen() != null && getMemberToWhen() != null) {
+			final int y0 = getMemberSinceWhen().getYear();
+			final int y1 = getMemberToWhen().getYear();
+			if (y0 != y1) {
+				b.append(y0).append("-").append(y1); //$NON-NLS-1$
+			} else {
+				b.append(y0);
+			}
+		} else if (getMemberSinceWhen() != null) {
+			b.append(getMemberSinceWhen().getYear());
+		} else if (getMemberToWhen() != null) {
+			b.append(getMemberToWhen().getYear());
+		}
+		b.append("]"); //$NON-NLS-1$
+		return b.toString();
+	}
+
 }
 
 

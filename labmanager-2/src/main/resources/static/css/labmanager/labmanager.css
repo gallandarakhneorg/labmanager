@@ -115,6 +115,12 @@ table#addressTable {
 table#addressTable td.dataCell {
     padding: 2px;
 }
+table.supervisorTable {
+	width: 100%;
+}
+table.supervisorTable td.dataCell {
+    padding: 2px;
+}
 .page-item.active .page-link {
     background-color: #96c10d !important;
     border-color: #96c10d !important;

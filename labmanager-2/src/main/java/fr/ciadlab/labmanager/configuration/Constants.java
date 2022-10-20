@@ -168,6 +168,19 @@ public class Constants {
 	 */
 	public static final String JURY_MEMBERSHIP_DELETION_ENDPOINT = "deleteJuryMembership"; //$NON-NLS-1$
 
+	/** Name of the endpoint for editor of person supervisions.
+	 * @since 2.1
+	 */
+	public static final String SUPERVISION_EDITING_ENDPOINT = "supervisionEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving person supervision.
+	 */
+	public static final String SUPERVISION_SAVING_ENDPOINT = "supervisionSave"; //$NON-NLS-1$
+
+	/** Name of the endpoint for deleting a person supervision.
+	 */
+	public static final String SUPERVISION_DELETION_ENDPOINT = "deleteSupervision"; //$NON-NLS-1$
+
 	/** Name of the endpoint for obtaining the Vcard of a person.
 	 */
 	public static final String PERSON_VCARD_ENDPOINT = "personVcard"; //$NON-NLS-1$

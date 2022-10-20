@@ -30,6 +30,8 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparato
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.SorensenDicePublicationComparator;
+import fr.ciadlab.labmanager.entities.supervision.SupervisionComparator;
+import fr.ciadlab.labmanager.entities.supervision.SupervisorComparator;
 import info.debatty.java.stringsimilarity.SorensenDice;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +78,10 @@ public final class EntityUtils {
 	private static JournalComparator JOURNAL_COMPARATOR; 
 
 	private static JuryMembershipComparator JURY_MEMBERSHIP_COMPARATOR; 
+
+	private static SupervisorComparator SUPERVISOR_COMPARATOR; 
+
+	private static SupervisionComparator SUPERVISION_COMPARATOR; 
 
 	private static final NormalizedStringSimilarity SIMILARITY_COMPUTER = new SorensenDice();
 
@@ -390,6 +396,54 @@ public final class EntityUtils {
 	public static void setPreferredJuryMembershipComparator(JuryMembershipComparator comparator) {
 		synchronized (EntityUtils.class) {
 			JURY_MEMBERSHIP_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of supervisors.
+	 *
+	 * @return the comparator.
+	 */
+	public static SupervisorComparator getPreferredSupervisorComparator() {
+		synchronized (EntityUtils.class) {
+			if (SUPERVISOR_COMPARATOR == null) {
+				SUPERVISOR_COMPARATOR = new SupervisorComparator(getPreferredPersonComparator());
+			}
+			return SUPERVISOR_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of supervisors.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredSupervisorComparator(SupervisorComparator comparator) {
+		synchronized (EntityUtils.class) {
+			SUPERVISOR_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of supervisions.
+	 *
+	 * @return the comparator.
+	 */
+	public static SupervisionComparator getPreferredSupervisionComparator() {
+		synchronized (EntityUtils.class) {
+			if (SUPERVISION_COMPARATOR == null) {
+				SUPERVISION_COMPARATOR = new SupervisionComparator(
+						getPreferredMembershipComparator(),
+						getPreferredSupervisorComparator());
+			}
+			return SUPERVISION_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of supervisions.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredSupervisionComparator(SupervisionComparator comparator) {
+		synchronized (EntityUtils.class) {
+			SUPERVISION_COMPARATOR = comparator;
 		}
 	}
 

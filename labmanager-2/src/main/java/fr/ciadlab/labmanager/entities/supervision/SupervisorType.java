@@ -14,55 +14,43 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.entities.organization;
+package fr.ciadlab.labmanager.entities.supervision;
 
 import java.util.Locale;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.BaseMessageSource;
+import fr.ciadlab.labmanager.entities.member.Gender;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** Type of research organization.
+/** Type of supervisor.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 2.1
  */
-public enum ResearchOrganizationType {
-	/** Research team.
-	 */
-	RESEARCH_TEAM,
-	/** Research department.
-	 */
-	LABORATORY_DEPARTMENT,
-	/** Research laboratory or institute.
-	 */
-	LABORATORY,
-	/** Faculty.
-	 */
-	FACULTY,
-	/** University or college.
-	 */
-	UNIVERSITY,
-	/** High school.
-	 */
-	HIGH_SCHOOL,
-	/** University community or network.
-	 */
-	COMMUNITY,
-	/** OTHER.
-	 */
-	OTHER;
+public enum SupervisorType {
 
-	/** Default organization type.
+	/** Director.
 	 */
-	public static final ResearchOrganizationType DEFAULT = LABORATORY;
+	DIRECTOR,
 
-	private static final String MESSAGE_PREFIX = "researchOrganizationType."; //$NON-NLS-1$
+	/** Regular supervisor.
+	 */
+	SUPERVISOR,
+
+	/** Member of the committee of the Master/PhD.
+	 * The committee is the group of persons who are validating the progress of the supervised person
+	 * regularly (every year for example) but are not the direct directors or promoters.
+	 */
+	COMMITTEE_MEMBER;
+
+	private static final String MESSAGE_PREFIX = "supervisorType."; //$NON-NLS-1$
 
 	private MessageSourceAccessor messages;
-	
+
 	/** Replies the message accessor to be used.
 	 *
 	 * @return the accessor.
@@ -82,41 +70,51 @@ public enum ResearchOrganizationType {
 		this.messages = messages;
 	}
 
-	/** Replies the label of the type of organization.
+	/** Replies the label of the type.
 	 *
-	 * @return the label of the type of organization.
+	 * @param gender the gender of the person.
+	 * @return the label of the type.
 	 */
-	public String getLabel() {
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name());
+	public String getLabel(Gender gender) {
+		Gender g = gender;
+		if (g == null || g == Gender.NOT_SPECIFIED) {
+			g = Gender.OTHER;
+		}
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + g.name()); //$NON-NLS-1$
 		return Strings.nullToEmpty(label);
 	}
 
-	/** Replies the label of the type of organization.
+	/** Replies the label of the type.
 	 *
+	 * @param gender the gender of the person.
 	 * @param locale the locale to use.
-	 * @return the label of the type of organization.
+	 * @return the label of the type.
 	 */
-	public String getLabel(Locale locale) {
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name(), locale);
+	public String getLabel(Gender gender, Locale locale) {
+		Gender g = gender;
+		if (g == null || g == Gender.NOT_SPECIFIED) {
+			g = Gender.OTHER;
+		}
+		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + g.name(), locale); //$NON-NLS-1$
 		return Strings.nullToEmpty(label);
 	}
 
-	/** Replies the type of organization that corresponds to the given name, with a case-insensitive
+	/** Replies the supervisor type that corresponds to the given name, with a case-insensitive
 	 * test of the name.
 	 *
-	 * @param name the name of the type of organization, to search for.
+	 * @param name the name of the membership, to search for.
 	 * @return the status.
 	 * @throws IllegalArgumentException if the given name does not corresponds to a type.
 	 */
-	public static ResearchOrganizationType valueOfCaseInsensitive(String name) {
+	public static SupervisorType valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final ResearchOrganizationType status : values()) {
+			for (final SupervisorType status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
 					return status;
 				}
 			}
 		}
-		throw new IllegalArgumentException("Invalid type of organization: " + name); //$NON-NLS-1$
+		throw new IllegalArgumentException("Invalid supervisor type: " + name); //$NON-NLS-1$
 	}
 
 }
