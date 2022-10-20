@@ -42,6 +42,8 @@ import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.supervision.Supervision;
+import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.jury.JuryMembershipRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
@@ -49,6 +51,7 @@ import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.OrganizationAddressRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
+import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -79,6 +82,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private JuryMembershipRepository juryMembershipRepository;
 
+	private SupervisionRepository supervisionRepository;
+
 	/** Constructor.
 	 * 
 	 * @param addressRepository the accessor to the organization address repository.
@@ -88,6 +93,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param journalRepository the accessor to the journal repository.
 	 * @param publicationRepository the accessor to the repository of the publications.
 	 * @param juryMembershipRepository the accessor to the jury membership repository.
+	 * @param supervisionRepository the accessor to the supervision repository.
 	 */
 	public DatabaseToJsonExporter(
 			@Autowired OrganizationAddressRepository addressRepository,
@@ -96,7 +102,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired MembershipRepository organizationMembershipRepository,
 			@Autowired JournalRepository journalRepository,
 			@Autowired PublicationRepository publicationRepository,
-			@Autowired JuryMembershipRepository juryMembershipRepository) {
+			@Autowired JuryMembershipRepository juryMembershipRepository,
+			@Autowired SupervisionRepository supervisionRepository) {
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
@@ -104,6 +111,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		this.journalRepository = journalRepository;
 		this.publicationRepository = publicationRepository;
 		this.juryMembershipRepository = juryMembershipRepository;
+		this.supervisionRepository = supervisionRepository;
 	}
 
 	/** Run the exporter.
@@ -168,6 +176,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportJournals(root, repository);
 		exportPublications(root, repository, similarPublicationProvider, extraPublicationProvider);
 		exportJuryMemberships(root, repository);
+		exportSupervisions(root, repository);
 		if (root.size() > 0) {
 			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;
@@ -394,6 +403,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 					addReference(jsonMembership, RESEARCHORGANIZATION_KEY, organizationId);
 
 					if (jsonMembership.size() > 0) {
+						repository.put(membership, id);
 						array.add(jsonMembership);
 						++i;
 					}
@@ -530,7 +540,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		if (publication.getId() > 0) {
 			jsonPublication.set(DATABASE_ID_FIELDNAME, jsonPublication.numberNode(publication.getId()));
 		}
-		
+
 		// Add the authors by hand because they are not exported implicitly by
 		// the "exportObject" function.
 		// It is due to the reference to person entities.
@@ -632,6 +642,52 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			if (array.size() > 0) {
 				root.set(JURY_MEMBERSHIPS_SECTION, array);
+			}
+		}
+	}
+
+	/** Export the supervisions to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	protected void exportSupervisions(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<Supervision> supervisions = this.supervisionRepository.findAll();
+		if (!supervisions.isEmpty()) {
+			final ArrayNode array = root.arrayNode();
+			int i = 0;
+			for (final Supervision supervision : supervisions) {
+				final ObjectNode jsonSupervision = array.objectNode();
+
+				final String id = SUPERVISION_ID_PREFIX + i;
+				exportObject(jsonSupervision, id, supervision, jsonSupervision, null);
+
+				// Persons must be added explicitly because the "exportObject" function
+				// ignore the getter functions for all.
+				final String personId = repository.get(supervision.getSupervisedPerson());
+				if (!Strings.isNullOrEmpty(personId)) {
+					addReference(jsonSupervision, PERSON_KEY, personId);
+				}
+				final ArrayNode supervisorsArray = jsonSupervision.arrayNode();
+				for (final Supervisor supervisorDesc : supervision.getSupervisors()) {
+					final ObjectNode supervisorDescNode = supervisorsArray.objectNode();
+					final String supervisorId = repository.get(supervisorDesc.getSupervisor());
+					supervisorDescNode.set(PERSON_KEY, createReference(supervisorId, supervisorDescNode));
+					supervisorDescNode.set(PERCENT_KEY, supervisorDescNode.numberNode(supervisorDesc.getPercentage())); 
+					supervisorDescNode.set(TYPE_KEY, supervisorDescNode.textNode(supervisorDesc.getType().name()));
+					supervisorsArray.add(supervisorDescNode);
+				}
+				if (supervisorsArray.size() > 0) {
+					jsonSupervision.set(SUPERVISORS_KEY, supervisorsArray);
+				}
+				if (jsonSupervision.size() > 0) {
+					array.add(jsonSupervision);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.set(SUPERVISIONS_SECTION, array);
 			}
 		}
 	}

@@ -85,6 +85,10 @@ public abstract class JsonTool {
 	 */
 	public static final String JURY_MEMBERSHIPS_SECTION = "juryMemberships"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to supervisions.
+	 */
+	public static final String SUPERVISIONS_SECTION = "supervisions"; //$NON-NLS-1$
+
 	/** Name of the field that contains the source of the data. Value of this field may be
 	 * {@code :db} or the name of the source.
 	 */
@@ -174,6 +178,10 @@ public abstract class JsonTool {
 	 */
 	protected  static final String JURY_MEMBERSHIP_ID_PREFIX = "/jurymbr#"; //$NON-NLS-1$
 
+	/** Prefix for supervision identifiers.
+	 */
+	protected  static final String SUPERVISION_ID_PREFIX = "/supervis#"; //$NON-NLS-1$
+
 	/** Prefix for person identifiers.
 	 */
 	protected  static final String PERSON_ID_PREFIX = "/pers#"; //$NON-NLS-1$
@@ -226,6 +234,10 @@ public abstract class JsonTool {
 	 */
 	protected static final String PERSON_KEY = "person"; //$NON-NLS-1$
 
+	/** Name of the field for a percentage.
+	 */
+	protected static final String PERCENT_KEY = "percent"; //$NON-NLS-1$
+
 	/** Name of the field for the candidate reference.
 	 */
 	protected static final String CANDIDATE_KEY = "candidate"; //$NON-NLS-1$
@@ -233,6 +245,34 @@ public abstract class JsonTool {
 	/** Name of the field for the promoters' references.
 	 */
 	protected static final String PROMOTERS_KEY = "promoters"; //$NON-NLS-1$
+
+	/** Name of the field for the supervisors' references.
+	 */
+	protected static final String SUPERVISORS_KEY = "supervisors"; //$NON-NLS-1$
+
+	/** Name of the field for the abandonment.
+	 */
+	protected static final String ABANDONMENT_KEY = "abandonment"; //$NON-NLS-1$
+
+	/** Name of the field for the defense date.
+	 */
+	protected static final String DEFENSE_DATE_KEY = "defenseDate"; //$NON-NLS-1$
+
+	/** Name of the field for the number of ATER positions.
+	 */
+	protected static final String ATER_COUNT_KEY = "aterCount"; //$NON-NLS-1$
+
+	/** Name of the field for the becoming of.
+	 */
+	protected static final String BECOMING_KEY = "becoming"; //$NON-NLS-1$
+
+	/** Name of the field for the funding.
+	 */
+	protected static final String FUNDING_KEY = "funding"; //$NON-NLS-1$
+
+	/** Name of the field for the funding details.
+	 */
+	protected static final String FUNDING_DETAILS_KEY = "fundingDetails"; //$NON-NLS-1$
 
 	/** Name of the field for the research organization reference.
 	 */
