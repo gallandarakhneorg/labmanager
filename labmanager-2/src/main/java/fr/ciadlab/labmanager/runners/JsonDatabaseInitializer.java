@@ -23,6 +23,7 @@ import java.net.URL;
 import fr.ciadlab.labmanager.io.json.JsonToDatabaseImporter;
 import fr.ciadlab.labmanager.io.json.ZipToDatabaseImporter;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.apache.jena.ext.com.google.common.io.Files;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.arakhne.afc.vmutil.Resources;
 import org.slf4j.Logger;
@@ -189,26 +190,127 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 		}
 		return null;
 	}
+	
+	/** Replies the URL of the data source (Zip or Json).
+	 *
+	 * @return the URL of the data source or {@code null} if none.
+	 */
+	protected URL detectDataUrl() {
+		final URL zipUrl = getZipDataURL();
+		if (zipUrl != null) {
+			return zipUrl;
+		}
+		final URL jsonUrl = getJsonDataURL();
+		if (jsonUrl != null) {
+			return jsonUrl;
+		}
+		return null;
+	}
+
+	/** Replies the importer code to be used for the given URL of the data source.
+	 *
+	 * @return the URL of the data source or {@code null} if none.
+	 */
+	protected Importer detectImporter(URL url) {
+		assert url != null;
+		if (FileSystem.hasExtension(url, ".zip")) { //$NON-NLS-1$
+			return it -> this.zipImporter.importArchiveFileToDatabase(it);
+		}
+		if (FileSystem.hasExtension(url, ".json")) { //$NON-NLS-1$
+			return it -> this.jsonImporter.importDataFileToDatabase(it);
+		}
+		return null;
+	}
+
+	/** Import the given archive file into the database.
+	 *
+	 * @param url the URL of data to be imported.
+	 * @param importer the callback function for doing the importation concretely.
+	 * @throws Exception if import process cannot be done.
+	 */
+	protected void doImport(URL url, Importer importer) throws Exception {
+		assert url != null;
+		assert importer != null;
+		getLogger().info("Database initialization with: " + url.toExternalForm()); //$NON-NLS-1$
+		createLockFile();
+		try {
+			importer.importFrom(url);
+		} finally {
+			deleteLockFile();
+		}
+	}
+
+	/** Replies the name of the endponit lock file.
+	 * 
+	 * @return the name of the lock file.
+	 */
+	protected File getLockFilename() {
+		return ConditionalOnInitializationLock.getLockFilename(this.dataSourceFolder);
+	}
+
+	/** Create the lock file for the endpoints.
+	 */
+	protected void createLockFile() {
+		try {
+			final File lockFile = getLockFilename();
+			if (lockFile != null) {
+				Files.touch(lockFile);
+			}
+		} catch (Throwable ex) {
+			getLogger().error(ex.getLocalizedMessage(), ex);
+		}
+	}
+
+	/** Delete the lock file for the endpoints.
+	 */
+	protected void deleteLockFile() {
+		try {
+			final File lockFile = getLockFilename();
+			if (lockFile != null) {
+				lockFile.delete();
+			}
+		} catch (Throwable ex) {
+			getLogger().error(ex.getLocalizedMessage(), ex);
+		}
+	}
 
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		if (this.enabled) {
-			final URL zipUrl = getZipDataURL();
-			if (zipUrl != null) {
-				getLogger().info("Database initialization with: " + zipUrl.toExternalForm()); //$NON-NLS-1$
-				this.zipImporter.importArchiveFileToDatabase(zipUrl);
-			} else {
-				final URL jsonUrl = getJsonDataURL();
-				if (jsonUrl != null) {
-					getLogger().info("Database initialization with: " + jsonUrl.toExternalForm()); //$NON-NLS-1$
-					this.jsonImporter.importDataFileToDatabase(jsonUrl);
+			URL dataUrl = detectDataUrl();
+			if (dataUrl != null) {
+				final Importer importer = detectImporter(dataUrl);
+				if (importer != null) {
+					doImport(dataUrl, importer);
 				} else {
-					getLogger().info("Database initialization is skipped because of lake of data source"); //$NON-NLS-1$
+					getLogger().warn("Database initialization is skipped because of lake of importer for " + dataUrl); //$NON-NLS-1$
 				}
+			} else {
+				getLogger().info("Database initialization is skipped because of lake of data source"); //$NON-NLS-1$
 			}
 		} else {
 			getLogger().info("Database initialization is disabled"); //$NON-NLS-1$
 		}
+	}
+
+	/** Importer of data into the database.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.2
+	 */
+	@FunctionalInterface
+	protected interface Importer {
+
+		/** Do the import from the data source with the given URL.
+		 *
+		 * @param url the URL of the data source.
+		 * @throws Exception any error during import process.
+		 */
+		void importFrom(URL url) throws Exception;
+
 	}
 
 }

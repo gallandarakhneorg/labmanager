@@ -130,6 +130,7 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 	 * @throws IllegalAccessError if there is no logged user.
 	 */
 	protected String readCredentials(String encryptedUsername, String serviceName, Object... serviceParams) {
+		checkMaintenance();
 		if (this.debugVersion) {
 			this.username = Constants.DEVELOPER;
 		} else {

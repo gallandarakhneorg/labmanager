@@ -93,7 +93,7 @@ public class SupervisionViewController extends AbstractViewController {
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + Constants.SUPERVISION_EDITING_ENDPOINT)
-	public ModelAndView juryMembershipEditor(
+	public ModelAndView supervisionEditor(
 			@RequestParam(required = true) int person,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.SUPERVISION_EDITING_ENDPOINT);

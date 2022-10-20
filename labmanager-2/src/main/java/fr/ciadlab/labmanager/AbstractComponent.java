@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager;
 
+import java.io.File;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -28,9 +29,11 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.runners.ConditionalOnInitializationLock;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
+import fr.ciadlab.labmanager.utils.MaintenanceException;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.slf4j.Logger;
@@ -62,6 +65,9 @@ public abstract class AbstractComponent {
 	@Value("${labmanager.debug}")
 	protected boolean debugVersion;
 
+	@Value("${labmanager.init.data-source")
+	private String dataSource;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
@@ -70,6 +76,17 @@ public abstract class AbstractComponent {
 	public AbstractComponent(MessageSourceAccessor messages, Constants constants) {
 		this.messages = messages;
 		this.constants = constants;
+	}
+
+	/** Check if the server is on maintenance.
+	 * If the service is on maintenance an {@link MaintenanceException exception} is thrown.
+	 * This exception could be catch by the server for building a proper HTTP response.
+	 */
+	protected void checkMaintenance() {
+		final File lockFile = ConditionalOnInitializationLock.getLockFilename(this.dataSource);
+		if (lockFile != null && lockFile.exists()) {
+			throw new MaintenanceException();
+		}
 	}
 
 	/** Replies the logger of this service.
@@ -358,7 +375,7 @@ public abstract class AbstractComponent {
 			}
 		}
 	}
-	
+
 	/** Extract a person from the description.
 	 * This description may contain the identifier of the person or the full name of the person.
 	 *
