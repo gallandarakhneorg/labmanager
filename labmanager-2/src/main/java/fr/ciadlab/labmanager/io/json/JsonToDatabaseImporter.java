@@ -52,6 +52,9 @@ import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.entities.supervision.Supervision;
+import fr.ciadlab.labmanager.entities.supervision.Supervisor;
+import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.jury.JuryMembershipRepository;
@@ -61,6 +64,7 @@ import fr.ciadlab.labmanager.repository.organization.OrganizationAddressReposito
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
+import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
@@ -114,6 +118,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private JuryMembershipRepository juryMembershipRepository;
 
+	private SupervisionRepository supervisionRepository;
+
 	private final Multimap<String, String> fieldAliases = LinkedListMultimap.create();
 
 	private boolean fake;
@@ -134,6 +140,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param authorshipRepository the accessor to the authorships.
 	 * @param personNameParser the parser of person names.
 	 * @param juryMembershipRepository the repository of jury memberships.
+	 * @param supervisionRepository the repository of supervisions.
 	 */
 	public JsonToDatabaseImporter(
 			@Autowired SessionFactory sessionFactory,
@@ -149,7 +156,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired PublicationComparator publicationComparator,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonNameParser personNameParser,
-			@Autowired JuryMembershipRepository juryMembershipRepository) {
+			@Autowired JuryMembershipRepository juryMembershipRepository,
+			@Autowired SupervisionRepository supervisionRepository) {
 		this.sessionFactory = sessionFactory;
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
@@ -164,6 +172,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.authorshipRepository = authorshipRepository;
 		this.personNameParser = personNameParser;
 		this.juryMembershipRepository = juryMembershipRepository;
+		this.supervisionRepository = supervisionRepository;
 		initializeFieldAliases();
 	}
 
@@ -220,6 +229,23 @@ public class JsonToDatabaseImporter extends JsonTool {
 			}
 		}
 		return null;
+	}
+
+	private static int getInt(JsonNode content, String key, int defaultValue) {
+		if (content != null && !Strings.isNullOrEmpty(key) && content.isObject()) {
+			final JsonNode value = content.get(key);
+			if (value != null) {
+				try {
+					final String strValue = value.asText();
+					if (!Strings.isNullOrEmpty(strValue)) {
+						return Integer.parseInt(strValue);
+					}
+				} catch (Throwable ex) {
+					//
+				}
+			}
+		}
+		return defaultValue;
 	}
 
 	/** Replies if the importer is using a fake saving in the database.
@@ -333,7 +359,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				+ stats.authors + " external authors;\n" //$NON-NLS-1$
 				+ stats.organizationMemberships + " organization memberships;\n" //$NON-NLS-1$
 				+ stats.publications + " publications;\n" //$NON-NLS-1$
-				+ stats.juryMemberships + " jury memberships."); //$NON-NLS-1$
+				+ stats.juryMemberships + " jury memberships;\n" //$NON-NLS-1$
+				+ stats.supervisions + " supervisions."); //$NON-NLS-1$
 	}
 
 	/** Run the importer for JSON data source only.
@@ -392,7 +419,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final int nb4 = added != null ? added.getLeft().intValue() : 0;
 				final int nb5 = added != null ? added.getRight().intValue() : 0;
 				final int nb7 = insertJuryMemberships(session, content.get(JURY_MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
-				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7);
+				final int nb8 = insertSupervisions(session, content.get(SUPERVISIONS_SECTION), objectRepository, aliasRepository);
+				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8);
 			}
 		}
 		return new Stats();
@@ -1194,6 +1222,91 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return nbNew;
 	}
 
+	/** Create the supervisions in the database.
+	 *
+	 * @param session the JPA session for managing transactions.
+	 * @param supervisions the list of supervisions in the Json source.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
+	 * @param aliasRepository the repository of field aliases.
+	 * @return the number of new supervisions in the database.
+	 * @throws Exception if a supervision cannot be created.
+	 */
+	protected int insertSupervisions(Session session, JsonNode supervisions, Map<String, Integer> objectIdRepository,
+			Map<String, Set<String>> aliasRepository) throws Exception {
+		int nbNew = 0;
+		if (supervisions != null && !supervisions.isEmpty()) {
+			getLogger().info("Inserting " + supervisions.size() + " supervisions..."); //$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (JsonNode supervisionObject : supervisions) {
+				getLogger().info("> Supervisions " + (i + 1) + "/" + supervisions.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final String id = getId(supervisionObject);
+					Supervision supervision = createObject(Supervision.class, supervisionObject, aliasRepository, null);
+					if (supervision != null) {
+						session.beginTransaction();
+						// Supervised Person
+						final String mbrId = getRef(supervisionObject.get(PERSON_KEY));
+						if (Strings.isNullOrEmpty(mbrId)) {
+							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
+						}
+						final Integer mbrDbId = objectIdRepository.get(mbrId);
+						if (mbrDbId == null || mbrDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
+						}
+						final Optional<Membership> targetMembership = this.organizationMembershipRepository.findById(mbrDbId);
+						if (targetMembership.isEmpty()) {
+							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
+						}
+						supervision.setSupervisedPerson(targetMembership.get());
+						if (!isFake()) {
+							this.supervisionRepository.save(supervision);
+						}
+						// Directors
+						final JsonNode supervisorsNode = supervisionObject.get(SUPERVISORS_KEY);
+						if (supervisorsNode != null && supervisorsNode.isArray()) {
+							final List<Supervisor> supervisors = new ArrayList<>();
+							for (final JsonNode supervisorNode : supervisorsNode) {
+								final Supervisor supervisorObj = new Supervisor();
+								final String supervisorId = getRef(supervisorNode.get(PERSON_KEY));
+								if (Strings.isNullOrEmpty(supervisorId)) {
+									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
+								}
+								final Integer supervisorDbId = objectIdRepository.get(supervisorId);
+								if (supervisorDbId == null || supervisorDbId.intValue() == 0) {
+									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
+								}
+								final Optional<Person> targetSupervisor = this.personRepository.findById(supervisorDbId);
+								if (targetSupervisor.isEmpty()) {
+									throw new IllegalArgumentException("Invalid supervisor reference for jury membership with id: " + id); //$NON-NLS-1$
+								}
+								supervisorObj.setSupervisor(targetSupervisor.get());
+								supervisorObj.setType(getEnum(supervisorNode, TYPE_KEY, SupervisorType.class));
+								supervisorObj.setPercentage(getInt(supervisorNode, PERCENT_KEY, 0));
+								supervisors.add(supervisorObj);
+							}
+							supervision.setSupervisors(supervisors);
+							if (!isFake()) {
+								this.supervisionRepository.save(supervision);
+							}
+						}
+						++nbNew;
+						getLogger().info("  + " + supervision.getSupervisedPerson().getPerson().getFullName() //$NON-NLS-1$
+								+ " - " + supervision.getSupervisedPerson().getShortDescription() //$NON-NLS-1$
+								+ " (id: " + supervision.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Integer.valueOf(supervision.getId()));
+						}
+						session.getTransaction().commit();
+					}
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(SUPERVISIONS_SECTION, i, supervisionObject, ex);
+				}
+				++i;
+			}
+		}
+		return nbNew;
+	}
+
 	/** Callback for files that are associated to elements from the JSON.
 	 * 
 	 * @author $Author: sgalland$
@@ -1264,6 +1377,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 */
 		public final int juryMemberships;
 
+		/** Number of created supervisions.
+		 */
+		public final int supervisions;
+
 		/** Constructor.
 		 *
 		 * @param addresses the number of created addresses.
@@ -1274,9 +1391,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param memberships the number of created organization memberships.
 		 * @param publications the number of created publications.
 		 * @param juryMemberships the number of created jury memberships.
+		 * @param supervisions the number of supervisions.
 		 */
 		Stats(int addresses, int organizations, int journals, int persons, int authors, int memberships, int publications,
-				int juryMemberships) {
+				int juryMemberships, int supervisions) {
 			this.addresses = addresses;
 			this.organizations = organizations;
 			this.journals = journals;
@@ -1285,12 +1403,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 			this.organizationMemberships = memberships;
 			this.publications = publications;
 			this.juryMemberships = juryMemberships;
+			this.supervisions = supervisions;
 		}
 
 		/** Constructor.
 		 */
 		Stats() {
-			this(0, 0, 0, 0, 0, 0, 0, 0);
+			this(0, 0, 0, 0, 0, 0, 0, 0, 0);
 		}
 
 	}
