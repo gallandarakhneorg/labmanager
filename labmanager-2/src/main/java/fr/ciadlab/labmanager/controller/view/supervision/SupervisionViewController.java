@@ -22,6 +22,7 @@ import java.util.stream.Collectors;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
@@ -29,6 +30,8 @@ import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.supervision.SupervisionService;
+import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -59,6 +62,8 @@ public class SupervisionViewController extends AbstractViewController {
 
 	private PersonComparator personComparator;
 
+	private PersonNameParser nameParser;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -78,12 +83,14 @@ public class SupervisionViewController extends AbstractViewController {
 			@Autowired MembershipService membershipService,
 			@Autowired PersonService personService,
 			@Autowired PersonComparator personComparator,
+			@Autowired PersonNameParser nameParser,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.supervisionService = supervisionService;
 		this.membershipService = membershipService;
 		this.personService = personService;
 		this.personComparator = personComparator;
+		this.nameParser = nameParser;
 	}
 
 	/** Replies the model-view component for showing the persons independently of the organization memberships.
@@ -122,6 +129,62 @@ public class SupervisionViewController extends AbstractViewController {
 		modelAndView.addObject("savingUrl", rooted(Constants.SUPERVISION_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("deletionUrl", rooted(Constants.SUPERVISION_DELETION_ENDPOINT)); //$NON-NLS-1$
 		//
+		return modelAndView;
+	}
+
+	/** Show the list of the supervisions for the given person.
+	 *
+	 * @param dbId the database identifier of the person who is supervisor. If it is not provided, the webId should be provided.
+	 * @param webId the web-page identifier of the person who is supervisor. If it is not provided, the dbId should be provided.
+	 * @param phds indicates if the Postdocs and PhDs are included.
+	 * @param masters indicates if the masters are included.
+	 * @param others indicates if the other types of formation (excl. PhDs and Masters) are included.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
+	 * @param username the name of the logged-in user.
+	 * @return the model-view.
+	 */
+	@GetMapping("/showSupervisions")
+	public ModelAndView showSupervisions(
+			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
+			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
+			@RequestParam(required = false, defaultValue = "true") boolean phds,
+			@RequestParam(required = false, defaultValue = "true") boolean masters,
+			@RequestParam(required = false, defaultValue = "true") boolean others,
+			@RequestParam(required = false, defaultValue = "false") boolean embedded,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		final String inWebId = inString(webId);
+		readCredentials(username, "showSupervisions", dbId, inWebId); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("showSupervisions"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, embedded);
+		//
+		final Person personObj = getPersonWith(dbId, inWebId, null, this.personService, this.nameParser);
+		if (personObj == null) {
+			throw new RuntimeException("Person not found"); //$NON-NLS-1$
+		}
+		final List<Supervision> supervisions = this.supervisionService.getSupervisionsForSupervisor(personObj.getId());
+		final List<Supervision> sortedSupervisions = supervisions.stream()
+				.filter(it -> {
+					final MemberStatus status = it.getSupervisedPerson().getMemberStatus();
+					assert status.isSupervisable();
+					switch (status) {
+					case POSTDOC:
+					case PHD_STUDENT:
+						return phds;
+					case MASTER_STUDENT:
+						return masters;
+					case OTHER_STUDENT:
+						return others;
+					default:
+					}
+					return false;
+				})
+				.sorted(EntityUtils.getPreferredSupervisionComparator())
+				.collect(Collectors.toList()); 
+		modelAndView.addObject("person", personObj); //$NON-NLS-1$
+		modelAndView.addObject("supervisions", sortedSupervisions); //$NON-NLS-1$
+		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
+		modelAndView.addObject("typeLabelKeyOrdering", Supervision.getAllLongTypeLabelKeys(personObj.getGender())); //$NON-NLS-1$
+		modelAndView.addObject("preferredSupervisorComparator", EntityUtils.getPreferredSupervisorComparator()); //$NON-NLS-1$
 		return modelAndView;
 	}
 

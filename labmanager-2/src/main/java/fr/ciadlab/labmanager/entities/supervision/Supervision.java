@@ -21,7 +21,10 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.TreeMap;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -40,8 +43,12 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
+import fr.ciadlab.labmanager.entities.member.Gender;
+import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
+import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.IntegerRange;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 
 /** Description of a person supervision.
@@ -458,4 +465,110 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 		this.abandonment = abandoned;
 	}
 
+	/** Replies the localization key for the long label that corresponds to the type of this supervision by a supervisor.
+	 *
+	 * @param supervisor the supervisor to consider
+	 * @return the key.
+	 * @throws IllegalArgumentException if the supervisor is not associated to this supervision.
+	 * @see #getAllLongTypeLabelKeys
+	 */
+	public String getLongTypeLabelKey(Person supervisor) {
+		final Optional<Supervisor> sup = getSupervisors().stream().filter(it -> it.getSupervisor().getId() == supervisor.getId()).findFirst();
+		if (sup.isPresent()) {
+			return buildLongTypeLabelKey(
+					sup.get().getType(),
+					getSupervisedPerson().getMemberStatus(),
+					supervisor.getGender());
+		}
+		throw new IllegalArgumentException("Invalid supervisor"); //$NON-NLS-1$
+	}
+
+	private static String buildLongTypeLabelKey(SupervisorType type, MemberStatus status, Gender gender) {
+		if (type != null && status != null && status.isSupervisable()) {
+			final StringBuilder key = new StringBuilder("supervision."); //$NON-NLS-1$
+			key.append(type.name()).append("_"); //$NON-NLS-1$
+			key.append(status.name());
+			Gender g = gender;
+			if (g == null || g == Gender.NOT_SPECIFIED) {
+				g = Gender.OTHER;
+			}
+			key.append("_"); //$NON-NLS-1$
+			key.append(g.name());
+			return key.toString();
+		}
+		return null;
+	}
+
+
+	/** Replies all the localization key for the long label that corresponds to the type of this supervision.
+	 * The keys are provided from the most important to the less important.
+	 *
+	 * @param gender the gender of the person.
+	 * @return the ordering index of each key.
+	 * @throws IllegalArgumentException if the supervisor is not associated to this supervision.
+	 * @see #getLongTypeLabelKey
+	 */
+	public static Map<String, Integer> getAllLongTypeLabelKeys(Gender gender) {
+		final Map<String, Integer> keys = new TreeMap<>();
+		int index = 0;
+		for (final MemberStatus status : MemberStatus.values()) {
+			if (status.isSupervisable()) {
+				for (final SupervisorType type : SupervisorType.values()) {
+					final String key = buildLongTypeLabelKey(type, status, gender);
+					keys.put(key, Integer.valueOf(index));
+					++index;
+				}
+			}
+		}
+		return keys;
+	}
+
+	/** Replies the reference year for this supervision.
+	 * If it is the end of the associated membership or the defense date or the start of the associated membership.
+	 *
+	 * @return the reference year, or the current year if unknown
+	 */
+	public int getYear() {
+		final Membership mbr = getSupervisedPerson();
+		if (mbr != null) {
+			LocalDate dt = mbr.getMemberToWhen();
+			if (dt != null) {
+				return dt.getYear();
+			}
+			dt = getDefenseDate();
+			if (dt != null) {
+				return dt.getYear();
+			}
+		}
+		return LocalDate.now().getYear();
+	}
+
+	/** Replies the range of years for this supervision.
+	 *
+	 * @return the year range.
+	 */
+	public IntegerRange getYearRange() {
+		final Membership mbr = getSupervisedPerson();
+		if (mbr != null) {
+			final List<Integer> years = new ArrayList<>(3);
+			LocalDate dt = mbr.getMemberToWhen();
+			if (dt != null) {
+				years.add(Integer.valueOf(dt.getYear()));
+			}
+			dt = getDefenseDate();
+			if (dt != null) {
+				years.add(Integer.valueOf(dt.getYear()));
+			}
+			if (years.isEmpty()) {
+				years.add(Integer.valueOf(LocalDate.now().getYear()));
+			}
+			dt = mbr.getMemberSinceWhen();
+			if (dt != null) {
+				years.add(Integer.valueOf(dt.getYear()));
+			}
+			return new IntegerRange(years);
+		}
+		return new IntegerRange();
+	}
+	
 }

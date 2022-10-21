@@ -32,7 +32,7 @@
             	<a th:href="${membership.candidate.webPageURI}"
             	   th:if="${membership.candidate.webPageURI != null}"
             	   class="noLink"
-            	   th:utext="${membership.candidate.fullName}"></a>
+            	   th:utext="${membership.candidate.fullNameWithLastNameFirst}"></a>
             	<th:block th:unless="${membership.candidate.webPageURI != null}"
             	          th:utext="${membership.candidate.fullNameWithLastNameFirst}"></th:block>
             </td>

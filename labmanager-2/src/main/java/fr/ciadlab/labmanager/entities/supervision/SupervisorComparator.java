@@ -60,7 +60,8 @@ public class SupervisorComparator implements Comparator<Supervisor> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = Integer.compare(s1.getPercentage(), s2.getPercentage());
+		// Higher percentage first
+		cmp = Integer.compare(s2.getPercentage(), s1.getPercentage());
 		if (cmp != 0) {
 			return cmp;
 		}

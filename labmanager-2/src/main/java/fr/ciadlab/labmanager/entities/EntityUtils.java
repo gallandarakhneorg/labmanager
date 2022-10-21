@@ -17,21 +17,29 @@
 package fr.ciadlab.labmanager.entities;
 
 import java.text.Normalizer;
+import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.Iterator;
 
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
+import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.MembershipComparator;
 import fr.ciadlab.labmanager.entities.member.NameBasedMembershipComparator;
+import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.member.PersonListComparator;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddressComparator;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.SorensenDicePublicationComparator;
+import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.SupervisionComparator;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorComparator;
+import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import info.debatty.java.stringsimilarity.SorensenDice;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.apache.commons.lang3.StringUtils;
@@ -445,6 +453,98 @@ public final class EntityUtils {
 		synchronized (EntityUtils.class) {
 			SUPERVISION_COMPARATOR = comparator;
 		}
+	}
+
+	/** Replies the name of the research organization, and possibly of the enclosing organizations up to the university.
+	 *
+	 * @param supervision the source supervision.
+	 * @param separator the text to put between the names of the organizations.
+	 * @return the name.
+	 * @since 2.2
+	 */
+	public static String getNameInUniversity(Supervision supervision, String separator) {
+		final Membership membership = supervision.getSupervisedPerson();
+		final ResearchOrganization organization = membership.getResearchOrganization();
+		final StringBuilder outcome = new StringBuilder();
+		outcome.append(organization.getNameOrAcronym());
+		
+		final StringBuilder univBuffer = new StringBuilder();
+		final int univType = ResearchOrganizationType.UNIVERSITY.ordinal();
+		boolean univFound = false;
+		if (organization.getType().ordinal() <= univType) {
+			ResearchOrganization org = organization.getSuperOrganization();
+			while (org != null && org.getType().ordinal() <= univType) {
+				univFound = org.getType().ordinal() == univType;
+				univBuffer.append(separator);
+				univBuffer.append(org.getNameOrAcronym());
+				org = org.getSuperOrganization();
+			}
+		}
+
+		if (!univFound) {
+			final LocalDate timeStart = membership.getMemberSinceWhen() == null
+					? LocalDate.of(supervision.getYear(), 1, 1) : membership.getMemberSinceWhen();
+			final LocalDate timeEnd = membership.getMemberToWhen() == null
+					? LocalDate.of(supervision.getYear(), 12, 31) : membership.getMemberToWhen();
+			final Iterator<Membership> iterator = supervision.getSupervisedPerson().getPerson().getMemberships().stream()
+					.filter(it -> it.getId() != membership.getId() && it.isActiveIn(timeStart, timeEnd)).iterator();
+			while (iterator.hasNext()) {
+				final Membership mbr = iterator.next();
+				if (mbr.getResearchOrganization().getType() == ResearchOrganizationType.UNIVERSITY) {
+					outcome.append(separator);
+					outcome.append(mbr.getResearchOrganization().getNameOrAcronym());
+					break;
+				}
+			}
+		} else {
+			outcome.append(univBuffer);
+		}
+		
+		return outcome.toString();
+	}
+
+	/** Replies the name of the university or company for the given person regarding the time windows of the given supervision.
+	 *
+	 * @param supervision the source supervision.
+	 * @param person the person.
+	 * @param prefix the text to put before the name of the university.
+	 * @param postfix the text to put after the name of the university.
+	 * @param acronym indicates if the acronyms of the organizations are preferred to the full names.
+	 * @return the university name, or empty string
+	 * @since 2.2
+	 */
+	public static String getUniversityOrSchoolOrCompany(Supervision supervision, Person person, String prefix, String postfix, boolean acronym) {
+		final Membership membership = supervision.getSupervisedPerson();
+		final LocalDate timeStart = membership.getMemberSinceWhen() == null
+				? LocalDate.of(supervision.getYear(), 1, 1) : membership.getMemberSinceWhen();
+		final LocalDate timeEnd = membership.getMemberToWhen() == null
+				? LocalDate.of(supervision.getYear(), 12, 31) : membership.getMemberToWhen();
+		final Iterator<Membership> iterator = person.getMemberships().stream()
+				.filter(it -> it.isActiveIn(timeStart, timeEnd)).iterator();
+		while (iterator.hasNext()) {
+			final Membership mbr = iterator.next();
+			final ResearchOrganization org = mbr.getResearchOrganization();
+			final ResearchOrganizationType otype = org.getType();
+			if (otype == ResearchOrganizationType.UNIVERSITY || otype == ResearchOrganizationType.HIGH_SCHOOL
+					|| otype == ResearchOrganizationType.OTHER) {
+				final StringBuilder b = new StringBuilder();
+				if (prefix != null) {
+					b.append(prefix);
+				}
+				if (acronym) {
+					b.append(org.getAcronymOrName());
+				} else {
+					b.append(org.getNameOrAcronym());
+				}
+				b.append(", "); //$NON-NLS-1$
+				b.append(CountryCodeUtils.getDisplayCountry(org.getCountry()));
+				if (postfix != null) {
+					b.append(postfix);
+				}
+				return b.toString();
+			}
+		}
+		return ""; //$NON-NLS-1$
 	}
 
 }

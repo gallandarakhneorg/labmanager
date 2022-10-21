@@ -76,6 +76,15 @@ public class SupervisionService extends AbstractService {
 		this.personService = personService;
 	}
 
+	/** Replies all the supervisions associated to the person with the given identifier, when he/she is one of the supervisors.
+	 *
+	 * @param supervisorId the identifier of the supervisor.
+	 * @return the list of the supervisions for the supervised person.
+	 */
+	public List<Supervision> getSupervisionsForSupervisor(int supervisorId) {
+		return this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Integer.valueOf(supervisorId));
+	}
+
 	/** Replies all the supervisions associated to the person with the given identifier, when he/she is the supervised person.
 	 *
 	 * @param supervisedPersonId the identifier of the supervised person.

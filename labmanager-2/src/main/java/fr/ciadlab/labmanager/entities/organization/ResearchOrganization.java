@@ -375,12 +375,26 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		this.superOrganization = orga;
 	}
 
-	/** Replies the acronym or the name of the research organization.
+	/** Replies the acronym or the name of the research organization, that order.
 	 *
 	 * @return the acronym or name.
+	 * @see #getNameOrAcronym()
+	 * @see #getAcronym()
+	 * @see #getName()
 	 */
 	public String getAcronymOrName() {
 		return Strings.isNullOrEmpty(this.acronym) ? this.name : this.acronym;
+	}
+
+	/** Replies the name or the acronym of the research organization, that order.
+	 *
+	 * @return the name or acronym.
+	 * @see #getAcronymOrName()
+	 * @see #getAcronym()
+	 * @see #getName()
+	 */
+	public String getNameOrAcronym() {
+		return Strings.isNullOrEmpty(this.name) ? this.acronym: this.name;
 	}
 
 	/** Replies the acronym of the research organization.
