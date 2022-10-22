@@ -97,6 +97,13 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@Lob
 	private String description;
 
+	/** Indicates if the organization is marked as a major organization on the server.
+	 *
+	 * @since 2.2
+	 */
+	@Column
+	private boolean majorOrganization;
+
 	/** Number of the organization in the "Repertoire National des Structures de Recherche"
 	 * of the French Ministry of Research.
 	 *
@@ -190,6 +197,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.country);
 		h = HashCodeUtils.add(h, this.description);
+		h = HashCodeUtils.add(h, this.majorOrganization);
 		h = HashCodeUtils.add(h, this.rnsr);
 		h = HashCodeUtils.add(h, this.nationalIdentifier);
 		h = HashCodeUtils.add(h, this.id);
@@ -221,6 +229,9 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 			return false;
 		}
 		if (!Objects.equals(this.name, other.name)) {
+			return false;
+		}
+		if (this.majorOrganization != other.majorOrganization) {
 			return false;
 		}
 		if (!Objects.equals(this.rnsr, other.rnsr)) {
@@ -269,6 +280,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		if (!Strings.isNullOrEmpty(getName())) {
 			consumer.accept("name", getName()); //$NON-NLS-1$
 		}
+		consumer.accept("majorOrganization", Boolean.valueOf(isMajorOrganization())); //$NON-NLS-1$
 		if (!Strings.isNullOrEmpty(getRnsr())) {
 			consumer.accept("rnsr", getRnsr()); //$NON-NLS-1$
 		}
@@ -671,6 +683,22 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	public void setNationalIdentifier(String identifier) {
 		this.nationalIdentifier = Strings.emptyToNull(identifier);
+	}
+
+	/** Replies if this organization is mared as a major organization.
+	 *
+	 * @return {@code true} if this organization is major.
+	 */
+	public boolean isMajorOrganization() {
+		return this.majorOrganization;
+	}
+
+	/** Change if this organization is mared as a major organization.
+	 *
+	 * @param major {@code true} if this organization is major.
+	 */
+	public void setMajorOrganization(boolean major) {
+		this.majorOrganization = major;
 	}
 
 }

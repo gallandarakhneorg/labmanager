@@ -114,6 +114,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 *
 	 * @param acronym the new acronym for the research organization.
 	 * @param name the new name for the research organization.
+	 * @param isMajor indicates if the organization is a major organization.
 	 * @param rnsr the number of the organization in the RNSR.
 	 * @param nationalIdentifier the number of the organization for the national minitry of research.
 	 * @param description the new description for the research organization.
@@ -125,6 +126,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @return the created organization in the database.
 	 */
 	public Optional<ResearchOrganization> createResearchOrganization(String acronym, String name,
+			boolean isMajor,
 			String rnsr, String nationalIdentifier, String description,
 			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization) {
 		final Optional<ResearchOrganization> sres;
@@ -147,6 +149,7 @@ public class ResearchOrganizationService extends AbstractService {
 		final ResearchOrganization res = new ResearchOrganization();
 		res.setAcronym(Strings.emptyToNull(acronym));
 		res.setName(Strings.emptyToNull(name));
+		res.setMajorOrganization(isMajor);
 		res.setRnsr(Strings.emptyToNull(rnsr));
 		res.setNationalIdentifier(Strings.emptyToNull(nationalIdentifier));
 		res.setDescription(Strings.emptyToNull(description));
@@ -191,6 +194,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param identifier the identifier of the research organization to be updated.
 	 * @param acronym the new acronym for the research organization.
 	 * @param name the new name for the research organization.
+	 * @param isMajor indicates if the organization is a major organization.
 	 * @param rnsr the number of the organization in the RNSR.
 	 * @param nationalIdentifier the identifier of the organization for the national ministry of research.
 	 * @param description the new description for the research organization.
@@ -202,6 +206,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @return the organization object that was updated.
 	 */
 	public Optional<ResearchOrganization> updateResearchOrganization(int identifier, String acronym, String name,
+			boolean isMajor,
 			String rnsr, String nationalIdentifier, String description,
 			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization) {
 		final Optional<ResearchOrganization> res = this.organizationRepository.findById(Integer.valueOf(identifier));
@@ -230,6 +235,7 @@ public class ResearchOrganizationService extends AbstractService {
 			if (!Strings.isNullOrEmpty(name)) {
 				organization.setName(name);
 			}
+			organization.setMajorOrganization(isMajor);
 			organization.setRnsr(Strings.emptyToNull(rnsr));
 			organization.setNationalIdentifier(Strings.emptyToNull(nationalIdentifier));
 			organization.setDescription(Strings.emptyToNull(description));

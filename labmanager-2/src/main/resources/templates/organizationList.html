@@ -23,14 +23,17 @@
     <tbody>
         <tr th:each="organization : ${organizations}">
             <td>
-                <th:block th:utext="${organization.id}"></th:block>
+                <span th:style="${organization.isMajorOrganization ? 'font-weight:900;' : ''}"
+                      th:utext="${organization.id}"></span>
             </td>
             <td>
                 <a th:if="${organization.organizationURL != null}"
                    th:href="${organization.organizationURL}"
+                   th:style="${organization.isMajorOrganization ? 'font-weight:900;' : ''}"
                    th:utext="${organization.acronym}"></a>
-                <th:block th:if="${organization.organizationURL == null}"
-                          th:utext="${organization.acronym}"></th:block>
+                <span th:if="${organization.organizationURL == null}"
+                      th:style="${organization.isMajorOrganization ? 'font-weight:900;' : ''}"
+                      th:utext="${organization.acronym}"></span>
             </td>
             <td>
                 <th:block th:utext="${organization.name}"></th:block>

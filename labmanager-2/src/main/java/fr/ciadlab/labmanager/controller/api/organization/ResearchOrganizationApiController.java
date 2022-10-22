@@ -108,6 +108,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	 *     an organization in the database.
 	 * @param acronym the acronym of the organization.
 	 * @param name the name of the organization.
+	 * @param major indicates if the organization is marked as major.
 	 * @param rnsr the number of the organization in the RNSR.
 	 * @param nationalIdentifier the identifier of the organization for the national ministry of research.
 	 * @param description the description of the organization.
@@ -124,6 +125,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer organization,
 			@RequestParam(required = true) String acronym,
 			@RequestParam(required = true) String name,
+			@RequestParam(required = false, defaultValue = "false") boolean major,
 			@RequestParam(required = false) String rnsr,
 			@RequestParam(required = false) String nationalIdentifier,
 			@RequestParam(required = false) String description,
@@ -148,11 +150,11 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			final Optional<ResearchOrganization> optOrganization;
 			if (organization == null) {
 				optOrganization = this.organizationService.createResearchOrganization(
-						inAcronym, inName, inRnsr, inNationalIdentifier, inDescription, typeObj,
+						inAcronym, inName, major, inRnsr, inNationalIdentifier, inDescription, typeObj,
 						inOrganizationURL, countryObj, organizationAddress, superOrganization);
 			} else {
 				optOrganization = this.organizationService.updateResearchOrganization(organization.intValue(),
-						inAcronym, inName, inRnsr, inNationalIdentifier, inDescription, typeObj,
+						inAcronym, inName, major, inRnsr, inNationalIdentifier, inDescription, typeObj,
 						inOrganizationURL, countryObj, organizationAddress, superOrganization);
 			}
 			if (optOrganization.isEmpty()) {

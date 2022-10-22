@@ -198,6 +198,20 @@ public class ResearchOrganizationTest {
 	}
 
 	@Test
+	public void isMajorOrganization() {
+		assertFalse(this.test.isMajorOrganization());
+	}
+
+	@Test
+	public void setMajorOrganization() {
+		this.test.setMajorOrganization(true);
+		assertTrue(this.test.isMajorOrganization());
+
+		this.test.setMajorOrganization(false);
+		assertFalse(this.test.isMajorOrganization());
+	}
+
+	@Test
 	public void getRnsr() {
 		assertNull(this.test.getRnsr());
 	}
