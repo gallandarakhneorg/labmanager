@@ -136,6 +136,7 @@ public class SupervisionViewController extends AbstractViewController {
 	 *
 	 * @param dbId the database identifier of the person who is supervisor. If it is not provided, the webId should be provided.
 	 * @param webId the web-page identifier of the person who is supervisor. If it is not provided, the dbId should be provided.
+	 * @param abandonment indicates if the abandoned positions are displayed. By default, they are hidden.
 	 * @param phds indicates if the Postdocs and PhDs are included.
 	 * @param masters indicates if the masters are included.
 	 * @param others indicates if the other types of formation (excl. PhDs and Masters) are included.
@@ -147,6 +148,7 @@ public class SupervisionViewController extends AbstractViewController {
 	public ModelAndView showSupervisions(
 			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
 			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
+			@RequestParam(required = false, defaultValue = "false") boolean abandonment,
 			@RequestParam(required = false, defaultValue = "true") boolean phds,
 			@RequestParam(required = false, defaultValue = "true") boolean masters,
 			@RequestParam(required = false, defaultValue = "true") boolean others,
@@ -164,17 +166,19 @@ public class SupervisionViewController extends AbstractViewController {
 		final List<Supervision> supervisions = this.supervisionService.getSupervisionsForSupervisor(personObj.getId());
 		final List<Supervision> sortedSupervisions = supervisions.stream()
 				.filter(it -> {
-					final MemberStatus status = it.getSupervisedPerson().getMemberStatus();
-					assert status.isSupervisable();
-					switch (status) {
-					case POSTDOC:
-					case PHD_STUDENT:
-						return phds;
-					case MASTER_STUDENT:
-						return masters;
-					case OTHER_STUDENT:
-						return others;
-					default:
+					if (abandonment || !it.getAbandonment()) {
+						final MemberStatus status = it.getSupervisedPerson().getMemberStatus();
+						assert status.isSupervisable();
+						switch (status) {
+						case POSTDOC:
+						case PHD_STUDENT:
+							return phds;
+						case MASTER_STUDENT:
+							return masters;
+						case OTHER_STUDENT:
+							return others;
+						default:
+						}
 					}
 					return false;
 				})
