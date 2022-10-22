@@ -108,6 +108,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	 *     an organization in the database.
 	 * @param acronym the acronym of the organization.
 	 * @param name the name of the organization.
+	 * @param rnsr the number of the organization in the RNSR.
 	 * @param description the description of the organization.
 	 * @param type the type of the organization. It is a constant of {@link ResearchOrganizationType}.
 	 * @param organizationURL the web-site of the organization.
@@ -122,6 +123,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer organization,
 			@RequestParam(required = true) String acronym,
 			@RequestParam(required = true) String name,
+			@RequestParam(required = false) String rnsr,
 			@RequestParam(required = false) String description,
 			@RequestParam(required = true) String type,
 			@RequestParam(required = false) String organizationURL,
@@ -136,16 +138,19 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			//
 			final String inAcronym = inString(acronym);
 			final String inName = inString(name);
+			final String inRnsr = inString(rnsr);
 			final String inDescription = inString(description);
 			final String inOrganizationURL = inString(organizationURL);
 			//
 			final Optional<ResearchOrganization> optOrganization;
 			if (organization == null) {
 				optOrganization = this.organizationService.createResearchOrganization(
-						inAcronym, inName, inDescription, typeObj, inOrganizationURL, countryObj, organizationAddress, superOrganization);
+						inAcronym, inName, inRnsr, inNationalIdentifier, inDescription, typeObj,
+						inOrganizationURL, countryObj, organizationAddress, superOrganization);
 			} else {
 				optOrganization = this.organizationService.updateResearchOrganization(organization.intValue(),
-						inAcronym, inName, inDescription, typeObj, inOrganizationURL, countryObj, organizationAddress, superOrganization);
+						inAcronym, inName, inRnsr, inNationalIdentifier, inDescription, typeObj,
+						inOrganizationURL, countryObj, organizationAddress, superOrganization);
 			}
 			if (optOrganization.isEmpty()) {
 				throw new IllegalStateException("Organization not found"); //$NON-NLS-1$

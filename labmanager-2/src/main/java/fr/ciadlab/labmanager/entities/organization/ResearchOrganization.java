@@ -66,11 +66,13 @@ import org.arakhne.afc.util.CountryCode;
 @Table(name = "ResearchOrgs")
 public class ResearchOrganization implements Serializable, JsonSerializable, Comparable<ResearchOrganization>, AttributeProvider, IdentifiableEntity {
 
+	private static final long serialVersionUID = -450531251083286848L;
+
 	/** Default type for research organizations.
 	 */
 	public static final ResearchOrganizationType DEFAULT_TYPE = ResearchOrganizationType.LABORATORY;
 
-	private static final long serialVersionUID = -450531251083286848L;
+	private static final String RNSR_URL = "https://appliweb.dgri.education.fr/rnsr/PresenteStruct.jsp?PUBLIC=OK&numNatStruct="; //$NON-NLS-1$
 
 	/** Identifier of the organization.
 	 */
@@ -94,6 +96,14 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	@Lob
 	private String description;
+
+	/** Number of the organization in the "Repertoire National des Structures de Recherche"
+	 * of the French Ministry of Research.
+	 *
+	 * @since 2.2
+	 */
+	@Column
+	private String rnsr;
 
 	/** The country of the organization.
 	 */
@@ -173,6 +183,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.country);
 		h = HashCodeUtils.add(h, this.description);
+		h = HashCodeUtils.add(h, this.rnsr);
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.organizationUrl);
@@ -202,6 +213,9 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 			return false;
 		}
 		if (!Objects.equals(this.name, other.name)) {
+			return false;
+		}
+		if (!Objects.equals(this.rnsr, other.rnsr)) {
 			return false;
 		}
 		if (!Objects.equals(this.organizationUrl, other.organizationUrl)) {
@@ -243,6 +257,9 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 		if (!Strings.isNullOrEmpty(getName())) {
 			consumer.accept("name", getName()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getRnsr())) {
+			consumer.accept("rnsr", getRnsr()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getOrganizationURL())) {
 			consumer.accept("organizationURL", getOrganizationURL()); //$NON-NLS-1$
@@ -587,6 +604,43 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		if (addresses != null) {
 			this.addresses.addAll(addresses);
 		}
+	}
+
+	/** Replies the number of the organization in the
+	 * "Repertoire National des Structures de Recherche" (RNSR).
+	 *
+	 * @return the RNSR number.
+	 * @see #getRnsrUrl()
+	 */
+	public String getRnsr() {
+		return this.rnsr;
+	}
+
+	/** change the number of the organization in the
+	 * "Repertoire National des Structures de Recherche" (RNSR).
+	 *
+	 * @param rnsr the RNSR number.
+	 */
+	public void setRnsr(String rnsr) {
+		this.rnsr = Strings.emptyToNull(rnsr);
+	}
+
+	/** Replies the URL of the page of the organization on the
+	 * "Repertoire National des Structures de Recherche" (RNSR).
+	 *
+	 * @return the URL to the RNSR, or {@code null} if the organization has no RNSR number.
+	 * @see #getRnsr()
+	 */
+	public URL getRnsrUrl() {
+		final String number = getRnsr();
+		if (!Strings.isNullOrEmpty(number)) {
+			try {
+				return new URL(RNSR_URL + number);
+			} catch (MalformedURLException ex) {
+				return null;
+			}
+		}
+		return null;
 	}
 
 }

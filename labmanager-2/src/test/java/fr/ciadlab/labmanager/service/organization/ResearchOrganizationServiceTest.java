@@ -207,7 +207,7 @@ public class ResearchOrganizationServiceTest {
 	public void createResearchOrganization() {
 		List<Integer> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
-		final Optional<ResearchOrganization> res = this.test.createResearchOrganization("NA", "NN", "ND",
+		final Optional<ResearchOrganization> res = this.test.createResearchOrganization("NA", "NN", "NRNSR", "NNI", "ND",
 				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0);
 		assertNotNull(res);
 		assertNotNull(res.get());
@@ -218,6 +218,8 @@ public class ResearchOrganizationServiceTest {
 		assertNotNull(actual);
 		assertEquals("NA", actual.getAcronym());
 		assertEquals("NN", actual.getName());
+		assertEquals("NNI", actual.getNationalIdentifier());
+		assertEquals("NRNSR", actual.getRnsr());
 		assertEquals("ND", actual.getDescription());
 		assertSame(ResearchOrganizationType.FACULTY, actual.getType());
 		assertEquals("NURL", actual.getOrganizationURL());
@@ -245,7 +247,7 @@ public class ResearchOrganizationServiceTest {
 	public void updateResearchOrganization() {
 		List<Integer> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
-		Optional<ResearchOrganization> res = this.test.updateResearchOrganization(234, "NA", "NN", "ND",
+		Optional<ResearchOrganization> res = this.test.updateResearchOrganization(234, "NA", "NN", "NRNSR", "NNI", "ND",
 				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0);
 		assertNotNull(res);
 		assertNotNull(res.get());
@@ -270,6 +272,9 @@ public class ResearchOrganizationServiceTest {
 
 		verify(this.orga1, atLeastOnce()).setName(arg2.capture());
 		assertEquals("NN", arg2.getValue());
+
+		verify(this.orga1, atLeastOnce()).setRnsr(arg2.capture());
+		assertEquals("NRNSR", arg2.getValue());
 
 		verify(this.orga1, atLeastOnce()).setDescription(arg2.capture());
 		assertEquals("ND", arg2.getValue());

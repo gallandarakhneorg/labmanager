@@ -153,6 +153,9 @@ public class ResearchOrganizationTest {
 		this.test.setName("");
 		assertNull(this.test.getName());
 
+		this.test.setName("abc");
+		assertEquals("abc", this.test.getName());
+
 		this.test.setName(null);
 		assertNull(this.test.getName());
 	}
@@ -172,6 +175,34 @@ public class ResearchOrganizationTest {
 
 		this.test.setDescription(null);
 		assertNull(this.test.getDescription());
+	}
+
+	@Test
+	public void getRnsr() {
+		assertNull(this.test.getRnsr());
+	}
+
+	@Test
+	public void setRnsr() {
+		this.test.setRnsr("xyz");
+		assertEquals("xyz", this.test.getRnsr());
+
+		this.test.setRnsr("");
+		assertNull(this.test.getRnsr());
+
+		this.test.setRnsr("abc");
+		assertEquals("abc", this.test.getRnsr());
+
+		this.test.setRnsr(null);
+		assertNull(this.test.getRnsr());
+	}
+
+	@Test
+	public void getRnsrUrl() {
+		assertNull(this.test.getRnsrUrl());
+	
+		this.test.setRnsr("xyz");
+		assertEquals("https://appliweb.dgri.education.fr/rnsr/PresenteStruct.jsp?PUBLIC=OK&numNatStruct=xyz", this.test.getRnsrUrl().toExternalForm());
 	}
 
 	@Test

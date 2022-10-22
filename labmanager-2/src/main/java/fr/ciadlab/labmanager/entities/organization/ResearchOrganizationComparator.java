@@ -58,6 +58,10 @@ public class ResearchOrganizationComparator implements Comparator<ResearchOrgani
 		if (cmp != 0) {
 			return cmp;
 		}
+		cmp = StringUtils.compare(o1.getRnsr(), o2.getRnsr());
+		if (cmp != 0) {
+			return cmp;
+		}
 		cmp = compareCountry(o1.getCountry(), o2.getCountry());
 		if (cmp != 0) {
 			return cmp;

@@ -114,6 +114,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 *
 	 * @param acronym the new acronym for the research organization.
 	 * @param name the new name for the research organization.
+	 * @param rnsr the number of the organization in the RNSR.
 	 * @param description the new description for the research organization.
 	 * @param type the type of the research organization.
 	 * @param organizationURL the web-site URL of the research organization.
@@ -122,7 +123,8 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
 	 * @return the created organization in the database.
 	 */
-	public Optional<ResearchOrganization> createResearchOrganization(String acronym, String name, String description,
+	public Optional<ResearchOrganization> createResearchOrganization(String acronym, String name,
+			String rnsr, String nationalIdentifier, String description,
 			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization) {
 		final Optional<ResearchOrganization> sres;
 		if (superOrganization != null && superOrganization.intValue() != 0) {
@@ -144,6 +146,7 @@ public class ResearchOrganizationService extends AbstractService {
 		final ResearchOrganization res = new ResearchOrganization();
 		res.setAcronym(Strings.emptyToNull(acronym));
 		res.setName(Strings.emptyToNull(name));
+		res.setRnsr(Strings.emptyToNull(rnsr));
 		res.setDescription(Strings.emptyToNull(description));
 		res.setType(type);
 		res.setOrganizationURL(Strings.emptyToNull(organizationURL));
@@ -186,6 +189,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param identifier the identifier of the research organization to be updated.
 	 * @param acronym the new acronym for the research organization.
 	 * @param name the new name for the research organization.
+	 * @param rnsr the number of the organization in the RNSR.
 	 * @param description the new description for the research organization.
 	 * @param type the type of the research organization.
 	 * @param organizationURL the web-site URL of the research organization.
@@ -194,7 +198,8 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
 	 * @return the organization object that was updated.
 	 */
-	public Optional<ResearchOrganization> updateResearchOrganization(int identifier, String acronym, String name, String description,
+	public Optional<ResearchOrganization> updateResearchOrganization(int identifier, String acronym, String name,
+			String rnsr, String nationalIdentifier, String description,
 			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization) {
 		final Optional<ResearchOrganization> res = this.organizationRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
@@ -222,6 +227,7 @@ public class ResearchOrganizationService extends AbstractService {
 			if (!Strings.isNullOrEmpty(name)) {
 				organization.setName(name);
 			}
+			organization.setRnsr(Strings.emptyToNull(rnsr));
 			organization.setDescription(Strings.emptyToNull(description));
 			organization.setType(type);
 			organization.setOrganizationURL(Strings.emptyToNull(organizationURL));
