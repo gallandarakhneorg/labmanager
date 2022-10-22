@@ -83,7 +83,7 @@ public class SupervisionApiController extends AbstractApiController {
 	 * @param fundingDetails some explanation and details about the funding scheme.
 	 * @param defenseDate the date (format {@code YYYY-MM-DD}) of the defense.
 	 * @param positionAfterSupervision an description of the becoming of the supervised person.
-	 * @param numberOfAteRPositions the number of ATER positions that were given to the supervised person.
+	 * @param numberOfAterPositions the number of ATER positions that were given to the supervised person.
 	 * @param jointPosition indicates if the position of the supervised person is in the context of a joint agreement between institutions (co-tutelle, etc.).
 	 * @param entrepreneur indicates if the supervised person has also a position of entrepreneur in parallel. 
 	 * @param username the name of the logged-in user.
@@ -101,7 +101,7 @@ public class SupervisionApiController extends AbstractApiController {
 			@RequestParam(required = false) String fundingDetails,
 			@RequestParam(required = false) String defenseDate,
 			@RequestParam(required = false) String positionAfterSupervision,
-			@RequestParam(required = false, defaultValue = "0") int numberOfAteRPositions,
+			@RequestParam(required = false, defaultValue = "0") int numberOfAterPositions,
 			@RequestParam(required = false, defaultValue = "false") boolean jointPosition,
 			@RequestParam(required = false, defaultValue = "false") boolean entrepreneur,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
@@ -135,14 +135,14 @@ public class SupervisionApiController extends AbstractApiController {
 				this.supervisionService.addSupervision(
 						membership, supervisorsObj, abandonment, inTitle, fundingSchemeObj,
 						inFundingDetails, defenseDateObj, inPositionAfterSupervision,
-						numberOfAteRPositions, jointPosition, entrepreneur);
+						numberOfAterPositions, jointPosition, entrepreneur);
 			} else {
 				// Update the supervision		
 				this.supervisionService.updateSupervision(
 						supervision.intValue(),
 						membership, supervisorsObj, abandonment, inTitle, fundingSchemeObj,
 						inFundingDetails, defenseDateObj, inPositionAfterSupervision,
-						numberOfAteRPositions, jointPosition, entrepreneur);
+						numberOfAterPositions, jointPosition, entrepreneur);
 			}
 		} catch (Throwable ex) {
 			getLogger().error(ex.getLocalizedMessage(), ex);

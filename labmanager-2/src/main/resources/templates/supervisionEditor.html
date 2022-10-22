@@ -50,11 +50,10 @@
 			<div class="form-group" th:replace="fragments/form :: dateInput(defenseDate_new, #{html.DefenseDate},'')"></div>
 			<div class="form-group" th:replace="fragments/form :: textInput(positionAfterSupervision_new, #{html.PositionAfterSupervision(${person.fullName})}, #{html.PlaceHolderPositionAfterSupervision(${person.fullName})}, '')"></div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(numberOfAterPositions_new, #{html.NumberOfAterPositions(${person.fullName})}, ~{::option#option-numberOfAterPositions-new})">
-				<option id="option-numberOfAterPositions-new" value="0">0</option>
-				<option id="option-numberOfAterPositions-new" value="1">1</option>
-				<option id="option-numberOfAterPositions-new" value="2">2</option>
-				<option id="option-numberOfAterPositions-new" value="3">3</option>
-				<option id="option-numberOfAterPositions-new" value="4">4</option>
+				<option id="option-numberOfAterPositions-new"
+				        th:each="i : ${#numbers.sequence(0, 4, 1)}"
+				        th:value="${i}"
+				        th:utext="${i}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: checkInput(jointPosition_new, #{html.JointPosition}, #{html.JointPosition}, ${false})"></div>
 			<div class="form-group" th:replace="fragments/form :: checkInput(entrepreneur_new, #{html.Entrepreneur(${person.fullName})}, #{html.Entrepreneur(${person.fullName})}, ${false})"></div>
@@ -129,16 +128,11 @@
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'defenseDate_' + supervision.id}, #{html.DefenseDate}, ${supervision.defenseDate != null ? supervision.defenseDate.toString : ''})"></div>
 			<div class="form-group" th:replace="fragments/form :: textInput(${'positionAfterSupervision_' + supervision.id}, #{html.PositionAfterSupervision(${person.fullName})}, #{html.PlaceHolderPositionAfterSupervision(${person.fullName})}, ${supervision.positionAfterSupervision})"></div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(${'numberOfAterPositions_' + supervision.id}, #{html.NumberOfAterPositions(${person.fullName})}, ~{::option#option-numberOfAterPositions})">
-				<option id="option-numberOfAterPositions" value="0"
-				        th:selected="${supervision.numberOfAterPositions <= 0}">0</option>
-				<option id="option-numberOfAterPositions" value="1"
-				        th:selected="${supervision.numberOfAterPositions == 1}">1</option>
-				<option id="option-numberOfAterPositions" value="2"
-				        th:selected="${supervision.numberOfAterPositions == 2}">2</option>
-				<option id="option-numberOfAterPositions" value="3"
-				        th:selected="${supervision.numberOfAterPositions == 3}">3</option>
-				<option id="option-numberOfAterPositions" value="4"
-				        th:selected="${supervision.numberOfAterPositions >= 4}">4</option>
+				<option id="option-numberOfAterPositions"
+				        th:each="i : ${#numbers.sequence(0, 4, 1)}"
+				        th:value="${i}"
+				        th:selected="${supervision.numberOfAterPositions == i}"
+				        th:utext="${i}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: checkInput(${'jointPosition_' + supervision.id}, #{html.JointPosition}, #{html.JointPosition}, ${supervision.jointPosition})"></div>
 			<div class="form-group" th:replace="fragments/form :: checkInput(${'entrepreneur_' + supervision.id}, #{html.Entrepreneur(${person.fullName})}, #{html.Entrepreneur(${person.fullName})}, ${supervision.entrepreneur})"></div>
