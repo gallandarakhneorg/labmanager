@@ -25,6 +25,9 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 import com.aspose.pdf.Document;
 import com.aspose.pdf.Page;
@@ -50,6 +53,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Component
 @Primary
 public class DefaultDownloadableFileManager implements DownloadableFileManager {
+
+	private static final int JPEG_RESOLUTION = 50;
 
 	private static final String TEMP_NAME = "labmanager_tmp"; //$NON-NLS-1$
 
@@ -222,7 +227,7 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 		try (final InputStream pdfStream = new FileInputStream(pdfFile)) {
 			try (final Document pdfDocument = new  Document(pdfStream)) {
 				if (!pdfDocument.getPages().isEmpty()) {
-					final Resolution resolution = new Resolution(300);
+					final Resolution resolution = new Resolution(JPEG_RESOLUTION);
 					// Create JpegDevice object where second argument indicates the quality of resultant image
 					final JpegDevice jpegDevice = new JpegDevice(resolution, 100);
 					// Convert a particular page and save the image to stream
@@ -305,6 +310,47 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 				if (callback != null) {
 					callback.apply("award_picture", sourceAwardPictureRel.toString(), targetAwardPictureRel.toString()); //$NON-NLS-1$
 				}
+			}
+		}
+	}
+
+	@Override
+	public List<File> regeneratePictureFiles() throws IOException {
+		final List<File> generated = new ArrayList<>();
+		File folder = normalizeForServerSide(getAwardRootFile());
+		deletePictureFiles(folder);
+		generatePictureFiles(folder, generated);
+		folder = normalizeForServerSide(getPdfRootFile());
+		deletePictureFiles(folder);
+		generatePictureFiles(folder, generated);
+		return generated;
+	}
+
+	/** Remove all the picture files in the given folder.
+	 *
+	 * @param folder the folder.
+	 * @throws IOException if the pictures cannot be generated.
+	 */
+	protected static void deletePictureFiles(File folder) throws IOException {
+		if (folder != null) {
+			for (File jpegFile : folder.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION))) {
+				jpegFile.delete();
+			}
+		}
+	}
+
+	/** Generate the picture files in the given folder.
+	 *
+	 * @param folder the folder.
+	 * @param generated the collection that is filled up with the filenames of the generated pictures.
+	 * @throws IOException if the pictures cannot be generated.
+	 */
+	protected void generatePictureFiles(File folder, Collection<File> generated) throws IOException {
+		if (folder != null) {
+			for (File pdfFile: folder.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION))) {
+				final File jpegFile = FileSystem.replaceExtension(pdfFile, JPEG_FILE_EXTENSION);
+				ensurePictureFile(pdfFile, jpegFile);
+				generated.add(jpegFile);
 			}
 		}
 	}

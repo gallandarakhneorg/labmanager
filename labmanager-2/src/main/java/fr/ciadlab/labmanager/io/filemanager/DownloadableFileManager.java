@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.io.filemanager;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure3;
 import org.springframework.web.multipart.MultipartFile;
@@ -126,5 +127,12 @@ public interface DownloadableFileManager {
 	 * @throws IOException if the files cannot be moved.
 	 */
 	void moveFiles(int sourceId, int targetId, Procedure3<String, String, String> callback) throws IOException;
+
+	/** Regenerate all the picture files. This function generate a JPEG file for each PDF file found in the folder.
+	 *
+	 * @return the list of generated files
+	 * @throws IOException if the file cannot be created.
+	 */
+	List<File> regeneratePictureFiles() throws IOException;
 
 }
