@@ -13,6 +13,7 @@
 		<th th:text="#{html.Acronym}"></th>
 		<th th:text="#{html.Name}"></th>
 		<th th:text="#{html.Type}"></th>
+		<th th:text="#{html.NationalIdentifier0}"></th>
 		<th th:text="#{html.RnsrNumber0}"></th>
 		<th th:text="#{html.Country}"></th>
 		<th th:text="#{html.SuperOrganization}"></th>
@@ -36,6 +37,9 @@
             </td>
             <td>
                 <th:block th:utext="${organization.type.getLabel()}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${organization.nationalIdentifier}"></th:block>
             </td>
             <td>
                 <th:block th:utext="${organization.rnsr}"></th:block>
@@ -66,7 +70,7 @@
 <script type="text/javascript" th:inline="javascript">
     $(document).ready(() => {
     	initAdministrationTable({
-    		columns: 8,
+    		columns: 9,
     	});
         /*[# th:if="${changeEnabled}" th:each="organization : ${organizations}"]*/
     	attachDeletionHandler({

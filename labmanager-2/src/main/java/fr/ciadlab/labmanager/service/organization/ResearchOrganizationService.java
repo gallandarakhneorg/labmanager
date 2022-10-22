@@ -115,6 +115,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param acronym the new acronym for the research organization.
 	 * @param name the new name for the research organization.
 	 * @param rnsr the number of the organization in the RNSR.
+	 * @param nationalIdentifier the number of the organization for the national minitry of research.
 	 * @param description the new description for the research organization.
 	 * @param type the type of the research organization.
 	 * @param organizationURL the web-site URL of the research organization.
@@ -147,6 +148,7 @@ public class ResearchOrganizationService extends AbstractService {
 		res.setAcronym(Strings.emptyToNull(acronym));
 		res.setName(Strings.emptyToNull(name));
 		res.setRnsr(Strings.emptyToNull(rnsr));
+		res.setNationalIdentifier(Strings.emptyToNull(nationalIdentifier));
 		res.setDescription(Strings.emptyToNull(description));
 		res.setType(type);
 		res.setOrganizationURL(Strings.emptyToNull(organizationURL));
@@ -190,6 +192,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param acronym the new acronym for the research organization.
 	 * @param name the new name for the research organization.
 	 * @param rnsr the number of the organization in the RNSR.
+	 * @param nationalIdentifier the identifier of the organization for the national ministry of research.
 	 * @param description the new description for the research organization.
 	 * @param type the type of the research organization.
 	 * @param organizationURL the web-site URL of the research organization.
@@ -228,6 +231,7 @@ public class ResearchOrganizationService extends AbstractService {
 				organization.setName(name);
 			}
 			organization.setRnsr(Strings.emptyToNull(rnsr));
+			organization.setNationalIdentifier(Strings.emptyToNull(nationalIdentifier));
 			organization.setDescription(Strings.emptyToNull(description));
 			organization.setType(type);
 			organization.setOrganizationURL(Strings.emptyToNull(organizationURL));

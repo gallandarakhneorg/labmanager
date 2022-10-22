@@ -109,6 +109,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	 * @param acronym the acronym of the organization.
 	 * @param name the name of the organization.
 	 * @param rnsr the number of the organization in the RNSR.
+	 * @param nationalIdentifier the identifier of the organization for the national ministry of research.
 	 * @param description the description of the organization.
 	 * @param type the type of the organization. It is a constant of {@link ResearchOrganizationType}.
 	 * @param organizationURL the web-site of the organization.
@@ -124,6 +125,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@RequestParam(required = true) String acronym,
 			@RequestParam(required = true) String name,
 			@RequestParam(required = false) String rnsr,
+			@RequestParam(required = false) String nationalIdentifier,
 			@RequestParam(required = false) String description,
 			@RequestParam(required = true) String type,
 			@RequestParam(required = false) String organizationURL,
@@ -139,6 +141,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			final String inAcronym = inString(acronym);
 			final String inName = inString(name);
 			final String inRnsr = inString(rnsr);
+			final String inNationalIdentifier = inString(nationalIdentifier);
 			final String inDescription = inString(description);
 			final String inOrganizationURL = inString(organizationURL);
 			//

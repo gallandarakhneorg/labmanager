@@ -105,6 +105,13 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@Column
 	private String rnsr;
 
+	/** Identifier of the organization for the French Ministry of Research.
+	 *
+	 * @since 2.2
+	 */
+	@Column
+	private String nationalIdentifier;
+
 	/** The country of the organization.
 	 */
 	@Column(nullable = false)
@@ -184,6 +191,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		h = HashCodeUtils.add(h, this.country);
 		h = HashCodeUtils.add(h, this.description);
 		h = HashCodeUtils.add(h, this.rnsr);
+		h = HashCodeUtils.add(h, this.nationalIdentifier);
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.organizationUrl);
@@ -216,6 +224,9 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 			return false;
 		}
 		if (!Objects.equals(this.rnsr, other.rnsr)) {
+			return false;
+		}
+		if (!Objects.equals(this.nationalIdentifier, other.nationalIdentifier)) {
 			return false;
 		}
 		if (!Objects.equals(this.organizationUrl, other.organizationUrl)) {
@@ -260,6 +271,9 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 		if (!Strings.isNullOrEmpty(getRnsr())) {
 			consumer.accept("rnsr", getRnsr()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getNationalIdentifier())) {
+			consumer.accept("nationalIdentifier", getNationalIdentifier()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getOrganizationURL())) {
 			consumer.accept("organizationURL", getOrganizationURL()); //$NON-NLS-1$
@@ -641,6 +655,22 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 			}
 		}
 		return null;
+	}
+
+	/** Replies the number of the organization for the national ministry of research.
+	 *
+	 * @return the national identifier.
+	 */
+	public String getNationalIdentifier() {
+		return this.nationalIdentifier;
+	}
+
+	/** Change the number of the organization for the national ministry of research.
+	 *
+	 * @param identifier the national identifier.
+	 */
+	public void setNationalIdentifier(String identifier) {
+		this.nationalIdentifier = Strings.emptyToNull(identifier);
 	}
 
 }

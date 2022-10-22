@@ -161,6 +161,26 @@ public class ResearchOrganizationTest {
 	}
 
 	@Test
+	public void getNationalIdentifier() {
+		assertNull(this.test.getNationalIdentifier());
+	}
+
+	@Test
+	public void setNationalIdentifier() {
+		this.test.setNationalIdentifier("xyz");
+		assertEquals("xyz", this.test.getNationalIdentifier());
+
+		this.test.setNationalIdentifier("");
+		assertNull(this.test.getNationalIdentifier());
+
+		this.test.setNationalIdentifier("abc");
+		assertEquals("abc", this.test.getNationalIdentifier());
+
+		this.test.setNationalIdentifier(null);
+		assertNull(this.test.getNationalIdentifier());
+	}
+
+	@Test
 	public void getDescription() {
 		assertNull(this.test.getDescription());
 	}

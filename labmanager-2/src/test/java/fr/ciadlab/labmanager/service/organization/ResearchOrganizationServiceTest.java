@@ -276,6 +276,9 @@ public class ResearchOrganizationServiceTest {
 		verify(this.orga1, atLeastOnce()).setRnsr(arg2.capture());
 		assertEquals("NRNSR", arg2.getValue());
 
+		verify(this.orga1, atLeastOnce()).setNationalIdentifier(arg2.capture());
+		assertEquals("NNI", arg2.getValue());
+
 		verify(this.orga1, atLeastOnce()).setDescription(arg2.capture());
 		assertEquals("ND", arg2.getValue());
 

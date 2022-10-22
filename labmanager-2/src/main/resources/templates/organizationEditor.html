@@ -21,6 +21,7 @@
 		        th:value="${type.name}"
 		        th:utext="${type.getLabel()}"></option>
 	</div>
+	<div class="form-group" th:replace="fragments/form :: textInput*(nationalIdentifier, #{html.NationalIdentifier}, #{html.PlaceHolderNationalIdentifier}, ${organization != null ? organization.nationalIdentifier : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput*(rnsr, #{html.RnsrNumber}, #{html.PlaceHolderRnsrNumber}, ${organization != null ? organization.rnsr : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: comboInput*(country, #{html.Country}, ~{::option#option-country})">
 		<option id="option-country"
