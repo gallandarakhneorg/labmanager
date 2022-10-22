@@ -225,7 +225,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 		}
 		consumer.accept("jointPosition", Boolean.valueOf(isJointPosition())); //$NON-NLS-1$
 		consumer.accept("entrepreneur", Boolean.valueOf(isEntrepreneur())); //$NON-NLS-1$
-		consumer.accept("abandonment", Boolean.valueOf(getAbandonment())); //$NON-NLS-1$
+		consumer.accept("abandonment", Boolean.valueOf(isAbandonment())); //$NON-NLS-1$
 	}
 
 	@Override
@@ -413,6 +413,19 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 		}
 	}
 
+	/** Change the number of times the supervised person has received an ATER position at the end of the
+	 * supervised person or just after.
+	 *
+	 * @param times the number of ATER positions.
+	 */
+	public final void setNumberOfAterPositions(Number times) {
+		if (times == null) {
+			setNumberOfAterPositions(0);
+		} else {
+			setNumberOfAterPositions(times.intValue());
+		}
+	}
+
 	/** Replies if the current supervision is a joint position between the institutions of the supervisors.
 	 *
 	 * @return {@code true} if the current supervising position is jointly supported by the institutions
@@ -429,6 +442,19 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	 */
 	public void setJointPosition(boolean joint) {
 		this.isJointPosition = joint;
+	}
+
+	/** Change the flag tat indicates if the current supervision is a joint position between the institutions of the supervisors.
+	 *
+	 * @param joint {@code true} if the current supervising position is jointly supported by the institutions
+	 *    of the supervisors.
+	 */
+	public final void setJointPosition(Boolean joint) {
+		if (joint == null) {
+			setJointPosition(false);
+		} else {
+			setJointPosition(joint.booleanValue());
+		}
 	}
 
 	/** Replies if the supervised person is also an entrepreneur, i.e. s/he is creating a company in parallel
@@ -449,11 +475,24 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 		this.isEntrepreneur = entrepreneur;
 	}
 
+	/** Change the flag that indicates if the supervised person is also an entrepreneur, i.e. s/he is creating a company in parallel
+	 * to her/his supervision period.
+	 *
+	 * @param entrepreneur {@code true} if the supervised person is also an entrepreneur.
+	 */
+	public final void setEntrepreneur(Boolean entrepreneur) {
+		if (entrepreneur == null) {
+			setEntrepreneur(false);
+		} else {
+			setEntrepreneur(entrepreneur.booleanValue());
+		}
+	}
+
 	/** Replies if the supervised person has abandoned her/his position.
 	 *
 	 * @return {@code true} if the supervision was abandoned.
 	 */
-	public boolean getAbandonment() {
+	public boolean isAbandonment() {
 		return this.abandonment;
 	}
 
@@ -463,6 +502,18 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	 */
 	public void setAbandonment(boolean abandoned) {
 		this.abandonment = abandoned;
+	}
+
+	/** Change if the supervised person has abandoned her/his position.
+	 *
+	 * @param abandoned {@code true} if the supervision was abandoned.
+	 */
+	public final void setAbandonment(Boolean abandoned) {
+		if (abandoned == null) {
+			setAbandonment(false);
+		} else {
+			setAbandonment(abandoned.booleanValue());
+		}
 	}
 
 	/** Replies the localization key for the long label that corresponds to the type of this supervision by a supervisor.

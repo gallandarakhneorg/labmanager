@@ -60,16 +60,16 @@ import org.junit.jupiter.api.Test;
 	 }
 
 	 @Test
-	 public void getAbandonment() {
-		 assertFalse(this.test.getAbandonment());
+	 public void isAbandonment() {
+		 assertFalse(this.test.isAbandonment());
 	 }
 
 	 @Test
 	 public void setAbandonment() {
 		 this.test.setAbandonment(true);
-		 assertTrue(this.test.getAbandonment());
+		 assertTrue(this.test.isAbandonment());
 		 this.test.setAbandonment(false);
-		 assertFalse(this.test.getAbandonment());
+		 assertFalse(this.test.isAbandonment());
 	 }
 
 	 @Test

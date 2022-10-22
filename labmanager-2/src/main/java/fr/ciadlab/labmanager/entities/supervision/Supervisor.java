@@ -180,6 +180,18 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 		this.percentage = p;
 	}
 
+	/** Change the percentage of supervision.
+	 *
+	 * @param percentage the percentage of supervision between 0 and 100.
+	 */
+	public final void setPercentage(Number percentage) {
+		if (percentage == null) {
+			setPercentage(0);
+		} else {
+			setPercentage(percentage.intValue());
+		}
+	}
+
 	/** Replies the type of supervisor.
 	 *
 	 * @return the type.

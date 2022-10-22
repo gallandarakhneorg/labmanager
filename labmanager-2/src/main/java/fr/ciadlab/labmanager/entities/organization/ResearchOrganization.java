@@ -701,4 +701,16 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		this.majorOrganization = major;
 	}
 
+	/** Change if this organization is mared as a major organization.
+	 *
+	 * @param major {@code true} if this organization is major.
+	 */
+	public final void setMajorOrganization(Boolean major) {
+		if (major == null) {
+			setMajorOrganization(false);
+		} else {
+			setMajorOrganization(major.booleanValue());
+		}
+	}
+
 }

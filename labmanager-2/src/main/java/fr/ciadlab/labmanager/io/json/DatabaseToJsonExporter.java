@@ -659,7 +659,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			int i = 0;
 			for (final Supervision supervision : supervisions) {
 				final ObjectNode jsonSupervision = array.objectNode();
-
+				
 				final String id = SUPERVISION_ID_PREFIX + i;
 				exportObject(jsonSupervision, id, supervision, jsonSupervision, null);
 

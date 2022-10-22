@@ -166,7 +166,7 @@ public class SupervisionViewController extends AbstractViewController {
 		final List<Supervision> supervisions = this.supervisionService.getSupervisionsForSupervisor(personObj.getId());
 		final List<Supervision> sortedSupervisions = supervisions.stream()
 				.filter(it -> {
-					if (abandonment || !it.getAbandonment()) {
+					if (abandonment || !it.isAbandonment()) {
 						final MemberStatus status = it.getSupervisedPerson().getMemberStatus();
 						assert status.isSupervisable();
 						switch (status) {

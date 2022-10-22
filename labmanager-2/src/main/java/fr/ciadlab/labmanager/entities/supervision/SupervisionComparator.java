@@ -102,7 +102,7 @@ public class SupervisionComparator implements Comparator<Supervision> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = Boolean.compare(s1.getAbandonment(), s2.getAbandonment());
+		cmp = Boolean.compare(s1.isAbandonment(), s2.isAbandonment());
 		if (cmp != 0) {
 			return cmp;
 		}

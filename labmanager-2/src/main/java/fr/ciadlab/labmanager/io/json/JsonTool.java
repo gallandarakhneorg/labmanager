@@ -467,7 +467,8 @@ public abstract class JsonTool {
 		for (final Method meth : source.getMethods()) {
 			final String name = meth.getName().toLowerCase();
 			if (meth.getParameterCount() == 1
-					&& (Number.class.equals(meth.getParameterTypes()[0])
+					&& (meth.getParameterTypes()[0].isPrimitive()
+							|| Number.class.equals(meth.getParameterTypes()[0])
 							|| String.class.equals(meth.getParameterTypes()[0])
 							|| Boolean.class.equals(meth.getParameterTypes()[0]))
 					&& name.startsWith(SETTER_FUNCTION_PREFIX)) {
@@ -492,6 +493,8 @@ public abstract class JsonTool {
 				}
 			}
 		}
+		//
+		getters.remove("id"); //$NON-NLS-1$
 		//
 		final Iterator<Entry<String, Method>> iterator = getters.entrySet().iterator();
 		while (iterator.hasNext()) {
