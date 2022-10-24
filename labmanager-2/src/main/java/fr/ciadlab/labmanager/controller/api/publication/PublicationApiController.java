@@ -67,7 +67,7 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 @CrossOrigin
 public class PublicationApiController extends AbstractApiController {
 
-	private static final int THUMBNAIL_SERVICE_TIMEOUT = 180000;
+	private static final int THUMBNAIL_SERVICE_TIMEOUT = 1200000;
 
 	private static final int THUMBNAIL_STEP_1 = 1;
 
