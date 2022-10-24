@@ -25,15 +25,16 @@ import java.io.OutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.stream.Stream;
 
 import com.aspose.pdf.Document;
 import com.aspose.pdf.Page;
 import com.aspose.pdf.devices.JpegDevice;
 import com.aspose.pdf.devices.Resolution;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.sizediterator.SizedIterator;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure3;
 import org.springframework.beans.factory.annotation.Value;
@@ -315,44 +316,82 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	}
 
 	@Override
-	public List<File> regeneratePictureFiles() throws IOException {
-		final List<File> generated = new ArrayList<>();
-		File folder = normalizeForServerSide(getAwardRootFile());
-		deletePictureFiles(folder);
-		generatePictureFiles(folder, generated);
-		folder = normalizeForServerSide(getPdfRootFile());
-		deletePictureFiles(folder);
-		generatePictureFiles(folder, generated);
-		return generated;
+	public SizedIterator<File> getUploadedPdfFiles() {
+		final File folder0 = normalizeForServerSide(getAwardRootFile());
+		final File folder1 = normalizeForServerSide(getPdfRootFile());
+		final File[] files0 = folder0.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION));
+		final File[] files1 = folder1.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION));
+		final Stream<File> combinedStream = Stream.concat(
+				Arrays.asList(files0).stream(),
+				Arrays.asList(files1).stream());
+		return new FileSizedIterator(files0.length + files1.length, combinedStream.iterator());
 	}
 
-	/** Remove all the picture files in the given folder.
-	 *
-	 * @param folder the folder.
-	 * @throws IOException if the pictures cannot be generated.
-	 */
-	protected static void deletePictureFiles(File folder) throws IOException {
-		if (folder != null) {
-			for (File jpegFile : folder.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION))) {
-				jpegFile.delete();
-			}
-		}
+	@Override
+	public SizedIterator<File> getThumbailFiles() {
+		final File folder0 = normalizeForServerSide(getAwardRootFile());
+		final File folder1 = normalizeForServerSide(getPdfRootFile());
+		final File[] files0 = folder0.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION));
+		final File[] files1 = folder1.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION));
+		final Stream<File> combinedStream = Stream.concat(
+				Arrays.asList(files0).stream(),
+				Arrays.asList(files1).stream());
+		return new FileSizedIterator(files0.length + files1.length, combinedStream.iterator());
 	}
 
-	/** Generate the picture files in the given folder.
-	 *
-	 * @param folder the folder.
-	 * @param generated the collection that is filled up with the filenames of the generated pictures.
-	 * @throws IOException if the pictures cannot be generated.
+	@Override
+	public void regenerateThumbnail(File file) throws IOException {
+		final File jpegFile = FileSystem.replaceExtension(file, JPEG_FILE_EXTENSION);
+		ensurePictureFile(file, jpegFile);
+	}
+
+	/** Sized iterator on files.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.2
 	 */
-	protected void generatePictureFiles(File folder, Collection<File> generated) throws IOException {
-		if (folder != null) {
-			for (File pdfFile: folder.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION))) {
-				final File jpegFile = FileSystem.replaceExtension(pdfFile, JPEG_FILE_EXTENSION);
-				ensurePictureFile(pdfFile, jpegFile);
-				generated.add(jpegFile);
-			}
+	public static class FileSizedIterator implements SizedIterator<File> {
+
+		private final int totalSize;
+
+		private final Iterator<File> iterator;
+
+		private int index = -1;
+		
+		/** Constructor.
+		 *
+		 * @param totalSize the total number of elements in the iterated collection.
+		 * @param iterator the iterator on the collection.
+		 */
+		FileSizedIterator(int totalSize, Iterator<File> iterator) {
+			this.totalSize = totalSize;
+			this.iterator = iterator;
 		}
+
+		@Override
+		public boolean hasNext() {
+			return this.iterator.hasNext();
+		}
+
+		@Override
+		public File next() {
+			++this.index;
+			return this.iterator.next();
+		}
+
+		@Override
+		public int totalSize() {
+			return this.totalSize;
+		}
+
+		@Override
+		public int index() {
+			return this.index;
+		}
+		
 	}
 
 }

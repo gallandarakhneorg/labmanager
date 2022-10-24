@@ -16,7 +16,6 @@
 
 package fr.ciadlab.labmanager.controller.view.publication;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
@@ -516,20 +515,17 @@ public class PublicationViewController extends AbstractViewController {
 	 *
 	 * @param username the name of the logged-in user.
 	 * @return the model-view object.
-	 * @throws IOException if there is some internal IO error when building the form's data.
 	 */
-	@GetMapping(value = "/regenerateUploadedFilePictures")
-	public ModelAndView regenerateUploadedFilePictures(
-			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws IOException {
-		ensureCredentials(username, "regenerateUploadedFilePictures"); //$NON-NLS-1$
-		final ModelAndView modelAndView = new ModelAndView("regenerateUploadedFilePictures"); //$NON-NLS-1$
+	@GetMapping(value = "/regenerateThumbnail")
+	public ModelAndView regenerateThumbnail(
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		ensureCredentials(username, "regenerateThumbnail"); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("regenerateThumbnail"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
 		//
-		final List<File> generated = this.fileManager.regeneratePictureFiles();
-		//
-		modelAndView.addObject("generated", generated); //$NON-NLS-1$
+		modelAndView.addObject("batchUrl", endpoint(Constants.REGENERATE_THUMBNAIL_ASYNC_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("terminationUrl", endpoint(Constants.ADMIN_ENDPOINT)); //$NON-NLS-1$
 		//
 		return modelAndView;
 	}
-
 }

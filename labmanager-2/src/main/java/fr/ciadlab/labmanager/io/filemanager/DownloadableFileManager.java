@@ -18,8 +18,8 @@ package fr.ciadlab.labmanager.io.filemanager;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
+import org.arakhne.afc.sizediterator.SizedIterator;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure3;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -128,11 +128,25 @@ public interface DownloadableFileManager {
 	 */
 	void moveFiles(int sourceId, int targetId, Procedure3<String, String, String> callback) throws IOException;
 
-	/** Regenerate all the picture files. This function generate a JPEG file for each PDF file found in the folder.
+	/** Replies the list of all the uploaded PDF files.
 	 *
-	 * @return the list of generated files
+	 * @return the list of uploaded PDF files
+	 * @since 2.2
+	 */
+	SizedIterator<File> getUploadedPdfFiles();
+
+	/** Replies the list of all the thumbnail files.
+	 *
+	 * @return the list of uploaded PDF files
+	 * @since 2.2
+	 */
+	SizedIterator<File> getThumbailFiles();
+
+	/** Regenerate all the thumbnail for the given files.
+	 *
+	 * @param file the PDF file.
 	 * @throws IOException if the file cannot be created.
 	 */
-	List<File> regeneratePictureFiles() throws IOException;
+	void regenerateThumbnail(File file) throws IOException;
 
 }

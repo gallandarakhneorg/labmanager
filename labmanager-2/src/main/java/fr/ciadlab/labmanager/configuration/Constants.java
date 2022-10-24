@@ -227,6 +227,10 @@ public class Constants {
 	 */
 	public static final String PUBLICATION_SAVING_ENDPOINT = "publicationSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for regenerating the thumbnail as a batch task.
+	 */
+	public static final String REGENERATE_THUMBNAIL_ASYNC_ENDPOINT = "regenerateThumbnailAsync"; //$NON-NLS-1$
+
 	/** Name of the endpoint for selecting a BibTeX file to import.
 	 */
 	public static final String IMPORT_BIBTEX_VIEW_ENDPOINT = "showBibTeXImporter"; //$NON-NLS-1$

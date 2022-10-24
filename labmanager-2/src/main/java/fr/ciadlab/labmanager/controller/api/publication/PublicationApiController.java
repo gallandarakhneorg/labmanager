@@ -16,20 +16,30 @@
 
 package fr.ciadlab.labmanager.controller.api.publication;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import javax.json.Json;
+import javax.json.JsonString;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
+import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.StringUtils;
+import org.arakhne.afc.sizediterator.SizedIterator;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -37,11 +47,13 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
 /** REST Controller for publications.
  * 
@@ -54,6 +66,16 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 @CrossOrigin
 public class PublicationApiController extends AbstractApiController {
+
+	private static final int THUMBNAIL_SERVICE_TIMEOUT = 180000;
+
+	private static final int THUMBNAIL_STEP_1 = 1;
+
+	private static final int THUMBNAIL_STEP_2 = 2;
+
+	private static final String PERCENT_100_STR = "100"; //$NON-NLS-1$
+
+	private static final int PERCENT_100_NUM = 100;
 
 	private PublicationService publicationService;
 
@@ -120,7 +142,7 @@ public class PublicationApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if the publication cannot be saved.
 	 */
-	@PostMapping(value = "/" + Constants.PUBLICATION_SAVING_ENDPOINT)
+	@PutMapping(value = "/" + Constants.PUBLICATION_SAVING_ENDPOINT)
 	public void savePublication(
 			@RequestParam(required = false) Integer publication,
 			@RequestParam(required = false) List<String> authors,
@@ -134,7 +156,7 @@ public class PublicationApiController extends AbstractApiController {
 		if (!this.personService.containsAMember(inAuthors, true)) {
 			throw new IllegalArgumentException("The list of authors does not contains a member of one of the known research organizations."); //$NON-NLS-1$
 		}
-		
+
 		int uploadedPdfFile = 0;
 		int uploadedAwardFile = 0;
 		Optional<Publication> optPublication = Optional.empty();
@@ -200,6 +222,60 @@ public class PublicationApiController extends AbstractApiController {
 			throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
 		}
 		this.publicationService.removePublication(publication.intValue(), true);
+	}
+
+	/** Regenerate the thumbnail files asynchronously.
+	 *
+	 * @param username the name of the logged-in user.
+	 * @return the asynchronous response.
+	 */
+	@GetMapping(value = "/" + Constants.REGENERATE_THUMBNAIL_ASYNC_ENDPOINT)
+	public SseEmitter regenerateThumbnailAsync(
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		ensureCredentials(username, Constants.REGENERATE_THUMBNAIL_ASYNC_ENDPOINT);
+		final ExecutorService service = Executors.newSingleThreadExecutor();
+		final SseEmitter emitter = new SseEmitter(Long.valueOf(THUMBNAIL_SERVICE_TIMEOUT));
+		service.execute(() -> {
+			try {
+				final SizedIterator<File> thumbnail = this.fileManager.getThumbailFiles();
+				final SizedIterator<File> uploadedFiles = this.fileManager.getUploadedPdfFiles();
+				while (thumbnail.hasNext()) {
+					final int percent = (thumbnail.index() * PERCENT_100_NUM) / thumbnail.totalSize();
+					sendProgressStep(emitter, THUMBNAIL_STEP_1, percent, getMessage("publicationApiController.DeletingThumbnails", Integer.valueOf(percent))); //$NON-NLS-1$
+					final File thumbnailFile = thumbnail.next();
+					FileSystem.delete(thumbnailFile);
+				}
+				sendProgressStep(emitter, THUMBNAIL_STEP_1, PERCENT_100_NUM, getMessage("publicationApiController.DeletingThumbnails", PERCENT_100_STR)); //$NON-NLS-1$
+				while (uploadedFiles.hasNext()) {
+					final int percent = (uploadedFiles.index() * PERCENT_100_NUM) / uploadedFiles.totalSize();
+					sendProgressStep(emitter, THUMBNAIL_STEP_2, percent, getMessage("publicationApiController.GeneratingThumbnails", Integer.valueOf(percent))); //$NON-NLS-1$
+					final File uploadedFile = uploadedFiles.next();
+					this.fileManager.regenerateThumbnail(uploadedFile);
+				}
+				sendProgressStep(emitter, THUMBNAIL_STEP_2, PERCENT_100_NUM, getMessage("publicationApiController.GeneratingThumbnails", PERCENT_100_STR)); //$NON-NLS-1$
+				emitter.complete();
+			} catch (ClientAbortException ex) {
+				// Do not log a message because the connection was closed by the client.
+				emitter.completeWithError(ex);
+				return;
+			} catch (Throwable ex) {
+				getLogger().error(ex.getLocalizedMessage(), ex);
+				emitter.completeWithError(ex);
+				return;
+			}
+		});
+		return emitter;
+	}
+
+	private static void sendProgressStep(SseEmitter emitter, int step, int percent, String message) throws IOException {
+		final JsonString jstring = Json.createValue(Strings.nullToEmpty(message));
+		final StringBuilder json = new StringBuilder();
+		json.append("{\"step\":").append(step) //$NON-NLS-1$
+		.append(",\"terminated\":").append(Boolean.toString(step == THUMBNAIL_STEP_2 && percent >= PERCENT_100_NUM)) //$NON-NLS-1$
+		.append(",\"percent\":").append(percent) //$NON-NLS-1$
+		.append(",\"message\":").append(jstring.toString()).append("}"); //$NON-NLS-1$ //$NON-NLS-2$
+		final SseEventBuilder event = SseEmitter.event().data(json.toString());
+		emitter.send(event);
 	}
 
 }
