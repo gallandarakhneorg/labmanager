@@ -108,6 +108,10 @@ public class Constants {
 	 */
 	public static final String DEFAULT_MEMBERS_ATTACHMENT_BASENAME = "members"; //$NON-NLS-1$
 
+	/** Name of the endpoint for admin.
+	 */
+	public static final String ADMIN_ENDPOINT = "admin"; //$NON-NLS-1$
+
 	/** Name of the endpoint for list of organizations.
 	 */
 	public static final String ORGANIZATION_LIST_ENDPOINT = "organizationList"; //$NON-NLS-1$

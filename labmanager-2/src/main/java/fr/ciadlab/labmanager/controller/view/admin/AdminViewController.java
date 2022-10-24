@@ -71,11 +71,11 @@ public class AdminViewController extends AbstractViewController {
 	 * @param username the name of the logged-in user.
 	 * @return the model-view of the list of publications.
 	 */
-	@GetMapping(value = "/admin")
+	@GetMapping(value = "/" + Constants.ADMIN_ENDPOINT)
 	public ModelAndView admin(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		readCredentials(username, "admin"); //$NON-NLS-1$
-		final ModelAndView modelAndView = new ModelAndView("admin"); //$NON-NLS-1$
+		readCredentials(username, Constants.ADMIN_ENDPOINT);
+		final ModelAndView modelAndView = new ModelAndView(Constants.ADMIN_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
 		final List<ResearchOrganization> list = this.organizationService.getAllResearchOrganizations().stream()
 				.sorted(EntityUtils.getPreferredResearchOrganizationComparator()).collect(Collectors.toList());
