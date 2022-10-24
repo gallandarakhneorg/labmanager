@@ -33,7 +33,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -86,7 +86,7 @@ public class JuryMembershipApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if it is impossible to save the membership in the database.
 	 */
-	@PostMapping(value = "/" + Constants.JURY_MEMBERSHIP_SAVING_ENDPOINT)
+	@PutMapping(value = "/" + Constants.JURY_MEMBERSHIP_SAVING_ENDPOINT)
 	public void saveJuryMembership(
 			@RequestParam(required = true) int person,
 			@RequestParam(required = false) Integer membership,

@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -120,7 +120,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of problem for saving.
 	 */
-	@PostMapping(value = "/" + Constants.ORGANIZATION_SAVING_ENDPOINT)
+	@PutMapping(value = "/" + Constants.ORGANIZATION_SAVING_ENDPOINT)
 	public void saveOrganization(
 			@RequestParam(required = false) Integer organization,
 			@RequestParam(required = true) String acronym,

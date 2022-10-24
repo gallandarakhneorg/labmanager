@@ -59,7 +59,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -131,7 +131,7 @@ public class MembershipApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if it is impossible to save the membership in the database.
 	 */
-	@PostMapping(value = "/" + Constants.MEMBERSHIP_SAVING_ENDPOINT)
+	@PutMapping(value = "/" + Constants.MEMBERSHIP_SAVING_ENDPOINT)
 	public void saveMembership(
 			@RequestParam(required = true) Integer person,
 			@RequestParam(required = false) Integer membership,

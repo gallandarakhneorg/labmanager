@@ -32,7 +32,7 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -90,7 +90,7 @@ public class SupervisionApiController extends AbstractApiController {
 	 * @throws Exception if it is impossible to save the supervision in the database.
 	 */
 	@SuppressWarnings("unchecked")
-	@PostMapping(value = "/" + Constants.SUPERVISION_SAVING_ENDPOINT)
+	@PutMapping(value = "/" + Constants.SUPERVISION_SAVING_ENDPOINT)
 	public void saveSupervision(
 			@RequestParam(required = false) Integer supervision,
 			@RequestParam(required = true) int membership,

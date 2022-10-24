@@ -26,7 +26,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -69,7 +69,7 @@ public class PersonMergingApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if it is impossible to merge the persons.
 	 */
-	@PostMapping("/mergePersons")
+	@PatchMapping("/mergePersons")
 	public void mergePersons(
 			@RequestParam(required = true) Integer target,
 			@RequestParam(required = true) List<Integer> sources,

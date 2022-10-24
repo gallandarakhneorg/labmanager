@@ -34,7 +34,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -141,7 +141,7 @@ public class JournalApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case the journal cannot be saved
 	 */
-	@PostMapping(value = "/" + Constants.JOURNAL_SAVING_ENDPOINT)
+	@PutMapping(value = "/" + Constants.JOURNAL_SAVING_ENDPOINT)
 	public void saveJournal(
 			@RequestParam(required = false) Integer journal,
 			@RequestParam(required = false) String name,
@@ -207,7 +207,7 @@ public class JournalApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case the journal ranking cannot be saved
 	 */
-	@PostMapping(value = "/" + Constants.SAVE_JOURNAL_RANKING_ENDPOINT)
+	@PutMapping(value = "/" + Constants.SAVE_JOURNAL_RANKING_ENDPOINT)
 	public void saveJournalRanking(
 			@RequestParam(required = true) int journal,
 			@RequestParam(required = true) int year,
