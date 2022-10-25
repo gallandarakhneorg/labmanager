@@ -46,7 +46,7 @@ import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
-import org.apache.commons.lang3.tuple.MutablePair;
+import org.apache.commons.lang3.tuple.MutableTriple;
 import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -287,7 +287,7 @@ public class MembershipApiController extends AbstractApiController {
 		final ResearchOrganization rootOrganization = organizationOpt.get();
 		//
 		// List of memberships should be built specifically for the front ends
-		final Map<Person, MutablePair<Membership, Set<ResearchOrganization>>> members = new TreeMap<>(EntityUtils.getPreferredPersonComparator());
+		final Map<Person, MutableTriple<Membership, GeneralMemberType, Set<ResearchOrganization>>> members = new TreeMap<>(EntityUtils.getPreferredPersonComparator());
 		final LinkedList<ResearchOrganization> organizationStack = new LinkedList<>();
 		organizationStack.push(rootOrganization);
 		while (!organizationStack.isEmpty()) {
@@ -298,25 +298,43 @@ public class MembershipApiController extends AbstractApiController {
 			for (final Membership membership : currentOrganization.getMemberships()) {
 				if (!membership.isFuture()) {
 					final Person person = membership.getPerson();
-					final MutablePair<Membership, Set<ResearchOrganization>> pair = members.computeIfAbsent(person, it -> new MutablePair<>());
-					final Membership previousMembership = pair.getKey();
+					final MutableTriple<Membership, GeneralMemberType, Set<ResearchOrganization>> triple = members.computeIfAbsent(person, it -> new MutableTriple<>());
+					final Membership previousMembership = triple.getLeft();
 					if (previousMembership == null) {
-						pair.setLeft(membership);
+						triple.setLeft(membership);
 					} else {
 						final int cmp = this.membershipComparator.compare(membership, previousMembership);
 						if (cmp < 0) {
-							pair.setLeft(membership);
+							triple.setLeft(membership);
 						}
 					}
+					final GeneralMemberType gmt = GeneralMemberType.fromMembership(membership);
+					triple.setMiddle(gmt);
 					for (final Membership otherm : person.getMemberships()) {
-						final ResearchOrganization otherro = otherm.getResearchOrganization();
-						if (otherro.getId() != organization && otherOrganizationTypePredicate.test(otherro)) {
-							Set<ResearchOrganization> orgs = pair.getRight();
-							if (orgs == null) {
-								orgs = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
-								pair.setRight(orgs);
+						if (otherm.isActive() || gmt == GeneralMemberType.FORMER_MEMBERS) {
+							final ResearchOrganization otherro = otherm.getResearchOrganization();
+							if (otherro.getId() != organization 
+									&& otherOrganizationTypePredicate.test(otherro)) {
+								Set<ResearchOrganization> orgs = triple.getRight();
+								if (orgs == null) {
+									orgs = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
+									triple.setRight(orgs);
+								}
+								if (gmt == GeneralMemberType.FORMER_MEMBERS) {
+									// retain the more recent organization for former members.
+									if (orgs.isEmpty()) {
+										orgs.add(otherro);
+									} else {
+										ResearchOrganization prevOrg = orgs.iterator().next();
+										if (prevOrg.compareTo(otherro) < 0) {
+											orgs.clear();
+											orgs.add(otherro);
+										}
+									}
+								} else {
+									orgs.add(otherro);
+								}
 							}
-							orgs.add(otherro);
 						}
 					}
 				}
@@ -331,8 +349,8 @@ public class MembershipApiController extends AbstractApiController {
 			countryLabel = null;
 		}
 		final List<Map<String, Object>> content = new ArrayList<>();
-		for (final MutablePair<Membership, Set<ResearchOrganization>> entry : members.values()) {
-			final Map<String, Object> data = buildMemberEntry(entry.getLeft());
+		for (final MutableTriple<Membership, GeneralMemberType, Set<ResearchOrganization>> entry : members.values()) {
+			final Map<String, Object> data = buildMemberEntry(entry.getLeft(), entry.getMiddle());
 			if (data != null) {
 				data.put("country", countryLabel); //$NON-NLS-1$
 				Set<ResearchOrganization> oo = entry.getRight();
@@ -358,12 +376,10 @@ public class MembershipApiController extends AbstractApiController {
 		return bb.body(contentObj);
 	}
 
-	private static Map<String, Object> buildMemberEntry(Membership membership) {
-		final GeneralMemberType type = GeneralMemberType.fromMembership(membership);
+	private static Map<String, Object> buildMemberEntry(Membership membership, GeneralMemberType type) {
 		if (type == null) {
 			return null;
 		}
-
 		final Map<String, Object> entry = new HashMap<>();
 		entry.put("person", membership.getPerson()); //$NON-NLS-1$
 		entry.put("memberStatus", membership.getMemberStatus()); //$NON-NLS-1$
