@@ -2,6 +2,13 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
 
+<nav class="labmanager-administration-navigation" aria-label="breadcrumb">
+  <ol class="breadcrumb">
+  	<li class="breadcrumb-item" th:utext="#{html.MainWebSite}"></li>
+    <li class="breadcrumb-item"><a th:href="${mainSiteUrl}" th:utext="${mainSiteName}"></a></li>
+  </ol>
+</nav>
+
 <div class="row row-cols-1 row-cols-md-4 g-4">
     <div class="col">
 		<div class="card">

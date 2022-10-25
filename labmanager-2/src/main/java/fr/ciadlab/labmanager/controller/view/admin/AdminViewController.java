@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.controller.view.admin;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +35,8 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.springframework.web.util.UriComponents;
 
 /** This general controller shows up the administration tools and the list of all the controllers in the backend.
  * 
@@ -81,6 +84,18 @@ public class AdminViewController extends AbstractViewController {
 				.sorted(EntityUtils.getPreferredResearchOrganizationComparator()).collect(Collectors.toList());
 		modelAndView.addObject("organizations", list); //$NON-NLS-1$
 		modelAndView.addObject("username", Strings.nullToEmpty(this.username)); //$NON-NLS-1$
+		final UriComponents urlComponents = ServletUriComponentsBuilder.fromCurrentContextPath().build();
+		final String baseName = urlComponents.getHost().toUpperCase();
+		String baseUrl;
+		try {
+			final URL url = new URL(urlComponents.getScheme(),
+					urlComponents.getHost(), urlComponents.getPort(), ""); //$NON-NLS-1$
+			baseUrl = url.toExternalForm();
+		} catch (Throwable ex) {
+			baseUrl = urlComponents.toUriString();
+		}
+		modelAndView.addObject("mainSiteUrl", baseUrl); //$NON-NLS-1$
+		modelAndView.addObject("mainSiteName", baseName); //$NON-NLS-1$
 		return modelAndView;
 	}
 
