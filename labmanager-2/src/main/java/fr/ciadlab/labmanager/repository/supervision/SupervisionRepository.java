@@ -45,4 +45,11 @@ public interface SupervisionRepository extends JpaRepository<Supervision, Intege
 	 */
 	List<Supervision> findAllDisctinctBySupervisorsSupervisorId(Integer supervisorId);
 
+	/** Count the number of supervisions for the supervisor with the given id.
+	 *
+	 * @param id the identifier of the supervisor.
+	 * @return the count of supervisions.
+	 */
+	int countDistinctBySupervisedPersonPersonId(int id);
+
 }

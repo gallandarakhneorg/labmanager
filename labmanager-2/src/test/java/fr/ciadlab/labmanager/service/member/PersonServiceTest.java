@@ -399,13 +399,13 @@ public class PersonServiceTest {
 	}
 
 	@Test
-	public void getPersonDuplicate_noDuplicate() {
-		List<Set<Person>> duplicate = this.test.getPersonDuplicates(null);
+	public void getPersonDuplicate_noDuplicate() throws Exception {
+		List<Set<Person>> duplicate = this.test.getPersonDuplicates(null, null);
 		assertTrue(duplicate.isEmpty());
 	}
 
 	@Test
-	public void getPersonDuplicates_oneDuplicate() {
+	public void getPersonDuplicates_oneDuplicate() throws Exception {
 		Person pers0b = mock(Person.class, "pers0b");
 		when(pers0b.getId()).thenReturn(456852);
 		when(pers0b.getFirstName()).thenReturn("F1");
@@ -424,7 +424,7 @@ public class PersonServiceTest {
 		when(this.personRepository.findAll()).thenReturn(
 				Arrays.asList(this.pers0, pers2c, this.pers1, pers0b, this.pers2, this.pers3, pers2b));
 		
-		List<Set<Person>> allDuplicates = this.test.getPersonDuplicates(null);
+		List<Set<Person>> allDuplicates = this.test.getPersonDuplicates(null, null);
 
 		assertEquals(2, allDuplicates.size());
 

@@ -63,4 +63,11 @@ public interface JuryMembershipRepository extends JpaRepository<JuryMembership, 
 	 */
 	Optional<JuryMembership> findByPersonIdAndCandidateIdAndType(int personId, int candidateId, JuryMembershipType type);
 
+	/** Count the number of jury memberships for the participant with the given id.
+	 *
+	 * @param id the identifier of the participant.
+	 * @return the count of supervisions.
+	 */
+	int countDistinctByPersonId(int id);
+
 }

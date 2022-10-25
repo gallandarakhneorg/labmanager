@@ -429,9 +429,11 @@ public class PersonService extends AbstractService {
 	 *
 	 * @param comparator comparator of persons that is used for sorting the groups of duplicates. If it is {@code null},
 	 *      a {@link PersonComparator} is used.
-	 * @return the duplicate persons.
+	 * @param callback the callback invoked during the building.
+	 * @return the duplicate persons that is finally computed.
+	 * @throws Exception if a problem occurred during the building.
 	 */
-	public List<Set<Person>> getPersonDuplicates(Comparator<? super Person> comparator) {
+	public List<Set<Person>> getPersonDuplicates(Comparator<? super Person> comparator, PersonDuplicateCallback callback) throws Exception {
 		// Each list represents a group of authors that could be duplicate
 		final List<Set<Person>> matchingAuthors = new ArrayList<>();
 
@@ -441,6 +443,13 @@ public class PersonService extends AbstractService {
 
 		final Comparator<? super Person> theComparator = comparator == null ? EntityUtils.getPreferredPersonComparator() : comparator;
 
+		final int total = authorsList.size();
+		// Notify the callback
+		if (callback != null) {
+			callback.onDuplicate(0, 0, total);
+		}
+		int duplicateCount = 0;
+		
 		for (int i = 0; i < authorsList.size() - 1; ++i) {
 			final Person referencePerson = authorsList.get(i);
 
@@ -454,13 +463,17 @@ public class PersonService extends AbstractService {
 						referencePerson.getFirstName(), referencePerson.getLastName(),
 						otherPerson.getFirstName(), otherPerson.getLastName())) {
 					currentMatching.add(otherPerson);
+					++duplicateCount;
 					// Consume the other person to avoid to be treated twice times
 					iterator2.remove();
 				}
 			}
-
 			if (currentMatching.size() > 1) {
 				matchingAuthors.add(currentMatching);
+			}
+			// Notify the callback
+			if (callback != null) {
+				callback.onDuplicate(i, duplicateCount, total);
 			}
 		}
 
@@ -529,6 +542,30 @@ public class PersonService extends AbstractService {
 		SuccessException() {
 			//
 		}
+
+	}
+
+	/** Callback that is invoked when building the list of duplicate persons.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.2
+	 */
+	@FunctionalInterface
+	public interface PersonDuplicateCallback {
+
+		/** Invoked for each person.
+		 *
+		 * @param index the position of the reference person in the list of persons. It represents the progress of the treatment
+		 *     of each person.
+		 * @param duplicateCount the count of discovered duplicates.
+		 * @param total the total number of persons in the list.
+		 * @throws Exception if there is an error during the callback treatment. This exception is forwarded to the
+		 *     caller of the function that has invoked this callback.
+		 */
+		void onDuplicate(int index, int duplicateCount, int total) throws Exception;
 
 	}
 

@@ -56,4 +56,11 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
 	 */
 	List<Membership> findAllByPersonId(int memberId);
 
+	/** Count the number of memberships for the person with the given id.
+	 *
+	 * @param id the identifier of the person.
+	 * @return the count of memberships.
+	 */
+	int countDistinctByPersonId(int id);
+
 }

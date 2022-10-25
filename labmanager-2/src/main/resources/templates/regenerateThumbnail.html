@@ -12,22 +12,18 @@
 <div id="message"></div>
 
 <script type="text/javascript" th:inline="javascript">
-var subscribeEvents = () => {
+var eventSource = null;
+$(document).ready(() => {
     var $bar1 = $("#bar1");
     var $bar2 = $("#bar2");
     var $msg = $("#message");
-    var eventSource = new EventSource("[(${batchUrl})]");
+    eventSource = new EventSource("[(${batchUrl})]");
     eventSource.onmessage = (e) => {
         var notification = JSON.parse(e.data);
         var step = notification.step;
         var percent = notification.percent;
         var terminated = notification.terminated;
         var message = notification.message;
-        console.log("EVENT:\n");
-        console.log("step: " + step);
-        console.log("message: " + message);
-        console.log("percent: " + percent);
-        console.log("terminated: " + terminated);
         var $bb = null;
         if (1 === step) {
             $bb = $bar1;
@@ -35,7 +31,6 @@ var subscribeEvents = () => {
         	$bb = $bar2;
         }
         if ($bb) {
-            console.log("UPDATE PROGRESS");
         	if (percent < 0) {
         		percent = 0;
         	} else if (percent > 100) {
@@ -43,17 +38,19 @@ var subscribeEvents = () => {
         	}
         	$bb.css('width', percent + '%');
             $bb.attr('aria-valuenow', percent);
+            $bb.html(percent + '%');
         }
         $msg.html(message);
         if (terminated) {
         	window.location.href = "[(${terminationUrl})]";
         }
     };
-}
-window.onload = subscribeEvents;
-window.onbeforeunload = () => {
-    eventSource.close();
-}
+});
+$(document).on("unload", () => {
+	if (eventSource) {
+	    eventSource.close();
+	}	
+});
 </script>
 
 </html>

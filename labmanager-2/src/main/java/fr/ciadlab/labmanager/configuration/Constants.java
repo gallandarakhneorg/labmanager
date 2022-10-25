@@ -231,6 +231,10 @@ public class Constants {
 	 */
 	public static final String REGENERATE_THUMBNAIL_ASYNC_ENDPOINT = "regenerateThumbnailAsync"; //$NON-NLS-1$
 
+	/** Name of the endpoint for computing the duplicate names of persons.
+	 */
+	public static final String COMPUTE_PERSON_DUPLICATE_NAMES_ENDPOINT = "computePersonDuplicateNames"; //$NON-NLS-1$
+
 	/** Name of the endpoint for selecting a BibTeX file to import.
 	 */
 	public static final String IMPORT_BIBTEX_VIEW_ENDPOINT = "showBibTeXImporter"; //$NON-NLS-1$
