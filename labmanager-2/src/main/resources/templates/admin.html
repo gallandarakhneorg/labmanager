@@ -50,8 +50,22 @@
 				<img th:src="@{/images/card/staff.jpg}" class="card-img-top"></img>
 			    <h5 class="card-title" th:utext="#{html.PersonManagement}"></h5>
 			    <p class="card-text">
-			    	<a th:href="@{/personList}" class="btn btn-labeled btn-success" role="button">
-				    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.PersonsList}"></th:block></a>
+					<div class="dropdown">
+				    	<button type="button" class="btn btn-labeled btn-success dropdown-toggle" data-bs-toggle="dropdown"
+			    	            id="dropdownPersonList" aria-expanded="false">
+				    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.PersonsList}"></th:block></button>
+				    	<ul class="dropdown-menu" aria-labelledby="dropdownPersonList">
+							<li><a class="dropdown-item" th:href="@{/personList}" th:utext="#{html.All}"></a></li>
+							<li><hr class="dropdown-divider"></li>
+							<li th:each="organization : ${organizations}"
+							    th:if="${organization.isMajorOrganization}">
+								<a class="dropdown-item"
+								   th:href="@{/personList(organization=${organization.id})}"
+								   th:utext="${organization.acronymOrName}"></a></li>
+						</ul>
+					</div>
+
+
 			    	<a th:if="${changeEnabled}"
 			    	   th:href="@{/personEditor}" class="btn btn-labeled btn-primary" role="button">
 				       <span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddPerson}"></th:block></a>
