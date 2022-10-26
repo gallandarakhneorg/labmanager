@@ -34,6 +34,7 @@
 		attachSpinnerAjaxHandler({
 			id: "submitButton",
 			url: "[(${url})]",
+			requestMethod: 'put',
 			text: "[(#{html.Submit})]",
 			prepareData: ($bt, formData) => {
 		        /*[# th:unless="${#strings.isEmpty(hiddenName) || #strings.isEmpty(hiddenId)}"]*/

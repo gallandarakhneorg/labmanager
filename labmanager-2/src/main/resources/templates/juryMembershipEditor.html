@@ -85,6 +85,7 @@ function addSavingButtonCallback(membershipId, isNewMembership) {
 	attachSpinnerAjaxHandler({
 		id: 'btSave_' + membershipId,
 		url: "[(${savingUrl})]",
+		requestMethod: 'put',
 		text: "[(#{html.Submit})]",
 		prepareData: ($bt, formData) => {
 			formData.append("person", parseInt("[(${person.id})]"));

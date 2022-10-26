@@ -86,6 +86,7 @@ function addSavingButtonCallback(year, isNewRankingGroup) {
 	attachSpinnerAjaxHandler({
 		id: 'btSave_' + year,
 		url: "[(${savingUrl})]",
+		requestMethod: 'put',
 		text: "[(#{html.Submit})]",
 		prepareData: ($bt, formData) => {
 			formData.append("journal", parseInt("[(${journal.id})]"));

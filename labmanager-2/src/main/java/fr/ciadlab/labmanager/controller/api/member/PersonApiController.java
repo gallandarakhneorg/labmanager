@@ -38,7 +38,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -152,7 +152,7 @@ public class PersonApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if the person cannot be saved.
 	 */
-	@PostMapping(value = "/" + Constants.PERSON_SAVING_ENDPOINT)
+	@PutMapping(value = "/" + Constants.PERSON_SAVING_ENDPOINT)
 	public void savePerson(
 			@RequestParam(required = false) Integer person,
 			@RequestParam(required = true) String firstName,

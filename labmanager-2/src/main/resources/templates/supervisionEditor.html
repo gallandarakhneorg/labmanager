@@ -150,6 +150,7 @@ function addSavingButtonCallback(supervisionId, isNewSupervision) {
 	var buttonConfig = {
 		id: 'btSave_' + supervisionId,
 		url: "[(${savingUrl})]",
+		requestMethod: 'put',
 		text: "[(#{html.Submit})]",
 		precondition: (event, backHandler) => {
 			var supervisorArray = [];
