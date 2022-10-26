@@ -31,6 +31,7 @@ import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
+import fr.ciadlab.labmanager.repository.supervision.SupervisorRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
@@ -51,6 +52,8 @@ public class SupervisionService extends AbstractService {
 
 	private SupervisionRepository supervisionRepository;
 
+	private SupervisorRepository supervisorRepository;
+
 	private MembershipRepository membershipRepository;
 
 	private PersonService personService;
@@ -61,6 +64,7 @@ public class SupervisionService extends AbstractService {
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param supervisionRepository the repository for person supervisions.
+	 * @param supervisorRepository the repository for person supervisors.
 	 * @param membershipRepository the repository for accessing the organization memberships.
 	 * @param personService the service for accessing the persons.
 	 */
@@ -68,10 +72,12 @@ public class SupervisionService extends AbstractService {
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired SupervisionRepository supervisionRepository,
+			@Autowired SupervisorRepository supervisorRepository,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired PersonService personService) {
 		super(messages, constants);
 		this.supervisionRepository = supervisionRepository;
+		this.supervisorRepository = supervisorRepository;
 		this.membershipRepository = membershipRepository;
 		this.personService = personService;
 	}
@@ -231,6 +237,22 @@ public class SupervisionService extends AbstractService {
 			throw new IllegalStateException("Supervision not found with id: " + identifier); //$NON-NLS-1$
 		}
 		this.supervisionRepository.deleteById(mid);
+	}
+
+	/** Save the given supervision into the database.
+	 *
+	 * @param supervision the supervision to save.
+	 */
+	public void save(Supervision supervision) {
+		this.supervisionRepository.save(supervision);
+	}
+
+	/** Save the given supervisor into the database.
+	 *
+	 * @param supervisor the supervisor to save.
+	 */
+	public void save(Supervisor supervisor) {
+		this.supervisorRepository.save(supervisor);
 	}
 
 }

@@ -33,11 +33,14 @@ import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
+import fr.ciadlab.labmanager.entities.supervision.Supervision;
+import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService.PersonDuplicateCallback;
+import fr.ciadlab.labmanager.service.supervision.SupervisionService;
 import fr.ciadlab.labmanager.utils.names.PersonNameComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -63,6 +66,8 @@ public class PersonMergingService extends AbstractService {
 
 	private final JuryMembershipService juryMembershipService;
 
+	private final SupervisionService supervisionService;
+
 	private PersonNameComparator nameComparator;
 
 	/** Constructor for injector.
@@ -75,6 +80,7 @@ public class PersonMergingService extends AbstractService {
 	 * @param organizationMembershipService the service for managing the organization memberships.
 	 * @param organizationMembershipRepository the repository for managing the organization memberships.
 	 * @param juryMembershipService the service for managing the jury memberships.
+	 * @param supervisionService the service for managing the supervisions.
 	 * @param nameComparator the comparator of person names.
 	 */
 	public PersonMergingService(
@@ -85,6 +91,7 @@ public class PersonMergingService extends AbstractService {
 			@Autowired MembershipService organizationMembershipService,
 			@Autowired MembershipRepository organizationMembershipRepository,
 			@Autowired JuryMembershipService juryMembershipService,
+			@Autowired SupervisionService supervisionService,
 			@Autowired PersonNameComparator nameComparator) {
 		super(messages, constants);
 		this.personRepository = personRepository;
@@ -92,7 +99,64 @@ public class PersonMergingService extends AbstractService {
 		this.organizationMembershipService = organizationMembershipService;
 		this.organizationMembershipRepository = organizationMembershipRepository;
 		this.juryMembershipService = juryMembershipService;
+		this.supervisionService = supervisionService;
 		this.nameComparator = nameComparator;
+	}
+
+	/** Replies the duplicate person names.
+	 * The replied list contains groups of persons who have similar names.
+	 *
+	 * @param comparator comparator of persons that is used for sorting the groups of duplicates. If it is {@code null},
+	 *      a {@link PersonComparator} is used.
+	 * @param callback the callback invoked during the building.
+	 * @return the duplicate persons that is finally computed.
+	 * @throws Exception if a problem occurred during the building.
+	 */
+	public List<Set<Person>> getPersonDuplicates(Comparator<? super Person> comparator, PersonDuplicateCallback callback) throws Exception {
+		// Each list represents a group of authors that could be duplicate
+		final List<Set<Person>> matchingAuthors = new ArrayList<>();
+
+		// Copy the list of authors into another list in order to enable its
+		// modification during the function's process
+		final List<Person> authorsList = new ArrayList<>(this.personRepository.findAll());
+
+		final Comparator<? super Person> theComparator = comparator == null ? EntityUtils.getPreferredPersonComparator() : comparator;
+
+		final int total = authorsList.size();
+		// Notify the callback
+		if (callback != null) {
+			callback.onDuplicate(0, 0, total);
+		}
+		int duplicateCount = 0;
+		
+		for (int i = 0; i < authorsList.size() - 1; ++i) {
+			final Person referencePerson = authorsList.get(i);
+
+			final Set<Person> currentMatching = new TreeSet<>(theComparator);
+			currentMatching.add(referencePerson);
+
+			final ListIterator<Person> iterator2 = authorsList.listIterator(i + 1);
+			while (iterator2.hasNext()) {
+				final Person otherPerson = iterator2.next();
+				if (this.nameComparator.isSimilar(
+						referencePerson.getFirstName(), referencePerson.getLastName(),
+						otherPerson.getFirstName(), otherPerson.getLastName())) {
+					currentMatching.add(otherPerson);
+					++duplicateCount;
+					// Consume the other person to avoid to be treated twice times
+					iterator2.remove();
+				}
+			}
+			if (currentMatching.size() > 1) {
+				matchingAuthors.add(currentMatching);
+			}
+			// Notify the callback
+			if (callback != null) {
+				callback.onDuplicate(i, duplicateCount, total);
+			}
+		}
+
+		return matchingAuthors;
 	}
 
 	/** Merge the persons and authorships by replacing those with an old author name by those with the new author name.
@@ -142,6 +206,7 @@ public class PersonMergingService extends AbstractService {
 				boolean lchange = reassignPublications(source, target);
 				lchange = reassignOrganizationMemberships(source, target) || lchange;
 				lchange = reassignJuryMemberships(source, target) || lchange;
+				lchange = reassignSupervisions(source, target) || lchange;
 				//
 				this.personService.removePerson(source.getId());
 				changed = changed || lchange;
@@ -230,60 +295,33 @@ public class PersonMergingService extends AbstractService {
 		return true;
 	}
 
-	/** Replies the duplicate person names.
-	 * The replied list contains groups of persons who have similar names.
-	 *
-	 * @param comparator comparator of persons that is used for sorting the groups of duplicates. If it is {@code null},
-	 *      a {@link PersonComparator} is used.
-	 * @param callback the callback invoked during the building.
-	 * @return the duplicate persons that is finally computed.
-	 * @throws Exception if a problem occurred during the building.
+	/** Re-assign the supervisions attached to the source person to the target person.
+	 * 
+	 * @param sources the person to remove and replace by the target person.
+	 * @param target the target person who should replace the source persons.
+	 * @return {@code true} if supervision has changed.
+	 * @throws Exception if the change cannot be completed.
 	 */
-	public List<Set<Person>> getPersonDuplicates(Comparator<? super Person> comparator, PersonDuplicateCallback callback) throws Exception {
-		// Each list represents a group of authors that could be duplicate
-		final List<Set<Person>> matchingAuthors = new ArrayList<>();
-
-		// Copy the list of authors into another list in order to enable its
-		// modification during the function's process
-		final List<Person> authorsList = new ArrayList<>(this.personRepository.findAll());
-
-		final Comparator<? super Person> theComparator = comparator == null ? EntityUtils.getPreferredPersonComparator() : comparator;
-
-		final int total = authorsList.size();
-		// Notify the callback
-		if (callback != null) {
-			callback.onDuplicate(0, 0, total);
-		}
-		int duplicateCount = 0;
-		
-		for (int i = 0; i < authorsList.size() - 1; ++i) {
-			final Person referencePerson = authorsList.get(i);
-
-			final Set<Person> currentMatching = new TreeSet<>(theComparator);
-			currentMatching.add(referencePerson);
-
-			final ListIterator<Person> iterator2 = authorsList.listIterator(i + 1);
-			while (iterator2.hasNext()) {
-				final Person otherPerson = iterator2.next();
-				if (this.nameComparator.isSimilar(
-						referencePerson.getFirstName(), referencePerson.getLastName(),
-						otherPerson.getFirstName(), otherPerson.getLastName())) {
-					currentMatching.add(otherPerson);
-					++duplicateCount;
-					// Consume the other person to avoid to be treated twice times
-					iterator2.remove();
+	protected boolean reassignSupervisions(Person source, Person target) throws Exception {
+		final Set<Supervisor> changed = new TreeSet<>(EntityUtils.getPreferredSupervisorComparator());
+		// Do not need to change the supervised person's membership because it is done by reassignJuryMemberships()
+		//
+		for (final Supervision supervision : this.supervisionService.getSupervisionsForSupervisor(source.getId())) {
+			for (final Supervisor supervisor : supervision.getSupervisors()) {
+				if (supervisor.getSupervisor().getId() == source.getId()) {
+					supervisor.setSupervisor(target);
+					changed.add(supervisor);
 				}
 			}
-			if (currentMatching.size() > 1) {
-				matchingAuthors.add(currentMatching);
-			}
-			// Notify the callback
-			if (callback != null) {
-				callback.onDuplicate(i, duplicateCount, total);
-			}
 		}
-
-		return matchingAuthors;
+		//
+		if (changed.isEmpty()) {
+			return false;
+		}
+		for (final Supervisor sup : changed) {
+			this.supervisionService.save(sup);
+		}
+		return true;
 	}
 
 }
