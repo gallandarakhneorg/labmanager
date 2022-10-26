@@ -17,21 +17,16 @@
 package fr.ciadlab.labmanager.service.member;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Optional;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -358,9 +353,11 @@ public class PersonService extends AbstractService {
 	 * @see #getPersonIdBySimilarName(String, String)
 	 */
 	public Person getPersonBySimilarName(String firstName, String lastName) {
-		for (final Person person : this.personRepository.findAll()) {
-			if (this.nameComparator.isSimilar(firstName, lastName, person.getFirstName(), person.getLastName())) {
-				return person;
+		if (!Strings.isNullOrEmpty(firstName) || !Strings.isNullOrEmpty(lastName)) {
+			for (final Person person : this.personRepository.findAll()) {
+				if (this.nameComparator.isSimilar(firstName, lastName, person.getFirstName(), person.getLastName())) {
+					return person;
+				}
 			}
 		}
 		return null;
@@ -422,62 +419,6 @@ public class PersonService extends AbstractService {
 			throw new IllegalArgumentException("The list of the authors does not contain a member of a known research organization."); //$NON-NLS-1$
 		}
 		return persons;
-	}
-
-	/** Replies the duplicate person names.
-	 * The replied list contains groups of persons who have similar names.
-	 *
-	 * @param comparator comparator of persons that is used for sorting the groups of duplicates. If it is {@code null},
-	 *      a {@link PersonComparator} is used.
-	 * @param callback the callback invoked during the building.
-	 * @return the duplicate persons that is finally computed.
-	 * @throws Exception if a problem occurred during the building.
-	 */
-	public List<Set<Person>> getPersonDuplicates(Comparator<? super Person> comparator, PersonDuplicateCallback callback) throws Exception {
-		// Each list represents a group of authors that could be duplicate
-		final List<Set<Person>> matchingAuthors = new ArrayList<>();
-
-		// Copy the list of authors into another list in order to enable its
-		// modification during the function's process
-		final List<Person> authorsList = new ArrayList<>(this.personRepository.findAll());
-
-		final Comparator<? super Person> theComparator = comparator == null ? EntityUtils.getPreferredPersonComparator() : comparator;
-
-		final int total = authorsList.size();
-		// Notify the callback
-		if (callback != null) {
-			callback.onDuplicate(0, 0, total);
-		}
-		int duplicateCount = 0;
-		
-		for (int i = 0; i < authorsList.size() - 1; ++i) {
-			final Person referencePerson = authorsList.get(i);
-
-			final Set<Person> currentMatching = new TreeSet<>(theComparator);
-			currentMatching.add(referencePerson);
-
-			final ListIterator<Person> iterator2 = authorsList.listIterator(i + 1);
-			while (iterator2.hasNext()) {
-				final Person otherPerson = iterator2.next();
-				if (this.nameComparator.isSimilar(
-						referencePerson.getFirstName(), referencePerson.getLastName(),
-						otherPerson.getFirstName(), otherPerson.getLastName())) {
-					currentMatching.add(otherPerson);
-					++duplicateCount;
-					// Consume the other person to avoid to be treated twice times
-					iterator2.remove();
-				}
-			}
-			if (currentMatching.size() > 1) {
-				matchingAuthors.add(currentMatching);
-			}
-			// Notify the callback
-			if (callback != null) {
-				callback.onDuplicate(i, duplicateCount, total);
-			}
-		}
-
-		return matchingAuthors;
 	}
 
 	/** Replies if the given list of authors contains at least one person who is associated to a research organization,

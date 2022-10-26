@@ -16,7 +16,8 @@
 
 package fr.ciadlab.labmanager.service.member;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -26,19 +27,16 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.only;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.Gender;
@@ -396,51 +394,6 @@ public class PersonServiceTest {
 		assertEquals(345, list.get(2).getId());
 		assertEquals("F3", list.get(2).getFirstName());
 		assertEquals("L3", list.get(2).getLastName());
-	}
-
-	@Test
-	public void getPersonDuplicate_noDuplicate() throws Exception {
-		List<Set<Person>> duplicate = this.test.getPersonDuplicates(null, null);
-		assertTrue(duplicate.isEmpty());
-	}
-
-	@Test
-	public void getPersonDuplicates_oneDuplicate() throws Exception {
-		Person pers0b = mock(Person.class, "pers0b");
-		when(pers0b.getId()).thenReturn(456852);
-		when(pers0b.getFirstName()).thenReturn("F1");
-		when(pers0b.getLastName()).thenReturn("L1");
-
-		Person pers2b = mock(Person.class, "pers2b");
-		when(pers2b.getId()).thenReturn(456853);
-		when(pers2b.getFirstName()).thenReturn("F3");
-		when(pers2b.getLastName()).thenReturn("L3");
-
-		Person pers2c = mock(Person.class, "pers2c");
-		when(pers2c.getId()).thenReturn(456854);
-		when(pers2c.getFirstName()).thenReturn("F3");
-		when(pers2c.getLastName()).thenReturn("L3");
-
-		when(this.personRepository.findAll()).thenReturn(
-				Arrays.asList(this.pers0, pers2c, this.pers1, pers0b, this.pers2, this.pers3, pers2b));
-		
-		List<Set<Person>> allDuplicates = this.test.getPersonDuplicates(null, null);
-
-		assertEquals(2, allDuplicates.size());
-
-		Set<Person> set1 = allDuplicates.get(0);
-		assertSet(set1, this.pers0, pers0b);
-
-		Set<Person> set2 = allDuplicates.get(1);
-		assertSet(set2, this.pers2, pers2b, pers2c);
-	}
-
-	private void assertSet(Set<Person> actual, Person... expected) {
-		final List<Person> exp = new ArrayList<>(Arrays.asList(expected));
-		for (final Person p : actual) {
-			assertTrue(exp.removeIf(it -> it == p), "Unexpected element: " + p);
-		}
-		assertTrue(exp.isEmpty(), "Missed elements: " + exp);
 	}
 
 	@Test

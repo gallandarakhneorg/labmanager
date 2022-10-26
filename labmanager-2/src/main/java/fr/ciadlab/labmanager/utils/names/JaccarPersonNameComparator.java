@@ -16,38 +16,36 @@
 
 package fr.ciadlab.labmanager.utils.names;
 
-import info.debatty.java.stringsimilarity.SorensenDice;
+import info.debatty.java.stringsimilarity.Jaccard;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-/** Utilities for comparing person names using the Sorensen Dice algorithm.
+/** Utilities for comparing person names using the Jaccar algorithm.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 2.2
  */
 @Component
-@Primary
-public class SorensenDicePersonNameComparator extends AbstractPersonNameComparator {
+public class JaccarPersonNameComparator extends AbstractPersonNameComparator {
 
-	private static final double SIMILARITY_LEVEL = 0.7;
+	private static final double SIMILARITY_LEVEL = 0.65;
 
 	/** Constructor.
 	 *
 	 * @param nameParser the parser for persons' names.
 	 */
-	public SorensenDicePersonNameComparator(@Autowired PersonNameParser nameParser) {
+	public JaccarPersonNameComparator(@Autowired PersonNameParser nameParser) {
 		super(nameParser);
 		setSimilarityLevel(SIMILARITY_LEVEL);
 	}
 
 	@Override
 	protected NormalizedStringSimilarity createStringSimilarityComputer() {
-		return new SorensenDice();
+		return new Jaccard();
 	}
 
 }

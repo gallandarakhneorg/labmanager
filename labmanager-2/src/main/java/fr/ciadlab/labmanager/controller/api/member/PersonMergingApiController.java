@@ -35,7 +35,6 @@ import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
 import fr.ciadlab.labmanager.service.member.PersonMergingService;
-import fr.ciadlab.labmanager.service.member.PersonService;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,8 +67,6 @@ public class PersonMergingApiController extends AbstractApiController {
 
 	private PersonMergingService mergingService;
 
-	private PersonService personService;
-
 	private MembershipRepository membershipRepository;
 
 	private AuthorshipRepository authorshipRepository;
@@ -84,7 +81,6 @@ public class PersonMergingApiController extends AbstractApiController {
 	 * @param messages the provider of messages.
 	 * @param constants the constants of the app.
 	 * @param mergingService the service for merging persons.
-	 * @param personService the person service.
 	 * @param membershipRepository the repository for organization memberships.
 	 * @param authorshipRepository the repository for authorships.
 	 * @param supervisionRepository the repository for supervisions.
@@ -95,7 +91,6 @@ public class PersonMergingApiController extends AbstractApiController {
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired PersonMergingService mergingService,
-			@Autowired PersonService personService,
 			@Autowired MembershipRepository membershipRepository,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired SupervisionRepository supervisionRepository,
@@ -103,7 +98,6 @@ public class PersonMergingApiController extends AbstractApiController {
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.mergingService = mergingService;
-		this.personService = personService;
 		this.membershipRepository = membershipRepository;
 		this.authorshipRepository = authorshipRepository;
 		this.supervisionRepository = supervisionRepository;
@@ -150,7 +144,7 @@ public class PersonMergingApiController extends AbstractApiController {
 				final MutableInt dupCount = new MutableInt();
 				final MutableInt totCount = new MutableInt();
 				sendDuplicateComputationStep(emitter, -1, 0, 1);
-				final List<Set<Person>> matchingAuthors = this.personService.getPersonDuplicates(
+				final List<Set<Person>> matchingAuthors = this.mergingService.getPersonDuplicates(
 						// Use default person comparator
 						null,
 						(personIndex, duplicateCount, personTotal) -> {

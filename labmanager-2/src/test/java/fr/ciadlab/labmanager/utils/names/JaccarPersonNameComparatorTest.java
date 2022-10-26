@@ -26,13 +26,13 @@ import org.junit.jupiter.api.BeforeEach;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class SorensenDicePersonNameComparatorTest extends AbstractTestPersonNameComparator {
+public class JaccarPersonNameComparatorTest extends AbstractTestPersonNameComparator {
 
 	@BeforeEach
 	@Override
 	public void setUp() {
 		super.setUp();
-		this.test = new SorensenDicePersonNameComparator(this.nameParser);
+		this.test = new JaccarPersonNameComparator(this.nameParser);
 	}
 
 }

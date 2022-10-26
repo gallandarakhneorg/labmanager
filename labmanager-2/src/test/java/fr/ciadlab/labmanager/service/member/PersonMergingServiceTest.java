@@ -16,12 +16,17 @@
 
 package fr.ciadlab.labmanager.service.member;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
+import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
@@ -41,12 +46,13 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
+import fr.ciadlab.labmanager.utils.names.DefaultPersonNameParser;
+import fr.ciadlab.labmanager.utils.names.PersonNameComparator;
+import fr.ciadlab.labmanager.utils.names.SorensenDicePersonNameComparator;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PersonMergingService}.
@@ -71,6 +77,8 @@ public class PersonMergingServiceTest {
 	private MembershipRepository organizationMembershipRepository;
 
 	private JuryMembershipService juryMembershipService;
+
+	private PersonNameComparator nameComparator;
 	
 	private PersonMergingService test;
 	
@@ -82,10 +90,11 @@ public class PersonMergingServiceTest {
 		this.organizationMembershipService = mock(MembershipService.class);
 		this.organizationMembershipRepository = mock(MembershipRepository.class);
 		this.juryMembershipService = mock(JuryMembershipService.class);
+		this.nameComparator = new SorensenDicePersonNameComparator(new DefaultPersonNameParser());
 
 		this.test = new PersonMergingService(this.messages, new Constants(), this.personRepository, this.personService,
 				this.organizationMembershipService, this.organizationMembershipRepository,
-				this.juryMembershipService);
+				this.juryMembershipService, this.nameComparator);
 	}
 
 	@Test
@@ -270,6 +279,72 @@ public class PersonMergingServiceTest {
 
 		verify(mbr0).setPerson(same(pers3));
 		verify(this.juryMembershipService).save(same(mbr0));
+	}
+
+
+	@Test
+	public void getPersonDuplicate_noDuplicate() throws Exception {
+		List<Set<Person>> duplicate = this.test.getPersonDuplicates(null, null);
+		assertTrue(duplicate.isEmpty());
+	}
+
+	@Test
+	public void getPersonDuplicates_oneDuplicate() throws Exception {
+		Person pers0 = mock(Person.class, "pers0");
+		lenient().when(pers0.getId()).thenReturn(123);
+		lenient().when(pers0.getFirstName()).thenReturn("F1");
+		lenient().when(pers0.getLastName()).thenReturn("L1");
+
+		Person pers1 = mock(Person.class, "pers1");
+		lenient().when(pers1.getId()).thenReturn(234);
+		lenient().when(pers1.getFirstName()).thenReturn("F2");
+		lenient().when(pers1.getLastName()).thenReturn("L2");
+
+		Person pers0b = mock(Person.class, "pers0b");
+		lenient().when(pers0b.getId()).thenReturn(456852);
+		lenient().when(pers0b.getFirstName()).thenReturn("F1");
+		lenient().when(pers0b.getLastName()).thenReturn("L1");
+
+		Person pers2 = mock(Person.class, "pers2");
+		lenient().when(pers2.getId()).thenReturn(345);
+		lenient().when(pers2.getFirstName()).thenReturn("F3");
+		lenient().when(pers2.getLastName()).thenReturn("L3");
+
+		Person pers2b = mock(Person.class, "pers2b");
+		lenient().when(pers2b.getId()).thenReturn(456853);
+		lenient().when(pers2b.getFirstName()).thenReturn("F3");
+		lenient().when(pers2b.getLastName()).thenReturn("L3");
+
+		Person pers2c = mock(Person.class, "pers2c");
+		lenient().when(pers2c.getId()).thenReturn(456854);
+		lenient().when(pers2c.getFirstName()).thenReturn("F3");
+		lenient().when(pers2c.getLastName()).thenReturn("L3");
+
+		Person pers3 = mock(Person.class, "pers3");
+		lenient().when(pers3.getId()).thenReturn(456);
+		lenient().when(pers3.getFirstName()).thenReturn("F4");
+		lenient().when(pers3.getLastName()).thenReturn("L4");
+
+		when(this.personRepository.findAll()).thenReturn(
+				Arrays.asList(pers0, pers2c, pers1, pers0b, pers2, pers3, pers2b));
+		
+		List<Set<Person>> allDuplicates = this.test.getPersonDuplicates(null, null);
+
+		assertEquals(2, allDuplicates.size());
+
+		Set<Person> set1 = allDuplicates.get(0);
+		assertSet(set1, pers0, pers0b);
+
+		Set<Person> set2 = allDuplicates.get(1);
+		assertSet(set2, pers2, pers2b, pers2c);
+	}
+
+	private void assertSet(Set<Person> actual, Person... expected) {
+		final List<Person> exp = new ArrayList<>(Arrays.asList(expected));
+		for (final Person p : actual) {
+			assertTrue(exp.removeIf(it -> it == p), "Unexpected element: " + p);
+		}
+		assertTrue(exp.isEmpty(), "Missed elements: " + exp);
 	}
 
 }
