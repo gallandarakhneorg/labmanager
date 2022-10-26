@@ -23,10 +23,10 @@ function initMemberDataTable(config) {
 				data: "memberType",
 				defaultContent: '',
 				render: (data, type, row) => {
-					if (data in config['types'] && 'order' in config['types'][data] && config['types'][data]['order']) {
+					if (data in config['types'] && 'order' in config['types'][data]) {
 						return config['types'][data]['order'];
 					}
-					return '';
+					return '1000';
 				},
 				type: 'num',
 				visible: false,

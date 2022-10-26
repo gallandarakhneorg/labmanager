@@ -286,7 +286,7 @@ public class MembershipApiController extends AbstractApiController {
 		}
 		final ResearchOrganization rootOrganization = organizationOpt.get();
 		//
-		// List of memberships should be built specifically for the front ends
+		// List of memberships that are be built specifically for the front ends
 		final Map<Person, MutableTriple<Membership, GeneralMemberType, Set<ResearchOrganization>>> members = new TreeMap<>(EntityUtils.getPreferredPersonComparator());
 		final LinkedList<ResearchOrganization> organizationStack = new LinkedList<>();
 		organizationStack.push(rootOrganization);
@@ -300,16 +300,21 @@ public class MembershipApiController extends AbstractApiController {
 					final Person person = membership.getPerson();
 					final MutableTriple<Membership, GeneralMemberType, Set<ResearchOrganization>> triple = members.computeIfAbsent(person, it -> new MutableTriple<>());
 					final Membership previousMembership = triple.getLeft();
+					final GeneralMemberType gmt;
 					if (previousMembership == null) {
 						triple.setLeft(membership);
+						gmt = GeneralMemberType.fromMembership(membership);
+						triple.setMiddle(gmt);
 					} else {
 						final int cmp = this.membershipComparator.compare(membership, previousMembership);
 						if (cmp < 0) {
 							triple.setLeft(membership);
+							gmt = GeneralMemberType.fromMembership(membership);
+							triple.setMiddle(gmt);
+						} else {
+							gmt = triple.getMiddle();
 						}
 					}
-					final GeneralMemberType gmt = GeneralMemberType.fromMembership(membership);
-					triple.setMiddle(gmt);
 					for (final Membership otherm : person.getMemberships()) {
 						if (otherm.isActive() || gmt == GeneralMemberType.FORMER_MEMBERS) {
 							final ResearchOrganization otherro = otherm.getResearchOrganization();
