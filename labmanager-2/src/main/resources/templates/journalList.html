@@ -57,10 +57,11 @@
             	</a>
             </td>
             <td th:with="impactFactor=${journal.getImpactFactorByYear(currentYear)}">
-            	<a th:href="@{/getJournalQualityIndicators(journal=${journal.id})}">
-	                <th:block th:if="${impactFactor > 0}"
-	                          th:utext="${impactFactor}"></th:block>
-            	</a>
+				<th:block th:if="${impactFactor <= 0}" th:utext="${impactFactor}"></th:block>
+            	<a th:href="@{/getJournalQualityIndicators(journal=${journal.id})}"
+            	   th:if="${impactFactor > 0}">
+	                <th:block th:utext="${impactFactor}"></th:block>
+				</a>
             </td>
             <td>
                 <th:block th:if="${journal.publishedPapers.size <= 0}" th:utext="${journal.publishedPapers.size}"></th:block>
@@ -92,7 +93,7 @@
 <script type="text/javascript" th:inline="javascript">
     $(document).ready(() => {
     	initAdministrationTable({
-    		columns: 9,
+            columns: 9,
     		actionWidth: '180px',
     	});
         /*[# th:if="${changeEnabled}" th:each="journal : ${journals}"]*/
