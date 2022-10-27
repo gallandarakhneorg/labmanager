@@ -47,6 +47,14 @@ public interface DownloadableFileManager {
 	 */
 	void deleteDownloadableAwardPdfFile(int id) throws Exception;
 
+	/** Delete from the server the address background image associated to the address with given identifier.
+	 *
+	 * @param id the identifier of the address.
+	 * @param fileExtension the filename extension for the image ({@code .jpg}, {@code .gif}, {@code .png}).
+	 * @throws Exception if the file cannot be deleted.
+	 */
+	void deleteAddressBackgroundImage(int id, String fileExtension);
+
 	/** Replies the path to the a folder that could be used temporary.
 	 *
 	 * @return the path to the temporary folder.
@@ -64,6 +72,12 @@ public interface DownloadableFileManager {
 	 * @return the path to the root folder.
 	 */
 	File getAwardRootFile();
+
+	/** Replies the path to the root folder for address background images.
+	 *
+	 * @return the path to the root folder.
+	 */
+	File getAddressBackgroundRootFile();
 
 	/** Make the path to the PDF downloadable file for the publication with the given identifier.
 	 *
@@ -93,6 +107,14 @@ public interface DownloadableFileManager {
 	 */
 	File makeAwardPictureFilename(int publicationId);
 
+	/** Make the path to the image that corresponds to the address background file for the address with the given identifier.
+	 *
+	 * @param addressId the identifier of the address.
+	 * @param fileExtension the filename extension for the image ({@code .jpg}, {@code .gif}, {@code .png}).
+	 * @return the path to the image associated to the background image.
+	 */
+	File makeAddressBackgroundImage(int addressId, String fileExtension);
+
 	/** Normalize a relative filename to be absolute for the server.
 	 *
 	 * @param file the relative filename.
@@ -108,6 +130,14 @@ public interface DownloadableFileManager {
 	 * @throws IOException if the file cannot be created.
 	 */
 	void saveFiles(File pdfFilename, File pictureFilename, MultipartFile multipartPdfFile) throws IOException;
+
+	/** Save the uploaded address background image.
+	 *
+	 * @param filename the filename of the image to upload.
+	 * @param backgroundImage the content of the image.
+	 * @throws IOException if the file cannot be created.
+	 */
+	void saveAddressBackgroundImage(File filename, MultipartFile backgroundImage) throws IOException;
 
 	/** Ensure that the picture file representing the PDF file is generated.
 	 *

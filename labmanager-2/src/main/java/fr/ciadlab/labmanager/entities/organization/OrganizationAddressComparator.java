@@ -44,23 +44,23 @@ public class OrganizationAddressComparator implements Comparator<OrganizationAdd
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = StringUtils.compare(o1.getName(), o2.getName());
+		int cmp = StringUtils.compareIgnoreCase(o1.getName(), o2.getName());
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = StringUtils.compare(o1.getComplement(), o2.getComplement());
+		cmp = StringUtils.compareIgnoreCase(o1.getComplement(), o2.getComplement());
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = StringUtils.compare(o1.getStreet(), o2.getStreet());
+		cmp = StringUtils.compareIgnoreCase(o1.getStreet(), o2.getStreet());
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = StringUtils.compare(o1.getZipCode(), o2.getZipCode());
+		cmp = StringUtils.compareIgnoreCase(o1.getZipCode(), o2.getZipCode());
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = StringUtils.compare(o1.getCity(), o2.getCity());
+		cmp = StringUtils.compareIgnoreCase(o1.getCity(), o2.getCity());
 		if (cmp != 0) {
 			return cmp;
 		}

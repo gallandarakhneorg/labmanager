@@ -89,6 +89,11 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	@Column
 	private String mapCoordinates;	
 
+	/** URL of a associated background if the address has one.
+	 */
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	private String pathToBackgroundImage;
+
 	/** Construct an organization address from the given values.
 	 * 
 	 * @param id the identifier of the organization.
@@ -125,6 +130,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 		h = HashCodeUtils.add(h, this.zipCode);
 		h = HashCodeUtils.add(h, this.city);
 		h = HashCodeUtils.add(h, this.mapCoordinates);
+		h = HashCodeUtils.add(h, this.pathToBackgroundImage);
 		return h;
 	}
 
@@ -156,6 +162,9 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 			return false;
 		}
 		if (!Objects.equals(this.mapCoordinates, other.mapCoordinates)) {
+			return false;
+		}
+		if (!Objects.equals(this.pathToBackgroundImage, other.pathToBackgroundImage)) {
 			return false;
 		}
 		return true;
@@ -196,6 +205,9 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 		}
 		if (!Strings.isNullOrEmpty(getMapCoordinates())) {
 			consumer.accept("mapCoordinates", getMapCoordinates()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getPathToBackgroundImage())) {
+			consumer.accept("pathToBackgroundImage", getPathToBackgroundImage()); //$NON-NLS-1$
 		}
 	}
 
@@ -356,6 +368,22 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 			builder.append(getCity());
 		}
 		return builder.toString();
+	}
+
+	/** Replies the background image for the address.
+	 *
+	 * @return the background image.
+	 */
+	public String getPathToBackgroundImage() {
+		return this.pathToBackgroundImage;
+	}
+
+	/** Change the city of the address.
+	 *
+	 * @param path the local path to the background image.
+	 */
+	public void setPathToBackgroundImage(String path) {
+		this.pathToBackgroundImage = Strings.emptyToNull(path);
 	}
 
 }

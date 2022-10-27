@@ -28,4 +28,15 @@
 		       th:id="${'fileUploadBibTeX_' + name}" th:name="${name}"></input>
     </div>
 
+	<div th:fragment="fileUploadImage(name, label)" class="form-group">
+		<input type="text" class="form-control"
+		       th:id="${'fileUploadImage_removed_' + name}" 
+		       hidden="true" value="false" />
+		<label th:for="${'fileUploadImage_' + name}" class="col-form-label" th:utext="${label}"></label>
+		<input class="form-control" type="file"
+		       data-preview-file-type="text"
+		       accept=".gif,.jpg,.jpeg,.png,image/jpeg,image/gif,image/png"
+		       th:id="${'fileUploadImage_' + name}" th:name="${name}"></input>
+    </div>
+
 </html>

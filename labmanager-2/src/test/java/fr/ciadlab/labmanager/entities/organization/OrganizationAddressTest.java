@@ -173,4 +173,26 @@ public class OrganizationAddressTest {
 		assertNull(this.test.getMapCoordinates());
 	}
 
+	@Test
+	public void getPathToBackgroundImage() {
+		assertNull(this.test.getPathToBackgroundImage());
+	}
+
+	@Test
+	public void setPathToBackgroundImage() {
+		assertNull(this.test.getPathToBackgroundImage());
+
+		this.test.setPathToBackgroundImage("xyz");
+		assertEquals("xyz", this.test.getPathToBackgroundImage());
+
+		this.test.setPathToBackgroundImage(null);
+		assertNull(this.test.getPathToBackgroundImage());
+
+		this.test.setPathToBackgroundImage("abc");
+		assertEquals("abc", this.test.getPathToBackgroundImage());
+
+		this.test.setPathToBackgroundImage("");
+		assertNull(this.test.getPathToBackgroundImage());
+	}
+
 }

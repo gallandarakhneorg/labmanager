@@ -94,6 +94,19 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 		}
 	}
 
+	/** Replies if the file with the given name is acceptable.
+	 *
+	 * @param filename the filename.
+	 * @return {@code true} if the file is accepted.
+	 */
+	@SuppressWarnings("static-method")
+	protected boolean isAcceptedDataFile(String filename) {
+		final String ext = FileSystem.extension(filename);
+		return ".pdf".equals(ext) || ".jpeg".equals(ext) //$NON-NLS-1$ //$NON-NLS-2$
+			|| ".jpg".equals(ext) || ".gif".equals(ext) //$NON-NLS-1$ //$NON-NLS-2$
+			|| ".png".equals(ext); //$NON-NLS-1$
+	}
+
 	/** Run the importer for ZIP data source only.
 	 *
 	 * @param url the URL of the ZIP file to read.
@@ -117,8 +130,8 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 							} else {
 								throw new Exception("To many JSON file in the ZIP archive."); //$NON-NLS-1$
 							}
-						} else if (lower.endsWith(".pdf")) { //$NON-NLS-1$
-							// Copy the PDF files onto the server.
+						} else if (isAcceptedDataFile(lower)) {
+							// Copy the files onto the server.
 							copyAttachedFileToTemporaryArea(filename, entryStream);
 						}
 					}
@@ -247,6 +260,13 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 					ZipToDatabaseImporter.this.download.makeAwardPictureFilename(dbId));
 		}
 
+		@Override
+		public String addressBackgroundImageFile(int dbId, String filename) {
+			final String fileExtension = FileSystem.extension(filename);
+			return moveFile(filename, dbId,
+					ZipToDatabaseImporter.this.download.makeAddressBackgroundImage(dbId, fileExtension));
+		}
+
 		private String moveFile(String inFilename, int outId, File outFilename, File outPictureName) {
 			try {
 				final File inFile = FileSystem.join(this.temporaryFolder, inFilename);
@@ -256,6 +276,23 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 					FileSystem.copy(inFile, outFile);
 					FileSystem.delete(inFile);
 					ZipToDatabaseImporter.this.download.ensurePictureFile(outFilename, outPictureName);
+					++this.fileCount;
+					return outFilename.toString();
+				}
+				return null;
+			} catch (Exception ex) {
+				throw new RuntimeException(ex);
+			}
+		}
+
+		private String moveFile(String inFilename, int outId, File outFilename) {
+			try {
+				final File inFile = FileSystem.join(this.temporaryFolder, inFilename);
+				if (inFile.canRead()) {
+					final File outFile = ZipToDatabaseImporter.this.download.normalizeForServerSide(outFilename);
+					mkdirs(outFile);
+					FileSystem.copy(inFile, outFile);
+					FileSystem.delete(inFile);
 					++this.fileCount;
 					return outFilename.toString();
 				}

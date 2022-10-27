@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:unless="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs"/>
+</th:block>
+<th:block th:if="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+</th:block>
+<div class="et_pb_row et_pb_row_2 et_pb_equal_columns et_pb_gutters1">
+	<th:block th:each="address, iAddress : ${addresses}"
+	          th:if="${address.pathToBackgroundImage != null}"
+	          th:with="urlroot = @{/} + ${address.pathToBackgroundImage}">
+		<div th:class="${'et_pb_column et_pb_column_1_2 et_pb_column_' + (2 + iAddress.index) + ' et_clickable  et_pb_css_mix_blend_mode_passthrough'}"
+		     th:style="${'background-image: url(' + urlroot + ');background-color: RGBA(0,0,0,0);'}">
+			<div class="et_pb_module  et_pb_text et_pb_text_1  et_pb_text_align_center et_pb_bg_layout_light">
+				<div class="et_pb_text_inner"><p th:utext="${address.name}"></p></div>
+			</div>
+			<div class="et_pb_module  et_pb_text et_pb_text_2  et_pb_text_align_center et_pb_bg_layout_light">
+				<div class="et_pb_text_inner"><p>
+				<th:block th:if="${address.complement != null}"
+				          th:with="eutils = ${T(fr.ciadlab.labmanager.entities.EntityUtils)}">
+					<th:block th:each="component : ${eutils.getAddressComplementComponents(address.complement)}">
+						<th:block th:utext="${component}"></th:block><br>
+					</th:block>
+				</th:block>
+				<th:block th:utext="${address.street}"></th:block><br>
+				<th:block th:utext="${address.zipCode}"></th:block>&nbsp;<th:block th:utext="${address.city}"></th:block></p></div>
+			</div>
+		</div>
+	</th:block>
+</div>
+			
+</html>

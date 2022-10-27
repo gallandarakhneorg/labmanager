@@ -106,6 +106,21 @@ public class DatabaseToZipExporter {
 		}
 	}
 
+	@SuppressWarnings("unchecked")
+	private void writeAddressFilesToZip(Map<String, Object> json, ZipOutputStream zos) throws Exception {
+		List<Map<String, Object>>  addresses = (List<Map<String, Object>>) json.get(JsonTool.ORGANIZATIONADDRESSES_SECTION);
+		if (addresses != null && !addresses.isEmpty()) {
+			for (final Map<String, Object> address : addresses) {
+				final String targetFilename0 = (String) address.get("pathToBackgroundImage"); //$NON-NLS-1$
+				if (!Strings.isNullOrEmpty(targetFilename0)) {
+					if (!copyFileToZip(targetFilename0, zos)) {
+						address.remove("pathToBackgroundImage"); //$NON-NLS-1$
+					}
+				}
+			}
+		}
+	}
+
 	private boolean copyFileToZip(String filename, ZipOutputStream zos) throws Exception {
 		final File lfilename = FileSystem.convertStringToFile(filename);
 		final File localFile = this.download.normalizeForServerSide(lfilename);
@@ -156,6 +171,7 @@ public class DatabaseToZipExporter {
 		public void exportToZip(OutputStream output) throws Exception {
 			try (ZipOutputStream zos = new ZipOutputStream(output)) {
 				writePublicationFilesToZip(this.content, zos);
+				writeAddressFilesToZip(this.content, zos);
 				writeJsonToZip(this.content, zos);
 			}
 		}

@@ -410,7 +410,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				if (clearDatabase) {
 					clearDatabase(session);
 				}
-				final int nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository);
+				final int nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository);
 				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
 				final int nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
@@ -448,11 +448,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param addresses the list of addresses in the Json source.
 	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
 	 * @param aliasRepository the repository of field aliases.
+	 * @param fileCallback a tool that is invoked when associated file is detected. It could be {@code null}.
 	 * @return the number of new addresses in the database.
 	 * @throws Exception if an address cannot be created.
 	 */
 	protected int insertAddresses(Session session, JsonNode addresses, Map<String, Integer> objectIdRepository,
-			Map<String, Set<String>> aliasRepository) throws Exception {
+			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		int nbNew = 0;
 		if (addresses != null && !addresses.isEmpty()) {
 			getLogger().info("Inserting " + addresses.size() + " addresses..."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -470,6 +471,21 @@ public class JsonToDatabaseImporter extends JsonTool {
 							if (!isFake()) {
 								adr = this.addressRepository.save(adr);
 							}
+							// Ensure that attached files are correct
+							if (fileCallback != null) {
+								boolean publicationChanged = false;
+								if (!Strings.isNullOrEmpty(adr.getPathToBackgroundImage())) {
+									final String ofn = adr.getPathToBackgroundImage();
+									final String fn = fileCallback.addressBackgroundImageFile(adr.getId(), ofn);
+									if (!Objects.equals(ofn, fn)) {
+										adr.setPathToBackgroundImage(fn);
+										publicationChanged = true;
+									}
+								}
+								if (publicationChanged && !isFake()) {
+									this.addressRepository.save(adr);
+								}
+							}
 							++nbNew;
 							getLogger().info("  + " + adr.getName() + " (id: " + adr.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
@@ -479,6 +495,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 							getLogger().info("  X " + existing.get().getName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
 								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+							}
+							if (fileCallback != null) {
+								if (!Strings.isNullOrEmpty(existing.get().getPathToBackgroundImage())) {
+									fileCallback.addressBackgroundImageFile(existing.get().getId(), existing.get().getPathToBackgroundImage());
+								}
 							}
 						}
 					}
@@ -1319,7 +1340,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 		/** A PDF file was attached to a publication.
 		 *
-		 * @param dbId the identifier of the publication if the database.
+		 * @param dbId the identifier of the publication in the database.
 		 * @param filename the filename that is specified in the JSON file.
 		 * @return the fixed filename.
 		 */
@@ -1327,11 +1348,20 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 		/** An award file was attached to a publication.
 		 *
-		 * @param dbId the identifier of the publication if the database.
+		 * @param dbId the identifier of the publication in the database.
 		 * @param filename the filename that is specified in the JSON file.
 		 * @return the fixed filename.
 		 */
 		String publicationAwardFile(int dbId, String filename);
+
+
+		/** A background image file was attached to an address.
+		 *
+		 * @param dbId the identifier of the address in the database.
+		 * @param filename the filename that is specified in the JSON file.
+		 * @return the fixed filename.
+		 */
+		String addressBackgroundImageFile(int dbId, String filename);
 
 	}
 

@@ -342,10 +342,11 @@ public abstract class AbstractComponent {
 		return null;
 	}
 
-	/** Clean and noralized a string that is provided as input to an endpoint.
+	/** Clean and normalized a string that is provided as input to an endpoint.
 	 *
 	 * @param input the input string to the endpoint.
 	 * @return the normalized string that is equivalent to the argument.
+	 * @see #inStringCr(String)
 	 */
 	public static String inString(String input) {
 		String out = Strings.emptyToNull(input);

@@ -22,6 +22,14 @@ GLOBAL_FORM_DATA_INPUT_TRANSFORMERS.push((formData) => {
 				var isManuallyRemoved = $hiddenElt.value
 				formData.append('@fileUpload_removed_' + fieldName, isManuallyRemoved);
 			});
+			$.each($('#fileUploadBibTeX_removed_' + fieldName), (index, $hiddenElt) => {
+				var isManuallyRemoved = $hiddenElt.value
+				formData.append('@fileUpload_removed_' + fieldName, isManuallyRemoved);
+			});
+			$.each($('#fileUploadImage_removed_' + fieldName), (index, $hiddenElt) => {
+				var isManuallyRemoved = $hiddenElt.value
+				formData.append('@fileUpload_removed_' + fieldName, isManuallyRemoved);
+			});
 		}
 	});
 });
@@ -67,6 +75,28 @@ function initFileUploadSingleBibTeX(config) {
  	config['fileExtensionMatcher'] = (vName) => { return vName.match(/\.(bib|bibtex)$/i) };
  	config['fileExtensionArray'] = [ 'bib', 'bibtex' ];
 	(!('componentIdPrefix' in config)) && (config['componentIdPrefix'] = "fileUploadBibTeX_");
+	initFileUploadSingleFile_base(config);
+}
+
+
+/** Initialize the input component for selecting and uploading a single image file (GIF, JPEG, PNG).
+ * @param config the map of the configuration elements:
+ *      * `name` the name of the field to upload.
+ *      * `id` the identifier of the button that is used for obtaining the button with jQuery. If this `id` is not
+ *        provided, the `selector` or `obj` must be provided.
+ *      * `selector` the jQuery selector for obtaining the button. If this `selector` is not
+ *        provided, the `id` or `obj` must be provided.
+ *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
+ *        provided, the `selector` or `id` must be provided.
+ *      * `enableRemove` indicates if the component enables to remove a selected BibTeX file. Default is `true`.
+ *      * `onSelected` a function invoked when a file is seleted. This function takes the file object as argument.
+ */
+function initFileUploadSingleImage(config) {
+ 	config['fileTypeName'] = 'image';
+ 	config['mimeTypes'] = [ 'image/jpeg', 'image/gif', 'image/png' ],
+ 	config['fileExtensionMatcher'] = (vName) => { return vName.match(/\.(jpeg|jpg|gif|png)$/i) };
+ 	config['fileExtensionArray'] = [ 'jpg', 'jpeg', 'gif', 'png' ];
+	(!('componentIdPrefix' in config)) && (config['componentIdPrefix'] = "fileUploadImage_");
 	initFileUploadSingleFile_base(config);
 }
 

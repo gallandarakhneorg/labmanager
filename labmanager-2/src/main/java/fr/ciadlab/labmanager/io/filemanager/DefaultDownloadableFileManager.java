@@ -73,6 +73,10 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	private static final String AWARD_FILE_PREFIX = "Award"; //$NON-NLS-1$
 
+	private static final String ADDRESS_BACKGROUND_FOLDER_NAME = "AddressBgs"; //$NON-NLS-1$
+
+	private static final String ADDRESS_BACKGROUND_FILE_PREFIX = "AddressBg"; //$NON-NLS-1$
+
 	private final File uploadFolder;
 
 	private final File temporaryFolder;
@@ -120,6 +124,11 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	}
 
 	@Override
+	public File getAddressBackgroundRootFile() {
+		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), ADDRESS_BACKGROUND_FOLDER_NAME);
+	}
+
+	@Override
 	public File makePdfFilename(int publicationId) {
 		return FileSystem.join(getPdfRootFile(), PDF_FILE_PREFIX + Integer.valueOf(publicationId) + PDF_FILE_EXTENSION);
 	}
@@ -137,6 +146,13 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	@Override
 	public File makeAwardPictureFilename(int publicationId) {
 		return FileSystem.join(getAwardRootFile(), AWARD_FILE_PREFIX + Integer.valueOf(publicationId) + JPEG_FILE_EXTENSION);
+	}
+
+	@Override
+	public File makeAddressBackgroundImage(int addressId, String fileExtension) {
+		return FileSystem.addExtension(
+				FileSystem.join(getAddressBackgroundRootFile(), ADDRESS_BACKGROUND_FILE_PREFIX + Integer.valueOf(addressId)),
+				fileExtension);
 	}
 
 	@Override
@@ -182,6 +198,15 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	}
 
 	@Override
+	public void deleteAddressBackgroundImage(int id, String fileExtension) {
+		File file = makeAddressBackgroundImage(id, fileExtension);
+		File absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+	}
+
+	@Override
 	public void ensurePictureFile(File pdfFilename, File pictureFilename) throws IOException {
 		final File pdfFilenameAbs = normalizeForServerSide(pdfFilename);
 		if (pdfFilenameAbs.canRead()) {
@@ -197,6 +222,19 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 					throw new IOException("Could not save picture file: " + pictureFilenameAbs.getName(), ioe); //$NON-NLS-1$
 				}
 			}
+		}
+	}
+
+	@Override
+	public void saveAddressBackgroundImage(File filename, MultipartFile backgroundImage) throws IOException {
+		final File normalizedFilename = normalizeForServerSide(filename);
+		final File uploadDir = normalizedFilename.getParentFile();
+		uploadDir.mkdirs();
+		try (final InputStream inputStream = backgroundImage.getInputStream()) {
+			final Path filePath = normalizedFilename.toPath();
+			Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
+		} catch (IOException ioe) {
+			throw new IOException("Could not save address background image: " + normalizedFilename.getName(), ioe); //$NON-NLS-1$
 		}
 	}
 

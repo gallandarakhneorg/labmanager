@@ -18,8 +18,11 @@ package fr.ciadlab.labmanager.entities;
 
 import java.text.Normalizer;
 import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
+import java.util.List;
 
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
@@ -43,6 +46,7 @@ import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import info.debatty.java.stringsimilarity.SorensenDice;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Tools and configuration for the JPA entities.
  * 
@@ -503,6 +507,23 @@ public final class EntityUtils {
 		return outcome.toString();
 	}
 
+	/** Replies the university/school/company that corresponds to the given organization.
+	 *
+	 * @param organization the organization.
+	 * @return the parent organization or the given organization if it is not an university/school/company.
+	 * @since 2.2
+	 */
+	public static ResearchOrganization getUniversityOrSchoolOrCompany(ResearchOrganization organization) {
+		ResearchOrganization current = organization;
+		while (current != null && current.getType().ordinal() < ResearchOrganizationType.UNIVERSITY.ordinal()) {
+			current = current.getSuperOrganization();
+		}
+		if (current != null && current.getType().ordinal() >= ResearchOrganizationType.UNIVERSITY.ordinal()) {
+			return current;
+		}
+		return organization;
+	}
+
 	/** Replies the name of the university or company for the given person regarding the time windows of the given supervision.
 	 *
 	 * @param supervision the source supervision.
@@ -545,6 +566,54 @@ public final class EntityUtils {
 			}
 		}
 		return ""; //$NON-NLS-1$
+	}
+
+	/** Fixing the carriage-return characters in the address complements.
+	 * Replace the CR characters by the equivalent protected string.
+	 *
+	 * @param complement the complement to fix.
+	 * @return the fixed complement.
+	 * @see #fixAddressComplementForBackend(String)
+	 * @see #getAddressComplementComponents(String)
+	 * @since 2.2
+	 */
+	public static String fixAddressComplementForEditor(String complement) {
+		if (complement == null) {
+			return null;
+		}
+		return complement.replace("\n", "\\n"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/** Fixing the carriage-return characters in the address complements.
+	 * Replace the protected CR characters by the equivalent unicode characters.
+	 *
+	 * @param complement the complement to fix.
+	 * @return the fixed complement.
+	 * @see #fixAddressComplementForEditor(String)
+	 * @see #getAddressComplementComponents(String)
+	 * @since 2.2
+	 */
+	public static String fixAddressComplementForBackend(String complement) {
+		if (complement == null) {
+			return null;
+		}
+		return complement.replace("\\n", "\n"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/** Extract the components of an address complement. The components are separated by carriage return characters.
+	 *
+	 * @param complement the complement to analyze.
+	 * @return the components of the complement.
+	 * @see #fixAddressComplementForEditor(String)
+	 * @see #fixAddressComplementForBackend(String)
+	 * @since 2.2
+	 */
+	public static List<String> getAddressComplementComponents(String complement) {
+		if (Strings.isNullOrEmpty(complement)) {
+			return Collections.emptyList();
+		}
+		final String[] components = complement.split("[\n]+");  //$NON-NLS-1$
+		return Arrays.asList(components);
 	}
 
 }

@@ -42,6 +42,20 @@
 			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddAddress}"></th:block></a>
 			    </p>
 			</div>
+			<div class="card-footer">
+				<div class="dropdown">
+			    	<button type="button" class="btn btn-labeled btn-info dropdown-toggle" data-bs-toggle="dropdown"
+		    	            id="dropdownShowOrganizationAddresses" aria-expanded="false">
+			    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.AddressPublicComponent}"></th:block></button>
+			    	<ul class="dropdown-menu" aria-labelledby="dropdownShowOrganizationAddresses">
+						<li th:each="organization : ${organizations}"
+						    th:if="${organization.isMajorOrganization}">
+							<a class="dropdown-item"
+							   th:href="@{/showOrganizationAddresses(dbId=${organization.id})}"
+							   th:utext="${organization.acronymOrName}"></a></li>
+					</ul>
+				</div>
+			</div>
 		</div>
 	</div>
     <div class="col">

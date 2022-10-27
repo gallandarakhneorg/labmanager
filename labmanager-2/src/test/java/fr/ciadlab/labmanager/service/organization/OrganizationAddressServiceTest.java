@@ -21,6 +21,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -37,6 +39,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.OrganizationAddressRepository;
@@ -48,6 +51,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.web.multipart.MultipartFile;
 
 /** Tests for {@link OrganizationAddressService}.
  * 
@@ -68,13 +72,17 @@ public class OrganizationAddressServiceTest {
 
 	private OrganizationAddressRepository addressRepository;
 
+	private DownloadableFileManager fileManager;
+
 	private OrganizationAddressService test;
 
 	@BeforeEach
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.addressRepository = mock(OrganizationAddressRepository.class);
-		this.test = new OrganizationAddressService(this.messages, new Constants(), this.addressRepository);
+		this.fileManager = mock(DownloadableFileManager.class);
+		
+		this.test = new OrganizationAddressService(this.messages, new Constants(), this.fileManager, this.addressRepository);
 
 		// Prepare some organizations to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -126,8 +134,10 @@ public class OrganizationAddressServiceTest {
 	}
 
 	@Test
-	public void createAddress() {
-		final Optional<OrganizationAddress> res = this.test.createAddress("NN", "NC", "NS", "NZC", "NC", "NMC");
+	public void createAddress() throws IOException {
+		MultipartFile file = mock(MultipartFile.class);
+		when(file.isEmpty()).thenReturn(true);
+		final Optional<OrganizationAddress> res = this.test.createAddress("NN", "NC", "NS", "NZC", "NC", "NMC", file);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
@@ -144,8 +154,10 @@ public class OrganizationAddressServiceTest {
 	}
 
 	@Test
-	public void updateAddress() {
-		Optional<OrganizationAddress> res = this.test.updateAddress(234, "NN", "NC", "NS", "NZC", "NC", "NMC");
+	public void updateAddress() throws IOException {
+		MultipartFile file = mock(MultipartFile.class);
+		when(file.isEmpty()).thenReturn(true);
+		Optional<OrganizationAddress> res = this.test.updateAddress(234, "NN", "NC", "NS", "NZC", "NC", "NMC", file, false);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
