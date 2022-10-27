@@ -83,7 +83,7 @@ public class AdminViewController extends AbstractViewController {
 		final List<ResearchOrganization> list = this.organizationService.getAllResearchOrganizations().stream()
 				.sorted(EntityUtils.getPreferredResearchOrganizationComparator()).collect(Collectors.toList());
 		modelAndView.addObject("organizations", list); //$NON-NLS-1$
-		modelAndView.addObject("username", Strings.nullToEmpty(this.username)); //$NON-NLS-1$
+		modelAndView.addObject("username", Strings.nullToEmpty(getCurrentUsername())); //$NON-NLS-1$
 		final UriComponents urlComponents = ServletUriComponentsBuilder.fromCurrentContextPath().build();
 		final String baseName = urlComponents.getHost().toUpperCase();
 		String baseUrl;

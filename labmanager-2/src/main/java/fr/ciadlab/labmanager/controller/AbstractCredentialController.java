@@ -27,6 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.utils.HttpRequestUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -44,7 +45,7 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 	 *
 	 * @see #ensureLoggedUser(HttpServletRequest)
 	 */
-	protected String username;
+	private String username;
 
 	/** Hash for encoding the username.
 	 */
@@ -62,6 +63,14 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 		this.usernameKey = key.getBytes(StandardCharsets.US_ASCII);
 	}
 
+	/** Replies the name of the logged-in user.
+	 *
+	 * @return the name of {@code null}.
+	 */
+	protected String getCurrentUsername() {
+		return this.username;
+	}
+
 	/** Replies if a user is logged-in.
 	 * <p>This function always validates if the backend is in debug mode.
 	 *
@@ -69,6 +78,12 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 	 */
 	protected boolean isLoggedIn() {
 		return !Strings.isNullOrEmpty(this.username);
+	}
+
+	private void failOnInvalidClient(String serviceName) {
+		getLogger().error("Refused connection to the service " + serviceName + " for user with id " + getCurrentUsername()); //$NON-NLS-1$ //$NON-NLS-2$
+		getLogger().error("Agressor client IP: " + HttpRequestUtils.getClientIpAddressIfServletRequestExist()); //$NON-NLS-1$
+		throw new IllegalAccessError(getMessage("all.notLogged")); //$NON-NLS-1$
 	}
 
 	/** Validate the credentials for the given username.
@@ -83,7 +98,7 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 	protected String ensureCredentials(byte[] encryptedUsername, String serviceName, Object... serviceParams) {
 		final String uname = readCredentials(encryptedUsername, serviceName, serviceParams);
 		if (!isLoggedIn()) {
-			throw new IllegalAccessError(getMessage("all.notLogged")); //$NON-NLS-1$
+			failOnInvalidClient(serviceName);
 		}
 		return uname;
 	}
@@ -100,7 +115,7 @@ public abstract class AbstractCredentialController extends AbstractComponent {
 	protected String ensureCredentials(String encryptedUsername, String serviceName, Object... serviceParams) {
 		final String uname = readCredentials(encryptedUsername, serviceName, serviceParams);
 		if (!isLoggedIn()) {
-			throw new IllegalAccessError(getMessage("all.notLogged")); //$NON-NLS-1$
+			failOnInvalidClient(serviceName);
 		}
 		return uname;
 	}
