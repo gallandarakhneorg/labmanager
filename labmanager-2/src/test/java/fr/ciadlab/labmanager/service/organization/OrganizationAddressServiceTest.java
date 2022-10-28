@@ -137,7 +137,7 @@ public class OrganizationAddressServiceTest {
 	public void createAddress() throws IOException {
 		MultipartFile file = mock(MultipartFile.class);
 		when(file.isEmpty()).thenReturn(true);
-		final Optional<OrganizationAddress> res = this.test.createAddress("NN", "NC", "NS", "NZC", "NC", "NMC", file);
+		final Optional<OrganizationAddress> res = this.test.createAddress("NN", "NC", "NS", "NZC", "NC", "NMC", "NGL", file);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
@@ -151,13 +151,14 @@ public class OrganizationAddressServiceTest {
 		assertEquals("NZC", actual.getZipCode());
 		assertEquals("NC", actual.getCity());
 		assertEquals("NMC", actual.getMapCoordinates());
+		assertEquals("NGL", actual.getGoogleMapLink());
 	}
 
 	@Test
 	public void updateAddress() throws IOException {
 		MultipartFile file = mock(MultipartFile.class);
 		when(file.isEmpty()).thenReturn(true);
-		Optional<OrganizationAddress> res = this.test.updateAddress(234, "NN", "NC", "NS", "NZC", "NC", "NMC", file, false);
+		Optional<OrganizationAddress> res = this.test.updateAddress(234, "NN", "NC", "NS", "NZC", "NC", "NMC", "NGL", file, false);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
@@ -170,6 +171,7 @@ public class OrganizationAddressServiceTest {
 		verify(this.adr1, atLeastOnce()).setZipCode(eq("NZC"));
 		verify(this.adr1, atLeastOnce()).setCity(eq("NC"));
 		verify(this.adr1, atLeastOnce()).setMapCoordinates(eq("NMC"));
+		verify(this.adr1, atLeastOnce()).setGoogleMapLink(eq("NGL"));
 	}
 
 	@Test

@@ -18,6 +18,8 @@ package fr.ciadlab.labmanager.entities.organization;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -63,7 +65,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	 */
 	@Column(nullable = false)
 	private String name;
-	
+
 	/** Complementatry information that may appear before the rest.
 	 */
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
@@ -83,11 +85,16 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	 */
 	@Column(nullable = false)
 	private String city;
-	
+
 	/** Coordinates of the address on a map tool such as Google Map..
 	 */
 	@Column
 	private String mapCoordinates;	
+
+	/** Link to the Google Map
+	 */
+	@Column
+	private String googleMapLink;	
 
 	/** URL of a associated background if the address has one.
 	 */
@@ -206,6 +213,9 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 		if (!Strings.isNullOrEmpty(getMapCoordinates())) {
 			consumer.accept("mapCoordinates", getMapCoordinates()); //$NON-NLS-1$
 		}
+		if (!Strings.isNullOrEmpty(getMapCoordinates())) {
+			consumer.accept("googleMapLink", getGoogleMapLink()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getPathToBackgroundImage())) {
 			consumer.accept("pathToBackgroundImage", getPathToBackgroundImage()); //$NON-NLS-1$
 		}
@@ -322,6 +332,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	/** Replies the coordinates of the address for a mapping system. There coordinates are usually GPS based.
 	 *
 	 * @return the map coordinates.
+	 * @see #getGoogleMapURL()
 	 */
 	public String getMapCoordinates() {
 		return this.mapCoordinates;
@@ -333,6 +344,38 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	 */
 	public void setMapCoordinates(String mapCoordinates) {
 		this.mapCoordinates = Strings.emptyToNull(mapCoordinates);
+	}
+
+	/** Replies the Link to the Google Map that corresponds to this address.
+	 *
+	 * @return the link to the Google Map of the research organization, or {@code null}.
+	 * @see #getMapCoordinates()
+	 * @see #getGoogleMapURL()
+	 */
+	public String getGoogleMapLink() {
+		return this.googleMapLink;
+	}
+
+	/** Change the Link to the Google Map that corresponds to this address.
+	 *
+	 * @param link the link to the Google Map of the research organization, or {@code null}.
+	 */
+	public void setGoogleMapLink(String link) {
+		this.googleMapLink = Strings.emptyToNull(link);
+	}
+
+	/** Replies the URL to the Google Map that corresponds to this address.
+	 *
+	 * @return the URL to the Google Map of the research organization, or {@code null}.
+	 * @see #getMapCoordinates()
+	 * @throws MalformedURLException if the URL cannot be built.
+	 */
+	public URL getGoogleMapURL() throws MalformedURLException {
+		final String link = getGoogleMapLink();
+		if (!Strings.isNullOrEmpty(link)) {
+			return new URL(link);
+		}
+		return null;
 	}
 
 	/** Replies the full address composed by the building number, the street, the ZIP code and the city.

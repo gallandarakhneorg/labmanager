@@ -68,6 +68,10 @@ public class OrganizationAddressComparator implements Comparator<OrganizationAdd
 		if (cmp != 0) {
 			return cmp;
 		}
+		cmp = StringUtils.compare(o1.getGoogleMapLink(), o2.getGoogleMapLink());
+		if (cmp != 0) {
+			return cmp;
+		}
 		return Integer.compare(o1.getId(), o2.getId());
 	}
 

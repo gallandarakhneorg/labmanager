@@ -94,12 +94,13 @@ public class OrganizationAddressService extends AbstractService {
 	 * @param zipCode the postal code.
 	 * @param city the name of the city.
 	 * @param mapCoordinates the geo. coordinates of the location.
+	 * @param googleLink the link to the Google Map.
 	 * @param backgroundImage the background image.
 	 * @return the created address in the database.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
 	public Optional<OrganizationAddress> createAddress(String name, String complement, String street, String zipCode, String city,
-			String mapCoordinates, MultipartFile backgroundImage) throws IOException {
+			String mapCoordinates, String googleLink, MultipartFile backgroundImage) throws IOException {
 		final OrganizationAddress adr = new OrganizationAddress();
 		adr.setName(name);
 		adr.setComplement(complement);
@@ -107,6 +108,7 @@ public class OrganizationAddressService extends AbstractService {
 		adr.setZipCode(zipCode);
 		adr.setCity(city);
 		adr.setMapCoordinates(mapCoordinates);
+		adr.setGoogleMapLink(googleLink);
 		// Save to get the ID of the address
 		this.addressRepository.save(adr);
 		//
@@ -123,13 +125,14 @@ public class OrganizationAddressService extends AbstractService {
 	 * @param zipCode the postal code.
 	 * @param city the name of the city.
 	 * @param mapCoordinates the geo. coordinates of the location.
+	 * @param googleLink the link to the Google Map.
 	 * @param backgroundImage the background image.
 	 * @param removedBackgroundImage indicates if the background image should be removed.
 	 * @return the created address in the database.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
 	public Optional<OrganizationAddress> updateAddress(int identifier, String name, String complement, String street, String zipCode,
-			String city, String mapCoordinates, MultipartFile backgroundImage, boolean removedBackgroundImage) throws IOException {
+			String city, String mapCoordinates, String googleLink, MultipartFile backgroundImage, boolean removedBackgroundImage) throws IOException {
 		final Optional<OrganizationAddress> res = this.addressRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
 			final OrganizationAddress address = res.get();
@@ -147,6 +150,7 @@ public class OrganizationAddressService extends AbstractService {
 				address.setCity(city);
 			}
 			address.setMapCoordinates(mapCoordinates);
+			address.setGoogleMapLink(googleLink);
 			//
 			updateUploadedImage(address, backgroundImage, removedBackgroundImage, false);
 			//

@@ -174,6 +174,28 @@ public class OrganizationAddressTest {
 	}
 
 	@Test
+	public void getGoogleMapLink() {
+		assertNull(this.test.getGoogleMapLink());
+	}
+
+	@Test
+	public void setGoogleMapLink() {
+		assertNull(this.test.getGoogleMapLink());
+
+		this.test.setGoogleMapLink("xyz");
+		assertEquals("xyz", this.test.getGoogleMapLink());
+
+		this.test.setGoogleMapLink(null);
+		assertNull(this.test.getGoogleMapLink());
+
+		this.test.setGoogleMapLink("abc");
+		assertEquals("abc", this.test.getGoogleMapLink());
+
+		this.test.setGoogleMapLink("");
+		assertNull(this.test.getMapCoordinates());
+	}
+
+	@Test
 	public void getPathToBackgroundImage() {
 		assertNull(this.test.getPathToBackgroundImage());
 	}

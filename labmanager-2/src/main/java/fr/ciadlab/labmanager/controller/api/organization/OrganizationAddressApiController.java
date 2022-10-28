@@ -75,6 +75,7 @@ public class OrganizationAddressApiController extends AbstractApiController {
 	 * @param zipCode the postal code.
 	 * @param city the name of the city.
 	 * @param mapCoordinates the geo. coordinates of the location.
+	 * @param googleMapLink the link to the Google Map.
 	 * @param pathToBackgroundImage the path to the background image.
 	 * @param backgroundImage the background image.
 	 * @param removedBackgroundImage indicates if the background image should be removed.
@@ -90,6 +91,7 @@ public class OrganizationAddressApiController extends AbstractApiController {
 			@RequestParam(required = false) String zipCode,
 			@RequestParam(required = true) String city,
 			@RequestParam(required = false) String mapCoordinates,
+			@RequestParam(required = false) String googleMapLink,
 			@RequestParam(required = false) MultipartFile pathToBackgroundImage,
 			@RequestParam(required = false, name = "@fileUpload_removed_pathToBackgroundImage", defaultValue = "false") boolean removedBackgroundImage,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
@@ -101,16 +103,17 @@ public class OrganizationAddressApiController extends AbstractApiController {
 			final String inZipCode = inString(zipCode);
 			final String inCity = inString(city);
 			final String inMapCoordinates = inString(mapCoordinates);
+			final String inGoogleMapLink = inString(googleMapLink);
 			//
 			final Optional<OrganizationAddress> optAddress;
 			//
 			if (address == null) {
 				optAddress = this.addressService.createAddress(inName, inComplement, inStreet, inZipCode, inCity, inMapCoordinates,
-						pathToBackgroundImage);
+						inGoogleMapLink, pathToBackgroundImage);
 			} else {
 				optAddress = this.addressService.updateAddress(address.intValue(),
 						inName, inComplement, inStreet, inZipCode, inCity, inMapCoordinates,
-						pathToBackgroundImage, removedBackgroundImage);
+						inGoogleMapLink, pathToBackgroundImage, removedBackgroundImage);
 			}
 			if (optAddress.isEmpty()) {
 				throw new IllegalStateException("Address not found"); //$NON-NLS-1$
