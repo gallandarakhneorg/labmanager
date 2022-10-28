@@ -210,6 +210,18 @@ table.supervisorTable td.dataCell {
 	line-height: 24px;
     color: #444;
 }
+.person-card-postaladdress a {
+	all: unset;
+	cursor: pointer;
+}
+.person-card-postaladdress a:hover {
+	all: unset;
+	cursor: pointer;
+}
+.person-card-postaladdress a:visited {
+	all: unset;
+	cursor: pointer;
+}
 .person-card-indexes {
     margin-top: 0.5rem;
 	margin-bottom: 0.5rem;

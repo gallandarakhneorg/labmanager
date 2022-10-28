@@ -67,7 +67,10 @@
 				<div class="person-card-postaladdress"
 				     th:if="${enablePostalAddress && postalAddress != null}">
 					<span class="fa-solid fa-mail-bulk"></span>
-					<th:block th:utext="${postalAddress.fullAddress}"/>
+					<th:block th:if="${postalAddress.googleMapLink == null}" th:utext="${postalAddress.fullAddress}"/>
+					<th:block th:unless="${postalAddress.googleMapLink == null}">
+						<a th:href="${postalAddress.googleMapURL.toExternalForm}" th:utext="${postalAddress.fullAddress}"></a>
+					</th:block>
 				</div>
 			</div>
 			<div class="person-card-indexes"
