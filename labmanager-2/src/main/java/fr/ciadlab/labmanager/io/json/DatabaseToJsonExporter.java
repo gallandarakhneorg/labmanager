@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeCreator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.ciadlab.labmanager.entities.indicator.GlobalIndicators;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.jury.JuryMembership;
@@ -44,6 +45,7 @@ import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
+import fr.ciadlab.labmanager.repository.indicator.GlobalIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.jury.JuryMembershipRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
@@ -84,6 +86,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private SupervisionRepository supervisionRepository;
 
+	private GlobalIndicatorsRepository globalIndicatorsRepository;
+
 	/** Constructor.
 	 * 
 	 * @param addressRepository the accessor to the organization address repository.
@@ -94,6 +98,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param publicationRepository the accessor to the repository of the publications.
 	 * @param juryMembershipRepository the accessor to the jury membership repository.
 	 * @param supervisionRepository the accessor to the supervision repository.
+	 * @param globalIndicatorsRepository the accessor to the global indicators.
 	 */
 	public DatabaseToJsonExporter(
 			@Autowired OrganizationAddressRepository addressRepository,
@@ -103,7 +108,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired JournalRepository journalRepository,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired JuryMembershipRepository juryMembershipRepository,
-			@Autowired SupervisionRepository supervisionRepository) {
+			@Autowired SupervisionRepository supervisionRepository,
+			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository) {
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
@@ -112,6 +118,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		this.publicationRepository = publicationRepository;
 		this.juryMembershipRepository = juryMembershipRepository;
 		this.supervisionRepository = supervisionRepository;
+		this.globalIndicatorsRepository = globalIndicatorsRepository;
 	}
 
 	/** Run the exporter.
@@ -169,6 +176,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			ExtraPublicationProvider extraPublicationProvider) throws Exception {
 		final ObjectNode root = factory.objectNode();
 		final Map<Object, String> repository = new HashMap<>();
+		exportGlobalIndicators(root, repository);
 		exportAddresses(root, repository);
 		exportOrganizations(root, repository);
 		exportPersons(root, repository);
@@ -235,6 +243,30 @@ public class DatabaseToJsonExporter extends JsonTool {
 				} else if (objValue instanceof Character) {
 					rec.set(entry.getKey(), factory.textNode(((Character) objValue).toString()));
 				}
+			}
+		}
+	}
+
+	/** Export the configuration for global indicatorsto the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	protected void exportGlobalIndicators(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<GlobalIndicators> indicators = this.globalIndicatorsRepository.findAll();
+		if (!indicators.isEmpty()) {
+			final ObjectNode node = root.objectNode();
+			final GlobalIndicators ind = indicators.get(0);
+			final ArrayNode array = node.arrayNode();
+			for (final String key : ind.getVisibleIndicators()) {
+				array.add(key);
+			}
+			if (array.size() > 0) {
+				node.set(VISIBLEGLOBALINDICATORS_KEY, array);
+			}
+			if (node.size() > 0) {
+				root.set(GLOBALINDICATORS_SECTION, node);
 			}
 		}
 	}

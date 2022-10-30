@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs" />
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/formdraglist :: all" />
+
+<th:block th:replace="fragments/nav :: globalIndicatorsBar"/>
+
+<div th:utext="#{html.GlobalIndicatorsIntro}"></div>
+<form th:replace="fragments/form :: entityForm(globalIndicators, ${globalIndicators == null ? '' : globalIndicators.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PublicationSavingError}, ~{::.form-group})">
+	<div class="form-group" th:replace="fragments/formdraglist :: draglist(visibleIndicators, #{html.GlobalIndicatorsVisible}, #{html.GlobalIndicatorsInvisible}, ~{::li.visibleIndicator}, ~{::li.invisibleIndicator})">
+		<li class="list-group-item visibleIndicator"
+		    th:each="indicator : ${visibleIndicators}"
+			th:id="${indicator.key}"
+			th:utext="${indicator.name}"></li>
+		<li class="list-group-item invisibleIndicator"
+		    th:each="indicator : ${invisibleIndicators}"
+			th:id="${indicator.key}"
+			th:utext="${indicator.name}"></li>
+	</div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(resetValues, #{html.GlobalIndicatorsRefresh}, #{html.GlobalIndicatorsRefresh}, false)"></div>
+</form>
+<script type="text/javascript" th:inline="javascript">
+initDragList({
+	name: 'visibleIndicators',
+	groupname: 'list-of-global-indicators',		
+});
+</script>
+</html>

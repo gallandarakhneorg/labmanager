@@ -159,7 +159,7 @@ public class PublicationExportApiController extends AbstractApiController {
 			configurator.addUriQueryParam(Constants.JOURNAL_ENDPOINT_PARAMETER, journal);
 		}
 		// Get the list of publications
-		final Collection<Publication> pubs;
+		final Collection<? extends Publication> pubs;
 		if (identifiers == null || identifiers.isEmpty()) {
 			if (dbId != null && dbId.intValue() != 0) {
 				pubs = this.publicationService.getPublicationsByPersonId(dbId.intValue());

@@ -226,6 +226,18 @@ public class Constants {
 	 * @see #PUBLICATION_EDITING_ENDPOINT
 	 */
 	public static final String PUBLICATION_SAVING_ENDPOINT = "publicationSave"; //$NON-NLS-1$
+	
+	/** Name of the endpoint for editing global indicators.
+	 *
+	 * @see #GLOBAL_INDICATORS_SAVING_ENDPOINT
+	 */
+	public static final String GLOBAL_INDICATORS_EDITING_ENDPOINT = "globalIndicatorsEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving global indicators.
+	 *
+	 * @see #GLOBAL_INDICATORS_EDITING_ENDPOINT
+	 */
+	public static final String GLOBAL_INDICATORS_SAVING_ENDPOINT = "globalIndicatorsSave"; //$NON-NLS-1$
 
 	/** Name of the endpoint for regenerating the thumbnail as a batch task.
 	 */

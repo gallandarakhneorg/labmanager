@@ -57,6 +57,10 @@ public abstract class JsonTool {
 	 */
 	public static final String SPECIAL_FIELD_PREFIX = "@"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to global indicators.
+	 */
+	public static final String GLOBALINDICATORS_SECTION = "globalIndicators"; //$NON-NLS-1$
+
 	/** Main section of the JSON that is dedicated to organization addresses.
 	 */
 	public static final String ORGANIZATIONADDRESSES_SECTION = "organizationAddresses"; //$NON-NLS-1$
@@ -110,6 +114,10 @@ public abstract class JsonTool {
 	 * The reason why an entity cannot be imported is not explicitly explained in this field.
 	 */
 	public static final String HIDDEN_INTERNAL_IMPORTABLE_KEY = HIDDEN_FIELD_PREFIX + "internalImportable"; //$NON-NLS-1$
+
+	/** Name of the field for the visible global indicators.
+	 */
+	public static final String VISIBLEGLOBALINDICATORS_KEY = "visibleGlobalIndicators"; //$NON-NLS-1$
 
 	/** Name of the field for the year. This field is usually for {@link Publication}.
 	 *

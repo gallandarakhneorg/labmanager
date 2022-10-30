@@ -382,3 +382,7 @@ span.obfuscated-pn:after {
 nav.labmanager-administration-navigation {
 	--bs-breadcrumb-divider: '>';	
 }
+div.form-group li.list-group-item {
+	background-color: lightgray;
+	color: white;
+}

@@ -39,6 +39,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.indicator.GlobalIndicators;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.jury.JuryMembership;
@@ -55,6 +56,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
+import fr.ciadlab.labmanager.repository.indicator.GlobalIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.jury.JuryMembershipRepository;
@@ -120,6 +122,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private SupervisionRepository supervisionRepository;
 
+	private GlobalIndicatorsRepository globalIndicatorsRepository;
+
 	private final Multimap<String, String> fieldAliases = LinkedListMultimap.create();
 
 	private boolean fake;
@@ -141,6 +145,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param personNameParser the parser of person names.
 	 * @param juryMembershipRepository the repository of jury memberships.
 	 * @param supervisionRepository the repository of supervisions.
+	 * @param globalIndicatorsRepository the repository of the global indicators.
 	 */
 	public JsonToDatabaseImporter(
 			@Autowired SessionFactory sessionFactory,
@@ -157,7 +162,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonNameParser personNameParser,
 			@Autowired JuryMembershipRepository juryMembershipRepository,
-			@Autowired SupervisionRepository supervisionRepository) {
+			@Autowired SupervisionRepository supervisionRepository,
+			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository) {
 		this.sessionFactory = sessionFactory;
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
@@ -173,6 +179,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.personNameParser = personNameParser;
 		this.juryMembershipRepository = juryMembershipRepository;
 		this.supervisionRepository = supervisionRepository;
+		this.globalIndicatorsRepository = globalIndicatorsRepository;
 		initializeFieldAliases();
 	}
 
@@ -410,6 +417,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				if (clearDatabase) {
 					clearDatabase(session);
 				}
+				insertGlobalIndicators(session, content.get(GLOBALINDICATORS_SECTION), objectRepository, aliasRepository);
 				final int nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository);
 				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
@@ -440,6 +448,34 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.personRepository.deleteAll();
 		this.organizationRepository.deleteAll();
 		this.addressRepository.deleteAll();
+	}
+
+	/** Create the global indicators in the database.
+	 *
+	 * @param session the JPA session for managing transactions.
+	 * @param globalIndicators the global indicators.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
+	 * @param aliasRepository the repository of field aliases.
+	 * @throws Exception if an address cannot be created.
+	 */
+	protected void insertGlobalIndicators(Session session, JsonNode globalIndicators, Map<String, Integer> objectIdRepository,
+			Map<String, Set<String>> aliasRepository) throws Exception {
+		if (globalIndicators != null && !globalIndicators.isEmpty()) {
+			getLogger().info("Inserting global indicators..."); //$NON-NLS-1$
+			final JsonNode visibleIndicators = globalIndicators.get(VISIBLEGLOBALINDICATORS_KEY);
+			if (visibleIndicators != null && visibleIndicators.isArray()) {
+				final List<String> keys = new ArrayList<>();
+				for (final JsonNode valueNode : visibleIndicators) {
+					keys.add(valueNode.asText());
+				}
+				if (!keys.isEmpty()) {
+					final GlobalIndicators gi = new GlobalIndicators();
+					gi.setVisibleIndicators(keys);
+					gi.setValues(null);
+					this.globalIndicatorsRepository.save(gi);
+				}
+			}
+		}
 	}
 
 	/** Create the organization addresses in the database.

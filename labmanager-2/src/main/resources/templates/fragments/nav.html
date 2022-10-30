@@ -70,4 +70,14 @@
 		</th:block>
 	</th:block>
 
+	<th:block th:fragment="journalListBar*(current)">
+		<th:block th:replace="fragments/nav :: standardBar(~{::a#lab-nav-journalList-item}, ${current})">
+			<a id="lab-nav-journalList-item" th:href="@{/journalList}" th:utext="#{html.JournalsList}"></a><
+		</th:block>
+	</th:block>
+
+	<th:block th:fragment="globalIndicatorsBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.GlobalIndicators})"></th:block>
+	</th:block>
+
 </html>
