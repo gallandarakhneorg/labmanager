@@ -19,6 +19,8 @@ package fr.ciadlab.labmanager.controller.api.admin;
 import static fr.ciadlab.labmanager.entities.EntityUtils.isSimilarWithoutNormalization;
 import static fr.ciadlab.labmanager.entities.EntityUtils.normalizeForSimularityTest;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
@@ -53,6 +55,7 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -133,6 +136,24 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 			}
 		});
 		return result;
+	}
+
+	/** Save the JSON and the associated files into a single ZIP file on the server file system.
+	 *
+	 * @param username the name of the logged-in user.
+	 * @throws Exception in case of error.
+	 */
+	@PutMapping("/saveDatabaseToZip")
+	public void saveDatabaseToZip(
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		ensureCredentials(username, "saveDatabaseToJson"); //$NON-NLS-1$
+		final String filename = Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip"; //$NON-NLS-1$
+		final File outFile = new File(new File(System.getProperty("java.io.tmpdir")), filename); //$NON-NLS-1$
+		outFile.getParentFile().mkdirs();
+		final ZipExporter exporter = this.zipExporter.startExportFromDatabase();
+		try (final FileOutputStream fos = new FileOutputStream(outFile)) {
+			exporter.exportToZip(fos);
+		}
 	}
 
 	/** Export the JSON.
