@@ -81,6 +81,32 @@ public class MemberStatusTest {
 	}
 
 	@Test
+	public void getUsualResearchFullTimeEquivalent() {
+		assertEquals(0.5, cons(MemberStatus.FULL_PROFESSOR).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.RESEARCH_DIRECTOR).getUsualResearchFullTimeEquivalent());
+		assertEquals(0.5, cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getUsualResearchFullTimeEquivalent());
+		assertEquals(0.5, cons(MemberStatus.ASSOCIATE_PROFESSOR).getUsualResearchFullTimeEquivalent());
+		assertEquals(0.5, cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getUsualResearchFullTimeEquivalent());
+		assertEquals(0.5, cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.RESEARCHER_PHD).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.RESEARCHER).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.RESEARCH_ENGINEER_PHD).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.RESEARCH_ENGINEER).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.POSTDOC).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.PHD_STUDENT).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.ENGINEER_PHD).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.ENGINEER).getUsualResearchFullTimeEquivalent());
+		assertEquals(0., cons(MemberStatus.ADMIN).getUsualResearchFullTimeEquivalent());
+		assertEquals(0., cons(MemberStatus.TEACHER_PHD).getUsualResearchFullTimeEquivalent());
+		assertEquals(0., cons(MemberStatus.TEACHER).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.MASTER_STUDENT).getUsualResearchFullTimeEquivalent());
+		assertEquals(1., cons(MemberStatus.OTHER_STUDENT).getUsualResearchFullTimeEquivalent());
+		assertEquals(0., cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getUsualResearchFullTimeEquivalent());
+		assertEquals(0., cons(MemberStatus.ASSOCIATED_MEMBER).getUsualResearchFullTimeEquivalent());
+		assertAllTreated();
+	}
+
+	@Test
 	public void isPermanentPositionAllowed() {
 		assertTrue(cons(MemberStatus.FULL_PROFESSOR).isPermanentPositionAllowed());
 		assertTrue(cons(MemberStatus.RESEARCH_DIRECTOR).isPermanentPositionAllowed());

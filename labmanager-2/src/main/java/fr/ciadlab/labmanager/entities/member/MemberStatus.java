@@ -39,6 +39,10 @@ public enum MemberStatus {
 			return 0;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0.5f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return true;
 		}
@@ -77,6 +81,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 0;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -119,6 +127,10 @@ public enum MemberStatus {
 			return 1;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0.5f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return true;
 		}
@@ -157,6 +169,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 2;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0.5f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -199,6 +215,10 @@ public enum MemberStatus {
 			return 2;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0.5f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return true;
 		}
@@ -237,6 +257,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 2;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0.5f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -279,6 +303,10 @@ public enum MemberStatus {
 			return 2;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return true;
 		}
@@ -317,6 +345,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 2;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -359,6 +391,10 @@ public enum MemberStatus {
 			return 3;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return false;
 		}
@@ -397,6 +433,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 3;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -439,6 +479,10 @@ public enum MemberStatus {
 			return 3;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return true;
 		}
@@ -477,6 +521,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 4;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -519,6 +567,10 @@ public enum MemberStatus {
 			return 4;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return true;
 		}
@@ -557,6 +609,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 4;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -599,6 +655,10 @@ public enum MemberStatus {
 			return 4;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return true;
 		}
@@ -637,6 +697,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 4;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -679,6 +743,10 @@ public enum MemberStatus {
 			return 4;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return true;
 		}
@@ -717,6 +785,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 5;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -759,6 +831,10 @@ public enum MemberStatus {
 			return 6;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 1f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return false;
 		}
@@ -799,6 +875,10 @@ public enum MemberStatus {
 			return 7;
 		}
 		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0f;
+		}
+		@Override
 		public boolean isPermanentPositionAllowed() {
 			return false;
 		}
@@ -837,6 +917,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 7;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0f;
 		}
 		@Override
 		public boolean isPermanentPositionAllowed() {
@@ -908,6 +992,14 @@ public enum MemberStatus {
 	 * @return the level: {@code 0} for the higher level, higher is the value lower is the hierarchical position.
 	 */
 	public abstract int getHierachicalLevel();
+
+	/** Replies the amount of full-time equivalent for this type of member status that is usually defined
+	 * in the job status for the associated position.
+	 *
+	 * @return the amount of full-time equivalent. {@code 1} means a full-time, {@code 0.5} means 50% part-time.
+	 * @since 2.2
+	 */
+	public abstract float getUsualResearchFullTimeEquivalent();
 
 	/** Replies if this status allowed to be associated to a permanent position.
 	 *
