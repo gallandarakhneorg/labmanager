@@ -54,6 +54,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.ProgressionEvent;
 import org.arakhne.afc.progress.ProgressionListener;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -94,6 +95,8 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	private static final int THOUSAND = 1000;
 
 	private static final String DUPLICATED_ENTRY_FIELD = "_duplicatedEntry"; //$NON-NLS-1$
+
+	private static final String FOLDER_NAME = "labmanager"; //$NON-NLS-1$
 
 	private static final int SIMILARE_ENTRY_VALUE = 0;
 
@@ -494,7 +497,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 			});
 			//
 			final String filename = Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip"; //$NON-NLS-1$
-			final File outFile = new File(new File(System.getProperty("java.io.tmpdir")), filename); //$NON-NLS-1$
+			final File outFile = FileSystem.join(FileSystem.convertStringToFile(System.getProperty("java.io.tmpdir")), FOLDER_NAME, filename); //$NON-NLS-1$
 			outFile.getParentFile().mkdirs();
 			//
 			final ZipExporter exporter = this.zipExporter.startExportFromDatabase(progress);
