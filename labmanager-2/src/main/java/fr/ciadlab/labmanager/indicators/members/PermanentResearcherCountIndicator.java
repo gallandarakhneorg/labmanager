@@ -27,25 +27,24 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Count the number of researchers in a specific organization.
- * Researchers may be permanent or not.
+/** Count the number of permanent researchers in a specific organization.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 2.2
- * @see PermanentResearcherCountIndicator
+ * @see ResearcherCountIndicator
  */
 @Component
-public class ResearcherCountIndicator extends AbstractIndicator {
+public class PermanentResearcherCountIndicator extends AbstractIndicator {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 */
-	public ResearcherCountIndicator(
+	public PermanentResearcherCountIndicator(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants) {
 		super(messages, constants);
@@ -53,12 +52,12 @@ public class ResearcherCountIndicator extends AbstractIndicator {
 
 	@Override
 	public String getName() {
-		return getMessage("researcherCountIndicator.name"); //$NON-NLS-1$
+		return getMessage("permanentResearcherCountIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithoutYears("researcherCountIndicator.label"); //$NON-NLS-1$
+		return getLabelWithoutYears("permanentResearcherCountIndicator.label"); //$NON-NLS-1$
 	}
 
 	@Override
@@ -75,7 +74,7 @@ public class ResearcherCountIndicator extends AbstractIndicator {
 	protected Number computeValue(ResearchOrganization organization) {
 		return Long.valueOf(organization.getMemberships().stream().filter(
 				it -> {
-					if (it.isActive()) {
+					if (it.isActive() && it.isPermanentPosition()) {
 						final MemberStatus status = it.getMemberStatus();
 						return status.isResearcher() && status.isPhDOwner();
 					}
