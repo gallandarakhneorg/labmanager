@@ -51,8 +51,10 @@ import org.springframework.web.servlet.ModelAndView;
  */
 @RestController
 @CrossOrigin
-public class GeneralIndicatorViewController extends AbstractViewController {
+public class GlobalIndicatorViewController extends AbstractViewController {
 
+	private String defaultOrganizationName;
+	
 	private ResearchOrganizationService organizationService;
 
 	private GlobalIndicatorsService indicatorService;
@@ -67,16 +69,19 @@ public class GeneralIndicatorViewController extends AbstractViewController {
 	 * @param indicatorService the service for accessing the global indicators.
 	 * @param organizationService the service related to the research organizations.
 	 * @param defaultLocale the default locale.
+	 * @param defaultOrganizationName name of the default organization.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
-	public GeneralIndicatorViewController(
+	public GlobalIndicatorViewController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired GlobalIndicatorsService indicatorService,
 			@Autowired Locale defaultLocale,
+			@Value("${labmanager.default-organization}") String defaultOrganizationName,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
+		this.defaultOrganizationName = defaultOrganizationName;
 		this.organizationService = organizationService;
 		this.indicatorService = indicatorService;
 		this.currentLocale = defaultLocale;
@@ -101,6 +106,17 @@ public class GeneralIndicatorViewController extends AbstractViewController {
 		modelAndView.addObject("visibleIndicators", visibleIndicators); //$NON-NLS-1$
 		final List<? extends Indicator> invisibleIndicators = this.indicatorService.getInvisibleIndicators();
 		modelAndView.addObject("invisibleIndicators", invisibleIndicators); //$NON-NLS-1$
+		//
+		if (visibleIndicators == null || visibleIndicators.isEmpty()) {
+			modelAndView.addObject("indicatorValues", Collections.emptyMap()); //$NON-NLS-1$
+		} else {
+			final Optional<ResearchOrganization> organizationOpt = this.organizationService.getResearchOrganizationByAcronymOrName(this.defaultOrganizationName);
+			if (organizationOpt.isEmpty()) {
+				throw new IllegalArgumentException("Organization not found with name: " + this.defaultOrganizationName); //$NON-NLS-1$
+			}
+			final Map<String, Number> values = this.indicatorService.getAllIndicatorValues(organizationOpt.get());
+			modelAndView.addObject("indicatorValues", values); //$NON-NLS-1$
+		}
 		//
 		modelAndView.addObject("formActionUrl", rooted(Constants.GLOBAL_INDICATORS_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.ADMIN_ENDPOINT)); //$NON-NLS-1$

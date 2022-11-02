@@ -40,7 +40,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @CrossOrigin
-public class GeneralIndicatorApiController extends AbstractApiController {
+public class GlobalIndicatorApiController extends AbstractApiController {
 
 	private GlobalIndicatorsService indicatorService;
 
@@ -52,7 +52,7 @@ public class GeneralIndicatorApiController extends AbstractApiController {
 	 * @param indicatorService the service for accessing the global indicators.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
-	public GeneralIndicatorApiController(
+	public GlobalIndicatorApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired GlobalIndicatorsService indicatorService,
