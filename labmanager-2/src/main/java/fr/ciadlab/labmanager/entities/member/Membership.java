@@ -82,7 +82,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 
 	/** Indicates if the membership concerns a permanent position, or not.
 	 */
-	@Column
+	@Column(nullable = false)
 	private boolean permanentPosition;
 
 	/** Position of the person in the research organization.
