@@ -35,6 +35,7 @@ import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
+import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -183,6 +184,9 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (SupervisorType item : EnumSet.allOf(SupervisorType.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (JournalRankingSystem item : EnumSet.allOf(JournalRankingSystem.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 		}
