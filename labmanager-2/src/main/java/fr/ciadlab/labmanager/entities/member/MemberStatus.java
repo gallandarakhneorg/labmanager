@@ -39,6 +39,10 @@ public enum MemberStatus {
 			return 0;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
 		public boolean isResearcher() {
 			return true;
 		}
@@ -73,6 +77,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 0;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -111,6 +119,10 @@ public enum MemberStatus {
 			return 1;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
 		public boolean isResearcher() {
 			return true;
 		}
@@ -145,6 +157,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 2;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -183,6 +199,10 @@ public enum MemberStatus {
 			return 2;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
 		public boolean isResearcher() {
 			return true;
 		}
@@ -217,6 +237,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 2;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -255,6 +279,10 @@ public enum MemberStatus {
 			return 2;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
 		public boolean isResearcher() {
 			return true;
 		}
@@ -289,6 +317,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 2;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -327,6 +359,10 @@ public enum MemberStatus {
 			return 3;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return false;
+		}
+		@Override
 		public boolean isResearcher() {
 			return true;
 		}
@@ -361,6 +397,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 3;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -399,6 +439,10 @@ public enum MemberStatus {
 			return 3;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
 		public boolean isResearcher() {
 			return false;
 		}
@@ -433,6 +477,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 4;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return false;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -471,6 +519,10 @@ public enum MemberStatus {
 			return 4;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
 		public boolean isResearcher() {
 			return false;
 		}
@@ -505,6 +557,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 4;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -543,6 +599,10 @@ public enum MemberStatus {
 			return 4;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
 		public boolean isResearcher() {
 			return false;
 		}
@@ -577,6 +637,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 4;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -615,6 +679,10 @@ public enum MemberStatus {
 			return 4;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
 		public boolean isResearcher() {
 			return false;
 		}
@@ -649,6 +717,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 5;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return false;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -687,6 +759,10 @@ public enum MemberStatus {
 			return 6;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return false;
+		}
+		@Override
 		public boolean isResearcher() {
 			return false;
 		}
@@ -723,6 +799,10 @@ public enum MemberStatus {
 			return 7;
 		}
 		@Override
+		public boolean isPermanentPositionAllowed() {
+			return false;
+		}
+		@Override
 		public boolean isResearcher() {
 			return true;
 		}
@@ -757,6 +837,10 @@ public enum MemberStatus {
 		@Override
 		public int getHierachicalLevel() {
 			return 7;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return false;
 		}
 		@Override
 		public boolean isResearcher() {
@@ -824,6 +908,13 @@ public enum MemberStatus {
 	 * @return the level: {@code 0} for the higher level, higher is the value lower is the hierarchical position.
 	 */
 	public abstract int getHierachicalLevel();
+
+	/** Replies if this status allowed to be associated to a permanent position.
+	 *
+	 * @return {@code true} if the status could be associated to a permanent position.
+	 * @since 2.2
+	 */
+	public abstract boolean isPermanentPositionAllowed();
 
 	/** Replies if the status includes research activities.
 	 *

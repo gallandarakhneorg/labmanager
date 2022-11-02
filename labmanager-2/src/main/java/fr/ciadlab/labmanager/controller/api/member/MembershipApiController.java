@@ -115,6 +115,7 @@ public class MembershipApiController extends AbstractApiController {
 	 * @param organizationAddress the identifier of the specific address of the organization where the person is located.
 	 * @param status the status of the person related to the membership. If {@code null} or empty, the status does not change in
 	 *     the existing membership.
+	 * @param permanentPosition indicates if the position is permanent or not.
 	 * @param responsibility the responsibility of the person during the period of the menmbership.
 	 * @param memberSinceWhen the start date of the membership, or {@code null} to set it as unknown or "since always".
 	 * @param memberToWhen the end date of the membership, or {@code null} to set it as unknown or "for the rest of the time".
@@ -138,6 +139,7 @@ public class MembershipApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer organization,
 			@RequestParam(required = false) Integer organizationAddress,
 			@RequestParam(required = false) String status,
+			@RequestParam(required = false, defaultValue = "false") boolean permanentPosition,
 			@RequestParam(required = false) String responsibility,
 			@RequestParam(required = false) String memberSinceWhen,
 			@RequestParam(required = false) String memberToWhen,
@@ -186,7 +188,9 @@ public class MembershipApiController extends AbstractApiController {
 							organization.intValue(),
 							organizationAddress,
 							person.intValue(),
-							startDate, endDate, statusObj, responsibilityObj,
+							startDate, endDate,
+							statusObj, permanentPosition,
+							responsibilityObj,
 							cnuSectionObj, conrsSectionObj,
 							frenchBapObj, isMainPosition, false);
 					if (!result.getRight().booleanValue()) {
@@ -204,6 +208,7 @@ public class MembershipApiController extends AbstractApiController {
 									? Integer.valueOf(otherMembership.getOrganizationAddress().getId()) : null,
 									otherMembership.getMemberSinceWhen(), pEnd,
 									otherMembership.getMemberStatus(),
+									otherMembership.isPermanentPosition(),
 									otherMembership.getResponsibility(),
 									otherMembership.getCnuSection(),
 									otherMembership.getConrsSection(),
@@ -219,7 +224,10 @@ public class MembershipApiController extends AbstractApiController {
 				// Update an existing membership.
 				this.membershipService.updateMembershipById(
 						membership.intValue(),
-						organization, organizationAddress, startDate, endDate, statusObj, responsibilityObj,
+						organization, organizationAddress,
+						startDate, endDate,
+						statusObj, permanentPosition,
+						responsibilityObj,
 						cnuSectionObj, conrsSectionObj, frenchBapObj,
 						isMainPosition);
 			}

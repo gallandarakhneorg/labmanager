@@ -81,6 +81,32 @@ public class MemberStatusTest {
 	}
 
 	@Test
+	public void isPermanentPositionAllowed() {
+		assertTrue(cons(MemberStatus.FULL_PROFESSOR).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.RESEARCH_DIRECTOR).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.ASSOCIATE_PROFESSOR).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.RESEARCHER_PHD).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.RESEARCHER).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.RESEARCH_ENGINEER_PHD).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.RESEARCH_ENGINEER).isPermanentPositionAllowed());
+		assertFalse(cons(MemberStatus.POSTDOC).isPermanentPositionAllowed());
+		assertFalse(cons(MemberStatus.PHD_STUDENT).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.ENGINEER_PHD).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.ENGINEER).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.ADMIN).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.TEACHER_PHD).isPermanentPositionAllowed());
+		assertTrue(cons(MemberStatus.TEACHER).isPermanentPositionAllowed());
+		assertFalse(cons(MemberStatus.MASTER_STUDENT).isPermanentPositionAllowed());
+		assertFalse(cons(MemberStatus.OTHER_STUDENT).isPermanentPositionAllowed());
+		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isPermanentPositionAllowed());
+		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isPermanentPositionAllowed());
+		assertAllTreated();
+	}
+
+	@Test
 	public void isResearcher() {
 		assertTrue(cons(MemberStatus.FULL_PROFESSOR).isResearcher());
 		assertTrue(cons(MemberStatus.RESEARCH_DIRECTOR).isResearcher());

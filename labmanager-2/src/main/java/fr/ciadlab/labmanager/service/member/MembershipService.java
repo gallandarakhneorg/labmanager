@@ -222,6 +222,7 @@ public class MembershipService extends AbstractService {
 	 * @param startDate the beginning of the membership.
 	 * @param endDate the end of the membership.
 	 * @param memberStatus the status of the person in the membership.
+	 * @param permanentPosition indicates if the position is permanent.
 	 * @param responsibility the responsibility of the person during the membership period.
 	 * @param cnuSection the section of the CNU to which this membership belongs to.
 	 * @param conrsSection the section of the CoNRS to which this membership belongs to.
@@ -235,7 +236,8 @@ public class MembershipService extends AbstractService {
 	 */
 	public Pair<Membership, Boolean> addMembership(int organizationId, Integer organizationAddressId, int personId,
 			LocalDate startDate, LocalDate endDate,
-			MemberStatus memberStatus, Responsibility responsibility, CnuSection cnuSection, ConrsSection conrsSection,
+			MemberStatus memberStatus, boolean permanentPosition,
+			Responsibility responsibility, CnuSection cnuSection, ConrsSection conrsSection,
 			FrenchBap frenchBap, boolean isMainPosition, boolean forceCreation) throws Exception {
 		assert memberStatus != null;
 		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
@@ -271,6 +273,7 @@ public class MembershipService extends AbstractService {
 				mem.setMemberSinceWhen(startDate);
 				mem.setMemberToWhen(endDate);
 				mem.setMemberStatus(memberStatus);
+				mem.setPermanentPosition(permanentPosition);
 				mem.setResponsibility(responsibility);
 				mem.setCnuSection(cnuSection);
 				mem.setConrsSection(conrsSection);
@@ -292,6 +295,7 @@ public class MembershipService extends AbstractService {
 	 * @param startDate the new beginning of the membership.
 	 * @param endDate the new end of the membership.
 	 * @param memberStatus the new status of the person in the membership.
+	 * @param permanentPosition indicates if the position is permanent or not.
 	 * @param responsibility the responsibility of the person during the membership period.
 	 * @param cnuSection the new CNU section, or {@code null} if unknown.
 	 * @param conrsSection the section of the CoNRS to which this membership belongs to.
@@ -302,7 +306,8 @@ public class MembershipService extends AbstractService {
 	 */
 	public Membership updateMembershipById(int membershipId, Integer organizationId, Integer organizationAddressId,
 			LocalDate startDate, LocalDate endDate,
-			MemberStatus memberStatus, Responsibility responsibility, CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap,
+			MemberStatus memberStatus, boolean permanentPosition, Responsibility responsibility,
+			CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap,
 			boolean isMainPosition) throws Exception {
 		final Optional<Membership> res = this.membershipRepository.findById(Integer.valueOf(membershipId));
 		if (res.isPresent()) {
@@ -327,6 +332,7 @@ public class MembershipService extends AbstractService {
 			if (memberStatus != null) {
 				membership.setMemberStatus(memberStatus);
 			}
+			membership.setPermanentPosition(permanentPosition);
 			membership.setResponsibility(responsibility);
 			membership.setCnuSection(cnuSection);
 			membership.setConrsSection(conrsSection);

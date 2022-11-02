@@ -80,6 +80,11 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	@Enumerated(EnumType.STRING)
 	private MemberStatus memberStatus;
 
+	/** Indicates if the membership concerns a permanent position, or not.
+	 */
+	@Column
+	private boolean permanentPosition;
+
 	/** Position of the person in the research organization.
 	 */
 	@Column
@@ -148,6 +153,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		this.memberSinceWhen = since;
 		this.memberToWhen = to;
 		this.memberStatus = status;
+		this.permanentPosition = validatePermanentPosition(true, status);
 		this.responsibility = responsibility;
 		this.cnuSection = cnuSection;
 		this.conrsSection = conrsSection;
@@ -170,6 +176,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.memberSinceWhen);
 		h = HashCodeUtils.add(h, this.memberStatus);
+		h = HashCodeUtils.add(h, this.permanentPosition);
 		h = HashCodeUtils.add(h, this.responsibility);
 		h = HashCodeUtils.add(h, this.memberToWhen);
 		h = HashCodeUtils.add(h, this.person);
@@ -197,13 +204,16 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		if (this.frenchBap != other.frenchBap) {
 			return false;
 		}
-		if (!Objects.equals(this.memberSinceWhen, other.memberSinceWhen)) {
-			return false;
-		}
 		if (!Objects.equals(this.memberStatus, other.memberStatus)) {
 			return false;
 		}
+		if (this.permanentPosition != other.permanentPosition) {
+			return false;
+		}
 		if (!Objects.equals(this.responsibility, other.responsibility)) {
+			return false;
+		}
+		if (!Objects.equals(this.memberSinceWhen, other.memberSinceWhen)) {
 			return false;
 		}
 		if (!Objects.equals(this.memberToWhen, other.memberSinceWhen)) {
@@ -256,6 +266,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		if (getMemberStatus() != null) {
 			consumer.accept("memberStatus", getMemberStatus()); //$NON-NLS-1$
 		}
+		consumer.accept("permanentPosition", Boolean.valueOf(isPermanentPosition())); //$NON-NLS-1$
 		if (getResponsibility() != null) {
 			consumer.accept("responsibility", getResponsibility()); //$NON-NLS-1$
 		}
@@ -429,6 +440,8 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 */
 	public void setMemberStatus(MemberStatus status) {
 		this.memberStatus = status;
+		// Reset the permanent position flag if needed
+		setPermanentPosition(isPermanentPosition());
 	}
 
 	/** Change the status of the member in the research organization.
@@ -441,6 +454,32 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		} else {
 			setMemberStatus(MemberStatus.valueOfCaseInsensitive(status));
 		}
+	}
+
+	/** Replies if the membership concerns a permanent position.
+	 *
+	 * @return {@code true} if the position is permanent.
+	 */
+	public boolean isPermanentPosition() {
+		return this.permanentPosition;
+	}
+
+	/** Change the flag that indicates if the membership concerns a permanent position.
+	 *
+	 * @param permanent {@code true} if the position is permanent.
+	 */
+	public void setPermanentPosition(boolean permanent) {
+		this.permanentPosition = validatePermanentPosition(permanent, getMemberStatus());
+	}
+
+	/** Validate the permanent flag according to the given membership status.
+	 *
+	 * @param permanent the permanent flag to validate.
+	 * @param currentStatus the current membership status.
+	 * @return the permanent flag adapted according to the given membership status.
+	 */
+	protected static boolean validatePermanentPosition(boolean permanent, MemberStatus currentStatus) {
+		return permanent && currentStatus != null && currentStatus.isPermanentPositionAllowed();
 	}
 
 	/** Replies the CNU section of the member in the research organization.
