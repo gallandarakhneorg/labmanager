@@ -55,6 +55,7 @@ import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.ProgressionEvent;
 import org.arakhne.afc.progress.ProgressionListener;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -180,7 +181,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		final SseEmitter emitter = new SseEmitter(Long.valueOf(SAVE_DATABASE_TO_SERVER_ZIP_SERVICE_TIMEOUT));
 		service.execute(() -> {
 			try {
-				JsonDatabaseExporterApiController.this.asyncZipExporter.asyncSaveDetabaseToLocalZip(emitter);
+				JsonDatabaseExporterApiController.this.asyncZipExporter.asyncSaveDetabaseToLocalZip(emitter, getLogger(), getMessageSourceAccessor());
 				//
 				emitter.complete();
 			} catch (ClientAbortException ex) {
@@ -473,10 +474,12 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		/** Asynchronous export of the database to local Zip archive.
 		 *
 		 * @param emitter the SSE emitter.
+		 * @param logger the logger to be used.
+		 * @param messages the accessor to the messages.
 		 * @throws Exception if export cannot be done.
 		 */
 		@Transactional
-		public void asyncSaveDetabaseToLocalZip(SseEmitter emitter) throws Exception {
+		public void asyncSaveDetabaseToLocalZip(SseEmitter emitter, Logger logger, MessageSourceAccessor messages) throws Exception {
 			final DefaultProgression progress = new DefaultProgression(0, 0, THOUSAND, false);
 			progress.addProgressionListener(new ProgressionListener() {
 				@Override
@@ -498,6 +501,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 			//
 			final String filename = Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip"; //$NON-NLS-1$
 			final File outFile = FileSystem.join(FileSystem.convertStringToFile(System.getProperty("java.io.tmpdir")), FOLDER_NAME, filename); //$NON-NLS-1$
+			logger.info(messages.getMessage("jsonDatabaseExporterApiController.exportZipToFile", new Object[] {outFile.getAbsolutePath()})); //$NON-NLS-1$
 			outFile.getParentFile().mkdirs();
 			//
 			final ZipExporter exporter = this.zipExporter.startExportFromDatabase(progress);
