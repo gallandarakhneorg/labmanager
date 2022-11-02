@@ -180,20 +180,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		final SseEmitter emitter = new SseEmitter(Long.valueOf(SAVE_DATABASE_TO_SERVER_ZIP_SERVICE_TIMEOUT));
 		service.execute(() -> {
-			try {
-				JsonDatabaseExporterApiController.this.asyncZipExporter.asyncSaveDetabaseToLocalZip(emitter, getLogger(), getMessageSourceAccessor());
-				//
-				emitter.complete();
-			} catch (ClientAbortException ex) {
-				// Do not log a message because the connection was closed by the client.
-				emitter.completeWithError(ex);
-			} catch (Throwable ex) {
-				final Throwable cause = Throwables.getRootCause(ex);
-				if (!(cause instanceof ClientAbortException)) {
-					getLogger().error(ex.getLocalizedMessage(), ex);
-				}
-				emitter.completeWithError(ex);
-			}
+			JsonDatabaseExporterApiController.this.asyncZipExporter.asyncSaveDetabaseToLocalZip(emitter, getLogger(), getMessageSourceAccessor());
 		});
 		return emitter;
 	}
@@ -476,40 +463,51 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		 * @param emitter the SSE emitter.
 		 * @param logger the logger to be used.
 		 * @param messages the accessor to the messages.
-		 * @throws Exception if export cannot be done.
 		 */
 		@Transactional
-		public void asyncSaveDetabaseToLocalZip(SseEmitter emitter, Logger logger, MessageSourceAccessor messages) throws Exception {
-			final DefaultProgression progress = new DefaultProgression(0, 0, THOUSAND, false);
-			progress.addProgressionListener(new ProgressionListener() {
-				@Override
-				public void onProgressionValueChanged(ProgressionEvent event) {
-					final Map<String, Object> content = new HashMap<>();
-					content.put("percent", Integer.valueOf((int) event.getPercent())); //$NON-NLS-1$
-					content.put("terminated", Boolean.valueOf(event.isFinished())); //$NON-NLS-1$
-					//content.put("message", Strings.nullToEmpty(message)); //$NON-NLS-1$
-					//
-					try {
-						final ObjectMapper mapper = new ObjectMapper();
-						final SseEventBuilder sseevent = SseEmitter.event().data(mapper.writeValueAsString(content));
-						emitter.send(sseevent);
-					} catch (IOException ex) {
-						throw new RuntimeException(ex);
-					}
-			    }
-			});
-			//
-			final String filename = Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip"; //$NON-NLS-1$
-			final File outFile = FileSystem.join(FileSystem.convertStringToFile(System.getProperty("java.io.tmpdir")), FOLDER_NAME, filename); //$NON-NLS-1$
-			logger.info(messages.getMessage("jsonDatabaseExporterApiController.exportZipToFile", new Object[] {outFile.getAbsolutePath()})); //$NON-NLS-1$
-			outFile.getParentFile().mkdirs();
-			//
-			final ZipExporter exporter = this.zipExporter.startExportFromDatabase(progress);
-			try (final FileOutputStream fos = new FileOutputStream(outFile)) {
-				exporter.exportToZip(fos);
+		public void asyncSaveDetabaseToLocalZip(SseEmitter emitter, Logger logger, MessageSourceAccessor messages) {
+			try {
+				final DefaultProgression progress = new DefaultProgression(0, 0, THOUSAND, false);
+				progress.addProgressionListener(new ProgressionListener() {
+					@Override
+					public void onProgressionValueChanged(ProgressionEvent event) {
+						final Map<String, Object> content = new HashMap<>();
+						content.put("percent", Integer.valueOf((int) event.getPercent())); //$NON-NLS-1$
+						content.put("terminated", Boolean.valueOf(event.isFinished())); //$NON-NLS-1$
+						//content.put("message", Strings.nullToEmpty(message)); //$NON-NLS-1$
+						//
+						try {
+							final ObjectMapper mapper = new ObjectMapper();
+							final SseEventBuilder sseevent = SseEmitter.event().data(mapper.writeValueAsString(content));
+							emitter.send(sseevent);
+						} catch (IOException ex) {
+							throw new RuntimeException(ex);
+						}
+				    }
+				});
+				//
+				final String filename = Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip"; //$NON-NLS-1$
+				final File outFile = FileSystem.join(FileSystem.convertStringToFile(System.getProperty("java.io.tmpdir")), FOLDER_NAME, filename); //$NON-NLS-1$
+				logger.info(messages.getMessage("jsonDatabaseExporterApiController.exportZipToFile", new Object[] {outFile.getAbsolutePath()})); //$NON-NLS-1$
+				outFile.getParentFile().mkdirs();
+				//
+				final ZipExporter exporter = this.zipExporter.startExportFromDatabase(progress);
+				try (final FileOutputStream fos = new FileOutputStream(outFile)) {
+					exporter.exportToZip(fos);
+				}
+				//
+				progress.end();
+				emitter.complete();
+			} catch (ClientAbortException ex) {
+				logger.debug(ex.getLocalizedMessage(), ex);
+				emitter.completeWithError(ex);
+			} catch (Throwable ex) {
+				final Throwable cause = Throwables.getRootCause(ex);
+				if (!(cause instanceof ClientAbortException)) {
+					logger.error(ex.getLocalizedMessage(), ex);
+				}
+				emitter.completeWithError(ex);
 			}
-			//
-			progress.end();
 		}
 
 	}
