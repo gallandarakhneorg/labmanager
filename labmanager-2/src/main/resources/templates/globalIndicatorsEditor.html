@@ -12,11 +12,11 @@
 		<li class="list-group-item visibleIndicator"
 		    th:each="indicator : ${visibleIndicators}"
 			th:id="${indicator.key}"
-			th:utext="${indicator.name}"></li>
+			th:utext="${indicator.name + ' = ' + indicatorValues.get(indicator.key)}"></li>
 		<li class="list-group-item invisibleIndicator"
 		    th:each="indicator : ${invisibleIndicators}"
 			th:id="${indicator.key}"
-			th:utext="${indicator.name}"></li>
+			th:utext="${indicator.name + ' = ' + indicatorValues.get(indicator.key)}"></li>
 	</div>
 	<div class="form-group" th:replace="fragments/form :: checkInput(resetValues, #{html.GlobalIndicatorsRefresh}, #{html.GlobalIndicatorsRefresh}, false)"></div>
 </form>
