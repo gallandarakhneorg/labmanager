@@ -27,7 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Count the number of permanent researchers in a specific organization.
+/** Count the number of research full-time equivalents.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -35,52 +35,78 @@ import org.springframework.stereotype.Component;
  * @mavenartifactid $ArtifactId$
  * @since 2.2
  * @see ResearcherCountIndicator
- * @see PermanentResearchFteIndicator
  */
 @Component
-public class PermanentResearcherCountIndicator extends AbstractIndicator {
+public class PermanentResearchFteIndicator extends AbstractIndicator {
+
+	private int referenceDuration = 5;
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 */
-	public PermanentResearcherCountIndicator(
+	public PermanentResearchFteIndicator(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants) {
 		super(messages, constants);
 	}
 
+	/** Replies the number of years for the reference period.
+	 *
+	 * @return the number of year for the reference period. 
+	 */
+	public int getReferencePeriodDuration() {
+		return this.referenceDuration;
+	}
+
+	/** Change the number of years for the reference period.
+	 *
+	 * @param years the number of year for the reference period. 
+	 */
+	public void setReferencePeriodDuration(int years) {
+		if (years > 1) {
+			this.referenceDuration = years;
+		} else {
+			this.referenceDuration = 1;
+		}
+	}
+
 	@Override
 	public String getName() {
-		return getMessage("permanentResearcherCountIndicator.name"); //$NON-NLS-1$
+		return getMessage("permanentResearcherFteIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithoutYears("permanentResearcherCountIndicator.label"); //$NON-NLS-1$
+		return getLabelWithoutYears("permanentResearcherFteIndicator.label"); //$NON-NLS-1$
 	}
 
 	@Override
 	public LocalDate getReferencePeriodStart() {
-		return LocalDate.now();
+		return computeStartDate(getReferencePeriodDuration());
 	}
 
 	@Override
 	public LocalDate getReferencePeriodEnd() {
-		return LocalDate.now();
+		return computeEndDate(0);
 	}
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		return Long.valueOf(organization.getMemberships().stream().filter(
+		final Float value = organization.getMemberships().stream().filter(
 				it -> {
 					if (it.isActive() && it.isPermanentPosition()) {
 						final MemberStatus status = it.getMemberStatus();
 						return status.isResearcher() && status.isPhDOwner();
 					}
 					return false;
-				}).count());
+				}).reduce(
+						Float.valueOf(0f),
+						(a, b) -> Float.valueOf(a.floatValue() + b.getMemberStatus().getUsualResearchFullTimeEquivalent()),
+						(a, b) -> Float.valueOf(a.floatValue() + b.floatValue()));
+		
+		return value;
 	}
 
 }
