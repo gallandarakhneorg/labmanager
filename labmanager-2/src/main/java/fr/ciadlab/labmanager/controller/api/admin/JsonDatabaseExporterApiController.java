@@ -21,18 +21,24 @@ import static fr.ciadlab.labmanager.entities.EntityUtils.normalizeForSimularityT
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.servlet.http.HttpServletResponse;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.base.Throwables;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -43,7 +49,11 @@ import fr.ciadlab.labmanager.io.json.ExtraPublicationProvider;
 import fr.ciadlab.labmanager.io.json.JsonTool;
 import fr.ciadlab.labmanager.io.json.SimilarPublicationProvider;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
+import org.apache.catalina.connector.ClientAbortException;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.progress.DefaultProgression;
+import org.arakhne.afc.progress.ProgressionEvent;
+import org.arakhne.afc.progress.ProgressionListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -51,15 +61,19 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBody;
 
 /** This controller provides a tool for exporting the content of the database according
@@ -75,6 +89,10 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @CrossOrigin
 public class JsonDatabaseExporterApiController extends AbstractApiController {
 
+	private static final int SAVE_DATABASE_TO_SERVER_ZIP_SERVICE_TIMEOUT = 1200000;
+
+	private static final int THOUSAND = 1000;
+
 	private static final String DUPLICATED_ENTRY_FIELD = "_duplicatedEntry"; //$NON-NLS-1$
 
 	private static final int SIMILARE_ENTRY_VALUE = 0;
@@ -87,11 +105,14 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 
 	private PublicationService publicationService;
 
+	private AsyncZipExporter asyncZipExporter;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the constants of the app.
 	 * @param zipExporter the ZIP exporter.
+	 * @param asyncZipExporter implementation of an async Zip exporter.
 	 * @param jsonExporter the JSON exporter.
 	 * @param publicationService the service for extracting publications from a BibTeX file.
 	 * @param usernameKey the key string for encrypting the usernames.
@@ -100,11 +121,13 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired DatabaseToZipExporter zipExporter,
+			@Autowired AsyncZipExporter asyncZipExporter,
 			@Autowired DatabaseToJsonExporter jsonExporter,
 			@Autowired PublicationService publicationService,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.zipExporter = zipExporter;
+		this.asyncZipExporter = asyncZipExporter;
 		this.jsonExporter = jsonExporter;
 		this.publicationService = publicationService;
 	}
@@ -141,19 +164,34 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	/** Save the JSON and the associated files into a single ZIP file on the server file system.
 	 *
 	 * @param username the name of the logged-in user.
+	 * @return the progress indicator.
 	 * @throws Exception in case of error.
 	 */
-	@PutMapping("/saveDatabaseToZip")
-	public void saveDatabaseToZip(
+	@GetMapping(value = "/" + Constants.SAVE_DATABASE_TO_SERVER_ZIP_BATCH_ENDPOINT, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	@Async
+	public SseEmitter saveDatabaseToZip(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "saveDatabaseToJson"); //$NON-NLS-1$
-		final String filename = Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip"; //$NON-NLS-1$
-		final File outFile = new File(new File(System.getProperty("java.io.tmpdir")), filename); //$NON-NLS-1$
-		outFile.getParentFile().mkdirs();
-		final ZipExporter exporter = this.zipExporter.startExportFromDatabase();
-		try (final FileOutputStream fos = new FileOutputStream(outFile)) {
-			exporter.exportToZip(fos);
-		}
+		ensureCredentials(username, Constants.SAVE_DATABASE_TO_SERVER_ZIP_BATCH_ENDPOINT);
+		//
+		final ExecutorService service = Executors.newSingleThreadExecutor();
+		final SseEmitter emitter = new SseEmitter(Long.valueOf(SAVE_DATABASE_TO_SERVER_ZIP_SERVICE_TIMEOUT));
+		service.execute(() -> {
+			try {
+				JsonDatabaseExporterApiController.this.asyncZipExporter.asyncSaveDetabaseToLocalZip(emitter);
+				//
+				emitter.complete();
+			} catch (ClientAbortException ex) {
+				// Do not log a message because the connection was closed by the client.
+				emitter.completeWithError(ex);
+			} catch (Throwable ex) {
+				final Throwable cause = Throwables.getRootCause(ex);
+				if (!(cause instanceof ClientAbortException)) {
+					getLogger().error(ex.getLocalizedMessage(), ex);
+				}
+				emitter.completeWithError(ex);
+			}
+		});
+		return emitter;
 	}
 
 	/** Export the JSON.
@@ -404,6 +442,67 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 				}
 			}
 			return similarPublications;
+		}
+
+	}
+
+	/** Bean for async creation of zip archives.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.2
+	 */
+	@Component
+	public static class AsyncZipExporter {
+
+		private DatabaseToZipExporter zipExporter;
+
+		/** Constructor.
+		 *
+		 * @param zipExporter the zip exporter.
+		 */
+		public AsyncZipExporter(@Autowired DatabaseToZipExporter zipExporter) {
+			this.zipExporter = zipExporter;
+		}
+		
+		/** Asynchronous export of the database to local Zip archive.
+		 *
+		 * @param emitter the SSE emitter.
+		 * @throws Exception if export cannot be done.
+		 */
+		@Transactional
+		public void asyncSaveDetabaseToLocalZip(SseEmitter emitter) throws Exception {
+			final DefaultProgression progress = new DefaultProgression(0, 0, THOUSAND, false);
+			progress.addProgressionListener(new ProgressionListener() {
+				@Override
+				public void onProgressionValueChanged(ProgressionEvent event) {
+					final Map<String, Object> content = new HashMap<>();
+					content.put("percent", Integer.valueOf((int) event.getPercent())); //$NON-NLS-1$
+					content.put("terminated", Boolean.valueOf(event.isFinished())); //$NON-NLS-1$
+					//content.put("message", Strings.nullToEmpty(message)); //$NON-NLS-1$
+					//
+					try {
+						final ObjectMapper mapper = new ObjectMapper();
+						final SseEventBuilder sseevent = SseEmitter.event().data(mapper.writeValueAsString(content));
+						emitter.send(sseevent);
+					} catch (IOException ex) {
+						throw new RuntimeException(ex);
+					}
+			    }
+			});
+			//
+			final String filename = Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip"; //$NON-NLS-1$
+			final File outFile = new File(new File(System.getProperty("java.io.tmpdir")), filename); //$NON-NLS-1$
+			outFile.getParentFile().mkdirs();
+			//
+			final ZipExporter exporter = this.zipExporter.startExportFromDatabase(progress);
+			try (final FileOutputStream fos = new FileOutputStream(outFile)) {
+				exporter.exportToZip(fos);
+			}
+			//
+			progress.end();
 		}
 
 	}

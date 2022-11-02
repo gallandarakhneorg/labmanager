@@ -30,6 +30,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.progress.DefaultProgression;
+import org.arakhne.afc.progress.Progression;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -47,6 +49,16 @@ import org.springframework.stereotype.Component;
 public class DatabaseToZipExporter {
 
 	private static final int COPY_BUFFER_SIZE = 4096;
+
+	private static final int FIVE = 5;
+
+	private static final int TWENTY = 20;
+
+	private static final int EIGHTY = 80;
+
+	private static final int HUNDRED = 100;
+
+	private static final int TWO_HUNDRED = 300;
 
 	private DatabaseToJsonExporter jsonExporter;
 
@@ -70,11 +82,24 @@ public class DatabaseToZipExporter {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	public ZipExporter startExportFromDatabase() throws Exception {
+		return startExportFromDatabase(new DefaultProgression());
+	}
+	
+	/** Start the exporting process to ZIP.
+	 *
+	 * @param progress the progression indicator.
+	 * @return the tool for finalizing the export to ZIP.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	public ZipExporter startExportFromDatabase(Progression progress) throws Exception {
+		assert progress != null;
+		progress.setProperties(0, 0, 100, false);
 		final Map<String, Object> content = this.jsonExporter.exportFromDatabase();
-		return new ZipExporter(content);
+		progress.setValue(TWENTY);
+		return new ZipExporter(content, progress.subTask(EIGHTY));
 	}
 
-	private static void writeJsonToZip(Map<String, Object> json, ZipOutputStream zos) throws Exception {
+	private static void writeJsonToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
 		final String filename = Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json"; //$NON-NLS-1$
 		final ZipEntry entry = new ZipEntry(filename);
 		zos.putNextEntry(entry);
@@ -83,12 +108,14 @@ public class DatabaseToZipExporter {
 			mapper.writer().writeValue(ucs, json);
 		}
 		zos.closeEntry();
+		progress.end();
 	}
 
 	@SuppressWarnings("unchecked")
-	private void writePublicationFilesToZip(Map<String, Object> json, ZipOutputStream zos) throws Exception {
+	private void writePublicationFilesToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
 		List<Map<String, Object>>  publications = (List<Map<String, Object>>) json.get(JsonTool.PUBLICATIONS_SECTION);
 		if (publications != null && !publications.isEmpty()) {
+			progress.setProperties(0, 0, publications.size(), false);
 			for (final Map<String, Object> publication : publications) {
 				final String targetFilename0 = (String) publication.get("pathToDownloadableAwardCertificate"); //$NON-NLS-1$
 				if (!Strings.isNullOrEmpty(targetFilename0)) {
@@ -102,14 +129,17 @@ public class DatabaseToZipExporter {
 						publication.remove("pathToDownloadablePDF"); //$NON-NLS-1$
 					}
 				}
+				progress.increment();
 			}
 		}
+		progress.end();
 	}
 
 	@SuppressWarnings("unchecked")
-	private void writeAddressFilesToZip(Map<String, Object> json, ZipOutputStream zos) throws Exception {
+	private void writeAddressFilesToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
 		List<Map<String, Object>>  addresses = (List<Map<String, Object>>) json.get(JsonTool.ORGANIZATIONADDRESSES_SECTION);
 		if (addresses != null && !addresses.isEmpty()) {
+			progress.setProperties(0, 0, addresses.size(), false);
 			for (final Map<String, Object> address : addresses) {
 				final String targetFilename0 = (String) address.get("pathToBackgroundImage"); //$NON-NLS-1$
 				if (!Strings.isNullOrEmpty(targetFilename0)) {
@@ -117,8 +147,10 @@ public class DatabaseToZipExporter {
 						address.remove("pathToBackgroundImage"); //$NON-NLS-1$
 					}
 				}
+				progress.increment();
 			}
 		}
+		progress.end();
 	}
 
 	private boolean copyFileToZip(String filename, ZipOutputStream zos) throws Exception {
@@ -155,12 +187,16 @@ public class DatabaseToZipExporter {
 
 		private final Map<String, Object> content;
 
+		private final Progression progress;
+
 		/** Constructor.
 		 *
 		 * @param content the content of the JSON file.
+		 * @param progress the progress indicator to be used by this exporter.
 		 */
-		public ZipExporter(Map<String, Object> content) {
+		public ZipExporter(Map<String, Object> content, Progression progress) {
 			this.content = content;
+			this.progress = progress;
 		}
 
 		/** Run the exporter.
@@ -169,11 +205,13 @@ public class DatabaseToZipExporter {
 		 * @throws Exception if there is problem for exporting.
 		 */
 		public void exportToZip(OutputStream output) throws Exception {
+			this.progress.setProperties(0, 0, TWO_HUNDRED + FIVE, false);
 			try (ZipOutputStream zos = new ZipOutputStream(output)) {
-				writePublicationFilesToZip(this.content, zos);
-				writeAddressFilesToZip(this.content, zos);
-				writeJsonToZip(this.content, zos);
+				writePublicationFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
+				writeAddressFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
+				writeJsonToZip(this.content, zos, this.progress.subTask(FIVE));
 			}
+			this.progress.end();
 		}
 
 	}

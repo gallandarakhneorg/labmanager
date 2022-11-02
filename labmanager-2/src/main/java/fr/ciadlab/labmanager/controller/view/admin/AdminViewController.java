@@ -119,4 +119,22 @@ public class AdminViewController extends AbstractViewController {
 		return modelAndView;
 	}
 
+	/** Show the view that show how the saving of the Zip archive into a server side file is progressing.
+	 *
+	 * @param username the name of the logged-in user.
+	 * @return the model-view that shows the duplicate persons.
+	 */
+	@GetMapping("/saveDatabaseToServerZip")
+	public ModelAndView saveDatabaseToServerZip(
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		ensureCredentials(username, "saveDatabaseToServerZip"); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("saveDatabaseToServerZip"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, false);
+		//
+		modelAndView.addObject("batchUrl", endpoint(Constants.SAVE_DATABASE_TO_SERVER_ZIP_BATCH_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("finishingUrl", endpoint(Constants.ADMIN_ENDPOINT)); //$NON-NLS-1$
+		//
+		return modelAndView;
+	}
+
 }
