@@ -1,0 +1,60 @@
+/*
+ * $Id$
+ * 
+ * Copyright (c) 2019-22, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
+ * All rights reserved.
+ *
+ * This software is the confidential and proprietary information
+ * of the CIAD laboratory and the Université de Technologie
+ * de Belfort-Montbéliard ("Confidential Information").
+ * You shall not disclose such Confidential Information and shall use
+ * it only in accordance with the terms of the license agreement
+ * you entered into with the CIAD-UTBM.
+ * 
+ * http://www.ciad-lab.fr/
+ */
+
+package fr.ciadlab.labmanager.indicators.publication;
+
+import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
+import fr.ciadlab.labmanager.utils.Unit;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.stereotype.Component;
+
+/** Calculate the number of ranked papers per full-time equivalent (FTE) per year for WoS journals. 
+ * 
+ * @author $Author: sgalland$
+ * @version $Name$ $Revision$ $Date$
+ * @mavengroupid $GroupId$
+ * @mavenartifactid $ArtifactId$
+ * @since 2.2
+ */
+@Component
+public class WosJournalPaperFteRatioIndicator extends AbstractJournalPaperFteRatioIndicator<WosJournalPaperCountIndicator> {
+
+	/** Constructor.
+	 *
+	 * @param messages the provider of messages.
+	 * @param constants the accessor to the constants.
+	 * @param journalPaperService the service for accessing the journal papers.
+	 */
+	public WosJournalPaperFteRatioIndicator(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired JournalPaperService journalPaperService) {
+		super(messages, constants, journalPaperService, new WosJournalPaperCountIndicator(messages, constants, journalPaperService));
+	}
+
+	@Override
+	public String getName() {
+		return getMessage("wosJournalPaperFteRatioIndicator.name"); //$NON-NLS-1$
+	}
+
+	@Override
+	public String getLabel(Unit unit) {
+		return getLabelWithYears("wosJournalPaperFteRatioIndicator.label"); //$NON-NLS-1$
+	}
+
+}

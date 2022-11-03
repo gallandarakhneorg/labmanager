@@ -23,42 +23,43 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.indicators.AbstractIndicator;
 import fr.ciadlab.labmanager.indicators.members.PermanentResearchFteIndicator;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
-import fr.ciadlab.labmanager.utils.Unit;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.stereotype.Component;
 
 /** Calculate the number of ranked papers per full-time equivalent (FTE). 
  * 
+ * @param <T> the type of journal paper counter.
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  * @since 2.2
  */
-@Component
-public class RankedJournalPaperFteRatioIndicator extends AbstractIndicator {
+public abstract class AbstractJournalPaperFteRatioIndicator<T extends AbstractRankedJournalPaperCountIndicator> extends AbstractIndicator {
 
 	private int referenceDuration = 5;
 
 	private final PermanentResearchFteIndicator fteIndicator;
 
-	private final RankedJournalPaperCountIndicator countIndicator;
+	/** Counter of journal papers.
+	 */
+	protected final T countIndicator;
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 * @param journalPaperService the service for accessing the journal papers.
+	 * @param countIndicator the counter of ranked journals.
 	 */
-	public RankedJournalPaperFteRatioIndicator(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired JournalPaperService journalPaperService) {
+	public AbstractJournalPaperFteRatioIndicator(
+			MessageSourceAccessor messages,
+			Constants constants,
+			JournalPaperService journalPaperService,
+			T countIndicator) {
 		super(messages, constants);
 		this.fteIndicator = new PermanentResearchFteIndicator(messages, constants);
 		this.fteIndicator.setReferencePeriodDuration(this.referenceDuration);
-		this.countIndicator = new RankedJournalPaperCountIndicator(messages, constants, journalPaperService);
+		this.countIndicator = countIndicator;
 		this.countIndicator.setReferencePeriodDuration(this.referenceDuration);
 	}
 
@@ -82,16 +83,6 @@ public class RankedJournalPaperFteRatioIndicator extends AbstractIndicator {
 		}
 		this.fteIndicator.setReferencePeriodDuration(this.referenceDuration);
 		this.countIndicator.setReferencePeriodDuration(this.referenceDuration);
-	}
-
-	@Override
-	public String getName() {
-		return getMessage("rankedJournalPaperFteRatioIndicator.name", this.countIndicator.getJournalRankingSystem().getLabel()); //$NON-NLS-1$
-	}
-
-	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithYears("rankedJournalPaperFteRatioIndicator.label", this.countIndicator.getJournalRankingSystem().getLabel()); //$NON-NLS-1$
 	}
 
 	@Override

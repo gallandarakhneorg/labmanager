@@ -25,11 +25,8 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.indicators.AbstractIndicator;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
-import fr.ciadlab.labmanager.utils.Unit;
 import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.stereotype.Component;
 
 /** Count the number of journal papers for an organization.
  * 
@@ -39,25 +36,22 @@ import org.springframework.stereotype.Component;
  * @mavenartifactid $ArtifactId$
  * @since 2.2
  */
-@Component
-public class RankedJournalPaperCountIndicator extends AbstractIndicator {
+public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractIndicator {
 
 	private JournalPaperService journalPaperService;
 
 	private int referenceDuration = 5;
 
-	private JournalRankingSystem rankingSystem = JournalRankingSystem.getDefault();
-	
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 * @param journalPaperService the service for accessing the journal papers.
 	 */
-	public RankedJournalPaperCountIndicator(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired JournalPaperService journalPaperService) {
+	public AbstractRankedJournalPaperCountIndicator(
+			MessageSourceAccessor messages,
+			Constants constants,
+			JournalPaperService journalPaperService) {
 		super(messages, constants);
 		this.journalPaperService = journalPaperService;
 	}
@@ -86,34 +80,7 @@ public class RankedJournalPaperCountIndicator extends AbstractIndicator {
 	 *
 	 * @return the journal ranking system to be used. 
 	 */
-	public JournalRankingSystem getJournalRankingSystem() {
-		if (this.rankingSystem == null) {
-			return JournalRankingSystem.getDefault();
-		}
-		return this.rankingSystem;
-	}
-
-	/** Change the journal ranking system to be used.
-	 *
-	 * @param rankingSystem the journal ranking system to be used. 
-	 */
-	public void setJournalRankingSystem(JournalRankingSystem rankingSystem) {
-		if (rankingSystem == null) {
-			this.rankingSystem = JournalRankingSystem.getDefault();
-		} else {
-			this.rankingSystem = rankingSystem;
-		}
-	}
-
-	@Override
-	public String getName() {
-		return getMessage("rankedJournalPaperCountIndicator.name", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
-	}
-
-	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithYears("rankedJournalPaperCountIndicator.label", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
-	}
+	public abstract JournalRankingSystem getJournalRankingSystem();
 
 	@Override
 	public LocalDate getReferencePeriodStart() {
