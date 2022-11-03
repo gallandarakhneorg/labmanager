@@ -79,6 +79,13 @@ public interface DownloadableFileManager {
 	 */
 	File getAddressBackgroundRootFile();
 
+	/** Replies the path to the root folder for saved files.
+	 *
+	 * @return the path to the root folder.
+	 * @since 2.2
+	 */
+	File getSavingDataRootFile();
+
 	/** Make the path to the PDF downloadable file for the publication with the given identifier.
 	 *
 	 * @param publicationId the identifier of the publication.

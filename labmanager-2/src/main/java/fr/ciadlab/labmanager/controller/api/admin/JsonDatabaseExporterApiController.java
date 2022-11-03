@@ -42,6 +42,7 @@ import com.google.common.base.Throwables;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.json.DatabaseToJsonExporter;
 import fr.ciadlab.labmanager.io.json.DatabaseToZipExporter;
 import fr.ciadlab.labmanager.io.json.DatabaseToZipExporter.ZipExporter;
@@ -54,7 +55,6 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.ProgressionEvent;
 import org.arakhne.afc.progress.ProgressionListener;
-import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -96,8 +96,6 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	private static final int THOUSAND = 1000;
 
 	private static final String DUPLICATED_ENTRY_FIELD = "_duplicatedEntry"; //$NON-NLS-1$
-
-	private static final String FOLDER_NAME = "labmanager"; //$NON-NLS-1$
 
 	private static final int SIMILARE_ENTRY_VALUE = 0;
 
@@ -450,12 +448,18 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 
 		private DatabaseToZipExporter zipExporter;
 
+		private DownloadableFileManager fileManager;
+
 		/** Constructor.
 		 *
 		 * @param zipExporter the zip exporter.
+		 * @param fileManager the manager of files.
 		 */
-		public AsyncZipExporter(@Autowired DatabaseToZipExporter zipExporter) {
+		public AsyncZipExporter(@
+				Autowired DatabaseToZipExporter zipExporter,
+				@Autowired DownloadableFileManager fileManager) {
 			this.zipExporter = zipExporter;
+			this.fileManager = fileManager;
 		}
 		
 		/** Asynchronous export of the database to local Zip archive.
@@ -487,7 +491,8 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 				});
 				//
 				final String filename = Constants.DEFAULT_DBCONTENT_FILES_ATTACHMENT_BASENAME + ".zip"; //$NON-NLS-1$
-				final File outFile = FileSystem.join(FileSystem.convertStringToFile(System.getProperty("java.io.tmpdir")), FOLDER_NAME, filename); //$NON-NLS-1$
+				File outFile = new File(this.fileManager.getSavingDataRootFile(), filename);
+				outFile = this.fileManager.normalizeForServerSide(outFile);
 				logger.info(messages.getMessage("jsonDatabaseExporterApiController.exportZipToFile", new Object[] {outFile.getAbsolutePath()})); //$NON-NLS-1$
 				outFile.getParentFile().mkdirs();
 				//

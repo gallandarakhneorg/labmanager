@@ -77,6 +77,8 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	private static final String ADDRESS_BACKGROUND_FILE_PREFIX = "AddressBg"; //$NON-NLS-1$
 
+	private static final String SAVED_DATA_FOLDER_NAME = "Saves"; //$NON-NLS-1$
+
 	private final File uploadFolder;
 
 	private final File temporaryFolder;
@@ -126,6 +128,11 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	@Override
 	public File getAddressBackgroundRootFile() {
 		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), ADDRESS_BACKGROUND_FOLDER_NAME);
+	}
+
+	@Override
+	public File getSavingDataRootFile() {
+		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), SAVED_DATA_FOLDER_NAME);
 	}
 
 	@Override
