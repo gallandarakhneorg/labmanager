@@ -108,6 +108,7 @@ public class DatabaseToZipExporter {
 			mapper.writer().writeValue(ucs, json);
 		}
 		zos.closeEntry();
+		zos.flush();
 		progress.end();
 	}
 
@@ -169,6 +170,7 @@ public class DatabaseToZipExporter {
 				}
 			}
 			zos.closeEntry();
+			zos.flush();
 			return true;
 		}
 		return false;
