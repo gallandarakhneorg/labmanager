@@ -38,6 +38,7 @@
 
     <th:block th:fragment="allBaseLibs-embedded">
 		<th:block th:replace="fragments/libs :: bootstrap"/>
+		<link rel="stylesheet" th:href="@{/css/labmanager/bootstrap.wp.css}"/>
 		<th:block th:replace="fragments/libs :: modernizr"/>
 		<th:block th:replace="fragments/libs :: fontawesome"/>
 		<th:block th:replace="fragments/libs :: jquery-plugins"/>
