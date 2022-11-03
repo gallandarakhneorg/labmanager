@@ -21,13 +21,13 @@ import java.io.Serializable;
 import java.io.StringReader;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
 
 import javax.persistence.Column;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -88,10 +88,22 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	@Transient
 	private Map<String, Number> valueCache;
 
-	/** List of visible indicators. This list contains the indicators' keys. Order of keys is important. 
+	@Column(length =  EntityUtils.LARGE_TEXT_SIZE)
+	@Lob
+	private String visibleIndicatorKeys;
+
+	/** List of visible indicators. This list contains the indicators' keys. Order of keys is important.
+	 * Because the DB backend does not ensure the order of a ElementCollection of type list
+	 * (for example Derby ensure the order of the list elements, byt MySQL does not), it is
+	 * necessary to implement the order of the indicators in the JPA itself.
+	 *
+	 * The list of visible indicators is stored as a string in order to be sure that the order
+	 * of the indicators is preserved. 
+	 *
+	 * @see #visibleIndicatorKeys
 	 */
-	@ElementCollection
-	private List<String> visibleIndicators;
+	@Transient
+	private List<String> visibleIndicatorList;
 
 	/** Construct the global indicators.
 	 */
@@ -104,7 +116,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		int h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.values);
-		h = HashCodeUtils.add(h, this.visibleIndicators);
+		h = HashCodeUtils.add(h, this.visibleIndicatorKeys);
 		return h;
 	}
 
@@ -123,7 +135,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		if (!Objects.equals(this.values, other.values)) {
 			return false;
 		}
-		if (!Objects.equals(this.visibleIndicators, other.visibleIndicators)) {
+		if (!Objects.equals(this.visibleIndicatorKeys, other.visibleIndicatorKeys)) {
 			return false;
 		}
 		return true;
@@ -217,6 +229,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	public void setValues(String values) {
 		this.values = Strings.emptyToNull(values);
 		this.valueCache = null;
+		this.lastUpdate = LocalDate.now();
 	}
 
 	/** Change the indicator values from the list of indicators.
@@ -264,15 +277,23 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		}
 	}
 
-	/** Replies the visible indicators.
+	/** Replies the keys of the visible indicators into a string of characters.
+	 * Each key is separated by coma.
 	 *
-	 * @return the list of the keys of the visible indicators.
+	 * @return the coma-separated list of the keys of the visible indicators.
 	 */
-	public List<String> getVisibleIndicators() {
-		if (this.visibleIndicators == null) {
-			this.visibleIndicators = new ArrayList<>();
-		}
-		return this.visibleIndicators;
+	public String getVisibleIndicatorKeys() {
+		return this.visibleIndicatorKeys;
+	}
+
+	/** Change the keys of the visible indicators into a string of characters.
+	 * Each key is separated by coma.
+	 *
+	 * @param keys the coma-separated list of the keys of the visible indicators.
+	 */
+	public void setVisibleIndicatorKeys(String keys) {
+		this.visibleIndicatorKeys = Strings.emptyToNull(keys);
+		this.visibleIndicatorList = null;
 	}
 
 	/** Change the keys of the visible indicators.
@@ -280,14 +301,37 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	 * @param visibleIndicators the list of the keys of the visible indicators.
 	 */
 	public void setVisibleIndicators(List<String> visibleIndicators) {
-		if (this.visibleIndicators == null) {
-			this.visibleIndicators = new ArrayList<>();
-		} else {
-			this.visibleIndicators.clear();
-		}
+		final StringBuilder builder = new StringBuilder();
 		if (visibleIndicators != null && !visibleIndicators.isEmpty()) {
-			this.visibleIndicators.addAll(visibleIndicators);
+			boolean first = true;
+			for (final String key : visibleIndicators) {
+				if (!Strings.isNullOrEmpty(key)) {
+					if (first) {
+						first = false;
+					} else {
+						builder.append(","); //$NON-NLS-1$
+					}
+					builder.append(key);
+				}
+			}
 		}
+		this.visibleIndicatorKeys = builder.toString();
+		this.visibleIndicatorList = null;
+	}
+
+	/** Replies the visible indicators.
+	 *
+	 * @return the list of the keys of the visible indicators.
+	 */
+	public List<String> getVisibleIndicators() {
+		if (this.visibleIndicatorList == null) {
+			this.visibleIndicatorList= new ArrayList<>();
+			final String str = getVisibleIndicatorKeys();
+			if (!Strings.isNullOrEmpty(str)) {
+				this.visibleIndicatorList.addAll(Arrays.asList(str.split("\\s*[,;:/]+\\s*"))); //$NON-NLS-1$
+			}
+		}
+		return this.visibleIndicatorList;
 	}
 
 }

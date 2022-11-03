@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
@@ -179,7 +178,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 */
 	public List<? extends Indicator> getVisibleIndicators() {
 		final List<String> indicatorKeys = ensureGlobalIndicators(true).getVisibleIndicators();		
-		return indicatorKeys.stream().map(it -> this.allIndicatorsPerKey.get(it)).collect(Collectors.toList());
+		return indicatorKeys.stream().map(it -> this.allIndicatorsPerKey.get(it)).filter(it -> it != null).collect(Collectors.toList());
 	}
 
 	/** Replies all the invisible global indicators.
@@ -215,12 +214,8 @@ public class GlobalIndicatorsService extends AbstractService {
 	 */
 	public void updateVisibleIndicators(List<String> visibleIndicators, boolean resetValues) {
 		final GlobalIndicators gi = ensureGlobalIndicators(false);
-		if (Objects.deepEquals(gi.getVisibleIndicators(), visibleIndicators)) {
-			gi.setValues(null);
-		} else {
-			gi.setVisibleIndicators(visibleIndicators);
-			gi.setValues(null);
-		}
+		gi.setVisibleIndicators(visibleIndicators);
+		gi.setValues(null);
 		this.indicatorRepository.save(gi);
 	}
 

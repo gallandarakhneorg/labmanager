@@ -107,16 +107,12 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 		final List<? extends Indicator> invisibleIndicators = this.indicatorService.getInvisibleIndicators();
 		modelAndView.addObject("invisibleIndicators", invisibleIndicators); //$NON-NLS-1$
 		//
-		if (visibleIndicators == null || visibleIndicators.isEmpty()) {
-			modelAndView.addObject("indicatorValues", Collections.emptyMap()); //$NON-NLS-1$
-		} else {
-			final Optional<ResearchOrganization> organizationOpt = this.organizationService.getResearchOrganizationByAcronymOrName(this.defaultOrganizationName);
-			if (organizationOpt.isEmpty()) {
-				throw new IllegalArgumentException("Organization not found with name: " + this.defaultOrganizationName); //$NON-NLS-1$
-			}
-			final Map<String, Number> values = this.indicatorService.getAllIndicatorValues(organizationOpt.get());
-			modelAndView.addObject("indicatorValues", values); //$NON-NLS-1$
+		final Optional<ResearchOrganization> organizationOpt = this.organizationService.getResearchOrganizationByAcronymOrName(this.defaultOrganizationName);
+		if (organizationOpt.isEmpty()) {
+			throw new IllegalArgumentException("Organization not found with name: " + this.defaultOrganizationName); //$NON-NLS-1$
 		}
+		final Map<String, Number> values = this.indicatorService.getAllIndicatorValues(organizationOpt.get());
+		modelAndView.addObject("indicatorValues", values); //$NON-NLS-1$
 		//
 		modelAndView.addObject("formActionUrl", rooted(Constants.GLOBAL_INDICATORS_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.ADMIN_ENDPOINT)); //$NON-NLS-1$

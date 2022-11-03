@@ -146,6 +146,28 @@ public class GlobalIndicatorsTest {
 	}
 
 	@Test
+	public void getVisibleIndicatorKeys() {
+		assertNull(this.test.getVisibleIndicatorKeys());
+	}
+
+	@Test
+	public void setVisibleIndicatorKeys() {
+		assertNull(this.test.getVisibleIndicatorKeys());
+
+		this.test.setVisibleIndicatorKeys("abc,xyz");
+		assertEquals("abc,xyz", this.test.getVisibleIndicatorKeys());
+
+		this.test.setVisibleIndicatorKeys("");
+		assertNull(this.test.getVisibleIndicatorKeys());
+
+		this.test.setVisibleIndicatorKeys("uvw,nop");
+		assertEquals("uvw,nop", this.test.getVisibleIndicatorKeys());
+
+		this.test.setVisibleIndicatorKeys(null);
+		assertNull(this.test.getVisibleIndicatorKeys());
+	}
+
+	@Test
 	public void getVisibleIndicators() {
 		assertTrue(this.test.getVisibleIndicators().isEmpty());
 	}

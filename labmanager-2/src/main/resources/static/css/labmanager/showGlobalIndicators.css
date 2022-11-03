@@ -58,10 +58,9 @@ div.globalIndicatorExplanation {
     padding-bottom: 10px;
     font-weight: 500;
     margin: 0;
-    padding: 0;
+    padding: 5px;
     border: 0;
     outline: 0;
-    -webkit-text-size-adjust: 100%;
     background: transparent;
     box-sizing: border-box;
 	display: block;
@@ -71,6 +70,8 @@ div.globalIndicatorExplanation {
     margin-inline-end: 0px;
     text-align: center;
     word-wrap: break-word;
-	font-family: Open Sans,Arial,sans-serif;
+    -webkit-text-size-adjust: 100%;
 	-webkit-font-smoothing: antialiased;
+	font-family: Open Sans,Arial,sans-serif;
+	max-width: 250px;
 }
