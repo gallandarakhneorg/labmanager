@@ -11,7 +11,25 @@ a:active.noLink {
 	all: unset;
 	cursor:pointer;
 }
-
+/* Simplified style for links */
+a.simpleLink {
+	all: unset;
+    color: #3b4d05 !important;
+    text-decoration: underline dotted;
+	cursor:pointer;
+}
+a:hover.simpleLink {
+	all: unset;
+    color: #212529 !important;
+    text-decoration: underline dotted;
+	cursor:pointer;
+}
+a:active.simpleLink {
+	all: unset;
+    color: #212529 !important;
+    text-decoration: underline dotted;
+	cursor:pointer;
+}
 .form-control.is-valid {
     border-color: #0d64c1;
     border-width:2px;

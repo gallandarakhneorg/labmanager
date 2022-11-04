@@ -31,7 +31,7 @@
             <td>
             	<a th:href="${membership.candidate.webPageURI}"
             	   th:if="${membership.candidate.webPageURI != null}"
-            	   class="noLink"
+            	   class="simpleLink"
             	   th:utext="${membership.candidate.fullNameWithLastNameFirst}"></a>
             	<th:block th:unless="${membership.candidate.webPageURI != null}"
             	          th:utext="${membership.candidate.fullNameWithLastNameFirst}"></th:block>
@@ -46,7 +46,7 @@
 		                    <th:block th:unless="${iPromoter.first}" th:utext="', '"></th:block>
 			            	<a th:href="${promoter.webPageURI}"
 			            	   th:if="${promoter.webPageURI != null}"
-			            	   class="noLink"
+			            	   class="simpleLink"
 			            	   th:utext="${promoter.fullNameWithLastNameFirst}"></a>
 			            	<th:block th:unless="${promoter.webPageURI != null}"
 			            	          th:utext="${promoter.fullNameWithLastNameFirst}"></th:block>

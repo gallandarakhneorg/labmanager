@@ -31,7 +31,7 @@
             <td>
             	<a th:href="${supervision.supervisedPerson.person.webPageURI}"
             	   th:if="${supervision.supervisedPerson.person.webPageURI != null}"
-            	   class="noLink"
+            	   class="simpleLink"
             	   th:utext="${supervision.supervisedPerson.person.fullNameWithLastNameFirst}"></a>
             	<th:block th:unless="${supervision.supervisedPerson.person.webPageURI != null}"
             	          th:utext="${supervision.supervisedPerson.person.fullNameWithLastNameFirst}"></th:block>
@@ -47,7 +47,7 @@
 	            	<th:block th:each="supervisor, iSupervisor : ${supervision.supervisors.stream.sorted(preferredSupervisorComparator).toArray}">
 		            	<a th:href="${supervisor.supervisor.webPageURI}"
 		            	   th:if="${supervisor.supervisor.webPageURI != null}"
-		            	   class="noLink"
+		            	   class="simpleLink"
 		            	   th:utext="${supervisor.supervisor.fullName}"></a>
 		            	<th:block th:unless="${supervisor.supervisor.webPageURI != null}"
 		            	          th:utext="${supervisor.supervisor.fullName}"></th:block>
