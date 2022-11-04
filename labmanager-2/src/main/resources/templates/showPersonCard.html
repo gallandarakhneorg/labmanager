@@ -37,7 +37,7 @@
 				<div class="person-card-membership"
 				     th:each="membership : ${memberships}"
 				     th:title="${membership.researchOrganization.acronymOrName}"
-				     th:utext="${membership.memberStatus.getLabel(person.gender)}"></div>
+				     th:utext="${membership.memberStatus.getLabel(person.gender, isFormerMember)}"></div>
 			</div>
 			<div class="person-card-contact"
 			     th:if="${enableEmail || enableOfficePhone || enableMobilePhone}">

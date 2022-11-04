@@ -961,7 +961,7 @@ public enum MemberStatus {
 	private static final String TITLE_POSTFIX = "_title"; //$NON-NLS-1$
 
 	private MessageSourceAccessor messages;
-	
+
 	/** Replies the message accessor to be used.
 	 *
 	 * @return the accessor.
@@ -1051,7 +1051,16 @@ public enum MemberStatus {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel() {
-		return getLabel((Gender) null);
+		return getLabel(null, false, null);
+	}
+
+	/** Replies the label of the status in the current language.
+	 *
+	 * @param former is the status for a former member?
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(boolean former) {
+		return getLabel(null, former, null);
 	}
 
 	/** Replies the label of the status in the current language.
@@ -1060,9 +1069,18 @@ public enum MemberStatus {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(Locale locale) {
-		return getLabel(null, locale);
+		return getLabel(null, false, locale);
 	}
 
+	/** Replies the label of the status in the current language.
+	 *
+	 * @param former is the status for a former member?
+	 * @param locale the locale to use.
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(boolean former, Locale locale) {
+		return getLabel(null, former, locale);
+	}
 
 	/** Replies the label of the status in the current language.
 	 *
@@ -1070,9 +1088,7 @@ public enum MemberStatus {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(Gender gender) {
-		final Gender gndr = gender == null || gender == Gender.NOT_SPECIFIED ? Gender.OTHER : gender;
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + gndr.name()); //$NON-NLS-1$
-		return Strings.nullToEmpty(label);
+		return getLabel(gender, false, null);
 	}
 
 	/** Replies the label of the status in the current language.
@@ -1082,8 +1098,40 @@ public enum MemberStatus {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(Gender gender, Locale locale) {
+		return getLabel(gender, false, locale);
+	}
+
+	/** Replies the label of the status in the current language.
+	 *
+	 * @param gender the gender of the person concerned by the member status.
+	 * @param former is the status for a former member?
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(Gender gender, boolean former) {
+		return getLabel(gender, former, null);
+	}
+
+	/** Replies the label of the status in the current language.
+	 *
+	 * @param gender the gender of the person concerned by the member status.
+	 * @param former is the status for a former member?
+	 * @param locale the locale to use.
+	 * @return the label of the status in the current language.
+	 */
+	public String getLabel(Gender gender, boolean former, Locale locale) {
 		final Gender gndr = gender == null || gender == Gender.NOT_SPECIFIED ? Gender.OTHER : gender;
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + gndr.name(), locale); //$NON-NLS-1$
+		final StringBuilder key = new StringBuilder();
+		key.append(MESSAGE_PREFIX).append(name());
+		if (former) {
+			key.append("_former"); //$NON-NLS-1$
+		}
+		key.append("_").append(gndr.name()); //$NON-NLS-1$
+		final String label;
+		if (locale == null) {
+			label = getMessageSourceAccessor().getMessage(key.toString());
+		} else {
+			label = getMessageSourceAccessor().getMessage(key.toString(), locale);
+		}
 		return Strings.nullToEmpty(label);
 	}
 

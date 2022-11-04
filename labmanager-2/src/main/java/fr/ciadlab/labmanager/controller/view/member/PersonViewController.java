@@ -20,6 +20,8 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,7 +39,6 @@ import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
-import org.apache.commons.lang3.mutable.MutableObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -223,24 +224,57 @@ public class PersonViewController extends AbstractViewController {
 		//
 		Stream<Membership> stream = personObj.getMemberships().stream().parallel();
 		if (organizationObj == null) {
-			stream = stream.filter(it -> it.isActive());
+			stream = stream.filter(it -> !it.isFuture());
 		} else {
-			stream = stream.filter(it -> it.isActive() && it.getResearchOrganization().getId() == organizationObj.getId());
+			stream = stream.filter(it -> !it.isFuture() && it.getResearchOrganization().getId() == organizationObj.getId());
 		}
-		final Collection<Membership> memberships = new ConcurrentLinkedQueue<>();
-		final Collection<Membership> responsibilities = new ConcurrentLinkedQueue<>();
-		MutableObject<OrganizationAddress> postalAddressObj = new MutableObject<>();
+		// Sort the memberships to push the active memberships before the former memberships.
+		final Collection<Membership> activeMemberships = new ConcurrentLinkedQueue<>();
+		final Collection<Membership> activeResponsibilities = new ConcurrentLinkedQueue<>();
+		final AtomicReference<OrganizationAddress> activePostalAddressObj = new AtomicReference<>();
+		final Collection<Membership> formerMemberships = new ConcurrentLinkedQueue<>();
+		final Collection<Membership> formerResponsibilities = new ConcurrentLinkedQueue<>();
+		final AtomicReference<OrganizationAddress> formerPostalAddressObj = new AtomicReference<>();
+		final AtomicBoolean foundActive = new AtomicBoolean();
 		stream.forEach(it -> {
-			if (it.getResponsibility() != null) {
-				responsibilities.add(it);
-			}
-			if (it.isMainPosition()) {
-				if (postalAddressObj.getValue() == null && it.getOrganizationAddress() != null) {
-					postalAddressObj.setValue(it.getOrganizationAddress());
+			if (it.isActive()) {
+				foundActive.set(true);
+				if (it.getResponsibility() != null) {
+					activeResponsibilities.add(it);
 				}
-				memberships.add(it);
+				if (it.isMainPosition()) {
+					if (activePostalAddressObj.get() == null && it.getOrganizationAddress() != null) {
+						activePostalAddressObj.set(it.getOrganizationAddress());
+					}
+					activeMemberships.add(it);
+				}
+			} else {
+				if (it.getResponsibility() != null) {
+					formerResponsibilities.add(it);
+				}
+				if (it.isMainPosition()) {
+					if (formerPostalAddressObj.get() == null && it.getOrganizationAddress() != null) {
+						formerPostalAddressObj.set(it.getOrganizationAddress());
+					}
+					formerMemberships.add(it);
+				}
 			}
 		});
+		//
+		final Collection<Membership> memberships;
+		final Collection<Membership> responsibilities;
+		final OrganizationAddress postalAddressObj;
+		if (foundActive.get()) {
+			modelAndView.addObject("isFormerMember", Boolean.FALSE); //$NON-NLS-1$
+			memberships = activeMemberships;
+			responsibilities = activeResponsibilities;
+			postalAddressObj = activePostalAddressObj.get();
+		} else {
+			modelAndView.addObject("isFormerMember", Boolean.TRUE); //$NON-NLS-1$
+			memberships = formerMemberships;
+			responsibilities = formerResponsibilities;
+			postalAddressObj = formerPostalAddressObj.get();
+		}
 		//
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		final Map<String, Object> obfuscatedValues = new HashMap<>();
@@ -250,8 +284,8 @@ public class PersonViewController extends AbstractViewController {
 		addObfuscatedValues(modelAndView, obfuscatedValues);
 		modelAndView.addObject("introText", inString(introText)); //$NON-NLS-1$
 		modelAndView.addObject("memberships", memberships); //$NON-NLS-1$
-		if (postalAddressObj.getValue() != null) {
-			modelAndView.addObject("postalAddress", postalAddressObj.getValue()); //$NON-NLS-1$
+		if (postalAddressObj != null) {
+			modelAndView.addObject("postalAddress", postalAddressObj); //$NON-NLS-1$
 		}
 		modelAndView.addObject("responsibilities", responsibilities); //$NON-NLS-1$
 		if (qrcode) {
