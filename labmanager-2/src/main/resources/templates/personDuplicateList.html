@@ -25,6 +25,7 @@
 	        <th th:text="#{html.Publications}"></th>
 	        <th th:text="#{html.Supervisions}"></th>
 	        <th th:text="#{html.JuryMemberships}"></th>
+	        <th th:text="#{html.Invitations}"></th>
 	        <th th:text="#{html.Actions}"></th>
 	    </thead>
 	    <tbody id="duplicationSummaryBody">
@@ -35,7 +36,7 @@
 /*[# th:if="${changeEnabled}"]*/
 function installInteractionElements(duplicates) {
 	initAdministrationTable({
-		columns: 5,
+		columns: 6,
 		actionWidth: '80px',
 	});
 	$.each(duplicates, (index, group) => {
@@ -178,6 +179,15 @@ function updateTableContent(duplicates) {
 				$tdjurys.append($('<br/>'));
 			}
 			$tdjurys.append(duplicatePerson.jurys);
+		});
+		// Invitations
+		var $tdinvitations = $('<td></td>');
+		$tr.append($tdinvitations);
+		$.each(group, (index0, duplicatePerson) => {
+			if (index0 > 0) {
+				$tdinvitations.append($('<br/>'));
+			}
+			$tdinvitations.append(duplicatePerson.invitations);
 		});
 		// Actions
 		var $tdactions = $('<td></td>');

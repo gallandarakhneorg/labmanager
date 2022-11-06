@@ -28,6 +28,7 @@ import java.util.TreeSet;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.invitation.PersonInvitation;
 import fr.ciadlab.labmanager.entities.jury.JuryMembership;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -38,6 +39,7 @@ import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
+import fr.ciadlab.labmanager.service.invitation.PersonInvitationService;
 import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService.PersonDuplicateCallback;
 import fr.ciadlab.labmanager.service.supervision.SupervisionService;
@@ -68,6 +70,8 @@ public class PersonMergingService extends AbstractService {
 
 	private final SupervisionService supervisionService;
 
+	private final PersonInvitationService invitationService;
+
 	private PersonNameComparator nameComparator;
 
 	/** Constructor for injector.
@@ -81,6 +85,7 @@ public class PersonMergingService extends AbstractService {
 	 * @param organizationMembershipRepository the repository for managing the organization memberships.
 	 * @param juryMembershipService the service for managing the jury memberships.
 	 * @param supervisionService the service for managing the supervisions.
+	 * @param invitationService the service for managing the invitations.
 	 * @param nameComparator the comparator of person names.
 	 */
 	public PersonMergingService(
@@ -92,6 +97,7 @@ public class PersonMergingService extends AbstractService {
 			@Autowired MembershipRepository organizationMembershipRepository,
 			@Autowired JuryMembershipService juryMembershipService,
 			@Autowired SupervisionService supervisionService,
+			@Autowired PersonInvitationService invitationService,
 			@Autowired PersonNameComparator nameComparator) {
 		super(messages, constants);
 		this.personRepository = personRepository;
@@ -100,6 +106,7 @@ public class PersonMergingService extends AbstractService {
 		this.organizationMembershipRepository = organizationMembershipRepository;
 		this.juryMembershipService = juryMembershipService;
 		this.supervisionService = supervisionService;
+		this.invitationService = invitationService;
 		this.nameComparator = nameComparator;
 	}
 
@@ -207,6 +214,7 @@ public class PersonMergingService extends AbstractService {
 				lchange = reassignOrganizationMemberships(source, target) || lchange;
 				lchange = reassignJuryMemberships(source, target) || lchange;
 				lchange = reassignSupervisions(source, target) || lchange;
+				lchange = reassignInvitations(source, target) || lchange;
 				//
 				this.personService.removePerson(source.getId());
 				changed = changed || lchange;
@@ -320,6 +328,35 @@ public class PersonMergingService extends AbstractService {
 		}
 		for (final Supervisor sup : changed) {
 			this.supervisionService.save(sup);
+		}
+		return true;
+	}
+
+	/** Re-assign the invitations attached to the source person to the target person.
+	 * 
+	 * @param sources the person to remove and replace by the target person.
+	 * @param target the target person who should replace the source persons.
+	 * @return {@code true} if invitation has changed.
+	 * @throws Exception if the change cannot be completed.
+	 */
+	protected boolean reassignInvitations(Person source, Person target) throws Exception {
+		final Set<PersonInvitation> changed = new TreeSet<>(EntityUtils.getPreferredPersonInvitationComparator());
+		for (final PersonInvitation invitation : this.invitationService.getInvitationsForPerson(source.getId())) {
+			if (invitation.getGuest().getId() == source.getId()) {
+				invitation.setGuest(target);
+				changed.add(invitation);
+			}
+			if (invitation.getInviter().getId() == source.getId()) {
+				invitation.setInviter(target);
+				changed.add(invitation);
+			}
+		}
+		//
+		if (changed.isEmpty()) {
+			return false;
+		}
+		for (final PersonInvitation inv : changed) {
+			this.invitationService.save(inv);
 		}
 		return true;
 	}

@@ -45,6 +45,7 @@ import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
+import fr.ciadlab.labmanager.service.invitation.PersonInvitationService;
 import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
 import fr.ciadlab.labmanager.service.supervision.SupervisionService;
 import fr.ciadlab.labmanager.utils.names.DefaultPersonNameParser;
@@ -81,6 +82,8 @@ public class PersonMergingServiceTest {
 
 	private SupervisionService supervisionService;
 
+	private PersonInvitationService invitationService;
+
 	private PersonNameComparator nameComparator;
 	
 	private PersonMergingService test;
@@ -94,11 +97,12 @@ public class PersonMergingServiceTest {
 		this.organizationMembershipRepository = mock(MembershipRepository.class);
 		this.juryMembershipService = mock(JuryMembershipService.class);
 		this.supervisionService = mock(SupervisionService.class);
+		this.invitationService = mock(PersonInvitationService.class);
 		this.nameComparator = new SorensenDicePersonNameComparator(new DefaultPersonNameParser());
 
 		this.test = new PersonMergingService(this.messages, new Constants(), this.personRepository, this.personService,
 				this.organizationMembershipService, this.organizationMembershipRepository,
-				this.juryMembershipService, this.supervisionService, this.nameComparator);
+				this.juryMembershipService, this.supervisionService, this.invitationService, this.nameComparator);
 	}
 
 	@Test

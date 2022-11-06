@@ -196,4 +196,12 @@ public class PersonInvitationService extends AbstractService {
 		this.invitationRepository.deleteById(iid);
 	}
 
+	/** Save the given invitation into the database.
+	 *
+	 * @param invitation the invitation to save.
+	 */
+	public void save(PersonInvitation invitation) {
+		this.invitationRepository.save(invitation);
+	}
+
 }

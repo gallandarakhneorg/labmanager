@@ -30,6 +30,7 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
 import fr.ciadlab.labmanager.repository.jury.JuryMembershipRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
@@ -75,6 +76,8 @@ public class PersonMergingApiController extends AbstractApiController {
 
 	private JuryMembershipRepository juryMembershipRepository;
 
+	private PersonInvitationRepository invitationRepository;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -85,6 +88,7 @@ public class PersonMergingApiController extends AbstractApiController {
 	 * @param authorshipRepository the repository for authorships.
 	 * @param supervisionRepository the repository for supervisions.
 	 * @param juryMembershipRepository the repository for jury memberships.
+	 * @param invitationRepository the repository for person invitations.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PersonMergingApiController(
@@ -95,6 +99,7 @@ public class PersonMergingApiController extends AbstractApiController {
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired SupervisionRepository supervisionRepository,
 			@Autowired JuryMembershipRepository juryMembershipRepository,
+			@Autowired PersonInvitationRepository invitationRepository,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.mergingService = mergingService;
@@ -102,6 +107,7 @@ public class PersonMergingApiController extends AbstractApiController {
 		this.authorshipRepository = authorshipRepository;
 		this.supervisionRepository = supervisionRepository;
 		this.juryMembershipRepository = juryMembershipRepository;
+		this.invitationRepository = invitationRepository;
 	}
 
 	/** Merge multiple persons into the database.
@@ -169,6 +175,8 @@ public class PersonMergingApiController extends AbstractApiController {
 						personJson.put("supervisions", Integer.valueOf(supCount)); //$NON-NLS-1$
 						final int juryCount = this.juryMembershipRepository.countDistinctByPersonId(pid);
 						personJson.put("jurys", Integer.valueOf(juryCount)); //$NON-NLS-1$
+						final int invCount = this.invitationRepository.countDistinctByGuestIdOrInviterId(pid, pid);
+						personJson.put("invitations", Integer.valueOf(invCount)); //$NON-NLS-1$
 						personJson.put("lockedForDeletion", Boolean.valueOf( //$NON-NLS-1$
 								mbrCount > 0 || autCount > 0 || supCount > 0 || juryCount > 0));
 						duplicateJson.add(personJson);

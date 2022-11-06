@@ -39,4 +39,12 @@ public interface PersonInvitationRepository extends JpaRepository<PersonInvitati
 	 */
 	List<PersonInvitation> findAllByGuestIdOrInviterId(int guestId, int inviterId);
 
+	/** Count the number of persons in the invitations whatever if he/she is invitee or inviter.
+	 *
+	 * @param guestId the identifier of the guest.
+	 * @param inviterId the identifier of the inviter.
+	 * @return the count of invitations
+	 */
+	int countDistinctByGuestIdOrInviterId(int guestId, int inviterId);
+
 }
