@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.configuration;
 import javax.annotation.PostConstruct;
 
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.invitation.PersonInvitationComparator;
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.MembershipComparator;
@@ -72,6 +73,9 @@ public class EntityComparatorInjector {
 	private JuryMembershipComparator juryMembershipComparator;
 
 	@Autowired
+	private PersonInvitationComparator personInvitationComparator;
+
+	@Autowired
 	private SupervisorComparator supervisorComparator;
 
 	@Autowired
@@ -90,6 +94,7 @@ public class EntityComparatorInjector {
 		EntityUtils.setPreferredPublicationComparator(this.publicationComparator);
 		EntityUtils.setPreferredJournalComparator(this.journalComparator);
 		EntityUtils.setPreferredJuryMembershipComparator(this.juryMembershipComparator);
+		EntityUtils.setPreferredPersonInvitationComparator(this.personInvitationComparator);
 		EntityUtils.setPreferredSupervisorComparator(this.supervisorComparator);
 		EntityUtils.setPreferredSupervisionComparator(this.supervisionComparator);
 	}

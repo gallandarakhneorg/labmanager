@@ -40,6 +40,7 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.indicator.GlobalIndicators;
+import fr.ciadlab.labmanager.entities.invitation.PersonInvitation;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.jury.JuryMembership;
@@ -57,6 +58,7 @@ import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
 import fr.ciadlab.labmanager.repository.indicator.GlobalIndicatorsRepository;
+import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.jury.JuryMembershipRepository;
@@ -122,6 +124,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private SupervisionRepository supervisionRepository;
 
+	private PersonInvitationRepository invitationRepository;
+
 	private GlobalIndicatorsRepository globalIndicatorsRepository;
 
 	private final Multimap<String, String> fieldAliases = LinkedListMultimap.create();
@@ -145,6 +149,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param personNameParser the parser of person names.
 	 * @param juryMembershipRepository the repository of jury memberships.
 	 * @param supervisionRepository the repository of supervisions.
+	 * @param invitationRepository the repository of invitations.
 	 * @param globalIndicatorsRepository the repository of the global indicators.
 	 */
 	public JsonToDatabaseImporter(
@@ -163,6 +168,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired PersonNameParser personNameParser,
 			@Autowired JuryMembershipRepository juryMembershipRepository,
 			@Autowired SupervisionRepository supervisionRepository,
+			@Autowired PersonInvitationRepository invitationRepository,
 			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository) {
 		this.sessionFactory = sessionFactory;
 		this.addressRepository = addressRepository;
@@ -179,6 +185,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.personNameParser = personNameParser;
 		this.juryMembershipRepository = juryMembershipRepository;
 		this.supervisionRepository = supervisionRepository;
+		this.invitationRepository = invitationRepository;
 		this.globalIndicatorsRepository = globalIndicatorsRepository;
 		initializeFieldAliases();
 	}
@@ -367,7 +374,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				+ stats.organizationMemberships + " organization memberships;\n" //$NON-NLS-1$
 				+ stats.publications + " publications;\n" //$NON-NLS-1$
 				+ stats.juryMemberships + " jury memberships;\n" //$NON-NLS-1$
-				+ stats.supervisions + " supervisions."); //$NON-NLS-1$
+				+ stats.supervisions + " supervisions;\n" //$NON-NLS-1$
+				+ stats.invitations + " invitations."); //$NON-NLS-1$
 	}
 
 	/** Run the importer for JSON data source only.
@@ -428,7 +436,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final int nb5 = added != null ? added.getRight().intValue() : 0;
 				final int nb7 = insertJuryMemberships(session, content.get(JURY_MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
 				final int nb8 = insertSupervisions(session, content.get(SUPERVISIONS_SECTION), objectRepository, aliasRepository);
-				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8);
+				final int nb9 = insertInvitations(session, content.get(INVITATIONS_SECTION), objectRepository, aliasRepository);
+				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8, nb9);
 			}
 		}
 		return new Stats();
@@ -1364,6 +1373,78 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return nbNew;
 	}
 
+	/** Create the invitations in the database.
+	 *
+	 * @param session the JPA session for managing transactions.
+	 * @param invitations the list of invitations in the Json source.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
+	 * @param aliasRepository the repository of field aliases.
+	 * @return the number of new supervisions in the database.
+	 * @throws Exception if a supervision cannot be created.
+	 */
+	protected int insertInvitations(Session session, JsonNode invitations, Map<String, Integer> objectIdRepository,
+			Map<String, Set<String>> aliasRepository) throws Exception {
+		int nbNew = 0;
+		if (invitations != null && !invitations.isEmpty()) {
+			getLogger().info("Inserting " + invitations.size() + " invitations..."); //$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (JsonNode invitationObject : invitations) {
+				getLogger().info("> Invitations " + (i + 1) + "/" + invitations.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final String id = getId(invitationObject);
+					PersonInvitation invitation = createObject(PersonInvitation.class, invitationObject, aliasRepository, null);
+					if (invitation != null) {
+						session.beginTransaction();
+						// Guest
+						final String guestId = getRef(invitationObject.get(GUEST_KEY));
+						if (Strings.isNullOrEmpty(guestId)) {
+							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						final Integer guestDbId = objectIdRepository.get(guestId);
+						if (guestDbId == null || guestDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						final Optional<Person> targetGuest = this.personRepository.findById(guestDbId);
+						if (targetGuest.isEmpty()) {
+							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						invitation.setGuest(targetGuest.get());
+						// Inviter
+						final String inviterId = getRef(invitationObject.get(INVITER_KEY));
+						if (Strings.isNullOrEmpty(inviterId)) {
+							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						final Integer inviterDbId = objectIdRepository.get(inviterId);
+						if (inviterDbId == null || inviterDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						final Optional<Person> targetInviter = this.personRepository.findById(inviterDbId);
+						if (targetInviter.isEmpty()) {
+							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
+						}
+						invitation.setInviter(targetInviter.get());
+						//
+						if (!isFake()) {
+							this.invitationRepository.save(invitation);
+						}
+						++nbNew;
+						getLogger().info("  + " + invitation.getGuest().getFullName() //$NON-NLS-1$
+								+ " - " + invitation.getInviter().getFullName() //$NON-NLS-1$
+								+ " (id: " + invitation.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Integer.valueOf(invitation.getId()));
+						}
+						session.getTransaction().commit();
+					}
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(INVITATIONS_SECTION, i, invitationObject, ex);
+				}
+				++i;
+			}
+		}
+		return nbNew;
+	}
+
 	/** Callback for files that are associated to elements from the JSON.
 	 * 
 	 * @author $Author: sgalland$
@@ -1447,6 +1528,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 */
 		public final int supervisions;
 
+		/** Number of created invitations.
+		 */
+		public final int invitations;
+
 		/** Constructor.
 		 *
 		 * @param addresses the number of created addresses.
@@ -1458,9 +1543,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param publications the number of created publications.
 		 * @param juryMemberships the number of created jury memberships.
 		 * @param supervisions the number of supervisions.
+		 * @param invitations the number of invitations.
 		 */
 		Stats(int addresses, int organizations, int journals, int persons, int authors, int memberships, int publications,
-				int juryMemberships, int supervisions) {
+				int juryMemberships, int supervisions, int invitations) {
 			this.addresses = addresses;
 			this.organizations = organizations;
 			this.journals = journals;
@@ -1470,12 +1556,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 			this.publications = publications;
 			this.juryMemberships = juryMemberships;
 			this.supervisions = supervisions;
+			this.invitations = invitations;
 		}
 
 		/** Constructor.
 		 */
 		Stats() {
-			this(0, 0, 0, 0, 0, 0, 0, 0, 0);
+			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		}
 
 	}

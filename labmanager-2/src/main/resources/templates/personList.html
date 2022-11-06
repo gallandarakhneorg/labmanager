@@ -143,6 +143,18 @@
            		   th:id="${'btEditJuryMemberships' + person.id}"
            		   th:title="#{html.EditJuryMemberships(${person.fullName})}"
                    style="font-size:14pt"></span>
+            	<a th:href="@{/personInvitationEditor(person=${person.id})}"
+				   th:if="${changeEnabled}"
+				   class="noLink admin-tool-buttons">
+            		<span class="fa-solid fa-plane"
+            		   th:title="#{html.EditInvitations(${person.fullName})}"
+                       style="font-size:14pt"></span>
+            	</a>
+           		<span class="fa fa-plane admin-tool-buttons"
+				   th:unless="${changeEnabled}"
+           		   th:id="${'btEditInvitations' + person.id}"
+           		   th:title="#{html.EditInvitations(${person.fullName})}"
+                   style="font-size:14pt"></span>
             </td>
         </tr>
     </tbody>
@@ -167,7 +179,7 @@
             	{ }
     		],
     		order: [ [2, 'asc'], [3, 'asc'] ],
-    		actionWidth: '210px',
+    		actionWidth: '250px',
     	});
         /*[# th:if="${changeEnabled}" th:each="person : ${persons}"]*/
 		attachDeletionHandler({

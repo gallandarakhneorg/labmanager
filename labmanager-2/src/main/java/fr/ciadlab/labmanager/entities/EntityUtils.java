@@ -24,6 +24,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import fr.ciadlab.labmanager.entities.invitation.PersonInvitationComparator;
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
 import fr.ciadlab.labmanager.entities.member.Membership;
@@ -90,6 +91,8 @@ public final class EntityUtils {
 	private static JournalComparator JOURNAL_COMPARATOR; 
 
 	private static JuryMembershipComparator JURY_MEMBERSHIP_COMPARATOR; 
+
+	private static PersonInvitationComparator PERSON_INVITATION_COMPARATOR; 
 
 	private static SupervisorComparator SUPERVISOR_COMPARATOR; 
 
@@ -408,6 +411,29 @@ public final class EntityUtils {
 	public static void setPreferredJuryMembershipComparator(JuryMembershipComparator comparator) {
 		synchronized (EntityUtils.class) {
 			JURY_MEMBERSHIP_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of person invitations.
+	 *
+	 * @return the comparator.
+	 */
+	public static PersonInvitationComparator getPreferredPersonInvitationComparator() {
+		synchronized (EntityUtils.class) {
+			if (PERSON_INVITATION_COMPARATOR == null) {
+				PERSON_INVITATION_COMPARATOR = new PersonInvitationComparator(getPreferredPersonComparator());
+			}
+			return PERSON_INVITATION_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of person invitations.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredPersonInvitationComparator(PersonInvitationComparator comparator) {
+		synchronized (EntityUtils.class) {
+			PERSON_INVITATION_COMPARATOR = comparator;
 		}
 	}
 

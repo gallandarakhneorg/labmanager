@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.entities.jury;
+package fr.ciadlab.labmanager.entities.invitation;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -26,18 +26,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-/** Comparator of jury memberships. First the years are considered in the
- * sort, Then, types and the persons are used from the highest to the lowest.
+/** Comparator of person invitations.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 2.2
  */
 @Component
 @Primary
-public class JuryMembershipComparator implements Comparator<JuryMembership> {
+public class PersonInvitationComparator implements Comparator<PersonInvitation> {
 
 	private PersonComparator personComparator;
 
@@ -45,12 +44,12 @@ public class JuryMembershipComparator implements Comparator<JuryMembership> {
 	 *
 	 * @param personComparator the comparator of persons names.
 	 */
-	public JuryMembershipComparator(@Autowired PersonComparator personComparator) {
+	public PersonInvitationComparator(@Autowired PersonComparator personComparator) {
 		this.personComparator = personComparator;
 	}
 
 	@Override
-	public int compare(JuryMembership o1, JuryMembership o2) {
+	public int compare(PersonInvitation o1, PersonInvitation o2) {
 		if (o1 == o2) {
 			return 0;
 		}
@@ -60,11 +59,15 @@ public class JuryMembershipComparator implements Comparator<JuryMembership> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = compareDates(o1.getDate(), o2.getDate());
+		int n = compareDates(o1.getStartDate(), o2.getStartDate());
 		if (n != 0) {
 			return n;
 		}
-		n = compareMembershipTypes(o1.getType(), o2.getType());
+		n = compareDates(o1.getEndDate(), o2.getEndDate());
+		if (n != 0) {
+			return n;
+		}
+		n = compareInvitationTypes(o1.getType(), o2.getType());
 		if (n != 0) {
 			return n;
 		}
@@ -72,11 +75,11 @@ public class JuryMembershipComparator implements Comparator<JuryMembership> {
 		if (n != 0) {
 			return n;
 		}
-		n = compareDefenseTypes(o1.getDefenseType(), o2.getDefenseType());
+		n = this.personComparator.compare(o1.getGuest(), o2.getGuest());
 		if (n != 0) {
 			return n;
 		}
-		n = this.personComparator.compare(o1.getPerson(), o2.getPerson());
+		n = this.personComparator.compare(o1.getInviter(), o2.getInviter());
 		if (n != 0) {
 			return n;
 		}
@@ -118,20 +121,7 @@ public class JuryMembershipComparator implements Comparator<JuryMembership> {
 		return - d1.compareTo(d2);
 	}
 
-	private static int compareDefenseTypes(JuryType t1, JuryType t2) {
-		if (t1 == t2) {
-			return 0;
-		}
-		if (t1 == null) {
-			return Integer.MIN_VALUE;
-		}
-		if (t2 == null) {
-			return Integer.MAX_VALUE;
-		}
-		return t1.compareTo(t2);
-	}
-
-	private static int compareMembershipTypes(JuryMembershipType t1, JuryMembershipType t2) {
+	private static int compareInvitationTypes(PersonInvitationType t1, PersonInvitationType t2) {
 		if (t1 == t2) {
 			return 0;
 		}

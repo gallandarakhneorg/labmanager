@@ -172,6 +172,18 @@ public class Constants {
 	 */
 	public static final String JURY_MEMBERSHIP_DELETION_ENDPOINT = "deleteJuryMembership"; //$NON-NLS-1$
 
+	/** Name of the endpoint for editor of person invitations.
+	 */
+	public static final String PERSON_INVITATION_EDITING_ENDPOINT = "personInvitationEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving person invitations.
+	 */
+	public static final String PERSON_INVITATION_SAVING_ENDPOINT = "personInvitationSave"; //$NON-NLS-1$
+
+	/** Name of the endpoint for deleting a person invitation.
+	 */
+	public static final String PERSON_INVITATION_DELETION_ENDPOINT = "deletePersonInvitation"; //$NON-NLS-1$
+
 	/** Name of the endpoint for editor of person supervisions.
 	 * @since 2.1
 	 */

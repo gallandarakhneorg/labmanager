@@ -93,6 +93,10 @@ public abstract class JsonTool {
 	 */
 	public static final String SUPERVISIONS_SECTION = "supervisions"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to invitations.
+	 */
+	public static final String INVITATIONS_SECTION = "invitations"; //$NON-NLS-1$
+
 	/** Name of the field that contains the source of the data. Value of this field may be
 	 * {@code :db} or the name of the source.
 	 */
@@ -190,6 +194,10 @@ public abstract class JsonTool {
 	 */
 	protected  static final String SUPERVISION_ID_PREFIX = "/supervis#"; //$NON-NLS-1$
 
+	/** Prefix for invitation identifiers.
+	 */
+	protected  static final String INVITATION_ID_PREFIX = "/invit#"; //$NON-NLS-1$
+
 	/** Prefix for person identifiers.
 	 */
 	protected  static final String PERSON_ID_PREFIX = "/pers#"; //$NON-NLS-1$
@@ -241,6 +249,14 @@ public abstract class JsonTool {
 	/** Name of the field for the person reference.
 	 */
 	protected static final String PERSON_KEY = "person"; //$NON-NLS-1$
+
+	/** Name of the field for the guest person reference.
+	 */
+	protected static final String GUEST_KEY = "guest"; //$NON-NLS-1$
+
+	/** Name of the field for the inviter person reference.
+	 */
+	protected static final String INVITER_KEY = "inviter"; //$NON-NLS-1$
 
 	/** Name of the field for a percentage.
 	 */
