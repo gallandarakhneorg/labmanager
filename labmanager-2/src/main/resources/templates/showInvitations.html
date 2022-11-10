@@ -37,14 +37,6 @@
 	            	<th:block th:unless="${invitation.guest.webPageURI != null}"
 	            	          th:utext="${invitation.guest.fullNameWithLastNameFirst}"></th:block>
             	</th:block>
-            	<th:block th:if="${invitation.type.outgoing}">
-	            	<a th:href="${invitation.inviter.webPageURI}"
-	            	   th:if="${invitation.inviter.webPageURI != null}"
-	            	   class="simpleLink"
-	            	   th:utext="${invitation.inviter.fullNameWithLastNameFirst}"></a>
-	            	<th:block th:unless="${invitation.inviter.webPageURI != null}"
-	            	          th:utext="${invitation.inviter.fullNameWithLastNameFirst}"></th:block>
-            	</th:block>
             </td>
             <td>
             	<div class="publicationTitle" th:utext="${invitation.title}"></div>
