@@ -294,7 +294,7 @@ public class PersonViewController extends AbstractViewController {
 			uriBuilder.scheme(currentUri.getScheme());
 			uriBuilder.host(currentUri.getHost());
 			uriBuilder.port(currentUri.getPort());
-			uriBuilder.queryParam(Constants.PERSON_ENDPOINT_PARAMETER, Integer.toString(personObj.getId()));
+			uriBuilder.queryParam(Constants.DBID_ENDPOINT_PARAMETER, Integer.toString(personObj.getId()));
 			uriBuilder.queryParam(Constants.INATTACHMENT_ENDPOINT_PARAMETER, Boolean.TRUE.toString());
 			if (organizationObj != null) {
 				uriBuilder.queryParam(Constants.ORGANIZATION_ENDPOINT_PARAMETER, Integer.toString(organizationObj.getId()));

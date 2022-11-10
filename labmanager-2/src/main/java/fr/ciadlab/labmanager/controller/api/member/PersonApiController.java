@@ -153,7 +153,7 @@ public class PersonApiController extends AbstractApiController {
 	 * @throws Exception if the person cannot be saved.
 	 */
 	@PutMapping(value = "/" + Constants.PERSON_SAVING_ENDPOINT)
-	public void savePerson(
+	public void personSave(
 			@RequestParam(required = false) Integer person,
 			@RequestParam(required = true) String firstName,
 			@RequestParam(required = true) String lastName,
@@ -251,7 +251,7 @@ public class PersonApiController extends AbstractApiController {
 	 * @return the Vcard.
 	 */
 	@GetMapping(value = "/" + Constants.PERSON_VCARD_ENDPOINT)
-	public ResponseEntity<String> getPersonVcard(
+	public ResponseEntity<String> personVcard(
 			@RequestParam(required = false) Integer dbId,
 			@RequestParam(required = false) String webId,
 			@RequestParam(required = false) String organization,
