@@ -71,6 +71,10 @@ function initMemberDataTable(config) {
 					if (key in config['statusLabels'] && config['statusLabels'][key]) {
 						return config['statusLabels'][key];
 					}
+					key = data + '_OTHER';
+					if (key in config['statusLabels'] && config['statusLabels'][key]) {
+						return config['statusLabels'][key];
+					}
 					return '';
 				},
 				searchPanes: {
@@ -82,6 +86,10 @@ function initMemberDataTable(config) {
 				defaultContent: '',
 				render: (data, type, row) => {
 					var key = data + '_' + row.person.gender;
+					if (key in config['responsibilityLabels'] && config['responsibilityLabels'][key]) {
+						return config['responsibilityLabels'][key];
+					}
+					key = data + '_OTHER';
 					if (key in config['responsibilityLabels'] && config['responsibilityLabels'][key]) {
 						return config['responsibilityLabels'][key];
 					}
