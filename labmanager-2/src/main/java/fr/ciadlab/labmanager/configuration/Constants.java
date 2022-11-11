@@ -205,6 +205,10 @@ public class Constants {
 	 */
 	public static final String PERSON_ENDPOINT_PARAMETER = "person"; //$NON-NLS-1$
 
+	/** Name of the name of an endpoint parameter for representing a personId.
+	 */
+	public static final String PERSONID_ENDPOINT_PARAMETER = "personId"; //$NON-NLS-1$
+
 	/** Name of the endpoint for list of journals.
 	 *
 	 * @see #JOURNAL_SAVING_ENDPOINT
@@ -287,6 +291,10 @@ public class Constants {
 	/** Name of the endpoint for saving a membership.
 	 */
 	public static final String MEMBERSHIP_SAVING_ENDPOINT = "saveMembership"; //$NON-NLS-1$
+
+	/** Name of the endpoint for editing a membership.
+	 */
+	public static final String MEMBERSHIP_EDITING_ENDPOINT = "membershipEditor"; //$NON-NLS-1$
 
 	/** Name of the endpoint for obtaining the JSON of the members of an organization.
 	 */

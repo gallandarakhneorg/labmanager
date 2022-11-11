@@ -71,7 +71,8 @@
 		</div>
 	</th:block>
 	<th:block th:each="membership : ${sortedMemberships}">
-		<div th:class="${'form-super-group ' + (membership.former ? 'form-super-group-finished' : ((membership.future ? 'form-super-group-future' : 'form-super-group-active')))}">
+		<div th:id="${'editorblock' + membership.id}"
+		     th:class="${'form-super-group ' + (membership.former ? 'form-super-group-finished' : ((membership.future ? 'form-super-group-future' : 'form-super-group-active')))}">
 			<div class="form-group" th:replace="fragments/form :: comboInput*(${'organization_' + membership.id}, #{html.Organization}, ~{::option#option-organization})">
 				<option id="option-organization"
 				        th:each="organization : ${organizations}"
@@ -231,5 +232,13 @@ $(document).ready(function () {
     	/*[/]*/
     /*[/]*/
 });
+/*[# th:if="${gotoName != null}"]*/
+$(window).on('load', () => {
+	setTimeout( () => {
+	    const gotoElement = document.getElementById("[(${'editorblock' + gotoName})]");
+	    gotoElement.scrollIntoView();
+	}, 200);
+});
+/*[/]*/
 </script>
 </html>

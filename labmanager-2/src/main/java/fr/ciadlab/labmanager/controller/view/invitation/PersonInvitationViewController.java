@@ -88,12 +88,14 @@ public class PersonInvitationViewController extends AbstractViewController {
 	/** Replies the model-view component for showing the person invitations.
 	 *
 	 * @param person the identifier of the person for who the jury memberships must be edited.
+	 * @param gotoName the name of the anchor to go to in the view.
 	 * @param username the name of the logged-in user.
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + Constants.PERSON_INVITATION_EDITING_ENDPOINT)
 	public ModelAndView personInvitationEditor(
 			@RequestParam(required = true) int person,
+			@RequestParam(required = false, name = "goto") String gotoName,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.PERSON_INVITATION_EDITING_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PERSON_INVITATION_EDITING_ENDPOINT);
@@ -115,7 +117,7 @@ public class PersonInvitationViewController extends AbstractViewController {
 		//
 		modelAndView.addObject("savingUrl", rooted(Constants.PERSON_INVITATION_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("deletionUrl", rooted(Constants.PERSON_INVITATION_DELETION_ENDPOINT)); //$NON-NLS-1$
-
+		modelAndView.addObject("gotoName", inString(gotoName)); //$NON-NLS-1$
 		return modelAndView;
 	}
 
@@ -148,6 +150,10 @@ public class PersonInvitationViewController extends AbstractViewController {
 		modelAndView.addObject("invitations", sortedInvitations); //$NON-NLS-1$
 		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
 		modelAndView.addObject("typeLabelKeyOrdering", PersonInvitation.getAllLongTypeLabelKeys()); //$NON-NLS-1$
+		if (isLoggedIn()) {
+			modelAndView.addObject("editionUrl", endpoint(Constants.PERSON_INVITATION_EDITING_ENDPOINT, //$NON-NLS-1$
+					Constants.PERSON_ENDPOINT_PARAMETER, Integer.valueOf(personObj.getId())));
+		}
 		return modelAndView;
 	}
 

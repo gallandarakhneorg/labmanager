@@ -7,6 +7,9 @@
 	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
 </th:block>
 <th:block th:replace="fragments/table :: publicTable"/>
+<th:block th:if="${editionUrl != null}">
+	<a th:href="${editionUrl}" class="btn btn-warning mt-4 pr-4 pl-4"><span class="fa-solid fa-pen"></span><th:block th:utext="#{html.ChangeJuruMemberships}"></th:block></a>
+</th:block>
 <div class="table table-responsive">
     <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
         <thead>
@@ -35,6 +38,7 @@
             	   th:utext="${membership.candidate.fullNameWithLastNameFirst}"></a>
             	<th:block th:unless="${membership.candidate.webPageURI != null}"
             	          th:utext="${membership.candidate.fullNameWithLastNameFirst}"></th:block>
+				<th:block th:if="${editionUrl != null}"><a th:href="${editionUrl + '&goto=' + membership.id}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
             </td>
             <td>
             	<div class="publicationTitle" th:utext="${membership.title}"></div>

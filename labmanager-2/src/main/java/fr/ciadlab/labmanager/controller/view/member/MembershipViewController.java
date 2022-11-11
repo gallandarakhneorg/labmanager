@@ -110,17 +110,19 @@ public class MembershipViewController extends AbstractViewController {
 	 *      provided, {@code personId} must be provided.
 	 * @param personId the identifier of the person for who memberships must be edited. If this argument is not
 	 *      provided, {@code personName} must be provided.
+	 * @param gotoName the name of the anchor to go to in the view.
 	 * @param username the name of the logged-in user.
-	 * @param locale the current locale.
+	 * @param locale the locale to be used.
 	 * @return the model-view that shows the duplicate persons.
 	 */
-	@GetMapping("/membershipEditor")
+	@GetMapping("/" + Constants.MEMBERSHIP_EDITING_ENDPOINT)
 	public ModelAndView showMembershipEditor(
 			@RequestParam(required = false) String personName,
 			@RequestParam(required = false) Integer personId,
+			@RequestParam(required = false, name = "goto") String gotoName,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username,
 			Locale locale) {
-		ensureCredentials(username, "membershipEditor"); //$NON-NLS-1$
+		ensureCredentials(username, Constants.MEMBERSHIP_EDITING_ENDPOINT);
 		//
 		final String inPersonName = inString(personName);
 		if (Strings.isNullOrEmpty(inPersonName) && personId == null) {
@@ -138,7 +140,7 @@ public class MembershipViewController extends AbstractViewController {
 			throw new IllegalArgumentException("Person not found"); //$NON-NLS-1$
 		}
 		//
-		final ModelAndView modelAndView = new ModelAndView("membershipEditor"); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView(Constants.MEMBERSHIP_EDITING_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		final List<Membership> memberships = person.getMemberships().stream().sorted(this.membershipComparator).collect(Collectors.toList());
@@ -206,6 +208,7 @@ public class MembershipViewController extends AbstractViewController {
 		modelAndView.addObject("person", person); //$NON-NLS-1$
 		modelAndView.addObject("sortedMemberships", memberships); //$NON-NLS-1$
 		modelAndView.addObject("organizations", sortedOrganizations); //$NON-NLS-1$
+		modelAndView.addObject("gotoName", inString(gotoName)); //$NON-NLS-1$
 		return modelAndView;
 	}
 

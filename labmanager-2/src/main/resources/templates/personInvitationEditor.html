@@ -39,7 +39,7 @@
 		</div>
 	</th:block>
 	<th:block th:each="invitation : ${sortedInvitations}">
-		<div class="form-super-group form-super-group-active">
+		<div th:id="${'editorblock' + invitation.id}" class="form-super-group form-super-group-active">
 			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(${'guest_' + invitation.id}, #{html.Guest})"></div>
 			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(${'inviter_' + invitation.id}, #{html.Inviter})"></div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(${'type_' + invitation.id}, #{html.InvitationType}, ~{::option#option-type})">
@@ -174,5 +174,13 @@ $(document).ready(function () {
     });
     /*[/]*/
 });
+/*[# th:if="${gotoName != null}"]*/
+$(window).on('load', () => {
+	setTimeout( () => {
+	    const gotoElement = document.getElementById("[(${'editorblock' + gotoName})]");
+	    gotoElement.scrollIntoView();
+	}, 200);
+});
+/*[/]*/
 </script>
 </html>

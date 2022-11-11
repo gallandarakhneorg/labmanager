@@ -83,6 +83,7 @@ function formatPublicationDetails(d, config) {
  *       number of publications in total in the table.
  *     * `infoTextId` the identifier of the HTML element that should contains the table information (see `infoText`).
  *       Default is `tableInfos`.
+ *     * `editionUrl` the URL for editing the publication. The URL will be completed with "=<PUBLICATION_ID>".
  *     * `publicationDescription` a function that generate the HTML code for showing a publication in the main part of the table.
  *       If it is not provided, a default rendering is used. Three arguments are provided to this function: the
  *       data itself, the type, the row data provided by the backend.
@@ -102,9 +103,16 @@ function initPublicationDataTable(config) {
 	(!('enableAuthorFilter' in config)) && (config['enableAuthorFilter'] = true);
 	(!('infoTextId' in config)) && (config['infoTextId'] = 'tableInfos');
 	(!('publicationDescription' in config)) && (config['publicationDescription'] = (data, type, row) => {
-		return '<p class="publicationTitle">' + row.title + '</p><p class="publicationAuthors">'
+		var cnt = '<p><span class="publicationTitle">' + row.title + '</span>';
+		if (config['editionUrl']) {
+		    cnt += "<a href=\"";
+		    cnt += config['editionUrl'] + '=' + row.id;
+		    cnt += "\" class=\"noLink\"><span class=\"fa-solid fa-pen\"></span></a>";
+		}
+		cnt += '</p><p class="publicationAuthors">'
 			+ row.htmlAuthors + '</p><p class="publicationDetails">'
 			+ row.htmlPublicationDetails + '. ' + row.publicationYear + '.</p>';
+		return cnt;
 	});
 	(!('publicationDetails' in config)) && (config['publicationDetails'] = formatPublicationDetails);
 	(!('enableDetails' in config)) && (config['enableDetails'] = true);
@@ -216,7 +224,7 @@ function initPublicationDataTable(config) {
 			var td = $(event.target);
 			__doOpenOrClosePublicationDetails(config, dtable, td, td, null);
 		});
-		$(document).on('click', "tbody td p.publicationTitle", (event) => {
+		$(document).on('click', "tbody td span.publicationTitle", (event) => {
 			var td = $(event.target);
 			__doOpenOrClosePublicationDetails(config, dtable, td, null, td);
 		});
@@ -232,7 +240,7 @@ function __doOpenOrClosePublicationDetails(config, dtable, td, icontd, titletd) 
 			icontd = tr.find("td.details-control");
 		}
 		if (!titletd) {
-			titletd = tr.find("td p.publicationTitle");
+			titletd = tr.find("td span.publicationTitle");
 		}
 		if (row.child.isShown()) {
 			icontd.removeClass('opened');

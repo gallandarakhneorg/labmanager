@@ -88,7 +88,7 @@ td.details-control:before {
 td.details-control.opened:before {
 	content: "\f2d3";
 }
-td p.publicationTitle {
+td span.publicationTitle {
     cursor: pointer;
 }
 td.details-control {

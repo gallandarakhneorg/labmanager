@@ -44,7 +44,7 @@
 		</div>
 	</th:block>
 	<th:block th:each="membership : ${sortedMemberships}">
-		<div class="form-super-group form-super-group-active">
+		<div th:id="${'editorblock' + membership.id}" class="form-super-group form-super-group-active">
 			<div class="form-group" th:replace="fragments/form :: dateInput(${'date_' + membership.id}, #{html.Date}, ${membership.date == null ? '' : membership.date.toString})"></div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(${'type_' + membership.id}, #{html.PositionType}, ~{::option#option-type})">
 				<option id="option-type"
@@ -129,7 +129,7 @@ function addSavingButtonCallback(membershipId, isNewMembership) {
 		},
 	});
 }
-$(document).ready(function () {
+$(document).ready(() => {
 	var completeListOfPersons = [
         /*[# th:each="person : ${allPersons}"]*/
         	{ id: "[(${person.id})]", text: "[(${person.fullName})]" },
@@ -189,5 +189,13 @@ $(document).ready(function () {
     });
     /*[/]*/
 });
+/*[# th:if="${gotoName != null}"]*/
+$(window).on('load', () => {
+	setTimeout( () => {
+	    const gotoElement = document.getElementById("[(${'editorblock' + gotoName})]");
+	    gotoElement.scrollIntoView();
+	}, 200);
+});
+/*[/]*/
 </script>
 </html>

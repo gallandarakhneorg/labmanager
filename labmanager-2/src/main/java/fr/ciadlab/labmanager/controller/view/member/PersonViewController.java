@@ -148,7 +148,7 @@ public class PersonViewController extends AbstractViewController {
 			@RequestParam(required = false) Integer person,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.PERSON_EDITING_ENDPOINT, person);
-		final ModelAndView modelAndView = new ModelAndView("personEditor"); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView(Constants.PERSON_EDITING_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
 		//
 		final Person personObj;
@@ -192,6 +192,7 @@ public class PersonViewController extends AbstractViewController {
 	 * @param qindexes indicates if the Q-indexes should be shown on the card.
 	 * @param links indicates if the links to external sites should be shown on the card.
 	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
+	 * @param username the name of the logged-in user.
 	 * @return the model-view object.
 	 */
 	@GetMapping(value = "/showPersonCard")
@@ -211,7 +212,9 @@ public class PersonViewController extends AbstractViewController {
 			@RequestParam(required = false, defaultValue="true") boolean postalAddress,
 			@RequestParam(required = false, defaultValue="true") boolean qindexes,
 			@RequestParam(required = false, defaultValue="true") boolean links,
-			@RequestParam(required = false, defaultValue="false") boolean embedded) {
+			@RequestParam(required = false, defaultValue="false") boolean embedded,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		readCredentials(username, "showPersonCard", dbId, webId, organization); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("showPersonCard"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
@@ -313,6 +316,12 @@ public class PersonViewController extends AbstractViewController {
 		modelAndView.addObject("enableQindexes", Boolean.valueOf(qindexes)); //$NON-NLS-1$
 		modelAndView.addObject("enableLinks", Boolean.valueOf(links)); //$NON-NLS-1$
 		//
+		if (isLoggedIn()) {
+			modelAndView.addObject("personEditionUrl", endpoint(Constants.PERSON_EDITING_ENDPOINT, //$NON-NLS-1$
+					Constants.PERSON_ENDPOINT_PARAMETER, Integer.valueOf(personObj.getId())));
+			modelAndView.addObject("membershipEditionUrl", endpoint(Constants.MEMBERSHIP_EDITING_ENDPOINT, //$NON-NLS-1$
+					Constants.PERSONID_ENDPOINT_PARAMETER, Integer.valueOf(personObj.getId())));
+		}
 		return modelAndView;
 	}
 

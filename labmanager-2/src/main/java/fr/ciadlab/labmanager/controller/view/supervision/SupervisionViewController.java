@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.controller.view.supervision;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -26,6 +27,7 @@ import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
@@ -96,12 +98,14 @@ public class SupervisionViewController extends AbstractViewController {
 	/** Replies the model-view component for showing the persons independently of the organization memberships.
 	 *
 	 * @param person the identifier of the person for who the jury memberships must be edited.
+	 * @param gotoName the name of the anchor to go to in the view.
 	 * @param username the name of the logged-in user.
 	 * @return the model-view component.
 	 */
 	@GetMapping("/" + Constants.SUPERVISION_EDITING_ENDPOINT)
 	public ModelAndView supervisionEditor(
 			@RequestParam(required = true) int person,
+			@RequestParam(required = false, name = "goto") String gotoName,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.SUPERVISION_EDITING_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.SUPERVISION_EDITING_ENDPOINT);
@@ -128,7 +132,7 @@ public class SupervisionViewController extends AbstractViewController {
 		//
 		modelAndView.addObject("savingUrl", rooted(Constants.SUPERVISION_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("deletionUrl", rooted(Constants.SUPERVISION_DELETION_ENDPOINT)); //$NON-NLS-1$
-		//
+		modelAndView.addObject("gotoName", inString(gotoName)); //$NON-NLS-1$
 		return modelAndView;
 	}
 
@@ -189,6 +193,17 @@ public class SupervisionViewController extends AbstractViewController {
 		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
 		modelAndView.addObject("typeLabelKeyOrdering", Supervision.getAllLongTypeLabelKeys(personObj.getGender())); //$NON-NLS-1$
 		modelAndView.addObject("preferredSupervisorComparator", EntityUtils.getPreferredSupervisorComparator()); //$NON-NLS-1$
+		if (isLoggedIn()) {
+			modelAndView.addObject("editionUrl", endpoint(Constants.SUPERVISION_EDITING_ENDPOINT, //$NON-NLS-1$
+					Constants.PERSON_ENDPOINT_PARAMETER));
+			modelAndView.addObject("personAdditionUrl", endpoint(Constants.PERSON_EDITING_ENDPOINT)); //$NON-NLS-1$
+			final Optional<Membership> organizationMbr = personObj.getSupervisorMemberships().stream()
+					.filter(it -> !it.isFuture() && it.isMainPosition()).min(EntityUtils.getPreferredMembershipComparator());
+			if (organizationMbr.isPresent()) {
+				final ResearchOrganization org = organizationMbr.get().getResearchOrganization();
+				modelAndView.addObject("organization", org); //$NON-NLS-1$
+			}
+		}
 		return modelAndView;
 	}
 

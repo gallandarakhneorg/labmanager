@@ -8,7 +8,12 @@
 </th:block>
 <th:block th:replace="fragments/libs :: bootstrap-datatable"/>
 <script th:src="@{/js/labmanager/showpublications.js}"></script>
-
+<th:block th:if="${bibtexImportUrl != null}">
+	<a th:href="${bibtexImportUrl}" class="btn btn-warning mt-4 pr-4 pl-4"><span class="fa-solid fa-pen"></span><th:block th:utext="#{html.ImportBibTeX}"></th:block></a>
+</th:block>
+<th:block th:if="${additionUrl != null}">
+	<a th:href="${additionUrl}" class="btn btn-danger mt-4 pr-4 pl-4"><span class="fa-solid fa-pen"></span><th:block th:utext="#{html.AddPublicationManually}"></th:block></a>
+</th:block>
 <th:block th:if="${enableExports || enableSearch || enableSortChanges}">
 	<div class="row">
 	    <div th:if="${enableExports || enableSearch}"
@@ -106,6 +111,9 @@ $(document).ready(() => {
 	const dtableConfig = {
 		obj: $('#table' + tableId),
 		url: "[(${url})]",
+	    /*[# th:if="${editionUrl != null}"]*/
+		editionUrl: "[(${editionUrl})]",
+	    /*[/]*/
 		categoryLabels: {
 	        /*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
 			"[(${category.name})]": "[(${category.getLabel() + ' (' + category.name + ')'})]",
