@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.indicators.publication;
+package fr.ciadlab.labmanager.indicators.publication.count;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
@@ -24,7 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Count the number of journal papers ranked on WoS.
+/** Count the number of journal papers ranked on Scimago.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -33,7 +33,7 @@ import org.springframework.stereotype.Component;
  * @since 2.2
  */
 @Component
-public class WosJournalPaperCountIndicator extends AbstractRankedJournalPaperCountIndicator {
+public class ScimagoJournalPaperCountIndicator extends AbstractRankedJournalPaperCountIndicator {
 
 	/** Constructor.
 	 *
@@ -41,7 +41,7 @@ public class WosJournalPaperCountIndicator extends AbstractRankedJournalPaperCou
 	 * @param constants the accessor to the constants.
 	 * @param journalPaperService the service for accessing the journal papers.
 	 */
-	public WosJournalPaperCountIndicator(
+	public ScimagoJournalPaperCountIndicator(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired JournalPaperService journalPaperService) {
@@ -50,17 +50,17 @@ public class WosJournalPaperCountIndicator extends AbstractRankedJournalPaperCou
 
 	@Override
 	public JournalRankingSystem getJournalRankingSystem() {
-		return JournalRankingSystem.WOS;
+		return JournalRankingSystem.SCIMAGO;
 	}
 
 	@Override
 	public String getName() {
-		return getMessage("wosJournalPaperCountIndicator.name", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
+		return getMessage("scimagoJournalPaperCountIndicator.name", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithYears("wosJournalPaperCountIndicator.label", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
+		return getLabelWithYears("scimagoJournalPaperCountIndicator.label", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
 	}
 
 }

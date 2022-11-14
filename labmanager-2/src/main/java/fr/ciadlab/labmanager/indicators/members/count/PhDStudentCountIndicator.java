@@ -14,16 +14,18 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.indicators.publication;
+package fr.ciadlab.labmanager.indicators.members.count;
 
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
+import fr.ciadlab.labmanager.entities.member.MemberStatus;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.indicators.AbstractInstantIndicator;
 import fr.ciadlab.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Calculate the number of ranked papers per full-time equivalent (FTE) per year for WoS journals. 
+/** Count the number of current PhD students in a specific organization.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -32,29 +34,34 @@ import org.springframework.stereotype.Component;
  * @since 2.2
  */
 @Component
-public class WosJournalPaperFteRatioIndicator extends AbstractJournalPaperFteRatioIndicator<WosJournalPaperCountIndicator> {
+public class PhDStudentCountIndicator extends AbstractInstantIndicator {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
-	 * @param journalPaperService the service for accessing the journal papers.
 	 */
-	public WosJournalPaperFteRatioIndicator(
+	public PhDStudentCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired JournalPaperService journalPaperService) {
-		super(messages, constants, journalPaperService, new WosJournalPaperCountIndicator(messages, constants, journalPaperService));
+			@Autowired Constants constants) {
+		super(messages, constants);
 	}
 
 	@Override
 	public String getName() {
-		return getMessage("wosJournalPaperFteRatioIndicator.name"); //$NON-NLS-1$
+		return getMessage("phdStudentCountIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithYears("wosJournalPaperFteRatioIndicator.label"); //$NON-NLS-1$
+		return getLabelWithoutYears("phdStudentCountIndicator.label"); //$NON-NLS-1$
+	}
+
+	@Override
+	protected Number computeValue(ResearchOrganization organization) {
+		final long nb = organization.getMemberships().parallelStream().filter(
+				it -> it.isActive() && it.getMemberStatus() == MemberStatus.PHD_STUDENT).count();
+		return Long.valueOf(nb);
 	}
 
 }

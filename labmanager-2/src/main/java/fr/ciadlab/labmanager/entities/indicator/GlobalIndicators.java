@@ -229,7 +229,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	public void setValues(String values) {
 		this.values = Strings.emptyToNull(values);
 		this.valueCache = null;
-		this.lastUpdate = LocalDate.now();
+		this.lastUpdate = this.values != null ? LocalDate.now() : null;
 	}
 
 	/** Change the indicator values from the list of indicators.
@@ -246,7 +246,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 			final ObjectMapper mapper = new ObjectMapper();
 			this.values = mapper.writeValueAsString(cache);
 			this.valueCache = cache;
-			this.lastUpdate = LocalDate.now();
+			this.lastUpdate = cache.isEmpty() ? null : LocalDate.now();
 		} catch (Throwable ex) {
 			//
 		}

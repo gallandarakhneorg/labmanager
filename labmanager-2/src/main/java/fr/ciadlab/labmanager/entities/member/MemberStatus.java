@@ -74,6 +74,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return true;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
 	},
 	/** Research Director (Directeur de recherche).
 	 */
@@ -117,6 +121,10 @@ public enum MemberStatus {
 		@Override
 		public boolean isSupervisor() {
 			return true;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
 		}
 	},
 	/** Associate professor (maitre de conferences) with HDR.
@@ -162,6 +170,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return true;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
 	},
 	/** Associate professor (maitre de conferences) without HDR.
 	 */
@@ -205,6 +217,10 @@ public enum MemberStatus {
 		@Override
 		public boolean isSupervisor() {
 			return true;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
 		}
 	},
 	/** Contractual teacher-researcher (enseignant chercheur contractuel) with PhD.
@@ -250,6 +266,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return true;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
 	},
 	/** Contractual teacher-researcher (enseignant chercheur contractuel) without PhD.
 	 */
@@ -293,6 +313,10 @@ public enum MemberStatus {
 		@Override
 		public boolean isSupervisor() {
 			return true;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
 		}
 	},
 	/** Researcher (Chargé de recherche, LRU, etc.) with PhD.
@@ -338,6 +362,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return true;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
 	},
 	/** Researcher (Chargé de recherche, LRU, etc.) without PhD.
 	 */
@@ -381,6 +409,10 @@ public enum MemberStatus {
 		@Override
 		public boolean isSupervisor() {
 			return true;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
 		}
 	},
 	/** Postdoc.
@@ -426,6 +458,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return true;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
 	},
 	/** Research engineer (IGR) with PhD.
 	 */
@@ -469,6 +505,10 @@ public enum MemberStatus {
 		@Override
 		public boolean isSupervisor() {
 			return true;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
 		}
 	},
 	/** Research engineer (IGR) without PhD.
@@ -514,6 +554,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return true;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
 	},
 	/** PHD student.
 	 */
@@ -556,6 +600,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isSupervisor() {
+			return false;
+		}
+		@Override
+		public boolean isExternalPosition() {
 			return false;
 		}
 	},
@@ -602,6 +650,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return true;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
 	},
 	/** Engineer (IGE) without PhD.
 	 */
@@ -644,6 +696,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isSupervisor() {
+			return false;
+		}
+		@Override
+		public boolean isExternalPosition() {
 			return false;
 		}
 	},
@@ -690,6 +746,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return false;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
 	},
 	/** Teacher (PRAG, etc.) with PhD.
 	 */
@@ -734,6 +794,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return true;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
 	},
 	/** Teacher (PRAG, etc.) without PhD.
 	 */
@@ -776,6 +840,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isSupervisor() {
+			return false;
+		}
+		@Override
+		public boolean isExternalPosition() {
 			return false;
 		}
 	},
@@ -822,6 +890,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return false;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return true;
+		}
 	},
 	/** Bachelor student (internship).
 	 */
@@ -865,6 +937,10 @@ public enum MemberStatus {
 		@Override
 		public boolean isSupervisor() {
 			return false;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return true;
 		}
 	},
 	/** Associate member with PhD.
@@ -910,6 +986,10 @@ public enum MemberStatus {
 		public boolean isSupervisor() {
 			return true;
 		}
+		@Override
+		public boolean isExternalPosition() {
+			return true;
+		}
 	},
 	/** Associate member without PhD.
 	 */
@@ -952,6 +1032,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isSupervisor() {
+			return true;
+		}
+		@Override
+		public boolean isExternalPosition() {
 			return true;
 		}
 	};
@@ -1045,6 +1129,13 @@ public enum MemberStatus {
 	 * @since 2.1
 	 */
 	public abstract boolean isSupervisor();
+
+	/** Replies if this status corresponds to an external position outside the organization itself.
+	 *
+	 * @return {@code true} if the status could be associated to an external position.
+	 * @since 2.3
+	 */
+	public abstract boolean isExternalPosition();
 
 	/** Replies the label of the status in the current language.
 	 *

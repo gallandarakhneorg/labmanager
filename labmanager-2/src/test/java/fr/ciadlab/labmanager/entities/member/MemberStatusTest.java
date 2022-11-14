@@ -289,6 +289,58 @@ public class MemberStatusTest {
 	}
 
 	@Test
+	public void isSupervisor() {
+		assertTrue(cons(MemberStatus.FULL_PROFESSOR).isSupervisor());
+		assertTrue(cons(MemberStatus.RESEARCH_DIRECTOR).isSupervisor());
+		assertTrue(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isSupervisor());
+		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR).isSupervisable());
+		assertTrue(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).isSupervisor());
+		assertTrue(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isSupervisor());
+		assertTrue(cons(MemberStatus.RESEARCHER_PHD).isSupervisor());
+		assertTrue(cons(MemberStatus.RESEARCHER).isSupervisor());
+		assertTrue(cons(MemberStatus.RESEARCH_ENGINEER_PHD).isSupervisor());
+		assertTrue(cons(MemberStatus.RESEARCH_ENGINEER).isSupervisor());
+		assertTrue(cons(MemberStatus.POSTDOC).isSupervisor());
+		assertFalse(cons(MemberStatus.PHD_STUDENT).isSupervisor());
+		assertTrue(cons(MemberStatus.ENGINEER_PHD).isSupervisor());
+		assertFalse(cons(MemberStatus.ENGINEER).isSupervisor());
+		assertFalse(cons(MemberStatus.ADMIN).isSupervisor());
+		assertTrue(cons(MemberStatus.TEACHER_PHD).isSupervisor());
+		assertFalse(cons(MemberStatus.TEACHER).isSupervisor());
+		assertFalse(cons(MemberStatus.MASTER_STUDENT).isSupervisor());
+		assertFalse(cons(MemberStatus.OTHER_STUDENT).isSupervisor());
+		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isSupervisor());
+		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER).isSupervisor());
+		assertAllTreated();
+	}
+
+	@Test
+	public void isExternalPosition() {
+		assertFalse(cons(MemberStatus.FULL_PROFESSOR).isExternalPosition());
+		assertFalse(cons(MemberStatus.RESEARCH_DIRECTOR).isExternalPosition());
+		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isExternalPosition());
+		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR).isExternalPosition());
+		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).isExternalPosition());
+		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isExternalPosition());
+		assertFalse(cons(MemberStatus.RESEARCHER_PHD).isExternalPosition());
+		assertFalse(cons(MemberStatus.RESEARCHER).isExternalPosition());
+		assertFalse(cons(MemberStatus.RESEARCH_ENGINEER_PHD).isExternalPosition());
+		assertFalse(cons(MemberStatus.RESEARCH_ENGINEER).isExternalPosition());
+		assertFalse(cons(MemberStatus.POSTDOC).isExternalPosition());
+		assertFalse(cons(MemberStatus.PHD_STUDENT).isExternalPosition());
+		assertFalse(cons(MemberStatus.ENGINEER_PHD).isExternalPosition());
+		assertFalse(cons(MemberStatus.ENGINEER).isExternalPosition());
+		assertFalse(cons(MemberStatus.ADMIN).isExternalPosition());
+		assertFalse(cons(MemberStatus.TEACHER_PHD).isExternalPosition());
+		assertFalse(cons(MemberStatus.TEACHER).isExternalPosition());
+		assertTrue(cons(MemberStatus.MASTER_STUDENT).isExternalPosition());
+		assertTrue(cons(MemberStatus.OTHER_STUDENT).isExternalPosition());
+		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isExternalPosition());
+		assertTrue(cons(MemberStatus.ASSOCIATED_MEMBER).isExternalPosition());
+		assertAllTreated();
+	}
+
+	@Test
 	public void getLabel_US() {
 		// Force the local to be US
 		java.util.Locale.setDefault(java.util.Locale.US);

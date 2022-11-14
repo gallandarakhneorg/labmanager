@@ -165,11 +165,12 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @parma globalIndicators the object to check.
 	 * @return {@code true} if they are too old.
 	 */
-	@SuppressWarnings("static-method")
-	protected boolean isOldGlobalIndicatorCache(GlobalIndicators globalIndicators) {
+	protected static boolean isOldGlobalIndicatorCache(GlobalIndicators globalIndicators) {
 		return globalIndicators != null
-				&& (globalIndicators.getLastUpdate() == null || globalIndicators.getIndicators() == null
-				|| LocalDate.now().isAfter(globalIndicators.getLastUpdate().plusDays(CACHE_AGE)));
+				&& (globalIndicators.getLastUpdate() == null
+					|| globalIndicators.getIndicators() == null
+					|| globalIndicators.getIndicators().isEmpty()
+					|| LocalDate.now().isAfter(globalIndicators.getLastUpdate().plusDays(CACHE_AGE)));
 	}
 
 	/** Replies all the visible global indicators in the order that they should be displayed.
@@ -215,7 +216,10 @@ public class GlobalIndicatorsService extends AbstractService {
 	public void updateVisibleIndicators(List<String> visibleIndicators, boolean resetValues) {
 		final GlobalIndicators gi = ensureGlobalIndicators(false);
 		gi.setVisibleIndicators(visibleIndicators);
-		gi.setValues(null);
+		if (resetValues) {
+			gi.setValues(null);
+			this.allIndicators.stream().forEach(it -> it.clear());
+		}
 		this.indicatorRepository.save(gi);
 	}
 

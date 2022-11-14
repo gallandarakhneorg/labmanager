@@ -53,6 +53,11 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	}
 
 	@Override
+	public void clear() {
+		this.values.clear();
+	}
+
+	@Override
 	public String getKey() {
 		if (this.key == null) {
 			this.key = StringUtils.uncapitalize(getClass().getSimpleName().replace("Indicator$", "")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -101,7 +106,10 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	@Override
 	public Number getNumericValue(ResearchOrganization organization) {
 		final Number value = this.values.computeIfAbsent(Integer.valueOf(organization.getId()), it -> {
-			return computeValue(organization);
+			getLogger().info("Computing indicator value for " + getKey()); //$NON-NLS-1$
+			final Number v = computeValue(organization);
+			getLogger().info(getKey() + " = " + v); //$NON-NLS-1$
+			return v;
 		});
 		return value;
 	}
@@ -135,19 +143,26 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 		return LocalDate.of(ref - years, 12, 31);
 	}
 
-	/** Filter the given collection by dates.
+	/** Filter the given collection by years.
 	 *
 	 * @param <T> the type of elements in the collection.
+	 * @param parallel indicates if the stream is parallel or not.
 	 * @param collection the collection to filter.
-	 * @param dateExtractor the extractor of date from the elements.
+	 * @param yearExtractor the extractor of year from the elements.
 	 * @return the filtered stream.
 	 */
-	protected <T> Stream<T> filterByTimeWindow(Collection<T> collection, Function<T, LocalDate> dateExtractor) {
-		final LocalDate start = getReferencePeriodStart();
-		final LocalDate end = getReferencePeriodEnd();
-		return collection.stream().filter(it -> {
-			final LocalDate pd = dateExtractor.apply(it);
-			return pd == null || start.compareTo(pd) <= 0 || pd.compareTo(end) <= 0;
+	protected <T> Stream<T> filterByYearWindow(boolean parallel, Collection<T> collection, Function<T, Integer> yearExtractor) {
+		final int start = getReferencePeriodStart().getYear();
+		final int end = getReferencePeriodEnd().getYear();
+		Stream<T> stream;
+		if (parallel) {
+			stream = collection.parallelStream();
+		} else {
+			stream = collection.stream();
+		}
+		return stream.filter(it -> {
+			final Integer year = yearExtractor.apply(it);
+			return year != null && year.intValue() >= start && year.intValue() <= end;
 		});
 	}
 

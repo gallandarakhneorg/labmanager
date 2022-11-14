@@ -14,16 +14,17 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.indicators.publication;
+package fr.ciadlab.labmanager.indicators.members.count;
 
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.indicators.AbstractInstantIndicator;
 import fr.ciadlab.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Calculate the number of ranked papers per full-time equivalent (FTE) per year for Scimago journals. 
+/** Count the current number of active members in a specific organization independently of the member status.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -32,29 +33,34 @@ import org.springframework.stereotype.Component;
  * @since 2.2
  */
 @Component
-public class ScimagoJournalPaperFteRatioIndicator extends AbstractJournalPaperFteRatioIndicator<ScimagoJournalPaperCountIndicator> {
+public class ActiveMemberCountIndicator extends AbstractInstantIndicator {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
-	 * @param journalPaperService the service for accessing the journal papers.
 	 */
-	public ScimagoJournalPaperFteRatioIndicator(
+	public ActiveMemberCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired JournalPaperService journalPaperService) {
-		super(messages, constants, journalPaperService, new ScimagoJournalPaperCountIndicator(messages, constants, journalPaperService));
+			@Autowired Constants constants) {
+		super(messages, constants);
 	}
 
 	@Override
 	public String getName() {
-		return getMessage("scimagoJournalPaperFteRatioIndicator.name"); //$NON-NLS-1$
+		return getMessage("activeMemberCountIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithYears("scimagoJournalPaperFteRatioIndicator.label"); //$NON-NLS-1$
+		return getLabelWithoutYears("activeMemberCountIndicator.label"); //$NON-NLS-1$
+	}
+
+	@Override
+	protected Number computeValue(ResearchOrganization organization) {
+		final long nb = organization.getMemberships().parallelStream().filter(
+				it -> it.isActive() && !it.getMemberStatus().isExternalPosition()).count();
+		return Long.valueOf(nb);
 	}
 
 }

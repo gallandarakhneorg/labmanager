@@ -76,7 +76,7 @@
                               th:utext="${'ERROR:' + mbr.key.acronymOrName}"></th:block>
                     <a th:if="${mbr.value.memberStatus != null}"
                        th:href="@{/personList(organization=${mbr.key.id})}"
-                       th:title="${mbr.value.memberStatus.getLabel()}"
+                       th:title="${mbr.value.memberStatus.getLabel() + ' (' + (mbr.value.isPermanentPosition ? 'CDI' : 'CDD') + ')'}"
                        th:utext="${mbr.key.acronymOrName}"></a>
 					<span th:id="${'btPositionResign_' + person.id + '_' + mbr.value.id}"
 					   class="fa fa-unlink"

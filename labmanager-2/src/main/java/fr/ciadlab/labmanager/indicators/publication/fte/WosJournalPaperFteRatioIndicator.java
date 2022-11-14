@@ -14,17 +14,17 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.indicators.publication;
+package fr.ciadlab.labmanager.indicators.publication.fte;
 
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
+import fr.ciadlab.labmanager.indicators.members.fte.PermanentResearcherFteIndicator;
+import fr.ciadlab.labmanager.indicators.publication.count.WosJournalPaperCountIndicator;
 import fr.ciadlab.labmanager.utils.Unit;
-import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Count the number of journal papers ranked on Scimago.
+/** Calculate the number of ranked papers per full-time equivalent (FTE) per year for WoS journals. 
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -33,34 +33,31 @@ import org.springframework.stereotype.Component;
  * @since 2.2
  */
 @Component
-public class ScimagoJournalPaperCountIndicator extends AbstractRankedJournalPaperCountIndicator {
+public class WosJournalPaperFteRatioIndicator extends AbstractRankedJournalPaperFteRatioIndicator {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
-	 * @param journalPaperService the service for accessing the journal papers.
+	 * @param fteIndicator the indicator that counts the FTE.
+	 * @param paperCount the counter of WoS papers.
 	 */
-	public ScimagoJournalPaperCountIndicator(
+	public WosJournalPaperFteRatioIndicator(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired JournalPaperService journalPaperService) {
-		super(messages, constants, journalPaperService);
-	}
-
-	@Override
-	public JournalRankingSystem getJournalRankingSystem() {
-		return JournalRankingSystem.SCIMAGO;
+			@Autowired PermanentResearcherFteIndicator fteIndicator,
+			@Autowired WosJournalPaperCountIndicator paperCount) {
+		super(messages, constants, fteIndicator, paperCount);
 	}
 
 	@Override
 	public String getName() {
-		return getMessage("scimagoJournalPaperCountIndicator.name", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
+		return getMessage("wosJournalPaperFteRatioIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithYears("scimagoJournalPaperCountIndicator.label", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
+		return getLabelWithYears("wosJournalPaperFteRatioIndicator.label"); //$NON-NLS-1$
 	}
 
 }

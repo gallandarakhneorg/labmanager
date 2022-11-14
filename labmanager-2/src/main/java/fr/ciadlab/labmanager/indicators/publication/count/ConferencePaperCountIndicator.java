@@ -14,19 +14,16 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.indicators.members;
-
-import java.time.LocalDate;
+package fr.ciadlab.labmanager.indicators.publication.count;
 
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.indicators.AbstractIndicator;
+import fr.ciadlab.labmanager.service.publication.type.ConferencePaperService;
 import fr.ciadlab.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Count the number of active members in a specific organization independently of the member status.
+/** Count the number of conference papers for an organization.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -35,42 +32,29 @@ import org.springframework.stereotype.Component;
  * @since 2.2
  */
 @Component
-public class ActiveMemberCountIndicator extends AbstractIndicator {
+public class ConferencePaperCountIndicator extends AbstractConferencePaperCountIndicator {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
+	 * @param conferencePaperService the service for accessing the conference papers.
 	 */
-	public ActiveMemberCountIndicator(
+	public ConferencePaperCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants) {
-		super(messages, constants);
+			@Autowired Constants constants,
+			@Autowired ConferencePaperService conferencePaperService) {
+		super(messages, constants, conferencePaperService);
 	}
 
 	@Override
 	public String getName() {
-		return getMessage("activeMemberCountIndicator.name"); //$NON-NLS-1$
+		return getMessage("conferencePaperCountIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithoutYears("activeMemberCountIndicator.label"); //$NON-NLS-1$
-	}
-
-	@Override
-	public LocalDate getReferencePeriodStart() {
-		return LocalDate.now();
-	}
-
-	@Override
-	public LocalDate getReferencePeriodEnd() {
-		return LocalDate.now();
-	}
-
-	@Override
-	protected Number computeValue(ResearchOrganization organization) {
-		return Long.valueOf(organization.getMemberships().stream().filter(it -> it.isActive()).count());
+		return getLabelWithYears("conferencePaperCountIndicator.label"); //$NON-NLS-1$
 	}
 
 }

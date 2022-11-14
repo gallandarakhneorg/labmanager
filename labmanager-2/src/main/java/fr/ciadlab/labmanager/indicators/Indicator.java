@@ -30,6 +30,10 @@ import fr.ciadlab.labmanager.utils.Unit;
  * @since 2.2
  */
 public interface Indicator {
+	
+	/** Clear any buffered value.
+	 */
+	void clear();
 
 	/** Replies the key that identify the the indicator.
 	 *

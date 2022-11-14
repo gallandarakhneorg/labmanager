@@ -25,6 +25,7 @@ import java.util.Optional;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
+import fr.ciadlab.labmanager.entities.indicator.GlobalIndicators;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.indicators.Indicator;
 import fr.ciadlab.labmanager.service.indicator.GlobalIndicatorsService;
@@ -101,7 +102,8 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView(Constants.GLOBAL_INDICATORS_EDITING_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
-		modelAndView.addObject("globalIndicators", this.indicatorService.getGlobalIndicators()); //$NON-NLS-1$
+		final GlobalIndicators gi = this.indicatorService.getGlobalIndicators();
+		modelAndView.addObject("globalIndicators", gi); //$NON-NLS-1$
 		final List<? extends Indicator> visibleIndicators = this.indicatorService.getVisibleIndicators();
 		modelAndView.addObject("visibleIndicators", visibleIndicators); //$NON-NLS-1$
 		final List<? extends Indicator> invisibleIndicators = this.indicatorService.getInvisibleIndicators();

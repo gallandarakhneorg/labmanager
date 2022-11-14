@@ -6,7 +6,7 @@
 
 <th:block th:replace="fragments/nav :: globalIndicatorsBar"/>
 
-<div th:utext="#{html.GlobalIndicatorsIntro}"></div>
+<div th:utext="#{html.GlobalIndicatorsIntro(${globalIndicators.lastUpdate.toString})}"></div>
 <form th:replace="fragments/form :: entityForm(globalIndicators, ${globalIndicators == null ? '' : globalIndicators.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.PublicationSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/formdraglist :: draglist(visibleIndicators, #{html.GlobalIndicatorsVisible}, #{html.GlobalIndicatorsInvisible}, ~{::li.visibleIndicator}, ~{::li.invisibleIndicator})">
 		<li class="list-group-item visibleIndicator"
