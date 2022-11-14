@@ -441,7 +441,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	public void setMemberStatus(MemberStatus status) {
 		this.memberStatus = status;
 		// Reset the permanent position flag if needed
-		setPermanentPosition(isPermanentPosition());
+		this.permanentPosition = validatePermanentPosition(this.permanentPosition, this.memberStatus);
 	}
 
 	/** Change the status of the member in the research organization.
@@ -472,6 +472,18 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		this.permanentPosition = validatePermanentPosition(permanent, getMemberStatus());
 	}
 
+	/** Change the flag that indicates if the membership concerns a permanent position.
+	 *
+	 * @param permanent {@code true} if the position is permanent.
+	 */
+	public final void setPermanentPosition(Boolean permanent) {
+		if (permanent == null) {
+			setPermanentPosition(false);
+		} else {
+			setPermanentPosition(permanent.booleanValue());
+		}
+	}
+
 	/** Validate the permanent flag according to the given membership status.
 	 *
 	 * @param permanent the permanent flag to validate.
@@ -479,7 +491,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @return the permanent flag adapted according to the given membership status.
 	 */
 	protected static boolean validatePermanentPosition(boolean permanent, MemberStatus currentStatus) {
-		return permanent && currentStatus != null && currentStatus.isPermanentPositionAllowed();
+		return permanent && (currentStatus == null || currentStatus.isPermanentPositionAllowed());
 	}
 
 	/** Replies the CNU section of the member in the research organization.
