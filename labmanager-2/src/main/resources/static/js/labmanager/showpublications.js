@@ -50,7 +50,7 @@ function formatPublicationDetails(d, config) {
 	if (sessionStorage.getItem('status') != null && ((d.htmlEdit && d.htmlEdit != "") || (d.htmlDelete && d.htmlDelete != ""))) {
 		management = "<tr><td>" + labels['management'] + "</td><td>" + d.htmlEdit + d.htmlDelete + '</td></tr>';
 	}
-	return '<div class="table-responsive"><table class="table" cellpadding="5" cellspacing="0" border="0" style="padding-left:50px; width: 100%">'
+	return '<div class="publicationDetails"><div class="table-responsive"><table class="table">'
 		+ "<tr><td>" + labels['authors'] + "</td><td class=\"publicationAuthors\">" + d.htmlAuthors + '</td></tr>'
 		+ "<tr><td>" + labels['type'] + "</td><td>" + d.htmlCategoryLabel + ' (' + d.category + ') / '
 		+ d.htmlTypeLabel + ' (' + d.type + ')</td></tr>'
@@ -65,7 +65,7 @@ function formatPublicationDetails(d, config) {
 		+ downloads
 		+ exports
 		+ management
-		+ '</table></div>';
+		+ '</table></div></div>';
 }
 
 /** Initialize the DataTable for showing the publications on the front-end.
@@ -103,7 +103,7 @@ function initPublicationDataTable(config) {
 	(!('enableAuthorFilter' in config)) && (config['enableAuthorFilter'] = true);
 	(!('infoTextId' in config)) && (config['infoTextId'] = 'tableInfos');
 	(!('publicationDescription' in config)) && (config['publicationDescription'] = (data, type, row) => {
-		var cnt = '<p><span class="publicationTitle">' + row.title + '</span>';
+		var cnt = '<p class="publicationTitlePart"><span class="publicationTitle">' + row.title + '</span>';
 		if (config['editionUrl']) {
 		    cnt += "<a href=\"";
 		    cnt += config['editionUrl'] + '=' + row.id;

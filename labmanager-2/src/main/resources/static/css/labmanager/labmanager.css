@@ -47,9 +47,15 @@ label.required:after {
     font-weight: bold;
     font-size: larger;
 }
+p.publicationTitlePart {
+	margin: 0px;
+}
 .publicationAuthors {
     color: #212529 !important;
     font-weight: bold;
+}
+p.publicationAuthors {
+	margin: 0px;
 }
 .publicationAuthors a {
     color: #3b4d05 !important;
@@ -62,6 +68,18 @@ label.required:after {
 }
 .publicationDetails {
     font-size: smaller;
+}
+p.publicationDetails {
+	margin: 0px;
+}
+div.publicationDetails {
+	margin: 0px 0px 0px 25px;
+}
+table.dataTable.publicationDetails tbody td {
+	padding: 5px;
+	border-spacing : 0px;
+	border-collapse : collapse;
+	vertical-align: top;
 }
 div.form-super-group {
 	padding: 10px;
