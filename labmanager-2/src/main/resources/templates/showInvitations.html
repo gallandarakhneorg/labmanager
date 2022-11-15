@@ -43,8 +43,8 @@
             	<th:block th:if="${editionUrl != null}"><a th:href="${editionUrl + '&goto=' + invitation.id}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
             </td>
             <td>
-            	<div class="publicationTitle" th:utext="${invitation.title}"></div>
-            	<div class="publicationDetails">
+            	<div class="invitationTitle" th:utext="${invitation.title}"></div>
+            	<div class="invitationDetails">
 	            	<th:block th:utext="${invitation.university + ', ' + countryLabels.get(invitation.country)}"></th:block>
 	            	<th:block th:if="${invitation.type.outgoing}">
 		            	<br/><th:block th:utext="#{html.Inviter1}"></th:block>

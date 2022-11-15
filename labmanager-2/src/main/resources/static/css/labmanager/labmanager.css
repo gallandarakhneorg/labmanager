@@ -81,6 +81,30 @@ table.dataTable.publicationDetails tbody td {
 	border-collapse : collapse;
 	vertical-align: top;
 }
+.invitationTitle {
+    color: #96c10d !important;
+    font-weight: bold;
+    font-size: larger;
+}
+.invitationDetails {
+    font-size: smaller;
+}
+.juryMembershipTitle {
+    color: #96c10d !important;
+    font-weight: bold;
+    font-size: larger;
+}
+.juryMembershipDetails {
+    font-size: smaller;
+}
+.supervisionTitle {
+    color: #96c10d !important;
+    font-weight: bold;
+    font-size: larger;
+}
+.supervisionDetails {
+    font-size: smaller;
+}
 div.form-super-group {
 	padding: 10px;
 	margin: 20px;

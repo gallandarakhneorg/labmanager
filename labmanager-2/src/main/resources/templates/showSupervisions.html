@@ -55,8 +55,8 @@
             	<th:block th:if="${editionUrl != null}"><a th:href="${editionUrl + supervision.supervisedPerson.person + '&goto=' + supervision.id}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
             </td>
             <td>
-            	<div class="publicationTitle" th:utext="${supervision.title}"></div>
-            	<div class="publicationDetails"
+            	<div class="supervisionTitle" th:utext="${supervision.title}"></div>
+            	<div class="supervisionDetails"
             	     th:with="utils = ${T(fr.ciadlab.labmanager.entities.EntityUtils)}">
 	            	<th:block th:utext="${utils.getNameInUniversity(supervision, ', ') + ', ' + countryLabels.get(supervision.supervisedPerson.researchOrganization.country)}"></th:block>
 	            	<br/>
