@@ -40,3 +40,6 @@ dbg.log
 # Local configuration files
 **/application-gal*.yml
 
+# Generated files
+docs/html
+

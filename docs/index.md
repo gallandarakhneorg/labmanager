@@ -8,11 +8,7 @@
 
 This document is the documentation for the backend software of the CIAD laboratory that is hosted at https://www.ciad-lab.fr
 
-This website is hosted on a UTBM server, and members of uB could have access to.
-
-| Université de Technologie de Belfort Montbéliard (UTBM) | Université de Bourgogne (uB) |
-|---------------------------------------------------------|------------------------------|
-| ![UTBM logo](utbmlogo.png)                              | ![uB logo](ublogo.png)       |
+This website is hosted on a [Université de Technologie de Belfort Montbéliard (UTBM)](http://www.utbm.fr) server, and members of [Université de Bourgogne (uB)](http://www.u-bourgogne.fr) could have access to.
 
 
 ## 2. Manual Pages
@@ -47,3 +43,8 @@ This website is hosted on a UTBM server, and members of uB could have access to.
 ## 3. Report Issues
 
 For reporting an issue related to the administration tools, you could submit an issue on the Bitbucket page of the tools' project: https://bitbucket.org/sgalland/ciad-lab-spring-boot/ or send an email to [Prof. Dr. Stéphane Galland](mailto:stephane.galland@utbm.fr).
+
+![UTBM logo](utbmlogo.png)
+
+![uB logo](ublogo.png)
+
