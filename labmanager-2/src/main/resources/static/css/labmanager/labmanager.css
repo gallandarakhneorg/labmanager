@@ -446,3 +446,13 @@ div.form-group li.list-group-item {
 	background-color: lightgray;
 	color: white;
 }
+div.helpbutton {
+	font-size: 50px;
+	color: red;
+	position: absolute;
+	margin: 0px;
+	padding: 0px;
+	top: -10px;
+	right: 0px;
+	z-index: 10;
+}

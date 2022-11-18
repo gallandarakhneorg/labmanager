@@ -2,6 +2,10 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
 
+<div th:if="${helpUrl != null}" class="helpbutton">
+  <a th:href="${helpUrl}" class="noLink" target="_blank"><span class="fa-solid fa-circle-question"></span></a>
+</div>
+
 <nav class="labmanager-administration-navigation" aria-label="breadcrumb">
   <ol class="breadcrumb">
   	<li class="breadcrumb-item" th:utext="#{html.MainWebSite}"></li>

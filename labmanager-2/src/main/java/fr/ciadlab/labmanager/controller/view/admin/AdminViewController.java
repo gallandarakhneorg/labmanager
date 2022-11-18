@@ -52,6 +52,8 @@ public class AdminViewController extends AbstractViewController {
 
 	private ResearchOrganizationService organizationService;
 
+	private String helpUrl;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -59,14 +61,17 @@ public class AdminViewController extends AbstractViewController {
 	 * @param constants the accessor to the live constants.
 	 * @param organizationService the research organization service.
 	 * @param usernameKey the key string for encrypting the usernames.
+	 * @param helpUrl the URL to the help or the documentation page.
 	 */
 	public AdminViewController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired ResearchOrganizationService organizationService,
-			@Value("${labmanager.security.username-key}") String usernameKey) {
+			@Value("${labmanager.security.username-key}") String usernameKey,
+			@Value("${labmanager.web.help-url}") String helpUrl) {
 		super(messages, constants, usernameKey);
 		this.organizationService = organizationService;
+		this.helpUrl = helpUrl;
 	}
 
 	/** Shows up the main administration page.
@@ -96,6 +101,9 @@ public class AdminViewController extends AbstractViewController {
 		}
 		modelAndView.addObject("mainSiteUrl", baseUrl); //$NON-NLS-1$
 		modelAndView.addObject("mainSiteName", baseName); //$NON-NLS-1$
+		if (!Strings.isNullOrEmpty(this.helpUrl)) {
+			modelAndView.addObject("helpUrl", this.helpUrl); //$NON-NLS-1$
+		}
 		return modelAndView;
 	}
 
