@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.service.indicator;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +81,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @param updateCache indicates if the cache must be loaded.
 	 * @return the global indicators' object.
 	 */
-	protected GlobalIndicators ensureGlobalIndicators(boolean updateCache) {
+	public GlobalIndicators getGlobalIndicatorsNeverNull(boolean updateCache) {
 		final Optional<GlobalIndicators> opt = this.indicatorRepository.findAll().stream().findFirst();
 		GlobalIndicators gi;
 		if (opt.isEmpty()) {
@@ -103,7 +103,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the global indicators' object.
 	 */
 	protected GlobalIndicators ensureGlobalIndicators(ResearchOrganization organization, List<? extends Indicator> indicators) {
-		final GlobalIndicators gi = ensureGlobalIndicators(false);
+		final GlobalIndicators gi = getGlobalIndicatorsNeverNull(false);
 		if (isOldGlobalIndicatorCache(gi)) {
 			updateGlobalIndicatorValues(gi, organization, indicators);
 		}
@@ -137,12 +137,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the map.
 	 */
 	public Map<String, Number> getAllIndicatorValues(ResearchOrganization organization) {
-		final GlobalIndicators gi = ensureGlobalIndicators(organization, this.allIndicators);
-		Map<String, Number> cache = gi.getIndicators();
-		if (cache == null) {
-			return Collections.emptyMap();
-		}
-		return cache;
+		return getIndicatorValues(organization, this.allIndicators);
 	}
 
 	/** Replies the map of the indicator values for the given indicators.
@@ -170,7 +165,7 @@ public class GlobalIndicatorsService extends AbstractService {
 				&& (globalIndicators.getLastUpdate() == null
 					|| globalIndicators.getIndicators() == null
 					|| globalIndicators.getIndicators().isEmpty()
-					|| LocalDate.now().isAfter(globalIndicators.getLastUpdate().plusDays(CACHE_AGE)));
+					|| LocalDateTime.now().isAfter(globalIndicators.getLastUpdate().plusDays(CACHE_AGE)));
 	}
 
 	/** Replies all the visible global indicators in the order that they should be displayed.
@@ -178,7 +173,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the visible indicators.
 	 */
 	public List<? extends Indicator> getVisibleIndicators() {
-		final List<String> indicatorKeys = ensureGlobalIndicators(true).getVisibleIndicators();		
+		final List<String> indicatorKeys = getGlobalIndicatorsNeverNull(true).getVisibleIndicators();		
 		return indicatorKeys.stream().map(it -> this.allIndicatorsPerKey.get(it)).filter(it -> it != null).collect(Collectors.toList());
 	}
 
@@ -187,7 +182,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the invisible indicators.
 	 */
 	public List<? extends Indicator> getInvisibleIndicators() {
-		final Set<String> visibles = new TreeSet<>(ensureGlobalIndicators(true).getVisibleIndicators());
+		final Set<String> visibles = new TreeSet<>(getGlobalIndicatorsNeverNull(true).getVisibleIndicators());
 		if (visibles.isEmpty()) {
 			return this.allIndicators;
 		}
@@ -198,9 +193,9 @@ public class GlobalIndicatorsService extends AbstractService {
 
 	/** Replies the global indicators.
 	 *
-	 * @return the indicators.
+	 * @return the indicators or {@code null} if there is no global indicators yet.
 	 */
-	public GlobalIndicators getGlobalIndicators() {
+	public GlobalIndicators getGlobalIndicatorsOrNull() {
 		final Optional<GlobalIndicators> opt = this.indicatorRepository.findAll().stream().findFirst();
 		if (opt.isPresent()) {
 			return opt.get();
@@ -211,16 +206,24 @@ public class GlobalIndicatorsService extends AbstractService {
 	/** Save or create the global indicators.
 	 *
 	 * @param visibleIndicators the list of th keys of the visible indicators.
-	 * @param resetValues indicates if the global indicators' values must be recomputed.
 	 */
-	public void updateVisibleIndicators(List<String> visibleIndicators, boolean resetValues) {
-		final GlobalIndicators gi = ensureGlobalIndicators(false);
+	public void updateVisibleIndicators(List<String> visibleIndicators) {
+		final GlobalIndicators gi = getGlobalIndicatorsNeverNull(false);
 		gi.setVisibleIndicators(visibleIndicators);
-		if (resetValues) {
-			gi.setValues(null);
-			this.allIndicators.stream().forEach(it -> it.clear());
-		}
 		this.indicatorRepository.save(gi);
+	}
+
+	/** Reset the values of the global indicators to force there computation.
+	 *
+	 * @param username the name of the logged-in user.
+	 */
+	public void resetGlobalIndicatorValues() {
+		final Optional<GlobalIndicators> opt = this.indicatorRepository.findAll().stream().findFirst();
+		if (opt.isPresent()) {
+			final GlobalIndicators gi = opt.get();
+			gi.setValues(null);
+			this.indicatorRepository.save(gi);
+		}
 	}
 
 }

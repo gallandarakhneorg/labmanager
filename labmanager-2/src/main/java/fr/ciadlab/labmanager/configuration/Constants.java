@@ -255,6 +255,10 @@ public class Constants {
 	 */
 	public static final String GLOBAL_INDICATORS_SAVING_ENDPOINT = "globalIndicatorsSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for reseting the global indicator values.
+	 */
+	public static final String GLOBAL_INDICATOR_VALUES_RESET_ENDPOINT = "resetGlobalIndicatorValues"; //$NON-NLS-1$
+
 	/** Name of the endpoint for regenerating the thumbnail as a batch task.
 	 */
 	public static final String REGENERATE_THUMBNAIL_ASYNC_ENDPOINT = "regenerateThumbnailAsync"; //$NON-NLS-1$

@@ -102,7 +102,7 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView(Constants.GLOBAL_INDICATORS_EDITING_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
-		final GlobalIndicators gi = this.indicatorService.getGlobalIndicators();
+		final GlobalIndicators gi = this.indicatorService.getGlobalIndicatorsNeverNull(false);
 		modelAndView.addObject("globalIndicators", gi); //$NON-NLS-1$
 		final List<? extends Indicator> visibleIndicators = this.indicatorService.getVisibleIndicators();
 		modelAndView.addObject("visibleIndicators", visibleIndicators); //$NON-NLS-1$
@@ -113,11 +113,11 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 		if (organizationOpt.isEmpty()) {
 			throw new IllegalArgumentException("Organization not found with name: " + this.defaultOrganizationName); //$NON-NLS-1$
 		}
-		final Map<String, Number> values = this.indicatorService.getAllIndicatorValues(organizationOpt.get());
-		modelAndView.addObject("indicatorValues", values); //$NON-NLS-1$
+		modelAndView.addObject("organization", organizationOpt.get()); //$NON-NLS-1$
 		//
 		modelAndView.addObject("formActionUrl", rooted(Constants.GLOBAL_INDICATORS_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.ADMIN_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("resetIndicatorUrl", endpoint(Constants.GLOBAL_INDICATOR_VALUES_RESET_ENDPOINT)); //$NON-NLS-1$
 		return modelAndView;
 	}
 
@@ -164,6 +164,7 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 		assert organization != null;
 		modelAndView.addObject("organization", organization); //$NON-NLS-1$
 		//
+		modelAndView.addObject("globalIndicators", this.indicatorService.getGlobalIndicatorsNeverNull(false)); //$NON-NLS-1$
 		final List<? extends Indicator> visibleIndicators = this.indicatorService.getVisibleIndicators();
 		if (visibleIndicators == null || visibleIndicators.isEmpty()) {
 			modelAndView.addObject("indicators", Collections.emptyList()); //$NON-NLS-1$

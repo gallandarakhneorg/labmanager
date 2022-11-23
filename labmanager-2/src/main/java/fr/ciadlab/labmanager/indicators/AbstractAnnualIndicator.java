@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.indicators;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -131,6 +132,24 @@ public abstract class AbstractAnnualIndicator extends AbstractIndicator implemen
 			return sum(values);
 		}
 		return this.mergingFunction.apply(values);
+	}
+
+	/** Change the details of the computation.
+	 *
+	 * @param collection the elements that are inside the explanation.
+	 * @since 2.4
+	 */
+	protected <T> void setComputationDetails(Map<Integer, Number> collection) {
+		final StringBuilder bb = new StringBuilder();
+		for (final Entry<Integer, Number> entry : collection.entrySet()) {
+			if (bb.length() > 0) {
+				bb.append("\n"); //$NON-NLS-1$
+			}
+			bb.append(entry.getKey());
+			bb.append(") "); //$NON-NLS-1$
+			bb.append(entry.getValue());
+		}
+		setComputationDetails(bb.toString());
 	}
 
 }

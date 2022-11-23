@@ -98,6 +98,8 @@ public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractA
 				it -> Integer.valueOf(it.getPublicationYear()),
 				it -> Integer.valueOf(1),
 				(a, b) -> Integer.valueOf(a.intValue() + b.intValue())));
+		//
+		setComputationDetails(rankedPapers);
 		return rankedPapers;
 	}
 

@@ -16,8 +16,12 @@
 
 package fr.ciadlab.labmanager.indicators.members.count;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
+import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.indicators.AbstractInstantIndicator;
 import fr.ciadlab.labmanager.utils.Unit;
@@ -61,14 +65,17 @@ public class ResearcherCountIndicator extends AbstractInstantIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final long nb = organization.getMemberships().parallelStream().filter(
+		final List<Membership> researchers = organization.getMemberships().parallelStream().filter(
 				it -> {
 					if (it.isActive()) {
 						final MemberStatus status = it.getMemberStatus();
 						return !status.isExternalPosition() && status != MemberStatus.PHD_STUDENT && status.isResearcher();
 					}
 					return false;
-				}).count();
+				})
+				.collect(Collectors.toList());
+		final long nb = researchers.size();
+		setComputationDetails(researchers, it -> it.getPerson().getFullNameWithLastNameFirst());
 		return Long.valueOf(nb);
 	}
 

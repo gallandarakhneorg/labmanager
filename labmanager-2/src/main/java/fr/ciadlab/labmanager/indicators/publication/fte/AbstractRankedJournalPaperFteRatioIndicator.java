@@ -90,6 +90,8 @@ public abstract class AbstractRankedJournalPaperFteRatioIndicator extends Abstra
 				}
 				return Float.valueOf(0f);
 			}));
+		//
+		setComputationDetails(ratios);
 		return ratios;
 	}
 

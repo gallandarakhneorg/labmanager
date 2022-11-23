@@ -19,7 +19,7 @@ package fr.ciadlab.labmanager.entities.indicator;
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,7 +77,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	/** Date of the last update of the global indicators. 
 	 */
 	@Column
-	private LocalDate lastUpdate;
+	private LocalDateTime lastUpdate;
 
 	/** String representation of the indicator values. 
 	 */
@@ -186,31 +186,31 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		this.id = id;
 	}
 
-	/** Replies the date of the last update of the indicators.
+	/** Replies the date-time of the last update of the indicators.
 	 *
-	 * @return the date or {@code null} if it is unknown.
+	 * @return the date-time or {@code null} if it is unknown.
 	 */
-	public LocalDate getLastUpdate() {
+	public LocalDateTime getLastUpdate() {
 		return this.lastUpdate;
 	}
 
-	/** Change the date of the last update of the indicators.
+	/** Change the date-time of the last update of the indicators.
 	 *
-	 * @param date the date or {@code null} if it is unknown.
+	 * @param date the date-time or {@code null} if it is unknown.
 	 */
-	public void setLastUpdate(LocalDate date) {
+	public void setLastUpdate(LocalDateTime date) {
 		this.lastUpdate = date;
 	}
 
-	/** Change the date of the last update of the indicators.
+	/** Change the date-time of the last update of the indicators.
 	 *
-	 * @param date the date in format {@code YYYY-MM-DD} or {@code null} if it is unknown.
+	 * @param date the date in format {@code yyyy-mm-ddThh:mm::ss} or {@code null} if it is unknown.
 	 */
 	public void setLastUpdate(String date) {
 		if (Strings.isNullOrEmpty(date)) {
-			setLastUpdate((LocalDate) null);
+			setLastUpdate((LocalDateTime) null);
 		} else {
-			setLastUpdate(LocalDate.parse(date));
+			setLastUpdate(LocalDateTime.parse(date));
 		}
 	}
 
@@ -229,7 +229,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	public void setValues(String values) {
 		this.values = Strings.emptyToNull(values);
 		this.valueCache = null;
-		this.lastUpdate = this.values != null ? LocalDate.now() : null;
+		this.lastUpdate = this.values != null ? LocalDateTime.now() : null;
 	}
 
 	/** Change the indicator values from the list of indicators.
@@ -246,7 +246,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 			final ObjectMapper mapper = new ObjectMapper();
 			this.values = mapper.writeValueAsString(cache);
 			this.valueCache = cache;
-			this.lastUpdate = cache.isEmpty() ? null : LocalDate.now();
+			this.lastUpdate = cache.isEmpty() ? null : LocalDateTime.now();
 		} catch (Throwable ex) {
 			//
 		}

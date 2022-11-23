@@ -47,6 +47,14 @@ public interface Indicator {
 	 */
 	String getName();
 
+	/** Replies the details of the computation of the indicator.
+	 * The details provides information about how the computation was done for the indicator.
+	 *
+	 * @return the details.
+	 * @since 2.4
+	 */
+	String getComputationDetails();
+
 	/** Replies the label associated to the indicator.
 	 * The label describes the meaning of the indicator.
 	 * This label may be adapted to the associated value that is

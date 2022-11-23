@@ -91,6 +91,8 @@ public class PermanentResearcherFteIndicator extends AbstractAnnualIndicator {
 			.forEach(it -> {
 				updateValues(values, it, startYear, endYear);
 			});
+		//
+		setComputationDetails(values);
 		return values;
 	}
 

@@ -70,6 +70,7 @@ public class IndustrialProjectBudgetIndicator extends AbstractIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
+		setComputationDetails(getMessage("indicators.hardcoded")); //$NON-NLS-1$
 		return Double.valueOf(3717900);
 	}
 

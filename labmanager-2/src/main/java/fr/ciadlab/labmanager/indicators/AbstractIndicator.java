@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -27,6 +28,7 @@ import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of a computed value that indicates a key element for an organization.
@@ -42,6 +44,8 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	private String key;
 	
 	private final Map<Integer, Number> values = new TreeMap<>();
+
+	private String details;
 
 	/** Constructor.
 	 *
@@ -101,6 +105,40 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	 */
 	protected final String getLabelWithoutYears(String key, Object... arguments) {
 		return getMessage(key, arguments);
+	}
+
+	@Override
+	public String getComputationDetails() {
+		return this.details;
+	}
+
+	/** Change the details of the computation.
+	 *
+	 * @param details the details of the computation.
+	 * @since 2.4
+	 */
+	protected void setComputationDetails(String details) {
+		this.details = Strings.emptyToNull(details);
+	}
+
+	/** Change the details of the computation.
+	 *
+	 * @param collection the elements that are inside the explanation.
+	 * @param name the function that provides the name of each element
+	 * @since 2.4
+	 */
+	protected <T> void setComputationDetails(Collection<T> collection, Function<T, String> name) {
+		final StringBuffer bb = new StringBuffer();
+		final AtomicInteger index = new AtomicInteger(0);
+		collection.stream().map(it -> name.apply(it)).sorted().forEach(it -> {
+			if (bb.length() > 0) {
+				bb.append("\n"); //$NON-NLS-1$
+			}
+			if (!Strings.isNullOrEmpty(it)) {
+				bb.append(index.incrementAndGet()).append(") ").append(it); //$NON-NLS-1$
+			}
+		});
+		setComputationDetails(bb.toString());
 	}
 
 	@Override

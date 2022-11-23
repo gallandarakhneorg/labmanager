@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -77,10 +77,10 @@ public class GlobalIndicatorsTest {
 	public void setLastUpdate_LocalDate() {
 		assertNull(this.test.getLastUpdate());
 
-		this.test.setLastUpdate(LocalDate.of(2022, 10, 24));
-		assertEquals(LocalDate.of(2022, 10, 24), this.test.getLastUpdate());
+		this.test.setLastUpdate(LocalDateTime.of(2022, 10, 24, 15, 45, 23));
+		assertEquals(LocalDateTime.of(2022, 10, 24, 15, 45, 23), this.test.getLastUpdate());
 
-		this.test.setLastUpdate((LocalDate) null);
+		this.test.setLastUpdate((LocalDateTime) null);
 		assertNull(this.test.getLastUpdate());
 	}
 
@@ -88,14 +88,14 @@ public class GlobalIndicatorsTest {
 	public void setLastUpdate_String() {
 		assertNull(this.test.getLastUpdate());
 
-		this.test.setLastUpdate("2022-10-24");
-		assertEquals(LocalDate.of(2022, 10, 24), this.test.getLastUpdate());
+		this.test.setLastUpdate("2022-10-24T10:36:22");
+		assertEquals(LocalDateTime.of(2022, 10, 24, 10, 36, 22), this.test.getLastUpdate());
 
 		this.test.setLastUpdate("");
 		assertNull(this.test.getLastUpdate());
 
-		this.test.setLastUpdate("2022-10-02");
-		assertEquals(LocalDate.of(2022, 10, 2), this.test.getLastUpdate());
+		this.test.setLastUpdate("2022-10-02T15:45:23");
+		assertEquals(LocalDateTime.of(2022, 10, 2, 15, 45, 23), this.test.getLastUpdate());
 
 		this.test.setLastUpdate((String) null);
 		assertNull(this.test.getLastUpdate());

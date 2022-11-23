@@ -86,6 +86,8 @@ public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnu
 				it -> Integer.valueOf(it.getPublicationYear()),
 				it -> Integer.valueOf(1),
 				(a, b) -> Integer.valueOf(a.intValue() + b.intValue())));
+		//
+		setComputationDetails(annualCounts);
 		return annualCounts;
 	}
 

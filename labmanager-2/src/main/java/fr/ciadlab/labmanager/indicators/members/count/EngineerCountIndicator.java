@@ -16,7 +16,11 @@
 
 package fr.ciadlab.labmanager.indicators.members.count;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.indicators.AbstractInstantIndicator;
 import fr.ciadlab.labmanager.utils.Unit;
@@ -58,8 +62,10 @@ public class EngineerCountIndicator extends AbstractInstantIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final long nb = organization.getMemberships().parallelStream().filter(
-				it -> it.isActive() && it.getMemberStatus().isTechnicalStaff()).count();
+		final List<Membership> engineers = organization.getMemberships().parallelStream().filter(
+				it -> it.isActive() && it.getMemberStatus().isTechnicalStaff()).collect(Collectors.toList());
+		final long nb = engineers.size();
+		setComputationDetails(engineers, it -> it.getPerson().getFullNameWithLastNameFirst());
 		return Long.valueOf(nb);
 	}
 
