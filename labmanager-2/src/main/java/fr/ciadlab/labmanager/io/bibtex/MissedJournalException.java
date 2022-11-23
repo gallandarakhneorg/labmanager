@@ -14,33 +14,27 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.entities;
+package fr.ciadlab.labmanager.io.bibtex;
 
-/** Interface that represents an object that has an database identifier.
+/** Exception that indicates a journal is missed.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 2.4
  */
-public interface IdentifiableEntity {
+public class MissedJournalException extends RuntimeException {
 
-	/** Replies the database identifier for this entity.
-	 *
-	 * @return the identifier.
-	 */
-	int getId();
+	private static final long serialVersionUID = 8332179639940537811L;
 
-	/** Replies if the given entity is a fake entity or not.
-	 * A fake entity is created for being provided by the JPA to the front-end.
-	 * It is not supposed to be saved into the JPA database.
+	/** Constructor.
 	 *
-	 * @return {@code true} if the entity is a fake entity.
-	 * @since 2.4
+	 * @param entryKey the BibTeX key.
+	 * @param journalName the name of the missed journal.
 	 */
-	default boolean isFakeEntity() {
-		return false;
+	public MissedJournalException(String entryKey, String journalName) {
+		super("Unknown journal for entry " + entryKey + ": " + journalName); //$NON-NLS-1$ //$NON-NLS-2$);
 	}
 
 }

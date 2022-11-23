@@ -79,6 +79,8 @@ public class PublicationImporterApiController extends AbstractApiController {
 	 *     imported or not (with boolean value), and the key {@code type} is the string representation of the type of
 	 *     publication to be considered for the BibTeX entry. If this expected publication type does not corresponds
 	 *     to the type of BibTeX entry, an exception is thrown.
+	 * @param createMissedJournals indicates if the missed journals in the database should be created on-the-fly from
+	 *     the BibTeX data.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if it is impossible to import the BibTeX file in the database.
 	 */
@@ -86,6 +88,7 @@ public class PublicationImporterApiController extends AbstractApiController {
 	public void saveBibTeX(
 			@RequestParam(required = false) MultipartFile bibtexFile,
 			@RequestParam(required = false) String changes,
+			@RequestParam(required = false, defaultValue = "true") boolean createMissedJournals,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.SAVE_BIBTEX_ENDPOINT);
 		try {
@@ -112,7 +115,7 @@ public class PublicationImporterApiController extends AbstractApiController {
 			}
 			// Import the publications that are specified in the map of expected types.
 			try (final Reader reader = new InputStreamReader(bibtexFile.getInputStream())) {
-				this.publicationService.importPublications(reader, expectedTypes);
+				this.publicationService.importPublications(reader, expectedTypes, createMissedJournals);
 			}
 		} catch (Throwable ex) {
 			getLogger().error(ex.getLocalizedMessage(), ex);

@@ -31,6 +31,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
+import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
@@ -410,6 +412,9 @@ public class PublicationExportApiController extends AbstractApiController {
 	/** Read a BibTeX file and replies the publications as JSON.
 	 *
 	 * @param bibtexFile the uploaded BibTeX files.
+	 * @param failOnMissedJournal indicates if the service should fail if a journal is unknown from the JPA database.
+	 *    If this parameter is {@code false}, the JSON node will contains a journal that is marked as invalid/fake
+	 *    with the {@code _fakeEntity} property.
 	 * @param checkInDb indicates if the entries from the BibTeX should be searched in the database and marked
 	 *    if a similar publication is inside the database.
 	 * @return the list of publications from the BibTeX file.
@@ -419,6 +424,7 @@ public class PublicationExportApiController extends AbstractApiController {
 	@ResponseBody
 	public JsonNode getJsonFromBibTeX(
 			@RequestParam(required = false) MultipartFile bibtexFile,
+			@RequestParam(required = false, defaultValue = "false") boolean failOnMissedJournal,
 			@RequestParam(required = false, name = Constants.CHECKINDB_ENDPOINT_PARAMETER, defaultValue = "false") boolean checkInDb) throws Exception {
 		if (bibtexFile == null || bibtexFile.isEmpty()) {
 			throw new IllegalArgumentException(getMessage("publicationImporterApiController.NoBibTeXSource")); //$NON-NLS-1$
@@ -426,7 +432,7 @@ public class PublicationExportApiController extends AbstractApiController {
 		List<Publication> publications;
 		try (final InputStream inputStream = bibtexFile.getInputStream()) {
 			try (final Reader reader = new InputStreamReader(inputStream)) {
-				publications = this.publicationService.readPublicationsFromBibTeX(reader, true, true, true);
+				publications = this.publicationService.readPublicationsFromBibTeX(reader, true, true, true, !failOnMissedJournal);
 			}
 		}
 		if (publications != null && !publications.isEmpty()) {
@@ -445,6 +451,16 @@ public class PublicationExportApiController extends AbstractApiController {
 	}
 
 	private void checkDuplicates(Publication publication, ObjectNode json) {
+		// Set the flag that indicates if the publication's journal must be created in the database before saving the publication
+		boolean createJournal = false;
+		if (publication instanceof JournalBasedPublication) {
+			final Journal journal = ((JournalBasedPublication) publication).getJournal();
+			if (journal != null && journal.isFakeEntity()) {
+				createJournal = true;
+			}
+		}
+		json.set(JsonTool.HIDDEN_INTERNAL_NEW_JOURNAL_KEY, json.booleanNode(createJournal));
+		//
 		final List<Publication> candidates = this.publicationService.getPublicationsByTitle(publication.getTitle());
 		if (!candidates.isEmpty()) {
 			final int year0 = publication.getPublicationYear();

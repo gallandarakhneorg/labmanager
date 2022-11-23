@@ -55,6 +55,7 @@ import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
+import fr.ciadlab.labmanager.io.bibtex.JournalFake;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.json.JsonExporter;
@@ -471,14 +472,17 @@ public class PublicationService extends AbstractService {
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
 	 * @param ensureAtLeastOneMember if {@code true}, at least one member of a research organization is required from the
 	 *     the list of the persons. If {@code false}, the list of persons could contain no organization member.
+	 * @param createMissedJournal if {@code true} the missed journals from the JPA database will be automatically the subject
+	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thown when
+	 *     a journal is missed from the JPA database.
 	 * @return the list of the publications that are successfully extracted.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
 	 */
 	public List<Publication> readPublicationsFromBibTeX(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember) throws Exception {
-		return this.bibtex.extractPublications(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember);
+			boolean ensureAtLeastOneMember, boolean createMissedJournal) throws Exception {
+		return this.bibtex.extractPublications(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal);
 	}
 
 	/** Import publications from a BibTeX string. The format of the BibTeX is a standard that is briefly described
@@ -491,18 +495,21 @@ public class PublicationService extends AbstractService {
 	 * @param importedEntriesWithExpectedType a map that list the entries to import (keys corresponds to the BibTeX keys) and the
 	 *      expected publication type (as the map values) or {@code null} map value if we accept the "default" publication type.
 	 *      If this argument is {@code null} or the map is empty, then all the BibTeX entries will be imported.
+	 * @param createMissedJournals indicates if the missed journals in the database should be created on-the-fly from
+	 *     the BibTeX data.
 	 * @return the list of the identifiers of the publications that are successfully imported.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
 	 */
 	@SuppressWarnings("null")
-	public List<Integer> importPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType) throws Exception {
+	public List<Integer> importPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType,
+			boolean createMissedJournals) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
-		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true);
+		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true, createMissedJournals);
 
-		//Holds the IDs of the successfully imported IDs. We'll need it for type differenciation later.
+		//Holds the IDs of the successfully imported IDs. We'll need it for type differentiation later.
 		final List<Integer> importedPublicationIdentifiers = new ArrayList<>();
 
 		//We are going to try to import every publication in the list
@@ -544,6 +551,16 @@ public class PublicationService extends AbstractService {
 						publication.setType(expectedType);
 					}
 
+					// Create the journal if is was missed
+					if (publication instanceof JournalBasedPublication) {
+						final JournalBasedPublication jbpub = (JournalBasedPublication) publication;
+						if (jbpub.getJournal() != null && jbpub.getJournal().isFakeEntity()) {
+							final Journal journal = new Journal(jbpub.getJournal());
+							this.journalRepository.save(journal);
+							jbpub.setJournal(journal);
+						}
+					}
+					
 					// Add the publication to the database and get the new assigned identifier
 					this.publicationRepository.save(publication);
 					final int publicationId = publication.getId();

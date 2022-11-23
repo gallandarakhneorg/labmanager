@@ -348,14 +348,15 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	@Override
 	public Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember) throws Exception {
+			boolean ensureAtLeastOneMember, boolean createMissedJournal) throws Exception {
 		try (Reader filteredReader = new CharacterFilterReader(bibtex)) {
 			final BibTeXParser bibtexParser = new BibTeXParser();
 			final BibTeXDatabase database = bibtexParser.parse(filteredReader);
 			if (database != null) {
 				return database.getEntries().entrySet().stream().map(it -> {
 					try {
-						return createPublicationFor(it.getKey(), it.getValue(), keepBibTeXId, assignRandomId, ensureAtLeastOneMember);
+						return createPublicationFor(it.getKey(), it.getValue(), keepBibTeXId, assignRandomId, ensureAtLeastOneMember,
+								createMissedJournal);
 					} catch (Exception ex) {
 						throw new RuntimeException(ex);
 					}
@@ -577,6 +578,15 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return null;
 	}
 
+	private Journal findJournalOrCreateProxy(Key key, String journalName, String dbId, String referencePublisher, String referenceIssn) {
+		try {
+			return findJournal(key, journalName, dbId, referencePublisher, referenceIssn);
+		} catch (MissedJournalException ex) {
+			// Create a proxy journal that is not supposed to be saved in the database.
+			return new JournalFake(journalName, referencePublisher, referenceIssn);
+		}
+	}
+
 	private Journal findJournal(Key key, String journalName, String dbId, String referencePublisher, String referenceIssn) {
 		if (!Strings.isNullOrEmpty(dbId)) {
 			try {
@@ -591,7 +601,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		}
 		Set<Journal> journals = this.journalService.getJournalsByName(journalName);
 		if (journals == null || journals.isEmpty()) {
-			throw new IllegalArgumentException("Unknown journal for entry " + key.getValue() + ": " + journalName); //$NON-NLS-1$ //$NON-NLS-2$
+			throw new MissedJournalException(key.getValue(), journalName);
 		}
 		if (journals.size() == 1) {
 			return journals.iterator().next();
@@ -631,10 +641,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
 	 * @param ensureAtLeastOneMember if {@code true}, at least one member of a research organization is required from the
 	 *     the list of the persons. If {@code false}, the list of persons could contain no organization member.
+	 * @param createMissedJournal indicates if the missed journal should be created in the database.
 	 * @return the publication.
 	 * @throws Exception if LaTeX code cannot be parsed.
 	 */
-	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId, boolean ensureAtLeastOneMember) throws Exception {
+	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId,
+			boolean ensureAtLeastOneMember, boolean createMissedJournal) throws Exception {
 		final PublicationType type = getPublicationTypeFor(entry);
 		if (type != null) {
 			// Create a generic publication
@@ -661,10 +673,18 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			switch (type) {
 			case INTERNATIONAL_JOURNAL_PAPER:
 				String journalName = field(entry, KEY_JOURNAL);
-				final Journal journal = findJournal(key, journalName,
-						field(entry, KEY_INTERNAL_DB_ID),
-						field(entry, KEY_PUBLISHER),
-						genericPublication.getISSN());
+				final Journal journal;
+				if (createMissedJournal) {
+					journal = findJournalOrCreateProxy(key, journalName,
+							field(entry, KEY_INTERNAL_DB_ID),
+							field(entry, KEY_PUBLISHER),
+							genericPublication.getISSN());
+				} else {
+					journal = findJournal(key, journalName,
+							field(entry, KEY_INTERNAL_DB_ID),
+							field(entry, KEY_PUBLISHER),
+							genericPublication.getISSN());
+				}
 				assert journal != null;
 				final JournalPaper journalPaper = this.journalPaperService.createJournalPaper(genericPublication,
 						field(entry, KEY_VOLUME),

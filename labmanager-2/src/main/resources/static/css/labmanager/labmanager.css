@@ -75,6 +75,9 @@ p.publicationDetails {
 div.publicationDetails {
 	margin: 0px 0px 0px 25px;
 }
+span.publicationNewJournal {
+    color: #ff6e4a !important;
+}
 table.dataTable.publicationDetails tbody td {
 	padding: 5px;
 	border-spacing : 0px;

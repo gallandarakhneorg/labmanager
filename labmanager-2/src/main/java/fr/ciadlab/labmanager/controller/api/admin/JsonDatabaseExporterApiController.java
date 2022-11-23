@@ -396,7 +396,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		BibTeXSimilarPublicationProvider(PublicationService publicationService, MultipartFile bibtexFile) throws Exception {
 			if (bibtexFile != null) {
 				try (final Reader reader = new InputStreamReader(bibtexFile.getInputStream())) {
-					this.publications = publicationService.readPublicationsFromBibTeX(reader, true, false, true);
+					this.publications = publicationService.readPublicationsFromBibTeX(reader, true, false, true, false);
 				}
 			} else {
 				this.publications = Collections.emptyList();

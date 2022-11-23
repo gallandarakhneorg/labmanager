@@ -119,6 +119,10 @@ public abstract class JsonTool {
 	 */
 	public static final String HIDDEN_INTERNAL_IMPORTABLE_KEY = HIDDEN_FIELD_PREFIX + "internalImportable"; //$NON-NLS-1$
 
+	/** Name of the field that indicates if a journal must be created for importing a publication in the database.
+	 */
+	public static final String HIDDEN_INTERNAL_NEW_JOURNAL_KEY = HIDDEN_FIELD_PREFIX + "internalNewJournal"; //$NON-NLS-1$
+
 	/** Name of the field for the visible global indicators.
 	 */
 	public static final String VISIBLEGLOBALINDICATORS_KEY = "visibleGlobalIndicators"; //$NON-NLS-1$

@@ -148,62 +148,27 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	@MapKey(name = "referenceYear")
 	private Map<Integer, JournalQualityAnnualIndicators> qualityIndicators;
 
-	/** Construct a journal with the given values.
-	 * 
-	 * @param identifier the identifier of the journal in the database.
-	 * @param papers the set of papers that were published in this journal.
-	 * @param name the name of the journal.
-	 * @param publisher the name of the publisher of the journal.
-	 * @param address the address of the publisher.
-	 * @param publisherUrl the URL to the page of the journal on the publisher website.
-	 * @param scimagoId the identifier of the journal on the Scimago website.
-	 * @param wosId the identifier of the journal on the Web-Of-Science website.
-	 * @param isbn the ISBN of the journal.
-	 * @param issn the ISSN of the journal.
-	 * @param indicators the history of the quality indicators for the journal.
-	 */
-	public Journal(int identifier, Set<JournalPaper> papers, String name,
-			String publisher, String address, String publisherUrl, String scimagoId, String wosId,
-			String isbn, String issn, Map<Integer, JournalQualityAnnualIndicators> indicators) {
-		this.id = identifier;
-		this.publishedPapers = papers;
-		this.journalName = name;
-		this.publisher = publisher;
-		this.address = address;
-		this.journalUrl = publisherUrl;
-		this.scimagoId = scimagoId;
-		this.wosId = wosId;
-		this.isbn = isbn;
-		this.issn = issn;
-		this.qualityIndicators = indicators;
-	}
-
-	/** Construct a journal with the given values.
-	 * 
-	 * @param identifier the identifier of the journal in the database.
-	 * @param papers the set of papers that were published in this journal.
-	 * @param name the name of the journal.
-	 * @param publisher the name of the publisher of the journal.
-	 * @param address the address of the publisher.
-	 * @param publisherUrl the URL to the page of the journal on the publisher website.
-	 * @param scimagoId the identifier of the journal on the Scimago website.
-	 * @param wosId the identifier of the journal on the Web-Of-Science website.
-	 * @param isbn the ISBN of the journal.
-	 * @param issn the ISSN of the journal.
-	 * @param indicators the history of the quality indicators for the journal.
-	 */
-	public Journal(int identifier, Set<JournalPaper> papers, String name,
-			String publisher, String address, URL publisherUrl, String scimagoId, String wosId,
-			String isbn, String issn, Map<Integer, JournalQualityAnnualIndicators> indicators) {
-		this(identifier, papers, name, publisher, address,
-				publisherUrl != null ? publisherUrl.toExternalForm() : null,
-						scimagoId, wosId, isbn, issn, indicators);
-	}
-
 	/** Construct an empty journal.
 	 */
 	public Journal() {
 		//
+	}
+
+	/** Construct by copying the given journal (exception id, published papers and quality indicators).
+	 *
+	 * @param journal the journal to be copied.
+	 */
+	public Journal(Journal journal) {
+		assert journal != null;
+		this.journalName = journal.getJournalName();
+		this.publisher = journal.getPublisher();
+		this.address = journal.getAddress();
+		this.journalUrl = journal.getJournalURL();
+		this.scimagoId = journal.getScimagoId();
+		this.wosId = journal.getWosId();
+		this.isbn = journal.getISBN();
+		this.issn = journal.getISSN();
+		this.openAccess = journal.getOpenAccess();
 	}
 
 	@Override

@@ -14,33 +14,37 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.entities;
+package fr.ciadlab.labmanager.io.bibtex;
 
-/** Interface that represents an object that has an database identifier.
+import fr.ciadlab.labmanager.entities.journal.Journal;
+
+/** Fake of a journal.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 2.4
  */
-public interface IdentifiableEntity {
+public class JournalFake extends Journal {
 
-	/** Replies the database identifier for this entity.
-	 *
-	 * @return the identifier.
-	 */
-	int getId();
+	private static final long serialVersionUID = 8594111079867959152L;
 
-	/** Replies if the given entity is a fake entity or not.
-	 * A fake entity is created for being provided by the JPA to the front-end.
-	 * It is not supposed to be saved into the JPA database.
+	/** Constructor.
 	 *
-	 * @return {@code true} if the entity is a fake entity.
-	 * @since 2.4
+	 * @param name the name of the journal.
+	 * @param publisher the name of the journal publisher.
+	 * @param issn the ISSN number of the journal.
 	 */
-	default boolean isFakeEntity() {
-		return false;
+	public JournalFake(String name, String publisher, String issn) {
+		setJournalName(name);
+		setPublisher(publisher);
+		setISSN(issn);
+	}
+
+	@Override
+	public boolean isFakeEntity() {
+		return true;
 	}
 
 }
