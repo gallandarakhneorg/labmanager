@@ -106,7 +106,7 @@ function initPublicationDataTable(config) {
 		var cnt = '<p class="publicationTitlePart"><span class="publicationTitle">' + row.title + '</span>';
 		if (config['editionUrl']) {
 		    cnt += "<a href=\"";
-		    cnt += config['editionUrl'] + '=' + row.id;
+		    cnt += config['editionUrl'] + row.id;
 		    cnt += "\" class=\"noLink\"><span class=\"fa-solid fa-pen\"></span></a>";
 		}
 		cnt += '</p><p class="publicationAuthors">'

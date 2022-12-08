@@ -240,7 +240,7 @@ public class PublicationViewController extends AbstractViewController {
 		modelAndView.addObject("enableSortChanges", Boolean.valueOf(enableSortChanges)); //$NON-NLS-1$
 		if (isLoggedIn()) {
 			modelAndView.addObject("editionUrl", endpoint(Constants.PUBLICATION_EDITING_ENDPOINT, //$NON-NLS-1$
-					Constants.PUBLICATION_ENDPOINT_PARAMETER, organizationIdObj));
+					Constants.PUBLICATION_ENDPOINT_PARAMETER));
 			modelAndView.addObject("bibtexImportUrl", endpoint(Constants.IMPORT_BIBTEX_VIEW_ENDPOINT)); //$NON-NLS-1$
 			modelAndView.addObject("additionUrl", endpoint(Constants.PUBLICATION_EDITING_ENDPOINT)); //$NON-NLS-1$
 		}
