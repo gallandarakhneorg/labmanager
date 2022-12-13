@@ -18,6 +18,7 @@
         <th th:utext="#{html.WoS}"></th>
         <th th:utext="#{html.ImpactFactor}"></th>
         <th th:utext="#{html.PapersCount}"></th>
+        <th th:utext="#{html.Validated}"></th>
         <th th:text="#{html.Actions}"></th>
     </thead>
     <tbody>
@@ -69,6 +70,10 @@
                    th:href="@{/publicationList(journal=${journal.id})}">
 	                <th:block th:utext="${journal.publishedPapers.size}"></th:block></a>
             </td>
+            <td>
+            	<th:block th:if="${journal.validated}"><i style="color:green" class="fa-solid fa-check-circle"></i></th:block>
+            	<th:block th:unless="${journal.validated}"><i style="color:red"  class="fa-solid fa-triangle-exclamation"></i></th:block>
+            </td>
             <td th:replace="fragments/table :: adminToolButtons(${journal.id}, ${journal.journalName},
             		#{html.EditJournal1(${journal.journalName})},
             		#{html.DeleteJournal1(${journal.journalName})},
@@ -93,7 +98,7 @@
 <script type="text/javascript" th:inline="javascript">
     $(document).ready(() => {
     	initAdministrationTable({
-            columns: 9,
+            columns: 10,
     		actionWidth: '180px',
     	});
         /*[# th:if="${changeEnabled}" th:each="journal : ${journals}"]*/

@@ -138,6 +138,7 @@ public class JournalApiController extends AbstractApiController {
 	 * @param journalUrl the URL to the page of the journal on the publisher website.
 	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case the journal cannot be saved
 	 */
@@ -153,6 +154,7 @@ public class JournalApiController extends AbstractApiController {
 			@RequestParam(required = false) String journalUrl,
 			@RequestParam(required = false) String scimagoId,
 			@RequestParam(required = false) String wosId,
+			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.JOURNAL_SAVING_ENDPOINT, journal);
 		final Journal optJournal;
@@ -168,11 +170,11 @@ public class JournalApiController extends AbstractApiController {
 		//
 		if (journal == null) {
 			optJournal = this.journalService.createJournal(
-					inName, inAddress, inPublisher, inIsbn, inIssn,
+					validated, inName, inAddress, inPublisher, inIsbn, inIssn,
 					openAccess, inJournalUrl, inScimagoId, inWosId);
 		} else {
 			optJournal = this.journalService.updateJournal(journal.intValue(),
-					inName, inAddress, inPublisher, inIsbn, inIssn,
+					validated, inName, inAddress, inPublisher, inIsbn, inIssn,
 					openAccess, inJournalUrl, inScimagoId, inWosId);
 		}
 		if (optJournal == null) {

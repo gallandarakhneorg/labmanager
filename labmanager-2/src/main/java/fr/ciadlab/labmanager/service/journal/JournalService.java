@@ -145,6 +145,7 @@ public class JournalService extends AbstractService {
 
 	/** Create a journal into the database.
 	 *
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param name the name of the journal.
 	 * @param address the address of the publisher of the journal.
 	 * @param publisher the name of the publisher of the journal.
@@ -156,7 +157,7 @@ public class JournalService extends AbstractService {
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
 	 * @return the created journal.
 	 */
-	public Journal createJournal(String name, String address, String publisher, String isbn, String issn,
+	public Journal createJournal(boolean validated, String name, String address, String publisher, String isbn, String issn,
 			Boolean openAccess, String journalUrl, String scimagoId, String wosId) {
 		final Journal res = new Journal();
 		res.setJournalName(name);
@@ -168,6 +169,7 @@ public class JournalService extends AbstractService {
 		res.setJournalURL(journalUrl);
 		res.setScimagoId(scimagoId);
 		res.setWosId(wosId);
+		res.setValidated(validated);
 		this.journalRepository.save(res);
 		return res;
 	}
@@ -193,6 +195,7 @@ public class JournalService extends AbstractService {
 	/** Update the information of a journal.
 	 *
 	 * @param identifier the identifier of the journal for which information must be updated.
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param name the name of the journal.
 	 * @param address the address of the publisher of the journal.
 	 * @param publisher the name of the publisher of the journal.
@@ -204,7 +207,7 @@ public class JournalService extends AbstractService {
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
 	 * @return the updated journal.
 	 */
-	public Journal updateJournal(int identifier, String name, String address, String publisher, String isbn, String issn,
+	public Journal updateJournal(int identifier, boolean validated, String name, String address, String publisher, String isbn, String issn,
 			Boolean openAccess, String journalUrl, String scimagoId, String wosId) {
 		final Optional<Journal> res = this.journalRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
@@ -222,6 +225,7 @@ public class JournalService extends AbstractService {
 				journal.setJournalURL(Strings.emptyToNull(journalUrl));
 				journal.setScimagoId(Strings.emptyToNull(scimagoId));
 				journal.setWosId(Strings.emptyToNull(wosId));
+				journal.setValidated(validated);
 				this.journalRepository.save(journal);
 				return journal; 
 			}

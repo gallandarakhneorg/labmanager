@@ -199,7 +199,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void createJournal() {
-		final Journal journal = this.test.createJournal("NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NWOS");
+		final Journal journal = this.test.createJournal(true, "NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NWOS");
 		
 		assertNotNull(journal);
 
@@ -208,6 +208,7 @@ public class JournalServiceTest {
 		final Journal actual = arg.getValue();
 		assertNotNull(actual);
 		assertSame(journal, actual);
+		assertTrue(actual.isValidated());
 		assertEquals("NN", actual.getJournalName());
 		assertEquals("NA", actual.getAddress());
 		assertEquals("NP", actual.getPublisher());
@@ -238,7 +239,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void updateJournal() {
-		this.test.updateJournal(234, "NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NWOS");
+		this.test.updateJournal(234, true, "NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NWOS");
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.journalRepository, atLeastOnce()).findById(arg0.capture());
@@ -253,6 +254,7 @@ public class JournalServiceTest {
 
 		final ArgumentCaptor<String> arg2 = ArgumentCaptor.forClass(String.class);
 
+		verify(this.jour1, atLeastOnce()).setValidated(eq(true));
 		verify(this.jour1, atLeastOnce()).setJournalName(eq("NN"));
 		verify(this.jour1, atLeastOnce()).setAddress(eq("NA"));
 		verify(this.jour1, atLeastOnce()).setPublisher(eq("NP"));

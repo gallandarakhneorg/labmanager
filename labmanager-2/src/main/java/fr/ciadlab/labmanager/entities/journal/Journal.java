@@ -130,6 +130,11 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	@Column(nullable = true)
 	private Boolean openAccess;
 
+	/** Indicates if the journal was validated by an authority.
+	 */
+	@Column(nullable = false)
+	private boolean validated;
+
 	/** List of papers that are published in this journal.
 	 */
 	@OneToMany(mappedBy = "journal", fetch = FetchType.LAZY)
@@ -169,6 +174,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		this.isbn = journal.getISBN();
 		this.issn = journal.getISSN();
 		this.openAccess = journal.getOpenAccess();
+		this.validated = journal.isValidated();
 	}
 
 	@Override
@@ -184,6 +190,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		h = HashCodeUtils.add(h, this.isbn);
 		h = HashCodeUtils.add(h, this.issn);
 		h = HashCodeUtils.add(h, this.openAccess);
+		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
@@ -226,6 +233,9 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		if (!Objects.equals(this.openAccess, other.openAccess)) {
 			return false;
 		}
+		if (this.validated != other.validated) {
+			return false;
+		}
 		return true;
 	}
 
@@ -265,9 +275,10 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		if (!Strings.isNullOrEmpty(getISSN())) {
 			consumer.accept("issn", getISSN()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getISSN())) {
+		if (getOpenAccess() != null) {
 			consumer.accept("openAccess", getOpenAccess()); //$NON-NLS-1$
 		}
+		consumer.accept("validated", Boolean.valueOf(isValidated())); //$NON-NLS-1$
 	}
 
 	@Override
@@ -714,6 +725,34 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 */
 	public void setISSN(String issn) {
 		this.issn = Strings.emptyToNull(issn);
+	}
+
+	/** Replies if this journal was validated by an authority.
+	 *
+	 * @return {@code true} if the journal is validated.
+	 */
+	public boolean isValidated() {
+		return this.validated;
+	}
+
+	/** Change the flag that indicates if this journal was validated by an authority.
+	 *
+	 * @param validated {@code true} if the journal is validated.
+	 */
+	public void setValidated(boolean validated) {
+		this.validated = validated;
+	}
+
+	/** Change the flag that indicates if this journal was validated by an authority.
+	 *
+	 * @param validated {@code true} if the journal is validated.
+	 */
+	public final void setValidated(Boolean validated) {
+		if (validated == null) {
+			setValidated(false);
+		} else {
+			setValidated(validated.booleanValue());
+		}
 	}
 
 }
