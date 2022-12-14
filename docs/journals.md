@@ -33,6 +33,7 @@ The columns of the table are the following:
 * `WoS`: indicates quartile of the journal on Web-of-Science website (see Section 4 for updating this ranking).
 * `Impact Factor`: indicates impact factor of the journal, usually provided by the publisher (see Section 4 for updating this impact factor).
 * `# Papers`: the count of papers that were published in this journal by a member of the research organization.
+* `Validated`: indicates if a local authority has validated the information associated to this journal. Added journals are not valid by default.
 * `Actions`: list of tools to be applied on a journal:
   * editing the journal information (see Section 3),
   * deletion of the journal,
@@ -60,6 +61,8 @@ The backend software provides a form for editing or adding a journal in the info
 * `WoS identifier of the journal`: it is the unique number associated to the journal of the [Web-of-Science](http://www.webofscience.com) system.
 
 > **_IMPORTANT NOTE 2:_** Without a WoS identifier, the information system of the laboratory will not get the quartiles from the Scimago website. You will have to enter them manually (see Section 4).
+
+* `Is the journal validated by a local authority?`: it is the boolean flag that indicates if a local authority has validated the information associated to the journal. Only a local authority (Director of a lab, etc.) may change this indicator.
 
 ## 4. Ranking of a journal
 

@@ -2,7 +2,7 @@
 
 # Documentation of the Backend Software for the CIAD laboratory
 
-> **_Version:_** 2022-11-15
+> **_Version:_** 2022-12-14
 
 ## 1. Introduction
 
