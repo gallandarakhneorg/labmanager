@@ -66,6 +66,7 @@
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToDownloadablePDF, #{html.PdfDocumentFor})"></div>
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToDownloadableAwardCertificate, #{html.AwardDocumentFor})"></div>
 	<div class="form-group" th:replace="fragments/form :: checkInput(manualValidationForced, #{html.ManualValidationForced}, #{html.ManualValidationForced}, ${publication != null ? publication.manualValidationForced : false})"></div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedPublication}, #{html.ValidatedPublication}, ${publication != null ? publication.validated : false})"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
 $(document).ready(function () {

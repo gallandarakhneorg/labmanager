@@ -16,6 +16,7 @@
         <th th:utext="#{html.Year}"></th>
         <th th:utext="#{html.WherePublished}"></th>
         <th th:utext="#{html.Files}"></th>
+        <th th:utext="#{html.Validated}"></th>
         <th th:text="#{html.Actions}"></th>
     </thead>
     <tbody>
@@ -70,6 +71,10 @@
 					        th:title="#{html.AwardDocumentFor}"
 					        style="font-size:14pt"></button></a>
             </td>
+            <td>
+            	<th:block th:if="${publication.validated}"><i style="color:green" class="fa-solid fa-check-circle"></i></th:block>
+            	<th:block th:unless="${publication.validated}"><i style="color:red"  class="fa-solid fa-triangle-exclamation"></i></th:block>
+            </td>
             <td th:replace="fragments/table :: adminToolButtons(${publication.id}, ${publication.title},
             		#{html.EditPublication1(${publication.title})},
             		#{html.DeletePublication1(${publication.title})},
@@ -82,7 +87,7 @@
 <script type="text/javascript" th:inline="javascript">
     $(document).ready(() => {
     	initAdministrationTable({
-    		columns: 7,
+    		columns: 8,
     		order: [ [4, 'desc'], [2, 'asc'], [1, 'asc'] ],
     	});
         /*[# th:if="${changeEnabled}" th:each="publication : ${publications}"]*/

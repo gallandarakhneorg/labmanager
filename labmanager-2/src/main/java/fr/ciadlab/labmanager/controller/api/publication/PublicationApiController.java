@@ -134,6 +134,7 @@ public class PublicationApiController extends AbstractApiController {
 	 *
 	 * @param publication the identifier of the publication. If the identifier is not provided, this endpoint is supposed to create
 	 *     a publication in the database.
+	 * @param validated indicates if the publication is validated by a local authority.
 	 * @param pathToDownloadablePDF the uploaded PDF file for the publication.
 	 * @param pathToDownloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
@@ -145,6 +146,7 @@ public class PublicationApiController extends AbstractApiController {
 	@PutMapping(value = "/" + Constants.PUBLICATION_SAVING_ENDPOINT)
 	public void savePublication(
 			@RequestParam(required = false) Integer publication,
+			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@RequestParam(required = false) List<String> authors,
 			@RequestParam(required = false) MultipartFile pathToDownloadablePDF,
 			@RequestParam(required = false) MultipartFile pathToDownloadableAwardCertificate,
@@ -169,10 +171,10 @@ public class PublicationApiController extends AbstractApiController {
 			allParameters.put("type", typeValue); //$NON-NLS-1$
 			//
 			if (publication == null) {
-				optPublication = this.publicationService.createPublicationFromMap(allParameters,
+				optPublication = this.publicationService.createPublicationFromMap(validated, allParameters,
 						inAuthors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
 			} else {
-				optPublication = this.publicationService.updatePublicationFromMap(publication.intValue(), allParameters,
+				optPublication = this.publicationService.updatePublicationFromMap(publication.intValue(), validated, allParameters,
 						inAuthors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
 			}
 			if (optPublication.isEmpty()) {

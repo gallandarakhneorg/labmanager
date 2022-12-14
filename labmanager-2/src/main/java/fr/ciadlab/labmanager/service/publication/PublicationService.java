@@ -732,6 +732,7 @@ public class PublicationService extends AbstractService {
 	/** Create a publication in the database from values stored in the given map.
 	 * This function ignore the attributes related to uploaded files.
 	 *
+	 * @param validated indicates if the publication is validated by a local authority.
 	 * @param attributes the values of the attributes for the publication's creation.
 	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
 	 *     (for unknown persons). It is assumed that this list contains at least one author that is associated to a research organization.
@@ -740,7 +741,9 @@ public class PublicationService extends AbstractService {
 	 * @return the created publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
-	public Optional<Publication> createPublicationFromMap(Map<String, String> attributes,
+	public Optional<Publication> createPublicationFromMap(
+			boolean validated,
+			Map<String, String> attributes,
 			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
 		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
 		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
@@ -766,6 +769,7 @@ public class PublicationService extends AbstractService {
 				languageEnum);
 
 		// Second step: save late attributes of the fake publication
+		publication.setValidated(validated);
 		publication.setPublicationYear(year);
 		publication.setManualValidationForced(optionalBoolean(attributes, "manualValidationForced")); //$NON-NLS-1$
 
@@ -867,6 +871,7 @@ public class PublicationService extends AbstractService {
 	/** Update an existing publication in the database from values stored in the given map.
 	 *
 	 * @param id the identifier of the publication.
+	 * @param validated indicates if the publication is validated by a local authority.
 	 * @param attributes the values of the attributes for the publication's creation.
 	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
 	 *     (for unknown persons). It is assumed that this list contains at least one author that is associated to a research organization.
@@ -875,7 +880,7 @@ public class PublicationService extends AbstractService {
 	 * @return the updated publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
-	public Optional<Publication> updatePublicationFromMap(int id, Map<String, String> attributes,
+	public Optional<Publication> updatePublicationFromMap(int id, boolean validated, Map<String, String> attributes,
 			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
 		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
 		// First step : find the publication
@@ -887,7 +892,7 @@ public class PublicationService extends AbstractService {
 		// Second step: check for any change of publication type
 		if (isInstanceTypeChangeNeeded(publication, typeEnum)) {
 			removePublication(id, false);
-			optPublication = createPublicationFromMap(attributes, authors, downloadablePDF, downloadableAwardCertificate);
+			optPublication = createPublicationFromMap(validated, attributes, authors, downloadablePDF, downloadableAwardCertificate);
 			if (optPublication.isPresent()) {
 				final Publication newPublication = optPublication.get();
 				final int newId = newPublication.getId();
@@ -921,7 +926,7 @@ public class PublicationService extends AbstractService {
 			return optPublication;
 		}
 		// Third step: update of an existing publication
-		updateExistingPublicationFromMap(publication, typeEnum, attributes, authors, downloadablePDF, downloadableAwardCertificate);
+		updateExistingPublicationFromMap(publication, typeEnum, validated, attributes, authors, downloadablePDF, downloadableAwardCertificate);
 		return optPublication;
 	}
 
@@ -934,6 +939,7 @@ public class PublicationService extends AbstractService {
 	 *
 	 * @param publication the publication.
 	 * @param type the type of the publication to be set-up.
+	 * @param validated indicates if the publication is validated by a local authority.
 	 * @param attributes the values of the attributes for the publication's creation.
 	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
 	 *     (for unknown persons).
@@ -941,14 +947,16 @@ public class PublicationService extends AbstractService {
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
-	protected void updateExistingPublicationFromMap(Publication publication, PublicationType type, Map<String, String> attributes,
-			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
+	protected void updateExistingPublicationFromMap(Publication publication, PublicationType type, boolean validated,
+			Map<String, String> attributes, List<String> authors, MultipartFile downloadablePDF,
+			MultipartFile downloadableAwardCertificate) throws IOException {
 		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
 		final LocalDate date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
 		final int year = ensureYear(attributes, "publicationDate"); //$NON-NLS-1$;
 
 		// First step: Update the specific fields.
 		publication.setManualValidationForced(optionalBoolean(attributes, "manualValidationForced")); //$NON-NLS-1$
+		publication.setValidated(validated);
 
 		// Second step: Update the list of authors.
 		updateAuthorList(false, publication, authors);
