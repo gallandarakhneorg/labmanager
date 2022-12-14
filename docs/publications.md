@@ -78,6 +78,7 @@ The columns of the table are the following:
 * `Year`: the year of publishing.
 * `Where published`: the journal, conference or place where the publication was comitted.
 * `Files`: the list of associated files (PDF of the publication, scanning of any award associated to the publication).
+* `Validated`: an icon in this column indicates if the information of the publication was validated by a local authority.
 * `Actions`: list of tools to be applied on a publication:
   * editing the publication information (see Section 4),
   * deletion of the publication,
@@ -110,6 +111,7 @@ The fields that are common to all the types of publications are:
 * `PDF copy of the publication`: you could provide the PDF copy of your publication to the information system.
 * `Award certificate for the publication`: if you have gained an award associated to the publication, you could publish the PDF copy of this award.
 * `Force the validation of the publication by organization authority`: this flag is used by some tools for validating this publication and avoid to be considered as a duplicate publication in the database.
+* `Is the publication validated by a local authority?` indicates if a local authority, e.g. the Director of the research lab, has validated the information associated to the publication. 
 
 
 ### 4.2. Fields for publications in journals or journal editions
