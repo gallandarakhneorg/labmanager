@@ -672,7 +672,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			final Publication finalPublication;
 			switch (type) {
 			case INTERNATIONAL_JOURNAL_PAPER:
-				String journalName = field(entry, KEY_JOURNAL);
+				String journalName = fieldRequired(entry, KEY_JOURNAL);
 				final Journal journal;
 				if (createMissedJournal) {
 					journal = findJournalOrCreateProxy(key, journalName,
