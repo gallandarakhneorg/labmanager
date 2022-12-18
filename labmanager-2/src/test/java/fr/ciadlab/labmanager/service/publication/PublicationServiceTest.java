@@ -569,7 +569,7 @@ public class PublicationServiceTest {
 		when(this.publicationRepository.findAllByAuthorshipsPersonIdIn(any())).thenReturn(
 				new HashSet<>(Arrays.asList(this.pub0, this.pub2)));
 
-		final Set<Publication> list = this.test.getPublicationsByOrganizationId(2345, false);
+		final Set<Publication> list = this.test.getPublicationsByOrganizationId(2345, false, false);
 		assertNotNull(list);
 		assertEquals(2, list.size());
 		assertTrue(list.contains(this.pub0));

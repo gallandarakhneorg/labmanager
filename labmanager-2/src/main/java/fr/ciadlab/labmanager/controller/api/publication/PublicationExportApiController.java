@@ -103,7 +103,9 @@ public class PublicationExportApiController extends AbstractApiController {
 	private <T> T export(List<Integer> identifiers, Integer dbId, String webId, Integer organization,
 			Integer journal,
 			boolean groupByCategory, boolean groupByYear,
-			boolean includeSuborganizations, Boolean nameHighlight, Boolean color,
+			boolean includeSuborganizations,
+			boolean filterAuthorshipsWithActiveMemberships,
+			Boolean nameHighlight, Boolean color,
 			Boolean downloadButtons, Boolean exportButtons, 
 			Boolean editButtons, Boolean deleteButtons, Boolean htmlAuthors, Boolean htmlPublicationDetails,
 			Boolean htmlTypeAndCategory, ExporterCallback<T> callback) throws Exception {
@@ -168,7 +170,8 @@ public class PublicationExportApiController extends AbstractApiController {
 			} else if (!Strings.isNullOrEmpty(webId)) {
 				pubs = this.publicationService.getPublicationsByPersonWebPageId(webId);
 			} else if (organization != null) {
-				pubs = this.publicationService.getPublicationsByOrganizationId(organization.intValue(), includeSuborganizations);
+				pubs = this.publicationService.getPublicationsByOrganizationId(organization.intValue(),
+						includeSuborganizations, filterAuthorshipsWithActiveMemberships);
 			} else if (journal != null) {
 				pubs = this.journalPaperService.getJournalPapersByJournalId(journal.intValue());
 			} else {
@@ -196,13 +199,15 @@ public class PublicationExportApiController extends AbstractApiController {
 	 * @param dbId the database identifier of the author for who the publications must be exported.
 	 * @param webId the webpage identifier of the author for who the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
-	 * @param groupByCategory indicates if the publications must be grouped by category of publication.
-	 * @param groupByYear indicates if the publications must be grouped by year of publication.
+	 * @param groupByCategory indicates if the publications must be grouped by category of publication (if value is {@code false}).
+	 * @param groupByYear indicates if the publications must be grouped by year of publication (if value is {@code false}).
 	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
-	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code false}).
+	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code true}).
+	 * @param filterAuthorshipsWithActiveMemberships indicates if the authorships must correspond to active memberships
+	 *      (if value is {@code true}).
 	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
-	 *     Providing this identifier will have an effect on the formatting of the authors' names.
-	 * @param color indicates if the colors are enabled for producing the HTML output. 
+	 *     Providing this identifier will have an effect on the formatting of the authors' names (if value is {@code true}).
+	 * @param color indicates if the colors are enabled for producing the HTML output (if value is {@code true}). 
 	 * @param inAttachment indicates if the HTML is provided as attached document or not. By default, the value is
 	 *     {@code false}.
 	 * @return the HTML description of the publications.
@@ -219,13 +224,14 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false") boolean groupByCategory,
 			@RequestParam(required = false, defaultValue = "false") boolean groupByYear,
 			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
+			@RequestParam(required = false, defaultValue = "true") boolean filterAuthorshipsWithActiveMemberships,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportHtml(pubs, configurator);
 		final String content = export(identifiers, dbId, inString(webId), organization, journal,
 				groupByCategory, groupByYear,
-				includeSuborganizations, nameHighlight, color,
+				includeSuborganizations, filterAuthorshipsWithActiveMemberships, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.TEXT_HTML);
 		if (inAttachment != null && inAttachment.booleanValue()) {
@@ -253,7 +259,9 @@ public class PublicationExportApiController extends AbstractApiController {
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
 	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
-	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code false}).
+	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code true}).
+	 * @param filterAuthorshipsWithActiveMemberships indicates if the authorships must correspond to active memberships
+	 *      (if value is {@code true}).
 	 * @param inAttachment indicates if the BibTeX is provided as attached document or not. By default, the value is
 	 *     {@code false}.
 	 * @return the BibTeX description of the publications.
@@ -268,9 +276,11 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
+			@RequestParam(required = false, defaultValue = "true") boolean filterAuthorshipsWithActiveMemberships,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportBibTeX(pubs, configurator);
-		final String content = export(identifiers, dbId, inString(webId), organization, journal, false, false, includeSuborganizations, Boolean.FALSE, Boolean.FALSE,
+		final String content = export(identifiers, dbId, inString(webId), organization, journal, false, false,
+				includeSuborganizations, filterAuthorshipsWithActiveMemberships, Boolean.FALSE, Boolean.FALSE,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE_UTF8);
 		if (inAttachment != null && inAttachment.booleanValue()) {
@@ -300,10 +310,12 @@ public class PublicationExportApiController extends AbstractApiController {
 	 * @param groupByCategory indicates if the publications must be grouped by category of publication.
 	 * @param groupByYear indicates if the publications must be grouped by year of publication.
 	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
-	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code false}).
-	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization. 
-	 *     Providing this identifier will have an effect on the formatting of the authors' names.
-	 * @param color indicates if the colors are enabled for producing the ODT output. 
+	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code true}).
+	 * @param filterAuthorshipsWithActiveMemberships indicates if the authorships must correspond to active memberships
+	 *      (if value is {@code true}).
+	 * @param nameHighlight indicates if the names of the authors should be highlighted depending on their status in the organization
+	 *     (if value is {@code false}). Providing this identifier will have an effect on the formatting of the authors' names.
+	 * @param color indicates if the colors are enabled for producing the ODT output(if value is {@code true}). 
 	 * @param inAttachment indicates if the ODT is provided as attached document or not. By default, the value is
 	 *     {@code false}.
 	 * @return the OpenDocument description of the publications.
@@ -320,13 +332,14 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false") boolean groupByCategory,
 			@RequestParam(required = false, defaultValue = "false") boolean groupByYear,
 			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
+			@RequestParam(required = false, defaultValue = "true") boolean filterAuthorshipsWithActiveMemberships,
 			@RequestParam(required = false, defaultValue = "true") Boolean nameHighlight,
 			@RequestParam(required = false, defaultValue = "true") Boolean color,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
 		final ExporterCallback<byte[]> cb = (pubs, configurator) -> this.publicationService.exportOdt(pubs, configurator);
 		final byte[] content = export(identifiers, dbId, inString(webId), organization, journal,
 				groupByCategory, groupByYear,
-				includeSuborganizations, nameHighlight, color,
+				includeSuborganizations, filterAuthorshipsWithActiveMemberships, nameHighlight, color,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(OpenDocumentConstants.ODT_MIME_TYPE);
 		if (inAttachment != null && inAttachment.booleanValue()) {
@@ -363,6 +376,8 @@ public class PublicationExportApiController extends AbstractApiController {
 	 * @param journal the identifier of the journal for which the publications must be exported.
 	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
 	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code false}).
+	 * @param filterAuthorshipsWithActiveMemberships indicates if the authorships must correspond to active memberships
+	 *      (if value is {@code true}).
 	 * @param forAjax indicates if the JSON is provided to AJAX. By default, the value is
 	 *     {@code false}. If the JSON is provided to AJAX, the data is included into the root key {@code data} that is expected by AJAX.
 	 *     If this parameter is evaluated to {@code true}, the parameter {@code inAttachment} is ignored.
@@ -383,6 +398,7 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
+			@RequestParam(required = false, defaultValue = "true") boolean filterAuthorshipsWithActiveMemberships,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
@@ -397,7 +413,8 @@ public class PublicationExportApiController extends AbstractApiController {
 			}
 			return this.publicationService.exportJson(pubs, configurator);
 		};
-		final String content = export(identifiers, dbId, inString(webId), organization, journal, false, false, includeSuborganizations, isAjaxObj, Boolean.FALSE,
+		final String content = export(identifiers, dbId, inString(webId), organization, journal, false, false,
+				includeSuborganizations, filterAuthorshipsWithActiveMemberships, isAjaxObj, Boolean.FALSE,
 				isAjaxObj, isAjaxObj, isLoggedIn, isLoggedIn, isAjaxObj, isAjaxObj, isAjaxObj, cb);
 		BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON);
 		if (isAttachment) {

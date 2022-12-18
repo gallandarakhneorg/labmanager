@@ -255,9 +255,11 @@ public class PublicationService extends AbstractService {
 	 *
 	 * @param identifier the identifier of the organization.
 	 * @param includeSubOrganizations indicates if the members of the suborganizations are considered.
+	 * @param filterAuthorshipsWithActiveMemberships indicates if the authorships must correspond to active memberships.
 	 * @return the publications.
 	 */
-	public Set<Publication> getPublicationsByOrganizationId(int identifier, boolean includeSubOrganizations) {
+	public Set<Publication> getPublicationsByOrganizationId(int identifier, boolean includeSubOrganizations,
+			boolean filterAuthorshipsWithActiveMemberships) {
 		final Set<Person> members;
 		if (includeSubOrganizations) {
 			members = this.membershipService.getMembersOf(identifier);
@@ -265,7 +267,33 @@ public class PublicationService extends AbstractService {
 			members = this.membershipService.getDirectMembersOf(identifier);
 		}
 		final Set<Integer> identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
-		return this.publicationRepository.findAllByAuthorshipsPersonIdIn(identifiers);
+		final Set<Publication> publications = this.publicationRepository.findAllByAuthorshipsPersonIdIn(identifiers);
+		if (filterAuthorshipsWithActiveMemberships) {
+			return publications.stream().filter(it -> hasActiveAuthor(it))
+					.collect(Collectors.toUnmodifiableSet());
+		}
+		return publications;
+	}
+
+	private static boolean hasActiveAuthor(Publication publication) {
+		final LocalDate pubDate = publication.getPublicationDate();
+		if (pubDate != null) {
+			for (final Person author : publication.getAuthors()) {
+				if (!author.getRecentMemberships(it -> it.isActiveAt(pubDate)).isEmpty()) {
+					return true;
+				}
+			}
+		} else {
+			final int year = publication.getPublicationYear();
+			final LocalDate start = LocalDate.of(year, 1, 1);
+			final LocalDate end = LocalDate.of(year, 12, 31);
+			for (final Person author : publication.getAuthors()) {
+				if (!author.getRecentMemberships(it -> it.isActiveIn(start, end)).isEmpty()) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/** Replies the publication with the given identifier.
