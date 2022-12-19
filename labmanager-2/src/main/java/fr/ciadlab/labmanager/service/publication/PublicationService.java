@@ -64,7 +64,6 @@ import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
-import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
@@ -96,7 +95,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @mavenartifactid $ArtifactId$
  */
 @Service
-public class PublicationService extends AbstractService {
+public class PublicationService extends AbstractPublicationService {
 
 	private PublicationRepository publicationRepository;
 
@@ -269,31 +268,9 @@ public class PublicationService extends AbstractService {
 		final Set<Integer> identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
 		final Set<Publication> publications = this.publicationRepository.findAllByAuthorshipsPersonIdIn(identifiers);
 		if (filterAuthorshipsWithActiveMemberships) {
-			return publications.stream().filter(it -> hasActiveAuthor(it))
-					.collect(Collectors.toUnmodifiableSet());
+			return filterPublicationsWithMemberships(publications, identifier, includeSubOrganizations);
 		}
 		return publications;
-	}
-
-	private static boolean hasActiveAuthor(Publication publication) {
-		final LocalDate pubDate = publication.getPublicationDate();
-		if (pubDate != null) {
-			for (final Person author : publication.getAuthors()) {
-				if (!author.getRecentMemberships(it -> it.isActiveAt(pubDate)).isEmpty()) {
-					return true;
-				}
-			}
-		} else {
-			final int year = publication.getPublicationYear();
-			final LocalDate start = LocalDate.of(year, 1, 1);
-			final LocalDate end = LocalDate.of(year, 12, 31);
-			for (final Person author : publication.getAuthors()) {
-				if (!author.getRecentMemberships(it -> it.isActiveIn(start, end)).isEmpty()) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	/** Replies the publication with the given identifier.

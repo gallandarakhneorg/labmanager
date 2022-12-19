@@ -375,7 +375,7 @@ public class PublicationExportApiController extends AbstractApiController {
 	 * @param organization the identifier of the organization for which the publications must be exported.
 	 * @param journal the identifier of the journal for which the publications must be exported.
 	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
-	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code false}).
+	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code true}).
 	 * @param filterAuthorshipsWithActiveMemberships indicates if the authorships must correspond to active memberships
 	 *      (if value is {@code true}).
 	 * @param forAjax indicates if the JSON is provided to AJAX. By default, the value is

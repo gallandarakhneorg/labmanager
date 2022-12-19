@@ -105,9 +105,11 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the organization.
 	 * @param includeSubOrganizations indicates if the members of the suborganizations are considered.
+	 * @param filterAuthorshipsWithActiveMemberships indicates if the authorships must correspond to active memberships.
 	 * @return the publications.
 	 */
-	public Set<JournalPaper> getJournalPapersByOrganizationId(int identifier, boolean includeSubOrganizations) {
+	public Set<JournalPaper> getJournalPapersByOrganizationId(int identifier, boolean includeSubOrganizations,
+			boolean filterAuthorshipsWithActiveMemberships) {
 		final Set<Person> members;
 		if (includeSubOrganizations) {
 			members = this.membershipService.getMembersOf(identifier);
@@ -115,7 +117,11 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 			members = this.membershipService.getDirectMembersOf(identifier);
 		}
 		final Set<Integer> identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
-		return this.repository.findAllByAuthorshipsPersonIdIn(identifiers);
+		final Set<JournalPaper> publications = this.repository.findAllByAuthorshipsPersonIdIn(identifiers);
+		if (filterAuthorshipsWithActiveMemberships) {
+			return filterPublicationsWithMemberships(publications, identifier, includeSubOrganizations);
+		}
+		return publications;
 	}
 
 	/** Create a journal paper.
