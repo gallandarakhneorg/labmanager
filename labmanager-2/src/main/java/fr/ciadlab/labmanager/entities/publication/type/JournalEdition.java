@@ -344,4 +344,13 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		}
 	}
 
+	@Override
+	public Boolean getOpenAccess() {
+		final Journal journal = getJournal();
+		if (journal != null) {
+			return journal.getOpenAccess();
+		}
+		return null;
+	}
+
 }

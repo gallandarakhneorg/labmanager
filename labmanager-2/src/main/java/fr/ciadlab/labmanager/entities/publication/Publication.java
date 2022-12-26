@@ -1134,4 +1134,14 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		}
 	}
 
+	/** Replies if the publication is open access
+	 *
+	 * @return {@link Boolean#TRUE} if the publication is open access, {@link Boolean#FALSE} if the publication is not open access,
+	 *     or {@code null} if the open access flag is unknown.
+	 */
+	@SuppressWarnings("static-method")
+	public Boolean getOpenAccess() {
+		return null;
+	}
+
 }
