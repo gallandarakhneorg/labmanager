@@ -22,6 +22,7 @@ import java.io.Reader;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -417,6 +418,48 @@ public class PublicationService extends AbstractPublicationService {
 					this.fileManager.deleteDownloadableAwardPdfFile(identifier);
 				} catch (Throwable ex) {
 					// Silent
+				}
+			}
+		}
+	}
+
+	/** Remove the publications with the given identifiers.
+	 *
+	 * @param identifiers the identifiers of the publications to remove.
+	 * @param removeAssociatedFiles indicates if the associated files (PDF, Award...) should be also deleted.
+	 * @since 2.4
+	 */
+	public void removePublications(Collection<Integer> identifiers, boolean removeAssociatedFiles) {
+		final Set<Publication> publications = this.publicationRepository.findAllByIdIn(identifiers);
+		if (!publications.isEmpty()) {
+			for (final Publication publication : publications) {
+				final int id = publication.getId();
+				final Iterator<Authorship> iterator = publication.getAuthorships().iterator();
+				while (iterator.hasNext()) {
+					final Authorship autship = iterator.next();
+					final Person person = autship.getPerson();
+					if (person != null) {
+						person.getAuthorships().remove(autship);
+						autship.setPerson(null);
+						this.personRepository.save(person);
+					}
+					autship.setPublication(null);
+					iterator.remove();
+					this.authorshipRepository.save(autship);
+				}
+				publication.getAuthorshipsRaw().clear();
+				this.publicationRepository.deleteById(Integer.valueOf(id));
+				if (removeAssociatedFiles) {
+					try {
+						this.fileManager.deleteDownloadablePublicationPdfFile(id);
+					} catch (Throwable ex) {
+						// Silent
+					}
+					try {
+						this.fileManager.deleteDownloadableAwardPdfFile(id);
+					} catch (Throwable ex) {
+						// Silent
+					}
 				}
 			}
 		}

@@ -9,7 +9,9 @@
  *      * `name` the name of the element. If it is provided and `elementNameCallback` is not provided, it is used.  
  *      * `elementNameCallback` a function that is invoked for obtaining the name of the element that is the subject
  *        of the deletion. This function takes zero argument.
- *      * `url` the URL to pass to AJAX for deleting the element.
+ *      * `url` the URL to pass to AJAX for deleting the element. It is used if `urlBuilder` is not provided.
+ *      * `urlBuilder` the function for building the URL. It takes no argument and replies the URL. If it is not provided
+ *      * `url` is used.
  *      * `questionTitle` title of the dialog box when querying if deleiton must continue.
  *      * `questionText` text to show in the dialog box when querying if deleiton must continue.
  *      * `confirmButtonText` the text of the button of the dialog box to indicate "Yes".
@@ -37,7 +39,8 @@ function attachDeletionHandler_base( config ) {
    		  confirmButtonText: config['confirmButtonText']
    		} ).then(result => {
 			if (result.isConfirmed) {
-				fetch(config['url'], {
+				const url = config['urlBuilder'] ? config['urlBuilder']() : config['url'];
+				fetch(url, {
 		    	    method:'DELETE'
 		    	} ).then(response => {
 		    		if (response.ok) {

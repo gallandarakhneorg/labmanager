@@ -1,11 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
 <th:block th:replace="fragments/libs :: bootstrap-datatable"/>
 
 <th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
 
 <th:block th:replace="fragments/nav :: publicationListBar"/>
+
+<button id="btDeleteDisplayedPapers" class="btn btn-danger mt-4 pr-4 pl-4"
+	th:if="${changeEnabled}" th:utext="#{html.DeleteDisplayedPublications}"></button>
 
 <table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
     <thead>
@@ -86,7 +90,7 @@
 </table>
 <script type="text/javascript" th:inline="javascript">
     $(document).ready(() => {
-    	initAdministrationTable({
+    	const dtable = initAdministrationTable({
     		columns: 8,
     		order: [ [4, 'desc'], [2, 'asc'], [1, 'asc'] ],
     	});
@@ -100,6 +104,29 @@
 			successText: [[#{html.PublicationDeleted}]],
 			failureText: [[#{html.CannotDeletePublication}]],
 	    });
+        /*[/]*/
+        /*[# th:if="${changeEnabled}"]*/
+		attachDeletionHandler({
+			selector: "#btDeleteDisplayedPapers",
+			name: "all",
+			questionTitle: [[#{html.DeleteDisplayedPublications}]],
+			questionText: [[#{html.AreYouSureToDeleteAllDisplayedPublications}]],
+			confirmButtonText: [[#{html.YesDeleteThem}]],
+			failureText: [[#{html.ErrorAllPublicationDeletion}]],
+			urlBuilder: () => {
+				var list = "";
+				dtable.rows( { filter : 'applied'} ).data().each((r) => {
+					if (list) {
+						list += ",";
+					}
+					list += r[0];
+				});
+				var utext = [[@{/deletePublications(id)}]] + '=' + list;
+				var hostURL = new URL(window.location.href);
+				var u = new URL(utext, hostURL.origin);
+				return u.toString();
+			}
+		});
         /*[/]*/
     });
 </script>

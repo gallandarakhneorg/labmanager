@@ -280,4 +280,25 @@ public class PublicationApiController extends AbstractApiController {
 		emitter.send(event);
 	}
 
+	/** Delete a collection of publications from the database.
+	 *
+	 * @param publications the identifiers of the publications to be deleted.
+	 * @param username the name of the logged-in user.
+	 * @throws Exception in case of error.
+	 * @since 2.4
+	 */
+	@DeleteMapping("/deletePublications")
+	public void deletePublications(
+			@RequestParam(name = "id") List<Integer> publications,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		if (publications == null) {
+			throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
+		}
+		ensureCredentials(username, "deletePublications", publications.toString()); //$NON-NLS-1$
+		if (publications.isEmpty()) {
+			throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
+		}
+		this.publicationService.removePublications(publications, true);
+	}
+
 }
