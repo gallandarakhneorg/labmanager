@@ -71,10 +71,6 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 
 	private static final long serialVersionUID = -2046765660549008074L;
 
-	/** Base URL for obtaining the details on a journal on Scimago website.
-	 */
-	public static final String SCIMAGO_URL = "https://www.scimagojr.com/journalsearch.php?tip=sid&clean=0&q="; //$NON-NLS-1$
-
 	/** Identifier of the journal in the database.
 	 * 
 	 * <p>Using this instead of {@link GenerationType#IDENTITY} allows for JOINED or TABLE_PER_CLASS inheritance types to work.
@@ -406,18 +402,6 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 */
 	public String getScimagoId() {
 		return this.scimagoId;
-	}
-
-	/** Replies the URL of the journal on the Scimago website.
-	 *
-	 * @return the URL.
-	 */
-	public URL getScimagoURL() {
-		try {
-			return new URL(SCIMAGO_URL + getScimagoId());
-		} catch (Throwable ex) {
-			return null;
-		}
 	}
 
 	/** Change the identifier of the journal on the Scimago website.

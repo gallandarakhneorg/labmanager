@@ -116,7 +116,7 @@ public class JournalViewController extends AbstractViewController {
 		modelAndView.addObject("journal", journalObj); //$NON-NLS-1$
 		modelAndView.addObject("formActionUrl", rooted(Constants.JOURNAL_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.JOURNAL_LIST_ENDPOINT)); //$NON-NLS-1$
-		modelAndView.addObject("scimagoQIndex_imageUrl", JournalService.SCIMAGO_URL_PREFIX + "{0}"); //$NON-NLS-1$ //$NON-NLS-2$
+		modelAndView.addObject("scimagoQIndex_imageUrl", this.journalService.getScimagoURLByJournalId("{0}")); //$NON-NLS-1$ //$NON-NLS-2$
 		//
 		return modelAndView;
 	}

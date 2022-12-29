@@ -52,6 +52,8 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.io.scimago.OnlineScimagoPlatform;
+import fr.ciadlab.labmanager.io.scimago.ScimagoPlatform;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
@@ -94,6 +96,8 @@ public class JournalServiceTest {
 
 	private JournalPaperRepository publicationRepository;
 
+	private ScimagoPlatform scimago;
+
 	private NetConnection netConnection;
 
 	private JournalService test;
@@ -104,8 +108,10 @@ public class JournalServiceTest {
 		this.journalRepository = mock(JournalRepository.class);
 		this.publicationRepository = mock(JournalPaperRepository.class);
 		this.indicatorRepository = mock(JournalQualityAnnualIndicatorsRepository.class);
+		this.scimago = mock(ScimagoPlatform.class);
 		this.netConnection = mock(NetConnection.class);
-		this.test = new JournalService(this.messages, new Constants(), this.journalRepository, this.indicatorRepository, this.publicationRepository, this.netConnection);
+		this.test = new JournalService(this.messages, new Constants(), this.journalRepository,
+				this.indicatorRepository, this.publicationRepository, this.scimago, this.netConnection);
 
 		// Prepare some journals to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -446,6 +452,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournalId_Q1() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("a40000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -463,6 +470,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournalId_Q2() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("e80000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -480,6 +488,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournalId_Q3() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("fb0000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -497,6 +506,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournalId_Q4() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("dd0000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -514,6 +524,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournalId_noQ() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("000000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -537,6 +548,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournal_Q1() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("a40000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -554,6 +566,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournal_Q2() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("e80000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -571,6 +584,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournal_Q3() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("fb0000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -588,6 +602,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournal_Q4() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("dd0000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -605,6 +620,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void downloadScimagoQuartileByJournal_noQ() throws Exception {
+		when(this.scimago.getJournalPictureUrl(any())).thenReturn(new URL("https://www.scimagojr.com/journal_img.php?id=xyz"));
 		final int col = Integer.parseInt("000000", 16);
 		final BufferedImage img = mock(BufferedImage.class);
 		doReturn(col).when(img).getRGB(anyInt(), anyInt());
@@ -628,8 +644,10 @@ public class JournalServiceTest {
 	@EnabledIf("isNetworkEnable")
 	public void downloadScimagoQuartileByJournal_fromInternet() throws Exception {
 		// Force the connection to Internet
+		this.scimago = new OnlineScimagoPlatform();
 		this.netConnection = new DirectNetConnection();
-		this.test = new JournalService(this.messages, new Constants(), this.journalRepository, this.indicatorRepository,this.publicationRepository, this.netConnection);
+		this.test = new JournalService(this.messages, new Constants(), this.journalRepository, this.indicatorRepository,
+				this.publicationRepository, this.scimago, this.netConnection);
 
 		// The following id is for the Int. Journal of Artificial Intelligence
 		when(this.jour3.getScimagoId()).thenReturn("23675");

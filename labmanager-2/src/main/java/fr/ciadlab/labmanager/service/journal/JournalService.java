@@ -27,6 +27,7 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.io.scimago.ScimagoPlatform;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
@@ -47,10 +48,6 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JournalService extends AbstractService {
-
-	/** Base URL for obtaining the picture showing the quartile of a journal.
-	 */
-	public static final String SCIMAGO_URL_PREFIX = "https://www.scimagojr.com/journal_img.php?id="; //$NON-NLS-1$
 	
 	private final JournalRepository journalRepository;
 
@@ -60,6 +57,8 @@ public class JournalService extends AbstractService {
 
 	private final NetConnection netConnection;
 
+	private final ScimagoPlatform scimago;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -68,6 +67,7 @@ public class JournalService extends AbstractService {
 	 * @param journalRepository the journal repository.
 	 * @param indicatorRepository the repository for journal indicators.
 	 * @param publicationRepository the publication repository.
+	 * @param scimago the reference to the tool for accessing to the Scimago platform.
 	 * @param netConnection the tools for accessing the network.
 	 */
 	public JournalService(
@@ -76,11 +76,13 @@ public class JournalService extends AbstractService {
 			@Autowired JournalRepository journalRepository,
 			@Autowired JournalQualityAnnualIndicatorsRepository indicatorRepository,
 			@Autowired JournalPaperRepository publicationRepository,
+			@Autowired ScimagoPlatform scimago,
 			@Autowired NetConnection netConnection) {
 		super(messages, constants);
 		this.journalRepository = journalRepository;
 		this.indicatorRepository = indicatorRepository;
 		this.publicationRepository = publicationRepository;
+		this.scimago = scimago;
 		this.netConnection = netConnection;
 	}
 
@@ -313,7 +315,21 @@ public class JournalService extends AbstractService {
 	 */
 	public URL getScimagoQuartileImageURLByJournal(Journal journal) {
 		try {
-			return new URL(SCIMAGO_URL_PREFIX + journal.getScimagoId());
+			return this.scimago.getJournalPictureUrl(journal.getScimagoId());
+		} catch (Throwable ex) {
+			getLogger().warn(ex.getLocalizedMessage(), ex);
+			return null;
+		}
+	}
+
+	/** Replies the URL of journal on Scimago.
+	 *
+	 * @param id the identifier of the journal on Scimago.
+	 * @return the URL of the journal on the Scimago website.
+	 */
+	public URL getScimagoURLByJournalId(String id) {
+		try {
+			return this.scimago.getJournalUrl(id);
 		} catch (Throwable ex) {
 			getLogger().warn(ex.getLocalizedMessage(), ex);
 			return null;
