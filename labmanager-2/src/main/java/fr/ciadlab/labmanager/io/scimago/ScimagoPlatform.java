@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.io.scimago;
 
 import java.net.URL;
+import java.util.Collections;
 import java.util.Map;
 
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
@@ -98,7 +99,14 @@ public interface ScimagoPlatform {
 	 * @return the ranking description for the journal.
 	 * @throws Exception if rankings cannot be read.
 	 */
-	Map<String, QuartileRanking> getJournalRanking(int year, URL csvUrl, String journalId, Progression progress) throws Exception;
+	default Map<String, QuartileRanking> getJournalRanking(int year, URL csvUrl, String journalId, Progression progress) throws Exception {
+		final Map<String, Map<String, QuartileRanking>> rankings0 = getJournalRanking(year, csvUrl, progress);
+		final Map<String, QuartileRanking> rankings1 = rankings0.get(journalId);
+		if (rankings1 == null) {
+			return Collections.emptyMap();
+		}
+		return Collections.unmodifiableMap(rankings1);
+	}
 
 	/** Replies the ranking description for the journal with the given identifier and for the given year.
 	 * The ranking description provides the quartiles per scientific topics. The key

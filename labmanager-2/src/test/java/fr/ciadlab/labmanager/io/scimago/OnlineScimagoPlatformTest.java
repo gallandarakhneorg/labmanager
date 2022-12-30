@@ -16,9 +16,10 @@
 
 package fr.ciadlab.labmanager.io.scimago;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
 import java.net.URL;
 import java.util.Map;
@@ -27,7 +28,6 @@ import fr.ciadlab.labmanager.utils.TestUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
-import org.arakhne.afc.progress.ProgressionConsoleMonitor;
 import org.arakhne.afc.vmutil.Resources;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;

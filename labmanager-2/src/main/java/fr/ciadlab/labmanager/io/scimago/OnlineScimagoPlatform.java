@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URL;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -261,16 +260,6 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 	@Override
 	public Map<String, Map<String, QuartileRanking>> getJournalRanking(int year, URL csvUrl, Progression progress) throws Exception {
 		return this.rankingCache.computeIfAbsent(Integer.valueOf(year), it -> readJournalRanking(csvUrl, ensureProgress(progress)));
-	}
-
-	@Override
-	public Map<String, QuartileRanking> getJournalRanking(int year, URL csvUrl, String journalId, Progression progress) throws Exception {
-		final Map<String, Map<String, QuartileRanking>> rankings0 = getJournalRanking(year, csvUrl, ensureProgress(progress));
-		final Map<String, QuartileRanking> rankings1 = rankings0.get(journalId);
-		if (rankings1 == null) {
-			return Collections.emptyMap();
-		}
-		return Collections.unmodifiableMap(rankings1);
 	}
 
 	/** Call back for {@link OnlineScimagoPlatform#analyzeCsvRecords(int, Consumer)}.
