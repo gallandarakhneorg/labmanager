@@ -11,12 +11,12 @@ function formatPublicationDetails(d, config) {
 		+ "</td><td>" + d.note + '</td></tr>') : "";
 	var keywords = d.keywords && d.keywords != "" ? ("<tr><td>"
 		+ labels['keywords'] + "</td><td>" + d.keywords + '</td></tr>') : "";
-	var scimagoQuartile = d.scimagoQIndex && d.scimagoQIndex != "" ? ("<tr><td>"
+	var scimagoQuartile = d.scimagoQIndex && d.scimagoQIndex != "" && d.scimagoQIndex != "NR" ? ("<tr><td>"
 		+ labels['scimago'] + "<td>" + d.scimagoQIndex
 		+ "&nbsp;[<span title=\"" + labels['scimagoNote'] + "\" style=\"cursor:help\">*</span>]"
 		+ (d.scimagoQIndex_imageUrl && d.scimagoQIndex_imageUrl != "" ? '<img class="publicationDetailsScimagoQuartile" src="'
 		+ d.scimagoQIndex_imageUrl + '" />' : '') + '</td></tr>') : "";
-	var wosQuartile = d.wosQIndex && d.wosQIndex != "" ? ("<tr><td>"
+	var wosQuartile = d.wosQIndex && d.wosQIndex != "" && d.wosQIndex != "NR" ? ("<tr><td>"
 		+ labels['wos'] + "</td><td>" + d.wosQIndex
 		+ "&nbsp;[<span title=\"" + labels['wosNote'] + "\" style=\"cursor:help\">*</span>]"
 		+ '</td></tr>') : "";
