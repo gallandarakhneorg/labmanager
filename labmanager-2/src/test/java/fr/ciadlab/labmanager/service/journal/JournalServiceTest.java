@@ -54,6 +54,7 @@ import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.io.scimago.OnlineScimagoPlatform;
 import fr.ciadlab.labmanager.io.scimago.ScimagoPlatform;
+import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
@@ -98,6 +99,8 @@ public class JournalServiceTest {
 
 	private ScimagoPlatform scimago;
 
+	private WebOfSciencePlatform wos;
+
 	private NetConnection netConnection;
 
 	private JournalService test;
@@ -109,9 +112,10 @@ public class JournalServiceTest {
 		this.publicationRepository = mock(JournalPaperRepository.class);
 		this.indicatorRepository = mock(JournalQualityAnnualIndicatorsRepository.class);
 		this.scimago = mock(ScimagoPlatform.class);
+		this.wos = mock(WebOfSciencePlatform.class);
 		this.netConnection = mock(NetConnection.class);
 		this.test = new JournalService(this.messages, new Constants(), this.journalRepository,
-				this.indicatorRepository, this.publicationRepository, this.scimago, this.netConnection);
+				this.indicatorRepository, this.publicationRepository, this.scimago, this.wos, this.netConnection);
 
 		// Prepare some journals to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -647,7 +651,7 @@ public class JournalServiceTest {
 		this.scimago = new OnlineScimagoPlatform();
 		this.netConnection = new DirectNetConnection();
 		this.test = new JournalService(this.messages, new Constants(), this.journalRepository, this.indicatorRepository,
-				this.publicationRepository, this.scimago, this.netConnection);
+				this.publicationRepository, this.scimago, this.wos, this.netConnection);
 
 		// The following id is for the Int. Journal of Artificial Intelligence
 		when(this.jour3.getScimagoId()).thenReturn("23675");

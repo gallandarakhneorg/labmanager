@@ -17,23 +17,36 @@
 package fr.ciadlab.labmanager.service.journal;
 
 import java.awt.image.BufferedImage;
+import java.io.InputStream;
 import java.net.URL;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.io.scimago.ScimagoPlatform;
+import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform;
+import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform.WebOfScienceJournal;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.utils.net.NetConnection;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
+import org.arakhne.afc.progress.DefaultProgression;
+import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -48,6 +61,8 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class JournalService extends AbstractService {
+
+	private static final String NOT_RANKED_STR = "--"; //$NON-NLS-1$
 	
 	private final JournalRepository journalRepository;
 
@@ -59,6 +74,8 @@ public class JournalService extends AbstractService {
 
 	private final ScimagoPlatform scimago;
 
+	private final WebOfSciencePlatform wos;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -68,6 +85,7 @@ public class JournalService extends AbstractService {
 	 * @param indicatorRepository the repository for journal indicators.
 	 * @param publicationRepository the publication repository.
 	 * @param scimago the reference to the tool for accessing to the Scimago platform.
+	 * @param wos the reference to the tool for accessing to the Web-of-Science platform.
 	 * @param netConnection the tools for accessing the network.
 	 */
 	public JournalService(
@@ -77,12 +95,14 @@ public class JournalService extends AbstractService {
 			@Autowired JournalQualityAnnualIndicatorsRepository indicatorRepository,
 			@Autowired JournalPaperRepository publicationRepository,
 			@Autowired ScimagoPlatform scimago,
+			@Autowired WebOfSciencePlatform wos,
 			@Autowired NetConnection netConnection) {
 		super(messages, constants);
 		this.journalRepository = journalRepository;
 		this.indicatorRepository = indicatorRepository;
 		this.publicationRepository = publicationRepository;
 		this.scimago = scimago;
+		this.wos = wos;
 		this.netConnection = netConnection;
 	}
 
@@ -400,6 +420,206 @@ public class JournalService extends AbstractService {
 		final JournalQualityAnnualIndicators indicators = journal.getQualityIndicators().remove(Integer.valueOf(year));
 		if (indicators != null) {
 			this.indicatorRepository.delete(indicators);
+			this.journalRepository.save(journal);
+		}
+	}
+
+	/** Replies Json that describes an update of the journal indicators for the given reference year.
+	 * This function read the given CSV stream as it is the CSV file provided by Web-of-Science.
+	 * It also uses the {@link ScimagoPlatform} tool for downloading the CSV file from the Scimago
+	 * website.
+	 *
+	 * @param referenceYear the reference year.
+	 * @param wosCsv the CSV file from web-of-science, or {@code null} if none.
+	 * @param progress the progression monitor.
+	 * @return the JSON.
+	 * @throws Exception if an error occurred when reading the CSV streams.
+	 * @since 2.5
+	 */
+	public JsonNode getJournalIndicatorUpdates(int referenceYear, InputStream wosCsv, Progression progress) throws Exception {
+		final Progression progress0 = progress == null ? new DefaultProgression() : progress; 
+		final List<Journal> journals = this.journalRepository.findAll();
+		progress0.setProperties(0, 0, journals.size(), false);
+		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectNode root = new ObjectNode(mapper.getNodeFactory());
+		final ArrayNode dataNode = root.putArray("data"); //$NON-NLS-1$
+		for (final Journal journal : journals) {
+			final ObjectNode journalNode = dataNode.objectNode();
+			final QuartileRanking lastScimagoQuartile = journal.getScimagoQIndexByYear(referenceYear);
+			final ObjectNode oldDataNode = journalNode.putObject("previous"); //$NON-NLS-1$
+			oldDataNode.put("scimagoQindex", lastScimagoQuartile.name()); //$NON-NLS-1$
+			if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
+				oldDataNode.put("scimagoCategory", journal.getScimagoCategory()); //$NON-NLS-1$
+			}
+			final QuartileRanking lastWosQuartile = journal.getWosQIndexByYear(referenceYear);
+			oldDataNode.put("wosQindex", lastWosQuartile.name()); //$NON-NLS-1$
+			if (!Strings.isNullOrEmpty(journal.getWosCategory())) {
+				oldDataNode.put("wosCategory", journal.getWosCategory()); //$NON-NLS-1$
+			}
+			final float lastImpactFactor = journal.getImpactFactorByYear(referenceYear);
+			if (lastImpactFactor > 0f) {
+				oldDataNode.put("impactFactor", Float.toString(lastImpactFactor)); //$NON-NLS-1$
+			}
+			// Read updates from the Scimago provider
+			if (!Strings.isNullOrEmpty(journal.getScimagoId())) {
+				final ObjectNode scimagoNode = journalNode.objectNode();
+				final Map<String, QuartileRanking> rankings = this.scimago.getJournalRanking(referenceYear, journal.getScimagoId(), null);
+				if (rankings != null) {
+					QuartileRanking q = null;
+					if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
+						q = rankings.get(journal.getScimagoCategory());
+					}
+					if (q == null) {
+						final ArrayNode categories = scimagoNode.putArray("categories"); //$NON-NLS-1$
+						for (final Entry<String, QuartileRanking> category : rankings.entrySet()) {
+							if (!ScimagoPlatform.BEST.equals(category.getKey())) {
+								final ObjectNode categoryNode = categories.addObject();
+								categoryNode.put("name", category.getKey()); //$NON-NLS-1$
+								categoryNode.put("qindex", category.getValue().name()); //$NON-NLS-1$
+							}
+						}
+					} else {
+						scimagoNode.put("qindex", q.name()); //$NON-NLS-1$
+					}
+				} else {
+					scimagoNode.put("qindex", QuartileRanking.NR.name()); //$NON-NLS-1$
+				}
+				if (!scimagoNode.isEmpty()) {
+					journalNode.set("scimago", scimagoNode); //$NON-NLS-1$
+				}
+			}
+			// Read updates from the Web-of-Science provider
+			if (wosCsv != null && !Strings.isNullOrEmpty(journal.getISSN())) {
+				final ObjectNode wosNode = journalNode.objectNode();
+				final WebOfScienceJournal rankings = this.wos.getJournalRanking(referenceYear, wosCsv, journal.getISSN(), null);
+				if (rankings != null) {
+					if (rankings.impactFactor > 0f) {
+						journalNode.put("impactFactor", rankings.impactFactor); //$NON-NLS-1$
+					}
+					QuartileRanking q = null;
+					if (!Strings.isNullOrEmpty(journal.getWosCategory())) {
+						q = rankings.quartiles.get(journal.getWosCategory());
+					}
+					if (q == null) {
+						final ArrayNode categories = wosNode.putArray("categories"); //$NON-NLS-1$
+						for (final Entry<String, QuartileRanking> category : rankings.quartiles.entrySet()) {
+							final ObjectNode categoryNode = categories.addObject();
+							categoryNode.put("name", category.getKey()); //$NON-NLS-1$
+							categoryNode.put("qindex", category.getValue().name()); //$NON-NLS-1$
+						}
+					} else {
+						wosNode.put("qindex", q.name()); //$NON-NLS-1$
+					}
+				} else {
+					wosNode.put("qindex", QuartileRanking.NR.name()); //$NON-NLS-1$
+				}
+				if (!wosNode.isEmpty()) {
+					journalNode.set("wos", wosNode); //$NON-NLS-1$
+				}
+			}
+			//
+			if (!journalNode.isEmpty()) {
+				journalNode.put("id", journal.getId()); //$NON-NLS-1$
+				journalNode.put("name", journal.getJournalName()); //$NON-NLS-1$
+				journalNode.put("publisher", journal.getPublisher()); //$NON-NLS-1$
+				journalNode.put("issn", journal.getISSN()); //$NON-NLS-1$
+				dataNode.add(journalNode);
+			}
+			progress0.increment();
+		}
+		return root;
+	}
+
+	/** Update the journal quality indicators according to the changes that are provided.
+	 *
+	 * @param referenceYear the reference year.
+	 * @param changes the changes. Keys are the journal database id; and values are maps that map attribute names to
+	 *     values. Attribute names are: {@code id}, {@code impactFactor}, {@code scimagoQindex}, {@code scimagoCategory},
+	 *     {@code wosQindex}, {@code wosCategory}.
+	 */
+	public void updateJournalIndicators(int referenceYear, Map<String, Map<String, ?>> changes) {
+		if (changes != null && !changes.isEmpty()) {
+			for (final Map<String, ?> journalUpdate : changes.values()) {
+				final int id = ensureInt(journalUpdate, "id"); //$NON-NLS-1$
+				final float impactFactor = optionalFloat(journalUpdate, "impactFactor"); //$NON-NLS-1$
+				String scimagoCategory = optionalStringWithUnsetConstant(journalUpdate, "scimagoCategory"); //$NON-NLS-1$
+				final QuartileRanking scimagoQindex;
+				if (NOT_RANKED_STR.equals(scimagoCategory)) {
+					scimagoCategory = null;
+					scimagoQindex = QuartileRanking.NR;
+				} else {
+					scimagoQindex = optionalEnum(journalUpdate, "scimagoQindex", QuartileRanking.class); //$NON-NLS-1$
+				}
+				String wosCategory = optionalStringWithUnsetConstant(journalUpdate, "wosCategory"); //$NON-NLS-1$
+				final QuartileRanking wosQindex;
+				if (NOT_RANKED_STR.equals(wosCategory)) {
+					wosCategory = null;
+					wosQindex = QuartileRanking.NR;
+				} else {
+					wosQindex = optionalEnum(journalUpdate, "wosQindex", QuartileRanking.class); //$NON-NLS-1$
+				}
+				updateJournalIndicators(id, referenceYear, impactFactor, scimagoQindex, scimagoCategory, wosQindex, wosCategory);
+			}
+		}
+	}
+
+	/** Update the journal quality indicators according to the changes that are provided.
+	 *
+	 * @param id the identifier of the journal.
+	 * @param referenceYear the reference year.
+	 * @param scimagoQindex the Q-index that is provided by Scimago, or {@code null} if none.
+	 * @param scimagoCategory the name of the scientific category that is used on Scimago for retrieving the Q-index.
+	 * @param wosQindex the Q-index that is provided by WoS, or {@code null} if none.
+	 * @param wosCategory the name of the scientific category that is used on WoS for retrieving the Q-index.
+	 */
+	protected void updateJournalIndicators(int id, int referenceYear, float impactFactor, QuartileRanking scimagoQindex,
+			String scimagoCategory, QuartileRanking wosQindex, String wosCategory) {
+		final Optional<Journal> optJournal = this.journalRepository.findById(Integer.valueOf(id));
+		if (optJournal.isEmpty()) {
+			throw new IllegalArgumentException("Journal with id " + id + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		//
+		final Journal journal = optJournal.get();
+		final Set<JournalQualityAnnualIndicators> indicators = new HashSet<>();
+		boolean changed = false;
+		//
+		if (!Float.isNaN(impactFactor) && impactFactor > 0f) {
+			final float lastImpactFactor = journal.getImpactFactorByYear(referenceYear);
+			if (Float.isNaN(lastImpactFactor) || lastImpactFactor <= 0f || (lastImpactFactor > 0f && lastImpactFactor != impactFactor)) {
+				final JournalQualityAnnualIndicators indicator = journal.setImpactFactorByYear(referenceYear, impactFactor);
+				indicators.add(indicator);
+			}
+		}
+		//
+		if (!Objects.equals(scimagoCategory, journal.getScimagoCategory())) {
+			journal.setScimagoCategory(scimagoCategory);
+			changed = true;
+		}
+		if (!Objects.equals(wosCategory, journal.getWosCategory())) {
+			journal.setWosCategory(wosCategory);
+			changed = true;
+		}
+		//
+		final QuartileRanking normalizedScimagoQindex = QuartileRanking.normalize(scimagoQindex);
+		final QuartileRanking lastScimagoQindex = journal.getScimagoQIndexByYear(referenceYear);
+		if (lastScimagoQindex != normalizedScimagoQindex) {
+			final JournalQualityAnnualIndicators indicator = journal.setScimagoQIndexByYear(referenceYear, normalizedScimagoQindex);
+			indicators.add(indicator);
+		}
+		//
+		final QuartileRanking normalizedWosQindex = QuartileRanking.normalize(wosQindex);
+		final QuartileRanking lastWosQindex = journal.getWosQIndexByYear(referenceYear);
+		if (lastWosQindex != normalizedWosQindex) {
+			final JournalQualityAnnualIndicators indicator = journal.setWosQIndexByYear(referenceYear, normalizedWosQindex);
+			indicators.add(indicator);
+		}
+		//
+		if (!indicators.isEmpty()) {
+			for (final JournalQualityAnnualIndicators indicator : indicators) {
+				this.indicatorRepository.save(indicator);
+			}
+			this.journalRepository.save(journal);
+		} else if (changed) {
 			this.journalRepository.save(journal);
 		}
 	}

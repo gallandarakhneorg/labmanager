@@ -63,13 +63,13 @@ public class OnlineWebOfSciencePlatformTest {
 
 	@Test
 	public void getJournalRanking_intUrl() throws Exception {
-		URL resourceUrl = Resources.getResource(getClass(), "2022.csv");
+		URL resourceUrl = Resources.getResource(getClass(), "wos_2021.csv");
 		Assumptions.assumeTrue(resourceUrl != null);
 		Progression progress = new DefaultProgression();
 		//progress.addProgressionListener(new ProgressionConsoleMonitor());
 		Map<String, WebOfScienceJournal> data0 = this.test.getJournalRanking(2021, resourceUrl, progress);
 		assertNotNull(data0);
-		assertEquals(11915, data0.size());
+		assertEquals(22800, data0.size());
 		WebOfScienceJournal data1 = data0.get("09521976");
 		assertNotNull(data1);
 		assertEquals(4, data1.quartiles.size());
@@ -82,7 +82,7 @@ public class OnlineWebOfSciencePlatformTest {
 
 	@Test
 	public void getJournalRanking_intUrlString() throws Exception {
-		URL resourceUrl = Resources.getResource(getClass(), "2022.csv");
+		URL resourceUrl = Resources.getResource(getClass(), "wos_2021.csv");
 		Assumptions.assumeTrue(resourceUrl != null);
 		Progression progress = new DefaultProgression();
 		//progress.addProgressionListener(new ProgressionConsoleMonitor());

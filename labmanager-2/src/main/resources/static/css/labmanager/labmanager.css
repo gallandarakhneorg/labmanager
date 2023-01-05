@@ -459,3 +459,19 @@ div.helpbutton {
 	right: 0px;
 	z-index: 10;
 }
+div.col-form-sub-label {
+	margin-left: 100px;
+}
+label.col-form-sub-label {
+	margin-left: 100px;
+}
+select.form-sub-control {
+	margin-left: 100px;
+}
+span.journalTitle {
+    color: #96c10d !important;
+    font-weight: bold;
+}
+.redBackground {
+	 background-color: red;
+}

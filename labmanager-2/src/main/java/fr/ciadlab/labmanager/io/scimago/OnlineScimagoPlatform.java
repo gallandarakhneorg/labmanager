@@ -37,6 +37,8 @@ import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
@@ -50,6 +52,8 @@ import org.springframework.web.util.UriBuilderFactory;
  * @since 2.5
  * @see "https://www.scimagojr.com"
  */
+@Component
+@Primary
 public class OnlineScimagoPlatform implements ScimagoPlatform {
 
 	/** Name of the column for the journal id.

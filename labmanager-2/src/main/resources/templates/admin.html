@@ -99,7 +99,7 @@
 			    		<span class="fa-solid fa-download"></span>&nbsp;Download RIPEC C3 Template</button>
 			    	<button type="button" class="btn btn-labeled btn-primary" disabled>
 			    		<span class="fa-solid fa-download"></span>&nbsp;Download CV Template</button>
-			    	<button type="button" class="btn btn-labeled btn-second" disabled>
+			    	<button type="button" class="btn btn-labeled btn-secondary" disabled>
 			    		<span class="fa-solid fa-download"></span>&nbsp;Download HCERES Template</button>
 			    	<button type="button" class="btn btn-labeled btn-warning" disabled>
 			    		<span class="fa-solid fa-download"></span>&nbsp;Download Annual Report Template</button>
@@ -132,6 +132,9 @@
 			    	<a th:if="${changeEnabled}"
 			    	   th:href="@{/journalEditor}" class="btn btn-labeled btn-primary" role="button">
 			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddJournal}"></th:block></a>
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/journalRankingUpdater}" class="btn btn-labeled btn-secondary" role="button">
+			    		<span class="fa-solid fa-sync"></span>&nbsp;<th:block th:utext="#{html.UpdateJournalRankings}"></th:block></a>
 			    </p>
 			</div>
 		</div>

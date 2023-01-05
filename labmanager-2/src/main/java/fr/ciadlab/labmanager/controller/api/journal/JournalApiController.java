@@ -16,10 +16,15 @@
 
 package fr.ciadlab.labmanager.controller.api.journal;
 
+import java.io.InputStream;
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
@@ -34,10 +39,12 @@ import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /** REST Controller for journals.
  * 
@@ -116,7 +123,7 @@ public class JournalApiController extends AbstractApiController {
 			for (final Integer year : years) {
 				if (year != null) {
 					indicators.computeIfAbsent(year, it -> {
-						return journalObj.getQualityIndicatorsFor(year.intValue(), null);
+						return journalObj.getQualityIndicatorsForYear(year.intValue());
 					});
 				}
 			}
@@ -248,6 +255,54 @@ public class JournalApiController extends AbstractApiController {
 			throw new IllegalArgumentException("Journal not found with: " + journal); //$NON-NLS-1$
 		}
 		this.journalService.deleteQualityIndicators(journalObj, year);
+	}
+
+	/** Replies Json that describes an update of the journal indicators for the given refence year.
+	 *
+	 * @param referenceYear the reference year.
+	 * @param wosCsvFile the uploaded CSV file from web-of-science.
+	 * @return the JSON.
+	 * @throws Exception in case of error.
+	 */
+	@PostMapping(value = "/" + Constants.JOURNAL_INDICATOR_UPDATES_ENDPOINT)
+	@ResponseBody
+	public JsonNode getJournalUpdateJson(
+			@RequestParam(required = true) int referenceYear,
+			@RequestParam(required = false) MultipartFile wosCsvFile) throws Exception {
+		if (wosCsvFile == null || wosCsvFile.isEmpty()) {
+			return this.journalService.getJournalIndicatorUpdates(referenceYear, null, null);
+		}
+		try (InputStream is = wosCsvFile.getInputStream()) {
+			return this.journalService.getJournalIndicatorUpdates(referenceYear, is, null);
+		}
+	}
+
+	/** Save the updates of the journals' quality indicators.
+	 *
+	 * @param data the map of the changes. Expected keys are {@code referenceYear} for the reference year; and
+	 *     {@code changes} for the changes to apply to the quality indicators.
+	 * @param username the name of the logged-in user.
+	 * @throws Exception in case of error.
+	 */
+	@SuppressWarnings("unchecked")
+	@PostMapping(value = "/" + Constants.SAVE_JOURNAL_INDICATOR_UPDATES_ENDPOINT)
+	public void saveJournalIndicatorUpdates(
+			@RequestParam(required = true) Map<String, String> data,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		ensureCredentials(username, Constants.SAVE_JOURNAL_INDICATOR_UPDATES_ENDPOINT);
+		final int referenceYear = ensureYear(data, "referenceYear"); //$NON-NLS-1$
+		final String rawChanges = ensureString(data, "changes"); //$NON-NLS-1$
+		if (Strings.isNullOrEmpty(rawChanges)) {
+			throw new IllegalArgumentException("changes are expected"); //$NON-NLS-1$
+		}
+		final Map<String, Map<String, ?>> changes;
+		try (StringReader sr = new StringReader(rawChanges)) {
+			final ObjectMapper mapper = new ObjectMapper();
+			try (JsonParser parser = mapper.createParser(sr)) {
+				changes = parser.readValueAs(Map.class);
+			}
+		}
+		this.journalService.updateJournalIndicators(referenceYear, changes);
 	}
 
 }

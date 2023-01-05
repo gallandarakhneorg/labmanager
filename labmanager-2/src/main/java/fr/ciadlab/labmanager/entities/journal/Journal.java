@@ -105,10 +105,20 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	@Column
 	private String scimagoId;
 
+	/** Name of the Scimago category that should be used for retrieving the quartile.
+	 */
+	@Column
+	private String scimagoCategory;
+
 	/** Identifier of the journal on the Web-Of-Science website.
 	 */
 	@Column
 	private String wosId;
+
+	/** Name of the WoS category that should be used for retrieving the quartile.
+	 */
+	@Column
+	private String wosCategory;
 
 	/** ISBN number if the journal has one.
 	 */
@@ -166,7 +176,9 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		this.address = journal.getAddress();
 		this.journalUrl = journal.getJournalURL();
 		this.scimagoId = journal.getScimagoId();
+		this.scimagoCategory = journal.getScimagoCategory();
 		this.wosId = journal.getWosId();
+		this.wosCategory = journal.getWosCategory();
 		this.isbn = journal.getISBN();
 		this.issn = journal.getISSN();
 		this.openAccess = journal.getOpenAccess();
@@ -182,7 +194,9 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		h = HashCodeUtils.add(h, this.address);
 		h = HashCodeUtils.add(h, this.journalUrl);
 		h = HashCodeUtils.add(h, this.scimagoId);
+		h = HashCodeUtils.add(h, this.scimagoCategory);
 		h = HashCodeUtils.add(h, this.wosId);
+		h = HashCodeUtils.add(h, this.wosCategory);
 		h = HashCodeUtils.add(h, this.isbn);
 		h = HashCodeUtils.add(h, this.issn);
 		h = HashCodeUtils.add(h, this.openAccess);
@@ -217,7 +231,13 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		if (!Objects.equals(this.scimagoId, other.scimagoId)) {
 			return false;
 		}
+		if (!Objects.equals(this.scimagoCategory, other.scimagoCategory)) {
+			return false;
+		}
 		if (!Objects.equals(this.wosId, other.wosId)) {
+			return false;
+		}
+		if (!Objects.equals(this.wosCategory, other.wosCategory)) {
 			return false;
 		}
 		if (!Objects.equals(this.isbn, other.isbn)) {
@@ -262,8 +282,14 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		if (!Strings.isNullOrEmpty(getScimagoId())) {
 			consumer.accept("scimagoId", getScimagoId()); //$NON-NLS-1$
 		}
+		if (!Strings.isNullOrEmpty(getScimagoCategory())) {
+			consumer.accept("scimagoCategory", getScimagoCategory()); //$NON-NLS-1$
+		}
 		if (!Strings.isNullOrEmpty(getWosId())) {
 			consumer.accept("wosId", getWosId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getWosCategory())) {
+			consumer.accept("wosCategory", getWosCategory()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getISBN())) {
 			consumer.accept("isbn", getISBN()); //$NON-NLS-1$
@@ -412,6 +438,24 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		this.scimagoId = Strings.emptyToNull(id);
 	}
 
+	/** Replies the name of the Scimago category that should be used for retrieving the quartile.
+	 *
+	 * @return the name.
+	 * @since 2.5
+	 */
+	public String getScimagoCategory() {
+		return this.scimagoCategory;
+	}
+
+	/** Change the name of the Scimago category that should be used for retrieving the quartile.
+	 *
+	 * @param category the category name.
+	 * @since 2.5
+	 */
+	public void setScimagoCategory(String category) {
+		this.scimagoCategory = Strings.emptyToNull(category);
+	}
+
 	/** Replies the identifier of the journal on the Web-Of-Science website.
 	 *
 	 * @return the identifier.
@@ -426,6 +470,24 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 */
 	public void setWosId(String id) {
 		this.wosId = Strings.emptyToNull(id);
+	}
+
+	/** Replies the name of the WoS category that should be used for retrieving the quartile.
+	 *
+	 * @return the name.
+	 * @since 2.5
+	 */
+	public String getWosCategory() {
+		return this.wosCategory;
+	}
+
+	/** Change the name of the WoS category that should be used for retrieving the quartile.
+	 *
+	 * @param category the category name.
+	 * @since 2.5
+	 */
+	public void setWosCategory(String category) {
+		this.wosCategory = Strings.emptyToNull(category);
 	}
 
 	/** Replies if the journal is open access. If it is not known, this functio returns {@code null}.
@@ -541,14 +603,17 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * the Q-Index for the highest year that is below the given one. 
 	 *
 	 * @param year the year to search for.
-	 * @return the Q-Index of the journal for the given year, or {@code null} if not defined.
+	 * @return the Q-Index of the journal for the given year, never {@code null}.
 	 */
 	public QuartileRanking getScimagoQIndexByYear(int year) {
 		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsFor(year, it -> it.getScimagoQIndex() != null);
 		if (indicators != null) {
-			return indicators.getScimagoQIndex();
+			final QuartileRanking ranking = indicators.getScimagoQIndex();
+			if (ranking != null) {
+				return ranking;
+			}
 		}
-		return null;
+		return QuartileRanking.NR;
 	}
 
 	/** Change the Q-Index of the journal from the Scimago source.
@@ -579,7 +644,8 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @return {@code true} if the journal has Q-Index.
 	 */
 	public boolean hasScimagoQIndexForYear(int year) {
-		return getScimagoQIndexByYear(year) != null;
+		final QuartileRanking qindex = getScimagoQIndexByYear(year);
+		return qindex != QuartileRanking.NR;
 	}
 
 	/** Replies the Q-Index of the journal from the JCR/WOS source.
@@ -587,14 +653,17 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * the Q-Index for the highest year that is below the given one. 
 	 *
 	 * @param year the year to search for.
-	 * @return the Q-Index of the journal for the given year, or {@code null} if not defined.
+	 * @return the Q-Index of the journal for the given year, never {@code null}.
 	 */
 	public QuartileRanking getWosQIndexByYear(int year) {
 		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsFor(year, it -> it.getWosQIndex() != null);
 		if (indicators != null) {
-			return indicators.getWosQIndex();
+			QuartileRanking ranking = indicators.getWosQIndex();
+			if (ranking != null) {
+				return ranking;
+			}
 		}
-		return null;
+		return QuartileRanking.NR;
 	}
 
 	/** Change the Q-Index of the journal from the Web-Of-Science source.
@@ -625,7 +694,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @return {@code true} if the journal has Q-Index.
 	 */
 	public boolean hasWosQIndexForYear(int year) {
-		return getWosQIndexByYear(year) != null;
+		return getWosQIndexByYear(year) != QuartileRanking.NR;
 	}
 
 	/** Replies the impact factor of the journal.

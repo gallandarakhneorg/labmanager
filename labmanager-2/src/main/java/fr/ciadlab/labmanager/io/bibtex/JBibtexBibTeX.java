@@ -1002,7 +1002,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_ABSTRACT, publication.getAbstractText());
 		addField(entry, KEY_KEYWORD, publication.getKeywords());
 		addField(entry, KEY_LANGUAGE, publication.getMajorLanguage().name());
-		final PublicationCategory cat = publication.getType().getCategory(publication.isRanked());
+		final PublicationCategory cat = publication.getCategory();
 		// Force the Java locale to get the text that is corresponding to the language of the paper
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {

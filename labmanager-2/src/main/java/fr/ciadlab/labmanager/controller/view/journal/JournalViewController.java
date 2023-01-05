@@ -178,6 +178,12 @@ public class JournalViewController extends AbstractViewController {
 				impactFactor = indicators.getImpactFactor();
 			}
 		}
+		if (scimago == QuartileRanking.NR) {
+			scimago = null;
+		}
+		if (wos == QuartileRanking.NR) {
+			wos = null;
+		}
 		final int currentYear = LocalDate.now().getYear();
 		modelAndView.addObject("currentYear", Integer.valueOf(currentYear)); //$NON-NLS-1$
 		modelAndView.addObject("lastReferenceYear", year); //$NON-NLS-1$
@@ -202,6 +208,25 @@ public class JournalViewController extends AbstractViewController {
 			}
 		}
 		modelAndView.addObject("years", years); //$NON-NLS-1$
+		//
+		return modelAndView;
+	}
+
+	/** Show the updater for a journal rankings.
+	 *
+	 * @param username the name of the logged-in user.
+	 * @return the model-view object.
+	 */
+	@GetMapping(value = "/journalRankingUpdater")
+	public ModelAndView journalRankingUpdater(
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		ensureCredentials(username, "journalRankingUpdater"); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("journalRankingUpdater"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, false);
+		//
+		modelAndView.addObject("getJournalUpdateJsonUrl", endpoint(Constants.JOURNAL_INDICATOR_UPDATES_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("referenceYear", Integer.valueOf(LocalDate.now().getYear() - 1)); //$NON-NLS-1$
+		modelAndView.addObject("formActionUrl", endpoint(Constants.SAVE_JOURNAL_INDICATOR_UPDATES_ENDPOINT)); //$NON-NLS-1$
 		//
 		return modelAndView;
 	}

@@ -251,7 +251,7 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		if (journal != null) {
 			return journal.getScimagoQIndexByYear(getPublicationYear());
 		}
-		return null;
+		return QuartileRanking.NR;
 	}
 
 	@Override
@@ -260,7 +260,7 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		if (journal != null) {
 			return journal.getWosQIndexByYear(getPublicationYear());
 		}
-		return null;
+		return QuartileRanking.NR;
 	}
 
 	@Override
@@ -276,8 +276,8 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 	public boolean isRanked() {
 		final Journal journal = getJournal();
 		if (journal != null) {
-			return journal.getScimagoQIndexByYear(getPublicationYear()) != null
-					|| journal.getWosQIndexByYear(getPublicationYear()) != null;
+			return journal.getScimagoQIndexByYear(getPublicationYear()) != QuartileRanking.NR
+					|| journal.getWosQIndexByYear(getPublicationYear()) != QuartileRanking.NR;
 		}
 		return false;
 	}

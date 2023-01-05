@@ -30,6 +30,10 @@ GLOBAL_FORM_DATA_INPUT_TRANSFORMERS.push((formData) => {
 				var isManuallyRemoved = $hiddenElt.value
 				formData.append('@fileUpload_removed_' + fieldName, isManuallyRemoved);
 			});
+			$.each($('#fileUploadCsv_removed_' + fieldName), (index, $hiddenElt) => {
+				var isManuallyRemoved = $hiddenElt.value
+				formData.append('@fileUpload_removed_' + fieldName, isManuallyRemoved);
+			});
 		}
 	});
 });
@@ -100,6 +104,29 @@ function initFileUploadSingleImage(config) {
 	initFileUploadSingleFile_base(config);
 }
 
+/** Initialize the input component for selecting and uploading a single CSV file.
+ * @param config the map of the configuration elements:
+ *      * `name` the name of the field to upload.
+ *      * `id` the identifier of the button that is used for obtaining the button with jQuery. If this `id` is not
+ *        provided, the `selector` or `obj` must be provided.
+ *      * `selector` the jQuery selector for obtaining the button. If this `selector` is not
+ *        provided, the `id` or `obj` must be provided.
+ *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
+ *        provided, the `selector` or `id` must be provided.
+ *      * `enableRemove` indicates if the component enables to remove a selected BibTeX file. Default is `true`.
+ *      * `onSelected` a function invoked when a file is seleted. This function takes the file object as argument.
+ */
+function initFileUploadSingleCsv(config) {
+ 	config['fileTypeName'] = 'csv';
+ 	config['mimeTypes'] = [ 'text/csv', 'text/x-csv', 'text/plain' ],
+ 	config['fileExtensionMatcher'] = (vName) => { return vName.match(/\.csv$/i) };
+ 	config['fileExtensionArray'] = [ 'csv' ];
+	(!('componentIdPrefix' in config)) && (config['componentIdPrefix'] = "fileUploadCsv_");
+	// The following line is a bug fix regarding the automatic (but unexpected) download of the CSV
+	config['disabledPreviewTypes'] = [ 'text' ];
+	initFileUploadSingleFile_base(config);
+}
+
 /** Initialize the input component for selecting and uploading a single file.
  * @param config the map of the configuration elements:
  *      * `name` the name of the field to upload.
@@ -117,6 +144,7 @@ function initFileUploadSingleImage(config) {
  *      * `fileTypeName`: the internal name of the type of file.
  *      * `fileExtensionMatcher` the file extension of the accepted files to upload.
  *      * `fileExtensionArray` the array of the accepted file extensions.
+ *      * `disabledPreviewTypes` the list of types for which preview is disabled
  *      * `onSelected` a function invoked when a file is seleted. This function takes the file object as argument.
  */
 function initFileUploadSingleFile_base(config) {
@@ -141,6 +169,9 @@ function initFileUploadSingleFile_base(config) {
 		allowedFileTypes: [ config['fileTypeName'] ],
 		allowedFileExtensions: config['fileExtensionArray'],
 	};
+	if ('disabledPreviewTypes' in config) {
+		ficonfig['disabledPreviewTypes'] = config['disabledPreviewTypes'];
+	}
 	ficonfig['fileTypeSettings'][config['fileTypeName']] = (vType, vName) => {
 		if (typeof vType !== "undefined") {
 			if ('mimeType' in config && config['mimeType'] && vType == config['mimeType']) {

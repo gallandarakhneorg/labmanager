@@ -50,6 +50,8 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public abstract class AbstractComponent {
 
+	private static final String UNSET_STR = "-"; //$NON-NLS-1$
+	
 	/** Constants of the application.
 	 */
 	protected Constants constants;
@@ -158,7 +160,7 @@ public abstract class AbstractComponent {
 	 * @return the value
 	 * @see #optionalString(Map, String)
 	 */
-	protected static String ensureString(Map<String, String> attributes, String name) {
+	protected static String ensureString(Map<String, ?> attributes, String name) {
 		final String param = inString(attributes.get(name));
 		if (param == null) {
 			throw new IllegalArgumentException("Missed string parameter: " + name); //$NON-NLS-1$
@@ -174,9 +176,26 @@ public abstract class AbstractComponent {
 	 * @return the value
 	 * @see #ensureString(Map, String)
 	 */
-	protected static String optionalString(Map<String, String> attributes, String name) {
+	protected static String optionalString(Map<String, ?> attributes, String name) {
 		final String param = inString(attributes.get(name));
-		if (param == null) {
+		if (Strings.isNullOrEmpty(param)) {
+			return null;
+		}
+		return param;
+	}
+
+	/** Get the value from the given map for an attribute with the given name.
+	 * <p>This function does not generate an exception if the value is {@code null} or empty.
+	 * <p>If the string value is equal to {@code -}, the function replies {@code null}
+	 *
+	 * @param attributes the set of attributes
+	 * @param name the name to search for.
+	 * @return the value
+	 * @see #optionalString(Map, String)
+	 */
+	protected static String optionalStringWithUnsetConstant(Map<String, ?> attributes, String name) {
+		final String param = inString(attributes.get(name));
+		if (Strings.isNullOrEmpty(param) || UNSET_STR.equals(param)) {
 			return null;
 		}
 		return param;
@@ -190,7 +209,7 @@ public abstract class AbstractComponent {
 	 * @return the value
 	 * @see #ensureString(Map, String)
 	 */
-	protected static boolean optionalBoolean(Map<String, String> attributes, String name) {
+	protected static boolean optionalBoolean(Map<String, ?> attributes, String name) {
 		final String param = inString(attributes.get(name));
 		if (param == null) {
 			return false;
@@ -202,6 +221,47 @@ public abstract class AbstractComponent {
 		}
 	}
 
+	/** Get the value from the given map for an attribute with the given name.
+	 * <p>This function does not generate an exception if the value is {@code null} or empty.
+	 *
+	 * @param attributes the set of attributes
+	 * @param name the name to search for.
+	 * @return the value or {@link Float#NaN}.
+	 * @see #ensureString(Map, String)
+	 */
+	protected static float optionalFloat(Map<String, ?> attributes, String name) {
+		final String param = inString(attributes.get(name));
+		if (Strings.isNullOrEmpty(param)) {
+			return Float.NaN;
+		}
+		try {
+			return Float.parseFloat(param);
+		} catch (Throwable ex) {
+			return Float.NaN;
+		}
+	}
+
+	/** Get the value from the given map for an attribute with the given name.
+	 * <p>This function does not generate an exception if the value is {@code null} or empty.
+	 *
+	 * @param attributes the set of attributes
+	 * @param name the name to search for.
+	 * @param type the type of the enum.
+	 * @return the value or {@link Float#NaN}.
+	 * @see #ensureString(Map, String)
+	 */
+	protected static <E extends Enum<E>> E optionalEnum(Map<String, ?> attributes, String name, Class<E> type) {
+		final String param = inString(attributes.get(name));
+		if (!Strings.isNullOrEmpty(param)) {
+			for (final E enumConstant : type.getEnumConstants()) {
+				if (enumConstant.name().equalsIgnoreCase(param)) {
+					return enumConstant;
+				}
+			}
+		}
+		return null;
+	}
+
 	/** Get the local date value from the given map for an attribute with the given name.
 	 * The attribute must follow one of the formats: {@code YYYY-MM-DD}, {@code YYYY-MD}.
 	 *
@@ -209,17 +269,19 @@ public abstract class AbstractComponent {
 	 * @param name the name to search for.
 	 * @return the value
 	 */
-	protected static LocalDate optionalDate(Map<String, String> attributes, String name) {
-		final String dateStr = ensureString(attributes, name);
-		LocalDate date;
-		try {
-			date = LocalDate.parse(dateStr);
-		} catch (Throwable ex0) {
-			// Test if the date is only "YYYY-MM"
+	protected static LocalDate optionalDate(Map<String, ?> attributes, String name) {
+		final String dateStr = optionalString(attributes, name);
+		LocalDate date = null;
+		if (!Strings.isNullOrEmpty(dateStr)) {
 			try {
-				date = LocalDate.parse(dateStr + "-01"); //$NON-NLS-1$
-			} catch (Throwable ex1) {
-				date = null;
+				date = LocalDate.parse(dateStr);
+			} catch (Throwable ex0) {
+				// Test if the date is only "YYYY-MM"
+				try {
+					date = LocalDate.parse(dateStr + "-01"); //$NON-NLS-1$
+				} catch (Throwable ex1) {
+					date = null;
+				}
 			}
 		}
 		return date;
@@ -232,7 +294,7 @@ public abstract class AbstractComponent {
 	 * @param name the name to search for.
 	 * @return the value
 	 */
-	protected static int ensureYear(Map<String, String> attributes, String name) {
+	protected static int ensureYear(Map<String, ?> attributes, String name) {
 		final String dateStr = ensureString(attributes, name);
 		LocalDate date;
 		try {
@@ -254,6 +316,21 @@ public abstract class AbstractComponent {
 			throw new IllegalArgumentException("Invalid date parameter: " + name); //$NON-NLS-1$
 		}
 		return date.getYear();
+	}
+
+	/** Get the integer value from the given map for an attribute with the given name.
+	 *
+	 * @param attributes the set of attributes
+	 * @param name the name to search for.
+	 * @return the value
+	 */
+	protected static int ensureInt(Map<String, ?> attributes, String name) {
+		final String intStr = ensureString(attributes, name);
+		try {
+			return Integer.parseInt(intStr);
+		} catch (Throwable ex) {
+			throw new IllegalArgumentException(ex);
+		}
 	}
 
 	/** Replies the constants associated to this application.
@@ -348,8 +425,9 @@ public abstract class AbstractComponent {
 	 * @return the normalized string that is equivalent to the argument.
 	 * @see #inStringCr(String)
 	 */
-	public static String inString(String input) {
-		String out = Strings.emptyToNull(input);
+	public static String inString(Object input) {
+		final String strInput = input == null ? null : input.toString();
+		String out = Strings.emptyToNull(strInput);
 		if (out != null) {
 			out = out.trim();
 			out = Strings.emptyToNull(out);

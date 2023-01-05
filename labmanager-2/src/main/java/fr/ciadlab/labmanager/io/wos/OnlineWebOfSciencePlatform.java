@@ -18,8 +18,8 @@ package fr.ciadlab.labmanager.io.wos;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.net.URL;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -33,6 +33,8 @@ import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Component;
 
 /** Accessor to the online Web-of-Science platform.
  * 
@@ -43,6 +45,8 @@ import org.arakhne.afc.progress.Progression;
  * @since 2.5
  * @see "https://www.webofscience.com"
  */
+@Component
+@Primary
 public class OnlineWebOfSciencePlatform implements WebOfSciencePlatform {
 
 	/** Name of the column for the journal ISSN.
@@ -108,9 +112,9 @@ public class OnlineWebOfSciencePlatform implements WebOfSciencePlatform {
 	}
 
 	@SuppressWarnings("resource")
-	private static void analyzeCsvRecords(URL csvUrl, Progression progress, Consumer4 consumer) {
+	private static void analyzeCsvRecords(InputStream csv, Progression progress, Consumer4 consumer) {
 		progress.setProperties(0, 0, 100, false);
-		try (final BufferedReader reader = new BufferedReader(new InputStreamReader(csvUrl.openStream()))) {
+		try (final BufferedReader reader = new BufferedReader(new InputStreamReader(csv))) {
 			final CSVParserBuilder parserBuilder = new CSVParserBuilder();
 			parserBuilder.withSeparator(';');
 			parserBuilder.withIgnoreLeadingWhiteSpace(true);
@@ -164,20 +168,26 @@ public class OnlineWebOfSciencePlatform implements WebOfSciencePlatform {
 		}
 	}
 	
-	private static Map<String, WebOfScienceJournal> readJournalRanking(URL csvUrl, Progression rootProgress) {
+	private Map<String, WebOfScienceJournal> readJournalRanking(InputStream csv, Progression rootProgress) {
 		final Map<String, WebOfScienceJournal> ranking = new TreeMap<>();
-		analyzeCsvRecords(csvUrl, rootProgress, (stream, issnColumn, eissnColumn, categoryColumn, ifColumn, progress) -> {
+		analyzeCsvRecords(csv, rootProgress, (stream, issnColumn, eissnColumn, categoryColumn, ifColumn, progress) -> {
 			String[] row = stream.readNext();
 			final Progression rowProgress = progress.subTask(99, 0, row == null ? 0 : row.length);
 			while (row != null) {
 				final WebOfScienceJournal journalRanking = analyzeCsvRecord(categoryColumn, ifColumn, row);
 				if (journalRanking != null) {
+					// Put the ranking object two times in the map: one for the issn and one for the eissn 
 					if (issnColumn != null) {
-						final String journalId = row[issnColumn.intValue()].replaceAll("[^0-9a-zA-Z]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
-						ranking.put(journalId, journalRanking);
-					} else if (eissnColumn != null) {
-						final String journalId = row[eissnColumn.intValue()].replaceAll("[^0-9a-zA-Z]+", ""); //$NON-NLS-1$ //$NON-NLS-2$;
-						ranking.put(journalId, journalRanking);
+						final String journalId = normalizeIssn(row[issnColumn.intValue()]);
+						if (!Strings.isNullOrEmpty(journalId)) {
+							ranking.put(journalId, journalRanking);
+						}
+					}
+					if (eissnColumn != null) {
+						final String journalId = normalizeIssn(row[eissnColumn.intValue()]);
+						if (!Strings.isNullOrEmpty(journalId)) {
+							ranking.put(journalId, journalRanking);
+						}
 					}
 				}
 				rowProgress.increment();
@@ -189,9 +199,9 @@ public class OnlineWebOfSciencePlatform implements WebOfSciencePlatform {
 	}
 
 	@Override
-	public Map<String, WebOfScienceJournal> getJournalRanking(int year, URL csvUrl, Progression progress)
+	public Map<String, WebOfScienceJournal> getJournalRanking(int year, InputStream csv, Progression progress)
 			throws Exception {
-		return this.rankingCache.computeIfAbsent(Integer.valueOf(year), it -> readJournalRanking(csvUrl, ensureProgress(progress)));
+		return this.rankingCache.computeIfAbsent(Integer.valueOf(year), it -> readJournalRanking(csv, ensureProgress(progress)));
 	}
 
 	/** Call back for analyzing the journal CSV.

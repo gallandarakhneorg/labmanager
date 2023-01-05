@@ -432,7 +432,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		consumer.accept("ranked", Boolean.valueOf(ranked)); //$NON-NLS-1$
 		if (getType() != null) {
 			consumer.accept("type", getType()); //$NON-NLS-1$
-			consumer.accept("category", getType().getCategory(ranked)); //$NON-NLS-1$
+			consumer.accept("category", getCategory()); //$NON-NLS-1$
 		}
 		consumer.accept("manualValidationForced", Boolean.valueOf(getManualValidationForced())); //$NON-NLS-1$
 		consumer.accept("validated", Boolean.valueOf(isValidated())); //$NON-NLS-1$
