@@ -83,8 +83,8 @@
 					        style="font-size:14pt"></button></a>
             </td>
             <td>
-            	<th:block th:if="${publication.validated}"><i style="color:green" class="fa-solid fa-check-circle"></i></th:block>
-            	<th:block th:unless="${publication.validated}"><i style="color:red"  class="fa-solid fa-triangle-exclamation"></i></th:block>
+            	<th:block th:if="${publication.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
+            	<th:block th:unless="${publication.validated}"><i style="color:red"  class="fa-solid fa-triangle-exclamation">A</i></th:block>
             </td>
             <td th:replace="fragments/table :: adminToolButtons(${publication.id}, ${publication.title},
             		#{html.EditPublication1(${publication.title})},

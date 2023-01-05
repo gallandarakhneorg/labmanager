@@ -47,13 +47,13 @@
             </td>
             <td th:with="qindex=${journal.getScimagoQIndexByYear(currentYear)}">
             	<a th:href="@{/getJournalQualityIndicators(journal=${journal.id})}">
-	                <th:block th:if="${qindex != null}"
+	                <th:block th:if="${qindex != null && qindex != T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).NR}"
 	                          th:utext="${qindex.toString}"></th:block>
             	</a>
             </td>
             <td th:with="qindex=${journal.getWosQIndexByYear(currentYear)}">
             	<a th:href="@{/getJournalQualityIndicators(journal=${journal.id})}">
-	                <th:block th:if="${qindex != null}"
+	                <th:block th:if="${qindex != null && qindex != T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).NR}"
 	                          th:utext="${qindex.toString}"></th:block>
             	</a>
             </td>
@@ -71,8 +71,8 @@
 	                <th:block th:utext="${journal.publishedPapers.size}"></th:block></a>
             </td>
             <td>
-            	<th:block th:if="${journal.validated}"><i style="color:green" class="fa-solid fa-check-circle"></i></th:block>
-            	<th:block th:unless="${journal.validated}"><i style="color:red"  class="fa-solid fa-triangle-exclamation"></i></th:block>
+            	<th:block th:if="${journal.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
+            	<th:block th:unless="${journal.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
             </td>
             <td th:replace="fragments/table :: adminToolButtons(${journal.id}, ${journal.journalName},
             		#{html.EditJournal1(${journal.journalName})},
