@@ -16,7 +16,11 @@
 
 package fr.ciadlab.labmanager.controller.view.supervision;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -33,6 +37,7 @@ import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.supervision.SupervisionService;
 import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -133,6 +138,25 @@ public class SupervisionViewController extends AbstractViewController {
 		modelAndView.addObject("savingUrl", rooted(Constants.SUPERVISION_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("deletionUrl", rooted(Constants.SUPERVISION_DELETION_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("gotoName", inString(gotoName)); //$NON-NLS-1$
+		final List<FundingScheme> sortedFundingSchemes = new ArrayList<>(Arrays.asList(FundingScheme.values()));
+		sortedFundingSchemes.sort(new Comparator<FundingScheme>() {
+			@Override
+			public int compare(FundingScheme o1, FundingScheme o2) {
+				final String l1 = o1 == null ? null : o1.getLabel();
+				final String l2 = o2 == null ? null : o2.getLabel();
+				if (l1 == l2) {
+					return 0;
+				}
+				if (l1 == null) {
+					return -1;
+				}
+				if (l2 == null) {
+					return 1;
+				}
+				return l1.compareToIgnoreCase(l2);
+			}
+		});
+		modelAndView.addObject("sortedFundingSchemes", sortedFundingSchemes); //$NON-NLS-1$
 		return modelAndView;
 	}
 

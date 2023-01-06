@@ -42,7 +42,7 @@
 			<div class="form-group" th:replace="fragments/form :: textInput(title_new, #{html.Title}, #{html.PlaceHolderSupervisionTitle(${person.fullName})}, '')"></div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(fundingScheme_new, #{html.FundingScheme(${person.fullName})}, ~{::option#option-fundingScheme-new})">
 				<option id="option-fundingScheme-new"
-				        th:each="type : ${T(fr.ciadlab.labmanager.utils.funding.FundingScheme).values}"
+				        th:each="type : ${sortedFundingSchemes}"
 				        th:value="${type.name}"
 				        th:utext="${type.getLabel()}"></option>
 			</div>
@@ -119,7 +119,7 @@
 			<div class="form-group" th:replace="fragments/form :: textInput(${'title_' + supervision.id}, #{html.Title}, #{html.PlaceHolderSupervisionTitle(${person.fullName})}, ${supervision.title})"></div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(${'fundingScheme_' + supervision.id}, #{html.FundingScheme(${person.fullName})}, ~{::option#option-fundingScheme})">
 				<option id="option-fundingScheme"
-				        th:each="type : ${T(fr.ciadlab.labmanager.utils.funding.FundingScheme).values}"
+				        th:each="type : ${sortedFundingSchemes}"
 				        th:selected="${supervision.funding == type}"
 				        th:value="${type.name}"
 				        th:utext="${type.getLabel()}"></option>
