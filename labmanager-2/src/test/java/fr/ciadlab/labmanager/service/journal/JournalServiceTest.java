@@ -209,7 +209,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void createJournal() {
-		final Journal journal = this.test.createJournal(true, "NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NWOS");
+		final Journal journal = this.test.createJournal(true, "NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NSC", "NWOS", "NWC");
 		
 		assertNotNull(journal);
 
@@ -227,7 +227,9 @@ public class JournalServiceTest {
 		assertTrue(actual.getOpenAccess());
 		assertEquals("NURL", actual.getJournalURL());
 		assertEquals("NSCI", actual.getScimagoId());
+		assertEquals("NSC", actual.getScimagoCategory());
 		assertEquals("NWOS", actual.getWosId());
+		assertEquals("NWC", actual.getWosCategory());
 	}
 
 	@Test
@@ -249,7 +251,7 @@ public class JournalServiceTest {
 
 	@Test
 	public void updateJournal() {
-		this.test.updateJournal(234, true, "NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NWOS");
+		this.test.updateJournal(234, true, "NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NSC", "NWOS", "NWC");
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
 		verify(this.journalRepository, atLeastOnce()).findById(arg0.capture());
@@ -273,7 +275,9 @@ public class JournalServiceTest {
 		verify(this.jour1, atLeastOnce()).setOpenAccess(eq(Boolean.TRUE));
 		verify(this.jour1, atLeastOnce()).setJournalURL(eq("NURL"));
 		verify(this.jour1, atLeastOnce()).setScimagoId(eq("NSCI"));
+		verify(this.jour1, atLeastOnce()).setScimagoCategory(eq("NSC"));
 		verify(this.jour1, atLeastOnce()).setWosId(eq("NWOS"));
+		verify(this.jour1, atLeastOnce()).setWosCategory(eq("NWC"));
 	}
 
 	@Test

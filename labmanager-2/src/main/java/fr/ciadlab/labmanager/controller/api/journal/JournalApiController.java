@@ -144,7 +144,9 @@ public class JournalApiController extends AbstractApiController {
 	 * @param openAccess indicates if the journal is open access or not.
 	 * @param journalUrl the URL to the page of the journal on the publisher website.
 	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
+	 * @param scimagoCategory the name of the scientific category on Scimago for obtaining Q-index.
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
+	 * @param wosCategory the name of the scientific category on WoS for obtaining Q-index.
 	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case the journal cannot be saved
@@ -160,7 +162,9 @@ public class JournalApiController extends AbstractApiController {
 			@RequestParam(required = false) Boolean openAccess,
 			@RequestParam(required = false) String journalUrl,
 			@RequestParam(required = false) String scimagoId,
+			@RequestParam(required = false) String scimagoCategory,
 			@RequestParam(required = false) String wosId,
+			@RequestParam(required = false) String wosCategory,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.JOURNAL_SAVING_ENDPOINT, journal);
@@ -173,16 +177,18 @@ public class JournalApiController extends AbstractApiController {
 		final String inIssn = inString(issn);
 		final String inJournalUrl = inString(journalUrl);
 		final String inScimagoId = inString(scimagoId);
+		final String inScimagoCategory = inString(scimagoCategory);
 		final String inWosId = inString(wosId);
+		final String inWosCategory = inString(wosCategory);
 		//
 		if (journal == null) {
 			optJournal = this.journalService.createJournal(
 					validated, inName, inAddress, inPublisher, inIsbn, inIssn,
-					openAccess, inJournalUrl, inScimagoId, inWosId);
+					openAccess, inJournalUrl, inScimagoId, inScimagoCategory, inWosId, inWosCategory);
 		} else {
 			optJournal = this.journalService.updateJournal(journal.intValue(),
 					validated, inName, inAddress, inPublisher, inIsbn, inIssn,
-					openAccess, inJournalUrl, inScimagoId, inWosId);
+					openAccess, inJournalUrl, inScimagoId, inScimagoCategory, inWosId, inWosCategory);
 		}
 		if (optJournal == null) {
 			throw new IllegalStateException("Journal not found"); //$NON-NLS-1$

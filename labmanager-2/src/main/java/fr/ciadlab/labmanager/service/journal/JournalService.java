@@ -176,11 +176,13 @@ public class JournalService extends AbstractService {
 	 * @param openAccess indicates if the journal is open access or not.
 	 * @param journalUrl the URL to the page of the journal on the publisher website.
 	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
+	 * @param scimagoCategory the name of the scientific category on Scimago for obtaining Q-index.
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
+	 * @param wosCategory the name of the scientific category on WoS for obtaining Q-index.
 	 * @return the created journal.
 	 */
 	public Journal createJournal(boolean validated, String name, String address, String publisher, String isbn, String issn,
-			Boolean openAccess, String journalUrl, String scimagoId, String wosId) {
+			Boolean openAccess, String journalUrl, String scimagoId, String scimagoCategory, String wosId, String wosCategory) {
 		final Journal res = new Journal();
 		res.setJournalName(name);
 		res.setAddress(address);
@@ -190,7 +192,9 @@ public class JournalService extends AbstractService {
 		res.setOpenAccess(openAccess);
 		res.setJournalURL(journalUrl);
 		res.setScimagoId(scimagoId);
+		res.setScimagoCategory(scimagoCategory);
 		res.setWosId(wosId);
+		res.setWosCategory(wosCategory);
 		res.setValidated(validated);
 		this.journalRepository.save(res);
 		return res;
@@ -226,11 +230,13 @@ public class JournalService extends AbstractService {
 	 * @param openAccess indicates if the journal is open access or not.
 	 * @param journalUrl the URL to the page of the journal on the publisher website.
 	 * @param scimagoId the identifier to the page of the journal on the Scimago website.
+	 * @param scimagoCategory the name of the scientific category on Scimago for obtaining Q-index.
 	 * @param wosId the identifier to the page of the journal on the Web-Of-Science website.
+	 * @param wosCategory the name of the scientific category on WoS for obtaining Q-index.
 	 * @return the updated journal.
 	 */
 	public Journal updateJournal(int identifier, boolean validated, String name, String address, String publisher, String isbn, String issn,
-			Boolean openAccess, String journalUrl, String scimagoId, String wosId) {
+			Boolean openAccess, String journalUrl, String scimagoId, String scimagoCategory, String wosId, String wosCategory) {
 		final Optional<Journal> res = this.journalRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
 			final Journal journal = res.get();
@@ -246,7 +252,9 @@ public class JournalService extends AbstractService {
 				journal.setOpenAccess(openAccess);
 				journal.setJournalURL(Strings.emptyToNull(journalUrl));
 				journal.setScimagoId(Strings.emptyToNull(scimagoId));
+				journal.setScimagoCategory(Strings.emptyToNull(scimagoCategory));
 				journal.setWosId(Strings.emptyToNull(wosId));
+				journal.setWosCategory(Strings.emptyToNull(wosCategory));
 				journal.setValidated(validated);
 				this.journalRepository.save(journal);
 				return journal; 
