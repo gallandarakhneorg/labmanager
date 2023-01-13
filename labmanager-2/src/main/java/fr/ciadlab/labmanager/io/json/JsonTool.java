@@ -97,6 +97,12 @@ public abstract class JsonTool {
 	 */
 	public static final String INVITATIONS_SECTION = "invitations"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to projects.
+	 *
+	 * @since 3.0
+	 */
+	public static final String PROJECTS_SECTION = "projects"; //$NON-NLS-1$
+
 	/** Name of the field that contains the source of the data. Value of this field may be
 	 * {@code :db} or the name of the source.
 	 */
@@ -202,6 +208,10 @@ public abstract class JsonTool {
 	 */
 	protected  static final String INVITATION_ID_PREFIX = "/invit#"; //$NON-NLS-1$
 
+	/** Prefix for project identifiers.
+	 */
+	protected  static final String PROJECT_ID_PREFIX = "/prj#"; //$NON-NLS-1$
+
 	/** Prefix for person identifiers.
 	 */
 	protected  static final String PERSON_ID_PREFIX = "/pers#"; //$NON-NLS-1$
@@ -257,6 +267,60 @@ public abstract class JsonTool {
 	/** Name of the field for the guest person reference.
 	 */
 	protected static final String GUEST_KEY = "guest"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to a coordinator organization.
+	 *
+	 * @since 3.0
+	 */
+	protected static final String COORDINATOR_KEY = "coordinator"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to a local organization.
+	 *
+	 * @since 3.0
+	 */
+	protected static final String LOCAL_ORGANIZATION_KEY = "localOrganization"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to a super organization.
+	 *
+	 * @since 3.0
+	 */
+	protected static final String SUPER_ORGANIZATION_KEY = "superOrganization"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to a LEAR organization.
+	 *
+	 * @since 3.0
+	 */
+	protected static final String LEAR_ORGANIZATION_KEY = "learOrganization"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to the other partners of a project.
+	 *
+	 * @since 3.0
+	 */
+	protected static final String OTHER_PARTNERS_KEY = "otherPartners"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to the participants to a project.
+	 *
+	 * @since 3.0
+	 */
+	protected static final String PARTICIPANTS_KEY = "participants"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to the role of a project participant.
+	 *
+	 * @since 3.0
+	 */
+	protected static final String ROLE_KEY = "role"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to the URLs of the videos for a project.
+	 *
+	 * @since 3.0
+	 */
+	protected static final String VIDEO_URLS_KEY = "videoURLs"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to the paths of images that are associated to a project.
+	 *
+	 * @since 3.0
+	 */
+	protected static final String PATHS_TO_IMAGES_KEY = "pathsToImages"; //$NON-NLS-1$
 
 	/** Name of the field for the inviter person reference.
 	 */

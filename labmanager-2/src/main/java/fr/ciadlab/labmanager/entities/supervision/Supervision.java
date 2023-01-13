@@ -140,12 +140,12 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 		int h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.supervisedPerson);
-//		h = HashCodeUtils.add(h, this.supervisors);
+		h = HashCodeUtils.add(h, this.supervisors);
 		h = HashCodeUtils.add(h, this.title);
 		h = HashCodeUtils.add(h, this.funding);
-//		h = HashCodeUtils.add(h, this.fundingDetails);
+		h = HashCodeUtils.add(h, this.fundingDetails);
 		h = HashCodeUtils.add(h, this.defenseDate);
-//		h = HashCodeUtils.add(h, this.positionAfterSupervision);
+		h = HashCodeUtils.add(h, this.positionAfterSupervision);
 		h = HashCodeUtils.add(h, this.numberOfAterPositions);
 		h = HashCodeUtils.add(h, this.isJointPosition);
 		h = HashCodeUtils.add(h, this.isEntrepreneur);
@@ -165,24 +165,24 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 		if (!Objects.equals(this.supervisedPerson, other.supervisedPerson)) {
 			return false;
 		}
-//		if (!Objects.equals(this.supervisors, other.supervisors)) {
-//			return false;
-//		}
-//		if (!Objects.equals(this.title, other.title)) {
-//			return false;
-//		}
+		if (!Objects.equals(this.supervisors, other.supervisors)) {
+			return false;
+		}
+		if (!Objects.equals(this.title, other.title)) {
+			return false;
+		}
 		if (!Objects.equals(this.funding, other.funding)) {
 			return false;
 		}
-//		if (!Objects.equals(this.fundingDetails, other.fundingDetails)) {
-//			return false;
-//		}
+		if (!Objects.equals(this.fundingDetails, other.fundingDetails)) {
+			return false;
+		}
 		if (!Objects.equals(this.defenseDate, other.defenseDate)) {
 			return false;
 		}
-//		if (!Objects.equals(this.positionAfterSupervision, other.positionAfterSupervision)) {
-//			return false;
-//		}
+		if (!Objects.equals(this.positionAfterSupervision, other.positionAfterSupervision)) {
+			return false;
+		}
 		if (this.numberOfAterPositions != other.numberOfAterPositions) {
 			return false;
 		}

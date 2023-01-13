@@ -390,6 +390,133 @@ public class FundingSchemeTest {
 		assertEquals("PIA - Plan d'Investissement d'Avenir", cons(FundingScheme.PIA).getLabel(Locale.US));
 		assertEquals("Bourgogne-Franche-Comté Province", cons(FundingScheme.REGION_BFC).getLabel(Locale.US));
 		assertEquals("Self funded", cons(FundingScheme.SELF_FUNDING).getLabel(Locale.US));
+		assertAllTreated();
+	}
+
+	@Test
+	public void isCompetitive() throws Exception {
+		assertTrue(cons(FundingScheme.ADEME).isCompetitive());
+		assertTrue(cons(FundingScheme.ANR).isCompetitive());
+		assertTrue(cons(FundingScheme.CAMPUS_FRANCE).isCompetitive());
+		assertTrue(cons(FundingScheme.CARNOT).isCompetitive());
+		assertFalse(cons(FundingScheme.CIFRE).isCompetitive());
+		assertTrue(cons(FundingScheme.CONACYT).isCompetitive());
+		assertTrue(cons(FundingScheme.COST_ACTION).isCompetitive());
+		assertTrue(cons(FundingScheme.CPER).isCompetitive());
+		assertTrue(cons(FundingScheme.CSC).isCompetitive());
+		assertTrue(cons(FundingScheme.EDIH).isCompetitive());
+		assertFalse(cons(FundingScheme.EU_COMPANY).isCompetitive());
+		assertFalse(cons(FundingScheme.EU_OTHER).isCompetitive());
+		assertFalse(cons(FundingScheme.EU_UNIVERSITY).isCompetitive());
+		assertTrue(cons(FundingScheme.EUREKA).isCompetitive());
+		assertTrue(cons(FundingScheme.FEDER).isCompetitive());
+		assertTrue(cons(FundingScheme.FITEC).isCompetitive());
+		assertFalse(cons(FundingScheme.FRENCH_COMPANY).isCompetitive());
+		assertFalse(cons(FundingScheme.FRENCH_OTHER).isCompetitive());
+		assertFalse(cons(FundingScheme.FRENCH_UNIVERSITY).isCompetitive());
+		assertTrue(cons(FundingScheme.FUI).isCompetitive());
+		assertTrue(cons(FundingScheme.H2020).isCompetitive());
+		assertTrue(cons(FundingScheme.HORIZON_EUROPE).isCompetitive());
+		assertFalse(cons(FundingScheme.HOSTING_ORGANIZATION).isCompetitive());
+		assertTrue(cons(FundingScheme.IDEX).isCompetitive());
+		assertFalse(cons(FundingScheme.INTERNATIONAL_COMPANY).isCompetitive());
+		assertFalse(cons(FundingScheme.INTERNATIONAL_UNIVERSITY).isCompetitive());
+		assertFalse(cons(FundingScheme.INTERNTATIONAL_OTHER).isCompetitive());
+		assertTrue(cons(FundingScheme.INTERREG).isCompetitive());
+		assertTrue(cons(FundingScheme.ISITE).isCompetitive());
+		assertTrue(cons(FundingScheme.JPIEU).isCompetitive());
+		assertFalse(cons(FundingScheme.LOCAL_INSTITUTION).isCompetitive());
+		assertTrue(cons(FundingScheme.NICOLAS_BAUDIN).isCompetitive());
+		assertFalse(cons(FundingScheme.NOT_FUNDED).isCompetitive());
+		assertTrue(cons(FundingScheme.PHC).isCompetitive());
+		assertTrue(cons(FundingScheme.PIA).isCompetitive());
+		assertTrue(cons(FundingScheme.REGION_BFC).isCompetitive());
+		assertFalse(cons(FundingScheme.SELF_FUNDING).isCompetitive());
+		assertAllTreated();
+	}
+
+	@Test
+	public void isNotAcademic() throws Exception {
+		assertFalse(cons(FundingScheme.ADEME).isNotAcademic());
+		assertFalse(cons(FundingScheme.ANR).isNotAcademic());
+		assertFalse(cons(FundingScheme.CAMPUS_FRANCE).isNotAcademic());
+		assertFalse(cons(FundingScheme.CARNOT).isNotAcademic());
+		assertFalse(cons(FundingScheme.CIFRE).isNotAcademic());
+		assertFalse(cons(FundingScheme.CONACYT).isNotAcademic());
+		assertFalse(cons(FundingScheme.COST_ACTION).isNotAcademic());
+		assertFalse(cons(FundingScheme.CPER).isNotAcademic());
+		assertFalse(cons(FundingScheme.CSC).isNotAcademic());
+		assertFalse(cons(FundingScheme.EDIH).isNotAcademic());
+		assertTrue(cons(FundingScheme.EU_COMPANY).isNotAcademic());
+		assertTrue(cons(FundingScheme.EU_OTHER).isNotAcademic());
+		assertFalse(cons(FundingScheme.EU_UNIVERSITY).isNotAcademic());
+		assertFalse(cons(FundingScheme.EUREKA).isNotAcademic());
+		assertFalse(cons(FundingScheme.FEDER).isNotAcademic());
+		assertFalse(cons(FundingScheme.FITEC).isNotAcademic());
+		assertTrue(cons(FundingScheme.FRENCH_COMPANY).isNotAcademic());
+		assertTrue(cons(FundingScheme.FRENCH_OTHER).isNotAcademic());
+		assertFalse(cons(FundingScheme.FRENCH_UNIVERSITY).isNotAcademic());
+		assertFalse(cons(FundingScheme.FUI).isNotAcademic());
+		assertFalse(cons(FundingScheme.H2020).isNotAcademic());
+		assertFalse(cons(FundingScheme.HORIZON_EUROPE).isNotAcademic());
+		assertFalse(cons(FundingScheme.HOSTING_ORGANIZATION).isNotAcademic());
+		assertFalse(cons(FundingScheme.IDEX).isNotAcademic());
+		assertTrue(cons(FundingScheme.INTERNATIONAL_COMPANY).isNotAcademic());
+		assertFalse(cons(FundingScheme.INTERNATIONAL_UNIVERSITY).isNotAcademic());
+		assertTrue(cons(FundingScheme.INTERNTATIONAL_OTHER).isNotAcademic());
+		assertFalse(cons(FundingScheme.INTERREG).isNotAcademic());
+		assertFalse(cons(FundingScheme.ISITE).isNotAcademic());
+		assertFalse(cons(FundingScheme.JPIEU).isNotAcademic());
+		assertFalse(cons(FundingScheme.LOCAL_INSTITUTION).isNotAcademic());
+		assertFalse(cons(FundingScheme.NICOLAS_BAUDIN).isNotAcademic());
+		assertFalse(cons(FundingScheme.NOT_FUNDED).isNotAcademic());
+		assertFalse(cons(FundingScheme.PHC).isNotAcademic());
+		assertFalse(cons(FundingScheme.PIA).isNotAcademic());
+		assertFalse(cons(FundingScheme.REGION_BFC).isNotAcademic());
+		assertFalse(cons(FundingScheme.SELF_FUNDING).isNotAcademic());
+		assertAllTreated();
+	}
+
+	@Test
+	public void reverseOrdinal() throws Exception {
+		assertEquals(0, cons(FundingScheme.INTERNATIONAL_COMPANY).reverseOrdinal());
+		assertEquals(1, cons(FundingScheme.PHC).reverseOrdinal());
+		assertEquals(2, cons(FundingScheme.CSC).reverseOrdinal());
+		assertEquals(3, cons(FundingScheme.CONACYT).reverseOrdinal());
+		assertEquals(4, cons(FundingScheme.NICOLAS_BAUDIN).reverseOrdinal());
+		assertEquals(5, cons(FundingScheme.CAMPUS_FRANCE).reverseOrdinal());
+		assertEquals(6, cons(FundingScheme.FITEC).reverseOrdinal());
+		assertEquals(7, cons(FundingScheme.INTERNTATIONAL_OTHER).reverseOrdinal());
+		assertEquals(8, cons(FundingScheme.INTERNATIONAL_UNIVERSITY).reverseOrdinal());
+		assertEquals(9, cons(FundingScheme.EU_COMPANY).reverseOrdinal());
+		assertEquals(10, cons(FundingScheme.HORIZON_EUROPE).reverseOrdinal());
+		assertEquals(11, cons(FundingScheme.H2020).reverseOrdinal());
+		assertEquals(12, cons(FundingScheme.EDIH).reverseOrdinal());
+		assertEquals(13, cons(FundingScheme.INTERREG).reverseOrdinal());
+		assertEquals(14, cons(FundingScheme.JPIEU).reverseOrdinal());
+		assertEquals(15, cons(FundingScheme.COST_ACTION).reverseOrdinal());
+		assertEquals(16, cons(FundingScheme.EUREKA).reverseOrdinal());
+		assertEquals(17, cons(FundingScheme.FEDER).reverseOrdinal());
+		assertEquals(18, cons(FundingScheme.EU_OTHER).reverseOrdinal());
+		assertEquals(19, cons(FundingScheme.EU_UNIVERSITY).reverseOrdinal());
+		assertEquals(20, cons(FundingScheme.FRENCH_COMPANY).reverseOrdinal());
+		assertEquals(21, cons(FundingScheme.CIFRE).reverseOrdinal());
+		assertEquals(22, cons(FundingScheme.PIA).reverseOrdinal());
+		assertEquals(23, cons(FundingScheme.IDEX).reverseOrdinal());
+		assertEquals(24, cons(FundingScheme.ISITE).reverseOrdinal());
+		assertEquals(25, cons(FundingScheme.ANR).reverseOrdinal());
+		assertEquals(26, cons(FundingScheme.ADEME).reverseOrdinal());
+		assertEquals(27, cons(FundingScheme.FUI).reverseOrdinal());
+		assertEquals(28, cons(FundingScheme.CPER).reverseOrdinal());
+		assertEquals(29, cons(FundingScheme.REGION_BFC).reverseOrdinal());
+		assertEquals(30, cons(FundingScheme.CARNOT).reverseOrdinal());
+		assertEquals(31, cons(FundingScheme.FRENCH_OTHER).reverseOrdinal());
+		assertEquals(32, cons(FundingScheme.FRENCH_UNIVERSITY).reverseOrdinal());
+		assertEquals(33, cons(FundingScheme.HOSTING_ORGANIZATION).reverseOrdinal());
+		assertEquals(34, cons(FundingScheme.LOCAL_INSTITUTION).reverseOrdinal());
+		assertEquals(35, cons(FundingScheme.SELF_FUNDING).reverseOrdinal());
+		assertEquals(36, cons(FundingScheme.NOT_FUNDED).reverseOrdinal());
+		assertAllTreated();
 	}
 
  }

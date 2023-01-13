@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:unless="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
+</th:block>
+<th:block th:if="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+</th:block>
+<th:block th:replace="fragments/table :: publicTable"/>
+<!-- <th:block th:if="${organization != null}">
+	<span class="dropdown">
+    	<button type="button" class="btn btn-labeled btn-warning dropdown-toggle" data-bs-toggle="dropdown"
+   	            id="dropdownAddSupervision" aria-expanded="false">
+    	<span class="fa-solid fa-pen"></span>&nbsp;<th:block th:utext="#{html.AddSupervisionIn(${organization.acronymOrName})}"></th:block></button>
+    	<ul class="dropdown-menu" aria-labelledby="dropdownAddSupervision">
+			<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+			       th:if="${!membership.isFuture && membership.isMainPosition && membership.memberStatus.isSupervisable}"
+			       class="dropdown-item"
+			       th:href="@{/showSupervisions(dbId=${membership.person.id})}"
+			       th:utext="${membership.person.fullNameWithLastNameFirst}"></a></li>
+		</ul>
+	</span>
+</th:block>
+ -->
+<div class="table table-responsive">
+    <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
+        <thead>
+	        <th>Rank</th>
+	        <th th:utext="#{html.ProjectCategory}"></th>
+	        <th th:utext="#{html.StartYear}"></th>
+	        <th th:utext="#{html.EndYear}"></th>
+	        <th th:utext="#{html.Acronym}"></th>
+	        <th th:utext="#{html.ScientificTitle}"></th>
+	        <th th:utext="#{html.FundingScheme0}"></th>
+        </thead>
+        <tbody>
+        <tr th:each="project : ${projects}">
+            <td>
+            	<th:block th:utext="${project.category.reverseOrdinal * 1000000 + project.fundingScheme.reverseOrdinal * 10000 + project.startYear}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${project.category.getLabel()}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${project.startYear}"></th:block>
+            </td>
+            <td>
+            	<th:block th:if="${project.startYear > 0 && project.endYear > 0}" th:utext="${project.startYear + '-' + project.endYear}"></th:block>
+            	<th:block th:if="${project.startYear > 0 && project.endYear <= 0}" th:utext="${project.startYear}"></th:block>
+            	<th:block th:if="${project.startYear <= 0 && project.endYear > 0}" th:utext="${project.endYear}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${project.acronym}"></th:block>
+            </td>
+            <td>
+            	<th:block th:utext="${project.scientificTitle}"></th:block>
+            </td>
+            <td>
+            	<th:block th:if="${project.category != T(fr.ciadlab.labmanager.entities.project.ProjectCategory).OPEN_SOURCE}"
+            	          th:utext="${project.fundingScheme.getLabel()}"></th:block>
+            </td>
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript" th:inline="javascript">
+$(document).ready(() => {
+	var $dtable = initFrontTable( {
+		id: [[${'table'+uuid}]],
+		dom: 't',
+		columns: [
+        	{
+                "orderable": false,
+        	},
+        	{
+        		data: 'category',
+                "orderable": false,
+        	},
+        	{
+        		data: 'startYear',
+                "orderable": false,
+			},
+        	{
+                "orderable": false,
+			},
+        	{
+        		data: 'acronym',
+                "orderable": false,
+        	},
+        	{
+                "orderable": false,
+            },
+        	{
+                "orderable": false,
+            }
+		],
+		order: [ [0, 'asc'], [1, 'desc'], [2, 'asc'] ],
+		tableParams: {
+			rowGroup: {
+				startRender: (rows, group) => {
+					return group;
+				},
+				endRender: null,
+				dataSrc: ['category', 'startYear'],
+			},
+		},
+	});
+	$dtable.column(0).visible(false);
+	$dtable.column(1).visible(false);
+	$dtable.column(2).visible(false);
+});
+</script>
+</html>

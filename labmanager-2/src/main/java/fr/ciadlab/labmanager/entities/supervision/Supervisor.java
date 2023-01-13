@@ -75,7 +75,7 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 	@Enumerated(EnumType.STRING)
 	private SupervisorType type = SupervisorType.SUPERVISOR;
 
-	/** Construct an empty supervision.
+	/** Construct an empty supervisor.
 	 */
 	public Supervisor() {
 		//
@@ -85,7 +85,6 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 	public int hashCode() {
 		int h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.id);
-		//h = HashCodeUtils.add(h, this.supervisor);
 		h = HashCodeUtils.add(h, this.percentage);
 		h = HashCodeUtils.add(h, this.type);
 		return h;
@@ -100,9 +99,6 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 			return false;
 		}
 		final Supervisor other = (Supervisor) obj;
-//		if (!Objects.equals(this.supervisor, other.supervisor)) {
-//			return false;
-//		}
 		if (this.percentage != other.percentage) {
 			return false;
 		}

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+
+<th:block th:replace="fragments/nav :: projectListBar"/>
+
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+    <thead>
+        <th th:utext="#{html.Id}"></th>
+        <th th:utext="#{html.Acronym}"></th>
+        <th th:utext="#{html.ScientificTitle}"></th>
+        <th th:utext="#{html.FundingScheme0}"></th>
+        <th th:utext="#{html.StartDate}"></th>
+        <th th:utext="#{html.Duration}"></th>
+        <th th:utext="#{html.Budget}"></th>
+        <th th:utext="#{html.Coordinator}"></th>
+        <th th:utext="#{html.Responsible}"></th>
+        <th th:utext="#{html.TRL}"></th>
+        <th th:utext="#{html.Status0}"></th>
+        <th th:utext="#{html.Files}"></th>
+        <th th:utext="#{html.Validated}"></th>
+        <th th:text="#{html.Actions}"></th>
+    </thead>
+    <tbody>
+        <tr th:each="project : ${projects}">
+            <td>
+                <th:block th:utext="${project.id}"></th:block>
+            </td>
+            <td th:with="urlObject=${project.projectURLObject}">
+                <a th:if="${urlObject != null}"
+                   th:href="${project.projectURL}"
+                   th:utext="${project.acronym}"></a>
+                <th:block th:if="${urlObject == null}"
+                          th:utext="${project.acronym}"></th:block>
+            </td>
+            <td th:with="urlObject=${project.projectURLObject}">
+                <a th:if="${urlObject != null}"
+                   th:href="${project.projectURL}"
+                   th:utext="${project.scientificTitle}"></a>
+                <th:block th:if="${urlObject == null}"
+                          th:utext="${project.scientificTitle}"></th:block>
+            </td>
+            <td>
+				<th:block th:if="${project.fundingScheme != null}"
+				          th:utext="${project.fundingScheme.getLabel()}"></th:block>
+            </td>
+            <td>
+				<th:block th:if="${project.startDate != null}"
+				          th:utext="${project.startDate.toString()}"></th:block>
+            </td>
+            <td>
+				<th:block th:utext="${project.duration}"></th:block>
+            </td>
+            <td>
+				<th:block th:utext="${#numbers.formatDecimal(project.budget, 1, 'DEFAULT', 0, 'DEFAULT')}"></th:block>
+            </td>
+            <td>
+				<th:block th:if="${project.coordinator != null}"
+				          th:utext="${project.coordinator.getAcronymOrName()}"></th:block>
+            </td>
+            <td>
+            	<th:block th:each="participant, iParticipant : ${project.participants.?[role.head]}">
+                    <th:block th:unless="${iParticipant.first}"
+                              th:utext="', '"></th:block>
+                    <th:block th:utext="${participant.person.fullNameWithLastNameFirst}"></th:block>
+            	</th:block>
+            </td>
+            <td>
+				<th:block th:if="${project.TRL != null}"
+				          th:utext="${project.TRL.level}"></th:block>
+            </td>
+            <td>
+				<th:block th:if="${project.status != null}"
+				          th:utext="${project.status.getLabel()}"></th:block>
+            </td>
+            <td>
+				<a th:href="@{/} + ${project.pathToPowerpoint}"
+				   class="noLink"
+				   th:unless="${#strings.isEmpty(project.pathToPowerpoint)}">
+					<button class="fa-solid fa-file-powerpoint"
+					        th:title="#{html.PptDocumentFor}"
+					        style="font-size:14pt"></button></a>
+            </td>
+			<td>
+            	<th:block th:if="${project.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
+            	<th:block th:unless="${project.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
+            </td>
+            <td th:replace="fragments/table :: adminToolButtons(${project.id}, ${project.acronymOrScientificTitle},
+            		#{html.EditProject1(${project.acronymOrScientificTitle})},
+            		#{html.DeleteProject1(${project.acronymOrScientificTitle})},
+            		~{::.admin-tool-buttons},
+            		null, null, null, null)">
+            </td>
+        </tr>
+    </tbody>
+</table>
+<script type="text/javascript" th:inline="javascript">
+    $(document).ready(() => {
+    	initAdministrationTable({
+            columns: 13,
+    		actionWidth: '60px',
+    		order: [ [4, 'desc'], [1, 'asc'] ],
+    	});
+        /*[# th:if="${changeEnabled}" th:each="project : ${projects}"]*/
+        attachDeletionHandler({
+        	id: "[[${project.id}]]",
+        	url: "[(@{/deleteProject(project=${project.id})})]",
+        	name: [[${project.acronymOrScientificTitle}]],
+        	questionTitle: [[#{html.DeleteProject1(${project.acronymOrScientificTitle})}]],
+        	questionText: [[#{html.AreYouSureToDelete(${project.acronymOrScientificTitle})}]],
+        	successText: [[#{html.ProjectDeleted}]],
+        	failureText: [[#{html.CannotDeleteProject}]],
+        });
+        /*[/]*/
+    });
+</script>
+</html>

@@ -42,6 +42,8 @@ import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
@@ -54,6 +56,7 @@ import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.OrganizationAddressRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
+import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -92,6 +95,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private GlobalIndicatorsRepository globalIndicatorsRepository;
 
+	private ProjectRepository projectRepository;
+
 	/** Constructor.
 	 * 
 	 * @param addressRepository the accessor to the organization address repository.
@@ -104,6 +109,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param supervisionRepository the accessor to the supervision repository.
 	 * @param invitationRepository the accessor to the invitation repository.
 	 * @param globalIndicatorsRepository the accessor to the global indicators.
+	 * @param projectRepository the accessor to the projects.
 	 */
 	public DatabaseToJsonExporter(
 			@Autowired OrganizationAddressRepository addressRepository,
@@ -115,7 +121,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired JuryMembershipRepository juryMembershipRepository,
 			@Autowired SupervisionRepository supervisionRepository,
 			@Autowired PersonInvitationRepository invitationRepository,
-			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository) {
+			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository,
+			@Autowired ProjectRepository projectRepository) {
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
@@ -126,6 +133,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		this.supervisionRepository = supervisionRepository;
 		this.invitationRepository = invitationRepository;
 		this.globalIndicatorsRepository = globalIndicatorsRepository;
+		this.projectRepository = projectRepository;
 	}
 
 	/** Run the exporter.
@@ -193,6 +201,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportJuryMemberships(root, repository);
 		exportSupervisions(root, repository);
 		exportInvitations(root, repository);
+		exportProjects(root, repository);
 		if (root.size() > 0) {
 			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;
@@ -766,6 +775,104 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			if (array.size() > 0) {
 				root.set(INVITATIONS_SECTION, array);
+			}
+		}
+	}
+
+	/** Export the projects to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	protected void exportProjects(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<Project> projects = this.projectRepository.findAll();
+		if (!projects.isEmpty()) {
+			final ArrayNode array = root.arrayNode();
+			int i = 0;
+			for (final Project project : projects) {
+				final ObjectNode jsonProject = array.objectNode();
+				
+				final String id = PROJECT_ID_PREFIX + i;
+				exportObject(jsonProject, id, project, jsonProject, null);
+
+				// Organizations and persons must be added explicitly because the "exportObject" function
+				// ignore the getter functions for all.
+				final String coordinatorId = repository.get(project.getCoordinator());
+				if (!Strings.isNullOrEmpty(coordinatorId)) {
+					addReference(jsonProject, COORDINATOR_KEY, coordinatorId);
+				}
+				final String localOrganizationId = repository.get(project.getLocalOrganization());
+				if (!Strings.isNullOrEmpty(localOrganizationId)) {
+					addReference(jsonProject, LOCAL_ORGANIZATION_KEY, localOrganizationId);
+				}
+				final String superOrganizationId = repository.get(project.getSuperOrganization());
+				if (!Strings.isNullOrEmpty(superOrganizationId)) {
+					addReference(jsonProject, SUPER_ORGANIZATION_KEY, superOrganizationId);
+				}
+				final String learOrganizationId = repository.get(project.getLearOrganization());
+				if (!Strings.isNullOrEmpty(learOrganizationId)) {
+					addReference(jsonProject, LEAR_ORGANIZATION_KEY, learOrganizationId);
+				}
+				final List<ResearchOrganization> otherPartners = project.getOtherPartners();
+				if (!otherPartners.isEmpty()) {
+					final ArrayNode jsonPartners = jsonProject.arrayNode();
+					for (final ResearchOrganization partner : otherPartners) {
+						final String partnerId = repository.get(partner);
+						if (!Strings.isNullOrEmpty(partnerId)) {
+							jsonPartners.add(createReference(partnerId, jsonPartners));
+						}
+					}
+					if (!jsonPartners.isEmpty()) {
+						jsonProject.set(OTHER_PARTNERS_KEY, jsonPartners);
+					}
+				}
+				final List<ProjectMember> participants = project.getParticipants();
+				if (!participants.isEmpty()) {
+					final ArrayNode jsonParticipants = jsonProject.arrayNode();
+					for (final ProjectMember participant : participants) {
+						final String participantId = repository.get(participant.getPerson());
+						if (!Strings.isNullOrEmpty(participantId)) {
+							final ObjectNode jsonParticipant = jsonParticipants.objectNode();
+							jsonParticipant.set(PERSON_KEY, createReference(participantId, jsonParticipant));
+							jsonParticipant.put(ROLE_KEY, participant.getRole().name());
+							jsonParticipants.add(jsonParticipant);
+						}
+					}
+					if (!jsonParticipants.isEmpty()) {
+						jsonProject.set(PARTICIPANTS_KEY, jsonParticipants);
+					}
+				}
+				exportStringList(jsonProject, VIDEO_URLS_KEY, project.getVideoURLs());
+				exportStringList(jsonProject, PATHS_TO_IMAGES_KEY, project.getPathsToImages());
+				if (jsonProject.size() > 0) {
+					array.add(jsonProject);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.set(PROJECTS_SECTION, array);
+			}
+		}
+	}
+
+	/** Export the given list of string into a JSON field.
+	 *
+	 * @param receiver the JSON receiver.
+	 * @param fieldName the field name.
+	 * @param data the data to export.
+	 */
+	@SuppressWarnings("static-method")
+	protected void exportStringList(ObjectNode receiver, String fieldName, List<String> data) {
+		if (data != null && !data.isEmpty()) {
+			final ArrayNode jsonArray = receiver.arrayNode();
+			for (final String element : data) {
+				if (!Strings.isNullOrEmpty(element)) {
+					jsonArray.add(element);
+				}
+			}
+			if (!jsonArray.isEmpty()) {
+				receiver.set(fieldName, jsonArray);
 			}
 		}
 	}

@@ -1277,7 +1277,7 @@ public class PublicationService extends AbstractPublicationService {
 		if (downloadablePDF != null && !downloadablePDF.isEmpty()) {
 			final File pdfFilename = this.fileManager.makePdfFilename(publication.getId());
 			final File jpgFilename = this.fileManager.makePdfPictureFilename(publication.getId());
-			this.fileManager.saveFiles(pdfFilename, jpgFilename, downloadablePDF);
+			this.fileManager.savePdfAndThumbnailFiles(pdfFilename, jpgFilename, downloadablePDF);
 			publication.setPathToDownloadablePDF(pdfFilename.getPath());
 			hasUploaded = true;
 			getLogger().info("PDF uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$
@@ -1295,7 +1295,7 @@ public class PublicationService extends AbstractPublicationService {
 		if (downloadableAwardCertificate != null && !downloadableAwardCertificate.isEmpty()) {
 			final File pdfFilename = this.fileManager.makeAwardFilename(publication.getId());
 			final File jpgFilename = this.fileManager.makeAwardPictureFilename(publication.getId());
-			this.fileManager.saveFiles(pdfFilename, jpgFilename, downloadableAwardCertificate);
+			this.fileManager.savePdfAndThumbnailFiles(pdfFilename, jpgFilename, downloadableAwardCertificate);
 			publication.setPathToDownloadableAwardCertificate(pdfFilename.getPath());
 			hasUploaded = true;
 			getLogger().info("Award certificate uploaded at: " + pdfFilename.getPath()); //$NON-NLS-1$

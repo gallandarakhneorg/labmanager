@@ -17,7 +17,12 @@
 package fr.ciadlab.labmanager.controller.view;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -242,4 +247,33 @@ public abstract class AbstractViewController extends AbstractCredentialControlle
 		modelAndView.addObject("obfuscatedValues", values); //$NON-NLS-1$
 	}
 
+	/** Build a sorted list of enum constants.
+	 *
+	 * @param <E> the enumeration type.
+	 * @param type the enumeration type.
+	 * @param criteria the lambda that enables to get the sorting string.
+	 * @return the sorted list of constants.
+	 */
+	@SuppressWarnings("static-method")
+	protected <E extends Enum<E>> List<E> buildSortedEnumConstants(Class<E> type, Function<E, String> criteria) {
+		final List<E> sorted = new ArrayList<>(Arrays.asList(type.getEnumConstants()));
+		sorted.sort(new Comparator<E>() {
+			@Override
+			public int compare(E o1, E o2) {
+				final String l1 = o1 == null ? null : criteria.apply(o1);
+				final String l2 = o2 == null ? null : criteria.apply(o2);
+				if (l1 == l2) {
+					return 0;
+				}
+				if (l1 == null) {
+					return -1;
+				}
+				if (l2 == null) {
+					return 1;
+				}
+				return l1.compareToIgnoreCase(l2);
+			}
+		});
+		return sorted;
+	}
 }

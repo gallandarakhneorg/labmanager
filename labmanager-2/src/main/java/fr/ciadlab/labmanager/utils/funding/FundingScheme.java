@@ -23,6 +23,7 @@ import fr.ciadlab.labmanager.configuration.BaseMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** The enumeration {@code FundingScheme} provides a list of well-known funding sources.
+ * The order of the items (their ordinal values) is frm the less important to the most important.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -50,6 +51,14 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
+		@Override
+		public boolean isCompetitive() {
+			return false;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
 	},
 	/** Funds are provided by the person himself.
 	 */
@@ -68,6 +77,42 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return false;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** A local institution is funding.
+	 */
+	LOCAL_INSTITUTION {
+		@Override
+		public boolean isRegional() {
+			return true;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return false;
+		}
+		@Override
+		public boolean isNotAcademic() {
 			return false;
 		}
 	},
@@ -90,10 +135,105 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
+		@Override
+		public boolean isCompetitive() {
+			return false;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
 	},
-	/** A local institution is funding.
+	/** A french university is funding.
 	 */
-	LOCAL_INSTITUTION {
+	FRENCH_UNIVERSITY {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return true;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return false;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** Other source of funding from France.
+	 */
+	FRENCH_OTHER {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return true;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return false;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return true;
+		}
+	},
+	/** Funds are provided in the context of a CARNOT Institution and managed by ANR.
+	 *
+	 * @see "https://www.instituts-carnot.eu/fr"
+	 * @see "https://www.anrt.asso.fr/fr"
+	 */
+	CARNOT {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return true;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** The regional council of Burgundy Franche Comte is funding.
+	 */
+	REGION_BFC {
 		@Override
 		public boolean isRegional() {
 			return true;
@@ -108,6 +248,14 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
 			return false;
 		}
 	},
@@ -132,151 +280,12 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
-	},
-	/** "Fonds européen de développement régional".
-	 *
-	 * @see "https://ec.europa.eu/info/funding-tenders/find-funding/eu-funding-programmes/european-regional-development-fund-erdf_fr"
-	 */
-	FEDER {
 		@Override
-		public boolean isRegional() {
+		public boolean isCompetitive() {
 			return true;
 		}
 		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
-			return false;
-		}
-	},
-	/** The regional council of Burgundy Franche Comte is funding.
-	 */
-	REGION_BFC {
-		@Override
-		public boolean isRegional() {
-			return true;
-		}
-		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
-			return false;
-		}
-	},
-	/** A french university is funding.
-	 */
-	FRENCH_UNIVERSITY {
-		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return true;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
-			return false;
-		}
-	},
-	/** French ANR is funding.
-	 *
-	 * @see "https://anr.fr/"
-	 */
-	ANR {
-		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return true;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
-			return false;
-		}
-	},
-	/** 
-	 * PIA (Plan d'Investissement d'Avenir) 
-	 */
-	PIA {
-		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return true;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
-			return false;
-		}
-	},
-	/** 
-	 * IDEX (Initiatives d’Excellence) 
-	 */
-	IDEX {
-		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return true;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
-			return false;
-		}
-	},
-	/** 
-	 * I-SITE (Initiatives-Science – Innovation –Territoires – Economie) 
-	 */
-	ISITE {
-		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return true;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
+		public boolean isNotAcademic() {
 			return false;
 		}
 	},
@@ -301,6 +310,14 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
 	},
 	/** ADEME.
 	 *
@@ -321,6 +338,131 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** French ANR is funding.
+	 *
+	 * @see "https://anr.fr/"
+	 */
+	ANR {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return true;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** 
+	 * I-SITE (Initiatives-Science – Innovation –Territoires – Economie) 
+	 */
+	ISITE {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return true;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** 
+	 * IDEX (Initiatives d’Excellence) 
+	 */
+	IDEX {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return true;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** 
+	 * PIA (Plan d'Investissement d'Avenir) 
+	 */
+	PIA {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return true;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
 			return false;
 		}
 	},
@@ -347,27 +489,12 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
-	},
-	/** Funds are provided in the context of a CARNOT Institution and managed by ANR.
-	 *
-	 * @see "https://www.instituts-carnot.eu/fr"
-	 * @see "https://www.anrt.asso.fr/fr"
-	 */
-	CARNOT {
 		@Override
-		public boolean isRegional() {
+		public boolean isCompetitive() {
 			return false;
 		}
 		@Override
-		public boolean isNational() {
-			return true;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
+		public boolean isNotAcademic() {
 			return false;
 		}
 	},
@@ -392,25 +519,13 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
-	},
-	/** Other source of funding from France.
-	 */
-	FRENCH_OTHER {
 		@Override
-		public boolean isRegional() {
+		public boolean isCompetitive() {
 			return false;
 		}
 		@Override
-		public boolean isNational() {
+		public boolean isNotAcademic() {
 			return true;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
-			return false;
 		}
 	},
 	/** An EU university is funding.
@@ -432,10 +547,18 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
+		@Override
+		public boolean isCompetitive() {
+			return false;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
 	},
-	/** H2020 project is funding.
+	/** Other source of funding from Europe.
 	 */
-	H2020 {
+	EU_OTHER {
 		@Override
 		public boolean isRegional() {
 			return false;
@@ -452,13 +575,23 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
+		@Override
+		public boolean isCompetitive() {
+			return false;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return true;
+		}
 	},
-	/** Horizon Europe funds.
+	/** "Fonds européen de développement régional".
+	 *
+	 * @see "https://ec.europa.eu/info/funding-tenders/find-funding/eu-funding-programmes/european-regional-development-fund-erdf_fr"
 	 */
-	HORIZON_EUROPE {
+	FEDER {
 		@Override
 		public boolean isRegional() {
-			return false;
+			return true;
 		}
 		@Override
 		public boolean isNational() {
@@ -466,10 +599,18 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isEuropean() {
-			return true;
+			return false;
 		}
 		@Override
 		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
 			return false;
 		}
 	},
@@ -492,68 +633,12 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
-	},
-	/** INTERREG project is funding.
-	 */
-	INTERREG {
 		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
+		public boolean isCompetitive() {
 			return true;
 		}
 		@Override
-		public boolean isInternational() {
-			return false;
-		}
-	},
-	/** JPI Urban Europe.
-	 *
-	 * @see "https://jpi-urbaneurope.eu/"
-	 */
-	JPIEU {
-		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
-			return true;
-		}
-		@Override
-		public boolean isInternational() {
-			return false;
-		}
-	},
-	/** Pôles européens d’innovation numérique.
-	 *
-	 * @see "https://digital-strategy.ec.europa.eu/fr/activities/edihs"
-	 */
-	EDIH {
-		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
-			return true;
-		}
-		@Override
-		public boolean isInternational() {
+		public boolean isNotAcademic() {
 			return false;
 		}
 	},
@@ -578,6 +663,158 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** JPI Urban Europe.
+	 *
+	 * @see "https://jpi-urbaneurope.eu/"
+	 */
+	JPIEU {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return true;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** INTERREG project is funding.
+	 */
+	INTERREG {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return true;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** Pôles européens d’innovation numérique.
+	 *
+	 * @see "https://digital-strategy.ec.europa.eu/fr/activities/edihs"
+	 */
+	EDIH {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return true;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** H2020 project is funding.
+	 */
+	H2020 {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return true;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** Horizon Europe funds.
+	 */
+	HORIZON_EUROPE {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return true;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
 	},
 	/** An european company is directly funding.
 	 */
@@ -598,25 +835,13 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return false;
 		}
-	},
-	/** Other source of funding from Europe.
-	 */
-	EU_OTHER {
 		@Override
-		public boolean isRegional() {
+		public boolean isCompetitive() {
 			return false;
 		}
 		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
+		public boolean isNotAcademic() {
 			return true;
-		}
-		@Override
-		public boolean isInternational() {
-			return false;
 		}
 	},
 	/** An international university is funding.
@@ -638,12 +863,18 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return true;
 		}
+		@Override
+		public boolean isCompetitive() {
+			return false;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
 	},
-	/** Campus France is funding.
-	 *
-	 * @see "https://www.campusfrance.org/fr"
+	/** Another source of funding at international level.
 	 */
-	CAMPUS_FRANCE {
+	INTERNTATIONAL_OTHER {
 		@Override
 		public boolean isRegional() {
 			return false;
@@ -660,70 +891,12 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return true;
 		}
-	},
-	/** Partenariats Hubert Curien (PHC) possibly through Campus France.
-	 *
-	 * @see "https://www.campusfrance.org/fr/phc"
-	 */
-	PHC {
 		@Override
-		public boolean isRegional() {
+		public boolean isCompetitive() {
 			return false;
 		}
 		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
-			return true;
-		}
-	},
-	/** Nicolas Baudin Programme for mobiltiy and internships.
-	 *
-	 * @see "https://au.ambafrance.org/Initiative-stages-en-France"
-	 */
-	NICOLAS_BAUDIN {
-		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
-			return true;
-		}
-	},
-	/** Funding is provided by the CONACYT possibly with Campus France.
-	 *
-	 * @see "https://conacyt.mx/"
-	 */
-	CONACYT {
-		@Override
-		public boolean isRegional() {
-			return false;
-		}
-		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
+		public boolean isNotAcademic() {
 			return true;
 		}
 	},
@@ -748,6 +921,104 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return true;
 		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** Campus France is funding.
+	 *
+	 * @see "https://www.campusfrance.org/fr"
+	 */
+	CAMPUS_FRANCE {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return true;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** Nicolas Baudin Programme for mobiltiy and internships.
+	 *
+	 * @see "https://au.ambafrance.org/Initiative-stages-en-France"
+	 */
+	NICOLAS_BAUDIN {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return true;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** Funding is provided by the CONACYT possibly with Campus France.
+	 *
+	 * @see "https://conacyt.mx/"
+	 */
+	CONACYT {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return true;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
 	},
 	/** Funds are provided by the Chinease Scholarship Council (CSC).
 	 *
@@ -770,6 +1041,44 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return true;
 		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
+	/** Partenariats Hubert Curien (PHC) possibly through Campus France.
+	 *
+	 * @see "https://www.campusfrance.org/fr/phc"
+	 */
+	PHC {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return false;
+		}
+		@Override
+		public boolean isInternational() {
+			return true;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
 	},
 	/** An international company is directly funding.
 	 */
@@ -790,30 +1099,18 @@ public enum FundingScheme {
 		public boolean isInternational() {
 			return true;
 		}
-	},
-	/** Another source of funding at international level.
-	 */
-	INTERNTATIONAL_OTHER {
 		@Override
-		public boolean isRegional() {
+		public boolean isCompetitive() {
 			return false;
 		}
 		@Override
-		public boolean isNational() {
-			return false;
-		}
-		@Override
-		public boolean isEuropean() {
-			return false;
-		}
-		@Override
-		public boolean isInternational() {
+		public boolean isNotAcademic() {
 			return true;
 		}
 	};
 
 	private static final String MESSAGE_PREFIX = "fundingScheme."; //$NON-NLS-1$
-	
+
 	private MessageSourceAccessor messages;
 
 	/** Replies the message accessor to be used.
@@ -895,5 +1192,29 @@ public enum FundingScheme {
 	 * @return {@code true} if the funding is international.
 	 */
 	public abstract boolean isInternational();
+
+	/** Indicates if the funding is with competitive project call.
+	 *
+	 * @return {@code true} if competitive project call.
+	 * @since 3.0
+	 */
+	public abstract boolean isCompetitive();
+
+	/** Indicates if the funding is by not academic institution.
+	 *
+	 * @return {@code true} if not academic funder.
+	 * @since 3.0
+	 */
+	public abstract boolean isNotAcademic();
+
+	/** Replies the ordinal number of this item in reverse order.
+	 *
+	 * @return the ordinal from the end
+	 * @see #ordinal()
+	 * @since 3.0
+	 */
+	public int reverseOrdinal() {
+		return values().length - ordinal() - 1;
+	}
 
 }

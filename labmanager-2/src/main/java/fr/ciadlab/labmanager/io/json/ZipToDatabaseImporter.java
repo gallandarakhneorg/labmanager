@@ -77,14 +77,22 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 	public void cleanTargetFolders() throws IOException {
 		deleteContent(this.download.getPdfRootFile());
 		deleteContent(this.download.getAwardRootFile());
+		deleteContent(this.download.getAddressBackgroundRootFile());
+		deleteContent(this.download.getProjectImageRootFile());
+		deleteContent(this.download.getProjectLogoRootFile());
+		deleteContent(this.download.getProjectPowerpointRootFile());
+		deleteContent(this.download.getProjectPressDocumentRootFile());
+		deleteContent(this.download.getProjectScientificRequirementsRootFile());
 	}
 
 	private void deleteContent(File file) throws IOException {
 		if (file != null) {
 			final File absFile = this.download.normalizeForServerSide(file);
-			// Remove PDF and JPEG files. Other files are ignored
 			final File[] files = absFile.listFiles(it -> {
-				return FileSystem.hasExtension(it, ".pdf") || FileSystem.hasExtension(it, ".jpg"); //$NON-NLS-1$ //$NON-NLS-2$
+				return FileSystem.hasExtension(it, ".pdf") || FileSystem.hasExtension(it, ".jpg") //$NON-NLS-1$ //$NON-NLS-2$
+						 || FileSystem.hasExtension(it, ".jpeg") || FileSystem.hasExtension(it, ".gif") //$NON-NLS-1$ //$NON-NLS-2$
+						 || FileSystem.hasExtension(it, ".png") || FileSystem.hasExtension(it, ".ppt") //$NON-NLS-1$ //$NON-NLS-2$
+						 || FileSystem.hasExtension(it, ".pptx"); //$NON-NLS-1$
 			});
 			if (files != null && files.length > 0) {
 				for (final File child : files) {
@@ -104,7 +112,8 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 		final String ext = FileSystem.extension(filename);
 		return ".pdf".equals(ext) || ".jpeg".equals(ext) //$NON-NLS-1$ //$NON-NLS-2$
 			|| ".jpg".equals(ext) || ".gif".equals(ext) //$NON-NLS-1$ //$NON-NLS-2$
-			|| ".png".equals(ext); //$NON-NLS-1$
+			|| ".png".equals(ext) || ".ppt".equals(ext) //$NON-NLS-1$ //$NON-NLS-2$
+			|| ".pptx".equals(ext); //$NON-NLS-1$
 	}
 
 	/** Run the importer for ZIP data source only.
@@ -152,7 +161,8 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 						+ stats.publications + " publications;\n" //$NON-NLS-1$
 						+ callback.getFileCount() + " attached files;\n" //$NON-NLS-1$
 						+ stats.juryMemberships + " jury memberships;\n" //$NON-NLS-1$
-						+ stats.invitations + " supervisions."); //$NON-NLS-1$
+						+ stats.invitations + " supervisions;\n" //$NON-NLS-1$
+						+ stats.projects + " projects."); //$NON-NLS-1$
 			} else {
 				cleanTargetFolders();
 				getLogger().info("Nothing to be inserted from: " + url); //$NON-NLS-1$
@@ -265,6 +275,42 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 			final String fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeAddressBackgroundImage(dbId, fileExtension));
+		}
+
+		@Override
+		public String projectLogoFile(int dbId, String filename) {
+			final String fileExtension = FileSystem.extension(filename);
+			return moveFile(filename, dbId,
+					ZipToDatabaseImporter.this.download.makeProjectLogoFilename(dbId, fileExtension));
+		}
+
+		@Override
+		public String projectImageFile(int dbId, int index, String filename) {
+			final String fileExtension = FileSystem.extension(filename);
+			return moveFile(filename, dbId,
+					ZipToDatabaseImporter.this.download.makeProjectImageFilename(dbId, index, fileExtension));
+		}
+
+		@Override
+		public String projectScientificRequirementsFile(int dbId, String filename) {
+			return moveFile(filename, dbId,
+					ZipToDatabaseImporter.this.download.makeProjectScientificRequirementsFilename(dbId),
+					ZipToDatabaseImporter.this.download.makeProjectScientificRequirementsPictureFilename(dbId));
+		}
+
+		@Override
+		public String projectPressDocumentFile(int dbId, String filename) {
+			return moveFile(filename, dbId,
+					ZipToDatabaseImporter.this.download.makeProjectPressDocumentFilename(dbId),
+					ZipToDatabaseImporter.this.download.makeProjectPressDocumentPictureFilename(dbId));
+		}
+
+		@Override
+		public String projectPowerpointFile(int dbId, String filename) {
+			final String fileExtension = FileSystem.extension(filename);
+			return moveFile(filename, dbId,
+					ZipToDatabaseImporter.this.download.makeProjectPowerpointFilename(dbId, fileExtension),
+					ZipToDatabaseImporter.this.download.makeProjectPowerpointPictureFilename(dbId));
 		}
 
 		private String moveFile(String inFilename, int outId, File outFilename, File outPictureName) {

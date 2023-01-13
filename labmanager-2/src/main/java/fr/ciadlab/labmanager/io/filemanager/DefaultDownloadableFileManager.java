@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.io.filemanager;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -29,10 +30,15 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import javax.imageio.ImageIO;
+
 import com.aspose.pdf.Document;
 import com.aspose.pdf.Page;
 import com.aspose.pdf.devices.JpegDevice;
 import com.aspose.pdf.devices.Resolution;
+import com.aspose.slides.ISlide;
+import com.aspose.slides.ISlideCollection;
+import com.aspose.slides.Presentation;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.sizediterator.SizedIterator;
 import org.arakhne.afc.vmutil.FileSystem;
@@ -57,6 +63,8 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	private static final int JPEG_RESOLUTION = 50;
 
+	private static final float JPEG_RESOLUTION_F = .5f;
+
 	private static final String TEMP_NAME = "labmanager_tmp"; //$NON-NLS-1$
 
 	private static final String DOWNLOADABLE_FOLDER_NAME = "Downloadables"; //$NON-NLS-1$
@@ -67,8 +75,6 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	private static final String PDF_FILE_EXTENSION = ".pdf"; //$NON-NLS-1$
 
-	private static final String JPEG_FILE_EXTENSION = ".jpg"; //$NON-NLS-1$
-
 	private static final String AWARD_FOLDER_NAME = "Awards"; //$NON-NLS-1$
 
 	private static final String AWARD_FILE_PREFIX = "Award"; //$NON-NLS-1$
@@ -76,6 +82,26 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	private static final String ADDRESS_BACKGROUND_FOLDER_NAME = "AddressBgs"; //$NON-NLS-1$
 
 	private static final String ADDRESS_BACKGROUND_FILE_PREFIX = "AddressBg"; //$NON-NLS-1$
+
+	private static final String PROJECT_LOGO_FOLDER_NAME = "ProjectLogos"; //$NON-NLS-1$
+
+	private static final String PROJECT_LOGO_FILE_PREFIX = "ProjectLogo"; //$NON-NLS-1$
+
+	private static final String PROJECT_IMAGE_FOLDER_NAME = "ProjectImages"; //$NON-NLS-1$
+
+	private static final String PROJECT_IMAGE_FILE_PREFIX = "ProjectImg"; //$NON-NLS-1$
+
+	private static final String PROJECT_SCIENTIFIC_REQUIREMENTS_FOLDER_NAME = "ProjectRequirements"; //$NON-NLS-1$
+
+	private static final String PROJECT_SCIENTIFIC_REQUIREMENTS_FILE_PREFIX = "ProjectRequirement"; //$NON-NLS-1$
+
+	private static final String PROJECT_POWERPOINT_FOLDER_NAME = "ProjectPowerpoints"; //$NON-NLS-1$
+
+	private static final String PROJECT_POWERPOINT_FILE_PREFIX = "ProjectPowerpoint"; //$NON-NLS-1$
+
+	private static final String PROJECT_PRESS_DOCUMENT_FOLDER_NAME = "ProjectPressDocs"; //$NON-NLS-1$
+
+	private static final String PROJECT_PRESS_DOCUMENT_FILE_PREFIX = "ProjectPress"; //$NON-NLS-1$
 
 	private static final String SAVED_DATA_FOLDER_NAME = "Saves"; //$NON-NLS-1$
 
@@ -131,6 +157,31 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	}
 
 	@Override
+	public File getProjectLogoRootFile() {
+		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), PROJECT_LOGO_FOLDER_NAME);
+	}
+
+	@Override
+	public File getProjectImageRootFile() {
+		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), PROJECT_IMAGE_FOLDER_NAME);
+	}
+
+	@Override
+	public File getProjectScientificRequirementsRootFile() {
+		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), PROJECT_SCIENTIFIC_REQUIREMENTS_FOLDER_NAME);
+	}
+
+	@Override
+	public File getProjectPowerpointRootFile() {
+		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), PROJECT_POWERPOINT_FOLDER_NAME);
+	}
+
+	@Override
+	public File getProjectPressDocumentRootFile() {
+		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), PROJECT_PRESS_DOCUMENT_FOLDER_NAME);
+	}
+
+	@Override
 	public File getSavingDataRootFile() {
 		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), SAVED_DATA_FOLDER_NAME);
 	}
@@ -160,6 +211,55 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 		return FileSystem.addExtension(
 				FileSystem.join(getAddressBackgroundRootFile(), ADDRESS_BACKGROUND_FILE_PREFIX + Integer.valueOf(addressId)),
 				fileExtension);
+	}
+
+	@Override
+	public File makeProjectLogoFilename(int projectId, String fileExtension) {
+		return FileSystem.addExtension(
+				FileSystem.join(getProjectLogoRootFile(), PROJECT_LOGO_FILE_PREFIX + Integer.valueOf(projectId)),
+				fileExtension);
+	}
+
+	@Override
+	public File makeProjectImageFilename(int projectId, int imageIndex, String fileExtension) {
+		return FileSystem.addExtension(
+				FileSystem.join(getProjectImageRootFile(), PROJECT_IMAGE_FILE_PREFIX + Integer.valueOf(projectId)
+					+ "_" + Integer.toString(imageIndex)), //$NON-NLS-1$
+				fileExtension);
+	}
+
+	@Override
+	public File makeProjectScientificRequirementsFilename(int projectId) {
+		return FileSystem.join(getProjectScientificRequirementsRootFile(), PROJECT_SCIENTIFIC_REQUIREMENTS_FILE_PREFIX + Integer.valueOf(projectId) + PDF_FILE_EXTENSION);
+	}
+
+	@Override
+	public File makeProjectScientificRequirementsPictureFilename(int projectId) {
+		return FileSystem.join(getProjectScientificRequirementsRootFile(), PROJECT_SCIENTIFIC_REQUIREMENTS_FILE_PREFIX + Integer.valueOf(projectId) + JPEG_FILE_EXTENSION);
+	}
+
+	@Override
+	public File makeProjectPowerpointFilename(int projectId, String fileExtension) {
+		return FileSystem.addExtension(
+				FileSystem.join(getProjectPowerpointRootFile(), PROJECT_POWERPOINT_FILE_PREFIX + Integer.valueOf(projectId)),
+				fileExtension);
+	}
+
+	@Override
+	public File makeProjectPowerpointPictureFilename(int projectId) {
+		return FileSystem.addExtension(
+				FileSystem.join(getProjectPowerpointRootFile(), PROJECT_POWERPOINT_FILE_PREFIX + Integer.valueOf(projectId)),
+				JPEG_FILE_EXTENSION);
+	}
+
+	@Override
+	public File makeProjectPressDocumentFilename(int projectId) {
+		return FileSystem.join(getProjectPressDocumentRootFile(), PROJECT_PRESS_DOCUMENT_FILE_PREFIX + Integer.valueOf(projectId) + PDF_FILE_EXTENSION);
+	}
+
+	@Override
+	public File makeProjectPressDocumentPictureFilename(int projectId) {
+		return FileSystem.join(getProjectPressDocumentRootFile(), PROJECT_PRESS_DOCUMENT_FILE_PREFIX + Integer.valueOf(projectId) + JPEG_FILE_EXTENSION);
 	}
 
 	@Override
@@ -206,25 +306,90 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	@Override
 	public void deleteAddressBackgroundImage(int id, String fileExtension) {
-		File file = makeAddressBackgroundImage(id, fileExtension);
-		File absFile = normalizeForServerSide(file);
+		final File file = makeAddressBackgroundImage(id, fileExtension);
+		final File absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
 	}
 
 	@Override
-	public void ensurePictureFile(File pdfFilename, File pictureFilename) throws IOException {
-		final File pdfFilenameAbs = normalizeForServerSide(pdfFilename);
-		if (pdfFilenameAbs.canRead()) {
+	public void deleteProjectLogo(int id, String fileExtension) {
+		final File file = makeProjectLogoFilename(id, fileExtension);
+		final File absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+	}
+
+	@Override
+	public void deleteProjectImage(int id, int imageIndex, String fileExtension) {
+		final File file = makeProjectImageFilename(id, imageIndex, fileExtension);
+		final File absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+	}
+
+	@Override
+	public void deleteProjectScientificRequirements(int id) {
+		File file = makeProjectScientificRequirementsFilename(id);
+		File absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+		file = makeProjectScientificRequirementsPictureFilename(id);
+		absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+	}
+
+	@Override
+	public void deleteProjectPowerpoint(int id, String fileExtension) {
+		File file = makeProjectPowerpointFilename(id, fileExtension);
+		File absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+		file = makeProjectPowerpointPictureFilename(id);
+		absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+	}
+
+	@Override
+	public void deleteProjectPressDocument(int id) {
+		File file = makeProjectPressDocumentFilename(id);
+		File absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+		file = makeProjectPressDocumentPictureFilename(id);
+		absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+	}
+
+	@Override
+	public void ensurePictureFile(File inputFilename, File pictureFilename) throws IOException {
+		final File inputFilenameAbs = normalizeForServerSide(inputFilename);
+		if (inputFilenameAbs.canRead()) {
 			final File pictureFilenameAbs = normalizeForServerSide(pictureFilename);
 			if (!pictureFilenameAbs.exists()) {
 				final File jpgUploadDir = pictureFilenameAbs.getParentFile();
 				if (jpgUploadDir != null) {
 					jpgUploadDir.mkdirs();
 				}
+				final boolean isPdf = FileSystem.hasExtension(inputFilename, PDF_FILE_EXTENSION);
 				try (final OutputStream outputStream = new FileOutputStream(pictureFilenameAbs)) {
-					convertPdfToJpeg(pdfFilenameAbs, outputStream);
+					if (isPdf) {
+						convertPdfToJpeg(inputFilenameAbs, outputStream);
+					} else {
+						convertPptToJpeg(inputFilenameAbs, outputStream);
+					}
 				} catch (IOException ioe) {
 					throw new IOException("Could not save picture file: " + pictureFilenameAbs.getName(), ioe); //$NON-NLS-1$
 				}
@@ -232,30 +397,60 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 		}
 	}
 
-	@Override
-	public void saveAddressBackgroundImage(File filename, MultipartFile backgroundImage) throws IOException {
+	private File saveMultipart(File filename, MultipartFile source, String errorMessage) throws IOException {
 		final File normalizedFilename = normalizeForServerSide(filename);
 		final File uploadDir = normalizedFilename.getParentFile();
 		uploadDir.mkdirs();
-		try (final InputStream inputStream = backgroundImage.getInputStream()) {
+		try (final InputStream inputStream = source.getInputStream()) {
 			final Path filePath = normalizedFilename.toPath();
 			Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException ioe) {
-			throw new IOException("Could not save address background image: " + normalizedFilename.getName(), ioe); //$NON-NLS-1$
+			throw new IOException(errorMessage + normalizedFilename.getName(), ioe);
+		}
+		return normalizedFilename;
+	}
+
+	@Override
+	public void saveImage(File filename, MultipartFile backgroundImage) throws IOException {
+		saveMultipart(filename, backgroundImage, "Could not save image: "); //$NON-NLS-1$
+	}
+
+	@Override
+	public void savePowerpointAndThumbnailFiles(File pptFilename, File pictureFilename, MultipartFile powerpointDocument) throws IOException {
+		final File normalizedPdfFilename = saveMultipart(pptFilename, powerpointDocument, "Could not save PowerPoint: "); //$NON-NLS-1$
+		//
+		final File normalizedJpgFilename = normalizeForServerSide(pictureFilename);
+		final File jpgUploadDir = normalizedJpgFilename.getParentFile();
+		if (jpgUploadDir != null) {
+			jpgUploadDir.mkdirs();
+		}
+		try (final OutputStream outputStream = new FileOutputStream(normalizedJpgFilename)) {
+			convertPptToJpeg(normalizedPdfFilename, outputStream);
+		} catch (IOException ioe) {
+			throw new IOException("Could not save picture file: " + normalizedJpgFilename.getName(), ioe); //$NON-NLS-1$
+		}
+	}
+
+	private static void convertPptToJpeg(File pptFile, OutputStream jpgStream) throws IOException {
+		BufferedImage thumbnail = null;
+		try (final InputStream pptStream = new FileInputStream(pptFile)) {
+			final Presentation pptDocument = new Presentation(pptStream);
+			final ISlideCollection slides = pptDocument.getSlides();
+			if (slides != null && slides.size() > 0) {
+				final ISlide slide = slides.get_Item(0);
+				if (slide != null) {
+					thumbnail = slide.getThumbnail(JPEG_RESOLUTION_F, JPEG_RESOLUTION_F);
+				}
+			}
+		}
+		if (thumbnail != null) {
+			ImageIO.write(thumbnail, "jpeg", jpgStream); //$NON-NLS-1$
 		}
 	}
 
 	@Override
-	public void saveFiles(File pdfFilename, File pictureFilename, MultipartFile multipartPdfFile) throws IOException {
-		final File normalizedPdfFilename = normalizeForServerSide(pdfFilename);
-		final File pdfUploadDir = normalizedPdfFilename.getParentFile();
-		pdfUploadDir.mkdirs();
-		try (final InputStream inputStream = multipartPdfFile.getInputStream()) {
-			final Path filePath = normalizedPdfFilename.toPath();
-			Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
-		} catch (IOException ioe) {
-			throw new IOException("Could not save PDF file: " + normalizedPdfFilename.getName(), ioe); //$NON-NLS-1$
-		}
+	public void savePdfAndThumbnailFiles(File pdfFilename, File pictureFilename, MultipartFile multipartPdfFile) throws IOException {
+		final File normalizedPdfFilename = saveMultipart(pdfFilename, multipartPdfFile, "Could not save PDF file: "); //$NON-NLS-1$
 		//
 		final File normalizedJpgFilename = normalizeForServerSide(pictureFilename);
 		final File jpgUploadDir = normalizedJpgFilename.getParentFile();
@@ -271,7 +466,7 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	private static void convertPdfToJpeg(File pdfFile, OutputStream jpgStream) throws IOException {
 		try (final InputStream pdfStream = new FileInputStream(pdfFile)) {
-			try (final Document pdfDocument = new  Document(pdfStream)) {
+			try (final Document pdfDocument = new Document(pdfStream)) {
 				if (!pdfDocument.getPages().isEmpty()) {
 					final Resolution resolution = new Resolution(JPEG_RESOLUTION);
 					// Create JpegDevice object where second argument indicates the quality of resultant image

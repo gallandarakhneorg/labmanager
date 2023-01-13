@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.zip.ZipEntry;
@@ -58,7 +60,7 @@ public class DatabaseToZipExporter {
 
 	private static final int HUNDRED = 100;
 
-	private static final int TWO_HUNDRED = 300;
+	private static final int THREE_HUNDRED = 300;
 
 	private DatabaseToJsonExporter jsonExporter;
 
@@ -154,6 +156,38 @@ public class DatabaseToZipExporter {
 		progress.end();
 	}
 
+	@SuppressWarnings("unchecked")
+	private void writeProjectFilesToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
+		List<Map<String, Object>>  projects = (List<Map<String, Object>>) json.get(JsonTool.PROJECTS_SECTION);
+		if (projects != null && !projects.isEmpty()) {
+			progress.setProperties(0, 0, projects.size(), false);
+			for (final Map<String, Object> project : projects) {
+				for (final String fieldName : Arrays.asList(
+						"pathToLogo", //$NON-NLS-1$
+						"pathToPowerpoint", //$NON-NLS-1$
+						"pathToPressDocument", //$NON-NLS-1$
+						"pathToScientificRequirements")) { //$NON-NLS-1$
+					final String targetFilename0 = (String) project.get(fieldName);
+					if (!Strings.isNullOrEmpty(targetFilename0)) {
+						if (!copyFileToZip(targetFilename0, zos)) {
+							project.remove(fieldName);
+						}
+					}
+				}
+				final Object images = project.get("pathsToImages"); //$NON-NLS-1$
+				if (images != null) {
+					for (final String imagePath : (Collection<String>) images) {
+						if (!Strings.isNullOrEmpty(imagePath)) {
+							copyFileToZip(imagePath, zos);
+						}
+					}
+				}
+				progress.increment();
+			}
+		}
+		progress.end();
+	}
+
 	private boolean copyFileToZip(String filename, ZipOutputStream zos) throws Exception {
 		final File lfilename = FileSystem.convertStringToFile(filename);
 		final File localFile = this.download.normalizeForServerSide(lfilename);
@@ -207,10 +241,11 @@ public class DatabaseToZipExporter {
 		 * @throws Exception if there is problem for exporting.
 		 */
 		public void exportToZip(OutputStream output) throws Exception {
-			this.progress.setProperties(0, 0, TWO_HUNDRED + FIVE, false);
+			this.progress.setProperties(0, 0, THREE_HUNDRED + FIVE, false);
 			try (ZipOutputStream zos = new ZipOutputStream(output)) {
 				writePublicationFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
 				writeAddressFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
+				writeProjectFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
 				writeJsonToZip(this.content, zos, this.progress.subTask(FIVE));
 			}
 			this.progress.end();

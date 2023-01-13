@@ -39,6 +39,18 @@
 		       th:id="${'fileUploadImage_' + name}" th:name="${name}"></input>
     </div>
 
+	<div th:fragment="fileUploadImages(name, label)" class="form-group">
+		<input type="text" class="form-control"
+		       th:id="${'fileUploadImages_removed_' + name}" 
+		       hidden="true" value="false" />
+		<label th:for="${'fileUploadImages_' + name}" class="col-form-label" th:utext="${label}"></label>
+		<input class="form-control" type="file"
+		       data-preview-file-type="text"
+		       accept=".gif,.jpg,.jpeg,.png,image/jpeg,image/gif,image/png"
+		       th:id="${'fileUploadImages_' + name}" th:name="${name}"
+		       multiple></input>
+    </div>
+
 	<div th:fragment="fileUploadCsv(name, label)" class="form-group">
 		<input type="text" class="form-control"
 		       th:id="${'fileUploadCsv_removed_' + name}" 
@@ -48,6 +60,17 @@
 		       data-preview-file-type="text"
 		       accept=".csv,text/csv,text/x-csv"
 		       th:id="${'fileUploadCsv_' + name}" th:name="${name}"></input>
+    </div>
+
+	<div th:fragment="fileUploadPpt(name, label)" class="form-group">
+		<input type="text" class="form-control"
+		       th:id="${'fileUploadPpt_removed_' + name}" 
+		       hidden="true" value="false" />
+		<label th:for="${'fileUploadPpt_' + name}" class="col-form-label" th:utext="${label}"></label>
+		<input class="form-control" type="file"
+		       data-preview-file-type="text"
+		       accept=".ppt,.pptx,application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation"
+		       th:id="${'fileUploadPpt_' + name}" th:name="${name}"></input>
     </div>
 
 </html>

@@ -37,6 +37,8 @@ import fr.ciadlab.labmanager.entities.organization.OrganizationAddressComparator
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
+import fr.ciadlab.labmanager.entities.project.ProjectComparator;
+import fr.ciadlab.labmanager.entities.project.ProjectMemberComparator;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.SorensenDicePublicationComparator;
@@ -84,6 +86,8 @@ public final class EntityUtils {
 
 	private static ResearchOrganizationComparator ORGANIZATION_COMPARATOR; 
 
+	private static ProjectComparator PROJECT_COMPARATOR; 
+
 	private static OrganizationAddressComparator ORGANIZATION_ADDRESS_COMPARATOR; 
 
 	private static PublicationComparator PUBLICATION_COMPARATOR; 
@@ -97,6 +101,8 @@ public final class EntityUtils {
 	private static SupervisorComparator SUPERVISOR_COMPARATOR; 
 
 	private static SupervisionComparator SUPERVISION_COMPARATOR; 
+
+	private static ProjectMemberComparator PROJECT_MEMBER_COMPARATOR; 
 
 	private static final NormalizedStringSimilarity SIMILARITY_COMPUTER = new SorensenDice();
 
@@ -260,6 +266,30 @@ public final class EntityUtils {
 				PUBLICATION_COMPARATOR = new SorensenDicePublicationComparator();
 			}
 			return PUBLICATION_COMPARATOR;
+		}
+	}
+
+	/** Replies the preferred comparator of projects.
+	 *
+	 * @return the comparator.
+	 * @since 3.0
+	 */
+	public static ProjectComparator getPreferredProjectComparator() {
+		synchronized (EntityUtils.class) {
+			if (PROJECT_COMPARATOR == null) {
+				PROJECT_COMPARATOR = new ProjectComparator();
+			}
+			return PROJECT_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of projects.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredProjectComparator(ProjectComparator comparator) {
+		synchronized (EntityUtils.class) {
+			PROJECT_COMPARATOR = comparator;
 		}
 	}
 
@@ -482,6 +512,29 @@ public final class EntityUtils {
 	public static void setPreferredSupervisionComparator(SupervisionComparator comparator) {
 		synchronized (EntityUtils.class) {
 			SUPERVISION_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of project members.
+	 *
+	 * @return the comparator.
+	 */
+	public static ProjectMemberComparator getPreferredProjectMemberComparator() {
+		synchronized (EntityUtils.class) {
+			if (PROJECT_MEMBER_COMPARATOR == null) {
+				PROJECT_MEMBER_COMPARATOR = new ProjectMemberComparator(getPreferredPersonComparator());
+			}
+			return PROJECT_MEMBER_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of project members.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredProjectMemberComparator(ProjectMemberComparator comparator) {
+		synchronized (EntityUtils.class) {
+			PROJECT_MEMBER_COMPARATOR = comparator;
 		}
 	}
 

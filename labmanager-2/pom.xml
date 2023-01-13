@@ -13,7 +13,7 @@
 
     <groupId>fr.ciadlab.web</groupId>
     <artifactId>labmanager</artifactId>
-    <version>2.5.1-SNAPSHOT</version>
+    <version>3.0.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <properties>
@@ -103,7 +103,12 @@
 		<dependency>
 		  <groupId>com.luhuiguo</groupId>
 		  <artifactId>aspose-pdf</artifactId>
-		  <version>22.4</version>
+		  <version>22.9</version>
+		</dependency>
+		<dependency>
+		  <groupId>com.luhuiguo</groupId>
+		  <artifactId>aspose-slides</artifactId>
+		  <version>22.9</version>
 		</dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -299,55 +304,73 @@ project.properties["mainVersionNumber"] = version + '-' + projectBuildId;
 		<contributor>
 			<name>Thomas De Muyser</name>
 			<roles>
-				<role>UTBM Student - Contributions to version 1</role>
+				<role>UTBM Student - Contributions to version 1.0</role>
 			</roles>
 		</contributor>
 		<contributor>
 			<name>Vincent Chhim</name>
 			<roles>
-				<role>UTBM Student - Contributions to version 1</role>
+				<role>UTBM Student - Contributions to version 1.0</role>
 			</roles>
 		</contributor>
 		<contributor>
 			<name>Quentin Guichard</name>
 			<roles>
-				<role>UTBM Student - Contributions to version 1</role>
+				<role>UTBM Student - Contributions to version 1.0</role>
 			</roles>
 		</contributor>
 		<contributor>
 			<name>Enzo Palermo</name>
 			<roles>
-				<role>UTBM Student - Contributions to version 1</role>
+				<role>UTBM Student - Contributions to version 1.0</role>
 			</roles>
 		</contributor>
 		<contributor>
 			<name>Catherine Turle</name>
 			<roles>
-				<role>UTBM Student - Contributions to version 1</role>
+				<role>UTBM Student - Contributions to version 1.0</role>
 			</roles>
 		</contributor>
 		<contributor>
 			<name>Cyril Obrecht</name>
 			<roles>
-				<role>UTBM Student - Contributions to version 1</role>
+				<role>UTBM Student - Contributions to version 1.0</role>
 			</roles>
 		</contributor>
 		<contributor>
 			<name>Jean Maccou</name>
 			<roles>
-				<role>UTBM Student - Contributions to version 1</role>
+				<role>UTBM Student - Contributions to version 1.0</role>
 			</roles>
 		</contributor>
 		<contributor>
 			<name>Axel Stefanini</name>
 			<roles>
-				<role>UTBM Student - Contributions to version 1</role>
+				<role>UTBM Student - Contributions to version 1.0</role>
 			</roles>
 		</contributor>
 		<contributor>
 			<name>Matthieu Delisle</name>
 			<roles>
-				<role>UTBM Student - Contributions to version 1</role>
+				<role>UTBM Student - Contributions to version 1.0</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Ahmed Noubli</name>
+			<roles>
+				<role>UTBM Student - Contributions to version 3.0</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Baptiste Perrat Dit Janton</name>
+			<roles>
+				<role>UTBM Student - Contributions to version 3.0</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Paul Goubet</name>
+			<roles>
+				<role>UTBM Student - Contributions to version 3.0</role>
 			</roles>
 		</contributor>
 	</contributors>

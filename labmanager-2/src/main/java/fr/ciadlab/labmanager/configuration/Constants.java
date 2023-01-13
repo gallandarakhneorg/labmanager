@@ -324,15 +324,49 @@ public class Constants {
 	 */
 	public static final String SAVE_JOURNAL_INDICATOR_UPDATES_ENDPOINT = "saveJournalIndicatorUpdates"; //$NON-NLS-1$
 
+	/** Name of the endpoint for list of projects.
+	 *
+	 * @since 3.0
+	 */
+	public static final String PROJECT_LIST_ENDPOINT = "projectList"; //$NON-NLS-1$
+
+	/** Name of the endpoint for editor of projects.
+	 *
+	 * @since 3.0
+	 */
+	public static final String PROJECT_EDITING_ENDPOINT = "projectEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving of projects.
+	 *
+	 * @since 3.0
+	 */
+	public static final String PROJECT_SAVING_ENDPOINT = "saveProject"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "project".
+	 *
+	 * @since 3.0
+	 */
+	public static final String PROJECT_ENDPOINT_PARAMETER = "project"; //$NON-NLS-1$
+
 	private static final String DEFAULT_SERVER_NAME = "LabManagerApi"; //$NON-NLS-1$
 
 	private static final String DEFAULT_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$
+
+	private static final String DEFAULT_SUPER_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$
+
+	private static final String DEFAULT_LEAR_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$
 
 	@Value("${server.servlet.context-path}")
 	private String serverName;
 
 	@Value("${labmanager.default-organization}")
 	private String defaultOganization;
+
+	@Value("${labmanager.default-super-organization}")
+	private String defaultSuperOganization;
+
+	@Value("${labmanager.default-lear-organization}")
+	private String defaultLearOganization;
 
 	/** Replies the name of the Spring boot server that is used for accessing the end-points and online resources.
 	 *
@@ -355,9 +389,33 @@ public class Constants {
 	 */
 	public String getDefaultOrganization() {
 		if (Strings.isNullOrEmpty(this.defaultOganization)) {
-			this.serverName = DEFAULT_ORGANIZATION;
+			this.defaultOganization = DEFAULT_ORGANIZATION;
 		}
 		return this.defaultOganization;
+	}
+
+	/** Replies the name or acronym of the default super organization to consider.
+	 *
+	 * @return the name or acronym of the default super organization.
+	 * @since 3.0
+	 */
+	public String getDefaultSuperOrganization() {
+		if (Strings.isNullOrEmpty(this.defaultSuperOganization)) {
+			this.defaultSuperOganization = DEFAULT_SUPER_ORGANIZATION;
+		}
+		return this.defaultSuperOganization;
+	}
+
+	/** Replies the name or acronym of the default LEAR organization to consider.
+	 *
+	 * @return the name or acronym of the default LEAR organization.
+	 * @since 3.0
+	 */
+	public String getDefaultLearOrganization() {
+		if (Strings.isNullOrEmpty(this.defaultLearOganization)) {
+			this.defaultLearOganization = DEFAULT_LEAR_ORGANIZATION;
+		}
+		return this.defaultLearOganization;
 	}
 
 }

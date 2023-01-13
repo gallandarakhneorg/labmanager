@@ -28,6 +28,10 @@ import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Responsibility;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
+import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
+import fr.ciadlab.labmanager.entities.project.ProjectCategory;
+import fr.ciadlab.labmanager.entities.project.ProjectStatus;
+import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
@@ -36,6 +40,7 @@ import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
+import fr.ciadlab.labmanager.utils.trl.TRL;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;
@@ -187,6 +192,21 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (JournalRankingSystem item : EnumSet.allOf(JournalRankingSystem.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (ProjectActivityType item : EnumSet.allOf(ProjectActivityType.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (ProjectCategory item : EnumSet.allOf(ProjectCategory.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (ProjectStatus item : EnumSet.allOf(ProjectStatus.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (Role item : EnumSet.allOf(Role.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (TRL item : EnumSet.allOf(TRL.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 		}

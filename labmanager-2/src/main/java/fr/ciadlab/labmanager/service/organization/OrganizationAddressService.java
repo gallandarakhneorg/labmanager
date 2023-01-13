@@ -185,7 +185,7 @@ public class OrganizationAddressService extends AbstractService {
 		if (backgroundImage != null && !backgroundImage.isEmpty()) {
 			final String ext = FileSystem.extension(backgroundImage.getOriginalFilename());
 			final File filename = this.fileManager.makeAddressBackgroundImage(address.getId(), ext);
-			this.fileManager.saveAddressBackgroundImage(filename, backgroundImage);
+			this.fileManager.saveImage(filename, backgroundImage);
 			address.setPathToBackgroundImage(filename.getPath());
 			hasChanged = true;
 			getLogger().info("Address background image uploaded at: " + filename.getPath()); //$NON-NLS-1$

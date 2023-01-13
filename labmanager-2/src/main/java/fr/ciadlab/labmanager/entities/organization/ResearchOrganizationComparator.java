@@ -35,6 +35,10 @@ import org.springframework.stereotype.Component;
 @Primary
 public class ResearchOrganizationComparator implements Comparator<ResearchOrganization> {
 
+	/** Default comparator.
+	 */
+	public static final ResearchOrganizationComparator DEFAULT = new ResearchOrganizationComparator();
+	
 	@Override
 	public int compare(ResearchOrganization o1, ResearchOrganization o2) {
 		if (o1 == o2) {
