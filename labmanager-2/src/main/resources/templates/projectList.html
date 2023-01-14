@@ -44,8 +44,11 @@
                           th:utext="${project.scientificTitle}"></th:block>
             </td>
             <td>
-				<th:block th:if="${project.fundingScheme != null}"
-				          th:utext="${project.fundingScheme.getLabel()}"></th:block>
+            	<th:block th:each="budget, iBudget : ${project.budgets}">
+                    <th:block th:unless="${iBudget.first}"
+                              th:utext="', '"></th:block>
+                    <th:block th:utext="${budget.fundingScheme.getLabel()}"></th:block>
+            	</th:block>
             </td>
             <td>
 				<th:block th:if="${project.startDate != null}"
@@ -55,7 +58,7 @@
 				<th:block th:utext="${project.duration}"></th:block>
             </td>
             <td>
-				<th:block th:utext="${#numbers.formatDecimal(project.budget, 1, 'DEFAULT', 0, 'DEFAULT')}"></th:block>
+				<th:block th:utext="${#numbers.formatDecimal(project.totalLocalOrganizationBudget, 1, 'DEFAULT', 0, 'DEFAULT')}"></th:block>
             </td>
             <td>
 				<th:block th:if="${project.coordinator != null}"

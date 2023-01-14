@@ -423,7 +423,6 @@ public abstract class AbstractComponent {
 	 *
 	 * @param input the input string to the endpoint.
 	 * @return the normalized string that is equivalent to the argument.
-	 * @see #inStringCr(String)
 	 */
 	public static String inString(Object input) {
 		final String strInput = input == null ? null : input.toString();
@@ -433,6 +432,24 @@ public abstract class AbstractComponent {
 			out = Strings.emptyToNull(out);
 		}
 		return out;
+	}
+
+	/** Clean and normalized a float that is provided as input to an endpoint.
+	 *
+	 * @param input the input string to the endpoint.
+	 * @return the float that is equivalent to the argument, or {@coe null} if the string cannot be converted to a float.
+	 * @since 3.0
+	 */
+	public static Float inFloat(Object input) {
+		final String strInput = inString(input);
+		if (!Strings.isNullOrEmpty(strInput)) {
+			try {
+				return Float.valueOf(strInput);
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
 	}
 
 	/** Loop on the persons that are described in the provided list.

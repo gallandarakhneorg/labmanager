@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.controller.api.project;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,7 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
+import fr.ciadlab.labmanager.entities.project.ProjectBudget;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.service.project.ProjectService;
@@ -85,8 +87,6 @@ public class ProjectApiController extends AbstractApiController {
 	 *     a project in the database.
 	 * @param acronym the short name of acronym of the project
 	 * @param scientificTitle the title of the project with a strong highlight on the scientific contribution.
-	 * @param fundingScheme the name of the funding scheme.
-	 * @param grant the number of identifier of the grant agreement or the contract.
 	 * @param openSource indicates if the project is open source or not.
 	 * @param startDate the start date of the project in format {@code YYY-MM-DD}.
 	 * @param duration the duration of the project in months.
@@ -95,7 +95,6 @@ public class ProjectApiController extends AbstractApiController {
 	 * @param removePathToLogo remove the logo before uploading.
 	 * @param projectURL the URL of the project.
 	 * @param globalBudget the budget for all the partners in the project.
-	 * @param budget the budget of the local organization in the project.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
 	 * @param coordinator the identifier of the research organization which is coordinating the project.
@@ -116,6 +115,10 @@ public class ProjectApiController extends AbstractApiController {
 	 * @param pathToPressDocument the local path to a press document related to the project.
 	 * @param removePathToPressDocument remove the press document before uploading.
 	 * @param status the name of the project status.
+	 * @param localOrganizationBudgets the list of the descriptions of the budgets and funding schemes for the local organization.
+	 *     It is a JSON string that contains a array of associative arrays (one for each budget definition). Each associative array
+	 *     contains the fields {@code fundingScheme} with the name of the {@link FundingScheme}, {@code budget} with the
+	 *     budget in keuros associated to the funding scheme, and {@code grant} the grant or contract number. 
 	 * @param validated indicates if the project is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if the publication cannot be saved.
@@ -125,8 +128,6 @@ public class ProjectApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer project,
 			@RequestParam(required = true) String acronym,
 			@RequestParam(required = true) String scientificTitle,
-			@RequestParam(required = true) String fundingScheme,
-			@RequestParam(required = false) String grant,
 			@RequestParam(required = false, defaultValue = "false") boolean openSource,
 			@RequestParam(required = true) String startDate,
 			@RequestParam(required = true) int duration,
@@ -135,7 +136,6 @@ public class ProjectApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false", name = "@fileUpload_removed_pathToLogo") boolean removePathToLogo,
 			@RequestParam(required = false) String projectURL,
 			@RequestParam(required = true) float globalBudget,
-			@RequestParam(required = true) float budget,
 			@RequestParam(required = true) String activityType,
 			@RequestParam(required = true) String trl,
 			@RequestParam(required = true) int coordinator,
@@ -155,6 +155,7 @@ public class ProjectApiController extends AbstractApiController {
 			@RequestParam(required = false) MultipartFile pathToPressDocument,
 			@RequestParam(required = false, defaultValue = "false", name = "@fileUpload_removed_pathToPressDocument") boolean removePathToPressDocument,
 			@RequestParam(required = true) String status,
+			@RequestParam(required = true) String localOrganizationBudgets,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PROJECT_SAVING_ENDPOINT, project);
@@ -168,8 +169,6 @@ public class ProjectApiController extends AbstractApiController {
 		if (Strings.isNullOrEmpty(inScientificTitle)) {
 			throw new IllegalArgumentException("Scientific title is missed"); //$NON-NLS-1$
 		}
-		final FundingScheme inFundingScheme = FundingScheme.valueOfCaseInsensitive(inString(fundingScheme));
-		final String inGrant = inString(grant);
 		final LocalDate inStartDate = LocalDate.parse(inString(startDate));
 		final String inDescription = inString(description);
 		final String inProjectURLStr = inString(projectURL);
@@ -210,27 +209,51 @@ public class ProjectApiController extends AbstractApiController {
 				participantMap.put(personId, roleInstance);
 			});
 		}
+		final List<ProjectBudget> budgets = new ArrayList<>();
+		final String inLocalOrganizationBudgets = inString(localOrganizationBudgets);
+		if (!Strings.isNullOrEmpty(inLocalOrganizationBudgets)) {
+			final ObjectMapper jsonMapper = new ObjectMapper();
+			@SuppressWarnings("unchecked")
+			final List<Map<String,String>> input = jsonMapper.readValue(inLocalOrganizationBudgets, List.class);
+			if (input != null) {
+				for (final Map<String, String> budget : input) {
+					final FundingScheme funding = FundingScheme.valueOfCaseInsensitive(inString(budget.get("fundingScheme"))); //$NON-NLS-1$
+					if (funding == null) {
+						throw new IllegalArgumentException("Funding scheme of a budget for local organization is mandatory"); //$NON-NLS-1$
+					}
+					final Float budgetValue = inFloat(budget.get("budget")); //$NON-NLS-1$
+					if (budgetValue == null || budgetValue.floatValue() < 0f) {
+						throw new IllegalArgumentException("Budget value for local organization is mandatory"); //$NON-NLS-1$
+					}
+					final ProjectBudget budgetObject = new ProjectBudget();
+					budgetObject.setFundingScheme(funding);
+					budgetObject.setBudget(budgetValue.floatValue());
+					budgetObject.setGrant(inString(budget.get("grant"))); //$NON-NLS-1$
+					budgets.add(budgetObject);
+				}
+			}
+		} else {
+			throw new IllegalArgumentException("Budget for local organization is mandatory"); //$NON-NLS-1$
+		}
 
 		// Create or update the project
 		Optional<Project> projectOpt = Optional.empty();
 		if (project == null) {
 			projectOpt = this.projectService.createProject(
-					validated, inAcronym, inScientificTitle, inFundingScheme, inGrant,
-					openSource, inStartDate, duration, inDescription, pathToLogo,
-					removePathToLogo, inProjectURLObj, globalBudget, budget, inActivityType, inTrl,
+					validated, inAcronym, inScientificTitle, openSource, inStartDate, duration, inDescription,
+					pathToLogo, removePathToLogo, inProjectURLObj, globalBudget, inActivityType, inTrl,
 					coordinator, localOrganization, superOrganization, learOrganization, otherPartners, participantMap,
 					pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
-					pathToPressDocument, removePathToPressDocument, inStatus);
+					pathToPressDocument, removePathToPressDocument, inStatus, budgets);
 		} else {
 			projectOpt = this.projectService.updateProject(project.intValue(),
-					validated, inAcronym, inScientificTitle, inFundingScheme, inGrant, openSource,
-					inStartDate, duration, inDescription, pathToLogo,
-					removePathToLogo, inProjectURLObj, globalBudget, budget, inActivityType,
+					validated, inAcronym, inScientificTitle, openSource, inStartDate, duration, inDescription,
+					pathToLogo, removePathToLogo, inProjectURLObj, globalBudget, inActivityType,
 					inTrl, coordinator, localOrganization, superOrganization, learOrganization, otherPartners,
 					participantMap, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
-					pathToPressDocument, removePathToPressDocument, inStatus);
+					pathToPressDocument, removePathToPressDocument, inStatus, budgets);
 		}
 		if (projectOpt.isEmpty()) {
 			throw new IllegalStateException("Project not found"); //$NON-NLS-1$

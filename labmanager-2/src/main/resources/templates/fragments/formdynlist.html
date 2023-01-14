@@ -6,8 +6,8 @@
 		<script type="text/javascript" th:src="@{/js/labmanager/formdynlist.js}"></script>
 	</th:block>
 
-	<div th:fragment="dynamicDataList(name, label, addLabel)" class="form-group">
-		<label th:for="${'dynamicDataList_' + name}" class="col-form-label" th:utext="${label}"></label>
+	<div th:fragment="dynamicDataListBase(name, label, addLabel, className)" class="form-group">
+		<label th:for="${'dynamicDataList_' + name}" th:class="${'col-form-label' + (#strings.isEmpty(className) ? '' : (' ' + className))}" th:utext="${label}"></label>
 		<table th:id="${'dynamicDataList_' + name + '_table'}" class="regularTable table-responsive supervisorTable form-control">
 			<tbody>
 				<tr th:id="${'dynamicDataList_' + name + '_new'}">
@@ -20,6 +20,14 @@
 				</tr>
 			</tbody>
 		</table>
+    </div>
+
+	<div th:fragment="dynamicDataList(name, label, addLabel)" class="form-group">
+		<th:block th:replace="fragments/formdynlist :: dynamicDataListBase(${name}, ${label}, ${addLabel}, null)"></th:block>
+    </div>
+
+	<div th:fragment="dynamicDataList*(name, label, addLabel)" class="form-group">
+		<th:block th:replace="fragments/formdynlist :: dynamicDataListBase(${name}, ${label}, ${addLabel}, 'required')"></th:block>
     </div>
 
 </html>

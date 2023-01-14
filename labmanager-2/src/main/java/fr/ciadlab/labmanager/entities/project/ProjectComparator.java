@@ -18,8 +18,8 @@ package fr.ciadlab.labmanager.entities.project;
 
 import java.time.LocalDate;
 import java.util.Comparator;
+import java.util.List;
 
-import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.trl.TRL;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
@@ -49,11 +49,11 @@ public class ProjectComparator implements Comparator<Project> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = compareDate(o1.getStartDate(), o2.getStartDate());
+		int cmp = compareBudgets(o1.getBudgets(), o2.getBudgets());
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = compareFundingScheme(o1.getFundingScheme(), o2.getFundingScheme());
+		cmp = compareDate(o1.getStartDate(), o2.getStartDate());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -73,34 +73,11 @@ public class ProjectComparator implements Comparator<Project> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = Float.compare(o1.getBudget(), o2.getBudget());
-		if (cmp != 0) {
-			return cmp;
-		}
 		cmp = Float.compare(o1.getGlobalBudget(), o2.getGlobalBudget());
 		if (cmp != 0) {
 			return cmp;
 		}
 		return Integer.compare(o1.getId(), o2.getId());
-	}
-
-	/** Null-safe comparison the two funding schemes.
-	 * 
-	 * @param v0 the first value.
-	 * @param v1 the second value.
-	 * @return the result of the comparison.
-	 */
-	protected static int compareFundingScheme(FundingScheme v0, FundingScheme v1) {
-		if (v0 == v1) {
-			return 0;
-		}
-		if (v0 == null) {
-			return Integer.MIN_VALUE;
-		}
-		if (v1 == null) {
-			return Integer.MAX_VALUE;
-		}
-		return v0.compareTo(v1);
 	}
 
 	/** Null-safe comparison the two TRLs.
@@ -158,6 +135,58 @@ public class ProjectComparator implements Comparator<Project> {
 			return Integer.MAX_VALUE;
 		}
 		return d1.compareTo(d0);
+	}
+
+	/** Null-safe comparison the two budgets.
+	 * 
+	 * @param s0 the first value.
+	 * @param s1 the second value.
+	 * @return the result of the comparison.
+	 */
+	protected static int compareBudgets(ProjectBudget b0, ProjectBudget b1) {
+		if (b0 == b1) {
+			return 0;
+		}
+		if (b0 == null) {
+			return Integer.MIN_VALUE;
+		}
+		if (b1 == null) {
+			return Integer.MAX_VALUE;
+		}
+		return b0.compareTo(b1);
+	}
+
+	/** Null-safe comparison the two budgets.
+	 * 
+	 * @param s0 the first value.
+	 * @param s1 the second value.
+	 * @return the result of the comparison.
+	 */
+	protected static int compareBudgets(List<ProjectBudget> b0, List<ProjectBudget> b1) {
+		if (b0 == b1) {
+			return 0;
+		}
+		if (b0 == null) {
+			return Integer.MIN_VALUE;
+		}
+		if (b1 == null) {
+			return Integer.MAX_VALUE;
+		}
+		for (int i = 0; i < b0.size() && i < b1.size(); ++i) {
+			final ProjectBudget p0 = b0.get(i); 
+			final ProjectBudget p1 = b1.get(i);
+			final int cmp = compareBudgets(p0, p1);
+			if (cmp != 0) {
+				return cmp;
+			}
+		}
+		if (b0.size() < b1.size()) {
+			return Integer.MIN_VALUE;
+		}
+		if (b0.size() > b1.size()) {
+			return Integer.MAX_VALUE;
+		}
+		return 0;
 	}
 
 }

@@ -34,6 +34,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
+import fr.ciadlab.labmanager.entities.project.ProjectBudget;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.Role;
@@ -43,7 +44,6 @@ import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationReposit
 import fr.ciadlab.labmanager.repository.project.ProjectMemberRepository;
 import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
-import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.trl.TRL;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -153,8 +153,6 @@ public class ProjectService extends AbstractService {
 	 * @param validated indicates if the project is validated by a local authority.
 	 * @param acronym the short name of acronym of the project
 	 * @param scientificTitle the title of the project with a strong highlight on the scientific contribution.
-	 * @param fundingScheme the name of the funding scheme.
-	 * @param grant the number of identifier of the grant agreement or the contract.
 	 * @param openSource indicates if the project is open source or not.
 	 * @param startDate the start date of the project in format {@code YYY-MM-DD}.
 	 * @param duration the duration of the project in months.
@@ -163,7 +161,6 @@ public class ProjectService extends AbstractService {
 	 * @param removePathToLogo remove the logo file before uploading.
 	 * @param projectURL the URL of the project.
 	 * @param globalBudget the budget for all the partners in the project.
-	 * @param budget the budget of the local organization in the project.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
 	 * @param coordinator the identifier of the research organization which is coordinating the project.
@@ -183,35 +180,47 @@ public class ProjectService extends AbstractService {
 	 * @param pathToPressDocument the local path to a press document related to the project.
 	 * @param removePathToPressDocument remove the press document before uploading.
 	 * @param status the name of the project status.
+	 * @param localOrganizationBudgets the list of associated budgets and their funding scheme for the local organization.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
 	 */
 	protected void updateProject(Project project,
-			boolean validated, String acronym, String scientificTitle, FundingScheme fundingScheme,
-			String grant, boolean openSource, LocalDate startDate, int duration, String description,
-			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL, float globalBudget, float budget,
+			boolean validated, String acronym, String scientificTitle,
+			boolean openSource, LocalDate startDate, int duration, String description,
+			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL, float globalBudget,
 			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
 			int superOrganization, int learOrganization, List<Integer> otherPartners,
 			Map<Integer, Role> participants, MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages, 
 			List<String> videoURLs, MultipartFile pathToPowerpoint, boolean removePathToPowerpoint,
-			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status) throws IOException {
+			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status,
+			List<ProjectBudget> localOrganizationBudgets) throws IOException {
 		project.setValidated(validated);
 		project.setAcronym(acronym);
 		project.setScientificTitle(scientificTitle);
-		project.setFundingScheme(fundingScheme);
-		project.setGrant(grant);
 		project.setOpenSource(openSource);
 		project.setStartDate(startDate);
 		project.setDuration(duration);
 		project.setDescription(description);
 		project.setProjectURL(projectURL);
 		project.setGlobalBudget(globalBudget);
-		project.setBudget(budget);
 		project.setActivityType(activityType);
 		project.setTRL(trl);
 		project.setConfidential(confidential);
 		project.setStatus(status);
 		project.setVideoURLs(videoURLs);
+		this.projectRepository.save(project);
+		
+		// Link budgets
+		if (localOrganizationBudgets == null || localOrganizationBudgets.isEmpty()) {
+			throw new IllegalArgumentException("Funding and budget for the local organization is mandatory"); //$NON-NLS-1$
+		}
+		for (final ProjectBudget budget : localOrganizationBudgets) {
+			if (budget.getFundingScheme() == null || budget.getBudget() < 0f) {
+				throw new IllegalArgumentException("Funding and budget for the local organization is mandatory"); //$NON-NLS-1$
+			}
+		}
+		project.setBudgets(localOrganizationBudgets);
+		this.projectRepository.save(project);
 
 		// Link the organizations
 
@@ -276,8 +285,6 @@ public class ProjectService extends AbstractService {
 			});
 		}
 		project.setOtherPartners(otherPartnersOrg);
-		
-		// Save the project to obtain the correct identifier from JPA infrastructure
 
 		this.projectRepository.save(project);
 
@@ -300,6 +307,7 @@ public class ProjectService extends AbstractService {
 			});
 		}
 		project.setParticipants(projectParticipants);
+		this.projectRepository.save(project);
 
 		// Link the uploaded files
 
@@ -308,9 +316,6 @@ public class ProjectService extends AbstractService {
 		updatePowerpoint(project, removePathToPowerpoint, pathToPowerpoint);
 		updatePressDocument(project, removePathToPressDocument, pathToPressDocument);
 		updateImages(project, removePathsToImages, pathsToImages);
-
-		// Save the project to save the correct links to the uploaded files
-
 		this.projectRepository.save(project);
 	}
 
@@ -455,8 +460,6 @@ public class ProjectService extends AbstractService {
 	 * @param validated indicates if the project is validated by a local authority.
 	 * @param acronym the short name of acronym of the project
 	 * @param scientificTitle the title of the project with a strong highlight on the scientific contribution.
-	 * @param fundingScheme the name of the funding scheme.
-	 * @param grant the number of identifier of the grant agreement or the contract.
 	 * @param openSource indicates if the project is open source or not.
 	 * @param startDate the start date of the project in format {@code YYY-MM-DD}.
 	 * @param duration the duration of the project in months.
@@ -465,7 +468,6 @@ public class ProjectService extends AbstractService {
 	 * @param removePathToLogo remove the existing logo before uploading.
 	 * @param projectURL the URL of the project.
 	 * @param globalBudget the budget for all the partners in the project.
-	 * @param budget the budget of the local organization in the project.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
 	 * @param coordinator the identifier of the research organization which is coordinating the project.
@@ -485,27 +487,29 @@ public class ProjectService extends AbstractService {
 	 * @param pathToPressDocument the local path to a press document related to the project.
 	 * @param removePathToPressDocument remove the existing press document before uploading.
 	 * @param status the name of the project status.
+	 * @param localOrganizationBudgets the list of associated budgets and their funding scheme for the local organization.
 	 * @return the reference to the created project.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
 	 */
 	public Optional<Project> createProject(
-			boolean validated, String acronym, String scientificTitle, FundingScheme fundingScheme,
-			String grant, boolean openSource, LocalDate startDate, int duration, String description,
-			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL, float globalBudget, float budget,
+			boolean validated, String acronym, String scientificTitle,
+			boolean openSource, LocalDate startDate, int duration, String description,
+			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL, float globalBudget,
 			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
 			int superOrganization, int learOrganization, List<Integer> otherPartners, Map<Integer, Role> participants,
 			MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages,
 			List<String> videoURLs, MultipartFile pathToPowerpoint, boolean removePathToPowerpoint,
-			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status) throws IOException {
+			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status,
+			List<ProjectBudget> localOrganizationBudgets) throws IOException {
 		final Project project = new Project();
 		try {
-			updateProject(project, validated, acronym, scientificTitle, fundingScheme, grant, openSource,
-					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, globalBudget, budget,
+			updateProject(project, validated, acronym, scientificTitle, openSource,
+					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, globalBudget,
 					activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
 					otherPartners, participants, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
-					pathToPressDocument, removePathToPressDocument, status);
+					pathToPressDocument, removePathToPressDocument, status, localOrganizationBudgets);
 		} catch (Throwable ex) {
 			// Delete created project
 			if (project.getId() != 0) {
@@ -527,8 +531,6 @@ public class ProjectService extends AbstractService {
 	 * @param validated indicates if the project is validated by a local authority.
 	 * @param acronym the short name of acronym of the project
 	 * @param scientificTitle the title of the project with a strong highlight on the scientific contribution.
-	 * @param fundingScheme the name of the funding scheme.
-	 * @param grant the number of identifier of the grant agreement or the contract.
 	 * @param openSource indicates if the project is open source or not.
 	 * @param startDate the start date of the project in format {@code YYY-MM-DD}.
 	 * @param duration the duration of the project in months.
@@ -537,7 +539,6 @@ public class ProjectService extends AbstractService {
 	 * @param removePathToLogo remove the existing logo before uploading.
 	 * @param projectURL the URL of the project.
 	 * @param globalBudget the budget for all the partners in the project.
-	 * @param budget the budget of the local organization in the project.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
 	 * @param coordinator the identifier of the research organization which is coordinating the project.
@@ -557,19 +558,21 @@ public class ProjectService extends AbstractService {
 	 * @param pathToPressDocument the local path to a press document related to the project.
 	 * @param removePathToPressDocument remove the existing press document before uploading.
 	 * @param status the name of the project status.
+	 * @param localOrganizationBudgets the list of associated budgets and their funding scheme for the local organization.
 	 * @return the reference to the updated project.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
 	 */
 	public Optional<Project> updateProject(int projectId,
-			boolean validated, String acronym, String scientificTitle, FundingScheme fundingScheme,
-			String grant, boolean openSource, LocalDate startDate, int duration, String description,
-			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL, float globalBudget, float budget,
+			boolean validated, String acronym, String scientificTitle,
+			boolean openSource, LocalDate startDate, int duration, String description,
+			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL, float globalBudget,
 			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
 			int superOrganization, int learOrganization, List<Integer> otherPartners, Map<Integer, Role> participants, 
 			MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages,
 			List<String> videoURLs, MultipartFile pathToPowerpoint, boolean removePathToPowerpoint,
-			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status) throws IOException {
+			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status,
+			List<ProjectBudget> localOrganizationBudgets) throws IOException {
 		final Optional<Project> res;
 		if (projectId >= 0) {
 			res = this.projectRepository.findById(Integer.valueOf(projectId));
@@ -577,12 +580,12 @@ public class ProjectService extends AbstractService {
 			res = Optional.empty();
 		}
 		if (res.isPresent()) {
-			updateProject(res.get(), validated, acronym, scientificTitle, fundingScheme, grant, openSource,
-					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, globalBudget, budget,
+			updateProject(res.get(), validated, acronym, scientificTitle, openSource,
+					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, globalBudget,
 					activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
 					otherPartners, participants, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
-					pathToPressDocument, removePathToPressDocument, status);
+					pathToPressDocument, removePathToPressDocument, status, localOrganizationBudgets);
 		}
 		return res;
 	}

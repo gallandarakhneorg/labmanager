@@ -47,6 +47,7 @@ import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
@@ -98,12 +99,6 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	@Column
 	private String acronym;
 
-	/** Funding scheme of the project.
-	 */
-	@Column
-	@Enumerated(EnumType.STRING)
-	private FundingScheme fundingScheme = FundingScheme.NOT_FUNDED;
-
 	/** Start date of the project.
 	 */
 	@Column
@@ -113,11 +108,6 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	@Column
 	private int duration = 1;
-
-	/** Grant number of the project.
-	 */
-	@Column
-	private String grant;
 
 	/** Short description of the project.
 	 */
@@ -129,11 +119,14 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	@Column
 	private float globalBudget;
 
-	/** Budget only for the research organization.
-	 */
-	@Column
-	private float budget;
+	@Transient
+	private Float totalLocalOrganizationBudget;
 
+	/** List of the local budgets for the budget.
+	 */
+	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	private List<ProjectBudget> budgets;
+	
 	/** Type of the project activity.
 	 */
 	@Column
@@ -268,10 +261,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @param description the full description of the project.
 	 * @param startDate the date of start.
 	 * @param duration the duration in months.
-	 * @param fundingScheme the type of funding scheme that supports the project.
-	 * @param grant the number of the grant.
 	 * @param globalBudget the global budget, including all the partners.
-	 * @param localBudget the budget for the local organization.
 	 * @param trl indicates the TRL for the project.
 	 * @param type the type of activity for the project.
 	 * @param status the status of the project.
@@ -292,8 +282,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	public Project(int id, String scientificTitle, String acronym, String description,
 			LocalDate startDate, int duration,
-			FundingScheme fundingScheme, String grant,
-			float globalBudget, float localBudget, TRL trl, ProjectActivityType type, 
+			float globalBudget, TRL trl, ProjectActivityType type, 
 			ProjectStatus status, boolean confidential, boolean openSource,
 			String projectUrl, List<String> videoUrls,
 			String pathToScientificRequirements, String pathToPressDocument, String pathToLogo, List<String> pathsToImages, String pathToPowerpoint,
@@ -306,10 +295,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		this.description = description;
 		this.startDate = startDate;
 		this.duration = duration;
-		this.fundingScheme = fundingScheme;
-		this.grant = grant;
 		this.globalBudget = globalBudget;
-		this.budget = localBudget;
 		this.status = status;
 		this.activityType = type;
 		this.trl = trl;
@@ -337,10 +323,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		h = HashCodeUtils.add(h, this.description);
 		h = HashCodeUtils.add(h, this.startDate);
 		h = HashCodeUtils.add(h, this.duration);
-		h = HashCodeUtils.add(h, this.fundingScheme);
-		h = HashCodeUtils.add(h, this.grant);
 		h = HashCodeUtils.add(h, this.globalBudget);
-		h = HashCodeUtils.add(h, this.budget);
 		h = HashCodeUtils.add(h, this.activityType);
 		h = HashCodeUtils.add(h, this.status);
 		h = HashCodeUtils.add(h, this.trl);
@@ -382,12 +365,6 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		if (!Objects.equals(this.acronym, other.acronym)) {
 			return false;
 		}
-		if (this.fundingScheme != other.fundingScheme) {
-			return false;
-		}
-		if (!Objects.equals(this.grant, other.grant)) {
-			return false;
-		}
 		if (!Objects.equals(this.startDate, other.startDate)) {
 			return false;
 		}
@@ -398,9 +375,6 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 			return false;
 		}
 		if (this.globalBudget != other.globalBudget) {
-			return false;
-		}
-		if (this.budget != other.budget) {
 			return false;
 		}
 		if (this.activityType != other.activityType) {
@@ -468,17 +442,8 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		if (getDuration() > 0) {
 			consumer.accept("duration", Integer.valueOf(getDuration())); //$NON-NLS-1$
 		}
-		if (getFundingScheme() != null) {
-			consumer.accept("fundingScheme", getFundingScheme()); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getGrant())) {
-			consumer.accept("grant", getGrant()); //$NON-NLS-1$
-		}
 		if (getGlobalBudget() > 0f) {
 			consumer.accept("globalBudget", Float.valueOf(getGlobalBudget())); //$NON-NLS-1$
-		}
-		if (getBudget() > 0f) {
-			consumer.accept("budget", Float.valueOf(getBudget())); //$NON-NLS-1$
 		}
 		if (getActivityType() != null) {
 			consumer.accept("activityType", getActivityType()); //$NON-NLS-1$
@@ -560,6 +525,25 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 			});
 			final Role role = participant.getRole();
 			JsonUtils.writeField(generator, "role", role); //$NON-NLS-1$
+			generator.writeEndObject();
+		}
+		generator.writeEndArray();
+		//
+		generator.writeArrayFieldStart("budgets"); //$NON-NLS-1$
+		for (final ProjectBudget budget : getBudgets()) {
+			generator.writeStartObject();
+			final FundingScheme scheme = budget.getFundingScheme();
+			if (scheme != null) {
+				JsonUtils.writeField(generator, "fundingScheme", scheme); //$NON-NLS-1$
+			}
+			final float budgetValue = budget.getBudget();
+			if (budgetValue > 0f) {
+				JsonUtils.writeField(generator, "budget", Float.valueOf(budgetValue)); //$NON-NLS-1$
+			}
+			final String grant = budget.getGrant();
+			if (!Strings.isNullOrEmpty(grant)) {
+				JsonUtils.writeField(generator, "grant", grant); //$NON-NLS-1$
+			}
 			generator.writeEndObject();
 		}
 		generator.writeEndArray();
@@ -656,54 +640,6 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		this.description = Strings.emptyToNull(description);
 	}
 
-	/** Replies the funding scheme of the project.
-	 *
-	 * @return the funding scheme.
-	 */
-	public FundingScheme getFundingScheme() {
-		return this.fundingScheme;
-	}
-
-	/** Change the funding scheme of the project.
-	 *
-	 * @param fundingScheme the funding scheme.
-	 */
-	public void setFundingScheme(FundingScheme fundingScheme) {
-		if (fundingScheme == null) {
-			this.fundingScheme = FundingScheme.NOT_FUNDED;
-		} else {
-			this.fundingScheme = fundingScheme;
-		}
-	}
-
-	/** Change the funding scheme of the project.
-	 *
-	 * @param fundingScheme the funding scheme.
-	 */
-	public final void setFundingScheme(String fundingScheme) {
-		try {
-			setFundingScheme(FundingScheme.valueOfCaseInsensitive(fundingScheme));
-		} catch (Throwable ex) {
-			setFundingScheme((FundingScheme) null);
-		}
-	}
-
-	/** Replies the grant number of the project.
-	 *
-	 * @return the grant number.
-	 */
-	public String getGrant() {
-		return this.grant;
-	}
-
-	/** Change the grant number of the project.
-	 *
-	 * @param grant the grant number.
-	 */
-	public void setGrant(String grant) {
-		this.grant = Strings.emptyToNull(grant);
-	}
-
 	/** Replies the global budget of the project in Kilo euros.
 	 *
 	 * @return the budget in kilo euros.
@@ -736,36 +672,20 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		}
 	}
 
-	/** Replies the budget for the local organization in Kilo euros.
+	/** Replies the sum of the budgets for the local organizations
 	 *
-	 * @return the budget in kilo euros.
+	 * @return the sum of the budgets.
+	 * @see #getBudgets()
 	 */
-	public float getBudget() {
-		return this.budget;
-	}
-
-	/** Set the budget for the local organization in Kilo euros.
-	 *
-	 * @param budget the budget in kilo euros.
-	 */
-	public void setBudget(float budget) {
-		if (budget > 0f) {
-			this.budget = budget;
-		} else {
-			this.budget = 0f;
+	public float getTotalLocalOrganizationBudget() {
+		if (this.totalLocalOrganizationBudget == null) {
+			float sum = 0f;
+			for (final ProjectBudget budget : getBudgets()) {
+				sum += budget.getBudget();
+			}
+			this.totalLocalOrganizationBudget = Float.valueOf(sum);
 		}
-	}
-
-	/** Set the budget for the local organization in Kilo euros.
-	 *
-	 * @param budget the budget in kilo euros.
-	 */
-	public final void setBudget(Number budget) {
-		if (budget != null) {
-			setBudget(budget.floatValue());
-		} else {
-			setBudget(0f);
-		}
+		return this.totalLocalOrganizationBudget.floatValue();
 	}
 
 	/** Replies the type of research activity for this project.
@@ -789,7 +709,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @return category.
 	 */
 	public ProjectCategory getCategory() {
-		final FundingScheme funding = getFundingScheme();
+		final FundingScheme funding = getMajorFundingScheme();
 		if (funding.isCompetitive()) {
 			return ProjectCategory.COMPETITIVE_CALL_PROJECT;
 		}
@@ -1204,8 +1124,8 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @param duration the duration in months.
 	 */
 	public void setDuration(int duration) {
-		if (duration < 1) {
-			this.duration = 1;
+		if (duration < 0) {
+			this.duration = 0;
 		} else {
 			this.duration = duration;
 		}
@@ -1219,19 +1139,22 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		if (duration != null) {
 			setDuration(duration.intValue());
 		} else {
-			setDuration(1);
+			setDuration(0);
 		}
 	}
 
 	/** Replies the date of end. It is computed by adding the results of
 	 * {@link #getStartDate()} and {@link #getDuration()}.
 	 *
-	 * @return the date, or {@code null}.
+	 * @return the date, or {@code null} if there is no ending date
 	 */
 	public LocalDate getEndDate() {
 		final LocalDate sd = getStartDate();
 		if (sd != null) {
-			return sd.plusMonths(getDuration());
+			final int duration = getDuration();
+			if (duration > 0) {
+				return sd.plusMonths(duration);
+			}
 		}
 		return null;
 	}
@@ -1401,6 +1324,50 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		if (participant != null && this.participants != null) {
 			this.participants.remove(participant);
 		}
+	}
+
+	/** Replies the list of local budgets associated to the project.
+	 *
+	 * @return the list of budget.
+	 * @see #getTotalLocalOrganizationBudget()
+	 */
+	public List<ProjectBudget> getBudgets() {
+		if (this.budgets == null) {
+			this.budgets = new ArrayList<>();
+		}
+		return this.budgets;
+	}
+
+	/** Change the list of local budgets associated to the project.
+	 *
+	 * @param budgets the list of budget.
+	 */
+	public void setBudgets(List<ProjectBudget> budgets) {
+		if (this.budgets == null) {
+			this.budgets = new ArrayList<>();
+		} else {
+			this.budgets.clear();
+		}
+		if (budgets != null) {
+			this.budgets.addAll(budgets);
+		}
+		this.totalLocalOrganizationBudget = null;
+	}
+
+	/** Replies the funding scheme that is the most important from the type of funding.
+	 *
+	 * @return the major funding scheme.
+	 */
+	public FundingScheme getMajorFundingScheme() {
+		// Assume "NOT_FUNDED" is the lowest important scheme
+		FundingScheme scheme = FundingScheme.NOT_FUNDED;
+		for (final ProjectBudget budget : getBudgets()) {
+			final FundingScheme sch = budget.getFundingScheme();
+			if (sch != null && scheme.compareTo(sch) < 0) {
+				scheme = sch;
+			}
+		}
+		return scheme;
 	}
 
 }

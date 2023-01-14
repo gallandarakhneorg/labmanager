@@ -18,9 +18,11 @@ create table org_addresses (id integer not null, city varchar(255) not null, com
 create table patents (address varchar(255), institution varchar(255), patent_number varchar(255), patent_type varchar(255), id integer not null, primary key (id));
 create table person_invitations (id integer not null, country varchar(255) not null, end_date date, start_date date, title varchar(32672), type varchar(255), university varchar(255), guest_id integer, inviter_id integer, primary key (id));
 create table persons (id integer not null, academiaurl varchar(255), cordisurl varchar(255), dblpurl varchar(255), email varchar(255), facebook_id varchar(255), first_name varchar(255), gender varchar(255), github_id varchar(255), google_scholar_hindex integer, google_scholar_id varchar(255), gravatar_id varchar(255), last_name varchar(255), linked_in_id varchar(255), mobile_phone varchar(32), office_phone varchar(32), office_room varchar(255), orcid varchar(255), research_gate_id varchar(255), researcher_id varchar(255), web_page_id varchar(255), web_page_naming varchar(255), wos_hindex integer, primary key (id));
+create table project_budgets (id integer not null, budget float, funding_scheme varchar(255), "grant" varchar(255), primary key (id));
 create table project_images (project_id integer not null, paths_to_images varchar(255));
 create table project_members (id integer not null, role varchar(255), person_id integer, primary key (id));
-create table projects (id integer not null, acronym varchar(255), activity_type varchar(255), budget float, confidential boolean, description varchar(32672), duration integer, funding_scheme varchar(255), global_budget float, "grant" varchar(255), open_source boolean, path_to_logo varchar(32672), path_to_powerpoint varchar(32672), path_to_press_document varchar(32672), path_to_scientific_requirements varchar(32672), projecturl varchar(32672), scientific_title varchar(32672), start_date date, status varchar(255), trl varchar(255), validated boolean, coordinator_id integer, lear_organization_id integer, local_organization_id integer, super_organization_id integer, primary key (id));
+create table projects (id integer not null, acronym varchar(255), activity_type varchar(255), confidential boolean, description varchar(32672), duration integer, global_budget float, open_source boolean, path_to_logo varchar(32672), path_to_powerpoint varchar(32672), path_to_press_document varchar(32672), path_to_scientific_requirements varchar(32672), projecturl varchar(32672), scientific_title varchar(32672), start_date date, status varchar(255), trl varchar(255), validated boolean, coordinator_id integer, lear_organization_id integer, local_organization_id integer, super_organization_id integer, primary key (id));
+create table projects_budgets (project_id integer not null, budgets_id integer not null);
 create table projects_participants (project_id integer not null, participants_id integer not null);
 create table project_videos (project_id integer not null, videos_urls varchar(255));
 create table publications (id integer not null, abstract_text clob(32672), dblp_url varchar(32672), doi varchar(255), extra_url varchar(32672), hal_id varchar(255), isbn varchar(255), issn varchar(255), keywords clob(32672), major_language varchar(255), manual_validation_forced boolean not null, path_to_downloadable_award_certificate varchar(32672), path_to_downloadablepdf varchar(32672), publication_date date, publication_year integer, title varchar(32672), type varchar(255), validated boolean not null, video_url varchar(32672), primary key (id));
@@ -33,6 +35,7 @@ create table supervisions_supervisors (supervision_id integer not null, supervis
 create table supervisors (id integer not null, percentage integer, type varchar(255), supervisor_id integer, primary key (id));
 create table theses (address varchar(255), institution varchar(255), id integer not null, primary key (id));
 alter table journal_journal_annual_indicators_mapping add constraint UK_lnmbtft9ciq0sc7daxvga0369 unique (indicators_id);
+alter table projects_budgets add constraint UK_iupj2jh1guhm7ih9jm3cpq9aj unique (budgets_id);
 alter table projects_participants add constraint UK_dot1ug9njdsg22qcgty6d2qar unique (participants_id);
 alter table research_orgs_addresses add constraint UK_40usjfsr28jkpm237qc03q0am unique (addresses_id);
 alter table supervisions_supervisors add constraint UK_o5o8r39fqy63fkpyybxtxeltf unique (supervisors_id);
@@ -65,6 +68,8 @@ alter table projects add constraint FK8ul6cw3b9xf0tkylnchhp0sdt foreign key (coo
 alter table projects add constraint FKa02fdn1ss6644lsm5oj9e4jj3 foreign key (lear_organization_id) references research_orgs;
 alter table projects add constraint FKefjnn0296odilfp8yxask18w3 foreign key (local_organization_id) references research_orgs;
 alter table projects add constraint FKic658suoobskmj6qv9nh389dl foreign key (super_organization_id) references research_orgs;
+alter table projects_budgets add constraint FKegj0mrctd4vs0xrc2xyk4hcre foreign key (budgets_id) references project_budgets;
+alter table projects_budgets add constraint FK4b455c8orje69abfnwbk7gigw foreign key (project_id) references projects;
 alter table projects_participants add constraint FKo6ei5ba5okv4fxp0eee2bax5w foreign key (participants_id) references project_members;
 alter table projects_participants add constraint FKigx7mo93qyh12keuodiwusre8 foreign key (project_id) references projects;
 alter table project_videos add constraint FK6wokxdvx7m43gp6av6g4d1vga foreign key (project_id) references projects;

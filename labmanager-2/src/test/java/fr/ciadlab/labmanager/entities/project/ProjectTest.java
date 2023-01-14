@@ -23,11 +23,12 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -280,75 +281,6 @@ public class ProjectTest {
 	}
 
 	@Test
-	public void getFundingScheme() {
-		assertSame(FundingScheme.NOT_FUNDED, this.test.getFundingScheme());
-	}
-
-	@Test
-	public void setFundingScheme_FundingScheme_null() {
-		this.test.setFundingScheme(FundingScheme.CIFRE);
-		this.test.setFundingScheme((FundingScheme) null);
-		assertSame(FundingScheme.NOT_FUNDED, this.test.getFundingScheme());
-	}
-
-	@Test
-	public void setFundingScheme_FundingScheme() {
-		this.test.setFundingScheme(FundingScheme.CIFRE);
-		assertSame(FundingScheme.CIFRE, this.test.getFundingScheme());
-	}
-
-	@Test
-	public void setFundingScheme_String_null() {
-		this.test.setFundingScheme(FundingScheme.CIFRE);
-		this.test.setFundingScheme((String) null);
-		assertSame(FundingScheme.NOT_FUNDED, this.test.getFundingScheme());
-	}
-
-	@Test
-	public void setFundingScheme_String_empty() {
-		this.test.setFundingScheme(FundingScheme.CIFRE);
-		this.test.setFundingScheme("");
-		assertSame(FundingScheme.NOT_FUNDED, this.test.getFundingScheme());
-	}
-
-	@Test
-	public void setFundingScheme_String_valid() {
-		this.test.setFundingScheme("cifre");
-		assertSame(FundingScheme.CIFRE, this.test.getFundingScheme());
-	}
-
-	@Test
-	public void setFundingScheme_String_invalid() {
-		this.test.setFundingScheme("xyz");
-		assertSame(FundingScheme.NOT_FUNDED, this.test.getFundingScheme());
-	}
-
-	@Test
-	public void getGrant() {
-		assertNull(this.test.getGrant());
-	}
-
-	@Test
-	public void setGrant_null() {
-		this.test.setGrant("xyz");
-		this.test.setGrant(null);
-		assertNull(this.test.getGrant());
-	}
-
-	@Test
-	public void setGrant_empty() {
-		this.test.setGrant("xyz");
-		this.test.setGrant("");
-		assertNull(this.test.getGrant());
-	}
-
-	@Test
-	public void setGrant() {
-		this.test.setGrant("xyz");
-		assertEquals("xyz", this.test.getGrant());
-	}
-
-	@Test
 	public void getGlobalBudget() {
 		assertEquals(0f, this.test.getGlobalBudget());
 	}
@@ -375,35 +307,6 @@ public class ProjectTest {
 
 		this.test.setGlobalBudget(Float.valueOf(-123.456f));
 		assertEquals(0f, this.test.getGlobalBudget());
-	}
-
-	@Test
-	public void getBudget() {
-		assertEquals(0f, this.test.getBudget());
-	}
-
-	@Test
-	public void setBudget_float() {
-		this.test.setBudget(123.456f);
-		assertEquals(123.456f, this.test.getBudget());
-
-		this.test.setBudget(-123.456f);
-		assertEquals(0f, this.test.getBudget());
-	}
-
-	@Test
-	public void setBudget_Float_null() {
-		this.test.setBudget(null);
-		assertEquals(0f, this.test.getBudget());
-	}
-
-	@Test
-	public void setBudget_Float() {
-		this.test.setBudget(Float.valueOf(123.456f));
-		assertEquals(123.456f, this.test.getBudget());
-
-		this.test.setBudget(Float.valueOf(-123.456f));
-		assertEquals(0f, this.test.getBudget());
 	}
 
 	@Test
@@ -912,31 +815,33 @@ public class ProjectTest {
 	public void setDuration_int() {
 		this.test.setDuration(123456);
 		assertEquals(123456, this.test.getDuration());
+		this.test.setDuration(-15);
+		assertEquals(0, this.test.getDuration());
 		this.test.setDuration(0);
-		assertEquals(1, this.test.getDuration());
+		assertEquals(0, this.test.getDuration());
 		this.test.setDuration(5);
 		assertEquals(5, this.test.getDuration());
-		this.test.setDuration(-15);
-		assertEquals(1, this.test.getDuration());
 	}
 
 	@Test
 	public void setDuration_Integer_null() {
 		this.test.setDuration(123456);
 		this.test.setDuration(null);
-		assertEquals(1, this.test.getDuration());
+		assertEquals(0, this.test.getDuration());
 	}
 
 	@Test
 	public void setDuration_Integer() {
 		this.test.setDuration(Integer.valueOf(123456));
 		assertEquals(123456, this.test.getDuration());
+		this.test.setDuration(Integer.valueOf(-15));
+		assertEquals(0, this.test.getDuration());
+		this.test.setDuration(Integer.valueOf(-1));
+		assertEquals(0, this.test.getDuration());
 		this.test.setDuration(Integer.valueOf(0));
-		assertEquals(1, this.test.getDuration());
+		assertEquals(0, this.test.getDuration());
 		this.test.setDuration(Integer.valueOf(5));
 		assertEquals(5, this.test.getDuration());
-		this.test.setDuration(Integer.valueOf(-15));
-		assertEquals(1, this.test.getDuration());
 	}
 
 	@Test
@@ -1219,45 +1124,157 @@ public class ProjectTest {
 	}
 
 	@Test
+	public void getMajorFundingScheme() {
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getFundingScheme()).thenReturn(FundingScheme.CIFRE);
+		ProjectBudget b1 = mock(ProjectBudget.class);
+		when(b1.getFundingScheme()).thenReturn(FundingScheme.H2020);
+		ProjectBudget b2 = mock(ProjectBudget.class);
+		when(b2.getFundingScheme()).thenReturn(FundingScheme.CPER);
+		this.test.setBudgets(Arrays.asList(b0, b1, b2));
+		assertSame(FundingScheme.H2020, this.test.getMajorFundingScheme());
+	}
+
+	@Test
 	public void getCategory_competitive_notOpen() {
-		this.test.setFundingScheme(FundingScheme.ADEME);
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getFundingScheme()).thenReturn(FundingScheme.ADEME);
+		this.test.setBudgets(Collections.singletonList(b0));
 		this.test.setOpenSource(false);
 		assertSame(ProjectCategory.COMPETITIVE_CALL_PROJECT, this.test.getCategory());
 	}
 
 	@Test
 	public void getCategory_competitive_open() {
-		this.test.setFundingScheme(FundingScheme.ADEME);
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getFundingScheme()).thenReturn(FundingScheme.ADEME);
+		this.test.setBudgets(Collections.singletonList(b0));
 		this.test.setOpenSource(true);
 		assertSame(ProjectCategory.COMPETITIVE_CALL_PROJECT, this.test.getCategory());
 	}
 
 	@Test
 	public void getCategory_notAcademic_notOpen() {
-		this.test.setFundingScheme(FundingScheme.EU_COMPANY);
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getFundingScheme()).thenReturn(FundingScheme.EU_COMPANY);
+		this.test.setBudgets(Collections.singletonList(b0));
 		this.test.setOpenSource(false);
 		assertSame(ProjectCategory.NOT_ACADEMIC_PROJECT, this.test.getCategory());
 	}
 
 	@Test
 	public void getCategory_notAcademic_open() {
-		this.test.setFundingScheme(FundingScheme.EU_COMPANY);
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getFundingScheme()).thenReturn(FundingScheme.EU_COMPANY);
+		this.test.setBudgets(Collections.singletonList(b0));
 		this.test.setOpenSource(true);
 		assertSame(ProjectCategory.NOT_ACADEMIC_PROJECT, this.test.getCategory());
 	}
 
 	@Test
 	public void getCategory_nothing_notOpen() {
-		this.test.setFundingScheme(FundingScheme.NOT_FUNDED);
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getFundingScheme()).thenReturn(FundingScheme.NOT_FUNDED);
+		this.test.setBudgets(Collections.singletonList(b0));
 		this.test.setOpenSource(false);
 		assertSame(ProjectCategory.AUTO_FUNDING, this.test.getCategory());
 	}
 
 	@Test
 	public void getCategory_nothing_open() {
-		this.test.setFundingScheme(FundingScheme.NOT_FUNDED);
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getFundingScheme()).thenReturn(FundingScheme.NOT_FUNDED);
+		this.test.setBudgets(Collections.singletonList(b0));
 		this.test.setOpenSource(true);
 		assertSame(ProjectCategory.OPEN_SOURCE, this.test.getCategory());
+	}
+
+	@Test
+	public void getBudgets_0() {
+		List<ProjectBudget> budgets = this.test.getBudgets();
+		assertNotNull(budgets);
+		assertTrue(budgets.isEmpty());
+	}
+
+	@Test
+	public void getBudgets_1() {
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		this.test.setBudgets(Collections.singletonList(b0));
+		//
+		List<ProjectBudget> budgets = this.test.getBudgets();
+		assertNotNull(budgets);
+		assertEquals(1, budgets.size());
+		assertTrue(budgets.contains(b0));
+	}
+
+	@Test
+	public void getBudgets_2() {
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		ProjectBudget b1 = mock(ProjectBudget.class);
+		this.test.setBudgets(Arrays.asList(b0, b1));
+		//
+		List<ProjectBudget> budgets = this.test.getBudgets();
+		assertNotNull(budgets);
+		assertEquals(2, budgets.size());
+		assertTrue(budgets.contains(b0));
+		assertTrue(budgets.contains(b1));
+	}
+
+	@Test
+	public void getBudgets_3() {
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		ProjectBudget b1 = mock(ProjectBudget.class);
+		ProjectBudget b2 = mock(ProjectBudget.class);
+		this.test.setBudgets(Arrays.asList(b0, b1, b2));
+		//
+		List<ProjectBudget> budgets = this.test.getBudgets();
+		assertNotNull(budgets);
+		assertEquals(3, budgets.size());
+		assertTrue(budgets.contains(b0));
+		assertTrue(budgets.contains(b1));
+		assertTrue(budgets.contains(b2));
+	}
+
+	@Test
+	public void getTotalLocalOrganizationBudget_0() {
+		float budget = this.test.getTotalLocalOrganizationBudget();
+		assertEquals(0f, budget);
+	}
+
+	@Test
+	public void getTotalLocalOrganizationBudget_1() {
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getBudget()).thenReturn(123.456f);
+		this.test.setBudgets(Collections.singletonList(b0));
+		//
+		float budget = this.test.getTotalLocalOrganizationBudget();
+		assertEquals(123.456f, budget);
+	}
+
+	@Test
+	public void getTotalLocalOrganizationBudget_2() {
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getBudget()).thenReturn(123.456f);
+		ProjectBudget b1 = mock(ProjectBudget.class);
+		when(b1.getBudget()).thenReturn(458.741f);
+		this.test.setBudgets(Arrays.asList(b0, b1));
+		//
+		float budget = this.test.getTotalLocalOrganizationBudget();
+		assertEquals(582.197f, budget);
+	}
+
+	@Test
+	public void getTotalLocalOrganizationBudget_3() {
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getBudget()).thenReturn(123.456f);
+		ProjectBudget b1 = mock(ProjectBudget.class);
+		when(b1.getBudget()).thenReturn(458.741f);
+		ProjectBudget b2 = mock(ProjectBudget.class);
+		when(b2.getBudget()).thenReturn(69452f);
+		this.test.setBudgets(Arrays.asList(b0, b1, b2));
+		//
+		float budget = this.test.getTotalLocalOrganizationBudget();
+		assertEquals(70034.197f, budget);
 	}
 
 }

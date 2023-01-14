@@ -28,6 +28,7 @@ import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.member.PersonListComparator;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddressComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
+import fr.ciadlab.labmanager.entities.project.ProjectBudgetComparator;
 import fr.ciadlab.labmanager.entities.project.ProjectComparator;
 import fr.ciadlab.labmanager.entities.project.ProjectMemberComparator;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
@@ -89,6 +90,9 @@ public class EntityComparatorInjector {
 	@Autowired
 	private ProjectMemberComparator projectMemberComparator;
 
+	@Autowired
+	private ProjectBudgetComparator projectBudgetComparator;
+
 	/** Invoked by the Spring engine is started and this injector is created in memory.
 	 */
 	@PostConstruct
@@ -107,6 +111,7 @@ public class EntityComparatorInjector {
 		EntityUtils.setPreferredSupervisionComparator(this.supervisionComparator);
 		EntityUtils.setPreferredProjectComparator(this.projectComparator);
 		EntityUtils.setPreferredProjectMemberComparator(this.projectMemberComparator);
+		EntityUtils.setPreferredProjectBudgetComparator(this.projectBudgetComparator);
 	}
 
 }

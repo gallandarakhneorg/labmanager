@@ -15,22 +15,22 @@
 <form th:replace="fragments/form :: entityForm(project, ${project == null ? '' : project.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.ProjectSavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderProjectAcronym}, ${project != null ? project.acronym : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput*(scientificTitle, #{html.ScientificTitle}, #{html.PlaceHolderProjectScientificTitle}, ${project != null ? project.scientificTitle : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(fundingScheme, #{html.FundingScheme0}, ~{::option#option-fundingscheme})">
-		<option id="option-fundingscheme"
-		        th:each="scheme : ${sortedFundingSchemes}"
-		        th:selected="${(project == null && defaultFundingScheme == scheme) || (project != null && project.fundingScheme == scheme)}"
-		        th:value="${scheme.name}"
-		        th:utext="${scheme.getLabel()}"></option>
-	</div>
-	<div class="form-group" th:replace="fragments/form :: textInput(grant, #{html.Grant}, #{html.PlaceHolderGrant}, ${project != null ? (project.grant ?: '') : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(openSource, #{html.OpenSource}, #{html.OpenSource}, ${project != null ? project.openSource : false})"></div>
 	<div class="form-group" th:replace="fragments/form :: dateInput*(startDate, #{html.StartDate}, ${formattedStartDate})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(duration, #{html.Duration}, #{html.PlaceHolderMonthDuration}, ${project != null ? project.duration : '1'})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput*(duration, #{html.Duration}, #{html.PlaceHolderMonthDuration}, ${project != null ? project.duration : '0'})"></div>
 	<div class="form-group" th:replace="fragments/form :: textAreaInput(description, #{html.Description}, #{html.PlaceHolderProjectDescription}, ${project != null ? project.description : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput*(globalBudget, #{html.ProjectGlobalBudget}, #{html.PlaceHolderProjectGlobalBudget}, ${project != null ? project.globalBudget : '0'})"></div>
+	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(localOrganizationBudgets, #{html.ProjectLocalOrganizationBudget}, #{html.AddProjectBudget})"></div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(openSource, #{html.OpenSource}, #{html.OpenSource}, ${project != null ? project.openSource : false})"></div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(confidential, #{html.ProjectConfidential}, #{html.ProjectConfidential}, ${project != null ? project.confidential : false})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInput*(status, #{html.ProjectStatus}, ~{::option#option-status})">
+		<option id="option-status"
+		        th:each="status : ${sortedStatus}"
+		        th:selected="${project != null && project.status == status}"
+		        th:value="${status.name}"
+		        th:utext="${status.getLabel()}"></option>
+	</div>
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadImage(pathToLogo, #{html.ProjectLogo})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(projectURL, #{html.ProjectURL}, #{html.PlaceHolderURL}, ${project != null ? project.projectURL : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(globalBudget, #{html.ProjectGlobalBudget}, #{html.PlaceHolderProjectGlobalBudget}, ${project != null ? project.globalBudget : '0'})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(budget, #{html.ProjectBudget}, #{html.PlaceHolderProjectBudget}, ${project != null ? project.budget : '0'})"></div>
 	<div class="form-group" th:replace="fragments/form :: comboInput*(activityType, #{html.ProjectActivityType}, ~{::option#option-activitytype})">
 		<option id="option-activitytype"
 		        th:each="type : ${sortedActivityTypes}"
@@ -76,18 +76,10 @@
 	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(otherPartners, #{html.ProjectOtherPartners}, #{html.AddProjectPartner})"></div>
 	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(participants, #{html.ProjectParticipants}, #{html.AddProjectParticipant})"></div>
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToScientificRequirements, #{html.ProjectScientificRequirements})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(confidential, #{html.ProjectConfidential}, #{html.ProjectConfidential}, ${project != null ? project.confidential : false})"></div>
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadImages(pathsToImages, #{html.ProjectAssociatedImages})"></div>
 	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(videoURLs, #{html.ProjectVideoURLs}, #{html.AddVideoURL})"></div>
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPpt(pathToPowerpoint, #{html.ProjectPowerPoint})"></div>
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToPressDocument, #{html.ProjectPressDocument})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(status, #{html.ProjectStatus}, ~{::option#option-status})">
-		<option id="option-status"
-		        th:each="status : ${sortedStatus}"
-		        th:selected="${project != null && project.status == status}"
-		        th:value="${status.name}"
-		        th:utext="${status.getLabel()}"></option>
-	</div>
 	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedProject}, #{html.ValidatedProject}, ${project != null ? project.validated : false})"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
@@ -108,6 +100,12 @@ var ALL_ROLES = {
     /*[/]*/
 };
 var ALL_ROLE_OPTIONS =  null;
+var ALL_FUNDING_SCHEMES = {
+		/*[# th:each="scheme : ${sortedFundingSchemes}"]*/
+		"[(${scheme.name})]": "[(${scheme.getLabel()})]",
+	    /*[/]*/
+	};
+var ALL_FUNDING_SCHEME_OPTIONS = null;
 $(document).ready(function () {
 	
 	// Initialize form validation
@@ -172,6 +170,74 @@ $(document).ready(function () {
 	        },
 		    /*[/]*/
 		],
+	});
+	initDynamicDataList({
+		name: 'localOrganizationBudgets',
+		columnCount: 3,
+		deleteLabel: [[#{html.DeleteProjectBudget}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: [
+			/*[# th:if="${project != null}"]*//*[# th:each="budget : ${project.budgets}"]*/
+	        {
+				fundingScheme: "[(${budget.fundingScheme.name})]",
+				budget: "[(${budget.budget})]",
+				grant: "[(${budget.grant})]",
+	        },
+		    /*[/]*//*[/]*/
+		],
+		dataName: (dt) => {
+			return dt['fundingScheme'] + ' - ' + dt['budget'];
+		},
+		rowBuilder: (data, target, index) => {
+			if (index == 2) {
+				target.append(data['grant']);
+			} else if (index == 1) {
+				target.append(data['budget'] + " [(#{html.KEURO})]");
+			} else {
+				target.append(data['fundingScheme']);
+			}
+		},
+		dataConverter: (formData, fieldName, data) => {
+			formData.append(fieldName, JSON.stringify(data));
+		},
+		dataCreator: (doCreateFct) => {
+			if (!ALL_FUNDING_SCHEME_OPTIONS) {
+				ALL_FUNDING_SCHEME_OPTIONS = '';
+				$.each(ALL_FUNDING_SCHEMES, (name, label) => {
+					ALL_FUNDING_SCHEME_OPTIONS = ALL_FUNDING_SCHEME_OPTIONS + '<option value="' + name + '">'+ label + '</option>';
+				});
+			}
+			Swal.fire({
+				title: [[#{html.AddProjectBudget}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				html: "[(#{html.FundingScheme0})]<br/>"
+					+ '<select id="swal-input1" class="swal2-input">'
+					+ ALL_FUNDING_SCHEME_OPTIONS
+					+ '</select><br/>'
+					+ "[(#{html.ProjectBudget})] ([(#{html.KEURO})])<br/>"
+					+ '<input id="swal-input2" class="swal2-input" type="text" placeholder="[(#{html.PlaceHolderProjectBudget})]"/><br/>'
+					+ "[(#{html.Grant})]<br/>"
+					+ '<input id="swal-input3" class="swal2-input" type="text" placeholder="[(#{html.PlaceHolderGrant})]"/><br/>',
+				preConfirm: () => {
+					return {
+						fundingScheme: document.getElementById("swal-input1").value,
+						budget: document.getElementById("swal-input2").value,
+						grant: document.getElementById("swal-input3").value,
+					};
+				},
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
 	});
 	initDynamicDataList({
 		name: 'otherPartners',

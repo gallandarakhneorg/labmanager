@@ -37,6 +37,7 @@ import fr.ciadlab.labmanager.entities.organization.OrganizationAddressComparator
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
+import fr.ciadlab.labmanager.entities.project.ProjectBudgetComparator;
 import fr.ciadlab.labmanager.entities.project.ProjectComparator;
 import fr.ciadlab.labmanager.entities.project.ProjectMemberComparator;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -103,6 +104,8 @@ public final class EntityUtils {
 	private static SupervisionComparator SUPERVISION_COMPARATOR; 
 
 	private static ProjectMemberComparator PROJECT_MEMBER_COMPARATOR; 
+
+	private static ProjectBudgetComparator PROJECT_BUDGET_COMPARATOR; 
 
 	private static final NormalizedStringSimilarity SIMILARITY_COMPUTER = new SorensenDice();
 
@@ -535,6 +538,30 @@ public final class EntityUtils {
 	public static void setPreferredProjectMemberComparator(ProjectMemberComparator comparator) {
 		synchronized (EntityUtils.class) {
 			PROJECT_MEMBER_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of project budgets.
+	 *
+	 * @return the comparator.
+	 * @since 3.0
+	 */
+	public static ProjectBudgetComparator getPreferredProjectBudgetComparator() {
+		synchronized (EntityUtils.class) {
+			if (PROJECT_BUDGET_COMPARATOR == null) {
+				PROJECT_BUDGET_COMPARATOR = new ProjectBudgetComparator();
+			}
+			return PROJECT_BUDGET_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of project budgets.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredProjectBudgetComparator(ProjectBudgetComparator comparator) {
+		synchronized (EntityUtils.class) {
+			PROJECT_BUDGET_COMPARATOR = comparator;
 		}
 	}
 
