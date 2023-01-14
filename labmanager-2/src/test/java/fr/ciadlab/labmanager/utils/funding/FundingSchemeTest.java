@@ -71,6 +71,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.EU_OTHER).isRegional());
 		assertFalse(cons(FundingScheme.EU_UNIVERSITY).isRegional());
 		assertFalse(cons(FundingScheme.EUREKA).isRegional());
+		assertFalse(cons(FundingScheme.EUROSTAR).isRegional());
 		assertTrue(cons(FundingScheme.FEDER).isRegional());
 		assertFalse(cons(FundingScheme.FITEC).isRegional());
 		assertFalse(cons(FundingScheme.FRENCH_COMPANY).isRegional());
@@ -113,6 +114,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.EU_OTHER).isNational());
 		assertFalse(cons(FundingScheme.EU_UNIVERSITY).isNational());
 		assertFalse(cons(FundingScheme.EUREKA).isNational());
+		assertFalse(cons(FundingScheme.EUROSTAR).isNational());
 		assertFalse(cons(FundingScheme.FEDER).isNational());
 		assertFalse(cons(FundingScheme.FITEC).isNational());
 		assertTrue(cons(FundingScheme.FRENCH_COMPANY).isNational());
@@ -155,6 +157,7 @@ public class FundingSchemeTest {
 		assertTrue(cons(FundingScheme.EU_OTHER).isEuropean());
 		assertTrue(cons(FundingScheme.EU_UNIVERSITY).isEuropean());
 		assertTrue(cons(FundingScheme.EUREKA).isEuropean());
+		assertTrue(cons(FundingScheme.EUROSTAR).isEuropean());
 		assertFalse(cons(FundingScheme.FEDER).isEuropean());
 		assertFalse(cons(FundingScheme.FITEC).isEuropean());
 		assertFalse(cons(FundingScheme.FRENCH_COMPANY).isEuropean());
@@ -197,6 +200,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.EU_OTHER).isInternational());
 		assertFalse(cons(FundingScheme.EU_UNIVERSITY).isInternational());
 		assertFalse(cons(FundingScheme.EUREKA).isInternational());
+		assertFalse(cons(FundingScheme.EUROSTAR).isInternational());
 		assertFalse(cons(FundingScheme.FEDER).isInternational());
 		assertTrue(cons(FundingScheme.FITEC).isInternational());
 		assertFalse(cons(FundingScheme.FRENCH_COMPANY).isInternational());
@@ -240,6 +244,7 @@ public class FundingSchemeTest {
 		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel());
 		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel());
 		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel());
+		assertEquals("European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel());
 		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel());
 		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel());
 		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel());
@@ -283,6 +288,7 @@ public class FundingSchemeTest {
 		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel());
 		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel());
 		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel());
+		assertEquals("European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel());
 		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel());
 		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel());
 		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel());
@@ -325,6 +331,7 @@ public class FundingSchemeTest {
 		assertEquals("Autres fonds européens", cons(FundingScheme.EU_OTHER).getLabel(Locale.FRANCE));
 		assertEquals("Université européenne", cons(FundingScheme.EU_UNIVERSITY).getLabel(Locale.FRANCE));
 		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel(Locale.FRANCE));
+		assertEquals("Partenariat européen avec les PME innovantes", cons(FundingScheme.EUROSTAR).getLabel(Locale.FRANCE));
 		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel(Locale.FRANCE));
 		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel(Locale.FRANCE));
 		assertEquals("Entreprise française", cons(FundingScheme.FRENCH_COMPANY).getLabel(Locale.FRANCE));
@@ -367,6 +374,7 @@ public class FundingSchemeTest {
 		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel(Locale.US));
 		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel(Locale.US));
 		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel(Locale.US));
+		assertEquals("European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel(Locale.US));
 		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel(Locale.US));
 		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel(Locale.US));
 		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel(Locale.US));
@@ -409,6 +417,7 @@ public class FundingSchemeTest {
 		assertFalse(cons(FundingScheme.EU_OTHER).isCompetitive());
 		assertFalse(cons(FundingScheme.EU_UNIVERSITY).isCompetitive());
 		assertTrue(cons(FundingScheme.EUREKA).isCompetitive());
+		assertTrue(cons(FundingScheme.EUROSTAR).isCompetitive());
 		assertTrue(cons(FundingScheme.FEDER).isCompetitive());
 		assertTrue(cons(FundingScheme.FITEC).isCompetitive());
 		assertFalse(cons(FundingScheme.FRENCH_COMPANY).isCompetitive());
@@ -451,6 +460,7 @@ public class FundingSchemeTest {
 		assertTrue(cons(FundingScheme.EU_OTHER).isNotAcademic());
 		assertFalse(cons(FundingScheme.EU_UNIVERSITY).isNotAcademic());
 		assertFalse(cons(FundingScheme.EUREKA).isNotAcademic());
+		assertFalse(cons(FundingScheme.EUROSTAR).isNotAcademic());
 		assertFalse(cons(FundingScheme.FEDER).isNotAcademic());
 		assertFalse(cons(FundingScheme.FITEC).isNotAcademic());
 		assertTrue(cons(FundingScheme.FRENCH_COMPANY).isNotAcademic());
@@ -495,27 +505,28 @@ public class FundingSchemeTest {
 		assertEquals(13, cons(FundingScheme.INTERREG).reverseOrdinal());
 		assertEquals(14, cons(FundingScheme.JPIEU).reverseOrdinal());
 		assertEquals(15, cons(FundingScheme.COST_ACTION).reverseOrdinal());
-		assertEquals(16, cons(FundingScheme.EUREKA).reverseOrdinal());
-		assertEquals(17, cons(FundingScheme.FEDER).reverseOrdinal());
-		assertEquals(18, cons(FundingScheme.EU_OTHER).reverseOrdinal());
-		assertEquals(19, cons(FundingScheme.EU_UNIVERSITY).reverseOrdinal());
-		assertEquals(20, cons(FundingScheme.FRENCH_COMPANY).reverseOrdinal());
-		assertEquals(21, cons(FundingScheme.CIFRE).reverseOrdinal());
-		assertEquals(22, cons(FundingScheme.PIA).reverseOrdinal());
-		assertEquals(23, cons(FundingScheme.IDEX).reverseOrdinal());
-		assertEquals(24, cons(FundingScheme.ISITE).reverseOrdinal());
-		assertEquals(25, cons(FundingScheme.ANR).reverseOrdinal());
-		assertEquals(26, cons(FundingScheme.ADEME).reverseOrdinal());
-		assertEquals(27, cons(FundingScheme.FUI).reverseOrdinal());
-		assertEquals(28, cons(FundingScheme.CPER).reverseOrdinal());
-		assertEquals(29, cons(FundingScheme.REGION_BFC).reverseOrdinal());
-		assertEquals(30, cons(FundingScheme.CARNOT).reverseOrdinal());
-		assertEquals(31, cons(FundingScheme.FRENCH_OTHER).reverseOrdinal());
-		assertEquals(32, cons(FundingScheme.FRENCH_UNIVERSITY).reverseOrdinal());
-		assertEquals(33, cons(FundingScheme.HOSTING_ORGANIZATION).reverseOrdinal());
-		assertEquals(34, cons(FundingScheme.LOCAL_INSTITUTION).reverseOrdinal());
-		assertEquals(35, cons(FundingScheme.SELF_FUNDING).reverseOrdinal());
-		assertEquals(36, cons(FundingScheme.NOT_FUNDED).reverseOrdinal());
+		assertEquals(16, cons(FundingScheme.EUROSTAR).reverseOrdinal());
+		assertEquals(17, cons(FundingScheme.EUREKA).reverseOrdinal());
+		assertEquals(18, cons(FundingScheme.FEDER).reverseOrdinal());
+		assertEquals(19, cons(FundingScheme.EU_OTHER).reverseOrdinal());
+		assertEquals(20, cons(FundingScheme.EU_UNIVERSITY).reverseOrdinal());
+		assertEquals(21, cons(FundingScheme.FRENCH_COMPANY).reverseOrdinal());
+		assertEquals(22, cons(FundingScheme.CIFRE).reverseOrdinal());
+		assertEquals(23, cons(FundingScheme.PIA).reverseOrdinal());
+		assertEquals(24, cons(FundingScheme.IDEX).reverseOrdinal());
+		assertEquals(25, cons(FundingScheme.ISITE).reverseOrdinal());
+		assertEquals(26, cons(FundingScheme.ANR).reverseOrdinal());
+		assertEquals(27, cons(FundingScheme.ADEME).reverseOrdinal());
+		assertEquals(28, cons(FundingScheme.FUI).reverseOrdinal());
+		assertEquals(29, cons(FundingScheme.CPER).reverseOrdinal());
+		assertEquals(30, cons(FundingScheme.REGION_BFC).reverseOrdinal());
+		assertEquals(31, cons(FundingScheme.CARNOT).reverseOrdinal());
+		assertEquals(32, cons(FundingScheme.FRENCH_OTHER).reverseOrdinal());
+		assertEquals(33, cons(FundingScheme.FRENCH_UNIVERSITY).reverseOrdinal());
+		assertEquals(34, cons(FundingScheme.HOSTING_ORGANIZATION).reverseOrdinal());
+		assertEquals(35, cons(FundingScheme.LOCAL_INSTITUTION).reverseOrdinal());
+		assertEquals(36, cons(FundingScheme.SELF_FUNDING).reverseOrdinal());
+		assertEquals(37, cons(FundingScheme.NOT_FUNDED).reverseOrdinal());
 		assertAllTreated();
 	}
 

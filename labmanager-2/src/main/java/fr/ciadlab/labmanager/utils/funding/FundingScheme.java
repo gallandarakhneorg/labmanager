@@ -642,6 +642,34 @@ public enum FundingScheme {
 			return false;
 		}
 	},
+	/** EUROSTAR project is funding.
+	 */
+	EUROSTAR {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return true;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+	},
 	/** European COST action.
 	 *
 	 * @see "https://www.cost.eu/"
@@ -900,7 +928,7 @@ public enum FundingScheme {
 			return true;
 		}
 	},
-	/** International mobility programme from CDEFI, i.e. FITEC, e.g. ARFITEC or BRAFITEX.
+	/** International mobility programme from CDEFI, i.e. FITEC, e.g. ARFITEC or BRAFITEC.
 	 *
 	 * @see "http://www.cdefi.fr/fr/activites/les-programmes-de-mobilite-internationale"
 	 */
