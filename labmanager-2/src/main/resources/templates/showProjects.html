@@ -7,21 +7,10 @@
 	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
 </th:block>
 <th:block th:replace="fragments/table :: publicTable"/>
-<!-- <th:block th:if="${organization != null}">
-	<span class="dropdown">
-    	<button type="button" class="btn btn-labeled btn-warning dropdown-toggle" data-bs-toggle="dropdown"
-   	            id="dropdownAddSupervision" aria-expanded="false">
-    	<span class="fa-solid fa-pen"></span>&nbsp;<th:block th:utext="#{html.AddSupervisionIn(${organization.acronymOrName})}"></th:block></button>
-    	<ul class="dropdown-menu" aria-labelledby="dropdownAddSupervision">
-			<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
-			       th:if="${!membership.isFuture && membership.isMainPosition && membership.memberStatus.isSupervisable}"
-			       class="dropdown-item"
-			       th:href="@{/showSupervisions(dbId=${membership.person.id})}"
-			       th:utext="${membership.person.fullNameWithLastNameFirst}"></a></li>
-		</ul>
-	</span>
-</th:block>
- -->
+	<a class="btn btn-warning mt-4 pr-4 pl-4"
+	   th:if="${changeEnabled && additionUrl != null}"
+	   th:utext="#{html.AddProject}"
+	   th:href="${additionUrl}"></a>
 <div class="table table-responsive">
     <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
         <thead>
@@ -55,6 +44,7 @@
             	   th:utext="${project.acronym}"></a>
             	<th:block th:if="${project.webPageURI == null && project.projectURL == null}"
             	          th:utext="${project.acronym}"></th:block>
+            	<th:block th:if="${changeEnabled && editionUrl != null}"><a th:href="${editionUrl + project.id}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
             </td>
             <td>
             	<th:block th:utext="${project.scientificTitle}"></th:block>
