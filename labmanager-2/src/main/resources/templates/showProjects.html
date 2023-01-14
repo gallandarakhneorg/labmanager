@@ -36,7 +36,7 @@
         <tbody>
         <tr th:each="project : ${projects}">
             <td>
-            	<th:block th:utext="${project.category.reverseOrdinal * 1000000 + project.fundingScheme.reverseOrdinal * 10000 + project.startYear}"></th:block>
+            	<th:block th:utext="${project.category.reverseOrdinal * 1000000 + project.majorFundingScheme.reverseOrdinal * 10000 + project.startYear}"></th:block>
             </td>
             <td>
             	<th:block th:utext="${project.category.getLabel()}"></th:block>
@@ -45,9 +45,9 @@
             	<th:block th:utext="${project.startYear}"></th:block>
             </td>
             <td>
-            	<th:block th:if="${project.startYear > 0 && project.endYear > 0}" th:utext="${project.startYear + '-' + project.endYear}"></th:block>
-            	<th:block th:if="${project.startYear > 0 && project.endYear <= 0}" th:utext="${project.startYear}"></th:block>
-            	<th:block th:if="${project.startYear <= 0 && project.endYear > 0}" th:utext="${project.endYear}"></th:block>
+            	<th:block th:if="${project.startYear > 0 && project.endYear > 0}" th:utext="#{html.YearRange(${project.startYear}, ${project.endYear})}"></th:block>
+            	<th:block th:if="${project.startYear > 0 && project.endYear <= 0}" th:utext="#{html.YearRangeNoEnd(${project.startYear})}"></th:block>
+            	<th:block th:if="${project.startYear <= 0 && project.endYear > 0}" th:utext="#{html.YearRangeNoStart(${project.endYear})}"></th:block>
             </td>
             <td>
             	<th:block th:utext="${project.acronym}"></th:block>
@@ -57,7 +57,7 @@
             </td>
             <td>
             	<th:block th:if="${project.category != T(fr.ciadlab.labmanager.entities.project.ProjectCategory).OPEN_SOURCE}"
-            	          th:utext="${project.fundingScheme.getLabel()}"></th:block>
+            	          th:utext="${project.majorFundingScheme.getLabel()}"></th:block>
             </td>
         </tbody>
     </table>
