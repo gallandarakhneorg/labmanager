@@ -30,6 +30,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
+import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
@@ -228,6 +229,7 @@ public class ProjectViewController extends AbstractViewController {
 		modelAndView.addObject("defaultLocalOrganization", getOrganizationWith(this.constants.getDefaultOrganization(), this.organizationService)); //$NON-NLS-1$
 		modelAndView.addObject("defaultSuperOrganization", getOrganizationWith(this.constants.getDefaultSuperOrganization(), this.organizationService)); //$NON-NLS-1$
 		modelAndView.addObject("defaultLearOrganization", getOrganizationWith(this.constants.getDefaultLearOrganization(), this.organizationService)); //$NON-NLS-1$
+		modelAndView.addObject("defaultNaming", ProjectWebPageNaming.UNSPECIFIED); //$NON-NLS-1$
 		//
 		return modelAndView;
 	}

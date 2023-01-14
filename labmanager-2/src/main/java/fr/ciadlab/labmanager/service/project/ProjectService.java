@@ -37,6 +37,7 @@ import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
 import fr.ciadlab.labmanager.entities.project.ProjectBudget;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
+import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -160,6 +161,7 @@ public class ProjectService extends AbstractService {
 	 * @param pathToLogo the local path to the logo of the project.
 	 * @param removePathToLogo remove the logo file before uploading.
 	 * @param projectURL the URL of the project.
+	 * @param webPageNaming the naming convention for the project page on the institution website.
 	 * @param globalBudget the budget for all the partners in the project.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
@@ -186,7 +188,8 @@ public class ProjectService extends AbstractService {
 	protected void updateProject(Project project,
 			boolean validated, String acronym, String scientificTitle,
 			boolean openSource, LocalDate startDate, int duration, String description,
-			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL, float globalBudget,
+			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL,
+			ProjectWebPageNaming webPageNaming, float globalBudget,
 			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
 			int superOrganization, int learOrganization, List<Integer> otherPartners,
 			Map<Integer, Role> participants, MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
@@ -202,6 +205,7 @@ public class ProjectService extends AbstractService {
 		project.setDuration(duration);
 		project.setDescription(description);
 		project.setProjectURL(projectURL);
+		project.setWebPageNaming(webPageNaming);
 		project.setGlobalBudget(globalBudget);
 		project.setActivityType(activityType);
 		project.setTRL(trl);
@@ -467,6 +471,7 @@ public class ProjectService extends AbstractService {
 	 * @param pathToLogo the local path to the logo of the project.
 	 * @param removePathToLogo remove the existing logo before uploading.
 	 * @param projectURL the URL of the project.
+	 * @param webPageNaming the naming convention for the project page on the institution website.
 	 * @param globalBudget the budget for all the partners in the project.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
@@ -494,7 +499,8 @@ public class ProjectService extends AbstractService {
 	public Optional<Project> createProject(
 			boolean validated, String acronym, String scientificTitle,
 			boolean openSource, LocalDate startDate, int duration, String description,
-			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL, float globalBudget,
+			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL,
+			ProjectWebPageNaming webPageNaming, float globalBudget,
 			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
 			int superOrganization, int learOrganization, List<Integer> otherPartners, Map<Integer, Role> participants,
 			MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
@@ -505,7 +511,7 @@ public class ProjectService extends AbstractService {
 		final Project project = new Project();
 		try {
 			updateProject(project, validated, acronym, scientificTitle, openSource,
-					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, globalBudget,
+					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, webPageNaming, globalBudget,
 					activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
 					otherPartners, participants, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
@@ -538,6 +544,7 @@ public class ProjectService extends AbstractService {
 	 * @param pathToLogo the local path to the logo of the project.
 	 * @param removePathToLogo remove the existing logo before uploading.
 	 * @param projectURL the URL of the project.
+	 * @param webPageNaming the naming convention for the project page on the institution website.
 	 * @param globalBudget the budget for all the partners in the project.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
@@ -565,7 +572,8 @@ public class ProjectService extends AbstractService {
 	public Optional<Project> updateProject(int projectId,
 			boolean validated, String acronym, String scientificTitle,
 			boolean openSource, LocalDate startDate, int duration, String description,
-			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL, float globalBudget,
+			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL,
+			ProjectWebPageNaming webPageNaming, float globalBudget,
 			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
 			int superOrganization, int learOrganization, List<Integer> otherPartners, Map<Integer, Role> participants, 
 			MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
@@ -581,7 +589,7 @@ public class ProjectService extends AbstractService {
 		}
 		if (res.isPresent()) {
 			updateProject(res.get(), validated, acronym, scientificTitle, openSource,
-					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, globalBudget,
+					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, webPageNaming, globalBudget,
 					activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
 					otherPartners, participants, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,

@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.entities.member;
+package fr.ciadlab.labmanager.entities.project;
 
 import java.net.URI;
 import java.util.Locale;
@@ -27,71 +27,58 @@ import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
-/** Type of webpage naming for persons. This type describes how the address of a person's webpage could be built up.
+/** Type of webpage naming for projects. This type describes how the address of a project's webpage could be built up.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 3.0
  */
-public enum WebPageNaming {
+public enum ProjectWebPageNaming {
 	/** Naming convention not specified, i.e., no web page.
 	 */
 	UNSPECIFIED {
 		@Override
-		public String getWebpageIdFor(Person person) {
+		public String getWebpageIdFor(Project project) {
 			return null;
 		}
 	},
 
-	/** The URL of the person's webpage is: {@code author-<ID>}.
+	/** The URL of the project's webpage is: {@code project-<ID>}.
 	 */
-	AUTHOR_ID {
+	PROJECT_ID {
 		@Override
-		public String getWebpageIdFor(Person person) {
-			return "author-" + person.getId(); //$NON-NLS-1$
+		public String getWebpageIdFor(Project project) {
+			final int id = project != null ? project.getId() : 0;
+			if (id != 0) {
+				return "project-" + id; //$NON-NLS-1$
+			}
+			return null;
 		}
 	},
 
-	/** The URL of the person's webpage is: {@code <EMAIL_ID>} where the email of the person is defined by {@code <EMAIL_ID>@<DOMAIN>}.
-	 */
-	EMAIL_ID {
-		@Override
-		public String getWebpageIdFor(Person person) {
-			final String email = person.getEmail();
-			final String id = StringUtils.substringBefore(email, "@"); //$NON-NLS-1$
-			return id;
-		}
-	},
-
-	/** The URL of the person's webpage is: {@code <FIRST_NAME>_<LAST_NAME>}.
+	/** The URL of the project's webpage is: {@code <ACRONYM>}.
 	 * Accents are removed, and characters that are not an ASCII letter, digit, or one of
 	 * {@code _-.} are stripped.
 	 */
-	FIRST_LAST {
+	ACRONYM {
 		@Override
-		public String getWebpageIdFor(Person person) {
-			final String first = StringUtils.stripAccents(person.getFirstName());
-			final String last = StringUtils.stripAccents(person.getLastName());
-			final String ref;
-			if (Strings.isNullOrEmpty(last)) {
-				if (Strings.isNullOrEmpty(first)) {
-					return null;
+		public String getWebpageIdFor(Project project) {
+			if (project != null) {
+				String acronym = StringUtils.stripAccents(project.getAcronym());
+				if (!Strings.isNullOrEmpty(acronym)) {
+					acronym = acronym.toLowerCase();
+					return acronym.replaceAll("[^a-z0-9_\\-\\.]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				}
-				ref = first.toLowerCase();
-			} else if (Strings.isNullOrEmpty(first)) {
-				ref = last.toLowerCase();
-			} else {
-				ref = first.toLowerCase() + "_" + last.toLowerCase(); //$NON-NLS-1$
 			}
-			return ref.replaceAll("[^a-z0-9_\\-\\.]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			return null;
 		}
 	};
 
 	private static final UriBuilderFactory FACTORY = new DefaultUriBuilderFactory();
 
-	private static final String MESSAGE_PREFIX = "webpagenaming."; //$NON-NLS-1$
+	private static final String MESSAGE_PREFIX = "projectwebpagenaming."; //$NON-NLS-1$
 
 	private MessageSourceAccessor messages;
 	
@@ -133,13 +120,13 @@ public enum WebPageNaming {
 		return Strings.nullToEmpty(label);
 	}
 
-	/** Replies the URI of the webpage for the given person.
+	/** Replies the URI of the webpage for the given project.
 	 *
-	 * @param person the person.
+	 * @param project the project.
 	 * @return the URI, or {@code null}.
 	 */
-	public URI getWebpageURIFor(Person person) {
-		final String id = getWebpageIdFor(person);
+	public URI getWebpageURIFor(Project project) {
+		final String id = getWebpageIdFor(project);
 		if (Strings.isNullOrEmpty(id)) {
 			return null;
 		}
@@ -152,12 +139,12 @@ public enum WebPageNaming {
 		}
 	}
 
-	/** Replies the identifier of the webpage for the given person.
+	/** Replies the identifier of the webpage for the given project.
 	 *
-	 * @param person the person.
+	 * @param project the project.
 	 * @return the identifier.
 	 */
-	public abstract String getWebpageIdFor(Person person);
+	public abstract String getWebpageIdFor(Project project);
 
 	/** Replies the naming that corresponds to the given name, with a case-insensitive
 	 * test of the name.
@@ -166,9 +153,9 @@ public enum WebPageNaming {
 	 * @return the naming.
 	 * @throws IllegalArgumentException if the given name does not corresponds to a naming.
 	 */
-	public static WebPageNaming valueOfCaseInsensitive(String name) {
+	public static ProjectWebPageNaming valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final WebPageNaming status : values()) {
+			for (final ProjectWebPageNaming status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
 					return status;
 				}

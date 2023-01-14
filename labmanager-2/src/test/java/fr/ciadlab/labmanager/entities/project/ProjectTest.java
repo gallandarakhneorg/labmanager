@@ -17,14 +17,9 @@
 package fr.ciadlab.labmanager.entities.project;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotSame;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
+import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -34,6 +29,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import fr.ciadlab.labmanager.entities.member.WebPageNaming;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.trl.TRL;
@@ -1275,6 +1271,90 @@ public class ProjectTest {
 		//
 		float budget = this.test.getTotalLocalOrganizationBudget();
 		assertEquals(70034.197f, budget);
+	}
+
+	@Test
+	public void getWebPageNaming() {
+		assertSame(ProjectWebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void setWebPageNaming_ProjectWebPageNaming_null() {
+		this.test.setWebPageNaming(ProjectWebPageNaming.PROJECT_ID);
+		this.test.setWebPageNaming((ProjectWebPageNaming) null);
+		assertSame(ProjectWebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void setWebPageNaming_ProjectWebPageNaming() {
+		this.test.setWebPageNaming(ProjectWebPageNaming.ACRONYM);
+		assertSame(ProjectWebPageNaming.ACRONYM, this.test.getWebPageNaming());
+		this.test.setWebPageNaming(ProjectWebPageNaming.PROJECT_ID);
+		assertSame(ProjectWebPageNaming.PROJECT_ID, this.test.getWebPageNaming());
+		this.test.setWebPageNaming(ProjectWebPageNaming.UNSPECIFIED);
+		assertSame(ProjectWebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void setWebPageNaming_String_null() {
+		this.test.setWebPageNaming(ProjectWebPageNaming.PROJECT_ID);
+		this.test.setWebPageNaming((String) null);
+		assertSame(ProjectWebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void setWebPageNaming_String_empty() {
+		this.test.setWebPageNaming(ProjectWebPageNaming.PROJECT_ID);
+		this.test.setWebPageNaming("");
+		assertSame(ProjectWebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void setWebPageNaming_String_valid() {
+		this.test.setWebPageNaming("project_id");
+		assertSame(ProjectWebPageNaming.PROJECT_ID, this.test.getWebPageNaming());
+		this.test.setWebPageNaming("acronym");
+		assertSame(ProjectWebPageNaming.ACRONYM, this.test.getWebPageNaming());
+		this.test.setWebPageNaming("unspecified");
+		assertSame(ProjectWebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void setWebPageNaming_String_invalid() {
+		this.test.setWebPageNaming("xyz");
+		assertSame(ProjectWebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
+	}
+
+	@Test
+	public void getWebPageURI_unspecified() throws Exception {
+		this.test.setWebPageNaming(ProjectWebPageNaming.UNSPECIFIED);
+		assertNull(this.test.getWebPageURI());
+	}
+
+	@Test
+	public void getWebPageURI_acronym_null() throws Exception {
+		this.test.setWebPageNaming(ProjectWebPageNaming.ACRONYM);
+		assertNull(this.test.getWebPageURI());
+	}
+
+	@Test
+	public void getWebPageURI_acronym() throws Exception {
+		this.test.setWebPageNaming(ProjectWebPageNaming.ACRONYM);
+		this.test.setAcronym("xyz");
+		assertEquals(new URI("/xyz"), this.test.getWebPageURI());
+	}
+
+	@Test
+	public void getWebPageURI_id_zero() throws Exception {
+		this.test.setWebPageNaming(ProjectWebPageNaming.PROJECT_ID);
+		assertNull(this.test.getWebPageURI());
+	}
+
+	@Test
+	public void getWebPageURI_id() throws Exception {
+		this.test.setWebPageNaming(ProjectWebPageNaming.PROJECT_ID);
+		this.test.setId(123456);
+		assertEquals(new URI("/project-123456"), this.test.getWebPageURI());
 	}
 
 }

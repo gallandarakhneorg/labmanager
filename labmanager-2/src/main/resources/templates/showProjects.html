@@ -28,10 +28,10 @@
 	        <th>Rank</th>
 	        <th th:utext="#{html.ProjectCategory}"></th>
 	        <th th:utext="#{html.StartYear}"></th>
-	        <th th:utext="#{html.EndYear}"></th>
 	        <th th:utext="#{html.Acronym}"></th>
 	        <th th:utext="#{html.ScientificTitle}"></th>
 	        <th th:utext="#{html.FundingScheme0}"></th>
+	        <th th:utext="#{html.Period}"></th>
         </thead>
         <tbody>
         <tr th:each="project : ${projects}">
@@ -45,12 +45,16 @@
             	<th:block th:utext="${project.startYear}"></th:block>
             </td>
             <td>
-            	<th:block th:if="${project.startYear > 0 && project.endYear > 0}" th:utext="#{html.YearRange(${project.startYear}, ${project.endYear})}"></th:block>
-            	<th:block th:if="${project.startYear > 0 && project.endYear <= 0}" th:utext="#{html.YearRangeNoEnd(${project.startYear})}"></th:block>
-            	<th:block th:if="${project.startYear <= 0 && project.endYear > 0}" th:utext="#{html.YearRangeNoStart(${project.endYear})}"></th:block>
-            </td>
-            <td>
-            	<th:block th:utext="${project.acronym}"></th:block>
+            	<a th:href="${project.webPageURI}"
+            	   th:if="${project.webPageURI != null}"
+            	   class="simpleLink"
+            	   th:utext="${project.acronym}"></a>
+            	<a th:href="${project.projectURL}"
+            	   th:if="${project.webPageURI == null && project.projectURL != null}"
+            	   class="simpleLink"
+            	   th:utext="${project.acronym}"></a>
+            	<th:block th:if="${project.webPageURI == null && project.projectURL == null}"
+            	          th:utext="${project.acronym}"></th:block>
             </td>
             <td>
             	<th:block th:utext="${project.scientificTitle}"></th:block>
@@ -58,6 +62,11 @@
             <td>
             	<th:block th:if="${project.category != T(fr.ciadlab.labmanager.entities.project.ProjectCategory).OPEN_SOURCE}"
             	          th:utext="${project.majorFundingScheme.getLabel()}"></th:block>
+            </td>
+            <td>
+            	<th:block th:if="${project.startYear > 0 && project.endYear > 0}" th:utext="#{html.YearRange(${project.startYear}, ${project.endYear})}"></th:block>
+            	<th:block th:if="${project.startYear > 0 && project.endYear <= 0}" th:utext="#{html.YearRangeNoEnd(${project.startYear})}"></th:block>
+            	<th:block th:if="${project.startYear <= 0 && project.endYear > 0}" th:utext="#{html.YearRangeNoStart(${project.endYear})}"></th:block>
             </td>
         </tbody>
     </table>

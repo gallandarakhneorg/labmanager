@@ -31,6 +31,7 @@ import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
 import fr.ciadlab.labmanager.entities.project.ProjectBudget;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
+import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.service.project.ProjectService;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
@@ -94,6 +95,7 @@ public class ProjectApiController extends AbstractApiController {
 	 * @param pathToLogo the local path to the logo of the project.
 	 * @param removePathToLogo remove the logo before uploading.
 	 * @param projectURL the URL of the project.
+	 * @param webPageNaming the naming convention for the project page on the institution website.
 	 * @param globalBudget the budget for all the partners in the project.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
@@ -135,6 +137,7 @@ public class ProjectApiController extends AbstractApiController {
 			@RequestParam(required = false) MultipartFile pathToLogo,
 			@RequestParam(required = false, defaultValue = "false", name = "@fileUpload_removed_pathToLogo") boolean removePathToLogo,
 			@RequestParam(required = false) String projectURL,
+			@RequestParam(required = false) String webPageNaming,
 			@RequestParam(required = true) float globalBudget,
 			@RequestParam(required = true) String activityType,
 			@RequestParam(required = true) String trl,
@@ -178,6 +181,8 @@ public class ProjectApiController extends AbstractApiController {
 		} else {
 			inProjectURLObj = null;
 		}
+		final String inWebPageNaming = inString(webPageNaming);
+		final ProjectWebPageNaming projectWebPageNaming = ProjectWebPageNaming.valueOfCaseInsensitive(inWebPageNaming);
 		final ProjectActivityType inActivityType = ProjectActivityType.valueOfCaseInsensitive(inString(activityType));
 		final TRL inTrl = TRL.valueOfCaseInsensitive(inString(trl));
 		if (trl == null) {
@@ -241,7 +246,7 @@ public class ProjectApiController extends AbstractApiController {
 		if (project == null) {
 			projectOpt = this.projectService.createProject(
 					validated, inAcronym, inScientificTitle, openSource, inStartDate, duration, inDescription,
-					pathToLogo, removePathToLogo, inProjectURLObj, globalBudget, inActivityType, inTrl,
+					pathToLogo, removePathToLogo, inProjectURLObj, projectWebPageNaming, globalBudget, inActivityType, inTrl,
 					coordinator, localOrganization, superOrganization, learOrganization, otherPartners, participantMap,
 					pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
@@ -249,7 +254,7 @@ public class ProjectApiController extends AbstractApiController {
 		} else {
 			projectOpt = this.projectService.updateProject(project.intValue(),
 					validated, inAcronym, inScientificTitle, openSource, inStartDate, duration, inDescription,
-					pathToLogo, removePathToLogo, inProjectURLObj, globalBudget, inActivityType,
+					pathToLogo, removePathToLogo, inProjectURLObj, projectWebPageNaming, globalBudget, inActivityType,
 					inTrl, coordinator, localOrganization, superOrganization, learOrganization, otherPartners,
 					participantMap, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,

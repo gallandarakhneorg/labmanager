@@ -16,15 +16,17 @@
 
 package fr.ciadlab.labmanager.entities.member;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -70,6 +72,46 @@ public class WebPageNamingTest {
 		assertEquals(new URI("/author-1456"), cons(WebPageNaming.AUTHOR_ID).getWebpageURIFor(this.person));
 		assertEquals(new URI("/myfirst.mylast"), cons(WebPageNaming.EMAIL_ID).getWebpageURIFor(this.person));
 		assertEquals(new URI("/iamstephane_mylastname"), cons(WebPageNaming.FIRST_LAST).getWebpageURIFor(this.person));
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_US() {
+		// Force the local to be US
+		java.util.Locale.setDefault(java.util.Locale.US);
+		assertEquals("author-<ID>", cons(WebPageNaming.AUTHOR_ID).getLabel());
+		assertEquals("Email without domain part", cons(WebPageNaming.EMAIL_ID).getLabel());
+		assertEquals("First and last names", cons(WebPageNaming.FIRST_LAST).getLabel());
+		assertEquals("Not specified", cons(WebPageNaming.UNSPECIFIED).getLabel());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_FR() {
+		// Force the local to be FR
+		java.util.Locale.setDefault(java.util.Locale.FRANCE);
+		assertEquals("author-<ID>", cons(WebPageNaming.AUTHOR_ID).getLabel());
+		assertEquals("Email without domain part", cons(WebPageNaming.EMAIL_ID).getLabel());
+		assertEquals("First and last names", cons(WebPageNaming.FIRST_LAST).getLabel());
+		assertEquals("Not specified", cons(WebPageNaming.UNSPECIFIED).getLabel());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_Locale_US() {
+		assertEquals("author-<ID>", cons(WebPageNaming.AUTHOR_ID).getLabel(Locale.US));
+		assertEquals("Email without domain part", cons(WebPageNaming.EMAIL_ID).getLabel(Locale.US));
+		assertEquals("First and last names", cons(WebPageNaming.FIRST_LAST).getLabel(Locale.US));
+		assertEquals("Not specified", cons(WebPageNaming.UNSPECIFIED).getLabel(Locale.US));
+		assertAllTreated();
+	}
+
+	@Test
+	public void getLabel_Locale_FR() {
+		assertEquals("author-<ID>", cons(WebPageNaming.AUTHOR_ID).getLabel(Locale.FRANCE));
+		assertEquals("Email sans le domaine", cons(WebPageNaming.EMAIL_ID).getLabel(Locale.FRANCE));
+		assertEquals("Prénom et nom", cons(WebPageNaming.FIRST_LAST).getLabel(Locale.FRANCE));
+		assertEquals("Non spécifié", cons(WebPageNaming.UNSPECIFIED).getLabel(Locale.FRANCE));
 		assertAllTreated();
 	}
 

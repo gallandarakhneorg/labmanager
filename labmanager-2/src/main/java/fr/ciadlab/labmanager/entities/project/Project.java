@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.entities.project;
 import java.io.IOException;
 import java.io.Serializable;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -199,6 +200,12 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	@Column
 	private boolean validated;
 
+	/** Naming convention for the webpage of the project.
+	 */
+	@Column(nullable = true)
+	@Enumerated(EnumType.STRING)
+	private ProjectWebPageNaming webPageNaming = ProjectWebPageNaming.UNSPECIFIED;
+
 	/**
 	 * Organization which is coordinating or leading the project.
 	 * The coordinator may be the local organization.
@@ -268,6 +275,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @param confidential indicates if the project information is confidential or not.
 	 * @param openSource indicates if the project is open source or not.
 	 * @param projectUrl the official website of the project (usually outside the local organization website).
+	 * @param webPageNaming the naming convention for the project webpage.
 	 * @param videoUrls the list of URLs to videos related to the project.
 	 * @param pathToScientificRequirements the path to an upload document that describes the scientific requirements.
 	 * @param pathToPressDocument the path to an upload press document.
@@ -284,7 +292,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 			LocalDate startDate, int duration,
 			float globalBudget, TRL trl, ProjectActivityType type, 
 			ProjectStatus status, boolean confidential, boolean openSource,
-			String projectUrl, List<String> videoUrls,
+			String projectUrl, ProjectWebPageNaming webPageNaming, List<String> videoUrls,
 			String pathToScientificRequirements, String pathToPressDocument, String pathToLogo, List<String> pathsToImages, String pathToPowerpoint,
 			ResearchOrganization coordinator, ResearchOrganization localOrganization, Set<ResearchOrganization> otherPartners,
 			List<ProjectMember> participants) {
@@ -307,6 +315,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		this.coordinator = coordinator;
 		this.videoURLs = videoUrls;
 		this.projectURL = projectUrl;
+		this.webPageNaming = webPageNaming;
 		this.pathToScientificRequirements = pathToScientificRequirements;
 		this.pathToPressDocument = pathToPressDocument;
 		this.pathToLogo = pathToLogo;
@@ -330,6 +339,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		h = HashCodeUtils.add(h, this.confidential);
 		h = HashCodeUtils.add(h, this.openSource);
 		h = HashCodeUtils.add(h, this.projectURL);
+		h = HashCodeUtils.add(h, this.webPageNaming);
 		h = HashCodeUtils.add(h, this.videoURLs);
 		h = HashCodeUtils.add(h, this.pathToScientificRequirements);
 		h = HashCodeUtils.add(h, this.pathToPressDocument);
@@ -395,6 +405,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		if (!Objects.equals(this.projectURL, other.projectURL)) {
 			return false;
 		}
+		if (!Objects.equals(this.webPageNaming, other.webPageNaming)) {
+			return false;
+		}
 		if (!Objects.equals(this.pathToScientificRequirements, other.pathToScientificRequirements)) {
 			return false;
 		}
@@ -456,6 +469,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		}
 		if (!Strings.isNullOrEmpty(getProjectURL())) {
 			consumer.accept("projectURL", getProjectURL()); //$NON-NLS-1$
+		}
+		if (getWebPageNaming() != null) {
+			consumer.accept("webPageNaming", getWebPageNaming()); //$NON-NLS-1$
 		}
 		if (!getVideoURLs().isEmpty()) {
 			consumer.accept("videoURLs", getVideoURLs()); //$NON-NLS-1$
@@ -786,22 +802,61 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 *
 	 * @param url the URL.
 	 */
+	public void setProjectURL(URL url) {
+		if (url != null) {
+			setProjectURL(url.toExternalForm());
+		} else {
+			setProjectURL((String) null);
+		}
+	}
+
+	/** Change the URL of a website related to this project.
+	 *
+	 * @param url the URL.
+	 */
 	public void setProjectURL(String url) {
 		this.projectURL = Strings.emptyToNull(url);
 	}
 
-	/** Change the URL of a video related to this project.
+
+	/** Replies the naming convention for the project webpage.
 	 *
-	 * @param url the URL.
+	 * @return the naming convention.
 	 */
-	public final void setProjectURL(URL url) {
-		final String value;
-		if (url != null) {
-			value = url.toExternalForm();
+	public ProjectWebPageNaming getWebPageNaming() {
+		return this.webPageNaming;
+	}
+
+	/** Change the naming convention for the project webpage.
+	 *
+	 * @param convention the naming convention.
+	 */
+	public void setWebPageNaming(ProjectWebPageNaming convention) {
+		if (convention == null) {
+			this.webPageNaming = ProjectWebPageNaming.UNSPECIFIED;
 		} else {
-			value = null;
+			this.webPageNaming = convention;
 		}
-		setProjectURL(value);
+	}
+
+	/** Change the naming convention for the project webpage.
+	 *
+	 * @param convention the naming convention.
+	 */
+	public final void setWebPageNaming(String convention) {
+		try {
+			setWebPageNaming(ProjectWebPageNaming.valueOfCaseInsensitive(convention));
+		} catch (Throwable ex) {
+			setWebPageNaming((ProjectWebPageNaming) null);
+		}
+	}
+
+	/** Replies the URI of the webpage of the project on the institution website.
+	 *
+	 * @return the URI or {@code null} if none.
+	 */
+	public URI getWebPageURI() {
+		return getWebPageNaming().getWebpageURIFor(this);
 	}
 
 	/** Replies the URLs of the videos related to this project.
