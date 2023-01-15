@@ -22,6 +22,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
@@ -273,7 +274,8 @@ public class ProjectViewController extends AbstractViewController {
 		} else {
 			projects = this.projectService.getAllProjects();
 		}
-		modelAndView.addObject("projects", projects); //$NON-NLS-1$
+		final Stream<Project> projectStream = projects.stream().filter(it -> !it.isConfidential());
+		modelAndView.addObject("projects", projectStream.iterator()); //$NON-NLS-1$
 		if (isLoggedIn()) {
 			modelAndView.addObject("additionUrl", endpoint(Constants.PROJECT_EDITING_ENDPOINT)); //$NON-NLS-1$
 			modelAndView.addObject("editionUrl", endpoint(Constants.PROJECT_EDITING_ENDPOINT, //$NON-NLS-1$
