@@ -51,6 +51,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.project.ProjectBudget;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
@@ -76,6 +77,7 @@ import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
+import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -1481,6 +1483,38 @@ public class JsonToDatabaseImporter extends JsonTool {
 					if (project != null) {
 						session.beginTransaction();
 
+						// Budgets
+						final JsonNode budgetsNode = projectObject.get("budgets"); //$NON-NLS-1$
+						if (budgetsNode != null) {
+							final List<ProjectBudget> budgetList = new ArrayList<>();
+							budgetsNode.forEach(it -> {
+								final ProjectBudget budgetObject = new ProjectBudget();
+								final String fundingValue = getStringValue(it.get("fundingScheme")); //$NON-NLS-1$
+								if (fundingValue != null) {
+									try {
+										final FundingScheme scheme = FundingScheme.valueOfCaseInsensitive(fundingValue.toString());
+										budgetObject.setFundingScheme(scheme);
+									} catch (Throwable ex) {
+										budgetObject.setFundingScheme(FundingScheme.NOT_FUNDED);
+									}
+								}
+								final Number budgetValue = getNumberValue(it.get("budget")); //$NON-NLS-1$
+								if (budgetValue != null) {
+									budgetObject.setBudget(budgetValue.floatValue());
+								}
+								final String grantValue = getStringValue(it.get("grant")); //$NON-NLS-1$
+								if (grantValue != null) {
+									budgetObject.setGrant(grantValue);
+								}
+								budgetList.add(budgetObject);
+							});
+							project.setBudgets(budgetList);
+						}
+
+						if (!isFake()) {
+							this.projectRepository.save(project);
+						}
+
 						// Video URLs
 						final List<String> videoURLs = getStringList(projectObject, VIDEO_URLS_KEY);
 						project.setVideoURLs(videoURLs);
@@ -1489,7 +1523,6 @@ public class JsonToDatabaseImporter extends JsonTool {
 						final List<String> pathsToImages = getStringList(projectObject, PATHS_TO_IMAGES_KEY);
 						project.setPathsToImages(pathsToImages);
 
-						//
 						if (!isFake()) {
 							this.projectRepository.save(project);
 						}

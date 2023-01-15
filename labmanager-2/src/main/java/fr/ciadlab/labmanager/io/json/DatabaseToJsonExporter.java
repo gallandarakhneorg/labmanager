@@ -43,6 +43,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.project.ProjectBudget;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -798,6 +799,24 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 				// Organizations and persons must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
+				final List<ProjectBudget> budgets = project.getBudgets();
+				if (budgets != null && !budgets.isEmpty()) {
+					final ArrayNode budgetNode = jsonProject.arrayNode();
+					for (final ProjectBudget budget : budgets) {
+						final ObjectNode node = budgetNode.addObject();
+						node.put("fundingScheme", budget.getFundingScheme().name()); //$NON-NLS-1$
+						if (budget.getBudget() > 0f) {
+							node.put("budget", Float.valueOf(budget.getBudget())); //$NON-NLS-1$
+						}
+						if (!Strings.isNullOrEmpty(budget.getGrant())) {
+							node.put("grant", budget.getGrant()); //$NON-NLS-1$
+						}
+					}
+					if (!budgetNode.isEmpty()) {
+						jsonProject.set("budgets", budgetNode); //$NON-NLS-1$
+					}
+				}
+				
 				final String coordinatorId = repository.get(project.getCoordinator());
 				if (!Strings.isNullOrEmpty(coordinatorId)) {
 					addReference(jsonProject, COORDINATOR_KEY, coordinatorId);

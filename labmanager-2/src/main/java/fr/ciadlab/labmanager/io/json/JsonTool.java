@@ -485,32 +485,69 @@ public abstract class JsonTool {
 	 * @return the raw value, or {@code null} if the value cannot be obtained.
 	 */
 	protected static Object getRawValue(JsonNode node) {
-		if (node.isBoolean()) {
-			return Boolean.valueOf(node.booleanValue());
+		if (node != null) {
+			if (node.isBoolean()) {
+				return Boolean.valueOf(node.booleanValue());
+			}
+			if (node.isShort()) {
+				return Short.valueOf(node.shortValue());
+			}
+			if (node.isInt()) {
+				return Integer.valueOf(node.intValue());
+			}
+			if (node.isLong()) {
+				return Long.valueOf(node.longValue());
+			}
+			if (node.isFloat()) {
+				return Float.valueOf(node.floatValue());
+			}
+			if (node.isDouble()) {
+				return Double.valueOf(node.doubleValue());
+			}
+			if (node.isBigInteger()) {
+				return node.bigIntegerValue();
+			}
+			if (node.isBigDecimal()) {
+				return node.decimalValue();
+			}
+			if (node.isTextual()) {
+				return node.textValue();
+			}
 		}
-		if (node.isShort()) {
-			return Short.valueOf(node.shortValue());
+		return null;
+	}
+
+	/** Extract the raw string value from the given node.
+	 *
+	 * @param node the JSON node.
+	 * @return the raw value, or {@code null} if the value cannot be obtained or the value is empty string.
+	 * @since 3.0
+	 */
+	protected static String getStringValue(JsonNode node) {
+		final Object raw = getRawValue(node);
+		if (raw != null) {
+			return Strings.emptyToNull(raw.toString());
 		}
-		if (node.isInt()) {
-			return Integer.valueOf(node.intValue());
+		return null;
+	}
+
+	/** Extract the raw number value from the given node.
+	 *
+	 * @param node the JSON node.
+	 * @return the raw value, or {@code null} if the value cannot be obtained.
+	 * @since 3.0
+	 */
+	protected static Number getNumberValue(JsonNode node) {
+		final Object raw = getRawValue(node);
+		if (raw instanceof Number) {
+			return (Number) raw;
 		}
-		if (node.isLong()) {
-			return Long.valueOf(node.longValue());
-		}
-		if (node.isFloat()) {
-			return Float.valueOf(node.floatValue());
-		}
-		if (node.isDouble()) {
-			return Double.valueOf(node.doubleValue());
-		}
-		if (node.isBigInteger()) {
-			return node.bigIntegerValue();
-		}
-		if (node.isBigDecimal()) {
-			return node.decimalValue();
-		}
-		if (node.isTextual()) {
-			return node.textValue();
+		if (raw != null) {
+			try {
+				return Double.valueOf(raw.toString());
+			} catch (Throwable ex) {
+				//
+			}
 		}
 		return null;
 	}
