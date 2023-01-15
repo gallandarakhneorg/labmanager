@@ -244,7 +244,7 @@ public class FundingSchemeTest {
 		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel());
 		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel());
 		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel());
-		assertEquals("European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel());
+		assertEquals("Eurostar - European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel());
 		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel());
 		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel());
 		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel());
@@ -288,7 +288,7 @@ public class FundingSchemeTest {
 		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel());
 		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel());
 		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel());
-		assertEquals("European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel());
+		assertEquals("Eurostar - European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel());
 		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel());
 		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel());
 		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel());
@@ -331,7 +331,7 @@ public class FundingSchemeTest {
 		assertEquals("Autres fonds européens", cons(FundingScheme.EU_OTHER).getLabel(Locale.FRANCE));
 		assertEquals("Université européenne", cons(FundingScheme.EU_UNIVERSITY).getLabel(Locale.FRANCE));
 		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel(Locale.FRANCE));
-		assertEquals("Partenariat européen avec les PME innovantes", cons(FundingScheme.EUROSTAR).getLabel(Locale.FRANCE));
+		assertEquals("Eurostar - Partenariat européen avec les PME innovantes", cons(FundingScheme.EUROSTAR).getLabel(Locale.FRANCE));
 		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel(Locale.FRANCE));
 		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel(Locale.FRANCE));
 		assertEquals("Entreprise française", cons(FundingScheme.FRENCH_COMPANY).getLabel(Locale.FRANCE));
@@ -374,7 +374,7 @@ public class FundingSchemeTest {
 		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel(Locale.US));
 		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel(Locale.US));
 		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel(Locale.US));
-		assertEquals("European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel(Locale.US));
+		assertEquals("Eurostar - European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel(Locale.US));
 		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel(Locale.US));
 		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel(Locale.US));
 		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel(Locale.US));
