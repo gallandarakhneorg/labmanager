@@ -123,8 +123,8 @@ public class ProjectCategoryTest {
 	public void reverseOrdinal() throws Exception {
 		assertEquals(0, cons(ProjectCategory.COMPETITIVE_CALL_PROJECT).reverseOrdinal());
 		assertEquals(1, cons(ProjectCategory.NOT_ACADEMIC_PROJECT).reverseOrdinal());
-		assertEquals(2, cons(ProjectCategory.OPEN_SOURCE).reverseOrdinal());
-		assertEquals(3, cons(ProjectCategory.AUTO_FUNDING).reverseOrdinal());
+		assertEquals(2, cons(ProjectCategory.AUTO_FUNDING).reverseOrdinal());
+		assertEquals(3, cons(ProjectCategory.OPEN_SOURCE).reverseOrdinal());
 		assertAllTreated();
 	}
 

@@ -33,13 +33,13 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 public enum ProjectCategory {
 
-	/** Project that is auto-funding.
-	 */
-	AUTO_FUNDING,
-
 	/** Project that is open source, freely available on Internet.
 	 */
 	OPEN_SOURCE,
+
+	/** Project that is auto-funding.
+	 */
+	AUTO_FUNDING,
 
 	/** Project with not academic partner.
 	 */

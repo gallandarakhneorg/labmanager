@@ -25,7 +25,7 @@
         <tbody>
         <tr th:each="project : ${projects}">
             <td>
-            	<th:block th:utext="${project.category.reverseOrdinal * 1000000 + project.majorFundingScheme.reverseOrdinal * 10000 + project.startYear}"></th:block>
+            	<th:block th:utext="${project.category.reverseOrdinal}"></th:block>
             </td>
             <td>
             	<th:block th:utext="${project.category.getLabel()}"></th:block>
@@ -54,7 +54,8 @@
             	          th:utext="${project.majorFundingScheme.getLabel()}"></th:block>
             </td>
             <td>
-            	<th:block th:if="${project.startYear > 0 && project.endYear > 0}" th:utext="#{html.YearRange(${project.startYear}, ${project.endYear})}"></th:block>
+            	<th:block th:if="${project.startYear > 0 && project.endYear > 0 && project.startYear != project.endYear}" th:utext="#{html.YearRange(${project.startYear}, ${project.endYear})}"></th:block>
+            	<th:block th:if="${project.startYear > 0 && project.endYear > 0 && project.startYear == project.endYear}" th:utext="${project.startYear}"></th:block>
             	<th:block th:if="${project.startYear > 0 && project.endYear <= 0}" th:utext="#{html.YearRangeNoEnd(${project.startYear})}"></th:block>
             	<th:block th:if="${project.startYear <= 0 && project.endYear > 0}" th:utext="#{html.YearRangeNoStart(${project.endYear})}"></th:block>
             </td>
@@ -82,7 +83,6 @@ $(document).ready(() => {
                 "orderable": false,
 			},
         	{
-        		data: 'acronym',
                 "orderable": false,
         	},
         	{
@@ -92,7 +92,7 @@ $(document).ready(() => {
                 "orderable": false,
             }
 		],
-		order: [ [0, 'asc'], [1, 'desc'], [2, 'asc'] ],
+		order: [ [0, 'asc'], [2, 'desc'] ],
 		tableParams: {
 			rowGroup: {
 				startRender: (rows, group) => {
