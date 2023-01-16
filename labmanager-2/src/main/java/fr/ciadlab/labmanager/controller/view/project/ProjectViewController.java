@@ -96,18 +96,44 @@ public class ProjectViewController extends AbstractViewController {
 	/** Replies the model-view component for managing the projects.
 	 *
 	 * @param username the name of the logged-in user.
+	 * @param dbId the database identifier of the person for who the projects must be exported.
+	 * @param webId the webpage identifier of the person for who the projects must be exported.
+	 * @param organization the identifier of the organization for which the projects must be exported.
 	 * @return the model-view component.
 	 * @see #showProjects(Integer, String, Integer, String, boolean, byte[])
 	 */
 	@GetMapping("/" + Constants.PROJECT_LIST_ENDPOINT)
 	public ModelAndView projectList(
+			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
+			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		readCredentials(username, Constants.PROJECT_LIST_ENDPOINT);
+		final String inWebId = inString(webId);
+		readCredentials(username, Constants.PROJECT_LIST_ENDPOINT, dbId, inWebId, organization);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PROJECT_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.PROJECT_EDITING_ENDPOINT, Constants.PROJECT_ENDPOINT_PARAMETER));
-		modelAndView.addObject("projects", this.projectService.getAllProjects()); //$NON-NLS-1$
+		final List<Project> projects = extractProjectList(dbId, inWebId, organization);
+		modelAndView.addObject("projects", projects); //$NON-NLS-1$
 		return modelAndView;
+	}
+
+	private List<Project> extractProjectList(Integer dbId, String webId, Integer organization) {
+		final List<Project> projects;
+		if (organization != null && organization.intValue() != 0) {
+			projects = this.projectService.getProjectsByOrganizationId(organization.intValue());
+		} else if (dbId != null && dbId.intValue() != 0) {
+			projects = this.projectService.getProjectsByPersonId(dbId.intValue());
+		} else if (!Strings.isNullOrEmpty(webId)) {
+			final Person person = this.personService.getPersonByWebPageId(webId);
+			if (person == null) {
+				throw new IllegalArgumentException("Person not found with web identifier: " + webId); //$NON-NLS-1$
+			}
+			projects = this.projectService.getProjectsByPersonId(person.getId());
+		} else {
+			projects = this.projectService.getAllProjects();
+		}
+		return projects;
 	}
 
 	private String rootedThumbnail(String filename, boolean preserveFileExtension) {
@@ -239,7 +265,6 @@ public class ProjectViewController extends AbstractViewController {
 	 * @param dbId the database identifier of the person for who the projects must be exported.
 	 * @param webId the webpage identifier of the person for who the projects must be exported.
 	 * @param organization the identifier of the organization for which the projects must be exported.
-	 * @param organizationAcronym the acronym of the organization for which the projects must be exported.
 	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
 	 * @param username the name of the logged-in user.
 	 * @return the model-view of the list of projects.
@@ -250,29 +275,14 @@ public class ProjectViewController extends AbstractViewController {
 			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
 			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
 			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
-			@RequestParam(required = false) String organizationAcronym,
 			@RequestParam(required = false, defaultValue = "false") boolean embedded,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		final String inWebId = inString(webId);
-		final String inOrganizationAcronym = inString(organizationAcronym);
-		readCredentials(username, "showProjects", dbId, inWebId, organization, inOrganizationAcronym); //$NON-NLS-1$
+		readCredentials(username, "showProjects", dbId, inWebId, organization); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("showProjects"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
-		final List<Project> projects;
-		if (organization != null && organization.intValue() != 0) {
-			projects = this.projectService.getProjectsByOrganizationId(organization.intValue());
-		} else if (dbId != null && dbId.intValue() != 0) {
-			projects = this.projectService.getProjectsByPersonId(dbId.intValue());
-		} else if (!Strings.isNullOrEmpty(webId)) {
-			final Person person = this.personService.getPersonByWebPageId(webId);
-			if (person == null) {
-				throw new IllegalArgumentException("Person not found with web identifier: " + webId); //$NON-NLS-1$
-			}
-			projects = this.projectService.getProjectsByPersonId(person.getId());
-		} else {
-			projects = this.projectService.getAllProjects();
-		}
+		final List<Project> projects = extractProjectList(dbId, inWebId, organization);
 		final List<Project> sortedProjects = projects.stream().filter(
 				it -> !it.isConfidential() && it.getStatus() == ProjectStatus.ACCEPTED).collect(Collectors.toList());
 		modelAndView.addObject("projects", sortedProjects); //$NON-NLS-1$
