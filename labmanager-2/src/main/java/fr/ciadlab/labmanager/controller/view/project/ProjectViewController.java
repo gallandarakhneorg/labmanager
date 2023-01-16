@@ -273,7 +273,8 @@ public class ProjectViewController extends AbstractViewController {
 		} else {
 			projects = this.projectService.getAllProjects();
 		}
-		final List<Project> sortedProjects = projects.stream().filter(it -> !it.isConfidential()).collect(Collectors.toList());
+		final List<Project> sortedProjects = projects.stream().filter(
+				it -> !it.isConfidential() && it.getStatus() == ProjectStatus.ACCEPTED).collect(Collectors.toList());
 		modelAndView.addObject("projects", sortedProjects); //$NON-NLS-1$
 		if (isLoggedIn()) {
 			modelAndView.addObject("additionUrl", endpoint(Constants.PROJECT_EDITING_ENDPOINT)); //$NON-NLS-1$
