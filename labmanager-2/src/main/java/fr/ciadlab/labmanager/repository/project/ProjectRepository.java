@@ -39,7 +39,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
 	 * @param otherPartner the identifier in the other partners.
 	 * @return the list of projects.
 	 */
-	List<Project> findAllDistinctByCoordinatorIdOrLocalOrganizationIdOrSuperOrganizationIdOrOtherPartnersId(
+	List<Project> findDistinctByCoordinatorIdOrLocalOrganizationIdOrSuperOrganizationIdOrOtherPartnersId(
 			Integer coordinator, Integer localOrganization, Integer superOrganization, Integer otherPartner);
 
 	/** Replies all the projects in which the person with the given identifier is involved.
@@ -47,6 +47,6 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
 	 * @param id the identifier of the person.
 	 * @return the list of projects.
 	 */
-	List<Project> findAllDistinctByParticipantsPersonId(int id);
+	List<Project> findDistinctByParticipantsPersonId(Integer id);
 
 }

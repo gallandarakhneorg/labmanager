@@ -135,7 +135,7 @@ public class ProjectService extends AbstractService {
 	 */
 	public List<Project> getProjectsByOrganizationId(int organizationId) {
 		final Integer idObj = Integer.valueOf(organizationId);
-		return this.projectRepository.findAllDistinctByCoordinatorIdOrLocalOrganizationIdOrSuperOrganizationIdOrOtherPartnersId(
+		return this.projectRepository.findDistinctByCoordinatorIdOrLocalOrganizationIdOrSuperOrganizationIdOrOtherPartnersId(
 				idObj, idObj, idObj, idObj);
 	}
 
@@ -145,7 +145,7 @@ public class ProjectService extends AbstractService {
 	 * @return the projects.
 	 */
 	public List<Project> getProjectsByPersonId(int id) {
-		return this.projectRepository.findAllDistinctByParticipantsPersonId(id);
+		return this.projectRepository.findDistinctByParticipantsPersonId(Integer.valueOf(id));
 	}
 
 	/** Update a project with the given information.
