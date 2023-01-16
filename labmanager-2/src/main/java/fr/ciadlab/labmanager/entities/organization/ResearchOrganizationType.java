@@ -32,28 +32,185 @@ import org.springframework.context.support.MessageSourceAccessor;
 public enum ResearchOrganizationType {
 	/** Research team.
 	 */
-	RESEARCH_TEAM,
+	RESEARCH_TEAM {
+		@Override
+		public boolean isAcademicType() {
+			return true;
+		}
+	},
+
 	/** Research department.
 	 */
-	LABORATORY_DEPARTMENT,
+	LABORATORY_DEPARTMENT {
+		@Override
+		public boolean isAcademicType() {
+			return true;
+		}
+	},
+
 	/** Research laboratory or institute.
 	 */
-	LABORATORY,
+	LABORATORY {
+		@Override
+		public boolean isAcademicType() {
+			return true;
+		}
+	},
+
 	/** Faculty.
 	 */
-	FACULTY,
+	FACULTY {
+		@Override
+		public boolean isAcademicType() {
+			return true;
+		}
+	},
+
+	/** Research institute that is part of a research institution.
+	 *
+	 * @since 3.1
+	 */
+	RESEARCH_INSTITUTE {
+		@Override
+		public boolean isAcademicType() {
+			return true;
+		}
+	},
+
+	/** Research organization/institution, e.g., National Research Center.
+	 *
+	 * @since 3.1
+	 */
+	RESEARCH_INSTITUTION {
+		@Override
+		public boolean isAcademicType() {
+			return true;
+		}
+	},
+
 	/** University or college.
 	 */
-	UNIVERSITY,
+	UNIVERSITY {
+		@Override
+		public boolean isAcademicType() {
+			return true;
+		}
+	},
+
 	/** High school.
 	 */
-	HIGH_SCHOOL,
+	HIGH_SCHOOL {
+		@Override
+		public boolean isAcademicType() {
+			return true;
+		}
+	},
+
 	/** University community or network.
 	 */
-	COMMUNITY,
-	/** OTHER.
+	COMMUNITY {
+		@Override
+		public boolean isAcademicType() {
+			return true;
+		}
+	},
+
+	/** Any public administration or service that depends from the government or any local public authority.
+	 *
+	 * @since 3.1
 	 */
-	OTHER;
+	PUBLIC_ADMINISTRATION {
+		@Override
+		public boolean isAcademicType() {
+			return false;
+		}
+	},
+
+	/** Public association or non-profit organization.
+	 *
+	 * @since 3.1
+	 */
+	PUBLIC_NON_PROFIT_ASSOCIATION {
+		@Override
+		public boolean isAcademicType() {
+			return false;
+		}
+	},
+
+	/** Private association or non-profit organization.
+	 *
+	 * @since 3.1
+	 */
+	PRIVATE_NON_PROFIT_ASSOCIATION {
+		@Override
+		public boolean isAcademicType() {
+			return false;
+		}
+	},
+
+	/** A company that is just created or incubated.
+	 *
+	 * @since 3.1
+	 */
+	START_UP_COMPANY {
+		@Override
+		public boolean isAcademicType() {
+			return false;
+		}
+	},
+
+	/** Very small company, e.g., less than 10 employees.
+	 *
+	 * @since 3.1
+	 */
+	VERY_SMALL_SIZE_COMPANY {
+		@Override
+		public boolean isAcademicType() {
+			return false;
+		}
+	},
+
+	/** Small or middle-size company, e.g., less than 250 employees.
+	 *
+	 * @since 3.1
+	 */
+	SMALL_SIZE_COMPANY {
+		@Override
+		public boolean isAcademicType() {
+			return false;
+		}
+	},
+
+	/** Intermediate-size company, e.g., less than 5000 employees.
+	 *
+	 * @since 3.1
+	 */
+	INTERMEDIATE_SIZE_COMPANY {
+		@Override
+		public boolean isAcademicType() {
+			return false;
+		}
+	},
+
+	/** Big-size company, e.g., equal to or more than 5000 employees.
+	 *
+	 * @since 3.1
+	 */
+	BIG_SIZE_COMPANY {
+		@Override
+		public boolean isAcademicType() {
+			return false;
+		}
+	},
+
+	/** Other type of organization.
+	 */
+	OTHER {
+		@Override
+		public boolean isAcademicType() {
+			return false;
+		}
+	};
 
 	/** Default organization type.
 	 */
@@ -62,7 +219,7 @@ public enum ResearchOrganizationType {
 	private static final String MESSAGE_PREFIX = "researchOrganizationType."; //$NON-NLS-1$
 
 	private MessageSourceAccessor messages;
-	
+
 	/** Replies the message accessor to be used.
 	 *
 	 * @return the accessor.
@@ -118,5 +275,12 @@ public enum ResearchOrganizationType {
 		}
 		throw new IllegalArgumentException("Invalid type of organization: " + name); //$NON-NLS-1$
 	}
+
+	/** Replies if this type of organization is for academic environment.
+	 *
+	 * @return {@code true} if the type is for academic organization.
+	 * @since 3.1
+	 */
+	public abstract boolean isAcademicType();
 
 }

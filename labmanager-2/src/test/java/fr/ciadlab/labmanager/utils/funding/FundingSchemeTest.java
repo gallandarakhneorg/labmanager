@@ -488,6 +488,49 @@ public class FundingSchemeTest {
 	}
 
 	@Test
+	public void isAcademicButContractual() throws Exception {
+		assertFalse(cons(FundingScheme.ADEME).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.ANR).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.CAMPUS_FRANCE).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.CARNOT).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.CIFRE).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.CONACYT).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.COST_ACTION).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.CPER).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.CSC).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.EDIH).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.EU_COMPANY).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.EU_OTHER).isAcademicButContractual());
+		assertTrue(cons(FundingScheme.EU_UNIVERSITY).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.EUREKA).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.EUROSTAR).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.FEDER).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.FITEC).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.FRENCH_COMPANY).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.FRENCH_OTHER).isAcademicButContractual());
+		assertTrue(cons(FundingScheme.FRENCH_UNIVERSITY).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.FUI).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.H2020).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.HORIZON_EUROPE).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.HOSTING_ORGANIZATION).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.IDEX).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.INTERNATIONAL_COMPANY).isAcademicButContractual());
+		assertTrue(cons(FundingScheme.INTERNATIONAL_UNIVERSITY).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.INTERNTATIONAL_OTHER).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.INTERREG).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.ISITE).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.JPIEU).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.LOCAL_INSTITUTION).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.NICOLAS_BAUDIN).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.NOT_FUNDED).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.PHC).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.PIA).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.REGION_BFC).isAcademicButContractual());
+		assertFalse(cons(FundingScheme.SELF_FUNDING).isAcademicButContractual());
+		assertAllTreated();
+	}
+
+	@Test
 	public void reverseOrdinal() throws Exception {
 		assertEquals(0, cons(FundingScheme.INTERNATIONAL_COMPANY).reverseOrdinal());
 		assertEquals(1, cons(FundingScheme.PHC).reverseOrdinal());

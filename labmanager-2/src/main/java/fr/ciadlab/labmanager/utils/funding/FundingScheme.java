@@ -59,6 +59,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** Funds are provided by the person himself.
 	 */
@@ -85,6 +89,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -115,6 +123,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** The hosting organization is funding on its own budgets.
 	 */
@@ -141,6 +153,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -171,6 +187,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return true;
+		}
 	},
 	/** Other source of funding from France.
 	 */
@@ -198,6 +218,10 @@ public enum FundingScheme {
 		@Override
 		public boolean isNotAcademic() {
 			return true;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
 		}
 	},
 	/** Funds are provided in the context of a CARNOT Institution and managed by ANR.
@@ -230,6 +254,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** The regional council of Burgundy Franche Comte is funding.
 	 */
@@ -256,6 +284,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -288,6 +320,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** Fonds uniques interministériels.
 	 *
@@ -316,6 +352,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -348,6 +388,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** French ANR is funding.
 	 *
@@ -376,6 +420,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -407,6 +455,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** 
 	 * IDEX (Initiatives d’Excellence) 
@@ -436,6 +488,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** 
 	 * PIA (Plan d'Investissement d'Avenir) 
@@ -463,6 +519,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -497,6 +557,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** A private company is funding, but outside the scope of a {@link #CIFRE}.
 	 *
@@ -527,6 +591,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return true;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** An EU university is funding.
 	 */
@@ -555,6 +623,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return true;
+		}
 	},
 	/** Other source of funding from Europe.
 	 */
@@ -582,6 +654,10 @@ public enum FundingScheme {
 		@Override
 		public boolean isNotAcademic() {
 			return true;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
 		}
 	},
 	/** "Fonds européen de développement régional".
@@ -613,6 +689,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** EUREKA project is funding.
 	 */
@@ -641,6 +721,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** EUROSTAR project is funding.
 	 */
@@ -667,6 +751,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -699,6 +787,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** JPI Urban Europe.
 	 *
@@ -729,6 +821,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** INTERREG project is funding.
 	 */
@@ -755,6 +851,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -787,6 +887,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** H2020 project is funding.
 	 */
@@ -813,6 +917,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -843,6 +951,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** An european company is directly funding.
 	 */
@@ -870,6 +982,10 @@ public enum FundingScheme {
 		@Override
 		public boolean isNotAcademic() {
 			return true;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
 		}
 	},
 	/** An international university is funding.
@@ -899,6 +1015,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return true;
+		}
 	},
 	/** Another source of funding at international level.
 	 */
@@ -926,6 +1046,10 @@ public enum FundingScheme {
 		@Override
 		public boolean isNotAcademic() {
 			return true;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
 		}
 	},
 	/** International mobility programme from CDEFI, i.e. FITEC, e.g. ARFITEC or BRAFITEC.
@@ -955,6 +1079,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -987,6 +1115,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** Nicolas Baudin Programme for mobiltiy and internships.
 	 *
@@ -1015,6 +1147,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -1047,6 +1183,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** Funds are provided by the Chinease Scholarship Council (CSC).
 	 *
@@ -1075,6 +1215,10 @@ public enum FundingScheme {
 		}
 		@Override
 		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
 			return false;
 		}
 	},
@@ -1107,6 +1251,10 @@ public enum FundingScheme {
 		public boolean isNotAcademic() {
 			return false;
 		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
 	},
 	/** An international company is directly funding.
 	 */
@@ -1134,6 +1282,10 @@ public enum FundingScheme {
 		@Override
 		public boolean isNotAcademic() {
 			return true;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
 		}
 	};
 
@@ -1234,6 +1386,13 @@ public enum FundingScheme {
 	 * @since 3.0
 	 */
 	public abstract boolean isNotAcademic();
+
+	/** Indicates if the funding is for an academic institution that is also in a contract context.
+	 *
+	 * @return {@code true} if academic and contract-based funder.
+	 * @since 3.0
+	 */
+	public abstract boolean isAcademicButContractual();
 
 	/** Replies the ordinal number of this item in reverse order.
 	 *

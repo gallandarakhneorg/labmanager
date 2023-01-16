@@ -729,7 +729,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		if (funding.isCompetitive()) {
 			return ProjectCategory.COMPETITIVE_CALL_PROJECT;
 		}
-		if (funding.isNotAcademic()) {
+		if (funding.isNotAcademic() || funding.isAcademicButContractual()) {
 			return ProjectCategory.NOT_ACADEMIC_PROJECT;
 		}
 		if (isOpenSource()) {
