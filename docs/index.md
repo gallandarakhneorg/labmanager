@@ -2,7 +2,7 @@
 
 # Documentation of the Backend Software for the CIAD laboratory
 
-> **_Version:_** 2023-01-05
+> **_Version:_** 2023-01-17
 
 ## 1. Introduction
 
@@ -14,19 +14,20 @@ This website is hosted on a [Université de Technologie de Belfort Montbéliard 
 ## 2. Manual Pages
 
 1. **[Connection to the web backend](login.md)**
-2. **Common informations**
+2. **Common informations for all members**
    1. [List of known journals](journals.md)
    2. List of known conferences
-   3. List of projects
-3. **Member informations**
-   1. [Edit the member page on the front-end web site](editmemberpage.md)
-   2. [Edit the personal informations](editpersonalinfo.md)
-   3. [Edit the organization memberships](editorgamemberships.md)
-   4. [Edit the publications, seminars, keynotes, etc.](editpublications.md)
-   5. [Import publications from BibTeX](importbibtex.md)
-   6. [Edit the supervisions](editsupervisions.md)
-   7. [Edit the jury memberships](editjurymemberships.md)
-   8. [Edit the incoming and outgoing invitations](editinvitations.md)
+   3. [List of projects](projects.md)
+3. **Your member informations**
+   1. [Edit your member page on the front-end web site](editmemberpage.md)
+   2. [Edit your personal informations](editpersonalinfo.md)
+   3. [Edit your organization memberships](editorgamemberships.md)
+   4. [Edit your publications, seminars, keynotes, etc.](editpublications.md)
+   5. [Import your publications from BibTeX](importbibtex.md)
+   6. [Edit your academic and non-acedemic projects](editprojects.md)
+   7. [Edit your supervisions](editsupervisions.md)
+   8. [Edit your jury memberships](editjurymemberships.md)
+   9. [Edit your incoming and outgoing invitations](editinvitations.md)
 3. **Exporting document templates**
    1. RIPEC C3 for a member
    2. CV for a member
@@ -40,8 +41,9 @@ This website is hosted on a [Université de Technologie de Belfort Montbéliard 
       * [List of known journals](journals.md)
       * [List of publications](publications.md)
       * [Update journal rankings from Scimago and WoS](journalrankingupdate.md)
-   5. [Global indicators](globalindicators.md)
-   6. [Import and export database content](importexportdb.md)
+   5. [List of projects](projects.md)
+   6. [Global indicators](globalindicators.md)
+   7. [Import and export database content](importexportdb.md)
    
 ## 3. Report Issues
 

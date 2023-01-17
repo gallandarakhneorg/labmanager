@@ -92,11 +92,24 @@ To show up this publication list for you, you have to use the instruction below:
 Where `<ID>` should be the identifier of your member page, e.g. `stephane_galland` if the member page URL is `https://www.ciad-lab.fr/stephane_galland`.
 
 
-### d) Instructions for showing your supervisions
+### d) Instructions for showing your academic and non-academic projects
 
-Some the member page include a list of supervisions for the member that looks like:
+Some of the member pages include a list of the academic and non-academic projects of the member that looks like:
 
-![Member description](editmemberpage8.png)
+![Project description](editmemberpage11.png)
+
+To show up this project list for you, you have to use the instruction below:
+
+	[myShow url=showProjects webId=<ID>]
+
+Where `<ID>` should be the identifier of your member page, e.g. `stephane_galland` if the member page URL is `https://www.ciad-lab.fr/stephane_galland`.
+
+
+### e) Instructions for showing your supervisions
+
+Some of the member pages include a list of supervisions for the member that looks like:
+
+![Supervision description](editmemberpage8.png)
 
 To show up this supervision list for you, you have to use the instruction below:
 
@@ -105,11 +118,11 @@ To show up this supervision list for you, you have to use the instruction below:
 Where `<ID>` should be the identifier of your member page, e.g. `stephane_galland` if the member page URL is `https://www.ciad-lab.fr/stephane_galland`.
 
 
-### e) Instructions for showing your jury memberships
+### f) Instructions for showing your jury memberships
 
-Some the member page include a list of jury memberships for the member that looks like:
+Some of the member pages include a list of jury memberships for the member that looks like:
 
-![Member description](editmemberpage9.png)
+![Jury membership description](editmemberpage9.png)
 
 To show up this jury membership list for you, you have to use the instruction below:
 
@@ -118,11 +131,11 @@ To show up this jury membership list for you, you have to use the instruction be
 Where `<ID>` should be the identifier of your member page, e.g. `stephane_galland` if the member page URL is `https://www.ciad-lab.fr/stephane_galland`.
 
 
-### f) Instructions for showing your incoming and outgoing invitations
+### g) Instructions for showing your incoming and outgoing invitations
 
-Some the member page include a list of incoming and outgoing invitations for the member that looks like:
+Some of the member pages include a list of incoming and outgoing invitations for the member that looks like:
 
-![Member description](editmemberpage10.png)
+![Invitation description](editmemberpage10.png)
 
 To show up this invitation list for you, you have to use the instruction below:
 
@@ -143,6 +156,7 @@ Specific documentation are provided for helping you to edit data that is shown:
 * [Edit the organization memberships](editorgamemberships.md)
 * [Edit the publications, seminars, keynotes, etc.](editpublications.md)
 * [Import publications from BibTeX](importbibtex.md)
+* [Edit your academic and non-acedemic projects](editprojects.md)
 * [Edit the supervisions](editsupervisions.md)
 * [Edit the jury memberships](editjurymemberships.md)
 * [Edit the incoming and outgoing invitations](editinvitations.md)
