@@ -113,6 +113,15 @@ public class ProjectService extends AbstractService {
 		return this.projectRepository.findAll();
 	}
 
+	/** Replies the list of all the public projects from the database.
+	 * A public project is not confidential and has status "accepted".
+	 *
+	 * @return the list of public projects, never {@code null}.
+	 */
+	public List<Project> getAllPublicProjects() {
+		return this.projectRepository.findDistinctByConfidentialAndStatus(Boolean.FALSE, ProjectStatus.ACCEPTED);
+	}
+
 	/** Replies the project with the given identifier.
 	 *
 	 * @param id the identifier of the project in the database.
@@ -135,8 +144,20 @@ public class ProjectService extends AbstractService {
 	 */
 	public List<Project> getProjectsByOrganizationId(int organizationId) {
 		final Integer idObj = Integer.valueOf(organizationId);
-		return this.projectRepository.findDistinctByCoordinatorIdOrLocalOrganizationIdOrSuperOrganizationIdOrOtherPartnersId(
-				idObj, idObj, idObj, idObj);
+		return this.projectRepository.findDistinctOrganizationProjects(idObj);
+	}
+
+	/** Replies the public projects that are associated to the organization as coordinator,
+	 * local organization, super organization or other partners. LEAR organization is not
+	 * considered.
+	 * A public project is not confidential and has status "accepted".
+	 *
+	 * @param organizationId the identifier of he organization.
+	 * @return the list of public projects for the organization with the given id.
+	 */
+	public List<Project> getPublicProjectsByOrganizationId(int organizationId) {
+		final Integer idObj = Integer.valueOf(organizationId);
+		return this.projectRepository.findDistinctOrganizationProjects(Boolean.FALSE, ProjectStatus.ACCEPTED, idObj);
 	}
 
 	/** Replies the projects that are associated to the person with the given identifier.
@@ -145,7 +166,18 @@ public class ProjectService extends AbstractService {
 	 * @return the projects.
 	 */
 	public List<Project> getProjectsByPersonId(int id) {
-		return this.projectRepository.findDistinctByParticipantsPersonId(Integer.valueOf(id));
+		return this.projectRepository.findDistinctPersonProjects(Integer.valueOf(id));
+	}
+
+	/** Replies public the projects that are associated to the person with the given identifier.
+	 * A public project is not confidential and has status "accepted".
+	 *
+	 * @param id the identifier of the person.
+	 * @return the public projects.
+	 */
+	public List<Project> getPublicProjectsByPersonId(int id) {
+		return this.projectRepository.findDistinctPersonProjects(
+				Boolean.FALSE, ProjectStatus.ACCEPTED, Integer.valueOf(id));
 	}
 
 	/** Update a project with the given information.

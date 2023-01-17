@@ -13,6 +13,8 @@
  *      * `actionWidth` the exepcted size of the "action column". Default is `150px`.
  *      * `data` the array of the rows to be displayed.
  *      * `tableParams` the map of values to pass directly to Datatable.
+ *      * `createdRow` the function for creating a custom row in the table. It takes as arguments the row object, the data object
+ *        and the data index.
  * @return the table object.
  */
 function initAdministrationTable_base(config) {
@@ -56,6 +58,7 @@ function initAdministrationTable_base(config) {
 	    autoWidth: true,
 	    order: config['order'],
 	    columns: config['columns'],
+	    createdRow: config['createdRow'],
 	};
 	if ('data' in config) {
 		tableConfig['data'] = config['data'];

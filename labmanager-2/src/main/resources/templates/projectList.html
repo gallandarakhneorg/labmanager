@@ -21,6 +21,7 @@
         <th th:utext="#{html.Responsible}"></th>
         <th th:utext="#{html.TRL}"></th>
         <th th:utext="#{html.Status0}"></th>
+        <th th:utext="#{html.Confidential}"></th>
         <th th:utext="#{html.Files}"></th>
         <th th:utext="#{html.Validated}"></th>
         <th th:text="#{html.Actions}"></th>
@@ -86,6 +87,9 @@
 				          th:utext="${project.status.getLabel()}"></th:block>
             </td>
             <td>
+				<th:block th:utext="${project.confidential}"></th:block>
+            </td>
+            <td>
 				<a th:href="@{/} + ${project.pathToPowerpoint}"
 				   class="noLink"
 				   th:unless="${#strings.isEmpty(project.pathToPowerpoint)}">
@@ -109,9 +113,14 @@
 <script type="text/javascript" th:inline="javascript">
     $(document).ready(() => {
     	initAdministrationTable({
-            columns: 14,
+            columns: 15,
     		actionWidth: '60px',
     		order: [ [2, 'asc'] ],
+    		createdRow: (row, data, dataIndex) => {
+    			if (data[12] == 'true') {
+    				$(row).addClass('redStripeBackground');
+    			}
+    		},
     	});
         /*[# th:if="${changeEnabled}" th:each="project : ${projects}"]*/
         attachDeletionHandler({

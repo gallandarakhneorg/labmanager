@@ -113,12 +113,12 @@ public class ProjectViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView(Constants.PROJECT_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.PROJECT_EDITING_ENDPOINT, Constants.PROJECT_ENDPOINT_PARAMETER));
-		final List<Project> projects = extractProjectList(dbId, inWebId, organization);
+		final List<Project> projects = extractProjectListWithoutFilter(dbId, inWebId, organization);
 		modelAndView.addObject("projects", projects); //$NON-NLS-1$
 		return modelAndView;
 	}
 
-	private List<Project> extractProjectList(Integer dbId, String webId, Integer organization) {
+	private List<Project> extractProjectListWithoutFilter(Integer dbId, String webId, Integer organization) {
 		final List<Project> projects;
 		if (organization != null && organization.intValue() != 0) {
 			projects = this.projectService.getProjectsByOrganizationId(organization.intValue());
@@ -132,6 +132,24 @@ public class ProjectViewController extends AbstractViewController {
 			projects = this.projectService.getProjectsByPersonId(person.getId());
 		} else {
 			projects = this.projectService.getAllProjects();
+		}
+		return projects;
+	}
+
+	private List<Project> extractProjectListWithFilter(Integer dbId, String webId, Integer organization) {
+		final List<Project> projects;
+		if (organization != null && organization.intValue() != 0) {
+			projects = this.projectService.getPublicProjectsByOrganizationId(organization.intValue());
+		} else if (dbId != null && dbId.intValue() != 0) {
+			projects = this.projectService.getPublicProjectsByPersonId(dbId.intValue());
+		} else if (!Strings.isNullOrEmpty(webId)) {
+			final Person person = this.personService.getPersonByWebPageId(webId);
+			if (person == null) {
+				throw new IllegalArgumentException("Person not found with web identifier: " + webId); //$NON-NLS-1$
+			}
+			projects = this.projectService.getPublicProjectsByPersonId(person.getId());
+		} else {
+			projects = this.projectService.getAllPublicProjects();
 		}
 		return projects;
 	}
@@ -282,10 +300,8 @@ public class ProjectViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView("showProjects"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
-		final List<Project> projects = extractProjectList(dbId, inWebId, organization);
-		final List<Project> sortedProjects = projects.stream().filter(
-				it -> !it.isConfidential() && it.getStatus() == ProjectStatus.ACCEPTED).collect(Collectors.toList());
-		modelAndView.addObject("projects", sortedProjects); //$NON-NLS-1$
+		final List<Project> projects = extractProjectListWithFilter(dbId, inWebId, organization);
+		modelAndView.addObject("projects", projects); //$NON-NLS-1$
 		if (isLoggedIn()) {
 			modelAndView.addObject("additionUrl", endpoint(Constants.PROJECT_EDITING_ENDPOINT)); //$NON-NLS-1$
 			modelAndView.addObject("editionUrl", endpoint(Constants.PROJECT_EDITING_ENDPOINT, //$NON-NLS-1$

@@ -19,7 +19,10 @@ package fr.ciadlab.labmanager.repository.project;
 import java.util.List;
 
 import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 /** JPA repository for project declaration.
  * 
@@ -31,22 +34,58 @@ import org.springframework.data.jpa.repository.JpaRepository;
  */
 public interface ProjectRepository extends JpaRepository<Project, Integer> {
 
-	/** Replies all the projects that mactch the different organization identifiers.
+	/** Replies all the projects that match the different organization identifiers.
+	 * The identifier is compared to, the coordinator, the local organization,
+	 * or the super organization.
 	 *
-	 * @param coordinator the identifier for the coordinator.
-	 * @param localOrganization the identifier for the local organization.
-	 * @param superOrganization the identifier for the super organization.
-	 * @param otherPartner the identifier in the other partners.
+	 * @param id the identifier for the organization.
 	 * @return the list of projects.
 	 */
-	List<Project> findDistinctByCoordinatorIdOrLocalOrganizationIdOrSuperOrganizationIdOrOtherPartnersId(
-			Integer coordinator, Integer localOrganization, Integer superOrganization, Integer otherPartner);
+	@Query("SELECT DISTINCT p FROM Project p WHERE p.coordinator.id = :id OR p.localOrganization.id = :id OR p.superOrganization.id = :id")
+	List<Project> findDistinctOrganizationProjects(@Param("id") Integer id);
 
-	/** Replies all the projects in which the person with the given identifier is involved.
+	/** Replies all the projects that match the organization identifier, the confidential
+	 * flag and the project status.
+	 * The identifier is compared to, the coordinator, the local organization,
+	 * or the list of other partners.
 	 *
-	 * @param id the identifier of the person.
+	 * @param id the identifier for the organization.
+	 * @param confidential indicates the expected confidentiality flag for the projects.
+	 * @param status indicates the expected status of the projects
 	 * @return the list of projects.
 	 */
-	List<Project> findDistinctByParticipantsPersonId(Integer id);
+	@Query("SELECT DISTINCT p FROM Project p WHERE (p.coordinator.id = :id OR p.localOrganization.id = :id OR p.superOrganization.id = :id) AND p.confidential = :confidential AND p.status = :status")
+	List<Project> findDistinctOrganizationProjects(
+			@Param("confidential") Boolean confidential, @Param("status") ProjectStatus status, @Param("id") Integer id);
+
+	/** Replies all the projects that match the person identifier.
+	 * The identifier is compared to the participant list, the local organization.
+	 *
+	 * @param id the identifier for the person.
+	 * @return the list of projects.
+	 */
+	@Query("SELECT DISTINCT p FROM Project p, ProjectMember m WHERE m.person.id = :id AND m MEMBER OF p.participants")
+	List<Project> findDistinctPersonProjects(@Param("id") Integer id);
+
+	/** Replies all the projects that match the person identifier, the confidential
+	 * flag and the project status.
+	 * The identifier is compared to the participant list, the local organization.
+	 *
+	 * @param confidential indicates the expected confidentiality flag for the projects.
+	 * @param status indicates the expected status of the projects
+	 * @param id the identifier for the person.
+	 * @return the list of projects.
+	 */
+	@Query("SELECT DISTINCT p FROM Project p, ProjectMember m WHERE m.person.id = :id AND m MEMBER OF p.participants AND p.confidential = :confidential AND p.status = :status")
+	List<Project> findDistinctPersonProjects(
+			@Param("confidential") Boolean confidential, @Param("status") ProjectStatus status, @Param("id") Integer id);
+
+	/** Replies all the projects according to their confidentiality and status.
+	 *
+	 * @param confidential indicates the expected confidentiality flag for the projects.
+	 * @param status indicates the expected status of the projects
+	 * @return the list of projects.
+	 */
+	List<Project> findDistinctByConfidentialAndStatus(Boolean confidential, ProjectStatus status);
 
 }

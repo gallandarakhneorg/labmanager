@@ -68,6 +68,8 @@
 		 *      * `actionColumn` a boolean value indicating if the action column is automatically added to the list of columns. Default is true.
 		 *      * `actionWidth` the exepcted size of the "action column". Default is `150px`.
 		 *      * `data` the array of the rows to be displayed.
+		 *      * `createdRow` the function for creating a custom row in the table. It takes as arguments the row object, the data object
+		 *        and the data index.
 		 * @return the table object.
 		 */
 		function initAdministrationTable(config) {
