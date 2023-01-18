@@ -97,10 +97,10 @@ public class ResearchOrganizationTypeTest {
 		assertEquals("Public non profit association", cons(ResearchOrganizationType.PUBLIC_NON_PROFIT_ASSOCIATION).getLabel());
 		assertEquals("Private non profit association", cons(ResearchOrganizationType.PRIVATE_NON_PROFIT_ASSOCIATION).getLabel());
 		assertEquals("Start-up company", cons(ResearchOrganizationType.START_UP_COMPANY).getLabel());
-		assertEquals("Very small size company", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel());
-		assertEquals("Small size company", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel());
-		assertEquals("Intermediate size company", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel());
-		assertEquals("Big size company", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel());
+		assertEquals("Very small size company (≤ 50 employees)", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel());
+		assertEquals("Small size company (≤ 250 employees)", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel());
+		assertEquals("Intermediate size company (≤ 5000 employees)", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel());
+		assertEquals("Big size company (≥ 5000 employees)", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel());
 		assertAllTreated();
 	}
 
@@ -122,10 +122,10 @@ public class ResearchOrganizationTypeTest {
 		assertEquals("Public non profit association", cons(ResearchOrganizationType.PUBLIC_NON_PROFIT_ASSOCIATION).getLabel());
 		assertEquals("Private non profit association", cons(ResearchOrganizationType.PRIVATE_NON_PROFIT_ASSOCIATION).getLabel());
 		assertEquals("Start-up company", cons(ResearchOrganizationType.START_UP_COMPANY).getLabel());
-		assertEquals("Very small size company", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel());
-		assertEquals("Small size company", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel());
-		assertEquals("Intermediate size company", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel());
-		assertEquals("Big size company", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel());
+		assertEquals("Very small size company (≤ 50 employees)", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel());
+		assertEquals("Small size company (≤ 250 employees)", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel());
+		assertEquals("Intermediate size company (≤ 5000 employees)", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel());
+		assertEquals("Big size company (≥ 5000 employees)", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel());
 		assertAllTreated();
 	}
 
@@ -145,10 +145,10 @@ public class ResearchOrganizationTypeTest {
 		assertEquals("Public non profit association", cons(ResearchOrganizationType.PUBLIC_NON_PROFIT_ASSOCIATION).getLabel(Locale.US));
 		assertEquals("Private non profit association", cons(ResearchOrganizationType.PRIVATE_NON_PROFIT_ASSOCIATION).getLabel(Locale.US));
 		assertEquals("Start-up company", cons(ResearchOrganizationType.START_UP_COMPANY).getLabel(Locale.US));
-		assertEquals("Very small size company", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel(Locale.US));
-		assertEquals("Small size company", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel(Locale.US));
-		assertEquals("Intermediate size company", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel(Locale.US));
-		assertEquals("Big size company", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel(Locale.US));
+		assertEquals("Very small size company (≤ 50 employees)", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel(Locale.US));
+		assertEquals("Small size company (≤ 250 employees)", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel(Locale.US));
+		assertEquals("Intermediate size company (≤ 5000 employees)", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel(Locale.US));
+		assertEquals("Big size company (≥ 5000 employees)", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel(Locale.US));
 		assertAllTreated();
 	}
 
@@ -168,10 +168,10 @@ public class ResearchOrganizationTypeTest {
 		assertEquals("Association publique à but non lucratif", cons(ResearchOrganizationType.PUBLIC_NON_PROFIT_ASSOCIATION).getLabel(Locale.FRANCE));
 		assertEquals("Association privée à but non lucratif", cons(ResearchOrganizationType.PRIVATE_NON_PROFIT_ASSOCIATION).getLabel(Locale.FRANCE));
 		assertEquals("Entreprise start-up", cons(ResearchOrganizationType.START_UP_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Très petite entreprise", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Petite ou moyenne entreprise", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Entreprise de taille intermédiaire", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Grande entreprise", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel(Locale.FRANCE));
+		assertEquals("Très petite entreprise (≤ 50 employés)", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel(Locale.FRANCE));
+		assertEquals("Petite ou moyenne entreprise (≤ 250 employés)", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel(Locale.FRANCE));
+		assertEquals("Entreprise de taille intermédiaire (≤ 5000 employés)", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel(Locale.FRANCE));
+		assertEquals("Grande entreprise (≥ 5000 employés)", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel(Locale.FRANCE));
 		assertAllTreated();
 	}
 

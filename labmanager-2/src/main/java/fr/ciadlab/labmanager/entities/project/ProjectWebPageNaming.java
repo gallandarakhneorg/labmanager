@@ -74,6 +74,24 @@ public enum ProjectWebPageNaming {
 			}
 			return null;
 		}
+	},
+
+	/** The URL of the project's webpage is: {@code project/<ACRONYM>}.
+	 * Accents are removed, and characters that are not an ASCII letter, digit, or one of
+	 * {@code _-.} are stripped.
+	 */
+	PROJECT_ACRONYM {
+		@Override
+		public String getWebpageIdFor(Project project) {
+			if (project != null) {
+				String acronym = StringUtils.stripAccents(project.getAcronym());
+				if (!Strings.isNullOrEmpty(acronym)) {
+					acronym = acronym.toLowerCase();
+					return "project/" + acronym.replaceAll("[^a-z0-9_\\-\\.]+", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+				}
+			}
+			return null;
+		}
 	};
 
 	private static final UriBuilderFactory FACTORY = new DefaultUriBuilderFactory();

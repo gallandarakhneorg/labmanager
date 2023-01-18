@@ -68,6 +68,7 @@ public class ProjectWebPageNamingTest {
 		assertNull(cons(ProjectWebPageNaming.UNSPECIFIED).getWebpageURIFor(this.project));
 		assertEquals(new URI("/project-1456"), cons(ProjectWebPageNaming.PROJECT_ID).getWebpageURIFor(this.project));
 		assertEquals(new URI("/myacronym"), cons(ProjectWebPageNaming.ACRONYM).getWebpageURIFor(this.project));
+		assertEquals(new URI("/project/myacronym"), cons(ProjectWebPageNaming.PROJECT_ACRONYM).getWebpageURIFor(this.project));
 		assertAllTreated();
 	}
 
@@ -75,6 +76,7 @@ public class ProjectWebPageNamingTest {
 	public void getLabel_US() {
 		// Force the local to be US
 		java.util.Locale.setDefault(java.util.Locale.US);
+		assertEquals("project/<ACRONYM>", cons(ProjectWebPageNaming.PROJECT_ACRONYM).getLabel());
 		assertEquals("Acronym of the project", cons(ProjectWebPageNaming.ACRONYM).getLabel());
 		assertEquals("project-<ID>", cons(ProjectWebPageNaming.PROJECT_ID).getLabel());
 		assertEquals("Not specified", cons(ProjectWebPageNaming.UNSPECIFIED).getLabel());
@@ -85,6 +87,7 @@ public class ProjectWebPageNamingTest {
 	public void getLabel_FR() {
 		// Force the local to be FR
 		java.util.Locale.setDefault(java.util.Locale.FRANCE);
+		assertEquals("project/<ACRONYM>", cons(ProjectWebPageNaming.PROJECT_ACRONYM).getLabel());
 		assertEquals("Acronym of the project", cons(ProjectWebPageNaming.ACRONYM).getLabel());
 		assertEquals("project-<ID>", cons(ProjectWebPageNaming.PROJECT_ID).getLabel());
 		assertEquals("Not specified", cons(ProjectWebPageNaming.UNSPECIFIED).getLabel());
@@ -93,6 +96,7 @@ public class ProjectWebPageNamingTest {
 
 	@Test
 	public void getLabel_Locale_US() {
+		assertEquals("project/<ACRONYM>", cons(ProjectWebPageNaming.PROJECT_ACRONYM).getLabel());
 		assertEquals("Acronym of the project", cons(ProjectWebPageNaming.ACRONYM).getLabel(Locale.US));
 		assertEquals("project-<ID>", cons(ProjectWebPageNaming.PROJECT_ID).getLabel(Locale.US));
 		assertEquals("Not specified", cons(ProjectWebPageNaming.UNSPECIFIED).getLabel(Locale.US));
@@ -101,6 +105,7 @@ public class ProjectWebPageNamingTest {
 
 	@Test
 	public void getLabel_Locale_FR() {
+		assertEquals("project/<ACRONYM>", cons(ProjectWebPageNaming.PROJECT_ACRONYM).getLabel());
 		assertEquals("Acronyme du projet", cons(ProjectWebPageNaming.ACRONYM).getLabel(Locale.FRANCE));
 		assertEquals("project-<ID>", cons(ProjectWebPageNaming.PROJECT_ID).getLabel(Locale.FRANCE));
 		assertEquals("Non spécifié", cons(ProjectWebPageNaming.UNSPECIFIED).getLabel(Locale.FRANCE));
