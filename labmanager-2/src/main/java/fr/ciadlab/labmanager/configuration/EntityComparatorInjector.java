@@ -19,6 +19,8 @@ package fr.ciadlab.labmanager.configuration;
 import javax.annotation.PostConstruct;
 
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureComparator;
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolderComparator;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitationComparator;
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
@@ -93,6 +95,12 @@ public class EntityComparatorInjector {
 	@Autowired
 	private ProjectBudgetComparator projectBudgetComparator;
 
+	@Autowired
+	private AssociatedStructureHolderComparator externalStructureHolderComparator;
+
+	@Autowired
+	private AssociatedStructureComparator externalStructureComparator;
+
 	/** Invoked by the Spring engine is started and this injector is created in memory.
 	 */
 	@PostConstruct
@@ -112,6 +120,8 @@ public class EntityComparatorInjector {
 		EntityUtils.setPreferredProjectComparator(this.projectComparator);
 		EntityUtils.setPreferredProjectMemberComparator(this.projectMemberComparator);
 		EntityUtils.setPreferredProjectBudgetComparator(this.projectBudgetComparator);
+		EntityUtils.setPreferredAssociatedStructureHolderComparator(this.externalStructureHolderComparator);
+		EntityUtils.setPreferredAssociatedStructureComparator(this.externalStructureComparator);
 	}
 
 }

@@ -24,6 +24,8 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureComparator;
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolderComparator;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitationComparator;
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
@@ -105,7 +107,11 @@ public final class EntityUtils {
 
 	private static ProjectMemberComparator PROJECT_MEMBER_COMPARATOR; 
 
-	private static ProjectBudgetComparator PROJECT_BUDGET_COMPARATOR; 
+	private static ProjectBudgetComparator PROJECT_BUDGET_COMPARATOR;
+
+	private static AssociatedStructureHolderComparator ASSOCIATED_STRUCTURE_HOLDER_COMPARATOR; 
+
+	private static AssociatedStructureComparator ASSOCIATED_STRUCTURE_COMPARATOR; 
 
 	private static final NormalizedStringSimilarity SIMILARITY_COMPUTER = new SorensenDice();
 
@@ -562,6 +568,59 @@ public final class EntityUtils {
 	public static void setPreferredProjectBudgetComparator(ProjectBudgetComparator comparator) {
 		synchronized (EntityUtils.class) {
 			PROJECT_BUDGET_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of associated structure holders.
+	 *
+	 * @return the comparator.
+	 * @since 3.2
+	 */
+	public static AssociatedStructureHolderComparator getPreferredAssociatedStructureHolderComparator() {
+		synchronized (EntityUtils.class) {
+			if (ASSOCIATED_STRUCTURE_HOLDER_COMPARATOR == null) {
+				ASSOCIATED_STRUCTURE_HOLDER_COMPARATOR = new AssociatedStructureHolderComparator(
+						getPreferredPersonComparator(),
+						getPreferredResearchOrganizationComparator());
+			}
+			return ASSOCIATED_STRUCTURE_HOLDER_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of associated structure holders.
+	 *
+	 * @param comparator the comparator.
+	 * @since 3.2
+	 */
+	public static void setPreferredAssociatedStructureHolderComparator(AssociatedStructureHolderComparator comparator) {
+		synchronized (EntityUtils.class) {
+			ASSOCIATED_STRUCTURE_HOLDER_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of associated structures.
+	 *
+	 * @return the comparator.
+	 * @since 3.2
+	 */
+	public static AssociatedStructureComparator getPreferredAssociatedStructureComparator() {
+		synchronized (EntityUtils.class) {
+			if (ASSOCIATED_STRUCTURE_COMPARATOR == null) {
+				ASSOCIATED_STRUCTURE_COMPARATOR = new AssociatedStructureComparator(
+						getPreferredResearchOrganizationComparator());
+			}
+			return ASSOCIATED_STRUCTURE_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of associated structures.
+	 *
+	 * @param comparator the comparator.
+	 * @since 3.2
+	 */
+	public static void setPreferredAssociatedStructureComparator(AssociatedStructureComparator comparator) {
+		synchronized (EntityUtils.class) {
+			ASSOCIATED_STRUCTURE_COMPARATOR = comparator;
 		}
 	}
 

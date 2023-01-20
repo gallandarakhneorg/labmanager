@@ -52,7 +52,7 @@ public class ProjectMember implements Serializable, AttributeProvider, Comparabl
 
 	private static final long serialVersionUID = 7198080633760598725L;
 
-	/** Identifier of the jury.
+	/** Identifier of the member.
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

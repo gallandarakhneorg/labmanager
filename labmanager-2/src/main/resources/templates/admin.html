@@ -111,12 +111,20 @@
 		<div class="card">
 		    <div class="card-body">
 				<img th:src="@{/images/card/projects.jpg}" class="card-img-top"></img>
-			    <h5 class="card-title">Project Management</h5>
+			    <h5 class="card-title" th:utext="#{html.ProjectManagement}"></h5>
 			    <p class="card-text">
-			    	<a th:href="@{/projectList}" class="btn btn-labeled btn-success" role="button">
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/projectList}" class="btn btn-labeled btn-success" role="button">
 			    		<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.ProjectsList}"></th:block></a>
-			    	<a th:href="@{/projectEditor}" class="btn btn-labeled btn-primary" role="button">
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/projectEditor}" class="btn btn-labeled btn-primary" role="button">
 			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddProject}"></th:block></a>
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/assostructList}" class="btn btn-labeled btn-secondary" role="button">
+			    		<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.AssociatedStructureList}"></th:block></a>
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/assostructEditor}" class="btn btn-labeled btn-warning" role="button">
+			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddAssociatedStructure}"></th:block></a>
 			    </p>
 				<div class="card-footer">
 					<div class="dropdown">

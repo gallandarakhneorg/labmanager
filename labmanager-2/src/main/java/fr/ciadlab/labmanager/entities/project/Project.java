@@ -1318,7 +1318,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 *
 	 * @param otherPartners the other partners.
 	 */
-	public void setOtherPartners(Set<ResearchOrganization> otherPartners) {
+	public void setOtherPartners(Set<? extends ResearchOrganization> otherPartners) {
 		if (this.otherPartners == null) {
 			this.otherPartners = new HashSet<>();
 		} else {
@@ -1397,7 +1397,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 *
 	 * @param budgets the list of budget.
 	 */
-	public void setBudgets(List<ProjectBudget> budgets) {
+	public void setBudgets(List<? extends ProjectBudget> budgets) {
 		if (this.budgets == null) {
 			this.budgets = new ArrayList<>();
 		} else {

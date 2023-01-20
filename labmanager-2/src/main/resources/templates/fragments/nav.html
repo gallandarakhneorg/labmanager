@@ -84,4 +84,14 @@
 		</th:block>
 	</th:block>
 
+	<th:block th:fragment="assostructListBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.AssociatedStructureList})"></th:block>
+	</th:block>
+
+	<th:block th:fragment="assostructListBar*(current)">
+		<th:block th:replace="fragments/nav :: standardBar(~{::a#lab-nav-assostructList-item}, ${current})">
+			<a id="lab-nav-assostructList-item" th:href="@{/assostructList}" th:utext="#{html.AssociatedStructureList}"></a><
+		</th:block>
+	</th:block>
+
 </html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs" />
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/formfileinput :: all" />
+<th:block th:replace="fragments/formdynlist :: all" />
+
+<th:block th:if="${structure != null}">
+	<th:block th:replace="fragments/nav :: assostructListBar*(#{html.EditAssociatedStructure1(${structure.acronymOrName})})"/>
+</th:block>
+<th:block th:if="${structure == null}">
+	<th:block th:replace="fragments/nav :: assostructListBar*(#{html.AddAssociatedStructure})"/>
+</th:block>
+
+<form th:replace="fragments/form :: entityForm(structure, ${structure == null ? '' : structure.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.AssociatedStructureSavingError}, ~{::.form-group})">
+	<div class="form-group" th:replace="fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderAssociatedStructureAcronym}, ${structure != null ? structure.acronym : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderAssociatedStructureName}, ${structure != null ? structure.name : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInput*(type, #{html.AssociatedStructureType}, ~{::option#option-types})">
+		<option id="option-types"
+		        th:each="type : ${sortedTypes}"
+		        th:selected="${structure != null && structure.type == type}"
+		        th:value="${type.name}"
+		        th:utext="${type.getLabel()}"></option>
+	</div>
+	<div class="form-group" th:replace="fragments/form :: dateInput*(creationDate, #{html.CreationDate}, ${formattedCreationDate})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(creationDuration, #{html.Duration}, #{html.PlaceHolderMonthDuration}, ${structure != null && structure.creationDuration > 0 ? structure.creationDuration : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: comboInput*(fundingOrganization, #{html.AssociatedStructureFundingOrganization}, ~{::option#option-fundingOrganization})">
+		<option id="option-fundingOrganization"
+		        th:each="fundingOrganization : ${organizations}"
+		        th:selected="${structure != null && structure.fundingOrganization != null && structure.fundingOrganization.id == fundingOrganization.id}"
+		        th:value="${fundingOrganization.id}"
+		        th:utext="${fundingOrganization.acronym + ' - ' + fundingOrganization.name}"></option>
+	</div>
+	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(holders, #{html.AssociatedStructureHolders}, #{html.AddAssociatedStructureHolder})"></div>
+	<div class="form-group" th:replace="fragments/form :: textAreaInput(description, #{html.Description}, #{html.PlaceHolderAssociatedStructureDescription}, ${structure != null ? structure.description : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(budget, #{html.AssociatedStructureBudget}, #{html.PlaceHolderAssociatedStructureBudget}, ${structure != null && structure.budget > 0 ? structure.budget : ''})"></div>
+	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(projects, #{html.AssociatedStructureProjects}, #{html.AddProject})"></div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(confidential, #{html.AssociatedStructureConfidential}, #{html.AssociatedStructureConfidential}, ${structure != null ? structure.confidential : false})"></div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedAssociatedStructure}, #{html.ValidatedAssociatedStructure}, ${structure != null ? structure.validated : false})"></div>
+</form>
+<script type="text/javascript" th:inline="javascript">
+const ALL_ORGANIZATIONS = new Map();
+var ALL_ORGANIZATION_OPTIONS =  '';
+/*[# th:each="organization : ${organizations}"]*/
+ALL_ORGANIZATIONS.set("[(${organization.id})]", [[${organization.acronym + ' - ' + organization.name}]]);
+ALL_ORGANIZATION_OPTIONS = ALL_ORGANIZATION_OPTIONS + '<option value="[(${organization.id})]">' + [[${organization.acronym + ' - ' + organization.name}]] + '</option>';
+/*[/]*/
+const ALL_PERSONS = new Map();
+var ALL_PERSON_OPTIONS =  '';
+/*[# th:each="person : ${persons}"]*/
+ALL_PERSONS.set("[(${person.id})]", [[${person.fullNameWithLastNameFirst}]]);
+ALL_PERSON_OPTIONS = ALL_PERSON_OPTIONS + '<option value="[(${person.id})]">' + [[${person.fullNameWithLastNameFirst}]] + '</option>';
+/*[/]*/
+const ALL_ROLES = new Map();
+var ALL_ROLE_OPTIONS =  '';
+/*[# th:each="role : ${T(fr.ciadlab.labmanager.entities.assostructure.HolderRole).values}"]*/
+ALL_ROLES.set("[(${role.name})]", [[${role.getLabel()}]]);
+ALL_ROLE_OPTIONS = ALL_ROLE_OPTIONS + '<option value="[(${role.name})]">' + [[${role.getLabel()}]] + '</option>';
+/*[/]*/
+const ALL_PROJECTS = new Map();
+/*[# th:each="project : ${projects}"]*/
+ALL_PROJECTS.set("[(${project.id})]", [[${project.acronym + ' - ' + project.scientificTitle}]]);
+/*[/]*/
+$(document).ready(function () {
+	
+	// Initialize form validation
+	
+	$('#form:first').validate({
+        rules: {
+        	acronym: {
+                required: true,
+        	},
+        	name: {
+                required: true,
+                minlength: 5
+            },
+        	creationDate: {
+                required: true,
+            },
+        },
+    });
+	
+	// Initialize extended lists
+	initDynamicDataList({
+		name: 'holders',
+		columnCount: 5,
+		deleteLabel: [[#{html.DeleteAssociatedStructureHolder}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: [
+			/*[# th:if="${structure != null}"]*//*[# th:each="holder : ${structure.holders}"]*/
+	        {
+				person: "[(${holder.person.id})]",
+				role: "[(${holder.role.name})]",  
+				roleDescription: [[${holder.roleDescription}]],
+				organization: "[(${holder.organization.id})]",
+				superOrganization: "[(${holder.superOrganization.id})]",
+	        },
+		    /*[/]*//*[/]*/
+		],
+		dataName: (dt) => {
+			return ALL_PERSONS.get(dt['person']);
+		},
+		rowBuilder: (data, target, index) => {
+			if (index == 4) {
+				var oname = ALL_ORGANIZATIONS.get(data['superOrganization']);
+				if (oname) {
+					target.append(oname);
+				} else {
+					target.append('');
+				}
+			} else if (index == 3) {
+				target.append(ALL_ORGANIZATIONS.get(data['organization']));
+			} else if (index == 2) {
+				target.append(data['roleDescription']);
+			} else if (index == 1) {
+				target.append(ALL_ROLES.get(data['role']));
+			} else {
+				target.append(ALL_PERSONS.get(data['person']));
+			}
+		},
+		dataConverter: (formData, fieldName, data) => {
+			formData.append(fieldName, JSON.stringify(data));
+		},
+		dataCreator: (doCreateFct) => {
+			Swal.fire({
+				title: [[#{html.AddAssociatedStructureHolder}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				html: "[(#{html.AssociatedStructureHolders})]<br/>"
+					+ '<select id="swal-input1" class="swal2-input">'
+					+ ALL_PERSON_OPTIONS
+					+ '</select><br/>'
+					+ "[(#{html.AssociatedStructureRole})]<br/>"
+					+ '<select id="swal-input2" class="swal2-input">'
+				    + ALL_ROLE_OPTIONS
+					+ '</select><br/>'
+					+ "[(#{html.AssociatedStructureRoleDescription})]<br/>"
+					+ '<input id="swal-input3" class="swal2-input" type="text"></input><br/>'
+					+ "[(#{html.AssociatedStructureHolderOrganization})]<br/>"
+					+ '<select id="swal-input4" class="swal2-input">'
+				    + ALL_ORGANIZATION_OPTIONS
+					+ '</select><br/>'
+					+ "[(#{html.AssociatedStructureHolderSuperOrganization})]<br/>"
+					+ '<select id="swal-input5" class="swal2-input">'
+					+ '<option value="0">' + [[#{html.NotSpecified}]] + '</option>'
+				    + ALL_ORGANIZATION_OPTIONS
+					+ '</select><br/>',
+				preConfirm: () => {
+					return {
+						person: document.getElementById("swal-input1").value,
+						role: document.getElementById("swal-input2").value,
+						roleDescription: document.getElementById("swal-input3").value,
+						organization: document.getElementById("swal-input4").value,
+						superOrganization: document.getElementById("swal-input5").value,
+					};
+				},
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
+	});	
+
+	initDynamicDataList({
+		name: 'projects',
+		columnCount: 1,
+		deleteLabel: [[#{html.DeleteAssociatedStructureProject}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: [
+			/*[# th:if="${structure != null}"]*//*[# th:each="project : ${structure.projects}"]*/
+			"[(${project.id})]",
+		    /*[/]*//*[/]*/
+		],
+		dataName: (dt) => {
+			return ALL_PROJECTS.get(dt);
+		},
+		rowBuilder: (data, target, index) => {
+			target.append(ALL_PROJECTS.get(data));
+		},
+		dataConverter: (formData, fieldName, data) => {
+			formData.append(fieldName, data);
+		},
+		dataCreator: (doCreateFct) => {
+			Swal.fire({
+				title: [[#{html.AddAssociatedStructureProject}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				input: 'select',
+				inputOptions: ALL_PROJECTS,
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
+	});	
+});
+</script>
+</html>

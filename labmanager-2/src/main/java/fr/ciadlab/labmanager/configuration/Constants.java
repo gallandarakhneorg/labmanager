@@ -348,6 +348,30 @@ public class Constants {
 	 */
 	public static final String PROJECT_ENDPOINT_PARAMETER = "project"; //$NON-NLS-1$
 
+	/** Name of the endpoint for list of associated structures.
+	 *
+	 * @since 3.2
+	 */
+	public static final String ASSOCIATED_STRUCTURE_LIST_ENDPOINT = "assostructList"; //$NON-NLS-1$
+
+	/** Name of the endpoint for editor of associated structures.
+	 *
+	 * @since 3.2
+	 */
+	public static final String ASSOCIATED_STRUCTURE_EDITING_ENDPOINT = "assostructEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving of associated structures.
+	 *
+	 * @since 3.2
+	 */
+	public static final String ASSOCIATED_STRUCTURE_SAVING_ENDPOINT = "saveAssoStruct"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "structure".
+	 *
+	 * @since 3.2
+	 */
+	public static final String STRUCTURE_ENDPOINT_PARAMETER = "structure"; //$NON-NLS-1$
+
 	private static final String DEFAULT_SERVER_NAME = "LabManagerApi"; //$NON-NLS-1$
 
 	private static final String DEFAULT_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$

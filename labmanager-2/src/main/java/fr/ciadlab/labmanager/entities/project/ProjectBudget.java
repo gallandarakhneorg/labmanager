@@ -50,7 +50,7 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 
 	private static final long serialVersionUID = -2642101613859032867L;
 
-	/** Identifier of the jury.
+	/** Identifier of the budget.
 	 */
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)

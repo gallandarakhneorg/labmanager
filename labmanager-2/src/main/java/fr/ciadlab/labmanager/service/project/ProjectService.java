@@ -630,7 +630,6 @@ public class ProjectService extends AbstractService {
 		return res;
 	}
 
-
 	/** Remove the project with the given identifier.
 	 *
 	 * @param identifier the identifier of the publication to remove.
