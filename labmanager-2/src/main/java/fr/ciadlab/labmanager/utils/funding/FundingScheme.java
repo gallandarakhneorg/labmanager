@@ -892,6 +892,42 @@ public enum FundingScheme {
 			return false;
 		}
 	},
+	
+	/** Programme for the Environment and Climate Action (LIFE)
+	 *
+	 * @see "https://cinea.ec.europa.eu/programmes/life_en"
+	 * @since 3.2
+	 */
+	LIFE {
+		@Override
+		public boolean isRegional() {
+			return false;
+		}
+		@Override
+		public boolean isNational() {
+			return false;
+		}
+		@Override
+		public boolean isEuropean() {
+			return true;
+		}
+		@Override
+		public boolean isInternational() {
+			return false;
+		}
+		@Override
+		public boolean isCompetitive() {
+			return true;
+		}
+		@Override
+		public boolean isNotAcademic() {
+			return false;
+		}
+		@Override
+		public boolean isAcademicButContractual() {
+			return false;
+		}
+	},
 	/** H2020 project is funding.
 	 */
 	H2020 {
