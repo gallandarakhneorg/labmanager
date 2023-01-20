@@ -40,6 +40,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructure;
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolder;
+import fr.ciadlab.labmanager.entities.assostructure.HolderRole;
 import fr.ciadlab.labmanager.entities.indicator.GlobalIndicators;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitation;
 import fr.ciadlab.labmanager.entities.journal.Journal;
@@ -62,6 +65,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
+import fr.ciadlab.labmanager.repository.assostructure.AssociatedStructureRepository;
 import fr.ciadlab.labmanager.repository.indicator.GlobalIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
@@ -137,6 +141,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private ProjectRepository projectRepository;
 
+	private AssociatedStructureRepository structureRepository;
+
 	private final Multimap<String, String> fieldAliases = LinkedListMultimap.create();
 
 	private boolean fake;
@@ -161,6 +167,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param invitationRepository the repository of invitations.
 	 * @param globalIndicatorsRepository the repository of the global indicators.
 	 * @param projectRepository the repository of the projects.
+	 * @param structureRepository the repository of the projects.
 	 */
 	public JsonToDatabaseImporter(
 			@Autowired SessionFactory sessionFactory,
@@ -180,7 +187,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired SupervisionRepository supervisionRepository,
 			@Autowired PersonInvitationRepository invitationRepository,
 			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository,
-			@Autowired ProjectRepository projectRepository) {
+			@Autowired ProjectRepository projectRepository,
+			@Autowired AssociatedStructureRepository structureRepository) {
 		this.sessionFactory = sessionFactory;
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
@@ -199,6 +207,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.invitationRepository = invitationRepository;
 		this.globalIndicatorsRepository = globalIndicatorsRepository;
 		this.projectRepository = projectRepository;
+		this.structureRepository = structureRepository;
 		initializeFieldAliases();
 	}
 
@@ -388,7 +397,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				+ stats.juryMemberships + " jury memberships;\n" //$NON-NLS-1$
 				+ stats.supervisions + " supervisions;\n" //$NON-NLS-1$
 				+ stats.invitations + " invitations;\n" //$NON-NLS-1$
-				+ stats.projects + " projects;\n"); //$NON-NLS-1$
+				+ stats.projects + " projects;\n" //$NON-NLS-1$
+				+ stats.associatedStructures + " associated structures.\n"); //$NON-NLS-1$
 	}
 
 	/** Run the importer for JSON data source only.
@@ -451,7 +461,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final int nb8 = insertSupervisions(session, content.get(SUPERVISIONS_SECTION), objectRepository, aliasRepository);
 				final int nb9 = insertInvitations(session, content.get(INVITATIONS_SECTION), objectRepository, aliasRepository);
 				final int nb10 = insertProjects(session, content.get(PROJECTS_SECTION), objectRepository, aliasRepository, fileCallback);
-				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10);
+				final int nb11 = insertAssociatedStructures(session, content.get(ASSOCIATED_STRUCTURES_SECTION), objectRepository, aliasRepository, fileCallback);
+				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11);
 			}
 		}
 		return new Stats();
@@ -630,7 +641,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 								objectIdRepository.put(id, Integer.valueOf(orga.getId()));
 							}
 							// Save hierarchical relation with other organization
-							final String superOrga = getRef(orgaObject.get(SUPERORGANIZATION_KEY));
+							final String superOrga = getRef(orgaObject.get(SUPER_ORGANIZATION_KEY));
 							if (!Strings.isNullOrEmpty(superOrga)) {
 								superOrgas.add(Pair.of(orga, superOrga));
 							}
@@ -1484,12 +1495,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 						session.beginTransaction();
 
 						// Budgets
-						final JsonNode budgetsNode = projectObject.get("budgets"); //$NON-NLS-1$
+						final JsonNode budgetsNode = projectObject.get(BUDGETS_KEY);
 						if (budgetsNode != null) {
 							final List<ProjectBudget> budgetList = new ArrayList<>();
 							budgetsNode.forEach(it -> {
 								final ProjectBudget budgetObject = new ProjectBudget();
-								final String fundingValue = getStringValue(it.get("fundingScheme")); //$NON-NLS-1$
+								final String fundingValue = getStringValue(it.get(FUNDING_KEY));
 								if (fundingValue != null) {
 									try {
 										final FundingScheme scheme = FundingScheme.valueOfCaseInsensitive(fundingValue.toString());
@@ -1498,11 +1509,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 										budgetObject.setFundingScheme(FundingScheme.NOT_FUNDED);
 									}
 								}
-								final Number budgetValue = getNumberValue(it.get("budget")); //$NON-NLS-1$
+								final Number budgetValue = getNumberValue(it.get(BUDGET_KEY));
 								if (budgetValue != null) {
 									budgetObject.setBudget(budgetValue.floatValue());
 								}
-								final String grantValue = getStringValue(it.get("grant")); //$NON-NLS-1$
+								final String grantValue = getStringValue(it.get(GRANT_KEY));
 								if (grantValue != null) {
 									budgetObject.setGrant(grantValue);
 								}
@@ -1738,6 +1749,151 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return content;
 	}
 
+	/** Create the associated structures in the database.
+	 *
+	 * @param session the JPA session for managing transactions.
+	 * @param structures the list of associated structures in the Json source.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
+	 * @param aliasRepository the repository of field aliases.
+	 * @param fileCallback a tool that is invoked when associated file is detected. It could be {@code null}.
+	 * @return the number of new associated structures in the database.
+	 * @throws Exception if an associated structure cannot be created.
+	 */
+	protected int insertAssociatedStructures(Session session, JsonNode structures, Map<String, Integer> objectIdRepository,
+			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
+		int nbNew = 0;
+		if (structures != null && !structures.isEmpty()) {
+			getLogger().info("Inserting " + structures.size() + " associated structures..."); //$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (JsonNode structureObject : structures) {
+				getLogger().info("> Associated Structure " + (i + 1) + "/" + structures.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final String id = getId(structureObject);
+					AssociatedStructure structure = createObject(AssociatedStructure.class, structureObject, aliasRepository, null);
+					if (structure != null) {
+						session.beginTransaction();
+
+						final String fundingOrganizationId = getRef(structureObject.get(FUNDING_KEY));
+						if (Strings.isNullOrEmpty(fundingOrganizationId)) {
+							throw new IllegalArgumentException("Invalid funding organization reference for associated structure with id: " + id); //$NON-NLS-1$
+						}
+						final Integer fundingOrganizationDbId = objectIdRepository.get(fundingOrganizationId);
+						if (fundingOrganizationDbId == null || fundingOrganizationDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid funding organization reference for associated structure with id: " + id); //$NON-NLS-1$
+						}
+						final Optional<ResearchOrganization> fundingOrganization = this.organizationRepository.findById(fundingOrganizationDbId);
+						if (fundingOrganization.isEmpty()) {
+							throw new IllegalArgumentException("Invalid funding organization reference for associated structure with id: " + id); //$NON-NLS-1$
+						}
+						structure.setFundingOrganization(fundingOrganization.get());
+						if (!isFake()) {
+							this.structureRepository.save(structure);
+						}
+
+						final List<AssociatedStructureHolder> holders = new ArrayList<>();
+						final JsonNode holdersNode = structureObject.get(HOLDERS_KEY);
+						if (holdersNode != null) {
+							holdersNode.forEach(holderNode -> {
+								final AssociatedStructureHolder holderObj = new AssociatedStructureHolder();
+								// Person
+								final String personId = getRef(holderNode.get(PERSON_KEY));
+								if (Strings.isNullOrEmpty(personId)) {
+									throw new IllegalArgumentException("Invalid holding person reference for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								final Integer personDbId = objectIdRepository.get(personId);
+								if (personDbId == null || personDbId.intValue() == 0) {
+									throw new IllegalArgumentException("Invalid holding person reference for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								final Optional<Person> person = this.personRepository.findById(personDbId);
+								if (person.isEmpty()) {
+									throw new IllegalArgumentException("Invalid holding person reference for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								holderObj.setPerson(person.get());
+								// Role
+								final HolderRole role = getEnum(holderNode, ROLE_KEY, HolderRole.class);
+								if (role == null) {
+									throw new IllegalArgumentException("Invalid holder role for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								holderObj.setRole(role);
+								// Role description
+								final String roleDescription = getStringValue(holderNode.get(ROLE_DESCRIPTION_KEY));
+								if (!Strings.isNullOrEmpty(roleDescription)) {
+									holderObj.setRoleDescription(roleDescription);
+								}
+								// Organization
+								final String organizationId = getRef(holderNode.get(ORGANIZATION_KEY));
+								if (Strings.isNullOrEmpty(organizationId)) {
+									throw new IllegalArgumentException("Invalid holder organization reference for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								final Integer organizationDbId = objectIdRepository.get(organizationId);
+								if (organizationDbId == null || organizationDbId.intValue() == 0) {
+									throw new IllegalArgumentException("Invalid holder organization reference for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								final Optional<ResearchOrganization> organization = this.organizationRepository.findById(organizationDbId);
+								if (organization.isEmpty()) {
+									throw new IllegalArgumentException("Invalid holder organization reference for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								holderObj.setOrganization(organization.get());
+								// Super organization
+								final String superOrganizationId = getRef(holderNode.get(SUPER_ORGANIZATION_KEY));
+								if (!Strings.isNullOrEmpty(superOrganizationId)) {
+									final Integer superOrganizationDbId = objectIdRepository.get(superOrganizationId);
+									if (superOrganizationDbId != null && superOrganizationDbId.intValue() != 0) {
+										final Optional<ResearchOrganization> superOrganization = this.organizationRepository.findById(superOrganizationDbId);
+										if (superOrganization.isPresent()) {
+											holderObj.setSuperOrganization(superOrganization.get());
+										}
+									}
+								}
+								holders.add(holderObj);
+							});
+						}
+						structure.setHolders(holders);
+						if (!isFake()) {
+							this.structureRepository.save(structure);
+						}
+
+						final List<Project> projects = new ArrayList<>();
+						final JsonNode projectsNode = structureObject.get(PROJECTS_KEY);
+						if (projectsNode != null) {
+							projectsNode.forEach(projectNode -> {
+								final String projectId = getRef(projectNode);
+								if (Strings.isNullOrEmpty(projectId)) {
+									throw new IllegalArgumentException("Invalid project reference for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								final Integer projectDbId = objectIdRepository.get(projectId);
+								if (projectDbId == null || projectDbId.intValue() == 0) {
+									throw new IllegalArgumentException("Invalid project reference for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								final Optional<Project> project = this.projectRepository.findById(projectDbId);
+								if (project.isEmpty()) {
+									throw new IllegalArgumentException("Invalid project reference for associated structure with id: " + id); //$NON-NLS-1$
+								}
+								projects.add(project.get());
+							});
+						}
+						structure.setProjects(projects);
+						if (!isFake()) {
+							this.structureRepository.save(structure);
+						}
+
+						++nbNew;
+						getLogger().info("  + " + structure.getAcronymOrName() //$NON-NLS-1$
+								+ " (id: " + structure.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Integer.valueOf(structure.getId()));
+						}
+						session.getTransaction().commit();
+					}
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(ASSOCIATED_STRUCTURES_SECTION, i, structureObject, ex);
+				}
+				++i;
+			}
+		}
+		return nbNew;
+	}
+
 	/** Callback for files that are associated to elements from the JSON.
 	 * 
 	 * @author $Author: sgalland$
@@ -1876,6 +2032,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 */
 		public final int projects;
 
+		/** Number of created associated structures.
+		 * 
+		 * @since 3.2
+		 */
+		public final int associatedStructures;
+
 		/** Constructor.
 		 *
 		 * @param addresses the number of created addresses.
@@ -1889,9 +2051,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param supervisions the number of supervisions.
 		 * @param invitations the number of invitations.
 		 * @param projects the number of projects.
+		 * @param associatedStructures the number of associated structures.
 		 */
 		Stats(int addresses, int organizations, int journals, int persons, int authors, int memberships, int publications,
-				int juryMemberships, int supervisions, int invitations, int projects) {
+				int juryMemberships, int supervisions, int invitations, int projects, int associatedStructures) {
 			this.addresses = addresses;
 			this.organizations = organizations;
 			this.journals = journals;
@@ -1903,12 +2066,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 			this.supervisions = supervisions;
 			this.invitations = invitations;
 			this.projects = projects;
+			this.associatedStructures = associatedStructures;
 		}
 
 		/** Constructor.
 		 */
 		Stats() {
-			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		}
 
 	}

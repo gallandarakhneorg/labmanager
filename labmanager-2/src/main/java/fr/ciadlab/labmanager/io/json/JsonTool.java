@@ -31,6 +31,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeCreator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
@@ -72,6 +73,12 @@ public abstract class JsonTool {
 	/** Main section of the JSON that is dedicated to persons.
 	 */
 	public static final String PERSONS_SECTION = "persons"; //$NON-NLS-1$
+
+	/** Main section of the JSON that is dedicated to associated structures.
+	 *
+	 * @since 3.2
+	 */
+	public static final String ASSOCIATED_STRUCTURES_SECTION = "associatedStructures"; //$NON-NLS-1$
 
 	/** Main section of the JSON that is dedicated to memberships.
 	 */
@@ -212,6 +219,12 @@ public abstract class JsonTool {
 	 */
 	protected  static final String PROJECT_ID_PREFIX = "/prj#"; //$NON-NLS-1$
 
+	/** Prefix for associated structure identifiers.
+	 *
+	 * @since 3.2
+	 */
+	protected  static final String ASSOCIATED_STRUCTURE_ID_PREFIX = "/astruct#"; //$NON-NLS-1$
+
 	/** Prefix for person identifiers.
 	 */
 	protected  static final String PERSON_ID_PREFIX = "/pers#"; //$NON-NLS-1$
@@ -256,10 +269,6 @@ public abstract class JsonTool {
 	 */
 	protected static final String ADDRESS_KEY = "address"; //$NON-NLS-1$
 
-	/** Name of the field for the super organization reference.
-	 */
-	protected static final String SUPERORGANIZATION_KEY = "superOrganization"; //$NON-NLS-1$
-
 	/** Name of the field for the person reference.
 	 */
 	protected static final String PERSON_KEY = "person"; //$NON-NLS-1$
@@ -267,6 +276,24 @@ public abstract class JsonTool {
 	/** Name of the field for the guest person reference.
 	 */
 	protected static final String GUEST_KEY = "guest"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to a budget.
+	 *
+	 * @since 3.2
+	 */
+	protected static final String BUDGET_KEY = "budget"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to budgets.
+	 *
+	 * @since 3.2
+	 */
+	protected static final String BUDGETS_KEY = "budgets"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to a grant.
+	 *
+	 * @since 3.2
+	 */
+	protected static final String GRANT_KEY = "grant"; //$NON-NLS-1$
 
 	/** Name of the field for the reference to a coordinator organization.
 	 *
@@ -304,11 +331,35 @@ public abstract class JsonTool {
 	 */
 	protected static final String PARTICIPANTS_KEY = "participants"; //$NON-NLS-1$
 
-	/** Name of the field for the reference to the role of a project participant.
+	/** Name of the field for the reference to the role.
 	 *
 	 * @since 3.0
 	 */
 	protected static final String ROLE_KEY = "role"; //$NON-NLS-1$
+
+	/** Name of the field for the description of the role.
+	 *
+	 * @since 3.2
+	 */
+	protected static final String ROLE_DESCRIPTION_KEY = "roleDescription"; //$NON-NLS-1$
+
+	/** Name of the field for the holders.
+	 *
+	 * @since 3.2
+	 */
+	protected static final String HOLDERS_KEY = "holders"; //$NON-NLS-1$
+
+	/** Name of the field for the references to projects.
+	 *
+	 * @since 3.2
+	 */
+	protected static final String PROJECTS_KEY = "projects"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to an organization.
+	 *
+	 * @since 3.2
+	 */
+	protected static final String ORGANIZATION_KEY = "organization"; //$NON-NLS-1$
 
 	/** Name of the field for the reference to the URLs of the videos for a project.
 	 *
@@ -695,6 +746,17 @@ public abstract class JsonTool {
 	protected static void addReference(ObjectNode receiver, String key, String id) {
 		final JsonNode ref = createReference(id, receiver);
 		receiver.set(key, ref);
+	}
+
+	/** Add entity reference to the given receiver.
+	 *
+	 * @param receiver the receiver of JSON.
+	 * @param id the identifier.
+	 * @since 3.2
+	 */
+	protected static void addReference(ArrayNode receiver, String id) {
+		final JsonNode ref = createReference(id, receiver);
+		receiver.add(ref);
 	}
 
 }

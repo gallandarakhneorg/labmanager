@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeCreator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructure;
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolder;
 import fr.ciadlab.labmanager.entities.indicator.GlobalIndicators;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitation;
 import fr.ciadlab.labmanager.entities.journal.Journal;
@@ -49,6 +51,7 @@ import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
+import fr.ciadlab.labmanager.repository.assostructure.AssociatedStructureRepository;
 import fr.ciadlab.labmanager.repository.indicator.GlobalIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
@@ -98,6 +101,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private ProjectRepository projectRepository;
 
+	private AssociatedStructureRepository structureRepository;
+
 	/** Constructor.
 	 * 
 	 * @param addressRepository the accessor to the organization address repository.
@@ -111,6 +116,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param invitationRepository the accessor to the invitation repository.
 	 * @param globalIndicatorsRepository the accessor to the global indicators.
 	 * @param projectRepository the accessor to the projects.
+	 * @param structureRepository the accessor to the associated structures.
 	 */
 	public DatabaseToJsonExporter(
 			@Autowired OrganizationAddressRepository addressRepository,
@@ -123,7 +129,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired SupervisionRepository supervisionRepository,
 			@Autowired PersonInvitationRepository invitationRepository,
 			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository,
-			@Autowired ProjectRepository projectRepository) {
+			@Autowired ProjectRepository projectRepository,
+			@Autowired AssociatedStructureRepository structureRepository) {
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
@@ -135,6 +142,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		this.invitationRepository = invitationRepository;
 		this.globalIndicatorsRepository = globalIndicatorsRepository;
 		this.projectRepository = projectRepository;
+		this.structureRepository = structureRepository;
 	}
 
 	/** Run the exporter.
@@ -203,6 +211,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportSupervisions(root, repository);
 		exportInvitations(root, repository);
 		exportProjects(root, repository);
+		exportAssociatedStructures(root, repository);
 		if (root.size() > 0) {
 			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;
@@ -380,7 +389,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 					if (objNode == null) {
 						throw new IllegalStateException("No JSON node created for organization: " + organization.getAcronymOrName()); //$NON-NLS-1$
 					}
-					addReference(objNode, SUPERORGANIZATION_KEY, id);
+					addReference(objNode, SUPER_ORGANIZATION_KEY, id);
 				}
 			}
 			if (array.size() > 0) {
@@ -709,7 +718,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			int i = 0;
 			for (final Supervision supervision : supervisions) {
 				final ObjectNode jsonSupervision = array.objectNode();
-				
+
 				final String id = SUPERVISION_ID_PREFIX + i;
 				exportObject(jsonSupervision, id, supervision, jsonSupervision, null);
 
@@ -755,7 +764,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			int i = 0;
 			for (final PersonInvitation invitation : invitations) {
 				final ObjectNode jsonInvitation = array.objectNode();
-				
+
 				final String id = INVITATION_ID_PREFIX + i;
 				exportObject(jsonInvitation, id, invitation, jsonInvitation, null);
 
@@ -793,7 +802,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			int i = 0;
 			for (final Project project : projects) {
 				final ObjectNode jsonProject = array.objectNode();
-				
+
 				final String id = PROJECT_ID_PREFIX + i;
 				exportObject(jsonProject, id, project, jsonProject, null);
 
@@ -804,19 +813,19 @@ public class DatabaseToJsonExporter extends JsonTool {
 					final ArrayNode budgetNode = jsonProject.arrayNode();
 					for (final ProjectBudget budget : budgets) {
 						final ObjectNode node = budgetNode.addObject();
-						node.put("fundingScheme", budget.getFundingScheme().name()); //$NON-NLS-1$
+						node.put(FUNDING_KEY, budget.getFundingScheme().name());
 						if (budget.getBudget() > 0f) {
-							node.put("budget", Float.valueOf(budget.getBudget())); //$NON-NLS-1$
+							node.put(BUDGET_KEY, Float.valueOf(budget.getBudget()));
 						}
 						if (!Strings.isNullOrEmpty(budget.getGrant())) {
-							node.put("grant", budget.getGrant()); //$NON-NLS-1$
+							node.put(GRANT_KEY, budget.getGrant());
 						}
 					}
 					if (!budgetNode.isEmpty()) {
-						jsonProject.set("budgets", budgetNode); //$NON-NLS-1$
+						jsonProject.set(BUDGETS_KEY, budgetNode);
 					}
 				}
-				
+
 				final String coordinatorId = repository.get(project.getCoordinator());
 				if (!Strings.isNullOrEmpty(coordinatorId)) {
 					addReference(jsonProject, COORDINATOR_KEY, coordinatorId);
@@ -865,6 +874,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				exportStringList(jsonProject, VIDEO_URLS_KEY, project.getVideoURLs());
 				exportStringList(jsonProject, PATHS_TO_IMAGES_KEY, project.getPathsToImages());
 				if (jsonProject.size() > 0) {
+					repository.put(project, id);
 					array.add(jsonProject);
 					++i;
 				}
@@ -892,6 +902,81 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			if (!jsonArray.isEmpty()) {
 				receiver.set(fieldName, jsonArray);
+			}
+		}
+	}
+
+	/** Export the associated structures to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 * @since 3.2
+	 */
+	protected void exportAssociatedStructures(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<AssociatedStructure> structures = this.structureRepository.findAll();
+		if (!structures.isEmpty()) {
+			final ArrayNode array = root.arrayNode();
+			int i = 0;
+			for (final AssociatedStructure structure : structures) {
+				final ObjectNode jsonStructure = array.objectNode();
+
+				final String id = ASSOCIATED_STRUCTURE_ID_PREFIX + i;
+				exportObject(jsonStructure, id, structure, jsonStructure, null);
+
+				// Several fields must be added explicitly because the "exportObject" function
+				// ignore the getter functions for all.
+
+				final String fundingOrganizationId = repository.get(structure.getFundingOrganization());
+				if (!Strings.isNullOrEmpty(fundingOrganizationId)) {
+					addReference(jsonStructure, FUNDING_KEY, fundingOrganizationId);
+				}
+
+				final List<AssociatedStructureHolder> holders = structure.getHolders();
+				if (holders != null && !holders.isEmpty()) {
+					final ArrayNode holderNode = jsonStructure.arrayNode();
+					for (final AssociatedStructureHolder holder : holders) {
+						final ObjectNode node = holderNode.addObject();
+						final String personId = repository.get(holder.getPerson());
+						if (!Strings.isNullOrEmpty(personId)) {
+							addReference(node, PERSON_KEY, personId);
+						}
+						node.put(ROLE_KEY, holder.getRole().name());
+						if (!Strings.isNullOrEmpty(holder.getRoleDescription())) {
+							node.put(ROLE_DESCRIPTION_KEY, holder.getRoleDescription());
+						}
+						final String organizationId = repository.get(holder.getOrganization());
+						if (!Strings.isNullOrEmpty(organizationId)) {
+							addReference(node, ORGANIZATION_KEY, organizationId);
+						}
+						final String superOrganizationId = repository.get(holder.getSuperOrganization());
+						if (!Strings.isNullOrEmpty(superOrganizationId)) {
+							addReference(node, SUPER_ORGANIZATION_KEY, superOrganizationId);
+						}
+					}
+					if (!holderNode.isEmpty()) {
+						jsonStructure.set(HOLDERS_KEY, holderNode);
+					}
+				}
+
+				final List<Project> projects = structure.getProjects();
+				if (projects != null && !projects.isEmpty()) {
+					final ArrayNode projectNode = jsonStructure.arrayNode();
+					for (final Project project : projects) {
+						final String projectId = repository.get(project);
+						addReference(projectNode, projectId);
+					}
+					if (!projectNode.isEmpty()) {
+						jsonStructure.set(PROJECTS_KEY, projectNode);
+					}
+				}
+				if (jsonStructure.size() > 0) {
+					array.add(jsonStructure);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.set(ASSOCIATED_STRUCTURES_SECTION, array);
 			}
 		}
 	}

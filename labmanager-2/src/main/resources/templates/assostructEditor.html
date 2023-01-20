@@ -93,8 +93,8 @@ $(document).ready(function () {
 				person: "[(${holder.person.id})]",
 				role: "[(${holder.role.name})]",  
 				roleDescription: [[${holder.roleDescription}]],
-				organization: "[(${holder.organization.id})]",
-				superOrganization: "[(${holder.superOrganization.id})]",
+				organization: "[(${holder.organization != null ? holder.organization.id : ''})]",
+				superOrganization: "[(${holder.superOrganization != null ? holder.superOrganization.id : ''})]",
 	        },
 		    /*[/]*//*[/]*/
 		],
