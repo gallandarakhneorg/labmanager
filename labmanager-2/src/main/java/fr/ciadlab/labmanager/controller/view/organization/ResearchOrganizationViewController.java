@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.controller.view.organization;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -123,7 +124,8 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 		//
 		List<ResearchOrganization> otherOrganizations = this.organizationService.getAllResearchOrganizations();
 		if (organizationObj != null) {
-			otherOrganizations = otherOrganizations.stream().filter(it -> it.getId() != organizationObj.getId()).collect(Collectors.toList());
+			otherOrganizations = otherOrganizations.stream().filter(it -> it.getId() != organizationObj.getId())
+					.sorted((a, b) -> a.getAcronym().compareToIgnoreCase(b.getAcronym())).collect(Collectors.toList());
 		}
 		//
 		final List<OrganizationAddress> availableAddresses = new ArrayList<>();
@@ -135,6 +137,10 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 				availableAddresses.add(adr);
 			}
 		}
+		//
+		final List<ResearchOrganizationType> sortedOrganizationTypes = Arrays.asList(ResearchOrganizationType.values())
+				.stream().sorted((a, b) -> a.getLabel().compareToIgnoreCase(b.getLabel())).collect(Collectors.toList());
+		modelAndView.addObject("sortedOrganizationTypes", sortedOrganizationTypes); //$NON-NLS-1$
 		//
 		modelAndView.addObject("organization", organizationObj); //$NON-NLS-1$
 		modelAndView.addObject("formActionUrl", rooted(Constants.ORGANIZATION_SAVING_ENDPOINT)); //$NON-NLS-1$

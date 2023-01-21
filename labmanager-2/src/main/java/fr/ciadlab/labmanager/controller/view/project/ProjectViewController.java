@@ -256,13 +256,13 @@ public class ProjectViewController extends AbstractViewController {
 		modelAndView.addObject("sortedStatus", sortedStatus); //$NON-NLS-1$
 		//
 		final List<ResearchOrganization> organizations = this.organizationService.getAllResearchOrganizations().stream()
-				.sorted((a, b) -> a.getAcronymOrName().compareTo(b.getAcronymOrName()))
+				.sorted((a, b) -> a.getAcronymOrName().compareToIgnoreCase(b.getAcronymOrName()))
 				.collect(Collectors.toList());
 		modelAndView.addObject("organizations", organizations); //$NON-NLS-1$
 		//
 		final List<Person> persons = this.personService.getAllPersons().stream()
 				.filter(it -> !it.getMemberships().isEmpty())
-				.sorted((a, b) -> a.getFullNameWithLastNameFirst().compareTo(b.getFullNameWithLastNameFirst()))
+				.sorted((a, b) -> a.getFullNameWithLastNameFirst().compareToIgnoreCase(b.getFullNameWithLastNameFirst()))
 				.collect(Collectors.toList());
 		modelAndView.addObject("persons", persons); //$NON-NLS-1$
 		//

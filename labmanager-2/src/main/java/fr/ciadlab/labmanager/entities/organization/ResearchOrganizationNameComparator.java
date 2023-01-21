@@ -24,20 +24,17 @@ import org.arakhne.afc.util.CountryCode;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-/** Comparator of research organizations.
+/** Comparator of research organizations on their names first.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 3.2
  */
 @Component
 @Primary
-public class ResearchOrganizationComparator implements Comparator<ResearchOrganization> {
-
-	/** Default comparator.
-	 */
-	public static final ResearchOrganizationComparator DEFAULT = new ResearchOrganizationComparator();
+public class ResearchOrganizationNameComparator implements Comparator<ResearchOrganization> {
 	
 	@Override
 	public int compare(ResearchOrganization o1, ResearchOrganization o2) {
@@ -50,15 +47,15 @@ public class ResearchOrganizationComparator implements Comparator<ResearchOrgani
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = Objects.compare(o1.getType(), o2.getType(), (a, b) -> a.compareTo(b));
-		if (cmp != 0) {
-			return cmp;
-		}
-		cmp = StringUtils.compareIgnoreCase(o1.getAcronym(), o2.getAcronym());
+		int cmp = StringUtils.compareIgnoreCase(o1.getAcronym(), o2.getAcronym());
 		if (cmp != 0) {
 			return cmp;
 		}
 		cmp = StringUtils.compareIgnoreCase(o1.getName(), o2.getName());
+		if (cmp != 0) {
+			return cmp;
+		}
+		cmp = Objects.compare(o1.getType(), o2.getType(), (a, b) -> a.compareTo(b));
 		if (cmp != 0) {
 			return cmp;
 		}

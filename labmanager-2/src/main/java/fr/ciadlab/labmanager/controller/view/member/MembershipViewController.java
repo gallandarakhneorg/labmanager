@@ -31,7 +31,7 @@ import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.Responsibility;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationNameComparator;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
@@ -201,7 +201,7 @@ public class MembershipViewController extends AbstractViewController {
 		modelAndView.addObject("allResponsabilities", allResponsabilities); //$NON-NLS-1$
 		//
 		final List<ResearchOrganization> sortedOrganizations = this.organizationRepository.findAll().stream()
-				.sorted(new ResearchOrganizationComparator()).collect(Collectors.toList());
+				.sorted(new ResearchOrganizationNameComparator()).collect(Collectors.toList());
 		//
 		modelAndView.addObject("savingUrl", rooted(Constants.MEMBERSHIP_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("deletionUrl", rooted(Constants.MEMBERSHIP_DELETION_ENDPOINT)); //$NON-NLS-1$

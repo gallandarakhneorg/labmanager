@@ -215,32 +215,24 @@ function addSavingButtonCallback(supervisionId, isNewSupervision) {
 	};
 	attachSpinnerAjaxHandler(buttonConfig);
 }
-var ALL_SUPERVISOR_NAMES = {
-    /*[# th:each="supervisor : ${allPersons}"]*/
-    "[(${supervisor.id})]": [[${supervisor.fullNameWithLastNameFirst}]],
-    /*[/]*/    
-};
-var ALL_SUPERVISOR_NAMES_OPTIONS = ''
-	/*[# th:each="supervisor : ${allPersons}"]*/
-	+ '<option value="[(${supervisor.id})]">[(${supervisor.fullNameWithLastNameFirst})]</option>'
-	/*[/]*/
-	;
-var ALL_SUPERVISOR_TYPES = {
-    /*[# th:each="supervisorType : ${T(fr.ciadlab.labmanager.entities.supervision.SupervisorType).values}"]*/
-    "[(${supervisorType.name})]": [[${supervisorType.getLabel(null)}]],
-    /*[/]*/
-};
-var ALL_SUPERVISOR_TYPES_OPTIONS = ''
-    /*[# th:each="supervisorType : ${T(fr.ciadlab.labmanager.entities.supervision.SupervisorType).values}"]*/
-    + '<option value="[(${supervisorType.name})]">[(${supervisorType.getLabel(null)})]</option>'
-    /*[/]*/
-	;
+const ALL_SUPERVISOR_NAMES = new Map();
+var ALL_SUPERVISOR_NAMES_OPTIONS = '';
+/*[# th:each="supervisor : ${allPersons}"]*/
+ALL_SUPERVISOR_NAMES.set("[(${supervisor.id})]", [[${supervisor.fullNameWithLastNameFirst}]]);
+ALL_SUPERVISOR_NAMES_OPTIONS = ALL_SUPERVISOR_NAMES_OPTIONS + '<option value="[(${supervisor.id})]">' + [[${supervisor.fullNameWithLastNameFirst}]] + '</option>';
+/*[/]*/    
+const ALL_SUPERVISOR_TYPES = new Map();
+var ALL_SUPERVISOR_TYPES_OPTIONS = '';
+/*[# th:each="supervisorType : ${T(fr.ciadlab.labmanager.entities.supervision.SupervisorType).values}"]*/
+ALL_SUPERVISOR_TYPES.set("[(${supervisorType.name})]", [[${supervisorType.getLabel(null)}]]);
+ALL_SUPERVISOR_TYPES_OPTIONS = ALL_SUPERVISOR_TYPES_OPTIONS + '<option value="[(${supervisorType.name})]">' + [[${supervisorType.getLabel(null)}]] + '</option>';
+/*[/]*/
 function attachSupervisorDeletionHandler(supervisionId, supervisor) {
 	attachDeletionHandlerNoAjax({
 		selector: '#TheDeleteButton_supervisor_' + supervisionId + '_' + supervisor,
-		name: ALL_SUPERVISOR_NAMES[supervisor],
+		name: ALL_SUPERVISOR_NAMES.get(supervisor),
 		questionTitle: [[#{html.DeleteSupervisor}]],
-		questionText: [[#{html.AreYouSureToDelete}]].format(ALL_SUPERVISOR_NAMES[supervisor]),
+		questionText: [[#{html.AreYouSureToDelete}]].format(ALL_SUPERVISOR_NAMES.get(supervisor)),
 		onDeletion: () => {
 			var $row = $("table[id='supervisorTable_" + supervisionId + "'] tr[id='supervisor_" + supervisionId + "_" + supervisor + "']");
 			$row.remove();
@@ -287,8 +279,8 @@ function addAddSupervisorButtonCallback(supervisionId, isNewSupervision) {
 			$button = $button.attr('style', 'font-size:14pt;cursor: pointer;');
 			var $col0 = $("<td/>");
 			$col0.append($input0).append($input1).append($input2).append($button);
-			var $col1 = $("<td/>").addClass('dataCell').text(ALL_SUPERVISOR_NAMES[selectedSupervisor['supervisor']]);
-			var $col2 = $("<td/>").addClass('dataCell').text(ALL_SUPERVISOR_TYPES[selectedSupervisor['type']]);
+			var $col1 = $("<td/>").addClass('dataCell').text(ALL_SUPERVISOR_NAMES.get(selectedSupervisor['supervisor']));
+			var $col2 = $("<td/>").addClass('dataCell').text(ALL_SUPERVISOR_TYPES.get(selectedSupervisor['type']));
 			var $col3 = $("<td/>").addClass('dataCell').text(selectedSupervisor['percentage'] + '%');
 			var $row = $("<tr/>").attr('id', 'supervisor_' + supervisionId + '_' + selectedSupervisor['supervisor']);
 			$row.append($col0).append($col1).append($col2).append($col3);

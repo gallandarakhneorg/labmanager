@@ -90,29 +90,28 @@
 	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedProject}, #{html.ValidatedProject}, ${project != null ? project.validated : false})"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
-var ALL_ORGANIZATIONS = {
-	/*[# th:each="organization : ${organizations}"]*/
-	"[(${organization.id})]": "[(${organization.acronym + ' - ' + organization.name})]",
-    /*[/]*/
-};
-var ALL_PERSONS = {
-	/*[# th:each="person : ${persons}"]*/
-	"[(${person.id})]": "[(${person.fullNameWithLastNameFirst})]",
-    /*[/]*/
-};
-var ALL_PERSON_OPTIONS =  null;
-var ALL_ROLES = {
-	/*[# th:each="role : ${T(fr.ciadlab.labmanager.entities.project.Role).values}"]*/
-	"[(${role.name})]": "[(${role.getLabel()})]",
-    /*[/]*/
-};
-var ALL_ROLE_OPTIONS =  null;
-var ALL_FUNDING_SCHEMES = {
-		/*[# th:each="scheme : ${sortedFundingSchemes}"]*/
-		"[(${scheme.name})]": "[(${scheme.getLabel()})]",
-	    /*[/]*/
-	};
-var ALL_FUNDING_SCHEME_OPTIONS = null;
+const ALL_ORGANIZATIONS = new Map();
+/*[# th:each="organization : ${organizations}"]*/
+ALL_ORGANIZATIONS.set("[(${organization.id})]", [[${organization.acronym + ' - ' + organization.name}]]);
+/*[/]*/
+const ALL_PERSONS = new Map();
+var ALL_PERSON_OPTIONS =  '';
+/*[# th:each="person : ${persons}"]*/
+ALL_PERSONS.set("[(${person.id})]", [[${person.fullNameWithLastNameFirst}]]);
+ALL_PERSON_OPTIONS = ALL_PERSON_OPTIONS + '<option value="[(${person.id})]">'+ [[${person.fullNameWithLastNameFirst}]] + '</option>';
+/*[/]*/
+const ALL_ROLES = new Map();
+var ALL_ROLE_OPTIONS =  '';
+/*[# th:each="role : ${T(fr.ciadlab.labmanager.entities.project.Role).values}"]*/
+ALL_ROLES.set("[(${role.name})]", [[${role.getLabel()}]]);
+ALL_ROLE_OPTIONS = ALL_ROLE_OPTIONS + '<option value="[(${role.name})]">'+ [[${role.getLabel()}]] + '</option>';
+/*[/]*/
+const ALL_FUNDING_SCHEMES = new Map();
+var ALL_FUNDING_SCHEME_OPTIONS = '';
+/*[# th:each="scheme : ${sortedFundingSchemes}"]*/
+ALL_FUNDING_SCHEMES.set("[(${scheme.name})]", [[${scheme.getLabel()}]]);
+ALL_FUNDING_SCHEME_OPTIONS = ALL_FUNDING_SCHEME_OPTIONS + '<option value="[(${scheme.name})]">'+ [[${scheme.getLabel()}]] + '</option>';
+/*[/]*/
 $(document).ready(function () {
 	
 	// Initialize form validation
@@ -202,19 +201,13 @@ $(document).ready(function () {
 			} else if (index == 1) {
 				target.append(data['budget'] + " [(#{html.KEURO})]");
 			} else {
-				target.append(ALL_FUNDING_SCHEMES[data['fundingScheme']]);
+				target.append(ALL_FUNDING_SCHEMES.get(data['fundingScheme']));
 			}
 		},
 		dataConverter: (formData, fieldName, data) => {
 			formData.append(fieldName, JSON.stringify(data));
 		},
 		dataCreator: (doCreateFct) => {
-			if (!ALL_FUNDING_SCHEME_OPTIONS) {
-				ALL_FUNDING_SCHEME_OPTIONS = '';
-				$.each(ALL_FUNDING_SCHEMES, (name, label) => {
-					ALL_FUNDING_SCHEME_OPTIONS = ALL_FUNDING_SCHEME_OPTIONS + '<option value="' + name + '">'+ label + '</option>';
-				});
-			}
 			Swal.fire({
 				title: [[#{html.AddProjectBudget}]],
 				icon: 'question',
@@ -257,10 +250,10 @@ $(document).ready(function () {
 		    /*[/]*//*[/]*/
 		],
 		dataName: (dt) => {
-			return ALL_ORGANIZATIONS[dt];
+			return ALL_ORGANIZATIONS.get(dt);
 		},
 		rowBuilder: (data, target, index) => {
-			target.append(ALL_ORGANIZATIONS[data]);
+			target.append(ALL_ORGANIZATIONS.get(data));
 		},
 		dataCreator: (doCreateFct) => {
 			Swal.fire({
@@ -296,31 +289,19 @@ $(document).ready(function () {
 		    /*[/]*//*[/]*/
 		],
 		dataName: (dt) => {
-			return ALL_PERSONS[dt['person']];
+			return ALL_PERSONS.get(dt['person']);
 		},
 		rowBuilder: (data, target, index) => {
 			if (index == 1) {
-				target.append(ALL_ROLES[data['role']]);
+				target.append(ALL_ROLES.get(data['role']));
 			} else {
-				target.append(ALL_PERSONS[data['person']]);
+				target.append(ALL_PERSONS.get(data['person']));
 			}
 		},
 		dataConverter: (formData, fieldName, data) => {
 			formData.append(fieldName, JSON.stringify(data));
 		},
 		dataCreator: (doCreateFct) => {
-			if (!ALL_PERSON_OPTIONS) {
-				ALL_PERSON_OPTIONS = '';
-				$.each(ALL_PERSONS, (id, name) => {
-					ALL_PERSON_OPTIONS = ALL_PERSON_OPTIONS + '<option value="' + id + '">'+ name + '</option>';
-				});
-			}
-			if (!ALL_ROLE_OPTIONS) {
-				ALL_ROLE_OPTIONS = '';
-				$.each(ALL_ROLES, (name, label) => {
-					ALL_ROLE_OPTIONS = ALL_ROLE_OPTIONS + '<option value="' + name + '">'+ label + '</option>';
-				});
-			}
 			Swal.fire({
 				title: [[#{html.AddProjectParticipant}]],
 				icon: 'question',

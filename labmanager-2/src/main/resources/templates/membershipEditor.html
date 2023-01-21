@@ -18,7 +18,7 @@
 				        th:each="organization : ${organizations}"
 				        th:selected="${preferredOrganization != null && organization.id == preferredOrganization.id}"
 				        th:value="${organization.id}"
-				        th:utext="${organization.acronymOrName}"></option>
+				        th:utext="${organization.acronym + ' - ' + organization.name}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInputEmpty*(${'organizationAddress_' + minMembershipId}, #{html.OrganizationAddress})">
 			</div>
@@ -78,7 +78,7 @@
 				        th:each="organization : ${organizations}"
 				        th:selected="${membership != null && membership.researchOrganization.id == organization.id}"
 				        th:value="${organization.id}"
-				        th:utext="${organization.acronymOrName}"></option>
+				        th:utext="${organization.acronym + ' - ' + organization.name}"></option>
 			</div>
 			<div class="form-group" th:replace="fragments/form :: comboInputEmpty*(${'organizationAddress_' + membership.id}, #{html.OrganizationAddress})">
 			</div>

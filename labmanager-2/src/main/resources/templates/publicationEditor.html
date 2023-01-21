@@ -120,18 +120,17 @@ $(document).ready(function () {
 
 	// Initialize and configure the hidding and showing of the fields depending on the type of publication
 	
-	var CONSTANT_TYPE_FIELD_MAPPING = {
-	        /*[# th:each="mapping : ${typeFieldMapping}"]*/
-	        "[(${mapping.key})]": [
-	            /*[# th:each="htmlElement : ${mapping.value}"]*/
-	            "[(${htmlElement})]",
-	            /*[/]*/        	
-	        ],
-	        /*[/]*/
-	};
+	const CONSTANT_TYPE_FIELD_MAPPING = new Map();
+    /*[# th:each="mapping : ${typeFieldMapping}"]*/
+    CONSTANT_TYPE_FIELD_MAPPING.set("[(${mapping.key})]", [
+        /*[# th:each="htmlElement : ${mapping.value}"]*/
+        "[(${htmlElement})]",
+        /*[/]*/        	
+    ]);
+    /*[/]*/
 	initVisibilityUpdatingForDynamicInputsFromSelectOption('#comboInput_type', (typeValue) => {
 		var currentType = typeValue ? typeValue.substring(typeValue.indexOf('/') + 1) : '';
-		return CONSTANT_TYPE_FIELD_MAPPING[currentType];
+		return CONSTANT_TYPE_FIELD_MAPPING.get(currentType);
 	});
 
 	// Build a list of available authors for select2 component
