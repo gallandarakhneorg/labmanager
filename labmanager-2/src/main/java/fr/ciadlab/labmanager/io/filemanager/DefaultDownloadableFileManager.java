@@ -55,7 +55,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 2.0
  */
 @Component
 @Primary
@@ -82,6 +82,10 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	private static final String ADDRESS_BACKGROUND_FOLDER_NAME = "AddressBgs"; //$NON-NLS-1$
 
 	private static final String ADDRESS_BACKGROUND_FILE_PREFIX = "AddressBg"; //$NON-NLS-1$
+
+	private static final String ORGANIZATION_LOGO_FOLDER_NAME = "OrganizationLogos"; //$NON-NLS-1$
+
+	private static final String ORGANIZATION_LOGO_FILE_PREFIX = "OrgLogo"; //$NON-NLS-1$
 
 	private static final String PROJECT_LOGO_FOLDER_NAME = "ProjectLogos"; //$NON-NLS-1$
 
@@ -157,6 +161,11 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	}
 
 	@Override
+	public File getOrganizationLogoRootFile() {
+		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), ORGANIZATION_LOGO_FOLDER_NAME);
+	}
+
+	@Override
 	public File getProjectLogoRootFile() {
 		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), PROJECT_LOGO_FOLDER_NAME);
 	}
@@ -210,6 +219,13 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	public File makeAddressBackgroundImage(int addressId, String fileExtension) {
 		return FileSystem.addExtension(
 				FileSystem.join(getAddressBackgroundRootFile(), ADDRESS_BACKGROUND_FILE_PREFIX + Integer.valueOf(addressId)),
+				fileExtension);
+	}
+
+	@Override
+	public File makeOrganizationLogoFilename(int organizationId, String fileExtension) {
+		return FileSystem.addExtension(
+				FileSystem.join(getOrganizationLogoRootFile(), ORGANIZATION_LOGO_FILE_PREFIX + Integer.valueOf(organizationId)),
 				fileExtension);
 	}
 
@@ -307,6 +323,15 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	@Override
 	public void deleteAddressBackgroundImage(int id, String fileExtension) {
 		final File file = makeAddressBackgroundImage(id, fileExtension);
+		final File absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+	}
+
+	@Override
+	public void deleteOrganizationLogo(int id, String fileExtension) {
+		final File file = makeOrganizationLogoFilename(id, fileExtension);
 		final File absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();

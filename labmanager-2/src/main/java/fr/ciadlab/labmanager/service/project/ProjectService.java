@@ -16,7 +16,6 @@
 
 package fr.ciadlab.labmanager.service.project;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
@@ -26,8 +25,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.function.Consumer;
-import java.util.function.Supplier;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -466,31 +463,6 @@ public class ProjectService extends AbstractService {
 				(fn, th) -> this.fileManager.saveImage(fn, uploadedFile));
 	}
 
-	private boolean updateUploadedFile(boolean explicitRemove, MultipartFile uploadedFile,
-			String logMessage, Consumer<String> setter, Supplier<File> filename,
-			Callback delete, Saver save) throws IOException {
-		// Treat the uploaded files
-		boolean hasUploaded = false;
-		if (explicitRemove) {
-			try {
-				delete.apply();
-			} catch (Throwable ex) {
-				// Silent
-			}
-			setter.accept(null);
-			hasUploaded = true;
-		}
-		if (uploadedFile != null && !uploadedFile.isEmpty()) {
-			final File fn = filename.get();
-			final File th = FileSystem.replaceExtension(fn, DownloadableFileManager.JPEG_FILE_EXTENSION);
-			save.apply(fn, th);
-			setter.accept(fn.getPath());
-			hasUploaded = true;
-			getLogger().info(logMessage + fn.getPath());
-		}
-		return hasUploaded;
-	}
-
 	/** Create a project with the given information.
 	 * 
 	 * @param validated indicates if the project is validated by a local authority.
@@ -685,46 +657,6 @@ public class ProjectService extends AbstractService {
 				}
 			}
 		}
-	}
-
-	/** Internal callback object.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $Name$ $Revision$ $Date$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 3.0
-	 */
-	@FunctionalInterface
-	private interface Callback {
-
-		/** Callback function.
-		 *
-		 * @throws IOException in case of error
-		 */
-		void apply() throws IOException;
-		
-	}
-
-	/** Internal callback object.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $Name$ $Revision$ $Date$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 3.0
-	 */
-	@FunctionalInterface
-	private interface Saver {
-
-		/** Callback function.
-		 *
-		 * @param filename the name of the file.
-		 * @param thumbnail the filename of the thumbnail.
-		 * @throws IOException in case of error
-		 */
-		void apply(File filename, File thumbnail) throws IOException;
-		
 	}
 
 }

@@ -17,18 +17,21 @@
 package fr.ciadlab.labmanager;
 
 import java.io.File;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.runners.ConditionalOnInitializationLock;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
@@ -36,10 +39,12 @@ import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.MaintenanceException;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.web.multipart.MultipartFile;
 
 /** Abstract implementation of a JEE component.
  * 
@@ -523,6 +528,85 @@ public abstract class AbstractComponent {
 			}
 		}
 		return person;
+	}
+
+	/** Upload a file.
+	 *
+	 * @param explicitRemove indicates if the old path to the uploaded file should be removed from the database.
+	 * @param uploadedFile the uploaded file, or {@code null} if no file is uploaded.
+	 * @param logMessage a message that is used for output an INFO message about the file upload.
+	 * @param setter a callback function that is invoked to change the attribute "pathTo..." in the associated JPA entity.
+	 *      The argument of the callback is the path to save.
+	 * @param filename a callback function that provides the filename to be saved in the database.
+	 * @param delete a callback that is invoked when the path should be removed from the local file system.
+	 * @param save a callback invoked to save the file on the file system.
+	 * @return {@code true} if a file was uploaded or removed.
+	 * @throws IOException if the file cannot be uploaded.
+	 * @since 3.2
+	 */
+	protected boolean updateUploadedFile(boolean explicitRemove, MultipartFile uploadedFile,
+			String logMessage, Consumer<String> setter, Supplier<File> filename,
+			Callback delete, Saver save) throws IOException {
+		// Treat the uploaded files
+		boolean changed = false;
+		if (explicitRemove) {
+			try {
+				delete.apply();
+			} catch (Throwable ex) {
+				// Silent
+			}
+			setter.accept(null);
+			changed = true;
+		}
+		if (uploadedFile != null && !uploadedFile.isEmpty()) {
+			final File fn = filename.get();
+			final File th = FileSystem.replaceExtension(fn, DownloadableFileManager.JPEG_FILE_EXTENSION);
+			save.apply(fn, th);
+			setter.accept(fn.getPath());
+			changed = true;
+			getLogger().info(logMessage + fn.getPath());
+		}
+		return changed;
+	}
+
+	/** Internal callback object.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 3.0
+	 */
+	@FunctionalInterface
+	protected interface Callback {
+
+		/** Callback function.
+		 *
+		 * @throws IOException in case of error
+		 */
+		void apply() throws IOException;
+		
+	}
+
+	/** Internal callback object.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 3.0
+	 */
+	@FunctionalInterface
+	protected interface Saver {
+
+		/** Callback function.
+		 *
+		 * @param filename the name of the file.
+		 * @param thumbnail the filename of the thumbnail.
+		 * @throws IOException in case of error
+		 */
+		void apply(File filename, File thumbnail) throws IOException;
+		
 	}
 
 }

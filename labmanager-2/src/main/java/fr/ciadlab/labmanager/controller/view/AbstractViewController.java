@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.controller.view;
 
 import java.io.File;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -29,6 +30,8 @@ import java.util.regex.Pattern;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.AbstractCredentialController;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.util.DefaultUriBuilderFactory;
@@ -135,6 +138,31 @@ public abstract class AbstractViewController extends AbstractCredentialControlle
 		final UriBuilder b = this.uriBuilderFactory.builder();
 		b.path("/" + this.constants.getServerName() + "/" + relativeUrl); //$NON-NLS-1$ //$NON-NLS-2$
 		return b.build().toASCIIString();
+	}
+
+	/** Create a root-based filename for a thumbnail.
+	 *
+	 * @param filename the filename of the picture.
+	 * @param preserveFileExtension indicates if the filename extension is preserved ({@code true}) or forced to JPEG
+	 *     ({@code false}.
+	 * @return the rooted filename of the picture.
+	 * @since 3.2
+	 */
+	protected String rootedThumbnail(String filename, boolean preserveFileExtension) {
+		try {
+			final URL url = new URL("file:" + filename); //$NON-NLS-1$
+			final URL normalized;
+			if (preserveFileExtension) {
+				normalized = url;
+			} else {
+				normalized = FileSystem.replaceExtension(url, DownloadableFileManager.JPEG_FILE_EXTENSION);
+			}
+			return rooted(normalized.getPath());
+		} catch (RuntimeException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
 	/** Fill the attributes of the given model-view with the standard properties.

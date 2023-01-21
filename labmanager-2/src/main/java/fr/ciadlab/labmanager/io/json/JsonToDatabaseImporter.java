@@ -450,7 +450,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				}
 				insertGlobalIndicators(session, content.get(GLOBALINDICATORS_SECTION), objectRepository, aliasRepository);
 				final int nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository, fileCallback);
-				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository);
+				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
 				final int nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
 				final int nb3 = insertOrganizationMemberships(session, content.get(ORGANIZATION_MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
@@ -589,11 +589,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param organizations the list of organizations in the Json source.
 	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
 	 * @param aliasRepository the repository of field aliases.
+	 * @param fileCallback the callback for managing filenames.
 	 * @return the number of new organizations in the database.
 	 * @throws Exception if an organization cannot be created.
 	 */
 	protected int insertOrganizations(Session session, JsonNode organizations, Map<String, Integer> objectIdRepository,
-			Map<String, Set<String>> aliasRepository) throws Exception {
+			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		int nbNew = 0;
 		if (organizations != null && !organizations.isEmpty()) {
 			final Map<String, ResearchOrganization> objectInstanceRepository = new TreeMap<>();
@@ -633,6 +634,21 @@ public class JsonToDatabaseImporter extends JsonTool {
 							}
 							if (!isFake()) {
 								orga = this.organizationRepository.save(orga);
+							}
+							// Ensure that attached files are correct
+							if (fileCallback != null) {
+								boolean organizationChanged = false;
+								if (!Strings.isNullOrEmpty(orga.getPathToLogo())) {
+									final String ofn = orga.getPathToLogo();
+									final String fn = fileCallback.projectLogoFile(orga.getId(), ofn);
+									if (!Objects.equals(ofn, fn)) {
+										orga.setPathToLogo(fn);
+										organizationChanged = true;
+									}
+								}
+								if (organizationChanged && !isFake()) {
+									this.organizationRepository.save(orga);
+								}
 							}
 							++nbNew;
 							getLogger().info("  + " + orga.getAcronymOrName() + " (id: " + orga.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -1927,6 +1943,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @return the fixed filename.
 		 */
 		String addressBackgroundImageFile(int dbId, String filename);
+
+		/** A logo file was attached to an organization.
+		 *
+		 * @param dbId the identifier of the organization in the database.
+		 * @param filename the filename that is specified in the JSON file.
+		 * @return the fixed filename.
+		 * @since 3.2
+		 */
+		String organizationLogoFile(int dbId, String filename);
 
 		/** A logo file was attached to a project.
 		 *

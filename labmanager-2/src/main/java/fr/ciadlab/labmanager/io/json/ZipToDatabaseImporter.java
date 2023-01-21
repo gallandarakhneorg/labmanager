@@ -279,6 +279,13 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 		}
 
 		@Override
+		public String organizationLogoFile(int dbId, String filename) {
+			final String fileExtension = FileSystem.extension(filename);
+			return moveFile(filename, dbId,
+					ZipToDatabaseImporter.this.download.makeOrganizationLogoFilename(dbId, fileExtension));
+		}
+
+		@Override
 		public String projectLogoFile(int dbId, String filename) {
 			final String fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,

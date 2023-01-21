@@ -46,6 +46,8 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
+import fr.ciadlab.labmanager.io.filemanager.DefaultDownloadableFileManager;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.OrganizationAddressRepository;
@@ -85,12 +87,16 @@ public class ResearchOrganizationServiceTest {
 
 	private ResearchOrganizationService test;
 
+	private DownloadableFileManager fileManager;
+
 	@BeforeEach
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.addressRepository = mock(OrganizationAddressRepository.class);
 		this.organizationRepository = mock(ResearchOrganizationRepository.class);
-		this.test = new ResearchOrganizationService(this.messages, new Constants(), this.addressRepository, this.organizationRepository);
+		this.fileManager = mock(DownloadableFileManager.class);
+		this.test = new ResearchOrganizationService(this.messages, new Constants(), this.addressRepository,
+				this.organizationRepository, this.fileManager);
 
 		// Prepare some organizations to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -204,11 +210,11 @@ public class ResearchOrganizationServiceTest {
 	}
 
 	@Test
-	public void createResearchOrganization() {
+	public void createResearchOrganization() throws Exception {
 		List<Integer> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
 		final Optional<ResearchOrganization> res = this.test.createResearchOrganization("NA", "NN", true, "NRNSR", "NNI", "ND",
-				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0);
+				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0, null);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
@@ -245,11 +251,11 @@ public class ResearchOrganizationServiceTest {
 	}
 
 	@Test
-	public void updateResearchOrganization() {
+	public void updateResearchOrganization() throws Exception {
 		List<Integer> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
 		Optional<ResearchOrganization> res = this.test.updateResearchOrganization(234, "NA", "NN", true, "NRNSR", "NNI", "ND",
-				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0);
+				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0, null, false);
 		assertNotNull(res);
 		assertNotNull(res.get());
 

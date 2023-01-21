@@ -216,7 +216,7 @@ public interface DownloadableFileManager {
 	 */
 	File makeProjectLogoFilename(int projectId, String fileExtension);
 
-	/** Make the path to the image that corresponds to the logo for the project with the given identifier.
+	/** Make the path to the image that corresponds to the image for the project with the given identifier.
 	 *
 	 * @param projectId the identifier of the project.
 	 * @param imageIndex the index of the image in the list of associated images.
@@ -348,5 +348,30 @@ public interface DownloadableFileManager {
 	 * @throws IOException if the file cannot be created.
 	 */
 	void regenerateThumbnail(File file) throws IOException;
+
+	/** Delete from the server the logo image associated to the organization with given identifier.
+	 *
+	 * @param id the identifier of the organization.
+	 * @param fileExtension the filename extension for the image ({@code .jpg}, {@code .gif}, {@code .png}).
+	 * @throws Exception if the file cannot be deleted.
+	 * @since 3.2
+	 */
+	void deleteOrganizationLogo(int id, String fileExtension);
+
+	/** Replies the path to the root folder for organization logos.
+	 *
+	 * @return the path to the root folder.
+	 * @since 3.2
+	 */
+	File getOrganizationLogoRootFile();
+
+	/** Make the path to the image that corresponds to the logo for the orgnization with the given identifier.
+	 *
+	 * @param organizationId the identifier of the organization.
+	 * @param fileExtension the filename extension for the image ({@code .jpg}, {@code .gif}, {@code .png}).
+	 * @return the path to the image associated to the logo.
+	 * @since 3.0
+	 */
+	File makeOrganizationLogoFilename(int organizationId, String fileExtension);
 
 }

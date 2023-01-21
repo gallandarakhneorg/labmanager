@@ -2,6 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:replace="fragments/general :: allBaseLibs" />
 <th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/formfileinput :: all" />
 <th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
 
 <th:block th:if="${organization != null}">
@@ -60,6 +61,7 @@
 		</table>
 	</div>
 	<div class="form-group" th:replace="fragments/form :: textInput(organizationURL, #{html.WebsiteAddress}, #{html.PlaceHolderOrganizationURL}, ${organization != null ? organization.organizationURL : ''})"></div>
+	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadImage(pathToLogo, #{html.OrganizationLogo})"></div>
 	<div class="form-group" th:replace="fragments/form :: comboInput(superOrganization, #{html.SuperOrganization}, ~{::option#option-sorg})">
 		<option id="option-sorg"
 		        th:selected="${organization == null || organization.superOrganization == null}"
@@ -182,6 +184,11 @@ $(document).ready(function () {
 		});
 	});
 	/*[/]*/
+	initFileUploadSingleImage({
+		name: 'pathToLogo',
+		basename: "[(${pathToLogo_basename})]",
+		picture: "[(${pathToLogo_picture})]",
+	});
 });
 </script>
 </html>

@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.service.organization;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -25,13 +26,16 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.organization.OrganizationAddressRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import org.arakhne.afc.util.CountryCode;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /** Service for research organizations.
  * 
@@ -48,6 +52,8 @@ public class ResearchOrganizationService extends AbstractService {
 
 	private final ResearchOrganizationRepository organizationRepository;
 
+	private DownloadableFileManager fileManager;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -55,15 +61,18 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param constants the accessor to the live constants.
 	 * @param addressRepository the address repository.
 	 * @param organizationRepository the organization repository.
+	 * @param fileManager the manager of the uploaded and downloadable files.
 	 */
 	public ResearchOrganizationService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired OrganizationAddressRepository addressRepository,
-			@Autowired ResearchOrganizationRepository organizationRepository) {
+			@Autowired ResearchOrganizationRepository organizationRepository,
+			@Autowired DownloadableFileManager fileManager) {
 		super(messages, constants);
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
+		this.fileManager = fileManager;
 	}
 
 	/** Replies all the research organizations.
@@ -123,12 +132,15 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param country the country of the research organization.
 	 * @param addresses the identifiers of the addresses of the organization.
 	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
+	 * @param pathToLogo the uploaded logo of the organization, if any.
 	 * @return the created organization in the database.
+	 * @throws IOException if the logo cannot be uploaded or removed.
 	 */
 	public Optional<ResearchOrganization> createResearchOrganization(String acronym, String name,
 			boolean isMajor,
 			String rnsr, String nationalIdentifier, String description,
-			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization) {
+			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization,
+			MultipartFile pathToLogo) throws IOException {
 		final Optional<ResearchOrganization> sres;
 		if (superOrganization != null && superOrganization.intValue() != 0) {
 			sres = this.organizationRepository.findById(superOrganization);
@@ -163,6 +175,10 @@ public class ResearchOrganizationService extends AbstractService {
 			res.setSuperOrganization(sres.get());
 		}
 		this.organizationRepository.save(res);
+		//
+		if (updateLogo(res, false, pathToLogo)) {
+			this.organizationRepository.save(res);
+		}
 		return Optional.of(res);
 	}
 
@@ -203,12 +219,16 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param country the country of the research organization.
 	 * @param addresses the identifiers of the addresses of the organization.
 	 * @param superOrganization the identifier of the super organization, or {@code null} or {@code 0} if none.
+	 * @param pathToLogo the uploaded logo of the organization, if any.
+	 * @param removePathToLogo indicates if the path to the logo in the database should be removed, possibly before saving a new logo.
 	 * @return the organization object that was updated.
+	 * @throws IOException if the logo cannot be uploaded or removed.
 	 */
 	public Optional<ResearchOrganization> updateResearchOrganization(int identifier, String acronym, String name,
 			boolean isMajor,
 			String rnsr, String nationalIdentifier, String description,
-			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization) {
+			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization,
+			MultipartFile pathToLogo, boolean removePathToLogo) throws IOException  {
 		final Optional<ResearchOrganization> res = this.organizationRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
 			final Optional<ResearchOrganization> sres;
@@ -248,8 +268,32 @@ public class ResearchOrganizationService extends AbstractService {
 			}
 			//
 			this.organizationRepository.save(organization);
+			//
+			if (updateLogo(organization, removePathToLogo, pathToLogo)) {
+				this.organizationRepository.save(organization);
+			}
 		}
 		return res;
+	}
+
+	private boolean updateLogo(ResearchOrganization organization, boolean explicitRemove, MultipartFile uploadedFile) throws IOException {
+		final String ext;
+		if (uploadedFile != null) {
+			ext = FileSystem.extension(uploadedFile.getOriginalFilename());
+		} else {
+			final String filename = organization.getPathToLogo();
+			if (!Strings.isNullOrEmpty(filename)) {
+				ext = FileSystem.extension(filename);
+			} else {
+				ext = null;
+			}
+		}
+		return updateUploadedFile(explicitRemove, uploadedFile,
+				"Organization logo uploaded at: ", //$NON-NLS-1$
+				it -> organization.setPathToLogo(it),
+				() -> this.fileManager.makeOrganizationLogoFilename(organization.getId(), ext),
+				() -> this.fileManager.deleteOrganizationLogo(organization.getId(), ext),
+				(fn, th) -> this.fileManager.saveImage(fn, uploadedFile));
 	}
 
 	/** Link a suborganization to a super organization.

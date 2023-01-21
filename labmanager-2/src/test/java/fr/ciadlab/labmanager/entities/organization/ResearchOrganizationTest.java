@@ -17,9 +17,6 @@
 package fr.ciadlab.labmanager.entities.organization;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.net.URL;
@@ -354,6 +351,31 @@ public class ResearchOrganizationTest {
 		this.test.setAddresses(null);
 		
 		assertTrue(this.test.getAddresses().isEmpty());
+	}
+
+	@Test
+	public void getPathToLogo() {
+		assertNull(this.test.getPathToLogo());
+	}
+
+	@Test
+	public void setPathToLogo_null() {
+		this.test.setPathToLogo("xyz");
+		this.test.setPathToLogo(null);
+		assertNull(this.test.getPathToLogo());
+	}
+
+	@Test
+	public void setPathToLogo_empty() {
+		this.test.setPathToLogo("xyz");
+		this.test.setPathToLogo("");
+		assertNull(this.test.getPathToLogo());
+	}
+
+	@Test
+	public void setPathToLogo() {
+		this.test.setPathToLogo("xyz");
+		assertEquals("xyz", this.test.getPathToLogo());
 	}
 
 }

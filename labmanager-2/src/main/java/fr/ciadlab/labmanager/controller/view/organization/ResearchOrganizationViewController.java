@@ -31,6 +31,8 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.service.organization.OrganizationAddressService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -120,6 +122,14 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 			}
 		} else {
 			organizationObj = null;
+		}
+		// Provide more information about uploaded logo
+		if (organizationObj != null) {
+			final String logoPath = organizationObj.getPathToLogo();
+			if (!Strings.isNullOrEmpty(logoPath)) {
+				modelAndView.addObject("pathToLogo_basename", FileSystem.largeBasename(logoPath)); //$NON-NLS-1$
+				modelAndView.addObject("pathToLogo_picture", rootedThumbnail(logoPath, true)); //$NON-NLS-1$
+			}
 		}
 		//
 		List<ResearchOrganization> otherOrganizations = this.organizationService.getAllResearchOrganizations();

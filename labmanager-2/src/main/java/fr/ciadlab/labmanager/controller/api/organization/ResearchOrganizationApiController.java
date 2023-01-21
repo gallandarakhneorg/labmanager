@@ -38,6 +38,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 /** REST Controller for research organizations.
  * 
@@ -117,6 +118,8 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	 * @param country the country of the organization. It is a constant of {@link CountryCode}.
 	 * @param organizationAddress the list of the identifiers of the addresses that are associated to the organization.
 	 * @param superOrganization the identifier of the super organization, or {@code 0} if none.
+	 * @param pathToLogo the uploaded logo of the organization, if any.
+	 * @param removePathToLogo indicates if the path to the logo in the database should be removed, possibly before saving a new logo.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of problem for saving.
 	 */
@@ -134,6 +137,8 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@RequestParam(required = false) String country,
 			@RequestParam(required = false) List<Integer> organizationAddress,
 			@RequestParam(required = false) Integer superOrganization,
+			@RequestParam(required = false) MultipartFile pathToLogo,
+			@RequestParam(required = false, defaultValue = "false", name = "@fileUpload_removed_pathToLogo") boolean removePathToLogo,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.ORGANIZATION_SAVING_ENDPOINT, organization);
 		try {
@@ -151,11 +156,13 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			if (organization == null) {
 				optOrganization = this.organizationService.createResearchOrganization(
 						inAcronym, inName, major, inRnsr, inNationalIdentifier, inDescription, typeObj,
-						inOrganizationURL, countryObj, organizationAddress, superOrganization);
+						inOrganizationURL, countryObj, organizationAddress, superOrganization,
+						pathToLogo);
 			} else {
 				optOrganization = this.organizationService.updateResearchOrganization(organization.intValue(),
 						inAcronym, inName, major, inRnsr, inNationalIdentifier, inDescription, typeObj,
-						inOrganizationURL, countryObj, organizationAddress, superOrganization);
+						inOrganizationURL, countryObj, organizationAddress, superOrganization,
+						pathToLogo, removePathToLogo);
 			}
 			if (optOrganization.isEmpty()) {
 				throw new IllegalStateException("Organization not found"); //$NON-NLS-1$

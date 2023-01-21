@@ -156,6 +156,13 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@OneToMany(fetch = FetchType.LAZY)
 	private Set<OrganizationAddress> addresses = new HashSet<>();
 
+	/** Name of the logo of the project if it has one.
+	 *
+	 * @since 3.2
+	 */
+	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
+	private String pathToLogo;
+
 	/** Construct a research organization from the given values.
 	 * 
 	 * @param id the identifier of the organization.
@@ -204,6 +211,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.organizationUrl);
 		h = HashCodeUtils.add(h, this.type);
+		h = HashCodeUtils.add(h, this.pathToLogo);
 		return h;
 	}
 
@@ -244,6 +252,9 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 			return false;
 		}
 		if (!Objects.equals(this.type, other.type)) {
+			return false;
+		}
+		if (!Objects.equals(this.pathToLogo, other.pathToLogo)) {
 			return false;
 		}
 		return true;
@@ -292,6 +303,9 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 		if (getType() != null) {
 			consumer.accept("type", getType()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getPathToLogo())) {
+			consumer.accept("pathToLogo", getPathToLogo()); //$NON-NLS-1$
 		}
 	}
 
@@ -711,6 +725,23 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		} else {
 			setMajorOrganization(major.booleanValue());
 		}
+	}
+
+	/** Replies a path to a downloadable logo that represents the organization.
+	 *
+	 * @return the path or {@code null}.
+	 * @since 3.2
+	 */
+	public String getPathToLogo() {
+		return this.pathToLogo;
+	}
+
+	/** Change the path to a downloadable logo that represents the organization.
+	 *
+	 * @param path the path or {@code null}.
+	 */
+	public void setPathToLogo(String path) {
+		this.pathToLogo = Strings.emptyToNull(path);
 	}
 
 }

@@ -17,7 +17,6 @@
 package fr.ciadlab.labmanager.controller.view.project;
 
 import java.io.IOException;
-import java.net.URL;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.List;
@@ -31,7 +30,6 @@ import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
-import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.project.ProjectService;
@@ -152,23 +150,6 @@ public class ProjectViewController extends AbstractViewController {
 			projects = this.projectService.getAllPublicProjects();
 		}
 		return projects;
-	}
-
-	private String rootedThumbnail(String filename, boolean preserveFileExtension) {
-		try {
-			final URL url = new URL("file:" + filename); //$NON-NLS-1$
-			final URL normalized;
-			if (preserveFileExtension) {
-				normalized = url;
-			} else {
-				normalized = FileSystem.replaceExtension(url, DownloadableFileManager.JPEG_FILE_EXTENSION);
-			}
-			return rooted(normalized.getPath());
-		} catch (RuntimeException ex) {
-			throw ex;
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
 	}
 
 	/** Show the editor for a project. This editor permits to create or to edit a project.
