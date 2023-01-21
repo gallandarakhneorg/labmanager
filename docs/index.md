@@ -14,7 +14,7 @@ This website is hosted on a [Université de Technologie de Belfort Montbéliard 
 ## 2. Manual Pages
 
 1. **[Connection to the web backend](login.md)**
-2. **Common informations for all members**
+2. **Shared informations for all members**
    1. [List of known journals](journals.md)
    2. List of known conferences
    3. [List of projects](projects.md)
@@ -41,7 +41,9 @@ This website is hosted on a [Université de Technologie de Belfort Montbéliard 
       * [List of known journals](journals.md)
       * [List of publications](publications.md)
       * [Update journal rankings from Scimago and WoS](journalrankingupdate.md)
-   5. [List of projects](projects.md)
+   5. Projects and associated structures
+      * [List of projects](projects.md)
+      * [List of associated structures](assostructures.md)
    6. [Global indicators](globalindicators.md)
    7. [Import and export database content](importexportdb.md)
    
