@@ -413,6 +413,13 @@ public abstract class JsonTool {
 	 */
 	protected static final String FUNDING_KEY = "funding"; //$NON-NLS-1$
 
+	/** Name of the field for the funding.
+	 *
+	 * @deprecated Since 3.2, replaced by {@link #FUNDING_KEY}.
+	 */
+	@Deprecated
+	protected static final String FUNDINGSCHEME_KEY = "fundingScheme"; //$NON-NLS-1$
+
 	/** Name of the field for the funding details.
 	 */
 	protected static final String FUNDING_DETAILS_KEY = "fundingDetails"; //$NON-NLS-1$

@@ -1516,7 +1516,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 							final List<ProjectBudget> budgetList = new ArrayList<>();
 							budgetsNode.forEach(it -> {
 								final ProjectBudget budgetObject = new ProjectBudget();
-								final String fundingValue = getStringValue(it.get(FUNDING_KEY));
+								String fundingValue = getStringValue(it.get(FUNDING_KEY));
+								// The following reading of the Json node "fundingScheme" is in the code for compatibility with old Json format.
+								if (fundingValue == null) {
+									fundingValue = getStringValue(it.get(FUNDINGSCHEME_KEY));
+								}
 								if (fundingValue != null) {
 									try {
 										final FundingScheme scheme = FundingScheme.valueOfCaseInsensitive(fundingValue.toString());
@@ -1524,6 +1528,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 									} catch (Throwable ex) {
 										budgetObject.setFundingScheme(FundingScheme.NOT_FUNDED);
 									}
+								} else {
+									budgetObject.setFundingScheme(FundingScheme.NOT_FUNDED);
 								}
 								final Number budgetValue = getNumberValue(it.get(BUDGET_KEY));
 								if (budgetValue != null) {
