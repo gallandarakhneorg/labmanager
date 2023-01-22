@@ -16,6 +16,8 @@
 
 package fr.ciadlab.labmanager.repository.assostructure;
 
+import java.util.List;
+
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolder;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -28,5 +30,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @since 3.2
  */
 public interface AssociatedStructureHolderRepository extends JpaRepository<AssociatedStructureHolder, Integer> {
-	//
+
+	/** Replies the list of holders that corresponds to the persons with the give identifier.
+	 *
+	 * @param id the identifier of the person.
+	 * @return the list of associate structures' holders.
+	 */
+	List<AssociatedStructureHolder> findDistinctByPersonId(int id);
+
 }

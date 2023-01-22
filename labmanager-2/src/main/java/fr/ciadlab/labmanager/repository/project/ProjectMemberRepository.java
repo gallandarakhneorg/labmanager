@@ -16,6 +16,8 @@
 
 package fr.ciadlab.labmanager.repository.project;
 
+import java.util.List;
+
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -28,5 +30,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @since 3.0
  */
 public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Integer> {
-	//
+
+	/** Replies the list of the project members that corresponds to the person with the given identifier.
+	 *
+	 * @param id the identifier of the person.
+	 * @return the list of the project members.
+	 * @since 3.2
+	 */
+	List<ProjectMember> findDistinctByPersonId(int id);
+
 }

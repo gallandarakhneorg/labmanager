@@ -28,16 +28,20 @@ import java.util.TreeSet;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolder;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitation;
 import fr.ciadlab.labmanager.entities.jury.JuryMembership;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
+import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
+import fr.ciadlab.labmanager.repository.assostructure.AssociatedStructureHolderRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
+import fr.ciadlab.labmanager.repository.project.ProjectMemberRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.invitation.PersonInvitationService;
 import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
@@ -72,6 +76,10 @@ public class PersonMergingService extends AbstractService {
 
 	private final PersonInvitationService invitationService;
 
+	private final ProjectMemberRepository projectMemberRepository;
+
+	private final AssociatedStructureHolderRepository structureHolderRepository;
+
 	private PersonNameComparator nameComparator;
 
 	/** Constructor for injector.
@@ -86,6 +94,8 @@ public class PersonMergingService extends AbstractService {
 	 * @param juryMembershipService the service for managing the jury memberships.
 	 * @param supervisionService the service for managing the supervisions.
 	 * @param invitationService the service for managing the invitations.
+	 * @param projectMemberRepository the repository for accessing the project members.
+	 * @param structureHolderRepository the repository for accessing the structure holders.
 	 * @param nameComparator the comparator of person names.
 	 */
 	public PersonMergingService(
@@ -98,6 +108,8 @@ public class PersonMergingService extends AbstractService {
 			@Autowired JuryMembershipService juryMembershipService,
 			@Autowired SupervisionService supervisionService,
 			@Autowired PersonInvitationService invitationService,
+			@Autowired ProjectMemberRepository projectMemberRepository,
+			@Autowired AssociatedStructureHolderRepository structureHolderRepository,
 			@Autowired PersonNameComparator nameComparator) {
 		super(messages, constants);
 		this.personRepository = personRepository;
@@ -107,6 +119,8 @@ public class PersonMergingService extends AbstractService {
 		this.juryMembershipService = juryMembershipService;
 		this.supervisionService = supervisionService;
 		this.invitationService = invitationService;
+		this.projectMemberRepository = projectMemberRepository;
+		this.structureHolderRepository = structureHolderRepository;
 		this.nameComparator = nameComparator;
 	}
 
@@ -215,6 +229,8 @@ public class PersonMergingService extends AbstractService {
 				lchange = reassignJuryMemberships(source, target) || lchange;
 				lchange = reassignSupervisions(source, target) || lchange;
 				lchange = reassignInvitations(source, target) || lchange;
+				lchange = reassignProjects(source, target) || lchange;
+				lchange = reassignAssociatedStructures(source, target) || lchange;
 				//
 				this.personService.removePerson(source.getId());
 				changed = changed || lchange;
@@ -357,6 +373,56 @@ public class PersonMergingService extends AbstractService {
 		}
 		for (final PersonInvitation inv : changed) {
 			this.invitationService.save(inv);
+		}
+		return true;
+	}
+
+	/** Re-assign the project members attached to the source person to the target person.
+	 * 
+	 * @param sources the person to remove and replace by the target person.
+	 * @param target the target person who should replace the source persons.
+	 * @return {@code true} if project has changed.
+	 * @throws Exception if the change cannot be completed.
+	 */
+	protected boolean reassignProjects(Person source, Person target) throws Exception {
+		final List<ProjectMember> changed = new ArrayList<>();
+		for (final ProjectMember member : this.projectMemberRepository.findDistinctByPersonId(source.getId())) {
+			if (member.getPerson().getId() == source.getId()) {
+				member.setPerson(target);
+				changed.add(member);
+			}
+		}
+		//
+		if (changed.isEmpty()) {
+			return false;
+		}
+		for (final ProjectMember mbr : changed) {
+			this.projectMemberRepository.save(mbr);
+		}
+		return true;
+	}
+
+	/** Re-assign the associated structure's holders attached to the source person to the target person.
+	 * 
+	 * @param sources the person to remove and replace by the target person.
+	 * @param target the target person who should replace the source persons.
+	 * @return {@code true} if associated structure has changed.
+	 * @throws Exception if the change cannot be completed.
+	 */
+	protected boolean reassignAssociatedStructures(Person source, Person target) throws Exception {
+		final List<AssociatedStructureHolder> changed = new ArrayList<>();
+		for (final AssociatedStructureHolder holder : this.structureHolderRepository.findDistinctByPersonId(source.getId())) {
+			if (holder.getPerson().getId() == source.getId()) {
+				holder.setPerson(target);
+				changed.add(holder);
+			}
+		}
+		//
+		if (changed.isEmpty()) {
+			return false;
+		}
+		for (final AssociatedStructureHolder holder : changed) {
+			this.structureHolderRepository.save(holder);
 		}
 		return true;
 	}
