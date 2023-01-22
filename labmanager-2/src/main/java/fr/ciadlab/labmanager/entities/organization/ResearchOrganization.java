@@ -163,6 +163,11 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String pathToLogo;
 
+	/** Indicates if the address was validated by an authority.
+	 */
+	@Column(nullable = false)
+	private boolean validated;
+
 	/** Construct a research organization from the given values.
 	 * 
 	 * @param id the identifier of the organization.
@@ -212,6 +217,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		h = HashCodeUtils.add(h, this.organizationUrl);
 		h = HashCodeUtils.add(h, this.type);
 		h = HashCodeUtils.add(h, this.pathToLogo);
+		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
@@ -255,6 +261,9 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 			return false;
 		}
 		if (!Objects.equals(this.pathToLogo, other.pathToLogo)) {
+			return false;
+		}
+		if (this.validated != other.validated) {
 			return false;
 		}
 		return true;
@@ -307,6 +316,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		if (!Strings.isNullOrEmpty(getPathToLogo())) {
 			consumer.accept("pathToLogo", getPathToLogo()); //$NON-NLS-1$
 		}
+		consumer.accept("validated", Boolean.valueOf(isValidated())); //$NON-NLS-1$
 	}
 
 	@Override
@@ -742,6 +752,37 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 */
 	public void setPathToLogo(String path) {
 		this.pathToLogo = Strings.emptyToNull(path);
+	}
+
+	/** Replies if this organization was validated by an authority.
+	 *
+	 * @return {@code true} if the organization is validated.
+	 * @since 3.2
+	 */
+	public boolean isValidated() {
+		return this.validated;
+	}
+
+	/** Change the flag that indicates if this organization was validated by an authority.
+	 *
+	 * @param validated {@code true} if the organization is validated.
+	 * @since 3.2
+	 */
+	public void setValidated(boolean validated) {
+		this.validated = validated;
+	}
+
+	/** Change the flag that indicates if this organization was validated by an authority.
+	 *
+	 * @param validated {@code true} if the organization is validated.
+	 * @since 3.2
+	 */
+	public final void setValidated(Boolean validated) {
+		if (validated == null) {
+			setValidated(false);
+		} else {
+			setValidated(validated.booleanValue());
+		}
 	}
 
 }

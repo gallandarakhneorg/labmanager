@@ -72,6 +72,7 @@
 		        th:value="${otherOrganization.id}"
 		        th:utext="${otherOrganization.acronym + ' - ' + otherOrganization.name}"></option>
 	</div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedOrganization}, #{html.ValidatedOrganization}, ${organization != null ? organization.validated : false})"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
 /*[# th:if="${changeEnabled}"]*/

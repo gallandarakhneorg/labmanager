@@ -121,6 +121,7 @@ public class ResearchOrganizationService extends AbstractService {
 
 	/** Create a research organization.
 	 *
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param acronym the new acronym for the research organization.
 	 * @param name the new name for the research organization.
 	 * @param isMajor indicates if the organization is a major organization.
@@ -136,7 +137,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @return the created organization in the database.
 	 * @throws IOException if the logo cannot be uploaded or removed.
 	 */
-	public Optional<ResearchOrganization> createResearchOrganization(String acronym, String name,
+	public Optional<ResearchOrganization> createResearchOrganization(boolean validated, String acronym, String name,
 			boolean isMajor,
 			String rnsr, String nationalIdentifier, String description,
 			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization,
@@ -168,6 +169,7 @@ public class ResearchOrganizationService extends AbstractService {
 		res.setType(type);
 		res.setOrganizationURL(Strings.emptyToNull(organizationURL));
 		res.setCountry(country);
+		res.setValidated(validated);
 		if (adrs != null && !adrs.isEmpty()) {
 			res.setAddresses(adrs);
 		}
@@ -208,6 +210,7 @@ public class ResearchOrganizationService extends AbstractService {
 	/** Change the information associated to a research organization.
 	 *
 	 * @param identifier the identifier of the research organization to be updated.
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param acronym the new acronym for the research organization.
 	 * @param name the new name for the research organization.
 	 * @param isMajor indicates if the organization is a major organization.
@@ -224,7 +227,7 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @return the organization object that was updated.
 	 * @throws IOException if the logo cannot be uploaded or removed.
 	 */
-	public Optional<ResearchOrganization> updateResearchOrganization(int identifier, String acronym, String name,
+	public Optional<ResearchOrganization> updateResearchOrganization(int identifier, boolean validated, String acronym, String name,
 			boolean isMajor,
 			String rnsr, String nationalIdentifier, String description,
 			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization,
@@ -263,6 +266,7 @@ public class ResearchOrganizationService extends AbstractService {
 			organization.setOrganizationURL(Strings.emptyToNull(organizationURL));
 			organization.setCountry(country);
 			organization.setAddresses(adrs);
+			organization.setValidated(validated);
 			if (sres.isPresent()) {
 				organization.setSuperOrganization(sres.get());
 			}

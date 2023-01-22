@@ -18,6 +18,7 @@
 		<th th:text="#{html.Country}"></th>
 		<th th:text="#{html.SuperOrganization}"></th>
 		<th th:text="#{html.SubOrganizations}"></th>
+        <th th:utext="#{html.Validated}"></th>
 		<th th:text="#{html.Actions}"></th>
 	</thead>
     <tbody>
@@ -61,6 +62,10 @@
                     <th:block th:utext="${suborga.acronymOrName}"></th:block>
                 </th:block>
             </td>
+            <td>
+            	<th:block th:if="${organization.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
+            	<th:block th:unless="${organization.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
+            </td>
             <td th:replace="fragments/table :: adminToolButtons(${organization.id}, ${organization.getAcronymOrName},
             		#{html.EditOrganization1(${organization.acronymOrName})},
             		#{html.DeleteOrganization1(${organization.acronymOrName})},
@@ -73,7 +78,7 @@
 <script type="text/javascript" th:inline="javascript">
     $(document).ready(() => {
     	initAdministrationTable({
-    		columns: 9,
+    		columns: 10,
     	});
         /*[# th:if="${changeEnabled}" th:each="organization : ${organizations}"]*/
     	attachDeletionHandler({

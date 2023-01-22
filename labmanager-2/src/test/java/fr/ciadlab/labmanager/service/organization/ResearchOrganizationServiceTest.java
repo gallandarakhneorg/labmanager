@@ -213,7 +213,7 @@ public class ResearchOrganizationServiceTest {
 	public void createResearchOrganization() throws Exception {
 		List<Integer> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
-		final Optional<ResearchOrganization> res = this.test.createResearchOrganization("NA", "NN", true, "NRNSR", "NNI", "ND",
+		final Optional<ResearchOrganization> res = this.test.createResearchOrganization(true, "NA", "NN", true, "NRNSR", "NNI", "ND",
 				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0, null);
 		assertNotNull(res);
 		assertNotNull(res.get());
@@ -222,6 +222,7 @@ public class ResearchOrganizationServiceTest {
 		verify(this.organizationRepository, only()).save(arg.capture());
 		final ResearchOrganization actual = arg.getValue();
 		assertNotNull(actual);
+		assertTrue(actual.isValidated());
 		assertEquals("NA", actual.getAcronym());
 		assertEquals("NN", actual.getName());
 		assertTrue(actual.isMajorOrganization());
@@ -254,7 +255,7 @@ public class ResearchOrganizationServiceTest {
 	public void updateResearchOrganization() throws Exception {
 		List<Integer> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
-		Optional<ResearchOrganization> res = this.test.updateResearchOrganization(234, "NA", "NN", true, "NRNSR", "NNI", "ND",
+		Optional<ResearchOrganization> res = this.test.updateResearchOrganization(234, true, "NA", "NN", true, "NRNSR", "NNI", "ND",
 				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0, null, false);
 		assertNotNull(res);
 		assertNotNull(res.get());
@@ -273,6 +274,8 @@ public class ResearchOrganizationServiceTest {
 		final ArgumentCaptor<String> arg2 = ArgumentCaptor.forClass(String.class);
 		final ArgumentCaptor<ResearchOrganizationType> arg3 = ArgumentCaptor.forClass(ResearchOrganizationType.class);
 		final ArgumentCaptor<CountryCode> arg4 = ArgumentCaptor.forClass(CountryCode.class);
+
+		verify(this.orga1, atLeastOnce()).setValidated(eq(true));
 
 		verify(this.orga1, atLeastOnce()).setAcronym(arg2.capture());
 		assertEquals("NA", arg2.getValue());

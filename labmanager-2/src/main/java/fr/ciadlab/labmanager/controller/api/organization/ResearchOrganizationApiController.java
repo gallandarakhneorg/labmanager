@@ -120,6 +120,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	 * @param superOrganization the identifier of the super organization, or {@code 0} if none.
 	 * @param pathToLogo the uploaded logo of the organization, if any.
 	 * @param removePathToLogo indicates if the path to the logo in the database should be removed, possibly before saving a new logo.
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of problem for saving.
 	 */
@@ -139,6 +140,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer superOrganization,
 			@RequestParam(required = false) MultipartFile pathToLogo,
 			@RequestParam(required = false, defaultValue = "false", name = "@fileUpload_removed_pathToLogo") boolean removePathToLogo,
+			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.ORGANIZATION_SAVING_ENDPOINT, organization);
 		try {
@@ -155,12 +157,12 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 			final Optional<ResearchOrganization> optOrganization;
 			if (organization == null) {
 				optOrganization = this.organizationService.createResearchOrganization(
-						inAcronym, inName, major, inRnsr, inNationalIdentifier, inDescription, typeObj,
+						validated, inAcronym, inName, major, inRnsr, inNationalIdentifier, inDescription, typeObj,
 						inOrganizationURL, countryObj, organizationAddress, superOrganization,
 						pathToLogo);
 			} else {
 				optOrganization = this.organizationService.updateResearchOrganization(organization.intValue(),
-						inAcronym, inName, major, inRnsr, inNationalIdentifier, inDescription, typeObj,
+						validated, inAcronym, inName, major, inRnsr, inNationalIdentifier, inDescription, typeObj,
 						inOrganizationURL, countryObj, organizationAddress, superOrganization,
 						pathToLogo, removePathToLogo);
 			}
