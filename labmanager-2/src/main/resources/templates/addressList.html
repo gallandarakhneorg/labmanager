@@ -14,6 +14,7 @@
 		<th th:text="#{html.Street}"></th>
 		<th th:text="#{html.ZipCode}"></th>
 		<th th:text="#{html.City}"></th>
+        <th th:utext="#{html.Validated}"></th>
 		<th th:text="#{html.Actions}"></th>
 	</thead>
     <tbody>
@@ -33,6 +34,10 @@
             <td>
                 <th:block th:utext="${address.city}"></th:block>
             </td>
+            <td>
+            	<th:block th:if="${address.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
+            	<th:block th:unless="${address.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
+            </td>
             <td th:replace="fragments/table :: adminToolButtons(${address.id}, ${address.name},
             		#{html.EditAddress(${address.name})},
             		#{html.DeleteAddress(${address.name})},
@@ -44,7 +49,7 @@
 <script type="text/javascript" th:inline="javascript">
     $(document).ready(() => {
     	initAdministrationTable({
-    		columns: 5,
+    		columns: 6,
     		actionWidth: '60px',
     	});
     });

@@ -101,6 +101,11 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String pathToBackgroundImage;
 
+	/** Indicates if the address was validated by an authority.
+	 */
+	@Column(nullable = false)
+	private boolean validated;
+
 	/** Construct an organization address from the given values.
 	 * 
 	 * @param id the identifier of the organization.
@@ -138,6 +143,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 		h = HashCodeUtils.add(h, this.city);
 		h = HashCodeUtils.add(h, this.mapCoordinates);
 		h = HashCodeUtils.add(h, this.pathToBackgroundImage);
+		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
@@ -172,6 +178,9 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 			return false;
 		}
 		if (!Objects.equals(this.pathToBackgroundImage, other.pathToBackgroundImage)) {
+			return false;
+		}
+		if (this.validated != other.validated) {
 			return false;
 		}
 		return true;
@@ -219,6 +228,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 		if (!Strings.isNullOrEmpty(getPathToBackgroundImage())) {
 			consumer.accept("pathToBackgroundImage", getPathToBackgroundImage()); //$NON-NLS-1$
 		}
+		consumer.accept("validated", Boolean.valueOf(isValidated())); //$NON-NLS-1$
 	}
 
 	@Override
@@ -427,6 +437,37 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	 */
 	public void setPathToBackgroundImage(String path) {
 		this.pathToBackgroundImage = Strings.emptyToNull(path);
+	}
+
+	/** Replies if this address was validated by an authority.
+	 *
+	 * @return {@code true} if the address is validated.
+	 * @since 3.2
+	 */
+	public boolean isValidated() {
+		return this.validated;
+	}
+
+	/** Change the flag that indicates if this address was validated by an authority.
+	 *
+	 * @param validated {@code true} if the address is validated.
+	 * @since 3.2
+	 */
+	public void setValidated(boolean validated) {
+		this.validated = validated;
+	}
+
+	/** Change the flag that indicates if this address was validated by an authority.
+	 *
+	 * @param validated {@code true} if the address is validated.
+	 * @since 3.2
+	 */
+	public final void setValidated(Boolean validated) {
+		if (validated == null) {
+			setValidated(false);
+		} else {
+			setValidated(validated.booleanValue());
+		}
 	}
 
 }

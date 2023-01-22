@@ -79,11 +79,12 @@ public class OrganizationAddressApiController extends AbstractApiController {
 	 * @param pathToBackgroundImage the path to the background image.
 	 * @param backgroundImage the background image.
 	 * @param removedBackgroundImage indicates if the background image should be removed.
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of problem for saving.
 	 */
 	@PutMapping(value = "/" + Constants.ORGANIZATION_ADDRESS_SAVING_ENDPOINT)
-	public void saveOrganization(
+	public void saveOrganizationAddress(
 			@RequestParam(required = false) Integer address,
 			@RequestParam(required = true) String name,
 			@RequestParam(required = false) String complement,
@@ -94,6 +95,7 @@ public class OrganizationAddressApiController extends AbstractApiController {
 			@RequestParam(required = false) String googleMapLink,
 			@RequestParam(required = false) MultipartFile pathToBackgroundImage,
 			@RequestParam(required = false, name = "@fileUpload_removed_pathToBackgroundImage", defaultValue = "false") boolean removedBackgroundImage,
+			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.ORGANIZATION_ADDRESS_SAVING_ENDPOINT, address);
 		try {
@@ -108,10 +110,10 @@ public class OrganizationAddressApiController extends AbstractApiController {
 			final Optional<OrganizationAddress> optAddress;
 			//
 			if (address == null) {
-				optAddress = this.addressService.createAddress(inName, inComplement, inStreet, inZipCode, inCity, inMapCoordinates,
+				optAddress = this.addressService.createAddress(validated, inName, inComplement, inStreet, inZipCode, inCity, inMapCoordinates,
 						inGoogleMapLink, pathToBackgroundImage);
 			} else {
-				optAddress = this.addressService.updateAddress(address.intValue(),
+				optAddress = this.addressService.updateAddress(address.intValue(), validated,
 						inName, inComplement, inStreet, inZipCode, inCity, inMapCoordinates,
 						inGoogleMapLink, pathToBackgroundImage, removedBackgroundImage);
 			}
@@ -131,7 +133,7 @@ public class OrganizationAddressApiController extends AbstractApiController {
 	 * @throws Exception in case of error.
 	 */
 	@DeleteMapping("/deleteAddress")
-	public void deleteOrganization(
+	public void deleteOrganizationAddress(
 			@RequestParam Integer address,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "deleteAddress", address); //$NON-NLS-1$

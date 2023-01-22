@@ -88,6 +88,7 @@ public class OrganizationAddressService extends AbstractService {
 
 	/** Create a research organization address.
 	 *
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param name the name of the address.
 	 * @param complement the complementary information that may appear before the rest of the address.
 	 * @param street the building number and street name. 
@@ -99,7 +100,8 @@ public class OrganizationAddressService extends AbstractService {
 	 * @return the created address in the database.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
-	public Optional<OrganizationAddress> createAddress(String name, String complement, String street, String zipCode, String city,
+	public Optional<OrganizationAddress> createAddress(boolean validated,
+			String name, String complement, String street, String zipCode, String city,
 			String mapCoordinates, String googleLink, MultipartFile backgroundImage) throws IOException {
 		final OrganizationAddress adr = new OrganizationAddress();
 		adr.setName(name);
@@ -109,6 +111,7 @@ public class OrganizationAddressService extends AbstractService {
 		adr.setCity(city);
 		adr.setMapCoordinates(mapCoordinates);
 		adr.setGoogleMapLink(googleLink);
+		adr.setValidated(validated);
 		// Save to get the ID of the address
 		this.addressRepository.save(adr);
 		//
@@ -119,6 +122,7 @@ public class OrganizationAddressService extends AbstractService {
 	/** Update a research organization address.
 	 *
 	 * @param identifier the identifier in the database of the address to update.
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param name the name of the address.
 	 * @param complement the complementary information that may appear before the rest of the address.
 	 * @param street the building number and street name. 
@@ -131,7 +135,8 @@ public class OrganizationAddressService extends AbstractService {
 	 * @return the created address in the database.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
-	public Optional<OrganizationAddress> updateAddress(int identifier, String name, String complement, String street, String zipCode,
+	public Optional<OrganizationAddress> updateAddress(
+			int identifier, boolean validated, String name, String complement, String street, String zipCode,
 			String city, String mapCoordinates, String googleLink, MultipartFile backgroundImage, boolean removedBackgroundImage) throws IOException {
 		final Optional<OrganizationAddress> res = this.addressRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
@@ -151,6 +156,7 @@ public class OrganizationAddressService extends AbstractService {
 			}
 			address.setMapCoordinates(mapCoordinates);
 			address.setGoogleMapLink(googleLink);
+			address.setValidated(validated);
 			//
 			updateUploadedImage(address, backgroundImage, removedBackgroundImage, false);
 			//

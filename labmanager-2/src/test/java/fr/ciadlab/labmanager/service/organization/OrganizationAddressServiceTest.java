@@ -137,7 +137,7 @@ public class OrganizationAddressServiceTest {
 	public void createAddress() throws IOException {
 		MultipartFile file = mock(MultipartFile.class);
 		when(file.isEmpty()).thenReturn(true);
-		final Optional<OrganizationAddress> res = this.test.createAddress("NN", "NC", "NS", "NZC", "NC", "NMC", "NGL", file);
+		final Optional<OrganizationAddress> res = this.test.createAddress(true, "NN", "NC", "NS", "NZC", "NC", "NMC", "NGL", file);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
@@ -145,6 +145,7 @@ public class OrganizationAddressServiceTest {
 		verify(this.addressRepository, only()).save(arg.capture());
 		final OrganizationAddress actual = arg.getValue();
 		assertNotNull(actual);
+		assertTrue(actual.isValidated());
 		assertEquals("NN", actual.getName());
 		assertEquals("NC", actual.getComplement());
 		assertEquals("NS", actual.getStreet());
@@ -158,13 +159,14 @@ public class OrganizationAddressServiceTest {
 	public void updateAddress() throws IOException {
 		MultipartFile file = mock(MultipartFile.class);
 		when(file.isEmpty()).thenReturn(true);
-		Optional<OrganizationAddress> res = this.test.updateAddress(234, "NN", "NC", "NS", "NZC", "NC", "NMC", "NGL", file, false);
+		Optional<OrganizationAddress> res = this.test.updateAddress(234, true, "NN", "NC", "NS", "NZC", "NC", "NMC", "NGL", file, false);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
 		verify(this.addressRepository, atLeastOnce()).findById(eq(234));
 		verify(this.addressRepository, atLeastOnce()).save(same(this.adr1));
 
+		verify(this.adr1, atLeastOnce()).setValidated(eq(true));
 		verify(this.adr1, atLeastOnce()).setName(eq("NN"));
 		verify(this.adr1, atLeastOnce()).setComplement(eq("NC"));
 		verify(this.adr1, atLeastOnce()).setStreet(eq("NS"));
