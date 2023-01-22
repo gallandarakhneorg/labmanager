@@ -246,7 +246,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void createPerson() {
-		final Person person = this.test.createPerson("NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
+		final Person person = this.test.createPerson(true, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
 				"NGRAV", "NORCID", "NRID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
 
@@ -257,6 +257,7 @@ public class PersonServiceTest {
 		final Person actual = arg.getValue();
 		assertNotNull(actual);
 		assertSame(person, actual);
+		assertTrue(actual.isValidated());
 		assertEquals("NFN", actual.getFirstName());
 		assertEquals("NLN", actual.getLastName());
 		assertSame(Gender.FEMALE, actual.getGender());
@@ -282,7 +283,7 @@ public class PersonServiceTest {
 
 	@Test
 	public void updatePerson() {
-		Person person = this.test.updatePerson(234, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
+		Person person = this.test.updatePerson(234, true, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
 				"NGRAV", "NORCID", "NRID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
 
@@ -299,6 +300,7 @@ public class PersonServiceTest {
 		final Person actual1 = arg1.getValue();
 		assertSame(this.pers1, actual1);
 
+		verify(this.pers1, atLeastOnce()).setValidated(eq(true));
 		verify(this.pers1, atLeastOnce()).setFirstName(eq("NFN"));
 		verify(this.pers1, atLeastOnce()).setLastName(eq("NLN"));
 		verify(this.pers1, atLeastOnce()).setGender(same(Gender.FEMALE));

@@ -47,6 +47,7 @@
 	</div>
 	<div class="form-group" th:replace="fragments/form :: textInput(googleScholarHindex, #{html.HindexOnScholar}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.googleScholarHindex : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(wosHindex, #{html.HindexOnWos}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.wosHindex : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedPerson}, #{html.ValidatedPerson}, ${person != null ? person.validated : false})"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
 $(document).ready(function () {

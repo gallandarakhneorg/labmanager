@@ -247,6 +247,11 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Authorship> authorships;
 
+	/** Indicates if the address was validated by an authority.
+	 */
+	@Column(nullable = false)
+	private boolean validated;
+
 	/** Construct a person with the given values.
 	 *
 	 * @param id the identifier of the person.
@@ -304,6 +309,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		h = HashCodeUtils.add(h, this.researcherId);
 		h = HashCodeUtils.add(h, this.researchGateId);
 		h = HashCodeUtils.add(h, this.wosHindex);
+		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
@@ -377,6 +383,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			return false;
 		}
 		if (this.wosHindex != other.wosHindex) {
+			return false;
+		}
+		if (this.validated != other.validated) {
 			return false;
 		}
 		return true;
@@ -477,6 +486,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (getWebPageURI() != null) {
 			consumer.accept("webPageURI", getWebPageURI()); //$NON-NLS-1$
 		}
+		consumer.accept("validated", Boolean.valueOf(isValidated())); //$NON-NLS-1$
 	}
 
 	@Override
@@ -1540,6 +1550,37 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			return url;
 		}
 		return null;
+	}
+
+	/** Replies if this person information was validated by an authority.
+	 *
+	 * @return {@code true} if the person information is validated.
+	 * @since 3.2
+	 */
+	public boolean isValidated() {
+		return this.validated;
+	}
+
+	/** Change the flag that indicates if this person information was validated by an authority.
+	 *
+	 * @param validated {@code true} if the person information is validated.
+	 * @since 3.2
+	 */
+	public void setValidated(boolean validated) {
+		this.validated = validated;
+	}
+
+	/** Change the flag that indicates if this person information was validated by an authority.
+	 *
+	 * @param validated {@code true} if the person information is validated.
+	 * @since 3.2
+	 */
+	public final void setValidated(Boolean validated) {
+		if (validated == null) {
+			setValidated(false);
+		} else {
+			setValidated(validated.booleanValue());
+		}
 	}
 
 }

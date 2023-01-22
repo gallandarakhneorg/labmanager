@@ -19,6 +19,7 @@
         <th th:utext="#{html.CurrentOrganizations}"></th>
         <th th:utext="#{html.FormerOrganizations}"></th>
         <th th:utext="#{html.FutureOrganizations}"></th>
+        <th th:utext="#{html.Validated}"></th>
         <th th:text="#{html.Actions}"></th>
     </thead>
     <tbody>
@@ -106,6 +107,10 @@
                        th:utext="${mbr.key.acronymOrName}"></a>
                 </th:block>
             </td>
+            <td>
+            	<th:block th:if="${person.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
+            	<th:block th:unless="${person.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
+            </td>
             <td th:replace="fragments/table :: adminToolButtons(${person.id}, ${person.fullName},
             		#{html.EditPerson1(${person.fullName})},
             		#{html.DeletePerson1(${person.fullName})},
@@ -172,6 +177,7 @@
             	{
                     "orderable": false
             	},
+            	{ },
             	{ },
             	{ },
             	{ },

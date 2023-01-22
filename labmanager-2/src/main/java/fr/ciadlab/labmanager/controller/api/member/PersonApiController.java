@@ -149,6 +149,7 @@ public class PersonApiController extends AbstractApiController {
 	 * @param webPageNaming the type of naming for the person's webpage on the organization server.
 	 * @param googleScholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if the person cannot be saved.
 	 */
@@ -176,6 +177,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) String webPageNaming,
 			@RequestParam(required = false) Integer googleScholarHindex,
 			@RequestParam(required = false) Integer wosHindex,
+			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PERSON_SAVING_ENDPOINT, person);
 		final String inFirstName = inString(firstName);
@@ -207,13 +209,13 @@ public class PersonApiController extends AbstractApiController {
 		//
 		if (person == null) {
 			optPerson = this.personService.createPerson(
-					inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
+					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
 					inGravatarId, inOrcid, inResearcherId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,
 					shindex, whindex);
 		} else {
 			optPerson = this.personService.updatePerson(person.intValue(),
-					inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
+					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
 					inGravatarId, inOrcid, inResearcherId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,
 					shindex, whindex);

@@ -126,6 +126,7 @@ public class PersonService extends AbstractService {
 	 */
 	public Person createPerson(String firstName, String lastName) {
 		return createPerson(
+				false,
 				firstName, lastName,
 				Gender.NOT_SPECIFIED,
 				null, // email
@@ -150,6 +151,7 @@ public class PersonService extends AbstractService {
 
 	/** Create a person in the database.
 	 *
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
 	 * @param gender the gender.
@@ -175,7 +177,7 @@ public class PersonService extends AbstractService {
 	 * @see #createPerson(String, String)
 	 * @see Gender
 	 */
-	public Person createPerson(String firstName, String lastName, Gender gender, String email, String officePhone,
+	public Person createPerson(boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
 			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId,
 			String scholarId, String linkedInId, String githubId, String researchGateId, String facebookId,
 			String dblpURL, String academiaURL, String cordisURL, WebPageNaming webPageNaming,
@@ -202,6 +204,7 @@ public class PersonService extends AbstractService {
 		res.setWebPageNaming(webPageNaming);
 		res.setGoogleScholarHindex(scholarHindex);
 		res.setWosHindex(wosHindex);
+		res.setValidated(validated);
 		this.personRepository.save(res);
 		return res;
 	}
@@ -209,6 +212,7 @@ public class PersonService extends AbstractService {
 	/** Change the attributes of a person in the database.
 	 *
 	 * @param identifier the identifier of the person in the database.
+	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param firstName the first name of the person.
 	 * @param lastName the last name of the person.
 	 * @param gender the gender.
@@ -232,7 +236,7 @@ public class PersonService extends AbstractService {
 	 * @param wosHindex the Hindex of the person on WOS.
 	 * @return the updated person.
 	 */
-	public Person updatePerson(int identifier, String firstName, String lastName, Gender gender, String email, String officePhone,
+	public Person updatePerson(int identifier, boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
 			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scholarId,
 			String linkedInId, String githubId, String researchGateId, String facebookId, String dblpURL, String academiaURL,
 			String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex) {
@@ -264,6 +268,7 @@ public class PersonService extends AbstractService {
 			person.setWebPageNaming(webPageNaming);
 			person.setGoogleScholarHindex(scholarHindex);
 			person.setWosHindex(wosHindex);
+			person.setValidated(validated);
 			this.personRepository.save(person);
 			return person;
 		}
