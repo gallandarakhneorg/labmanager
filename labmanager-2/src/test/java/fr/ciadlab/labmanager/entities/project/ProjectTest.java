@@ -306,6 +306,66 @@ public class ProjectTest {
 	}
 
 	@Test
+	public void getContractType() {
+		assertSame(ProjectContractType.NOT_SPECIFIED, this.test.getContractType());
+	}
+
+	@Test
+	public void setContractType_ProjectContractType_null() {
+		this.test.setContractType(ProjectContractType.PR);
+		this.test.setContractType((ProjectContractType) null);
+		assertSame(ProjectContractType.NOT_SPECIFIED, this.test.getContractType());
+	}
+
+	@Test
+	public void setContractType_ProjectContractType() {
+		this.test.setContractType(ProjectContractType.PI);
+		assertSame(ProjectContractType.PI, this.test.getContractType());
+		this.test.setContractType(ProjectContractType.PR);
+		assertSame(ProjectContractType.PR, this.test.getContractType());
+		this.test.setContractType(ProjectContractType.RCD);
+		assertSame(ProjectContractType.RCD, this.test.getContractType());
+		this.test.setContractType(ProjectContractType.RCO);
+		assertSame(ProjectContractType.RCO, this.test.getContractType());
+		this.test.setContractType(ProjectContractType.NOT_SPECIFIED);
+		assertSame(ProjectContractType.NOT_SPECIFIED, this.test.getContractType());
+	}
+
+	@Test
+	public void setContractType_String_null() {
+		this.test.setContractType(ProjectContractType.PR);
+		this.test.setContractType((String) null);
+		assertSame(ProjectContractType.NOT_SPECIFIED, this.test.getContractType());
+	}
+
+	@Test
+	public void setContractType_String_empty() {
+		this.test.setContractType(ProjectContractType.PR);
+		this.test.setContractType("");
+		assertSame(ProjectContractType.NOT_SPECIFIED, this.test.getContractType());
+	}
+
+	@Test
+	public void setContractType_String_valid() {
+		this.test.setContractType("pr");
+		assertSame(ProjectContractType.PR, this.test.getContractType());
+		this.test.setContractType("pi");
+		assertSame(ProjectContractType.PI, this.test.getContractType());
+		this.test.setContractType("rco");
+		assertSame(ProjectContractType.RCO, this.test.getContractType());
+		this.test.setContractType("rcd");
+		assertSame(ProjectContractType.RCD, this.test.getContractType());
+		this.test.setContractType("not_specified");
+		assertSame(ProjectContractType.NOT_SPECIFIED, this.test.getContractType());
+	}
+
+	@Test
+	public void setContractType_String_invalid() {
+		this.test.setContractType("xyz");
+		assertSame(ProjectContractType.NOT_SPECIFIED, this.test.getContractType());
+	}
+
+	@Test
 	public void getActivityType() {
 		assertNull(this.test.getActivityType());
 	}
@@ -1133,54 +1193,68 @@ public class ProjectTest {
 
 	@Test
 	public void getCategory_competitive_notOpen() {
-		ProjectBudget b0 = mock(ProjectBudget.class);
-		when(b0.getFundingScheme()).thenReturn(FundingScheme.ADEME);
-		this.test.setBudgets(Collections.singletonList(b0));
+		this.test.setContractType(ProjectContractType.RCO);
 		this.test.setOpenSource(false);
 		assertSame(ProjectCategory.COMPETITIVE_CALL_PROJECT, this.test.getCategory());
 	}
 
 	@Test
 	public void getCategory_competitive_open() {
-		ProjectBudget b0 = mock(ProjectBudget.class);
-		when(b0.getFundingScheme()).thenReturn(FundingScheme.ADEME);
-		this.test.setBudgets(Collections.singletonList(b0));
+		this.test.setContractType(ProjectContractType.RCO);
 		this.test.setOpenSource(true);
 		assertSame(ProjectCategory.COMPETITIVE_CALL_PROJECT, this.test.getCategory());
 	}
 
 	@Test
-	public void getCategory_notAcademic_notOpen() {
-		ProjectBudget b0 = mock(ProjectBudget.class);
-		when(b0.getFundingScheme()).thenReturn(FundingScheme.EU_COMPANY);
-		this.test.setBudgets(Collections.singletonList(b0));
+	public void getCategory_notAcademic_notOpen_rcd() {
+		this.test.setContractType(ProjectContractType.RCD);
 		this.test.setOpenSource(false);
 		assertSame(ProjectCategory.NOT_ACADEMIC_PROJECT, this.test.getCategory());
 	}
 
 	@Test
-	public void getCategory_notAcademic_open() {
-		ProjectBudget b0 = mock(ProjectBudget.class);
-		when(b0.getFundingScheme()).thenReturn(FundingScheme.EU_COMPANY);
-		this.test.setBudgets(Collections.singletonList(b0));
+	public void getCategory_notAcademic_notOpen_pr() {
+		this.test.setContractType(ProjectContractType.PR);
+		this.test.setOpenSource(false);
+		assertSame(ProjectCategory.NOT_ACADEMIC_PROJECT, this.test.getCategory());
+	}
+
+	@Test
+	public void getCategory_notAcademic_notOpen_pi() {
+		this.test.setContractType(ProjectContractType.PI);
+		this.test.setOpenSource(false);
+		assertSame(ProjectCategory.NOT_ACADEMIC_PROJECT, this.test.getCategory());
+	}
+
+	@Test
+	public void getCategory_notAcademic_open_rcd() {
+		this.test.setContractType(ProjectContractType.RCD);
+		this.test.setOpenSource(true);
+		assertSame(ProjectCategory.NOT_ACADEMIC_PROJECT, this.test.getCategory());
+	}
+
+	@Test
+	public void getCategory_notAcademic_open_pr() {
+		this.test.setContractType(ProjectContractType.PR);
+		this.test.setOpenSource(true);
+		assertSame(ProjectCategory.NOT_ACADEMIC_PROJECT, this.test.getCategory());
+	}
+
+	@Test
+	public void getCategory_notAcademic_open_pi() {
+		this.test.setContractType(ProjectContractType.PI);
 		this.test.setOpenSource(true);
 		assertSame(ProjectCategory.NOT_ACADEMIC_PROJECT, this.test.getCategory());
 	}
 
 	@Test
 	public void getCategory_nothing_notOpen() {
-		ProjectBudget b0 = mock(ProjectBudget.class);
-		when(b0.getFundingScheme()).thenReturn(FundingScheme.NOT_FUNDED);
-		this.test.setBudgets(Collections.singletonList(b0));
 		this.test.setOpenSource(false);
 		assertSame(ProjectCategory.AUTO_FUNDING, this.test.getCategory());
 	}
 
 	@Test
 	public void getCategory_nothing_open() {
-		ProjectBudget b0 = mock(ProjectBudget.class);
-		when(b0.getFundingScheme()).thenReturn(FundingScheme.NOT_FUNDED);
-		this.test.setBudgets(Collections.singletonList(b0));
 		this.test.setOpenSource(true);
 		assertSame(ProjectCategory.OPEN_SOURCE, this.test.getCategory());
 	}

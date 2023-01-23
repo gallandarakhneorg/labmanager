@@ -56,6 +56,7 @@
                               th:utext="', '"></th:block>
                     <th:block th:utext="${budget.fundingScheme.getLabel()}"></th:block>
             	</th:block>
+            	<th:block th:utext="${project.contractType.ordinal != 0 ? ' (' + project.contractType.name + ')' : ''}"></th:block>
             </td>
             <td>
 				<th:block th:if="${project.startDate != null}"

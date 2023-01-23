@@ -28,6 +28,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
+import fr.ciadlab.labmanager.entities.project.ProjectContractType;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.service.member.PersonService;
@@ -226,6 +227,9 @@ public class ProjectViewController extends AbstractViewController {
 		//
 		final List<FundingScheme> sortedFundingSchemes = buildSortedEnumConstants(FundingScheme.class, it -> it.getLabel());
 		modelAndView.addObject("sortedFundingSchemes", sortedFundingSchemes); //$NON-NLS-1$
+		//
+		final List<ProjectContractType> sortedContractTypes = Arrays.asList(ProjectContractType.values());
+		modelAndView.addObject("sortedContractTypes", sortedContractTypes); //$NON-NLS-1$
 		//
 		final List<ProjectActivityType> sortedActivityTypes = Arrays.asList(ProjectActivityType.values());
 		modelAndView.addObject("sortedActivityTypes", sortedActivityTypes); //$NON-NLS-1$

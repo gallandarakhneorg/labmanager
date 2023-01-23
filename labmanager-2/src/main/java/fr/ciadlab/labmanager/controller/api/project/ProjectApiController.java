@@ -30,6 +30,7 @@ import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
 import fr.ciadlab.labmanager.entities.project.ProjectBudget;
+import fr.ciadlab.labmanager.entities.project.ProjectContractType;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.entities.project.Role;
@@ -97,6 +98,7 @@ public class ProjectApiController extends AbstractApiController {
 	 * @param projectURL the URL of the project.
 	 * @param webPageNaming the naming convention for the project page on the institution website.
 	 * @param globalBudget the budget for all the partners in the project.
+	 * @param contractType the name of the type of contract.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
 	 * @param coordinator the identifier of the research organization which is coordinating the project.
@@ -139,6 +141,7 @@ public class ProjectApiController extends AbstractApiController {
 			@RequestParam(required = false) String projectURL,
 			@RequestParam(required = false) String webPageNaming,
 			@RequestParam(required = true) float globalBudget,
+			@RequestParam(required = true) String contractType,
 			@RequestParam(required = true) String activityType,
 			@RequestParam(required = true) String trl,
 			@RequestParam(required = true) int coordinator,
@@ -183,6 +186,7 @@ public class ProjectApiController extends AbstractApiController {
 		}
 		final String inWebPageNaming = inString(webPageNaming);
 		final ProjectWebPageNaming projectWebPageNaming = ProjectWebPageNaming.valueOfCaseInsensitive(inWebPageNaming);
+		final ProjectContractType inContactType = ProjectContractType.valueOfCaseInsensitive(inString(contractType));
 		final ProjectActivityType inActivityType = ProjectActivityType.valueOfCaseInsensitive(inString(activityType));
 		final TRL inTrl = TRL.valueOfCaseInsensitive(inString(trl));
 		if (trl == null) {
@@ -246,7 +250,8 @@ public class ProjectApiController extends AbstractApiController {
 		if (project == null) {
 			projectOpt = this.projectService.createProject(
 					validated, inAcronym, inScientificTitle, openSource, inStartDate, duration, inDescription,
-					pathToLogo, removePathToLogo, inProjectURLObj, projectWebPageNaming, globalBudget, inActivityType, inTrl,
+					pathToLogo, removePathToLogo, inProjectURLObj, projectWebPageNaming, globalBudget,
+					inContactType, inActivityType, inTrl,
 					coordinator, localOrganization, superOrganization, learOrganization, otherPartners, participantMap,
 					pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
@@ -254,7 +259,8 @@ public class ProjectApiController extends AbstractApiController {
 		} else {
 			projectOpt = this.projectService.updateProject(project.intValue(),
 					validated, inAcronym, inScientificTitle, openSource, inStartDate, duration, inDescription,
-					pathToLogo, removePathToLogo, inProjectURLObj, projectWebPageNaming, globalBudget, inActivityType,
+					pathToLogo, removePathToLogo, inProjectURLObj, projectWebPageNaming, globalBudget,
+					inContactType, inActivityType,
 					inTrl, coordinator, localOrganization, superOrganization, learOrganization, otherPartners,
 					participantMap, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,

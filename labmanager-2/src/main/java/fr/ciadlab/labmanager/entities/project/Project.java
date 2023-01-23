@@ -134,6 +134,12 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	@Enumerated(EnumType.STRING)
 	private ProjectActivityType activityType;
 
+	/** Type of the project contract.
+	 */
+	@Column
+	@Enumerated(EnumType.STRING)
+	private ProjectContractType contractType = ProjectContractType.NOT_SPECIFIED;
+
 	/** Status of the project.
 	 */
 	@Column
@@ -270,7 +276,8 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @param duration the duration in months.
 	 * @param globalBudget the global budget, including all the partners.
 	 * @param trl indicates the TRL for the project.
-	 * @param type the type of activity for the project.
+	 * @param contractType the type of contract for the project.
+	 * @param activityType the type of activity for the project.
 	 * @param status the status of the project.
 	 * @param confidential indicates if the project information is confidential or not.
 	 * @param openSource indicates if the project is open source or not.
@@ -290,13 +297,13 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	public Project(int id, String scientificTitle, String acronym, String description,
 			LocalDate startDate, int duration,
-			float globalBudget, TRL trl, ProjectActivityType type, 
+			float globalBudget, TRL trl, ProjectContractType contractType, ProjectActivityType activityType, 
 			ProjectStatus status, boolean confidential, boolean openSource,
 			String projectUrl, ProjectWebPageNaming webPageNaming, List<String> videoUrls,
 			String pathToScientificRequirements, String pathToPressDocument, String pathToLogo, List<String> pathsToImages, String pathToPowerpoint,
 			ResearchOrganization coordinator, ResearchOrganization localOrganization, Set<ResearchOrganization> otherPartners,
 			List<ProjectMember> participants) {
-		assert type != null;
+		assert activityType != null;
 		this.id = id;
 		this.scientificTitle = scientificTitle;
 		this.acronym = acronym;
@@ -305,7 +312,8 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		this.duration = duration;
 		this.globalBudget = globalBudget;
 		this.status = status;
-		this.activityType = type;
+		this.contractType = contractType == null ? ProjectContractType.NOT_SPECIFIED : contractType;
+		this.activityType = activityType;
 		this.trl = trl;
 		this.confidential = confidential;
 		this.openSource = openSource;
@@ -333,6 +341,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		h = HashCodeUtils.add(h, this.startDate);
 		h = HashCodeUtils.add(h, this.duration);
 		h = HashCodeUtils.add(h, this.globalBudget);
+		h = HashCodeUtils.add(h, this.contractType);
 		h = HashCodeUtils.add(h, this.activityType);
 		h = HashCodeUtils.add(h, this.status);
 		h = HashCodeUtils.add(h, this.trl);
@@ -385,6 +394,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 			return false;
 		}
 		if (this.globalBudget != other.globalBudget) {
+			return false;
+		}
+		if (this.contractType != other.contractType) {
 			return false;
 		}
 		if (this.activityType != other.activityType) {
@@ -457,6 +469,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		}
 		if (getGlobalBudget() > 0f) {
 			consumer.accept("globalBudget", Float.valueOf(getGlobalBudget())); //$NON-NLS-1$
+		}
+		if (getContractType() != null) {
+			consumer.accept("contractType", getContractType()); //$NON-NLS-1$
 		}
 		if (getActivityType() != null) {
 			consumer.accept("activityType", getActivityType()); //$NON-NLS-1$
@@ -704,6 +719,38 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		return this.totalLocalOrganizationBudget.floatValue();
 	}
 
+	/** Replies the type of contract for this project.
+	 *
+	 * @return contract type.
+	 */
+	public ProjectContractType getContractType() {
+		return this.contractType;
+	}
+
+	/** Change the type of contract for this project.
+	 *
+	 * @param type contract type.
+	 */
+	public void setContractType(ProjectContractType type) {
+		if (type == null) {
+			this.contractType = ProjectContractType.NOT_SPECIFIED;
+		} else {
+			this.contractType = type;
+		}
+	}
+
+	/** Change the type of contract for this project.
+	 *
+	 * @param type contract type.
+	 */
+	public final void setContractType(String type) {
+		try {
+			setContractType(ProjectContractType.valueOfCaseInsensitive(type));
+		} catch (Throwable ex) {
+			setContractType((ProjectContractType) null);
+		}
+	}
+
 	/** Replies the type of research activity for this project.
 	 *
 	 * @return activity type.
@@ -720,24 +767,6 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		this.activityType = type;
 	}
 
-	/** Replies the category of this project.
-	 *
-	 * @return category.
-	 */
-	public ProjectCategory getCategory() {
-		final FundingScheme funding = getMajorFundingScheme();
-		if (funding.isCompetitive()) {
-			return ProjectCategory.COMPETITIVE_CALL_PROJECT;
-		}
-		if (funding.isNotAcademic() || funding.isAcademicButContractual()) {
-			return ProjectCategory.NOT_ACADEMIC_PROJECT;
-		}
-		if (isOpenSource()) {
-			return ProjectCategory.OPEN_SOURCE;
-		}
-		return ProjectCategory.AUTO_FUNDING;
-	}
-
 	/** Change the type of research activity for this project.
 	 *
 	 * @param type activity type.
@@ -748,6 +777,28 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		} catch (Throwable ex) {
 			setActivityType((ProjectActivityType) null);
 		}
+	}
+
+	/** Replies the category of this project.
+	 *
+	 * @return category.
+	 */
+	public ProjectCategory getCategory() {
+		switch (getContractType()) {
+		case RCO:
+			return ProjectCategory.COMPETITIVE_CALL_PROJECT;
+		case RCD:
+		case PR:
+		case PI:
+			return ProjectCategory.NOT_ACADEMIC_PROJECT;
+		case NOT_SPECIFIED:
+		default:
+			// See below
+		}
+		if (isOpenSource()) {
+			return ProjectCategory.OPEN_SOURCE;
+		}
+		return ProjectCategory.AUTO_FUNDING;
 	}
 
 	/** Replies the status of this project.

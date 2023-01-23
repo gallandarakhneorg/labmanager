@@ -32,6 +32,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
 import fr.ciadlab.labmanager.entities.project.ProjectBudget;
+import fr.ciadlab.labmanager.entities.project.ProjectContractType;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
@@ -192,6 +193,7 @@ public class ProjectService extends AbstractService {
 	 * @param projectURL the URL of the project.
 	 * @param webPageNaming the naming convention for the project page on the institution website.
 	 * @param globalBudget the budget for all the partners in the project.
+	 * @param contractType the name of the type of contract.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
 	 * @param coordinator the identifier of the research organization which is coordinating the project.
@@ -218,7 +220,7 @@ public class ProjectService extends AbstractService {
 			boolean validated, String acronym, String scientificTitle,
 			boolean openSource, LocalDate startDate, int duration, String description,
 			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL,
-			ProjectWebPageNaming webPageNaming, float globalBudget,
+			ProjectWebPageNaming webPageNaming, float globalBudget, ProjectContractType contractType,
 			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
 			int superOrganization, int learOrganization, List<Integer> otherPartners,
 			Map<Integer, Role> participants, MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
@@ -236,6 +238,7 @@ public class ProjectService extends AbstractService {
 		project.setProjectURL(projectURL);
 		project.setWebPageNaming(webPageNaming);
 		project.setGlobalBudget(globalBudget);
+		project.setContractType(contractType);
 		project.setActivityType(activityType);
 		project.setTRL(trl);
 		project.setConfidential(confidential);
@@ -477,6 +480,7 @@ public class ProjectService extends AbstractService {
 	 * @param projectURL the URL of the project.
 	 * @param webPageNaming the naming convention for the project page on the institution website.
 	 * @param globalBudget the budget for all the partners in the project.
+	 * @param contractType the name of the type of contract.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
 	 * @param coordinator the identifier of the research organization which is coordinating the project.
@@ -505,7 +509,7 @@ public class ProjectService extends AbstractService {
 			boolean openSource, LocalDate startDate, int duration, String description,
 			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL,
 			ProjectWebPageNaming webPageNaming, float globalBudget,
-			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
+			ProjectContractType contractType, ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
 			int superOrganization, int learOrganization, List<Integer> otherPartners, Map<Integer, Role> participants,
 			MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages,
@@ -516,7 +520,7 @@ public class ProjectService extends AbstractService {
 		try {
 			updateProject(project, validated, acronym, scientificTitle, openSource,
 					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, webPageNaming, globalBudget,
-					activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
+					contractType, activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
 					otherPartners, participants, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
 					pathToPressDocument, removePathToPressDocument, status, localOrganizationBudgets);
@@ -550,6 +554,7 @@ public class ProjectService extends AbstractService {
 	 * @param projectURL the URL of the project.
 	 * @param webPageNaming the naming convention for the project page on the institution website.
 	 * @param globalBudget the budget for all the partners in the project.
+	 * @param contractType the name of the type of contract.
 	 * @param activityType the name of the type of project activity.
 	 * @param trl the name of the TRL.
 	 * @param coordinator the identifier of the research organization which is coordinating the project.
@@ -578,7 +583,7 @@ public class ProjectService extends AbstractService {
 			boolean openSource, LocalDate startDate, int duration, String description,
 			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL,
 			ProjectWebPageNaming webPageNaming, float globalBudget,
-			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
+			ProjectContractType contractType, ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
 			int superOrganization, int learOrganization, List<Integer> otherPartners, Map<Integer, Role> participants, 
 			MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages,
@@ -594,7 +599,7 @@ public class ProjectService extends AbstractService {
 		if (res.isPresent()) {
 			updateProject(res.get(), validated, acronym, scientificTitle, openSource,
 					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, webPageNaming, globalBudget,
-					activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
+					contractType, activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
 					otherPartners, participants, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
 					pathToPressDocument, removePathToPressDocument, status, localOrganizationBudgets);
