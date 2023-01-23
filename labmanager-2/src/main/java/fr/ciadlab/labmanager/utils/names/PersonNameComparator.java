@@ -65,7 +65,7 @@ public interface PersonNameComparator {
 	 */
 	double getSimilarityLevel();
 
-	/** Replies the similarity level to consider for assuming that two names are similar.
+	/** Change the similarity level to consider for assuming that two names are similar.
 	 *
 	 * @param similarityLevel the minimum level of similarity. {@code 0} means that the names are not
 	 *     similar, and {@code 1} means that they are totally equal.

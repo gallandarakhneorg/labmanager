@@ -63,4 +63,12 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
 	 */
 	int countDistinctByPersonId(int id);
 
+	/** Replies the list of memberships for the given research organization.
+	 *
+	 * @param organizationId the identifier of the organization.
+	 * @return the list of memberships.
+	 * @since 3.2
+	 */
+	List<Membership> findDistinctByResearchOrganizationId(int organizationId);
+
 }

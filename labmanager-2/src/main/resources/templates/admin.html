@@ -301,6 +301,9 @@
 			    	<a th:if="${changeEnabled}"
 			    	   th:href="@{/addressEditor}" class="btn btn-labeled btn-warning" role="button">
 			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddAddress}"></th:block></a>
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/organizationDuplicateList}" class="btn btn-labeled btn-success" role="button">
+				       <span class="fa-solid fa-code-merge"></span>&nbsp;<th:block th:utext="#{html.MergeOrganizations}"></th:block></a>
 			    </p>
 			</div>
 			<div class="card-footer">

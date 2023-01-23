@@ -14,7 +14,7 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.controller.api.member;
+package fr.ciadlab.labmanager.controller.api.organization;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -29,13 +29,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
-import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
-import fr.ciadlab.labmanager.repository.jury.JuryMembershipRepository;
-import fr.ciadlab.labmanager.repository.member.MembershipRepository;
-import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
-import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
-import fr.ciadlab.labmanager.service.member.PersonMergingService;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.service.organization.OrganizationMergingService;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,32 +46,23 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
-/** REST Controller for merging persons.
+/** REST Controller for merging organizations.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 3.2
  */
 @RestController
 @CrossOrigin
-public class PersonMergingApiController extends AbstractApiController {
+public class ResearchOrganizationMergingApiController extends AbstractApiController {
 
-	private static final int COMPUTE_PERSON_DUPLICATE_NAMES_SERVICE_TIMEOUT = 1200000;
+	private static final int COMPUTE_DUPLICATE_ORGANIZATIONS_SERVICE_TIMEOUT = 1200000;
 
 	private static final int PERCENT_100_NUM = 100;
 
-	private PersonMergingService mergingService;
-
-	private MembershipRepository membershipRepository;
-
-	private AuthorshipRepository authorshipRepository;
-
-	private SupervisionRepository supervisionRepository;
-
-	private JuryMembershipRepository juryMembershipRepository;
-
-	private PersonInvitationRepository invitationRepository;
+	private OrganizationMergingService mergingService;
 
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
@@ -84,50 +70,33 @@ public class PersonMergingApiController extends AbstractApiController {
 	 * @param messages the provider of messages.
 	 * @param constants the constants of the app.
 	 * @param mergingService the service for merging persons.
-	 * @param membershipRepository the repository for organization memberships.
-	 * @param authorshipRepository the repository for authorships.
-	 * @param supervisionRepository the repository for supervisions.
-	 * @param juryMembershipRepository the repository for jury memberships.
-	 * @param invitationRepository the repository for person invitations.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
-	public PersonMergingApiController(
+	public ResearchOrganizationMergingApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired PersonMergingService mergingService,
-			@Autowired MembershipRepository membershipRepository,
-			@Autowired AuthorshipRepository authorshipRepository,
-			@Autowired SupervisionRepository supervisionRepository,
-			@Autowired JuryMembershipRepository juryMembershipRepository,
-			@Autowired PersonInvitationRepository invitationRepository,
+			@Autowired OrganizationMergingService mergingService,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.mergingService = mergingService;
-		this.membershipRepository = membershipRepository;
-		this.authorshipRepository = authorshipRepository;
-		this.supervisionRepository = supervisionRepository;
-		this.juryMembershipRepository = juryMembershipRepository;
-		this.invitationRepository = invitationRepository;
 	}
 
-	/** Merge multiple persons into the database.
-	 * Publications for a given list of authors is associated to a target author and
-	 * unlinked from the old authors.
+	/** Merge multiple organizations into the database.
 	 *
-	 * @param target the identifier of the target person.
-	 * @param sources the list of person identifiers that are considered as old persons.
+	 * @param target the identifier of the target organization.
+	 * @param sources the list of organization identifiers that are considered as old organizations.
 	 * @param username the name of the logged-in user.
-	 * @throws Exception if it is impossible to merge the persons.
+	 * @throws Exception if it is impossible to merge the organizations.
 	 */
-	@PatchMapping("/mergePersons")
-	public void mergePersons(
+	@PatchMapping("/mergeOrganizations")
+	public void mergeOrganizations(
 			@RequestParam(required = true) Integer target,
 			@RequestParam(required = true) List<Integer> sources,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "mergePersons", target); //$NON-NLS-1$
+		ensureCredentials(username, "mergeOrganizations", target); //$NON-NLS-1$
 		if (sources != null && !sources.isEmpty()) {
 			try {
-				this.mergingService.mergePersonsById(sources, target);
+				this.mergingService.mergeOrganizationsById(sources, target);
 			} catch (Throwable ex) {
 				getLogger().error(ex.getLocalizedMessage(), ex);
 				throw ex;
@@ -135,53 +104,42 @@ public class PersonMergingApiController extends AbstractApiController {
 		}
 	}
 
-	/** Compute duplicate names.
+	/** Compute duplicate organizations.
 	 *
 	 * @param username the name of the logged-in user.
 	 * @return the asynchronous response.
 	 */
-	@GetMapping(value = "/" + Constants.COMPUTE_PERSON_DUPLICATE_NAMES_ENDPOINT, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-	public SseEmitter computePersonDuplicateNames(
+	@GetMapping(value = "/" + Constants.COMPUTE_DUPLICATE_ORGANIZATIONS_ENDPOINT, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+	public SseEmitter computeDuplicateOrganizations(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		ensureCredentials(username, Constants.COMPUTE_PERSON_DUPLICATE_NAMES_ENDPOINT);
+		ensureCredentials(username, Constants.COMPUTE_DUPLICATE_ORGANIZATIONS_ENDPOINT);
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
-		final SseEmitter emitter = new SseEmitter(Long.valueOf(COMPUTE_PERSON_DUPLICATE_NAMES_SERVICE_TIMEOUT));
+		final SseEmitter emitter = new SseEmitter(Long.valueOf(COMPUTE_DUPLICATE_ORGANIZATIONS_SERVICE_TIMEOUT));
 		service.execute(() -> {
 			try {
 				final MutableInt dupCount = new MutableInt();
 				final MutableInt totCount = new MutableInt();
 				sendDuplicateComputationStep(emitter, -1, 0, 1);
-				final List<Set<Person>> matchingAuthors = this.mergingService.getPersonDuplicates(
-						// Use default person comparator
+				final List<Set<ResearchOrganization>> matchingOrganizations = this.mergingService.getOrganizationDuplicates(
+						// Use default organization comparator
 						null,
-						(personIndex, duplicateCount, personTotal) -> {
+						(organizationIndex, duplicateCount, organizationTotal) -> {
 							dupCount.setValue(duplicateCount);
-							totCount.setValue(personTotal);
-							sendDuplicateComputationStep(emitter, personIndex, duplicateCount, personTotal);
+							totCount.setValue(organizationTotal);
+							sendDuplicateComputationStep(emitter, organizationIndex, duplicateCount, organizationTotal);
 						});
 				int i = 0;
 				final List<List<Map<String, Object>>> allDuplicates = new LinkedList<>();
-				for (final Set<Person> duplicates : matchingAuthors) {
+				for (final Set<ResearchOrganization> duplicates : matchingOrganizations) {
 					final List<Map<String, Object>> duplicateJson = new LinkedList<>();
-					for (final Person person : duplicates) {
-						final int pid = person.getId();
-						final Map<String, Object> personJson = new HashMap<>();
-						personJson.put("id", Integer.toString(pid)); //$NON-NLS-1$
-						personJson.put("fullName", person.getFullNameWithLastNameFirst()); //$NON-NLS-1$
-						final int mbrCount = this.membershipRepository.countDistinctByPersonId(pid);
-						personJson.put("memberships", Integer.valueOf(mbrCount)); //$NON-NLS-1$
-						final int autCount = this.authorshipRepository.countDistinctByPersonId(pid);
-						personJson.put("authorships", Integer.valueOf(autCount)); //$NON-NLS-1$
-						final int supCount = this.supervisionRepository.countDistinctBySupervisedPersonPersonId(pid);
-						personJson.put("supervisions", Integer.valueOf(supCount)); //$NON-NLS-1$
-						final int juryCount = this.juryMembershipRepository.countDistinctByPersonId(pid);
-						personJson.put("jurys", Integer.valueOf(juryCount)); //$NON-NLS-1$
-						final int invCount = this.invitationRepository.countDistinctByGuestIdOrInviterId(pid, pid);
-						personJson.put("invitations", Integer.valueOf(invCount)); //$NON-NLS-1$
-						personJson.put("lockedForDeletion", Boolean.valueOf( //$NON-NLS-1$
-								mbrCount > 0 || autCount > 0 || supCount > 0 || juryCount > 0));
-						duplicateJson.add(personJson);
+					for (final ResearchOrganization organization : duplicates) {
+						final int oid = organization.getId();
+						final Map<String, Object> organizationJson = new HashMap<>();
+						organizationJson.put("id", Integer.toString(oid)); //$NON-NLS-1$
+						organizationJson.put("acronym", organization.getAcronym()); //$NON-NLS-1$
+						organizationJson.put("name", organization.getName()); //$NON-NLS-1$
+						duplicateJson.add(organizationJson);
 					}
 					allDuplicates.add(duplicateJson);
 					Thread.sleep(1000);
@@ -216,7 +174,7 @@ public class PersonMergingApiController extends AbstractApiController {
 		final int duplicatePercent = (duplicateCount * PERCENT_100_NUM) / personTotal;
 		final int extraPercent = ((duplicateIndex + 1) * PERCENT_100_NUM) / duplicateCount;
 		//
-		final String message = getMessage("personMergingApiController.Progress2", //$NON-NLS-1$
+		final String message = getMessage("researchOrganizationMergingApiController.Progress2", //$NON-NLS-1$
 				Integer.toString(PERCENT_100_NUM), Integer.toString(duplicatePercent), Integer.valueOf(extraPercent));
 		//
 		final Map<String, Object> content = new HashMap<>();
@@ -235,7 +193,7 @@ public class PersonMergingApiController extends AbstractApiController {
 		final int percent = ((personIndex + 1) * PERCENT_100_NUM) / personTotal;
 		final int duplicatePercent = (duplicateCount * PERCENT_100_NUM) / personTotal;
 		//
-		final String message = getMessage("personMergingApiController.Progress", //$NON-NLS-1$
+		final String message = getMessage("researchOrganizationMergingApiController.Progress", //$NON-NLS-1$
 				Integer.toString(percent), Integer.toString(duplicatePercent));
 		//
 		final Map<String, Object> content = new HashMap<>();

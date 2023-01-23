@@ -45,7 +45,6 @@ import fr.ciadlab.labmanager.repository.project.ProjectMemberRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.invitation.PersonInvitationService;
 import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
-import fr.ciadlab.labmanager.service.member.PersonService.PersonDuplicateCallback;
 import fr.ciadlab.labmanager.service.supervision.SupervisionService;
 import fr.ciadlab.labmanager.utils.names.PersonNameComparator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -425,6 +424,30 @@ public class PersonMergingService extends AbstractService {
 			this.structureHolderRepository.save(holder);
 		}
 		return true;
+	}
+
+	/** Callback that is invoked when building the list of duplicate persons.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 2.2
+	 */
+	@FunctionalInterface
+	public interface PersonDuplicateCallback {
+
+		/** Invoked for each person.
+		 *
+		 * @param index the position of the reference person in the list of persons. It represents the progress of the treatment
+		 *     of each person.
+		 * @param duplicateCount the count of discovered duplicates.
+		 * @param total the total number of persons in the list.
+		 * @throws Exception if there is an error during the callback treatment. This exception is forwarded to the
+		 *     caller of the function that has invoked this callback.
+		 */
+		void onDuplicate(int index, int duplicateCount, int total) throws Exception;
+
 	}
 
 }

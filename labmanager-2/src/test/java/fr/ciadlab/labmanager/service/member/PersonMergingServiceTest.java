@@ -43,8 +43,10 @@ import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.repository.assostructure.AssociatedStructureHolderRepository;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
+import fr.ciadlab.labmanager.repository.project.ProjectMemberRepository;
 import fr.ciadlab.labmanager.service.invitation.PersonInvitationService;
 import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
 import fr.ciadlab.labmanager.service.supervision.SupervisionService;
@@ -55,6 +57,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PersonMergingService}.
@@ -87,6 +90,10 @@ public class PersonMergingServiceTest {
 	private PersonNameComparator nameComparator;
 	
 	private PersonMergingService test;
+
+	private ProjectMemberRepository projectMemberRepository;
+
+	private AssociatedStructureHolderRepository structureHolderRepository;
 	
 	@BeforeEach
 	public void setUp() {
@@ -98,11 +105,14 @@ public class PersonMergingServiceTest {
 		this.juryMembershipService = mock(JuryMembershipService.class);
 		this.supervisionService = mock(SupervisionService.class);
 		this.invitationService = mock(PersonInvitationService.class);
+		this.projectMemberRepository = mock(ProjectMemberRepository.class);
+		this.structureHolderRepository = mock(AssociatedStructureHolderRepository.class);
 		this.nameComparator = new SorensenDicePersonNameComparator(new DefaultPersonNameParser());
 
 		this.test = new PersonMergingService(this.messages, new Constants(), this.personRepository, this.personService,
 				this.organizationMembershipService, this.organizationMembershipRepository,
-				this.juryMembershipService, this.supervisionService, this.invitationService, this.nameComparator);
+				this.juryMembershipService, this.supervisionService, this.invitationService,
+				this.projectMemberRepository,this.structureHolderRepository, this.nameComparator);
 	}
 
 	@Test

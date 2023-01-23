@@ -609,7 +609,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 					ResearchOrganization orga = createObject(ResearchOrganization.class, orgaObject,
 							aliasRepository, null);
 					if (orga != null) {
-						final Optional<ResearchOrganization> existing = this.organizationRepository.findDistinctByAcronymOrName(orga.getAcronym(), orga.getName());
+						final Optional<ResearchOrganization> existing = this.organizationRepository.findDistinctByName(orga.getName());
 						if (existing.isEmpty()) {
 							// Save addresses
 							final JsonNode addressesNode = orgaObject.get(ADDRESSES_KEY);

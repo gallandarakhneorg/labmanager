@@ -267,6 +267,12 @@ public class Constants {
 	 */
 	public static final String COMPUTE_PERSON_DUPLICATE_NAMES_ENDPOINT = "computePersonDuplicateNames"; //$NON-NLS-1$
 
+	/** Name of the endpoint for computing the duplicate of organizations.
+	 *
+	 * @since 3.2
+	 */
+	public static final String COMPUTE_DUPLICATE_ORGANIZATIONS_ENDPOINT = "computeDuplicateOrganizations"; //$NON-NLS-1$
+
 	/** Name of the endpoint for saving the database into a server-side Zip file.
 	 */
 	public static final String SAVE_DATABASE_TO_SERVER_ZIP_BATCH_ENDPOINT = "saveDatabaseToServerZipBatch"; //$NON-NLS-1$
