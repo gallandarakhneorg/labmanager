@@ -10,6 +10,7 @@ As it is illustrated on the figure above, two features are provided:
 
 * `List of organizations`: display the list of all the research organizations.
 * `Add an organization`: add a research organization in the information system.
+* `Merge organizations with similar names`: detect the organizations which have similar names and propose to merge them (see Section 5).
 
 
 ## 2. Types of organizations
@@ -67,4 +68,23 @@ The backend software provides a form for editing or adding an organization in th
 * `Addresses of the organization`: the list of addresses that are associated to the research organization. You could add an address by clicking on the `+` and removing an address by clicking on the trash symbol.
 * `Website address`: the URL of the official website of the organization.
 * `Super-organization`: the name of the organization in which the current organization is located.
+
+
+## 5. Merge organizations with similar names
+
+For some reasons, two organizations in the information system may corresponds to the same real organization. It may be caused by misspells in the names.
+
+The platform provides a tool for merging the "similar" names into a single entry in the information system, without loosing information (projects, etc.). After analysing the database content, this tool shows the duplicate persons in a table:
+
+![Duplicate organizations](organizations4.png)
+
+In this table, the similar names are grouped (as illustrated on the figure above).
+Then, you have the choice to ignore the group if you think they are not really duplicates.
+Or, you could decide to fix the duplicate issue by choosing one of the following actions:
+
+* **Deletion:** Delete a name by clicking on the "trash" icon.
+* **Total merging:** Merge **all** the names into a single name that corresponds to the line on which you are clicking on the "double arrow" icon. In this case, all the informations associated to the names will be associated to the selected name after merging.
+* **Partial merging:** Merge **some** names into a single name that corresponds to the line on which you are clicking on the "single arrow" icon. In this case, all the informations associated to the checked names (see the figure below) will be associated to the selected name after merging.
+
+![Partial merging](organizations5.png)
 
