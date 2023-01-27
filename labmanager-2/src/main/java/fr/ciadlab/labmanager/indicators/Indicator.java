@@ -77,10 +77,12 @@ public interface Indicator {
 	 */
 	LocalDate getReferencePeriodEnd();
 
-	/** Replies the value of the indicator in the form of a number.
+	/** Replies the value of the indicator in the form of a number. The unit of the replied value is
+	 * provided by {@link #getValueUnit()}.
 	 *
 	 * @param organization the organization for which the indicator should be computed.
 	 * @return the number value, or {@code null} if the indicator does not compute a numeric value.
+	 * @see #getValueUnit()
 	 */
 	Number getNumericValue(ResearchOrganization organization);
 

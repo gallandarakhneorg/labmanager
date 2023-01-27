@@ -87,8 +87,43 @@ public enum Unit {
 	 * @param value the unit value.
 	 * @return the value expressed in the given unit.
 	 */
-	public Number convert(Number value) {
-		return Double.valueOf(value.doubleValue() / this.factor);
+	public Number convertFromUnit(Number value) {
+		if (value == null) {
+			return null;
+		}
+		return Double.valueOf(convertFromUnit(value.doubleValue()));
+	}
+
+	/** Convert the value to the given in the given unit.
+	 *
+	 * @param value the unit value.
+	 * @return the value expressed in the given unit.
+	 */
+	public double convertFromUnit(double value) {
+		return value / this.factor;
+	}
+
+	/** Convert the value to the given from the given unit.
+	 *
+	 * @param value the value in the current unit.
+	 * @return the value expressed in the unit.
+	 * @since 3.2
+	 */
+	public Number convertToUnit(Number value) {
+		if (value == null) {
+			return null;
+		}
+		return Double.valueOf(convertFromUnit(value.doubleValue()));
+	}
+
+	/** Convert the value to the given from the given unit.
+	 *
+	 * @param value the value in the current unit.
+	 * @return the value expressed in the unit.
+	 * @since 3.2
+	 */
+	public double convertToUnit(double value) {
+		return value * this.factor;
 	}
 
 	/** Replies the unit that corresponds to the given label.
@@ -108,7 +143,9 @@ public enum Unit {
 	/** Replies the unit that corresponds to the given value.
 	 *
 	 * @param value the value of the unit.
+	 * @param valueUnit the original unit of the provided value. If it is {@code null}, {@link Unit#NONE} is assumed.
 	 * @return the unit, never {@code null}.
+	 * @since 3.2
 	 */
 	public static Unit fromNumericValue(Number value) {
 		if (value != null) {

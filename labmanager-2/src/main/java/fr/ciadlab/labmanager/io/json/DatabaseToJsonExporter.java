@@ -286,7 +286,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			final ObjectNode node = root.objectNode();
 			final GlobalIndicators ind = indicators.get(0);
 			final ArrayNode array = node.arrayNode();
-			for (final String key : ind.getVisibleIndicators()) {
+			for (final String key : ind.getVisibleIndicatorKeyList()) {
 				array.add(key);
 			}
 			if (array.size() > 0) {

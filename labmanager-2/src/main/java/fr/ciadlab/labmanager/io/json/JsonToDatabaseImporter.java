@@ -43,7 +43,6 @@ import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructure;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolder;
 import fr.ciadlab.labmanager.entities.assostructure.HolderRole;
-import fr.ciadlab.labmanager.entities.indicator.GlobalIndicators;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitation;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
@@ -66,7 +65,6 @@ import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
 import fr.ciadlab.labmanager.repository.assostructure.AssociatedStructureRepository;
-import fr.ciadlab.labmanager.repository.indicator.GlobalIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
@@ -79,6 +77,7 @@ import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
+import fr.ciadlab.labmanager.service.indicator.GlobalIndicatorsService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
@@ -137,7 +136,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private PersonInvitationRepository invitationRepository;
 
-	private GlobalIndicatorsRepository globalIndicatorsRepository;
+	private GlobalIndicatorsService globalIndicatorsService;
 
 	private ProjectRepository projectRepository;
 
@@ -165,7 +164,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param juryMembershipRepository the repository of jury memberships.
 	 * @param supervisionRepository the repository of supervisions.
 	 * @param invitationRepository the repository of invitations.
-	 * @param globalIndicatorsRepository the repository of the global indicators.
+	 * @param globalIndicatorsService the service of the global indicators.
 	 * @param projectRepository the repository of the projects.
 	 * @param structureRepository the repository of the projects.
 	 */
@@ -186,7 +185,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired JuryMembershipRepository juryMembershipRepository,
 			@Autowired SupervisionRepository supervisionRepository,
 			@Autowired PersonInvitationRepository invitationRepository,
-			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository,
+			@Autowired GlobalIndicatorsService globalIndicatorsService,
 			@Autowired ProjectRepository projectRepository,
 			@Autowired AssociatedStructureRepository structureRepository) {
 		this.sessionFactory = sessionFactory;
@@ -205,7 +204,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.juryMembershipRepository = juryMembershipRepository;
 		this.supervisionRepository = supervisionRepository;
 		this.invitationRepository = invitationRepository;
-		this.globalIndicatorsRepository = globalIndicatorsRepository;
+		this.globalIndicatorsService = globalIndicatorsService;
 		this.projectRepository = projectRepository;
 		this.structureRepository = structureRepository;
 		initializeFieldAliases();
@@ -498,16 +497,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 			getLogger().info("Inserting global indicators..."); //$NON-NLS-1$
 			final JsonNode visibleIndicators = globalIndicators.get(VISIBLEGLOBALINDICATORS_KEY);
 			if (visibleIndicators != null && visibleIndicators.isArray()) {
-				final List<String> keys = new ArrayList<>();
+				final StringBuilder keys = new StringBuilder();
 				for (final JsonNode valueNode : visibleIndicators) {
-					keys.add(valueNode.asText());
+					if (keys.length() > 0) {
+						keys.append(","); //$NON-NLS-1$
+					}
+					keys.append(valueNode.asText());
 				}
-				if (!keys.isEmpty()) {
-					final GlobalIndicators gi = new GlobalIndicators();
-					gi.setVisibleIndicators(keys);
-					gi.setValues(null);
-					this.globalIndicatorsRepository.save(gi);
-				}
+				this.globalIndicatorsService.setVisibleIndicators(keys.toString());
 			}
 		}
 	}

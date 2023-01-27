@@ -67,7 +67,7 @@ public final class TextUtils {
 	 */
 	public static String formatNumber(Number number, Unit unit, Locale locale) {
 		if (number != null) {
-			final Number cvalue = unit == null ? number : unit.convert(number);
+			final Number cvalue = unit == null ? number : unit.convertFromUnit(number);
 			final DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale == null ? Locale.US : locale);
 			final DecimalFormat format = new DecimalFormat("#0.#", symbols); //$NON-NLS-1$
 			return format.format(cvalue);

@@ -255,9 +255,9 @@ public class Constants {
 	 */
 	public static final String GLOBAL_INDICATORS_SAVING_ENDPOINT = "globalIndicatorsSave"; //$NON-NLS-1$
 
-	/** Name of the endpoint for reseting the global indicator values.
+	/** Name of the endpoint for reseting the indicator's cache.
 	 */
-	public static final String GLOBAL_INDICATOR_VALUES_RESET_ENDPOINT = "resetGlobalIndicatorValues"; //$NON-NLS-1$
+	public static final String RESET_INDICATOR_CACHE_ENDPOINT = "resetIndicatorCache"; //$NON-NLS-1$
 
 	/** Name of the endpoint for regenerating the thumbnail as a batch task.
 	 */

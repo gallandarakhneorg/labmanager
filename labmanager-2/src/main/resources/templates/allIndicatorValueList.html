@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="fragments/buttons :: ajaxButtons"/>
+<th:block th:replace="fragments/buttons :: waitButtons"/>
+
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+
+<th:block th:replace="fragments/nav :: globalIndicatorsBar"/>
+
+<button id="btResetValues" class="btn btn-warning mt-4 pr-4 pl-4" th:utext="#{html.ResetIndicatorValues}"></button>
+
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+	<thead>
+		<th th:text="#{html.Id}"></th>
+		<th th:text="#{html.Name}"></th>
+		<th th:text="#{html.Value}"></th>
+		<th th:text="#{html.CachedValue(${globalIndicators.cacheAge == T(java.lang.Integer).MAX_VALUE ? '&#x221E;' : globalIndicators.cacheAge})}"></th>
+		<th th:text="#{html.Date}"></th>
+		<th th:text="#{html.Details}"></th>
+	</thead>
+    <tbody th:with="cache = ${globalIndicators.cachedValues}">
+        <tr th:each="indicator : ${indicators}">
+            <td>
+                <th:block th:utext="${indicator.key}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${indicator.name}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${indicator.getNumericValue(organization)}"></th:block>
+            </td>
+            <td>
+                <th:block th:with="cachedValue = ${cache.get(indicator.key)}"
+                          th:utext="${cachedValue != null ? cachedValue : ''}"></th:block>
+            </td>
+            <td>
+                <th:block th:if="${indicator.referencePeriodStart != null && indicator.referencePeriodEnd != null && !indicator.referencePeriodStart.equals(indicator.referencePeriodEnd)}"
+                          th:utext="${#temporals.format(indicator.referencePeriodStart) + ' - ' + #temporals.format(indicator.referencePeriodEnd)}"></th:block>
+                <th:block th:if="${indicator.referencePeriodStart != null && (indicator.referencePeriodEnd == null || indicator.referencePeriodStart.equals(indicator.referencePeriodEnd))}"
+                          th:utext="${#temporals.format(indicator.referencePeriodStart)}"></th:block>
+                <th:block th:if="${indicator.referencePeriodEnd != null && (indicator.referencePeriodStart == null || indicator.referencePeriodEnd.equals(indicator.referencePeriodStart))}"
+                          th:utext="${#temporals.format(indicator.referencePeriodEnd)}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${indicator.computationDetails}"></th:block>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<script type="text/javascript" th:inline="javascript">
+    $(document).ready(() => {
+    	initAdministrationTable({
+    		columns: 5,
+    	});
+    });
+    /*[# th:if="${changeEnabled}"]*/
+	attachSpinnerAjaxHandler({
+		id: "btResetValues",
+		url: "[(${resetIndicatorUrl})]",
+		requestMethod: 'put',
+		timeout: 500000,
+		text: "[(#{html.ResetIndicatorValues})]",
+		failureText: "[(#{html.Error})]",
+		onSuccess: () => {
+			Swal.fire(
+					  "[(#{html.Success})]",
+					  "[(#{html.Success})]",
+					  'success'
+					).then(result => {
+    					location.reload();
+					});
+		},
+	});
+    /*[/]*/
+</script>
+</html>

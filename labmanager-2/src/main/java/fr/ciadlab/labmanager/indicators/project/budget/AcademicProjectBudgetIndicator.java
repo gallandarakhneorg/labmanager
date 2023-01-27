@@ -14,64 +14,58 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.indicators.project;
-
-import java.time.LocalDate;
+package fr.ciadlab.labmanager.indicators.project.budget;
 
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.indicators.AbstractIndicator;
+import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.project.ProjectCategory;
+import fr.ciadlab.labmanager.service.project.ProjectService;
 import fr.ciadlab.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Budget in M€ for projects during the period with non-academic partners.
+/** Sum the budgets of academic projects.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.2
+ * @since 3.2
  */
 @Component
-public class IndustrialProjectBudgetIndicator extends AbstractIndicator {
+public class AcademicProjectBudgetIndicator extends AbstractProjectBudgetIndicator {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
+	 * @param projectService the service for accessing the projects.
 	 */
-	public IndustrialProjectBudgetIndicator(
+	public AcademicProjectBudgetIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants) {
-		super(messages, constants);
+			@Autowired Constants constants,
+			@Autowired ProjectService projectService) {
+		super(messages, constants, projectService);
 	}
 
 	@Override
 	public String getName() {
-		return getMessage("industrialProjectBudgetIndicator.name"); //$NON-NLS-1$
+		return getMessage("academicProjectBudgetIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithYears("industrialProjectBudgetIndicator.label", unit.getLabel()); //$NON-NLS-1$
+		return getLabelWithYears("academicProjectBudgetIndicator.label", unit.getLabel()); //$NON-NLS-1$
 	}
 
 	@Override
-	public LocalDate getReferencePeriodStart() {
-		return LocalDate.of(2016, 1, 1);
-	}
-
-	@Override
-	public LocalDate getReferencePeriodEnd() {
-		return LocalDate.of(2021, 12, 31);
-	}
-
-	@Override
-	protected Number computeValue(ResearchOrganization organization) {
-		setComputationDetails(getMessage("indicators.hardcoded")); //$NON-NLS-1$
-		return Double.valueOf(3717900);
+	public boolean isSelectableProject(Project project) {
+		if (project != null) {
+			final ProjectCategory cat = project.getCategory();
+			return cat == ProjectCategory.COMPETITIVE_CALL_PROJECT || cat == ProjectCategory.AUTO_FUNDING;
+		}
+		return false;
 	}
 
 }

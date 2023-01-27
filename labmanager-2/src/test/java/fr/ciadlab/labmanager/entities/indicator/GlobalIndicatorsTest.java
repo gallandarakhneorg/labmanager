@@ -69,83 +69,6 @@ public class GlobalIndicatorsTest {
 	}
 
 	@Test
-	public void getLastUpdate() {
-		assertNull(this.test.getLastUpdate());
-	}
-
-	@Test
-	public void setLastUpdate_LocalDate() {
-		assertNull(this.test.getLastUpdate());
-
-		this.test.setLastUpdate(LocalDateTime.of(2022, 10, 24, 15, 45, 23));
-		assertEquals(LocalDateTime.of(2022, 10, 24, 15, 45, 23), this.test.getLastUpdate());
-
-		this.test.setLastUpdate((LocalDateTime) null);
-		assertNull(this.test.getLastUpdate());
-	}
-
-	@Test
-	public void setLastUpdate_String() {
-		assertNull(this.test.getLastUpdate());
-
-		this.test.setLastUpdate("2022-10-24T10:36:22");
-		assertEquals(LocalDateTime.of(2022, 10, 24, 10, 36, 22), this.test.getLastUpdate());
-
-		this.test.setLastUpdate("");
-		assertNull(this.test.getLastUpdate());
-
-		this.test.setLastUpdate("2022-10-02T15:45:23");
-		assertEquals(LocalDateTime.of(2022, 10, 2, 15, 45, 23), this.test.getLastUpdate());
-
-		this.test.setLastUpdate((String) null);
-		assertNull(this.test.getLastUpdate());
-	}
-
-	@Test
-	public void getValues() {
-		assertNull(this.test.getValues());
-	}
-
-	@Test
-	public void setValues() {
-		assertNull(this.test.getValues());
-		assertNull(this.test.getIndicators());
-
-		this.test.setValues("{\"abc\":4}");
-		assertEquals("{\"abc\":4}", this.test.getValues());
-		assertNull(this.test.getIndicators());
-
-		this.test.setValues(null);
-		assertNull(this.test.getValues());
-		assertNull(this.test.getIndicators());
-
-		this.test.setValues("{\"xyz\":8}");
-		assertEquals("{\"xyz\":8}", this.test.getValues());
-		assertNull(this.test.getIndicators());
-
-		this.test.setValues("");
-		assertNull(this.test.getValues());
-		assertNull(this.test.getIndicators());
-	}
-
-	@Test
-	public void updateCache_noValue() {
-		this.test.updateCache();
-		assertNull(this.test.getIndicators());
-	}
-
-	@Test
-	public void updateCache_value() {
-		this.test.setValues("{\"xyz\":18}");
-		this.test.updateCache();
-		Map<String, Number> cache = this.test.getIndicators();
-		assertNotNull(cache);
-		assertEquals(1, cache.size());
-		assertTrue(cache.containsKey("xyz"));
-		assertEquals(18, cache.get("xyz").intValue());
-	}
-
-	@Test
 	public void getVisibleIndicatorKeys() {
 		assertNull(this.test.getVisibleIndicatorKeys());
 	}
@@ -168,31 +91,29 @@ public class GlobalIndicatorsTest {
 	}
 
 	@Test
-	public void getVisibleIndicators() {
-		assertTrue(this.test.getVisibleIndicators().isEmpty());
+	public void getVisibleIndicatorKeyList_noset() {
+		assertTrue(this.test.getVisibleIndicatorKeyList().isEmpty());
 	}
 
 	@Test
-	public void setVisibleIndicators() {
-		assertTrue(this.test.getVisibleIndicators().isEmpty());
-
-		this.test.setVisibleIndicators(Arrays.asList("abc", "xyz"));
-		List<String> keys0 = this.test.getVisibleIndicators();
+	public void setVisibleIndicators_set() {
+		this.test.setVisibleIndicatorKeys("abc,xyz");
+		List<String> keys0 = this.test.getVisibleIndicatorKeyList();
 		assertEquals(2, keys0.size());
 		assertTrue(keys0.contains("xyz"));
 		assertTrue(keys0.contains("abc"));
 
-		this.test.setVisibleIndicators(Arrays.asList());
-		assertTrue(this.test.getVisibleIndicators().isEmpty());
+		this.test.setVisibleIndicatorKeys("");
+		assertTrue(this.test.getVisibleIndicatorKeyList().isEmpty());
 
-		this.test.setVisibleIndicators(Arrays.asList("uvw", "nop"));
-		List<String> keys1 = this.test.getVisibleIndicators();
+		this.test.setVisibleIndicatorKeys("uvw,nop");
+		List<String> keys1 = this.test.getVisibleIndicatorKeyList();
 		assertEquals(2, keys1.size());
 		assertTrue(keys1.contains("nop"));
 		assertTrue(keys1.contains("uvw"));
 
-		this.test.setVisibleIndicators(null);
-		assertTrue(this.test.getVisibleIndicators().isEmpty());
+		this.test.setVisibleIndicatorKeys(null);
+		assertTrue(this.test.getVisibleIndicatorKeyList().isEmpty());
 	}
 
 }

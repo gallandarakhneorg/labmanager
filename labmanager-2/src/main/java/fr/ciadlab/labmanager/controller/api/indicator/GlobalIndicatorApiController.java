@@ -63,7 +63,7 @@ public class GlobalIndicatorApiController extends AbstractApiController {
 
 	/** Save or create the global indicators.
 	 *
-	 * @param visibleIndicators the list of th keys of the visible indicators.
+	 * @param visibleIndicators the list of the keys of the visible indicators.
 	 * @param username the name of the logged-in user.
 	 */
 	@PutMapping("/" + Constants.GLOBAL_INDICATORS_SAVING_ENDPOINT)
@@ -71,18 +71,18 @@ public class GlobalIndicatorApiController extends AbstractApiController {
 			@RequestParam(required = false) List<String> visibleIndicators,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.GLOBAL_INDICATORS_SAVING_ENDPOINT);
-		this.indicatorService.updateVisibleIndicators(visibleIndicators);
+		this.indicatorService.setVisibleIndicators(visibleIndicators);
 	}
 
-	/** Reset the values of the global indicators to force there computation.
+	/** Reset the cached global indicators.
 	 *
 	 * @param username the name of the logged-in user.
 	 */
-	@PutMapping("/" + Constants.GLOBAL_INDICATOR_VALUES_RESET_ENDPOINT)
-	public void resetGlobalIndicatorValues(
+	@PutMapping("/" + Constants.RESET_INDICATOR_CACHE_ENDPOINT)
+	public void resetIndicatorCache(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		ensureCredentials(username, Constants.GLOBAL_INDICATOR_VALUES_RESET_ENDPOINT);
-		this.indicatorService.resetGlobalIndicatorValues();
+		ensureCredentials(username, Constants.RESET_INDICATOR_CACHE_ENDPOINT);
+		this.indicatorService.clearCache();
 	}
 
 }

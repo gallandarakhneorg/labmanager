@@ -14,19 +14,18 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.indicators.project;
-
-import java.time.LocalDate;
+package fr.ciadlab.labmanager.indicators.project.count;
 
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.indicators.AbstractIndicator;
+import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.project.ProjectCategory;
+import fr.ciadlab.labmanager.service.project.ProjectService;
 import fr.ciadlab.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Count the number of academic projects for the period
+/** Count the number of projects, whatever its category, except open-source.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -35,43 +34,34 @@ import org.springframework.stereotype.Component;
  * @since 2.2
  */
 @Component
-public class AcademicProjectCountIndicator extends AbstractIndicator {
+public class ProjectCountIndicator extends AbstractProjectCountIndicator {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
+	 * @param projectService the service for accessing the projects.
 	 */
-	public AcademicProjectCountIndicator(
+	public ProjectCountIndicator(
 			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants) {
-		super(messages, constants);
+			@Autowired Constants constants,
+			@Autowired ProjectService projectService) {
+		super(messages, constants, projectService);
 	}
 
 	@Override
 	public String getName() {
-		return getMessage("academicProjectCountIndicator.name"); //$NON-NLS-1$
+		return getMessage("projectCountIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithYears("academicProjectCountIndicator.label"); //$NON-NLS-1$
+		return getLabelWithYears("projectCountIndicator.label"); //$NON-NLS-1$
 	}
 
 	@Override
-	public LocalDate getReferencePeriodStart() {
-		return LocalDate.of(2016, 1, 1);
-	}
-
-	@Override
-	public LocalDate getReferencePeriodEnd() {
-		return LocalDate.of(2021, 12, 31);
-	}
-
-	@Override
-	protected Number computeValue(ResearchOrganization organization) {
-		setComputationDetails(getMessage("indicators.hardcoded")); //$NON-NLS-1$
-		return Integer.valueOf(31);
+	public boolean isCountableProject(Project project) {
+		return project != null && project.getCategory() != ProjectCategory.OPEN_SOURCE;
 	}
 
 }

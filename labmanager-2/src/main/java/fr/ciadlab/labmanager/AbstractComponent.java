@@ -424,6 +424,33 @@ public abstract class AbstractComponent {
 		return null;
 	}
 
+	/** Find the organization object that corresponds to the given identifier, acronym or name.
+	 *
+	 * @param identifier the identifier of the organization. It could be {@code null}.
+	 * @param name the acronym or the name of the organization. It could be {@code null}.
+	 * @param organizationService the service that permits to access to the organization object.
+	 * @return the organization or {@code null}.
+	 * @since 3.2
+	 */
+	protected static ResearchOrganization getOrganizationWith(Integer dbId, String name, ResearchOrganizationService organizationService) {
+		if (dbId != null && dbId.intValue() != 0) {
+			final Optional<ResearchOrganization> organizationOpt = organizationService.getResearchOrganizationById(dbId.intValue());
+			if (organizationOpt.isEmpty()) {
+				return null;
+			}
+			return organizationOpt.get();
+		}
+		final String inOrganizationAcronym = inString(name);
+		if (!Strings.isNullOrEmpty(inOrganizationAcronym)) {
+			final Optional<ResearchOrganization> organizationOpt = organizationService.getResearchOrganizationByAcronymOrName(name);
+			if (organizationOpt.isEmpty()) {
+				return null;
+			}
+			return organizationOpt.get();
+		}
+		return null;
+	}
+	
 	/** Clean and normalized a string that is provided as input to an endpoint.
 	 *
 	 * @param input the input string to the endpoint.

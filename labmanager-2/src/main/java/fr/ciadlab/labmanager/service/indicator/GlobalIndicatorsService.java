@@ -16,7 +16,6 @@
 
 package fr.ciadlab.labmanager.service.indicator;
 
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -25,6 +24,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.indicator.GlobalIndicators;
@@ -32,6 +32,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.indicators.Indicator;
 import fr.ciadlab.labmanager.repository.indicator.GlobalIndicatorsRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -47,8 +48,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class GlobalIndicatorsService extends AbstractService {
 
-	private static final int CACHE_AGE = 30;
-
+	private static final int MAX_CACHE_AGE = 7;
+	
 	private final GlobalIndicatorsRepository indicatorRepository;
 
 	private final List<? extends Indicator> allIndicators;
@@ -76,12 +77,10 @@ public class GlobalIndicatorsService extends AbstractService {
 	}
 
 	/** Ensure that the global indicators' object is created.
-	 * Refresh the values if they are too old.
 	 *
-	 * @param updateCache indicates if the cache must be loaded.
 	 * @return the global indicators' object.
 	 */
-	public GlobalIndicators getGlobalIndicatorsNeverNull(boolean updateCache) {
+	public GlobalIndicators getGlobalIndicatorsNeverNull() {
 		final Optional<GlobalIndicators> opt = this.indicatorRepository.findAll().stream().findFirst();
 		GlobalIndicators gi;
 		if (opt.isEmpty()) {
@@ -89,106 +88,7 @@ public class GlobalIndicatorsService extends AbstractService {
 		} else {
 			gi = opt.get();
 		}
-		if (updateCache) {
-			gi.updateCache();
-		}
 		return gi;
-	}
-
-	/** Ensure that the global indicators' object is created.
-	 * Refresh the values if they are too old.
-	 *
-	 * @param organization the organization that must be used for updated the values.
-	 * @param indicators the indicators to consider.
-	 * @return the global indicators' object.
-	 */
-	protected GlobalIndicators ensureGlobalIndicators(ResearchOrganization organization, List<? extends Indicator> indicators) {
-		final GlobalIndicators gi = getGlobalIndicatorsNeverNull(false);
-		if (isOldGlobalIndicatorCache(gi)) {
-			updateGlobalIndicatorValues(gi, organization, indicators);
-		}
-		return gi;
-	}
-
-	/** Refresh the values of the global indicators.
-	 *
-	 * @param globalIndicators the object for global indicators to be refreshed.
-	 * @param organization the organization that must be used for updated the values.
-	 * @param indicators the indicators to consider.
-	 */
-	protected void updateGlobalIndicatorValues(GlobalIndicators globalIndicators, ResearchOrganization organization,
-			List<? extends Indicator> indicators) {
-		globalIndicators.setValues(organization, indicators);
-		this.indicatorRepository.save(globalIndicators);
-	}
-
-	/** Create the global indicators' object.
-	 *
-	 * @return a new global indicators' object.
-	 */
-	@SuppressWarnings("static-method")
-	protected GlobalIndicators createGlobalIndicators() {
-		return new GlobalIndicators();
-	}
-
-	/** Replies the map of all the indicator values.
-	 *
-	 * @param organization the organization that must be used for updated the values.
-	 * @return the map.
-	 */
-	public Map<String, Number> getAllIndicatorValues(ResearchOrganization organization) {
-		return getIndicatorValues(organization, this.allIndicators);
-	}
-
-	/** Replies the map of the indicator values for the given indicators.
-	 *
-	 * @param organization the organization that must be used for updated the values.
-	 * @param indicators the list of indicators to consider.
-	 * @return the map.
-	 */
-	public Map<String, Number> getIndicatorValues(ResearchOrganization organization, List<? extends Indicator> indicators) {
-		final GlobalIndicators gi = ensureGlobalIndicators(organization, indicators);
-		Map<String, Number> cache = gi.getIndicators();
-		if (cache == null) {
-			return Collections.emptyMap();
-		}
-		return cache;
-	}
-
-	/** Replies if the values of the global indicators are too old.
-	 * 
-	 * @parma globalIndicators the object to check.
-	 * @return {@code true} if they are too old.
-	 */
-	protected static boolean isOldGlobalIndicatorCache(GlobalIndicators globalIndicators) {
-		return globalIndicators != null
-				&& (globalIndicators.getLastUpdate() == null
-					|| globalIndicators.getIndicators() == null
-					|| globalIndicators.getIndicators().isEmpty()
-					|| LocalDateTime.now().isAfter(globalIndicators.getLastUpdate().plusDays(CACHE_AGE)));
-	}
-
-	/** Replies all the visible global indicators in the order that they should be displayed.
-	 *
-	 * @return the visible indicators.
-	 */
-	public List<? extends Indicator> getVisibleIndicators() {
-		final List<String> indicatorKeys = getGlobalIndicatorsNeverNull(true).getVisibleIndicators();		
-		return indicatorKeys.stream().map(it -> this.allIndicatorsPerKey.get(it)).filter(it -> it != null).collect(Collectors.toList());
-	}
-
-	/** Replies all the invisible global indicators.
-	 *
-	 * @return the invisible indicators.
-	 */
-	public List<? extends Indicator> getInvisibleIndicators() {
-		final Set<String> visibles = new TreeSet<>(getGlobalIndicatorsNeverNull(true).getVisibleIndicators());
-		if (visibles.isEmpty()) {
-			return this.allIndicators;
-		}
-		return this.allIndicators.stream().filter(it -> {
-			return !visibles.contains(it.getKey());
-		}).collect(Collectors.toList());
 	}
 
 	/** Replies the global indicators.
@@ -203,25 +103,126 @@ public class GlobalIndicatorsService extends AbstractService {
 		return null;
 	}
 
+	/** Create the global indicators' object.
+	 *
+	 * @return a new global indicators' object.
+	 */
+	protected GlobalIndicators createGlobalIndicators() {
+		final GlobalIndicators gi = new GlobalIndicators();
+		this.indicatorRepository.save(gi);
+		return gi;
+	}
+
+	/** Replies all the visible global indicators in the order that they should be displayed.
+	 *
+	 * @return the visible indicators.
+	 */
+	public List<? extends Indicator> getVisibleIndicators() {
+		return getVisibleIndicatorStream().collect(Collectors.toList());
+	}
+
+	/** Replies in a stream all the visible global indicators in the order that they should be displayed.
+	 *
+	 * @return the visible indicators in a stream.
+	 */
+	public Stream<? extends Indicator> getVisibleIndicatorStream() {
+		final List<String> indicatorKeys = getGlobalIndicatorsNeverNull().getVisibleIndicatorKeyList();		
+		return indicatorKeys.stream().map(it -> this.allIndicatorsPerKey.get(it)).filter(it -> it != null);
+	}
+
+	/** Replies all the invisible global indicators.
+	 *
+	 * @return the invisible indicators.
+	 */
+	public List<? extends Indicator> getInvisibleIndicators() {
+		final Set<String> visibles = new TreeSet<>(getGlobalIndicatorsNeverNull().getVisibleIndicatorKeyList());
+		if (visibles.isEmpty()) {
+			return this.allIndicators;
+		}
+		return this.allIndicators.stream().filter(it -> {
+			return !visibles.contains(it.getKey());
+		}).collect(Collectors.toList());
+	}
+
 	/** Save or create the global indicators.
 	 *
 	 * @param visibleIndicators the list of th keys of the visible indicators.
 	 */
-	public void updateVisibleIndicators(List<String> visibleIndicators) {
-		final GlobalIndicators gi = getGlobalIndicatorsNeverNull(false);
-		gi.setVisibleIndicators(visibleIndicators);
+	public void setVisibleIndicators(List<String> visibleIndicators) {
+		final StringBuilder keys = new StringBuilder();
+		for (final String key : visibleIndicators) {
+			if (keys.length() > 0) {
+				keys.append(","); //$NON-NLS-1$
+			}
+			keys.append(key);
+		}
+		setVisibleIndicators(keys.toString());
+	}
+
+	/** Save or create the global indicators.
+	 *
+	 * @param visibleIndicators the list of th keys of the visible indicators.
+	 */
+	public void setVisibleIndicators(String visibleIndicators) {
+		final GlobalIndicators gi = getGlobalIndicatorsNeverNull();
+		gi.setVisibleIndicatorKeys(visibleIndicators);
 		this.indicatorRepository.save(gi);
 	}
 
-	/** Reset the values of the global indicators to force there computation.
+	/** Replies the values of the visibles indicators, without reading the cache.
+	 * The values are computed on-the-fly without reading any cache system.
 	 *
-	 * @param username the name of the logged-in user.
+	 * @param organization the organization for which the indicators must be computed.
+	 * @return the map from the indicator keys to the values.
 	 */
-	public void resetGlobalIndicatorValues() {
-		final Optional<GlobalIndicators> opt = this.indicatorRepository.findAll().stream().findFirst();
-		if (opt.isPresent()) {
-			final GlobalIndicators gi = opt.get();
-			gi.setValues(null);
+	public Map<String, Number> getVisibleIndicatorsValues(ResearchOrganization organization) {
+		return getVisibleIndicatorStream().parallel().collect(Collectors.toConcurrentMap(
+				it -> it.getKey(),
+				it -> it.getNumericValue(organization)));
+	}
+
+	/** Replies the indicators and their associated values of the visibles indicators, without reading the cache.
+	 * The values are computed on-the-fly without reading any cache system.
+	 *
+	 * @param organization the organization for which the indicators must be computed.
+	 * @param useCache indicates if the value cache must be used or not. If this flag is {@code false}, the values are neither
+	 *     read from the cache system nor written back in the cache system.
+	 * @return the map from the indicator keys to the values.
+	 */
+	public List<Pair<? extends Indicator, Number>> getVisibleIndicatorsWithValues(ResearchOrganization organization, boolean useCache) {
+		final GlobalIndicators gi = getGlobalIndicatorsNeverNull();
+		if (useCache) {
+			final Map<String, Number> cache;
+			if (gi.getCacheAge() > MAX_CACHE_AGE) {
+				gi.resetCachedValues();
+				cache = Collections.emptyMap();
+			} else {
+				cache = gi.getCachedValues();
+			}
+			assert cache != null;
+			return getVisibleIndicatorStream()
+				.map(it -> {
+					Number value = cache.get(it.getKey());
+					if (value == null) {
+						value = it.getNumericValue(organization);
+						gi.setCachedValues(it.getKey(), value);
+						this.indicatorRepository.save(gi);
+					}
+					return Pair.of(it, value);
+				})
+				.collect(Collectors.toList());
+		}
+		return getVisibleIndicatorStream()
+				.map(it -> Pair.of(it, it.getNumericValue(organization)))
+				.collect(Collectors.toList());
+	}
+
+	/** Clear the cache content.
+	 */
+	public void clearCache() {
+		final GlobalIndicators gi = getGlobalIndicatorsOrNull();
+		if (gi != null) {
+			gi.resetCachedValues();
 			this.indicatorRepository.save(gi);
 		}
 	}

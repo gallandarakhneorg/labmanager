@@ -20,11 +20,13 @@
 		    <div class="card-body">
 			    <h5 class="card-title" th:utext="#{html.IndicatorsAndDashBoard}"></h5>
 			    <p class="card-text">
-			    	<a th:href="@{/globalIndicatorsEditor}" class="btn btn-labeled btn-success" role="button">
+			    	<a th:href="@{/allIndicatorValueList}" class="btn btn-labeled btn-success" role="button">
+			    		<span class="fa-solid fa-sort-numeric-up-alt"></span>&nbsp;<th:block th:utext="#{html.allIndicatorValueList}"></th:block></a>
+			    	<a th:href="@{/globalIndicatorsEditor}" class="btn btn-labeled btn-primary" role="button">
 			    		<span class="fa-solid fa-sort-numeric-up-alt"></span>&nbsp;<th:block th:utext="#{html.GlobalIndicators}"></th:block></a>
-			    	<button type="button" class="btn btn-labeled btn-primary" disabled>
-			    	<span class="fa-solid fa-chart-simple"></span>&nbsp;Charts</button>
 			    	<button type="button" class="btn btn-labeled btn-secondary" disabled>
+			    	<span class="fa-solid fa-chart-simple"></span>&nbsp;Charts</button>
+			    	<button type="button" class="btn btn-labeled btn-warning" disabled>
 			    	<span class="fa-solid fa-file-excel"></span>&nbsp;Export to spreadsheet</button>
 			    </p>
 			</div>

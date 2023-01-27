@@ -16,11 +16,9 @@
 
 package fr.ciadlab.labmanager.controller.view.indicator;
 
-import java.util.Collections;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Optional;
 
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -30,11 +28,10 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.indicators.Indicator;
 import fr.ciadlab.labmanager.service.indicator.GlobalIndicatorsService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
-import org.apache.jena.ext.com.google.common.base.Strings;
+import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.springframework.data.util.Pair;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -102,7 +99,7 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView(Constants.GLOBAL_INDICATORS_EDITING_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, embedded);
 		//
-		final GlobalIndicators gi = this.indicatorService.getGlobalIndicatorsNeverNull(false);
+		final GlobalIndicators gi = this.indicatorService.getGlobalIndicatorsNeverNull();
 		modelAndView.addObject("globalIndicators", gi); //$NON-NLS-1$
 		final List<? extends Indicator> visibleIndicators = this.indicatorService.getVisibleIndicators();
 		modelAndView.addObject("visibleIndicators", visibleIndicators); //$NON-NLS-1$
@@ -117,7 +114,6 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 		//
 		modelAndView.addObject("formActionUrl", rooted(Constants.GLOBAL_INDICATORS_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.ADMIN_ENDPOINT)); //$NON-NLS-1$
-		modelAndView.addObject("resetIndicatorUrl", endpoint(Constants.GLOBAL_INDICATOR_VALUES_RESET_ENDPOINT)); //$NON-NLS-1$
 		return modelAndView;
 	}
 
@@ -125,6 +121,7 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 	 *
 	 * @param dbId the database identifier of the organization.
 	 * @param name the name of acronym of the organization.
+	 * @param cache indicates if the value cache is used.
 	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
 	 * @param username the name of the logged-in user.
 	 * @param username the name of the logged-in user.
@@ -134,6 +131,7 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 	public ModelAndView showGlobalIndicators(
 			@RequestParam(required = false) Integer dbId,
 			@RequestParam(required = false) String name,
+			@RequestParam(required = false, defaultValue = "true") boolean cache,
 			@RequestParam(required = false, defaultValue = "false") boolean embedded,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, "/showGlobalIndicators"); //$NON-NLS-1$
@@ -142,43 +140,20 @@ public class GlobalIndicatorViewController extends AbstractViewController {
 		//
 		modelAndView.addObject("backendLocale", this.currentLocale); //$NON-NLS-1$
 		//
-		final ResearchOrganization organization;
-		if (dbId != null && dbId.intValue() != 0) {
-			final Optional<ResearchOrganization> organizationOpt = this.organizationService.getResearchOrganizationById(dbId.intValue());
-			if (organizationOpt.isEmpty()) {
-				throw new IllegalArgumentException("Organization not found with id: " + dbId); //$NON-NLS-1$
-			}
-			organization = organizationOpt.get();
-		} else {
-			final String inOrganizationAcronym = inString(name);
-			if (!Strings.isNullOrEmpty(inOrganizationAcronym)) {
-				final Optional<ResearchOrganization> organizationOpt = this.organizationService.getResearchOrganizationByAcronymOrName(name);
-				if (organizationOpt.isEmpty()) {
-					throw new IllegalArgumentException("Organization not found with name: " + name); //$NON-NLS-1$
-				}
-				organization = organizationOpt.get();
-			} else {
-				throw new IllegalArgumentException("Organization not found"); //$NON-NLS-1$
-			}
-		}
+		final ResearchOrganization organization = getOrganizationWith(dbId, name, this.organizationService);
 		assert organization != null;
 		modelAndView.addObject("organization", organization); //$NON-NLS-1$
 		//
-		modelAndView.addObject("globalIndicators", this.indicatorService.getGlobalIndicatorsNeverNull(false)); //$NON-NLS-1$
-		final List<? extends Indicator> visibleIndicators = this.indicatorService.getVisibleIndicators();
-		if (visibleIndicators == null || visibleIndicators.isEmpty()) {
-			modelAndView.addObject("indicators", Collections.emptyList()); //$NON-NLS-1$
+		final List<Pair<? extends Indicator, Number>> values = this.indicatorService.getVisibleIndicatorsWithValues(organization, cache);
+		if (values == null || values.isEmpty()) {
+			modelAndView.addObject("indicators", new ArrayList<>()); //$NON-NLS-1$
 		} else {
-			final Map<String, Number> values = this.indicatorService.getAllIndicatorValues(organization);
-			final List<Pair<Indicator, Number>> synthesis = new LinkedList<>();
-			for (final Indicator indicator : visibleIndicators) {
-				final Number number = values.get(indicator.getKey());
-				if (number != null) {
-					synthesis.add(Pair.of(indicator, number));
-				}
-			}
-			modelAndView.addObject("indicators", synthesis); //$NON-NLS-1$
+			modelAndView.addObject("indicators", values); //$NON-NLS-1$
 		}
+		//
+		final GlobalIndicators gi = this.indicatorService.getGlobalIndicatorsNeverNull();
+		modelAndView.addObject("globalIndicators", gi); //$NON-NLS-1$
+		modelAndView.addObject("lastUpdate", Integer.valueOf(gi.getCacheAge())); //$NON-NLS-1$
 		//
 		return modelAndView;
 	}

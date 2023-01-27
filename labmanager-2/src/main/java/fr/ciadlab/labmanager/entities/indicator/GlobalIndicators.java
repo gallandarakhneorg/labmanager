@@ -18,14 +18,15 @@ package fr.ciadlab.labmanager.entities.indicator;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.io.StringReader;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.TreeMap;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -37,21 +38,19 @@ import javax.persistence.Table;
 import javax.persistence.Transient;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.indicators.Indicator;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 
-/** Table for storing hte global indicators to show up.
+/** Table for storing the global indicators to show up.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -74,23 +73,18 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	@Column(name = "id", nullable = false)
 	private int id;
 
-	/** Date of the last update of the global indicators. 
-	 */
-	@Column
-	private LocalDateTime lastUpdate;
-
-	/** String representation of the indicator values. 
-	 */
-	@Column(length =  EntityUtils.LARGE_TEXT_SIZE)
-	@Lob
-	private String values;
-
-	@Transient
-	private Map<String, Number> valueCache;
-
 	@Column(length =  EntityUtils.LARGE_TEXT_SIZE)
 	@Lob
 	private String visibleIndicatorKeys;
+
+	@Column
+	private LocalDate cacheDate;
+
+	@Column(length =  EntityUtils.LARGE_TEXT_SIZE)
+	private String cache;
+
+	@Transient
+	private Map<String, Number> cacheBuffer;
 
 	/** List of visible indicators. This list contains the indicators' keys. Order of keys is important.
 	 * Because the DB backend does not ensure the order of a ElementCollection of type list
@@ -115,7 +109,6 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	public int hashCode() {
 		int h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.id);
-		h = HashCodeUtils.add(h, this.values);
 		h = HashCodeUtils.add(h, this.visibleIndicatorKeys);
 		return h;
 	}
@@ -132,9 +125,6 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		if (this.id != other.id) {
 			return false;
 		}
-		if (!Objects.equals(this.values, other.values)) {
-			return false;
-		}
 		if (!Objects.equals(this.visibleIndicatorKeys, other.visibleIndicatorKeys)) {
 			return false;
 		}
@@ -146,14 +136,8 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		if (getId() != 0) {
 			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
 		}
-		if (getLastUpdate() != null) {
-			consumer.accept("lastUpdate", getLastUpdate()); //$NON-NLS-1$
-		}
-		if (getValues() != null) {
-			consumer.accept("values", getValues()); //$NON-NLS-1$
-		}
-		if (!getVisibleIndicators().isEmpty()) {
-			consumer.accept("visibleIndicatorKeys", getVisibleIndicators()); //$NON-NLS-1$
+		if (!getVisibleIndicatorKeyList().isEmpty()) {
+			consumer.accept("visibleIndicatorKeys", getVisibleIndicatorKeyList()); //$NON-NLS-1$
 		}
 	}
 
@@ -186,97 +170,6 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		this.id = id;
 	}
 
-	/** Replies the date-time of the last update of the indicators.
-	 *
-	 * @return the date-time or {@code null} if it is unknown.
-	 */
-	public LocalDateTime getLastUpdate() {
-		return this.lastUpdate;
-	}
-
-	/** Change the date-time of the last update of the indicators.
-	 *
-	 * @param date the date-time or {@code null} if it is unknown.
-	 */
-	public void setLastUpdate(LocalDateTime date) {
-		this.lastUpdate = date;
-	}
-
-	/** Change the date-time of the last update of the indicators.
-	 *
-	 * @param date the date in format {@code yyyy-mm-ddThh:mm::ss} or {@code null} if it is unknown.
-	 */
-	public void setLastUpdate(String date) {
-		if (Strings.isNullOrEmpty(date)) {
-			setLastUpdate((LocalDateTime) null);
-		} else {
-			setLastUpdate(LocalDateTime.parse(date));
-		}
-	}
-
-	/** Replies the JSON representation of the indicator values.
-	 *
-	 * @return the JSON of the values.
-	 */
-	public String getValues() {
-		return this.values;
-	}
-
-	/** Change the JSON representation of the indicator values.
-	 *
-	 * @param values the JSON of the indicator values
-	 */
-	public void setValues(String values) {
-		this.values = Strings.emptyToNull(values);
-		this.valueCache = null;
-		this.lastUpdate = this.values != null ? LocalDateTime.now() : null;
-	}
-
-	/** Change the indicator values from the list of indicators.
-	 *
-	 * @param organization the organization to consider for updating the global indicators.
-	 * @param allIndicators the indicators to use for setting the values.
-	 */
-	public void setValues(ResearchOrganization organization, List<? extends Indicator> allIndicators) {
-		final Map<String, Number> cache = new TreeMap<>();
-		for (final Indicator indicator : allIndicators) {
-			cache.put(indicator.getKey(), indicator.getNumericValue(organization));
-		}
-		try {
-			final ObjectMapper mapper = new ObjectMapper();
-			this.values = mapper.writeValueAsString(cache);
-			this.valueCache = cache;
-			this.lastUpdate = cache.isEmpty() ? null : LocalDateTime.now();
-		} catch (Throwable ex) {
-			//
-		}
-	}
-
-	/** Replies the global indicators.
-	 *
-	 * @return the indicator values
-	 */
-	public Map<String, Number> getIndicators() {
-		return this.valueCache;
-	}
-
-	/** Build the cache of the values from the database values.
-	 */
-	public void updateCache() {
-		this.valueCache = null;
-		final String values = getValues();
-		if (!Strings.isNullOrEmpty(values)) {
-			try (final StringReader sr = new StringReader(values)) {
-				final ObjectMapper mapper = new ObjectMapper();
-				final ObjectReader or = mapper.readerForMapOf(Number.class);
-				final Map<String, Number> cache = or.readValue(sr);
-				this.valueCache = cache;
-			} catch (Throwable ex) {
-				//
-			}
-		}
-	}
-
 	/** Replies the keys of the visible indicators into a string of characters.
 	 * Each key is separated by coma.
 	 *
@@ -296,34 +189,12 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		this.visibleIndicatorList = null;
 	}
 
-	/** Change the keys of the visible indicators.
-	 *
-	 * @param visibleIndicators the list of the keys of the visible indicators.
-	 */
-	public void setVisibleIndicators(List<String> visibleIndicators) {
-		final StringBuilder builder = new StringBuilder();
-		if (visibleIndicators != null && !visibleIndicators.isEmpty()) {
-			boolean first = true;
-			for (final String key : visibleIndicators) {
-				if (!Strings.isNullOrEmpty(key)) {
-					if (first) {
-						first = false;
-					} else {
-						builder.append(","); //$NON-NLS-1$
-					}
-					builder.append(key);
-				}
-			}
-		}
-		this.visibleIndicatorKeys = builder.toString();
-		this.visibleIndicatorList = null;
-	}
-
-	/** Replies the visible indicators.
+	/** Replies the list of the identifiers of visible indicators.
 	 *
 	 * @return the list of the keys of the visible indicators.
+	 * @since 3.2
 	 */
-	public List<String> getVisibleIndicators() {
+	public List<String> getVisibleIndicatorKeyList() {
 		if (this.visibleIndicatorList == null) {
 			this.visibleIndicatorList= new ArrayList<>();
 			final String str = getVisibleIndicatorKeys();
@@ -332,6 +203,83 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 			}
 		}
 		return this.visibleIndicatorList;
+	}
+
+	/** Replies the max age of the cached values.
+	 *
+	 * @return the max age of the currently cached values.
+	 * @since 3.2
+	 */
+	public int getCacheAge() {
+		if (this.cacheDate == null) {
+			return Integer.MAX_VALUE;
+		}
+		return (int) ChronoUnit.DAYS.between(this.cacheDate, LocalDate.now());
+	}
+
+	/** Reset the value cache and replies an empty map.
+	 * 
+	 * @since 3.2
+	 */
+	public void resetCachedValues() {
+		this.cacheDate = null;
+		this.cache = null;
+		this.cacheBuffer = null;
+	}
+
+	/** Replies the cached values in the context of the provided organization.
+	 *
+	 * @return the cache content.
+	 * @since 3.2
+	 */
+	public Map<String, Number> getCachedValues() {
+		ensureCacheBuffer();
+		return Collections.unmodifiableMap(this.cacheBuffer);
+	}
+
+	/** Force the value of the cache in the context of the provided organization.
+	 * 
+	 * @param key the name of the indicator to be set.
+	 * @param value the new value for the indicator.
+	 * @since 3.2
+	 */
+	public void setCachedValues(String key, Number value) {
+		ensureCacheBuffer();
+		this.cacheBuffer.put(key, value);
+		if (this.cacheDate == null) {
+			this.cacheDate = LocalDate.now();
+		}
+		saveCacheBuffer();
+	}
+
+	@SuppressWarnings("unchecked")
+	private void ensureCacheBuffer() {
+		if (this.cacheBuffer == null) {
+			final ObjectMapper mapper = new ObjectMapper();
+			if (!Strings.isNullOrEmpty(this.cache)) {
+				try {
+					this.cacheBuffer = mapper.readValue(this.cache, Map.class);
+				} catch (JsonProcessingException ex) {
+					throw new RuntimeException(ex);
+				}
+			}
+		}
+		if (this.cacheBuffer == null) {
+			this.cacheBuffer = new HashMap<>();
+		}
+	}
+
+	private void saveCacheBuffer() {
+		if (this.cacheBuffer == null) {
+			this.cache = null;
+		} else {
+			final ObjectMapper mapper = new ObjectMapper();
+			try {
+				this.cache = mapper.writeValueAsString(this.cacheBuffer);
+			} catch (JsonProcessingException ex) {
+				throw new RuntimeException(ex);
+			}
+		}
 	}
 
 }

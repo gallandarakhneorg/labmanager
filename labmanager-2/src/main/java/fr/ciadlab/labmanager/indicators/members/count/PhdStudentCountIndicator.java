@@ -38,14 +38,14 @@ import org.springframework.stereotype.Component;
  * @since 2.2
  */
 @Component
-public class PhDStudentCountIndicator extends AbstractInstantIndicator {
+public class PhdStudentCountIndicator extends AbstractInstantIndicator {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 */
-	public PhDStudentCountIndicator(
+	public PhdStudentCountIndicator(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants) {
 		super(messages, constants);
