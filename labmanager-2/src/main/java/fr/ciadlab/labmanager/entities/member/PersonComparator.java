@@ -125,6 +125,10 @@ public class PersonComparator implements Comparator<Person> {
 		if (cmp != 0) {
 			return cmp;
 		}
+		cmp = Integer.compare(o1.getScopusHindex(), o2.getScopusHindex());
+		if (cmp != 0) {
+			return cmp;
+		}
 		cmp = StringUtils.compare(o1.getGravatarId(), o2.getGravatarId());
 		if (cmp != 0) {
 			return cmp;

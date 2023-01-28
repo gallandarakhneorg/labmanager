@@ -65,10 +65,14 @@
             <td>
                 <th:block th:if="${person.googleScholarHindex > 0}"
                           th:utext="#{html.GoogleScholarHindex(${person.googleScholarHindex})}"></th:block>
-                <th:block th:if="${person.googleScholarHindex > 0 && person.wosHindex > 0}"
+                <th:block th:if="${person.googleScholarHindex > 0 && person.wosHindex > 0 && person.scopusHindex > 0}"
                           th:utext="', '"></th:block>
                 <th:block th:if="${person.wosHindex > 0}"
                           th:utext="#{html.WosHindex(${person.wosHindex})}"></th:block>
+                <th:block th:if="${(person.googleScholarHindex > 0 || person.wosHindex > 0) && person.scopusHindex > 0}"
+                          th:utext="', '"></th:block>
+                <th:block th:if="${person.scopusHindex > 0}"
+                          th:utext="#{html.ScopusHindex(${person.scopusHindex})}"></th:block>
             </td>
             <td>
                 <th:block th:each="mbr, iMbr : ${person.activeMemberships}">

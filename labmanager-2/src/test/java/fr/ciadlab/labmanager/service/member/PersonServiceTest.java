@@ -280,6 +280,7 @@ public class PersonServiceTest {
 		assertSame(WebPageNaming.EMAIL_ID, actual.getWebPageNaming());
 		assertEquals(159, actual.getGoogleScholarHindex());
 		assertEquals(357, actual.getWosHindex());
+		assertEquals(7854, actual.getScopusHindex());
 	}
 
 	@Test
@@ -324,6 +325,7 @@ public class PersonServiceTest {
 		verify(this.pers1, atLeastOnce()).setWebPageNaming(same(WebPageNaming.EMAIL_ID));
 		verify(this.pers1, atLeastOnce()).setGoogleScholarHindex(eq(159));
 		verify(this.pers1, atLeastOnce()).setWosHindex(eq(357));
+		verify(this.pers1, atLeastOnce()).setScopusHindex(eq(7854));
 	}
 
 	@Test

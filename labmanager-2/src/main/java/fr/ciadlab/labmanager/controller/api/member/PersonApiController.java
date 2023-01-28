@@ -150,6 +150,7 @@ public class PersonApiController extends AbstractApiController {
 	 * @param webPageNaming the type of naming for the person's webpage on the organization server.
 	 * @param googleScholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
+	 * @param scopusHindex the Hindex of the person on Scopus.
 	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if the person cannot be saved.
@@ -179,6 +180,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) String webPageNaming,
 			@RequestParam(required = false) Integer googleScholarHindex,
 			@RequestParam(required = false) Integer wosHindex,
+			@RequestParam(required = false) Integer scopusHindex,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PERSON_SAVING_ENDPOINT, person);
@@ -207,6 +209,7 @@ public class PersonApiController extends AbstractApiController {
 		final WebPageNaming webPageNamingObj = inWebPageNaming == null ? WebPageNaming.UNSPECIFIED : WebPageNaming.valueOfCaseInsensitive(inWebPageNaming);
 		final int shindex = googleScholarHindex == null ? 0 : googleScholarHindex.intValue();
 		final int whindex = wosHindex == null ? 0 : wosHindex.intValue();
+		final int uhindex = scopusHindex == null ? 0 : scopusHindex.intValue();
 		//
 		final Person optPerson;
 		//

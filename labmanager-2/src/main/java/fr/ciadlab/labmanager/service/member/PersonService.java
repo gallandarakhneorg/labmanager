@@ -147,7 +147,8 @@ public class PersonService extends AbstractService {
 				null, // EU Cordis URL
 				WebPageNaming.UNSPECIFIED,
 				0, // Google Scholar H-index
-				0); // WoS H-index
+				0, // WoS H-index
+				0, // Scopus H-index
 	}
 
 	/** Create a person in the database.
@@ -175,6 +176,7 @@ public class PersonService extends AbstractService {
 	 * @param webPageNaming the type of naming for the person's webpage on the organization server.
 	 * @param scholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
+	 * @param scopusHindex the Hindex of the person on Scopus.
 	 * @return the person in the database.
 	 * @see #createPerson(String, String)
 	 * @see Gender
@@ -207,6 +209,7 @@ public class PersonService extends AbstractService {
 		res.setWebPageNaming(webPageNaming);
 		res.setGoogleScholarHindex(scholarHindex);
 		res.setWosHindex(wosHindex);
+		res.setScopusHindex(scopusHindex);
 		res.setValidated(validated);
 		this.personRepository.save(res);
 		return res;
@@ -238,6 +241,7 @@ public class PersonService extends AbstractService {
 	 * @param webPageNaming the type of naming for the person's webpage on the organization server.
 	 * @param scholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
+	 * @param scopusHindex the Hindex of the person on Scopus.
 	 * @return the updated person.
 	 */
 	public Person updatePerson(int identifier, boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
@@ -273,6 +277,7 @@ public class PersonService extends AbstractService {
 			person.setWebPageNaming(webPageNaming);
 			person.setGoogleScholarHindex(scholarHindex);
 			person.setWosHindex(wosHindex);
+			person.setScopusHindex(scopusHindex);
 			person.setValidated(validated);
 			this.personRepository.save(person);
 			return person;

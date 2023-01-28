@@ -241,6 +241,13 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Column
 	private int wosHindex;
 
+	/** H-index of the person provided by Scopus.
+	 *
+	 * @since 3.3
+	 */
+	@Column
+	private int scopusHindex;
+
 	/** Identifier of the person on Gravatar.
 	 */
 	@Column
@@ -319,6 +326,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		h = HashCodeUtils.add(h, this.scopusId);
 		h = HashCodeUtils.add(h, this.researchGateId);
 		h = HashCodeUtils.add(h, this.wosHindex);
+		h = HashCodeUtils.add(h, this.scopusHindex);
 		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
@@ -398,6 +406,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (this.wosHindex != other.wosHindex) {
 			return false;
 		}
+		if (this.scopusHindex != other.scopusHindex) {
+			return false;
+		}
 		if (this.validated != other.validated) {
 			return false;
 		}
@@ -448,9 +459,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			consumer.accept("githubId", getGithubId()); //$NON-NLS-1$
 		}
-		if (getGoogleScholarHindex() > 0) {
-			consumer.accept("googleScholarHindex", Integer.valueOf(getGoogleScholarHindex())); //$NON-NLS-1$
-		}
 		if (!Strings.isNullOrEmpty(getGravatarId())) {
 			consumer.accept("gravatarId", getGravatarId()); //$NON-NLS-1$
 		}
@@ -490,8 +498,14 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (!Strings.isNullOrEmpty(getResearchGateId())) {
 			consumer.accept("researchGateId", getResearchGateId()); //$NON-NLS-1$
 		}
+		if (getGoogleScholarHindex() > 0) {
+			consumer.accept("googleScholarHindex", Integer.valueOf(getGoogleScholarHindex())); //$NON-NLS-1$
+		}
 		if (getWosHindex() > 0) {
 			consumer.accept("wosHindex", Integer.valueOf(getWosHindex())); //$NON-NLS-1$
+		}
+		if (getScopusHindex() > 0) {
+			consumer.accept("scopusHindex", Integer.valueOf(getScopusHindex())); //$NON-NLS-1$
 		}
 		if (getWebPageNaming() != null) {
 			consumer.accept("webPageNaming", getWebPageNaming()); //$NON-NLS-1$
@@ -1362,6 +1376,41 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			setWosHindex(0);
 		} else {
 			setWosHindex(hindex.intValue());
+		}
+	}
+
+	/** Replies the H-index of the person provided by Scopus.
+	 *
+	 * @return the h-index.
+	 * @since 3.3
+	 */
+	public int getScopusHindex() {
+		return this.scopusHindex;
+	}
+
+	/** Change the H-index of the person provided by Scopus.
+	 *
+	 * @param hindex the H-index.
+	 * @since 3.3
+	 */
+	public void setScopusHindex(int hindex) {
+		if (hindex < 0) {
+			this.scopusHindex = 0;
+		} else {
+			this.scopusHindex = hindex;
+		}
+	}
+
+	/** Change the H-index of the person provided by Scopus.
+	 *
+	 * @param hindex the H-index.
+	 * @since 3.3
+	 */
+	public final void setScopusHindex(Number hindex) {
+		if (hindex == null) {
+			setScopusHindex(0);
+		} else {
+			setScopusHindex(hindex.intValue());
 		}
 	}
 

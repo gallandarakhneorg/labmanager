@@ -87,16 +87,20 @@
 				</div>
 			</div>
 			<div class="person-card-indexes"
-			     th:if="${enableQindexes && (person.googleScholarHindex > 0 || person.wosHindex > 0)}">
+			     th:if="${enableQindexes && (person.googleScholarHindex > 0 || person.wosHindex > 0 || person.scopusHindex > 0)}">
 			     <th:block th:utext="#{html.CardIndex}"></th:block>
-			     <span class="person-card-index person-card-googlescholar-index"
-			           th:title="#{html.GoogleScholarHindexSource}"
-			           th:if="${person.googleScholarHindex > 0}">
-			           <a th:href="${person.googleScholarURL}" th:utext="${person.googleScholarHindex}"></a></span>
 			     <span class="person-card-index person-card-wos-index"
 			           th:title="#{html.WosHindexSource}"
 			           th:if="${person.wosHindex > 0}">
 			           <a th:href="${person.researcherIdURL}" th:utext="${person.wosHindex}"></a></span>
+			     <span class="person-card-index person-card-scopus-index"
+			           th:title="#{html.ScopusHindexSource}"
+			           th:if="${person.scopusHindex > 0}">
+			           <a th:href="${person.scopusURL}" th:utext="${person.scopusHindex}"></a></span>
+			     <span class="person-card-index person-card-googlescholar-index"
+			           th:title="#{html.GoogleScholarHindexSource}"
+			           th:if="${person.googleScholarHindex > 0}">
+			           <a th:href="${person.googleScholarURL}" th:utext="${person.googleScholarHindex}"></a></span>
             	<th:block th:if="${personEditionUrl != null}"><a th:href="${personEditionUrl}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
 			</div>
 			<div class="person-card-links"
@@ -109,6 +113,10 @@
 			           th:unless="${#strings.isEmpty(person.researcherId)}"
 			           th:title="#{html.LinksWosTitle(${person.researcherId})}">
 			           <a th:href="${person.researcherIdURL}"><span class="person-card-wos-link"></span></a></span>
+			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.scopusId)}"
+			           th:title="#{html.LinksScopusTitle(${person.scopusId})}">
+			           <a th:href="${person.scopusURL}"><span class="person-card-scopus-link"></span></a></span>
 			     <span class="person-card-link"
 			           th:unless="${#strings.isEmpty(person.googleScholarId)}"
 			           th:title="#{html.LinksGoogleScholarTitle(${person.googleScholarId})}">

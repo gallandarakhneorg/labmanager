@@ -858,6 +858,42 @@ public class PersonTest {
 	}
 
 	@Test
+	public void getScopusHindex() {
+		assertEquals(0, this.test.getScopusHindex());
+	}
+
+	@Test
+	public void setScopusHindex_int() throws Exception {
+		assertEquals(0, this.test.getScopusHindex());
+
+		this.test.setScopusHindex(456);
+		assertEquals(456, this.test.getScopusHindex());
+
+		this.test.setScopusHindex(0);
+		assertEquals(0, this.test.getScopusHindex());
+
+		this.test.setScopusHindex(852);
+		assertEquals(852, this.test.getScopusHindex());
+
+		this.test.setScopusHindex(-580);
+		assertEquals(0, this.test.getScopusHindex());
+	}
+
+	@Test
+	public void setScopusHindex_Number() throws Exception {
+		assertEquals(0, this.test.getScopusHindex());
+
+		this.test.setScopusHindex(Integer.valueOf(456));
+		assertEquals(456, this.test.getScopusHindex());
+
+		this.test.setScopusHindex(null);
+		assertEquals(0, this.test.getScopusHindex());
+
+		this.test.setScopusHindex(Integer.valueOf(852));
+		assertEquals(852, this.test.getScopusHindex());
+	}
+
+	@Test
 	public void getGravatarId() {
 		assertNull(this.test.getGravatarId());
 	}
