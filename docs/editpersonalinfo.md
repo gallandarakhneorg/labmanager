@@ -27,6 +27,7 @@ The backend software provides a form for editing or adding a person description 
 * `Gravatar identifier`: the identifier of the person on [Gravatar](http://gravatar.com). Gravatar is a online platform for stored and shared photo of a person. It is one of the sources for the information system to get the person's photo.
 * `ORCID`: the identifier of the person on [ORCID](http://orcid.org), which is one of the standard platform for identifying a researcher worldwide.
 * `Identifier on ResearchID, WoS or Publon`: the identifier of the person on [Web-of-Science](http://webofscience.com) (and the related ResearcherID and Publon platforms), which is one of the standard platform for identifying a researcher worldwide.
+* `Identifier on Scopus`: the identifier of the person on [Scopus by elsevier](https://www.scopus.com), which is one of the standard platform for obtaining stats on the person's scientific publications and the related indicators.
 * `Identifier on Google Scholar`: the identifier of the person on [Google Scholar](https://scholar.google.com), which is one of the standard platform for obtaining stats on the person's scientific publications and the related indicators. It is also used for obtaining the photo of the person.
 * `Identifier on Github`: the identifier of the person on [Github](https://github.com), which is one of the standard code sharing platform worldwide. It is also used for obtaining the photo of the person.
 * `Identifier on Research Gate`: the identifier of the person on [Research Gate](https://researchgate.com), which is one of the pro social networks for researchers.
@@ -40,6 +41,10 @@ The backend software provides a form for editing or adding a person description 
   * `author-`: the URL is `https://hostname/author-<ID>` where the `<ID>` is replaced by the database ID of the person.
 * `Hindex on Google Scholar`: the H-index of the person that is provided by [Google Scholar](https://scholar.google.com).
 * `Hindex on Web-of-Science (WoS)`: the H-index of the person that is provided by [Web-of-Science](http://webofscience.com).
+* `Hindex on Scopus`: the H-index of the person that is provided by [Scopus by Elsevier](https://www.scopus.com).
+* `Number of paper citations on Google Scholar`: the number of paper citations for the person that is provided by [Google Scholar](https://scholar.google.com).
+* `Number of paper citations on Web-of-Science (WoS)`: the number of paper citations for the person that is provided by [Web-of-Science](http://webofscience.com).
+* `Number of paper citations on Scopus`: the number of paper citations for the person that is provided by [Scopus (Elsevier)](https://www.scopus.com).
 
 ## Step 3. Save the changes
 
