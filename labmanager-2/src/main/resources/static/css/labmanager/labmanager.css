@@ -313,6 +313,15 @@ span.person-card-googlescholar-index:before {
 	width: 20px;
 	height: 20px;
 }
+.person-card-scopus-index:before {
+	background: url("../../images/icon/scopus.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	content: "";
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
 .person-card-links {
     margin-top: 0.5rem;
 	margin-bottom: 0.5rem;
@@ -327,6 +336,14 @@ span.person-card-googlescholar-index:before {
 }
 .person-card-wos-link {
 	background: url("../../images/icon/wos.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
+.person-card-scopus-link {
+	background: url("../../images/icon/scopus.svg") no-repeat;
 	background-size: 18px 18px;
 	background-position: 50% 100%;
 	display: inline-block;

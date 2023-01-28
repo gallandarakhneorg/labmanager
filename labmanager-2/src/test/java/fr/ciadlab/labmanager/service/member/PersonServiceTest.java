@@ -268,6 +268,7 @@ public class PersonServiceTest {
 		assertEquals("NGRAV", actual.getGravatarId());
 		assertEquals("NORCID", actual.getORCID());
 		assertEquals("NRID", actual.getResearcherId());
+		assertEquals("NSCOPID", actual.getScopusId());
 		assertEquals("NGSC", actual.getGoogleScholarId());
 		assertEquals("NLIN", actual.getLinkedInId());
 		assertEquals("NGIT", actual.getGithubId());
@@ -311,6 +312,7 @@ public class PersonServiceTest {
 		verify(this.pers1, atLeastOnce()).setGravatarId(eq("NGRAV"));
 		verify(this.pers1, atLeastOnce()).setORCID(eq("NORCID"));
 		verify(this.pers1, atLeastOnce()).setResearcherId(eq("NRID"));
+		verify(this.pers1, atLeastOnce()).setScopusId(eq("NSCOPID"));
 		verify(this.pers1, atLeastOnce()).setGoogleScholarId(eq("NGSC"));
 		verify(this.pers1, atLeastOnce()).setLinkedInId(eq("NLIN"));
 		verify(this.pers1, atLeastOnce()).setGithubId(eq("NGIT"));

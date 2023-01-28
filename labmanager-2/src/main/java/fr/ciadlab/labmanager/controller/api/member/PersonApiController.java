@@ -138,6 +138,7 @@ public class PersonApiController extends AbstractApiController {
 	 * @param gravatarId the identifier for obtaining a photo on Gravatar.
 	 * @param orcid the ORCID of the person.
 	 * @param researcherId the identifier of the person on ResearchId/WOS/Publon.
+	 * @param scopusId the identifier of the person on Scopus.
 	 * @param googleScholarId the identifier of the person on Google Scholar.
 	 * @param linkedInId the identifier of the person on LinkedIn.
 	 * @param githubId the identifier of the person on Github.
@@ -166,6 +167,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) String gravatarId,
 			@RequestParam(required = false) String orcid,
 			@RequestParam(required = false) String researcherId,
+			@RequestParam(required = false) String scopusId,
 			@RequestParam(required = false) String googleScholarId,
 			@RequestParam(required = false) String linkedInId,
 			@RequestParam(required = false) String githubId,
@@ -190,6 +192,7 @@ public class PersonApiController extends AbstractApiController {
 		final String inGravatarId = inString(gravatarId);
 		final String inOrcid = inString(orcid);
 		final String inResearcherId = inString(researcherId);
+		final String inScopusId = inString(scopusId);
 		final String inGoogleScholarId = inString(googleScholarId);
 		final String inLinkedInId = inString(linkedInId);
 		final String inGithubId = inString(githubId);
@@ -210,13 +213,13 @@ public class PersonApiController extends AbstractApiController {
 		if (person == null) {
 			optPerson = this.personService.createPerson(
 					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
-					inGravatarId, inOrcid, inResearcherId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
+					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,
 					shindex, whindex);
 		} else {
 			optPerson = this.personService.updatePerson(person.intValue(),
 					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
-					inGravatarId, inOrcid, inResearcherId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
+					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,
 					shindex, whindex);
 		}

@@ -559,6 +559,32 @@ public class PersonTest {
 	}
 
 	@Test
+	public void getScopusId() {
+		assertNull(this.test.getScopusId());
+	}
+
+	@Test
+	public void setScopusId() throws Exception {
+		assertNull(this.test.getScopusId());
+
+		this.test.setScopusId("xyz");
+		assertEquals("xyz", this.test.getScopusId());
+		assertEquals(new URL("https://www.scopus.com/authid/detail.uri?authorId=xyz"), this.test.getScopusURL());
+
+		this.test.setScopusId(null);
+		assertNull(this.test.getScopusId());
+		assertNull(this.test.getScopusURL());
+
+		this.test.setScopusId("xyz");
+		assertEquals("xyz", this.test.getScopusId());
+		assertEquals(new URL("https://www.scopus.com/authid/detail.uri?authorId=xyz"), this.test.getScopusURL());
+
+		this.test.setScopusId("");
+		assertNull(this.test.getScopusId());
+		assertNull(this.test.getScopusURL());
+	}
+
+	@Test
 	public void getGoogleScholarId() {
 		assertNull(this.test.getGoogleScholarId());
 	}
