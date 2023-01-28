@@ -248,6 +248,23 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Column
 	private int scopusHindex;
 
+	/** Number of paper citations for the person provided by Google Scholar.
+	 */
+	@Column
+	private int googleScholarCitations;
+
+	/** Number of paper citations for the person provided by Web-Of-Science.
+	 */
+	@Column
+	private int wosCitations;
+
+	/** Number of paper citations for the person provided by Scopus.
+	 *
+	 * @since 3.3
+	 */
+	@Column
+	private int scopusCitations;
+
 	/** Identifier of the person on Gravatar.
 	 */
 	@Column
@@ -327,6 +344,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		h = HashCodeUtils.add(h, this.researchGateId);
 		h = HashCodeUtils.add(h, this.wosHindex);
 		h = HashCodeUtils.add(h, this.scopusHindex);
+		h = HashCodeUtils.add(h, this.googleScholarCitations);
+		h = HashCodeUtils.add(h, this.wosCitations);
+		h = HashCodeUtils.add(h, this.scopusCitations);
 		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
@@ -407,6 +427,15 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			return false;
 		}
 		if (this.scopusHindex != other.scopusHindex) {
+			return false;
+		}
+		if (this.googleScholarCitations != other.googleScholarCitations) {
+			return false;
+		}
+		if (this.wosCitations != other.wosCitations) {
+			return false;
+		}
+		if (this.scopusCitations != other.scopusCitations) {
 			return false;
 		}
 		if (this.validated != other.validated) {
@@ -506,6 +535,15 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (getScopusHindex() > 0) {
 			consumer.accept("scopusHindex", Integer.valueOf(getScopusHindex())); //$NON-NLS-1$
+		}
+		if (getGoogleScholarCitations() > 0) {
+			consumer.accept("googleScholarCitations", Integer.valueOf(getGoogleScholarCitations())); //$NON-NLS-1$
+		}
+		if (getWosCitations() > 0) {
+			consumer.accept("wosCitations", Integer.valueOf(getWosCitations())); //$NON-NLS-1$
+		}
+		if (getScopusCitations() > 0) {
+			consumer.accept("scopusCitations", Integer.valueOf(getScopusCitations())); //$NON-NLS-1$
 		}
 		if (getWebPageNaming() != null) {
 			consumer.accept("webPageNaming", getWebPageNaming()); //$NON-NLS-1$
@@ -1411,6 +1449,111 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			setScopusHindex(0);
 		} else {
 			setScopusHindex(hindex.intValue());
+		}
+	}
+
+	/** Replies the number of paper citations for the person provided by Google Scholar.
+	 *
+	 * @return the number of citations.
+	 * @since 3.3
+	 */
+	public int getGoogleScholarCitations() {
+		return this.googleScholarCitations;
+	}
+
+	/** Change the number of citations for the person provided by Google Scholar.
+	 *
+	 * @param citations the number of citations.
+	 * @since 3.3
+	 */
+	public void setGoogleScholarCitations(int citations) {
+		if (citations < 0) {
+			this.googleScholarCitations = 0;
+		} else {
+			this.googleScholarCitations = citations;
+		}
+	}
+
+	/** Change the number of paper citations for the person provided by Google Scholar.
+	 *
+	 * @param citations the number of citations.
+	 * @since 3.3
+	 */
+	public final void setGoogleScholarCitations(Number citations) {
+		if (citations == null) {
+			setGoogleScholarCitations(0);
+		} else {
+			setGoogleScholarCitations(citations.intValue());
+		}
+	}
+
+	/** Replies the number of paper citations for the person provided by Web-of-Science.
+	 *
+	 * @return the number of citations.
+	 * @since 3.3
+	 */
+	public int getWosCitations() {
+		return this.wosCitations;
+	}
+
+	/** Change the number of citations for the person provided by Web-of-Science.
+	 *
+	 * @param citations the number of citations.
+	 * @since 3.3
+	 */
+	public void setWosCitations(int citations) {
+		if (citations < 0) {
+			this.wosCitations = 0;
+		} else {
+			this.wosCitations = citations;
+		}
+	}
+
+	/** Change the number of paper citations for the person provided by Web-of-Science.
+	 *
+	 * @param citations the number of citations.
+	 * @since 3.3
+	 */
+	public final void setWosCitations(Number citations) {
+		if (citations == null) {
+			setWosCitations(0);
+		} else {
+			setWosCitations(citations.intValue());
+		}
+	}
+
+	/** Replies the number of paper citations for the person provided by Scopus.
+	 *
+	 * @return the number of citations.
+	 * @since 3.3
+	 */
+	public int getScopusCitations() {
+		return this.scopusCitations;
+	}
+
+	/** Change the number of citations for the person provided by Scopus.
+	 *
+	 * @param citations the number of citations.
+	 * @since 3.3
+	 */
+	public void setScopusCitations(int citations) {
+		if (citations < 0) {
+			this.scopusCitations = 0;
+		} else {
+			this.scopusCitations = citations;
+		}
+	}
+
+	/** Change the number of paper citations for the person provided by Scopus.
+	 *
+	 * @param citations the number of citations.
+	 * @since 3.3
+	 */
+	public final void setScopusCitations(Number citations) {
+		if (citations == null) {
+			setScopusCitations(0);
+		} else {
+			setScopusCitations(citations.intValue());
 		}
 	}
 

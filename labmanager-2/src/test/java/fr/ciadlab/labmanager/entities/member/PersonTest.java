@@ -894,6 +894,114 @@ public class PersonTest {
 	}
 
 	@Test
+	public void getGoogleScholarCitations() {
+		assertEquals(0, this.test.getGoogleScholarCitations());
+	}
+
+	@Test
+	public void setGoogleScholarCitations_int() throws Exception {
+		assertEquals(0, this.test.getGoogleScholarCitations());
+
+		this.test.setGoogleScholarCitations(456);
+		assertEquals(456, this.test.getGoogleScholarCitations());
+
+		this.test.setGoogleScholarCitations(0);
+		assertEquals(0, this.test.getGoogleScholarCitations());
+
+		this.test.setGoogleScholarCitations(852);
+		assertEquals(852, this.test.getGoogleScholarCitations());
+
+		this.test.setGoogleScholarCitations(-580);
+		assertEquals(0, this.test.getGoogleScholarCitations());
+	}
+
+	@Test
+	public void setGoogleScholarCitations_Number() throws Exception {
+		assertEquals(0, this.test.getGoogleScholarCitations());
+
+		this.test.setGoogleScholarCitations(Integer.valueOf(456));
+		assertEquals(456, this.test.getGoogleScholarCitations());
+
+		this.test.setGoogleScholarCitations(null);
+		assertEquals(0, this.test.getGoogleScholarCitations());
+
+		this.test.setGoogleScholarCitations(Integer.valueOf(852));
+		assertEquals(852, this.test.getGoogleScholarCitations());
+	}
+
+	@Test
+	public void getWosCitations() {
+		assertEquals(0, this.test.getWosCitations());
+	}
+
+	@Test
+	public void setWosCitations_int() throws Exception {
+		assertEquals(0, this.test.getWosCitations());
+
+		this.test.setWosCitations(456);
+		assertEquals(456, this.test.getWosCitations());
+
+		this.test.setWosCitations(0);
+		assertEquals(0, this.test.getWosCitations());
+
+		this.test.setWosCitations(852);
+		assertEquals(852, this.test.getWosCitations());
+
+		this.test.setWosCitations(-580);
+		assertEquals(0, this.test.getWosCitations());
+	}
+
+	@Test
+	public void setWosCitations_Number() throws Exception {
+		assertEquals(0, this.test.getWosCitations());
+
+		this.test.setWosCitations(Integer.valueOf(456));
+		assertEquals(456, this.test.getWosCitations());
+
+		this.test.setWosCitations(null);
+		assertEquals(0, this.test.getWosCitations());
+
+		this.test.setWosCitations(Integer.valueOf(852));
+		assertEquals(852, this.test.getWosCitations());
+	}
+
+	@Test
+	public void getScopusCitations() {
+		assertEquals(0, this.test.getScopusCitations());
+	}
+
+	@Test
+	public void setScopusCitations_int() throws Exception {
+		assertEquals(0, this.test.getScopusCitations());
+
+		this.test.setScopusCitations(456);
+		assertEquals(456, this.test.getScopusCitations());
+
+		this.test.setScopusCitations(0);
+		assertEquals(0, this.test.getScopusCitations());
+
+		this.test.setScopusCitations(852);
+		assertEquals(852, this.test.getScopusCitations());
+
+		this.test.setScopusCitations(-580);
+		assertEquals(0, this.test.getScopusCitations());
+	}
+
+	@Test
+	public void setScopusCitations_Number() throws Exception {
+		assertEquals(0, this.test.getScopusCitations());
+
+		this.test.setScopusCitations(Integer.valueOf(456));
+		assertEquals(456, this.test.getScopusCitations());
+
+		this.test.setScopusCitations(null);
+		assertEquals(0, this.test.getScopusCitations());
+
+		this.test.setScopusCitations(Integer.valueOf(852));
+		assertEquals(852, this.test.getScopusCitations());
+	}
+
+	@Test
 	public void getGravatarId() {
 		assertNull(this.test.getGravatarId());
 	}

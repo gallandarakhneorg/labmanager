@@ -247,8 +247,8 @@ public class PersonServiceTest {
 	@Test
 	public void createPerson() {
 		final Person person = this.test.createPerson(true, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
-				"NGRAV", "NORCID", "NRID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
-				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
+				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
+				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
 
 		assertNotNull(person);
 
@@ -281,13 +281,16 @@ public class PersonServiceTest {
 		assertEquals(159, actual.getGoogleScholarHindex());
 		assertEquals(357, actual.getWosHindex());
 		assertEquals(7854, actual.getScopusHindex());
+		assertEquals(2159, actual.getGoogleScholarCitations());
+		assertEquals(2357, actual.getWosCitations());
+		assertEquals(27854, actual.getScopusCitations());
 	}
 
 	@Test
 	public void updatePerson() {
 		Person person = this.test.updatePerson(234, true, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
-				"NGRAV", "NORCID", "NRID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
-				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357);
+				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
+				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
 
 		assertNotNull(person);
 
@@ -326,6 +329,9 @@ public class PersonServiceTest {
 		verify(this.pers1, atLeastOnce()).setGoogleScholarHindex(eq(159));
 		verify(this.pers1, atLeastOnce()).setWosHindex(eq(357));
 		verify(this.pers1, atLeastOnce()).setScopusHindex(eq(7854));
+		verify(this.pers1, atLeastOnce()).setGoogleScholarCitations(eq(2159));
+		verify(this.pers1, atLeastOnce()).setWosCitations(eq(2357));
+		verify(this.pers1, atLeastOnce()).setScopusCitations(eq(27854));
 	}
 
 	@Test

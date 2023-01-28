@@ -151,6 +151,9 @@ public class PersonApiController extends AbstractApiController {
 	 * @param googleScholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
 	 * @param scopusHindex the Hindex of the person on Scopus.
+	 * @param googleScholarCitations the number of citations for the person on Google Scholar.
+	 * @param wosCitations the number of citations for the person on WOS.
+	 * @param scopusCitations the number of citations for the person on Scopus.
 	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if the person cannot be saved.
@@ -181,6 +184,9 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer googleScholarHindex,
 			@RequestParam(required = false) Integer wosHindex,
 			@RequestParam(required = false) Integer scopusHindex,
+			@RequestParam(required = false) Integer googleScholarCitations,
+			@RequestParam(required = false) Integer wosCitations,
+			@RequestParam(required = false) Integer scopusCitations,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PERSON_SAVING_ENDPOINT, person);
@@ -210,6 +216,9 @@ public class PersonApiController extends AbstractApiController {
 		final int shindex = googleScholarHindex == null ? 0 : googleScholarHindex.intValue();
 		final int whindex = wosHindex == null ? 0 : wosHindex.intValue();
 		final int uhindex = scopusHindex == null ? 0 : scopusHindex.intValue();
+		final int scitations = googleScholarCitations == null ? 0 : googleScholarCitations.intValue();
+		final int wcitations = wosCitations == null ? 0 : wosCitations.intValue();
+		final int ucitations = scopusCitations == null ? 0 : scopusCitations.intValue();
 		//
 		final Person optPerson;
 		//
@@ -218,13 +227,13 @@ public class PersonApiController extends AbstractApiController {
 					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
 					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,
-					shindex, whindex);
+					shindex, whindex, uhindex, scitations, wcitations, ucitations);
 		} else {
 			optPerson = this.personService.updatePerson(person.intValue(),
 					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
 					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,
-					shindex, whindex);
+					shindex, whindex, uhindex, scitations, wcitations, ucitations);
 		}
 		if (optPerson == null) {
 			throw new IllegalStateException("Person not found"); //$NON-NLS-1$

@@ -129,6 +129,18 @@ public class PersonComparator implements Comparator<Person> {
 		if (cmp != 0) {
 			return cmp;
 		}
+		cmp = Integer.compare(o1.getGoogleScholarCitations(), o2.getGoogleScholarCitations());
+		if (cmp != 0) {
+			return cmp;
+		}
+		cmp = Integer.compare(o1.getWosCitations(), o2.getWosCitations());
+		if (cmp != 0) {
+			return cmp;
+		}
+		cmp = Integer.compare(o1.getScopusCitations(), o2.getScopusCitations());
+		if (cmp != 0) {
+			return cmp;
+		}
 		cmp = StringUtils.compare(o1.getGravatarId(), o2.getGravatarId());
 		if (cmp != 0) {
 			return cmp;

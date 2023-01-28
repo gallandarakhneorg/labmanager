@@ -49,6 +49,9 @@
 	<div class="form-group" th:replace="fragments/form :: textInput(googleScholarHindex, #{html.HindexOnScholar}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.googleScholarHindex : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(wosHindex, #{html.HindexOnWos}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.wosHindex : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(scopusHindex, #{html.HindexOnScopus}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.scopusHindex : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(googleScholarCitations, #{html.CitationsOnScholar}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.googleScholarCitations : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(wosCitations, #{html.CitationsOnWos}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.wosCitations : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(scopusCitations, #{html.CitationsOnScopus}, #{html.PlaceHolderPositiveInteger}, ${person != null ? person.scopusCitations : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedPerson}, #{html.ValidatedPerson}, ${person != null ? person.validated : false})"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
@@ -84,6 +87,14 @@ $(document).ready(function () {
             scopusHindex: {
                 min: 0
             },
+            googleScholarCitations: {
+                min: 0
+            },
+            wosCitations: {
+                min: 0
+            },
+            scopusCitations: {
+                min: 0
             }
         },
         messages: {

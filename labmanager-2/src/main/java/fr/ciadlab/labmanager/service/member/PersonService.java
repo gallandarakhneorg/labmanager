@@ -149,6 +149,9 @@ public class PersonService extends AbstractService {
 				0, // Google Scholar H-index
 				0, // WoS H-index
 				0, // Scopus H-index
+				0, // Google Scholar citations
+				0, // WoS citations
+				0); // Scopus citations
 	}
 
 	/** Create a person in the database.
@@ -177,6 +180,9 @@ public class PersonService extends AbstractService {
 	 * @param scholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
 	 * @param scopusHindex the Hindex of the person on Scopus.
+	 * @param scholarCitations the number of citations for the person on Google Scholar.
+	 * @param wosCitations the number of citations for the person on ResearchId/WOS/Publon.
+	 * @param scopusCitations the number of citations for the person on Scopus.
 	 * @return the person in the database.
 	 * @see #createPerson(String, String)
 	 * @see Gender
@@ -185,7 +191,7 @@ public class PersonService extends AbstractService {
 			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId,
 			String scholarId, String linkedInId, String githubId, String researchGateId, String facebookId,
 			String dblpURL, String academiaURL, String cordisURL, WebPageNaming webPageNaming,
-			int scholarHindex, int wosHindex) {
+			int scholarHindex, int wosHindex, int scopusHindex, int scholarCitations, int wosCitations, int scopusCitations) {
 		final Person res = new Person();
 		res.setFirstName(firstName);
 		res.setLastName(lastName);
@@ -210,6 +216,9 @@ public class PersonService extends AbstractService {
 		res.setGoogleScholarHindex(scholarHindex);
 		res.setWosHindex(wosHindex);
 		res.setScopusHindex(scopusHindex);
+		res.setGoogleScholarCitations(scholarCitations);
+		res.setWosCitations(wosCitations);
+		res.setScopusCitations(scopusCitations);
 		res.setValidated(validated);
 		this.personRepository.save(res);
 		return res;
@@ -242,12 +251,16 @@ public class PersonService extends AbstractService {
 	 * @param scholarHindex the Hindex of the person on Google Scholar.
 	 * @param wosHindex the Hindex of the person on WOS.
 	 * @param scopusHindex the Hindex of the person on Scopus.
+	 * @param scholarCitations the number of citations for the person on Google Scholar.
+	 * @param wosCitations the number of citations for the person on ResearchId/WOS/Publon.
+	 * @param scopusCitations the number of citations for the person on Scopus.
 	 * @return the updated person.
 	 */
 	public Person updatePerson(int identifier, boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
 			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId, String scholarId,
 			String linkedInId, String githubId, String researchGateId, String facebookId, String dblpURL, String academiaURL,
-			String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex) {
+			String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex, int scopusHindex,
+			int scholarCitations, int wosCitations, int scopusCitations) {
 		final Optional<Person> res = this.personRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
 			final Person person = res.get();
@@ -278,6 +291,9 @@ public class PersonService extends AbstractService {
 			person.setGoogleScholarHindex(scholarHindex);
 			person.setWosHindex(wosHindex);
 			person.setScopusHindex(scopusHindex);
+			person.setGoogleScholarCitations(scholarCitations);
+			person.setWosCitations(wosCitations);
+			person.setScopusCitations(scopusCitations);
 			person.setValidated(validated);
 			this.personRepository.save(person);
 			return person;
