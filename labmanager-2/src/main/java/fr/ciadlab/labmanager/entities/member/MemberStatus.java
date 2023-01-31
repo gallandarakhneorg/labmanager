@@ -31,6 +31,54 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  */
 public enum MemberStatus {
+	/** Emeritus full professor (professeur émérite des universites).
+	 */
+	EMERITUS_FULL_PROFESSOR {
+		@Override
+		public int getHierachicalLevel() {
+			return 0;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0f;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return false;
+		}
+		@Override
+		public boolean isResearcher() {
+			return true;
+		}
+		@Override
+		public boolean isTeacher() {
+			return true;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return false;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
+	},
 	/** Full professor (professeur des universites).
 	 */
 	FULL_PROFESSOR {
@@ -101,6 +149,102 @@ public enum MemberStatus {
 		@Override
 		public boolean isTeacher() {
 			return false;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return false;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
+	},
+	/** Emeritus associate professor (maitre de conferences émérite) with HDR.
+	 */
+	EMERITUS_ASSOCIATE_PROFESSOR_HDR {
+		@Override
+		public int getHierachicalLevel() {
+			return 1;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0f;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
+		public boolean isResearcher() {
+			return true;
+		}
+		@Override
+		public boolean isTeacher() {
+			return true;
+		}
+		@Override
+		public boolean isTechnicalStaff() {
+			return false;
+		}
+		@Override
+		public boolean isAdministrativeStaff() {
+			return false;
+		}
+		@Override
+		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isSupervisable() {
+			return false;
+		}
+		@Override
+		public boolean isSupervisor() {
+			return true;
+		}
+		@Override
+		public boolean isExternalPosition() {
+			return false;
+		}
+	},
+	/** Emeritus associate professor (maitre de conferences émérite) without HDR.
+	 */
+	EMERITUS_ASSOCIATE_PROFESSOR {
+		@Override
+		public int getHierachicalLevel() {
+			return 2;
+		}
+		@Override
+		public float getUsualResearchFullTimeEquivalent() {
+			return 0f;
+		}
+		@Override
+		public boolean isPermanentPositionAllowed() {
+			return true;
+		}
+		@Override
+		public boolean isResearcher() {
+			return true;
+		}
+		@Override
+		public boolean isTeacher() {
+			return true;
 		}
 		@Override
 		public boolean isTechnicalStaff() {

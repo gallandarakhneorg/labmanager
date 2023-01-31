@@ -263,7 +263,7 @@ public class JournalApiController extends AbstractApiController {
 		this.journalService.deleteQualityIndicators(journalObj, year);
 	}
 
-	/** Replies Json that describes an update of the journal indicators for the given refence year.
+	/** Replies Json that describes an update of the journal indicators for the given reference year.
 	 *
 	 * @param referenceYear the reference year.
 	 * @param wosCsvFile the uploaded CSV file from web-of-science.
