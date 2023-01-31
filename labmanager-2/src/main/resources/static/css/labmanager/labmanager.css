@@ -108,6 +108,14 @@ table.dataTable.publicationDetails tbody td {
 .supervisionDetails {
     font-size: smaller;
 }
+.projectTitle {
+    color: #96c10d !important;
+    font-weight: bold;
+    font-size: larger;
+}
+.projectDetails {
+    font-size: smaller;
+}
 div.form-super-group {
 	padding: 10px;
 	margin: 20px;

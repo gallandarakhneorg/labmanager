@@ -47,17 +47,19 @@
             	<th:block th:if="${changeEnabled && editionUrl != null}"><a th:href="${editionUrl + project.id}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
             </td>
             <td>
-            	<th:block th:utext="${project.scientificTitle}"></th:block>
+            	<span class="projectTitle" th:utext="${project.scientificTitle}"></span>
             </td>
             <td>
             	<th:block th:if="${project.category != T(fr.ciadlab.labmanager.entities.project.ProjectCategory).OPEN_SOURCE}"
             	          th:utext="${project.majorFundingScheme.getLabel()}"></th:block>
             </td>
             <td>
-            	<th:block th:if="${project.startYear > 0 && project.endYear > 0 && project.startYear != project.endYear}" th:utext="#{html.YearRange(${project.startYear}, ${project.endYear})}"></th:block>
-            	<th:block th:if="${project.startYear > 0 && project.endYear > 0 && project.startYear == project.endYear}" th:utext="${project.startYear}"></th:block>
-            	<th:block th:if="${project.startYear > 0 && project.endYear <= 0}" th:utext="#{html.YearRangeNoEnd(${project.startYear})}"></th:block>
-            	<th:block th:if="${project.startYear <= 0 && project.endYear > 0}" th:utext="#{html.YearRangeNoStart(${project.endYear})}"></th:block>
+            	<span class="projectDetails">
+	            	<th:block th:if="${project.startYear > 0 && project.endYear > 0 && project.startYear != project.endYear}" th:utext="#{html.YearRange(${project.startYear}, ${project.endYear})}"></th:block>
+	            	<th:block th:if="${project.startYear > 0 && project.endYear > 0 && project.startYear == project.endYear}" th:utext="${project.startYear}"></th:block>
+	            	<th:block th:if="${project.startYear > 0 && project.endYear <= 0}" th:utext="#{html.YearRangeNoEnd(${project.startYear})}"></th:block>
+	            	<th:block th:if="${project.startYear <= 0 && project.endYear > 0}" th:utext="#{html.YearRangeNoStart(${project.endYear})}"></th:block>
+            	</span>
             </td>
         </tbody>
     </table>
