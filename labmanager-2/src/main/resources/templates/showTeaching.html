@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:unless="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
+</th:block>
+<th:block th:if="${isEmbeddedPage}">
+	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+</th:block>
+<th:block th:replace="fragments/table :: publicTable"/>
+<th:block th:replace="fragments/libs :: flags"/>
+<a id="btAddTeachingActivity" class="btn btn-warning mt-4 pr-4 pl-4"
+   th:if="${additionUrl != null}" th:utext="#{html.AddTeachingActivity1(${person.fullNameWithLastNameFirst})}"
+   th:href="${additionUrl}"></a>
+<div class="table table-responsive">
+    <table class="data-tables datatable-primary" th:id="${'table'+uuid}" style="width: 100%">
+        <thead>
+	        <th>Activity Rank</th>
+	        <th>Activity</th>
+	        <th>Start</th>
+	        <th th:utext="#{html.Acronym}"></th>
+	        <th th:utext="#{html.Title}"></th>
+	        <th th:utext="#{html.Language}"></th>
+	        <th th:utext="#{html.Files}"></th>
+        </thead>
+        <tbody>
+        <tr th:each="activity : ${activities}">
+            <td>
+            	<th:block th:utext="${activity.active ? 'A' : 'B'}"></th:block>
+            </td>
+            <td>
+            	<th:block th:if="${activity.active}" th:utext="#{html.TeachingActivityActive}"></th:block>
+            	<th:block th:unless="${activity.active}" th:utext="#{html.TeachingActivityInactive}"></th:block>
+            </td>
+            <td>
+            	<th:block th:if="${activity.startDate != null}" th:utext="${activity.startDate.year}"></th:block>
+            </td>
+            <td>
+            	<a th:href="${activity.firstUrl}"
+            	   th:if="${activity.firstUrl != null}"
+            	   class="simpleLink"
+            	   th:utext="${activity.code}"></a>
+            	<th:block th:unless="${activity.firstUrl != null}"
+            	          th:utext="${activity.code}"></th:block>
+            	<th:block th:if="${editionUrl != null}"><a th:href="${editionUrl + activity.id}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
+            </td>
+            <td>
+            	<a th:href="${activity.firstUrl}"
+            	   th:if="${activity.firstUrl != null}"
+            	   class="simpleLink">
+	            	<div class="teachingActivityTitle" th:utext="${activity.title}"></div>
+	            </a>
+            	<div th:unless="${activity.firstUrl != null}" class="teachingActivityTitle" th:utext="${activity.title}"></div>
+            	<div class="teachingActivityDetails"
+            	     th:with="st = ${T(fr.ciadlab.labmanager.entities.teaching.StudentType)}, ccu = ${T(fr.ciadlab.labmanager.utils.CountryCodeUtils)}">
+            		<th:block th:if="${#strings.isEmpty(activity.degree)}"
+            		          th:utext="${activity.level.getLabel()}"></th:block>
+            		<th:block th:unless="${#strings.isEmpty(activity.degree)}"
+            		          th:utext="${activity.degree}"></th:block>
+            		<th:block th:utext="${(activity.studentType != st.INITIAL_TRAINING ? ' (' + activity.studentType.getLabel() + ')' : '')}"></th:block>,
+            		<th:block th:utext="${activity.university.nameOrAcronym}"></th:block><th:block
+            			th:if="activity.university.country != null"
+            			th:utext="${', ' + ccu.getDisplayCountry(activity.university.country)}"></th:block><br/>
+            		<th:block th:with="labelText = #{html.Since}" th:utext="${activity.getActivityYears(labelText)}"></th:block>
+            </td>
+            <td>
+				<span th:title="#{html.TaughtIn(${T(fr.ciadlab.labmanager.utils.CountryCodeUtils).getDisplayLanguage(activity.language)})}"
+				      th:class="${'flag:' + activity.language.code.toUpperCase}"></span>            		
+            </td>
+            <td>
+            	<a class="simpleLink"
+            	   th:unless="${#strings.isEmpty(activity.sourceUrl)}"
+            	   th:href="activity.sourceUrl"
+            	   th:title="#{html.TeachingActivitySource}"><span class="fa-solid fa-code"></span></a>
+            	<a class="simpleLink"
+            	   th:unless="${#strings.isEmpty(activity.pathToSlides)}"
+            	   th:href="activity.pathToSlides"
+            	   th:title="#{html.TeachingActivitySlides}"><span class="fa-solid fa-file-pdf"></span></a>
+            </td>
+        </tbody>
+    </table>
+</div>
+<script type="text/javascript" th:inline="javascript">
+$(document).ready(() => {
+	var $dtable = initFrontTable( {
+		id: [[${'table'+uuid}]],
+		dom: 't',
+		columns: [
+        	{
+                "orderable": false,
+        	},
+        	{
+        		"data": 'active',
+                "orderable": false,
+        	},
+        	{
+                "orderable": false,
+        	},
+        	{
+                "orderable": false,
+        	},
+        	{
+                "orderable": false,
+        	},
+        	{
+                "orderable": false,
+			},
+        	{
+                "orderable": false,
+			},
+		],
+		order: [ [0, 'asc'], [2, 'desc'], [3, 'asc'] ],
+		tableParams: {
+			rowGroup: {
+				startRender: (rows, group) => {
+					return group;
+				},
+				endRender: null,
+				dataSrc: ['active'],
+			},
+		},
+	});
+	$dtable.column(0).visible(false);
+	$dtable.column(1).visible(false);
+	$dtable.column(2).visible(false);
+});
+</script>
+</html>

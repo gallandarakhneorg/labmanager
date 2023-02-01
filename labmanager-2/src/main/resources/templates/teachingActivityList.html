@@ -7,7 +7,7 @@
 
 <th:block th:replace="fragments/nav :: teachingActivityListBar(${person.fullNameWithLastNameFirst})"/>
 
-<a id="btAddTeachingActivity" class="btn btn-danger mt-4 pr-4 pl-4"
+<a id="btAddTeachingActivity" class="btn btn-warning mt-4 pr-4 pl-4"
    th:if="${changeEnabled}" th:utext="#{html.AddTeachingActivity1(${person.fullNameWithLastNameFirst})}"
    th:href="${additionUrl + person.id}"></a>
 

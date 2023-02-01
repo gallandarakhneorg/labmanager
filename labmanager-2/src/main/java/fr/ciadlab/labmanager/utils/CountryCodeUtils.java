@@ -70,9 +70,25 @@ public final class CountryCodeUtils {
 		final Locale targetLanguage = LocaleContextHolder.getLocale();
 		final Locale countryLocale = new Locale(code.getCode(), code.getCode());
 		if (targetLanguage == null) {
-			countryLocale.getDisplayCountry();
+			return countryLocale.getDisplayCountry();
 		}
 		return countryLocale.getDisplayCountry(targetLanguage);
+	}
+
+	/** Replies the display name of the language associated to the country.
+	 * The target language is the one provided by {@link LocaleContextHolder}.
+	 *
+	 * @param code the country code to use.
+	 * @return the display name of the country.
+	 * @since 3.4
+	 */
+	public static String getDisplayLanguage(CountryCode code) {
+		final Locale targetLanguage = LocaleContextHolder.getLocale();
+		final Locale countryLocale = new Locale(code.getCode(), code.getCode());
+		if (targetLanguage == null) {
+			return countryLocale.getDisplayLanguage();
+		}
+		return countryLocale.getDisplayLanguage(targetLanguage);
 	}
 
 	/** Replies all the display names of the countries.

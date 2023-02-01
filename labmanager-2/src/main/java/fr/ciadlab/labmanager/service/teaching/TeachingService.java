@@ -142,6 +142,7 @@ public class TeachingService extends AbstractService {
 	 * @param level the level of teaching.
 	 * @param studentType the type of the targeted students.
 	 * @param language the language of the activity. If it not provided, the default value is applied.
+	 * @param degree the name of the degree.
 	 * @param university the university in which the teaching activity is realized.
 	 * @param startDate the start date of the activity.
 	 * @param endDate the end date of the activity, or {@code null} if it is still active.
@@ -161,7 +162,7 @@ public class TeachingService extends AbstractService {
 	 */
 	public Optional<TeachingActivity> createTeachingActivity(Person person, String code, String title,
 			TeachingActivityLevel level, StudentType studentType,
-			CountryCode language, ResearchOrganization university,
+			CountryCode language, String degree, ResearchOrganization university,
 			LocalDate startDate, LocalDate endDate, TeacherRole role, boolean differentHetdForTdTp,
 			int numberOfStudents, String explanation, URL activityUrl, URL sourceUrl,
 			Map<TeachingActivityType, Float> annualWorkPerType,
@@ -169,7 +170,7 @@ public class TeachingService extends AbstractService {
 		final TeachingActivity activity = new TeachingActivity();
 		try {
 			updateTeachingActivity(activity,
-					person, code, title, level, studentType, language, university, startDate, endDate,
+					person, code, title, level, studentType, language, degree, university, startDate, endDate,
 					role, differentHetdForTdTp, numberOfStudents, explanation,
 					activityUrl, sourceUrl, annualWorkPerType, pathToSlides, removePathToSlides);
 		} catch (Throwable ex) {
@@ -196,6 +197,7 @@ public class TeachingService extends AbstractService {
 	 * @param level the level of teaching.
 	 * @param studentType the type of the targeted students.
 	 * @param language the language of the activity. If it not provided, the default value is applied.
+	 * @param degree the name of the degree.
 	 * @param university the university in which the teaching activity is realized.
 	 * @param startDate the start date of the activity.
 	 * @param endDate the end date of the activity, or {@code null} if it is still active.
@@ -216,7 +218,7 @@ public class TeachingService extends AbstractService {
 	public Optional<TeachingActivity> updateTeachingActivity(
 			int activity, Person person, String code, String title,
 			TeachingActivityLevel level, StudentType studentType,
-			CountryCode language, ResearchOrganization university,
+			CountryCode language, String degree, ResearchOrganization university,
 			LocalDate startDate, LocalDate endDate, TeacherRole role, boolean differentHetdForTdTp,
 			int numberOfStudents, String explanation, URL activityUrl, URL sourceUrl,
 			Map<TeachingActivityType, Float> annualWorkPerType,
@@ -229,7 +231,7 @@ public class TeachingService extends AbstractService {
 		}
 		if (res.isPresent()) {
 			updateTeachingActivity(res.get(),
-					person, code, title, level, studentType, language, university, startDate, endDate,
+					person, code, title, level, studentType, language, degree, university, startDate, endDate,
 					role, differentHetdForTdTp, numberOfStudents, explanation,
 					activityUrl, sourceUrl, annualWorkPerType, pathToSlides, removePathToSlides);
 		}
@@ -245,6 +247,7 @@ public class TeachingService extends AbstractService {
 	 * @param level the level of teaching.
 	 * @param studentType the type of the targeted students.
 	 * @param language the language of the activity. If it not provided, the default value is applied.
+	 * @param degree the name of the degree.
 	 * @param university the university in which the teaching activity is realized.
 	 * @param startDate the start date of the activity.
 	 * @param endDate the end date of the activity, or {@code null} if it is still active.
@@ -264,7 +267,7 @@ public class TeachingService extends AbstractService {
 	protected void updateTeachingActivity(
 			TeachingActivity activity, Person person, String code, String title,
 			TeachingActivityLevel level, StudentType studentType,
-			CountryCode language, ResearchOrganization university,
+			CountryCode language, String degree, ResearchOrganization university,
 			LocalDate startDate, LocalDate endDate, TeacherRole role, boolean differentHetdForTdTp,
 			int numberOfStudents, String explanation, URL activityUrl, URL sourceUrl,
 			Map<TeachingActivityType, Float> annualWorkPerType,
@@ -283,6 +286,7 @@ public class TeachingService extends AbstractService {
 		activity.setStudentType(studentType);
 		activity.setTitle(title);
 		activity.setPerson(person);
+		activity.setDegree(degree);
 		activity.setUniversity(university);
 		activity.setAnnualWorkPerType(annualWorkPerType);
 		this.teachingActivityRepository.save(activity);

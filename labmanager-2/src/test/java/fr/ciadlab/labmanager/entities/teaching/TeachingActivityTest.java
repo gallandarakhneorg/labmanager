@@ -29,6 +29,7 @@ import java.util.Map.Entry;
 
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import org.apache.xerces.util.URI;
 import org.arakhne.afc.util.CountryCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -371,6 +372,34 @@ public class TeachingActivityTest {
 		this.test.setExplanation("xyz");
 		this.test.setExplanation("");
 		assertNull(this.test.getExplanation());
+	}
+
+
+	@Test
+	public void getDegree() {
+		assertNull(this.test.getDegree());
+	}
+
+	@Test
+	public void setDegree() {
+		this.test.setDegree("xyz");
+		assertEquals("xyz", this.test.getDegree());
+		this.test.setDegree("abc");
+		assertEquals("abc", this.test.getDegree());
+	}
+
+	@Test
+	public void setDegree_null() {
+		this.test.setDegree("xyz");
+		this.test.setDegree(null);
+		assertNull(this.test.getDegree());
+	}
+
+	@Test
+	public void setDegree_empty() {
+		this.test.setDegree("xyz");
+		this.test.setDegree("");
+		assertNull(this.test.getDegree());
 	}
 
 	@Test
@@ -719,6 +748,148 @@ public class TeachingActivityTest {
 		this.test.setDifferentHetdForTdTp(true);
 		this.test.setAnnualWorkPerType(setupHours());
 		assertEquals(10.5f, this.test.getAnnualTotalHetd());
+	}
+
+	@Test
+	public void isActive_LocalDate_beforeS() {
+		this.test.setStartDate(LocalDate.of(2023, 1, 10));
+		this.test.setEndDate(LocalDate.of(2023, 5, 15));
+		//
+		assertFalse(this.test.isActive(LocalDate.of(2022, 1, 10)));
+	}
+
+	@Test
+	public void isActive_LocalDate_S() {
+		this.test.setStartDate(LocalDate.of(2023, 1, 10));
+		this.test.setEndDate(LocalDate.of(2023, 5, 15));
+		//
+		assertTrue(this.test.isActive(LocalDate.of(2023, 1, 10)));
+	}
+
+	@Test
+	public void isActive_LocalDate_inSE() {
+		this.test.setStartDate(LocalDate.of(2023, 1, 10));
+		this.test.setEndDate(LocalDate.of(2023, 5, 15));
+		//
+		assertTrue(this.test.isActive(LocalDate.of(2023, 3, 18)));
+	}
+
+	@Test
+	public void isActive_LocalDate_E() {
+		this.test.setStartDate(LocalDate.of(2023, 1, 10));
+		this.test.setEndDate(LocalDate.of(2023, 5, 15));
+		//
+		assertTrue(this.test.isActive(LocalDate.of(2023, 5, 15)));
+	}
+
+	@Test
+	public void isActive_LocalDate_afterE() {
+		this.test.setStartDate(LocalDate.of(2023, 1, 10));
+		this.test.setEndDate(LocalDate.of(2023, 5, 15));
+		//
+		assertFalse(this.test.isActive(LocalDate.of(2024, 5, 15)));
+	}
+
+	@Test
+	public void getFirstUrl_none() {
+		assertNull(this.test.getFirstUrl());
+	}
+
+	@Test
+	public void getFirstUrl_activity() {
+		this.test.setActivityUrl("http://somewhere.com");
+		assertEquals("http://somewhere.com", this.test.getFirstUrl());
+	}
+
+	@Test
+	public void getFirstUrl_slides() {
+		this.test.setPathToSlides("/path/to/slides");
+		assertEquals("/path/to/slides", this.test.getFirstUrl());
+	}
+
+	@Test
+	public void getFirstUrl_source() {
+		this.test.setSourceUrl("https://github.com");
+		assertEquals("https://github.com", this.test.getFirstUrl());
+	}
+	@Test
+	public void getFirstUrl_activity_slides() {
+		this.test.setActivityUrl("http://somewhere.com");
+		this.test.setPathToSlides("/path/to/slides");
+		assertEquals("http://somewhere.com", this.test.getFirstUrl());
+	}
+
+	@Test
+	public void getFirstUrl_activity_source() {
+		this.test.setActivityUrl("http://somewhere.com");
+		this.test.setSourceUrl("https://github.com");
+		assertEquals("http://somewhere.com", this.test.getFirstUrl());
+	}
+
+	@Test
+	public void getFirstUrl_slides_source() {
+		this.test.setPathToSlides("/path/to/slides");
+		this.test.setSourceUrl("https://github.com");
+		assertEquals("/path/to/slides", this.test.getFirstUrl());
+	}
+
+	@Test
+	public void getFirstUrl_activity_slides_source() {
+		this.test.setActivityUrl("http://somewhere.com");
+		this.test.setPathToSlides("/path/to/slides");
+		this.test.setSourceUrl("https://github.com");
+		assertEquals("http://somewhere.com", this.test.getFirstUrl());
+	}
+
+	@Test
+	public void getFirstUri_none() throws Exception {
+		assertNull(this.test.getFirstUri());
+	}
+
+	@Test
+	public void getFirstUri_activity() throws Exception {
+		this.test.setActivityUrl("http://somewhere.com");
+		assertEquals("http://somewhere.com", this.test.getFirstUri().toString());
+	}
+
+	@Test
+	public void getFirstUri_slides() throws Exception {
+		this.test.setPathToSlides("/path/to/slides");
+		assertEquals("/path/to/slides", this.test.getFirstUri().toString());
+	}
+
+	@Test
+	public void getFirstUri_source() throws Exception {
+		this.test.setSourceUrl("https://github.com");
+		assertEquals("https://github.com", this.test.getFirstUri().toString());
+	}
+	@Test
+	public void getFirstUri_activity_slides() throws Exception {
+		this.test.setActivityUrl("http://somewhere.com");
+		this.test.setPathToSlides("/path/to/slides");
+		assertEquals("http://somewhere.com", this.test.getFirstUri().toString());
+	}
+
+	@Test
+	public void getFirstUri_activity_source() throws Exception {
+		this.test.setActivityUrl("http://somewhere.com");
+		this.test.setSourceUrl("https://github.com");
+		assertEquals("http://somewhere.com", this.test.getFirstUri().toString());
+	}
+
+	@Test
+	public void getFirstUri_slides_source() throws Exception {
+		this.test.setPathToSlides("/path/to/slides");
+		this.test.setSourceUrl("https://github.com");
+		assertEquals("/path/to/slides", this.test.getFirstUri().toString());
+	}
+
+	@Test
+	public void getFirstUri_activity_slides_source() throws Exception {
+		this.test.setActivityUrl("http://somewhere.com");
+		this.test.setPathToSlides("/path/to/slides");
+		this.test.setSourceUrl("https://github.com");
+		assertEquals("http://somewhere.com", this.test.getFirstUri().toString());
 	}
 
 }

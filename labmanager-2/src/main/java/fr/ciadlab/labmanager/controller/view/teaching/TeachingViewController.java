@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
+import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.teaching.StudentType;
@@ -219,6 +220,56 @@ public class TeachingViewController extends AbstractViewController {
 		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
 		modelAndView.addObject("defaultLanguage", TeachingActivity.DEFAULT_LANGUAGE); //$NON-NLS-1$
 		//
+		return modelAndView;
+	}
+
+	/** Show the list of the teaching activities for the given person.
+	 *
+	 * @param dbId the database identifier of the person who is supervisor. If it is not provided, the webId should be provided.
+	 * @param webId the web-page identifier of the person who is supervisor. If it is not provided, the dbId should be provided.
+	 * @param activeOnly indicates if the inactive activities (old activities) are displayed. By default, they are hidden.
+	 *     If this argument is {@code true}, only active activities are shown. If it is {@code false}, all the activities
+	 *     are shown.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
+	 * @param username the name of the logged-in user.
+	 * @return the model-view.
+	 */
+	@GetMapping("/showTeaching")
+	public ModelAndView showTeaching(
+			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
+			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
+			@RequestParam(required = false, defaultValue = "false") boolean activeOnly,
+			@RequestParam(required = false, defaultValue = "false") boolean embedded,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		final String inWebId = inString(webId);
+		readCredentials(username, "showTeaching", dbId, inWebId); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("showTeaching"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, embedded);
+		//
+		final Person personObj = getPersonWith(dbId, inWebId, null, this.personService, this.nameParser);
+		if (personObj == null) {
+			throw new RuntimeException("Person not found"); //$NON-NLS-1$
+		}
+		final List<TeachingActivity> activities = this.teachingService.getActivitiesByPersonId(personObj.getId());
+		final boolean showAll = !activeOnly;
+		final List<TeachingActivity> sortedActivities = activities.stream()
+				.filter(it -> {
+					if (showAll || it.isActive()) {
+						return true;
+					}
+					return false;
+				})
+				.sorted(EntityUtils.getPreferredTeachingActivityComparator())
+				.collect(Collectors.toList()); 
+		modelAndView.addObject("person", personObj); //$NON-NLS-1$
+		modelAndView.addObject("activities", sortedActivities); //$NON-NLS-1$
+		if (isLoggedIn()) {
+			modelAndView.addObject("editionUrl", endpoint(Constants.TEACHING_ACTIVITY_EDITING_ENDPOINT, //$NON-NLS-1$
+					Constants.PERSON_ENDPOINT_PARAMETER, Integer.valueOf(personObj.getId()),
+					Constants.ACTIVITY_ENDPOINT_PARAMETER));
+			modelAndView.addObject("additionUrl", endpoint(Constants.TEACHING_ACTIVITY_EDITING_ENDPOINT, //$NON-NLS-1$
+					Constants.PERSON_ENDPOINT_PARAMETER, Integer.valueOf(personObj.getId())));
+		}
 		return modelAndView;
 	}
 

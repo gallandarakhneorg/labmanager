@@ -15,6 +15,7 @@
 <form th:replace="fragments/form :: entityForm(activity, ${activity == null ? '' : activity.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.TeachingActivitySavingError}, ~{::.form-group})">
 	<div class="form-group" th:replace="fragments/form :: textInput*(code, #{html.Acronym}, #{html.PlaceHolderTeachingActivityAcronym}, ${activity != null ? activity.code : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput*(title, #{html.Title}, #{html.PlaceHolderTeachingActivityTitle}, ${activity != null ? activity.title : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput*(degree, #{html.TeachingActivityDegree}, #{html.PlaceHolderTeachingActivityDegree}, ${activity != null ? activity.degree : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: comboInput*(level, #{html.TeachingActivityLevel}, ~{::option#option-levels})">
 		<option id="option-levels"
 		        th:each="level : ${sortedLevels}"

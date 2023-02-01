@@ -18,7 +18,9 @@ package fr.ciadlab.labmanager.entities.teaching;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.net.URI;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
@@ -146,6 +148,11 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String explanation;
 
+	/** Name of the degree
+	 */
+	@Column
+	private String degree;
+
 	/** Hosting organization.
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
@@ -187,6 +194,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @param person the teacher.
 	 * @param code the code or acronym of the teaching activity, if any.
 	 * @param title the totle of the teaching activity.
+	 * @param degree the name of the degree.
 	 * @param university the University in which the teaching activity is realized.
 	 * @param level the level of the teaching activity.
 	 * @param studentType the type of students that ar etargeted by the activity.
@@ -201,13 +209,14 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @param activityUrl the URL of a page that describes the activity.
 	 * @param sourceUrl the URL of a website that provides the source for the activity.
 	 */
-	public TeachingActivity(Person person, String code, String title, ResearchOrganization university,
+	public TeachingActivity(Person person, String code, String title, String degree, ResearchOrganization university,
 			TeachingActivityLevel level, StudentType studentType, TeacherRole role, boolean differentHetdForTdTp,
 			Map<TeachingActivityType, Float> annualWorkPerType, int numberOfStudents, String explanation,
 			CountryCode language, LocalDate startDate, LocalDate endDate, String activityUrl, String sourceUrl) {
 		this.person = person;
 		this.code = code;
 		this.title = title;
+		this.degree = degree;
 		this.university = university;
 		this.level = level == null ? DEFAULT_ACTIVITY_LEVEL : level;
 		this.studentType = studentType == null ? DEFAULT_STUDENT_TYPE : studentType;
@@ -236,6 +245,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.code);
 		h = HashCodeUtils.add(h, this.title);
+		h = HashCodeUtils.add(h, this.degree);
 		h = HashCodeUtils.add(h, this.university);
 		h = HashCodeUtils.add(h, this.level);
 		h = HashCodeUtils.add(h, this.studentType);
@@ -313,6 +323,9 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		}
 		if (!Strings.isNullOrEmpty(getTitle())) {
 			consumer.accept("title", getTitle()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getDegree())) {
+			consumer.accept("degree", getDegree()); //$NON-NLS-1$
 		}
 		if (getLevel() != null) {
 			consumer.accept("level", getLevel()); //$NON-NLS-1$
@@ -602,6 +615,22 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		} else {
 			setLanguage(CountryCodeUtils.valueOfCaseInsensitive(language));
 		}
+	}
+
+	/** Replies the degree for the teaching activity.
+	 *
+	 * @return the degree.
+	 */
+	public String getDegree() {
+		return this.degree;
+	}
+
+	/** Change the degree for the teaching activity.
+	 *
+	 * @param degree the name of the degree.
+	 */
+	public void setDegree(String degree) {
+		this.degree = Strings.emptyToNull(degree);
 	}
 
 	/** Replies the explanation for the teaching activity.
@@ -912,6 +941,97 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 			}
 		}
 		return total;
+	}
+
+	/** Replies if this activity is active, i.e., the activity is not ended according to today.
+	 *
+	 * @return {@code true} if the activity is active for the current date.
+	 */
+	public boolean isActive() {
+		return isActive(null);
+	}
+
+	/** Replies if this activity is active, i.e., the activity is not ended according to the reference date.
+	 *
+	 * @param referenceDate the date of reference.
+	 * @return {@code true} if the activity is active for the reference date.
+	 */
+	public boolean isActive(LocalDate referenceDate) {
+		final LocalDate now = referenceDate == null ? LocalDate.now() : referenceDate;
+		final LocalDate start = getStartDate();
+		if (start != null && now.isBefore(start)) {
+			return false;
+		}
+		final LocalDate end = getEndDate();
+		if (end != null && now.isAfter(end)) {
+			return false;
+		}
+		return true;
+	}
+
+	/** Replies a string representation of the year range of activity.
+	 *
+	 * @param sinceLabel the text that represents the "Since 9999" message with the year in place of 9999.
+	 *      The label should contains the placeholder {@code {0}} for marking the position of the year,
+	 *      according to {@link MessageFormat#format(String, Object...)}. 
+	 * @return the activity years.
+	 */
+	public String getActivityYears(String sinceLabel) {
+		final LocalDate start = getStartDate();
+		final int sy = start.getYear();
+		final LocalDate end = getEndDate();
+		if (end == null) {
+			if (Strings.isNullOrEmpty(sinceLabel)) {
+				return Integer.toString(sy) + "+"; //$NON-NLS-1$
+			}
+			return MessageFormat.format(sinceLabel, Integer.toString(sy));
+		}
+		final int ey = end.getYear();
+		if (sy == ey) {
+			return Integer.toString(sy);
+		}
+		if (sy < ey) {
+			return Integer.toString(sy) + "-" + Integer.toString(ey); //$NON-NLS-1$
+		}
+		return Integer.toString(ey) + "-" + Integer.toString(sy); //$NON-NLS-1$
+	}
+
+	/** Replies the first available URL in the {@link #getActivityUrl()}, {@link #getPathToSlides()} and
+	 * {@link #getSourceUrl()}.
+	 *
+	 * @return the first available URL.
+	 */
+	public String getFirstUrl() {
+		String url = getActivityUrl();
+		if (!Strings.isNullOrEmpty(url)) {
+			return url;
+		}
+		url = getPathToSlides();
+		if (!Strings.isNullOrEmpty(url)) {
+			return url;
+		}
+		url = getSourceUrl();
+		if (!Strings.isNullOrEmpty(url)) {
+			return url;
+		}
+		return null;
+	}
+
+	/** Replies the first available URI in the {@link #getActivityUrl()}, {@link #getPathToSlides()} and
+	 * {@link #getSourceUrl()}.
+	 *
+	 * @return the first available URL.
+	 */
+	public URI getFirstUri() {
+		final String url = getFirstUrl();
+		if (!Strings.isNullOrEmpty(url)) {
+			try {
+				return new URI(url);
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
 	}
 
 }

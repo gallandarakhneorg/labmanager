@@ -333,6 +333,26 @@
 			    <h5 class="card-title" th:utext="#{html.TeachingActivities}"></h5>
 			    <p class="card-text">
 			    </p>
+				<div class="card-footer">
+					<div class="dropdown">
+				    	<button type="button" class="btn btn-labeled btn-info dropdown-toggle" data-bs-toggle="dropdown"
+			    	            id="dropdownTeachingActivities" aria-expanded="false">
+				    	<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.TeachingActivities}"></th:block></button>
+				    	<ul class="dropdown-menu" aria-labelledby="dropdownTeachingActivities">
+							<li th:each="organization : ${organizations}"
+							    th:if="${organization.isMajorOrganization}">
+								<button type="button" class="dropdown-item"
+								   th:utext="${organization.acronymOrName}"></button>
+								<ul class="dropdown-menu dropdown-submenu">
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
+									       class="dropdown-item"
+									       th:href="@{/showTeaching(dbId=${membership.person.id})}"
+									       th:utext="${membership.person.fullNameWithLastNameFirst}"></a></li>
+								</ul> 
+						</ul>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>

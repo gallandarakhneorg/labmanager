@@ -116,6 +116,14 @@ table.dataTable.publicationDetails tbody td {
 .projectDetails {
     font-size: smaller;
 }
+.teachingActivityTitle {
+    color: #96c10d !important;
+    font-weight: bold;
+    font-size: larger;
+}
+.teachingActivityDetails {
+    font-size: smaller;
+}
 div.form-super-group {
 	padding: 10px;
 	margin: 20px;

@@ -107,6 +107,7 @@ public class TeachingApiController extends AbstractApiController {
 	 * @param level the level of teaching.
 	 * @param studentType the type of the targeted students.
 	 * @param language the language of the activity. If it not provided, the default value is applied.
+	 * @param degree the name of the degree.
 	 * @param university the university in which the teaching activity is realized.
 	 * @param startDate the start date of the activity.
 	 * @param endDate the end date of the activity, or {@code null} if it is still active.
@@ -134,6 +135,7 @@ public class TeachingApiController extends AbstractApiController {
 			@RequestParam(required = true) String level,
 			@RequestParam(required = true) String studentType,
 			@RequestParam(required = false) String language,
+			@RequestParam(required = false) String degree,
 			@RequestParam(required = true) Integer university,
 			@RequestParam(required = true) String startDate,
 			@RequestParam(required = false) String endDate,
@@ -154,6 +156,7 @@ public class TeachingApiController extends AbstractApiController {
 		final TeachingActivityLevel inLevel = TeachingActivityLevel.valueOfCaseInsensitive(inString(level));
 		final StudentType inStudentType = StudentType.valueOfCaseInsensitive(inString(studentType));
 		final String inLanguageStr = inString(language);
+		final String inDegree = inString(degree);
 		final CountryCode inLanguage = Strings.isNullOrEmpty(inLanguageStr) ? null : CountryCodeUtils.valueOfCaseInsensitive(inLanguageStr);
 		final LocalDate inStartDate = LocalDate.parse(inString(startDate));
 		final String inEndDateStr = inString(endDate);
@@ -207,12 +210,12 @@ public class TeachingApiController extends AbstractApiController {
 		Optional<TeachingActivity> activityOpt = Optional.empty();
 		if (activity == null) {
 			activityOpt = this.teachingService.createTeachingActivity(
-					personObj, inCode, inTitle, inLevel, inStudentType, inLanguage, inUniversity.get(),
+					personObj, inCode, inTitle, inLevel, inStudentType, inLanguage, inDegree, inUniversity.get(),
 					inStartDate, inEndDate, inRole, differentHetdForTdTp, numberOfStudents,
 					inExplanation, inActivityUrl, inSourceUrl, hours, pathToSlides, removePathToSlides);
 		} else {
 			activityOpt = this.teachingService.updateTeachingActivity(activity.intValue(),
-					personObj, inCode, inTitle, inLevel, inStudentType, inLanguage, inUniversity.get(),
+					personObj, inCode, inTitle, inLevel, inStudentType, inLanguage, inDegree, inUniversity.get(),
 					inStartDate, inEndDate, inRole, differentHetdForTdTp, numberOfStudents,
 					inExplanation, inActivityUrl, inSourceUrl, hours, pathToSlides, removePathToSlides);
 		}
