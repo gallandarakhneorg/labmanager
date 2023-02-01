@@ -330,6 +330,12 @@ public class Constants {
 	 */
 	public static final String SAVE_JOURNAL_INDICATOR_UPDATES_ENDPOINT = "saveJournalIndicatorUpdates"; //$NON-NLS-1$
 
+	/** Name of the endpoint for saving the person indicator updates.
+	 *
+	 * @since 3.3
+	 */
+	public static final String SAVE_PERSON_INDICATOR_UPDATES_ENDPOINT = "savePersonIndicatorUpdates"; //$NON-NLS-1$
+
 	/** Name of the endpoint for list of projects.
 	 *
 	 * @since 3.0
@@ -377,6 +383,30 @@ public class Constants {
 	 * @since 3.2
 	 */
 	public static final String STRUCTURE_ENDPOINT_PARAMETER = "structure"; //$NON-NLS-1$
+
+	/** Name of the endpoint for list of teaching activities.
+	 *
+	 * @since 3.4
+	 */
+	public static final String TEACHING_ACTIVITY_LIST_ENDPOINT = "teachingActivityList"; //$NON-NLS-1$
+
+	/** Name of the endpoint for editor of teaching activities.
+	 *
+	 * @since 3.4
+	 */
+	public static final String TEACHING_ACTIVITY_EDITING_ENDPOINT = "teachingActivityEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving of teaching activity.
+	 *
+	 * @since 3.4
+	 */
+	public static final String TEACHING_ACTIVITY_SAVING_ENDPOINT = "saveTeachingActivity"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "activity".
+	 *
+	 * @since 3.4
+	 */
+	public static final String ACTIVITY_ENDPOINT_PARAMETER = "activity"; //$NON-NLS-1$
 
 	private static final String DEFAULT_SERVER_NAME = "LabManagerApi"; //$NON-NLS-1$
 

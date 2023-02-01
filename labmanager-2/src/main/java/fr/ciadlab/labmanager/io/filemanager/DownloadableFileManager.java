@@ -105,6 +105,14 @@ public interface DownloadableFileManager {
 	 */
 	void deleteProjectPressDocument(int id);
 
+	/** Delete from the server the slides associated to the teaching activities with given identifier.
+	 *
+	 * @param id the identifier of the teaching activity.
+	 * @throws Exception if the file cannot be deleted.
+	 * @since 3.4
+	 */
+	void deleteTeachingActivitySlides(int id);
+
 	/** Replies the path to the a folder that could be used temporary.
 	 *
 	 * @return the path to the temporary folder.
@@ -163,6 +171,13 @@ public interface DownloadableFileManager {
 	 * @since 3.0
 	 */
 	File getProjectPressDocumentRootFile();
+
+	/** Replies the path to the root folder for slides of a teaching activity.
+	 *
+	 * @return the path to the root folder.
+	 * @since 3.4
+	 */
+	File getTeachingActivitySlidesRootFile();
 
 	/** Replies the path to the root folder for saved files.
 	 *
@@ -234,7 +249,7 @@ public interface DownloadableFileManager {
 	 */
 	File makeProjectScientificRequirementsFilename(int projectId);
 
-	/** Make the path to the PDF thumbnai that corresponds to the scientific requirements for the project with the given identifier.
+	/** Make the path to the PDF thumbnail that corresponds to the scientific requirements for the project with the given identifier.
 	 *
 	 * @param projectId the identifier of the project.
 	 * @return the path to the image associated to the project.
@@ -274,6 +289,22 @@ public interface DownloadableFileManager {
 	 * @since 3.0
 	 */
 	File makeProjectPressDocumentPictureFilename(int projectId);
+
+	/** Make the path to the PDF that corresponds to the slides for the teaching activity with the given identifier.
+	 *
+	 * @param activityId the identifier of the teaching activity.
+	 * @return the path to the slides associated to the teaching activity.
+	 * @since 3.4
+	 */
+	File makeTeachingActivitySlidesFilename(int activityId);
+
+	/** Make the path to the PDF thumbnail that corresponds to the slides for the teaching activity with the given identifier.
+	 *
+	 * @param activityId the identifier of the teaching activity.
+	 * @return the path to the image associated to the sldies of the activity.
+	 * @since 3.4
+	 */
+	File makeTeachingActivitySlidesPictureFilename(int activityId);
 
 	/** Normalize a relative filename to be absolute for the server.
 	 *

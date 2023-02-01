@@ -101,6 +101,25 @@ public abstract class AbstractViewController extends AbstractCredentialControlle
 		return b.build().toASCIIString();
 	}
 
+	/** Build the URL for accessing an endpoint with the given parameter names, but without setting the parameter value. 
+	 *
+	 * @param endpointName the name of the endpoint.
+	 * @param parameterName0 the first parameter name.
+	 * @param parameterValue0 the first parameter value.
+	 * @param parameterName1 the second parameter name.
+	 * @return the endpoint URL.
+	 */
+	protected String endpoint(String endpointName, String parameterName0, Object value0, String parameterName1) {
+		final UriBuilder b = endpointUriBuilder(endpointName);
+		if (!Strings.isNullOrEmpty(parameterName0)) {
+			b.queryParam(parameterName0, value0);
+		}
+		if (!Strings.isNullOrEmpty(parameterName1)) {
+			b.queryParam(parameterName1, ""); //$NON-NLS-1$
+		}
+		return b.build().toASCIIString();
+	}
+
 	/** Create the URL builder for accessing an endpoint. 
 	 *
 	 * @param endpointName the name of the endpoint.

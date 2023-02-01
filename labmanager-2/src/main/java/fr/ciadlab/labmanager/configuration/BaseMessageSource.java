@@ -35,6 +35,10 @@ import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
+import fr.ciadlab.labmanager.entities.teaching.StudentType;
+import fr.ciadlab.labmanager.entities.teaching.TeacherRole;
+import fr.ciadlab.labmanager.entities.teaching.TeachingActivityLevel;
+import fr.ciadlab.labmanager.entities.teaching.TeachingActivityType;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
@@ -207,6 +211,18 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (TRL item : EnumSet.allOf(TRL.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (TeachingActivityType item : EnumSet.allOf(TeachingActivityType.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (TeachingActivityLevel item : EnumSet.allOf(TeachingActivityLevel.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (TeacherRole item : EnumSet.allOf(TeacherRole.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (StudentType item : EnumSet.allOf(StudentType.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 		}

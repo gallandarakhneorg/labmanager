@@ -13,7 +13,7 @@
 
     <groupId>fr.ciadlab.web</groupId>
     <artifactId>labmanager</artifactId>
-    <version>3.3.0-SNAPSHOT</version>
+    <version>3.4.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <properties>

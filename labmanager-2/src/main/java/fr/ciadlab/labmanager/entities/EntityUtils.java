@@ -48,6 +48,7 @@ import fr.ciadlab.labmanager.entities.publication.SorensenDicePublicationCompara
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.SupervisionComparator;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorComparator;
+import fr.ciadlab.labmanager.entities.teaching.TeachingActivityComparator;
 import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import info.debatty.java.stringsimilarity.SorensenDice;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
@@ -90,6 +91,8 @@ public final class EntityUtils {
 	private static ResearchOrganizationComparator ORGANIZATION_COMPARATOR; 
 
 	private static ProjectComparator PROJECT_COMPARATOR; 
+
+	private static TeachingActivityComparator TEACHING_ACTIVITY_COMPARATOR; 
 
 	private static OrganizationAddressComparator ORGANIZATION_ADDRESS_COMPARATOR; 
 
@@ -369,6 +372,30 @@ public final class EntityUtils {
 		}
 	}
 
+	/** Replies the preferred comparator of teaching activities.
+	 *
+	 * @return the comparator.
+	 * @since 3.4
+	 */
+	public static TeachingActivityComparator getPreferredTeachingActivityComparator() {
+		synchronized (EntityUtils.class) {
+			if (TEACHING_ACTIVITY_COMPARATOR == null) {
+				TEACHING_ACTIVITY_COMPARATOR = new TeachingActivityComparator(getPreferredPersonComparator());
+			}
+			return TEACHING_ACTIVITY_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of teaching activities.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredTeachingActivityComparator(TeachingActivityComparator comparator) {
+		synchronized (EntityUtils.class) {
+			TEACHING_ACTIVITY_COMPARATOR = comparator;
+		}
+	}
+
 	/** Check if the information from two publications correspond to similar publications, WITHOUT
 	 * normalization of the strings. It is assumed that the given strings are already normalized.
 	 * 
@@ -636,7 +663,7 @@ public final class EntityUtils {
 		final ResearchOrganization organization = membership.getResearchOrganization();
 		final StringBuilder outcome = new StringBuilder();
 		outcome.append(organization.getNameOrAcronym());
-		
+
 		final StringBuilder univBuffer = new StringBuilder();
 		final int univType = ResearchOrganizationType.UNIVERSITY.ordinal();
 		boolean univFound = false;
@@ -668,7 +695,7 @@ public final class EntityUtils {
 		} else {
 			outcome.append(univBuffer);
 		}
-		
+
 		return outcome.toString();
 	}
 

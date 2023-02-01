@@ -107,6 +107,10 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	private static final String PROJECT_PRESS_DOCUMENT_FILE_PREFIX = "ProjectPress"; //$NON-NLS-1$
 
+	private static final String TEACHING_ACTIVITY_SLIDES_FOLDER_NAME = "TeachingSlides"; //$NON-NLS-1$
+
+	private static final String TEACHING_ACTIVITY_SLIDES_FILE_PREFIX = "Slides"; //$NON-NLS-1$
+
 	private static final String SAVED_DATA_FOLDER_NAME = "Saves"; //$NON-NLS-1$
 
 	private final File uploadFolder;
@@ -608,6 +612,35 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	public void regenerateThumbnail(File file) throws IOException {
 		final File jpegFile = FileSystem.replaceExtension(file, JPEG_FILE_EXTENSION);
 		ensurePictureFile(file, jpegFile);
+	}
+
+	@Override
+	public void deleteTeachingActivitySlides(int id) {
+		File file = makeTeachingActivitySlidesFilename(id);
+		File absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+		file = makeTeachingActivitySlidesPictureFilename(id);
+		absFile = normalizeForServerSide(file);
+		if (absFile.exists()) {
+			absFile.delete();
+		}
+	}
+
+	@Override
+	public File getTeachingActivitySlidesRootFile() {
+		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), TEACHING_ACTIVITY_SLIDES_FOLDER_NAME);
+	}
+
+	@Override
+	public File makeTeachingActivitySlidesFilename(int activityId) {
+		return FileSystem.join(getTeachingActivitySlidesRootFile(), TEACHING_ACTIVITY_SLIDES_FILE_PREFIX + Integer.valueOf(activityId) + PDF_FILE_EXTENSION);
+	}
+
+	@Override
+	public File makeTeachingActivitySlidesPictureFilename(int activityId) {
+		return FileSystem.join(getTeachingActivitySlidesRootFile(), TEACHING_ACTIVITY_SLIDES_FILE_PREFIX + Integer.valueOf(activityId) + JPEG_FILE_EXTENSION);
 	}
 
 	/** Sized iterator on files.

@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
@@ -464,6 +465,24 @@ public abstract class AbstractComponent {
 			out = Strings.emptyToNull(out);
 		}
 		return out;
+	}
+
+	/** Clean and normalized an URL that is provided as input to an endpoint.
+	 *
+	 * @param input the input string to the endpoint.
+	 * @return the normalized URL that is equivalent to the argument.
+	 * @since 3.4
+	 */
+	public static URL inURL(Object input) {
+		final String strInput = inString(input);
+		if (!Strings.isNullOrEmpty(strInput)) {
+			try {
+				return new URL(strInput);
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
 	}
 
 	/** Clean and normalized a float that is provided as input to an endpoint.

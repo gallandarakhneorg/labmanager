@@ -37,6 +37,8 @@ create table research_orgs_addresses (research_organization_id integer not null,
 create table supervisions (id integer not null, abandonment boolean, defense_date date, funding varchar(255), funding_details varchar(32672), is_entrepreneur boolean, is_joint_position boolean, number_of_ater_positions integer, position_after_supervision varchar(32672), title varchar(32672), supervised_person_id integer, primary key (id));
 create table supervisions_supervisors (supervision_id integer not null, supervisors_id integer not null);
 create table supervisors (id integer not null, percentage integer, type varchar(255), supervisor_id integer, primary key (id));
+create table teaching_activities (id integer not null, activity_url varchar(255), code varchar(255), different_hetd_for_td_tp boolean, end_date date, explanation varchar(32672), language varchar(255), level varchar(255), number_of_students integer, path_to_slides varchar(255), role varchar(255), source_url varchar(255), start_date date, student_type varchar(255), title varchar(255), person_id integer, university_id integer, primary key (id));
+create table teaching_activity_annual_work_per_type (teaching_activity_id integer not null, annual_work_per_type float, annual_work_per_type_key integer not null, primary key (teaching_activity_id, annual_work_per_type_key));
 create table theses (address varchar(255), institution varchar(255), id integer not null, primary key (id));
 alter table associated_structures_projects add constraint UK_ocxbhck6khgys619s5ij06w7j unique (projects_id);
 alter table journal_journal_annual_indicators_mapping add constraint UK_lnmbtft9ciq0sc7daxvga0369 unique (indicators_id);
@@ -96,4 +98,7 @@ alter table supervisions add constraint FKh6jkdnbsbi8qvvn4roxphiboh foreign key 
 alter table supervisions_supervisors add constraint FKmixq6xldo02f782xgo56y5l0j foreign key (supervisors_id) references supervisors;
 alter table supervisions_supervisors add constraint FKnnu2geqlwecue1dgnw0u3socc foreign key (supervision_id) references supervisions;
 alter table supervisors add constraint FK80nhp1yw15uvkajg7pwohkebj foreign key (supervisor_id) references persons;
+alter table teaching_activities add constraint FK420hy9fnep9al0dvguv8ily7i foreign key (person_id) references persons;
+alter table teaching_activities add constraint FKps1umkau1p2mxsl0qqoqq1ldp foreign key (university_id) references research_orgs;
+alter table teaching_activity_annual_work_per_type add constraint FK5v9vm5cxqvi8j2oj8utpkdngo foreign key (teaching_activity_id) references teaching_activities;
 alter table theses add constraint FKj0vei8vj25t5u0w39mgny07vv foreign key (id) references publications;

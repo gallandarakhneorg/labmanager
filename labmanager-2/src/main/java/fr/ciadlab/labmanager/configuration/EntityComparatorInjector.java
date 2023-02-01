@@ -36,6 +36,7 @@ import fr.ciadlab.labmanager.entities.project.ProjectMemberComparator;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.supervision.SupervisionComparator;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorComparator;
+import fr.ciadlab.labmanager.entities.teaching.TeachingActivityComparator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -101,6 +102,9 @@ public class EntityComparatorInjector {
 	@Autowired
 	private AssociatedStructureComparator externalStructureComparator;
 
+	@Autowired
+	private TeachingActivityComparator teachingActivityComparator;
+
 	/** Invoked by the Spring engine is started and this injector is created in memory.
 	 */
 	@PostConstruct
@@ -122,6 +126,7 @@ public class EntityComparatorInjector {
 		EntityUtils.setPreferredProjectBudgetComparator(this.projectBudgetComparator);
 		EntityUtils.setPreferredAssociatedStructureHolderComparator(this.externalStructureHolderComparator);
 		EntityUtils.setPreferredAssociatedStructureComparator(this.externalStructureComparator);
+		EntityUtils.setPreferredTeachingActivityComparator(this.teachingActivityComparator);
 	}
 
 }

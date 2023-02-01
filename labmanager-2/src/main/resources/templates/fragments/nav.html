@@ -94,4 +94,14 @@
 		</th:block>
 	</th:block>
 
+	<th:block th:fragment="teachingActivityListBar(personName)">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.TeachingActivitiesList(${personName})})"></th:block>
+	</th:block>
+
+	<th:block th:fragment="teachingActivityListBar*(personName, current)">
+		<th:block th:replace="fragments/nav :: standardBar(~{::a#lab-nav-teachingActivityList-item}, ${current})">
+			<a id="lab-nav-teachingActivityList-item" th:href="@{/teachingActivityList}" th:utext="#{html.TeachingActivitiesList(${personName})}"></a><
+		</th:block>
+	</th:block>
+
 </html>

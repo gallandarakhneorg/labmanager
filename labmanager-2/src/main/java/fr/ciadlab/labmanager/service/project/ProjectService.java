@@ -614,7 +614,7 @@ public class ProjectService extends AbstractService {
 	 */
 	public void removeProject(int identifier, boolean removeAssociatedFiles) {
 		final Integer id = Integer.valueOf(identifier);
-		final Optional<Project> projectOpt = this.projectRepository.findById(Integer.valueOf(identifier));
+		final Optional<Project> projectOpt = this.projectRepository.findById(id);
 		if (projectOpt.isPresent()) {
 			final Project project = projectOpt.get();
 			//

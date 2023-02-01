@@ -164,6 +164,12 @@
            		   th:id="${'btEditInvitations' + person.id}"
            		   th:title="#{html.EditInvitations(${person.fullName})}"
                    style="font-size:14pt"></span>
+            	<a th:href="@{/teachingActivityList(dbId=${person.id})}"
+				   class="noLink admin-tool-buttons">
+            		<span class="fa-solid fa-school"
+            		   th:title="#{html.EditTeachingActivities1(${person.fullName})}"
+                       style="font-size:14pt"></span>
+            	</a>
             </td>
         </tr>
     </tbody>
@@ -189,7 +195,7 @@
             	{ }
     		],
     		order: [ [2, 'asc'], [3, 'asc'] ],
-    		actionWidth: '250px',
+    		actionWidth: '290px',
     	});
         /*[# th:if="${changeEnabled}" th:each="person : ${persons}"]*/
 		attachDeletionHandler({
