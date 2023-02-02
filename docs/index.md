@@ -2,7 +2,7 @@
 
 # Documentation of the Backend Software for the CIAD laboratory
 
-> **_Version:_** 2023-01-17
+> **_Version:_** 2023-02-02
 
 ## 1. Introduction
 
@@ -28,6 +28,7 @@ This website is hosted on a [Université de Technologie de Belfort Montbéliard 
    7. [Edit your supervisions](editsupervisions.md)
    8. [Edit your jury memberships](editjurymemberships.md)
    9. [Edit your incoming and outgoing invitations](editinvitations.md)
+   10. [Edit your teaching activities](editteachingactivities.md)
 3. **Exporting document templates**
    1. RIPEC C3 for a member
    2. CV for a member

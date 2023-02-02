@@ -144,6 +144,19 @@ To show up this invitation list for you, you have to use the instruction below:
 Where `<ID>` should be the identifier of your member page, e.g. `stephane_galland` if the member page URL is `https://www.ciad-lab.fr/stephane_galland`.
 
 
+### g) Instructions for showing your teaching activities
+
+Some of the member pages include a list of teaching activities for the member that looks like:
+
+![Teaching Activities](editmemberpage12.png)
+
+To show up this activity list for you, you have to use the instruction below:
+
+	[myShow url=showTeaching webId=<ID>]
+
+Where `<ID>` should be the identifier of your member page, e.g. `stephane_galland` if the member page URL is `https://www.ciad-lab.fr/stephane_galland`.
+
+
 ## Step 4. Editing the information
 
 All the components that are described above are able to show a small "pen" icon that will enable you to edit and change the displayed information.
@@ -160,4 +173,5 @@ Specific documentation are provided for helping you to edit data that is shown:
 * [Edit the supervisions](editsupervisions.md)
 * [Edit the jury memberships](editjurymemberships.md)
 * [Edit the incoming and outgoing invitations](editinvitations.md)
+* [Edit the teaching activities](editteachingactivities.md)
 
