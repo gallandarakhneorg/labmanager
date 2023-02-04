@@ -20,13 +20,18 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
@@ -43,6 +48,7 @@ import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationReposit
 import fr.ciadlab.labmanager.repository.project.ProjectMemberRepository;
 import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
+import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.utils.trl.TRL;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -74,6 +80,8 @@ public class ProjectService extends AbstractService {
 
 	private PersonRepository personRepository;
 
+	private MembershipService membershipService;
+
 	private DownloadableFileManager fileManager;
 
 	/** Constructor for injector.
@@ -85,6 +93,7 @@ public class ProjectService extends AbstractService {
 	 * @param projectMemberRepository the repository for the members of research projects.
 	 * @param organizationRepository the repository for the research organizations.
 	 * @param personRepository the repository for the persons.
+	 * @param membershipService the service for memberships.
 	 * @param fileManager the manager of the uploaded and downloadable files.
 	 */
 	public ProjectService(
@@ -94,6 +103,7 @@ public class ProjectService extends AbstractService {
 			@Autowired ProjectMemberRepository projectMemberRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
+			@Autowired MembershipService membershipService,
 			@Autowired DownloadableFileManager fileManager) {
 		super(messages, constants);
 		this.projectRepository = projectRepository;
@@ -101,6 +111,7 @@ public class ProjectService extends AbstractService {
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
 		this.fileManager = fileManager;
+		this.membershipService = membershipService;
 	}
 
 	/** Replies the list of all the projects from the database.
@@ -662,6 +673,45 @@ public class ProjectService extends AbstractService {
 				}
 			}
 		}
+	}
+
+	/** Replies the list of memberships that corresponds to recruited persons for the project.
+	 * The recruited persons are defined as persons who are involved in the project and
+	 * who are associated to a not-permanent membership during the period of the project.
+	 *
+	 * @param project the project for which the cruited persons should be extracted.
+	 * @return the list of involved persons.
+	 * @since 3.4
+	 */
+	public Stream<Membership> getRecuitedPersonStream(Project project) {
+		final LocalDate sdt = project.getStartDate();
+		final LocalDate edt = project.getEndDate();
+		if (sdt != null && edt != null) {
+			return project.getParticipants().stream()
+					.filter(it -> it.getPerson() != null)
+					.map(it -> {
+						final Optional<Membership> mbrs = this.membershipService.getMembershipsForPerson(it.getPerson().getId()).stream()
+							.filter(it1 -> !it1.isPermanentPosition() && it1.isActiveIn(sdt, edt)).findAny();
+						if (mbrs.isEmpty()) {
+							return null;
+						}
+						return mbrs.get();
+					})
+					.filter(Objects::nonNull);
+		}
+		return Collections.<Membership>emptyList().stream();
+	}
+
+	/** Replies the list of memberships that corresponds to recruited persons for the project.
+	 * The recruited persons are defined as persons who are involved in the project and
+	 * who are associated to a not-permanent membership during the period of the project.
+	 *
+	 * @param project the project for which the cruited persons should be extracted.
+	 * @return the list of involved persons.
+	 * @since 3.4
+	 */
+	public List<Membership> getRecuitedPersons(Project project) {
+		return getRecuitedPersonStream(project).collect(Collectors.toList());
 	}
 
 }
