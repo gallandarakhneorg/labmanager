@@ -51,6 +51,8 @@ import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
+import fr.ciadlab.labmanager.entities.teaching.TeachingActivity;
+import fr.ciadlab.labmanager.entities.teaching.TeachingActivityType;
 import fr.ciadlab.labmanager.repository.assostructure.AssociatedStructureRepository;
 import fr.ciadlab.labmanager.repository.indicator.GlobalIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
@@ -63,6 +65,7 @@ import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationReposit
 import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
+import fr.ciadlab.labmanager.repository.teaching.TeachingActivityRepository;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -103,6 +106,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private AssociatedStructureRepository structureRepository;
 
+	private TeachingActivityRepository teachingRepository;
+
 	/** Constructor.
 	 * 
 	 * @param addressRepository the accessor to the organization address repository.
@@ -117,6 +122,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param globalIndicatorsRepository the accessor to the global indicators.
 	 * @param projectRepository the accessor to the projects.
 	 * @param structureRepository the accessor to the associated structures.
+	 * @param teachingRepository the accessor to the teaching activities.
 	 */
 	public DatabaseToJsonExporter(
 			@Autowired OrganizationAddressRepository addressRepository,
@@ -130,7 +136,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired PersonInvitationRepository invitationRepository,
 			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository,
 			@Autowired ProjectRepository projectRepository,
-			@Autowired AssociatedStructureRepository structureRepository) {
+			@Autowired AssociatedStructureRepository structureRepository,
+			@Autowired TeachingActivityRepository teachingRepository) {
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
@@ -143,6 +150,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		this.globalIndicatorsRepository = globalIndicatorsRepository;
 		this.projectRepository = projectRepository;
 		this.structureRepository = structureRepository;
+		this.teachingRepository = teachingRepository;
 	}
 
 	/** Run the exporter.
@@ -212,6 +220,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportInvitations(root, repository);
 		exportProjects(root, repository);
 		exportAssociatedStructures(root, repository);
+		exportTeachingActivities(root, repository);
 		if (root.size() > 0) {
 			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;
@@ -977,6 +986,63 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			if (array.size() > 0) {
 				root.set(ASSOCIATED_STRUCTURES_SECTION, array);
+			}
+		}
+	}
+
+	/** Export the teaching activities to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 * @since 3.4
+	 */
+	protected void exportTeachingActivities(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<TeachingActivity> activities = this.teachingRepository.findAll();
+		if (!activities.isEmpty()) {
+			final ArrayNode array = root.arrayNode();
+			int i = 0;
+			for (final TeachingActivity activity : activities) {
+				final ObjectNode jsonActivity = array.objectNode();
+
+				final String id = TEACHING_ACTIVITY_ID_PREFIX + i;
+				exportObject(jsonActivity, id, activity, jsonActivity, null);
+
+				// Organizations and persons must be added explicitly because the "exportObject" function
+				// ignore the getter functions for all.
+				final String personId = repository.get(activity.getPerson());
+				if (!Strings.isNullOrEmpty(personId)) {
+					addReference(jsonActivity, PERSON_KEY, personId);
+				}
+				
+				final String universityId = repository.get(activity.getUniversity());
+				if (!Strings.isNullOrEmpty(universityId)) {
+					addReference(jsonActivity, UNIVERSITY_KEY, universityId);
+				}
+
+				final Map<TeachingActivityType, Float> annualWorkPerType = activity.getAnnualWorkPerType();
+				if (annualWorkPerType != null && !annualWorkPerType.isEmpty()) {
+					final ArrayNode hoursNode = jsonActivity.arrayNode();
+					for (final Entry<TeachingActivityType, Float> hours : annualWorkPerType.entrySet()) {
+						final ObjectNode node = hoursNode.addObject();
+						final Float value = hours.getValue();
+						if (value != null && value.floatValue() > 0f) {
+							node.put(TYPE_KEY, hours.getKey().name());
+							node.put(HOURS_KEY, value);
+						}
+					}
+					if (!hoursNode.isEmpty()) {
+						jsonActivity.set(ANNUAL_HOURS_KEY, hoursNode);
+					}
+				}
+				if (jsonActivity.size() > 0) {
+					repository.put(activity, id);
+					array.add(jsonActivity);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.set(TEACHING_ACTIVITY_SECTION, array);
 			}
 		}
 	}

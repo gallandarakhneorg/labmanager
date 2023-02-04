@@ -23,6 +23,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -64,6 +65,8 @@ import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
+import fr.ciadlab.labmanager.entities.teaching.TeachingActivity;
+import fr.ciadlab.labmanager.entities.teaching.TeachingActivityType;
 import fr.ciadlab.labmanager.repository.assostructure.AssociatedStructureRepository;
 import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
@@ -77,6 +80,7 @@ import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
+import fr.ciadlab.labmanager.repository.teaching.TeachingActivityRepository;
 import fr.ciadlab.labmanager.service.indicator.GlobalIndicatorsService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
@@ -142,6 +146,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private AssociatedStructureRepository structureRepository;
 
+	private TeachingActivityRepository teachingRepository;
+
 	private final Multimap<String, String> fieldAliases = LinkedListMultimap.create();
 
 	private boolean fake;
@@ -166,7 +172,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param invitationRepository the repository of invitations.
 	 * @param globalIndicatorsService the service of the global indicators.
 	 * @param projectRepository the repository of the projects.
-	 * @param structureRepository the repository of the projects.
+	 * @param structureRepository the repository of the associated structures.
+	 * @param teachingRepository the repository of the teaching activities.
 	 */
 	public JsonToDatabaseImporter(
 			@Autowired SessionFactory sessionFactory,
@@ -187,7 +194,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired PersonInvitationRepository invitationRepository,
 			@Autowired GlobalIndicatorsService globalIndicatorsService,
 			@Autowired ProjectRepository projectRepository,
-			@Autowired AssociatedStructureRepository structureRepository) {
+			@Autowired AssociatedStructureRepository structureRepository,
+			@Autowired TeachingActivityRepository teachingRepository) {
 		this.sessionFactory = sessionFactory;
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
@@ -207,6 +215,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.globalIndicatorsService = globalIndicatorsService;
 		this.projectRepository = projectRepository;
 		this.structureRepository = structureRepository;
+		this.teachingRepository = teachingRepository;
 		initializeFieldAliases();
 	}
 
@@ -256,6 +265,23 @@ public class JsonToDatabaseImporter extends JsonTool {
 								return cons;
 							}
 						}
+					}
+				} catch (Throwable ex) {
+					//
+				}
+			}
+		}
+		return null;
+	}
+
+	private static Float getFloat(JsonNode content, String key) {
+		if (content != null && !Strings.isNullOrEmpty(key) && content.isObject()) {
+			final JsonNode value = content.get(key);
+			if (value != null) {
+				try {
+					final String name = value.asText();
+					if (!Strings.isNullOrEmpty(name)) {
+						return Float.valueOf(name);
 					}
 				} catch (Throwable ex) {
 					//
@@ -397,7 +423,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				+ stats.supervisions + " supervisions;\n" //$NON-NLS-1$
 				+ stats.invitations + " invitations;\n" //$NON-NLS-1$
 				+ stats.projects + " projects;\n" //$NON-NLS-1$
-				+ stats.associatedStructures + " associated structures.\n"); //$NON-NLS-1$
+				+ stats.associatedStructures + " associated structures;\n" //$NON-NLS-1$
+				+ stats.teachingActivities + " teaching activities.\n"); //$NON-NLS-1$
 	}
 
 	/** Run the importer for JSON data source only.
@@ -461,7 +488,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final int nb9 = insertInvitations(session, content.get(INVITATIONS_SECTION), objectRepository, aliasRepository);
 				final int nb10 = insertProjects(session, content.get(PROJECTS_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb11 = insertAssociatedStructures(session, content.get(ASSOCIATED_STRUCTURES_SECTION), objectRepository, aliasRepository, fileCallback);
-				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11);
+				final int nb12 = insertTeachingActivities(session, content.get(TEACHING_ACTIVITY_SECTION), objectRepository, aliasRepository, fileCallback);
+				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11, nb12);
 			}
 		}
 		return new Stats();
@@ -1611,7 +1639,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 								this.projectRepository.save(project);
 							}
 						}
-						
+
 						// Coordinator
 						final String coordinatorId = getRef(projectObject.get(COORDINATOR_KEY));
 						if (Strings.isNullOrEmpty(coordinatorId)) {
@@ -1740,7 +1768,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 						++nbNew;
 						getLogger().info("  + " + project.getAcronymOrScientificTitle() //$NON-NLS-1$
-								+ " (id: " + project.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						+ " (id: " + project.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
 							objectIdRepository.put(id, Integer.valueOf(project.getId()));
 						}
@@ -1898,7 +1926,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 						++nbNew;
 						getLogger().info("  + " + structure.getAcronymOrName() //$NON-NLS-1$
-								+ " (id: " + structure.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						+ " (id: " + structure.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
 							objectIdRepository.put(id, Integer.valueOf(structure.getId()));
 						}
@@ -1906,6 +1934,106 @@ public class JsonToDatabaseImporter extends JsonTool {
 					}
 				} catch (Throwable ex) {
 					throw new UnableToImportJsonException(ASSOCIATED_STRUCTURES_SECTION, i, structureObject, ex);
+				}
+				++i;
+			}
+		}
+		return nbNew;
+	}
+
+	/** Create the teaching activities in the database.
+	 *
+	 * @param session the JPA session for managing transactions.
+	 * @param activities the list of teaching activities in the Json source.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
+	 * @param aliasRepository the repository of field aliases.
+	 * @param fileCallback a tool that is invoked when associated file is detected. It could be {@code null}.
+	 * @return the number of new associated structures in the database.
+	 * @throws Exception if an associated structure cannot be created.
+	 */
+	protected int insertTeachingActivities(Session session, JsonNode activities, Map<String, Integer> objectIdRepository,
+			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
+		int nbNew = 0;
+		if (activities != null && !activities.isEmpty()) {
+			getLogger().info("Inserting " + activities.size() + " teaching activities..."); //$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (JsonNode activityObject : activities) {
+				getLogger().info("> Teaching activity " + (i + 1) + "/" + activities.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final String id = getId(activityObject);
+					TeachingActivity activity = createObject(TeachingActivity.class, activityObject, aliasRepository, null);
+					if (activity != null) {
+						session.beginTransaction();
+
+						final String personId = getRef(activityObject.get(PERSON_KEY));
+						if (Strings.isNullOrEmpty(personId)) {
+							throw new IllegalArgumentException("Invalid person reference for teaching activity with id: " + id); //$NON-NLS-1$
+						}
+						final Integer personDbId = objectIdRepository.get(personId);
+						if (personDbId == null || personDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid person reference for teaching activity with id: " + id); //$NON-NLS-1$
+						}
+						final Optional<Person> person = this.personRepository.findById(personDbId);
+						if (person.isEmpty()) {
+							throw new IllegalArgumentException("Invalid person reference for teaching activity with id: " + id); //$NON-NLS-1$
+						}
+						activity.setPerson(person.get());
+						if (!isFake()) {
+							this.teachingRepository.save(activity);
+						}
+
+						final String universityId = getRef(activityObject.get(UNIVERSITY_KEY));
+						if (Strings.isNullOrEmpty(universityId)) {
+							throw new IllegalArgumentException("Invalid university reference for teaching activity with id: " + id); //$NON-NLS-1$
+						}
+						final Integer universityDbId = objectIdRepository.get(universityId);
+						if (universityDbId == null || universityDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid university reference for teaching activity with id: " + id); //$NON-NLS-1$
+						}
+						final Optional<ResearchOrganization> university = this.organizationRepository.findById(universityDbId);
+						if (university.isEmpty()) {
+							throw new IllegalArgumentException("Invalid university reference for teaching activity with id: " + id); //$NON-NLS-1$
+						}
+						activity.setUniversity(university.get());
+						if (!isFake()) {
+							this.teachingRepository.save(activity);
+						}
+
+						final Map<TeachingActivityType, Float> annualHoursMap = new HashMap<>();
+						final JsonNode annualHoursNode = activityObject.get(ANNUAL_HOURS_KEY);
+						if (annualHoursNode != null) {
+							annualHoursNode.forEach(annualHourNode -> {
+								// Hours
+								final Float hours = getFloat(annualHourNode, HOURS_KEY);
+								if (hours == null) {
+									throw new IllegalArgumentException("Invalid hours for teahing activity with id: " + id); //$NON-NLS-1$
+								}
+								if (hours.floatValue() > 0f) {
+									// Type
+									final TeachingActivityType type = getEnum(annualHourNode, TYPE_KEY, TeachingActivityType.class);
+									if (type == null) {
+										throw new IllegalArgumentException("Invalid activity type for teahing activity with id: " + id); //$NON-NLS-1$
+									}
+									//
+									annualHoursMap.put(type, hours);
+								}
+							});
+						}
+						activity.setAnnualWorkPerType(annualHoursMap);
+						if (!isFake()) {
+							this.teachingRepository.save(activity);
+						}
+
+						++nbNew;
+						getLogger().info("  + " + activity.getCodeOrTitle() //$NON-NLS-1$
+						+ " (id: " + activity.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Integer.valueOf(activity.getId()));
+						}
+						session.getTransaction().commit();
+					}
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(TEACHING_ACTIVITY_SECTION, i, activityObject, ex);
 				}
 				++i;
 			}
@@ -2066,6 +2194,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 */
 		public final int associatedStructures;
 
+		/** Number of created teaching activities.
+		 * 
+		 * @since 3.4
+		 */
+		public final int teachingActivities;
+
 		/** Constructor.
 		 *
 		 * @param addresses the number of created addresses.
@@ -2080,9 +2214,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param invitations the number of invitations.
 		 * @param projects the number of projects.
 		 * @param associatedStructures the number of associated structures.
+		 * @param teachingActivities the number of teaching activities.
 		 */
 		Stats(int addresses, int organizations, int journals, int persons, int authors, int memberships, int publications,
-				int juryMemberships, int supervisions, int invitations, int projects, int associatedStructures) {
+				int juryMemberships, int supervisions, int invitations, int projects, int associatedStructures,
+				int teachingActivities) {
 			this.addresses = addresses;
 			this.organizations = organizations;
 			this.journals = journals;
@@ -2095,12 +2231,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 			this.invitations = invitations;
 			this.projects = projects;
 			this.associatedStructures = associatedStructures;
+			this.teachingActivities = teachingActivities;
 		}
 
 		/** Constructor.
 		 */
 		Stats() {
-			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		}
 
 	}

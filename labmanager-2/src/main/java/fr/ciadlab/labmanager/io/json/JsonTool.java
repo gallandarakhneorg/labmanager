@@ -110,6 +110,12 @@ public abstract class JsonTool {
 	 */
 	public static final String PROJECTS_SECTION = "projects"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to teaching activities.
+	 *
+	 * @since 3.4
+	 */
+	public static final String TEACHING_ACTIVITY_SECTION = "teachingActivities"; //$NON-NLS-1$
+
 	/** Name of the field that contains the source of the data. Value of this field may be
 	 * {@code :db} or the name of the source.
 	 */
@@ -225,6 +231,12 @@ public abstract class JsonTool {
 	 */
 	protected  static final String ASSOCIATED_STRUCTURE_ID_PREFIX = "/astruct#"; //$NON-NLS-1$
 
+	/** Prefix for project identifiers.
+	 *
+	 * @since 3.4
+	 */
+	protected  static final String TEACHING_ACTIVITY_ID_PREFIX = "/teach#"; //$NON-NLS-1$
+
 	/** Prefix for person identifiers.
 	 */
 	protected  static final String PERSON_ID_PREFIX = "/pers#"; //$NON-NLS-1$
@@ -272,6 +284,12 @@ public abstract class JsonTool {
 	/** Name of the field for the person reference.
 	 */
 	protected static final String PERSON_KEY = "person"; //$NON-NLS-1$
+
+	/** Name of the field for the person reference.
+	 *
+	 * @since 3.4
+	 */
+	protected static final String UNIVERSITY_KEY = "university"; //$NON-NLS-1$
 
 	/** Name of the field for the guest person reference.
 	 */
@@ -447,6 +465,18 @@ public abstract class JsonTool {
 	/** Name of the field for the types.
 	 */
 	protected static final String TYPE_KEY = "type"; //$NON-NLS-1$
+
+	/** Name of the field for the number of hours.
+	 *
+	 * @since 3.4
+	 */
+	protected static final String HOURS_KEY = "hours"; //$NON-NLS-1$
+
+	/** Name of the field for the number of hours per year.
+	 *
+	 * @since 3.4
+	 */
+	protected static final String ANNUAL_HOURS_KEY = "annuHours"; //$NON-NLS-1$
 
 	/** Name of the field for the authors of a publication.
 	 */

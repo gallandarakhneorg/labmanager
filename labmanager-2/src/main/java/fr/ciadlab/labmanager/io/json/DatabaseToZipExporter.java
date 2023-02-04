@@ -60,7 +60,7 @@ public class DatabaseToZipExporter {
 
 	private static final int HUNDRED = 100;
 
-	private static final int FOUR_HUNDRED = 400;
+	private static final int FIVE_HUNDRED = 500;
 
 	private DatabaseToJsonExporter jsonExporter;
 
@@ -209,6 +209,27 @@ public class DatabaseToZipExporter {
 		progress.end();
 	}
 
+	@SuppressWarnings("unchecked")
+	private void writeTeachingActivityFilesToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
+		List<Map<String, Object>>  activities = (List<Map<String, Object>>) json.get(JsonTool.TEACHING_ACTIVITY_SECTION);
+		if (activities != null && !activities.isEmpty()) {
+			progress.setProperties(0, 0, activities.size(), false);
+			for (final Map<String, Object> activity : activities) {
+				for (final String fieldName : Arrays.asList(
+						"pathToSlides")) { //$NON-NLS-1$
+					final String targetFilename0 = (String) activity.get(fieldName);
+					if (!Strings.isNullOrEmpty(targetFilename0)) {
+						if (!copyFileToZip(targetFilename0, zos)) {
+							activity.remove(fieldName);
+						}
+					}
+				}
+				progress.increment();
+			}
+		}
+		progress.end();
+	}
+
 	private boolean copyFileToZip(String filename, ZipOutputStream zos) throws Exception {
 		final File lfilename = FileSystem.convertStringToFile(filename);
 		final File localFile = this.download.normalizeForServerSide(lfilename);
@@ -262,12 +283,13 @@ public class DatabaseToZipExporter {
 		 * @throws Exception if there is problem for exporting.
 		 */
 		public void exportToZip(OutputStream output) throws Exception {
-			this.progress.setProperties(0, 0, FOUR_HUNDRED + FIVE, false);
+			this.progress.setProperties(0, 0, FIVE_HUNDRED + FIVE, false);
 			try (ZipOutputStream zos = new ZipOutputStream(output)) {
 				writePublicationFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
 				writeAddressFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
 				writeOrganizationFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
 				writeProjectFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
+				writeTeachingActivityFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
 				writeJsonToZip(this.content, zos, this.progress.subTask(FIVE));
 			}
 			this.progress.end();

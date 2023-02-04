@@ -81,7 +81,7 @@ import fr.ciadlab.labmanager.utils.trl.TRL;
 public class Project implements Serializable, JsonSerializable, Comparable<Project>, AttributeProvider, IdentifiableEntity {
 
 	private static final long serialVersionUID = 69671923802965957L;
-	
+
 	/**
 	 * Identifier of the project
 	 */
@@ -127,7 +127,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ProjectBudget> budgets;
-	
+
 	/** Type of the project activity.
 	 */
 	@Column
@@ -951,7 +951,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 			urls.forEach(it -> this.videoURLs.add(it));
 		}
 	}
-	
+
 	/** Change the URLs of the videos related to this project.
 	 *
 	 * @param urls the URLs.
