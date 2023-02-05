@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<div class="row">
+       <div class="card">
+			<div class="card-body project-card">
+				<img class="project-card-logo"
+				     th:unless="${#strings.isEmpty(project.pathToLogo)}"
+				     th:src="${project.pathToLogo}"></img>
+				<span class="project-card-confidential fa-solid fa-lock"
+				      th:title="#{html.Confidential}"
+				      th:unless="${project.confidential}"></span>
+				<div class="project-card-identity">
+	            	<div class="project-card-name">
+	            		<th:block th:utext="${project.acronym}"></th:block> - <th:block th:utext="${project.scientificTitle}"></th:block>
+	            	</div>
+            		<div class="project-card-url" th:if="${project.projectURL != null}">
+            			<a class="noLink" th:href="${project.projectURL}" th:utext="${project.projectURL}"></a>
+            		</div>
+            		<div class="project-card-dates"
+         		         th:if="${project.endDate != null && project.endYear != project.startYear}">
+		           		<th:block th:utext="${project.startYear + ' - ' + project.endYear}"></th:block>
+		           		(<th:block th:utext="#{html.Months(${project.duration})}"></th:block>)
+            		</div>
+            		<div class="project-card-dates"
+	           		     th:if="${project.endDate == null || project.endYear == project.startYear}">
+		           		<th:block th:utext="${project.endYear}"></th:block>
+		           		(<th:block th:utext="#{html.Months(${project.duration})}"></th:block>)
+            		</div>
+            		<div class="project-card-status">
+            			<th:block th:utext="${project.status.getLabel()}"></th:block>
+            		</div>
+				</div>
+				<div class="project-card-description"
+				     th:unless="${#strings.isEmpty(project.description)}">
+					<p class="project-card-description"
+					   th:utext="${project.description}">
+					</p>
+				</div>
+				<div class="project-card-funding project-card-section">
+					<div class="title" th:utext="#{html.FinancialInformation}"></div>
+					<div class="content">
+						<div class="highlight-blocks">
+							<div class="highlight-block">
+								<div class="block-title" th:utext="#{html.Category}"></div>
+								<div class="block-content">
+									<th:block th:utext="${project.category.getLabel()}"></th:block>
+								</div>
+							</div>
+							<div class="highlight-block">
+								<div class="block-title" th:utext="#{html.Type}"></div>
+								<div class="block-content">
+									<th:block th:utext="${project.contractType.getLabel()}"></th:block>
+								</div>
+							</div>
+							<div class="highlight-block">
+								<div class="block-title" th:utext="#{html.Activity}"></div>
+								<div class="block-content">
+									<th:block th:utext="${project.activityType.getLabel()}"></th:block>
+								</div>
+							</div>
+							<div class="highlight-block">
+								<div class="block-title" th:utext="#{html.TRL}"></div>
+								<div class="block-content">
+									<span th:title="${project.TRL.getLabel()}"
+									      th:utext="${project.TRL.level}"></span>
+								</div>
+							</div>
+							<div class="highlight-block" th:if="${project.openSource}">
+								<div class="block-title" th:utext="#{html.OpenSource}"></div>
+							</div>
+						</div>
+						<div class="project-card-funding-global-budget"
+						     th:utext="#{html.GlobalBudget(#{html.KEURO1(${project.globalBudget})})}"></th:block>
+						</div>
+						<div class="project-card-funding-global-budget"
+						     th:utext="#{html.LocalBudget(#{html.KEURO1(${project.totalLocalOrganizationBudget})})}">
+						</div>
+						<div class="highlight-blocks"
+						     th:unless="${project.budgets.empty}">
+							<div class="highlight-block"
+							     th:each="budget : ${project.budgets}">
+								<div class="block-title">
+									<th:block th:utext="${budget.fundingScheme.getLabel()}"></th:block>
+								</div>
+								<div class="block-content">
+									<th:block th:utext="#{html.KEURO1(${budget.budget})}"></th:block>
+									<th:block th:unless="${#strings.isEmpty(budget.grant)}">
+										<br/><th:block th:utext="#{html.Grant1(${budget.grant})}"></th:block>
+									</th:block>
+								</div>
+						     </div>
+						</div>
+					</div>
+				</div>
+				<div class="project-card-funding project-card-section">
+					<div class="title" th:utext="#{html.Consortium}"></div>
+					<div class="content">
+						<div class="project-card-consortium-coordinator"
+						     th:utext="#{html.Coordinator2(${project.coordinator.name}, ${project.coordinator.acronym})}"></th:block>
+						</div>
+						<div class="project-card-consortium-local-organization">
+							<th:block th:if="${project.superOrganization.id != project.learOrganization.id}"
+							          th:utext="#{html.LocalOrganization6(${project.localOrganization.name}, ${project.localOrganization.acronym}, ${project.superOrganization.name}, ${project.superOrganization.acronym}, ${project.learOrganization.name}, ${project.learOrganization.acronym})}"></th:block>
+							<th:block th:if="${project.superOrganization.id == project.learOrganization.id}"
+							          th:utext="#{html.LocalOrganization4(${project.localOrganization.name}, ${project.localOrganization.acronym}, ${project.superOrganization.name}, ${project.superOrganization.acronym}})}"></th:block>
+						</div>
+						<div class="highlight-blocks">
+							<div class="highlight-block"
+							     th:each="partner : ${project.otherPartners}">
+								<div class="block-title" th:utext="${partner.name}"></div>
+								<div class="block-content">
+									<img th:unless="${#strings.isEmpty(partner.pathToLogo)}"
+									     th:src="${partner.pathToLogo}"/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="project-card-participants project-card-section">
+					<div class="title" th:utext="#{html.Participants}"></div>
+					<div class="content">
+						<ul>
+							<li th:each="participant : ${sortedParticipants}">
+								<a th:href="${participant.person.webPageURI}"
+								   th:if="${participant.person.webPageURI != null}"
+								   class="noLink"
+								   th:utext="${participant.person.fullNameWithLastNameFirst}"></a>
+								<th:block th:if="${participant.person.webPageURI == null}"
+								          th:utext="${participant.person.fullNameWithLastNameFirst}"></th:block>
+								(<th:block th:utext="${participant.role.getLabel()}"></th:block>)
+								<span th:if="${recruitedPersons.contains(participant.person.id)}"
+								      class="project-card-participant-recruited"
+								      th:utext="#{html.RecuitedPerson}"></span>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="project-card-documents project-card-section">
+					<div class="title" th:utext="#{html.Documents}"></div>
+					<div class="content">
+						<div class="highlight-blocks">
+							<div class="highlight-block"
+							     th:if="${project.pathToScientificRequirements}">
+								<div class="block-content">
+									<a class="noLink" th:href="${project.pathToScientificRequirements}"><img th:src="${pathToScientificRequirementsThumbnail}"/></a>
+								</div>
+							</div>
+							<div class="highlight-block"
+							     th:if="${project.pathToPowerpoint}">
+								<div class="block-content">
+									<a class="noLink" th:href="${project.pathToPowerpoint}"><img th:src="${pathToPowerpointThumbnail}"/></a>
+								</div>
+							</div>
+							<div class="highlight-block"
+							     th:if="${project.pathToPressDocument}">
+								<div class="block-content">
+									<a class="noLink" th:href="${project.pathToPressDocument}"><img th:src="${pathToPressDocumentThumbnail}"/></a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="project-card-videos project-card-section">
+					<div class="title" th:utext="#{html.Videos}"></div>
+					<div class="content">
+						<iframe th:each="videoUrl : ${project.videoURLs}"
+						        width="420" height="315"
+						        th:title="${videoUrl}"
+						        th:src="${videoUrl}"></iframe>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

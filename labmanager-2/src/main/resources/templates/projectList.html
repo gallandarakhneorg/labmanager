@@ -35,6 +35,8 @@
             	<a th:href="${project.webPageURI}"
             	   th:if="${project.webPageURI != null}"
             	   class="noLink"><span class="fa-solid fa-house"></span></a>
+                <a th:href="@{/projectCard(id=${project.id})}"
+                   class="noLink"><span class="fa-solid fa-address-card"></span></a>
             </td>
             <td th:with="urlObject=${project.projectURLObject}">
                 <a th:if="${urlObject != null}"

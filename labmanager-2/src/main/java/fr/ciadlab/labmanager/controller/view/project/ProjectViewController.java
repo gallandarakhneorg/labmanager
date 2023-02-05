@@ -16,21 +16,29 @@
 
 package fr.ciadlab.labmanager.controller.view.project;
 
+import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
+import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
 import fr.ciadlab.labmanager.entities.project.ProjectContractType;
+import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
+import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.project.ProjectService;
@@ -69,6 +77,8 @@ public class ProjectViewController extends AbstractViewController {
 
 	private PersonService personService;
 
+	private DownloadableFileManager fileManager;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -77,6 +87,7 @@ public class ProjectViewController extends AbstractViewController {
 	 * @param projectService the service for accessing the research projects.
 	 * @param organizationService the service for accessing the research organizations.
 	 * @param personService the service for accessing the persons.
+	 * @param fileManager the manager of uploaded files.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public ProjectViewController(
@@ -85,11 +96,13 @@ public class ProjectViewController extends AbstractViewController {
 			@Autowired ProjectService projectService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired PersonService personService,
+			@Autowired DownloadableFileManager fileManager,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.projectService = projectService;
 		this.organizationService = organizationService;
 		this.personService = personService;
+		this.fileManager = fileManager;
 	}
 
 	/** Replies the model-view component for managing the projects.
@@ -215,7 +228,7 @@ public class ProjectViewController extends AbstractViewController {
 						}).collect(Collectors.toList());
 				modelAndView.addObject("pathsToImages", description); //$NON-NLS-1$
 			}
-			
+
 			// Provide a YEAR-MONTH start date
 			if (projectObj.getStartDate() != null) {
 				final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd"); //$NON-NLS-1$
@@ -291,6 +304,61 @@ public class ProjectViewController extends AbstractViewController {
 			modelAndView.addObject("additionUrl", endpoint(Constants.PROJECT_EDITING_ENDPOINT)); //$NON-NLS-1$
 			modelAndView.addObject("editionUrl", endpoint(Constants.PROJECT_EDITING_ENDPOINT, //$NON-NLS-1$
 					Constants.PROJECT_ENDPOINT_PARAMETER));
+		}
+		return modelAndView;
+	}
+
+	/** Replies the model-view component for displaying the project card.
+	 *
+	 * @param username the name of the logged-in user.
+	 * @param id the database identifier of the project.
+	 * @return the model-view component.
+	 */
+	@GetMapping("/projectCard")
+	public ModelAndView projectCard(
+			@RequestParam(required = false) int id,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		final Integer idp = Integer.valueOf(id);
+		readCredentials(username, "projectCard", idp); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("projectCard"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, false);
+		Project projectObj = null;
+		if (id != 0) {
+			projectObj = this.projectService.getProjectById(id);
+		}
+		if (projectObj == null) {
+			throw new IllegalArgumentException("Project not found: " + id); //$NON-NLS-1$
+		}
+		modelAndView.addObject("project", projectObj); //$NON-NLS-1$
+		//
+		final List<ProjectMember> members = new ArrayList<>(projectObj.getParticipants());
+		members.sort(EntityUtils.getPreferredProjectMemberComparator());
+		modelAndView.addObject("sortedParticipants", members); //$NON-NLS-1$
+		//
+		List<Membership> recruitedPersons = this.projectService.getRecuitedPersons(projectObj);
+		final Set<Integer> recruit= new TreeSet<>();
+		for (final Membership memberships : recruitedPersons) {
+			recruit.add(Integer.valueOf(memberships.getPerson().getId()));
+		}
+		modelAndView.addObject("recruitedPersons", recruit); //$NON-NLS-1$
+		//
+		if (projectObj.getPathToScientificRequirements() != null) {
+			final File file = this.fileManager.makeProjectScientificRequirementsPictureFilename(projectObj.getId());
+			if (file != null) {
+				modelAndView.addObject("pathToScientificRequirementsThumbnail", file); //$NON-NLS-1$
+			}
+		}
+		if (projectObj.getPathToPowerpoint() != null) {
+			final File file = this.fileManager.makeProjectPowerpointPictureFilename(projectObj.getId());
+			if (file != null) {
+				modelAndView.addObject("pathToPowerpointThumbnail", file); //$NON-NLS-1$
+			}
+		}
+		if (projectObj.getPathToPressDocument() != null) {
+			final File file = this.fileManager.makeProjectPressDocumentPictureFilename(projectObj.getId());
+			if (file != null) {
+				modelAndView.addObject("pathToPressDocumentThumbnail", file); //$NON-NLS-1$
+			}
 		}
 		return modelAndView;
 	}
