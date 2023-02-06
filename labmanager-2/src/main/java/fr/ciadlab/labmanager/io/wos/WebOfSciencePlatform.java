@@ -110,6 +110,16 @@ public interface WebOfSciencePlatform {
 		return wosIssn.replaceAll("[^0-9a-zA-Z]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/** Replies the ranking descriptions for the person with the given WoS identifier.
+	 *
+	 * @param wosProfile the URL to the profile of the person on WoS.
+	 * @param progress progress monitor.
+	 * @return the ranking descriptions for the person.
+	 * @throws Exception if rankings cannot be read.
+	 * @since 3.3
+	 */
+	WebOfSciencePerson getPersonRanking(URL wosProfile, Progression progress) throws Exception;
+
 	/** Accessor to the online Web-of-Science platform.
 	 * 
 	 * @author $Author: sgalland$
@@ -139,6 +149,39 @@ public interface WebOfSciencePlatform {
 		public WebOfScienceJournal(Map<String, QuartileRanking> rankings, float impactFactor) {
 			this.quartiles = Collections.unmodifiableMap(rankings);
 			this.impactFactor = impactFactor;
+		}
+
+	}
+
+	/** Accessor to the online Web-of-Science platform.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 3.3
+	 * @see "https://www.webofscience.com"
+	 */
+	public class WebOfSciencePerson implements Serializable {
+
+		private static final long serialVersionUID = 4017710928346959632L;
+
+		/** The h-index of the person.
+		 */
+		public final int hindex;
+
+		/** The number of citations for the person.
+		 */
+		public final int citations;
+
+		/** Constructor.
+		 *
+		 * @param hindex the H-index of the person
+		 * @param citations the number of citations for the person.
+		 */
+		public WebOfSciencePerson(int hindex, int citations) {
+			this.hindex = hindex;
+			this.citations = citations;
 		}
 
 	}

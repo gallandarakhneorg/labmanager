@@ -24,6 +24,7 @@ import java.net.URL;
 import java.util.Map;
 
 import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform.WebOfScienceJournal;
+import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform.WebOfSciencePerson;
 import fr.ciadlab.labmanager.utils.TestUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
@@ -32,6 +33,7 @@ import org.arakhne.afc.progress.ProgressionConsoleMonitor;
 import org.arakhne.afc.vmutil.Resources;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -94,6 +96,15 @@ public class OnlineWebOfSciencePlatformTest {
 		assertSame(QuartileRanking.Q1, data0.quartiles.get("computer science, artificial intelligence"));
 		assertSame(QuartileRanking.Q1, data0.quartiles.get("engineering, electrical & electronic"));
 		assertSimilar(7.802f, data0.impactFactor);
+	}
+
+	@Test
+	public void getPersonRanking() throws Exception {
+		URL url = new URL("https://www.webofscience.com/wos/author/record/367073");
+		WebOfSciencePerson person = this.test.getPersonRanking(url, null);
+		assertNotNull(person);
+		assertTrue(person.hindex >= 13);
+		assertTrue(person.citations >= 651);
 	}
 
 }

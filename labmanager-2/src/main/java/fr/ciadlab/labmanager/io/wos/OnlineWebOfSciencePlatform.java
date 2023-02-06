@@ -20,18 +20,22 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.microsoft.playwright.ElementHandle;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
+import fr.ciadlab.labmanager.io.AbstractWebScraper;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -47,7 +51,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Primary
-public class OnlineWebOfSciencePlatform implements WebOfSciencePlatform {
+public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements WebOfSciencePlatform {
 
 	/** Name of the column for the journal ISSN.
 	 */
@@ -66,10 +70,6 @@ public class OnlineWebOfSciencePlatform implements WebOfSciencePlatform {
 	protected static final String IMPACT_FACTOR_COLUMN_PREFIX = "IF"; //$NON-NLS-1$
 
 	private final Map<Integer, Map<String, WebOfScienceJournal>> rankingCache = new ConcurrentHashMap<>();
-
-	private static Progression ensureProgress(Progression progress) {
-		return progress == null ? new DefaultProgression() : progress;
-	}
 
 	private static WebOfScienceJournal analyzeCsvRecord(Integer categoryColumn, Integer impactFactorColumn, String[] row) {
 		final Map<String, QuartileRanking> quartiles = new TreeMap<>();
@@ -202,6 +202,39 @@ public class OnlineWebOfSciencePlatform implements WebOfSciencePlatform {
 	public Map<String, WebOfScienceJournal> getJournalRanking(int year, InputStream csv, Progression progress)
 			throws Exception {
 		return this.rankingCache.computeIfAbsent(Integer.valueOf(year), it -> readJournalRanking(csv, ensureProgress(progress)));
+	}
+
+	@Override
+	public WebOfSciencePerson getPersonRanking(URL wosProfile, Progression progress) throws Exception {
+		final Progression prog = ensureProgress(progress);
+		if (wosProfile != null) {
+			final AtomicReference<WebOfSciencePerson> output = new AtomicReference<>();
+			loadHtmlPage(
+					DEFAULT_DEVELOPER,
+					wosProfile,
+					prog,
+					"[class=wat-author-metric]", //$NON-NLS-1$
+					5000,
+					(page, element0) -> {
+						final List<ElementHandle> elements = page.querySelectorAll("[class=wat-author-metric]"); //$NON-NLS-1$
+						int ihindex = -1;
+						int icitations = -1;
+						if (elements.size() >= 0) {
+							final Integer hindex = readInt(elements.get(0));
+							ihindex = positiveInt(hindex);
+						}
+						if (elements.size() >= 2) {
+							final Integer citations = readInt(elements.get(2));
+							icitations = positiveInt(citations);
+						}
+						output.set(new WebOfSciencePerson(ihindex, icitations));
+					});
+			final WebOfSciencePerson person = output.get();
+			if (person != null) {
+				return person;
+			}
+		}
+		throw new IllegalArgumentException("Invalid Web-of-Science URL or no valid access: " + wosProfile); //$NON-NLS-1$
 	}
 
 	/** Call back for analyzing the journal CSV.
