@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/buttons :: ajaxButtons" />
+<th:block th:replace="fragments/buttons :: waitButtons" />
+
+<th:block th:replace="fragments/nav :: personListBar*(#{html.UpdatePersonRankings})"/>
+
+<div id="progress-block" class="progress">
+  <div id="progress-bar" class="progress-bar" role="progressbar" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+</div>	
+<div id="progress-message"></div>
+<div id="form-updates" style="display:none">
+	<form th:replace="fragments/form :: genericForm(true, ~{::.form-group})">
+		<div id="form-dynamic-groups" class="form-group"></div>
+	</form>
+</div>
+<script type="text/javascript" th:inline="javascript">
+/*[# th:if="${changeEnabled}"]*/
+var PERSON_ARRAYS = [];
+function appendIndicatorCell($trElement, currentValue, newValue, style) {
+	var $tdElement = $('<td></td>').attr('class', style);
+	if (currentValue) {
+		if (newValue && currentValue != newValue) {
+			$tdElement.append(currentValue + "&rarr;" + newValue);
+		} else {
+			$tdElement.append(currentValue + "&rarr;");
+		}
+	} else {
+		if (newValue) {
+			$tdElement.append("&rarr;" + newValue);
+		}
+	}
+	$trElement.append($tdElement);	
+}
+function appendHiddenInput($root, value, prefix, id) {
+	if (value) {
+		var $hiddenElement = $('<input></input>').attr('type', 'hidden');
+		$hiddenElement = $hiddenElement.attr('value', value);
+		$hiddenElement = $hiddenElement.attr('id', prefix + '_' + id );
+		$root.append($hiddenElement);
+	}
+}
+function installInteractionElements(updates) {
+	$('#progress-block').hide();
+	$('#progress-message').hide();
+
+	$.each(updates, (index, jsonUpdate) => {
+		var id = jsonUpdate.id
+		PERSON_ARRAYS.push(id);
+		var $groupElement = $("<div></div>").attr('class', 'form-group');
+		$('#form-dynamic-groups').append($groupElement);
+
+		var $firstBlock = $('<div></div>').attr('class', 'col-form-label');
+		$groupElement.append($firstBlock);
+
+		var $checkElement = $('<input></input>').attr('type', 'checkbox');
+		$checkElement = $checkElement.attr('checked', true);
+		$checkElement = $checkElement.attr('style', 'vertical-align: top;margin-top:5px;');
+		$checkElement = $checkElement.attr('id', 'updateCheck_' + id );
+		$firstBlock.append($checkElement);
+
+		appendHiddenInput($firstBlock, jsonUpdate.wosHindex, 'wosHindex', id);
+		appendHiddenInput($firstBlock, jsonUpdate.wosCitations, 'wosCitations', id);
+		appendHiddenInput($firstBlock, jsonUpdate.scopusHindex, 'scopusHindex', id);
+		appendHiddenInput($firstBlock, jsonUpdate.scopusCitations, 'scopusCitations', id);
+		appendHiddenInput($firstBlock, jsonUpdate.scholarHindex, 'scholarHindex', id);
+		appendHiddenInput($firstBlock, jsonUpdate.scholarCitations, 'scholarCitations', id);
+	
+		var $labelElement = $('<label></label>').attr('for', 'updateCheck_' + id );
+		$labelElement = $labelElement.attr('style', 'max-width:85%;margin-left:10px;');
+		var $tableElement = $('<table></table>').attr('class', 'personRankingTable');
+		$labelElement.append($tableElement);
+		var $trElement = $('<tr></tr>');
+		$tableElement.append($trElement);
+		var $tdElement = $('<td></td>').attr('class', 'personRankingTableName');
+		$trElement.append($tdElement);
+		var $tdElement = $('<td>[(#{html.WoS})]</td>').attr('class', 'personRankingTableWos');
+		$trElement.append($tdElement);
+		var $tdElement = $('<td>[(#{html.Scopus})]</td>').attr('class', 'personRankingTableScopus');
+		$trElement.append($tdElement);
+		var $tdElement = $('<td>[(#{html.GoogleScholar0})]</td>').attr('class', 'personRankingTableScholar');
+		$trElement.append($tdElement);
+		$trElement = $('<tr></tr>');
+		$tableElement.append($trElement);
+		$tdElement = $('<td></td>').attr('class', 'personRankingTableName');
+		$tdElement.append(jsonUpdate.name);
+		$trElement.append($tdElement);
+		appendIndicatorCell($trElement, jsonUpdate.currentWosHindex, jsonUpdate.wosHindex, 'personRankingTableWos')
+		appendIndicatorCell($trElement, jsonUpdate.currentScopusHindex, jsonUpdate.scopusHindex, 'personRankingTableScopus')
+		appendIndicatorCell($trElement, jsonUpdate.currentScholarHindex, jsonUpdate.scholarHindex, 'personRankingTableScholar')
+		$trElement = $('<tr></tr>');
+		$tableElement.append($trElement);
+		$tdElement = $('<td></td>').attr('class', 'personRankingTableName');
+		$trElement.append($tdElement);
+		appendIndicatorCell($trElement, jsonUpdate.currentWosCitations, jsonUpdate.wosCitations, 'personRankingTableWos')
+		appendIndicatorCell($trElement, jsonUpdate.currentScopusCitations, jsonUpdate.scopusCitations, 'personRankingTableScopus')
+		appendIndicatorCell($trElement, jsonUpdate.currentScholarCitations, jsonUpdate.scholarCitations, 'personRankingTableScholar')
+		$firstBlock.append($labelElement);
+	});
+	$('#form-updates').show();
+}
+function saveFormData(associativeArray, prefix, id) {
+	var $component = $('#' + prefix + '_' + id);
+	if ($component) {
+		var attrValue = $component.attr('value');
+		if (attrValue) {
+			associativeArray[prefix] = attrValue;
+		}
+	}
+}
+var eventSource = null;
+$(document).on("unload", () => {
+	if (eventSource) {
+	    eventSource.close();
+	}	
+});
+/*[/]*/
+$(document).ready(() => {
+    /*[# th:if="${changeEnabled}"]*/
+    PERSON_ARRAYS = [];
+    var $jbar = $("#progress-bar");
+    var $jmsg = $("#progress-message");
+    eventSource = new EventSource("[(${batchUrl})]");
+    eventSource.onmessage = (e) => {
+        var notification = JSON.parse(e.data);
+        var terminated = notification.terminated;
+        if (terminated){
+        	eventSource.close();
+        	eventSource = null;
+        	installInteractionElements(notification.data);
+        }else{
+	        var message = notification.message;
+	        var percent = notification.percent;
+	       	$jbar.css('width', percent + '%');
+	       	$jbar.attr('aria-valuenow', percent);
+	        $jmsg.html(message);
+		}
+    };
+
+	attachSpinnerAjaxHandler({
+		id: "submitButton",
+		url: "[(${formActionUrl})]",
+		timeout: 500000,
+		text: "[(#{html.Submit})]",
+		prepareData: ($bt, formData) => {
+		    var changes = {};
+		    $.each(PERSON_ARRAYS, (index, id) => {
+		    	var checkElement = $('#updateCheck_' + id);
+		    	var doUpdate = checkElement.is(':checked');
+		    	if (doUpdate) {
+				    var personChanges = {};
+		    		saveFormData(personChanges, 'wosHindex', id);
+		    		saveFormData(personChanges, 'wosCitations', id);
+		    		saveFormData(personChanges, 'scopusHindex', id);
+		    		saveFormData(personChanges, 'scopusCitations', id);
+		    		saveFormData(personChanges, 'scholarHindex', id);
+		    		saveFormData(personChanges, 'scholarCitations', id);
+		    		changes[id] = personChanges;
+		    	}
+		    });
+		    formData.append("data", JSON.stringify(changes));
+		},
+		failureText: "[(#{html.PersonRankingUpdateError})]",
+		onSuccess: () => {
+			window.location.href = [[${succesRedirectionUrl}]];
+		},
+		onFailure: () => {
+			location.reload();
+		},
+	});
+    /*[/]*/
+});
+</script>
+</html>

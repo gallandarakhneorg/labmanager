@@ -43,6 +43,9 @@ import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
+import fr.ciadlab.labmanager.io.gscholar.GoogleScholarPlatform;
+import fr.ciadlab.labmanager.io.scopus.ScopusPlatform;
+import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
@@ -88,6 +91,12 @@ public class PersonServiceTest {
 
 	private PersonNameComparator nameComparator;
 
+	private GoogleScholarPlatform googlePlatfom;
+
+	private ScopusPlatform scopusPlatfom;
+
+	private WebOfSciencePlatform wosPlatfom;
+
 	private PersonService test;
 
 	@BeforeEach
@@ -96,12 +105,15 @@ public class PersonServiceTest {
 		this.publicationRepository = mock(PublicationRepository.class);
 		this.authorshipRepository = mock(AuthorshipRepository.class);
 		this.personRepository = mock(PersonRepository.class);
+		this.googlePlatfom = mock(GoogleScholarPlatform.class);
+		this.scopusPlatfom = mock(ScopusPlatform.class);
+		this.wosPlatfom = mock(WebOfSciencePlatform.class);
 		// Create a real parser instance to be used in the test
 		this.nameParser = new DefaultPersonNameParser();
 		// Create a real comparator instance to be used in the test
 		this.nameComparator = new SorensenDicePersonNameComparator(this.nameParser);
 		this.test = new PersonService(this.messages, new Constants(), this.publicationRepository, this.authorshipRepository, this.personRepository,
-				this.nameParser, this.nameComparator);
+				this.googlePlatfom, this.scopusPlatfom, this.wosPlatfom, this.nameParser, this.nameComparator);
 
 		// Prepare some persons to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests

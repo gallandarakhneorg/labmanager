@@ -503,6 +503,39 @@ public abstract class AbstractComponent {
 		return null;
 	}
 
+	/** Clean and normalized a integer that is provided as input to an endpoint.
+	 *
+	 * @param input the input string to the endpoint.
+	 * @return the integer that is equivalent to the argument, or {@coe null} if the string cannot be converted to an integer.
+	 * @since 3.4
+	 */
+	public static Integer inInteger(Object input) {
+		final String strInput = inString(input);
+		if (!Strings.isNullOrEmpty(strInput)) {
+			try {
+				return Integer.valueOf(strInput);
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Clean and normalized a integer that is provided as input to an endpoint.
+	 *
+	 * @param input the input string to the endpoint.
+	 * @param defaultValue the default value.
+	 * @return the integer that is equivalent to the argument, or the default value.
+	 * @since 3.4
+	 */
+	public static int inInt(Object input, int defaultValue) {
+		final Integer value = inInteger(input);
+		if (value == null) {
+			return defaultValue;
+		}
+		return value.intValue();
+	}
+
 	/** Loop on the persons that are described in the provided list.
 	 * This list may contain the identifiers of the persons or the full names of the persons.
 	 *

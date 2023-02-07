@@ -209,14 +209,24 @@
 								   th:utext="${organization.acronymOrName}"></a></li>
 						</ul>
 					</div>
-
-
 			    	<a th:if="${changeEnabled}"
 			    	   th:href="@{/personEditor}" class="btn btn-labeled btn-primary" role="button">
 				       <span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddPerson}"></th:block></a>
 			    	<a th:if="${changeEnabled}"
 			    	   th:href="@{/personDuplicateList}" class="btn btn-labeled btn-secondary" role="button">
 				       <span class="fa-solid fa-code-merge"></span>&nbsp;<th:block th:utext="#{html.MergePersons}"></th:block></a>
+					<div class="dropdown">
+				    	<button type="button" class="btn btn-labeled btn-warning dropdown-toggle" data-bs-toggle="dropdown"
+			    	            id="dropdownUpdatePersonRankings" aria-expanded="false">
+				    	<span class="fa-solid fa-sync"></span>&nbsp;<th:block th:utext="#{html.UpdatePersonRankings}"></th:block></button>
+				    	<ul class="dropdown-menu" aria-labelledby="dropdownUpdatePersonRankings">
+							<li th:each="organization : ${organizations}"
+							    th:if="${organization.isMajorOrganization}">
+								<a class="dropdown-item"
+								   th:href="@{/personRankingUpdater(organization=${organization.id})}"
+								   th:utext="${organization.acronymOrName}"></a></li>
+						</ul>
+					</div>
 			    </p>
 				<div class="card-footer">
 					<div class="dropdown">

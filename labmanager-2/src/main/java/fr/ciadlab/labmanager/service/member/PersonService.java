@@ -16,20 +16,35 @@
 
 package fr.ciadlab.labmanager.service.member;
 
+import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.BiConsumer;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.IdentifiableEntityComparator;
 import fr.ciadlab.labmanager.entities.member.Gender;
+import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.io.gscholar.GoogleScholarPlatform;
+import fr.ciadlab.labmanager.io.gscholar.GoogleScholarPlatform.GoogleScholarPerson;
+import fr.ciadlab.labmanager.io.scopus.ScopusPlatform;
+import fr.ciadlab.labmanager.io.scopus.ScopusPlatform.ScopusPerson;
+import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform;
+import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform.WebOfSciencePerson;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
@@ -37,6 +52,8 @@ import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.utils.names.PersonNameComparator;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.arakhne.afc.progress.DefaultProgression;
+import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -60,6 +77,12 @@ public class PersonService extends AbstractService {
 
 	private PersonNameParser nameParser;
 
+	private GoogleScholarPlatform googlePlatfom;
+
+	private ScopusPlatform scopusPlatfom;
+
+	private WebOfSciencePlatform wosPlatfom;
+
 	private PersonNameComparator nameComparator;
 
 	/** Constructor for injector.
@@ -70,6 +93,9 @@ public class PersonService extends AbstractService {
 	 * @param publicationRepository the publication repository.
 	 * @param authorshipRepository the authorship repository.
 	 * @param personRepository the person repository.
+	 * @param googlePlatfom the tool for accessing the remote Google Scholar platform.
+	 * @param scopusPlatfom the tool for accessing the remote Scopus platform.
+	 * @param wosPlatfom the tool for accessing the remote WoS platform.
 	 * @param nameParser the parser of person names.
 	 * @param nameComparator the comparator of person names.
 	 */
@@ -79,12 +105,18 @@ public class PersonService extends AbstractService {
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonRepository personRepository,
+			@Autowired GoogleScholarPlatform googlePlatfom,
+			@Autowired ScopusPlatform scopusPlatfom,
+			@Autowired WebOfSciencePlatform wosPlatfom,
 			@Autowired PersonNameParser nameParser,
 			@Autowired PersonNameComparator nameComparator) {
 		super(messages, constants);
 		this.publicationRepository = publicationRepository;
 		this.authorshipRepository = authorshipRepository;
 		this.personRepository = personRepository;
+		this.googlePlatfom = googlePlatfom;
+		this.scopusPlatfom = scopusPlatfom;
+		this.wosPlatfom = wosPlatfom;
 		this.nameParser = nameParser;
 		this.nameComparator = nameComparator;
 	}
@@ -498,6 +530,221 @@ public class PersonService extends AbstractService {
 			return true;
 		}
 		return false;
+	}
+
+	/** Compute and replies the updates of the ranking indicators for all the persons in the given organization.
+	 *
+	 * <p>CAUTION: The person ranking is considered only if the person is already associated to a positive H-index or
+	 * number of citations.
+	 *
+	 * @param organization the organization in which the persons to be considered are involved.
+	 * @param progression the progression indicator. 
+	 * @param callback the callback for consuming the the map that maps persons to the maps of the updates.
+	 *      THe keys are: {@code id}, {@code name}, {@code wosHindex}, {@code currentWosHindex},
+	 *      {@code scopusHindex}, {@code currentScopusHindex}, {@code scholarHindex}, {@code currentScholarHindex}.
+	 * @throws Exception if is it impossible to access to a remote resource.
+	 */
+	public void computePersonRankingIndicatorUpdates(ResearchOrganization organization,
+			Progression progression,
+			BiConsumer<Person, Map<String, Object>> callback) throws Exception {
+		final Set<Person> treatedIdentifiers = new TreeSet<>(new IdentifiableEntityComparator());
+		final Set<Membership> memberships = organization.getMemberships();
+		final Progression progress = progression == null ? new DefaultProgression() : progression;
+		progress.setProperties(0, 0, memberships.size(), false);
+		for (final Membership membership : memberships) {
+			final Person person = membership.getPerson();
+			final Progression subTasks = progress.subTask(1, 0, 3);
+			if (treatedIdentifiers.add(person)) {
+				progress.setComment(getMessage("personService.GetPersonIndicatorUpdatesFor", person.getFullNameWithLastNameFirst())); //$NON-NLS-1$
+				final Map<String, Object> newPersonIndicators = new HashMap<>();
+				readGoogleScholarIndicators(person, newPersonIndicators);
+				subTasks.increment();
+				readScopusIndicators(person, newPersonIndicators);
+				subTasks.increment();
+				readWosIndicators(person, newPersonIndicators);
+				if (!newPersonIndicators.isEmpty()) {
+					callback.accept(person, newPersonIndicators);
+				}
+			}
+			progress.increment();
+		}
+		progress.end();
+	}
+
+	private void readGoogleScholarIndicators(Person person, Map<String, Object> newIndicators) {
+		getLogger().info("Get Google Scholar indicators for " + person.getFullName()); //$NON-NLS-1$
+		final boolean hindexEnabled = person.getGoogleScholarHindex() > 0;
+		final boolean citationsEnabled = person.getGoogleScholarCitations() > 0;
+		if (!Strings.isNullOrEmpty(person.getGoogleScholarId()) && (hindexEnabled || citationsEnabled)) {
+			final URL url = person.getGoogleScholarURL();
+			if (url != null) {
+				try {
+					final GoogleScholarPerson indicators = this.googlePlatfom.getPersonRanking(url, null);
+					if (indicators != null) {
+						if (hindexEnabled) {
+							if (indicators.hindex > 0) {
+								newIndicators.put("scholarHindex", Integer.valueOf(indicators.hindex)); //$NON-NLS-1$
+							}
+							newIndicators.put("currentScholarHindex", Integer.valueOf(person.getGoogleScholarHindex())); //$NON-NLS-1$
+						}
+						if (citationsEnabled) {
+							if (indicators.citations > 0) {
+								newIndicators.put("scholarCitations", Integer.valueOf(indicators.citations)); //$NON-NLS-1$
+							}
+							newIndicators.put("currentScholarCitations", Integer.valueOf(person.getGoogleScholarCitations())); //$NON-NLS-1$
+						}
+					}
+				} catch (Throwable ex) {
+					//
+				}
+			}
+		}
+	}
+
+	private void readScopusIndicators(Person person, Map<String, Object> newIndicators) {
+		getLogger().info("Get Scopus indicators for " + person.getFullName()); //$NON-NLS-1$
+		final boolean hindexEnabled = person.getScopusHindex() > 0;
+		final boolean citationsEnabled = person.getScopusCitations() > 0;
+		if (!Strings.isNullOrEmpty(person.getScopusId()) && (hindexEnabled || citationsEnabled)) {
+			final URL url = person.getScopusURL();
+			if (url != null) {
+				try {
+					final ScopusPerson indicators = this.scopusPlatfom.getPersonRanking(url, null);
+					if (indicators != null) {
+						if (hindexEnabled) {
+							if (indicators.hindex > 0) {
+								newIndicators.put("scopusHindex", Integer.valueOf(indicators.hindex)); //$NON-NLS-1$
+							}
+							newIndicators.put("currentScopusHindex", Integer.valueOf(person.getScopusHindex())); //$NON-NLS-1$
+						}
+						if (citationsEnabled) {
+							if (indicators.citations > 0) {
+								newIndicators.put("scopusCitations", Integer.valueOf(indicators.citations)); //$NON-NLS-1$
+							}
+							newIndicators.put("currentScopusCitations", Integer.valueOf(person.getScopusCitations())); //$NON-NLS-1$
+						}
+					}
+				} catch (Throwable ex) {
+					//
+				}
+			}
+		}
+	}
+
+	private void readWosIndicators(Person person, Map<String, Object> newIndicators) {
+		getLogger().info("Get WoS indicators for " + person.getFullName()); //$NON-NLS-1$
+		final boolean hindexEnabled = person.getWosHindex() > 0;
+		final boolean citationsEnabled = person.getWosCitations() > 0;
+		if (!Strings.isNullOrEmpty(person.getResearcherId()) && (hindexEnabled || citationsEnabled)) {
+			final URL url = person.getResearcherIdURL();
+			if (url != null) {
+				try {
+					final WebOfSciencePerson indicators = this.wosPlatfom.getPersonRanking(url, null);
+					if (indicators != null) {
+						if (hindexEnabled) {
+							if (indicators.hindex > 0) {
+								newIndicators.put("wosHindex", Integer.valueOf(indicators.hindex)); //$NON-NLS-1$
+							}
+							newIndicators.put("currentWosHindex", Integer.valueOf(person.getWosHindex())); //$NON-NLS-1$
+						}
+						if (citationsEnabled) {
+							if (indicators.citations > 0) {
+								newIndicators.put("wosCitations", Integer.valueOf(indicators.citations)); //$NON-NLS-1$
+							}
+							newIndicators.put("currentWosCitations", Integer.valueOf(person.getWosCitations())); //$NON-NLS-1$
+						}
+					}
+				} catch (Throwable ex) {
+					//
+				}
+			}
+		}
+	}
+
+	/** Save person indicators. If a person is not mentionned in the given map, her/his associated indicators will be not changed.
+	 *
+	 * @param changes the changes to apply.
+	 */
+	public void setPersonIndicators(Map<Integer, PersonIndicators> changes) {
+		if (changes != null) {
+			for (final Entry<Integer, PersonIndicators> entry : changes.entrySet()) {
+				final Optional<Person> person = this.personRepository.findById(entry.getKey());
+				if (person.isEmpty()) {
+					throw new IllegalArgumentException("Person not found: " + entry.getKey()); //$NON-NLS-1$
+				}
+				final PersonIndicators indicators = entry.getValue();
+				if (indicators != null) {
+					boolean change = false;
+					final Person pers = person.get();
+					if (indicators.wos.hindex >= 0) {
+						pers.setWosHindex(indicators.wos.hindex);
+						change = true;
+					}
+					if (indicators.wos.citations >= 0) {
+						pers.setWosCitations(indicators.wos.citations);
+						change = true;
+					}
+					if (indicators.scopus.hindex >= 0) {
+						pers.setScopusHindex(indicators.scopus.hindex);
+						change = true;
+					}
+					if (indicators.scopus.citations >= 0) {
+						pers.setScopusCitations(indicators.scopus.citations);
+						change = true;
+					}
+					if (indicators.scholar.hindex >= 0) {
+						pers.setGoogleScholarHindex(indicators.scholar.hindex);
+						change = true;
+					}
+					if (indicators.scholar.citations >= 0) {
+						pers.setGoogleScholarCitations(indicators.scholar.citations);
+						change = true;
+					}
+					if (change) {
+						this.personRepository.save(pers);
+					}
+				}
+			}
+		}
+	}
+
+	/** Person indicators
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 5.4
+	 */
+	public static class PersonIndicators {
+
+		/** WoS indicators.
+		 */
+		public final WebOfSciencePerson wos;
+		
+		/** Scopus indicators.
+		 */
+		public final ScopusPerson scopus;
+
+		/** Google Scholar indicators.
+		 */
+		public final GoogleScholarPerson scholar;
+
+		/** Constructor.
+		 *
+		 * @param wosHindex H-index from WoS, or {@code -1} if unknown.
+		 * @param wosCitations Citations from WoS, or {@code -1} if unknown.
+		 * @param scopusHindex H-index from Scopus, or {@code -1} if unknown.
+		 * @param scopusCitations Citations from Scopus, or {@code -1} if unknown.
+		 * @param scholarHindex H-index from Google Scholar, or {@code -1} if unknown.
+		 * @param scholarCitations Citations from Google Scholar, or {@code -1} if unknown.
+		 */
+		public PersonIndicators(int wosHindex, int wosCitations, int scopusHindex, int scopusCitations, int scholarHindex, int scholarCitations) {
+			this.wos = new WebOfSciencePerson(wosHindex, wosCitations);
+			this.scopus = new ScopusPerson(scopusHindex, scopusCitations);
+			this.scholar = new GoogleScholarPerson(scholarHindex, scholarCitations);
+		}
+
 	}
 
 	/** Internal exception

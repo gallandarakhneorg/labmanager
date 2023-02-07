@@ -674,3 +674,33 @@ div.project-card-consortium-local-organization {
 .project-card-participant-recruited {
 	color: #995555 !important;
 }
+table.personRankingTable {
+	width: 100%;	
+	vertical-align: top;
+	border: 1px solid #995555 !important;
+}
+table.personRankingTable td.personRankingTableName {
+	width: 100%;	
+	text-align: left;
+	vertical-align: center;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+table.personRankingTable td.personRankingTableWos {
+	text-align: center;
+	vertical-align: center;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+table.personRankingTable td.personRankingTableScopus {
+	text-align: center;
+	vertical-align: center;
+	padding-left: 5px;
+	padding-right: 5px;
+}
+table.personRankingTable td.personRankingTableScholar {
+	text-align: center;
+	vertical-align: center;
+	padding-left: 5px;
+	padding-right: 5px;
+}

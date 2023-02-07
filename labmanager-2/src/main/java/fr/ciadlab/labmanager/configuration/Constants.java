@@ -277,6 +277,12 @@ public class Constants {
 	 */
 	public static final String SAVE_DATABASE_TO_SERVER_ZIP_BATCH_ENDPOINT = "saveDatabaseToServerZipBatch"; //$NON-NLS-1$
 
+	/** Name of the endpoint for computing the updates of the persons' indicators.
+	 *
+	 * @since 3.5
+	 */
+	public static final String GET_JSON_FOR_PERSON_INDICATOR_UPDATES_ENDPOINT = "getJsonForPersonIndicatorUpdates"; //$NON-NLS-1$
+
 	/** Name of the endpoint for selecting a BibTeX file to import.
 	 */
 	public static final String IMPORT_BIBTEX_VIEW_ENDPOINT = "showBibTeXImporter"; //$NON-NLS-1$

@@ -16,6 +16,17 @@
 
 package fr.ciadlab.labmanager.controller.api.member;
 
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.controller.api.publication.PublicationApiController;
@@ -24,24 +35,34 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.service.member.PersonService;
+import fr.ciadlab.labmanager.service.member.PersonService.PersonIndicators;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.utils.names.PersonNameComparator;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import fr.ciadlab.labmanager.utils.vcard.VcardBuilder;
+import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.progress.DefaultProgression;
+import org.arakhne.afc.progress.ProgressionEvent;
+import org.arakhne.afc.progress.ProgressionListener;
+import org.arakhne.afc.util.ListUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
 
 /** REST Controller for persons.
  * <p>
@@ -60,6 +81,10 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin
 public class PersonApiController extends AbstractApiController {
+
+	private static final int COMPUTE_PERSON_INDICATOR_UPDATES_TIMEOUT = 1200000;
+
+	private static final int HUNDRED = 100;
 
 	private PersonService personService;
 
@@ -289,7 +314,136 @@ public class PersonApiController extends AbstractApiController {
 		return bb.body(content);
 	}
 
+	/** Show the updater for person rankings (h-index and citations).
+	 *
+	 * @param organization the identifier of the organization in which the persons are considered.
+	 * @param username the name of the logged-in user.
+	 * @return the model-view object.
+	 * @throws Exception if there is error for obtaining the new indicators.
+	 */
+	@GetMapping(value = "/" + Constants.GET_JSON_FOR_PERSON_INDICATOR_UPDATES_ENDPOINT)
+	public SseEmitter getJsonForPersonIndicatorUpdates(
+			@RequestParam(required = true) int organization,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		final Integer id = Integer.valueOf(organization);
+		ensureCredentials(username, Constants.GET_JSON_FOR_PERSON_INDICATOR_UPDATES_ENDPOINT, id);
+		//
+		final ResearchOrganization organizationObj = getOrganizationWith(id, null, this.organizationService);
+		if (organizationObj == null) {
+			throw new IllegalArgumentException("Organization not found: " + organization); //$NON-NLS-1$
+		}
+		//
+		final ExecutorService service = Executors.newSingleThreadExecutor();
+		final SseEmitter emitter = new SseEmitter(Long.valueOf(COMPUTE_PERSON_INDICATOR_UPDATES_TIMEOUT));
+		service.execute(() -> {
+			asyncGetJsonForPersonIndicatorUpdates(emitter, organizationObj);
+		});
+		return emitter;
+	}
+
+	private void asyncGetJsonForPersonIndicatorUpdates(SseEmitter emitter, ResearchOrganization organization) {
+		final DefaultProgression progress = new DefaultProgression(0, 0, HUNDRED, false);
+		progress.addProgressionListener(new ProgressionListener() {
+			@Override
+			public void onProgressionValueChanged(ProgressionEvent event) {
+				final Map<String, Object> content = new HashMap<>();
+				content.put("percent", Integer.valueOf((int) event.getPercent())); //$NON-NLS-1$
+				content.put("terminated", Boolean.FALSE); //$NON-NLS-1$
+				try {
+					final ObjectMapper mapper = new ObjectMapper();
+					final SseEventBuilder sseevent = SseEmitter.event().data(mapper.writeValueAsString(content), MediaType.APPLICATION_JSON);
+					emitter.send(sseevent);
+				} catch (RuntimeException ex) {
+					throw ex;
+				} catch (IOException ex) {
+					throw new RuntimeException(ex);
+				}
+			}
+		});
+		//
+		try {
+			final List<Map<String, Object>> data = new ArrayList<>();
+			this.personService.computePersonRankingIndicatorUpdates(organization, progress, (person, indicators) -> {
+				indicators.put("id", Integer.valueOf(person.getId())); //$NON-NLS-1$
+				indicators.put("name", person.getFullNameWithLastNameFirst()); //$NON-NLS-1$
+				// Add the entry in the list according to the name of the person
+				ListUtil.add(data, (a, b) -> {
+					if (a == b) {
+						return 0;
+					}
+					if (a == null) {
+						return Integer.MIN_VALUE;
+					}
+					if (b == null) {
+						return Integer.MAX_VALUE;
+					}
+					final String sa = Objects.toString(a.get("name")); //$NON-NLS-1$
+					final String sb = Objects.toString(b.get("name")); //$NON-NLS-1$
+					if (sa == sb) {
+						return 0;
+					}
+					if (sa == null) {
+						return Integer.MIN_VALUE;
+					}
+					if (sb == null) {
+						return Integer.MAX_VALUE;
+					}
+					return sa.compareToIgnoreCase(sb);
+				}, indicators, false, false);
+			});
+			final Map<String, Object> content = new HashMap<>();
+			content.put("percent", Integer.valueOf(HUNDRED)); //$NON-NLS-1$
+			content.put("terminated", Boolean.TRUE); //$NON-NLS-1$
+			content.put("data", data); //$NON-NLS-1$
+			try {
+				final ObjectMapper mapper = new ObjectMapper();
+				final SseEventBuilder sseevent = SseEmitter.event().data(mapper.writeValueAsString(content));
+				emitter.send(sseevent);
+			} catch (RuntimeException ex) {
+				throw ex;
+			} catch (IOException ex) {
+				throw new RuntimeException(ex);
+			}
+		} catch (RuntimeException ex) {
+			throw ex;
+		} catch (Throwable ex) {
+			throw new RuntimeException(ex);
+		}
+		//
+	}
+
+	/** Save the updates of the persons' quality indicators.
+	 *
+	 * @param data the Json map of the changes.
+	 * @param username the name of the logged-in user.
+	 * @throws Exception in case of error.
+	 */
+	@PostMapping(value = "/" + Constants.SAVE_PERSON_INDICATOR_UPDATES_ENDPOINT)
+	public void savePersonIndicatorUpdates(
+			@RequestParam(required = true) String data,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		ensureCredentials(username, Constants.SAVE_PERSON_INDICATOR_UPDATES_ENDPOINT);
+		//
+		final Map<Integer, PersonIndicators> updates = new HashMap<>();
+		if (!Strings.isNullOrEmpty(data)) {
+			final ObjectMapper mapper = new ObjectMapper();
+			@SuppressWarnings("unchecked")
+			Map<String, Map<String, Object>> data0 = mapper.readValue(data, Map.class);
+			for (final Entry<String, Map<String, Object>> entry : data0.entrySet()) {
+				final Integer id = inInteger(entry.getKey());
+				if (id == null) {
+					throw new IllegalArgumentException("Invalid person identifier: " + entry.getKey()); //$NON-NLS-1$
+				}
+				final Map<String, Object> json = entry.getValue();
+				final PersonIndicators indicators = new PersonIndicators(
+						inInt(json.get("wosHindex"), -1), inInt(json.get("wosCitations"), -1), //$NON-NLS-1$ //$NON-NLS-2$
+						inInt(json.get("scopusHindex"), -1), inInt(json.get("scopusCitations"), -1), //$NON-NLS-1$ //$NON-NLS-2$
+						inInt(json.get("scholarHindex"), -1), inInt(json.get("scholarCitations"), -1)); //$NON-NLS-1$ //$NON-NLS-2$
+				updates.put(id, indicators);
+			}
+		}
+		//
+		this.personService.setPersonIndicators(updates);
+	}
+
 }
-
-
-

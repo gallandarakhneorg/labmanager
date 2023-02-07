@@ -325,4 +325,32 @@ public class PersonViewController extends AbstractViewController {
 		return modelAndView;
 	}
 
+	/** Show the updater for person rankings (h-index and citations).
+	 *
+	 * @param organization the identifier or the name of the organization in which the persons are considered.
+	 * @param username the name of the logged-in user.
+	 * @return the model-view object.
+	 * @throws Exception if there is error for obtaining the new indicators.
+	 */
+	@GetMapping(value = "/personRankingUpdater")
+	public ModelAndView personRankingUpdater(
+			@RequestParam(required = true) String organization,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		ensureCredentials(username, "personRankingUpdater"); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("personRankingUpdater"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, false);
+		//
+		final ResearchOrganization orga = getOrganizationWith(organization, this.organizationService);
+		if (orga == null) {
+			throw new IllegalArgumentException("Organization not found: " + organization); //$NON-NLS-1$
+		}
+		//
+		modelAndView.addObject("batchUrl", endpoint(Constants.GET_JSON_FOR_PERSON_INDICATOR_UPDATES_ENDPOINT, //$NON-NLS-1$
+				Constants.ORGANIZATION_ENDPOINT_PARAMETER, Integer.valueOf(orga.getId())));
+		modelAndView.addObject("formActionUrl", endpoint(Constants.SAVE_PERSON_INDICATOR_UPDATES_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("succesRedirectionUrl", endpoint(Constants.ADMIN_ENDPOINT)); //$NON-NLS-1$
+		//
+		return modelAndView;
+	}
+
 }
