@@ -2,7 +2,7 @@
 
 # Documentation of the Backend Software for the CIAD laboratory
 
-> **_Version:_** 2023-02-02
+> **_Version:_** 2023-02-08
 
 ## 1. Introduction
 
@@ -37,7 +37,9 @@ This website is hosted on a [Université de Technologie de Belfort Montbéliard 
 4. **Tools for laboratory managers**
    1. [List of geographical addresses](addresses.md)
    2. [List of research organizations](organizations.md)
-   3. [List of persons and members](persons.md)
+   3. Persons and members
+      * [List of persons and members](persons.md)
+      * [Update person rankings from WoS, Scopus and Google Scholar](personrankingupdate.md)
    4. Journals and publications
       * [List of known journals](journals.md)
       * [List of publications](publications.md)

@@ -9,7 +9,7 @@ Every year, it is possible to update the journal rankings from information provi
 
 ![Managing journals](journalrankingupdate1.png)
 
-As it is illustrated on the figure above, two features are provided:
+As it is illustrated on the figure above, one feature is provided:
 
 * `Update journal rankings`: launch the tool for updating the annual journal rankings.
 
