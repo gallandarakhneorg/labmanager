@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs" />
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/formfileinput :: all" />
+<th:block th:replace="fragments/formdynlist :: all" />
+
+<th:block th:if="${axis != null}">
+	<th:block th:replace="fragments/nav :: scientificAxisListBar*(#{html.EditScientificAxis1(${axis.acronymOrName})})"/>
+</th:block>
+<th:block th:if="${axis == null}">
+	<th:block th:replace="fragments/nav :: scientificAxisListBar*(#{html.AddScientificAxis})"/>
+</th:block>
+
+<form th:replace="fragments/form :: entityForm(axis, ${axis == null ? '' : axis.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.ScientificAxisSavingError}, ~{::.form-group})">
+	<div class="form-group" th:replace="fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderScientificAxisAcronym}, ${axis != null ? axis.acronym : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderScientificAxisName}, ${axis != null ? axis.name : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: dateInput*(startDate, #{html.StartDate}, ${formattedStartDate})"></div>
+	<div class="form-group" th:replace="fragments/form :: dateInput(endDate, #{html.EndDate}, ${formattedEndDate})"></div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedScientificAxis}, #{html.ValidatedAssociatedStructure}, ${structure != null ? structure.validated : false})"></div>
+</form>
+<script type="text/javascript" th:inline="javascript">
+$(document).ready(function () {
+	// Initialize form validation
+	$('#form:first').validate({
+        rules: {
+        	acronym: {
+                required: true,
+        	},
+        	name: {
+                required: true,
+                minlength: 5
+            },
+        	startDate: {
+                required: true,
+            },
+        },
+    });
+});
+</script>
+</html>

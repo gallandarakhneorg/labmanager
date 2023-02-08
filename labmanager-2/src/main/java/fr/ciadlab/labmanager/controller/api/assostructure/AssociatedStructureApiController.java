@@ -96,7 +96,7 @@ public class AssociatedStructureApiController extends AbstractApiController {
 		this.projectService = projectService;
 	}
 
-	/** Saving information of a project. 
+	/** Saving information of an associated structure. 
 	 *
 	 * @param structure the identifier of the associated structure. If the identifier is not provided, this endpoint is supposed to create
 	 *     an associated structure in the database.
@@ -110,10 +110,10 @@ public class AssociatedStructureApiController extends AbstractApiController {
 	 * @param description the public description of the associated structure (markdown syntax is accepted).
 	 * @param budget the budget for creating the associated structure.
 	 * @param projects the list of the identifiers of the projects that are related to the creation of the associated structure.
-	 * @param confidential indicates if the project should be confidential or not.
-	 * @param validated indicates if the project is validated by a local authority.
+	 * @param confidential indicates if the structure should be confidential or not.
+	 * @param validated indicates if the structure is validated by a local authority.
 	 * @param username the name of the logged-in user.
-	 * @throws Exception if the publication cannot be saved.
+	 * @throws Exception if the structure cannot be saved.
 	 */
 	@PutMapping(value = "/" + Constants.ASSOCIATED_STRUCTURE_SAVING_ENDPOINT)
 	public void saveAssociatedStructure(
@@ -131,7 +131,7 @@ public class AssociatedStructureApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false") boolean confidential,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.PROJECT_SAVING_ENDPOINT, structure);
+		ensureCredentials(username, Constants.ASSOCIATED_STRUCTURE_SAVING_ENDPOINT, structure);
 
 		// Analyze parameters
 		final String inAcronym = inString(acronym);

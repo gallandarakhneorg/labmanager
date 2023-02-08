@@ -62,6 +62,7 @@ import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
@@ -79,6 +80,7 @@ import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationReposit
 import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
+import fr.ciadlab.labmanager.repository.scientificaxis.ScientificAxisRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
 import fr.ciadlab.labmanager.repository.teaching.TeachingActivityRepository;
 import fr.ciadlab.labmanager.service.indicator.GlobalIndicatorsService;
@@ -148,6 +150,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private TeachingActivityRepository teachingRepository;
 
+	private ScientificAxisRepository scientificAxisRepository;
+
 	private final Multimap<String, String> fieldAliases = LinkedListMultimap.create();
 
 	private boolean fake;
@@ -174,6 +178,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param projectRepository the repository of the projects.
 	 * @param structureRepository the repository of the associated structures.
 	 * @param teachingRepository the repository of the teaching activities.
+	 * @param scientificAxisRepository the repository of the scientific axes.
 	 */
 	public JsonToDatabaseImporter(
 			@Autowired SessionFactory sessionFactory,
@@ -195,7 +200,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired GlobalIndicatorsService globalIndicatorsService,
 			@Autowired ProjectRepository projectRepository,
 			@Autowired AssociatedStructureRepository structureRepository,
-			@Autowired TeachingActivityRepository teachingRepository) {
+			@Autowired TeachingActivityRepository teachingRepository,
+			@Autowired ScientificAxisRepository scientificAxisRepository) {
 		this.sessionFactory = sessionFactory;
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
@@ -216,6 +222,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.projectRepository = projectRepository;
 		this.structureRepository = structureRepository;
 		this.teachingRepository = teachingRepository;
+		this.scientificAxisRepository = scientificAxisRepository;
 		initializeFieldAliases();
 	}
 
@@ -424,7 +431,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				+ stats.invitations + " invitations;\n" //$NON-NLS-1$
 				+ stats.projects + " projects;\n" //$NON-NLS-1$
 				+ stats.associatedStructures + " associated structures;\n" //$NON-NLS-1$
-				+ stats.teachingActivities + " teaching activities.\n"); //$NON-NLS-1$
+				+ stats.teachingActivities + " teaching activities;\n" //$NON-NLS-1$
+				+ stats.scientificAxes + " scientific axes.\n"); //$NON-NLS-1$
 	}
 
 	/** Run the importer for JSON data source only.
@@ -489,7 +497,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final int nb10 = insertProjects(session, content.get(PROJECTS_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb11 = insertAssociatedStructures(session, content.get(ASSOCIATED_STRUCTURES_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb12 = insertTeachingActivities(session, content.get(TEACHING_ACTIVITY_SECTION), objectRepository, aliasRepository, fileCallback);
-				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11, nb12);
+				final int nb13 = insertScientificAxes(session, content.get(SCIENTIFIC_AXIS_SECTION), objectRepository, aliasRepository, fileCallback);
+				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11, nb12, nb13);
 			}
 		}
 		return new Stats();
@@ -2041,6 +2050,43 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return nbNew;
 	}
 
+	/** Create the scientific axes in the database.
+	 *
+	 * @param session the JPA session for managing transactions.
+	 * @param axes the list of scientific axes in the Json source.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
+	 * @param aliasRepository the repository of field aliases.
+	 * @param fileCallback a tool that is invoked when associated file is detected. It could be {@code null}.
+	 * @return the number of new scientific axes in the database.
+	 * @throws Exception if a scientific axis cannot be created.
+	 */
+	protected int insertScientificAxes(Session session, JsonNode axes, Map<String, Integer> objectIdRepository,
+			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
+		int nbNew = 0;
+		if (axes != null && !axes.isEmpty()) {
+			getLogger().info("Inserting " + axes.size() + " scientific axes..."); //$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (JsonNode axisObject : axes) {
+				getLogger().info("> Scientific axis " + (i + 1) + "/" + axes.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final String id = getId(axisObject);
+					ScientificAxis axis = createObject(ScientificAxis.class, axisObject, aliasRepository, null);
+					if (axis != null) {
+						session.beginTransaction();
+						if (!isFake()) {
+							this.scientificAxisRepository.save(axis);
+						}
+						session.getTransaction().commit();
+					}
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(SCIENTIFIC_AXIS_SECTION, i, axisObject, ex);
+				}
+				++i;
+			}
+		}
+		return nbNew;
+	}
+
 	/** Callback for files that are associated to elements from the JSON.
 	 * 
 	 * @author $Author: sgalland$
@@ -2200,6 +2246,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 */
 		public final int teachingActivities;
 
+		/** Number of created scientific axes.
+		 * 
+		 * @since 3.5
+		 */
+		public final int scientificAxes;
+
 		/** Constructor.
 		 *
 		 * @param addresses the number of created addresses.
@@ -2215,10 +2267,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param projects the number of projects.
 		 * @param associatedStructures the number of associated structures.
 		 * @param teachingActivities the number of teaching activities.
+		 * @param scientificAxes the number of scientific axes.
 		 */
 		Stats(int addresses, int organizations, int journals, int persons, int authors, int memberships, int publications,
 				int juryMemberships, int supervisions, int invitations, int projects, int associatedStructures,
-				int teachingActivities) {
+				int teachingActivities, int scientificAxes) {
 			this.addresses = addresses;
 			this.organizations = organizations;
 			this.journals = journals;
@@ -2232,12 +2285,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 			this.projects = projects;
 			this.associatedStructures = associatedStructures;
 			this.teachingActivities = teachingActivities;
+			this.scientificAxes = scientificAxes;
 		}
 
 		/** Constructor.
 		 */
 		Stats() {
-			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		}
 
 	}

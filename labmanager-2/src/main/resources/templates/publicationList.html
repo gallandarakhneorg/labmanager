@@ -8,6 +8,9 @@
 
 <th:block th:replace="fragments/nav :: publicationListBar"/>
 
+<a id="btAddPublication" class="btn btn-warning mt-4 pr-4 pl-4"
+   th:if="${changeEnabled}" th:utext="#{html.AddPublication}"
+   th:href="${URLS_edit}"></a>
 <button id="btDeleteDisplayedPapers" class="btn btn-danger mt-4 pr-4 pl-4"
 	th:if="${changeEnabled}" th:utext="#{html.DeleteDisplayedPublications}"></button>
 

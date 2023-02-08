@@ -414,6 +414,30 @@ public class Constants {
 	 */
 	public static final String ACTIVITY_ENDPOINT_PARAMETER = "activity"; //$NON-NLS-1$
 
+	/** Name of the endpoint for the list of scientific axis.
+	 *
+	 * @since 3.5
+	 */
+	public static final String SCIENTIFIC_AXIS_LIST_ENDPOINT = "scientificAxisList"; //$NON-NLS-1$
+
+	/** Name of the endpoint for editor of scientific axis.
+	 *
+	 * @since 3.5
+	 */
+	public static final String SCIENTIFIC_AXIS_EDITING_ENDPOINT = "scientificAxisEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving of scientific axis.
+	 *
+	 * @since 3.5
+	 */
+	public static final String SCIENTIFIC_AXIS_SAVING_ENDPOINT = "saveScientificAxis"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "axis".
+	 *
+	 * @since 3.5
+	 */
+	public static final String AXIS_ENDPOINT_PARAMETER = "axis"; //$NON-NLS-1$
+
 	private static final String DEFAULT_SERVER_NAME = "LabManagerApi"; //$NON-NLS-1$
 
 	private static final String DEFAULT_ORGANIZATION = "ResearchOrganization"; //$NON-NLS-1$

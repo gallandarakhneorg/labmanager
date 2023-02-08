@@ -116,6 +116,12 @@ public abstract class JsonTool {
 	 */
 	public static final String TEACHING_ACTIVITY_SECTION = "teachingActivities"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to scientific axes.
+	 *
+	 * @since 3.5
+	 */
+	public static final String SCIENTIFIC_AXIS_SECTION = "scientificAxes"; //$NON-NLS-1$
+
 	/** Name of the field that contains the source of the data. Value of this field may be
 	 * {@code :db} or the name of the source.
 	 */
@@ -236,6 +242,12 @@ public abstract class JsonTool {
 	 * @since 3.4
 	 */
 	protected  static final String TEACHING_ACTIVITY_ID_PREFIX = "/teach#"; //$NON-NLS-1$
+
+	/** Prefix for scientific axis identifiers.
+	 *
+	 * @since 3.5
+	 */
+	protected  static final String SCIENTFIC_AXIS_ID_PREFIX = "/sciaxis#"; //$NON-NLS-1$
 
 	/** Prefix for person identifiers.
 	 */

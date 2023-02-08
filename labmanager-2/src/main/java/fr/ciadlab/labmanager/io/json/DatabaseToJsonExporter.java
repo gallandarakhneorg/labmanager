@@ -49,6 +49,7 @@ import fr.ciadlab.labmanager.entities.project.ProjectBudget;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivity;
@@ -64,6 +65,7 @@ import fr.ciadlab.labmanager.repository.organization.OrganizationAddressReposito
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
+import fr.ciadlab.labmanager.repository.scientificaxis.ScientificAxisRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
 import fr.ciadlab.labmanager.repository.teaching.TeachingActivityRepository;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -108,6 +110,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private TeachingActivityRepository teachingRepository;
 
+	private ScientificAxisRepository scientificAxisRepository;
+
 	/** Constructor.
 	 * 
 	 * @param addressRepository the accessor to the organization address repository.
@@ -123,6 +127,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param projectRepository the accessor to the projects.
 	 * @param structureRepository the accessor to the associated structures.
 	 * @param teachingRepository the accessor to the teaching activities.
+	 * @param scientificAxisRepository the accessor to the scientific axes.
 	 */
 	public DatabaseToJsonExporter(
 			@Autowired OrganizationAddressRepository addressRepository,
@@ -137,7 +142,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired GlobalIndicatorsRepository globalIndicatorsRepository,
 			@Autowired ProjectRepository projectRepository,
 			@Autowired AssociatedStructureRepository structureRepository,
-			@Autowired TeachingActivityRepository teachingRepository) {
+			@Autowired TeachingActivityRepository teachingRepository,
+			@Autowired ScientificAxisRepository scientificAxisRepository) {
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
@@ -151,6 +157,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		this.projectRepository = projectRepository;
 		this.structureRepository = structureRepository;
 		this.teachingRepository = teachingRepository;
+		this.scientificAxisRepository = scientificAxisRepository;
 	}
 
 	/** Run the exporter.
@@ -221,6 +228,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportProjects(root, repository);
 		exportAssociatedStructures(root, repository);
 		exportTeachingActivities(root, repository);
+		exportScientificAxes(root, repository);
 		if (root.size() > 0) {
 			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;
@@ -1043,6 +1051,39 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			if (array.size() > 0) {
 				root.set(TEACHING_ACTIVITY_SECTION, array);
+			}
+		}
+	}
+
+	/** Export the scientific axes to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 * @since 3.4
+	 */
+	protected void exportScientificAxes(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<ScientificAxis> axes = this.scientificAxisRepository.findAll();
+		if (!axes.isEmpty()) {
+			final ArrayNode array = root.arrayNode();
+			int i = 0;
+			for (final ScientificAxis axis : axes) {
+				final ObjectNode jsonAxis = array.objectNode();
+
+				final String id = SCIENTFIC_AXIS_ID_PREFIX + i;
+				exportObject(jsonAxis, id, axis, jsonAxis, null);
+
+				// Other JPA entities must be added explicitly because the "exportObject" function
+				// ignore the getter functions for all.
+
+				if (jsonAxis.size() > 0) {
+					repository.put(axis, id);
+					array.add(jsonAxis);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.set(SCIENTIFIC_AXIS_SECTION, array);
 			}
 		}
 	}

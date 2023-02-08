@@ -104,4 +104,14 @@
 		</th:block>
 	</th:block>
 
+	<th:block th:fragment="scientificAxisListBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.ScientificAxisList})"></th:block>
+	</th:block>
+
+	<th:block th:fragment="scientificAxisListBar*(current)">
+		<th:block th:replace="fragments/nav :: standardBar(~{::a#lab-nav-scientificaxisList-item}, ${current})">
+			<a id="lab-nav-scientificaxisList-item" th:href="@{/scientificAxisList}" th:utext="#{html.ScientificAxisList}"></a><
+		</th:block>
+	</th:block>
+
 </html>

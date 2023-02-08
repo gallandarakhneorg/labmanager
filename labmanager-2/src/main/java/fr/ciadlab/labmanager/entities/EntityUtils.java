@@ -45,6 +45,7 @@ import fr.ciadlab.labmanager.entities.project.ProjectMemberComparator;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.SorensenDicePublicationComparator;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxisComparator;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.SupervisionComparator;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorComparator;
@@ -89,6 +90,8 @@ public final class EntityUtils {
 	private static NameBasedMembershipComparator PERSON_NAME_MEMBERSHIP_COMPARATOR; 
 
 	private static ResearchOrganizationComparator ORGANIZATION_COMPARATOR; 
+
+	private static ScientificAxisComparator SCIENTFIC_AXIS_COMPARATOR; 
 
 	private static ProjectComparator PROJECT_COMPARATOR; 
 
@@ -242,6 +245,30 @@ public final class EntityUtils {
 	public static void setPreferredResearchOrganizationComparator(ResearchOrganizationComparator comparator) {
 		synchronized (EntityUtils.class) {
 			ORGANIZATION_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of scientific axes.
+	 *
+	 * @return the comparator.
+	 */
+	public static ScientificAxisComparator getPreferredScientificAxisComparator() {
+		synchronized (EntityUtils.class) {
+			if (SCIENTFIC_AXIS_COMPARATOR == null) {
+				SCIENTFIC_AXIS_COMPARATOR = new ScientificAxisComparator();
+			}
+			return SCIENTFIC_AXIS_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of scientific axes.
+	 *
+	 * @param comparator the comparator.
+	 * @since 3.5
+	 */
+	public static void setPreferredScientificAxisComparator(ScientificAxisComparator comparator) {
+		synchronized (EntityUtils.class) {
+			SCIENTFIC_AXIS_COMPARATOR = comparator;
 		}
 	}
 

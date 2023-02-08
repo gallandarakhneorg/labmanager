@@ -164,7 +164,8 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 						+ stats.invitations + " supervisions;\n" //$NON-NLS-1$
 						+ stats.projects + " projects;\n" //$NON-NLS-1$
 						+ stats.associatedStructures + " associated structures;\n" //$NON-NLS-1$
-						+ stats.teachingActivities + " teaching activities."); //$NON-NLS-1$
+						+ stats.teachingActivities + " teaching activities;\n" //$NON-NLS-1$
+						+ stats.scientificAxes + " scientific axes."); //$NON-NLS-1$
 			} else {
 				cleanTargetFolders();
 				getLogger().info("Nothing to be inserted from: " + url); //$NON-NLS-1$

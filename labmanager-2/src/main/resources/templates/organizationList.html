@@ -7,6 +7,10 @@
 
 <th:block th:replace="fragments/nav :: organizationListBar"/>
 
+<a id="btAddOrganization" class="btn btn-warning mt-4 pr-4 pl-4"
+   th:if="${changeEnabled}" th:utext="#{html.AddOrganization}"
+   th:href="${URLS_edit}"></a>
+
 <table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
 	<thead>
 		<th th:text="#{html.Id}"></th>

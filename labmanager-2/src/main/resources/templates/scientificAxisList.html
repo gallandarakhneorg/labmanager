@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+
+<th:block th:replace="fragments/nav :: scientificAxisListBar"/>
+
+<a id="btAddScientificAxis" class="btn btn-warning mt-4 pr-4 pl-4"
+   th:if="${changeEnabled}" th:utext="#{html.AddScientificAxis}"
+   th:href="${URLS_edit}"></a>
+
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+    <thead>
+        <th th:utext="#{html.Id}"></th>
+        <th th:utext="#{html.Acronym}"></th>
+        <th th:utext="#{html.Name}"></th>
+        <th th:utext="#{html.StartDate}"></th>
+        <th th:utext="#{html.EndDate}"></th>
+        <th th:utext="#{html.Validated}"></th>
+        <th th:text="#{html.Actions}"></th>
+    </thead>
+    <tbody>
+        <tr th:each="axis : ${scientificAxes}">
+            <td>
+                <th:block th:utext="${axis.id}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${axis.acronym}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${axis.name}"></th:block>
+            </td>
+            <td>
+				<th:block th:if="${axis.startDate != null}"
+				          th:utext="${axis.startDate.toString()}"></th:block>
+            </td>
+            <td>
+				<th:block th:if="${axis.endDate != null}"
+				          th:utext="${axis.endDate.toString()}"></th:block>
+            </td>
+			<td>
+            	<th:block th:if="${axis.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
+            	<th:block th:unless="${axis.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
+            </td>
+            <td th:replace="fragments/table :: adminToolButtons(${axis.id}, ${axis.acronymOrName},
+            		#{html.EditScientificAxis1(${axis.acronymOrName})},
+            		#{html.DeleteScientificAxis1(${axis.acronymOrName})},
+            		~{::.admin-tool-buttons},
+            		null, null, null, null)">
+            </td>
+        </tr>
+    </tbody>
+</table>
+<script type="text/javascript" th:inline="javascript">
+    $(document).ready(() => {
+    	initAdministrationTable({
+            columns: 6,
+    		actionWidth: '60px',
+    		order: [ [1, 'asc'] ],
+    	});
+        /*[# th:if="${changeEnabled}" th:each="axis : ${scientificAxes}"]*/
+        attachDeletionHandler({
+        	id: "[[${axis.id}]]",
+        	url: "[(@{/deleteScientificAxis(axis=${axis.id})})]",
+        	name: [[${axis.acronymOrName}]],
+        	questionTitle: [[#{html.DeleteScientificAxis1(${axis.acronymOrName})}]],
+        	questionText: [[#{html.AreYouSureToDelete(${axis.acronymOrName})}]],
+        	successText: [[#{html.ScientificAxisDeleted}]],
+        	failureText: [[#{html.CannotDeleteScientificAxis}]],
+        });
+        /*[/]*/
+    });
+</script>
+</html>

@@ -102,7 +102,7 @@ public class AssociatedStructureService extends AbstractService {
 
 	/** Create an associated structure.
 	 *
-	 * @param validated indicates if the project is validated by a local authority.
+	 * @param validated indicates if the structure is validated by a local authority.
 	 * @param acronym the short name of acronym of the associated structure.
 	 * @param name the name of the associated structure.
 	 * @param type the name of the type of associated structure.
@@ -142,7 +142,7 @@ public class AssociatedStructureService extends AbstractService {
 	/** Update an associated structure.
 	 *
 	 * @param structureId the identifier of the associated structure to be updated.
-	 * @param validated indicates if the project is validated by a local authority.
+	 * @param validated indicates if the structure is validated by a local authority.
 	 * @param acronym the short name of acronym of the associated structure.
 	 * @param name the name of the associated structure.
 	 * @param type the name of the type of associated structure.
@@ -176,7 +176,7 @@ public class AssociatedStructureService extends AbstractService {
 	/** Update an associated structure.
 	 *
 	 * @param structure the associated structure to be updated.
-	 * @param validated indicates if the project is validated by a local authority.
+	 * @param validated indicates if the structure is validated by a local authority.
 	 * @param acronym the short name of acronym of the associated structure.
 	 * @param name the name of the associated structure.
 	 * @param type the name of the type of associated structure.
@@ -187,7 +187,7 @@ public class AssociatedStructureService extends AbstractService {
 	 * @param description the public description of the associated structure (markdown syntax is accepted).
 	 * @param budget the budget for creating the associated structure.
 	 * @param projects list of projects that are related to the creation of the associated structure.
-	 * @param confidential indicates if the project should be confidential or not.
+	 * @param confidential indicates if the structure should be confidential or not.
 	 */
 	protected void updateAssociatedStructure(AssociatedStructure structure, boolean validated, String acronym, String name,
 			AssociatedStructureType type, LocalDate creationDate, int creationDuration, int fundingOrganization,
