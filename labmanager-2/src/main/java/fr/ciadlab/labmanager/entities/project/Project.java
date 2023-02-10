@@ -61,6 +61,7 @@ import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
@@ -258,6 +259,13 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	private List<ProjectMember> participants;
+
+	/** List of scientific axes that are associated to this project.
+	 *
+	 * @since 3.5
+	 */
+	@ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY)
+	private List<ScientificAxis> scientificAxes = new ArrayList<>();
 
 	/**
 	 * Construct an empty project.
@@ -1474,6 +1482,38 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 			}
 		}
 		return scheme;
+	}
+
+	/** Replies the scientific axes that are associated to this project.
+	 *
+	 * @return the scientific axes.
+	 * @since 3.5
+	 */
+	public List<ScientificAxis> getScientificAxes() {
+		if (this.scientificAxes == null) {
+			this.scientificAxes = new ArrayList<>();
+		}
+		return this.scientificAxes;
+	}
+
+	/** Change the scientific axes that are associated to this project.
+	 * This function updates the relationship from the axis to the project AND
+	 * from the project to the axis.
+	 *
+	 * @param axes the scientific axes associated to this project.
+	 * @since 3.5
+	 */
+	public void setScientificAxes(List<ScientificAxis> axes) {
+		if (this.scientificAxes == null) {
+			this.scientificAxes = new ArrayList<>();
+		} else {
+			this.scientificAxes.stream().parallel().forEach(it -> it.getProjects().remove(this));
+			this.scientificAxes.clear();
+		}
+		if (axes != null && !axes.isEmpty()) {
+			axes.stream().parallel().forEach(it -> it.getProjects().add(this));
+			this.scientificAxes.addAll(axes);
+		}
 	}
 
 }

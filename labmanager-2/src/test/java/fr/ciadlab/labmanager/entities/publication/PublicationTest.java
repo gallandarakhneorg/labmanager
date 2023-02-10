@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.entities.publication;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -27,8 +28,12 @@ import static org.mockito.Mockito.when;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -558,6 +563,33 @@ public class PublicationTest {
 		assertTrue(this.test.getManualValidationForced());
 		this.test.setManualValidationForced(null);
 		assertFalse(this.test.getManualValidationForced());
+	}
+
+	@Test
+	public void getScientificAxes() {
+		assertTrue(this.test.getScientificAxes().isEmpty());
+	}
+
+	@Test
+	public void setScientificAxes() {
+		List<Publication> l0 = new ArrayList<>();
+		ScientificAxis a0 = mock(ScientificAxis.class);
+		when(a0.getPublications()).thenReturn(l0);
+		List<Publication> l1 = new ArrayList<>();
+		ScientificAxis a1 = mock(ScientificAxis.class);
+		when(a1.getPublications()).thenReturn(l1);
+		List<ScientificAxis> axes = Arrays.asList(a0, a1);
+
+		this.test.setScientificAxes(axes);
+
+		List<ScientificAxis> actual = this.test.getScientificAxes();
+		assertNotNull(actual);
+		assertEquals(2, actual.size());
+		assertTrue(actual.contains(a0));
+		assertTrue(actual.contains(a1));
+
+		assertTrue(l0.contains(this.test));
+		assertTrue(l1.contains(this.test));
 	}
 
 }

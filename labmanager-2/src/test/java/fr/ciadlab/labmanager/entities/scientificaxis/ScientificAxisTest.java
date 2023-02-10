@@ -16,18 +16,23 @@
 
 package fr.ciadlab.labmanager.entities.scientificaxis;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import java.net.URL;
 import java.time.LocalDate;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import fr.ciadlab.labmanager.entities.member.Membership;
-import org.arakhne.afc.util.CountryCode;
+import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -182,6 +187,230 @@ public class ScientificAxisTest {
 		this.test.setEndDate("2023-02-06");
 		this.test.setEndDate("");
 		assertNull(this.test.getEndDate());
+	}
+
+	@Test
+	public void isActiveAt_noStart_noEnd() {
+		final LocalDate ld = LocalDate.of(2022, 5, 5);
+		assertTrue(this.test.isActiveAt(ld));
+	}
+
+	@Test
+	public void isActiveAt_noStart() {
+		final LocalDate ld = LocalDate.of(2022, 5, 5);
+		//
+		this.test.setEndDate(LocalDate.of(2021, 5, 5));
+		assertFalse(this.test.isActiveAt(ld));
+		//
+		this.test.setEndDate(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setEndDate(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveAt(ld));
+	}
+
+	@Test
+	public void isActiveAt_noEnd() {
+		final LocalDate ld = LocalDate.of(2022, 5, 5);
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2023, 5, 5));
+		assertFalse(this.test.isActiveAt(ld));
+	}
+
+	@Test
+	public void isActiveAt() {
+		final LocalDate ld = LocalDate.of(2022, 5, 5);
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setEndDate(LocalDate.of(2021, 5, 5));
+		assertFalse(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setEndDate(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setEndDate(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 5, 5));
+		this.test.setEndDate(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 5, 5));
+		this.test.setEndDate(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2023, 5, 5));
+		this.test.setEndDate(LocalDate.of(2023, 5, 5));
+		assertFalse(this.test.isActiveAt(ld));
+	}
+
+
+	@Test
+	public void isActiveIn_noStart_noEnd() {
+		final LocalDate s = LocalDate.of(2022, 1, 1);
+		final LocalDate e = LocalDate.of(2022, 12, 31);
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	public void isActiveIn_noStart() {
+		final LocalDate s = LocalDate.of(2022, 1, 1);
+		final LocalDate e = LocalDate.of(2022, 12, 31);
+		//
+		this.test.setEndDate(LocalDate.of(2021, 5, 5));
+		assertFalse(this.test.isActiveIn(s, e));
+		//
+		this.test.setEndDate(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setEndDate(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setEndDate(LocalDate.of(2022, 1, 1));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setEndDate(LocalDate.of(2021, 12, 31));
+		assertFalse(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	public void isActiveIn_noEnd() {
+		final LocalDate s = LocalDate.of(2022, 1, 1);
+		final LocalDate e = LocalDate.of(2022, 12, 31);
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2023, 5, 5));
+		assertFalse(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 12, 31));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2023, 01, 01));
+		assertFalse(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	public void isActiveIn() {
+		final LocalDate s = LocalDate.of(2022, 1, 1);
+		final LocalDate e = LocalDate.of(2022, 12, 31);
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setEndDate(LocalDate.of(2021, 5, 5));
+		assertFalse(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setEndDate(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setEndDate(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 5, 5));
+		this.test.setEndDate(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 5, 5));
+		this.test.setEndDate(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2023, 5, 5));
+		this.test.setEndDate(LocalDate.of(2023, 5, 5));
+		assertFalse(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	public void getProjects() {
+		assertTrue(this.test.getProjects().isEmpty());
+	}
+
+	@Test
+	public void setProjects() {
+		List<ScientificAxis> l0 = new ArrayList<>();
+		Project p0 = mock(Project.class);
+		when(p0.getScientificAxes()).thenReturn(l0);
+		List<ScientificAxis> l1 = new ArrayList<>();
+		Project p1 = mock(Project.class);
+		when(p1.getScientificAxes()).thenReturn(l1);
+		List<Project> prjs = Arrays.asList(p0, p1);
+
+		this.test.setProjects(prjs);
+
+		List<Project> actual = this.test.getProjects();
+		assertNotNull(actual);
+		assertEquals(2, actual.size());
+		assertTrue(actual.contains(p0));
+		assertTrue(actual.contains(p1));
+
+		assertTrue(l0.contains(this.test));
+		assertTrue(l1.contains(this.test));
+	}
+
+	@Test
+	public void getPublications() {
+		assertTrue(this.test.getPublications().isEmpty());
+	}
+
+	@Test
+	public void setPublications() {
+		List<ScientificAxis> l0 = new ArrayList<>();
+		Publication p0 = mock(Publication.class);
+		when(p0.getScientificAxes()).thenReturn(l0);
+		List<ScientificAxis> l1 = new ArrayList<>();
+		Publication p1 = mock(Publication.class);
+		when(p1.getScientificAxes()).thenReturn(l1);
+		List<Publication> pubs = Arrays.asList(p0, p1);
+
+		this.test.setPublications(pubs);
+
+		List<Publication> actual = this.test.getPublications();
+		assertNotNull(actual);
+		assertEquals(2, actual.size());
+		assertTrue(actual.contains(p0));
+		assertTrue(actual.contains(p1));
+
+		assertTrue(l0.contains(this.test));
+		assertTrue(l1.contains(this.test));
+	}
+
+	@Test
+	public void getMemberships() {
+		assertTrue(this.test.getMemberships().isEmpty());
+	}
+
+	@Test
+	public void setMemberships() {
+		List<ScientificAxis> l0 = new ArrayList<>();
+		Membership m0 = mock(Membership.class);
+		when(m0.getScientificAxes()).thenReturn(l0);
+		List<ScientificAxis> l1 = new ArrayList<>();
+		Membership m1 = mock(Membership.class);
+		when(m1.getScientificAxes()).thenReturn(l1);
+		List<Membership> mbrs = Arrays.asList(m0, m1);
+
+		this.test.setMemberships(mbrs);
+
+		List<Membership> actual = this.test.getMemberships();
+		assertNotNull(actual);
+		assertEquals(2, actual.size());
+		assertTrue(actual.contains(m0));
+		assertTrue(actual.contains(m1));
+
+		assertTrue(l0.contains(this.test));
+		assertTrue(l1.contains(this.test));
 	}
 
 }

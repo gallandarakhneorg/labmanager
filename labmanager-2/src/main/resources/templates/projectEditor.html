@@ -80,6 +80,7 @@
 		        th:value="${level.name}"
 		        th:utext="${level.name + ' - ' + level.getLabel()}"></option>
 	</div>
+	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(scientificAxes, #{html.ProjectScientificAxes}, #{html.AddProjectScientificAxis})"></div>
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToScientificRequirements, #{html.ProjectScientificRequirements})"></div>
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadImage(pathToLogo, #{html.ProjectLogo})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(projectURL, #{html.ProjectURL}, #{html.PlaceHolderURL}, ${project != null ? project.projectURL : ''})"></div>
@@ -118,6 +119,14 @@ var ALL_FUNDING_SCHEME_OPTIONS = '';
 /*[# th:each="scheme : ${sortedFundingSchemes}"]*/
 ALL_FUNDING_SCHEMES.set("[(${scheme.name})]", [[${scheme.getLabel()}]]);
 ALL_FUNDING_SCHEME_OPTIONS = ALL_FUNDING_SCHEME_OPTIONS + '<option value="[(${scheme.name})]">'+ [[${scheme.getLabel()}]] + '</option>';
+/*[/]*/
+const ALL_SCIENTIFIC_AXIS_NAMES = new Map();
+var ALL_SCIENTIFIC_AXIS_OPTIONS = '';
+var axisName;
+/*[# th:each="axis : ${sortedScientificAxes}"]*/
+axisName = [[${axis.acronym}]] + ' - ' + [[${axis.name}]];
+ALL_SCIENTIFIC_AXIS_NAMES.set("[(${axis.id})]", axisName);
+ALL_SCIENTIFIC_AXIS_OPTIONS = ALL_SCIENTIFIC_AXIS_OPTIONS + '<option value="[(${axis.id})]">' + axisName + '</option>';
 /*[/]*/
 $(document).ready(function () {
 	
@@ -364,6 +373,61 @@ $(document).ready(function () {
 				input: 'url',
 				inputLabel: [[#{html.VideoURL}]],
 				inputPlaceholder: [[#{html.PlaceHolderURL}]],
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
+	});
+	initDynamicDataList({
+		name: 'scientificAxes',
+		columnCount: 1,
+		deleteLabel: [[#{html.DeleteProjectScientificAxis}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: [
+			/*[# th:if="${project != null}"]*//*[# th:each="axis : ${project.scientificAxes}"]*/
+	        {
+				id: "[(${axis.id})]",
+				name: [[${axis.acronym}]] + ' - ' + [[${axis.name}]],
+	        },
+		    /*[/]*//*[/]*/
+		],
+		dataName: (dt) => {
+			return dt['name'];
+		},
+		rowBuilder: (data, target, index) => {
+			target.append(data['name']);
+		},
+		dataConverter: (formData, fieldName, data) => {
+			var identifierList = [];
+			$.each(data, (index, element) => {
+				identifierList.push(element['id']);
+			});
+			formData.append(fieldName, identifierList);
+		},
+		dataCreator: (doCreateFct) => {
+			Swal.fire({
+				title: [[#{html.AddProjectScientificAxis}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				html: "[(#{html.ProjectScientificAxis})]<br/>"
+					+ '<select id="swal-input1" class="swal2-input">'
+					+ ALL_SCIENTIFIC_AXIS_OPTIONS
+					+ '</select>',
+				preConfirm: () => {
+					var pid = document.getElementById("swal-input1").value;
+					return {
+						id: pid,
+						name: ALL_SCIENTIFIC_AXIS_NAMES.get(pid),
+					};
+				},
 			}).then(result => {
 				if (result.isConfirmed) {
 					var value = result.value;

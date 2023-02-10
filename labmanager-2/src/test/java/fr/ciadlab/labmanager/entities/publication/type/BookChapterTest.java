@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
-import org.junit.jupiter.api.BeforeEach;
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link BookChapter}.
@@ -31,13 +31,16 @@ import org.junit.jupiter.api.Test;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class BookChapterTest {
+public class BookChapterTest extends AbstractTypedPublicationTest<BookChapter> {
 
-	private BookChapter test;
+	@Override
+	protected BookChapter createTest() {
+		return new BookChapter();
+	}
 
-	@BeforeEach
-	public void setUp() {
-		this.test = new BookChapter();
+	@Override
+	protected BookChapter createTest(Publication prePublication) {
+		return new BookChapter(prePublication, null, null, null, null, null, null, null, null, null, null);
 	}
 
 	@Test

@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -38,13 +39,16 @@ import org.junit.jupiter.api.Test;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class JournalEditionTest {
+public class JournalEditionTest extends AbstractTypedPublicationTest<JournalEdition> {
 
-	private JournalEdition test;
+	@Override
+	protected JournalEdition createTest() {
+		return new JournalEdition();
+	}
 
-	@BeforeEach
-	public void setUp() {
-		this.test = new JournalEdition();
+	@Override
+	protected JournalEdition createTest(Publication prePublication) {
+		return new JournalEdition(prePublication, null, null, null);
 	}
 
 	@Test

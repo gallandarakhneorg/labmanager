@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,13 +32,16 @@ import org.junit.jupiter.api.Test;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class ReportTest {
+public class ReportTest extends AbstractTypedPublicationTest<Report> {
 
-	private Report test;
+	@Override
+	protected Report createTest() {
+		return new Report();
+	}
 
-	@BeforeEach
-	public void setUp() {
-		this.test = new Report();
+	@Override
+	protected Report createTest(Publication prePublication) {
+		return new Report(prePublication, null, null, null, null);
 	}
 
 	@Test

@@ -385,6 +385,18 @@ public abstract class JsonTool {
 	 */
 	protected static final String PROJECTS_KEY = "projects"; //$NON-NLS-1$
 
+	/** Name of the field for the references to publications.
+	 *
+	 * @since 3.5
+	 */
+	protected static final String PUBLICATIONS_KEY = "publications"; //$NON-NLS-1$
+
+	/** Name of the field for the references to memberships.
+	 *
+	 * @since 3.5
+	 */
+	protected static final String MEMBERSHIPS_KEY = "memberships"; //$NON-NLS-1$
+
 	/** Name of the field for the reference to an organization.
 	 *
 	 * @since 3.2

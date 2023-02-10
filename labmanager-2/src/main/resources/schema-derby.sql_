@@ -34,6 +34,9 @@ create table reports (address varchar(255), institution varchar(255), report_num
 create table research_orgs_partner_projects (id_projects integer not null, id_research_orgs integer not null, primary key (id_projects, id_research_orgs));
 create table research_orgs (id integer not null, acronym varchar(255), country varchar(255) not null, description clob(32672), major_organization boolean, name varchar(32672), national_identifier varchar(255), organization_url varchar(32672), path_to_logo varchar(32672), rnsr varchar(255), type varchar(255) not null, validated boolean not null, super_organization_id integer, primary key (id));
 create table research_orgs_addresses (research_organization_id integer not null, addresses_id integer not null, primary key (research_organization_id, addresses_id));
+create table scientific_axis_membership (axis_id integer not null, membership_id integer not null);
+create table scientific_axis_project (axis_id integer not null, project_id integer not null);
+create table scientific_axis_publication (axis_id integer not null, publication_id integer not null);
 create table scientific_axes (id integer not null, acronym varchar(255), end_date date, name varchar(32672), start_date date, validated boolean not null, primary key (id));
 create table supervisions (id integer not null, abandonment boolean, defense_date date, funding varchar(255), funding_details varchar(32672), is_entrepreneur boolean, is_joint_position boolean, number_of_ater_positions integer, position_after_supervision varchar(32672), title varchar(32672), supervised_person_id integer, primary key (id));
 create table supervisions_supervisors (supervision_id integer not null, supervisors_id integer not null);
@@ -95,6 +98,12 @@ alter table research_orgs_partner_projects add constraint FKljx6sy6dmf6ccg2msad7
 alter table research_orgs add constraint FKeuxupnsj2t89c1rg1ouqwdnlc foreign key (super_organization_id) references research_orgs;
 alter table research_orgs_addresses add constraint FKg60knkij1sthv18q467fxp8iq foreign key (addresses_id) references org_addresses;
 alter table research_orgs_addresses add constraint FKh1vp0ljgruq9fiq204kfa16xl foreign key (research_organization_id) references research_orgs;
+alter table scientific_axis_membership add constraint FK9p4feqsb7yn81ecq59n4vqryt foreign key (membership_id) references memberships;
+alter table scientific_axis_membership add constraint FKjr5odq26dkcnh2c0bdeft7fym foreign key (axis_id) references scientific_axes;
+alter table scientific_axis_project add constraint FKnbfvkclcjdoflflnf2kuw7b1b foreign key (project_id) references projects;
+alter table scientific_axis_project add constraint FK3egispg0odw1c3lnixilcx0pi foreign key (axis_id) references scientific_axes;
+alter table scientific_axis_publication add constraint FK7ohhpnu0614254uvxkcfb88kp foreign key (publication_id) references publications;
+alter table scientific_axis_publication add constraint FKpc4njsxo3q9gds212r2plvmda foreign key (axis_id) references scientific_axes;
 alter table supervisions add constraint FKh6jkdnbsbi8qvvn4roxphiboh foreign key (supervised_person_id) references memberships;
 alter table supervisions_supervisors add constraint FKmixq6xldo02f782xgo56y5l0j foreign key (supervisors_id) references supervisors;
 alter table supervisions_supervisors add constraint FKnnu2geqlwecue1dgnw0u3socc foreign key (supervision_id) references supervisions;

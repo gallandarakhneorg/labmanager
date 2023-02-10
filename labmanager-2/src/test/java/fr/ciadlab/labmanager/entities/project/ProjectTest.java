@@ -32,12 +32,15 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.trl.TRL;
 import org.junit.jupiter.api.BeforeEach;
@@ -1436,6 +1439,33 @@ public class ProjectTest {
 		this.test.setWebPageNaming(ProjectWebPageNaming.PROJECT_ID);
 		this.test.setId(123456);
 		assertEquals(new URI("/project-123456"), this.test.getWebPageURI());
+	}
+
+	@Test
+	public void getScientificAxes() {
+		assertTrue(this.test.getScientificAxes().isEmpty());
+	}
+
+	@Test
+	public void setScientificAxes() {
+		List<Project> l0 = new ArrayList<>();
+		ScientificAxis a0 = mock(ScientificAxis.class);
+		when(a0.getProjects()).thenReturn(l0);
+		List<Project> l1 = new ArrayList<>();
+		ScientificAxis a1 = mock(ScientificAxis.class);
+		when(a1.getProjects()).thenReturn(l1);
+		List<ScientificAxis> axes = Arrays.asList(a0, a1);
+
+		this.test.setScientificAxes(axes);
+
+		List<ScientificAxis> actual = this.test.getScientificAxes();
+		assertNotNull(actual);
+		assertEquals(2, actual.size());
+		assertTrue(actual.contains(a0));
+		assertTrue(actual.contains(a1));
+
+		assertTrue(l0.contains(this.test));
+		assertTrue(l1.contains(this.test));
 	}
 
 }

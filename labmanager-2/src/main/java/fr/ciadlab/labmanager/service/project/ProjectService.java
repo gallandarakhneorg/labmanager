@@ -42,6 +42,7 @@ import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.entities.project.Role;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
@@ -225,6 +226,7 @@ public class ProjectService extends AbstractService {
 	 * @param removePathToPressDocument remove the press document before uploading.
 	 * @param status the name of the project status.
 	 * @param localOrganizationBudgets the list of associated budgets and their funding scheme for the local organization.
+	 * @param axes the scientific axes to which the project is associated to.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
 	 */
 	protected void updateProject(Project project,
@@ -238,7 +240,7 @@ public class ProjectService extends AbstractService {
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages, 
 			List<String> videoURLs, MultipartFile pathToPowerpoint, boolean removePathToPowerpoint,
 			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status,
-			List<ProjectBudget> localOrganizationBudgets) throws IOException {
+			List<ProjectBudget> localOrganizationBudgets, List<ScientificAxis> axes) throws IOException {
 		project.setValidated(validated);
 		project.setAcronym(acronym);
 		project.setScientificTitle(scientificTitle);
@@ -354,6 +356,11 @@ public class ProjectService extends AbstractService {
 			});
 		}
 		project.setParticipants(projectParticipants);
+		this.projectRepository.save(project);
+
+		// Links to scientific axes
+
+		project.setScientificAxes(axes);
 		this.projectRepository.save(project);
 
 		// Link the uploaded files
@@ -512,6 +519,7 @@ public class ProjectService extends AbstractService {
 	 * @param removePathToPressDocument remove the existing press document before uploading.
 	 * @param status the name of the project status.
 	 * @param localOrganizationBudgets the list of associated budgets and their funding scheme for the local organization.
+	 * @param axes the scientific axes to which the project is associated to.
 	 * @return the reference to the created project.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
 	 */
@@ -526,7 +534,7 @@ public class ProjectService extends AbstractService {
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages,
 			List<String> videoURLs, MultipartFile pathToPowerpoint, boolean removePathToPowerpoint,
 			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status,
-			List<ProjectBudget> localOrganizationBudgets) throws IOException {
+			List<ProjectBudget> localOrganizationBudgets, List<ScientificAxis> axes) throws IOException {
 		final Project project = new Project();
 		try {
 			updateProject(project, validated, acronym, scientificTitle, openSource,
@@ -534,7 +542,7 @@ public class ProjectService extends AbstractService {
 					contractType, activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
 					otherPartners, participants, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
-					pathToPressDocument, removePathToPressDocument, status, localOrganizationBudgets);
+					pathToPressDocument, removePathToPressDocument, status, localOrganizationBudgets, axes);
 		} catch (Throwable ex) {
 			// Delete created project
 			if (project.getId() != 0) {
@@ -586,6 +594,7 @@ public class ProjectService extends AbstractService {
 	 * @param removePathToPressDocument remove the existing press document before uploading.
 	 * @param status the name of the project status.
 	 * @param localOrganizationBudgets the list of associated budgets and their funding scheme for the local organization.
+	 * @param axes the scientific axes to which the project is associated to.
 	 * @return the reference to the updated project.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
 	 */
@@ -600,7 +609,7 @@ public class ProjectService extends AbstractService {
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages,
 			List<String> videoURLs, MultipartFile pathToPowerpoint, boolean removePathToPowerpoint,
 			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status,
-			List<ProjectBudget> localOrganizationBudgets) throws IOException {
+			List<ProjectBudget> localOrganizationBudgets, List<ScientificAxis> axes) throws IOException {
 		final Optional<Project> res;
 		if (projectId >= 0) {
 			res = this.projectRepository.findById(Integer.valueOf(projectId));
@@ -613,7 +622,7 @@ public class ProjectService extends AbstractService {
 					contractType, activityType, trl, coordinator, localOrganization, superOrganization, learOrganization,
 					otherPartners, participants, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
-					pathToPressDocument, removePathToPressDocument, status, localOrganizationBudgets);
+					pathToPressDocument, removePathToPressDocument, status, localOrganizationBudgets, axes);
 		}
 		return res;
 	}
@@ -643,6 +652,7 @@ public class ProjectService extends AbstractService {
 			project.setPathToScientificRequirements(null);
 			project.setPathToPowerpoint(null);
 			project.setPathToPressDocument(null);
+			project.setScientificAxes(null);
 			this.projectRepository.deleteById(id);
 			if (removeAssociatedFiles) {
 				try {
@@ -712,6 +722,20 @@ public class ProjectService extends AbstractService {
 	 */
 	public List<Membership> getRecuitedPersons(Project project) {
 		return getRecuitedPersonStream(project).collect(Collectors.toList());
+	}
+
+	/** Replies the project instances that corresponds to the given identifiers.
+	 *
+	 * @param identifiers the list of identifiers.
+	 * @return the list of projects.
+	 * @since 3.5
+	 */
+	public List<Project> getProjectsByIds(List<Integer> identifiers) {
+		final List<Project> projects = this.projectRepository.findAllById(identifiers);
+		if (projects.size() != identifiers.size()) {
+			throw new IllegalArgumentException("Project not found"); //$NON-NLS-1$
+		}
+		return projects;
 	}
 
 }

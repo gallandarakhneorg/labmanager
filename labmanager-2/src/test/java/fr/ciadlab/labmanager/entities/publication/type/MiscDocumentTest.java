@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,15 +32,18 @@ import org.junit.jupiter.api.Test;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class MiscDocumentTest {
+public class MiscDocumentTest extends AbstractTypedPublicationTest<MiscDocument> {
 
-	private MiscDocument test;
-
-	@BeforeEach
-	public void setUp() {
-		this.test = new MiscDocument();
+	@Override
+	protected MiscDocument createTest() {
+		return new MiscDocument();
 	}
 
+	@Override
+	protected MiscDocument createTest(Publication prePublication) {
+		return new MiscDocument(prePublication, null, null, null, null, null, null);
+	}
+	
 	@Test
 	public void isRanked() {
 		assertFalse(this.test.isRanked());

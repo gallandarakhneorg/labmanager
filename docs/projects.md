@@ -24,7 +24,7 @@ There two features are described in the following sections.
 
 The `Project Viewer` button allows you to see the result of the macro instructions that you could put in your research webpage, as documented [here](editmemberpage.md).
 
-## 2. List of journals
+## 2. List of projects
 
 The entire list of the projects is displayed in a table:
 
@@ -106,6 +106,7 @@ The backend software provides a form for editing or adding a projects in the inf
   * `Applied research`: the works done in the project are related to the application of methods or models to an application domain.
   * `Experimental development`: the works done in the project are mostly based on software development with existing research outcomes.
 * `Technology readiness level (TRL) of the project`: indicates the highest [Technology Readiness Level](https://fr.wikipedia.org/wiki/Technology_readiness_level) (TRL) that is reached by the project. This indicator is important for estimating the level of maturity of the project and used by many evaluation institutions (HCERES, IC-ARTS...).
+* `List of the scientific axes to which the project is associated to`: indicates the scientific axes to which this project is associated to.
 * `Document that describes the scientific requirements of the project`: you could upload a PDF document that corresponds to the "Scientific Requirements" or the "Scientific Proposal" of the project. **This document will be used by official institutions, e.g. IC-ARTS, for validating the scientific contribution of the project.**
 * `Logo of he project`: you could upload a picture (JPEG, PNG) that represents the logo of the project.
 * `URL of the website of the project`: is the URL of the official website of the project. This website is not the one that is on the lab's webiste. For the web page of the project on the lab's website, see the field below.

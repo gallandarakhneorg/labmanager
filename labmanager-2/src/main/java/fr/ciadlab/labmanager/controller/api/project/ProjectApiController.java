@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.controller.api.project;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,7 +35,9 @@ import fr.ciadlab.labmanager.entities.project.ProjectContractType;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.entities.project.Role;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.service.project.ProjectService;
+import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.trl.TRL;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -66,21 +69,26 @@ public class ProjectApiController extends AbstractApiController {
 
 	private ProjectService projectService;
 
+	private ScientificAxisService scientificAxisService;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the accessor to the localized messages.
 	 * @param constants the constants of the app.
 	 * @param projectService the service for managing the research projects.
+	 * @param scientificAxisService the service for managing the scientific axes.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public ProjectApiController(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired ProjectService projectService,
+			@Autowired ScientificAxisService scientificAxisService,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.projectService = projectService;
+		this.scientificAxisService = scientificAxisService;
 	}
 
 	/** Saving information of a project. 
@@ -122,7 +130,8 @@ public class ProjectApiController extends AbstractApiController {
 	 * @param localOrganizationBudgets the list of the descriptions of the budgets and funding schemes for the local organization.
 	 *     It is a JSON string that contains a array of associative arrays (one for each budget definition). Each associative array
 	 *     contains the fields {@code fundingScheme} with the name of the {@link FundingScheme}, {@code budget} with the
-	 *     budget in keuros associated to the funding scheme, and {@code grant} the grant or contract number. 
+	 *     budget in keuros associated to the funding scheme, and {@code grant} the grant or contract number.
+	 * @param scientificAxes the list of scientific axes that are associated to the project. 
 	 * @param validated indicates if the project is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if the publication cannot be saved.
@@ -162,6 +171,7 @@ public class ProjectApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false", name = "@fileUpload_removed_pathToPressDocument") boolean removePathToPressDocument,
 			@RequestParam(required = true) String status,
 			@RequestParam(required = true) String localOrganizationBudgets,
+			@RequestParam(required = false) List<Integer> scientificAxes,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PROJECT_SAVING_ENDPOINT, project);
@@ -244,6 +254,13 @@ public class ProjectApiController extends AbstractApiController {
 		} else {
 			throw new IllegalArgumentException("Budget for local organization is mandatory"); //$NON-NLS-1$
 		}
+	
+		final List<ScientificAxis> axes;
+		if (scientificAxes != null) {
+			axes = this.scientificAxisService.getScientificAxesFor(scientificAxes);
+		} else {
+			axes = Collections.emptyList();
+		}
 
 		// Create or update the project
 		Optional<Project> projectOpt = Optional.empty();
@@ -255,7 +272,7 @@ public class ProjectApiController extends AbstractApiController {
 					coordinator, localOrganization, superOrganization, learOrganization, otherPartners, participantMap,
 					pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
-					pathToPressDocument, removePathToPressDocument, inStatus, budgets);
+					pathToPressDocument, removePathToPressDocument, inStatus, budgets, axes);
 		} else {
 			projectOpt = this.projectService.updateProject(project.intValue(),
 					validated, inAcronym, inScientificTitle, openSource, inStartDate, duration, inDescription,
@@ -264,7 +281,7 @@ public class ProjectApiController extends AbstractApiController {
 					inTrl, coordinator, localOrganization, superOrganization, learOrganization, otherPartners,
 					participantMap, pathToScientificRequirements, removePathToScientificRequirements, confidential,
 					pathsToImages, removePathsToImages, videoURLs, pathToPowerpoint, removePathToPowerpoint,
-					pathToPressDocument, removePathToPressDocument, inStatus, budgets);
+					pathToPressDocument, removePathToPressDocument, inStatus, budgets, axes);
 		}
 		if (projectOpt.isEmpty()) {
 			throw new IllegalStateException("Project not found"); //$NON-NLS-1$

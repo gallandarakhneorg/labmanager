@@ -28,6 +28,7 @@ The fields that are common to all the types of publications are:
 * `Internet address of the DBLP page`: the URL of the publication on [DBLP](https://dblp.uni-trier.de/), which is a platform for sharing your publications (mostly in Computer Science).
 * `Address of a video on Internet`: if you would like to associate an online video with your publication, you could enter the URL to the video in this field.
 * `Language`: the language with which the large majority of the text of the publication is written with.
+* `List of the scientific axes to which the publication is associated to`: indicates the scientific axes to which this publication is associated to.
 * `PDF copy of the publication`: you could provide the PDF copy of your publication to the information system.
 * `Award certificate for the publication`: if you have gained an award associated to the publication, you could publish the PDF copy of this award.
 * `Force the validation of the publication by organization authority`: this flag is used by some tools for validating this publication and avoid to be considered as a duplicate publication in the database.

@@ -41,11 +41,13 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
+import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -81,6 +83,8 @@ public class PublicationViewController extends AbstractViewController {
 
 	private ResearchOrganizationService organizationService;
 
+	private ScientificAxisService scientificAxisService;
+
 	private PersonComparator personComparator;
 
 	private DownloadableFileManager fileManager;
@@ -98,6 +102,7 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param personComparator the comparator of persons.
 	 * @param fileManager the manager of local files.
 	 * @param journalService the tools for manipulating journals.
+	 * @param scientificAxisService the tools for accessing the scientific axes.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PublicationViewController(
@@ -109,6 +114,7 @@ public class PublicationViewController extends AbstractViewController {
 			@Autowired PersonComparator personComparator,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired JournalService journalService,
+			@Autowired ScientificAxisService scientificAxisService,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.publicationService = publicationService;
@@ -117,6 +123,7 @@ public class PublicationViewController extends AbstractViewController {
 		this.personComparator = personComparator;
 		this.fileManager = fileManager;
 		this.journalService = journalService;
+		this.scientificAxisService = scientificAxisService;
 	}
 
 	/** Replies the model-view component for managing the publications.
@@ -414,6 +421,12 @@ public class PublicationViewController extends AbstractViewController {
 		// List of all the authors
 		modelAndView.addObject("allPersons", this.personService.getAllPersons().stream().sorted(this.personComparator).iterator()); //$NON-NLS-1$
 
+		// Scientific axes
+		final List<ScientificAxis> axes = this.scientificAxisService.getAllScientificAxes().stream()
+				.sorted((a, b) -> StringUtils.compareIgnoreCase(a.getAcronym(), b.getAcronym()))
+				.collect(Collectors.toList());
+		modelAndView.addObject("sortedScientificAxes", axes); //$NON-NLS-1$
+		
 		// Provide the list of journals
 		modelAndView.addObject("publication", publicationObj); //$NON-NLS-1$
 		modelAndView.addObject("formActionUrl", rooted(Constants.PUBLICATION_SAVING_ENDPOINT)); //$NON-NLS-1$

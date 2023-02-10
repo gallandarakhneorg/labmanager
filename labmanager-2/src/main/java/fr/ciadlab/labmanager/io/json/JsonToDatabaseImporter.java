@@ -2073,9 +2073,79 @@ public class JsonToDatabaseImporter extends JsonTool {
 					ScientificAxis axis = createObject(ScientificAxis.class, axisObject, aliasRepository, null);
 					if (axis != null) {
 						session.beginTransaction();
-						if (!isFake()) {
-							this.scientificAxisRepository.save(axis);
+
+						final JsonNode projectsNode = axisObject.get(PROJECTS_KEY);
+						if (projectsNode != null) {
+							final List<Project> loadedProjects = new ArrayList<>();
+							projectsNode.forEach(projectNode -> {
+								final String projectId = getRef(projectNode);
+								if (Strings.isNullOrEmpty(projectId)) {
+									throw new IllegalArgumentException("Invalid project reference for scientific axis with id: " + id); //$NON-NLS-1$
+								}
+								final Integer projectDbId = objectIdRepository.get(projectId);
+								if (projectDbId == null || projectDbId.intValue() == 0) {
+									throw new IllegalArgumentException("Invalid project reference for scientific axis with id: " + id); //$NON-NLS-1$
+								}
+								final Optional<Project> project = this.projectRepository.findById(projectDbId);
+								if (project.isEmpty()) {
+									throw new IllegalArgumentException("Invalid project reference for scientific axis with id: " + id); //$NON-NLS-1$
+								}
+								loadedProjects.add(project.get());
+							});
+							axis.setProjects(loadedProjects);
+							if (!isFake()) {
+								this.scientificAxisRepository.save(axis);
+							}
 						}
+
+						final JsonNode publicationsNode = axisObject.get(PUBLICATIONS_KEY);
+						if (publicationsNode != null) {
+							final List<Publication> loadedPublications = new ArrayList<>();
+							publicationsNode.forEach(publicationNode -> {
+								final String publicationId = getRef(publicationNode);
+								if (Strings.isNullOrEmpty(publicationId)) {
+									throw new IllegalArgumentException("Invalid publication reference for scientific axis with id: " + id); //$NON-NLS-1$
+								}
+								final Integer publicationDbId = objectIdRepository.get(publicationId);
+								if (publicationDbId == null || publicationDbId.intValue() == 0) {
+									throw new IllegalArgumentException("Invalid publication reference for scientific axis with id: " + id); //$NON-NLS-1$
+								}
+								final Optional<Publication> publication = this.publicationRepository.findById(publicationDbId);
+								if (publication.isEmpty()) {
+									throw new IllegalArgumentException("Invalid publication reference for scientific axis with id: " + id); //$NON-NLS-1$
+								}
+								loadedPublications.add(publication.get());
+							});
+							axis.setPublications(loadedPublications);
+							if (!isFake()) {
+								this.scientificAxisRepository.save(axis);
+							}
+						}
+
+						final JsonNode membershipsNode = axisObject.get(MEMBERSHIPS_KEY);
+						if (membershipsNode != null) {
+							final List<Membership> loadedMemberships = new ArrayList<>();
+							membershipsNode.forEach(membershipNode -> {
+								final String membershipId = getRef(membershipNode);
+								if (Strings.isNullOrEmpty(membershipId)) {
+									throw new IllegalArgumentException("Invalid membership reference for scientific axis with id: " + id); //$NON-NLS-1$
+								}
+								final Integer membershipDbId = objectIdRepository.get(membershipId);
+								if (membershipDbId == null || membershipDbId.intValue() == 0) {
+									throw new IllegalArgumentException("Invalid membership reference for scientific axis with id: " + id); //$NON-NLS-1$
+								}
+								final Optional<Membership> membership = this.organizationMembershipRepository.findById(membershipDbId);
+								if (membership.isEmpty()) {
+									throw new IllegalArgumentException("Invalid membership reference for scientific axis with id: " + id); //$NON-NLS-1$
+								}
+								loadedMemberships.add(membership.get());
+							});
+							axis.setMemberships(loadedMemberships);
+							if (!isFake()) {
+								this.scientificAxisRepository.save(axis);
+							}
+						}
+
 						session.getTransaction().commit();
 					}
 				} catch (Throwable ex) {

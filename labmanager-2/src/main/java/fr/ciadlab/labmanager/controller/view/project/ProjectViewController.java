@@ -38,12 +38,15 @@ import fr.ciadlab.labmanager.entities.project.ProjectContractType;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.project.ProjectService;
+import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.trl.TRL;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,6 +80,8 @@ public class ProjectViewController extends AbstractViewController {
 
 	private PersonService personService;
 
+	private ScientificAxisService scientificAxisService;
+
 	private DownloadableFileManager fileManager;
 
 	/** Constructor for injector.
@@ -87,6 +92,7 @@ public class ProjectViewController extends AbstractViewController {
 	 * @param projectService the service for accessing the research projects.
 	 * @param organizationService the service for accessing the research organizations.
 	 * @param personService the service for accessing the persons.
+	 * @param scientificAxisService the service for accessing the scietific axes.
 	 * @param fileManager the manager of uploaded files.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
@@ -96,12 +102,14 @@ public class ProjectViewController extends AbstractViewController {
 			@Autowired ProjectService projectService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired PersonService personService,
+			@Autowired ScientificAxisService scientificAxisService,
 			@Autowired DownloadableFileManager fileManager,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.projectService = projectService;
 		this.organizationService = organizationService;
 		this.personService = personService;
+		this.scientificAxisService = scientificAxisService;
 		this.fileManager = fileManager;
 	}
 
@@ -263,6 +271,11 @@ public class ProjectViewController extends AbstractViewController {
 				.sorted((a, b) -> a.getFullNameWithLastNameFirst().compareToIgnoreCase(b.getFullNameWithLastNameFirst()))
 				.collect(Collectors.toList());
 		modelAndView.addObject("persons", persons); //$NON-NLS-1$
+		//
+		final List<ScientificAxis> axes = this.scientificAxisService.getAllScientificAxes().stream()
+				.sorted((a, b) -> StringUtils.compareIgnoreCase(a.getAcronym(), b.getAcronym()))
+				.collect(Collectors.toList());
+		modelAndView.addObject("sortedScientificAxes", axes); //$NON-NLS-1$
 		//
 		modelAndView.addObject("project", projectObj); //$NON-NLS-1$
 		modelAndView.addObject("formActionUrl", rooted(Constants.PROJECT_SAVING_ENDPOINT)); //$NON-NLS-1$

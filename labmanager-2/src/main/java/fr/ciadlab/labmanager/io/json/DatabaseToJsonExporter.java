@@ -1076,6 +1076,39 @@ public class DatabaseToJsonExporter extends JsonTool {
 				// Other JPA entities must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
 
+				final List<Project> projects = axis.getProjects();
+				if (projects != null && !projects.isEmpty()) {
+					final ArrayNode projectArray = jsonAxis.putArray(PROJECTS_KEY);
+					for (final Project project : projects) {
+						final String projectId = repository.get(project);
+						if (!Strings.isNullOrEmpty(projectId)) {
+							addReference(projectArray, projectId);
+						}
+					}
+				}
+
+				final List<Publication> publications = axis.getPublications();
+				if (publications != null && !publications.isEmpty()) {
+					final ArrayNode publicationArray = jsonAxis.putArray(PUBLICATIONS_KEY);
+					for (final Publication publication : publications) {
+						final String publicationId = repository.get(publication);
+						if (!Strings.isNullOrEmpty(publicationId)) {
+							addReference(publicationArray, publicationId);
+						}
+					}
+				}
+
+				final List<Membership> memberships = axis.getMemberships();
+				if (memberships != null && !memberships.isEmpty()) {
+					final ArrayNode membershipArray = jsonAxis.putArray(MEMBERSHIPS_KEY);
+					for (final Membership membership : memberships) {
+						final String membershipId = repository.get(membership);
+						if (!Strings.isNullOrEmpty(membershipId)) {
+							addReference(membershipArray, membershipId);
+						}
+					}
+				}
+
 				if (jsonAxis.size() > 0) {
 					repository.put(axis, id);
 					array.add(jsonAxis);

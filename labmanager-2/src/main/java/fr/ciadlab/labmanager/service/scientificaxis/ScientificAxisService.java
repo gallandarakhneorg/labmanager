@@ -21,6 +21,9 @@ import java.util.List;
 import java.util.Optional;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.member.Membership;
+import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.repository.scientificaxis.ScientificAxisRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
@@ -79,10 +82,17 @@ public class ScientificAxisService extends AbstractService {
 
 	/** Delete the scientific axis with the given identifier.
 	 *
-	 * @param id the identifier of the axis to be deleted.
+	 * @param identifier the identifier of the axis to be deleted.
 	 */
-	public void removeScientificAxis(int id) {
-		this.scientificAxisRepository.deleteById(Integer.valueOf(id));
+	public void removeScientificAxis(int identifier) {
+		final Integer id = Integer.valueOf(identifier);
+		final Optional<ScientificAxis> axisOpt = this.scientificAxisRepository.findById(id);
+		if (axisOpt.isPresent()) {
+			final ScientificAxis axis = axisOpt.get();
+			//
+			axis.setProjects(null);
+			this.scientificAxisRepository.deleteById(id);
+		}
 	}
 
 	/** Create a scientific axis.
@@ -92,13 +102,17 @@ public class ScientificAxisService extends AbstractService {
 	 * @param name the name of the scientific axis.
 	 * @param startDate the start date of the scientific axis in format {@code YYY-MM-DD}.
 	 * @param endDate the start date of the scientific axis in format {@code YYY-MM-DD}, or {@code null} if none.
+	 * @param projects the list of associated projects.
+	 * @param publications the list of associated publications.
+	 * @param memberships the list of associated memberships.
 	 * @return the reference to the created axis.
 	 */
 	public Optional<ScientificAxis> createScientificAxis(boolean validated, String acronym, String name,
-			LocalDate startDate, LocalDate endDate) {
+			LocalDate startDate, LocalDate endDate, List<Project> projects, List<Publication> publications,
+			List<Membership> memberships) {
 		final ScientificAxis axis = new ScientificAxis();
 		try {
-			updateScientificAxis(axis, validated, acronym, name, startDate, endDate);
+			updateScientificAxis(axis, validated, acronym, name, startDate, endDate, projects, publications, memberships);
 		} catch (Throwable ex) {
 			// Delete created axis
 			if (axis.getId() != 0) {
@@ -122,10 +136,14 @@ public class ScientificAxisService extends AbstractService {
 	 * @param name the name of the scientific axis.
 	 * @param startDate the start date of the scientific axis in format {@code YYY-MM-DD}.
 	 * @param endDate the start date of the scientific axis in format {@code YYY-MM-DD}, or {@code null} if none.
+	 * @param projects the list of associated projects.
+	 * @param publications the list of associated publications.
+	 * @param memberships the list of associated memberships.
 	 * @return the reference to the created axis.
 	 */
 	public Optional<ScientificAxis> updateScientificAxis(int axisId, boolean validated, String acronym,
-			String name, LocalDate startDate, LocalDate endDate) {
+			String name, LocalDate startDate, LocalDate endDate, List<Project> projects,
+			List<Publication> publications, List<Membership> memberships) {
 		final Optional<ScientificAxis> res;
 		if (axisId >= 0) {
 			res = this.scientificAxisRepository.findById(Integer.valueOf(axisId));
@@ -133,7 +151,7 @@ public class ScientificAxisService extends AbstractService {
 			res = Optional.empty();
 		}
 		if (res.isPresent()) {
-			updateScientificAxis(res.get(), validated, acronym, name, startDate, endDate);
+			updateScientificAxis(res.get(), validated, acronym, name, startDate, endDate, projects, publications, memberships);
 		}
 		return res;
 	}
@@ -146,15 +164,37 @@ public class ScientificAxisService extends AbstractService {
 	 * @param name the name of the scientific axis.
 	 * @param startDate the start date of the scientific axis in format {@code YYY-MM-DD}.
 	 * @param endDate the start date of the scientific axis in format {@code YYY-MM-DD}, or {@code null} if none.
+	 * @param projects the list of associated projects.
+	 * @param publications the list of associated publications.
+	 * @param memberships the list of associated memberships.
 	 */
 	protected void updateScientificAxis(ScientificAxis axis, boolean validated, String acronym,
-			String name, LocalDate startDate, LocalDate endDate) {
+			String name, LocalDate startDate, LocalDate endDate, List<Project> projects,
+			List<Publication> publications, List<Membership> memberships) {
 		axis.setValidated(validated);
 		axis.setAcronym(acronym);
 		axis.setName(name);
 		axis.setStartDate(startDate);
 		axis.setEndDate(endDate);
 		this.scientificAxisRepository.save(axis);
+
+		axis.setProjects(projects);
+		axis.setPublications(publications);
+		axis.setMemberships(memberships);
+		this.scientificAxisRepository.save(axis);
+	}
+	
+	/** Replies the scientific axes that have the given identifiers.
+	 *
+	 * @param identifiers the identifiers.
+	 * @return the axes.
+	 */
+	public List<ScientificAxis> getScientificAxesFor(List<Integer> identifiers) {
+		final List<ScientificAxis> axes = this.scientificAxisRepository.findAllById(identifiers);
+		if (axes.size() != identifiers.size()) {
+			throw new IllegalArgumentException("Scientific axis not found"); //$NON-NLS-1$
+		}
+		return axes;
 	}
 
 }

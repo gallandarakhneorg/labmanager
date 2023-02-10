@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.service.publication;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.io.StringWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -36,9 +37,12 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.opencsv.CSVWriterBuilder;
+import com.opencsv.ICSVWriter;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -54,6 +58,7 @@ import fr.ciadlab.labmanager.entities.publication.type.MiscDocument;
 import fr.ciadlab.labmanager.entities.publication.type.Patent;
 import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.bibtex.JournalFake;
@@ -233,6 +238,28 @@ public class PublicationService extends AbstractPublicationService {
 		return this.publicationRepository.findAll();
 	}
 
+	/** Replies all the publications that have the given maximum age.
+	 *
+	 * @param maxAge the maximum age of the publications.
+	 * @return the publications.
+	 */
+	public List<Publication> getPublicationsOfAge(int maxAge) {
+		final LocalDate startDate = LocalDate.of(LocalDate.now().getYear() - maxAge, 1, 1);
+		final LocalDate endDate = LocalDate.now();
+		return this.publicationRepository.findAll().parallelStream()
+				.filter(it -> isActiveIn(it, startDate, endDate))
+				.collect(Collectors.toList());
+	}
+
+	private static boolean isActiveIn(Publication publication, LocalDate windowStart, LocalDate windowEnd) {
+		assert windowStart != null;
+		assert windowEnd != null;
+		final int startYear = windowStart.getYear();
+		final int endYear = windowEnd.getYear();
+		final int year = publication.getPublicationYear();
+		return year >= startYear && year <= endYear;
+	}
+
 	/** Replies all the publications from the database that are attached to the given person.
 	 *
 	 * @param identifier the identifier of the person.
@@ -407,6 +434,7 @@ public class PublicationService extends AbstractPublicationService {
 				this.authorshipRepository.save(autship);
 			}
 			publication.getAuthorshipsRaw().clear();
+			publication.setScientificAxes(null);
 			this.publicationRepository.deleteById(id);
 			if (removeAssociatedFiles) {
 				try {
@@ -448,6 +476,7 @@ public class PublicationService extends AbstractPublicationService {
 					this.authorshipRepository.save(autship);
 				}
 				publication.getAuthorshipsRaw().clear();
+				publication.setScientificAxes(null);
 				this.publicationRepository.deleteById(Integer.valueOf(id));
 				if (removeAssociatedFiles) {
 					try {
@@ -786,13 +815,15 @@ public class PublicationService extends AbstractPublicationService {
 	 *     (for unknown persons). It is assumed that this list contains at least one author that is associated to a research organization.
 	 * @param downloadablePDF the uploaded PDF file for the publication.
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @param scientificAxes the list of scientific axes that are associated to the project. 
 	 * @return the created publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
 	public Optional<Publication> createPublicationFromMap(
 			boolean validated,
 			Map<String, String> attributes,
-			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
+			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate,
+			List<ScientificAxis> scientificAxes) throws IOException {
 		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
 		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
 		final LocalDate date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
@@ -908,7 +939,10 @@ public class PublicationService extends AbstractPublicationService {
 		// Fourth step: create the authors and link them to the publication
 		updateAuthorList(true, createdPublication, authors);
 
-		// Fifth step: update the associated PDF files
+		// Fifth step: update the links to other JPA entities
+		updateScientificAxes(true, createdPublication, scientificAxes);
+		
+		// Sixth step: update the associated PDF files
 		updateUploadedPDFs(createdPublication, attributes, downloadablePDF, downloadableAwardCertificate, true);
 
 		getLogger().info("Publication instance " + createdPublication.getId() + " created of type " + publicationClass.getSimpleName()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -925,11 +959,13 @@ public class PublicationService extends AbstractPublicationService {
 	 *     (for unknown persons). It is assumed that this list contains at least one author that is associated to a research organization.
 	 * @param downloadablePDF the uploaded PDF file for the publication.
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @param scientificAxes the list of scientific axes that are associated to the project. 
 	 * @return the updated publication.
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
 	public Optional<Publication> updatePublicationFromMap(int id, boolean validated, Map<String, String> attributes,
-			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate) throws IOException {
+			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate,
+			List<ScientificAxis> scientificAxes) throws IOException {
 		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
 		// First step : find the publication
 		Optional<Publication> optPublication = this.publicationRepository.findById(Integer.valueOf(id));
@@ -940,7 +976,7 @@ public class PublicationService extends AbstractPublicationService {
 		// Second step: check for any change of publication type
 		if (isInstanceTypeChangeNeeded(publication, typeEnum)) {
 			removePublication(id, false);
-			optPublication = createPublicationFromMap(validated, attributes, authors, downloadablePDF, downloadableAwardCertificate);
+			optPublication = createPublicationFromMap(validated, attributes, authors, downloadablePDF, downloadableAwardCertificate, scientificAxes);
 			if (optPublication.isPresent()) {
 				final Publication newPublication = optPublication.get();
 				final int newId = newPublication.getId();
@@ -974,7 +1010,8 @@ public class PublicationService extends AbstractPublicationService {
 			return optPublication;
 		}
 		// Third step: update of an existing publication
-		updateExistingPublicationFromMap(publication, typeEnum, validated, attributes, authors, downloadablePDF, downloadableAwardCertificate);
+		updateExistingPublicationFromMap(publication, typeEnum, validated, attributes, authors,
+				downloadablePDF, downloadableAwardCertificate, scientificAxes);
 		return optPublication;
 	}
 
@@ -993,11 +1030,12 @@ public class PublicationService extends AbstractPublicationService {
 	 *     (for unknown persons).
 	 * @param downloadablePDF the uploaded PDF file for the publication.
 	 * @param downloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @param scientificAxes the list of scientific axes that are associated to the project. 
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
 	protected void updateExistingPublicationFromMap(Publication publication, PublicationType type, boolean validated,
 			Map<String, String> attributes, List<String> authors, MultipartFile downloadablePDF,
-			MultipartFile downloadableAwardCertificate) throws IOException {
+			MultipartFile downloadableAwardCertificate, List<ScientificAxis> scientificAxes) throws IOException {
 		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
 		final LocalDate date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
 		final int year = ensureYear(attributes, "publicationDate"); //$NON-NLS-1$;
@@ -1010,9 +1048,12 @@ public class PublicationService extends AbstractPublicationService {
 		updateAuthorList(false, publication, authors);
 
 		// Third step: treat associated files
+		updateScientificAxes(false, publication, scientificAxes);
+
+		// Fourth step: Update the list of authors.
 		updateUploadedPDFs(publication, attributes, downloadablePDF, downloadableAwardCertificate, false);
 
-		// Fourth step : update the specific publication
+		// Fifth step : update the specific publication
 		final Class<? extends Publication> publicationClass = type.getInstanceType();
 
 		if (publicationClass.equals(Book.class)) {
@@ -1305,6 +1346,11 @@ public class PublicationService extends AbstractPublicationService {
 		}
 	}
 
+	private void updateScientificAxes(boolean creation, Publication publication, List<ScientificAxis> axes) {
+		publication.setScientificAxes(axes);
+		this.publicationRepository.save(publication);
+	}
+
 	private void updateAuthorList(boolean creation, Publication publication, List<String> authors) {
 		// First step: Update the list of authors.
 		final List<Authorship> oldAuthorships = creation ? Collections.emptyList() : getAuthorshipsFor(publication.getId());
@@ -1383,6 +1429,104 @@ public class PublicationService extends AbstractPublicationService {
 		}
 		this.publicationRepository.save(publication);
 		this.authorshipRepository.flush();
+	}
+
+	/** Export the publications in a CSV file that corresponds to the UTBM standard.
+	 * The columns of the CSV are:<ul>
+	 * <li>Paper type</li>
+	 * <li>Title</li>
+	 * <li>Journal</li>
+	 * <li>Conference</li>
+	 * <li>Author 1</li>
+	 * <li>Author 2</li>
+	 * <li>Author 3</li>
+	 * <li>Author 4</li>
+	 * <li>Author 5</li>
+	 * <li>Author 6</li>
+	 * <li>Author 7</li>
+	 * <li>Author 8</li>
+	 * <li>Author 9</li>
+	 * <li>Author 10</li>
+	 * <li>Author 11</li>
+	 * <li>Author 12</li>
+	 * <li>Author 13</li>
+	 * <li>Author 14</li>
+	 * <li>Author 15</li>
+	 * <li>DOI</li>
+	 * <li>Keywords</li>
+	 * <li>Research organization</li>
+	 * </ul>
+	 * 
+	 * @param organization the organization for which the publications must be extracted.
+	 * @param year the reference year that is used for filtering the publications.
+	 * @return the CSV content.
+	 * @throws IOException if the CSV cannot be generated.
+	 */
+	public String exportUtbmPublications(ResearchOrganization organization, int year) throws IOException {
+		final List<String[]> content = getPublicationsByOrganizationId(organization.getId(), true, false).parallelStream()
+				.filter(it -> it.getPublicationYear() == year)
+				.map(it -> {
+					final List<String> columns = new ArrayList<>(20);
+					columns.add(it.getCategory().name());
+					columns.add(Strings.nullToEmpty(it.getTitle()));
+					if (it instanceof JournalBasedPublication) {
+						final Journal journal = ((JournalBasedPublication) it).getJournal();
+						columns.add(journal.getJournalName() + ", " + journal.getPublisher()); //$NON-NLS-1$
+						columns.add(""); //$NON-NLS-1$
+					} else {
+						columns.add(""); //$NON-NLS-1$
+						columns.add(Strings.nullToEmpty(it.getWherePublishedShortDescription()));
+					}
+					final List<Person> authors = it.getAuthors();
+					for (int i = 0; i < 15; ++i) {
+						if (i < authors.size()) {
+							columns.add(Strings.nullToEmpty(authors.get(i).getFullNameWithLastNameFirst()));
+							
+						} else {
+							columns.add(""); //$NON-NLS-1$
+						}
+					}
+					columns.add(Strings.nullToEmpty(it.getDOI()));
+					columns.add(Strings.nullToEmpty(it.getKeywords()));
+					columns.add(Strings.nullToEmpty(organization.getAcronymOrName()));
+					final String[] array = new String[columns.size()];
+					columns.toArray(array);
+					return array;
+				})
+				.collect(Collectors.toList());
+		//
+		String csv = null;
+		final StringWriter stream = new StringWriter();
+		final CSVWriterBuilder builder = new CSVWriterBuilder(stream);
+		try (final ICSVWriter writer = builder.build()) {
+			writer.writeNext(new String[] {
+					"Type d'article", //$NON-NLS-1$
+					"Titre", //$NON-NLS-1$
+					"Intitulé revue", //$NON-NLS-1$
+					"Intitulé conférence", //$NON-NLS-1$
+					"Auteur 1 - Nom", //$NON-NLS-1$
+					"Auteur 2 - Nom", //$NON-NLS-1$
+					"Auteur 3 - Nom", //$NON-NLS-1$
+					"Auteur 4 - Nom", //$NON-NLS-1$
+					"Auteur 5 - Nom", //$NON-NLS-1$
+					"Auteur 6 - Nom", //$NON-NLS-1$
+					"Auteur 7 - Nom", //$NON-NLS-1$
+					"Auteur 8 - Nom", //$NON-NLS-1$
+					"Auteur 9 - Nom", //$NON-NLS-1$
+					"Auteur 10 - Nom", //$NON-NLS-1$
+					"Auteur 11 - Nom", //$NON-NLS-1$
+					"Auteur 12 - Nom", //$NON-NLS-1$
+					"Auteur 13 - Nom", //$NON-NLS-1$
+					"Auteur 14 - Nom", //$NON-NLS-1$
+					"Auteur 15 - Nom", //$NON-NLS-1$
+					"DOI", //$NON-NLS-1$
+					"Mots-Clés", //$NON-NLS-1$
+					"Laboratoire", //$NON-NLS-1$
+			});
+			writer.writeAll(content);
+			csv = stream.toString();
+		}
+		return Strings.nullToEmpty(csv);
 	}
 	
 }

@@ -10,6 +10,20 @@ GLOBAL_FORM_DATA_INPUT_TRANSFORMERS.push((formData) => {
 	});
 });
 
+/** Fill up the givan formdata with the data entered in the dynamic list with the given id.
+ * @param formData the object to fll up with the form data.
+ * @param inputFieldName the name of the component in the form.
+ * @param outputFieldName the name of the property to put inside the form data set.
+ */
+function dynamicDataList_fillFormData(formData, inputFieldName, outputFieldName) {
+	if (inputFieldName in GLOBAL_DYNAMIC_DATA_LIST_DATA && GLOBAL_DYNAMIC_DATA_LIST_DATA[inputFieldName]) {
+		var componentData = GLOBAL_DYNAMIC_DATA_LIST_DATA[inputFieldName];
+		if (componentData && componentData['converter']) {
+			componentData['converter'](formData, outputFieldName, componentData['data']);
+		}
+	}
+}
+
 /** Initialize the input component for enabling a dynamic data list.
  * @param config the map of the configuration elements:
  *      * `name` the name of the field to upload. The component id is build from the componentIdPrefix and the given name.

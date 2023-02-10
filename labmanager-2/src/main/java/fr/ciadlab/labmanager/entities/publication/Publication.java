@@ -21,6 +21,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -38,6 +39,7 @@ import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
@@ -52,6 +54,7 @@ import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
@@ -189,6 +192,13 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	@Column(nullable = false)
 	private boolean validated;
 
+	/** List of scientific axes that are associated to this publication.
+	 *
+	 * @since 3.5
+	 */
+	@ManyToMany(mappedBy = "publications", fetch = FetchType.LAZY)
+	private List<ScientificAxis> scientificAxes = new ArrayList<>();
+
 	@Transient
 	private List<Person> temporaryAuthors = null;
 
@@ -220,6 +230,9 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		this.type = publication.getType();
 		this.manualValidationForced = publication.getManualValidationForced();
 		this.validated = publication.isValidated();
+		this.halId = publication.getHalId();
+		this.preferredStringId = publication.getPreferredStringId();
+		this.scientificAxes.addAll(publication.getScientificAxes());
 	}
 
 	/** Create a publication with the given field values.
@@ -1142,6 +1155,38 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	@SuppressWarnings("static-method")
 	public Boolean getOpenAccess() {
 		return null;
+	}
+
+	/** Replies the scientific axes that are associated to this publication.
+	 *
+	 * @return the scientific axes.
+	 * @since 3.5
+	 */
+	public List<ScientificAxis> getScientificAxes() {
+		if (this.scientificAxes == null) {
+			this.scientificAxes = new ArrayList<>();
+		}
+		return this.scientificAxes;
+	}
+
+	/** Change the scientific axes that are associated to this publication.
+	 * This function updates the relationship from the axis to the publication AND
+	 * from the publication to the axis.
+	 *
+	 * @param axes the scientific axes associated to this publication.
+	 * @since 3.5
+	 */
+	public void setScientificAxes(List<ScientificAxis> axes) {
+		if (this.scientificAxes == null) {
+			this.scientificAxes = new ArrayList<>();
+		} else {
+			this.scientificAxes.stream().parallel().forEach(it -> it.getPublications().remove(this));
+			this.scientificAxes.clear();
+		}
+		if (axes != null && !axes.isEmpty()) {
+			axes.stream().parallel().forEach(it -> it.getPublications().add(this));
+			this.scientificAxes.addAll(axes);
+		}
 	}
 
 }

@@ -6,6 +6,7 @@
 <th:block th:replace="fragments/gravatar :: gravatarPicture" />
 <th:block th:replace="fragments/formselect2 :: all" />
 <th:block th:replace="fragments/formfileinput :: all" />
+<th:block th:replace="fragments/formdynlist :: all" />
 
 <th:block th:if="${publication != null}">
 	<th:block th:replace="fragments/nav :: publicationListBar*(#{html.EditPublication1(${publication.title})})"/>
@@ -53,6 +54,7 @@
 	<div class="form-group" th:replace="fragments/form :: textInputDynamic(issn, #{html.ISSN}, #{html.PlaceHolderISSN}, ${shared_issn ?: ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textAreaInput(abstractText, #{html.AbstractText}, #{html.PlaceHolderAbstractText}, ${shared_abstractText ?: ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(keywords, #{html.Keywords0}, #{html.PlaceHolderKeywords}, ${shared_keywords ?: ''})"></div>
+	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(scientificAxes, #{html.PublicationScientificAxes}, #{html.AddPublicationScientificAxis})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(extraURL, #{html.ExtraURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.extraURL : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(dblpURL, #{html.DblpURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.dblpURL : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(videoURL, #{html.VideoURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.videoURL : ''})"></div>
@@ -69,6 +71,14 @@
 	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedPublication}, #{html.ValidatedPublication}, ${publication != null ? publication.validated : false})"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
+const ALL_SCIENTIFIC_AXIS_NAMES = new Map();
+var ALL_SCIENTIFIC_AXIS_OPTIONS = '';
+var axisName;
+/*[# th:each="axis : ${sortedScientificAxes}"]*/
+axisName = [[${axis.acronym}]] + ' - ' + [[${axis.name}]];
+ALL_SCIENTIFIC_AXIS_NAMES.set("[(${axis.id})]", axisName);
+ALL_SCIENTIFIC_AXIS_OPTIONS = ALL_SCIENTIFIC_AXIS_OPTIONS + '<option value="[(${axis.id})]">' + axisName + '</option>';
+/*[/]*/
 $(document).ready(function () {
 	
 	// Initialize form validation
@@ -152,6 +162,61 @@ $(document).ready(function () {
 		placeholder: "[(#{html.PlaceHolderAuthors})]",
 		data: completeListOfPersons,
 		selection: initialListOfAuthors,
+	});
+	initDynamicDataList({
+		name: 'scientificAxes',
+		columnCount: 1,
+		deleteLabel: [[#{html.DeletePublicationScientificAxis}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: [
+			/*[# th:if="${publication != null}"]*//*[# th:each="axis : ${publication.scientificAxes}"]*/
+	        {
+				id: "[(${axis.id})]",
+				name: [[${axis.acronym}]] + ' - ' + [[${axis.name}]],
+	        },
+		    /*[/]*//*[/]*/
+		],
+		dataName: (dt) => {
+			return dt['name'];
+		},
+		rowBuilder: (data, target, index) => {
+			target.append(data['name']);
+		},
+		dataConverter: (formData, fieldName, data) => {
+			var identifierList = [];
+			$.each(data, (index, element) => {
+				identifierList.push(element['id']);
+			});
+			formData.append(fieldName, identifierList);
+		},
+		dataCreator: (doCreateFct) => {
+			Swal.fire({
+				title: [[#{html.AddPublicationScientificAxis}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				html: "[(#{html.PublicationScientificAxis})]<br/>"
+					+ '<select id="swal-input1" class="swal2-input">'
+					+ ALL_SCIENTIFIC_AXIS_OPTIONS
+					+ '</select>',
+				preConfirm: () => {
+					var pid = document.getElementById("swal-input1").value;
+					return {
+						id: pid,
+						name: ALL_SCIENTIFIC_AXIS_NAMES.get(pid),
+					};
+				},
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
 	});
 });
 </script>

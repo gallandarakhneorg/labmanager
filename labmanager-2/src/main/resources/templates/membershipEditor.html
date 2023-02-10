@@ -5,6 +5,7 @@
 <th:block th:replace="fragments/buttons :: ajaxButtons" />
 <th:block th:replace="fragments/buttons :: waitButtons" />
 <th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
+<th:block th:replace="fragments/formdynlist :: all" />
 
 <th:block th:replace="fragments/nav :: personListBar*(#{html.EditMemberships(${person.fullName})})"/>
 
@@ -65,6 +66,7 @@
 				        th:value="${frenchBap.shortName}"
 				        th:utext="${frenchBap.shortName + ' - ' + frenchBap.getLabel()}"></option>
 			</div>
+			<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(${'scientificAxes_' + minMembershipId}, #{html.MembershipScientificAxes}, #{html.AddMembershipScientificAxis})"></div>
 			<button th:id="${'btSave_' + minMembershipId}" type="button"
 				class="btn btn-primary mt-4 pr-4 pl-4"
 				th:utext="#{html.Submit}"></button>
@@ -125,6 +127,7 @@
 				        th:value="${frenchBap.shortName}"
 				        th:utext="${frenchBap.shortName + ' - ' + frenchBap.getLabel()}"></option>
 			</div>
+			<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(${'scientificAxes_' + membership.id}, #{html.MembershipScientificAxes}, #{html.AddMembershipScientificAxis})"></div>
 			<button th:id="${'btSave_' + membership.id}" type="button"
 				class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
 				th:utext="#{html.Submit}"></button>
@@ -159,6 +162,7 @@ function addSavingButtonCallback(membershipId, isNewMembership) {
 			formData.append("cnuSection", $('#comboInput_cnuSection_' + membershipId + ' option:selected').attr('value'));
 			formData.append("conrsSection", $('#comboInput_conrsSection_' + membershipId + ' option:selected').attr('value'));
 			formData.append("frenchBap", $('#comboInput_frenchBap_' + membershipId + ' option:selected').attr('value'));
+			dynamicDataList_fillFormData(formData, "scientificAxes_" + membershipId, "scientificAxes");
 		},
 		failureText: "[(#{html.MembershipSavingError})]",
 		onSuccess: () => {
@@ -205,13 +209,71 @@ function addOrganizationChangeCallback(id) {
 		updateAddressCombo(id, null);
 	});
 }
-
+const ALL_SCIENTIFIC_AXIS_NAMES = new Map();
+var ALL_SCIENTIFIC_AXIS_OPTIONS = '';
+var scientificAxisName;
+/*[# th:each="axis : ${sortedScientificAxes}"]*/
+scientificAxisName = [[${axis.acronym}]] + ' - ' + [[${axis.name}]];
+ALL_SCIENTIFIC_AXIS_NAMES.set("[(${axis.id})]", scientificAxisName);
+ALL_SCIENTIFIC_AXIS_OPTIONS = ALL_SCIENTIFIC_AXIS_OPTIONS + '<option value="[(${axis.id})]">' + scientificAxisName + '</option>';
+/*[/]*/
+function addScientificAxisCallback(membershipId, isNewMembership, inputAxes) {
+	initDynamicDataList({
+		name: "scientificAxes_" + membershipId,
+		columnCount: 1,
+		deleteLabel: [[#{html.DeleteMembershipScientificAxis}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: inputAxes,
+		dataName: (dt) => {
+			return dt['name'];
+		},
+		rowBuilder: (data, target, index) => {
+			target.append(data['name']);
+		},
+		dataConverter: (formData, fieldName, data) => {
+			var identifierList = [];
+			$.each(data, (index, element) => {
+				identifierList.push(element['id']);
+			});
+			formData.append(fieldName, identifierList);
+		},
+		dataCreator: (doCreateFct) => {
+			Swal.fire({
+				title: [[#{html.AddMembershipScientificAxis}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				html: "[(#{html.MembershipScientificAxis})]<br/>"
+					+ '<select id="swal-input1" class="swal2-input">'
+					+ ALL_SCIENTIFIC_AXIS_OPTIONS
+					+ '</select>',
+				preConfirm: () => {
+					var pid = document.getElementById("swal-input1").value;
+					return {
+						id: pid,
+						name: ALL_SCIENTIFIC_AXIS_NAMES.get(pid),
+					};
+				},
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
+	});
+}
 $(document).ready(function () {
     /*[# th:if="${changeEnabled}"]*/
 	$(document).on('click', '#btAdd', () => {
 		$('#btAdd').prop("disabled", true);
 		$('#new-membership-input-area').show();
 	    addSavingButtonCallback("[(${minMembershipId})]", true);
+		addScientificAxisCallback("[(${minMembershipId})]", true, []);
 	});
 	updateAddressCombo("[(${minMembershipId})]", null);
 	addOrganizationChangeCallback("[(${minMembershipId})]");
@@ -219,6 +281,15 @@ $(document).ready(function () {
 	updateAddressCombo("[(${membership.id})]",
 		"[(${membership.organizationAddress != null ? membership.organizationAddress.id : ''})]");
 	addOrganizationChangeCallback("[(${membership.id})]");
+	var inputAxes = [
+		/*[# th:each="axis : ${membership.scientificAxes}"]*/
+        {
+			id: "[(${axis.id})]",
+			name: [[${axis.acronym}]] + ' - ' + [[${axis.name}]],
+        },
+	    /*[/]*/
+	];
+	addScientificAxisCallback("[(${membership.id})]", false, inputAxes);
     addSavingButtonCallback("[(${membership.id})]", false);
 	attachDeletionHandler({
 		id: "[(${membership.id})]",

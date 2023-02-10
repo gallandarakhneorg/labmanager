@@ -32,6 +32,7 @@ Each membership box contains the fields to be filled up for describing a members
 * `CNU Section`: For researchers in university, it is the speciality number that is defined by the French University National Council.
 * `CoRNS Section`: For researchers in research institution, it is the speciality number that is defined by the French National Research Council.
 * `French branch of perfesionnal activity (BAP)`: For engineers and staff members, it is the speciality name that is defined by the French Ministry.
+* `List of the scientific axes to which the membership is associated to`: indicates the scientific axes to which this person membership is associated to.
 
 When you have finished to edit the form, click on the `Submit` button. By clicking on the `Delete the position` button, you could delete the membership.
 

@@ -153,7 +153,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Enumerated(EnumType.STRING)
 	private WebPageNaming webPageNaming;
 
-	/** Identifier for the wb page of the person.
+	/** Identifier for the web page of the person.
 	 * This information is stored in the database for accelerating the JPA queries.
 	 */
 	@Column(nullable = true)

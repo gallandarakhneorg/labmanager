@@ -32,13 +32,16 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.Responsibility;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationNameComparator;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
+import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -71,6 +74,8 @@ public class MembershipViewController extends AbstractViewController {
 
 	private ResearchOrganizationRepository organizationRepository;
 
+	private ScientificAxisService scientificAxisService;
+
 	private ChronoMembershipComparator membershipComparator;
 
 	/** Constructor for injector.
@@ -82,6 +87,7 @@ public class MembershipViewController extends AbstractViewController {
 	 * @param personService the service related to the persons.
 	 * @param organizationService the service related to the research organizations.
 	 * @param organizationRepository the repository of the research organizations.
+	 * @param scientificAxisService the service of the scientific axes.
 	 * @param membershipComparator the comparator of memberships to use for building the views with
 	 *     a chronological point of view.
 	 * @param membershipService the service for managing the memberships.
@@ -94,6 +100,7 @@ public class MembershipViewController extends AbstractViewController {
 			@Autowired PersonService personService,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired ResearchOrganizationRepository organizationRepository,
+			@Autowired ScientificAxisService scientificAxisService,
 			@Autowired ChronoMembershipComparator membershipComparator,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
@@ -101,6 +108,7 @@ public class MembershipViewController extends AbstractViewController {
 		this.personService = personService;
 		this.organizationService = organizationService;
 		this.organizationRepository = organizationRepository;
+		this.scientificAxisService = scientificAxisService;
 		this.membershipComparator = membershipComparator;
 	}
 
@@ -199,6 +207,11 @@ public class MembershipViewController extends AbstractViewController {
 			allResponsabilities.put(resp.getLabel(person.getGender(), locale), resp);
 		}
 		modelAndView.addObject("allResponsabilities", allResponsabilities); //$NON-NLS-1$
+		//
+		final List<ScientificAxis> sortedScientificAxes = this.scientificAxisService.getAllScientificAxes().stream()
+				.sorted((a, b) -> StringUtils.compareIgnoreCase(a.getAcronym(), b.getAcronym()))
+				.collect(Collectors.toList());
+		modelAndView.addObject("sortedScientificAxes", sortedScientificAxes); //$NON-NLS-1$
 		//
 		final List<ResearchOrganization> sortedOrganizations = this.organizationRepository.findAll().stream()
 				.sorted(new ResearchOrganizationNameComparator()).collect(Collectors.toList());

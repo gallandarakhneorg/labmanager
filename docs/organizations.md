@@ -24,6 +24,14 @@ Research organizations may be of a specific type. The supported types are from t
 * University or college
 * High school
 * University community or network
+* Start-up company
+* Very-small company (less than 50 employees)
+* Small company (between 50 and 250 employees)
+* Intermediate-size company (between 250 and 5000 employees)
+* Big company (greater than 5000 employes)
+* Public administration
+* Non profit association under private law
+* Non profit association under public law
 * Other type of organization
 
 As illustrated by the types above, the research organization may be hierarchiclly structured. In other words, an organization could be a part of another organization. Therefore, it is possible to define the super-organization that corresponds to the containing organization, and define the sub-organizations that are inside a specific organization.
@@ -58,7 +66,7 @@ The backend software provides a form for editing or adding an organization in th
 
 ![Editing form](organizations3.png)
 
-* `Acronym`: the acronym of the orgnization, and a link to the official website of the organization if it is known.
+* `Acronym`: the acronym of the orgnization.
 * `Name`: the name of organization.
 * `Is organization major on this server?`: Indicates if the organization is marked as a major organization on this server. A major organization is usually the organization that is concerned by the website. You should define maximum one major organization per server.
 * `Type`: the type of organization (see Section 2).

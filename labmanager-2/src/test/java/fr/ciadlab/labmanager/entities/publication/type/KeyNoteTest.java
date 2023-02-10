@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,13 +32,16 @@ import org.junit.jupiter.api.Test;
  * @mavenartifactid $ArtifactId$
  */
 @SuppressWarnings("all")
-public class KeyNoteTest {
+public class KeyNoteTest extends AbstractTypedPublicationTest<KeyNote> {
 
-	private KeyNote test;
+	@Override
+	protected KeyNote createTest() {
+		return new KeyNote();
+	}
 
-	@BeforeEach
-	public void setUp() {
-		this.test = new KeyNote();
+	@Override
+	protected KeyNote createTest(Publication prePublication) {
+		return new KeyNote(prePublication, null, null, null, null);
 	}
 
 	@Test

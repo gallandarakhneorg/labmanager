@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.entities.member;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -33,6 +34,8 @@ import java.util.List;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
@@ -655,7 +658,6 @@ public class MembershipTest {
 		assertFalse(this.test.isActiveIn(s, e));
 	}
 
-
 	@Test
 	public void isMainPosition() {
 		assertTrue(this.test.isMainPosition());
@@ -706,6 +708,33 @@ public class MembershipTest {
 		assertSame(r0, this.test.getResponsibility());
 		this.test.setResponsibility((String) null);
 		assertNull(this.test.getResponsibility());
+	}
+
+	@Test
+	public void getScientificAxes() {
+		assertTrue(this.test.getScientificAxes().isEmpty());
+	}
+
+	@Test
+	public void setScientificAxes() {
+		List<Membership> l0 = new ArrayList<>();
+		ScientificAxis a0 = mock(ScientificAxis.class);
+		when(a0.getMemberships()).thenReturn(l0);
+		List<Membership> l1 = new ArrayList<>();
+		ScientificAxis a1 = mock(ScientificAxis.class);
+		when(a1.getMemberships()).thenReturn(l1);
+		List<ScientificAxis> axes = Arrays.asList(a0, a1);
+
+		this.test.setScientificAxes(axes);
+
+		List<ScientificAxis> actual = this.test.getScientificAxes();
+		assertNotNull(actual);
+		assertEquals(2, actual.size());
+		assertTrue(actual.contains(a0));
+		assertTrue(actual.contains(a1));
+
+		assertTrue(l0.contains(this.test));
+		assertTrue(l1.contains(this.test));
 	}
 
 }

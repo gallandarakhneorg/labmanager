@@ -17,9 +17,36 @@
 	<div class="form-group" th:replace="fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderScientificAxisName}, ${axis != null ? axis.name : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: dateInput*(startDate, #{html.StartDate}, ${formattedStartDate})"></div>
 	<div class="form-group" th:replace="fragments/form :: dateInput(endDate, #{html.EndDate}, ${formattedEndDate})"></div>
+	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(projects, #{html.ScientificAxisProjects}, #{html.AddScientificAxisProject})"></div>
+	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(publications, #{html.ScientificAxisPublications}, #{html.AddScientificAxisPublication})"></div>
+	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(memberships, #{html.ScientificAxisMemberships}, #{html.AddScientificAxisMembership})"></div>
 	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedScientificAxis}, #{html.ValidatedAssociatedStructure}, ${structure != null ? structure.validated : false})"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
+const ALL_PROJECT_NAMES = new Map();
+var ALL_PROJECT_OPTIONS = '';
+var projectName;
+/*[# th:each="project : ${sortedProjects}"]*/
+projectName = [[${project.acronym}]] + ' - ' + [[${project.scientificTitle}]];
+ALL_PROJECT_NAMES.set("[(${project.id})]", projectName);
+ALL_PROJECT_OPTIONS = ALL_PROJECT_OPTIONS + '<option value="[(${project.id})]">' + projectName + '</option>';
+/*[/]*/
+const ALL_PUBLICATION_NAMES = new Map();
+var ALL_PUBLICATION_OPTIONS = '';
+var publicationName;
+/*[# th:each="publication : ${sortedPublications}"]*/
+publicationName = [[${publication.title}]] + ' - ' + [[${publication.publicationTarget}]] + ' - ' + [[${publication.publicationYear}]];
+ALL_PUBLICATION_NAMES.set("[(${publication.id})]", publicationName);
+ALL_PUBLICATION_OPTIONS = ALL_PUBLICATION_OPTIONS + '<option value="[(${publication.id})]">' + publicationName + '</option>';
+/*[/]*/
+const ALL_MEMBERSHIP_NAMES = new Map();
+var ALL_MEMBERSHIP_OPTIONS = '';
+var membershipName;
+/*[# th:each="membership : ${sortedMemberships}"]*/
+membershipName = [[${membership.person.fullNameWithLastNameFirst}]] + ' - ' + [[${membership.shortDescription}]];
+ALL_MEMBERSHIP_NAMES.set("[(${membership.id})]", membershipName);
+ALL_MEMBERSHIP_OPTIONS = ALL_MEMBERSHIP_OPTIONS + '<option value="[(${membership.id})]">' + membershipName + '</option>';
+/*[/]*/
 $(document).ready(function () {
 	// Initialize form validation
 	$('#form:first').validate({
@@ -36,6 +63,174 @@ $(document).ready(function () {
             },
         },
     });
+	// Initialize the component for the projects
+	initDynamicDataList({
+		name: 'projects',
+		columnCount: 1,
+		deleteLabel: [[#{html.DeleteScientificAxisProject}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: [
+			/*[# th:if="${axis != null}"]*//*[# th:each="project : ${axis.projects}"]*/
+	        {
+				id: "[(${project.id})]",
+				name: [[${project.acronym}]] + ' - ' + [[${project.scientificTitle}]],
+	        },
+		    /*[/]*//*[/]*/
+		],
+		dataName: (dt) => {
+			return dt['name'];
+		},
+		rowBuilder: (data, target, index) => {
+			target.append(data['name']);
+		},
+		dataConverter: (formData, fieldName, data) => {
+			var identifierList = [];
+			$.each(data, (index, element) => {
+				identifierList.push(element['id']);
+			});
+			formData.append(fieldName, identifierList);
+		},
+		dataCreator: (doCreateFct) => {
+			Swal.fire({
+				title: [[#{html.AddScientificAxisProject}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				html: "[(#{html.ScientificAxisProject})]<br/>"
+					+ '<select id="swal-input1" class="swal2-input">'
+					+ ALL_PROJECT_OPTIONS
+					+ '</select>',
+				preConfirm: () => {
+					var pid = document.getElementById("swal-input1").value;
+					return {
+						id: pid,
+						name: ALL_PROJECT_NAMES.get(pid),
+					};
+				},
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
+	});
+	// Initialize the component for the publications
+	initDynamicDataList({
+		name: 'publications',
+		columnCount: 1,
+		deleteLabel: [[#{html.DeleteScientificAxisPublication}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: [
+			/*[# th:if="${axis != null}"]*//*[# th:each="publication : ${axis.publications}"]*/
+	        {
+				id: "[(${publication.id})]",
+				name: [[${publication.title}]] + ' - ' + [[${publication.publicationTarget}]] + ' - ' + [[${publication.publicationYear}]],
+	        },
+		    /*[/]*//*[/]*/
+		],
+		dataName: (dt) => {
+			return dt['name'];
+		},
+		rowBuilder: (data, target, index) => {
+			target.append(data['name']);
+		},
+		dataConverter: (formData, fieldName, data) => {
+			var identifierList = [];
+			$.each(data, (index, element) => {
+				identifierList.push(element['id']);
+			});
+			formData.append(fieldName, identifierList);
+		},
+		dataCreator: (doCreateFct) => {
+			Swal.fire({
+				title: [[#{html.AddScientificAxisPublication}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				html: "[(#{html.ScientificAxisPublication})]<br/>"
+					+ '<select id="swal-input1" class="swal2-input">'
+					+ ALL_PUBLICATION_OPTIONS
+					+ '</select>',
+				preConfirm: () => {
+					var pid = document.getElementById("swal-input1").value;
+					return {
+						id: pid,
+						name: ALL_PUBLICATION_NAMES.get(pid),
+					};
+				},
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
+	});
+	// Initialize the component for the persons
+	initDynamicDataList({
+		name: 'memberships',
+		columnCount: 1,
+		deleteLabel: [[#{html.DeleteScientificAxisMembership}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: [
+			/*[# th:if="${axis != null}"]*//*[# th:each="membership : ${axis.memberships}"]*/
+	        {
+				id: "[(${membership.id})]",
+				name: [[${membership.person.fullNameWithLastNameFirst}]] + ' - ' + [[${membership.shortDescription}]],
+	        },
+		    /*[/]*//*[/]*/
+		],
+		dataName: (dt) => {
+			return dt['name'];
+		},
+		rowBuilder: (data, target, index) => {
+			target.append(data['name']);
+		},
+		dataConverter: (formData, fieldName, data) => {
+			var identifierList = [];
+			$.each(data, (index, element) => {
+				identifierList.push(element['id']);
+			});
+			formData.append(fieldName, identifierList);
+		},
+		dataCreator: (doCreateFct) => {
+			Swal.fire({
+				title: [[#{html.AddScientificAxisPublication}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				html: "[(#{html.ScientificAxisMembership})]<br/>"
+					+ '<select id="swal-input1" class="swal2-input">'
+					+ ALL_MEMBERSHIP_OPTIONS
+					+ '</select>',
+				preConfirm: () => {
+					var pid = document.getElementById("swal-input1").value;
+					return {
+						id: pid,
+						name: ALL_MEMBERSHIP_NAMES.get(pid),
+					};
+				},
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
+	});
 });
 </script>
 </html>

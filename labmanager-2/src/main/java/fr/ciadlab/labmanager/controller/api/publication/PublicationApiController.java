@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.controller.api.publication;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -33,9 +34,11 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
+import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.StringUtils;
 import org.arakhne.afc.sizediterator.SizedIterator;
@@ -81,6 +84,8 @@ public class PublicationApiController extends AbstractApiController {
 
 	private PersonService personService;
 
+	private ScientificAxisService scientificAxisService;
+
 	private DownloadableFileManager fileManager;
 
 	/** Constructor for injector.
@@ -90,6 +95,7 @@ public class PublicationApiController extends AbstractApiController {
 	 * @param constants the constants of the app.
 	 * @param publicationService the publication service.
 	 * @param personService the person service.
+	 * @param scientificAxisService the axis service.
 	 * @param fileManager the manager of local files.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
@@ -98,11 +104,13 @@ public class PublicationApiController extends AbstractApiController {
 			@Autowired Constants constants,
 			@Autowired PublicationService publicationService,
 			@Autowired PersonService personService,
+			@Autowired ScientificAxisService scientificAxisService,
 			@Autowired DownloadableFileManager fileManager,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.publicationService = publicationService;
 		this.personService = personService;
+		this.scientificAxisService = scientificAxisService;
 		this.fileManager = fileManager;
 	}
 
@@ -135,10 +143,11 @@ public class PublicationApiController extends AbstractApiController {
 	 * @param publication the identifier of the publication. If the identifier is not provided, this endpoint is supposed to create
 	 *     a publication in the database.
 	 * @param validated indicates if the publication is validated by a local authority.
-	 * @param pathToDownloadablePDF the uploaded PDF file for the publication.
-	 * @param pathToDownloadableAwardCertificate the uploaded Award certificate for the publication.
 	 * @param authors the list of authors. It is a list of database identifiers (for known persons) and full name
 	 *     (for unknown persons).
+	 * @param pathToDownloadablePDF the uploaded PDF file for the publication.
+	 * @param pathToDownloadableAwardCertificate the uploaded Award certificate for the publication.
+	 * @param scientificAxes the list of scientific axes that are associated to the project. 
 	 * @param allParameters the map of all the request string-based parameters.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if the publication cannot be saved.
@@ -150,6 +159,7 @@ public class PublicationApiController extends AbstractApiController {
 			@RequestParam(required = false) List<String> authors,
 			@RequestParam(required = false) MultipartFile pathToDownloadablePDF,
 			@RequestParam(required = false) MultipartFile pathToDownloadableAwardCertificate,
+			@RequestParam(required = false) List<Integer> scientificAxes,
 			@RequestParam Map<String, String> allParameters,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PUBLICATION_SAVING_ENDPOINT, publication);
@@ -169,13 +179,20 @@ public class PublicationApiController extends AbstractApiController {
 			String typeValue = ensureString(allParameters, "type"); //$NON-NLS-1$
 			typeValue = inString(StringUtils.substringBefore(typeValue, "/")); //$NON-NLS-1$
 			allParameters.put("type", typeValue); //$NON-NLS-1$
+
+			final List<ScientificAxis> axes;
+			if (scientificAxes != null) {
+				axes = this.scientificAxisService.getScientificAxesFor(scientificAxes);
+			} else {
+				axes = Collections.emptyList();
+			}
 			//
 			if (publication == null) {
 				optPublication = this.publicationService.createPublicationFromMap(validated, allParameters,
-						inAuthors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
+						inAuthors, pathToDownloadablePDF, pathToDownloadableAwardCertificate, axes);
 			} else {
 				optPublication = this.publicationService.updatePublicationFromMap(publication.intValue(), validated, allParameters,
-						inAuthors, pathToDownloadablePDF, pathToDownloadableAwardCertificate);
+						inAuthors, pathToDownloadablePDF, pathToDownloadableAwardCertificate, axes);
 			}
 			if (optPublication.isEmpty()) {
 				throw new IllegalStateException("Publication not found"); //$NON-NLS-1$

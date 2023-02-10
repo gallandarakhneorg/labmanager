@@ -41,8 +41,10 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.Responsibility;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
+import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
@@ -80,6 +82,8 @@ public class MembershipApiController extends AbstractApiController {
 
 	private ResearchOrganizationService organizationService;
 
+	private ScientificAxisService scientificAxisService;
+
 	private ChronoMembershipComparator membershipComparator;
 
 	/** Constructor for injector.
@@ -89,6 +93,7 @@ public class MembershipApiController extends AbstractApiController {
 	 * @param constants the constants of the app.
 	 * @param membershipService the service for managing the memberships.
 	 * @param organizationService the service for accessing the organizations.
+	 * @param scientificAxisService the service for managing the scientific axes.
 	 * @param membershipComparator the comparator of member for determining the more recents.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
@@ -97,11 +102,13 @@ public class MembershipApiController extends AbstractApiController {
 			@Autowired Constants constants,
 			@Autowired MembershipService membershipService,
 			@Autowired ResearchOrganizationService organizationService,
+			@Autowired ScientificAxisService scientificAxisService,
 			@Autowired ChronoMembershipComparator membershipComparator,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.membershipService = membershipService;
 		this.organizationService = organizationService;
+		this.scientificAxisService = scientificAxisService;
 		this.membershipComparator = membershipComparator;
 	}
 
@@ -128,7 +135,8 @@ public class MembershipApiController extends AbstractApiController {
 	 * @param closeActive in the case that an active membership exists for the person and the organization, this flag
 	 *     permits to control the behavior of the controller. If it is evaluated to {@code true}, the existing active
 	 *     membership is closed to the date given by {@code memberSinceWhen} (if this date is not given, today is considered.
-	 *     If argument {@code closeActive} is evaluated to {@code false}, an error is thrown. 
+	 *     If argument {@code closeActive} is evaluated to {@code false}, an error is thrown.
+	 * @param scientificAxes the scientific axes that are associated to the membership. 
 	 * @param username the name of the logged-in user.
 	 * @throws Exception if it is impossible to save the membership in the database.
 	 */
@@ -148,6 +156,7 @@ public class MembershipApiController extends AbstractApiController {
 			@RequestParam(required = false) String frenchBap,
 			@RequestParam(required = false, defaultValue = "true") boolean isMainPosition,
 			@RequestParam(required = false, defaultValue = "true") boolean closeActive,
+			@RequestParam(required = false) List<Integer> scientificAxes,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.MEMBERSHIP_SAVING_ENDPOINT, person);
 		try {
@@ -165,6 +174,13 @@ public class MembershipApiController extends AbstractApiController {
 			final ConrsSection conrsSectionObj = conrsSection == null || conrsSection.intValue() == 0 ? null : ConrsSection.valueOf(conrsSection);
 			final FrenchBap frenchBapObj = inFrenchBap == null ? null : FrenchBap.valueOfCaseInsensitive(inFrenchBap);
 
+			final List<ScientificAxis> axes;
+			if (scientificAxes != null && !scientificAxes.isEmpty()) {
+				axes = this.scientificAxisService.getScientificAxesFor(scientificAxes);
+			} else {
+				axes = Collections.emptyList();
+			}
+					
 			// Check validity of dates
 			if (startDate != null && endDate != null && endDate.isBefore(startDate)) {
 				throw new IllegalArgumentException("The end date cannot be fore the start date"); //$NON-NLS-1$
@@ -192,7 +208,8 @@ public class MembershipApiController extends AbstractApiController {
 							statusObj, permanentPosition,
 							responsibilityObj,
 							cnuSectionObj, conrsSectionObj,
-							frenchBapObj, isMainPosition, false);
+							frenchBapObj, isMainPosition,
+							axes, false);
 					if (!result.getRight().booleanValue()) {
 						// The membership already exists, start the dedicated behavior
 						if (closeActive) {
@@ -213,7 +230,8 @@ public class MembershipApiController extends AbstractApiController {
 									otherMembership.getCnuSection(),
 									otherMembership.getConrsSection(),
 									otherMembership.getFrenchBap(),
-									otherMembership.isMainPosition());
+									otherMembership.isMainPosition(),
+									axes);
 							continueCreation = true;
 						} else {
 							throw new IllegalStateException("A membership is already active. It is not allowed to create multiple active memberships for the same organization"); //$NON-NLS-1$
@@ -229,7 +247,7 @@ public class MembershipApiController extends AbstractApiController {
 						statusObj, permanentPosition,
 						responsibilityObj,
 						cnuSectionObj, conrsSectionObj, frenchBapObj,
-						isMainPosition);
+						isMainPosition, axes);
 			}
 		} catch (Throwable ex) {
 			getLogger().error(ex.getLocalizedMessage(), ex);

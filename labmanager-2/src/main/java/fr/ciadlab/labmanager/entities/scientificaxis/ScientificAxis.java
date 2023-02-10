@@ -19,13 +19,19 @@ package fr.ciadlab.labmanager.entities.scientificaxis;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -36,7 +42,11 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
+import fr.ciadlab.labmanager.entities.member.Membership;
+import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
+import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 
 /** A scientific axis that represents a transversal research activity
@@ -85,20 +95,32 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	@Column(nullable = false)
 	private boolean validated;
 
+	/** Projects which are associated to the scientific axis.
+	 */
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(
+			name = "scientific_axis_project", 
+			joinColumns = @JoinColumn(name = "axis_id"), 
+			inverseJoinColumns = @JoinColumn(name = "project_id"))
+	private List<Project> projects = new ArrayList<>();
+
+	/** Publications which are associated to the scientific axis.
+	 */
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(
+			name = "scientific_axis_publication", 
+			joinColumns = @JoinColumn(name = "axis_id"), 
+			inverseJoinColumns = @JoinColumn(name = "publication_id"))
+	private List<Publication> publications = new ArrayList<>();
+
 	/** Persons who are associated to the research axis.
 	 */
-//	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//	private Set<Membership> memberships = new HashSet<>();
-
-	/** Projects which are associated to the research axis.
-	 */
-//	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//	private Set<Membership> memberships = new HashSet<>();
-
-	/** Publications which are associated to the research axis.
-	 */
-//	@OneToMany(mappedBy = "researchOrganization", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//	private Set<Membership> memberships = new HashSet<>();
+	@ManyToMany(fetch = FetchType.LAZY)
+	@JoinTable(
+			name = "scientific_axis_membership", 
+			joinColumns = @JoinColumn(name = "axis_id"), 
+			inverseJoinColumns = @JoinColumn(name = "membership_id"))
+	private List<Membership> memberships = new ArrayList<>();
 
 	/** Construct a scientific axis from the given values.
 	 * 
@@ -195,44 +217,36 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		forEachAttribute((attrName, attrValue) -> {
 			JsonUtils.writeField(generator, attrName, attrValue);
 		});
-//		//
-//		final CachedGenerator organizations = JsonUtils.cache(generator);
-//		final CachedGenerator persons = JsonUtils.cache(generator);
-//		//
-//		generator.writeArrayFieldStart("addresses"); //$NON-NLS-1$
-//		for (final OrganizationAddress address : getAddresses()) {
-//			organizations.writeReferenceOrObject(address, () -> {
-//				JsonUtils.writeObjectAndAttributes(generator, address);
-//			});
-//		}
-//		generator.writeEndArray();
-//		//
-//		organizations.writeReferenceOrObjectField("superOrganization", getSuperOrganization(), () -> { //$NON-NLS-1$
-//			JsonUtils.writeObjectAndAttributes(generator, getSuperOrganization());
-//		});
-//		//
-//		generator.writeArrayFieldStart("subOrganizations"); //$NON-NLS-1$
-//		for (final ScientificAxis suborga : getSubOrganizations()) {
-//			organizations.writeReferenceOrObject(suborga, () -> {
-//				JsonUtils.writeObjectAndAttributes(generator, suborga);
-//			});
-//		}
-//		generator.writeEndArray();
-//		//
-//		generator.writeArrayFieldStart("memberships"); //$NON-NLS-1$
-//		for (final Membership membership : getMemberships()) {
-//			generator.writeStartObject();
-//			membership.forEachAttribute((attrName, attrValue) -> {
-//				JsonUtils.writeField(generator, attrName, attrValue);
-//			});
-//			persons.writeReferenceOrObjectField("person", membership.getPerson(), () -> { //$NON-NLS-1$
-//				JsonUtils.writeObjectAndAttributes(generator, membership.getPerson());
-//			});
-//			generator.writeEndObject();
-//		}
-//		generator.writeEndArray();
-//		//
-//		generator.writeEndObject();
+		//
+		final CachedGenerator projects = JsonUtils.cache(generator);
+		final CachedGenerator publications = JsonUtils.cache(generator);
+		final CachedGenerator memberships = JsonUtils.cache(generator);
+		//
+		generator.writeArrayFieldStart("projects"); //$NON-NLS-1$
+		for (final Project project : getProjects()) {
+			projects.writeReferenceOrObject(project, () -> {
+				JsonUtils.writeObjectAndAttributes(generator, project);
+			});
+		}
+		generator.writeEndArray();
+		//
+		generator.writeArrayFieldStart("publications"); //$NON-NLS-1$
+		for (final Publication publication : getPublications()) {
+			publications.writeReferenceOrObject(publication, () -> {
+				JsonUtils.writeObjectAndAttributes(generator, publication);
+			});
+		}
+		generator.writeEndArray();
+		//
+		generator.writeArrayFieldStart("memberships"); //$NON-NLS-1$
+		for (final Membership membership : getMemberships()) {
+			memberships.writeReferenceOrObject(membership, () -> {
+				JsonUtils.writeObjectAndAttributes(generator, membership);
+			});
+		}
+		generator.writeEndArray();
+		//
+		generator.writeEndObject();
 	}
 
 	@Override
@@ -364,6 +378,58 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		}
 	}
 
+	/** Replies if the scientific axis is active.
+	 * An axis is active if the current date is inside the axis time window.
+	 *
+	 * @return {@code true} if the axis time window contains the current date.
+	 */
+	public boolean isActive() {
+		final LocalDate now = LocalDate.now();
+		return isActiveAt(now);
+	}
+
+	/** Replies if the scientific axis is active.
+	 * An axis is active if the current date is inside the axis time window.
+	 *
+	 * @param now the given date to consider.
+	 * @return {@code true} if the axis time window contains the given date.
+	 */
+	public boolean isActiveAt(LocalDate now) {
+		final LocalDate start = getStartDate();
+		if (start != null && now.isBefore(start)) {
+			return false;
+		}
+		final LocalDate end = getEndDate();
+		if (end != null && now.isAfter(end)) {
+			return false;
+		}
+		return true;
+	}
+
+	/** Replies if the scientific axis is active in the given time range.
+	 * An axis is active if the current date is inside the axis time window.
+	 *
+	 * @param windowStart is the start date of the window, never {@code null}.
+	 * @param windowEnd is the end date of the window, never {@code null}.
+	 * @return {@code true} if the axis time window intersects the given date window.
+	 */
+	public boolean isActiveIn(LocalDate windowStart, LocalDate windowEnd) {
+		assert windowStart != null;
+		assert windowEnd != null;
+		final LocalDate start = getStartDate();
+		final LocalDate end = getEndDate();
+		if (start != null) {
+			if (end != null) {
+				return !windowEnd.isBefore(start) && !windowStart.isAfter(end);
+			}
+			return !windowEnd.isBefore(start);
+		}
+		if (end != null) {
+			return !windowStart.isAfter(end);
+		}
+		return true;
+	}
+
 	/** Replies if this organization was validated by an authority.
 	 *
 	 * @return {@code true} if the organization is validated.
@@ -392,24 +458,94 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		}
 	}
 
-//	/** Replies the members of the organization.
-//	 *
-//	 * @return the members.
-//	 */
-//	public Set<Membership> getMemberships() {
-//		return this.memberships;
-//	}
-//
-//	/** Change the members of the organization.
-//	 *
-//	 * @param members the members.
-//	 */
-//	public void setMemberships(Set<Membership> members) {
-//		if (members == null) {
-//			this.memberships = new HashSet<>();
-//		} else {
-//			this.memberships = members;
-//		}
-//	}
+	/** Replies the projects that are associated to this scientific axis.
+	 *
+	 * @return the projects.
+	 */
+	public List<Project> getProjects() {
+		if (this.projects == null) {
+			this.projects = new ArrayList<>();
+		}
+		return this.projects;
+	}
+
+	/** Change the projects that are associated to this scientific axis.
+	 * This function updates the relationship from the axis to the project AND
+	 * from the project to the axis.
+	 *
+	 * @param projects the projects associated to this axis.
+	 */
+	public void setProjects(List<Project> projects) {
+		if (this.projects == null) {
+			this.projects = new ArrayList<>();
+		} else {
+			this.projects.stream().parallel().forEach(it -> it.getScientificAxes().remove(this));
+			this.projects.clear();
+		}
+		if (projects != null && !projects.isEmpty()) {
+			projects.stream().parallel().forEach(it -> it.getScientificAxes().add(this));
+			this.projects.addAll(projects);
+		}
+	}
+
+	/** Replies the publications that are associated to this scientific axis.
+	 *
+	 * @return the publications.
+	 */
+	public List<Publication> getPublications() {
+		if (this.publications == null) {
+			this.publications = new ArrayList<>();
+		}
+		return this.publications;
+	}
+
+	/** Change the publications that are associated to this scientific axis.
+	 * This function updates the relationship from the axis to the publication AND
+	 * from the publication to the axis.
+	 *
+	 * @param publications the publications associated to this axis.
+	 */
+	public void setPublications(List<Publication> publications) {
+		if (this.publications == null) {
+			this.publications = new ArrayList<>();
+		} else {
+			this.publications.stream().parallel().forEach(it -> it.getScientificAxes().remove(this));
+			this.publications.clear();
+		}
+		if (publications != null && !publications.isEmpty()) {
+			publications.stream().parallel().forEach(it -> it.getScientificAxes().add(this));
+			this.publications.addAll(publications);
+		}
+	}
+
+	/** Replies the memberships that are associated to this scientific axis.
+	 *
+	 * @return the memberships.
+	 */
+	public List<Membership> getMemberships() {
+		if (this.memberships == null) {
+			this.memberships = new ArrayList<>();
+		}
+		return this.memberships;
+	}
+
+	/** Change the memberships that are associated to this scientific axis.
+	 * This function updates the relationship from the axis to the membership AND
+	 * from the membership to the axis.
+	 *
+	 * @param memberships the memberships associated to this axis.
+	 */
+	public void setMemberships(List<Membership> memberships) {
+		if (this.memberships == null) {
+			this.memberships = new ArrayList<>();
+		} else {
+			this.memberships.stream().parallel().forEach(it -> it.getScientificAxes().remove(this));
+			this.memberships.clear();
+		}
+		if (memberships != null && !memberships.isEmpty()) {
+			memberships.stream().parallel().forEach(it -> it.getScientificAxes().add(this));
+			this.memberships.addAll(memberships);
+		}
+	}
 
 }

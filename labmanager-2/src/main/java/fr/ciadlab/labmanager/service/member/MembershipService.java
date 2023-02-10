@@ -41,6 +41,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.Responsibility;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
@@ -228,6 +229,7 @@ public class MembershipService extends AbstractService {
 	 * @param conrsSection the section of the CoNRS to which this membership belongs to.
 	 * @param frenchBap the type of job for a not-researcher staff.
 	 * @param isMainPosition indicates if the membership is mark as a main position.
+	 * @param axes the scientific axes to which the project is associated to.
 	 * @param forceCreation indicates if the membership must be created even if there is an active membership
 	 *     in the same organization.
 	 * @return a pair that contains the membership (created or not) and a boolean flag indicating
@@ -238,7 +240,7 @@ public class MembershipService extends AbstractService {
 			LocalDate startDate, LocalDate endDate,
 			MemberStatus memberStatus, boolean permanentPosition,
 			Responsibility responsibility, CnuSection cnuSection, ConrsSection conrsSection,
-			FrenchBap frenchBap, boolean isMainPosition, boolean forceCreation) throws Exception {
+			FrenchBap frenchBap, boolean isMainPosition, List<ScientificAxis> axes, boolean forceCreation) throws Exception {
 		assert memberStatus != null;
 		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
 		if (optOrg.isPresent()) {
@@ -279,6 +281,7 @@ public class MembershipService extends AbstractService {
 				mem.setConrsSection(conrsSection);
 				mem.setFrenchBap(frenchBap);
 				mem.setMainPosition(isMainPosition);
+				mem.setScientificAxes(axes);
 				this.membershipRepository.save(mem);
 				return Pair.of(mem, Boolean.TRUE);
 			}
@@ -301,6 +304,7 @@ public class MembershipService extends AbstractService {
 	 * @param conrsSection the section of the CoNRS to which this membership belongs to.
 	 * @param frenchBap the type of job for a not-researcher staff.
 	 * @param isMainPosition indicates if the membership is mark as a main position.
+	 * @param axes the scientific axes to which the project is associated to.
 	 * @return the updated membership.
 	 * @throws Exception if the given identifiers cannot be resolved to JPA entities.
 	 */
@@ -308,7 +312,7 @@ public class MembershipService extends AbstractService {
 			LocalDate startDate, LocalDate endDate,
 			MemberStatus memberStatus, boolean permanentPosition, Responsibility responsibility,
 			CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap,
-			boolean isMainPosition) throws Exception {
+			boolean isMainPosition, List<ScientificAxis> axes) throws Exception {
 		final Optional<Membership> res = this.membershipRepository.findById(Integer.valueOf(membershipId));
 		if (res.isPresent()) {
 			final Membership membership = res.get();
@@ -338,6 +342,7 @@ public class MembershipService extends AbstractService {
 			membership.setConrsSection(conrsSection);
 			membership.setFrenchBap(frenchBap);
 			membership.setMainPosition(isMainPosition);
+			membership.setScientificAxes(axes);
 			this.membershipRepository.save(membership);
 			return membership;
 		}
@@ -367,6 +372,7 @@ public class MembershipService extends AbstractService {
 			organization.getMemberships().remove(mbr);
 			mbr.setResearchOrganization(null);
 		}
+		mbr.setScientificAxes(null);
 		this.membershipRepository.deleteById(mid);
 	}
 
@@ -432,6 +438,34 @@ public class MembershipService extends AbstractService {
 	public Set<Person> getPersonsByOrganizationAcronymStatus(String organizationAcronym, MemberStatus status) {
 		return this.personRepository.findDistinctByMembershipsResearchOrganizationAcronymAndMembershipsMemberStatus(
 				organizationAcronym, status);
+	}
+
+	/** Replies the memberships that have the given identifiers.
+	 *
+	 * @param identifiers the list of identifiers to search for.
+	 * @return the list of memberships for the given identifiers.
+	 * @since 3.5
+	 */
+	public List<Membership> getMembershipsByIds(List<Integer> identifiers) {
+		List<Membership> memberships = this.membershipRepository.findAllById(identifiers);
+		if (memberships.size() != identifiers.size()) {
+			throw new IllegalArgumentException("Membership not found"); //$NON-NLS-1$
+		}
+		return memberships;
+	}
+
+	/** Replies the memberships with a maximum age whatever the organization.
+	 *
+	 * @param maxAge the maximum age in years.
+	 * @return the memberships.
+	 * @since 3.5
+	 */
+	public List<Membership> getMembershipsOfAge(int maxAge) {
+		final LocalDate startDate = LocalDate.of(LocalDate.now().getYear() - maxAge, 1, 1);
+		final LocalDate endDate = LocalDate.now();
+		return this.membershipRepository.findAll().parallelStream()
+				.filter(it -> it.isActiveIn(startDate, endDate))
+				.collect(Collectors.toList());
 	}
 
 }

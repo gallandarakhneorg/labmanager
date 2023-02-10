@@ -19,6 +19,8 @@ package fr.ciadlab.labmanager.entities.member;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 import javax.persistence.Column;
@@ -29,6 +31,7 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
@@ -38,6 +41,7 @@ import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
@@ -130,6 +134,13 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 */
 	@ManyToOne(fetch = FetchType.LAZY)
 	private OrganizationAddress organizationAddress;
+
+	/** List of scientific axes that are associated to this membership.
+	 *
+	 * @since 3.5
+	 */
+	@ManyToMany(mappedBy = "memberships", fetch = FetchType.LAZY)
+	private List<ScientificAxis> scientificAxes = new ArrayList<>();
 
 	/** Construct a membership with the given values.
 	 *
@@ -791,17 +802,49 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 			final int y0 = getMemberSinceWhen().getYear();
 			final int y1 = getMemberToWhen().getYear();
 			if (y0 != y1) {
-				b.append(y0).append("-").append(y1); //$NON-NLS-1$
+				b.append(y0).append("\u2192").append(y1); //$NON-NLS-1$
 			} else {
 				b.append(y0);
 			}
 		} else if (getMemberSinceWhen() != null) {
-			b.append(getMemberSinceWhen().getYear());
+			b.append(getMemberSinceWhen().getYear()).append("\u21A6"); //$NON-NLS-1$
 		} else if (getMemberToWhen() != null) {
-			b.append(getMemberToWhen().getYear());
+			b.append("\u21E5").append(getMemberToWhen().getYear()); //$NON-NLS-1$
 		}
 		b.append("]"); //$NON-NLS-1$
 		return b.toString();
+	}
+
+	/** Replies the scientific axes that are associated to this membership.
+	 *
+	 * @return the scientific axes.
+	 * @since 3.5
+	 */
+	public List<ScientificAxis> getScientificAxes() {
+		if (this.scientificAxes == null) {
+			this.scientificAxes = new ArrayList<>();
+		}
+		return this.scientificAxes;
+	}
+
+	/** Change the scientific axes that are associated to this membership.
+	 * This function updates the relationship from the axis to the membership AND
+	 * from the membership to the axis.
+	 *
+	 * @param axes the scientific axes associated to this membership.
+	 * @since 3.5
+	 */
+	public void setScientificAxes(List<ScientificAxis> axes) {
+		if (this.scientificAxes == null) {
+			this.scientificAxes = new ArrayList<>();
+		} else {
+			this.scientificAxes.stream().parallel().forEach(it -> it.getMemberships().remove(this));
+			this.scientificAxes.clear();
+		}
+		if (axes != null && !axes.isEmpty()) {
+			axes.stream().parallel().forEach(it -> it.getMemberships().add(this));
+			this.scientificAxes.addAll(axes);
+		}
 	}
 
 }

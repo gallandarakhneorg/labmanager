@@ -23,9 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.*	;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.lenient;
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +51,7 @@ import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.Responsibility;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.repository.member.MembershipRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
@@ -553,7 +556,7 @@ public class MembershipServiceTest {
 	public void addMembership() throws Exception {
 		final Pair<Membership, Boolean> m = this.test.addMembership(2345, null, 34567, LocalDate.parse("2022-07-12"),
 				LocalDate.parse("2022-07-28"), MemberStatus.ENGINEER, true, Responsibility.DEAN,
-				CnuSection.CNU_07, ConrsSection.CONRS_08, FrenchBap.BAP_E, false, false);
+				CnuSection.CNU_07, ConrsSection.CONRS_08, FrenchBap.BAP_E, false, new ArrayList<>(), false);
 		assertNotNull(m);
 		assertTrue(m.getRight());
 
@@ -585,9 +588,12 @@ public class MembershipServiceTest {
 			}
 			return Optional.empty();
 		});
+		
+		List<ScientificAxis> axes = mock(List.class);
 
 		final Membership m = this.test.updateMembershipById(234, 1234, null, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
-				MemberStatus.MASTER_STUDENT, true, Responsibility.IT_RESPONSIBLE, CnuSection.CNU_05, ConrsSection.CONRS_06, FrenchBap.BAP_E, false);
+				MemberStatus.MASTER_STUDENT, true, Responsibility.IT_RESPONSIBLE, CnuSection.CNU_05,
+				ConrsSection.CONRS_06, FrenchBap.BAP_E, false, axes);
 		assertSame(this.ms1, m);
 
 		final ArgumentCaptor<Membership> arg0 = ArgumentCaptor.forClass(Membership.class);
@@ -605,6 +611,7 @@ public class MembershipServiceTest {
 		verify(this.ms1).setConrsSection(same(ConrsSection.CONRS_06));
 		verify(this.ms1).setFrenchBap(same(FrenchBap.BAP_E));
 		verify(this.ms1).setMainPosition(eq(false));
+		verify(this.ms1).setScientificAxes(same(axes));
 		verifyNoMoreInteractions(this.ms1);
 	}
 

@@ -37,8 +37,8 @@
 					   th:utext="${project.description}">
 					</p>
 				</div>
-				<div class="project-card-funding project-card-section">
-					<div class="title" th:utext="#{html.FinancialInformation}"></div>
+				<div class="project-card-type project-card-section">
+					<div class="title" th:utext="#{html.Type}"></div>
 					<div class="content">
 						<div class="highlight-blocks">
 							<div class="highlight-block">
@@ -70,6 +70,23 @@
 								<div class="block-title" th:utext="#{html.OpenSource}"></div>
 							</div>
 						</div>
+					</div>
+						<div class="highlight-blocks">
+							<div class="highlight-block"
+							     th:each="axis : ${project.scientificAxes}">
+								<div class="block-title">
+									<th:block th:utext="${axis.acronym}"></th:block>
+								</div>
+								<div class="block-content">
+									<th:block th:utext="${axis.name}"></th:block>
+								</div>
+						     </div>
+						</div>
+					</div>
+				</div>
+				<div class="project-card-funding project-card-section">
+					<div class="title" th:utext="#{html.FinancialInformation}"></div>
+					<div class="content">
 						<div class="project-card-funding-global-budget"
 						     th:utext="#{html.GlobalBudget(#{html.KEURO1(${project.globalBudget})})}"></th:block>
 						</div>
@@ -103,7 +120,7 @@
 							<th:block th:if="${project.superOrganization.id != project.learOrganization.id}"
 							          th:utext="#{html.LocalOrganization6(${project.localOrganization.name}, ${project.localOrganization.acronym}, ${project.superOrganization.name}, ${project.superOrganization.acronym}, ${project.learOrganization.name}, ${project.learOrganization.acronym})}"></th:block>
 							<th:block th:if="${project.superOrganization.id == project.learOrganization.id}"
-							          th:utext="#{html.LocalOrganization4(${project.localOrganization.name}, ${project.localOrganization.acronym}, ${project.superOrganization.name}, ${project.superOrganization.acronym}})}"></th:block>
+							          th:utext="#{html.LocalOrganization4(${project.localOrganization.name}, ${project.localOrganization.acronym}, ${project.superOrganization.name}, ${project.superOrganization.acronym})}"></th:block>
 						</div>
 						<div class="highlight-blocks">
 							<div class="highlight-block"
