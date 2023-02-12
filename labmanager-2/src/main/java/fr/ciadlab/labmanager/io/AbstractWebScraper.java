@@ -17,7 +17,6 @@
 package fr.ciadlab.labmanager.io;
 
 import java.net.URL;
-import java.util.function.BiConsumer;
 
 import com.microsoft.playwright.Browser;
 import com.microsoft.playwright.BrowserType;
@@ -157,7 +156,7 @@ public abstract class AbstractWebScraper {
 	 */
 	protected static void loadHtmlPage(boolean developer, URL url, Progression progress,
 			String loadElementSelector, int waitingDuration,
-			BiConsumer<Page, ElementHandle> loadedHandler) throws Exception {
+			HtmlPageExtractor loadedHandler) throws Exception {
 		assert progress != null;
 		progress.setProperties(0, 0, 100, false);
 		try {
@@ -178,7 +177,7 @@ public abstract class AbstractWebScraper {
 							ElementHandle section0 = waitForElement(page, loadElementSelector);
 							progress.setValue(95);
 							if (section0 != null) {
-								loadedHandler.accept(page, section0);
+								loadedHandler.apply(page, section0);
 							}
 						}
 					}
@@ -187,6 +186,26 @@ public abstract class AbstractWebScraper {
 		} finally {
 			progress.end();
 		}
+	}
+
+	/** Extractor from HTML page.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 3.6
+	 */
+	@FunctionalInterface
+	protected interface HtmlPageExtractor {
+
+		/** Invoked when the element is discovered from the HTML page.
+		 *
+		 * @param page the page.
+		 * @param element the discovered page.
+		 */
+		void apply(Page page, ElementHandle element);
+
 	}
 
 }

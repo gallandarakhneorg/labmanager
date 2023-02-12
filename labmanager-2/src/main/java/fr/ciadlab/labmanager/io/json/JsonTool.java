@@ -88,6 +88,12 @@ public abstract class JsonTool {
 	 */
 	public static final String JOURNALS_SECTION = "journals"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to conferences.
+	 *
+	 * @since 3.6
+	 */
+	public static final String CONFERENCES_SECTION = "conferences"; //$NON-NLS-1$
+
 	/** Main section of the JSON that is dedicated to publications.
 	 */
 	public static final String PUBLICATIONS_SECTION = "publications"; //$NON-NLS-1$
@@ -256,6 +262,12 @@ public abstract class JsonTool {
 	/** Prefix for journal identifiers.
 	 */
 	protected  static final String JOURNAL_ID_PREFIX = "/jour#"; //$NON-NLS-1$
+
+	/** Prefix for journal identifiers.
+	 *
+	 * @since 3.6
+	 */
+	protected  static final String CONFERENCE_ID_PREFIX = "/conf#"; //$NON-NLS-1$
 
 	/** Prefix for publication identifiers.
 	 */
@@ -473,6 +485,10 @@ public abstract class JsonTool {
 	/** Name of the field for the definition of the journals' annual quality indicators.
 	 */
 	protected static final String QUALITYINDICATORSHISTORY_KEY = "qualityIndicatorsHistory"; //$NON-NLS-1$
+
+	/** Name of the field for the CORE Index.
+	 */
+	protected static final String COREINDEX_KEY = "coreIndex"; //$NON-NLS-1$
 
 	/** Name of the field for the Scimago Q-Index.
 	 */

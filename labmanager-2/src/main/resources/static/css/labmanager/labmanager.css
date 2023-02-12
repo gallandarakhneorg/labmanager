@@ -704,3 +704,21 @@ table.personRankingTable td.personRankingTableScholar {
 	padding-left: 5px;
 	padding-right: 5px;
 }
+table.conferenceRankingTable {
+	width: 100%;	
+	vertical-align: top;
+	border: 1px solid #995555 !important;
+}
+table.conferenceRankingTable td.conferenceRankingTableName {
+	width: 100%;	
+	text-align: left;
+	vertical-align: center;
+	padding-left: 2px;
+	padding-right: 2px;
+}
+table.conferenceRankingTable td.conferenceRankingTableCore {
+	text-align: center;
+	vertical-align: center;
+	padding-left: 5px;
+	padding-right: 5px;
+}

@@ -29,11 +29,13 @@ import java.util.function.Supplier;
 import java.util.regex.Pattern;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.runners.ConditionalOnInitializationLock;
+import fr.ciadlab.labmanager.service.conference.ConferenceService;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
@@ -353,7 +355,7 @@ public abstract class AbstractComponent {
 	/** Find the journal object that corresponds to the given identifier or name.
 	 *
 	 * @param journal the identifier or the name of the journal.
-	 * @param jorunalService the service that must be used for accessing the journal's object.
+	 * @param journalService the service that must be used for accessing the journal's object.
 	 * @return the journal or {@code null}.
 	 */
 	protected static Journal getJournalWith(String journal, JournalService journalService) {
@@ -369,6 +371,30 @@ public abstract class AbstractComponent {
 			}
 			final Journal journalObj = journalService.getJournalByName(journal);
 			return journalObj;
+		}
+		return null;
+	}
+
+	/** Find the conference object that corresponds to the given identifier or name.
+	 *
+	 * @param conference the identifier or the name of the conference.
+	 * @param conferenceService the service that must be used for accessing the conference's object.
+	 * @return the conference or {@code null}.
+	 * @since 3.6
+	 */
+	protected static Conference getConferenceWith(String conference, ConferenceService conferenceService) {
+		if (!Strings.isNullOrEmpty(conference)) {
+			try {
+				final int id = Integer.parseInt(conference);
+				final Conference conferenceObj = conferenceService.getConferenceById(id);
+				if (conferenceObj != null) {
+					return conferenceObj;
+				}
+			} catch (Throwable ex) {
+				//
+			}
+			final Conference conferenceObj = conferenceService.getConferenceByName(conference);
+			return conferenceObj;
 		}
 		return null;
 	}

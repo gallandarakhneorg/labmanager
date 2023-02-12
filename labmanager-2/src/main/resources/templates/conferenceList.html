@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs"/>
+<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+
+<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+
+<th:block th:replace="fragments/nav :: conferenceListBar"/>
+
+<a id="btAddConference" class="btn btn-warning mt-4 pr-4 pl-4"
+   th:if="${changeEnabled}" th:utext="#{html.AddConference}"
+   th:href="${URLS_edit}"></a>
+
+<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+    <thead>
+        <th th:utext="#{html.Id}"></th>
+        <th th:utext="#{html.Acronym}"></th>
+        <th th:utext="#{html.Name}"></th>
+        <th th:utext="#{html.Publisher}"></th>
+        <th th:utext="#{html.ISSN}"></th>
+        <th th:utext="#{html.OpenAccess}"></th>
+        <th th:utext="#{html.CoreRanking0}"></th>
+        <th th:utext="#{html.Validated}"></th>
+        <th th:text="#{html.Actions}"></th>
+    </thead>
+    <tbody>
+        <tr th:each="conference : ${conferences}">
+            <td>
+                <th:block th:utext="${conference.id}"></th:block>
+            </td>
+            <td th:with="urlObject=${conference.conferenceURLObject}">
+                <a th:if="${urlObject != null}"
+                   th:href="${conference.conferenceURL}"
+                   th:utext="${conference.acronym}"></a>
+                <th:block th:if="${urlObject == null}"
+                          th:utext="${conference.acronym}"></th:block>
+            </td>
+            <td th:with="urlObject=${conference.conferenceURLObject}">
+                <a th:if="${urlObject != null}"
+                   th:href="${conference.conferenceURL}"
+                   th:utext="${conference.name}"></a>
+                <th:block th:if="${urlObject == null}"
+                          th:utext="${conference.name}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${conference.publisher}"></th:block>
+            </td>
+            <td>
+                <th:block th:utext="${conference.getISSN()}"></th:block>
+            </td>
+            <td>
+                <th:block th:if="${conference.openAccess != null && conference.openAccess.booleanValue}"
+                          th:utext="#{html.yes}"></th:block>
+                <th:block th:if="${conference.openAccess != null && !conference.openAccess.booleanValue}"
+                          th:utext="#{html.no}"></th:block>
+            </td>
+            <td th:with="cindex=${conference.getCoreIndexByYear(currentYear)}">
+            	<th:block th:if="${cindex != null && cindex != T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).NR}"
+	                      th:utext="${cindex.toString}"></th:block>
+            </td>
+            <td>
+            	<th:block th:if="${conference.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
+            	<th:block th:unless="${conference.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
+            </td>
+            <td th:replace="fragments/table :: adminToolButtons(${conference.id}, ${conference.nameOrAcronym},
+            		#{html.EditConference1(${conference.nameOrAcronym})},
+            		#{html.DeleteConference1(${conference.nameOrAcronym})},
+            		~{::.admin-tool-buttons},
+            		null, null, null,
+            		'' )">
+            	<a th:href="@{/conferenceRankingEditor(id=${conference.id})}"
+				   th:if="${changeEnabled}"
+				   class="noLink admin-tool-buttons">
+            		<span class="fa-solid fa-ranking-star"
+            		   th:title="#{html.EditRankingOf(${conference.nameOrAcronym})}"
+                       style="font-size:14pt"></span>
+            	</a>
+           		<span class="fa fa-ranking-star admin-tool-buttons"
+				   th:unless="${changeEnabled}"
+           		   th:title="#{html.EditRankingOf(${conference.nameOrAcronym})}"
+                   style="font-size:14pt"></span>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<script type="text/javascript" th:inline="javascript">
+    $(document).ready(() => {
+    	initAdministrationTable({
+            columns: 8,
+    		actionWidth: '80px',
+    	});
+        /*[# th:if="${changeEnabled}" th:each="conference : ${conferences}"]*/
+        attachDeletionHandler({
+        	id: "[[${conference.id}]]",
+        	url: "[(@{/deleteConference(conference=${conference.id})})]",
+        	name: [[${conference.nameOrAcronym}]],
+        	questionTitle: [[#{html.DeleteConference1(${conference.nameOrAcronym})}]],
+        	questionText: [[#{html.AreYouSureToDelete(${conference.nameOrAcronym})}]],
+        	successText: [[#{html.ConferenceDeleted}]],
+        	failureText: [[#{html.CannotDeleteConference}]],
+        });
+        /*[/]*/
+    });
+</script>
+</html>

@@ -155,6 +155,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 						+ stats.addresses + " addresses;\n" //$NON-NLS-1$
 						+ stats.organizations + " organizations;\n" //$NON-NLS-1$
 						+ stats.journals + " journals;\n" //$NON-NLS-1$
+						+ stats.conferences + " conferences;\n" //$NON-NLS-1$
 						+ stats.persons + " explicit persons;\n" //$NON-NLS-1$
 						+ stats.authors + " external authors;\n" //$NON-NLS-1$
 						+ stats.organizationMemberships + " organization memberships;\n" //$NON-NLS-1$

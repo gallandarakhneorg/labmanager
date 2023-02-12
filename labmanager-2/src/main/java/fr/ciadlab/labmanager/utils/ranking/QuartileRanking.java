@@ -77,7 +77,7 @@ public enum QuartileRanking {
 	 * value for a quartile. If the given quartile is {@code null}, {@link #NR} is replied.
 	 * 
 	 * @param quartile the quartile to normalize.
-	 * @return the normalized quartile, neer {@code null}.
+	 * @return the normalized quartile, never {@code null}.
 	 */
 	public static QuartileRanking normalize(QuartileRanking quartile) {
 		if (quartile == null) {

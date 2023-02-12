@@ -36,7 +36,7 @@ import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.hibernate.annotations.ColumnDefault;
 
-/** Histoty of the quality indicators for a journal.
+/** History of the quality indicators for a journal.
  * 
  * @author $Author: sgalland$
  * @author $Author: tmartine$

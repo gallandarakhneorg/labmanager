@@ -26,6 +26,7 @@ import java.util.List;
 
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureComparator;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolderComparator;
+import fr.ciadlab.labmanager.entities.conference.ConferenceComparator;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitationComparator;
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
@@ -102,6 +103,8 @@ public final class EntityUtils {
 	private static PublicationComparator PUBLICATION_COMPARATOR; 
 
 	private static JournalComparator JOURNAL_COMPARATOR; 
+
+	private static ConferenceComparator CONFERENCE_COMPARATOR; 
 
 	private static JuryMembershipComparator JURY_MEMBERSHIP_COMPARATOR; 
 
@@ -396,6 +399,29 @@ public final class EntityUtils {
 	public static void setPreferredJournalComparator(JournalComparator comparator) {
 		synchronized (EntityUtils.class) {
 			JOURNAL_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of conferences.
+	 *
+	 * @return the comparator.
+	 */
+	public static ConferenceComparator getPreferredConferenceComparator() {
+		synchronized (EntityUtils.class) {
+			if (CONFERENCE_COMPARATOR == null) {
+				CONFERENCE_COMPARATOR = new ConferenceComparator();
+			}
+			return CONFERENCE_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of conferences.
+	 *
+	 * @param comparator the comparator.
+	 */
+	public static void setPreferredConferenceComparator(ConferenceComparator comparator) {
+		synchronized (EntityUtils.class) {
+			CONFERENCE_COMPARATOR = comparator;
 		}
 	}
 

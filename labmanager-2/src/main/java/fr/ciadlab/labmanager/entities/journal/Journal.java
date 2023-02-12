@@ -561,10 +561,11 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @since 2.0
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsForYear(int year) {
-		if (this.qualityIndicators == null) {
+		final Map<Integer, JournalQualityAnnualIndicators> allIndicators = getQualityIndicators();
+		if (allIndicators == null) {
 			return null;
 		}
-		return this.qualityIndicators.get(Integer.valueOf(year));
+		return allIndicators.get(Integer.valueOf(year));
 	}
 
 	/** Replies the quality indicators that is fitting the given predicates and with an year lower or equal
@@ -576,11 +577,12 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @since 2.0
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsFor(int year, Predicate<JournalQualityAnnualIndicators> selector) {
-		if (this.qualityIndicators != null) {
-			final IntegerList ids = new IntegerList(this.qualityIndicators.keySet());
+		final Map<Integer, JournalQualityAnnualIndicators> allIndicators = getQualityIndicators();
+		if (allIndicators != null) {
+			final IntegerList ids = new IntegerList(allIndicators.keySet());
 			final int start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
 			for (int i = start; i >= 0; --i) {
-				final JournalQualityAnnualIndicators indicators = this.qualityIndicators.get(ids.get(i));
+				final JournalQualityAnnualIndicators indicators = allIndicators.get(ids.get(i));
 				if (indicators != null && selector.test(indicators)) {
 					return indicators;
 				}

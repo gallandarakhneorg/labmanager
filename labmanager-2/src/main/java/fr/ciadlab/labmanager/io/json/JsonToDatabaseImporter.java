@@ -44,6 +44,8 @@ import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructure;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolder;
 import fr.ciadlab.labmanager.entities.assostructure.HolderRole;
+import fr.ciadlab.labmanager.entities.conference.Conference;
+import fr.ciadlab.labmanager.entities.conference.ConferenceQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitation;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
@@ -69,6 +71,8 @@ import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivity;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivityType;
 import fr.ciadlab.labmanager.repository.assostructure.AssociatedStructureRepository;
+import fr.ciadlab.labmanager.repository.conference.ConferenceQualityAnnualIndicatorsRepository;
+import fr.ciadlab.labmanager.repository.conference.ConferenceRepository;
 import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
@@ -88,6 +92,7 @@ import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
+import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.commons.lang3.tuple.Pair;
@@ -125,6 +130,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 	private JournalRepository journalRepository;
 
 	private JournalQualityAnnualIndicatorsRepository journalIndicatorsRepository;
+
+	private ConferenceRepository conferenceRepository;
+
+	private ConferenceQualityAnnualIndicatorsRepository conferenceIndicatorsRepository;
 
 	private PublicationRepository publicationRepository;
 
@@ -166,6 +175,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param organizationMembershipRepository the accessor to the organization membership repository.
 	 * @param journalRepository the accessor to the journal repository.
 	 * @param journalIndicatorsRepository the accessor to the repository of the journal quality annual indicators.
+	 * @param conferenceRepository the accessor to the conference repository.
+	 * @param conferenceIndicatorsRepository the accessor to the repository of the conference quality annual indicators.
 	 * @param publicationRepository the accessor to the repository of the publications.
 	 * @param publicationService the service related to the publications.
 	 * @param publicationComparator the comparator of publications.
@@ -189,6 +200,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired MembershipRepository organizationMembershipRepository,
 			@Autowired JournalRepository journalRepository,
 			@Autowired JournalQualityAnnualIndicatorsRepository journalIndicatorsRepository,
+			@Autowired ConferenceRepository conferenceRepository,
+			@Autowired ConferenceQualityAnnualIndicatorsRepository conferenceIndicatorsRepository,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired PublicationService publicationService,
 			@Autowired PublicationComparator publicationComparator,
@@ -210,6 +223,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.organizationMembershipRepository = organizationMembershipRepository;
 		this.journalRepository = journalRepository;
 		this.journalIndicatorsRepository = journalIndicatorsRepository;
+		this.conferenceRepository = conferenceRepository;
+		this.conferenceIndicatorsRepository = conferenceIndicatorsRepository;
 		this.publicationRepository = publicationRepository;
 		this.publicationService = publicationService;
 		this.publicationComparator = publicationComparator;
@@ -422,6 +437,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				+ stats.addresses + " addresses;\n" //$NON-NLS-1$
 				+ stats.organizations + " organizations;\n" //$NON-NLS-1$
 				+ stats.journals + " journals;\n" //$NON-NLS-1$
+				+ stats.conferences + " conferences;\n" //$NON-NLS-1$
 				+ stats.persons + " explicit persons;\n" //$NON-NLS-1$
 				+ stats.authors + " external authors;\n" //$NON-NLS-1$
 				+ stats.organizationMemberships + " organization memberships;\n" //$NON-NLS-1$
@@ -487,6 +503,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
 				final int nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
+				final int nb14 = insertConferences(session, content.get(CONFERENCES_SECTION), objectRepository, aliasRepository);
 				final int nb3 = insertOrganizationMemberships(session, content.get(ORGANIZATION_MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
 				final Pair<Integer, Integer> added = insertPublications(session, content.get(PUBLICATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb4 = added != null ? added.getLeft().intValue() : 0;
@@ -498,7 +515,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 				final int nb11 = insertAssociatedStructures(session, content.get(ASSOCIATED_STRUCTURES_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb12 = insertTeachingActivities(session, content.get(TEACHING_ACTIVITY_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb13 = insertScientificAxes(session, content.get(SCIENTIFIC_AXIS_SECTION), objectRepository, aliasRepository, fileCallback);
-				return new Stats(nb6, nb0, nb2, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11, nb12, nb13);
+				return new Stats(nb6, nb0, nb2, nb14, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11, nb12, nb13);
 			}
 		}
 		return new Stats();
@@ -1040,6 +1057,86 @@ public class JsonToDatabaseImporter extends JsonTool {
 			}
 		}
 		return 0;
+	}
+
+	/** Create the conferences in the database.
+	 *
+	 * @param session the JPA session for managing transactions.
+	 * @param conferences the list of conferences in the Json source.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
+	 * @param aliasRepository the repository of field aliases.
+	 * @return the number of new conferences in the database.
+	 * @throws Exception if a membership cannot be created.
+	 */
+	protected int insertConferences(Session session, JsonNode conferences, Map<String, Integer> objectIdRepository,
+			Map<String, Set<String>> aliasRepository) throws Exception {
+		int nbNew = 0;
+		if (conferences != null && !conferences.isEmpty()) {
+			getLogger().info("Inserting " + conferences.size() + " conferences..."); //$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (JsonNode conferenceObject : conferences) {
+				getLogger().info("> Conference " + (i + 1) + "/" + conferences.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final String id = getId(conferenceObject);
+					Conference conference = createObject(Conference.class, conferenceObject, aliasRepository, null);
+					if (conference != null) {
+						session.beginTransaction();
+						final Optional<Conference> existing = this.conferenceRepository.findByAcronymOrName(conference.getName());
+						if (existing.isEmpty()) {
+							if (!isFake()) {
+								conference = this.conferenceRepository.save(conference);
+							}
+							// Create the quality indicators
+							final JsonNode history = conferenceObject.get(QUALITYINDICATORSHISTORY_KEY);
+							if (history != null && !history.isEmpty()) {
+								final Iterator<Entry<String, JsonNode>> iterator = history.fields();
+								while (iterator.hasNext()) {
+									final Entry<String, JsonNode> historyEntry = iterator.next();
+									final int year = Integer.parseInt(historyEntry.getKey());
+									String str = null;
+									if (historyEntry.getValue() != null) {
+										final JsonNode n = historyEntry.getValue().get(COREINDEX_KEY);
+										if (n != null) {
+											str = n.asText();
+										}
+									}
+									ConferenceQualityAnnualIndicators indicators = null; 
+									if (!Strings.isNullOrEmpty(str) ) {
+										final CoreRanking core = CoreRanking.valueOfCaseInsensitive(str);
+										if (core != null) {
+											indicators = conference.setCoreIndexByYear(year, core);
+										}
+									}
+									if (indicators != null && !isFake()) {
+										this.conferenceIndicatorsRepository.save(indicators);
+									}
+								}
+							}
+							// Save again the conference for saving the links to the quality indicators
+							if (!isFake()) {
+								conference = this.conferenceRepository.save(conference);
+							}
+							++nbNew;
+							//
+							getLogger().info("  + " + conference.getNameOrAcronym() + " (id: " + conference.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							if (!Strings.isNullOrEmpty(id)) {
+								objectIdRepository.put(id, Integer.valueOf(conference.getId()));
+							}
+						} else {
+							getLogger().info("  X " + existing.get().getNameOrAcronym() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							if (!Strings.isNullOrEmpty(id)) {
+								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+							}
+						}
+						session.getTransaction().commit();
+					}
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(CONFERENCES_SECTION, i, conferenceObject, ex);
+				}
+				++i;
+			}
+		}
+		return nbNew;
 	}
 
 	/** Create the publications (and additional authors) in the database.
@@ -2270,6 +2367,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 */
 		public final int journals;
 
+		/** Number of created conferences.
+		 */
+		public final int conferences;
+
 		/** Number of created persons.
 		 */
 		public final int persons;
@@ -2327,6 +2428,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param addresses the number of created addresses.
 		 * @param organizations the number of created organizations.
 		 * @param journals the number of created journals.
+		 * @param conferences the number of created conferences.
 		 * @param persons the number of created persons.
 		 * @param authors the number of created authors.
 		 * @param memberships the number of created organization memberships.
@@ -2339,12 +2441,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param teachingActivities the number of teaching activities.
 		 * @param scientificAxes the number of scientific axes.
 		 */
-		Stats(int addresses, int organizations, int journals, int persons, int authors, int memberships, int publications,
-				int juryMemberships, int supervisions, int invitations, int projects, int associatedStructures,
-				int teachingActivities, int scientificAxes) {
+		Stats(int addresses, int organizations, int journals, int conferences, int persons, int authors,
+				int memberships, int publications, int juryMemberships, int supervisions, int invitations,
+				int projects, int associatedStructures, int teachingActivities, int scientificAxes) {
 			this.addresses = addresses;
 			this.organizations = organizations;
 			this.journals = journals;
+			this.conferences = conferences;
 			this.persons = persons;
 			this.authors = authors;
 			this.organizationMemberships = memberships;
@@ -2361,7 +2464,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		/** Constructor.
 		 */
 		Stats() {
-			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		}
 
 	}

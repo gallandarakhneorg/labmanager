@@ -227,6 +227,27 @@ public class Constants {
 	 */
 	public static final String JOURNAL_SAVING_ENDPOINT = "journalSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for list of conferences.
+	 *
+	 * @see #CONFERENCE_SAVING_ENDPOINT
+	 * @since 3.6
+	 */
+	public static final String CONFERENCE_LIST_ENDPOINT = "conferenceList"; //$NON-NLS-1$
+
+	/** Name of the endpoint for editing a conference.
+	 *
+	 * @see #CONFRENCE_SAVING_ENDPOINT
+	 * @since 3.6
+	 */
+	public static final String CONFERENCE_EDITING_ENDPOINT = "conferenceEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving a conference.
+	 *
+	 * @see #CONFERENCE_EDITING_ENDPOINT
+	 * @since 3.6
+	 */
+	public static final String CONFERENCE_SAVING_ENDPOINT = "conferenceSave"; //$NON-NLS-1$
+
 	/** Name of the endpoint for list of publications.
 	 */
 	public static final String PUBLICATION_LIST_ENDPOINT = "publicationList"; //$NON-NLS-1$
@@ -335,6 +356,36 @@ public class Constants {
 	/** Name of the endpoint for saving the journal indicator updates.
 	 */
 	public static final String SAVE_JOURNAL_INDICATOR_UPDATES_ENDPOINT = "saveJournalIndicatorUpdates"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving a conference ranking.
+	 *
+	 * @since 3.6
+	 */
+	public static final String SAVE_CONFERENCE_RANKING_ENDPOINT = "saveConferenceRanking"; //$NON-NLS-1$
+
+	/** Name of the endpoint for deleting a conference ranking.
+	 *
+	 * @since 3.6
+	 */
+	public static final String DELETE_CONFERENCE_RANKING_ENDPOINT = "deleteConferenceRanking"; //$NON-NLS-1$
+
+	/** Name of the endpoint for computing the updates of the conference' indicators.
+	 *
+	 * @since 3.6
+	 */
+	public static final String GET_JSON_FOR_CONFERENCE_INDICATOR_UPDATES_ENDPOINT = "getJsonForConferenceIndicatorUpdates"; //$NON-NLS-1$
+
+	/** Name of the {@code year} parameter for endpoints.
+	 *
+	 * @since 3.6
+	 */
+	public static final String YEAR_ENDPOINT_PARAMETER = "year"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving the conference indicator updates.
+	 *
+	 * @since 3.6
+	 */
+	public static final String SAVE_CONFERENCE_INDICATOR_UPDATES_ENDPOINT = "saveConferenceIndicatorUpdates"; //$NON-NLS-1$
 
 	/** Name of the endpoint for saving the person indicator updates.
 	 *

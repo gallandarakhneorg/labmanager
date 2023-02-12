@@ -30,6 +30,11 @@ import com.google.common.base.Strings;
  * @see "http://portal.core.edu.au/conf-ranks/"
  */
 public enum CoreRanking {
+	/** Not ranked.
+	 *
+	 * @since 3.6
+	 */
+    NR,
 	/** Rank D.
 	 */
     D,
@@ -71,12 +76,26 @@ public enum CoreRanking {
     public static CoreRanking valueOfCaseInsensitive(String stringCoreRanking) {
     	if (!Strings.isNullOrEmpty(stringCoreRanking)) {
 	    	for (final CoreRanking candidate : values()) {
-	    		if (candidate.toString().equalsIgnoreCase(stringCoreRanking)) {
+	    		if (candidate.name().equalsIgnoreCase(stringCoreRanking)
+	    				|| candidate.toString().equalsIgnoreCase(stringCoreRanking)) {
 	    			return candidate;
 	    		}
 	    	}
     	}
     	return null;
     }
+
+	/** Normalize the given ranking. Normalization ensures that there is no {@code null}
+	 * value for a ranking. If the given ranking is {@code null}, {@link #NR} is replied.
+	 * 
+	 * @param ranking the ranking to normalize.
+	 * @return the normalized ranking, never {@code null}.
+	 */
+	public static CoreRanking normalize(CoreRanking ranking) {
+		if (ranking == null) {
+			return NR;
+		}
+		return ranking;
+	}
 
 }

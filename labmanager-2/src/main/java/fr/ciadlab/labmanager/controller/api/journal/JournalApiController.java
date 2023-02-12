@@ -237,9 +237,9 @@ public class JournalApiController extends AbstractApiController {
 		}
 		final float realImpactFactor = impactFactor == null || impactFactor.floatValue() < 0f ? 0f : impactFactor.floatValue();
 		final String inScimagoQIndex = inString(scimagoQIndex);
-		final QuartileRanking scimago = inScimagoQIndex == null ? null : QuartileRanking.valueOf(inScimagoQIndex);
+		final QuartileRanking scimago = inScimagoQIndex == null ? null : QuartileRanking.valueOfCaseInsensitive(inScimagoQIndex);
 		final String inWosQIndex = inString(wosQIndex);
-		final QuartileRanking wos = inWosQIndex == null ? null : QuartileRanking.valueOf(inWosQIndex);
+		final QuartileRanking wos = inWosQIndex == null ? null : QuartileRanking.valueOfCaseInsensitive(inWosQIndex);
 		this.journalService.setQualityIndicators(journalObj, year, realImpactFactor, scimago, wos);
 	}
 
@@ -299,7 +299,7 @@ public class JournalApiController extends AbstractApiController {
 		final int referenceYear = ensureYear(data, "referenceYear"); //$NON-NLS-1$
 		final String rawChanges = ensureString(data, "changes"); //$NON-NLS-1$
 		if (Strings.isNullOrEmpty(rawChanges)) {
-			throw new IllegalArgumentException("changes are expected"); //$NON-NLS-1$
+			throw new IllegalArgumentException("Changes are expected"); //$NON-NLS-1$
 		}
 		final Map<String, Map<String, ?>> changes;
 		try (StringReader sr = new StringReader(rawChanges)) {

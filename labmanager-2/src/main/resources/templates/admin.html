@@ -179,12 +179,16 @@
 		<div class="card">
 		    <div class="card-body">
 				<img th:src="@{/images/card/conferences.jpg}" class="card-img-top"></img>
-			    <h5 class="card-title">Conferences</h5>
+			    <h5 class="card-title" th:utext="#{html.ConferenceManagement}"></h5>
 			    <p class="card-text">
-			    	<button type="button" class="btn btn-labeled btn-success" disabled>
-			    		<span class="fa-solid fa-list"></span>&nbsp;List of conferences</button>
-			    	<button type="button" class="btn btn-labeled btn-primary" disabled>
-			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;Add a conference</button>
+			    	<a th:href="@{/conferenceList}" class="btn btn-labeled btn-success" role="button">
+			    		<span class="fa-solid fa-list"></span>&nbsp;<th:block th:utext="#{html.ConferencesList}"></th:block></a>
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/conferenceEditor}" class="btn btn-labeled btn-primary" role="button">
+			    		<span class="fa-solid fa-circle-plus"></span>&nbsp;<th:block th:utext="#{html.AddConference}"></th:block></a>
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/conferenceRankingUpdater}" class="btn btn-labeled btn-secondary" role="button">
+			    		<span class="fa-solid fa-sync"></span>&nbsp;<th:block th:utext="#{html.UpdateConferenceRankings}"></th:block></a>
 			    </p>
 			</div>
 		</div>

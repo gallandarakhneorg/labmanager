@@ -35,6 +35,8 @@ import com.fasterxml.jackson.databind.node.JsonNodeCreator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructure;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolder;
+import fr.ciadlab.labmanager.entities.conference.Conference;
+import fr.ciadlab.labmanager.entities.conference.ConferenceQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.indicator.GlobalIndicators;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitation;
 import fr.ciadlab.labmanager.entities.journal.Journal;
@@ -55,6 +57,7 @@ import fr.ciadlab.labmanager.entities.supervision.Supervisor;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivity;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivityType;
 import fr.ciadlab.labmanager.repository.assostructure.AssociatedStructureRepository;
+import fr.ciadlab.labmanager.repository.conference.ConferenceRepository;
 import fr.ciadlab.labmanager.repository.indicator.GlobalIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.invitation.PersonInvitationRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
@@ -94,6 +97,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private JournalRepository journalRepository;
 
+	private ConferenceRepository conferenceRepository;
+
 	private PublicationRepository publicationRepository;
 
 	private JuryMembershipRepository juryMembershipRepository;
@@ -119,6 +124,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param personRepository the accessor to the person repository.
 	 * @param organizationMembershipRepository the accessor to the organization membership repository.
 	 * @param journalRepository the accessor to the journal repository.
+	 * @param conferenceRepository the accessor to the conference repository.
 	 * @param publicationRepository the accessor to the repository of the publications.
 	 * @param juryMembershipRepository the accessor to the jury membership repository.
 	 * @param supervisionRepository the accessor to the supervision repository.
@@ -135,6 +141,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired PersonRepository personRepository,
 			@Autowired MembershipRepository organizationMembershipRepository,
 			@Autowired JournalRepository journalRepository,
+			@Autowired ConferenceRepository conferenceRepository,
 			@Autowired PublicationRepository publicationRepository,
 			@Autowired JuryMembershipRepository juryMembershipRepository,
 			@Autowired SupervisionRepository supervisionRepository,
@@ -149,6 +156,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		this.personRepository = personRepository;
 		this.organizationMembershipRepository = organizationMembershipRepository;
 		this.journalRepository = journalRepository;
+		this.conferenceRepository = conferenceRepository;
 		this.publicationRepository = publicationRepository;
 		this.juryMembershipRepository = juryMembershipRepository;
 		this.supervisionRepository = supervisionRepository;
@@ -221,6 +229,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportPersons(root, repository);
 		exportOrganizationMemberships(root, repository);
 		exportJournals(root, repository);
+		exportConferences(root, repository);
 		exportPublications(root, repository, similarPublicationProvider, extraPublicationProvider);
 		exportJuryMemberships(root, repository);
 		exportSupervisions(root, repository);
@@ -532,6 +541,51 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			if (array.size() > 0) {
 				root.set(JOURNALS_SECTION, array);
+			}
+		}
+	}
+
+	/** Export the conferences to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	protected void exportConferences(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<Conference> conferences = this.conferenceRepository.findAll();
+		if (!conferences.isEmpty()) {
+			final ArrayNode array = root.arrayNode();
+			int i = 0;
+			for (final Conference conference : conferences) {
+				final ObjectNode jsonConference = array.objectNode();
+
+				final String id = CONFERENCE_ID_PREFIX + i;
+				exportObject(jsonConference, id, conference, jsonConference, null);
+
+				// Add the quality indicators by hand because they are not exported implicitly by
+				// the "exportObject" function
+				final ObjectNode indicatorMap = jsonConference.objectNode();
+				for (final ConferenceQualityAnnualIndicators indicators : conference.getQualityIndicators().values()) {
+					final ObjectNode jsonIndicator = indicatorMap.objectNode();
+					exportObject(jsonIndicator, null, indicators, jsonIndicator, null);
+					// Remove the year because it is not necessary into the JSON map as value and the year is the key.
+					jsonIndicator.remove(REFERENCEYEAR_KEY);
+					if (jsonIndicator.size() > 0) {
+						indicatorMap.set(Integer.toString(indicators.getReferenceYear()), jsonIndicator);
+					}
+				}
+				if (indicatorMap.size() > 0) {
+					jsonConference.set(QUALITYINDICATORSHISTORY_KEY, indicatorMap);
+				}
+
+				if (jsonConference.size() > 0) {
+					repository.put(conference, id);
+					array.add(jsonConference);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.set(CONFERENCES_SECTION, array);
 			}
 		}
 	}

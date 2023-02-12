@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs" />
+<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="fragments/formfileinput :: all" />
+<th:block th:replace="fragments/buttons :: ajaxButtons" />
+<th:block th:replace="fragments/buttons :: waitButtons" />
+
+<th:block th:replace="fragments/nav :: conferenceListBar*(#{html.UpdateConferenceRankings})"/>
+
+<form th:replace="fragments/form :: genericForm(true, ~{::.form-group})">
+	<div class="form-group" th:replace="fragments/form :: textInput*(referenceYear, #{html.Year}, #{html.PlaceHolderReferenceYear}, ${referenceYear})"></div>
+	<th:block class="form-group">
+		<hr/>
+		<div id="loadingIndicator">
+			<div class="progress">
+			  <div id="progress-bar" class="progress-bar" role="progressbar" style="width:0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+			</div>	
+			<div id="progress-message"></div>
+		</div>
+		<div id="form-dynamic-groups"></div>
+	</th:block>
+	<th:block class="form-group">
+		<button id="saveButton" type="button"
+		        class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
+		        th:utext="#{html.Save}"></button>
+	</th:block>
+</form>
+<script type="text/javascript" th:inline="javascript">
+const GLOBAL_CONFERENCE_UPDATES = new Map();
+var GLOBAL_CONFERENCE_UPDATE_YEAR = null;
+function showComponents0() {
+	$('#referenceYear').prop('disabled', false);
+	$('#submitButton').show();
+	$('#saveButton').hide();
+	$('#loadingIndicator').hide();
+	$('#form-dynamic-groups').hide();
+}
+function showComponents1() {
+	$('#referenceYear').prop('disabled', true);
+	$('#submitButton').hide();
+	$('#saveButton').hide();
+	$('#loadingIndicator').show();
+	$('#form-dynamic-groups').hide();
+}
+function showComponents2() {
+	$('#referenceYear').prop('disabled', true);
+	$('#submitButton').hide();
+	$('#saveButton').show();
+	$('#loadingIndicator').hide();
+	$('#form-dynamic-groups').show();
+}
+const CORE_RANKING_LABELS = new Map();
+/*[# th:each="ranking : ${T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).values}"]*/
+CORE_RANKING_LABELS.set([[${ranking.name}]], [[${ranking.toString()}]]);
+/*[/]*/
+function appendIndicatorCell($trElement, currentValue, newValue, style) {
+	var change = false;
+	var $tdElement = $('<td></td>').attr('class', style);
+	if (currentValue) {
+		if (newValue && currentValue != newValue) {
+			$tdElement.append(CORE_RANKING_LABELS.get(currentValue) + "&rarr;" + CORE_RANKING_LABELS.get(newValue));
+			change = true;
+		} else {
+			$tdElement.append(CORE_RANKING_LABELS.get(currentValue) + "&rarr;");
+		}
+	} else {
+		if (newValue) {
+			$tdElement.append("&rarr;" + CORE_RANKING_LABELS.get(newValue));
+			change = true;
+		}
+	}
+	$trElement.append($tdElement);
+	return change;
+}
+function addConferenceUpdate(id, name, oldRanking, newRanking) {
+	var $groupElement = $("<div></div>").attr('class', 'form-group');
+	$('#form-dynamic-groups').append($groupElement);
+
+	var $firstBlock = $('<div></div>').attr('class', 'col-form-label');
+	$groupElement.append($firstBlock);
+
+	var $labelElement = $('<label></label>').attr('for', 'updateCheck_' + id );
+	$labelElement = $labelElement.attr('style', 'max-width:85%;margin-left:10px;');
+	var $tableElement = $('<table></table>').attr('class', 'conferenceRankingTable');
+	$labelElement.append($tableElement);
+	var $trElement = $('<tr></tr>');
+	$tableElement.append($trElement);
+	$tdElement = $('<td></td>').attr('class', 'conferenceRankingTableName');
+	$tdElement.append(name);
+	$trElement.append($tdElement);
+	var checked = appendIndicatorCell($trElement, oldRanking, newRanking, 'conferenceRankingTableCore');
+
+	var $checkElement = $('<input></input>').attr('type', 'checkbox');
+	$checkElement = $checkElement.attr('checked', checked);
+	$checkElement = $checkElement.attr('style', 'vertical-align: top;margin-top:5px;');
+	$checkElement = $checkElement.attr('id', 'updateCheck_' + id );
+	$firstBlock.append($checkElement);
+
+	$firstBlock.append($labelElement);
+}
+function acquireConferenceUpdates() {
+	showComponents1();
+	var $yearInput = $('#textInput_referenceYear');
+	var year = $yearInput.val();
+    var $jbar = $("#progress-bar");
+    var $jmsg = $("#progress-message");
+    eventSource = new EventSource([[${getJsonUpdates}]] + year);
+    eventSource.onmessage = (e) => {
+        var notification = JSON.parse(e.data);
+        var terminated = notification.terminated;
+        if (terminated){
+        	eventSource.close();
+        	eventSource = null;
+        	$.each(notification['data'], (index, element) => {
+        		if ('id' in element && element['id']) {
+        			var id = element['id'];
+        			var name = element['name'];
+        			var newRanking = element['coreRanking'];
+        			var oldRanking = element['currentCoreRanking'];
+        			GLOBAL_CONFERENCE_UPDATES.set(id, newRanking);
+        			addConferenceUpdate(id, name, oldRanking, newRanking);
+        		}
+        	});
+        	GLOBAL_CONFERENCE_UPDATE_YEAR = year;
+			showComponents2();
+        }else{
+	        var message = notification.message;
+	        var percent = notification.percent;
+	       	$jbar.css('width', percent + '%');
+	       	$jbar.attr('aria-valuenow', percent);
+	        $jmsg.html(message);
+		}
+    };
+}
+function submitFinalConferenceUpdates() {
+	showComponents0();
+}
+$(document).ready(() => {
+	showComponents0();
+	$(document).on('click', '#submitButton', (event) => {
+		acquireConferenceUpdates();
+	});
+	/*[# th:if="${changeEnabled}"]*/
+	attachSpinnerAjaxHandler({
+		id: "saveButton",
+		url: "[(${formActionUrl})]",
+		timeout: 500000,
+		text: "[(#{html.Save})]",
+		prepareData: ($bt, formData) => {
+		    var changes = {};
+		    GLOBAL_CONFERENCE_UPDATES.forEach((ranking, id) => {
+		    	var checkElement = $('#updateCheck_' + id);
+		    	var doUpdate = checkElement.is(':checked');
+		    	if (doUpdate) {
+		    		changes[id] = ranking;
+		    	}
+		    });
+		    formData.append("referenceYear", GLOBAL_CONFERENCE_UPDATE_YEAR);
+		    formData.append("changes", JSON.stringify(changes));
+		},
+		failureText: "[(#{html.ConferenceRankingUpdaterError})]",
+		onSuccess: () => {
+			window.location.href = [[${succesRedirectionUrl}]];
+		},
+		onFailure: () => {
+			location.reload();
+		},
+	});
+	/*[/]*/
+});
+</script>
+</html>

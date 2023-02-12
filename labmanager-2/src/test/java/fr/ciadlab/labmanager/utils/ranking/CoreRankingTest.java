@@ -40,6 +40,7 @@ public class CoreRankingTest {
 		assertEquals("B", CoreRanking.B.toString());
 		assertEquals("C", CoreRanking.C.toString());
 		assertEquals("D", CoreRanking.D.toString());
+		assertEquals("NR", CoreRanking.NR.toString());
 	}
 
 	@Test
@@ -56,6 +57,7 @@ public class CoreRankingTest {
 		assertEquals(CoreRanking.B, CoreRanking.valueOfCaseInsensitive("B"));
 		assertEquals(CoreRanking.C, CoreRanking.valueOfCaseInsensitive("C"));
 		assertEquals(CoreRanking.D, CoreRanking.valueOfCaseInsensitive("D"));
+		assertEquals(CoreRanking.NR, CoreRanking.valueOfCaseInsensitive("NR"));
 		assertNull(CoreRanking.valueOfCaseInsensitive("E"));
 	}
 
@@ -67,6 +69,7 @@ public class CoreRankingTest {
 		assertEquals(CoreRanking.B, CoreRanking.valueOfCaseInsensitive("b"));
 		assertEquals(CoreRanking.C, CoreRanking.valueOfCaseInsensitive("c"));
 		assertEquals(CoreRanking.D, CoreRanking.valueOfCaseInsensitive("d"));
+		assertEquals(CoreRanking.NR, CoreRanking.valueOfCaseInsensitive("nr"));
 		assertNull(CoreRanking.valueOfCaseInsensitive("e"));
 	}
 
