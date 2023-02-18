@@ -590,6 +590,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			publications.writeReferenceOrObjectField("publication", authorship.getPublication(), () -> { //$NON-NLS-1$
 				journals.writePublicationAndAttributes(authorship.getPublication(), journal -> {
 					JsonUtils.writeObjectAndAttributes(generator, journal);
+				}, conference -> {
+					JsonUtils.writeObjectAndAttributes(generator, conference);
 				});
 			});
 			generator.writeEndObject();

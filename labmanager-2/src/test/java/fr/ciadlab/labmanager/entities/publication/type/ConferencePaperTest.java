@@ -16,11 +16,15 @@
 
 package fr.ciadlab.labmanager.entities.publication.type;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 
+import static org.mockito.Mockito.*;
+
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -41,7 +45,7 @@ public class ConferencePaperTest extends AbstractTypedPublicationTest<Conference
 
 	@Override
 	protected ConferencePaper createTest(Publication prePublication) {
-		return new ConferencePaper(prePublication, null, null, null, null, null, null, null, null, null);
+		return new ConferencePaper(prePublication, null, 0, null, null, null, null, null, null, null);
 	}
 
 	@Test
@@ -152,20 +156,26 @@ public class ConferencePaperTest extends AbstractTypedPublicationTest<Conference
 	}
 
 	@Test
-	public void getScientificEventName() {
-		assertNull(this.test.getScientificEventName());
+	public void getConference() {
+		assertNull(this.test.getConference());
 	}
 
 	@Test
-	public void setScientificEventName() {
-		this.test.setScientificEventName("xyz");
-		assertEquals("xyz", this.test.getScientificEventName());
+	public void setConference() {
+		Conference conf = mock(Conference.class);
+		this.test.setConference(conf);
+		assertSame(conf, this.test.getConference());
+	}
 
-		this.test.setScientificEventName("");
-		assertNull(this.test.getScientificEventName());
+	@Test
+	public void getConferenceOccurrenceNumber() {
+		assertEquals(0, this.test.getConferenceOccurrenceNumber());
+	}
 
-		this.test.setScientificEventName(null);
-		assertNull(this.test.getScientificEventName());
+	@Test
+	public void setConferenceOccurrenceNumber() {
+		this.test.setConferenceOccurrenceNumber(1234);
+		assertEquals(1234, this.test.getConferenceOccurrenceNumber());
 	}
 
 	@Test
@@ -187,24 +197,7 @@ public class ConferencePaperTest extends AbstractTypedPublicationTest<Conference
 
 	@Test
 	public void getCoreRanking() {
-		assertNull(this.test.getCoreRanking());
-	}
-
-	@Test
-	public void getPublisher() {
-		assertNull(this.test.getPublisher());
-	}
-
-	@Test
-	public void setPublisher() {
-		this.test.setPublisher("xyz");
-		assertEquals("xyz", this.test.getPublisher());
-
-		this.test.setPublisher("");
-		assertNull(this.test.getPublisher());
-
-		this.test.setPublisher(null);
-		assertNull(this.test.getPublisher());
+		assertSame(CoreRanking.NR, this.test.getCoreRanking());
 	}
 
 }

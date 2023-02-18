@@ -27,6 +27,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
+import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
@@ -118,7 +119,7 @@ public abstract class AbstractTypedPublicationTest<T extends Publication> {
 		assertEquals("doi", this.test.getDOI());
 		assertEquals("http://extra.com", this.test.getExtraURL());
 		assertEquals("hal", this.test.getHalId());
-		if (!(this.test instanceof JournalBasedPublication)) {
+		if (!(this.test instanceof JournalBasedPublication) && !(this.test instanceof ConferenceBasedPublication)) {
 			assertEquals("isbn", this.test.getISBN());
 			assertEquals("issn", this.test.getISSN());
 		}

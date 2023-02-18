@@ -85,13 +85,17 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param createMissedJournal if {@code true} the missed journals from the JPA database will be automatically the subject
 	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thown when
 	 *     a journal is missed from the JPA database.
+	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
+	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
+	 *     a conference is missed from the JPA database.
 	 * @return the list of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
 	 * @see #extractPublications(String)
 	 */
 	default List<Publication> extractPublications(String bibtex, boolean keepBibTeXId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal) throws Exception {
-		return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal).collect(Collectors.toList());
+			boolean createMissedJournal, boolean createMissedConference) throws Exception {
+		return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember,
+				createMissedJournal, createMissedConference).collect(Collectors.toList());
 	}
 
 	/** Extract the publications from a BibTeX source.
@@ -110,13 +114,17 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param createMissedJournal if {@code true} the missed journals from the JPA database will be automatically the subject
 	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thown when
 	 *     a journal is missed from the JPA database.
+	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
+	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
+	 *     a conference is missed from the JPA database.
 	 * @return the list of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
 	 * @see #extractPublications(String)
 	 */
 	default List<Publication> extractPublications(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal) throws Exception {
-		return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal).collect(Collectors.toList());
+			boolean createMissedJournal, boolean createMissedConference) throws Exception {
+		return getPublicationStreamFrom(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember,
+				createMissedJournal, createMissedConference).collect(Collectors.toList());
 	}
 
 	/** Extract the publications from a BibTeX source.
@@ -135,16 +143,20 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param createMissedJournal if {@code true} the missed journals from the JPA database will be automatically the subject
 	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thown when
 	 *     a journal is missed from the JPA database.
+	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
+	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
+	 *     a conference is missed from the JPA database.
 	 * @return the stream of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
 	 * @see #getPublicationStreamFrom(Reader)
 	 * @see #extractPublications(Reader)
 	 */
 	default Stream<Publication> getPublicationStreamFrom(String bibtex, boolean keepBibTeXId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal) throws Exception {
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
 		if (!Strings.isNullOrEmpty(bibtex)) {
 			try (final Reader reader = new StringReader(bibtex)) {
-				return getPublicationStreamFrom(reader, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal);
+				return getPublicationStreamFrom(reader, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
+						createMissedConference);
 			}
 		}
 		return Collections.<Publication>emptySet().stream();
@@ -164,15 +176,18 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * @param ensureAtLeastOneMember if {@code true}, at least one member of a research organization is required from the
 	 *     the list of the persons. If {@code false}, the list of persons could contain no organization member.
 	 * @param createMissedJournal if {@code true} the missed journals from the JPA database will be automatically the subject
-	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thown when
+	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a journal is missed from the JPA database.
+	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
+	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
+	 *     a conference is missed from the JPA database.
 	 * @return the stream of publications that are detected in the BibTeX data.
 	 * @throws Exception if the BibTeX source cannot be processed.
 	 * @see #getPublicationStreamFrom(String)
 	 * @see #extractPublications(String)
 	 */
 	Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal) throws Exception;
+			boolean createMissedJournal, boolean createMissedConference) throws Exception;
 
 	@Override
 	default String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {

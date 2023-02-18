@@ -65,6 +65,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -83,6 +84,7 @@ import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.bugfix.BugfixLaTeXPrinter;
+import fr.ciadlab.labmanager.service.conference.ConferenceService;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
@@ -217,11 +219,26 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			"una",	//$NON-NLS-1$
 	};
 
+	private static final String[] CONFERENCE_NUMBER_POSTFIX = {
+			"st",	//$NON-NLS-1$
+			"nd",	//$NON-NLS-1$
+			"rd",	//$NON-NLS-1$
+			"th",	//$NON-NLS-1$
+			"ère",	//$NON-NLS-1$
+			"ere",	//$NON-NLS-1$
+			"er",	//$NON-NLS-1$
+			"ème",	//$NON-NLS-1$
+			"eme",	//$NON-NLS-1$
+			"",	//$NON-NLS-1$
+	};
+
 	private MessageSourceAccessor messages;
 
 	private PrePublicationFactory prePublicationFactory;
 
 	private JournalService journalService;
+
+	private ConferenceService conferenceService;
 
 	private PersonService personService;
 
@@ -244,6 +261,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param messages the accessor to the localized messages.
 	 * @param prePublicationFactory the factory of pre-publications.
 	 * @param journalService the service for accessing the journals.
+	 * @param conferenceService the service for accessing the conferences.
 	 * @param personService the service for managing the persons.
 	 * @param bookService the book service.
 	 * @param bookChapterService the book chapter service.
@@ -257,6 +275,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			@Autowired MessageSourceAccessor messages,
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired JournalService journalService,
+			@Autowired ConferenceService conferenceService,
 			@Autowired PersonService personService,
 			@Autowired BookService bookService,
 			@Autowired BookChapterService bookChapterService,
@@ -268,6 +287,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		this.messages = messages;
 		this.prePublicationFactory = prePublicationFactory;
 		this.journalService = journalService;
+		this.conferenceService = conferenceService;
 		this.personService = personService;
 		this.bookService = bookService;
 		this.bookChapterService = bookChapterService;
@@ -348,7 +368,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	@Override
 	public Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal) throws Exception {
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
 		try (Reader filteredReader = new CharacterFilterReader(bibtex)) {
 			final BibTeXParser bibtexParser = new BibTeXParser();
 			final BibTeXDatabase database = bibtexParser.parse(filteredReader);
@@ -356,7 +376,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				return database.getEntries().entrySet().stream().map(it -> {
 					try {
 						return createPublicationFor(it.getKey(), it.getValue(), keepBibTeXId, assignRandomId, ensureAtLeastOneMember,
-								createMissedJournal);
+								createMissedJournal, createMissedConference);
 					} catch (Exception ex) {
 						throw new RuntimeException(ex);
 					}
@@ -465,6 +485,42 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			return value;
 		}
 		throw new IllegalStateException("Field '" + key.getValue() + "' is required for entry: " + entry.getKey().getValue()); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
+	/** Extract the occurrence number and name of a conference from the given full name.
+	 * 
+	 * <p>If the argument is equal to {@code 14th International Conference on Artificial Intelligence}, then this function
+	 * extract the name of the conference, i.e., {@code International Conference on Artificial Intelligence} and
+	 * the conference occurrence's number is {@code 14}.
+	 *
+	 * @param name the name to analyze.
+	 * @return the conference name's components.
+	 */
+	public static ConferenceNameComponents parseConferenceName(String name) {
+		if (name != null) {
+			final String nname = name.trim();
+			if (!Strings.isNullOrEmpty(nname)) {
+				final StringBuilder patternStr = new StringBuilder();
+				for (final String postfix : CONFERENCE_NUMBER_POSTFIX) {
+					patternStr.setLength(0);
+					patternStr.append("^([0-9]+)\\s*");//$NON-NLS-1$
+					patternStr.append(postfix);
+					patternStr.append("\\s+(.*?)$");//$NON-NLS-1$
+					final Pattern pattern = Pattern.compile(patternStr.toString(), Pattern.CASE_INSENSITIVE);
+					final Matcher matcher = pattern.matcher(nname);
+					if (matcher.matches()) {
+						try {
+							final int number = Integer.parseInt(matcher.group(1));
+							return new ConferenceNameComponents(number, matcher.group(2));
+						} catch (Throwable ex) {
+							//
+						}
+					}
+				}
+			}
+			return new ConferenceNameComponents(0, Strings.emptyToNull(nname));
+		}
+		return new ConferenceNameComponents(0, null);
 	}
 
 	private static String field(BibTeXEntry entry, String key) throws Exception {
@@ -627,6 +683,59 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				+ " field in your BibTeX:<pre>" + msg.toString() + "</pre>"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	private Conference findConferenceOrCreateProxy(Key key, String conferenceName, String dbId, String referencePublisher,
+			String referenceIsbn, String referenceIssn) {
+		try {
+			return findConference(key, conferenceName, dbId, referencePublisher, referenceIsbn, referenceIssn);
+		} catch (MissedConferenceException ex) {
+			// Create a proxy conference that is not supposed to be saved in the database.
+			return new ConferenceFake(conferenceName, referencePublisher, referenceIsbn, referenceIssn);
+		}
+	}
+
+	private Conference findConference(Key key, String conferenceName, String dbId, String referencePublisher,
+			String referenceIsbn, String referenceIssn) {
+		if (!Strings.isNullOrEmpty(dbId)) {
+			try {
+				final int id = Integer.parseInt(dbId);
+				final Conference conference = this.conferenceService.getConferenceById(id);
+				if (conference != null) {
+					return conference;
+				}
+			} catch (Throwable ex) {
+				// Silent
+			}
+		}
+		Set<Conference> conferences = this.conferenceService.getConferencesByName(conferenceName);
+		if (conferences == null || conferences.isEmpty()) {
+			throw new MissedConferenceException(key.getValue(), conferenceName);
+		}
+		if (conferences.size() == 1) {
+			return conferences.iterator().next();
+		}
+		final List<Conference> js = new LinkedList<>();
+		final StringBuilder msg = new StringBuilder();
+		for (final Conference conference : conferences) {
+			if (Objects.equals(conference.getISBN(), referenceIsbn)
+				|| Objects.equals(conference.getISSN(), referenceIssn)
+				|| conference.getPublisher().contains(referencePublisher)) {
+				js.add(conference);
+			}
+			msg.append("<br>\n* Id: ").append(conference.getId()); //$NON-NLS-1$
+			msg.append("<br/>\n  Conference name: ").append(conference.getNameOrAcronym()); //$NON-NLS-1$
+			msg.append("<br/>\n  Publisher: ").append(conference.getPublisher()); //$NON-NLS-1$
+			msg.append("<br/>\n  ISBN: ").append(conference.getISBN()); //$NON-NLS-1$
+			msg.append("<br/>\n  ISSN: ").append(conference.getISSN()); //$NON-NLS-1$
+		}
+		if (js.size() == 1) {
+			return js.get(0);
+		}
+		throw new IllegalArgumentException("Too many conferences for entry " + key.getValue() //$NON-NLS-1$
+				+ " with the conference name: " + conferenceName //$NON-NLS-1$
+				+ "<br/>\nPlease fix the publisher, ISBN and ISSN in your BibTeX. If the ambiguity is still present, select one in the following list and write the Id in the field " + KEY_INTERNAL_DB_ID.getValue() //$NON-NLS-1$
+				+ " field in your BibTeX:<pre>" + msg.toString() + "</pre>"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	/** Extract the publication from a BibTeX entry.
 	 * This function does not save the publication in the database.
 	 *
@@ -642,11 +751,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @param ensureAtLeastOneMember if {@code true}, at least one member of a research organization is required from the
 	 *     the list of the persons. If {@code false}, the list of persons could contain no organization member.
 	 * @param createMissedJournal indicates if the missed journal should be created in the database.
+	 * @param createMissedConference indicates if the missed conference should be created in the database.
 	 * @return the publication.
 	 * @throws Exception if LaTeX code cannot be parsed.
 	 */
 	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal) throws Exception {
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
 		final PublicationType type = getPublicationTypeFor(entry);
 		if (type != null) {
 			// Create a generic publication
@@ -696,8 +806,26 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				finalPublication = journalPaper;
 				break;
 			case INTERNATIONAL_CONFERENCE_PAPER:
-				finalPublication = this.conferencePaperService.createConferencePaper(genericPublication,
-						fieldRequiredCleanPrefix(entry, KEY_BOOKTITLE),
+				String conferenceName = fieldRequiredCleanPrefix(entry, KEY_BOOKTITLE);
+				final ConferenceNameComponents nameComponents = parseConferenceName(conferenceName);
+				final Conference conference;
+				if (createMissedConference) {
+					conference = findConferenceOrCreateProxy(key, nameComponents.name,
+							field(entry, KEY_INTERNAL_DB_ID),
+							field(entry, KEY_PUBLISHER),
+							genericPublication.getISBN(),
+							genericPublication.getISSN());
+				} else {
+					conference = findConference(key, nameComponents.name,
+							field(entry, KEY_INTERNAL_DB_ID),
+							field(entry, KEY_PUBLISHER),
+							genericPublication.getISBN(),
+							genericPublication.getISSN());
+				}
+				assert conference != null;
+				final ConferencePaper conferencePaper = this.conferencePaperService.createConferencePaper(genericPublication,
+						conference,
+						nameComponents.occurrenceNumber,
 						field(entry, KEY_VOLUME),
 						field(entry, KEY_NUMBER),
 						pages(entry),
@@ -705,8 +833,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 						field(entry, KEY_SERIES),
 						field(entry, KEY_ORGANIZATION),
 						field(entry, KEY_ADDRESS),
-						field(entry, KEY_PUBLISHER),
 						false);
+				finalPublication = conferencePaper;
 				break;
 			case INTERNATIONAL_BOOK:
 				finalPublication = this.bookService.createBook(genericPublication,
@@ -1078,6 +1206,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		final Journal journal = paper.getJournal();
 		if (journal != null) {
 			addField(entry, KEY_JOURNAL, journal.getJournalName());
+			addField(entry, KEY_ISBN, journal.getISBN());
+			addField(entry, KEY_ISSN, journal.getISSN());
 			addField(entry, KEY_PUBLISHER, journal.getPublisher());
 			addField(entry, KEY_ADDRESS, journal.getAddress());
 		}
@@ -1104,7 +1234,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	protected BibTeXEntry createBibTeXEntry(ConferencePaper paper) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(paper));
 		fillBibTeXEntry(entry, paper, KEY_AUTHOR);
-		addField(entry, KEY_BOOKTITLE, paper.getScientificEventName());
+		addField(entry, KEY_BOOKTITLE, paper.getPublicationTarget());
 		addField(entry, KEY_VOLUME, paper.getVolume());
 		addField(entry, KEY_NUMBER, paper.getNumber());
 		addPageField(entry, paper.getPages());
@@ -1113,6 +1243,11 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_ORGANIZATION, paper.getOrganization());
 		addField(entry, KEY_ADDRESS, paper.getAddress());
 		addField(entry, KEY_CORE_RANKING, paper.getCoreRanking());
+		if (paper.getConference() != null) {
+			addField(entry, KEY_ISBN, paper.getConference().getISBN());
+			addField(entry, KEY_ISSN, paper.getConference().getISSN());
+			addField(entry, KEY_PUBLISHER, paper.getConference().getPublisher());
+		}
 		addNoteForConference(entry, paper.getMajorLanguage(), paper.getCoreRanking());
 		return entry;
 	}
@@ -1190,7 +1325,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		final Journal journal = edition.getJournal();
 		if (journal != null) {
 			addField(entry, KEY_JOURNAL, journal.getJournalName());
+			addField(entry, KEY_ISBN, journal.getISBN());
+			addField(entry, KEY_ISSN, journal.getISSN());
 			addField(entry, KEY_PUBLISHER, journal.getPublisher());
+			addField(entry, KEY_ADDRESS, journal.getAddress());
 		}
 		addField(entry, KEY_VOLUME, edition.getVolume());
 		addField(entry, KEY_NUMBER, edition.getNumber());
@@ -1214,7 +1352,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	protected BibTeXEntry createBibTeXEntry(KeyNote keynote) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(keynote));
 		fillBibTeXEntry(entry, keynote, KEY_AUTHOR);
-		addField(entry, KEY_BOOKTITLE, keynote.getScientificEventName());
+		addField(entry, KEY_BOOKTITLE, keynote.getPublicationTarget());
 		addField(entry, KEY_EDITOR, keynote.getEditors());
 		addField(entry, KEY_ORGANIZATION, keynote.getOrganization());
 		addField(entry, KEY_ADDRESS, keynote.getAddress());
@@ -1303,6 +1441,35 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_PUBLISHER, document.getPublisher());
 		addField(entry, KEY_ADDRESS, document.getAddress());
 		return entry;
+	}
+
+	/** Components of a conference name.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 3.6
+	 */
+	public static class ConferenceNameComponents {
+
+		/** Number of the conference occurrence.
+		 */
+		public final int occurrenceNumber;
+		
+		/** Conference name.
+		 */
+		public final String name;
+
+		/** Constructor.
+		 *
+		 * @param number number of the conference occurrence.
+		 * @param name conference name.
+		 */
+		ConferenceNameComponents(int number, String name) {
+			this.occurrenceNumber = number;
+			this.name = name;
+		}
 	}
 
 }

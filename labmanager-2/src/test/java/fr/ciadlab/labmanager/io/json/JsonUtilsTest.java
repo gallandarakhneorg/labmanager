@@ -36,6 +36,7 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -398,11 +399,12 @@ public class JsonUtilsTest {
 	@Test
 	public void cache_writePublicationAndAttributes() throws Exception {
 		Publication publication = mock(Publication.class);
-		CachedGeneratorCreator1<Journal> creator = mock(CachedGeneratorCreator1.class);
+		CachedGeneratorCreator1<Journal> journalCcreator = mock(CachedGeneratorCreator1.class);
+		CachedGeneratorCreator1<Conference> conferenceCreator = mock(CachedGeneratorCreator1.class);
 		JsonGenerator generator = mock(JsonGenerator.class);
 		CachedGenerator cache = JsonUtils.cache(generator);
 
-		cache.writePublicationAndAttributes(publication, creator);
+		cache.writePublicationAndAttributes(publication, journalCcreator, conferenceCreator);
 
 		verify(publication, times(1)).forEachAttribute(isNotNull());
 		verifyNoMoreInteractions(publication);

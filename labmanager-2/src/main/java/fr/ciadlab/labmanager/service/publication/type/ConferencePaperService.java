@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
@@ -112,7 +113,8 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	/** Create a conference paper.
 	 *
 	 * @param publication the publication to copy.
-	 * @param scientificEventName the name of the conference or the workshop.
+	 * @param conference the conference in which the paper was published.
+	 * @param conferenceOccurrenceNumber the number of the conference's occurrence.
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
@@ -121,19 +123,19 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param series the number or the name of the series for the conference proceedings.
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
-	 * @param publisher the name of the publisher of the proocedings.
 	 * @return the created conference paper.
 	 */
-	public ConferencePaper createConferencePaper(Publication publication, String scientificEventName, String volume, String number,
-			String pages, String editors, String series, String orga, String address, String publisher) {
-		return createConferencePaper(publication, scientificEventName, volume, number, pages, editors, series,
-				orga, address, publisher, true);
+	public ConferencePaper createConferencePaper(Publication publication, Conference conference, int conferenceOccurrenceNumber,
+			String volume, String number, String pages, String editors, String series, String orga, String address) {
+		return createConferencePaper(publication, conference, conferenceOccurrenceNumber, volume, number, pages, editors, series,
+				orga, address, true);
 	}
 
 	/** Create a conference paper.
 	 *
 	 * @param publication the publication to copy.
-	 * @param scientificEventName the name of the conference or the workshop.
+	 * @param conference the conference in which the paper was published.
+	 * @param conferenceOccurrenceNumber the number of the conference's occurrence.
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
@@ -142,14 +144,14 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param series the number or the name of the series for the conference proceedings.
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
-	 * @param publisher the name of the publisher of the proocedings.
 	 * @param saveInDb {@code true} for saving the publication in the database.
 	 * @return the created conference paper.
 	 */
-	public ConferencePaper createConferencePaper(Publication publication, String scientificEventName, String volume, String number,
-			String pages, String editors, String series, String orga, String address, String publisher, boolean saveInDb) {
-		final ConferencePaper res = new ConferencePaper(publication, scientificEventName, volume, number, pages, editors,
-				orga, address, series, publisher);
+	public ConferencePaper createConferencePaper(Publication publication, Conference conference, int conferenceOccurrenceNumber,
+			String volume, String number, String pages, String editors, String series, String orga, String address,
+			boolean saveInDb) {
+		final ConferencePaper res = new ConferencePaper(publication, conference, conferenceOccurrenceNumber,
+				volume, number, pages, editors, orga, address, series);
 		if (saveInDb) {
 			this.repository.save(res);
 		}
@@ -176,7 +178,8 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param awardContent the content of the publication award certificate that is encoded in {@link Base64}. The content will be saved into
 	 *     the dedicated folder for PDF files.
 	 * @param pathToVideo the path that allows to download the video of the publication.
-	 * @param scientificEventName the name of the conference or the workshop.
+	 * @param conference the conference in which the paper was published.
+	 * @param conferenceOccurrenceNumber the number of the conference's occurrence.
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
@@ -184,15 +187,14 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 *     with {@code AND}.
 	 * @param series the number or the name of the series for the conference proceedings.
 	 * @param orga the name of the organization institution.
-	 * @param publisher the publisher of the proceedings of the conference.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 */
 	public void updateConferencePaper(int pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
-			String scientificEventName, String volume, String number,
-			String pages, String editors, String series, String orga, String publisher, String address) {
+			Conference conference, int conferenceOccurrenceNumber, String volume, String number,
+			String pages, String editors, String series, String orga, String address) {
 		final Optional<ConferencePaper> res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
 			final ConferencePaper paper = res.get();
@@ -202,14 +204,14 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 					extraUrl, language, pdfContent, awardContent,
 					pathToVideo);
 
-			paper.setScientificEventName(Strings.emptyToNull(scientificEventName));
+			paper.setConference(conference);
+			paper.setConferenceOccurrenceNumber(conferenceOccurrenceNumber);
 			paper.setVolume(Strings.emptyToNull(volume));
 			paper.setNumber(Strings.emptyToNull(number));
 			paper.setPages(Strings.emptyToNull(pages));
 			paper.setEditors(Strings.emptyToNull(editors));
 			paper.setSeries(Strings.emptyToNull(series));
 			paper.setOrganization(Strings.emptyToNull(orga));
-			paper.setPublisher(Strings.emptyToNull(publisher));
 			paper.setAddress(Strings.emptyToNull(address));
 			
 			this.repository.save(res.get());

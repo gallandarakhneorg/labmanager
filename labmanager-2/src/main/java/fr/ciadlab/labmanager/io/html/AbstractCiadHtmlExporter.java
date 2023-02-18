@@ -154,7 +154,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 
 	@Override
 	protected void exportDescription(StringBuilder html, ConferencePaper publication) {
-		if (append(html, decorateBefore(toHtml(publication.getScientificEventName()), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
+		if (append(html, decorateBefore(toHtml(publication.getPublicationTarget()), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
 			html.append(". "); //$NON-NLS-1$
 		}
 		if (append(html, ", ", //$NON-NLS-1$
@@ -171,8 +171,8 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 		final String doiLink = buildDoiLink(publication.getDOI());
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX")), //$NON-NLS-1$
-				decorateBefore(toHtml(publication.getISBN()), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(toHtml(publication.getISSN()), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+				decorateBefore(toHtml(publication.getConference().getISBN()), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				decorateBefore(toHtml(publication.getConference().getISSN()), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			html.append(". "); //$NON-NLS-1$
 		}
 		if (append(html, decorateBefore(toHtml(publication.getSeries()), this.messages.getMessage(MESSAGES_PREFIX + "SERIES_PREFIX")))) { //$NON-NLS-1$
@@ -251,7 +251,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 
 	@Override
 	protected void exportDescription(StringBuilder html, KeyNote publication) {
-		if (append(html, decorateBefore(toHtml(publication.getScientificEventName()), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
+		if (append(html, decorateBefore(toHtml(publication.getPublicationTarget()), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
 			html.append(". "); //$NON-NLS-1$
 		}
 		if (append(html, ", ", //$NON-NLS-1$
@@ -262,8 +262,8 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 		final String doiLink = buildDoiLink(publication.getDOI());
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX")), //$NON-NLS-1$
-				decorateBefore(toHtml(publication.getISBN()), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(toHtml(publication.getISSN()), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+				decorateBefore(toHtml(publication.getConference().getISBN()), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				decorateBefore(toHtml(publication.getConference().getISSN()), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			html.append(". "); //$NON-NLS-1$
 		}
 		if (append(html, toHtml(publication.getAddress()))) {

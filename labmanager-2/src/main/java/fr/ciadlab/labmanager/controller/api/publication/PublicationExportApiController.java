@@ -31,8 +31,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
@@ -40,7 +41,6 @@ import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
 import fr.ciadlab.labmanager.io.json.JsonTool;
 import fr.ciadlab.labmanager.io.od.OpenDocumentConstants;
 import fr.ciadlab.labmanager.service.journal.JournalService;
-import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -79,8 +79,6 @@ public class PublicationExportApiController extends AbstractApiController {
 
 	private JournalPaperService journalPaperService;
 
-	private ResearchOrganizationService organizationService;
-
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -89,7 +87,6 @@ public class PublicationExportApiController extends AbstractApiController {
 	 * @param publicationService the publication service.
 	 * @param journalService the tools for manipulating journals.
 	 * @param journalPaperService the journal paper service.
-	 * @param organizationService the service for accessing the organizations.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public PublicationExportApiController(
@@ -98,13 +95,11 @@ public class PublicationExportApiController extends AbstractApiController {
 			@Autowired PublicationService publicationService,
 			@Autowired JournalService journalService,
 			@Autowired JournalPaperService journalPaperService,
-			@Autowired ResearchOrganizationService organizationService,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.publicationService = publicationService;
 		this.journalService = journalService;
 		this.journalPaperService = journalPaperService;
-		this.organizationService = organizationService;
 	}
 
 	private <T> T export(List<Integer> identifiers, Integer dbId, String webId, Integer organization,
@@ -439,6 +434,9 @@ public class PublicationExportApiController extends AbstractApiController {
 	 * @param failOnMissedJournal indicates if the service should fail if a journal is unknown from the JPA database.
 	 *    If this parameter is {@code false}, the JSON node will contains a journal that is marked as invalid/fake
 	 *    with the {@code _fakeEntity} property.
+	 * @param failOnMissedConference indicates if the service should fail if a conference is unknown from the JPA database.
+	 *    If this parameter is {@code false}, the JSON node will contains a conference that is marked as invalid/fake
+	 *    with the {@code _fakeEntity} property.
 	 * @param checkInDb indicates if the entries from the BibTeX should be searched in the database and marked
 	 *    if a similar publication is inside the database.
 	 * @return the list of publications from the BibTeX file.
@@ -449,6 +447,7 @@ public class PublicationExportApiController extends AbstractApiController {
 	public JsonNode getJsonFromBibTeX(
 			@RequestParam(required = false) MultipartFile bibtexFile,
 			@RequestParam(required = false, defaultValue = "false") boolean failOnMissedJournal,
+			@RequestParam(required = false, defaultValue = "false") boolean failOnMissedConference,
 			@RequestParam(required = false, name = Constants.CHECKINDB_ENDPOINT_PARAMETER, defaultValue = "false") boolean checkInDb) throws Exception {
 		if (bibtexFile == null || bibtexFile.isEmpty()) {
 			throw new IllegalArgumentException(getMessage("publicationImporterApiController.NoBibTeXSource")); //$NON-NLS-1$
@@ -456,7 +455,7 @@ public class PublicationExportApiController extends AbstractApiController {
 		List<Publication> publications;
 		try (final InputStream inputStream = bibtexFile.getInputStream()) {
 			try (final Reader reader = new InputStreamReader(inputStream)) {
-				publications = this.publicationService.readPublicationsFromBibTeX(reader, true, true, true, !failOnMissedJournal);
+				publications = this.publicationService.readPublicationsFromBibTeX(reader, true, true, true, !failOnMissedJournal, !failOnMissedConference);
 			}
 		}
 		if (publications != null && !publications.isEmpty()) {
@@ -484,6 +483,15 @@ public class PublicationExportApiController extends AbstractApiController {
 			}
 		}
 		json.set(JsonTool.HIDDEN_INTERNAL_NEW_JOURNAL_KEY, json.booleanNode(createJournal));
+		// Set the flag that indicates if the publication's conference must be created in the database before saving the publication
+		boolean createConference = false;
+		if (publication instanceof ConferenceBasedPublication) {
+			final Conference conference = ((ConferenceBasedPublication) publication).getConference();
+			if (conference != null && conference.isFakeEntity()) {
+				createConference = true;
+			}
+		}
+		json.set(JsonTool.HIDDEN_INTERNAL_NEW_CONFERENCE_KEY, json.booleanNode(createConference));
 		//
 		final List<Publication> candidates = this.publicationService.getPublicationsByTitle(publication.getTitle());
 		if (!candidates.isEmpty()) {
@@ -509,33 +517,6 @@ public class PublicationExportApiController extends AbstractApiController {
 		}
 		// By default, indicates that the publication could be imported.
 		json.set(JsonTool.HIDDEN_INTERNAL_IMPORTABLE_KEY, json.booleanNode(true));
-	}
-
-	/**
-	 * Export publications in a Excel document that corresponds to the UTBM requirements.
-	 *
-	 * @param organization the identifier or the name of the organization for which the publications must be extracted.
-	 * @param year the reference year.
-	 * @return the document for the publications.
-	 * @throws Exception if it is impossible to redirect to the error page.
-	 * @since 3.5
-	 */
-	@GetMapping(value = "/exportUtbmAnnualPublications")
-	@ResponseBody
-	public ResponseEntity<String> exportUtbmAnnualPublications(
-			@RequestParam(required = true) String organization,
-			@RequestParam(required = true) int year) throws Exception {
-		final ResearchOrganization organizationObj = getOrganizationWith(organization, this.organizationService);
-		if (organizationObj == null) {
-			throw new IllegalArgumentException("Organization not found for: " + organization); //$NON-NLS-1$
-		}
-		final String content = this.publicationService.exportUtbmPublications(organizationObj, year);
-		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE_UTF8);
-		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
-		bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
-				+ Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME
-				+ "_" + simpleDateFormat.format(new Date()) + ".csv\""); //$NON-NLS-1$ //$NON-NLS-2$
-		return bb.body(content);
 	}
 
 	/** Exporter callback.

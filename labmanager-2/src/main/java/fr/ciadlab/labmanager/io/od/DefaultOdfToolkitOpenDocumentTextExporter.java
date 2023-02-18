@@ -137,7 +137,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 
 	@Override
 	protected void exportDescription(TextPElement odtText, ConferencePaper publication) {
-		if (append(odtText, decorateBefore(publication.getScientificEventName(), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
+		if (append(odtText, decorateBefore(publication.getPublicationTarget(), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (append(odtText, ", ", //$NON-NLS-1$
@@ -154,10 +154,13 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
-			odtText.newTextNode(". "); //$NON-NLS-1$
+		if (publication.getConference() != null) {
+			if (append(odtText, ", ", //$NON-NLS-1$
+					decorateBefore(publication.getConference().getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+					decorateBefore(publication.getConference().getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")), //$NON-NLS-1$
+					publication.getConference().getPublisher())) {
+				odtText.newTextNode(". "); //$NON-NLS-1$
+			}
 		}
 		if (append(odtText, decorateBefore(publication.getSeries(), this.messages.getMessage(MESSAGES_PREFIX + "SERIES_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
@@ -237,7 +240,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 
 	@Override
 	protected void exportDescription(TextPElement odtText, KeyNote publication) {
-		if (append(odtText, decorateBefore(publication.getScientificEventName(), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
+		if (append(odtText, decorateBefore(publication.getPublicationTarget(), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (append(odtText, ", ", //$NON-NLS-1$
@@ -249,8 +252,8 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+				decorateBefore(publication.getConference().getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				decorateBefore(publication.getConference().getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (append(odtText, publication.getAddress())) {

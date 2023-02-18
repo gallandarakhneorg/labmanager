@@ -229,6 +229,15 @@ public class ConferenceService extends AbstractService {
 		return null;
 	}
 
+	/** Replies the conferences with the given name.
+	 *
+	 * @param name the name to search for.
+	 * @return the conferences.
+	 */
+	public Set<Conference> getConferencesByName(String name) {
+		return this.conferenceRepository.findDistinctByAcronymOrName(name);
+	}
+
 	/** Save the given quality indicators for the conference.
 	 *
 	 * @param conference the conference.

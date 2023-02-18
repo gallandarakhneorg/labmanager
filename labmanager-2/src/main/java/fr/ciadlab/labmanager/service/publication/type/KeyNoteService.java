@@ -23,6 +23,7 @@ import java.util.Optional;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
@@ -85,15 +86,16 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	/** Create a keynote.
 	 *
 	 * @param publication the publication to copy.
-	 * @param scientificEventName the name of the conference or the workshop.
+	 * @param conference the reference to the conference
+	 * @param conferenceOccurrenceNumber the number of the conference's occurrence.
 	 * @param editors the list of the names of the editors. Each name may have the format {@code LAST, VON, FIRST} and the names may be separated
 	 *     with {@code AND}.
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 * @return the created keynote.
 	 */
-	public KeyNote createKeyNote(Publication publication, String scientificEventName, String editors, String orga, String address) {
-		final KeyNote res = new KeyNote(publication, scientificEventName, editors, orga, address);
+	public KeyNote createKeyNote(Publication publication, Conference conference, int conferenceOccurrenceNumber, String editors, String orga, String address) {
+		final KeyNote res = new KeyNote(publication, conference, conferenceOccurrenceNumber, editors, orga, address);
 		this.repository.save(res);
 		return res;
 	}
@@ -118,7 +120,8 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 * @param awardContent the content of the publication award certificate that is encoded in {@link Base64}. The content will be saved into
 	 *     the dedicated folder for PDF files.
 	 * @param pathToVideo the path that allows to download the video of the publication.
-	 * @param scientificEventName the name of the conference or the workshop.
+	 * @param conference the reference to the conference
+	 * @param conferenceOccurrenceNumber the number of the conference's occurrence.
 	 * @param editors the list of the names of the editors. Each name may have the format {@code LAST, VON, FIRST} and the names may be separated
 	 *     with {@code AND}.
 	 * @param orga the name of the organization institution.
@@ -128,7 +131,7 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
-			String scientificEventName, String editors, String orga, String address) {
+			Conference conference, int conferenceOccurrenceNumber, String editors, String orga, String address) {
 		final Optional<KeyNote> res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
 			final KeyNote paper = res.get();
@@ -138,7 +141,8 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 					extraUrl, language, pdfContent, awardContent,
 					pathToVideo);
 
-			paper.setScientificEventName(Strings.emptyToNull(scientificEventName));
+			paper.setConference(conference);
+			paper.setConferenceOccurrenceNumber(conferenceOccurrenceNumber);
 			paper.setEditors(Strings.emptyToNull(editors));
 			paper.setOrganization(Strings.emptyToNull(orga));
 			paper.setAddress(Strings.emptyToNull(address));

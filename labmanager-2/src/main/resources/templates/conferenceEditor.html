@@ -26,11 +26,11 @@
 		<option id="option-openaccess"
 		        th:selected="${conference != null && conference.openAccess != null && #bools.isTrue(conference.openAccess)}"
 		        value="true"
-		        th:utext="#{html.OpenAccessJournal}"></option>
+		        th:utext="#{html.OpenAccessConference}"></option>
 		<option id="option-openaccess"
 		        th:selected="${conference != null && conference.openAccess != null && #bools.isFalse(conference.openAccess)}"
 		        value="false"
-		        th:utext="#{html.NoOpenAccessJournal}"></option>
+		        th:utext="#{html.NoOpenAccessConference}"></option>
 	</div>
 	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedConference}, #{html.ValidatedConference}, ${conference != null ? conference.validated : false})"></div>
 </form>

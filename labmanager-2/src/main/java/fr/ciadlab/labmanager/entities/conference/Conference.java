@@ -145,6 +145,24 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 		//
 	}
 
+	/** Construct by copying the given conference (exception id and quality indicators).
+	 *
+	 * @param conference the conference to be copied.
+	 */
+	public Conference(Conference conference) {
+		assert conference != null;
+		this.acronym = conference.getAcronym();
+		this.name = conference.getName();
+		this.publisher = conference.getPublisher();
+		this.conferenceUrl = conference.getConferenceURL();
+		this.coreId = conference.getCoreId();
+		this.publisher = conference.getPublisher();
+		this.isbn = conference.getISBN();
+		this.issn = conference.getISSN();
+		this.openAccess = conference.getOpenAccess();
+		this.validated = conference.isValidated();
+	}
+
 	@Override
 	public int hashCode() {
 		int h = HashCodeUtils.start();

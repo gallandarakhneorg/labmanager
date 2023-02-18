@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
@@ -129,10 +130,12 @@ public class KeyNoteServiceTest {
 
 	@Test
 	public void createKeyNote() {
+		Conference conf = mock(Conference.class);
 		final KeyNote actual = this.test.createKeyNote(pub0,
-				"event0", "editors0", "orga0", "address0");
+				conf, 1234, "editors0", "orga0", "address0");
 
-		assertEquals("event0", actual.getScientificEventName());
+		assertSame(conf, actual.getConference());
+		assertEquals(1234, actual.getConferenceOccurrenceNumber());
 		assertEquals("editors0", actual.getEditors());
 		assertEquals("orga0", actual.getOrganization());
 		assertEquals("address0", actual.getAddress());
@@ -142,18 +145,20 @@ public class KeyNoteServiceTest {
 
 	@Test
 	public void updateKeyNote() {
+		Conference conf = mock(Conference.class);
 		this.test.updateKeyNote(234,
 				"title0", PublicationType.INTERNATIONAL_KEYNOTE, LocalDate.parse("2022-07-22"), 2022, "abstractText0",
 				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
-				"event0", "editors0", "orga0", "address0");
+				conf, 1234, "editors0", "orga0", "address0");
 
 		verifyNoInteractions(this.pub0);
 
-		verify(this.pub1).setScientificEventName("event0");
-		verify(this.pub1).setEditors("editors0");
-		verify(this.pub1).setOrganization("orga0");
-		verify(this.pub1).setAddress("address0");
+		verify(this.pub1).setConference(same(conf));
+		verify(this.pub1).setConferenceOccurrenceNumber(eq(1234));
+		verify(this.pub1).setEditors(eq("editors0"));
+		verify(this.pub1).setOrganization(eq("orga0"));
+		verify(this.pub1).setAddress(eq("address0"));
 
 		verifyNoInteractions(this.pub2);
 	}

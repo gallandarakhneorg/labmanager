@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.Optional;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
@@ -134,11 +135,13 @@ public class ConferencePaperServiceTest {
 
 	@Test
 	public void createConferencePaper() {
+		Conference conf = mock(Conference.class);
 		final ConferencePaper actual = this.test.createConferencePaper(pub0,
-				"event0", "volume0", "number0", "pages0", "editors0",
-				"series0", "orga0", "address0", "publish0");
+				conf, 1234, "volume0", "number0", "pages0", "editors0",
+				"series0", "orga0", "address0");
 
-		assertEquals("event0", actual.getScientificEventName());
+		assertSame(conf, actual.getConference());
+		assertEquals(1234, actual.getConferenceOccurrenceNumber());
 		assertEquals("volume0", actual.getVolume());
 		assertEquals("number0", actual.getNumber());
 		assertEquals("pages0", actual.getPages());
@@ -147,31 +150,31 @@ public class ConferencePaperServiceTest {
 		assertEquals("series0", actual.getSeries());
 		assertEquals("orga0", actual.getOrganization());
 		assertEquals("address0", actual.getAddress());
-		assertEquals("publish0", actual.getPublisher());
 
 		verify(this.repository).save(actual);
 	}
 
 	@Test
 	public void updateConferencePaper() {
+		Conference conf = mock(Conference.class);
 		this.test.updateConferencePaper(234,
 				"title0", PublicationType.NATIONAL_CONFERENCE_PAPER, LocalDate.parse("2022-07-22"), 2022, "abstractText0",
 				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
-				"event0", "volume0", "number0", "pages0", "editors0",
-				"series0", "orga0", "publisher0", "address0");
+				conf, 1234, "volume0", "number0", "pages0", "editors0",
+				"series0", "orga0", "address0");
 
 		verifyNoInteractions(this.pub0);
 
-		verify(this.pub1).setScientificEventName("event0");
-		verify(this.pub1).setVolume("volume0");
-		verify(this.pub1).setNumber("number0");
-		verify(this.pub1).setPages("pages0");
-		verify(this.pub1).setEditors("editors0");
-		verify(this.pub1).setSeries("series0");
-		verify(this.pub1).setOrganization("orga0");
-		verify(this.pub1).setPublisher("publisher0");
-		verify(this.pub1).setAddress("address0");
+		verify(this.pub1).setConference(same(conf));
+		verify(this.pub1).setConferenceOccurrenceNumber(eq(1234));
+		verify(this.pub1).setVolume(eq("volume0"));
+		verify(this.pub1).setNumber(eq("number0"));
+		verify(this.pub1).setPages(eq("pages0"));
+		verify(this.pub1).setEditors(eq("editors0"));
+		verify(this.pub1).setSeries(eq("series0"));
+		verify(this.pub1).setOrganization(eq("orga0"));
+		verify(this.pub1).setAddress(eq("address0"));
 
 		verifyNoInteractions(this.pub2);
 	}

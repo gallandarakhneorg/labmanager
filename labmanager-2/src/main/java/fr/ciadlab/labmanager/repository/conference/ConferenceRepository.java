@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.repository.conference;
 
 import java.util.Optional;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.conference.Conference;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -43,5 +44,13 @@ public interface ConferenceRepository extends JpaRepository<Conference, Integer>
 	 */
 	@Query("SELECT DISTINCT c FROM Conference c WHERE c.acronym = :name OR c.name = :name")
 	Optional<Conference> findByAcronymOrName(@Param("name") String conference);
+
+	/** Find the conferences by their name.
+	 *
+	 * @param name the name of the conference to search for.
+	 * @return the conferences with the given name.
+	 */
+	@Query("SELECT DISTINCT c FROM Conference c WHERE c.acronym = :name OR c.name = :name")
+	Set<Conference> findDistinctByAcronymOrName(String name);
 
 }

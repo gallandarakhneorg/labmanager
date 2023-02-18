@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 
 import fr.ciadlab.labmanager.configuration.BaseMessageSource;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
@@ -75,18 +76,25 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 	@Test
 	public void exportPublications_Iterable_one() throws Exception {
+		Conference conf = mock(Conference.class);
+		when(conf.getAcronym()).thenReturn("ACR");
+		when(conf.getName()).thenReturn("International Conference on ACR");
+		when(conf.getISBN()).thenReturn("isbn0");
+		when(conf.getISSN()).thenReturn("issn0");
+		when(conf.getPublisher()).thenReturn("publisher0");
+
 		ConferencePaper p0 = mock(ConferencePaper.class);
+		when(p0.getPublicationTarget()).thenCallRealMethod();
+		when(p0.getConference()).thenReturn(conf);
+		when(p0.getConferenceOccurrenceNumber()).thenReturn(1234);
 		when(p0.getAddress()).thenReturn("location0");
 		when(p0.getDOI()).thenReturn("doinumber0");
 		when(p0.getEditors()).thenReturn("Dupont, Henri");
-		when(p0.getISBN()).thenReturn("isbn0");
-		when(p0.getISSN()).thenReturn("issn0");
 		when(p0.getNumber()).thenReturn("num0");
 		when(p0.getMajorLanguage()).thenReturn(PublicationLanguage.ENGLISH);
 		when(p0.getOrganization()).thenReturn("organizer0");
 		when(p0.getPages()).thenReturn("xx-yy");
 		when(p0.getPublicationYear()).thenReturn(2022);
-		when(p0.getScientificEventName()).thenReturn("conference0");
 		when(p0.getSeries()).thenReturn("series0");
 		when(p0.getTitle()).thenReturn("This is the title");
 		when(p0.getType()).thenReturn(PublicationType.INTERNATIONAL_CONFERENCE_PAPER);

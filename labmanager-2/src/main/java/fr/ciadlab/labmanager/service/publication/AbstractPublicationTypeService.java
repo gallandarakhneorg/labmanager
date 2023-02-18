@@ -22,6 +22,7 @@ import java.util.Base64;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
@@ -142,7 +143,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 		publication.setAbstractText(Strings.emptyToNull(abstractText));
 		publication.setKeywords(Strings.emptyToNull(keywords));
 		publication.setDOI(Strings.emptyToNull(doi));
-		if (!(publication instanceof JournalBasedPublication)) {
+		if (!(publication instanceof JournalBasedPublication) && !(publication instanceof ConferenceBasedPublication)) {
 			publication.setISBN(Strings.emptyToNull(isbn));
 			publication.setISSN(Strings.emptyToNull(issn));
 		}

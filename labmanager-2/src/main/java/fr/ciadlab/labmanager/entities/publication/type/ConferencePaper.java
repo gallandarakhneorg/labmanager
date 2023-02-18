@@ -21,11 +21,15 @@ import java.util.Objects;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.conference.Conference;
+import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
@@ -38,6 +42,9 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * 
  * @author $Author: sgalland$
  * @author $Author: tmartine$
+ * @author $Author: anoubli$
+ * @author $Author: bpdj$
+ * @author $Author: pgoubet$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
@@ -45,14 +52,31 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 @Entity
 @Table(name = "ConferencePapers")
 @PrimaryKeyJoinColumn(name = "id")
-public class ConferencePaper extends Publication {
+public class ConferencePaper extends Publication implements ConferenceBasedPublication {
 
-	private static final long serialVersionUID = -6657050556989265460L;
+	private static final long serialVersionUID = -9134092744919459358L;
 
 	/** Name of the event that could be a conference or a workshop for examples.
+	 *
+	 * @deperecated Replace by {@link #conference} and {@link #conferenceOccurrenceNumber}.
 	 */
 	@Column
+	@Deprecated(forRemoval = true, since = "3.6")
 	private String scientificEventName;
+
+	/** Reference to the conference.
+	 *
+	 * @since 3.6
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Conference conference;
+
+	/** Number of the conference occurrence.
+	 *
+	 * @since 3.6
+	 */
+	@Column
+	private int conferenceOccurrenceNumber;
 
 	/** Volume number of the proceedings of the event.
 	 */
@@ -90,15 +114,11 @@ public class ConferencePaper extends Publication {
 	@Column
 	private String series;
 
-	/** Name of the publisher of the proceedings.
-	 */
-	@Column
-	private String publisher;
-
 	/** Construct a conference paper with the given values.
 	 *
 	 * @param publication the publication to copy.
-	 * @param scientificEventName the name of the conference or the workshop.
+	 * @param conference the reference to the conference
+	 * @param conferenceOccurrenceNumber the number of the conference's occurrence.
 	 * @param volume the volume of the journal.
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
@@ -107,12 +127,12 @@ public class ConferencePaper extends Publication {
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 * @param series the number or the name of the series for the conference proceedings.
-	 * @param publisher the publisher of the proceedings.
 	 */
-	public ConferencePaper(Publication publication, String scientificEventName, String volume, String number, String pages, String editors,
-			String orga, String address, String series, String publisher) {
+	public ConferencePaper(Publication publication, Conference conference, int conferenceOccurrenceNumber, String volume, String number, String pages, String editors,
+			String orga, String address, String series) {
 		super(publication);
-		this.scientificEventName = scientificEventName;
+		this.conference = conference;
+		this.conferenceOccurrenceNumber = conferenceOccurrenceNumber < 0 ? 0 : conferenceOccurrenceNumber;
 		this.volume = volume;
 		this.number = number;
 		this.pages = pages;
@@ -120,7 +140,6 @@ public class ConferencePaper extends Publication {
 		this.organization = orga;
 		this.address = address;
 		this.series = series;
-		this.publisher = publisher;
 	}
 
 	/** Construct an empty conference paper.
@@ -132,7 +151,8 @@ public class ConferencePaper extends Publication {
 	@Override
 	public int hashCode() {
 		int h = super.hashCode();
-		h = HashCodeUtils.add(h, this.scientificEventName);
+		h = HashCodeUtils.add(h, this.conference);
+		h = HashCodeUtils.add(h, this.conferenceOccurrenceNumber);
 		h = HashCodeUtils.add(h, this.volume);
 		h = HashCodeUtils.add(h, this.number);
 		h = HashCodeUtils.add(h, this.pages);
@@ -140,7 +160,6 @@ public class ConferencePaper extends Publication {
 		h = HashCodeUtils.add(h, this.organization);
 		h = HashCodeUtils.add(h, this.address);
 		h = HashCodeUtils.add(h, this.series);
-		h = HashCodeUtils.add(h, this.publisher);
 		return h;
 	}
 
@@ -150,7 +169,10 @@ public class ConferencePaper extends Publication {
 			return false;
 		}
 		final ConferencePaper other = (ConferencePaper) obj;
-		if (!Objects.equals(this.scientificEventName, other.scientificEventName)) {
+		if (!Objects.equals(this.conference, other.conference)) {
+			return false;
+		}
+		if (this.conferenceOccurrenceNumber != other.conferenceOccurrenceNumber) {
 			return false;
 		}
 		if (!Objects.equals(this.volume, other.volume)) {
@@ -174,17 +196,14 @@ public class ConferencePaper extends Publication {
 		if (!Objects.equals(this.series, other.series)) {
 			return false;
 		}
-		if (!Objects.equals(this.publisher, other.publisher)) {
-			return false;
-		}
 		return true;
 	}
 
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
-		if (!Strings.isNullOrEmpty(getScientificEventName())) {
-			consumer.accept("scientificEventName", getScientificEventName()); //$NON-NLS-1$
+		if (getConferenceOccurrenceNumber() > 0) {
+			consumer.accept("conferenceOcccurrenceNumber", Integer.valueOf(getConferenceOccurrenceNumber())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getVolume())) {
 			consumer.accept("volume", getVolume()); //$NON-NLS-1$
@@ -207,16 +226,13 @@ public class ConferencePaper extends Publication {
 		if (!Strings.isNullOrEmpty(getSeries())) {
 			consumer.accept("series", getSeries()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getPublisher())) {
-			consumer.accept("publisher", getPublisher()); //$NON-NLS-1$
-		}
 	}
 
 	@Override
 	@JsonIgnore
 	public String getWherePublishedShortDescription() {
 		final StringBuilder buf = new StringBuilder();
-		buf.append(getScientificEventName());
+		buf.append(getPublicationTarget());
 		if (!Strings.isNullOrEmpty(getVolume())) {
 			buf.append(", vol. "); //$NON-NLS-1$
 			buf.append(getVolume());
@@ -237,9 +253,13 @@ public class ConferencePaper extends Publication {
 			buf.append(", "); //$NON-NLS-1$
 			buf.append(getAddress());
 		}
-		if (!Strings.isNullOrEmpty(getPublisher())) {
-			buf.append(", "); //$NON-NLS-1$
-			buf.append(getPublisher());
+		final Conference conference = getConference();
+		if (conference != null) {
+			final String publisher = conference.getPublisher();
+			if (!Strings.isNullOrEmpty(publisher)) {
+				buf.append(", "); //$NON-NLS-1$
+				buf.append(publisher);
+			}
 		}
 		if (!Strings.isNullOrEmpty(getISBN())) {
 			buf.append(", ISBN "); //$NON-NLS-1$
@@ -255,15 +275,28 @@ public class ConferencePaper extends Publication {
 	@Override
 	public String getPublicationTarget() {
 		final StringBuilder buf = new StringBuilder();
-		buf.append(getScientificEventName());
+		final Conference conference = getConference();
+		if (conference != null) {
+			final int number = getConferenceOccurrenceNumber();
+			if (number > 1) {
+				buf.append(number).append(ConferenceBasedPublication.getNumberDecorator(number, getMajorLanguage())).append(" "); //$NON-NLS-1$
+			}
+			buf.append(conference.getName());
+			if (!Strings.isNullOrEmpty(conference.getAcronym())) {
+				buf.append(" (").append(conference.getAcronym()).append("-").append(getPublicationYear() % 100).append(")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			}
+		} else if (!Strings.isNullOrEmpty(getScientificEventName())) {
+			buf.append(getScientificEventName());
+		}
 		return buf.toString();
 	}
 
 	/** Replies the name of event (conference or workshop) in which the publication was published.
 	 * 
 	 * @return the name.
+	 * @deprecated See {@link #getConference()}
 	 */
-	@RequiredFieldInForm
+	@Deprecated(forRemoval = true, since = "3.6")
 	public String getScientificEventName() {
 		return this.scientificEventName;
 	}
@@ -271,9 +304,52 @@ public class ConferencePaper extends Publication {
 	/** Change the name of event (conference or workshop) in which the publication was published.
 	 * 
 	 * @param name the name.
+	 * @deprecated See {@link #setConference(Conference)}
 	 */
+	@Deprecated(forRemoval = true, since = "3.6")
 	public void setScientificEventName(String name) {
 		this.scientificEventName = Strings.emptyToNull(name);
+	}
+
+	@Override
+	@RequiredFieldInForm
+	public Conference getConference() {
+		return this.conference;
+	}
+
+	@Override
+	public void setConference(Conference conference) {
+		this.conference = conference;
+	}
+
+	@Override
+	@RequiredFieldInForm
+	public int getConferenceOccurrenceNumber() {
+		return this.conferenceOccurrenceNumber;
+	}
+
+	@Override
+	public void setConferenceOccurrenceNumber(int number) {
+		if (number > 0) {
+			this.conferenceOccurrenceNumber = number;
+		} else {
+			this.conferenceOccurrenceNumber = 0;
+		}
+	}
+
+	/** Change the number of the occurrence of the conference in which the publication was published.
+	 * <p>
+	 * In the example of the "14th International Conference on Systems", the occurrence number is "14".
+	 *
+	 * @param number the conference occurrence number.
+	 * @see #setConference(Conference)
+	 */
+	public final void setConferenceOccurrenceNumber(Number number) {
+		if (number == null) {
+			setConferenceOccurrenceNumber(0);
+		} else {
+			setConferenceOccurrenceNumber(number.intValue());
+		}
 	}
 
 	/** Replies the volume number of the event (conference or workshop) in which the publication was published.
@@ -392,68 +468,126 @@ public class ConferencePaper extends Publication {
 		this.series = Strings.emptyToNull(series);
 	}
 
-	/** Replies the name of the publisher of the proceedings.
-	 *
-	 * @return the publisher.
-	 */
-	public String getPublisher() {
-		return this.publisher;
-	}
-
-	/** Change the name of the publisher of the proceedings.
-	 *
-	 * @param name the publisher name.
-	 */
-	public void setPublisher(String name) {
-		this.publisher = Strings.emptyToNull(name);
-	}
-
-	/** Replies the CORE ranking.
-	 *
-	 * @return the COREranking.
-	 */
-	@SuppressWarnings("static-method")
+	@Override
 	public CoreRanking getCoreRanking() {
-		// TODO: Implement ranking.
-		return null;
+		final Conference conference = getConference();
+		if (conference != null) {
+			return conference.getCoreIndexByYear(getPublicationYear());
+		}
+		return CoreRanking.NR;
 	}
-
+	
 	@Override
 	public boolean isRanked() {
-		// TODO: Implement ranking.
+		final Conference conference = getConference();
+		if (conference != null) {
+			return conference.getCoreIndexByYear(getPublicationYear()) != CoreRanking.NR;
+		}
 		return false;
 	}
 
 	@Override
 	public Boolean getOpenAccess() {
-		final String pub = getPublisher();
-		if (pub != null) {
-			// TODO remove when conference entity is created in the system
-			final String lpub = pub.toLowerCase();
-			if (lpub.contains("elsevier")) { //$NON-NLS-1$
-				return Boolean.TRUE;
-			}
-			if (lpub.contains("aaai")) { //$NON-NLS-1$
-				return Boolean.TRUE;
-			}
-			if (lpub.contains("acm") || lpub.contains("association for computing machinery")) { //$NON-NLS-1$ //$NON-NLS-2$
-				return Boolean.TRUE;
-			}
-			if (lpub.contains("iaria")) { //$NON-NLS-1$
-				return Boolean.TRUE;
-			}
-			if (lpub.contains("roadef")) { //$NON-NLS-1$
-				return Boolean.TRUE;
-			}
-			if (lpub.contains("insticc")) { //$NON-NLS-1$
-				return Boolean.TRUE;
-			}
-			if (lpub.contains("bnaic")) { //$NON-NLS-1$
-				return Boolean.TRUE;
-			}
-			return Boolean.FALSE;
+		final Conference conference = getConference();
+		if (conference != null) {
+			return conference.getOpenAccess();
 		}
 		return null;
+	}
+
+	/** Replies the name of the publisher.
+	 * This functions delegates to the conference.
+	 *
+	 * @return the publisher name.
+	 * @deprecated see {@link Conference#getPublisher()}
+	 */
+	@Deprecated(forRemoval = true, since = "3.6")
+	public String getPublisher() {
+		final Conference conference = getConference();
+		if (conference != null) {
+			return conference.getPublisher();
+		}
+		return null;
+	}
+
+	/** Change the name of the publisher.
+	 * This functions delegates to the conference.
+	 *
+	 * @param name the publisher name.
+	 * @deprecated see {@link Conference#setPublisher(String)}
+	 */
+	@Deprecated(forRemoval = true, since = "3.6")
+	public void setPublisher(String name) {
+		final Conference conference = getConference();
+		if (conference != null) {
+			conference.setPublisher(name);
+		}
+	}
+
+	/** Replies the ISBN number that is associated to this publication.
+	 * This functions delegates to the conference.
+	 *
+	 * @return the ISBN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/ISBN"
+	 * @deprecated See {@link Conference#getISBN()}
+	 */
+	@Override
+	@Deprecated(since = "3.6")
+	public String getISBN() {
+		final Conference conference = getConference();
+		if (conference != null) {
+			return conference.getISBN();
+		}
+		return null;
+	}
+
+	/** Change the ISBN number that is associated to this publication.
+	 * This functions delegates to the conference.
+	 *
+	 * @param isbn the ISBN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/ISBN"
+	 * @deprecated See {@link Conference#setISBN(String)}
+	 */
+	@Override
+	@Deprecated(since = "3.6")
+	public void setISBN(String isbn) {
+		final Conference conference = getConference();
+		if (conference != null) {
+			conference.setISBN(isbn);
+		}
+	}
+
+	/** Replies the ISSN number that is associated to this publication.
+	 * This functions delegates to the conference.
+	 *
+	 * @return the ISSN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
+	 * @deprecated See {@link Conference#getISSN()}
+	 */
+	@Override
+	@Deprecated(since = "3.6")
+	public String getISSN() {
+		final Conference conference = getConference();
+		if (conference != null) {
+			return conference.getISSN();
+		}
+		return null;
+	}
+
+	/** Change the ISSN number that is associated to this publication.
+	 * This functions delegates to the conference.
+	 *
+	 * @param issn the ISSN number or {@code null}.
+	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
+	 * @deprecated See {@link Conference#setISSN(String)}
+	 */
+	@Override
+	@Deprecated(since = "3.6")
+	public final void setISSN(String issn) {
+		final Conference conference = getConference();
+		if (conference != null) {
+			conference.setISSN(issn);
+		}
 	}
 
 }

@@ -64,6 +64,7 @@ import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.json.JsonExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
+import fr.ciadlab.labmanager.repository.conference.ConferenceRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
@@ -122,6 +123,8 @@ public class PublicationServiceTest {
 
 	private JournalRepository journalRepository;
 
+	private ConferenceRepository conferenceRepository;
+
 	private PersonNameParser nameParser;
 
 	private BibTeX bibtex;
@@ -168,6 +171,7 @@ public class PublicationServiceTest {
 		this.personService = mock(PersonService.class);
 		this.personRepository = mock(PersonRepository.class);
 		this.journalRepository = mock(JournalRepository.class);
+		this.conferenceRepository = mock(ConferenceRepository.class);
 		this.nameParser = new DefaultPersonNameParser();
 		this.bibtex = mock(BibTeX.class);
 		this.html = mock(HtmlDocumentExporter.class);
@@ -187,8 +191,8 @@ public class PublicationServiceTest {
 		this.test = new PublicationService(this.messages, new Constants(), this.publicationRepository, this.prePublicationFactory,
 				this.authorshipRepository,
 				this.personService, this.personRepository,
-				this.journalRepository, this.nameParser, this.bibtex, this.html, this.odt, this.json, this.fileManager,
-				this.membershipService,
+				this.journalRepository, this.conferenceRepository, this.nameParser, this.bibtex, this.html,
+				this.odt, this.json, this.fileManager, this.membershipService,
 				this.bookService, this.bookChapterService, this.conferencePaperService,
 				this.journalEditionService, this.journalPaperService, this.keyNoteService,
 				this.miscDocumentService, this.patentService, this.reportService,
@@ -318,7 +322,7 @@ public class PublicationServiceTest {
 
 	@Test
 	public void importPublications_null() throws Exception {
-		List<Integer> ids = this.test.importPublications(null, null, false);
+		List<Integer> ids = this.test.importPublications(null, null, false, false);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -326,7 +330,7 @@ public class PublicationServiceTest {
 	@Test
 	public void importPublications_empty() throws Exception {
 		Reader rd = new StringReader("");
-		List<Integer> ids = this.test.importPublications(rd, null, false);
+		List<Integer> ids = this.test.importPublications(rd, null, false, false);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -352,7 +356,8 @@ public class PublicationServiceTest {
 		Publication p1 = mock(Publication.class);
 		when(p1.getId()).thenReturn(874);
 		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
-		when(this.bibtex.extractPublications(any(Reader.class), anyBoolean(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
+		when(this.bibtex.extractPublications(any(Reader.class), anyBoolean(), anyBoolean(), anyBoolean(),
+				anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
 		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
 			switch ((Integer) it.getArgument(0)) {
 			case 1234:
@@ -382,7 +387,7 @@ public class PublicationServiceTest {
 			return Optional.empty();
 		});
 
-		List<Integer> ids = this.test.importPublications(new StringReader(bibtex), null, false);
+		List<Integer> ids = this.test.importPublications(new StringReader(bibtex), null, false, false);
 
 		assertNotNull(ids);
 		assertEquals(2, ids.size());

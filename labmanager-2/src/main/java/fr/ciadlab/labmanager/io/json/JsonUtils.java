@@ -31,7 +31,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializable;
 import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 
@@ -305,9 +307,11 @@ public final class JsonUtils {
 		 * @param generator the JSON generator.
 		 * @param publication the publication to write. 
 		 * @param journalCreator the creator of the journal entity as JSON.
+		 * @param conferenceCreator the creator of the conference entity as JSON.
 		 * @throws IOException if the reference cannot be written.
 		 */
-		public void writePublicationAndAttributes(Publication publication, CachedGeneratorCreator1<Journal> journalCreator) throws IOException {
+		public void writePublicationAndAttributes(Publication publication, CachedGeneratorCreator1<Journal> journalCreator,
+				CachedGeneratorCreator1<Conference> conferenceCreator) throws IOException {
 			if (publication != null) {
 				this.generator.writeStartObject();
 				publication.forEachAttribute((attrName, attrValue) -> {
@@ -318,6 +322,10 @@ public final class JsonUtils {
 					final JournalBasedPublication jpublication = (JournalBasedPublication) publication;
 					final Journal journal = jpublication.getJournal();
 					writeReferenceOrObjectField("journal", journal, () -> journalCreator.create(journal)); //$NON-NLS-1$
+				} else if (publication instanceof ConferenceBasedPublication) {
+					final ConferenceBasedPublication cpublication = (ConferenceBasedPublication) publication;
+					final Conference conference = cpublication.getConference();
+					writeReferenceOrObjectField("conference", conference, () -> conferenceCreator.create(conference)); //$NON-NLS-1$
 				}
 				//
 				this.generator.writeEndObject();

@@ -60,6 +60,7 @@ import fr.ciadlab.labmanager.entities.project.ProjectBudget;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
+import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
@@ -1269,7 +1270,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 					// Keys "authors" and "journal" are not directly set. They have a specific
 					// code for associating authors and journals to the publication
 					return Boolean.valueOf(!AUTHORS_KEY.equalsIgnoreCase(attrName) && !JOURNAL_KEY.equalsIgnoreCase(attrName)
-							&& !MONTH_KEY.equalsIgnoreCase(attrName));
+							&& !CONFERENCE_KEY.equalsIgnoreCase(attrName) && !MONTH_KEY.equalsIgnoreCase(attrName));
 				});
 		if (publication == null) {
 			throw new IllegalArgumentException("Unable to create the instance of the publication of type: " + publicationClass); //$NON-NLS-1$
@@ -1305,6 +1306,32 @@ public class JsonToDatabaseImporter extends JsonTool {
 			journalPaper.setJournal(targetJournal);
 		} else {
 			targetJournal = null;
+		}
+
+		// Attach conference if needed for the type of publication
+		final Conference targetConference;
+		// TODO: Thrown exception if the conference is not found
+		if (publication instanceof ConferenceBasedPublication) {
+			final String conferenceId = getRef(publicationObject.get(CONFERENCE_KEY));
+			if (Strings.isNullOrEmpty(conferenceId)) {
+				getLogger().warn("Conference not found for publication with id: " + id); //$NON-NLS-1$
+				getLogger().warn("Field 'scientificEventName' will be used for publication with id: " + id); //$NON-NLS-1$
+				//throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
+			} else {
+				final Integer conferenceDbId = objectIdRepository.get(conferenceId);
+				if (conferenceDbId == null || conferenceDbId.intValue() == 0) {
+					throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
+				}
+				final Optional<Conference> optConference = this.conferenceRepository.findById(conferenceDbId);
+				if (optConference.isEmpty()) {
+					throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
+				}
+				targetConference = optConference.get();
+				final ConferenceBasedPublication conferencePaper = (ConferenceBasedPublication) publication;
+				conferencePaper.setConference(targetConference);
+			}
+		} else {
+			targetConference = null;
 		}
 
 		// Check the minimum set of fields

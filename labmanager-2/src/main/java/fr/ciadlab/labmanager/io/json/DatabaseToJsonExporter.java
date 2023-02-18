@@ -49,6 +49,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectBudget;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
+import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
@@ -710,6 +711,24 @@ public class DatabaseToJsonExporter extends JsonTool {
 					jsonPublication.set(JOURNAL_KEY, jsonPublication.textNode(journal.getJournalName()));
 				} else {
 					jsonPublication.set(JOURNAL_KEY, createReference(journalId, jsonPublication));
+				}
+			}
+		}
+
+		// Add the conference by hand because they are not exported implicitly by
+		// the "exportObject" function
+		// It is due to the reference to journal entities.
+		if (publication instanceof ConferenceBasedPublication) {
+			final ConferenceBasedPublication cbp = (ConferenceBasedPublication) publication;
+			final Conference conference = cbp.getConference();
+			if (conference != null) {
+				final String conferenceId = repository.get(conference);
+				if (Strings.isNullOrEmpty(conferenceId)) {
+					// Conference not found in the repository. It is an unexpected behavior but
+					// the name of the conference is output to JSON
+					jsonPublication.set(CONFERENCE_KEY, jsonPublication.textNode(conference.getName()));
+				} else {
+					jsonPublication.set(CONFERENCE_KEY, createReference(conferenceId, jsonPublication));
 				}
 			}
 		}

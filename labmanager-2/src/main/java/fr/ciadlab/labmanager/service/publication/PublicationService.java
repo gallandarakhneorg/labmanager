@@ -19,7 +19,6 @@ package fr.ciadlab.labmanager.service.publication;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
-import java.io.StringWriter;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,13 +36,12 @@ import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
+import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
@@ -61,11 +59,13 @@ import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
+import fr.ciadlab.labmanager.io.bibtex.ConferenceFake;
 import fr.ciadlab.labmanager.io.bibtex.JournalFake;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.json.JsonExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
+import fr.ciadlab.labmanager.repository.conference.ConferenceRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.publication.AuthorshipRepository;
@@ -108,6 +108,8 @@ public class PublicationService extends AbstractPublicationService {
 	private AuthorshipRepository authorshipRepository;
 
 	private JournalRepository journalRepository;
+
+	private ConferenceRepository conferenceRepository;
 
 	private PersonRepository personRepository;
 
@@ -161,6 +163,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param personService the service for managing the persons.
 	 * @param personRepository the repository of the persons.
 	 * @param journalRepository the repository of the journals.
+	 * @param conferenceRepository the repository of the conferences.
 	 * @param nameParser the parser of person names.
 	 * @param bibtex the tool for managing BibTeX source.
 	 * @param html the tool for exporting to HTML.
@@ -187,6 +190,7 @@ public class PublicationService extends AbstractPublicationService {
 			@Autowired AuthorshipRepository authorshipRepository,
 			@Autowired PersonService personService, @Autowired PersonRepository personRepository,
 			@Autowired JournalRepository journalRepository,
+			@Autowired ConferenceRepository conferenceRepository,
 			@Autowired PersonNameParser nameParser,
 			@Autowired BibTeX bibtex,
 			@Autowired HtmlDocumentExporter html,
@@ -211,6 +215,7 @@ public class PublicationService extends AbstractPublicationService {
 		this.personRepository = personRepository;
 		this.personService = personService;
 		this.journalRepository = journalRepository;
+		this.conferenceRepository = conferenceRepository;
 		this.nameParser = nameParser;
 		this.bibtex = bibtex;
 		this.html = html;
@@ -520,6 +525,11 @@ public class PublicationService extends AbstractPublicationService {
 				if (jour != null) {
 					this.journalRepository.save(jour);
 				}
+			} else if (publication instanceof ConferenceBasedPublication) {
+				final Conference conf = ((ConferenceBasedPublication) publication).getConference();
+				if (conf != null) {
+					this.conferenceRepository.save(conf);
+				}
 			}
 			if (authors != null) {
 				// Create the list of authors from the temporary (not yet saved) list. 
@@ -552,14 +562,18 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param createMissedJournal if {@code true} the missed journals from the JPA database will be automatically the subject
 	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thown when
 	 *     a journal is missed from the JPA database.
+	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
+	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
+	 *     a conference is missed from the JPA database.
 	 * @return the list of the publications that are successfully extracted.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
 	 */
 	public List<Publication> readPublicationsFromBibTeX(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal) throws Exception {
-		return this.bibtex.extractPublications(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal);
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
+		return this.bibtex.extractPublications(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
+				createMissedConference);
 	}
 
 	/** Import publications from a BibTeX string. The format of the BibTeX is a standard that is briefly described
@@ -574,6 +588,8 @@ public class PublicationService extends AbstractPublicationService {
 	 *      If this argument is {@code null} or the map is empty, then all the BibTeX entries will be imported.
 	 * @param createMissedJournals indicates if the missed journals in the database should be created on-the-fly from
 	 *     the BibTeX data.
+	 * @param createMissedConferences indicates if the missed conferences in the database should be created on-the-fly from
+	 *     the BibTeX data.
 	 * @return the list of the identifiers of the publications that are successfully imported.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see BibTeX
@@ -581,10 +597,11 @@ public class PublicationService extends AbstractPublicationService {
 	 */
 	@SuppressWarnings("null")
 	public List<Integer> importPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType,
-			boolean createMissedJournals) throws Exception {
+			boolean createMissedJournals, boolean createMissedConferences) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
-		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true, createMissedJournals);
+		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true,
+				createMissedJournals, createMissedConferences);
 
 		//Holds the IDs of the successfully imported IDs. We'll need it for type differentiation later.
 		final List<Integer> importedPublicationIdentifiers = new ArrayList<>();
@@ -628,7 +645,7 @@ public class PublicationService extends AbstractPublicationService {
 						publication.setType(expectedType);
 					}
 
-					// Create the journal if is was missed
+					// Create the journal or the conference if it is missed
 					if (publication instanceof JournalBasedPublication) {
 						final JournalBasedPublication jbpub = (JournalBasedPublication) publication;
 						if (jbpub.getJournal() != null && jbpub.getJournal().isFakeEntity()) {
@@ -636,8 +653,15 @@ public class PublicationService extends AbstractPublicationService {
 							this.journalRepository.save(journal);
 							jbpub.setJournal(journal);
 						}
+					} else if (publication instanceof ConferenceBasedPublication) {
+						final ConferenceBasedPublication cbpub = (ConferenceBasedPublication) publication;
+						if (cbpub.getConference() != null && cbpub.getConference().isFakeEntity()) {
+							final Conference conference = new Conference(cbpub.getConference());
+							this.conferenceRepository.save(conference);
+							cbpub.setConference(conference);
+						}
 					}
-					
+
 					// Add the publication to the database and get the new assigned identifier
 					this.publicationRepository.save(publication);
 					final int publicationId = publication.getId();
@@ -806,6 +830,34 @@ public class PublicationService extends AbstractPublicationService {
 		return optJournal.get();
 	}
 
+	/** Get the conference instance that is corresponding to the identifier from the given map for an attribute with the given name.
+	 * <p>This function generates an exception if the conference is {@code null}.
+	 *
+	 * @param attributes the set of attributes
+	 * @param name the name to search for.
+	 * @return the value
+	 */
+	protected Conference ensureConferenceInstance(Map<String, String> attributes, String name) {
+		final String conferenceIdStr = ensureString(attributes, name);
+		if (Strings.isNullOrEmpty(conferenceIdStr)) {
+			throw new IllegalArgumentException("Missed conference: " + name); //$NON-NLS-1$
+		}
+		int conferenceId;
+		try {
+			conferenceId = Integer.parseInt(conferenceIdStr);
+		} catch (Throwable ex) {
+			conferenceId = 0;
+		}
+		if (conferenceId == 0) {
+			throw new IllegalArgumentException("Missed conference: " + name); //$NON-NLS-1$
+		}
+		final Optional<Conference> optConference = this.conferenceRepository.findById(Integer.valueOf(conferenceId));
+		if (optConference.isEmpty()) {
+			throw new IllegalArgumentException("Unknown conference: " + name); //$NON-NLS-1$
+		}
+		return optConference.get();
+	}
+
 	/** Create a publication in the database from values stored in the given map.
 	 * This function ignore the attributes related to uploaded files.
 	 *
@@ -880,15 +932,15 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "address")); //$NON-NLS-1$
 		} else if (publicationClass.equals(ConferencePaper.class)) {
 			createdPublication = this.conferencePaperService.createConferencePaper(publication,
-					ensureString(attributes, "scientificEventName"), //$NON-NLS-1$
+					ensureConferenceInstance(attributes, "conference"), //$NON-NLS-1$
+					optionalInt(attributes, "conferenceOccurrenceNumber", 0), //$NON-NLS-1$
 					optionalString(attributes, "volume"), //$NON-NLS-1$
 					optionalString(attributes, "number"), //$NON-NLS-1$
 					optionalString(attributes, "pages"), //$NON-NLS-1$
 					optionalString(attributes, "editors"), //$NON-NLS-1$
 					optionalString(attributes, "series"), //$NON-NLS-1$
 					optionalString(attributes, "organization"), //$NON-NLS-1$
-					optionalString(attributes, "address"), //$NON-NLS-1$
-					optionalString(attributes, "publisher")); //$NON-NLS-1$
+					optionalString(attributes, "address")); //$NON-NLS-1$
 		} else if (publicationClass.equals(JournalEdition.class)) {
 			createdPublication = this.journalEditionService.createJournalEdition(publication,
 					optionalString(attributes, "volume"), //$NON-NLS-1$
@@ -904,7 +956,8 @@ public class PublicationService extends AbstractPublicationService {
 					ensureJournalInstance(attributes, "journal")); //$NON-NLS-1$
 		} else if (publicationClass.equals(KeyNote.class)) {
 			createdPublication = this.keyNoteService.createKeyNote(publication,
-					ensureString(attributes, "scientificEventName"), //$NON-NLS-1$
+					ensureConferenceInstance(attributes, "conference"), //$NON-NLS-1$
+					optionalInt(attributes, "conferenceOccurrenceNumber", 0), //$NON-NLS-1$
 					optionalString(attributes, "editors"), //$NON-NLS-1$
 					optionalString(attributes, "organization"), //$NON-NLS-1$
 					optionalString(attributes, "address")); //$NON-NLS-1$
@@ -1125,14 +1178,14 @@ public class PublicationService extends AbstractPublicationService {
 					publication.getPathToDownloadablePDF(),
 					publication.getPathToDownloadableAwardCertificate(),
 					optionalString(attributes, "videoURL"), //$NON-NLS-1$
-					ensureString(attributes, "scientificEventName"), //$NON-NLS-1$
+					ensureConferenceInstance(attributes, "conference"), //$NON-NLS-1$
+					optionalInt(attributes, "conferenceOccurrenceNumber", 0), //$NON-NLS-1$
 					optionalString(attributes, "volume"), //$NON-NLS-1$
 					optionalString(attributes, "number"), //$NON-NLS-1$
 					optionalString(attributes, "pages"), //$NON-NLS-1$
 					optionalString(attributes, "editors"), //$NON-NLS-1$
 					optionalString(attributes, "series"), //$NON-NLS-1$
 					optionalString(attributes, "organizer"), //$NON-NLS-1$
-					optionalString(attributes, "publisher"), //$NON-NLS-1$
 					optionalString(attributes, "address")); //$NON-NLS-1$
 		} else if (publicationClass.equals(JournalEdition.class)) {
 			final Journal journal = ensureJournalInstance(attributes, "journal"); //$NON-NLS-1$
@@ -1192,7 +1245,8 @@ public class PublicationService extends AbstractPublicationService {
 					publication.getPathToDownloadablePDF(),
 					publication.getPathToDownloadableAwardCertificate(),
 					optionalString(attributes, "videoURL"), //$NON-NLS-1$
-					ensureString(attributes, "scientificEventName"), //$NON-NLS-1$
+					ensureConferenceInstance(attributes, "conference"), //$NON-NLS-1$
+					optionalInt(attributes, "conferenceOccurrenceNumber", 0), //$NON-NLS-1$
 					optionalString(attributes, "editors"), //$NON-NLS-1$
 					optionalString(attributes, "organization"), //$NON-NLS-1$
 					optionalString(attributes, "organization")); //$NON-NLS-1$
@@ -1429,104 +1483,6 @@ public class PublicationService extends AbstractPublicationService {
 		}
 		this.publicationRepository.save(publication);
 		this.authorshipRepository.flush();
-	}
-
-	/** Export the publications in a CSV file that corresponds to the UTBM standard.
-	 * The columns of the CSV are:<ul>
-	 * <li>Paper type</li>
-	 * <li>Title</li>
-	 * <li>Journal</li>
-	 * <li>Conference</li>
-	 * <li>Author 1</li>
-	 * <li>Author 2</li>
-	 * <li>Author 3</li>
-	 * <li>Author 4</li>
-	 * <li>Author 5</li>
-	 * <li>Author 6</li>
-	 * <li>Author 7</li>
-	 * <li>Author 8</li>
-	 * <li>Author 9</li>
-	 * <li>Author 10</li>
-	 * <li>Author 11</li>
-	 * <li>Author 12</li>
-	 * <li>Author 13</li>
-	 * <li>Author 14</li>
-	 * <li>Author 15</li>
-	 * <li>DOI</li>
-	 * <li>Keywords</li>
-	 * <li>Research organization</li>
-	 * </ul>
-	 * 
-	 * @param organization the organization for which the publications must be extracted.
-	 * @param year the reference year that is used for filtering the publications.
-	 * @return the CSV content.
-	 * @throws IOException if the CSV cannot be generated.
-	 */
-	public String exportUtbmPublications(ResearchOrganization organization, int year) throws IOException {
-		final List<String[]> content = getPublicationsByOrganizationId(organization.getId(), true, false).parallelStream()
-				.filter(it -> it.getPublicationYear() == year)
-				.map(it -> {
-					final List<String> columns = new ArrayList<>(20);
-					columns.add(it.getCategory().name());
-					columns.add(Strings.nullToEmpty(it.getTitle()));
-					if (it instanceof JournalBasedPublication) {
-						final Journal journal = ((JournalBasedPublication) it).getJournal();
-						columns.add(journal.getJournalName() + ", " + journal.getPublisher()); //$NON-NLS-1$
-						columns.add(""); //$NON-NLS-1$
-					} else {
-						columns.add(""); //$NON-NLS-1$
-						columns.add(Strings.nullToEmpty(it.getWherePublishedShortDescription()));
-					}
-					final List<Person> authors = it.getAuthors();
-					for (int i = 0; i < 15; ++i) {
-						if (i < authors.size()) {
-							columns.add(Strings.nullToEmpty(authors.get(i).getFullNameWithLastNameFirst()));
-							
-						} else {
-							columns.add(""); //$NON-NLS-1$
-						}
-					}
-					columns.add(Strings.nullToEmpty(it.getDOI()));
-					columns.add(Strings.nullToEmpty(it.getKeywords()));
-					columns.add(Strings.nullToEmpty(organization.getAcronymOrName()));
-					final String[] array = new String[columns.size()];
-					columns.toArray(array);
-					return array;
-				})
-				.collect(Collectors.toList());
-		//
-		String csv = null;
-		final StringWriter stream = new StringWriter();
-		final CSVWriterBuilder builder = new CSVWriterBuilder(stream);
-		try (final ICSVWriter writer = builder.build()) {
-			writer.writeNext(new String[] {
-					"Type d'article", //$NON-NLS-1$
-					"Titre", //$NON-NLS-1$
-					"Intitulé revue", //$NON-NLS-1$
-					"Intitulé conférence", //$NON-NLS-1$
-					"Auteur 1 - Nom", //$NON-NLS-1$
-					"Auteur 2 - Nom", //$NON-NLS-1$
-					"Auteur 3 - Nom", //$NON-NLS-1$
-					"Auteur 4 - Nom", //$NON-NLS-1$
-					"Auteur 5 - Nom", //$NON-NLS-1$
-					"Auteur 6 - Nom", //$NON-NLS-1$
-					"Auteur 7 - Nom", //$NON-NLS-1$
-					"Auteur 8 - Nom", //$NON-NLS-1$
-					"Auteur 9 - Nom", //$NON-NLS-1$
-					"Auteur 10 - Nom", //$NON-NLS-1$
-					"Auteur 11 - Nom", //$NON-NLS-1$
-					"Auteur 12 - Nom", //$NON-NLS-1$
-					"Auteur 13 - Nom", //$NON-NLS-1$
-					"Auteur 14 - Nom", //$NON-NLS-1$
-					"Auteur 15 - Nom", //$NON-NLS-1$
-					"DOI", //$NON-NLS-1$
-					"Mots-Clés", //$NON-NLS-1$
-					"Laboratoire", //$NON-NLS-1$
-			});
-			writer.writeAll(content);
-			csv = stream.toString();
-		}
-		return Strings.nullToEmpty(csv);
 	}
 	
 }

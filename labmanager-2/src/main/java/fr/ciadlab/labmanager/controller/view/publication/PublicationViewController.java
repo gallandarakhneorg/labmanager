@@ -34,15 +34,18 @@ import javax.servlet.http.HttpServletResponse;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.service.conference.ConferenceService;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
@@ -91,6 +94,8 @@ public class PublicationViewController extends AbstractViewController {
 
 	private JournalService journalService;
 
+	private ConferenceService conferenceService;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -102,6 +107,7 @@ public class PublicationViewController extends AbstractViewController {
 	 * @param personComparator the comparator of persons.
 	 * @param fileManager the manager of local files.
 	 * @param journalService the tools for manipulating journals.
+	 * @param conferenceService the tools for manipulating conferences.
 	 * @param scientificAxisService the tools for accessing the scientific axes.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
@@ -114,6 +120,7 @@ public class PublicationViewController extends AbstractViewController {
 			@Autowired PersonComparator personComparator,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired JournalService journalService,
+			@Autowired ConferenceService conferenceService,
 			@Autowired ScientificAxisService scientificAxisService,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
@@ -123,6 +130,7 @@ public class PublicationViewController extends AbstractViewController {
 		this.personComparator = personComparator;
 		this.fileManager = fileManager;
 		this.journalService = journalService;
+		this.conferenceService = conferenceService;
 		this.scientificAxisService = scientificAxisService;
 	}
 
@@ -415,6 +423,12 @@ public class PublicationViewController extends AbstractViewController {
 				if (journal != null) {
 					modelAndView.addObject("journalIdentifier", Integer.valueOf(journal.getId())); //$NON-NLS-1$
 				}
+			} else if (publicationObj instanceof ConferenceBasedPublication) {
+				final ConferenceBasedPublication jbp = (ConferenceBasedPublication) publicationObj;
+				final Conference conference = jbp.getConference();
+				if (conference != null) {
+					modelAndView.addObject("conferenceIdentifier", Integer.valueOf(conference.getId())); //$NON-NLS-1$
+				}
 			}
 		}
 
@@ -432,6 +446,7 @@ public class PublicationViewController extends AbstractViewController {
 		modelAndView.addObject("formActionUrl", rooted(Constants.PUBLICATION_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.PUBLICATION_LIST_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("journals", this.journalService.getAllJournals()); //$NON-NLS-1$
+		modelAndView.addObject("conferences", this.conferenceService.getAllConferences()); //$NON-NLS-1$
 		modelAndView.addObject("defaultPublicationType", PublicationType.INTERNATIONAL_JOURNAL_PAPER); //$NON-NLS-1$
 		//
 		return modelAndView;
@@ -440,40 +455,47 @@ public class PublicationViewController extends AbstractViewController {
 	private static Set<String> buildHtmlElementMapping(Class<?> jtype, Map<String, String> required) {
 		final Set<String> elements = new TreeSet<>();
 		final boolean isJournalType = JournalBasedPublication.class.isAssignableFrom(jtype);
+		final boolean isConferenceType = ConferenceBasedPublication.class.isAssignableFrom(jtype);
 		if (isJournalType) {
 			elements.add("dynamic-form-group-journal"); //$NON-NLS-1$
+		} else if (isConferenceType) {
+			elements.add("dynamic-form-group-scientificEventName"); //$NON-NLS-1$
+			elements.add("dynamic-form-group-conference"); //$NON-NLS-1$
+			elements.add("dynamic-form-group-conferenceOccurrenceNumber"); //$NON-NLS-1$
 		} else {
 			elements.add("dynamic-form-group-isbn"); //$NON-NLS-1$
 			elements.add("dynamic-form-group-issn"); //$NON-NLS-1$
 		}
 		for (final Method method : jtype.getDeclaredMethods()) {
-			final String bname = method.getName();
-			if (bname.startsWith("get") && method.getParameterCount() == 0 && String.class.equals(method.getReturnType())) { //$NON-NLS-1$
-				try {
-					String attrName = bname.substring(3);
-					final String setterName = "set" + attrName; //$NON-NLS-1$
-					jtype.getDeclaredMethod(setterName, String.class);
-					final String fieldName = StringUtils.uncapitalize(attrName);
-					if (fieldName.endsWith("Number") && !"chapterNumber".equals(fieldName)) { //$NON-NLS-1$ //$NON-NLS-2$
-						attrName = "number"; //$NON-NLS-1$
-					} else if (!fieldName.equals("type") && fieldName.endsWith("Type")) { //$NON-NLS-1$ //$NON-NLS-2$
-						attrName = "documentType"; //$NON-NLS-1$
-					} else if ("ISBN".equals(attrName) || "ISSN".equals(attrName)) { //$NON-NLS-1$ //$NON-NLS-2$
-						attrName = null;
-					} else if ("DOI".equals(attrName)) { //$NON-NLS-1$
-						attrName = fieldName.toLowerCase();
-					} else {
-						attrName = fieldName;
-					}
-					if (attrName != null) {
-						final String htmlElement = "dynamic-form-group-" + attrName; //$NON-NLS-1$
-						elements.add(htmlElement);
-						if (method.isAnnotationPresent(RequiredFieldInForm.class)) {
-							required.put(htmlElement, fieldName);
+			if (method.getAnnotation(Deprecated.class) == null) {
+				final String bname = method.getName();
+				if (bname.startsWith("get") && method.getParameterCount() == 0 && String.class.equals(method.getReturnType())) { //$NON-NLS-1$
+					try {
+						String attrName = bname.substring(3);
+						final String setterName = "set" + attrName; //$NON-NLS-1$
+						jtype.getDeclaredMethod(setterName, String.class);
+						final String fieldName = StringUtils.uncapitalize(attrName);
+						if (fieldName.endsWith("Number") && !"chapterNumber".equals(fieldName)) { //$NON-NLS-1$ //$NON-NLS-2$
+							attrName = "number"; //$NON-NLS-1$
+						} else if (!fieldName.equals("type") && fieldName.endsWith("Type")) { //$NON-NLS-1$ //$NON-NLS-2$
+							attrName = "documentType"; //$NON-NLS-1$
+						} else if ("ISBN".equals(attrName) || "ISSN".equals(attrName)) { //$NON-NLS-1$ //$NON-NLS-2$
+							attrName = null;
+						} else if ("DOI".equals(attrName)) { //$NON-NLS-1$
+							attrName = fieldName.toLowerCase();
+						} else {
+							attrName = fieldName;
 						}
+						if (attrName != null) {
+							final String htmlElement = "dynamic-form-group-" + attrName; //$NON-NLS-1$
+							elements.add(htmlElement);
+							if (method.isAnnotationPresent(RequiredFieldInForm.class)) {
+								required.put(htmlElement, fieldName);
+							}
+						}
+					} catch (Throwable ex) {
+						//
 					}
-				} catch (Throwable ex) {
-					//
 				}
 			}
 		}

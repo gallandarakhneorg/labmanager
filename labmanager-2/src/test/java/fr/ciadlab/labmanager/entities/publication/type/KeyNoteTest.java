@@ -19,7 +19,10 @@ package fr.ciadlab.labmanager.entities.publication.type;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.mockito.Mockito.mock;
 
+import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,29 +44,12 @@ public class KeyNoteTest extends AbstractTypedPublicationTest<KeyNote> {
 
 	@Override
 	protected KeyNote createTest(Publication prePublication) {
-		return new KeyNote(prePublication, null, null, null, null);
+		return new KeyNote(prePublication, null, 0, null, null, null);
 	}
 
 	@Test
 	public void isRanked() {
 		assertFalse(this.test.isRanked());
-	}
-
-	@Test
-	public void getScientificEventName() {
-		assertNull(this.test.getScientificEventName());
-	}
-
-	@Test
-	public void setScientificEventName() {
-		this.test.setScientificEventName("xyz");
-		assertEquals("xyz", this.test.getScientificEventName());
-
-		this.test.setScientificEventName("");
-		assertNull(this.test.getScientificEventName());
-
-		this.test.setScientificEventName(null);
-		assertNull(this.test.getScientificEventName());
 	}
 
 	@Test
@@ -115,6 +101,29 @@ public class KeyNoteTest extends AbstractTypedPublicationTest<KeyNote> {
 
 		this.test.setAddress(null);
 		assertNull(this.test.getAddress());
+	}
+
+	@Test
+	public void getConference() {
+		assertNull(this.test.getConference());
+	}
+
+	@Test
+	public void setConference() {
+		Conference conf = mock(Conference.class);
+		this.test.setConference(conf);
+		assertSame(conf, this.test.getConference());
+	}
+
+	@Test
+	public void getConferenceOccurrenceNumber() {
+		assertEquals(0, this.test.getConferenceOccurrenceNumber());
+	}
+
+	@Test
+	public void setConferenceOccurrenceNumber() {
+		this.test.setConferenceOccurrenceNumber(1234);
+		assertEquals(1234, this.test.getConferenceOccurrenceNumber());
 	}
 
 }

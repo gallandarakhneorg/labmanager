@@ -154,6 +154,10 @@ public abstract class JsonTool {
 	 */
 	public static final String HIDDEN_INTERNAL_NEW_JOURNAL_KEY = HIDDEN_FIELD_PREFIX + "internalNewJournal"; //$NON-NLS-1$
 
+	/** Name of the field that indicates if a conference must be created for importing a publication in the database.
+	 */
+	public static final String HIDDEN_INTERNAL_NEW_CONFERENCE_KEY = HIDDEN_FIELD_PREFIX + "internalNewConference"; //$NON-NLS-1$
+
 	/** Name of the field for the visible global indicators.
 	 */
 	public static final String VISIBLEGLOBALINDICATORS_KEY = "visibleGlobalIndicators"; //$NON-NLS-1$
@@ -204,6 +208,12 @@ public abstract class JsonTool {
 	/** Name of the field for the journal of a journal paper.
 	 */
 	public static final String JOURNAL_KEY = "journal"; //$NON-NLS-1$
+
+	/** Name of the field for the journal of a conference paper.
+	 *
+	 * @since 3.6
+	 */
+	public static final String CONFERENCE_KEY = "conference"; //$NON-NLS-1$
 
 	/** Name of the field for indicating of a published was manually validated. This field is usually for {@link Publication}.
 	 */
@@ -469,9 +479,9 @@ public abstract class JsonTool {
 
 	/** Name of the field for the funding.
 	 *
-	 * @deprecated Since 3.2, replaced by {@link #FUNDING_KEY}.
+	 * @deprecated Replaced by {@link #FUNDING_KEY}.
 	 */
-	@Deprecated
+	@Deprecated(forRemoval = true, since = "3.2")
 	protected static final String FUNDINGSCHEME_KEY = "fundingScheme"; //$NON-NLS-1$
 
 	/** Name of the field for the funding details.
