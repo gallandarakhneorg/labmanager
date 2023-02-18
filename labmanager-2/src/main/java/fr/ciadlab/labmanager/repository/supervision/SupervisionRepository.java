@@ -38,6 +38,14 @@ public interface SupervisionRepository extends JpaRepository<Supervision, Intege
 	 */
 	List<Supervision> findAllBySupervisedPersonPersonId(Integer supervisedPersonId);
 
+	/** Replies all the supervisions associated to the membership with the given identifier.
+	 *
+	 * @param membershipId the identifier of the membership.
+	 * @return the list of the supervisions for the membership.
+	 * @since 3.6
+	 */
+	List<Supervision> findAllBySupervisedPersonId(Integer membershipId);
+
 	/** Replies all the supervisions associated to the person with the given identifier, when he/she is one of the supervisors.
 	 *
 	 * @param supervisorId the identifier of the supervisor.

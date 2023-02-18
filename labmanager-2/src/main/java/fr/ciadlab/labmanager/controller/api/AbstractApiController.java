@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.controller.api;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.AbstractCredentialController;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.http.MediaType;
 
 /** Abstract implementation of a JEE Controller that provides regular API.
  * 
@@ -28,6 +29,34 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  */
 public abstract class AbstractApiController extends AbstractCredentialController {
+
+	/** Name of the MIME type for CSV files.
+	 *
+	 * @since 3.6
+	 * @see #MIME_TYPE_CSV
+	 */
+	public static final String MIME_TYPE_CSV_NAME = "text/csv;charset=UTF-8"; //$NON-NLS-1$
+	
+	/** Name of the MIME type for CSV files.
+	 *
+	 * @since 3.6
+	 * @see #MIME_TYPE_CSV_NAME
+	 */
+	public static final MediaType MIME_TYPE_CSV = MediaType.valueOf(MIME_TYPE_CSV_NAME);
+
+	/** Name of the MIME type for Excel (Open XML, xlsx).
+	 *
+	 * @since 3.6
+	 * @see #MIME_TYPE_XLSX
+	 */
+	public static final String MIME_TYPE_XLSX_NAME = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"; //$NON-NLS-1$
+	
+	/** Name of the MIME type for Excel (Open XML, xlsx).
+	 *
+	 * @since 3.6
+	 * @see #MIME_TYPE_XLSX_NAME
+	 */
+	public static final MediaType MIME_TYPE_XLSX = MediaType.valueOf(MIME_TYPE_XLSX_NAME);
 
 	/** Constructor.
 	 *

@@ -203,6 +203,16 @@ public class MembershipService extends AbstractService {
 		return null;
 	}
 
+	/** Replies the memberships that corresponds to the given organization and member identifiers.
+	 * 
+	 * @param organizationId the identifier of the organization.
+	 * @param memberId the identifier of the member.
+	 * @return the memberships, never {@code null}.
+	 */
+	public Set<Membership> getMemberships(int organizationId, int memberId) {
+		return this.membershipRepository.findByResearchOrganizationIdAndPersonId(organizationId, memberId);
+	}
+
 	/** Replies the membership of the given person.
 	 *
 	 * @param memberId the identifier of the person.

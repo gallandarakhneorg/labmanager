@@ -67,6 +67,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return true;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -112,6 +116,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isHdrOwner() {
 			return true;
 		}
 		@Override
@@ -163,6 +171,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return true;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -208,6 +220,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isHdrOwner() {
 			return true;
 		}
 		@Override
@@ -259,6 +275,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -304,6 +324,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return true;
+		}
+		@Override
+		public boolean isHdrOwner() {
 			return true;
 		}
 		@Override
@@ -355,6 +379,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -403,6 +431,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -448,6 +480,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isHdrOwner() {
 			return false;
 		}
 		@Override
@@ -499,6 +535,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -544,6 +584,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isHdrOwner() {
 			return false;
 		}
 		@Override
@@ -595,6 +639,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return true;
 		}
@@ -643,6 +691,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -688,6 +740,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isHdrOwner() {
 			return false;
 		}
 		@Override
@@ -739,6 +795,10 @@ public enum MemberStatus {
 			return false;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return true;
 		}
@@ -787,6 +847,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -832,6 +896,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isHdrOwner() {
 			return false;
 		}
 		@Override
@@ -883,6 +951,10 @@ public enum MemberStatus {
 			return false;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -931,6 +1003,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -976,6 +1052,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isHdrOwner() {
 			return false;
 		}
 		@Override
@@ -1027,6 +1107,10 @@ public enum MemberStatus {
 			return false;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return true;
 		}
@@ -1072,6 +1156,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isPhDOwner() {
+			return false;
+		}
+		@Override
+		public boolean isHdrOwner() {
 			return false;
 		}
 		@Override
@@ -1123,6 +1211,10 @@ public enum MemberStatus {
 			return true;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -1171,6 +1263,10 @@ public enum MemberStatus {
 			return false;
 		}
 		@Override
+		public boolean isHdrOwner() {
+			return false;
+		}
+		@Override
 		public boolean isSupervisable() {
 			return false;
 		}
@@ -1212,8 +1308,16 @@ public enum MemberStatus {
 	/** Replies if the status supposes that the member owns a PhD.
 	 *
 	 * @return {@code true} if the member is supposed to own a PhD.
+	 * @since 3.6
 	 */
 	public abstract boolean isPhDOwner();
+
+	/** Replies if the status supposes that the member owns a HDR.
+	 *
+	 * @return {@code true} if the member is supposed to own a HDR.
+	 * @since 3.6
+	 */
+	public abstract boolean isHdrOwner();
 
 	/** Replies the hierarchical level.
 	 *

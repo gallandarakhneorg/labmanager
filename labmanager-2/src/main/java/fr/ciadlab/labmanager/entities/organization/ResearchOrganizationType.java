@@ -37,6 +37,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return true;
 		}
+		@Override
+		public boolean isEmployer() {
+			return false;
+		}
 	},
 
 	/** Research department.
@@ -45,6 +49,10 @@ public enum ResearchOrganizationType {
 		@Override
 		public boolean isAcademicType() {
 			return true;
+		}
+		@Override
+		public boolean isEmployer() {
+			return false;
 		}
 	},
 
@@ -55,6 +63,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return true;
 		}
+		@Override
+		public boolean isEmployer() {
+			return false;
+		}
 	},
 
 	/** Faculty.
@@ -63,6 +75,10 @@ public enum ResearchOrganizationType {
 		@Override
 		public boolean isAcademicType() {
 			return true;
+		}
+		@Override
+		public boolean isEmployer() {
+			return false;
 		}
 	},
 
@@ -75,6 +91,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return true;
 		}
+		@Override
+		public boolean isEmployer() {
+			return false;
+		}
 	},
 
 	/** Research organization/institution, e.g., National Research Center.
@@ -86,6 +106,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return true;
 		}
+		@Override
+		public boolean isEmployer() {
+			return true;
+		}
 	},
 
 	/** University or college.
@@ -93,6 +117,10 @@ public enum ResearchOrganizationType {
 	UNIVERSITY {
 		@Override
 		public boolean isAcademicType() {
+			return true;
+		}
+		@Override
+		public boolean isEmployer() {
 			return true;
 		}
 	},
@@ -104,6 +132,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return true;
 		}
+		@Override
+		public boolean isEmployer() {
+			return true;
+		}
 	},
 
 	/** University community or network.
@@ -111,6 +143,10 @@ public enum ResearchOrganizationType {
 	COMMUNITY {
 		@Override
 		public boolean isAcademicType() {
+			return true;
+		}
+		@Override
+		public boolean isEmployer() {
 			return true;
 		}
 	},
@@ -124,6 +160,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return false;
 		}
+		@Override
+		public boolean isEmployer() {
+			return true;
+		}
 	},
 
 	/** Public association or non-profit organization.
@@ -134,6 +174,10 @@ public enum ResearchOrganizationType {
 		@Override
 		public boolean isAcademicType() {
 			return false;
+		}
+		@Override
+		public boolean isEmployer() {
+			return true;
 		}
 	},
 
@@ -146,6 +190,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return false;
 		}
+		@Override
+		public boolean isEmployer() {
+			return true;
+		}
 	},
 
 	/** A company that is just created or incubated.
@@ -156,6 +204,10 @@ public enum ResearchOrganizationType {
 		@Override
 		public boolean isAcademicType() {
 			return false;
+		}
+		@Override
+		public boolean isEmployer() {
+			return true;
 		}
 	},
 
@@ -168,6 +220,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return false;
 		}
+		@Override
+		public boolean isEmployer() {
+			return true;
+		}
 	},
 
 	/** Small or middle-size company, e.g., less than 250 employees.
@@ -178,6 +234,10 @@ public enum ResearchOrganizationType {
 		@Override
 		public boolean isAcademicType() {
 			return false;
+		}
+		@Override
+		public boolean isEmployer() {
+			return true;
 		}
 	},
 
@@ -190,6 +250,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return false;
 		}
+		@Override
+		public boolean isEmployer() {
+			return true;
+		}
 	},
 
 	/** Big-size company, e.g., equal to or more than 5000 employees.
@@ -201,6 +265,10 @@ public enum ResearchOrganizationType {
 		public boolean isAcademicType() {
 			return false;
 		}
+		@Override
+		public boolean isEmployer() {
+			return true;
+		}
 	},
 
 	/** Other type of organization.
@@ -209,6 +277,10 @@ public enum ResearchOrganizationType {
 		@Override
 		public boolean isAcademicType() {
 			return false;
+		}
+		@Override
+		public boolean isEmployer() {
+			return true;
 		}
 	};
 
@@ -282,5 +354,12 @@ public enum ResearchOrganizationType {
 	 * @since 3.1
 	 */
 	public abstract boolean isAcademicType();
+
+	/** Replies if this type of organization corresponds to an employer.
+	 *
+	 * @return {@code true} if the type is for an employer organization.
+	 * @since 3.6
+	 */
+	public abstract boolean isEmployer();
 
 }

@@ -254,6 +254,28 @@ public abstract class AbstractComponent {
 	 *
 	 * @param attributes the set of attributes
 	 * @param name the name to search for.
+	 * @param defaultValue the default value.
+	 * @return the value or {@link Float#NaN}.
+	 * @see #ensureString(Map, String)
+	 * @since 3.6
+	 */
+	protected static int optionalInt(Map<String, ?> attributes, String name, int defaultValue) {
+		final String param = inString(attributes.get(name));
+		if (Strings.isNullOrEmpty(param)) {
+			return defaultValue;
+		}
+		try {
+			return Integer.parseInt(param);
+		} catch (Throwable ex) {
+			return defaultValue;
+		}
+	}
+
+	/** Get the value from the given map for an attribute with the given name.
+	 * <p>This function does not generate an exception if the value is {@code null} or empty.
+	 *
+	 * @param attributes the set of attributes
+	 * @param name the name to search for.
 	 * @param type the type of the enum.
 	 * @return the value or {@link Float#NaN}.
 	 * @see #ensureString(Map, String)

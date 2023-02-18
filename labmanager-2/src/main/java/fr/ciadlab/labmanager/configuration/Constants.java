@@ -108,6 +108,18 @@ public class Constants {
 	 */
 	public static final String DEFAULT_MEMBERS_ATTACHMENT_BASENAME = "members"; //$NON-NLS-1$
 
+	/** Default basename of the files in attachment with projects.
+	 *
+	 * @since 3.6
+	 */
+	public static final String DEFAULT_PROJECTS_ATTACHMENT_BASENAME = "projects"; //$NON-NLS-1$
+
+	/** Default basename of the files in attachment with synthesis.
+	 *
+	 * @since 3.6
+	 */
+	public static final String DEFAULT_SYNTHESIS_ATTACHMENT_BASENAME = "synthesis"; //$NON-NLS-1$
+
 	/** Name of the endpoint for admin.
 	 */
 	public static final String ADMIN_ENDPOINT = "admin"; //$NON-NLS-1$

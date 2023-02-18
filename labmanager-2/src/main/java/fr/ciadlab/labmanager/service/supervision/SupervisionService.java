@@ -100,6 +100,16 @@ public class SupervisionService extends AbstractService {
 		return this.supervisionRepository.findAllBySupervisedPersonPersonId(Integer.valueOf(supervisedPersonId));
 	}
 
+	/** Replies all the supervisions associated to the membership with the given identifier.
+	 *
+	 * @param membershipId the identifier of the membership.
+	 * @return the list of the supervisions for the membership.
+	 * @since 3.6
+	 */
+	public List<Supervision> getSupervisionsForMembership(int membershipId) {
+		return this.supervisionRepository.findAllBySupervisedPersonId(Integer.valueOf(membershipId));
+	}
+
 	/** Create a supervision of a person.
 	 *
 	 * @param membership the identifier of the membership that describes the supervised person.

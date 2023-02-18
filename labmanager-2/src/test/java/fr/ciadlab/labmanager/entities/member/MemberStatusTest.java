@@ -287,6 +287,35 @@ public class MemberStatusTest {
 	}
 
 	@Test
+	public void isHdrOwner() {
+		assertTrue(cons(MemberStatus.EMERITUS_FULL_PROFESSOR).isHdrOwner());
+		assertTrue(cons(MemberStatus.FULL_PROFESSOR).isHdrOwner());
+		assertTrue(cons(MemberStatus.RESEARCH_DIRECTOR).isHdrOwner());
+		assertTrue(cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).isHdrOwner());
+		assertFalse(cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).isHdrOwner());
+		assertTrue(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isHdrOwner());
+		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR).isHdrOwner());
+		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).isHdrOwner());
+		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isHdrOwner());
+		assertFalse(cons(MemberStatus.RESEARCHER_PHD).isHdrOwner());
+		assertFalse(cons(MemberStatus.RESEARCHER).isHdrOwner());
+		assertFalse(cons(MemberStatus.RESEARCH_ENGINEER_PHD).isHdrOwner());
+		assertFalse(cons(MemberStatus.RESEARCH_ENGINEER).isHdrOwner());
+		assertFalse(cons(MemberStatus.POSTDOC).isHdrOwner());
+		assertFalse(cons(MemberStatus.PHD_STUDENT).isHdrOwner());
+		assertFalse(cons(MemberStatus.ENGINEER_PHD).isHdrOwner());
+		assertFalse(cons(MemberStatus.ENGINEER).isHdrOwner());
+		assertFalse(cons(MemberStatus.ADMIN).isHdrOwner());
+		assertFalse(cons(MemberStatus.TEACHER_PHD).isHdrOwner());
+		assertFalse(cons(MemberStatus.TEACHER).isHdrOwner());
+		assertFalse(cons(MemberStatus.MASTER_STUDENT).isHdrOwner());
+		assertFalse(cons(MemberStatus.OTHER_STUDENT).isHdrOwner());
+		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isHdrOwner());
+		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isHdrOwner());
+		assertAllTreated();
+	}
+
+	@Test
 	public void isSupervisable() {
 		assertFalse(cons(MemberStatus.EMERITUS_FULL_PROFESSOR).isSupervisable());
 		assertFalse(cons(MemberStatus.FULL_PROFESSOR).isSupervisable());
