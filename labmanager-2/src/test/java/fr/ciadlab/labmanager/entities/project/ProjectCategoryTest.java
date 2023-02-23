@@ -128,4 +128,13 @@ public class ProjectCategoryTest {
 		assertAllTreated();
 	}
 
+	@Test
+	public void isContractualProject() throws Exception {
+		assertTrue(cons(ProjectCategory.COMPETITIVE_CALL_PROJECT).isContractualProject());
+		assertTrue(cons(ProjectCategory.NOT_ACADEMIC_PROJECT).isContractualProject());
+		assertFalse(cons(ProjectCategory.AUTO_FUNDING).isContractualProject());
+		assertFalse(cons(ProjectCategory.OPEN_SOURCE).isContractualProject());
+		assertAllTreated();
+	}
+
 }

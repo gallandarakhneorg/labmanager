@@ -555,6 +555,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	}
 
 	/** Replies the quality indicators of the journal for the given year.
+	 * This function does not reply the indicators for the years before the given one.
 	 *
 	 * @param year the year to search for.
 	 * @return the indicators or {@code null} if none were defined.

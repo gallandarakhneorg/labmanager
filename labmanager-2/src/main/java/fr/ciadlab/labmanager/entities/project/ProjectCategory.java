@@ -35,19 +35,39 @@ public enum ProjectCategory {
 
 	/** Project that is open source, freely available on Internet.
 	 */
-	OPEN_SOURCE,
+	OPEN_SOURCE {
+		@Override
+		public boolean isContractualProject() {
+			return false;
+		}
+	},
 
 	/** Project that is auto-funding.
 	 */
-	AUTO_FUNDING,
+	AUTO_FUNDING {
+		@Override
+		public boolean isContractualProject() {
+			return false;
+		}
+	},
 
 	/** Project with not academic partner.
 	 */
-	NOT_ACADEMIC_PROJECT,
+	NOT_ACADEMIC_PROJECT {
+		@Override
+		public boolean isContractualProject() {
+			return true;
+		}
+	},
 
 	/** Project in a competitive call.
 	 */
-	COMPETITIVE_CALL_PROJECT;
+	COMPETITIVE_CALL_PROJECT {
+		@Override
+		public boolean isContractualProject() {
+			return true;
+		}
+	};
 
 	private static final String MESSAGE_PREFIX = "projectCateogry."; //$NON-NLS-1$
 	
@@ -118,5 +138,12 @@ public enum ProjectCategory {
 	public int reverseOrdinal() {
 		return values().length - ordinal() - 1;
 	}
+
+	/** Replies if the category of project has a contract (public or private).
+	 *
+	 * @return {@code true} if the project category needs a contract or a consortium agreement.
+	 * @since 3.6
+	 */
+	public abstract boolean isContractualProject();
 
 }

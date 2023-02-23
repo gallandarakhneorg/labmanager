@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -27,6 +28,7 @@ import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
+import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -104,6 +106,8 @@ public class AdminViewController extends AbstractViewController {
 		if (!Strings.isNullOrEmpty(this.helpUrl)) {
 			modelAndView.addObject("helpUrl", this.helpUrl); //$NON-NLS-1$
 		}
+		LocalDate now = LocalDate.now();
+		modelAndView.addObject("yearList", IntStream.range(now.getYear() - 5, now.getYear()).toArray()); //$NON-NLS-1$
 		return modelAndView;
 	}
 

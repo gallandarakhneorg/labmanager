@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.repository.project;
 
 import java.util.List;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
@@ -65,7 +66,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
 	 * @return the list of projects.
 	 */
 	@Query("SELECT DISTINCT p FROM Project p, ProjectMember m WHERE m.person.id = :id AND m MEMBER OF p.participants")
-	List<Project> findDistinctPersonProjects(@Param("id") Integer id);
+	Set<Project> findDistinctPersonProjects(@Param("id") Integer id);
 
 	/** Replies all the projects that match the person identifier, the confidential
 	 * flag and the project status.

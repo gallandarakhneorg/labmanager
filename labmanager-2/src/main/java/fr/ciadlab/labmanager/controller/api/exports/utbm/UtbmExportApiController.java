@@ -16,16 +16,11 @@
 
 package fr.ciadlab.labmanager.controller.api.exports.utbm;
 
-import java.io.IOException;
-import java.io.StringWriter;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.conference.Conference;
@@ -34,15 +29,23 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper.TableContentHelper;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper.TableContentRowHelper;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper.TableHeaderHelper;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper.TableHelper;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
-import org.apache.jena.ext.com.google.common.base.Strings;
+import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -60,6 +63,56 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @CrossOrigin
 public class UtbmExportApiController extends AbstractApiController {
+
+	private static final String PAPER_TYPE_COLUMN = "Type d'article"; //$NON-NLS-1$
+
+	private static final String TITLE_COLUMN = "Titre"; //$NON-NLS-1$
+
+	private static final String JOURNAL_COLUMN = "Intitulé revue"; //$NON-NLS-1$
+
+	private static final String CONFERENCE_COLUMN = "Intitulé conférence"; //$NON-NLS-1$
+
+	private static final String AUTHOR_0_COLUMN = "Auteur 1 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_1_COLUMN = "Auteur 2 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_2_COLUMN = "Auteur 3 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_3_COLUMN = "Auteur 4 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_4_COLUMN = "Auteur 5 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_5_COLUMN = "Auteur 6 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_6_COLUMN = "Auteur 7 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_7_COLUMN = "Auteur 8 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_8_COLUMN = "Auteur 9 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_9_COLUMN = "Auteur 10 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_10_COLUMN = "Auteur 11 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_11_COLUMN = "Auteur 12 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_12_COLUMN = "Auteur 13 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_13_COLUMN = 	"Auteur 14 - Nom"; //$NON-NLS-1$
+
+	private static final String AUTHOR_14_COLUMN = "Auteur 15 - Nom"; //$NON-NLS-1$
+
+	private static final String DOI_COLUMN = "DOI"; //$NON-NLS-1$
+
+	private static final String KEYWORDS_COLUMN = "Mots-Clés"; //$NON-NLS-1$
+
+	private static final String LAB_COLUMN = "Laboratoire"; //$NON-NLS-1$
+
+	private static final String RANK_COLUMN = "Classement WoS ou CORE"; //$NON-NLS-1$
+
+	private static final String IMPACT_FACTOR_COLUMN = "Facteur d'impact"; //$NON-NLS-1$
+
+	private static final String PUBLICATIONS_TABLE_NAME = "Publications {0,number,0000}"; //$NON-NLS-1$
 
 	private PublicationService publicationService;
 
@@ -86,34 +139,49 @@ public class UtbmExportApiController extends AbstractApiController {
 	}
 
 	/**
-	 * Export publications in a CSV document that corresponds to the UTBM requirements.
+	 * Export annual indicators to the UTBM requirements.
 	 *
 	 * @param organization the identifier or the name of the organization for which the publications must be extracted.
 	 * @param year the reference year.
+	 * @param username the name of the logged-in user.
 	 * @return the document for the publications.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 * @since 3.5
 	 */
-	@GetMapping(value = "/exportUtbmAnnualPublications")
+	@GetMapping(value = "/exportUtbmAnnualIndicators")
 	@ResponseBody
-	public ResponseEntity<String> exportUtbmAnnualPublications(
+	public ResponseEntity<byte[]> exportUtbmAnnualPublications(
 			@RequestParam(required = true) String organization,
-			@RequestParam(required = true) int year) throws Exception {
+			@RequestParam(required = true) int year,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		readCredentials(username, "exportUtbmAnnualIndicators", organization, Integer.valueOf(year)); //$NON-NLS-1$
 		final ResearchOrganization organizationObj = getOrganizationWith(organization, this.organizationService);
 		if (organizationObj == null) {
 			throw new IllegalArgumentException("Organization not found for: " + organization); //$NON-NLS-1$
 		}
-		final String content = exportPublicationCsv(organizationObj, year);
-		BodyBuilder bb = ResponseEntity.ok().contentType(MIME_TYPE_CSV);
+		//
+		final byte[] content;
+		final MediaType mediaType;
+		final String filenameExtension;
+		try (final OdfSpreadsheetHelper ods = new OdfSpreadsheetHelper()) {
+			getLogger().info("Generating UTBM indicators' spreadsheet for publications"); //$NON-NLS-1$
+			exportPublications(ods, organizationObj, year);
+			getLogger().info("Generating spreadsheet bytes"); //$NON-NLS-1$
+			content = ods.toByteArray();
+			mediaType = ods.getMediaType();
+			filenameExtension = ods.getFileExtension();
+		}
+		//
+		BodyBuilder bb = ResponseEntity.ok().contentType(mediaType);
 		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 		bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
-				+ Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME
-				+ "_" + simpleDateFormat.format(new Date()) + ".csv\""); //$NON-NLS-1$ //$NON-NLS-2$
+				+ Constants.DEFAULT_UTBM_INDICATORS_ATTACHMENT_BASENAME
+				+ "_" + simpleDateFormat.format(new Date()) + "." + filenameExtension + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return bb.body(content);
 	}
 
-	/** Export the publications in a CSV file that corresponds to the UTBM standard.
-	 * The columns of the CSV are:<ul>
+	/** Export the publications in a spreadsheet page that corresponds to the UTBM standard.
+	 * The columns of the Excel are:<ul>
 	 * <li>Paper type</li>
 	 * <li>Title</li>
 	 * <li>Journal</li>
@@ -136,82 +204,110 @@ public class UtbmExportApiController extends AbstractApiController {
 	 * <li>DOI</li>
 	 * <li>Keywords</li>
 	 * <li>Research organization</li>
+	 * <li>WoS/CORE Ranking</li>
+	 * <li>Impact factor</li>
 	 * </ul>
 	 * 
+	 * @param document the output document.
 	 * @param organization the organization for which the publications must be extracted.
 	 * @param year the reference year that is used for filtering the publications.
-	 * @return the CSV content.
-	 * @throws IOException if the CSV cannot be generated.
+	 * @throws Exception if the Excel cannot be generated.
 	 */
-	protected String exportPublicationCsv(ResearchOrganization organization, int year) throws IOException {
-		final List<String[]> content = this.publicationService.getPublicationsByOrganizationId(organization.getId(), true, false).parallelStream()
+	protected void exportPublications(OdfSpreadsheetHelper document, ResearchOrganization organization, int year) throws Exception {
+		final TableHelper output = document.newTable(MessageFormat.format(PUBLICATIONS_TABLE_NAME, Integer.valueOf(year)));
+		//
+		final TableHeaderHelper header = output.getHeader();
+		header.appendColumn(PAPER_TYPE_COLUMN);
+		header.appendColumn(TITLE_COLUMN);
+		header.appendColumn(JOURNAL_COLUMN);
+		header.appendColumn(CONFERENCE_COLUMN);
+		header.appendColumn(AUTHOR_0_COLUMN);
+		header.appendColumn(AUTHOR_1_COLUMN);
+		header.appendColumn(AUTHOR_2_COLUMN);
+		header.appendColumn(AUTHOR_3_COLUMN);
+		header.appendColumn(AUTHOR_4_COLUMN);
+		header.appendColumn(AUTHOR_5_COLUMN);
+		header.appendColumn(AUTHOR_6_COLUMN);
+		header.appendColumn(AUTHOR_7_COLUMN);
+		header.appendColumn(AUTHOR_8_COLUMN);
+		header.appendColumn(AUTHOR_9_COLUMN);
+		header.appendColumn(AUTHOR_10_COLUMN);
+		header.appendColumn(AUTHOR_11_COLUMN);
+		header.appendColumn(AUTHOR_12_COLUMN);
+		header.appendColumn(AUTHOR_13_COLUMN);
+		header.appendColumn(AUTHOR_14_COLUMN);
+		header.appendColumn(DOI_COLUMN);
+		header.appendColumn(KEYWORDS_COLUMN);
+		header.appendColumn(LAB_COLUMN);
+		header.appendColumn(RANK_COLUMN);
+		header.appendColumn(IMPACT_FACTOR_COLUMN);
+		//
+		final TableContentHelper content = output.getContent();
+		this.publicationService.getPublicationsByOrganizationId(organization.getId(), true, false).stream()
 				.filter(it -> it.getPublicationYear() == year)
-				.map(it -> {
-					final List<String> columns = new ArrayList<>(20);
-					columns.add(it.getCategory().name());
-					columns.add(Strings.nullToEmpty(it.getTitle()));
+				.forEach(it -> {
+					final TableContentRowHelper row = content.appendRow();
+					row.append(it.getCategory().name());
+					row.append(it.getTitle());
 					if (it instanceof JournalBasedPublication) {
 						final Journal journal = ((JournalBasedPublication) it).getJournal();
-						columns.add(it.getPublicationTarget() + ", " + journal.getPublisher()); //$NON-NLS-1$
-						columns.add(""); //$NON-NLS-1$
+						row.append(it.getPublicationTarget() + ", " + journal.getPublisher()); //$NON-NLS-1$
+						row.append((String) null);
 					} else if (it instanceof ConferenceBasedPublication) {
+						row.append((String) null);
 						final Conference conference = ((ConferenceBasedPublication) it).getConference();
-						columns.add(it.getPublicationTarget() + ", " + conference.getPublisher()); //$NON-NLS-1$
-						columns.add(""); //$NON-NLS-1$
+						if (conference != null) {
+							row.append(it.getPublicationTarget() + ", " + conference.getPublisher()); //$NON-NLS-1$
+						} else {
+							row.append(it.getWherePublishedShortDescription());
+						}
 					} else {
-						columns.add(""); //$NON-NLS-1$
-						columns.add(Strings.nullToEmpty(it.getWherePublishedShortDescription()));
+						row.append((String) null);
+						row.append(it.getWherePublishedShortDescription());
 					}
 					final List<Person> authors = it.getAuthors();
 					for (int i = 0; i < 15; ++i) {
 						if (i < authors.size()) {
-							columns.add(Strings.nullToEmpty(authors.get(i).getFullNameWithLastNameFirst()));
+							row.append(authors.get(i).getFullNameWithLastNameFirst());
 							
 						} else {
-							columns.add(""); //$NON-NLS-1$
+							row.append((String) null);
 						}
 					}
-					columns.add(Strings.nullToEmpty(it.getDOI()));
-					columns.add(Strings.nullToEmpty(it.getKeywords()));
-					columns.add(Strings.nullToEmpty(organization.getAcronymOrName()));
-					final String[] array = new String[columns.size()];
-					columns.toArray(array);
-					return array;
-				})
-				.collect(Collectors.toList());
-		//
-		String csv = null;
-		final StringWriter stream = new StringWriter();
-		final CSVWriterBuilder builder = new CSVWriterBuilder(stream);
-		try (final ICSVWriter writer = builder.build()) {
-			writer.writeNext(new String[] {
-					"Type d'article", //$NON-NLS-1$
-					"Titre", //$NON-NLS-1$
-					"Intitulé revue", //$NON-NLS-1$
-					"Intitulé conférence", //$NON-NLS-1$
-					"Auteur 1 - Nom", //$NON-NLS-1$
-					"Auteur 2 - Nom", //$NON-NLS-1$
-					"Auteur 3 - Nom", //$NON-NLS-1$
-					"Auteur 4 - Nom", //$NON-NLS-1$
-					"Auteur 5 - Nom", //$NON-NLS-1$
-					"Auteur 6 - Nom", //$NON-NLS-1$
-					"Auteur 7 - Nom", //$NON-NLS-1$
-					"Auteur 8 - Nom", //$NON-NLS-1$
-					"Auteur 9 - Nom", //$NON-NLS-1$
-					"Auteur 10 - Nom", //$NON-NLS-1$
-					"Auteur 11 - Nom", //$NON-NLS-1$
-					"Auteur 12 - Nom", //$NON-NLS-1$
-					"Auteur 13 - Nom", //$NON-NLS-1$
-					"Auteur 14 - Nom", //$NON-NLS-1$
-					"Auteur 15 - Nom", //$NON-NLS-1$
-					"DOI", //$NON-NLS-1$
-					"Mots-Clés", //$NON-NLS-1$
-					"Laboratoire", //$NON-NLS-1$
-			});
-			writer.writeAll(content);
-			csv = stream.toString();
-		}
-		return Strings.nullToEmpty(csv);
+					row.append(it.getDOI());
+					row.append(it.getKeywords());
+					row.append(organization.getAcronymOrName());
+					boolean hasRank = false;
+					boolean hasImpactFactor = false;
+					if (it instanceof JournalBasedPublication) {
+						final Journal journal = ((JournalBasedPublication) it).getJournal();
+						final QuartileRanking quartile = journal.getWosQIndexByYear(year);
+						if (quartile != null && quartile != QuartileRanking.NR) {
+							hasRank = true;
+							row.append(quartile.name());
+						}
+						final float impactFactor = journal.getImpactFactorByYear(year);
+						if (impactFactor > 0f) {
+							hasImpactFactor = true;
+							row.append(Double.valueOf(impactFactor));
+						}
+					} else if (it instanceof ConferenceBasedPublication) {
+						final Conference conference = ((ConferenceBasedPublication) it).getConference();
+						if (conference != null) {
+							final CoreRanking ranking = conference.getCoreIndexByYear(year);
+							if (ranking != null && ranking != CoreRanking.NR) {
+								hasRank = true;
+								row.append(ranking.toString());
+							}
+						}
+					}
+					if (!hasRank) {
+						row.append((String) null);
+					}
+					if (!hasImpactFactor) {
+						row.append((String) null);
+					}
+				});
 	}
 
 }

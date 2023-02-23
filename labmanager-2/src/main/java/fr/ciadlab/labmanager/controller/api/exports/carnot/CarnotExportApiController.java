@@ -16,8 +16,6 @@
 
 package fr.ciadlab.labmanager.controller.api.exports.carnot;
 
-import java.io.IOException;
-import java.io.StringWriter;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
@@ -25,10 +23,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
-import com.opencsv.CSVWriterBuilder;
-import com.opencsv.ICSVWriter;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureType;
@@ -44,6 +41,11 @@ import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.supervision.Supervision;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper.TableContentHelper;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper.TableContentRowHelper;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper.TableHeaderHelper;
+import fr.ciadlab.labmanager.io.od.OdfSpreadsheetHelper.TableHelper;
 import fr.ciadlab.labmanager.service.assostructure.AssociatedStructureService;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
@@ -56,8 +58,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.ResponseEntity.BodyBuilder;
+import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -88,17 +92,19 @@ public class CarnotExportApiController extends AbstractApiController {
 
 	private static final String POSITION_COLUMN = "Corps Grade"; //$NON-NLS-1$
 
-	private static final String HDR_COLUMN = "HDR"; //$NON-NLS-1$
+	private static final String HDR_COLUMN = "HDR (oui/non)"; //$NON-NLS-1$
 
 	private static final String EMPLOYER_COLUMN = "Employeur"; //$NON-NLS-1$
 
 	private static final String OTHER_EMPLOYER_COLUMN = "Si Employeur = \"HORS TUTELLE iC ARTS\" précisez ici"; //$NON-NLS-1$
 
-	private static final String MONTHS_COLUMN = "Présence au laboratoire sur l'année {0} en mois"; //$NON-NLS-1$
+	private static final String MONTHS_COLUMN = "Présence au laboratoire sur l''année {0,number,0000} en mois"; //$NON-NLS-1$
+
+	private static final String PROJECT_COUNT_COLUMN = "Nombre de projets en {0,number,0000}"; //$NON-NLS-1$
 
 	private static final String ACRONYM_COLUMN = "Acronyme"; //$NON-NLS-1$
 
-	private static final String PROJECT_NAME_COLUMN = "Institulé"; //$NON-NLS-1$
+	private static final String PROJECT_NAME_COLUMN = "Intitulé"; //$NON-NLS-1$
 
 	private static final String BUDGET_COLUMN = "Montant"; //$NON-NLS-1$
 
@@ -111,6 +117,8 @@ public class CarnotExportApiController extends AbstractApiController {
 	private static final String CATEGORY_COLUMN = "Category"; //$NON-NLS-1$
 
 	private static final String TRL_COLUMN = "TRL"; //$NON-NLS-1$
+
+	private static final String LEAR_COLUMN = "Institution gestionnaire"; //$NON-NLS-1$
 
 	private static final String YES_VALUE = "OUI"; //$NON-NLS-1$
 
@@ -129,6 +137,8 @@ public class CarnotExportApiController extends AbstractApiController {
 	private static final String POSTDOC_VALUE = "POST-DOC"; //$NON-NLS-1$
 
 	private static final String ENGINEER_VALUE = "INGENIEUR"; //$NON-NLS-1$
+
+	private static final String ATER_PAST_VALUE = "ATER, PAST"; //$NON-NLS-1$
 
 	private static final String CIFRE_VALUE = "DOCTORANT CIFRE"; //$NON-NLS-1$
 
@@ -186,6 +196,12 @@ public class CarnotExportApiController extends AbstractApiController {
 
 	private static final String LABS_SYNTHESIS_LABEL = "Nombre de laboratoires communs créés dans l'année :"; //$NON-NLS-1$
 
+	private static final String ETP_TABLE_NAME = "ETP {0,number,0000}"; //$NON-NLS-1$
+
+	private static final String PROJECTS_TABLE_NAME = "Projets {0,number,0000}"; //$NON-NLS-1$
+
+	private static final String SYNTHESIS_TABLE_NAME = "Synthèse {0,number,0000}"; //$NON-NLS-1$
+
 	private SupervisionService supervisionService;
 
 	private MembershipService membershipService;
@@ -231,191 +247,53 @@ public class CarnotExportApiController extends AbstractApiController {
 	}
 
 	/**
-	 * Export the persons who must be declared as part of the laboratory to the IC ARTS institution.
+	 * Export the different informations that are queried by IC ARTS institution every year.
 	 *
 	 * @param organization the identifier or the name of the organization for which the members must be extracted.
 	 * @param year the reference year.
-	 * @return the CSV content.
+	 * @param username the name of the logged-in user.
+	 * @return the Excel content.
 	 * @throws Exception if it is impossible to redirect to the error page.
 	 */
-	@GetMapping(value = "/exportCarnotAnnualMembers")
+	@GetMapping(value = "/exportCarnotAnnualIndicators")
 	@ResponseBody
-	public ResponseEntity<String> exportCarnotAnnualMembers(
+	public ResponseEntity<byte[]> exportCarnotAnnualIndicators(
 			@RequestParam(required = true) String organization,
-			@RequestParam(required = true) int year) throws Exception {
+			@RequestParam(required = true) int year,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		readCredentials(username, "exportCarnotAnnualIndicators", organization, Integer.valueOf(year)); //$NON-NLS-1$
 		final ResearchOrganization organizationObj = getOrganizationWith(organization, this.organizationService);
 		if (organizationObj == null) {
 			throw new IllegalArgumentException("Organization not found for: " + organization); //$NON-NLS-1$
 		}
 		//
-		final String content = exportEtpCsv(organizationObj, year);
+		final byte[] content;
+		final MediaType mediaType;
+		final String filenameExtension;
+		try (final OdfSpreadsheetHelper ods = new OdfSpreadsheetHelper()) {
+			getLogger().info("Generating Carnot indicators' spreadsheet for ETPs"); //$NON-NLS-1$
+			exportETPs(ods, organizationObj, year);
+			getLogger().info("Generating Carnot indicators' spreadsheet for projects"); //$NON-NLS-1$
+			exportProjects(ods, organizationObj, year);
+			getLogger().info("Generating Carnot indicators' spreadsheet for general synthesis"); //$NON-NLS-1$
+			exportSynthesis(ods, organizationObj, year);
+			getLogger().info("Generating spreadsheet bytes"); //$NON-NLS-1$
+			content = ods.toByteArray();
+			mediaType = ods.getMediaType();
+			filenameExtension = ods.getFileExtension();
+		}
 		//
-		BodyBuilder bb = ResponseEntity.ok().contentType(MIME_TYPE_CSV);
+		BodyBuilder bb = ResponseEntity.ok().contentType(mediaType);
 		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 		bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
-				+ Constants.DEFAULT_MEMBERS_ATTACHMENT_BASENAME
-				+ "_" + simpleDateFormat.format(new Date()) + ".csv\""); //$NON-NLS-1$ //$NON-NLS-2$
+				+ Constants.DEFAULT_CARNOT_INDICATORS_ATTACHMENT_BASENAME
+				+ "_" + simpleDateFormat.format(new Date()) + "." + filenameExtension + "\""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		return bb.body(content);
-	}
-
-	/**
-	 * Export the projects which must be declared for a given year to the IC ARTS institution.
-	 *
-	 * @param organization the identifier or the name of the organization for which the synthesis must be extracted.
-	 * @param year the reference year.
-	 * @return the CSV content.
-	 * @throws Exception if it is impossible to redirect to the error page.
-	 */
-	@GetMapping(value = "/exportCarnotAnnualSynthesis")
-	@ResponseBody
-	public ResponseEntity<String> exportCarnotAnnualSynthesis(
-			@RequestParam(required = true) String organization,
-			@RequestParam(required = true) int year) throws Exception {
-		final ResearchOrganization organizationObj = getOrganizationWith(organization, this.organizationService);
-		if (organizationObj == null) {
-			throw new IllegalArgumentException("Organization not found for: " + organization); //$NON-NLS-1$
-		}
-		//
-		final String content = exportSynthesisCsv(organizationObj, year);
-		//
-		BodyBuilder bb = ResponseEntity.ok().contentType(MIME_TYPE_CSV);
-		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
-		bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
-				+ Constants.DEFAULT_SYNTHESIS_ATTACHMENT_BASENAME
-				+ "_" + simpleDateFormat.format(new Date()) + ".csv\""); //$NON-NLS-1$ //$NON-NLS-2$
-		return bb.body(content);
-	}
-
-	/**
-	 * Export the annual synthesis to the IC ARTS institution.
-	 *
-	 * @param organization the identifier or the name of the organization for which the projects must be extracted.
-	 * @param year the reference year.
-	 * @return the CSV content.
-	 * @throws Exception if it is impossible to redirect to the error page.
-	 * @since 3.6
-	 */
-	@GetMapping(value = "/exportCarnotAnnualProjects")
-	@ResponseBody
-	public ResponseEntity<String> exportCarnotAnnualProjects(
-			@RequestParam(required = true) String organization,
-			@RequestParam(required = true) int year) throws Exception {
-		final ResearchOrganization organizationObj = getOrganizationWith(organization, this.organizationService);
-		if (organizationObj == null) {
-			throw new IllegalArgumentException("Organization not found for: " + organization); //$NON-NLS-1$
-		}
-		//
-		final String content = exportProjectCsv(organizationObj, year);
-		//
-		BodyBuilder bb = ResponseEntity.ok().contentType(MIME_TYPE_CSV);
-		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
-		bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
-				+ Constants.DEFAULT_PROJECTS_ATTACHMENT_BASENAME
-				+ "_" + simpleDateFormat.format(new Date()) + ".csv\""); //$NON-NLS-1$ //$NON-NLS-2$
-		return bb.body(content);
-	}
-
-	/** Export the annual synthesis in a CSV file that corresponds to the Carnot standard.
-	 * 
-	 * @param organization the organization for which the synthesis must be extracted.
-	 * @param year the reference year that is used for filtering the publications.
-	 * @return the CSV content.
-	 * @throws IOException if the CSV cannot be generated.
-	 */
-	protected String exportSynthesisCsv(ResearchOrganization organization, int year) throws IOException {
-		String csv = null;
-		final StringWriter stream = new StringWriter();
-		final CSVWriterBuilder builder = new CSVWriterBuilder(stream);
-		try (final ICSVWriter writer = builder.build()) {
-			// Publications
-			final long pubs = this.publicationService.getPublicationsByOrganizationId(organization.getId(), true, false).stream()
-				.filter(it -> it.getPublicationYear() == year
-					&& (it.getCategory() == PublicationCategory.OS
-						|| ((it.getCategory() == PublicationCategory.C_ACTI || it.getCategory() == PublicationCategory.ACL) && it.isRanked())))
-				.count();
-			writer.writeNext(new String[] {
-					PUBS_SYNTHESIS_LABEL,
-					Long.toString(pubs),
-			});
-			// Created companies
-			final long companies = this.associatedStructureService.getAssociatedStructuresByOrganizationId(organization.getId()).stream()
-				.filter(it -> it.getCreationDate().getYear() == year && it.getType() == AssociatedStructureType.PRIVATE_COMPANY)
-				.count();
-			writer.writeNext(new String[] {
-					COMPANIES_SYNTHESIS_LABEL,
-					Long.toString(companies),
-			});
-			// Created labs
-			final long labs = this.associatedStructureService.getAssociatedStructuresByOrganizationId(organization.getId()).stream()
-					.filter(it -> it.getCreationDate().getYear() == year
-						&& (it.getType() == AssociatedStructureType.INTERNATIONAL_RESEARCH_LAB
-								|| it.getType() == AssociatedStructureType.NATIONAL_RESEARCH_LAB))
-					.count();
-			writer.writeNext(new String[] {
-					LABS_SYNTHESIS_LABEL,
-					Long.toString(labs),
-			});
-			csv = stream.toString();
-		}
-		return Strings.nullToEmpty(csv);
-	}
-
-	/** Export the projects in a CSV file that corresponds to the Carnot standard.
-	 * The columns of the CSV are:<ul>
-	 * <li>Acronyme</li>
-	 * <li>Intitulé</li>
-	 * <li>Montant</li>
-	 * <li>Financeur</li>
-	 * <li>Type de contrat</li>
-	 * <li>Thèse ?</li>
-	 * <li>Catégorie</li>
-	 * <li>TRL</li>
-	 * </ul>
-	 * 
-	 * @param organization the organization for which the publications must be extracted.
-	 * @param year the reference year that is used for filtering the publications.
-	 * @return the CSV content.
-	 * @throws IOException if the CSV cannot be generated.
-	 */
-	protected String exportProjectCsv(ResearchOrganization organization, int year) throws IOException {
-		final List<String[]> content = this.projectService.getAllProjects().stream()
-				.filter(it -> it.getStartDate().getYear() == year && it.getStatus() == ProjectStatus.ACCEPTED)
-				.map(it -> {
-					return new String[] {
-							it.getAcronym(),
-							it.getScientificTitle(),
-							Integer.toString((int) it.getTotalLocalOrganizationBudget() * 1000),
-							funders(it),
-							projectType(it.getContractType()),
-							projectPhD(organization, it),
-							projectType(it.getActivityType()),
-							projectTrl(it.getTRL()),
-					};
-				}).collect(Collectors.toList());
-		//
-		String csv = null;
-		final StringWriter stream = new StringWriter();
-		final CSVWriterBuilder builder = new CSVWriterBuilder(stream);
-		try (final ICSVWriter writer = builder.build()) {
-			writer.writeNext(new String[] {
-					ACRONYM_COLUMN,
-					PROJECT_NAME_COLUMN,
-					BUDGET_COLUMN,
-					FUNDER_COLUMN,
-					CONTRACT_TYPE_COLUMN,
-					HAS_PHD_THESIS_COLUMN,
-					CATEGORY_COLUMN,
-					TRL_COLUMN,
-			});
-			writer.writeAll(content);
-			csv = stream.toString();
-		}
-		return Strings.nullToEmpty(csv);
 	}
 
 	/** Replies the type of supervision for the project.
 	 *
-	 * @param organization the organization of the proejct.
+	 * @param organization the organization of the project.
 	 * @param project the project to analyze.
 	 * @return the string representing the type of supervision.
 	 */
@@ -578,8 +456,8 @@ public class CarnotExportApiController extends AbstractApiController {
 		return buf.toString();
 	}
 
-	/** Export the full-time equivalent persons in a CSV file that corresponds to the Carnot standard.
-	 * The columns of the CSV are:<ul>
+	/** Export the full-time equivalent persons in a spreadsheet page that corresponds to the Carnot standard.
+	 * The columns of the Excel are:<ul>
 	 * <li>Laboratory</li>
 	 * <li>Name</li>
 	 * <li>Firstname</li>
@@ -592,53 +470,139 @@ public class CarnotExportApiController extends AbstractApiController {
 	 * <li>Number of months</li>
 	 * </ul>
 	 * 
+	 * @param document the output document.
 	 * @param organization the organization for which the publications must be extracted.
 	 * @param year the reference year that is used for filtering the publications.
-	 * @return the CSV content.
-	 * @throws IOException if the CSV cannot be generated.
+	 * @throws Exception if the Excel cannot be generated.
 	 */
-	protected String exportEtpCsv(ResearchOrganization organization, int year) throws IOException {
+	protected void exportETPs(OdfSpreadsheetHelper document, ResearchOrganization organization, int year) throws Exception {
+		final TableHelper output = document.newTable(MessageFormat.format(ETP_TABLE_NAME, Integer.valueOf(year)));
+		//
+		final TableHeaderHelper header = output.getHeader();
+		header.appendColumn(LAB_COLUMN);
+		header.appendColumn(NAME_COLUMN);
+		header.appendColumn(FIRSTNAME_COLUMN);
+		header.appendColumn(OTHER_LAB_COLUMN);
+		header.appendColumn(PERMANENT_STAFF_COLUMN);
+		header.appendColumn(POSITION_COLUMN);
+		header.appendColumn(HDR_COLUMN);
+		header.appendColumn(EMPLOYER_COLUMN);
+		header.appendColumn(OTHER_EMPLOYER_COLUMN);
+		header.appendColumn(MessageFormat.format(MONTHS_COLUMN, Integer.valueOf(year)));
+		header.appendColumn(MessageFormat.format(PROJECT_COUNT_COLUMN, Integer.valueOf(year)));
+		//
 		final LocalDate startDate = LocalDate.of(year, 1, 1);
 		final LocalDate endDate = LocalDate.of(year, 12, 31);
-		final List<String[]> content = organization.getMemberships().parallelStream()
+		final TableContentHelper content = output.getContent();
+		organization.getMemberships().stream()
 				.filter(it -> it.isActiveIn(startDate, endDate) && membershipStatus(it) != null)
-				.map(it -> {
+				.forEach(it -> {
 					final List<ResearchOrganization> employers = extractEmployers(it);
 					final String employerValue = employerValue(employers);
-					return new String[] {
-							organization.getAcronym(), // Laboratory
-							it.getPerson().getLastName(),
-							it.getPerson().getFirstName(),
-							"", // No other lab //$NON-NLS-1$
-							booleanValue(it.isPermanentPosition()),
-							membershipStatus(it),
-							booleanValue(it.getMemberStatus().isHdrOwner()),
-							Strings.isNullOrEmpty(employerValue) ? OTHER_EMPLOYER_VALUE : employerValue,
-							Strings.isNullOrEmpty(employerValue) ? otherEmployerValue(employers) : "", //$NON-NLS-1$
-							monthsValue(startDate, endDate, it.getMemberSinceWhen(), it.getMemberToWhen()),
-					};
-				}).collect(Collectors.toList());
+					final TableContentRowHelper row = content.appendRow();
+					row.append(organization.getAcronym());
+					row.append(it.getPerson().getLastName());
+					row.append(it.getPerson().getFirstName());
+					// No other lab
+					row.append((String) null);
+					row.append(booleanValue(Boolean.valueOf(it.isPermanentPosition())));
+					row.append(membershipStatus(it));
+					row.append(booleanValue(Boolean.valueOf(it.getMemberStatus().isHdrOwner())));
+					row.append(Strings.isNullOrEmpty(employerValue) ? OTHER_EMPLOYER_VALUE : employerValue);
+					row.append(Strings.isNullOrEmpty(employerValue) ? otherEmployerValue(employers) : null);
+					row.append(monthsValue(startDate, endDate, it.getMemberSinceWhen(), it.getMemberToWhen()));
+					final long projectCount = this.projectService.getProjectsByPersonId(it.getPerson().getId())
+							.stream().filter(it0 -> it0.getStatus() == ProjectStatus.ACCEPTED && it0.isActiveAt(year) && it0.getCategory().isContractualProject())
+						.count();
+					row.append(Long.valueOf(projectCount));
+				});
+	}
+
+	/** Export the projects in a spreadsheet page that corresponds to the Carnot standard.
+	 * The columns of the Excel are:<ul>
+	 * <li>Acronyme</li>
+	 * <li>Intitulé</li>
+	 * <li>Montant</li>
+	 * <li>Financeur</li>
+	 * <li>Type de contrat</li>
+	 * <li>Thèse ?</li>
+	 * <li>Catégorie</li>
+	 * <li>TRL</li>
+	 * </ul>
+	 * 
+	 * @param document the output document.
+	 * @param organization the organization for which the publications must be extracted.
+	 * @param year the reference year that is used for filtering the publications.
+	 * @throws Exception if the Excel cannot be generated.
+	 */
+	protected void exportProjects(OdfSpreadsheetHelper document, ResearchOrganization organization, int year) throws Exception {
+		final TableHelper output = document.newTable(MessageFormat.format(PROJECTS_TABLE_NAME, Integer.valueOf(year)));
 		//
-		String csv = null;
-		final StringWriter stream = new StringWriter();
-		final CSVWriterBuilder builder = new CSVWriterBuilder(stream);
-		try (final ICSVWriter writer = builder.build()) {
-			writer.writeNext(new String[] {
-					LAB_COLUMN,
-					NAME_COLUMN,
-					FIRSTNAME_COLUMN,
-					OTHER_LAB_COLUMN,
-					PERMANENT_STAFF_COLUMN,
-					POSITION_COLUMN,
-					HDR_COLUMN,
-					EMPLOYER_COLUMN,
-					OTHER_EMPLOYER_COLUMN,
-					MessageFormat.format(MONTHS_COLUMN, Integer.valueOf(year)),
-			});
-			writer.writeAll(content);
-			csv = stream.toString();
-		}
-		return Strings.nullToEmpty(csv);
+		final TableHeaderHelper header = output.getHeader();
+		header.appendColumn(ACRONYM_COLUMN);
+		header.appendColumn(PROJECT_NAME_COLUMN);
+		header.appendColumn(BUDGET_COLUMN);
+		header.appendColumn(FUNDER_COLUMN);
+		header.appendColumn(CONTRACT_TYPE_COLUMN);
+		header.appendColumn(HAS_PHD_THESIS_COLUMN);
+		header.appendColumn(CATEGORY_COLUMN);
+		header.appendColumn(TRL_COLUMN);
+		header.appendColumn(LEAR_COLUMN);
+		//
+		final AtomicInteger rowIndex = new AtomicInteger(1);
+		final TableContentHelper content = output.getContent();
+		this.projectService.getAllProjects().stream()
+				.filter(it -> it.getStartDate().getYear() == year && it.getStatus() == ProjectStatus.ACCEPTED)
+				.forEach(it -> {
+					final TableContentRowHelper row = content.appendRow();
+					rowIndex.incrementAndGet();
+					row.append(it.getAcronym());
+					row.append(it.getScientificTitle());
+					row.appendCurrency(Double.valueOf(it.getTotalLocalOrganizationBudget() * 1000f));
+					row.append(funders(it));
+					row.append(projectType(it.getContractType()));
+					row.append(projectPhD(organization, it));
+					row.append(projectType(it.getActivityType()));
+					row.append(projectTrl(it.getTRL()));
+					row.append(it.getLearOrganization().getAcronymOrName());
+				});
+	}
+
+	/** Export the annual synthesis in a spreadsheet page that corresponds to the Carnot standard.
+	 * 
+	 * @param document the output document.
+	 * @param organization the organization for which the synthesis must be extracted.
+	 * @param year the reference year that is used for filtering the publications.
+	 * @throws Exception if the Excel cannot be generated.
+	 */
+	protected void exportSynthesis(OdfSpreadsheetHelper document, ResearchOrganization organization, int year) throws Exception {
+		final TableHelper output = document.newTable(MessageFormat.format(SYNTHESIS_TABLE_NAME, Integer.valueOf(year)));
+		final TableContentHelper content = output.getContent();
+		// Publications
+		final long pubs = this.publicationService.getPublicationsByOrganizationId(organization.getId(), true, false).stream()
+			.filter(it -> it.getPublicationYear() == year
+				&& (it.getCategory() == PublicationCategory.OS
+					|| ((it.getCategory() == PublicationCategory.C_ACTI || it.getCategory() == PublicationCategory.ACL) && it.isRanked())))
+			.count();
+		final TableContentRowHelper row0 = content.appendRow();
+		row0.append(PUBS_SYNTHESIS_LABEL);
+		row0.append(Long.valueOf(pubs));
+		// Created companies
+		final long companies = this.associatedStructureService.getAssociatedStructuresByOrganizationId(organization.getId()).stream()
+			.filter(it -> it.getCreationDate().getYear() == year && it.getType() == AssociatedStructureType.PRIVATE_COMPANY)
+			.count();
+		final TableContentRowHelper row1 = content.appendRow();
+		row1.append(COMPANIES_SYNTHESIS_LABEL);
+		row1.append(Long.valueOf(companies));
+		// Created labs
+		final long labs = this.associatedStructureService.getAssociatedStructuresByOrganizationId(organization.getId()).stream()
+				.filter(it -> it.getCreationDate().getYear() == year
+					&& (it.getType() == AssociatedStructureType.INTERNATIONAL_RESEARCH_LAB
+							|| it.getType() == AssociatedStructureType.NATIONAL_RESEARCH_LAB))
+				.count();
+		final TableContentRowHelper row2 = content.appendRow();
+		row2.append(LABS_SYNTHESIS_LABEL);
+		row2.append(Long.valueOf(labs));
 	}
 
 	/** Extract the employers from the memberships.
@@ -691,8 +655,8 @@ public class CarnotExportApiController extends AbstractApiController {
 	 * @param value the boolean value.
 	 * @return the string representation of the boolean value.
 	 */
-	protected static String booleanValue(boolean value) {
-		return value ? YES_VALUE : NO_VALUE;
+	protected static String booleanValue(Boolean value) {
+		return value == null ? "" : (value.booleanValue() ? YES_VALUE : NO_VALUE); //$NON-NLS-1$
 	}
 
 	/** Compute the number of months for the given time windows.
@@ -703,7 +667,7 @@ public class CarnotExportApiController extends AbstractApiController {
 	 * @param membershipEnd the last date of the membership.
 	 * @return the number of months.
 	 */
-	protected static String monthsValue(LocalDate yearStart, LocalDate yearEnd, LocalDate membershipStart, LocalDate membershipEnd) {
+	protected static Long monthsValue(LocalDate yearStart, LocalDate yearEnd, LocalDate membershipStart, LocalDate membershipEnd) {
 		int firstMonth = 1;
 		if (membershipStart != null && membershipStart.isAfter(yearStart)) {
 			firstMonth = membershipStart.getMonthValue();
@@ -713,7 +677,7 @@ public class CarnotExportApiController extends AbstractApiController {
 			lastMonth = membershipEnd.getMonthValue();
 		}
 		final int numberOfMonths = lastMonth - firstMonth + 1; 
-		return Integer.toString(numberOfMonths);
+		return Long.valueOf(numberOfMonths);
 	}
 
 	/** Replies if the given person has a CIFRE contract during the time windows.
@@ -792,9 +756,10 @@ public class CarnotExportApiController extends AbstractApiController {
 		case TEACHER:
 		case TEACHER_PHD:
 			return TEACHER_VALUE;
-		case RESEARCHER:
 		case RESEARCHER_PHD:
 			return CR_VALUE;
+		case RESEARCHER:
+			return ATER_PAST_VALUE;
 		case POSTDOC:
 			return POSTDOC_VALUE;
 		case PHD_STUDENT:

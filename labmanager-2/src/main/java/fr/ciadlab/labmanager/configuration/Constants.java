@@ -108,17 +108,17 @@ public class Constants {
 	 */
 	public static final String DEFAULT_MEMBERS_ATTACHMENT_BASENAME = "members"; //$NON-NLS-1$
 
-	/** Default basename of the files in attachment with projects.
+	/** Default basename of the files in attachment with Carnot indicators.
 	 *
 	 * @since 3.6
 	 */
-	public static final String DEFAULT_PROJECTS_ATTACHMENT_BASENAME = "projects"; //$NON-NLS-1$
+	public static final String DEFAULT_CARNOT_INDICATORS_ATTACHMENT_BASENAME = "carnotIndicators"; //$NON-NLS-1$
 
-	/** Default basename of the files in attachment with synthesis.
+	/** Default basename of the files in attachment with UTBM indicators.
 	 *
 	 * @since 3.6
 	 */
-	public static final String DEFAULT_SYNTHESIS_ATTACHMENT_BASENAME = "synthesis"; //$NON-NLS-1$
+	public static final String DEFAULT_UTBM_INDICATORS_ATTACHMENT_BASENAME = "utbmIndicators"; //$NON-NLS-1$
 
 	/** Name of the endpoint for admin.
 	 */

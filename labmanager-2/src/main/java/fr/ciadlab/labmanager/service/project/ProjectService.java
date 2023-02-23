@@ -175,7 +175,7 @@ public class ProjectService extends AbstractService {
 	 * @param id the identifier of the person.
 	 * @return the projects.
 	 */
-	public List<Project> getProjectsByPersonId(int id) {
+	public Set<Project> getProjectsByPersonId(int id) {
 		return this.projectRepository.findDistinctPersonProjects(Integer.valueOf(id));
 	}
 

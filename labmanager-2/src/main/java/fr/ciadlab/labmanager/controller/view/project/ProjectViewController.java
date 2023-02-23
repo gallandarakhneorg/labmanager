@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -133,13 +134,13 @@ public class ProjectViewController extends AbstractViewController {
 		final ModelAndView modelAndView = new ModelAndView(Constants.PROJECT_LIST_ENDPOINT);
 		initModelViewWithInternalProperties(modelAndView, false);
 		initAdminTableButtons(modelAndView, endpoint(Constants.PROJECT_EDITING_ENDPOINT, Constants.PROJECT_ENDPOINT_PARAMETER));
-		final List<Project> projects = extractProjectListWithoutFilter(dbId, inWebId, organization);
+		final Collection<Project> projects = extractProjectListWithoutFilter(dbId, inWebId, organization);
 		modelAndView.addObject("projects", projects); //$NON-NLS-1$
 		return modelAndView;
 	}
 
-	private List<Project> extractProjectListWithoutFilter(Integer dbId, String webId, Integer organization) {
-		final List<Project> projects;
+	private Collection<Project> extractProjectListWithoutFilter(Integer dbId, String webId, Integer organization) {
+		final Collection<Project> projects;
 		if (organization != null && organization.intValue() != 0) {
 			projects = this.projectService.getProjectsByOrganizationId(organization.intValue());
 		} else if (dbId != null && dbId.intValue() != 0) {

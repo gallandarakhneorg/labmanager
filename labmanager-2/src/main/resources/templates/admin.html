@@ -28,8 +28,27 @@
 			    		<span class="fa-solid fa-sort-numeric-up-alt"></span>&nbsp;<th:block th:utext="#{html.GlobalIndicators}"></th:block></a>
 			    	<button type="button" class="btn btn-labeled btn-secondary" disabled>
 			    	<span class="fa-solid fa-chart-simple"></span>&nbsp;Charts</button>
-			    	<button type="button" class="btn btn-labeled btn-warning" disabled>
-			    	<span class="fa-solid fa-file-excel"></span>&nbsp;Export to spreadsheet</button>
+					<div class="dropdown">
+				    	<button type="button" class="btn btn-labeled btn-info dropdown-toggle" data-bs-toggle="dropdown"
+			    	            id="dropdownExportToSpreadsheet" aria-expanded="false">
+				    	<span class="fa-solid fa-sort-numeric-up-alt"></span>&nbsp;<th:block th:utext="#{html.ExportToSpreadsheet}"></th:block></button>
+				    	<ul class="dropdown-menu" aria-labelledby="dropdownExportToSpreadsheet">
+							<li th:each="organization : ${organizations}"
+							    th:if="${organization.isMajorOrganization}">
+								<button type="button" class="dropdown-item"
+								   th:utext="${organization.acronymOrName}"></button>
+								<ul class="dropdown-menu dropdown-submenu">
+									<th:block th:each="year : ${yearList}">
+										<li><a class="dropdown-item"
+										       th:href="@{/exportCarnotAnnualIndicators(organization=${organization.id},year=${year})}"
+										       th:utext="#{html.ExportIndicatorsCarnot(${year})}"></a></li>
+										<li><a class="dropdown-item"
+										       th:href="@{/exportUtbmAnnualIndicators(organization=${organization.id},year=${year})}"
+										       th:utext="#{html.ExportIndicatorsUtbm(${year})}"></a></li>
+									</th:block>
+								</ul> 
+						</ul>
+					</div>
 			    </p>
 			</div>
 			<div class="card-footer">

@@ -202,9 +202,9 @@ public class ProjectServiceTest {
 		Project prj0 = mock(Project.class);
 		Project prj1 = mock(Project.class);
 		when(this.projectRepository.findDistinctPersonProjects(eq(Integer.valueOf(1234)))).thenReturn(
-				Arrays.asList(prj0, prj1));
+				new HashSet<>(Arrays.asList(prj0, prj1)));
 		//
-		List<Project> projects = this.test.getProjectsByPersonId(1234);
+		Set<Project> projects = this.test.getProjectsByPersonId(1234);
 		assertNotNull(projects);
 		assertEquals(2, projects.size());
 		assertTrue(projects.contains(prj0));

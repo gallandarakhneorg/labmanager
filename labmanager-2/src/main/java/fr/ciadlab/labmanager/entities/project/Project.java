@@ -1516,4 +1516,75 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		}
 	}
 
+	/** Replies if the project is active.
+	 * A project is active if the current date is inside the project time windows.
+	 *
+	 * @return {@code true} if the project time windows contains the current date.
+	 * @since 3.6
+	 */
+	public boolean isActive() {
+		final LocalDate now = LocalDate.now();
+		return isActiveAt(now);
+	}
+
+	/** Replies if the project is active.
+	 * A project is active if the given date is inside the project time windows.
+	 *
+	 * @param now the given date to consider.
+	 * @return {@code true} if the project time windows contains the given date.
+	 * @since 3.6
+	 */
+	public boolean isActiveAt(LocalDate now) {
+		final LocalDate start = getStartDate();
+		if (start != null && now.isBefore(start)) {
+			return false;
+		}
+		final LocalDate end = getEndDate();
+		if (end != null && now.isAfter(end)) {
+			return false;
+		}
+		return true;
+	}
+
+	/** Replies if the project is active during the given year.
+	 * A project is active when the project time windows intersects the given year.
+	 *
+	 * @param year the given year to consider.
+	 * @return {@code true} if the project time windows contains the given year.
+	 * @since 3.6
+	 */
+	public boolean isActiveAt(int year) {
+		final int start = getStartYear();
+		final int end = getEndYear();
+		if (end == 0) {
+			return start <= year;
+		}
+		return start <= year && year <= end;
+	}
+
+	/** Replies if the project is active during the given time windows.
+	 * A membership is active if the current date is inside the membership time windows.
+	 *
+	 * @param windowStart is the start date of the windows, never {@code null}.
+	 * @param windowEnd is the end date of the windows, never {@code null}.
+	 * @return {@code true} if the membership time windows intersects the given date window.
+	 * @since 3.6
+	 */
+	public boolean isActiveIn(LocalDate windowStart, LocalDate windowEnd) {
+		assert windowStart != null;
+		assert windowEnd != null;
+		final LocalDate start = getStartDate();
+		final LocalDate end = getEndDate();
+		if (start != null) {
+			if (end != null) {
+				return !windowEnd.isBefore(start) && !windowStart.isAfter(end);
+			}
+			return !windowEnd.isBefore(start);
+		}
+		if (end != null) {
+			return !windowStart.isAfter(end);
+		}
+		return true;
+	}
+
 }

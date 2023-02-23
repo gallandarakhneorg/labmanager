@@ -30,6 +30,8 @@ import static org.mockito.Mockito.when;
 import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
+import java.time.temporal.TemporalUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -1466,6 +1468,129 @@ public class ProjectTest {
 
 		assertTrue(l0.contains(this.test));
 		assertTrue(l1.contains(this.test));
+	}
+
+	@Test
+	public void isActive_noStart_noEnd() {
+		assertTrue(this.test.isActive());
+	}
+
+	@Test
+	public void isActive_noEnd() {
+		LocalDate now = LocalDate.now();
+		LocalDate past = now.minus(7, ChronoUnit.MONTHS);
+		LocalDate future = now.plus(7, ChronoUnit.MONTHS);
+
+		this.test.setStartDate(past);
+		this.test.setDuration(12);
+		assertTrue(this.test.isActive());
+		//
+		this.test.setStartDate(now);
+		this.test.setDuration(12);
+		assertTrue(this.test.isActive());
+		//
+		this.test.setStartDate(future);
+		this.test.setDuration(12);
+		assertFalse(this.test.isActive());
+	}
+
+	@Test
+	public void isActive() {
+		LocalDate now = LocalDate.now();
+		LocalDate past = now.minus(7, ChronoUnit.MONTHS);
+		LocalDate future = now.plus(7, ChronoUnit.MONTHS);
+
+		this.test.setStartDate(past);
+		this.test.setDuration(3);
+		assertFalse(this.test.isActive());
+		//
+		this.test.setStartDate(past);
+		this.test.setDuration(7);
+		assertTrue(this.test.isActive());
+		//
+		this.test.setStartDate(past);
+		this.test.setDuration(24);
+		assertTrue(this.test.isActive());
+		//
+		this.test.setStartDate(now);
+		this.test.setDuration(3);
+		assertTrue(this.test.isActive());
+		//
+		this.test.setStartDate(future);
+		this.test.setDuration(24);
+		assertFalse(this.test.isActive());
+	}
+
+	@Test
+	public void isActiveAt_LocalDate() {
+		final LocalDate ld = LocalDate.of(2022, 5, 5);
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setDuration(1);
+		assertFalse(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setDuration(12);
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setDuration(24);
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 5, 5));
+		this.test.setDuration(9);
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 5, 5));
+		this.test.setDuration(12);
+		assertTrue(this.test.isActiveAt(ld));
+		//
+		this.test.setStartDate(LocalDate.of(2023, 5, 5));
+		this.test.setDuration(3);
+		assertFalse(this.test.isActiveAt(ld));
+	}
+
+	@Test
+	public void isActiveAt_int() {
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setDuration(1);
+		assertFalse(this.test.isActiveAt(2020));
+		assertTrue(this.test.isActiveAt(2021));
+		assertFalse(this.test.isActiveAt(2022));
+		assertFalse(this.test.isActiveAt(2023));
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setDuration(12);
+		assertFalse(this.test.isActiveAt(2020));
+		assertTrue(this.test.isActiveAt(2021));
+		assertTrue(this.test.isActiveAt(2022));
+		assertFalse(this.test.isActiveAt(2023));
+	}
+
+	@Test
+	public void isActiveIn() {
+		final LocalDate s = LocalDate.of(2022, 1, 1);
+		final LocalDate e = LocalDate.of(2022, 12, 31);
+		//
+		this.test.setStartDate(LocalDate.of(2021, 5, 5));
+		this.test.setDuration(12);
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 5, 5));
+		this.test.setDuration(12);
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2023, 5, 5));
+		this.test.setDuration(12);
+		assertFalse(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2022, 12, 31));
+		this.test.setDuration(12);
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setStartDate(LocalDate.of(2023, 01, 01));
+		this.test.setDuration(12);
+		assertFalse(this.test.isActiveIn(s, e));
 	}
 
 }
