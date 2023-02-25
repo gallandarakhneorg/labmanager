@@ -52,13 +52,25 @@ public enum AssociatedStructureType {
 	 */
 	INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP,
 
+	/** International research group.
+	 *
+	 * @since 3.6
+	 */
+	INTERNATIONAL_RESEARCH_GROUP,
+
 	/** Shared national research lab.
 	 */
 	NATIONAL_RESEARCH_LAB,
 
 	/** Shared national group of scientific interest.
 	 */
-	NATIONAL_SCIENTIFIC_INTEREST_GROUP;
+	NATIONAL_SCIENTIFIC_INTEREST_GROUP,
+	
+	/** National research group.
+	 *
+	 * @since 3.6
+	 */
+	NATIONAL_RESEARCH_GROUP;
 
 	private static final String MESSAGE_PREFIX = "associatedStructureType."; //$NON-NLS-1$
 	

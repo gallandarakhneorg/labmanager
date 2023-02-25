@@ -71,6 +71,8 @@ public class AssociatedStructureTypeTest {
 		assertEquals(cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP), AssociatedStructureType.valueOfCaseInsensitive("INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP"));
 		assertEquals(cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB), AssociatedStructureType.valueOfCaseInsensitive("NATIONAL_RESEARCH_LAB"));
 		assertEquals(cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP), AssociatedStructureType.valueOfCaseInsensitive("NATIONAL_SCIENTIFIC_INTEREST_GROUP"));
+		assertEquals(cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP), AssociatedStructureType.valueOfCaseInsensitive("INTERNATIONAL_RESEARCH_GROUP"));
+		assertEquals(cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP), AssociatedStructureType.valueOfCaseInsensitive("NATIONAL_RESEARCH_GROUP"));
 		assertAllTreated();
 		assertThrows(IllegalArgumentException.class, () -> AssociatedStructureType.valueOfCaseInsensitive("XYZ"));
 	}
@@ -84,6 +86,8 @@ public class AssociatedStructureTypeTest {
 		assertEquals(cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP), AssociatedStructureType.valueOfCaseInsensitive("INTERNATIONAL_scientific_INTEREST_GROUP"));
 		assertEquals(cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB), AssociatedStructureType.valueOfCaseInsensitive("NATIONAL_RESEARCH_lab"));
 		assertEquals(cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP), AssociatedStructureType.valueOfCaseInsensitive("NATIONAL_SCIENTIFIC_interest_GROUP"));
+		assertEquals(cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP), AssociatedStructureType.valueOfCaseInsensitive("INTERNATIONAL_research_GROUP"));
+		assertEquals(cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP), AssociatedStructureType.valueOfCaseInsensitive("NATIONAL_research_GROUP"));
 		assertAllTreated();
 		assertThrows(IllegalArgumentException.class, () -> AssociatedStructureType.valueOfCaseInsensitive("xyz"));
 	}
@@ -98,6 +102,8 @@ public class AssociatedStructureTypeTest {
 		assertEquals("International Group of Scientific Interest", cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel());
 		assertEquals("National Research Lab", cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB).getLabel());
 		assertEquals("National Group of Scientific Interest", cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel());
+		assertEquals("National Research Group", cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP).getLabel());
+		assertEquals("International Research Group", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP).getLabel());
 		assertAllTreated();
 	}
 
@@ -111,6 +117,8 @@ public class AssociatedStructureTypeTest {
 		assertEquals("International Group of Scientific Interest", cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel());
 		assertEquals("National Research Lab", cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB).getLabel());
 		assertEquals("National Group of Scientific Interest", cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel());
+		assertEquals("National Research Group", cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP).getLabel());
+		assertEquals("International Research Group", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP).getLabel());
 		assertAllTreated();
 	}
 
@@ -123,6 +131,8 @@ public class AssociatedStructureTypeTest {
 		assertEquals("Groupe international d'intérêt scientifique", cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.FRANCE));
 		assertEquals("Laboratoire commun national", cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB).getLabel(Locale.FRANCE));
 		assertEquals("Groupe national d'intérêt scientifique", cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.FRANCE));
+		assertEquals("Groupe national de recherche", cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP).getLabel(Locale.FRANCE));
+		assertEquals("Groupe international de recherche", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP).getLabel(Locale.FRANCE));
 		assertAllTreated();
 	}
 
@@ -135,6 +145,8 @@ public class AssociatedStructureTypeTest {
 		assertEquals("International Group of Scientific Interest", cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.US));
 		assertEquals("National Research Lab", cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB).getLabel(Locale.US));
 		assertEquals("National Group of Scientific Interest", cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.US));
+		assertEquals("National Research Group", cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP).getLabel(Locale.US));
+		assertEquals("International Research Group", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP).getLabel(Locale.US));
 		assertAllTreated();
 	}
 

@@ -52,9 +52,15 @@ public class OnlineScopusPlatformTest {
 		ScopusPerson person = this.test.getPersonRanking(url, null);
 		assertNotNull(person);
 		// use 17 that was the h-index when this unit test is written
-		assertTrue(person.hindex >= 17);
+		assertGreaterEquals(17, person.hindex);
 		// use 992 that was the number of citations when this unit test is written
-		assertTrue(person.citations >= 992);
+		assertGreaterEquals(992, person.citations);
+	}
+
+	private static void assertGreaterEquals(int expected, int actual) {
+		if (actual < expected) {
+			fail("Invalid value: " + actual + ". It should be >= " + expected);
+		}
 	}
 
 }

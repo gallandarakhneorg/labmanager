@@ -38,6 +38,7 @@ import java.util.concurrent.atomic.AtomicReference;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.EntityUtils;
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureType;
 import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -46,6 +47,7 @@ import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectBudget;
+import fr.ciadlab.labmanager.entities.project.ProjectCategory;
 import fr.ciadlab.labmanager.entities.project.ProjectContractType;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
@@ -215,23 +217,32 @@ public class UbExportApiController extends AbstractApiController {
 		final String filenameExtension;
 		try (final OdfSpreadsheetHelper ods = new OdfSpreadsheetHelper(TEMPLATE_PATH)) {
 			getLogger().info("Generating uB indicators' spreadsheet for synthesis"); //$NON-NLS-1$
-			//exportSynthesis(ods, organizationObj, year);
+			exportSynthesis(ods, organizationObj, year);
+
 			getLogger().info("Generating uB indicators' spreadsheet for scientific production"); //$NON-NLS-1$
-			//exportScientificProduction(ods, organizationObj, year);
+			exportScientificProduction(ods, organizationObj, year);
+
 			getLogger().info("Generating uB indicators' spreadsheet for human resources"); //$NON-NLS-1$
-			//exportHumanResources(ods, organizationObj, year);
+			exportHumanResources(ods, organizationObj, year);
+
 			getLogger().info("Generating uB indicators' spreadsheet for PhD students"); //$NON-NLS-1$
-			//exportPhDStudents(ods, organizationObj, year);
+			exportPhDStudents(ods, organizationObj, year);
+
 			getLogger().info("Generating uB indicators' spreadsheet for academic projects"); //$NON-NLS-1$
-			//exportAcademicProjects(ods, organizationObj, year);
+			exportAcademicProjects(ods, organizationObj, year);
+
 			getLogger().info("Generating uB indicators' spreadsheet for investments"); //$NON-NLS-1$
-			//exportInvestments(ods, organizationObj, year);
+			exportInvestments(ods, organizationObj, year);
+
 			getLogger().info("Generating uB indicators' spreadsheet for industrial projects"); //$NON-NLS-1$
-			//exportIndustrialProjects(ods, organizationObj, year);
+			exportIndustrialProjects(ods, organizationObj, year);
+
 			getLogger().info("Generating uB indicators' spreadsheet for conferences"); //$NON-NLS-1$
-			//exportConferences(ods, organizationObj, year);
+			exportConferences(ods, organizationObj, year);
+
 			getLogger().info("Generating uB indicators' spreadsheet for list of projects"); //$NON-NLS-1$
 			exportProjectList(ods, organizationObj, year);
+
 			getLogger().info("Generating spreadsheet bytes"); //$NON-NLS-1$
 			content = ods.toByteArray();
 			mediaType = ods.getMediaType();
@@ -697,6 +708,22 @@ public class UbExportApiController extends AbstractApiController {
 		table.getCell("B21").set(Long.valueOf(incomingInvitations.longValue())); //$NON-NLS-1$
 
 		table.getCell("B22").set(Long.valueOf(defendedJointPhDCount)); //$NON-NLS-1$
+		
+		final AtomicInteger industrialChairs = new AtomicInteger();
+		final AtomicInteger researchChairs = new AtomicInteger();
+		this.associatedStructureService.getAssociatedStructuresByOrganizationId(organization.getId()).stream()
+			.filter(it -> (it.getType() == AssociatedStructureType.INDUSTRIAL_CHAIR
+					|| it.getType() == AssociatedStructureType.RESEARCH_CHAIR)
+					&& it.getCreationDate() != null && it.getCreationDate().getYear() >= 2010)
+			.forEach(it -> {
+				if (it.getType() == AssociatedStructureType.INDUSTRIAL_CHAIR) {
+					industrialChairs.incrementAndGet();
+				} else {
+					researchChairs.incrementAndGet();
+				}
+			});
+		table.getCell("B30").set(Long.valueOf(researchChairs.longValue())); //$NON-NLS-1$
+		table.getCell("B31").set(Long.valueOf(industrialChairs.longValue())); //$NON-NLS-1$		
 	}
 
 	private static String notNull(String... values) {
@@ -1030,6 +1057,8 @@ public class UbExportApiController extends AbstractApiController {
 				case RESEARCH_CHAIR:
 				case NATIONAL_SCIENTIFIC_INTEREST_GROUP:
 				case NATIONAL_RESEARCH_LAB:
+				case INTERNATIONAL_RESEARCH_GROUP:
+				case NATIONAL_RESEARCH_GROUP:
 				default:
 					break;
 				}
@@ -1125,7 +1154,8 @@ public class UbExportApiController extends AbstractApiController {
 		
 		this.projectService.getProjectsByOrganizationId(organization.getId()).stream()
 			.filter(it -> it.isActiveAt(year) && it.getStatus() == ProjectStatus.ACCEPTED
-				&& it.getEndDate() != null && it.getStartDate() != null && it.getDuration() > 0)
+				&& it.getEndDate() != null && it.getStartDate() != null && it.getDuration() > 0
+				&& it.getCategory() == ProjectCategory.COMPETITIVE_CALL_PROJECT)
 			.forEach(it -> {
 				final String[] projectDetails = new String[] {
 						it.getAcronym() + " - " + it.getScientificTitle(), //$NON-NLS-1$
@@ -1133,16 +1163,19 @@ public class UbExportApiController extends AbstractApiController {
 						toOrganizationList(it.getOtherPartners()),
 						format(it.getStartDate()),
 						format(it.getEndDate()),
+						it.getLearOrganization() != null ? it.getLearOrganization().getAcronymOrName() : null,
 					};
 				switch (projectFundingScheme(it)) {
-				case 0:
-					piaProjects.add(projectDetails);
-					break;
 				case 1:
 					natProjects.add(projectDetails);
 					break;
-				default:
+				case 2:
 					intProjects.add(projectDetails);
+					break;
+				case 3:
+					piaProjects.add(projectDetails);
+					break;
+				default:
 					break;
 				}
 			});
@@ -1150,7 +1183,9 @@ public class UbExportApiController extends AbstractApiController {
 		final List<String[]> natLabcom = new ArrayList<>();
 		final List<String[]> euLabcom = new ArrayList<>();
 		final List<String[]> intLabcom = new ArrayList<>();
+		final List<String[]> gdr = new ArrayList<>();
 		final List<String[]> gis = new ArrayList<>();
+		final List<String[]> gdri = new ArrayList<>();
 
 		this.associatedStructureService.getAssociatedStructuresByOrganizationId(organization.getId()).stream()
 		.filter(it -> it.getCreationDate().getYear() <= year)
@@ -1162,11 +1197,18 @@ public class UbExportApiController extends AbstractApiController {
 					toOrganizationList(partners),
 					format(it.getCreationDate()),
 					null,
+					it.getFundingOrganization() != null ? it.getFundingOrganization().getAcronymOrName() : null,
 				};
 			switch (it.getType()) {
 			case INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP:
 			case NATIONAL_SCIENTIFIC_INTEREST_GROUP:
 				gis.add(details);
+				break;
+			case INTERNATIONAL_RESEARCH_GROUP:
+				gdri.add(details);
+				break;
+			case NATIONAL_RESEARCH_GROUP:
+				gdr.add(details);
 				break;
 			case NATIONAL_RESEARCH_LAB:
 				natLabcom.add(details);
@@ -1186,7 +1228,9 @@ public class UbExportApiController extends AbstractApiController {
 			}
 		});
 
-		appendProjectLines(table, 16, gis);
+		appendProjectLines(table, 19, gdri);
+		appendProjectLines(table, 17, gis);
+		appendProjectLines(table, 15, gdr);
 		appendProjectLines(table, 13, intLabcom);
 		appendProjectLines(table, 11, euLabcom);
 		appendProjectLines(table, 9, natLabcom);
@@ -1196,16 +1240,24 @@ public class UbExportApiController extends AbstractApiController {
 	}
 
 	private static int projectFundingScheme(Project project) {
-		boolean national = false;
+		int max = -1;
 		for (final ProjectBudget budget : project.getBudgets()) {
+			int idx = -1;
 			if (budget.getFundingScheme() == FundingScheme.PIA || budget.getFundingScheme() == FundingScheme.ISITE
 					 || budget.getFundingScheme() == FundingScheme.IDEX) {
-				return 0;
+				idx = 3;
+			} else if (budget.getFundingScheme().isRegional()) {
+				idx = 0;
 			} else if (budget.getFundingScheme().isNational()) {
-				national = true;
+				idx = 1;
+			} else if (budget.getFundingScheme().isInternational()) {
+				idx = 2;
+			}
+			if (idx > max) {
+				max = idx;
 			}
 		}
-		return national ? 1 : 2;
+		return max;
 	}
 	
 	private static void appendProjectLines(TableHelper table, int rowIndex, List<String[]> lines) {
