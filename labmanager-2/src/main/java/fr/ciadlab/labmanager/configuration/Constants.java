@@ -120,6 +120,11 @@ public class Constants {
 	 */
 	public static final String DEFAULT_UTBM_INDICATORS_ATTACHMENT_BASENAME = "utbmIndicators"; //$NON-NLS-1$
 
+	/** Default basename of the files in attachment with UB indicators.
+	 *
+	 * @since 3.6
+	 */
+	public static final String DEFAULT_UB_INDICATORS_ATTACHMENT_BASENAME = "ubIndicators"; //$NON-NLS-1$
 
 	/** Default basename of the files in attachment with SPIM indicators.
 	 *

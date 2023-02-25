@@ -337,6 +337,16 @@ public class PublicationService extends AbstractPublicationService {
 		return this.publicationRepository.findAllByTitleIgnoreCase(title);
 	}
 
+	/** Replies the publications for the given year.
+	 *
+	 * @param year the year of publication.
+	 * @return the list of publications.
+	 * @since 3.6
+	 */
+	public List<Publication> getPublicationsByYear(int year) {
+		return this.publicationRepository.findAllByPublicationYear(Integer.valueOf(year));
+	}
+
 	/** Replies the authors of the publication with the given identifier.
 	 * 
 	 * @param publicationId the identifier of the publication.

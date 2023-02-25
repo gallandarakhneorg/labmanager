@@ -43,6 +43,9 @@
 										       th:href="@{/exportCarnotAnnualIndicators(organization=${organization.id},year=${year})}"
 										       th:utext="#{html.ExportIndicatorsCarnot(${year})}"></a></li>
 										<li><a class="dropdown-item"
+										       th:href="@{/exportUbAnnualIndicators(organization=${organization.id},year=${year})}"
+										       th:utext="#{html.ExportIndicatorsUb(${year})}"></a></li>
+										<li><a class="dropdown-item"
 										       th:href="@{/exportUtbmAnnualIndicators(organization=${organization.id},year=${year})}"
 										       th:utext="#{html.ExportIndicatorsUtbm(${year})}"></a></li>
 										<li><a class="dropdown-item"

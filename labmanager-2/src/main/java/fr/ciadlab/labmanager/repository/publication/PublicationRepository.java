@@ -69,4 +69,12 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
 	 */
 	List<Publication> findAllByTitleIgnoreCase(String title);
 
+	/** Replies the list of publications for the given year.
+	 *
+	 * @param year the year of publication.
+	 * @return the set of publications for the given year.
+	 * @since 3.6
+	 */
+	List<Publication> findAllByPublicationYear(Integer year);
+
 }
