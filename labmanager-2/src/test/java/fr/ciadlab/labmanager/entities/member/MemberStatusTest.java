@@ -1842,4 +1842,95 @@ public class MemberStatusTest {
 		assertAllTreated();
 	}
 
+	@Test
+	public void isEmeritus() {
+		assertTrue(cons(MemberStatus.EMERITUS_FULL_PROFESSOR).isEmeritus());
+		assertFalse(cons(MemberStatus.FULL_PROFESSOR).isEmeritus());
+		assertFalse(cons(MemberStatus.RESEARCH_DIRECTOR).isEmeritus());
+		assertTrue(cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).isEmeritus());
+		assertTrue(cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).isEmeritus());
+		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).isEmeritus());
+		assertFalse(cons(MemberStatus.ASSOCIATE_PROFESSOR).isEmeritus());
+		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).isEmeritus());
+		assertFalse(cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).isEmeritus());
+		assertFalse(cons(MemberStatus.RESEARCHER_PHD).isEmeritus());
+		assertFalse(cons(MemberStatus.RESEARCHER).isEmeritus());
+		assertFalse(cons(MemberStatus.RESEARCH_ENGINEER_PHD).isEmeritus());
+		assertFalse(cons(MemberStatus.RESEARCH_ENGINEER).isEmeritus());
+		assertFalse(cons(MemberStatus.POSTDOC).isEmeritus());
+		assertFalse(cons(MemberStatus.PHD_STUDENT).isEmeritus());
+		assertFalse(cons(MemberStatus.ENGINEER_PHD).isEmeritus());
+		assertFalse(cons(MemberStatus.ENGINEER).isEmeritus());
+		assertFalse(cons(MemberStatus.ADMIN).isEmeritus());
+		assertFalse(cons(MemberStatus.TEACHER_PHD).isEmeritus());
+		assertFalse(cons(MemberStatus.TEACHER).isEmeritus());
+		assertFalse(cons(MemberStatus.MASTER_STUDENT).isEmeritus());
+		assertFalse(cons(MemberStatus.OTHER_STUDENT).isEmeritus());
+		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER_PHD).isEmeritus());
+		assertFalse(cons(MemberStatus.ASSOCIATED_MEMBER).isEmeritus());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getFrenchAcronym_US() {
+		// Force the local to be US
+		java.util.Locale.setDefault(java.util.Locale.US);
+		assertEquals("PR", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getFrenchAcronym());
+		assertEquals("PR", cons(MemberStatus.FULL_PROFESSOR).getFrenchAcronym());
+		assertEquals("DR", cons(MemberStatus.RESEARCH_DIRECTOR).getFrenchAcronym());
+		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym());
+		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getFrenchAcronym());
+		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym());
+		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR).getFrenchAcronym());
+		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getFrenchAcronym());
+		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getFrenchAcronym());
+		assertEquals("CR", cons(MemberStatus.RESEARCHER_PHD).getFrenchAcronym());
+		assertEquals("CR", cons(MemberStatus.RESEARCHER).getFrenchAcronym());
+		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getFrenchAcronym());
+		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER).getFrenchAcronym());
+		assertEquals("POSTDOC", cons(MemberStatus.POSTDOC).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.PHD_STUDENT).getFrenchAcronym());
+		assertEquals("IGE", cons(MemberStatus.ENGINEER_PHD).getFrenchAcronym());
+		assertEquals("IGE", cons(MemberStatus.ENGINEER).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.ADMIN).getFrenchAcronym());
+		assertEquals("PAST", cons(MemberStatus.TEACHER_PHD).getFrenchAcronym());
+		assertEquals("PAST", cons(MemberStatus.TEACHER).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.MASTER_STUDENT).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.OTHER_STUDENT).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER).getFrenchAcronym());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getFrenchAcronym_FR() {
+		// Force the local to be FR
+		java.util.Locale.setDefault(java.util.Locale.FRANCE);
+		assertEquals("PR", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getFrenchAcronym());
+		assertEquals("PR", cons(MemberStatus.FULL_PROFESSOR).getFrenchAcronym());
+		assertEquals("DR", cons(MemberStatus.RESEARCH_DIRECTOR).getFrenchAcronym());
+		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym());
+		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getFrenchAcronym());
+		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym());
+		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR).getFrenchAcronym());
+		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getFrenchAcronym());
+		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getFrenchAcronym());
+		assertEquals("CR", cons(MemberStatus.RESEARCHER_PHD).getFrenchAcronym());
+		assertEquals("CR", cons(MemberStatus.RESEARCHER).getFrenchAcronym());
+		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getFrenchAcronym());
+		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER).getFrenchAcronym());
+		assertEquals("POSTDOC", cons(MemberStatus.POSTDOC).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.PHD_STUDENT).getFrenchAcronym());
+		assertEquals("IGE", cons(MemberStatus.ENGINEER_PHD).getFrenchAcronym());
+		assertEquals("IGE", cons(MemberStatus.ENGINEER).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.ADMIN).getFrenchAcronym());
+		assertEquals("PAST", cons(MemberStatus.TEACHER_PHD).getFrenchAcronym());
+		assertEquals("PAST", cons(MemberStatus.TEACHER).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.MASTER_STUDENT).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.OTHER_STUDENT).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getFrenchAcronym());
+		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER).getFrenchAcronym());
+		assertAllTreated();
+	}
+
 }

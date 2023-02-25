@@ -82,6 +82,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return true;
+		}
 	},
 	/** Full professor (professeur des universites).
 	 */
@@ -132,6 +136,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
 			return false;
 		}
 	},
@@ -186,6 +194,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Emeritus associate professor (maitre de conferences émérite) with HDR.
 	 */
@@ -237,6 +249,10 @@ public enum MemberStatus {
 		@Override
 		public boolean isExternalPosition() {
 			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
+			return true;
 		}
 	},
 	/** Emeritus associate professor (maitre de conferences émérite) without HDR.
@@ -290,6 +306,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return true;
+		}
 	},
 	/** Associate professor (maitre de conferences) with HDR.
 	 */
@@ -340,6 +360,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
 			return false;
 		}
 	},
@@ -394,6 +418,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Contractual teacher-researcher (enseignant chercheur contractuel) with PhD.
 	 */
@@ -444,6 +472,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
 			return false;
 		}
 	},
@@ -498,6 +530,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Researcher (Chargé de recherche, LRU, etc.) with PhD.
 	 */
@@ -548,6 +584,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
 			return false;
 		}
 	},
@@ -602,6 +642,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Postdoc.
 	 */
@@ -652,6 +696,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
 			return false;
 		}
 	},
@@ -706,6 +754,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Research engineer (IGR) without PhD.
 	 */
@@ -756,6 +808,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
 			return false;
 		}
 	},
@@ -810,6 +866,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Engineer (IGE) with PhD.
 	 */
@@ -860,6 +920,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
 			return false;
 		}
 	},
@@ -914,6 +978,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Administrative staff.
 	 */
@@ -964,6 +1032,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
 			return false;
 		}
 	},
@@ -1018,6 +1090,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return false;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Teacher (PRAG, etc.) without PhD.
 	 */
@@ -1068,6 +1144,10 @@ public enum MemberStatus {
 		}
 		@Override
 		public boolean isExternalPosition() {
+			return false;
+		}
+		@Override
+		public boolean isEmeritus() {
 			return false;
 		}
 	},
@@ -1122,6 +1202,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return true;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Bachelor student (internship).
 	 */
@@ -1173,6 +1257,10 @@ public enum MemberStatus {
 		@Override
 		public boolean isExternalPosition() {
 			return true;
+		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
 		}
 	},
 	/** Associate member with PhD.
@@ -1226,6 +1314,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return true;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	},
 	/** Associate member without PhD.
 	 */
@@ -1278,6 +1370,10 @@ public enum MemberStatus {
 		public boolean isExternalPosition() {
 			return true;
 		}
+		@Override
+		public boolean isEmeritus() {
+			return false;
+		}
 	};
 
 	private static final String MESSAGE_PREFIX = "memberStatus."; //$NON-NLS-1$
@@ -1318,6 +1414,13 @@ public enum MemberStatus {
 	 * @since 3.6
 	 */
 	public abstract boolean isHdrOwner();
+
+	/** Replies if the status is for emeritus position.
+	 *
+	 * @return {@code true} if the member is supposed to be emeritus.
+	 * @since 3.6
+	 */
+	public abstract boolean isEmeritus();
 
 	/** Replies the hierarchical level.
 	 *
@@ -1471,6 +1574,19 @@ public enum MemberStatus {
 		} else {
 			label = getMessageSourceAccessor().getMessage(key.toString(), locale);
 		}
+		return Strings.nullToEmpty(label);
+	}
+
+	/** Replies the typical acronym used for this position in the French research bodies.
+	 *
+	 * @return the typical acronym in France for the position.
+	 * @since 3.6
+	 */
+	public String getFrenchAcronym() {
+		final StringBuilder key = new StringBuilder();
+		key.append(MESSAGE_PREFIX).append(name());
+		key.append("_acronym"); //$NON-NLS-1$
+		final String label = getMessageSourceAccessor().getMessage(key.toString());
 		return Strings.nullToEmpty(label);
 	}
 

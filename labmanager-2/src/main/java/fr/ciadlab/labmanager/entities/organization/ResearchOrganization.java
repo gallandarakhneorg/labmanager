@@ -785,4 +785,31 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		}
 	}
 
+	/** Replies if this organization is located outside Europe.
+	 *
+	 * @return {@code true} if the organization is outside Europe.
+	 * @since 3.6
+	 */
+	public boolean isInternational() {
+		return !CountryCodeUtils.isEuropean(getCountry());
+	}
+
+	/** Replies if this organization is located inside Europe.
+	 *
+	 * @return {@code true} if the organization is inside Europe.
+	 * @since 3.6
+	 */
+	public boolean isEuropean() {
+		return CountryCodeUtils.isEuropean(getCountry());
+	}
+
+	/** Replies if this organization is located in France.
+	 *
+	 * @return {@code true} if the organization is in France.
+	 * @since 3.6
+	 */
+	public boolean isFrench() {
+		return CountryCodeUtils.isFrance(getCountry());
+	}
+
 }

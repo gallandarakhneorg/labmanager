@@ -120,6 +120,13 @@ public class Constants {
 	 */
 	public static final String DEFAULT_UTBM_INDICATORS_ATTACHMENT_BASENAME = "utbmIndicators"; //$NON-NLS-1$
 
+
+	/** Default basename of the files in attachment with SPIM indicators.
+	 *
+	 * @since 3.6
+	 */
+	public static final String DEFAULT_SPIM_INDICATORS_ATTACHMENT_BASENAME = "spimIndicators"; //$NON-NLS-1$
+
 	/** Name of the endpoint for admin.
 	 */
 	public static final String ADMIN_ENDPOINT = "admin"; //$NON-NLS-1$

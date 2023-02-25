@@ -29,7 +29,7 @@
 			    	<button type="button" class="btn btn-labeled btn-secondary" disabled>
 			    	<span class="fa-solid fa-chart-simple"></span>&nbsp;Charts</button>
 					<div class="dropdown">
-				    	<button type="button" class="btn btn-labeled btn-info dropdown-toggle" data-bs-toggle="dropdown"
+				    	<button type="button" class="btn btn-labeled btn-warning dropdown-toggle" data-bs-toggle="dropdown"
 			    	            id="dropdownExportToSpreadsheet" aria-expanded="false">
 				    	<span class="fa-solid fa-sort-numeric-up-alt"></span>&nbsp;<th:block th:utext="#{html.ExportToSpreadsheet}"></th:block></button>
 				    	<ul class="dropdown-menu" aria-labelledby="dropdownExportToSpreadsheet">
@@ -45,6 +45,9 @@
 										<li><a class="dropdown-item"
 										       th:href="@{/exportUtbmAnnualIndicators(organization=${organization.id},year=${year})}"
 										       th:utext="#{html.ExportIndicatorsUtbm(${year})}"></a></li>
+										<li><a class="dropdown-item"
+										       th:href="@{/exportSpimAnnualIndicators(organization=${organization.id},year=${year})}"
+										       th:utext="#{html.ExportIndicatorsSpim(${year})}"></a></li>
 									</th:block>
 								</ul> 
 						</ul>

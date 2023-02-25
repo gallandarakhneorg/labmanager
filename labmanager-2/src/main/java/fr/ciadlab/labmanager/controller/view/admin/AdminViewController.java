@@ -18,9 +18,9 @@ package fr.ciadlab.labmanager.controller.view.admin;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -106,8 +106,9 @@ public class AdminViewController extends AbstractViewController {
 		if (!Strings.isNullOrEmpty(this.helpUrl)) {
 			modelAndView.addObject("helpUrl", this.helpUrl); //$NON-NLS-1$
 		}
-		LocalDate now = LocalDate.now();
-		modelAndView.addObject("yearList", IntStream.range(now.getYear() - 5, now.getYear()).toArray()); //$NON-NLS-1$
+		final int now = LocalDate.now().getYear();
+		modelAndView.addObject("yearList", Arrays.asList( //$NON-NLS-1$
+				Integer.valueOf(now), Integer.valueOf(now - 1), Integer.valueOf(now - 2)));
 		return modelAndView;
 	}
 

@@ -21,9 +21,16 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructure;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureComparator;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolderComparator;
 import fr.ciadlab.labmanager.entities.conference.ConferenceComparator;
@@ -40,6 +47,7 @@ import fr.ciadlab.labmanager.entities.organization.OrganizationAddressComparator
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationComparator;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
+import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectBudgetComparator;
 import fr.ciadlab.labmanager.entities.project.ProjectComparator;
 import fr.ciadlab.labmanager.entities.project.ProjectMemberComparator;
@@ -760,13 +768,63 @@ public final class EntityUtils {
 	 */
 	public static ResearchOrganization getUniversityOrSchoolOrCompany(ResearchOrganization organization) {
 		ResearchOrganization current = organization;
-		while (current != null && current.getType().ordinal() < ResearchOrganizationType.UNIVERSITY.ordinal()) {
+		while (current != null && !current.getType().isEmployer()) {
 			current = current.getSuperOrganization();
 		}
-		if (current != null && current.getType().ordinal() >= ResearchOrganizationType.UNIVERSITY.ordinal()) {
+		if (current != null && current.getType().isEmployer()) {
 			return current;
 		}
 		return organization;
+	}
+
+	/** Replies the university/school/company that corresponds to the given organizations.
+	 *
+	 * @param organizations the organizations.
+	 * @return the parent organization or the given organization if it is not an university/school/company.
+	 * @since 3.6
+	 */
+	public static ResearchOrganization getUniversityOrSchoolOrCompany(ResearchOrganization... organizations) {
+		for (final ResearchOrganization organization : organizations) {
+			if (organization.getType().isEmployer()) {
+				return organization;
+			}
+		}
+		return null;
+	}
+
+	/** Replies the acronym of university/school/company that corresponds to the given organizations.
+	 *
+	 * @param organizations the organizations.
+	 * @return the name of the parent organization or the given organization if it is not an university/school/company.
+	 * @since 3.6
+	 */
+	public static String getUniversityOrSchoolOrCompanyName(ResearchOrganization... organizations) {
+		final ResearchOrganization organization = getUniversityOrSchoolOrCompany(organizations);
+		if (organization != null) {
+			return organization.getAcronymOrName();
+		}
+		return null;
+	}
+
+	/** Replies the employing research organization for the person.
+	 *
+	 * @param person the person.
+	 * @param selector the selector of memberships. If it is {@code null}, not filtering is done.
+	 * @return the employer or {@code null}.
+	 */
+	public static ResearchOrganization getUniversityOrSchoolOrCompany(Person person, Predicate<? super Membership> selector) {
+		Stream<Membership> stream = person.getMemberships().stream();
+		if (selector != null) {
+			stream = stream.filter(selector);
+		}
+		final Optional<ResearchOrganization> employer = stream
+				.map(it0 -> it0.getResearchOrganization())
+				.filter(it0 -> it0.getType().isEmployer())
+				.findAny();
+		if (employer.isPresent()) {
+			return employer.get();
+		}
+		return null;
 	}
 
 	/** Replies the name of the university or company for the given person regarding the time windows of the given supervision.
@@ -859,6 +917,63 @@ public final class EntityUtils {
 		}
 		final String[] components = complement.split("[\n]+");  //$NON-NLS-1$
 		return Arrays.asList(components);
+	}
+
+	/** Replies the list of local heads of the project.
+	 *
+	 * @param project the project to analyze.
+	 * @return the local heads.
+	 * @since 3.6
+	 */
+	public static List<Person> getProjectLocalHeads(Project project) {
+		if (project != null) {
+			return project.getParticipants().stream().filter(it -> it.getRole().isHead())
+					.map(it -> it.getPerson()).collect(Collectors.toList());
+		}
+		return Collections.emptyList();
+	}
+
+	/** Replies the list of local heads of the associated structure.
+	 *
+	 * @param structure the associated structure to analyze.
+	 * @return the local heads.
+	 * @since 3.6
+	 */
+	public static List<Person> getAssociatedStructureLocalHeads(AssociatedStructure structure) {
+		if (structure != null) {
+			return structure.getHoldersRaw().stream().filter(it -> it.getRole().isHead())
+					.map(it -> it.getPerson()).collect(Collectors.toList());
+		}
+		return Collections.emptyList();
+	}
+
+	/** Replies the research organizations that are partners in the given projects.
+	 *
+	 * @param projects the projects to analyze
+	 * @return the partners.
+	 * @since 3.6
+	 */
+	public static Set<ResearchOrganization> getPartnersForProjects(Iterable<Project> projects) {
+		final Set<ResearchOrganization> partners = new HashSet<>();
+		for (final Project project : projects) {
+			partners.addAll(project.getOtherPartners());
+		}
+		return partners;
+	}
+
+	/** Replies if one of the organizations in the given collection is located outside europe.
+	 * 
+	 * @param organizations the organizations.
+	 * @return {@code true} if one organization is outside EU.
+	 * @since 3.6
+	 */
+	public static boolean hasOrganizationOutsideEurope(Set<ResearchOrganization> organizations) {
+		for (final ResearchOrganization organization : organizations) {
+			if (organization.isInternational()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 }
