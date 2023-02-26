@@ -1040,6 +1040,7 @@ public class UbExportApiController extends AbstractApiController {
 
 		final AtomicInteger companyCreation = new AtomicInteger();
 		final AtomicInteger activeCompany = new AtomicInteger();
+		final AtomicInteger hostedCompanies = new AtomicInteger();
 		this.associatedStructureService.getAssociatedStructuresByOrganizationId(organization.getId()).stream()
 			.filter(it -> it.getCreationDate().getYear() <= year)
 			.forEach(it -> {
@@ -1051,6 +1052,11 @@ public class UbExportApiController extends AbstractApiController {
 						activeCompany.incrementAndGet();
 					}
 					break;
+				case HOSTED_EUROPEAN_COMPANY:
+				case HOSTED_INTERNATIONAL_COMPANY:
+				case HOSTED_NATIONAL_COMPANY:
+					hostedCompanies.incrementAndGet();
+					break;
 				case INTERNATIONAL_RESEARCH_LAB:
 				case INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP:
 				case INDUSTRIAL_CHAIR:
@@ -1059,12 +1065,16 @@ public class UbExportApiController extends AbstractApiController {
 				case NATIONAL_RESEARCH_LAB:
 				case INTERNATIONAL_RESEARCH_GROUP:
 				case NATIONAL_RESEARCH_GROUP:
+				case EUROPEAN_RESEARCH_GROUP:
+				case EUROPEAN_RESEARCH_LAB:
+				case EUROPEAN_SCIENTIFIC_INTEREST_GROUP:
 				default:
 					break;
 				}
 			});
 		table.getCell("B22").set(Long.valueOf(companyCreation.longValue())); //$NON-NLS-1$
 		table.getCell("B23").set(Long.valueOf(activeCompany.longValue())); //$NON-NLS-1$
+		table.getCell("B24").set(Long.valueOf(hostedCompanies.longValue())); //$NON-NLS-1$
 
 		final AtomicInteger sayensPatents = new AtomicInteger();
 		final AtomicInteger otherPatents = new AtomicInteger();
@@ -1201,28 +1211,34 @@ public class UbExportApiController extends AbstractApiController {
 				};
 			switch (it.getType()) {
 			case INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP:
+			case EUROPEAN_SCIENTIFIC_INTEREST_GROUP:
 			case NATIONAL_SCIENTIFIC_INTEREST_GROUP:
 				gis.add(details);
 				break;
 			case INTERNATIONAL_RESEARCH_GROUP:
 				gdri.add(details);
 				break;
+			case EUROPEAN_RESEARCH_GROUP:
+				gdri.add(details);
+				break;
 			case NATIONAL_RESEARCH_GROUP:
 				gdr.add(details);
+				break;
+			case INTERNATIONAL_RESEARCH_LAB:
+				intLabcom.add(details);
+				break;
+			case EUROPEAN_RESEARCH_LAB:
+				euLabcom.add(details);
 				break;
 			case NATIONAL_RESEARCH_LAB:
 				natLabcom.add(details);
 				break;
-			case INTERNATIONAL_RESEARCH_LAB:
-				if (EntityUtils.hasOrganizationOutsideEurope(partners)) {
-					intLabcom.add(details);
-				} else {
-					euLabcom.add(details);
-				}
-				break;
 			case INDUSTRIAL_CHAIR:
 			case RESEARCH_CHAIR:
 			case PRIVATE_COMPANY:
+			case HOSTED_EUROPEAN_COMPANY:
+			case HOSTED_INTERNATIONAL_COMPANY:
+			case HOSTED_NATIONAL_COMPANY:
 			default:
 				break;
 			}
