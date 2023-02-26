@@ -20,6 +20,7 @@ import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -72,6 +73,7 @@ import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.repository.scientificaxis.ScientificAxisRepository;
 import fr.ciadlab.labmanager.repository.supervision.SupervisionRepository;
 import fr.ciadlab.labmanager.repository.teaching.TeachingActivityRepository;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -557,6 +559,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		if (!conferences.isEmpty()) {
 			final ArrayNode array = root.arrayNode();
 			int i = 0;
+			final List<Pair<ObjectNode, Conference>> enclosingConferences = new ArrayList<>();
 			for (final Conference conference : conferences) {
 				final ObjectNode jsonConference = array.objectNode();
 
@@ -579,12 +582,30 @@ public class DatabaseToJsonExporter extends JsonTool {
 					jsonConference.set(QUALITYINDICATORSHISTORY_KEY, indicatorMap);
 				}
 
+				// Differ the creation of the reference to the enclosing conference to
+				// be sure that all the conference nodes are created before creating the links
+				if (conference.getEnclosingConference() != null) {
+					enclosingConferences.add(Pair.of(jsonConference, conference.getEnclosingConference()));
+				}
+
 				if (jsonConference.size() > 0) {
 					repository.put(conference, id);
 					array.add(jsonConference);
 					++i;
 				}
 			}
+
+			// Export the enclosing conferences for enabling the building of the conference hierarchy.
+			for (final Pair<ObjectNode, Conference> pair : enclosingConferences) {
+				final ObjectNode node = pair.getLeft();
+				final Conference enclosingConference = pair.getRight();
+				final String id = repository.get(enclosingConference);
+				if (Strings.isNullOrEmpty(id)) {
+					throw new IllegalStateException("Conference not found: " + enclosingConference.getAcronymOrName()); //$NON-NLS-1$
+				}
+				addReference(node, ENCLOSING_CONFERENCE_KEY, id);
+			}
+
 			if (array.size() > 0) {
 				root.set(CONFERENCES_SECTION, array);
 			}
@@ -1095,7 +1116,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				if (!Strings.isNullOrEmpty(personId)) {
 					addReference(jsonActivity, PERSON_KEY, personId);
 				}
-				
+
 				final String universityId = repository.get(activity.getUniversity());
 				if (!Strings.isNullOrEmpty(universityId)) {
 					addReference(jsonActivity, UNIVERSITY_KEY, universityId);

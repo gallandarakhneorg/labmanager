@@ -18,10 +18,12 @@ package fr.ciadlab.labmanager.controller.view.conference;
 
 import java.time.LocalDate;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
+import java.util.stream.Collectors;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
@@ -113,7 +115,14 @@ public class ConferenceViewController extends AbstractViewController {
 			conferenceObj = null;
 		}
 		//
+		List<Conference> otherConferences = this.conferenceService.getAllConferences();
+		if (conferenceObj != null) {
+			otherConferences = otherConferences.stream().filter(it -> it.getId() != conferenceObj.getId())
+					.sorted((a, b) -> a.getAcronym().compareToIgnoreCase(b.getAcronym())).collect(Collectors.toList());
+		}
+		//
 		modelAndView.addObject("conference", conferenceObj); //$NON-NLS-1$
+		modelAndView.addObject("otherConferences", otherConferences); //$NON-NLS-1$
 		modelAndView.addObject("formActionUrl", rooted(Constants.CONFERENCE_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.CONFERENCE_LIST_ENDPOINT)); //$NON-NLS-1$
 		//

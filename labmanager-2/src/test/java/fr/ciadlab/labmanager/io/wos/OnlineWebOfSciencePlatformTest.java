@@ -52,6 +52,10 @@ public class OnlineWebOfSciencePlatformTest {
 
 	private OnlineWebOfSciencePlatform test;
 
+	private static boolean isNetworkEnable() {
+		return TestUtils.isNetworkEnable();
+	}
+
 	@BeforeEach
 	public void setUp() {
 		this.test = new OnlineWebOfSciencePlatform();
@@ -99,6 +103,7 @@ public class OnlineWebOfSciencePlatformTest {
 	}
 
 	@Test
+	@EnabledIf("isNetworkEnable")
 	public void getPersonRanking() throws Exception {
 		URL url = new URL("https://www.webofscience.com/wos/author/record/367073");
 		WebOfSciencePerson person = this.test.getPersonRanking(url, null);

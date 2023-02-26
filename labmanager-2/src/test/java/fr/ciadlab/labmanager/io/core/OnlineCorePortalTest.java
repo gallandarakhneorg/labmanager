@@ -53,6 +53,10 @@ public class OnlineCorePortalTest {
 
 	private OnlineCorePortal test;
 
+	private static boolean isNetworkEnable() {
+		return TestUtils.isNetworkEnable();
+	}
+
 	@BeforeEach
 	public void setUp() {
 		this.test = new OnlineCorePortal();
@@ -76,6 +80,7 @@ public class OnlineCorePortalTest {
 	}
 
 	@Test
+	@EnabledIf("isNetworkEnable")
 	public void getConferenceRanking() throws Exception {
 		CorePortalConference conference = this.test.getConferenceRanking(2017, "922", null);
 		assertNotNull(conference);

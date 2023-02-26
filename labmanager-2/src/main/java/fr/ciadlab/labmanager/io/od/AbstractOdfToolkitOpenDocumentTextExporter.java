@@ -38,6 +38,8 @@ import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.AbstractPublicationExporter;
 import fr.ciadlab.labmanager.io.ExportedAuthorStatus;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
@@ -343,13 +345,15 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 	 * @param impactFactor the journal's impact factor.
 	 * @return {@code true} if the receiver has changed.
 	 */
-	protected boolean appendRanks(TextPElement receiver, Object scimago, Object wos, float impactFactor) {
+	protected boolean appendRanks(TextPElement receiver, QuartileRanking scimago, QuartileRanking wos, float impactFactor) {
 		final String impactFactorStr = formatNumberIfStrictlyPositive(impactFactor);
+		final QuartileRanking scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
+		final QuartileRanking wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
 		String rank = null;
-		if (scimago != null && wos != null) {
-			if (wos != scimago) {
-				final String scimagoStr = scimago.toString();
-				final String wosStr = wos.toString();
+		if (scimagoNorm != null && wosNorm != null) {
+			if (wosNorm != scimagoNorm) {
+				final String scimagoStr = scimagoNorm.toString();
+				final String wosStr = wosNorm.toString();
 				if (append(receiver, ", ", //$NON-NLS-1$
 						decorateBefore(scimagoStr, this.messages.getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX")), //$NON-NLS-1$
 						decorateBefore(wosStr, this.messages.getMessage(MESSAGES_PREFIX + "WOS_PREFIX")), //$NON-NLS-1$
@@ -358,12 +362,12 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 					return true;
 				}		
 			} else {
-				rank = scimago.toString();
+				rank = scimagoNorm.toString();
 			}
-		} else if (scimago != null) {
-			rank = scimago.toString();
-		} else if (wos != null) {
-			rank = wos.toString();
+		} else if (scimagoNorm != null) {
+			rank = scimagoNorm.toString();
+		} else if (wosNorm != null) {
+			rank = wosNorm.toString();
 		}
 		if (append(receiver, ", ", //$NON-NLS-1$
 				decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX")), //$NON-NLS-1$
@@ -371,6 +375,25 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 			receiver.newTextNode(". "); //$NON-NLS-1$
 			return true;
 		}		
+		return false;
+	}
+
+	/** Append the given ranks to the receiver.
+	 *
+	 * @param receiver the receiver of the HTML.
+	 * @param core the CORE ranking.
+	 * @return {@code true} if the receiver has changed.
+	 */
+	protected boolean appendRanks(TextPElement receiver, CoreRanking core) {
+		final CoreRanking coreNorm = core == null || core == CoreRanking.NR ? null : core;
+		String rank = null;
+		if (coreNorm != null) {
+			rank = coreNorm.toString();
+		}
+		if (append(receiver,
+				decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "CORE_PREFIX")))) { //$NON-NLS-1$
+			receiver.newTextNode(". "); //$NON-NLS-1$
+		}
 		return false;
 	}
 

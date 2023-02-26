@@ -168,10 +168,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 		if (append(odtText, publication.getAddress())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (publication.getCoreRanking() != null && append(odtText,
-				decorateBefore(publication.getCoreRanking().toString(), this.messages.getMessage(MESSAGES_PREFIX + "CORE_PREFIX")))) { //$NON-NLS-1$
-			odtText.newTextNode(". "); //$NON-NLS-1$
-		}
+		appendRanks(odtText, publication.getCoreRanking());
 	}
 
 	@Override
@@ -199,7 +196,10 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 		if (journal != null && append(odtText, journal.getPublisher())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		appendRanks(odtText, publication.getScimagoQIndex(), publication.getWosQIndex(), publication.getImpactFactor());
+		appendRanks(odtText,
+				publication.getScimagoQIndex(),
+				publication.getWosQIndex(),
+				publication.getImpactFactor());
 	}
 
 	@Override

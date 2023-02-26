@@ -39,6 +39,8 @@ import fr.ciadlab.labmanager.io.AbstractPublicationExporter;
 import fr.ciadlab.labmanager.io.ExportedAuthorStatus;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
+import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -303,13 +305,15 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 * @param impactFactor the journal's impact factor.
 	 * @return {@code true} if the receiver has changed.
 	 */
-	protected boolean appendRanks(StringBuilder receiver, Object scimago, Object wos, float impactFactor) {
+	protected boolean appendRanks(StringBuilder receiver, QuartileRanking scimago, QuartileRanking wos, float impactFactor) {
 		final String impactFactorStr = formatNumberIfStrictlyPositive(impactFactor);
+		final QuartileRanking scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
+		final QuartileRanking wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
 		String rank = null;
-		if (scimago != null && wos != null) {
-			if (wos != scimago) {
-				final String scimagoStr = toHtml(scimago.toString());
-				final String wosStr = toHtml(wos.toString());
+		if (scimagoNorm != null && wosNorm != null) {
+			if (wosNorm != scimagoNorm) {
+				final String scimagoStr = toHtml(scimagoNorm.toString());
+				final String wosStr = toHtml(wosNorm.toString());
 				if (append(receiver, ", ", //$NON-NLS-1$
 						decorateBefore(scimagoStr, this.messages.getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX")), //$NON-NLS-1$
 						decorateBefore(wosStr, this.messages.getMessage(MESSAGES_PREFIX + "WOS_PREFIX")), //$NON-NLS-1$
@@ -318,12 +322,12 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 					return true;
 				}		
 			} else {
-				rank = toHtml(scimago.toString());
+				rank = toHtml(scimagoNorm.toString());
 			}
-		} else if (scimago != null) {
-			rank = toHtml(scimago.toString());
-		} else if (wos != null) {
-			rank = toHtml(wos.toString());
+		} else if (scimagoNorm != null) {
+			rank = toHtml(scimagoNorm.toString());
+		} else if (wosNorm != null) {
+			rank = toHtml(wosNorm.toString());
 		}
 		if (append(receiver, ", ", //$NON-NLS-1$
 				decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX")), //$NON-NLS-1$
@@ -331,6 +335,22 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 			receiver.append(". "); //$NON-NLS-1$
 			return true;
 		}		
+		return false;
+	}
+
+	/** Append the given ranks to the receiver.
+	 *
+	 * @param receiver the receiver of the HTML.
+	 * @param core the CORE ranking.
+	 * @return {@code true} if the receiver has changed.
+	 */
+	protected boolean appendRanks(StringBuilder receiver, CoreRanking core) {
+		final CoreRanking coreNorm = core == null || core == CoreRanking.NR ? null : core;
+		if (coreNorm != null && append(receiver,
+				decorateBefore(toHtml(coreNorm.toString()), this.messages.getMessage(MESSAGES_PREFIX + "CORE_PREFIX")))) { //$NON-NLS-1$
+			receiver.append(". "); //$NON-NLS-1$
+			return true;
+		}
 		return false;
 	}
 

@@ -22,9 +22,11 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import java.net.URL;
 
 import fr.ciadlab.labmanager.io.scopus.ScopusPlatform.ScopusPerson;
+import fr.ciadlab.labmanager.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -41,12 +43,17 @@ public class OnlineScopusPlatformTest {
 
 	private OnlineScopusPlatform test;
 
+	private static boolean isNetworkEnable() {
+		return TestUtils.isNetworkEnable();
+	}
+
 	@BeforeEach
 	public void setUp() {
 		this.test = new OnlineScopusPlatform();
 	}
 
 	@Test
+	@EnabledIf("isNetworkEnable")
 	public void getPersonRanking() throws Exception {
 		URL url = new URL("https://www.scopus.com/authid/detail.uri?authorId=23008496500");
 		ScopusPerson person = this.test.getPersonRanking(url, null);

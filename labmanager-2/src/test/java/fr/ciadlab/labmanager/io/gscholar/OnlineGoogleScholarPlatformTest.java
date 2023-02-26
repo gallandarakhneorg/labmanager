@@ -23,8 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.net.URL;
 
 import fr.ciadlab.labmanager.io.gscholar.GoogleScholarPlatform.GoogleScholarPerson;
+import fr.ciadlab.labmanager.utils.TestUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
@@ -41,12 +43,17 @@ public class OnlineGoogleScholarPlatformTest {
 
 	private OnlineGoogleScholarPlatform test;
 
+	private static boolean isNetworkEnable() {
+		return TestUtils.isNetworkEnable();
+	}
+
 	@BeforeEach
 	public void setUp() {
 		this.test = new OnlineGoogleScholarPlatform();
 	}
 
 	@Test
+	@EnabledIf("isNetworkEnable")
 	public void getPersonRanking() throws Exception {
 		URL url = new URL("https://scholar.google.fr/citations?user=2Xita5IAAAAJ");
 		GoogleScholarPerson person = this.test.getPersonRanking(url, null);

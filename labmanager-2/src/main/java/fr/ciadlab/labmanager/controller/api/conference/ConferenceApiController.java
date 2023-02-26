@@ -103,6 +103,7 @@ public class ConferenceApiController extends AbstractApiController {
 	 * @param openAccess indicates if the conference is open access or not.
 	 * @param conferenceUrl the URL to the page of the conference.
 	 * @param coreId the identifier of the conference on the CORE website.
+	 * @param enclosingConference the identifiers of the conference that is enclosing the current conference.
 	 * @param validated indicates if the journal is validated by a local authority.
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case the journal cannot be saved
@@ -118,6 +119,7 @@ public class ConferenceApiController extends AbstractApiController {
 			@RequestParam(required = false) Boolean openAccess,
 			@RequestParam(required = false) String conferenceUrl,
 			@RequestParam(required = false) String coreId,
+			@RequestParam(required = false) Integer enclosingConference,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.CONFERENCE_SAVING_ENDPOINT, conference);
@@ -134,11 +136,11 @@ public class ConferenceApiController extends AbstractApiController {
 		if (conference == null) {
 			optConference = this.conferenceService.createConference(
 					validated, inAcronym, inName, inPublisher, inIsbn, inIssn,
-					openAccess, inConferenceUrl, inCoreId);
+					openAccess, inConferenceUrl, inCoreId, enclosingConference);
 		} else {
 			optConference = this.conferenceService.updateConference(conference.intValue(),
 					validated, inAcronym, inName, inPublisher, inIsbn, inIssn,
-					openAccess, inConferenceUrl, inCoreId);
+					openAccess, inConferenceUrl, inCoreId, enclosingConference);
 		}
 		if (optConference == null || optConference.isEmpty()) {
 			throw new IllegalStateException("Conference not found"); //$NON-NLS-1$

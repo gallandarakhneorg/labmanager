@@ -1153,20 +1153,22 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		try {
 			java.util.Locale.setDefault(language.getLocale());
 			final StringBuilder note = new StringBuilder();
-			if (scimago != null && wos != null) {
-				if (scimago != wos) {
+			final QuartileRanking scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
+			final QuartileRanking wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
+			if (scimagoNorm != null && wosNorm != null) {
+				if (scimagoNorm != wosNorm) {
 					note.append(this.messages.getMessage(MESSAGE_PREFIX + "SCIMAGO_WOS_QUARTILES", //$NON-NLS-1$
-							new Object[] {scimago.toString(), wos.toString()}));
+							new Object[] {scimagoNorm.toString(), wosNorm.toString()}));
 				} else {
 					note.append(this.messages.getMessage(MESSAGE_PREFIX + "QUARTILES", //$NON-NLS-1$
-							new Object[] {scimago.toString()}));
+							new Object[] {scimagoNorm.toString()}));
 				}
-			} else if (scimago != null) {
+			} else if (scimagoNorm != null) {
 				note.append(this.messages.getMessage(MESSAGE_PREFIX + "SCIMAGO_QUARTILE", //$NON-NLS-1$
-						new Object[] {scimago.toString()}));
-			} else if (wos != null) {
+						new Object[] {scimagoNorm.toString()}));
+			} else if (wosNorm != null) {
 				note.append(this.messages.getMessage(MESSAGE_PREFIX + "WOS_QUARTILE", //$NON-NLS-1$
-						new Object[] {wos.toString()}));
+						new Object[] {wosNorm.toString()}));
 			}
 			if (impactFactor > 0f) {
 				if (note.length() > 0) {
@@ -1186,9 +1188,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(language.getLocale());
-			if (core != null) {
+			final CoreRanking coreNorm = core == null || core == CoreRanking.NR ? null : core;
+			if (coreNorm != null) {
 				addField(entry, KEY_NOTE, this.messages.getMessage(MESSAGE_PREFIX + "CORE_RANKING", //$NON-NLS-1$
-						new Object[] {core.toString()}));
+						new Object[] {coreNorm.toString()}));
 			}
 		} finally {
 			java.util.Locale.setDefault(loc);
@@ -1215,8 +1218,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_NUMBER, paper.getNumber());
 		addPageField(entry, paper.getPages());
 		addField(entry, KEY_SERIES, paper.getSeries());
-		addField(entry, KEY_SCIMAGO_QINDEX, paper.getScimagoQIndex());
-		addField(entry, KEY_WOS_QINDEX, paper.getWosQIndex());
+		if (paper.getScimagoQIndex() != null && paper.getScimagoQIndex() != QuartileRanking.NR) {
+			addField(entry, KEY_SCIMAGO_QINDEX, paper.getScimagoQIndex());
+		}
+		if (paper.getWosQIndex() != null && paper.getWosQIndex() != QuartileRanking.NR) {
+			addField(entry, KEY_WOS_QINDEX, paper.getWosQIndex());
+		}
 		if (paper.getImpactFactor() > 0f) {
 			addField(entry, KEY_IMPACT_FACTOR, this.messages.getMessage(MESSAGE_PREFIX + "RAW_IMPACT_FACTOR", //$NON-NLS-1$
 					new Object[] {Float.valueOf(paper.getImpactFactor())}));
@@ -1242,7 +1249,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_EDITOR, paper.getEditors());
 		addField(entry, KEY_ORGANIZATION, paper.getOrganization());
 		addField(entry, KEY_ADDRESS, paper.getAddress());
-		addField(entry, KEY_CORE_RANKING, paper.getCoreRanking());
+		if (paper.getCoreRanking() != null && paper.getCoreRanking() != CoreRanking.NR) {
+			addField(entry, KEY_CORE_RANKING, paper.getCoreRanking());
+		}
 		if (paper.getConference() != null) {
 			addField(entry, KEY_ISBN, paper.getConference().getISBN());
 			addField(entry, KEY_ISSN, paper.getConference().getISSN());
@@ -1333,8 +1342,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_VOLUME, edition.getVolume());
 		addField(entry, KEY_NUMBER, edition.getNumber());
 		addPageField(entry, edition.getPages());
-		addField(entry, KEY_SCIMAGO_QINDEX, edition.getScimagoQIndex());
-		addField(entry, KEY_WOS_QINDEX, edition.getWosQIndex());
+		if (edition.getScimagoQIndex() != null && edition.getScimagoQIndex() != QuartileRanking.NR) {
+			addField(entry, KEY_SCIMAGO_QINDEX, edition.getScimagoQIndex());
+		}
+		if (edition.getWosQIndex() != null && edition.getWosQIndex() != QuartileRanking.NR) {
+			addField(entry, KEY_WOS_QINDEX, edition.getWosQIndex());
+		}
 		if (edition.getImpactFactor() > 0f) {
 			addField(entry, KEY_IMPACT_FACTOR, this.messages.getMessage(MESSAGE_PREFIX + "RAW_IMPACT_FACTOR", //$NON-NLS-1$
 					new Object[] {Float.valueOf(edition.getImpactFactor())}));

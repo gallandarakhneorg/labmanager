@@ -35,6 +35,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.JoinTable;
+import javax.persistence.ManyToOne;
 import javax.persistence.MapKey;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -48,6 +49,7 @@ import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
+import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import org.arakhne.afc.util.IntegerList;
@@ -139,6 +141,11 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 	@MapKey(name = "referenceYear")
 	private Map<Integer, ConferenceQualityAnnualIndicators> qualityIndicators;
 
+	/** Reference to the super conference.
+	 */
+	@ManyToOne(fetch = FetchType.LAZY)
+	private Conference enclosingConference;
+
 	/** Construct an empty conference.
 	 */
 	public Conference() {
@@ -221,13 +228,6 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 		return true;
 	}
 
-	/** {@inheritDoc}
-	 * <p>The attributes that are not considered by this function are:<ul>
-	 * <li>{@code id}</li>
-	 * <li>{@code publishedPapers}</li>
-	 * <li>{@code qualityIndicators}</li>
-	 * </ul>
-	 */
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		if (getId() != 0) {
@@ -272,6 +272,11 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 			generator.writeFieldId(indicators.getKey().intValue());
 			generator.writeObject(indicators.getValue());
 		}
+		//
+		final CachedGenerator conferences = JsonUtils.cache(generator);
+		conferences.writeReferenceOrObjectField("enclosingConference", getEnclosingConference(), () -> { //$NON-NLS-1$
+			JsonUtils.writeObjectAndAttributes(generator, getEnclosingConference());
+		});
 		//
 		generator.writeEndObject();
 	}
@@ -600,6 +605,22 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 		} else {
 			setValidated(validated.booleanValue());
 		}
+	}
+
+	/** Replies the reference to the enclosing conference.
+	 *
+	 * @return the enclosing conference or {@code null}.
+	 */
+	public Conference getEnclosingConference() {
+		return this.enclosingConference;
+	}
+
+	/** Change the reference to the enclosing conference.
+	 *
+	 * @param conf the enclosing conference or {@code null}.
+	 */
+	public void setEnclosingConference(Conference conf) {
+		this.enclosingConference = conf;
 	}
 
 }

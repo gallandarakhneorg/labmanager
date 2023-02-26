@@ -1075,6 +1075,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		if (conferences != null && !conferences.isEmpty()) {
 			getLogger().info("Inserting " + conferences.size() + " conferences..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
+			final List<Pair<Conference, String>> enclosingConferences = new ArrayList<>();
 			for (JsonNode conferenceObject : conferences) {
 				getLogger().info("> Conference " + (i + 1) + "/" + conferences.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
@@ -1113,6 +1114,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 									}
 								}
 							}
+							// Save the enclosing conferences to a differed creation of the links
+							final String enclConference = getRef(conferenceObject.get(ENCLOSING_CONFERENCE_KEY));
+							if (!Strings.isNullOrEmpty(enclConference)) {
+								enclosingConferences.add(Pair.of(conference, enclConference));
+							}
 							// Save again the conference for saving the links to the quality indicators
 							if (!isFake()) {
 								conference = this.conferenceRepository.save(conference);
@@ -1135,6 +1141,21 @@ public class JsonToDatabaseImporter extends JsonTool {
 					throw new UnableToImportJsonException(CONFERENCES_SECTION, i, conferenceObject, ex);
 				}
 				++i;
+			}
+			// Create the links between the conferences
+			for (final Pair<Conference, String> pair : enclosingConferences) {
+				final Integer conferenceDbId = objectIdRepository.get(pair.getValue());
+				if (conferenceDbId == null || conferenceDbId.intValue() == 0) {
+					throw new IllegalArgumentException("Invalid enclosing conference reference with id: " + pair.getValue()); //$NON-NLS-1$
+				}
+				final Optional<Conference> optConference = this.conferenceRepository.findById(conferenceDbId);
+				if (optConference.isEmpty()) {
+					throw new IllegalArgumentException("Invalid enclosing conference reference with id: " + pair.getValue()); //$NON-NLS-1$
+				}
+				final Conference subConference = pair.getLeft();
+				final Conference enclosingConference = optConference.get();
+				subConference.setEnclosingConference(enclosingConference);
+				this.conferenceRepository.save(subConference);
 			}
 		}
 		return nbNew;

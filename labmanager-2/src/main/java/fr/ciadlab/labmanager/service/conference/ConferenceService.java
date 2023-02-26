@@ -123,14 +123,23 @@ public class ConferenceService extends AbstractService {
 	 * @param openAccess indicates if the journal is open access or not.
 	 * @param conferenceUrl the URL to the page of the conference.
 	 * @param coreId the identifier of the conference on the CORE website.
+	 * @param enclosingConference the identifier of the conference that is enclosing the current conference.
 	 * @return the updated conference.
 	 */
 	public Optional<Conference> createConference(boolean validated, String acronym, String name,
-			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId) {
+			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId,
+			Integer enclosingConference) {
 		final Conference conference = new Conference();
 		try {
+			Conference enclosingConferenceObj = null;
+			if (enclosingConference != null && enclosingConference.intValue() >= 0) {
+				final Optional<Conference> enc = this.conferenceRepository.findById(enclosingConference);
+				if (enc.isPresent()) {
+					enclosingConferenceObj = enc.get();
+				}
+			}
 			updateConference(conference,
-					validated, acronym, name, publisher, isbn, issn, openAccess, conferenceUrl, coreId);
+					validated, acronym, name, publisher, isbn, issn, openAccess, conferenceUrl, coreId, enclosingConferenceObj);
 		} catch (Throwable ex) {
 			// Delete created conference
 			if (conference.getId() != 0) {
@@ -158,10 +167,12 @@ public class ConferenceService extends AbstractService {
 	 * @param openAccess indicates if the journal is open access or not.
 	 * @param conferenceUrl the URL to the page of the conference.
 	 * @param coreId the identifier of the conference on the CORE website.
+	 * @param enclosingConference the identifier of the conference that is enclosing the current conference.
 	 * @return the updated conference.
 	 */
 	public Optional<Conference> updateConference(int identifier, boolean validated, String acronym, String name,
-			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId) {
+			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId,
+			Integer enclosingConference) {
 		final Optional<Conference> res;
 		if (identifier >= 0) {
 			res = this.conferenceRepository.findById(Integer.valueOf(identifier));
@@ -169,8 +180,16 @@ public class ConferenceService extends AbstractService {
 			res = Optional.empty();
 		}
 		if (res.isPresent()) {
+			Conference enclosingConferenceObj = null;
+			if (enclosingConference != null && enclosingConference.intValue() >= 0 && enclosingConference.intValue() != identifier) {
+				final Optional<Conference> enc = this.conferenceRepository.findById(enclosingConference);
+				if (enc.isPresent()) {
+					enclosingConferenceObj = enc.get();
+				}
+			}
 			updateConference(res.get(),
-					validated, acronym, name, publisher, isbn, issn, openAccess, conferenceUrl, coreId);
+					validated, acronym, name, publisher, isbn, issn, openAccess, conferenceUrl, coreId,
+					enclosingConferenceObj);
 		}
 		return res;
 	}
@@ -187,9 +206,11 @@ public class ConferenceService extends AbstractService {
 	 * @param openAccess indicates if the journal is open access or not.
 	 * @param conferenceUrl the URL to the page of the conference.
 	 * @param coreId the identifier of the conference on the CORE website.
+	 * @param enclosingConference the reference to the enclosing conference.
 	 */
 	protected void updateConference(Conference conference, boolean validated, String acronym, String name,
-			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId) {
+			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId,
+			Conference enclosingConference) {
 		conference.setAcronym(acronym);
 		conference.setConferenceURL(conferenceUrl);
 		conference.setCoreId(coreId);
@@ -199,6 +220,8 @@ public class ConferenceService extends AbstractService {
 		conference.setOpenAccess(openAccess);
 		conference.setPublisher(publisher);
 		conference.setValidated(validated);
+		this.conferenceRepository.save(conference);
+		conference.setEnclosingConference(enclosingConference);
 		this.conferenceRepository.save(conference);
 	}
 

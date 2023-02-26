@@ -17,7 +17,9 @@
 package fr.ciadlab.labmanager.entities.publication.type;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -193,6 +195,13 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 		return buf.toString();
 	}
 
+	private static void appendConferenceName(StringBuilder buf, Conference conference, int year) {
+		buf.append(conference.getName());
+		if (!Strings.isNullOrEmpty(conference.getAcronym())) {
+			buf.append(" (").append(conference.getAcronym()).append("-").append(year % 100).append(")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		}
+	}
+
 	@Override
 	public String getPublicationTarget() {
 		final StringBuilder buf = new StringBuilder();
@@ -202,9 +211,17 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 			if (number > 1) {
 				buf.append(number).append(ConferenceBasedPublication.getNumberDecorator(number, getMajorLanguage())).append(" "); //$NON-NLS-1$;
 			}
-			buf.append(conference.getName());
-			if (!Strings.isNullOrEmpty(conference.getAcronym())) {
-				buf.append(" (").append(conference.getAcronym()).append("-").append(getPublicationYear() % 100).append(")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+			final int year = getPublicationYear();
+			appendConferenceName(buf, conference, year);
+			Conference enclosingConference = conference.getEnclosingConference();
+			if (enclosingConference != null) {
+				final Set<Integer> identifiers = new HashSet<>();
+				identifiers.add(Integer.valueOf(conference.getId()));
+				while (enclosingConference != null && identifiers.add(Integer.valueOf(enclosingConference.getId()))) {
+					buf.append(", ").append("in").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+					appendConferenceName(buf, enclosingConference, year);
+					enclosingConference = enclosingConference.getEnclosingConference();
+				}
 			}
 		} else if (!Strings.isNullOrEmpty(getScientificEventName())) {
 			buf.append(getScientificEventName());

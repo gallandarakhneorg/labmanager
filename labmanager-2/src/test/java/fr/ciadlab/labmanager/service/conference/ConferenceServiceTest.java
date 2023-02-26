@@ -17,63 +17,40 @@
 package fr.ciadlab.labmanager.service.conference;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import java.awt.image.BufferedImage;
-import java.net.URL;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.conference.ConferenceQualityAnnualIndicators;
-import fr.ciadlab.labmanager.entities.journal.Journal;
-import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
-import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.io.core.CorePortal;
-import fr.ciadlab.labmanager.io.scimago.OnlineScimagoPlatform;
-import fr.ciadlab.labmanager.io.scimago.ScimagoPlatform;
-import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform;
 import fr.ciadlab.labmanager.repository.conference.ConferenceQualityAnnualIndicatorsRepository;
 import fr.ciadlab.labmanager.repository.conference.ConferenceRepository;
-import fr.ciadlab.labmanager.repository.journal.JournalQualityAnnualIndicatorsRepository;
-import fr.ciadlab.labmanager.repository.journal.JournalRepository;
-import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
-import fr.ciadlab.labmanager.utils.TestUtils;
-import fr.ciadlab.labmanager.utils.net.DirectNetConnection;
-import fr.ciadlab.labmanager.utils.net.NetConnection;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
-import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledIf;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -184,14 +161,23 @@ public class ConferenceServiceTest {
 
 	@Test
 	public void createConference() {
+		Conference enclosingConf = mock(Conference.class);
+		when(this.conferenceRepository.findById(any(Integer.class))).thenAnswer(it -> {
+			switch ((int) it.getArgument(0)) {
+			case 159753:
+				return Optional.of(enclosingConf);
+			}
+			return Optional.empty();
+		});
+
 		final Optional<Conference> conferenceOpt = this.test.createConference(true, "NA", "NN", "NP", "NIB",  "NIS",
-				Boolean.TRUE, "NURL", "NCORE");
+				Boolean.TRUE, "NURL", "NCORE", 159753);
 		assertNotNull(conferenceOpt);
 		Conference conference = conferenceOpt.get();
 		assertNotNull(conference);
 
 		final ArgumentCaptor<Conference> arg = ArgumentCaptor.forClass(Conference.class);
-		verify(this.conferenceRepository, only()).save(arg.capture());
+		verify(this.conferenceRepository, times(2)).save(arg.capture());
 		final Conference actual = arg.getValue();
 		assertNotNull(actual);
 		assertSame(conference, actual);
@@ -204,6 +190,7 @@ public class ConferenceServiceTest {
 		assertTrue(actual.getOpenAccess());
 		assertEquals("NURL", actual.getConferenceURL());
 		assertEquals("NCORE", actual.getCoreId());
+		assertSame(enclosingConf, actual.getEnclosingConference());
 	}
 
 	@Test
@@ -237,21 +224,27 @@ public class ConferenceServiceTest {
 		final Conference conf0 = mock(Conference.class);
 		final Conference conf1 = mock(Conference.class);
 		final Conference conf2 = mock(Conference.class);
+		final Conference enclosingConf = mock(Conference.class);
 		when(this.conferenceRepository.findById(any(Integer.class))).thenAnswer(it -> {
 			switch ((int) it.getArgument(0)) {
 			case 234:
 				return Optional.of(conf1);
+			case 159753:
+				return Optional.of(enclosingConf);
 			}
 			return Optional.empty();
 		});
 
-		this.test.updateConference(234, true, "NA", "NN", "NP", "NIB", "NIS", Boolean.TRUE, "NURL", "NCORE");
+		this.test.updateConference(234, true, "NA", "NN", "NP", "NIB", "NIS", Boolean.TRUE, "NURL", "NCORE", 159753);
 
 		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
-		verify(this.conferenceRepository, atLeastOnce()).findById(arg0.capture());
-		Integer actual0 = arg0.getValue();
-		assertNotNull(actual0);
-		assertEquals(234, actual0);
+		verify(this.conferenceRepository, times(2)).findById(arg0.capture());
+		List<Integer> actuals = arg0.getAllValues();
+		assertNotNull(actuals);
+		assertEquals(2, actuals.size());
+		assertTrue(actuals.contains(234));
+		assertTrue(actuals.contains(159753));
+		
 
 		final ArgumentCaptor<Conference> arg1 = ArgumentCaptor.forClass(Conference.class);
 		verify(this.conferenceRepository, atLeastOnce()).save(arg1.capture());
@@ -269,6 +262,7 @@ public class ConferenceServiceTest {
 		verify(conf1, atLeastOnce()).setOpenAccess(eq(Boolean.TRUE));
 		verify(conf1, atLeastOnce()).setConferenceURL(eq("NURL"));
 		verify(conf1, atLeastOnce()).setCoreId(eq("NCORE"));
+		verify(conf1, atLeastOnce()).setEnclosingConference(same(enclosingConf));
 	}
 
 	@Test

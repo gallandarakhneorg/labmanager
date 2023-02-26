@@ -351,4 +351,16 @@ public class ConferenceTest {
 		assertNull(this.test.getISSN());
 	}
 
+	@Test
+	public void getEnclosingConference() {
+		assertNull(this.test.getEnclosingConference());
+	}
+
+	@Test
+	public void setEnclosingConference() {
+		Conference conf = mock(Conference.class);
+		this.test.setEnclosingConference(conf);
+		assertSame(conf, this.test.getEnclosingConference());
+	}
+
 }
