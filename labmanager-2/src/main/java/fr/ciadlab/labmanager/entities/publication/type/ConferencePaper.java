@@ -202,8 +202,11 @@ public class ConferencePaper extends Publication implements ConferenceBasedPubli
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
+		if (!Strings.isNullOrEmpty(getScientificEventName())) {
+			consumer.accept("scientificEventName", getScientificEventName()); //$NON-NLS-1$
+		}
 		if (getConferenceOccurrenceNumber() > 0) {
-			consumer.accept("conferenceOcccurrenceNumber", Integer.valueOf(getConferenceOccurrenceNumber())); //$NON-NLS-1$
+			consumer.accept("conferenceOccurrenceNumber", Integer.valueOf(getConferenceOccurrenceNumber())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getVolume())) {
 			consumer.accept("volume", getVolume()); //$NON-NLS-1$

@@ -152,6 +152,9 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
+		if (!Strings.isNullOrEmpty(getScientificEventName())) {
+			consumer.accept("scientificEventName", getScientificEventName()); //$NON-NLS-1$
+		}
 		if (getConferenceOccurrenceNumber() > 0) {
 			consumer.accept("conferenceOcccurrenceNumber", Integer.valueOf(getConferenceOccurrenceNumber())); //$NON-NLS-1$
 		}
