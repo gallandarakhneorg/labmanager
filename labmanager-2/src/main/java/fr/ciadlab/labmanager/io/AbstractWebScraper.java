@@ -96,9 +96,11 @@ public abstract class AbstractWebScraper {
 			String content = handle.textContent();
 			if (!Strings.isNullOrEmpty(content)) {
 				content = content.trim(); 
-				if (!Strings.isNullOrEmpty(content)) {
+				// Remove any mark that is related to the local format of the number
+				final String unformattedContent = content.replaceAll("[^0-9+\\-]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				if (!Strings.isNullOrEmpty(unformattedContent)) {
 					try {
-						return Integer.valueOf(content);
+						return Integer.valueOf(unformattedContent);
 					} catch (Throwable ex) {
 						//
 					}
