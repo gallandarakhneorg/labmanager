@@ -244,7 +244,7 @@ public class UbExportApiController extends AbstractApiController {
 			exportProjectList(ods, organizationObj, year);
 
 			getLogger().info("Generating spreadsheet bytes"); //$NON-NLS-1$
-			content = ods.toByteArray();
+			content = ods.toByteArray(false);
 			mediaType = ods.getMediaType();
 			filenameExtension = ods.getFileExtension();
 		}

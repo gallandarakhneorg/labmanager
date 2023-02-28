@@ -259,4 +259,58 @@ public class PublicationCategoryTest {
 		assertAllTreated();
 	}
 
+	@Test
+	public void getAcronym_US() {
+		// Force the default locale to be US.
+		Locale.setDefault(Locale.US);
+		assertEquals("BRE", cons(PublicationCategory.BRE).getAcronym());
+		assertEquals("ACL", cons(PublicationCategory.ACL).getAcronym());
+		assertEquals("ACLN", cons(PublicationCategory.ACLN).getAcronym());
+		assertEquals("ASCL", cons(PublicationCategory.ASCL).getAcronym());
+		assertEquals("C-ACTI", cons(PublicationCategory.C_ACTI).getAcronym());
+		assertEquals("C-ACTN", cons(PublicationCategory.C_ACTN).getAcronym());
+		assertEquals("C-COM", cons(PublicationCategory.C_COM).getAcronym());
+		assertEquals("C-AFF", cons(PublicationCategory.C_AFF).getAcronym());
+		assertEquals("DO", cons(PublicationCategory.DO).getAcronym());
+		assertEquals("OS", cons(PublicationCategory.OS).getAcronym());
+		assertEquals("COS", cons(PublicationCategory.COS).getAcronym());
+		assertEquals("C-INV", cons(PublicationCategory.C_INV).getAcronym());
+		assertEquals("TH", cons(PublicationCategory.TH).getAcronym());
+		assertEquals("PT", cons(PublicationCategory.PT).getAcronym());
+		assertEquals("OR", cons(PublicationCategory.OR).getAcronym());
+		assertEquals("OV", cons(PublicationCategory.OV).getAcronym());
+		assertEquals("COV", cons(PublicationCategory.COV).getAcronym());
+		assertEquals("PV", cons(PublicationCategory.PV).getAcronym());
+		assertEquals("PAT", cons(PublicationCategory.PAT).getAcronym());
+		assertEquals("AP", cons(PublicationCategory.AP).getAcronym());
+		assertAllTreated();
+	}
+
+	@Test
+	public void getAcronym_FR() {
+		// Force the default locale to be FR.
+		Locale.setDefault(Locale.FRANCE);
+		assertEquals("BRE", cons(PublicationCategory.BRE).getAcronym());
+		assertEquals("ACL", cons(PublicationCategory.ACL).getAcronym());
+		assertEquals("ACLN", cons(PublicationCategory.ACLN).getAcronym());
+		assertEquals("ASCL", cons(PublicationCategory.ASCL).getAcronym());
+		assertEquals("C-ACTI", cons(PublicationCategory.C_ACTI).getAcronym());
+		assertEquals("C-ACTN", cons(PublicationCategory.C_ACTN).getAcronym());
+		assertEquals("C-COM", cons(PublicationCategory.C_COM).getAcronym());
+		assertEquals("C-AFF", cons(PublicationCategory.C_AFF).getAcronym());
+		assertEquals("DO", cons(PublicationCategory.DO).getAcronym());
+		assertEquals("OS", cons(PublicationCategory.OS).getAcronym());
+		assertEquals("COS", cons(PublicationCategory.COS).getAcronym());
+		assertEquals("C-INV", cons(PublicationCategory.C_INV).getAcronym());
+		assertEquals("TH", cons(PublicationCategory.TH).getAcronym());
+		assertEquals("PT", cons(PublicationCategory.PT).getAcronym());
+		assertEquals("OR", cons(PublicationCategory.OR).getAcronym());
+		assertEquals("OV", cons(PublicationCategory.OV).getAcronym());
+		assertEquals("COV", cons(PublicationCategory.COV).getAcronym());
+		assertEquals("PV", cons(PublicationCategory.PV).getAcronym());
+		assertEquals("PAT", cons(PublicationCategory.PAT).getAcronym());
+		assertEquals("AP", cons(PublicationCategory.AP).getAcronym());
+		assertAllTreated();
+	}
+
 }

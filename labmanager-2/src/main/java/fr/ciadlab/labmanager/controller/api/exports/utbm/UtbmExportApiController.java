@@ -167,7 +167,7 @@ public class UtbmExportApiController extends AbstractApiController {
 			getLogger().info("Generating UTBM indicators' spreadsheet for publications"); //$NON-NLS-1$
 			exportPublications(ods, organizationObj, year);
 			getLogger().info("Generating spreadsheet bytes"); //$NON-NLS-1$
-			content = ods.toByteArray();
+			content = ods.toByteArray(true);
 			mediaType = ods.getMediaType();
 			filenameExtension = ods.getFileExtension();
 		}

@@ -99,8 +99,8 @@ public class PermanentResearcherFteIndicator extends AbstractAnnualIndicator {
 	private static void updateValues(Map<Integer, Number> values, Membership membership, int startYear, int endYear) {
 		final float fte = membership.getMemberStatus().getUsualResearchFullTimeEquivalent();
 		for (int year = startYear; year <= endYear; ++year) {
-			final int dayCount = computeDayCount(membership, year);
-			float annualFte = dayCount / 365f;
+			final int dayCount = membership.daysInYear(year);
+			float annualFte = dayCount / LocalDate.of(year, 1, 1).lengthOfYear();
 			annualFte *= fte;
 			values.merge(Integer.valueOf(year), Float.valueOf(annualFte), 
 					(k0, k1) -> {
@@ -108,25 +108,6 @@ public class PermanentResearcherFteIndicator extends AbstractAnnualIndicator {
 						return Float.valueOf(sum);
 					});
 		}
-	}
-
-	private static int computeDayCount(Membership membership, int year) {
-		LocalDate start = membership.getMemberSinceWhen();
-		if (start == null || start.getYear() < year) {
-			start = LocalDate.of(year, 1, 1);
-		} else if (start.getYear() > year) {
-			return 0;
-		}
-		//
-		LocalDate end = membership.getMemberToWhen();
-		if (end == null || end.getYear() > year) {
-			end = LocalDate.of(year, 12, 31);
-		} else if (end.getYear() < year) {
-			return 0;
-		}
-		//
-		assert start != null && end != null;
-		return end.getDayOfYear() - start.getDayOfYear() + 1;
 	}
 
 }

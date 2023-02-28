@@ -536,7 +536,7 @@ public abstract class AbstractComponent {
 	/** Clean and normalized a float that is provided as input to an endpoint.
 	 *
 	 * @param input the input string to the endpoint.
-	 * @return the float that is equivalent to the argument, or {@coe null} if the string cannot be converted to a float.
+	 * @return the float that is equivalent to the argument, or {@code null} if the string cannot be converted to a float.
 	 * @since 3.0
 	 */
 	public static Float inFloat(Object input) {
@@ -554,7 +554,7 @@ public abstract class AbstractComponent {
 	/** Clean and normalized a integer that is provided as input to an endpoint.
 	 *
 	 * @param input the input string to the endpoint.
-	 * @return the integer that is equivalent to the argument, or {@coe null} if the string cannot be converted to an integer.
+	 * @return the integer that is equivalent to the argument, or {@code null} if the string cannot be converted to an integer.
 	 * @since 3.4
 	 */
 	public static Integer inInteger(Object input) {
@@ -567,6 +567,28 @@ public abstract class AbstractComponent {
 			}
 		}
 		return null;
+	}
+
+	/** Clean and normalized an enumeration item that is provided as input to an endpoint.
+	 *
+	 * @param <E> the type of the enumeration.
+	 * @param input the input string to the endpoint.
+	 * @param type the type of the enumeration.
+	 * @param defaultValue the default value.
+	 * @return the enumeration item that is equivalent to the argument, or the default value if the string
+	 *      cannot be converted to an enumeration item.
+	 * @since 3.6
+	 */
+	public static <E extends Enum<E>> E inEnum(Object input, Class<E> type, E defaultValue) {
+		final String param = inString(input);
+		if (!Strings.isNullOrEmpty(param)) {
+			for (final E enumConstant : type.getEnumConstants()) {
+				if (enumConstant.name().equalsIgnoreCase(param)) {
+					return enumConstant;
+				}
+			}
+		}
+		return defaultValue;
 	}
 
 	/** Clean and normalized a integer that is provided as input to an endpoint.

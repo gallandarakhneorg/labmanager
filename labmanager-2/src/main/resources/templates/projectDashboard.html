@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
+<th:block th:replace="fragments/libs :: google-charts"/>
+
+<th:block th:replace="fragments/nav :: dashboardProjectsBar"/>
+
+<h4>How many starting projects per year</h4>
+<div id="drawChart_projectsPerYear"></div>
+
+<h4>How many ongoing projects per year</h4>
+<div id="drawChart_ongoingProjectsPerYear"></div>
+
+<h4>How many projects per funding scheme</h4>
+<div id="drawChart_projectsPerType"></div>
+
+<h4>How many projects per funding scheme on competitive calls</h4>
+<div id="drawChart_academicProjectsPerType"></div>
+<div id="drawChart_academicProjectsPerGeo"></div>
+
+<h4>How many projects per funding scheme with not-academic partners or for service contracts</h4>
+<div id="drawChart_notAcademicProjectsPerType"></div>
+
+<h4>How many projects per type of activity</h4>
+<div id="drawChart_projectsPerActivityType"></div>
+
+<h4>How many projects per TRL</h4>
+<div id="drawChart_projectsPerTRL"></div>
+
+<h4>How many projects per research axis</h4>
+<div id="drawChart_projectsPerResearchAxis"></div>
+
+<h4>How many papers per country</h4>
+<div id="drawChart_projectsPerCountry"></div>
+<div id="drawChart_projectsOnMap" style="width: 900px; height: 500px;"></div>
+
+<script type="text/javascript" th:inline="javascript">
+function drawChart_projectsPerYear() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('number', 'Year');
+	data.addColumn('number', 'Competitive Calls');
+	data.addColumn('number', 'Industrial Projects');
+	data.addColumn('number', 'Auto-Funded Projects');
+	data.addColumn('number', 'Budgets (k€)');
+	data.addRows([[${projectsPerYear}]]);
+
+	var options = {
+		width: '100%',
+		height: 500,
+		isStacked: true,
+		hAxis: {format: '0000'},
+		seriesType: 'bars',
+		series: {
+			0: {targetAxisIndex: 0},
+			1: {targetAxisIndex: 0},
+			2: {targetAxisIndex: 0},
+			3: {
+				targetAxisIndex: 1,
+				type: 'line',
+				isStacked: false,
+			},
+		},
+		vAxes: {
+			0: {title: 'Number of projects'},
+			1: {title: 'Budgets (k€)'}
+		},
+	};
+	
+	var yearFormatter = new google.visualization.NumberFormat({pattern: '0000'});
+	yearFormatter.format(data, 0);
+	var numberFormatter = new google.visualization.NumberFormat({pattern: '#0'});
+	numberFormatter.format(data, 1);
+	numberFormatter.format(data, 2);
+	numberFormatter.format(data, 3);
+	var euroFormatter = new google.visualization.NumberFormat({pattern: '#0.0 k€'});
+	euroFormatter.format(data, 4);
+	
+	var chart = new google.visualization.ComboChart(document.getElementById('drawChart_projectsPerYear'));
+	chart.draw(data, options);
+}
+
+function drawChart_ongoingProjectsPerYear() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('number', 'Year');
+	data.addColumn('number', 'Competitive Calls');
+	data.addColumn('number', 'Industrial Projects');
+	data.addColumn('number', 'Auto-Funded Projects');
+	data.addColumn('number', 'Budgets (k€)');
+	data.addRows([[${ongoingProjectsPerYear}]]);
+
+	var options = {
+		width: '100%',
+		height: 500,
+		isStacked: true,
+		hAxis: {format: '0000'},
+		seriesType: 'bars',
+		series: {
+			0: {targetAxisIndex: 0},
+			1: {targetAxisIndex: 0},
+			2: {targetAxisIndex: 0},
+			3: {
+				targetAxisIndex: 1,
+				type: 'line',
+				isStacked: false,
+			},
+		},
+		vAxes: {
+			0: {title: 'Number of projects'},
+			1: {title: 'Budgets (k€)'}
+		},
+	};
+	
+	var yearFormatter = new google.visualization.NumberFormat({pattern: '0000'});
+	yearFormatter.format(data, 0);
+	var numberFormatter = new google.visualization.NumberFormat({pattern: '#0'});
+	numberFormatter.format(data, 1);
+	numberFormatter.format(data, 2);
+	numberFormatter.format(data, 3);
+	var euroFormatter = new google.visualization.NumberFormat({pattern: '#0.0 k€'});
+	euroFormatter.format(data, 4);
+	
+	var chart = new google.visualization.ComboChart(document.getElementById('drawChart_ongoingProjectsPerYear'));
+	chart.draw(data, options);
+}
+
+function drawChart_projectsPerType() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Funding Scheme');
+	data.addColumn('number', 'Number of projects');
+	data.addRows([[${projectsPerType}]]);
+	
+	var options = {
+		width: '100%',
+		height: 500,
+	};
+		
+	var chart = new google.visualization.PieChart(document.getElementById('drawChart_projectsPerType'));
+	chart.draw(data, options);
+}
+
+function drawChart_academicProjectsPerType() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Funding Scheme');
+	data.addColumn('number', 'Number of projects');
+	data.addRows([[${academicProjectsPerType}]]);
+	
+	var options = {
+		width: '100%',
+		height: 500,
+	};
+		
+	var chart = new google.visualization.PieChart(document.getElementById('drawChart_academicProjectsPerType'));
+	chart.draw(data, options);
+}
+
+function drawChart_notAcademicProjectsPerType() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Funding Scheme');
+	data.addColumn('number', 'Number of projects');
+	data.addRows([[${notAcademicProjectsPerType}]]);
+	
+	var options = {
+		width: '100%',
+		height: 500,
+	};
+		
+	var chart = new google.visualization.PieChart(document.getElementById('drawChart_notAcademicProjectsPerType'));
+	chart.draw(data, options);
+}
+
+function drawChart_projectsPerActivityType() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Activity Type');
+	data.addColumn('number', 'Number of projects');
+	data.addRows([[${projectsPerActivityType}]]);
+	
+	var options = {
+		width: '100%',
+		height: 500,
+	};
+		
+	var chart = new google.visualization.PieChart(document.getElementById('drawChart_projectsPerActivityType'));
+	chart.draw(data, options);
+}
+
+function drawChart_projectsPerTRL() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'TRL');
+	data.addColumn('number', 'Number of projects');
+	data.addRows([[${projectsPerTRL}]]);
+	
+	var options = {
+		width: '100%',
+		height: 500,
+	};
+		
+	var chart = new google.visualization.PieChart(document.getElementById('drawChart_projectsPerTRL'));
+	chart.draw(data, options);
+}
+
+function drawChart_projectsPerResearchAxis() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Research Axis');
+	data.addColumn('number', 'Number of projects');
+	data.addRows([[${projectsPerResearchAxis}]]);
+	
+	var options = {
+		width: '100%',
+		height: 500,
+		hAxis: {format: '0000'},
+		vAxis: {format: '#0'},
+		
+	};
+	
+	var yearFormatter = new google.visualization.NumberFormat({pattern: '0000'});
+	yearFormatter.format(data, 0);
+	var numberFormatter = new google.visualization.NumberFormat({pattern: '#0'});
+	numberFormatter.format(data, 1);
+	
+	var chart = new google.visualization.ColumnChart(document.getElementById('drawChart_projectsPerResearchAxis'));
+	chart.draw(data, options);
+}
+
+function drawChart_projectsPerCountry() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Country');
+	data.addColumn('number', 'Number of projects');
+	data.addRows([[${projectsPerCountry}]]);
+	
+	var options = {
+		width: '100%',
+		page: true,
+		pageSize: 30,
+	};
+		
+	var chart = new google.visualization.Table(document.getElementById('drawChart_projectsPerCountry'));
+	chart.draw(data, options);
+}
+
+function drawChart_projectsOnMap() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Country');
+	data.addColumn('number', 'Number of projects');
+	data.addRows([[${projectsPerCountry}]]);
+	
+	var options = {
+	};
+		
+	var chart = new google.visualization.GeoChart(document.getElementById('drawChart_projectsOnMap'));
+	chart.draw(data, options);
+}
+
+$(document).ready(() => {
+	google.charts.load('current', {
+		packages : [ 'corechart', 'table', 'geochart' ]
+	});
+	google.charts.setOnLoadCallback(drawChart_projectsPerYear);
+	google.charts.setOnLoadCallback(drawChart_ongoingProjectsPerYear);
+	google.charts.setOnLoadCallback(drawChart_projectsPerType);
+	google.charts.setOnLoadCallback(drawChart_academicProjectsPerType);
+	google.charts.setOnLoadCallback(drawChart_notAcademicProjectsPerType);
+	google.charts.setOnLoadCallback(drawChart_projectsPerActivityType);
+	google.charts.setOnLoadCallback(drawChart_projectsPerTRL);
+	google.charts.setOnLoadCallback(drawChart_projectsPerResearchAxis);
+	google.charts.setOnLoadCallback(drawChart_projectsPerCountry);
+	google.charts.setOnLoadCallback(drawChart_projectsOnMap);
+});
+</script>
+</html>

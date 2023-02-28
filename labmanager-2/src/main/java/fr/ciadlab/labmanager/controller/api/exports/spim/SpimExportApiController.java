@@ -119,7 +119,7 @@ public class SpimExportApiController extends AbstractApiController {
 			getLogger().info("Generating SPIM indicators' spreadsheet for human resources"); //$NON-NLS-1$
 			exportHumanResources(ods, organizationObj, year);
 			getLogger().info("Generating spreadsheet bytes"); //$NON-NLS-1$
-			content = ods.toByteArray();
+			content = ods.toByteArray(true);
 			mediaType = ods.getMediaType();
 			filenameExtension = ods.getFileExtension();
 		}

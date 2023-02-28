@@ -20,13 +20,18 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +42,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectActivityType;
 import fr.ciadlab.labmanager.entities.project.ProjectBudget;
+import fr.ciadlab.labmanager.entities.project.ProjectCategory;
 import fr.ciadlab.labmanager.entities.project.ProjectContractType;
 import fr.ciadlab.labmanager.entities.project.ProjectMember;
 import fr.ciadlab.labmanager.entities.project.ProjectStatus;
@@ -50,9 +56,13 @@ import fr.ciadlab.labmanager.repository.project.ProjectMemberRepository;
 import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.member.MembershipService;
+import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.trl.TRL;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.util.CountryCode;
+import org.arakhne.afc.util.MultiCollection;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -736,6 +746,358 @@ public class ProjectService extends AbstractService {
 			throw new IllegalArgumentException("Project not found"); //$NON-NLS-1$
 		}
 		return projects;
+	}
+
+	/** Replies the numbers of projects have started per year for the given set of projects.
+	 *
+	 * @param projects the projects to analyze.
+	 * @return rows with: year, academic project count, not-academic project count, other projects.
+	 * @since 3.6
+	 */
+	@SuppressWarnings("static-method")
+	public List<List<Number>> getNumberOfStartingProjectsPerYear(List<Project> projects) {
+		final Map<Integer, Collection<Project>> projectsPerYear = projects.stream()
+				.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
+				.collect(Collectors.toMap(
+						it -> Integer.valueOf(it.getStartYear()),
+						it -> Collections.singleton(it),
+						(a, b) -> {
+							final MultiCollection<Project> multi = new MultiCollection<>();
+							multi.addCollection(a);
+							multi.addCollection(b);
+							return multi;
+						}));
+		return projectsPerYear.entrySet().stream()
+			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+			.map(it -> {
+				int nbAap = 0;
+				int NbIndus = 0;
+				int nbAutoFunded = 0;
+				float budget = 0f;
+				for (final Project prj : it.getValue()) {
+					switch (prj.getCategory()) {
+					case COMPETITIVE_CALL_PROJECT:
+						++nbAap;
+						budget += prj.getTotalLocalOrganizationBudget();
+						break;
+					case NOT_ACADEMIC_PROJECT:
+						++NbIndus;
+						budget += prj.getTotalLocalOrganizationBudget();
+						break;
+					case AUTO_FUNDING:
+					case OPEN_SOURCE:
+						++nbAutoFunded;
+						budget += prj.getTotalLocalOrganizationBudget();
+						break;
+					default:
+						break;
+					}
+				}
+				final List<Number> columns = new ArrayList<>(3);
+				columns.add(it.getKey());
+				columns.add(Integer.valueOf(nbAap));
+				columns.add(Integer.valueOf(NbIndus));
+				columns.add(Integer.valueOf(nbAutoFunded));
+				columns.add(Float.valueOf(budget));
+				return columns;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/** Replies the numbers of projects are running per year for the given set of projects.
+	 *
+	 * @param projects the projects to analyze.
+	 * @return rows with: year, academic project count, not-academic project count, other projects.
+	 * @since 3.6
+	 */
+	@SuppressWarnings("static-method")
+	public List<List<Number>> getNumberOfOngoingProjectsPerYear(List<Project> projects) {
+		final Map<Integer, List<Project>> projectsPerYear = new HashMap<>();
+		projects.stream()
+			.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
+			.forEach(it -> {
+				for (int y = it.getStartYear(); y <= it.getEndYear(); ++y) {
+					final List<Project> yearProjects = projectsPerYear.computeIfAbsent(Integer.valueOf(y), it0 -> new ArrayList<>());
+					yearProjects.add(it);
+				}
+			});
+		return projectsPerYear.entrySet().stream()
+			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+			.map(it -> {
+				int aap = 0;
+				int indus = 0;
+				int autoFunded = 0;
+				float budget = 0f;
+				for (final Project prj : it.getValue()) {
+					switch (prj.getCategory()) {
+					case COMPETITIVE_CALL_PROJECT:
+						++aap;
+						budget += prj.getEstimatedAnnualLocalOrganizationBudgetFor(it.getKey().intValue());
+						break;
+					case NOT_ACADEMIC_PROJECT:
+						++indus;
+						budget += prj.getEstimatedAnnualLocalOrganizationBudgetFor(it.getKey().intValue());
+						break;
+					case AUTO_FUNDING:
+					case OPEN_SOURCE:
+						++autoFunded;
+						budget += prj.getEstimatedAnnualLocalOrganizationBudgetFor(it.getKey().intValue());
+						break;
+					default:
+						break;
+					}
+				}
+				final List<Number> columns = new ArrayList<>(3);
+				columns.add(it.getKey());
+				columns.add(Integer.valueOf(aap));
+				columns.add(Integer.valueOf(indus));
+				columns.add(Integer.valueOf(autoFunded));
+				columns.add(Float.valueOf(budget));
+				return columns;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/** Replies the numbers of projects per funding scheme for the given set of projects.
+	 *
+	 * @param projects the projects to analyze.
+	 * @return rows with: type, count.
+	 * @since 3.6
+	 */
+	@SuppressWarnings("static-method")
+	public List<List<Object>> getNumberOfProjectsPerType(Collection<? extends Project> projects) {
+		final Map<ProjectCategory, Integer> projectsPerCategory = projects.stream()
+				.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
+				.collect(Collectors.toMap(
+						it -> it.getCategory(),
+						it -> Integer.valueOf(1),
+						(a, b) -> {
+							return Integer.valueOf(a.intValue() + b.intValue());
+						}));
+		return projectsPerCategory.entrySet().stream()
+			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+			.map(it -> {
+				final List<Object> columns = new ArrayList<>(2);
+				columns.add(it.getKey().getLabel());
+				columns.add(it.getValue());
+				return columns;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/** Replies the numbers of academic projects per funding scheme for the given set of projects.
+	 *
+	 * @param projects the projects to analyze.
+	 * @return rows with: type, count.
+	 * @since 3.6
+	 */
+	@SuppressWarnings("static-method")
+	public List<List<Object>> getNumberOfAcademicProjectsPerType(Collection<? extends Project> projects) {
+		final Map<FundingScheme, Integer> projectsPerScheme = projects.stream()
+				.filter(it -> it.getMajorFundingScheme().isCompetitive() && it.getStatus() == ProjectStatus.ACCEPTED)
+				.collect(Collectors.toMap(
+						it -> it.getMajorFundingScheme(),
+						it -> Integer.valueOf(1),
+						(a, b) -> {
+							return Integer.valueOf(a.intValue() + b.intValue());
+						}));
+		return projectsPerScheme.entrySet().stream()
+			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+			.map(it -> {
+				final List<Object> columns = new ArrayList<>(2);
+				columns.add(it.getKey().getLabel());
+				columns.add(it.getValue());
+				return columns;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/** Replies the numbers of not-academic projects per funding scheme for the given set of projects.
+	 *
+	 * @param projects the projects to analyze.
+	 * @return rows with: type, count.
+	 * @since 3.6
+	 */
+	@SuppressWarnings("static-method")
+	public List<List<Object>> getNumberOfNotAcademicProjectsPerType(Collection<? extends Project> projects) {
+		final Map<FundingScheme, Integer> projectsPerScheme = projects.stream()
+				.filter(it -> (it.getMajorFundingScheme().isAcademicButContractual() || it.getMajorFundingScheme().isNotAcademic())
+							&& it.getStatus() == ProjectStatus.ACCEPTED)
+				.collect(Collectors.toMap(
+						it -> it.getMajorFundingScheme(),
+						it -> Integer.valueOf(1),
+						(a, b) -> {
+							return Integer.valueOf(a.intValue() + b.intValue());
+						}));
+		return projectsPerScheme.entrySet().stream()
+			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+			.map(it -> {
+				final List<Object> columns = new ArrayList<>(2);
+				columns.add(it.getKey().getLabel());
+				columns.add(it.getValue());
+				return columns;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/** Replies the numbers of projects per activity type for the given set of projects.
+	 *
+	 * @param projects the projects to analyze.
+	 * @return rows with: type, count.
+	 * @since 3.6
+	 */
+	@SuppressWarnings("static-method")
+	public List<List<Object>> getNumberOfProjectsPerActivityType(Collection<? extends Project> projects) {
+		final Map<ProjectActivityType, Integer> projectsPerType = projects.stream()
+				.filter(it -> it.getActivityType() != null && it.getStatus() == ProjectStatus.ACCEPTED)
+				.collect(Collectors.toMap(
+						it -> it.getActivityType(),
+						it -> Integer.valueOf(1),
+						(a, b) -> {
+							return Integer.valueOf(a.intValue() + b.intValue());
+						}));
+		return projectsPerType.entrySet().stream()
+			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+			.map(it -> {
+				final List<Object> columns = new ArrayList<>(2);
+				columns.add(it.getKey().getLabel());
+				columns.add(it.getValue());
+				return columns;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/** Replies the numbers of projects per TRL for the given set of projects.
+	 *
+	 * @param projects the projects to analyze.
+	 * @return rows with: type, count.
+	 * @since 3.6
+	 */
+	@SuppressWarnings("static-method")
+	public List<List<Object>> getNumberOfProjectsPerTRL(Collection<? extends Project> projects) {
+		final Map<TRL, Integer> projectsPerTRL = projects.stream()
+				.filter(it -> it.getTRL() != null && it.getStatus() == ProjectStatus.ACCEPTED)
+				.collect(Collectors.toMap(
+						it -> it.getTRL(),
+						it -> Integer.valueOf(1),
+						(a, b) -> {
+							return Integer.valueOf(a.intValue() + b.intValue());
+						}));
+		return projectsPerTRL.entrySet().stream()
+			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+			.map(it -> {
+				final List<Object> columns = new ArrayList<>(2);
+				columns.add(it.getKey().name() + " - " + it.getKey().getLabel()); //$NON-NLS-1$
+				columns.add(it.getValue());
+				return columns;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/** Replies the numbers of projects per research axis for the given set of projects.
+	 *
+	 * @param projects the projects to analyze.
+	 * @return rows with: axis, count.
+	 * @since 3.6
+	 */
+	public List<List<Object>> getNumberOfProjectsPerScientificAxis(Collection<? extends Project> projects) {
+		final Map<ScientificAxis, Integer> projectsPerAxis = new HashMap<>();
+		final AtomicInteger outsideAxis = new AtomicInteger(); 
+		projects.stream()
+				.forEach(it -> {
+					if (!it.getScientificAxes().isEmpty()) {
+						for (final ScientificAxis axis : it.getScientificAxes()) {
+							final Integer oldValue = projectsPerAxis.get(axis);
+							if (oldValue == null) {
+								projectsPerAxis.put(axis, Integer.valueOf(1));
+							} else {
+								projectsPerAxis.put(axis, Integer.valueOf(oldValue.intValue() + 1));
+							}
+						}
+					} else {
+						outsideAxis.incrementAndGet();
+					}
+				});
+		if (outsideAxis.intValue() > 0) {
+			final ScientificAxis outAxis = new ScientificAxis();
+			outAxis.setName(getMessage("projectService.outsideScientificAxis")); //$NON-NLS-1$
+			projectsPerAxis.put(outAxis, Integer.valueOf(outsideAxis.get()));
+		}
+		return projectsPerAxis.entrySet().stream()
+			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+			.map(it -> {
+				final List<Object> columns = new ArrayList<>(2);
+				final String name = Strings.isNullOrEmpty(it.getKey().getAcronym()) ? it.getKey().getName()
+						: it.getKey().getAcronym() + " - " + it.getKey().getName(); //$NON-NLS-1$
+				columns.add(name);
+				columns.add(it.getValue());
+				return columns;
+			})
+			.collect(Collectors.toList());
+	}
+
+	/** Replies the numbers of projects per country for the given set of publications.
+	 *
+	 * @param projects the projects to analyze.
+	 * @param referenceOrganization the organization for which the associated members are ignored in the counting.
+	 * @return rows with: country name, count.
+	 * @since 3.6
+	 */
+	@SuppressWarnings("static-method")
+	public List<List<Object>> getNumberOfProjectsPerCountry(Collection<? extends Project> projects, ResearchOrganization referenceOrganization) {
+		final AtomicInteger projectsWithUnknownCountry = new AtomicInteger();
+		final int[] numbers = new int[CountryCode.values().length + 1];
+		projects.stream()
+				.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
+				.forEach(it -> {
+					final Set<CountryCode> countries = new HashSet<>();
+					boolean unknown = false;
+					if (!getCountry(it.getCoordinator(), referenceOrganization, countries)) {
+						unknown = true;
+					}
+					for (final ResearchOrganization member : it.getOtherPartners()) {
+						if (!getCountry(member, referenceOrganization, countries)) {
+							unknown = true;
+						}							
+					}
+					for (final CountryCode country : countries) {
+						++numbers[country.ordinal()];
+					}
+					if (unknown) {
+						projectsWithUnknownCountry.incrementAndGet();
+					}
+				});
+		numbers[numbers.length - 1] = projectsWithUnknownCountry.get();
+		final CountryCode[] allCountries = CountryCode.values();
+		final AtomicInteger index = new AtomicInteger();
+		final IntFunction<List<Object>> converter = it -> {
+			final List<Object> columns = new ArrayList<>(2);
+			final int idx = index.getAndIncrement();
+			if (idx < allCountries.length) {
+				columns.add(CountryCodeUtils.getDisplayCountry(allCountries[idx]));
+			} else {
+				columns.add("?"); //$NON-NLS-1$
+			}
+			columns.add(Integer.valueOf(it));
+			return columns;
+		};
+		return Arrays.stream(numbers)
+			.mapToObj(converter)
+			.filter(it -> ((Integer) it.get(1)).intValue() > 0)
+			.sorted((a, b) -> - ((Integer) a.get(1)).compareTo((Integer) b.get(1)))
+			.collect(Collectors.toList());
+	}
+
+	private static boolean getCountry(ResearchOrganization member, ResearchOrganization referenceOrganization,
+			Set<CountryCode> countries) {
+		if (member != null && member.getId() != referenceOrganization.getId()) {
+			CountryCode code = member.getCountry();
+			if (code == null) {
+				return false;
+			}
+			countries.add(code);
+		}
+		return true;
 	}
 
 }

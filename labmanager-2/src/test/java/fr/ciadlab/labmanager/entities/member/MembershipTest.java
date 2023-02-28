@@ -737,4 +737,60 @@ public class MembershipTest {
 		assertTrue(l1.contains(this.test));
 	}
 
+	@Test
+	public void daysInYear_noStart_noEnd() {
+		assertEquals(365, this.test.daysInYear(2022));
+	}
+
+	@Test
+	public void daysInYear_noStart() {
+		this.test.setMemberToWhen(LocalDate.of(2021, 7, 1));
+		assertEquals(0, this.test.daysInYear(2022));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2022, 7, 1));
+		assertEquals(182, this.test.daysInYear(2022));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2023, 7, 1));
+		assertEquals(365, this.test.daysInYear(2022));
+	}
+
+	@Test
+	public void daysInYear_noEnd() {
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 7, 1));
+		assertEquals(365, this.test.daysInYear(2022));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 7, 1));
+		assertEquals(184, this.test.daysInYear(2022));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 7, 1));
+		assertEquals(0, this.test.daysInYear(2022));
+	}
+
+	@Test
+	public void daysInYear() {
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 7, 1));
+		this.test.setMemberToWhen(LocalDate.of(2021, 12, 1));
+		assertEquals(0, this.test.daysInYear(2022));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 7, 1));
+		this.test.setMemberToWhen(LocalDate.of(2022, 7, 1));
+		assertEquals(182, this.test.daysInYear(2022));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 7, 1));
+		this.test.setMemberToWhen(LocalDate.of(2023, 7, 1));
+		assertEquals(365, this.test.daysInYear(2022));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 7, 1));
+		this.test.setMemberToWhen(LocalDate.of(2022, 12, 1));
+		assertEquals(154, this.test.daysInYear(2022));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 7, 1));
+		this.test.setMemberToWhen(LocalDate.of(2023, 7, 1));
+		assertEquals(184, this.test.daysInYear(2022));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 7, 1));
+		this.test.setMemberToWhen(LocalDate.of(2024, 7, 1));
+		assertEquals(0, this.test.daysInYear(2022));
+	}
+
 }

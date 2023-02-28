@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.entities.publication;
 
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.journal.Journal;
+import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 
 /** A publication that is associated to a journal.
@@ -58,5 +59,28 @@ public interface JournalBasedPublication extends IdentifiableEntity {
 	 * @return the IF or zero.
 	 */
 	float getImpactFactor();
+
+	/** Replies if the publication is ranked in at least one of the ranking systems.
+	 *
+	 * @return {@code true} if a ranking system is ranking this publication.
+	 * @since 3.6
+	 */
+	boolean isRanked();
+	
+	/** Replies the category of publication.
+	 *
+	 * @return the category, never {@code null}.
+	 * @since 3.6
+	 */
+	PublicationCategory getCategory();
+
+	/** Replies the category of publication.
+	 *
+	 * @param rankingsystem indicated the type of ranking system that should be used for determining the category.
+	 *     If it is {@code null}, the {@link JournalRankingSystem#getDefault() default ranking system} is used.
+	 * @return the category, never {@code null}.
+	 * @since 3.6
+	 */
+	PublicationCategory getCategory(JournalRankingSystem rankingsystem);
 
 }

@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.entities.publication.type;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.function.Supplier;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -30,8 +31,10 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
+import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 
 /** Edition of a journal or a special issue of a journal.
@@ -282,6 +285,28 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		return false;
 	}
 
+	@Override
+	public PublicationCategory getCategory(JournalRankingSystem rankingSystem) {
+		final JournalRankingSystem rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
+		final Supplier<Boolean> rank;
+		switch (rankingSystem0) {
+		case SCIMAGO:
+			rank = () -> {
+				final QuartileRanking r = getScimagoQIndex();
+				return Boolean.valueOf(r != null && r != QuartileRanking.NR);
+			};
+			break;
+		case WOS:
+			rank = () -> {
+				final QuartileRanking r = getWosQIndex();
+				return Boolean.valueOf(r != null && r != QuartileRanking.NR);
+			};
+			break;
+		default:
+			throw new IllegalStateException();
+		}
+		return getCategoryWithSupplier(rank);
+	}
 	/** Replies the ISBN number that is associated to this publication.
 	 * This functions delegates to the journal.
 	 *

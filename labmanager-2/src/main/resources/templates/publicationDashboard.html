@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
+<th:block th:replace="fragments/libs :: google-charts"/>
+
+<th:block th:replace="fragments/nav :: dashboardPublicationsBar"/>
+
+<h4>How many papers per year</h4>
+<div id="drawChart_publicationsPerYear"></div>
+
+<h4 th:utext="${'How many papers per category (Source: ' + journalRankingSystem + ')'}"></h4>
+<div id="drawChart_publicationsPerCategory"></div>
+
+<h4 th:utext="${'How many papers per quartile (Source: ' + journalRankingSystem + ')'}"></h4>
+<div id="drawChart_publicationsPerQuartile"></div>
+
+<h4>How many papers per research axis</h4>
+<div id="drawChart_publicationsPerResearchAxis"></div>
+
+<h4>How many papers per journal</h4>
+<div id="drawChart_publicationsPerJournal"></div>
+
+<h4>How many papers per country</h4>
+<div id="drawChart_publicationsPerCountry"></div>
+<div id="drawChart_publicationsOnMap" style="width: 900px; height: 500px;"></div>
+
+<h4>How many papers per member</h4>
+<div id="drawChart_publicationsPerMember"></div>
+
+<script type="text/javascript" th:inline="javascript">
+function drawChart_publicationsPerYear() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('number', 'Year');
+	data.addColumn('number', 'Journals');
+	data.addColumn('number', 'Conferences');
+	data.addRows([[${publicationsPerYear}]]);
+
+	var options = {
+		width: '100%',
+		height: 500,
+		isStacked: true,
+		hAxis: {format: '0000'},
+	};
+	
+	var yearFormatter = new google.visualization.NumberFormat({pattern: '0000'});
+	yearFormatter.format(data, 0);
+	var numberFormatter = new google.visualization.NumberFormat({pattern: '#0'});
+	numberFormatter.format(data, 1);
+	numberFormatter.format(data, 2);
+	
+	var chart = new google.visualization.ColumnChart(document.getElementById('drawChart_publicationsPerYear'));
+	chart.draw(data, options);
+}
+
+function drawChart_publicationsPerCategory() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Category');
+	data.addColumn('number', 'Number of papers');
+	data.addRows([[${publicationsPerCategory}]]);
+	
+	var options = {
+		width: '100%',
+		height: 500,
+	};
+		
+	var chart = new google.visualization.PieChart(document.getElementById('drawChart_publicationsPerCategory'));
+	chart.draw(data, options);
+}
+
+function drawChart_publicationsPerQuartile() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Category');
+	data.addColumn('number', 'Number of papers');
+	data.addRows([[${publicationsPerQuartile}]]);
+	
+	var options = {
+		width: '100%',
+		height: 500,
+	};
+		
+	var chart = new google.visualization.PieChart(document.getElementById('drawChart_publicationsPerQuartile'));
+	chart.draw(data, options);
+}
+
+function drawChart_publicationsPerJournal() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Journal');
+	data.addColumn('string', 'Publisher');
+	data.addColumn('string', 'Scimago Q-Index');
+	data.addColumn('string', 'WoS Q-Index');
+	data.addColumn('number', 'Impact factor');
+	data.addColumn('number', 'Number of papers');
+	data.addRows([[${publicationsPerJournal}]]);
+	
+	var ifFormatter = new google.visualization.NumberFormat({pattern: '#0.0'});
+	ifFormatter.format(data, 4);
+
+	var options = {
+		width: '100%',
+		page: true,
+		pageSize: 30,
+	};
+		
+	var chart = new google.visualization.Table(document.getElementById('drawChart_publicationsPerJournal'));
+	chart.draw(data, options);
+}
+
+function drawChart_publicationsPerCountry() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Country');
+	data.addColumn('number', 'Number of papers');
+	data.addRows([[${publicationsPerCountry}]]);
+	
+	var options = {
+		width: '100%',
+		page: true,
+		pageSize: 30,
+	};
+		
+	var chart = new google.visualization.Table(document.getElementById('drawChart_publicationsPerCountry'));
+	chart.draw(data, options);
+}
+
+function drawChart_publicationsOnMap() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Country');
+	data.addColumn('number', 'Number of papers');
+	data.addRows([[${publicationsPerCountry}]]);
+	
+	var options = {
+	};
+		
+	var chart = new google.visualization.GeoChart(document.getElementById('drawChart_publicationsOnMap'));
+	chart.draw(data, options);
+}
+
+function drawChart_publicationsPerMember() {
+	var rowData = [[${publicationsPerMember}]];
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Member');
+	data.addColumn('string', 'Type');
+	
+	for (var y = [(${publicationsPerMemberMinYear})]; y <= [(${publicationsPerMemberMaxYear})]; y++) {
+		data.addColumn('number', y);
+	}
+	
+	data.addColumn('number', 'Total');
+	data.addRows(rowData);
+	
+	var options = {
+		width: '100%',
+		page: true,
+		pageSize: 30,
+	};
+		
+	var chart = new google.visualization.Table(document.getElementById('drawChart_publicationsPerMember'));
+	chart.draw(data, options);
+}
+
+function drawChart_publicationsPerResearchAxis() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('string', 'Research Axis');
+	data.addColumn('number', 'Number of papers');
+	data.addRows([[${publicationsPerResearchAxis}]]);
+	
+	var options = {
+		width: '100%',
+		height: 500,
+		hAxis: {format: '0000'},
+		vAxis: {format: '#0'},
+		
+	};
+	
+	var yearFormatter = new google.visualization.NumberFormat({pattern: '0000'});
+	yearFormatter.format(data, 0);
+	var numberFormatter = new google.visualization.NumberFormat({pattern: '#0'});
+	numberFormatter.format(data, 1);
+	
+	var chart = new google.visualization.ColumnChart(document.getElementById('drawChart_publicationsPerResearchAxis'));
+	chart.draw(data, options);
+}
+
+$(document).ready(() => {
+	google.charts.load('current', {
+		packages : [ 'corechart', 'table', 'geochart' ]
+	});
+	google.charts.setOnLoadCallback(drawChart_publicationsPerYear);
+	google.charts.setOnLoadCallback(drawChart_publicationsPerCategory);
+	google.charts.setOnLoadCallback(drawChart_publicationsPerQuartile);
+	google.charts.setOnLoadCallback(drawChart_publicationsPerJournal);
+	google.charts.setOnLoadCallback(drawChart_publicationsPerCountry);
+	google.charts.setOnLoadCallback(drawChart_publicationsOnMap);
+	google.charts.setOnLoadCallback(drawChart_publicationsPerMember);
+	google.charts.setOnLoadCallback(drawChart_publicationsPerResearchAxis);
+});
+</script>
+</html>

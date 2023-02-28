@@ -160,12 +160,15 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 
 	/** Save the spreadsheet in a byte array.
 	 * 
+	 * @param removeFirstTable indicates if the first table is removed from the spreadsheet.
 	 * @return the byte array of the spreadsheet.
 	 * @throws Exception if the byte array cannot be created.
 	 */
-	public byte[] toByteArray() throws Exception {
+	public byte[] toByteArray(boolean removeFirstTable) throws Exception {
 		// Remove the first table that is used as a template for the other tables.
-		this.ods.getSpreadsheetTables().get(0).remove();
+		if (removeFirstTable) {
+			this.ods.getSpreadsheetTables().get(0).remove();
+		}
 		// Serialize the spreadsheet
 		try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
 			this.ods.save(output);

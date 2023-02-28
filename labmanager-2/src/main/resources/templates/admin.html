@@ -26,8 +26,29 @@
 			    		<span class="fa-solid fa-sort-numeric-up-alt"></span>&nbsp;<th:block th:utext="#{html.allIndicatorValueList}"></th:block></a>
 			    	<a th:href="@{/globalIndicatorsEditor}" class="btn btn-labeled btn-primary" role="button">
 			    		<span class="fa-solid fa-sort-numeric-up-alt"></span>&nbsp;<th:block th:utext="#{html.GlobalIndicators}"></th:block></a>
-			    	<button type="button" class="btn btn-labeled btn-secondary" disabled>
-			    	<span class="fa-solid fa-chart-simple"></span>&nbsp;Charts</button>
+					<div class="dropdown">
+				    	<button type="button" class="btn btn-labeled btn-secondary dropdown-toggle" data-bs-toggle="dropdown"
+			    	            id="dropdownCharts" aria-expanded="false">
+					    	<span class="fa-solid fa-chart-simple"></span>&nbsp;<th:block th:utext="#{html.Charts}"></th:block></button>
+				    	<ul class="dropdown-menu" aria-labelledby="dropdownCharts">
+							<li th:each="organization : ${organizations}"
+							    th:if="${organization.isMajorOrganization}">
+								<button type="button" class="dropdown-item"
+								   th:utext="${organization.acronymOrName}"></button>
+								<ul class="dropdown-menu dropdown-submenu">
+									<li><a class="dropdown-item"
+									       th:href="@{/projectDashboard(organization=${organization.id})}"
+									       th:utext="#{html.ProjectDashboard}"></a></li>
+									<li><a class="dropdown-item"
+									       th:href="@{/publicationDashboard(organization=${organization.id})}"
+									       th:utext="#{html.PublicationDashboard}"></a></li>
+									<li><a class="dropdown-item"
+									       th:href="@{/membershipDashboard(organization=${organization.id})}"
+									       th:utext="#{html.MembershipDashboard}"></a></li>
+								</ul>
+							</li>
+						</ul>
+					</div>
 					<div class="dropdown">
 				    	<button type="button" class="btn btn-labeled btn-warning dropdown-toggle" data-bs-toggle="dropdown"
 			    	            id="dropdownExportToSpreadsheet" aria-expanded="false">

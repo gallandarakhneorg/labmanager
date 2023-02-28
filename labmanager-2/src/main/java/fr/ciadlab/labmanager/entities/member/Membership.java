@@ -847,6 +847,31 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		}
 	}
 
+	/** Replies the number of days that this membership has with the given year.
+	 * 
+	 * @param year the reference year.
+	 * @return the number of days of intersection between the given year and this membership.
+	 * @since 3.6
+	 */
+	public int daysInYear(int year) {
+		LocalDate start = getMemberSinceWhen();
+		if (start == null || start.getYear() < year) {
+			start = LocalDate.of(year, 1, 1);
+		} else if (start.getYear() > year) {
+			return 0;
+		}
+		//
+		LocalDate end = getMemberToWhen();
+		if (end == null || end.getYear() > year) {
+			end = LocalDate.of(year, 12, 31);
+		} else if (end.getYear() < year) {
+			return 0;
+		}
+		//
+		assert start != null && end != null;
+		return end.getDayOfYear() - start.getDayOfYear() + 1;
+	}
+
 }
 
 

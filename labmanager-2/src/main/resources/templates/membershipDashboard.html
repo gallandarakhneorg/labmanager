@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
+<th:block th:replace="fragments/libs :: google-charts"/>
+
+<th:block th:replace="fragments/nav :: dashboardPublicationsBar"/>
+
+<h4>How many members per year</h4>
+<div id="drawChart_membersPerYear"></div>
+
+<h4>How many members per geographical location</h4>
+<div id="drawChart_membersPerAddress"></div>
+
+<h4>How many members per scientific axis</h4>
+<div id="drawChart_membersPerScientificAxis"></div>
+
+<script type="text/javascript" th:inline="javascript">
+function drawChart_membersPerYear() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('number', 'Year');
+	data.addColumn('number', 'PU or equivalent');
+	data.addColumn('number', 'DR or equivalent');
+	data.addColumn('number', 'MCF-HDR or equivalent');
+	data.addColumn('number', 'MCF or equivalent');
+	data.addColumn('number', 'Postdoc');
+	data.addColumn('number', 'PhD students');
+	data.addColumn('number', 'Engineers');
+	data.addColumn('number', 'Other');
+	data.addColumn('number', 'ETP');
+	data.addRows([[${membersPerYear}]]);
+
+	var options = {
+		width: '100%',
+		height: 500,
+		isStacked: true,
+		hAxis: {format: '0000'},
+		seriesType: 'bars',
+		series: {
+			0: {targetAxisIndex: 0},
+			1: {targetAxisIndex: 0},
+			2: {targetAxisIndex: 0},
+			3: {targetAxisIndex: 0},
+			4: {targetAxisIndex: 0},
+			5: {targetAxisIndex: 0},
+			6: {targetAxisIndex: 0},
+			7: {targetAxisIndex: 0},
+			8: {
+				targetAxisIndex: 1,
+				type: 'line',
+				isStacked: false,
+			},
+		},
+		vAxes: {
+			0: {title: 'Number of members'},
+			1: {title: 'ETP for permanents'}
+		},
+	};
+	
+	var yearFormatter = new google.visualization.NumberFormat({pattern: '0000'});
+	yearFormatter.format(data, 0);
+	var numberFormatter = new google.visualization.NumberFormat({pattern: '#0'});
+	numberFormatter.format(data, 1);
+	numberFormatter.format(data, 2);
+	numberFormatter.format(data, 3);
+	numberFormatter.format(data, 4);
+	numberFormatter.format(data, 5);
+	numberFormatter.format(data, 6);
+	numberFormatter.format(data, 7);
+	numberFormatter.format(data, 8);
+	var etpFormatter = new google.visualization.NumberFormat({pattern: '#0.0'});
+	etpFormatter.format(data, 9);
+	
+	var chart = new google.visualization.ComboChart(document.getElementById('drawChart_membersPerYear'));
+	chart.draw(data, options);
+}
+
+function drawChart_membersPerAddress() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('number', 'Year');
+	var addrs = [[${addresses}]];
+	$.each(addrs, (index, adr) => {
+		data.addColumn('number', adr);
+	});
+	data.addColumn('number', 'Other location');
+	data.addRows([[${membersPerAddress}]]);
+
+	var options = {
+		width: '100%',
+		height: 500,
+		isStacked: true,
+		hAxis: {format: '0000'},
+	};
+	
+	var yearFormatter = new google.visualization.NumberFormat({pattern: '0000'});
+	yearFormatter.format(data, 0);
+	var numberFormatter = new google.visualization.NumberFormat({pattern: '#0'});
+	for (var idx = 1; idx <= addrs.length; idx++) {
+		numberFormatter.format(data, idx);
+	}
+	
+	var chart = new google.visualization.ColumnChart(document.getElementById('drawChart_membersPerAddress'));
+	chart.draw(data, options);
+}
+
+function drawChart_membersPerScientificAxis() {
+	var data = new google.visualization.DataTable();
+	data.addColumn('number', 'Year');
+	var axes = [[${scientificAxes}]];
+	$.each(axes, (index, axis) => {
+		data.addColumn('number', axis);
+	});
+	data.addColumn('number', 'No identified scientific axis');
+	data.addRows([[${membersPerScientificAxis}]]);
+
+	var options = {
+		width: '100%',
+		height: 500,
+		isStacked: true,
+		hAxis: {format: '0000'},
+	};
+	
+	var yearFormatter = new google.visualization.NumberFormat({pattern: '0000'});
+	yearFormatter.format(data, 0);
+	var numberFormatter = new google.visualization.NumberFormat({pattern: '#0'});
+	for (var idx = 1; idx <= axes.length; idx++) {
+		numberFormatter.format(data, idx);
+	}
+	
+	var chart = new google.visualization.ColumnChart(document.getElementById('drawChart_membersPerScientificAxis'));
+	chart.draw(data, options);
+}
+
+$(document).ready(() => {
+	google.charts.load('current', {
+		packages : [ 'corechart' ]
+	});
+	google.charts.setOnLoadCallback(drawChart_membersPerYear);
+	google.charts.setOnLoadCallback(drawChart_membersPerAddress);
+	google.charts.setOnLoadCallback(drawChart_membersPerScientificAxis);
+});
+</script>
+</html>

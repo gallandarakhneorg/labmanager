@@ -22,6 +22,7 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -713,7 +714,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 
 	/** Replies the sum of the budgets for the local organizations
 	 *
-	 * @return the sum of the budgets.
+	 * @return the sum of the budgets in kilo euros.
 	 * @see #getBudgets()
 	 */
 	public float getTotalLocalOrganizationBudget() {
@@ -725,6 +726,36 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 			this.totalLocalOrganizationBudget = Float.valueOf(sum);
 		}
 		return this.totalLocalOrganizationBudget.floatValue();
+	}
+
+	private float computeMonthFactor(int year) {
+		final int duration = getDuration();
+		//
+		final LocalDate projectStart = getStartDate();
+		final int firstMonth = projectStart.getYear() < year ? 1 : projectStart.getMonthValue();
+		//
+		final LocalDate projectEnd = getEndDate().minus(1, ChronoUnit.DAYS);
+		final int lastMonth = projectEnd.getYear() > year ? 12 : projectEnd.getMonthValue();
+		//
+		final int lduration = lastMonth - firstMonth + 1;
+		return (float) lduration / (float) duration;
+	}
+
+	/** Replies the estimation of the annual budget for the given year.
+	 * If the project is not active on the given year, the budget is zero.
+	 * Otherwise the budget is proportional to the number of active months on the year for the project. 
+	 *
+	 * @param year the year.
+	 * @return the estimation of the budget in kilo euros.
+	 * @since 3.6
+	 */
+	public float getEstimatedAnnualLocalOrganizationBudgetFor(int year) {
+		if (isActiveAt(year)) {
+			final float total = getTotalLocalOrganizationBudget();
+			final float factor = computeMonthFactor(year);
+			return total * factor;
+		}
+		return 0f;
 	}
 
 	/** Replies the type of contract for this project.

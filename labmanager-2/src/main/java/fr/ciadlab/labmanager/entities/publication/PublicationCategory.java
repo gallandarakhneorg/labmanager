@@ -476,6 +476,15 @@ public enum PublicationCategory {
 		return Strings.nullToEmpty(label);
 	}
 
+	/** Replies the acronym for the publication category.
+	 *
+	 * @return the acronym of the status in the current language.
+	 * @since 3.6
+	 */
+	public String getAcronym() {
+		return name().replace('_', '-');
+	}
+
 	/** Replies if the category is for the scientific papers in journals.
 	 *
 	 * @return {@code true} if the category is for scientific papers.

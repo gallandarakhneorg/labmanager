@@ -26,6 +26,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import javax.persistence.Column;
@@ -59,6 +60,7 @@ import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
+import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;
 
@@ -637,6 +639,27 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 * @return the category, never {@code null}.
 	 */
 	public PublicationCategory getCategory() {
+		return getCategoryWithSupplier(() -> Boolean.valueOf(isRanked()));
+	}
+
+	/** Replies the category of publication.
+	 *
+	 * @param rankingsystem indicated the type of ranking system that should be used for determining the category.
+	 *     If it is {@code null}, the {@link JournalRankingSystem#getDefault() default ranking system} is used.
+	 * @return the category, never {@code null}.
+	 * @since 3.6
+	 */
+	public PublicationCategory getCategory(JournalRankingSystem rankingsystem) {
+		return getCategoryWithSupplier(() -> Boolean.valueOf(isRanked()));
+	}
+
+	/** Replies the category of publication.
+	 *
+	 * @param ranked the predicate that is indicating if a type is ranked when it is associated to this publication.
+	 * @return the category, or  {@code null}.
+	 * @since 3.6
+	 */
+	public PublicationCategory getCategoryWithSupplier(Supplier<Boolean> ranked) {
 		final PublicationType type = getType();
 		if (type == null) {
 			return null;
@@ -649,7 +672,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 			return categories.iterator().next();
 		}
 		// Multiple categories are available. The selection is done on ranking.
-		return type.getCategory(isRanked());
+		return type.getCategory(ranked.get().booleanValue());
 	}
 
 	/** Replies if the publication is published into a ranked support (journal or conference).

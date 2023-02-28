@@ -124,4 +124,12 @@
 		</th:block>
 	</th:block>
 
+	<th:block th:fragment="dashboardPublicationsBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.PublicationDashboard})"></th:block>
+	</th:block>
+
+	<th:block th:fragment="dashboardProjectsBar">
+		<th:block th:replace="fragments/nav :: simpleBar(#{html.ProjectDashboard})"></th:block>
+	</th:block>
+
 </html>

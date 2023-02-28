@@ -1360,6 +1360,33 @@ public class ProjectTest {
 	}
 
 	@Test
+	public void getEstimatedAnnualLocalOrganizationBudgetFor() {
+		this.test.setStartDate(LocalDate.of(2023, 2, 1));
+		this.test.setDuration(12);
+		//
+		ProjectBudget b0 = mock(ProjectBudget.class);
+		when(b0.getBudget()).thenReturn(123.456f);
+		ProjectBudget b1 = mock(ProjectBudget.class);
+		when(b1.getBudget()).thenReturn(458.741f);
+		ProjectBudget b2 = mock(ProjectBudget.class);
+		when(b2.getBudget()).thenReturn(69452f);
+		this.test.setBudgets(Arrays.asList(b0, b1, b2));
+		// Total is 70034.197f
+		//
+		float budget = this.test.getEstimatedAnnualLocalOrganizationBudgetFor(2022);
+		assertEquals(0f, budget);
+		//
+		budget = this.test.getEstimatedAnnualLocalOrganizationBudgetFor(2023);
+		assertEquals(64198.0139f, budget);
+		//
+		budget = this.test.getEstimatedAnnualLocalOrganizationBudgetFor(2024);
+		assertEquals(5836.183f, budget);
+		//
+		budget = this.test.getEstimatedAnnualLocalOrganizationBudgetFor(2025);
+		assertEquals(0f, budget);
+	}
+
+	@Test
 	public void getWebPageNaming() {
 		assertSame(ProjectWebPageNaming.UNSPECIFIED, this.test.getWebPageNaming());
 	}

@@ -278,7 +278,7 @@ public class CarnotExportApiController extends AbstractApiController {
 			getLogger().info("Generating Carnot indicators' spreadsheet for general synthesis"); //$NON-NLS-1$
 			exportSynthesis(ods, organizationObj, year);
 			getLogger().info("Generating spreadsheet bytes"); //$NON-NLS-1$
-			content = ods.toByteArray();
+			content = ods.toByteArray(true);
 			mediaType = ods.getMediaType();
 			filenameExtension = ods.getFileExtension();
 		}
