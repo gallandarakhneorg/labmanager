@@ -51,6 +51,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.Book;
@@ -438,6 +439,7 @@ public class JBibtexBibTeXTest {
 		lenient().when(pub.getAbstractText()).thenReturn("Abs 1");
 		lenient().when(pub.getAuthors()).thenReturn(Arrays.asList(p1, p0));
 		lenient().when(pub.getCategory()).thenCallRealMethod();
+		lenient().when(pub.getCategoryWithSupplier(any())).thenCallRealMethod();
 		lenient().when(pub.getDblpURL()).thenReturn("DBLP/1");
 		lenient().when(pub.getDOI()).thenReturn("doi/1");
 		lenient().when(pub.getExtraURL()).thenReturn("url/1");
