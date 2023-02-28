@@ -41,6 +41,7 @@ import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.ConferencePaperRepository;
 import fr.ciadlab.labmanager.service.member.MembershipService;
+import fr.ciadlab.labmanager.utils.doi.DefaultDoiTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -82,7 +83,7 @@ public class ConferencePaperServiceTest {
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(ConferencePaperRepository.class);
 		this.membershipService = mock(MembershipService.class);
-		this.test = new ConferencePaperService(this.messages, new Constants(), this.downloadableFileManager, this.repository,
+		this.test = new ConferencePaperService(this.messages, new Constants(), this.downloadableFileManager, new DefaultDoiTools(), this.repository,
 				this.membershipService);
 
 		// Prepare some publications to be inside the repository
@@ -159,7 +160,7 @@ public class ConferencePaperServiceTest {
 		Conference conf = mock(Conference.class);
 		this.test.updateConferencePaper(234,
 				"title0", PublicationType.NATIONAL_CONFERENCE_PAPER, LocalDate.parse("2022-07-22"), 2022, "abstractText0",
-				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
+				"keywords0", "doi:doi/0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				conf, 1234, "volume0", "number0", "pages0", "editors0",
 				"series0", "orga0", "address0");

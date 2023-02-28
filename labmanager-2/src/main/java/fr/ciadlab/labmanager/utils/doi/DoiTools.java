@@ -16,10 +16,7 @@
 
 package fr.ciadlab.labmanager.utils.doi;
 
-import java.net.MalformedURLException;
 import java.net.URL;
-
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Utilities for DOI number.
  * 
@@ -43,17 +40,13 @@ public interface DoiTools {
 	/** Replies the DOI number that is specified inside the given DOI URL.
 	 * A DOI URL is based on the standard {@link "https://doi.org"} to which
 	 * the DOI number is added.
+	 * If the input string is not a valid URL, the string is parsed a a DOI number.
 	 *
 	 * @param url the DOI URL.
-	 * @return the DOI number.
-	 * @throws MalformedURLException if the given parameter is a malformed URL.
+	 * @return the DOI number, never {@code null}.
+	 * @throws IllegalArgumentException if the given URL cannot be parsed.
 	 */
-	default String getDOINumberFromDOIUrl(String url) throws MalformedURLException {
-		if (!Strings.isNullOrEmpty(url)) {
-			return getDOINumberFromDOIUrl(new URL(url));
-		}
-		return null;
-	}
+	String getDOINumberFromDOIUrl(String url);
 
 	/** Replies the DOI URL from the given DOI number.
 	 * A DOI URL is based on the standard {@link "https://doi.org"} to which

@@ -33,6 +33,7 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.utils.doi.DefaultDoiTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -66,7 +67,7 @@ public class AbstractPublicationTypeServiceTest {
 	public void setUp() {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
-		this.test = new AbstractPublicationTypeService(this.messages, new Constants(), this.downloadableFileManager) {
+		this.test = new AbstractPublicationTypeService(this.messages, new Constants(), this.downloadableFileManager, new DefaultDoiTools()) {
 			@Override
 			protected boolean isValidPublicationType(PublicationType type, Publication publication) {
 				return true;
@@ -95,7 +96,7 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				"http://video.org");
 
@@ -121,7 +122,7 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, null, PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				"http://video.org");
 
@@ -147,7 +148,7 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", null,
-				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				"http://video.org");
 
@@ -173,7 +174,7 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				null, 2000, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				null, 2000, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				"http://video.org");
 
@@ -200,7 +201,7 @@ public class AbstractPublicationTypeServiceTest {
 		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, null, "awardContent0",
 				"http://video.org");
 
@@ -229,7 +230,7 @@ public class AbstractPublicationTypeServiceTest {
 		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", "http://dblp.org",
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", "http://dblp.org",
 				"http://extra.org", PublicationLanguage.ITALIAN, "pdfContent0", null,
 				"http://video.org");
 
@@ -257,7 +258,7 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), 2022,"abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022,"abs0", "kw0", "doi:doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				new URL("http://video.org"));
 
@@ -283,7 +284,7 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, null, PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				new URL("http://video.org"));
 
@@ -309,7 +310,7 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", null,
-				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				new URL("http://video.org"));
 
@@ -337,7 +338,7 @@ public class AbstractPublicationTypeServiceTest {
 		Publication pub = mock(Publication.class);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				null, 2001, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				null, 2001, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0",
 				new URL("http://video.org"));
 
@@ -364,7 +365,7 @@ public class AbstractPublicationTypeServiceTest {
 		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, null, "awardContent0",
 				new URL("http://video.org"));
 
@@ -393,7 +394,7 @@ public class AbstractPublicationTypeServiceTest {
 		when(pub.getId()).thenReturn(123);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
-				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
+				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "isbn0", "issn0", new URL("http://dblp.org"),
 				new URL("http://extra.org"), PublicationLanguage.ITALIAN, "pdfContent0", null,
 				new URL("http://video.org"));
 

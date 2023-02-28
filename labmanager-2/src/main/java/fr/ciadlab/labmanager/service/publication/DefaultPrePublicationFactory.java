@@ -21,6 +21,7 @@ import java.time.LocalDate;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
@@ -36,13 +37,24 @@ import org.springframework.stereotype.Component;
 @Primary
 public class DefaultPrePublicationFactory implements PrePublicationFactory {
 
+	private final DoiTools doiTools;
+	
+	/** Constructor.
+	 *
+	 * @param doiTools the tools for manipulating the DOI.
+	 */
+	public DefaultPrePublicationFactory(DoiTools doiTools) {
+		this.doiTools = doiTools;
+	}
+	
 	@Override
 	public Publication createPrePublication(PublicationType type, String title, String abstractText, String keywords,
 			LocalDate date, int year, String isbn, String issn,
 			String doi, String halId, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language) {
-		return new PrePublication(type, title, abstractText, keywords, date, year, isbn, issn, doi, halId, extraUrl,
-				videoUrl, dblpUrl, pdfPath, awardPath, language);
+		return new PrePublication(type, title, abstractText, keywords, date, year, isbn, issn,
+				this.doiTools.getDOINumberFromDOIUrl(doi),
+				halId, extraUrl, videoUrl, dblpUrl, pdfPath, awardPath, language);
 	}
 
 }

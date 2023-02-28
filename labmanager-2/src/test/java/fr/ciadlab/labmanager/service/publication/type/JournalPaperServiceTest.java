@@ -42,6 +42,7 @@ import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.JournalPaperRepository;
 import fr.ciadlab.labmanager.service.member.MembershipService;
+import fr.ciadlab.labmanager.utils.doi.DefaultDoiTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,7 +84,7 @@ public class JournalPaperServiceTest {
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(JournalPaperRepository.class);
 		this.membershipService = mock(MembershipService.class);
-		this.test = new JournalPaperService(this.messages, new Constants(), this.downloadableFileManager, this.repository, this.membershipService);
+		this.test = new JournalPaperService(this.messages, new Constants(), this.downloadableFileManager, new DefaultDoiTools(), this.repository, this.membershipService);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -153,7 +154,7 @@ public class JournalPaperServiceTest {
 		final Journal jour = mock(Journal.class);
 		this.test.updateJournalPaper(234,
 				"title0", PublicationType.INTERNATIONAL_JOURNAL_PAPER, LocalDate.parse("2022-07-22"), 2022, "abstractText0",
-				"keywords0", "doi0", "dblpUrl0", "extraUrl0",
+				"keywords0", "doi:doi/0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				"volume0", "number0", "pages0", "series0", jour);
 

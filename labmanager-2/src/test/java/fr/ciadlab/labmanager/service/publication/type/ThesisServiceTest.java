@@ -39,6 +39,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.ThesisRepository;
+import fr.ciadlab.labmanager.utils.doi.DefaultDoiTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,7 +78,7 @@ public class ThesisServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(ThesisRepository.class);
-		this.test = new ThesisService(this.messages, new Constants(), this.downloadableFileManager, this.repository);
+		this.test = new ThesisService(this.messages, new Constants(), this.downloadableFileManager, new DefaultDoiTools(), this.repository);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -142,7 +143,7 @@ public class ThesisServiceTest {
 	public void updateThesis() {
 		this.test.updateThesis(234,
 				"title0", PublicationType.PHD_THESIS, LocalDate.parse("2022-07-22"), 2022, "abstractText0",
-				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
+				"keywords0", "doi:doi/0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				"inst0", "address0");
 

@@ -49,28 +49,86 @@ public class DefaultDoiToolsTest {
 
 	@Test
 	public void getDOINumberFromDOIUrl_String_null() throws Exception {
-		final String r = this.test.getDOINumberFromDOIUrl((String) null);
-		assertNull(r);
+		final IllegalArgumentException ex = catchThrowableOfType(
+			() -> this.test.getDOINumberFromDOIUrl((String) null),
+			IllegalArgumentException.class);
+		assertNotNull(ex);
 	}
 
 	@Test
 	public void getDOINumberFromDOIUrl_String_empty() throws Exception {
-		final String r = this.test.getDOINumberFromDOIUrl("");
-		assertNull(r);
-	}
-
-	@Test
-	public void getDOINumberFromDOIUrl_String_malformedUrl() throws Exception {
-		final MalformedURLException ex = catchThrowableOfType(
-				() -> this.test.getDOINumberFromDOIUrl("xyz/abc"),
-				MalformedURLException.class);
+		final IllegalArgumentException ex = catchThrowableOfType(
+			() -> this.test.getDOINumberFromDOIUrl(""),
+			IllegalArgumentException.class);
 		assertNotNull(ex);
 	}
 
+	@Test
+	public void getDOINumberFromDOIUrl_String_malformedDoi_01() throws Exception {
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getDOINumberFromDOIUrl("http://doi.org/xyz"),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
+	}
 
 	@Test
-	public void getDOINumberFromDOIUrl_String() throws Exception {
+	public void getDOINumberFromDOIUrl_String_malformedDoi_02() throws Exception {
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getDOINumberFromDOIUrl("doi:xyz"),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrl_String_malformedDoi_03() throws Exception {
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getDOINumberFromDOIUrl("doi:xyz/"),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrl_String_malformedDoi_04() throws Exception {
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getDOINumberFromDOIUrl("doi:/xyz"),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrl_String_malformedDoi_05() throws Exception {
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getDOINumberFromDOIUrl("http://doi.org/xyz/"),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrl_String_malformedDoi_06() throws Exception {
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getDOINumberFromDOIUrl("http://doi.org//xyz"),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrl_String_malformedDoi_07() throws Exception {
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getDOINumberFromDOIUrl("http://doi.org//xyz/abc/def"),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrl_String_01() throws Exception {
 		final String r = this.test.getDOINumberFromDOIUrl("http://doi.org/xyz/abc");
+		assertNotNull(r);
+		assertEquals("xyz/abc", r);
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrl_String_02() throws Exception {
+		final String r = this.test.getDOINumberFromDOIUrl("doi:xyz/abc");
 		assertNotNull(r);
 		assertEquals("xyz/abc", r);
 	}

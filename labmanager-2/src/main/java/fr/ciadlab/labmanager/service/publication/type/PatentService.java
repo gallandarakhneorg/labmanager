@@ -30,6 +30,7 @@ import fr.ciadlab.labmanager.entities.publication.type.Patent;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.PatentRepository;
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
+import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;
@@ -53,14 +54,16 @@ public class PatentService extends AbstractPublicationTypeService {
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param downloadableFileManager downloadable file manager.
+	 * @param doiTools the tools for manipulating the DOI.
 	 * @param repository the repository for this service.
 	 */
 	public PatentService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired DownloadableFileManager downloadableFileManager,
+			@Autowired DoiTools doiTools,
 			@Autowired PatentRepository repository) {
-		super(messages, constants, downloadableFileManager);
+		super(messages, constants, downloadableFileManager, doiTools);
 		this.repository = repository;
 	}
 

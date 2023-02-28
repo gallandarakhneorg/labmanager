@@ -28,7 +28,7 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
-import org.springframework.beans.factory.annotation.Autowired;
+import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Provides tool for the implemenation of a service for a specific type of publication.
@@ -43,19 +43,24 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 
 	private DownloadableFileManager downloadableFileManager;
 
+	private DoiTools doiTools;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param downloadableFileManager downloadable file manager.
+	 * @param doiTools the tools for manipulating DOI.
 	 */
 	public AbstractPublicationTypeService(
-			@Autowired MessageSourceAccessor messages,
-			@Autowired Constants constants,
-			@Autowired DownloadableFileManager downloadableFileManager) {
+			MessageSourceAccessor messages,
+			Constants constants,
+			DownloadableFileManager downloadableFileManager,
+			DoiTools doiTools) {
 		super(messages, constants);
 		this.downloadableFileManager = downloadableFileManager;
+		this.doiTools = doiTools;
 	}
 
 	/** Update the book chapter with the given identifier.
@@ -142,7 +147,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 		publication.setPublicationYear(year);
 		publication.setAbstractText(Strings.emptyToNull(abstractText));
 		publication.setKeywords(Strings.emptyToNull(keywords));
-		publication.setDOI(Strings.emptyToNull(doi));
+		publication.setDOI(this.doiTools.getDOINumberFromDOIUrl(Strings.emptyToNull(doi)));
 		if (!(publication instanceof JournalBasedPublication) && !(publication instanceof ConferenceBasedPublication)) {
 			publication.setISBN(Strings.emptyToNull(isbn));
 			publication.setISSN(Strings.emptyToNull(issn));

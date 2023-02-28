@@ -17,7 +17,10 @@
 package fr.ciadlab.labmanager.utils.doi;
 
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
@@ -38,12 +41,17 @@ public class DefaultDoiTools implements DoiTools {
 
 	private static final URL DOI_BASE;
 
+	private static final String DOI_PATTERN_STR = "^[^\\/]+\\/[^\\/]+$"; //$NON-NLS-1$
+
+	private static final Pattern DOI_PATTERN;
+
 	static {
 		try {
 			DOI_BASE = new URL("https://doi.org"); //$NON-NLS-1$
 		} catch (MalformedURLException ex) {
 			throw new Error(ex);
 		}
+		DOI_PATTERN = Pattern.compile(DOI_PATTERN_STR);
 	}
 
 	@Override
@@ -66,6 +74,34 @@ public class DefaultDoiTools implements DoiTools {
 			return FileSystem.join(DOI_BASE, number);
 		}
 		return null;
+	}
+
+	@Override
+	public String getDOINumberFromDOIUrl(String url) {
+		if (!Strings.isNullOrEmpty(url)) {
+			String path = null;
+			try {
+				final URI urlObj = new URI(url);
+				path = urlObj.getPath();
+				if (Strings.isNullOrEmpty(path)) {
+					path = urlObj.getSchemeSpecificPart();
+				} else if (path.startsWith("/")) { //$NON-NLS-1$
+					path = path.substring(1);
+				}
+			} catch (Throwable ex0) {
+				path = url;
+			}
+			if (!Strings.isNullOrEmpty(path)) {
+				path = path.trim();
+				if (!Strings.isNullOrEmpty(path)) {
+					final Matcher matcher = DOI_PATTERN.matcher(path);
+					if (matcher.matches()) {
+						return path;
+					}
+				}
+			}
+		}
+		throw new IllegalArgumentException("Invalid DOI:" + url); //$NON-NLS-1$
 	}
 
 }

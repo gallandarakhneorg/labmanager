@@ -26,7 +26,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
@@ -39,6 +38,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.MiscDocument;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.repository.publication.type.MiscDocumentRepository;
+import fr.ciadlab.labmanager.utils.doi.DefaultDoiTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -77,7 +77,7 @@ public class MiscDocumentServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(MiscDocumentRepository.class);
-		this.test = new MiscDocumentService(this.messages, new Constants(), this.downloadableFileManager, this.repository);
+		this.test = new MiscDocumentService(this.messages, new Constants(), this.downloadableFileManager, new DefaultDoiTools(), this.repository);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -146,7 +146,7 @@ public class MiscDocumentServiceTest {
 	public void updateMiscDocument() {
 		this.test.updateMiscDocument(234,
 				"title0", PublicationType.ARTISTIC_PRODUCTION, LocalDate.parse("2022-07-22"), 2022, "abstractText0",
-				"keywords0", "doi0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
+				"keywords0", "doi:doi/0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				"number0", "how0", "type0", "orga0", "pub0", "address0");
 
