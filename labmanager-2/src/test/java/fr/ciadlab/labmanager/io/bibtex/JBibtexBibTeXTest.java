@@ -181,6 +181,13 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
+	public void parseTeXString_formattingTeXMacro() throws Exception {
+		assertEquals("abc", this.test.parseTeXString("\\textbf{abc}"));
+		assertEquals("abc", this.test.parseTeXString("\\textit{abc}"));
+		assertEquals("abc", this.test.parseTeXString("\\emph{abc}"));
+	}
+
+	@Test
 	public void parseTeXString_acute() throws Exception {
 		assertEquals("é", this.test.parseTeXString("\\'e"));
 		assertEquals("é", this.test.parseTeXString("\\'{e}"));
