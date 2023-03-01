@@ -1011,8 +1011,24 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
-	public void parseConferenceName_empty() {
+	public void parseConferenceName_empty_01() {
 		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("");
+		assertNotNull(components);
+		assertEquals(0, components.occurrenceNumber);
+		assertNull(components.name);
+	}
+
+	@Test
+	public void parseConferenceName_empty_02() {
+		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("-");
+		assertNotNull(components);
+		assertEquals(0, components.occurrenceNumber);
+		assertNull(components.name);
+	}
+
+	@Test
+	public void parseConferenceName_empty_03() {
+		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("----");
 		assertNotNull(components);
 		assertEquals(0, components.occurrenceNumber);
 		assertNull(components.name);

@@ -197,6 +197,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	private static final String MESSAGE_PREFIX = "jBibtexBibTeX."; //$NON-NLS-1$
 
+	private static final String EMPTY_FIELD_PATTERN_STR = "^[*+_:;,.=\\-\\\\]+$"; //$NON-NLS-1$
+
+	private static final Pattern EMPTY_FIELD_PATTERN = Pattern.compile(EMPTY_FIELD_PATTERN_STR);
+
 	private static final String[] PREFIXES = {
 			"the",	//$NON-NLS-1$
 			"a",	//$NON-NLS-1$
@@ -445,10 +449,22 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				|| KEY_VIDEO.equals(field));
 	}
 
+	private static String normalizeString(String value)  {
+		if (value != null) {
+			String nvalue = value.trim();
+			final Matcher matcher = EMPTY_FIELD_PATTERN.matcher(nvalue);
+			if (matcher.matches()) {
+				return null;
+			}
+			return Strings.emptyToNull(nvalue);
+		}
+		return null;
+	}
+
 	private static String field(BibTeXEntry entry, Key key) throws Exception {
 		final Value value = entry.getField(key);
 		if (value != null) {
-			String strValue = value.toUserString();
+			String strValue = normalizeString(value.toUserString());
 			if (isLaTeXField(key)) {
 				strValue = parseTeXString(strValue, entry);
 			}
@@ -460,11 +476,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	private static String fieldRequired(BibTeXEntry entry, Key key) throws Exception {
 		final Value value = entry.getField(key);
 		if (value != null) {
-			String strValue = value.toUserString();
+			String strValue = normalizeString(value.toUserString());
 			if (isLaTeXField(key)) {
 				strValue = parseTeXString(strValue, entry);
 			}
-			strValue = Strings.emptyToNull(strValue);
 			if (!Strings.isNullOrEmpty(strValue)) {
 				return strValue;
 			}
@@ -498,7 +513,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 */
 	public static ConferenceNameComponents parseConferenceName(String name) {
 		if (name != null) {
-			final String nname = name.trim();
+			final String nname = normalizeString(name.trim());
 			if (!Strings.isNullOrEmpty(nname)) {
 				final StringBuilder patternStr = new StringBuilder();
 				for (final String postfix : CONFERENCE_NUMBER_POSTFIX) {
