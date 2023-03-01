@@ -63,11 +63,31 @@ public interface BibTeX extends PublicationExporter<String> {
 	 * <p>
 	 * The conversion in the opposite direction is supported by {@link #parserTeXString(String)}.
 	 *
-	 * @param jString the Java data.
+	 * @param text the Java data.
 	 * @return the TeX string that corresponds to the given Java data.
 	 * @see #parseTeXString(String)
+	 * @see #toTeXString(String, boolean)
 	 */
-	String toTeXString(String jString);
+	default String toTeXString(String text) {
+		return toTeXString(text, false);
+	}
+
+	/** Convert the given Java string to its equivalent TeX string.
+	 * For example, the macros {@code é} is translated to {@code \'e}.
+	 * <p>
+	 * The conversion in the opposite direction is supported by {@link #parserTeXString(String)}.
+	 *
+	 * @param text the Java data.
+	 * @param protectAcronyms indicates if the acronyms are protected. Add curly-braces around the upper-case words of the given text.
+	 *     This feature is usually applied in the titles of the BibTeX entries in
+	 *     order to avoid BibTeX tools to change the case of the words in the titles
+	 *     when it is rendered on a final document. 
+	 * @return the TeX string that corresponds to the given Java data.
+	 * @since 3.6
+	 * @see #parseTeXString(String)
+	 * @see #toTeXString(String)
+	 */
+	String toTeXString(String text, boolean protectAcronyms);
 
 	/** Extract the publications from a BibTeX source.
 	 * This function does not save the publication in the database, as well as the authors.

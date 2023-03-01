@@ -74,46 +74,72 @@ public abstract class AbstractBibTeX implements BibTeX {
 		return Integer.valueOf(Math.abs(this.random.nextInt()));
 	}
 
-	/** Add curly-braces around the upper-case words of the given text.
-	 * This feature is usually applied in the titles of the BibTeX entries in
-	 * order to avoid BibTeX tools to change the case of the words in the titles
-	 * when it is rendered on a final document.
-	 *
-	 * @param text the text to change.
-	 * @return the text with protected upper-case words.
-	 */
-	@SuppressWarnings("static-method")
-	protected String protectAcronymsInText(String text) {
-		if (!Strings.isNullOrEmpty(text)) {
-			// We consider a word as an acronym when it is full capitalized with a minimum length of 2
-			// and followed by a potential lower case 's'
-
-			// Regex for acronyms in the middle of a sentence
-			final String acronymRegex = "([^A-Za-z0-9{}])([A-Z0-9][A-Z0-9]+s?)([^A-Za-z0-9{}])"; //$NON-NLS-1$
-			// Regex for an acronym as the first word in the sentence
-			final String firstWordAcronymRegex = "^([A-Z0-9][A-Z0-9]+s?)([^A-Za-z0-9])"; //$NON-NLS-1$
-			// Regex for an acronym as the last word in the sentence
-			final String lastWordAcronymRegex = "([^A-Za-z0-9])([A-Z0-9][A-Z0-9]+s?)$"; //$NON-NLS-1$
-
-			// We add braces to the acronyms that we found
-			final String titleEncaps = text.replaceAll(acronymRegex, "$1{$2}$3") //$NON-NLS-1$
-					.replaceAll(firstWordAcronymRegex, "{$1}$2") //$NON-NLS-1$
-					.replaceAll(lastWordAcronymRegex, "$1{$2}"); //$NON-NLS-1$
-
-			return titleEncaps;
-		}
-		return null;
+	private static boolean containsUppercaseLetterExceptFirst(String text) {
+		return text.chars().skip(1).parallel().anyMatch(it -> Character.isUpperCase(it) || Character.isTitleCase(it));
 	}
 
-
-	@Override
-	public String toTeXString(String jString) {
-		if (Strings.isNullOrEmpty(jString)) {
-			return Strings.nullToEmpty(null);
+	private static void appendChar(StringBuilder content, char current, boolean afterAccent) {
+		switch (current) {
+		case '{':
+		case '}':
+		case '%':
+			content.append("\\").append(current); //$NON-NLS-1$
+			break;
+		case '\\':
+			content.append("{\\textbackslash}"); //$NON-NLS-1$
+			break;
+		case 'i':
+		case 'j':
+			if (afterAccent) {
+				content.append("\\").append(current); //$NON-NLS-1$
+			} else {
+				content.append(current);
+			}
+			break;
+		case '\u0237':
+			content.append("\\j"); //$NON-NLS-1$
+			break;
+		case '\u00C6':
+			content.append("\\AE"); //$NON-NLS-1$
+			break;
+		case '\u00E6':
+			content.append("\\ae"); //$NON-NLS-1$
+			break;
+		case '\u0152':
+			content.append("\\OE"); //$NON-NLS-1$
+			break;
+		case '\u0153':
+			content.append("\\oe"); //$NON-NLS-1$
+			break;
+		default:
+			content.append(current);
 		}
-		final String normalizedString = Normalizer.normalize(jString, Normalizer.Form.NFKD);
+	}
+	
+	@Override
+	public String toTeXString(String text, boolean protectAcronyms) {
+		if (!Strings.isNullOrEmpty(text)) {
+			final StringBuilder buffer = new StringBuilder();
+			for (final String word : text.split("[\\s\\h]+")) { //$NON-NLS-1$
+				if (buffer.length() > 0) {
+					buffer.append(' ');
+				}
+				if (protectAcronyms && containsUppercaseLetterExceptFirst(word)) {
+					buffer.append('{');
+					convertToTex(buffer, word);
+					buffer.append('}');
+				} else {
+					convertToTex(buffer, word);
+				}
+			}
+			return buffer.toString();
+		}
+		return Strings.nullToEmpty(null);
+	}
+
+	private static void convertToTex(StringBuilder content, String text) {
+		final String normalizedString = Normalizer.normalize(text, Normalizer.Form.NFKD);
 		// Accents follow the associated characters in the normalized form.
-		final StringBuilder content = new StringBuilder();
 		final MutableInt prev = new MutableInt(0);
 		normalizedString.chars().forEach(it -> {
 			final String accent = getAccent(it);
@@ -121,17 +147,13 @@ public abstract class AbstractBibTeX implements BibTeX {
 			if (accent != null) {
 				if (current != 0) {
 					content.append("{\\").append(accent).append("{"); //$NON-NLS-1$ //$NON-NLS-2$
-					if (current == 'i' || current == 'j') {
-						content.append("\\").append(current); //$NON-NLS-1$
-					} else {
-						content.append(current);
-					}
+					appendChar(content, current, true);
 					content.append("}}"); //$NON-NLS-1$
 				}
 				prev.setValue(0);
 			} else {
 				if (current != 0) {
-					content.append(current);
+					appendChar(content, current, false);
 				}
 				prev.setValue(it);
 			}
@@ -139,7 +161,6 @@ public abstract class AbstractBibTeX implements BibTeX {
 		if (prev.intValue() != 0) {
 			content.append((char) prev.intValue());
 		}
-		return content.toString();
 	}
 
 	private static String getAccent(int code) {

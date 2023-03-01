@@ -339,37 +339,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return null;
 	}
 
-	/** Add curly-braces around the upper-case words of the given text.
-	 * This feature is usually applied in the titles of the BibTeX entries in
-	 * order to avoid BibTeX tools to change the case of the words in the titles
-	 * when it is rendered on a final document.
-	 *
-	 * @param text the text to change.
-	 * @return the text with protected upper-case words.
-	 */
-	@Override
-	public String protectAcronymsInText(String text) {
-		if (!Strings.isNullOrEmpty(text)) {
-			// We consider a word as an acronym when it is full capitalized with a minimum length of 2
-			// and followed by a potential lower case 's'
-
-			// Regex for acronyms in the middle of a sentence
-			final String acronymRegex = "([^A-Za-z0-9{}])([A-Z0-9][A-Z0-9]+s?)([^A-Za-z0-9{}])"; //$NON-NLS-1$
-			// Regex for an acronym as the first word in the sentence
-			final String firstWordAcronymRegex = "^([A-Z0-9][A-Z0-9]+s?)([^A-Za-z0-9])"; //$NON-NLS-1$
-			// Regex for an acronym as the last word in the sentence
-			final String lastWordAcronymRegex = "([^A-Za-z0-9])([A-Z0-9][A-Z0-9]+s?)$"; //$NON-NLS-1$
-
-			// We add braces to the acronyms that we found
-			final String titleEncaps = text.replaceAll(acronymRegex, "$1{$2}$3") //$NON-NLS-1$
-					.replaceAll(firstWordAcronymRegex, "{$1}$2") //$NON-NLS-1$
-					.replaceAll(lastWordAcronymRegex, "$1{$2}"); //$NON-NLS-1$
-
-			return titleEncaps;
-		}
-		return null;
-	}
-
 	@Override
 	public Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
@@ -1041,8 +1010,13 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private void addField(BibTeXEntry entry, Key key, String value) {
+		addField(entry, key, value, false);
+	}
+
+	private void addField(BibTeXEntry entry, Key key, String value, boolean protectAcronyms) {
 		if (!Strings.isNullOrEmpty(value)) {
-			entry.addField(key, new StringValue(toTeXString(value), StringValue.Style.BRACED));
+			final String txt = toTeXString(value, protectAcronyms);
+			entry.addField(key, new StringValue(txt, StringValue.Style.BRACED));
 		}
 	}
 
@@ -1121,7 +1095,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private void fillBibTeXEntry(BibTeXEntry entry, Publication publication, Key authorKey) {
-		addField(entry, KEY_TITLE, publication.getTitle());
+		addField(entry, KEY_TITLE, publication.getTitle(), true);
 
 		final StringBuilder authorNames = new StringBuilder();
 		for (final Person person : publication.getAuthors()) {

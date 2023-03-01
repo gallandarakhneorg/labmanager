@@ -282,19 +282,19 @@ public class JBibtexBibTeXTest {
 	}
 
 	@Test
-	public void protectAcronymsInText_null() {
-		assertNull(this.test.protectAcronymsInText(null));
+	public void toTeXString_acronym_null() {
+		assertEquals("", this.test.toTeXString(null, true));
 	}
 
 	@Test
-	public void protectAcronymsInText_empty() {
-		assertNull(this.test.protectAcronymsInText(""));
+	public void toTeXString_acronym_empty() {
+		assertEquals("", this.test.toTeXString("", true));
 	}
 
 	@Test
-	public void protectAcronymsInText() {
-		assertEquals("This {IS} a tEXt {ACRO}", this.test.protectAcronymsInText("This IS a tEXt ACRO"));
-		assertEquals("This {ISs} a tEXt {ACRO}", this.test.protectAcronymsInText("This ISs a tEXt ACRO"));
+	public void toTeXString_acronym() {
+		assertEquals("This {IS} a {tEXt} {ACRO}", this.test.toTeXString("This IS a tEXt ACRO", true));
+		assertEquals("This {ISs} a {tEXt} {ACRO}", this.test.toTeXString("This ISs a tEXt ACRO", true));
 	}
 
 	private Stream<Publication> getPublicationStreamFromTest(String filename) throws Exception {
