@@ -49,70 +49,97 @@ public class DefaultHalToolsTest {
 	}
 
 	@Test
+	public void getHALNumberFromHALUrlOrNull_String_null() throws Exception {
+		assertNull(this.test.getHALNumberFromHALUrlOrNull((String) null));
+	}
+
+	@Test
+	public void getHALNumberFromHALUrlOrNull_String() throws Exception {
+		final String r = this.test.getHALNumberFromHALUrlOrNull("https://hal.science/hal-123");
+		assertNotNull(r);
+		assertEquals("hal-123", r);
+	}
+
+	@Test
 	public void getHALNumberFromHALUrl_String_null() throws Exception {
-		final String r = this.test.getHALNumberFromHALUrl((String) null);
-		assertNull(r);
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getHALNumberFromHALUrl((String) null),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
 	}
 
 	@Test
 	public void getHALNumberFromHALUrl_String_empty() throws Exception {
-		final String r = this.test.getHALNumberFromHALUrl("");
-		assertNull(r);
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getHALNumberFromHALUrl(""),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
 	}
 
 	@Test
 	public void getHALNumberFromHALUrl_String_malformedUrl() throws Exception {
-		final MalformedURLException ex = catchThrowableOfType(
+		final IllegalArgumentException ex = catchThrowableOfType(
 				() -> this.test.getHALNumberFromHALUrl("xyz/abc"),
-				MalformedURLException.class);
+				IllegalArgumentException.class);
 		assertNotNull(ex);
 	}
 
-
 	@Test
 	public void getHALNumberFromHALUrl_String() throws Exception {
-		final String r = this.test.getHALNumberFromHALUrl("https://hal.archives-ouvertes.fr/xyz/abc");
+		final String r = this.test.getHALNumberFromHALUrl("https://hal.science/hal-123");
 		assertNotNull(r);
-		assertEquals("xyz/abc", r);
+		assertEquals("hal-123", r);
 	}
 
 	@Test
 	public void getHALNumberFromHALUrl_URL_null() throws Exception {
-		final String r = this.test.getHALNumberFromHALUrl((URL) null);
-		assertNull(r);
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getHALNumberFromHALUrl((URL) null),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
 	}
 
 	@Test
 	public void getHALNumberFromHALUrl_URL() throws Exception {
-		final String r = this.test.getHALNumberFromHALUrl(new URL("https://hal.archives-ouvertes.fr/xyz/abc"));
+		final String r = this.test.getHALNumberFromHALUrl(new URL("https://hal.science/hal-123"));
 		assertNotNull(r);
-		assertEquals("xyz/abc", r);
+		assertEquals("hal-123", r);
+	}
+
+	@Test
+	public void getHALNumberFromHALUrlOrNull_URL_null() throws Exception {
+		assertNull(this.test.getHALNumberFromHALUrlOrNull((URL) null));
+	}
+
+	@Test
+	public void getHALNumberFromHALUrlOrNull_URL() throws Exception {
+		final String r = this.test.getHALNumberFromHALUrlOrNull(new URL("https://hal.science/hal-123"));
+		assertNotNull(r);
+		assertEquals("hal-123", r);
 	}
 
 	@Test
 	public void getHALUrlFromHALNumber_null() {
-		final URL url = this.test.getHALUrlFromHALNumber(null);
-		assertNull(url);
+		assertNull(this.test.getHALUrlFromHALNumber(null));
 	}
 
 	@Test
 	public void getHALUrlFromHALNumber_empty() {
-		final URL url = this.test.getHALUrlFromHALNumber("");
-		assertNull(url);
+		assertNull(this.test.getHALUrlFromHALNumber(""));
 	}
 
 	@Test
 	public void getHALUrlFromHALNumber_url0() {
 		final URL url = this.test.getHALUrlFromHALNumber("a b c");
 		assertNotNull(url);
-		assertEquals("https://hal.archives-ouvertes.fr/a%20b%20c", url.toExternalForm());
+		assertEquals("https://hal.science/a%20b%20c", url.toExternalForm());
 	}
 
 	@Test
 	public void getHALUrlFromHALNumber_url1() {
 		final URL url = this.test.getHALUrlFromHALNumber("xyz/abc");
 		assertNotNull(url);
-		assertEquals("https://hal.archives-ouvertes.fr/xyz/abc", url.toExternalForm());
+		assertEquals("https://hal.science/xyz/abc", url.toExternalForm());
 	}
 
 }

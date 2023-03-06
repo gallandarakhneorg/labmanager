@@ -38,6 +38,7 @@ import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.AbstractPublicationExporter;
 import fr.ciadlab.labmanager.io.ExportedAuthorStatus;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
@@ -64,6 +65,10 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 */
 	protected final DoiTools doiTools;
 
+	/** Tools for managing HAL identifiers.
+	 */
+	protected final HalTools halTools;
+
 	/** Provider of localized messages.
 	 */
 	protected final MessageSourceAccessor messages;
@@ -73,11 +78,13 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 * @param constants the accessor to the application constants.
 	 * @param messages the accessor to the localized messages.
 	 * @param doiTools the accessor to the DOI tools.
+	 * @param halTools the tools for manipulating HAL identifiers.
 	 */
-	public AbstractHtmlExporter(Constants constants, MessageSourceAccessor messages, DoiTools doiTools) {
+	public AbstractHtmlExporter(Constants constants, MessageSourceAccessor messages, DoiTools doiTools, HalTools halTools) {
 		this.constants = constants;
 		this.messages = messages;
 		this.doiTools = doiTools;
+		this.halTools = halTools;
 	}
 
 	/** Replies the string representation of left quotes.

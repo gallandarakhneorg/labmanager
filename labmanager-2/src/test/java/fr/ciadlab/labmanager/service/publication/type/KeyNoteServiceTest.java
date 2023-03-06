@@ -39,6 +39,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.KeyNote;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.io.hal.DefaultHalTools;
 import fr.ciadlab.labmanager.repository.publication.type.KeyNoteRepository;
 import fr.ciadlab.labmanager.utils.doi.DefaultDoiTools;
 import org.junit.jupiter.api.BeforeEach;
@@ -79,7 +80,7 @@ public class KeyNoteServiceTest {
 		this.messages = mock(MessageSourceAccessor.class);
 		this.downloadableFileManager = mock(DownloadableFileManager.class);
 		this.repository = mock(KeyNoteRepository.class);
-		this.test = new KeyNoteService(this.messages, new Constants(), this.downloadableFileManager, new DefaultDoiTools(), this.repository);
+		this.test = new KeyNoteService(this.messages, new Constants(), this.downloadableFileManager, new DefaultDoiTools(), new DefaultHalTools(), this.repository);
 
 		// Prepare some publications to be inside the repository
 		// The lenient configuration is used to configure the mocks for all the tests
@@ -149,7 +150,7 @@ public class KeyNoteServiceTest {
 		Conference conf = mock(Conference.class);
 		this.test.updateKeyNote(234,
 				"title0", PublicationType.INTERNATIONAL_KEYNOTE, LocalDate.parse("2022-07-22"), 2022, "abstractText0",
-				"keywords0", "doi:doi/0", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
+				"keywords0", "doi:doi/0", "hal-123", "isbn0", "issn0", "dblpUrl0", "extraUrl0",
 				PublicationLanguage.ITALIAN, "pdfContent0", "awardContent0", "pathToVideo0",
 				conf, 1234, "editors0", "orga0", "address0");
 

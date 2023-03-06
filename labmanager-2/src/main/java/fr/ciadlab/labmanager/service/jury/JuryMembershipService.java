@@ -43,7 +43,7 @@ import org.springframework.stereotype.Service;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 2.0
  */
 @Service
 public class JuryMembershipService extends AbstractService {

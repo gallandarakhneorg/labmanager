@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.io.html;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
@@ -42,9 +43,11 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 	 * @param constants the accessor to the application constants.
 	 * @param messages the accessor to the localized messages.
 	 * @param doiTools the tools for managing DOI links.
+	 * @param halTools the tools for manipulating HAL identifiers.
 	 */
-	public CiadHtmlDocumentExporter(@Autowired Constants constants, @Autowired MessageSourceAccessor messages, DoiTools doiTools) {
-		super(constants, messages, doiTools);
+	public CiadHtmlDocumentExporter(@Autowired Constants constants, @Autowired MessageSourceAccessor messages,
+			@Autowired DoiTools doiTools, @Autowired HalTools halTools) {
+		super(constants, messages, doiTools, halTools);
 	}
 
 	@Override

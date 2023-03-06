@@ -23,6 +23,7 @@ import java.net.URL;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
@@ -60,9 +61,11 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	 * @param constants the accessor to the application constants.
 	 * @param messages the accessor to the localized messages.
 	 * @param doiTools the accessor to the DOI tools.
+	 * @param halTools the tools for manipulating HAL identifiers.
 	 */
-	public CiadHtmlPageExporter(@Autowired Constants constants, @Autowired MessageSourceAccessor messages, @Autowired DoiTools doiTools) {
-		super(constants, messages, doiTools);
+	public CiadHtmlPageExporter(@Autowired Constants constants, @Autowired MessageSourceAccessor messages, @Autowired DoiTools doiTools,
+			@Autowired HalTools halTools) {
+		super(constants, messages, doiTools, halTools);
 	}
 
 	private void buildPdfDownloadLink(StringBuilder html, String path, String label) {
@@ -228,6 +231,12 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 			final StringBuilder b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(publication.getDOI()).append(HTML_ATAG_2);
 			links.append(this.messages.getMessage(MESSAGES_PREFIX + "doiLabel", new Object[] {b0.toString()})); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(publication.getHalId())) {
+			final URL url = this.halTools.getHALUrlFromHALNumber(publication.getHalId());
+			final StringBuilder b0 = new StringBuilder();
+			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(publication.getHalId()).append(HTML_ATAG_2);
+			links.append(this.messages.getMessage(MESSAGES_PREFIX + "halidLabel", new Object[] {b0.toString()})); //$NON-NLS-1$
 		}
 		URL url = publication.getDblpURLObject();
 		if (url != null) {

@@ -40,6 +40,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.junit.jupiter.api.BeforeEach;
@@ -63,6 +64,8 @@ public class CiadHtmlDocumentExporterTest {
 
 	private DoiTools doiTools;
 	
+	private HalTools halTools;
+
 	private CiadHtmlDocumentExporter test;
 
 	@BeforeEach
@@ -70,7 +73,9 @@ public class CiadHtmlDocumentExporterTest {
 		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
 		this.doiTools = mock(DoiTools.class);
 		when(this.doiTools.getDOIUrlFromDOINumber(any())).thenReturn(new URL("https://doi.org/XXX"));
-		this.test = new CiadHtmlDocumentExporter(new Constants(), this.messages, this.doiTools);
+		this.halTools = mock(HalTools.class);
+		when(this.halTools.getHALUrlFromHALNumber(any())).thenReturn(new URL("https://hal.science/XXX"));
+		this.test = new CiadHtmlDocumentExporter(new Constants(), this.messages, this.doiTools, this.halTools);
 	}
 
 	@Test

@@ -244,7 +244,7 @@ public class ConferenceServiceTest {
 		assertEquals(2, actuals.size());
 		assertTrue(actuals.contains(234));
 		assertTrue(actuals.contains(159753));
-		
+
 
 		final ArgumentCaptor<Conference> arg1 = ArgumentCaptor.forClass(Conference.class);
 		verify(this.conferenceRepository, atLeastOnce()).save(arg1.capture());

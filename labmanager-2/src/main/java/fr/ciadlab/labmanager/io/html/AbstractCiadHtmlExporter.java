@@ -32,6 +32,7 @@ import fr.ciadlab.labmanager.entities.publication.type.Patent;
 import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Functions.Function2;
@@ -62,9 +63,10 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 	 * @param constants the accessor to the application constants.
 	 * @param messages the accessor to the localized messages.
 	 * @param doiTools the tools for managing DOI links.
+	 * @param halTools the tools for managing HAL identifiers.
 	 */
-	public AbstractCiadHtmlExporter(Constants constants, MessageSourceAccessor messages, DoiTools doiTools) {
-		super(constants, messages, doiTools);
+	public AbstractCiadHtmlExporter(Constants constants, MessageSourceAccessor messages, DoiTools doiTools, HalTools halTools) {
+		super(constants, messages, doiTools, halTools);
 	}
 
 	@Override
