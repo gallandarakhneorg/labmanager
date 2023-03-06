@@ -135,13 +135,39 @@ public class DefaultDoiToolsTest {
 
 	@Test
 	public void getDOINumberFromDOIUrl_URL_null() throws Exception {
-		final String r = this.test.getDOINumberFromDOIUrl((URL) null);
-		assertNull(r);
+		final IllegalArgumentException ex = catchThrowableOfType(
+				() -> this.test.getDOINumberFromDOIUrl((URL) null),
+				IllegalArgumentException.class);
+		assertNotNull(ex);
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrlOrNull_String_null() throws Exception {
+		assertNull(this.test.getDOINumberFromDOIUrlOrNull((String) null));
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrlOrNull_String() throws Exception {
+		final String r = this.test.getDOINumberFromDOIUrlOrNull("doi:xyz/abc");
+		assertNotNull(r);
+		assertEquals("xyz/abc", r);
 	}
 
 	@Test
 	public void getDOINumberFromDOIUrl_URL() throws Exception {
 		final String r = this.test.getDOINumberFromDOIUrl(new URL("https://doi.org/xyz/abc"));
+		assertNotNull(r);
+		assertEquals("xyz/abc", r);
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrlOrNull_URL_null() throws Exception {
+		assertNull(this.test.getDOINumberFromDOIUrlOrNull((URL) null));
+	}
+
+	@Test
+	public void getDOINumberFromDOIUrlOrNull_URL() throws Exception {
+		final String r = this.test.getDOINumberFromDOIUrlOrNull(new URL("https://doi.org/xyz/abc"));
 		assertNotNull(r);
 		assertEquals("xyz/abc", r);
 	}

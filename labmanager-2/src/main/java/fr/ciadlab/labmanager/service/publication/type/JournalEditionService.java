@@ -29,6 +29,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.JournalEdition;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.repository.publication.type.JournalEditionRepository;
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
@@ -56,6 +57,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param constants the accessor to the live constants.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param doiTools the tools for manipulating the DOI.
+	 * @param halTools the tools for manipulating the HAL ids.
 	 * @param repository the repository for this service.
 	 */
 	public JournalEditionService(
@@ -63,8 +65,9 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 			@Autowired Constants constants,
 			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired DoiTools doiTools,
+			@Autowired HalTools halTools,
 			@Autowired JournalEditionRepository repository) {
-		super(messages, constants, downloadableFileManager, doiTools);
+		super(messages, constants, downloadableFileManager, doiTools, halTools);
 		this.repository = repository;
 	}
 
@@ -112,6 +115,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param abstractText the new text of the abstract.
 	 * @param keywords the new list of keywords.
 	 * @param doi the new DOI number.
+	 * @param halId the new HAL id.
 	 * @param dblpUrl the new URL to the DBLP page of the publication.
 	 * @param extraUrl the new URL to the page of the publication.
 	 * @param language the new major language of the publication.
@@ -127,7 +131,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 */
 	public void updateJournalEdition(int pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
-			String doi, String dblpUrl, String extraUrl,
+			String doi, String halId, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, Journal journal) {
 		final Optional<JournalEdition> res = this.repository.findById(Integer.valueOf(pubId));
@@ -135,7 +139,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 			final JournalEdition edition = res.get();
 
 			updatePublicationNoSave(edition, title, type, date, year,
-					abstractText, keywords, doi, null, null, dblpUrl,
+					abstractText, keywords, doi, halId, null, null, dblpUrl,
 					extraUrl, language, pdfContent, awardContent,
 					pathToVideo);
 

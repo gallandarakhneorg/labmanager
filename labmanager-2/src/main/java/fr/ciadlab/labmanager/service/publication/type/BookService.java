@@ -28,6 +28,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.Book;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.repository.publication.type.BookRepository;
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
@@ -55,6 +56,7 @@ public class BookService extends AbstractPublicationTypeService {
 	 * @param constants the accessor to the live constants.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param doiTools the tools for manipulating the DOI.
+	 * @param halTools the tools for manipulating the HAL ids.
 	 * @param repository the repository for this service.
 	 */
 	public BookService(
@@ -62,8 +64,9 @@ public class BookService extends AbstractPublicationTypeService {
 			@Autowired Constants constants,
 			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired DoiTools doiTools,
+			@Autowired HalTools halTools,
 			@Autowired BookRepository repository) {
-		super(messages, constants, downloadableFileManager, doiTools);
+		super(messages, constants, downloadableFileManager, doiTools, halTools);
 		this.repository = repository;
 	}
 
@@ -139,6 +142,7 @@ public class BookService extends AbstractPublicationTypeService {
 	 * @param abstractText the new text of the abstract.
 	 * @param keywords the new list of keywords.
 	 * @param doi the new DOI number.
+	 * @param halId the identifier of the publication on HAL.
 	 * @param isbn the new ISBN number.
 	 * @param issn the new ISSN number.
 	 * @param dblpUrl the new URL to the DBLP page of the publication.
@@ -162,7 +166,7 @@ public class BookService extends AbstractPublicationTypeService {
 	 */
 	public Optional<Book> updateBook(int pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
-			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
+			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, String edition, String editors,
 			String series, String publisher, String address) {
@@ -171,7 +175,7 @@ public class BookService extends AbstractPublicationTypeService {
 			final Book book = res.get();
 
 			updatePublicationNoSave(book, title, type, date, year,
-					abstractText, keywords, doi, isbn, issn, dblpUrl,
+					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,
 					extraUrl, language, pdfContent, awardContent,
 					pathToVideo);
 

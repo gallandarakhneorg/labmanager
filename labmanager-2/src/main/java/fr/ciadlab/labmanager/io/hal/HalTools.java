@@ -16,10 +16,7 @@
 
 package fr.ciadlab.labmanager.io.hal;
 
-import java.net.MalformedURLException;
 import java.net.URL;
-
-import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Utilities for HAL identifiers.
  * 
@@ -27,36 +24,63 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.0.0
+ * @since 2.0
  */
 public interface HalTools {
 
 	/** Replies the HAL number that is specified inside the given HAL URL.
-	 * A HAL URL is based on the standard {@link "https://hal.archives-ouvertes.fr"} to which
+	 * A HAL URL is based on the standard {@link "https://hal.science"} to which
 	 * the HAL number is added.
 	 *
 	 * @param url the HAL URL.
-	 * @return the HAL number.
+	 * @return the HAL number, never {@code null}.
+	 * @throws IllegalArgumentException if the given URL cannot be parsed.
 	 */
 	String getHALNumberFromHALUrl(URL url);
 
 	/** Replies the HAL number that is specified inside the given HAL URL.
-	 * A HAL URL is based on the standard {@link "https://hal.archives-ouvertes.fr"} to which
+	 * A HAL URL is based on the standard {@link "https://hal.science"} to which
 	 * the HAL number is added.
 	 *
 	 * @param url the HAL URL.
-	 * @return the HAL number.
-	 * @throws MalformedURLException if the given parameter is a malformed URL.
+	 * @return the HAL number, or {@code null} if the given url is not a valid HAL url.
+	 * @since 3.6
 	 */
-	default String getHALNumberFromHALUrl(String url) throws MalformedURLException {
-		if (!Strings.isNullOrEmpty(url)) {
-			return getHALNumberFromHALUrl(new URL(url));
+	default String getHALNumberFromHALUrlOrNull(URL url) {
+		try {
+			return getHALNumberFromHALUrl(url);
+		} catch (Throwable ex) {
+			return null;
 		}
-		return null;
+	}
+
+	/** Replies the HAL number that is specified inside the given HAL URL.
+	 * A HAL URL is based on the standard {@link "https://hal.science"} to which
+	 * the HAL number is added.
+	 *
+	 * @param url the HAL URL.
+	 * @return the HAL number, never {@code null}.
+	 * @throws IllegalArgumentException if the given URL cannot be parsed.
+	 */
+	String getHALNumberFromHALUrl(String url);
+
+	/** Replies the HAL number that is specified inside the given HAL URL.
+	 * A HAL URL is based on the standard {@link "https://hal.science"} to which
+	 * the HAL number is added.
+	 *
+	 * @param url the HAL URL.
+	 * @return the HAL number, or {@code null} if the given url is not a valid HAL url.
+	 */
+	default String getHALNumberFromHALUrlOrNull(String url) {
+		try {
+			return getHALNumberFromHALUrl(url);
+		} catch (Throwable ex) {
+			return null;
+		}
 	}
 
 	/** Replies the HAL URL from the given HAL number.
-	 * A HAL URL is based on the standard {@link "https://hal.archives-ouvertes.fr"} to which
+	 * A HAL URL is based on the standard {@link "https://hal.science"} to which
 	 * the HAL number is added.
 	 *
 	 * @param number the HAL number.

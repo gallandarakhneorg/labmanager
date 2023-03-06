@@ -53,7 +53,7 @@ public class DefaultPrePublicationFactory implements PrePublicationFactory {
 			String doi, String halId, String extraUrl, String videoUrl, String dblpUrl, String pdfPath,
 			String awardPath, PublicationLanguage language) {
 		return new PrePublication(type, title, abstractText, keywords, date, year, isbn, issn,
-				this.doiTools.getDOINumberFromDOIUrl(doi),
+				this.doiTools.getDOINumberFromDOIUrlOrNull(doi),
 				halId, extraUrl, videoUrl, dblpUrl, pdfPath, awardPath, language);
 	}
 

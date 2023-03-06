@@ -692,10 +692,10 @@ public class PublicationService extends AbstractPublicationService {
 					this.publicationRepository.save(publication);
 					final int publicationId = publication.getId();
 					final Integer publicationIdObj = Integer.valueOf(publicationId);
-		
+
 					// Adding the id of the current publication to the list
 					importedPublicationIdentifiers.add(publicationIdObj);
-		
+
 					// For every authors assigned to this publication, save them into the database
 					final List<Person> authors = publication.getAuthors();
 					publication.setTemporaryAuthors(null);
@@ -715,7 +715,7 @@ public class PublicationService extends AbstractPublicationService {
 							// Assigning authorship
 							addAuthorship(personId, publicationId, rank, false);
 							this.publicationRepository.save(publication);
-		
+
 							// Check if the newly imported pub has at least one authorship.
 							// If not, it's a bad case and the pub have to be removed and marked as failed
 							if (getAuthorsFor(publicationId).isEmpty()) {
@@ -1020,7 +1020,7 @@ public class PublicationService extends AbstractPublicationService {
 
 		// Fifth step: update the links to other JPA entities
 		updateScientificAxes(true, createdPublication, scientificAxes);
-		
+
 		// Sixth step: update the associated PDF files
 		updateUploadedPDFs(createdPublication, attributes, downloadablePDF, downloadableAwardCertificate, true);
 
@@ -1144,6 +1144,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "isbn"), //$NON-NLS-1$
 					optionalString(attributes, "issn"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
@@ -1169,6 +1170,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "isbn"), //$NON-NLS-1$
 					optionalString(attributes, "issn"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
@@ -1196,6 +1198,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "isbn"), //$NON-NLS-1$
 					optionalString(attributes, "issn"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
@@ -1223,6 +1226,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
 					optionalString(attributes, "extraURL"), //$NON-NLS-1$
 					languageEnum,
@@ -1243,6 +1247,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
 					optionalString(attributes, "extraURL"), //$NON-NLS-1$
 					languageEnum,
@@ -1263,6 +1268,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "isbn"), //$NON-NLS-1$
 					optionalString(attributes, "issn"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
@@ -1285,6 +1291,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "isbn"), //$NON-NLS-1$
 					optionalString(attributes, "issn"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
@@ -1308,6 +1315,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "isbn"), //$NON-NLS-1$
 					optionalString(attributes, "issn"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
@@ -1329,6 +1337,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "isbn"), //$NON-NLS-1$
 					optionalString(attributes, "issn"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
@@ -1350,6 +1359,7 @@ public class PublicationService extends AbstractPublicationService {
 					optionalString(attributes, "abstractText"), //$NON-NLS-1$
 					optionalString(attributes, "keywords"), //$NON-NLS-1$
 					optionalString(attributes, "doi"), //$NON-NLS-1$
+					optionalString(attributes, "halId"), //$NON-NLS-1$
 					optionalString(attributes, "isbn"), //$NON-NLS-1$
 					optionalString(attributes, "issn"), //$NON-NLS-1$
 					optionalString(attributes, "dblpURL"), //$NON-NLS-1$
@@ -1488,8 +1498,8 @@ public class PublicationService extends AbstractPublicationService {
 				this.authorshipRepository.save(authorship);
 				oldIds.remove(Integer.valueOf(authorship.getId()));
 				getLogger().info("Author \"" + person.getFullName() //$NON-NLS-1$
-						+ "\" updated for the publication with id " //$NON-NLS-1$
-						+ publication.getId());
+				+ "\" updated for the publication with id " //$NON-NLS-1$
+				+ publication.getId());
 			} else {
 				// Author was not associated yet
 				addAuthorship(person.getId(), publication.getId(), rank, false);
@@ -1530,47 +1540,47 @@ public class PublicationService extends AbstractPublicationService {
 							return multi;
 						}));
 		return publicationsPerYear.entrySet().stream()
-			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-			.map(it -> {
-				int acl = 0;
-				int cact = 0;
-				for (final Publication pub : it.getValue()) {
-					switch (pub.getCategory()) {
-					case ACL:
-					case ACLN:
-					case ASCL:
-						++acl;
-						break;
-					case C_ACTI:
-					case C_ACTN:
-					case C_AFF:
-					case C_COM:
-						++cact;
-						break;
-					case COS:
-					case COV:
-					case BRE:
-					case AP:
-					case C_INV:
-					case DO:
-					case OR:
-					case OS:
-					case OV:
-					case PAT:
-					case PT:
-					case PV:
-					case TH:
-					default:
-						break;
+				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+				.map(it -> {
+					int acl = 0;
+					int cact = 0;
+					for (final Publication pub : it.getValue()) {
+						switch (pub.getCategory()) {
+						case ACL:
+						case ACLN:
+						case ASCL:
+							++acl;
+							break;
+						case C_ACTI:
+						case C_ACTN:
+						case C_AFF:
+						case C_COM:
+							++cact;
+							break;
+						case COS:
+						case COV:
+						case BRE:
+						case AP:
+						case C_INV:
+						case DO:
+						case OR:
+						case OS:
+						case OV:
+						case PAT:
+						case PT:
+						case PV:
+						case TH:
+						default:
+							break;
+						}
 					}
-				}
-				final List<Integer> columns = new ArrayList<>(3);
-				columns.add(it.getKey());
-				columns.add(Integer.valueOf(acl));
-				columns.add(Integer.valueOf(cact));
-				return columns;
-			})
-			.collect(Collectors.toList());
+					final List<Integer> columns = new ArrayList<>(3);
+					columns.add(it.getKey());
+					columns.add(Integer.valueOf(acl));
+					columns.add(Integer.valueOf(cact));
+					return columns;
+				})
+				.collect(Collectors.toList());
 	}
 
 	/** Replies the numbers of publications per category for the given set of publications.
@@ -1591,15 +1601,15 @@ public class PublicationService extends AbstractPublicationService {
 							return Integer.valueOf(a.intValue() + b.intValue());
 						}));
 		return publicationsPerYear.entrySet().stream()
-			.filter(it -> it.getKey().isScientificEventPaper() || it.getKey().isScientificJournalPaper() || it.getKey().isScientificCultureDissemination())
-			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-			.map(it -> {
-				final List<Object> columns = new ArrayList<>(2);
-				columns.add(it.getKey().getAcronym());
-				columns.add(it.getValue());
-				return columns;
-			})
-			.collect(Collectors.toList());
+				.filter(it -> it.getKey().isScientificEventPaper() || it.getKey().isScientificJournalPaper() || it.getKey().isScientificCultureDissemination())
+				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+				.map(it -> {
+					final List<Object> columns = new ArrayList<>(2);
+					columns.add(it.getKey().getAcronym());
+					columns.add(it.getValue());
+					return columns;
+				})
+				.collect(Collectors.toList());
 	}
 
 	/** Replies the numbers of publications per quartile for the given set of publications.
@@ -1634,14 +1644,14 @@ public class PublicationService extends AbstractPublicationService {
 							return Integer.valueOf(a.intValue() + b.intValue());
 						}));
 		return publicationsPerYear.entrySet().stream()
-			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-			.map(it -> {
-				final List<Object> columns = new ArrayList<>(2);
-				columns.add(it.getKey().name());
-				columns.add(it.getValue());
-				return columns;
-			})
-			.collect(Collectors.toList());
+				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+				.map(it -> {
+					final List<Object> columns = new ArrayList<>(2);
+					columns.add(it.getKey().name());
+					columns.add(it.getValue());
+					return columns;
+				})
+				.collect(Collectors.toList());
 	}
 
 	/** Replies the numbers of publications per journal for the given set of publications.
@@ -1665,29 +1675,29 @@ public class PublicationService extends AbstractPublicationService {
 						}));
 		final Comparator<Journal> comparator = EntityUtils.getPreferredJournalComparator();
 		return publicationsPerYear.entrySet().stream()
-			.sorted((a, b) -> {
-				int cmp = a.getValue().compareTo(b.getValue());
-				if (cmp != 0) {
-					return -cmp;
-				}
-				cmp = Float.compare(a.getKey().getImpactFactorByYear(referenceYear), b.getKey().getImpactFactorByYear(referenceYear));
-				if (cmp != 0) {
-					return -cmp;
-				}
-				return comparator.compare(a.getKey(), b.getKey());
-			})
-			.map(it -> {
-				final Journal journal = it.getKey();
-				final List<Object> columns = new ArrayList<>(2);
-				columns.add(journal.getJournalName());
-				columns.add(journal.getPublisher());
-				columns.add(toString(journal.getScimagoQIndexByYear(referenceYear)));
-				columns.add(toString(journal.getWosQIndexByYear(referenceYear)));
-				columns.add(Float.valueOf(journal.getImpactFactorByYear(referenceYear)));
-				columns.add(it.getValue());
-				return columns;
-			})
-			.collect(Collectors.toList());
+				.sorted((a, b) -> {
+					int cmp = a.getValue().compareTo(b.getValue());
+					if (cmp != 0) {
+						return -cmp;
+					}
+					cmp = Float.compare(a.getKey().getImpactFactorByYear(referenceYear), b.getKey().getImpactFactorByYear(referenceYear));
+					if (cmp != 0) {
+						return -cmp;
+					}
+					return comparator.compare(a.getKey(), b.getKey());
+				})
+				.map(it -> {
+					final Journal journal = it.getKey();
+					final List<Object> columns = new ArrayList<>(2);
+					columns.add(journal.getJournalName());
+					columns.add(journal.getPublisher());
+					columns.add(toString(journal.getScimagoQIndexByYear(referenceYear)));
+					columns.add(toString(journal.getWosQIndexByYear(referenceYear)));
+					columns.add(Float.valueOf(journal.getImpactFactorByYear(referenceYear)));
+					columns.add(it.getValue());
+					return columns;
+				})
+				.collect(Collectors.toList());
 	}
 
 	private static String toString(QuartileRanking ranking) {
@@ -1706,38 +1716,38 @@ public class PublicationService extends AbstractPublicationService {
 		final AtomicInteger papersWithUnknownCountry = new AtomicInteger();
 		final int[] numbers = new int[CountryCode.values().length + 1];
 		publications.stream()
-				.filter(it -> it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
-				.forEach(it -> {
-					final LocalDate tw0 = LocalDate.of(it.getPublicationYear(), 1, 1);
-					final LocalDate tw1 = LocalDate.of(it.getPublicationYear(), 12, 31);
-					final AtomicBoolean unknown = new AtomicBoolean(false);
-					final Set<CountryCode> countries = new HashSet<>();
-					for (final Person author : it.getAuthors()) {
-						if (author.getMemberships().stream()
-								.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization().getId() == referenceOrganization.getId())
-								.findAny().isEmpty()) {
-							final Optional<Membership> mbrWithCountry = author.getMemberships().stream()
-								.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization() != null && it0.getResearchOrganization().getCountry() != null)
-								.findAny();
-							if (mbrWithCountry.isPresent()) {
-								final CountryCode country = mbrWithCountry.get().getResearchOrganization().getCountry();
-								if (country != null) {
-									countries.add(country);
-								} else {
-									unknown.set(true);
-								}
-							} else {
-								unknown.set(true);
-							}
+		.filter(it -> it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
+		.forEach(it -> {
+			final LocalDate tw0 = LocalDate.of(it.getPublicationYear(), 1, 1);
+			final LocalDate tw1 = LocalDate.of(it.getPublicationYear(), 12, 31);
+			final AtomicBoolean unknown = new AtomicBoolean(false);
+			final Set<CountryCode> countries = new HashSet<>();
+			for (final Person author : it.getAuthors()) {
+				if (author.getMemberships().stream()
+						.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization().getId() == referenceOrganization.getId())
+						.findAny().isEmpty()) {
+					final Optional<Membership> mbrWithCountry = author.getMemberships().stream()
+							.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization() != null && it0.getResearchOrganization().getCountry() != null)
+							.findAny();
+					if (mbrWithCountry.isPresent()) {
+						final CountryCode country = mbrWithCountry.get().getResearchOrganization().getCountry();
+						if (country != null) {
+							countries.add(country);
+						} else {
+							unknown.set(true);
 						}
+					} else {
+						unknown.set(true);
 					}
-					for (final CountryCode country : countries) {
-						++numbers[country.ordinal()];
-					}
-					if (unknown.get()) {
-						papersWithUnknownCountry.incrementAndGet();
-					}
-				});
+				}
+			}
+			for (final CountryCode country : countries) {
+				++numbers[country.ordinal()];
+			}
+			if (unknown.get()) {
+				papersWithUnknownCountry.incrementAndGet();
+			}
+		});
 		numbers[numbers.length - 1] = papersWithUnknownCountry.get();
 		final CountryCode[] allCountries = CountryCode.values();
 		final AtomicInteger index = new AtomicInteger();
@@ -1753,10 +1763,10 @@ public class PublicationService extends AbstractPublicationService {
 			return columns;
 		};
 		return Arrays.stream(numbers)
-			.mapToObj(converter)
-			.filter(it -> ((Integer) it.get(1)).intValue() > 0)
-			.sorted((a, b) -> - ((Integer) a.get(1)).compareTo((Integer) b.get(1)))
-			.collect(Collectors.toList());
+				.mapToObj(converter)
+				.filter(it -> ((Integer) it.get(1)).intValue() > 0)
+				.sorted((a, b) -> - ((Integer) a.get(1)).compareTo((Integer) b.get(1)))
+				.collect(Collectors.toList());
 	}
 
 	/** Replies the numbers of publications per member for the given set of publications.
@@ -1776,78 +1786,78 @@ public class PublicationService extends AbstractPublicationService {
 		maxYear.set(Integer.MIN_VALUE);
 		final Map<Person, Map<PublicationCategory, Map<Integer, Integer>>> stats = new HashMap<>();
 		publications.stream()
-				.filter(it -> it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
-				.forEach(it -> {
-					final int year = it.getPublicationYear();
-					if (year < minYear.intValue()) {
-						minYear.set(year);
+		.filter(it -> it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
+		.forEach(it -> {
+			final int year = it.getPublicationYear();
+			if (year < minYear.intValue()) {
+				minYear.set(year);
+			}
+			if (year > maxYear.intValue()) {
+				maxYear.set(year);
+			}
+			final LocalDate tw0 = LocalDate.of(year, 1, 1);
+			final LocalDate tw1 = LocalDate.of(year, 12, 31);
+			final PublicationCategory category = it.getCategory(rankingSystem);
+			for (final Person author : it.getAuthors()) {
+				if (author.getMemberships().stream()
+						.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization().getId() == referenceOrganization.getId()
+						&& it0.isMainPosition() && !it0.getMemberStatus().isExternalPosition())
+						.findAny().isPresent()) {
+					final Map<PublicationCategory, Map<Integer, Integer>> stats0 = stats.computeIfAbsent(author, it0 -> new HashMap<>());
+					final Map<Integer, Integer> stats1 = stats0.computeIfAbsent(category, it0 -> new HashMap<>());
+					final Integer oldValue = stats1.get(Integer.valueOf(year));
+					if (oldValue == null) {
+						stats1.put(Integer.valueOf(year), Integer.valueOf(1));
+					} else {
+						stats1.put(Integer.valueOf(year), Integer.valueOf(oldValue.intValue() + 1));
 					}
-					if (year > maxYear.intValue()) {
-						maxYear.set(year);
-					}
-					final LocalDate tw0 = LocalDate.of(year, 1, 1);
-					final LocalDate tw1 = LocalDate.of(year, 12, 31);
-					final PublicationCategory category = it.getCategory(rankingSystem);
-					for (final Person author : it.getAuthors()) {
-						if (author.getMemberships().stream()
-								.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization().getId() == referenceOrganization.getId()
-										&& it0.isMainPosition() && !it0.getMemberStatus().isExternalPosition())
-								.findAny().isPresent()) {
-							final Map<PublicationCategory, Map<Integer, Integer>> stats0 = stats.computeIfAbsent(author, it0 -> new HashMap<>());
-							final Map<Integer, Integer> stats1 = stats0.computeIfAbsent(category, it0 -> new HashMap<>());
-							final Integer oldValue = stats1.get(Integer.valueOf(year));
-							if (oldValue == null) {
-								stats1.put(Integer.valueOf(year), Integer.valueOf(1));
-							} else {
-								stats1.put(Integer.valueOf(year), Integer.valueOf(oldValue.intValue() + 1));
-							}
-						}
-					}
-				});
+				}
+			}
+		});
 		final List<List<Object>> table = new ArrayList<>();
 		stats.entrySet().stream()
-			.forEach(it -> {
-				List<Object> columns;
+		.forEach(it -> {
+			List<Object> columns;
 
-				columns = new ArrayList<>();
-				columns.add(it.getKey().getFullNameWithLastNameFirst());
-				if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.ACL)) {
-					table.add(columns);
-				}
-				
-				columns = new ArrayList<>();
-				columns.add(it.getKey().getFullNameWithLastNameFirst());
-				if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.ACLN)) {
-					table.add(columns);
-				}
+			columns = new ArrayList<>();
+			columns.add(it.getKey().getFullNameWithLastNameFirst());
+			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.ACL)) {
+				table.add(columns);
+			}
 
-				columns = new ArrayList<>();
-				columns.add(it.getKey().getFullNameWithLastNameFirst());
-				if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.C_ACTI)) {
-					table.add(columns);
-				}
+			columns = new ArrayList<>();
+			columns.add(it.getKey().getFullNameWithLastNameFirst());
+			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.ACLN)) {
+				table.add(columns);
+			}
 
-				columns = new ArrayList<>();
-				columns.add(it.getKey().getFullNameWithLastNameFirst());
-				if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.C_ACTN)) {
-					table.add(columns);
-				}
+			columns = new ArrayList<>();
+			columns.add(it.getKey().getFullNameWithLastNameFirst());
+			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.C_ACTI)) {
+				table.add(columns);
+			}
 
-				columns = new ArrayList<>();
-				columns.add(it.getKey().getFullNameWithLastNameFirst());
-				if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.C_COM)) {
-					table.add(columns);
-				}
-			});
-		
+			columns = new ArrayList<>();
+			columns.add(it.getKey().getFullNameWithLastNameFirst());
+			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.C_ACTN)) {
+				table.add(columns);
+			}
+
+			columns = new ArrayList<>();
+			columns.add(it.getKey().getFullNameWithLastNameFirst());
+			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.C_COM)) {
+				table.add(columns);
+			}
+		});
+
 		return table.stream().sorted((a, b) -> {
-				int cmp = ((String) a.get(0)).compareToIgnoreCase((String) b.get(0));
-				if (cmp != 0) {
-					return cmp;
-				}
-				return ((String) a.get(1)).compareToIgnoreCase((String) b.get(1));
-			})
-			.collect(Collectors.toList());
+			int cmp = ((String) a.get(0)).compareToIgnoreCase((String) b.get(0));
+			if (cmp != 0) {
+				return cmp;
+			}
+			return ((String) a.get(1)).compareToIgnoreCase((String) b.get(1));
+		})
+				.collect(Collectors.toList());
 	}
 
 	private static boolean fillMemberTable(Map<PublicationCategory, Map<Integer, Integer>> input, List<Object> columns, int minYear, int maxYear, PublicationCategory category) {
@@ -1879,36 +1889,37 @@ public class PublicationService extends AbstractPublicationService {
 		final Map<ScientificAxis, Integer> projectsPerAxis = new HashMap<>();
 		final AtomicInteger outsideAxis = new AtomicInteger(); 
 		publications.stream()
-				.forEach(it -> {
-					if (!it.getScientificAxes().isEmpty()) {
-						for (final ScientificAxis axis : it.getScientificAxes()) {
-							final Integer oldValue = projectsPerAxis.get(axis);
-							if (oldValue == null) {
-								projectsPerAxis.put(axis, Integer.valueOf(1));
-							} else {
-								projectsPerAxis.put(axis, Integer.valueOf(oldValue.intValue() + 1));
-							}
-						}
+		.forEach(it -> {
+			if (!it.getScientificAxes().isEmpty()) {
+				for (final ScientificAxis axis : it.getScientificAxes()) {
+					final Integer oldValue = projectsPerAxis.get(axis);
+					if (oldValue == null) {
+						projectsPerAxis.put(axis, Integer.valueOf(1));
 					} else {
-						outsideAxis.incrementAndGet();
+						projectsPerAxis.put(axis, Integer.valueOf(oldValue.intValue() + 1));
 					}
-				});
+				}
+			} else {
+				outsideAxis.incrementAndGet();
+			}
+		});
 		if (outsideAxis.intValue() > 0) {
 			final ScientificAxis outAxis = new ScientificAxis();
 			outAxis.setName(getMessage("publicationService.outsideScientificAxis")); //$NON-NLS-1$
 			projectsPerAxis.put(outAxis, Integer.valueOf(outsideAxis.get()));
 		}
 		return projectsPerAxis.entrySet().stream()
-			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-			.map(it -> {
-				final List<Object> columns = new ArrayList<>(2);
-				final String name = Strings.isNullOrEmpty(it.getKey().getAcronym()) ? it.getKey().getName()
-						: it.getKey().getAcronym() + " - " + it.getKey().getName(); //$NON-NLS-1$
-				columns.add(name);
-				columns.add(it.getValue());
-				return columns;
-			})
-			.collect(Collectors.toList());
+				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
+				.map(it -> {
+					final List<Object> columns = new ArrayList<>(2);
+					final String name = Strings.isNullOrEmpty(it.getKey().getAcronym()) ? it.getKey().getName()
+							: it.getKey().getAcronym() + " - " + it.getKey().getName(); //$NON-NLS-1$
+					columns.add(name);
+					columns.add(it.getValue());
+					return columns;
+				})
+				.collect(Collectors.toList());
+	}
 	}
 
 }

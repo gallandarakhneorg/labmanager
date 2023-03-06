@@ -57,25 +57,34 @@ public class DefaultDoiTools implements DoiTools {
 	@Override
 	public String getDOINumberFromDOIUrl(URL url) {
 		if (url != null) {
-			final String path = url.getPath();
+			String path = url.getPath();
 			if (!Strings.isNullOrEmpty(path)) {
 				if (path.startsWith("/")) { //$NON-NLS-1$
-					return path.substring(1);
+					path = path.substring(1);
 				}
+			}
+			path = validatePath(path);
+			if (path != null) {
 				return path;
+			}
+		}
+		throw new IllegalArgumentException("Invalid DOI: " + url); //$NON-NLS-1$
+	}
+
+	private static String validatePath(String path) {
+		String pth = path;
+		if (!Strings.isNullOrEmpty(pth)) {
+			pth = pth.trim();
+			if (!Strings.isNullOrEmpty(pth)) {
+				final Matcher matcher = DOI_PATTERN.matcher(pth);
+				if (matcher.matches()) {
+					return pth;
+				}
 			}
 		}
 		return null;
 	}
-
-	@Override
-	public URL getDOIUrlFromDOINumber(String number) {
-		if (!Strings.isNullOrEmpty(number)) {
-			return FileSystem.join(DOI_BASE, number);
-		}
-		return null;
-	}
-
+	
 	@Override
 	public String getDOINumberFromDOIUrl(String url) {
 		if (!Strings.isNullOrEmpty(url)) {
@@ -91,17 +100,20 @@ public class DefaultDoiTools implements DoiTools {
 			} catch (Throwable ex0) {
 				path = url;
 			}
-			if (!Strings.isNullOrEmpty(path)) {
-				path = path.trim();
-				if (!Strings.isNullOrEmpty(path)) {
-					final Matcher matcher = DOI_PATTERN.matcher(path);
-					if (matcher.matches()) {
-						return path;
-					}
-				}
+			path = validatePath(path);
+			if (path != null) {
+				return path;
 			}
 		}
-		throw new IllegalArgumentException("Invalid DOI:" + url); //$NON-NLS-1$
+		throw new IllegalArgumentException("Invalid DOI: " + url); //$NON-NLS-1$
+	}
+
+	@Override
+	public URL getDOIUrlFromDOINumber(String number) {
+		if (!Strings.isNullOrEmpty(number)) {
+			return FileSystem.join(DOI_BASE, number);
+		}
+		return null;
 	}
 
 }

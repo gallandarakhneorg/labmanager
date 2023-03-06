@@ -28,6 +28,7 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -45,6 +46,8 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 
 	private DoiTools doiTools;
 
+	private HalTools halTools;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -52,15 +55,18 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 * @param constants the accessor to the live constants.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param doiTools the tools for manipulating DOI.
+	 * @param halTools the tools for manipulating HAL identifiers.
 	 */
 	public AbstractPublicationTypeService(
 			MessageSourceAccessor messages,
 			Constants constants,
 			DownloadableFileManager downloadableFileManager,
-			DoiTools doiTools) {
+			DoiTools doiTools,
+			HalTools halTools) {
 		super(messages, constants);
 		this.downloadableFileManager = downloadableFileManager;
 		this.doiTools = doiTools;
+		this.halTools = halTools;
 	}
 
 	/** Update the book chapter with the given identifier.
@@ -75,6 +81,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 * @param abstractText the new text of the abstract.
 	 * @param keywords the new list of keywords.
 	 * @param doi the new DOI number.
+	 * @param halId the new identifier of the publication on HAL.
 	 * @param isbn the new ISBN number.
 	 * @param issn the new ISSN number.
 	 * @param dblpUrl the new URL to the DBLP page of the publication.
@@ -87,10 +94,10 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 * @param pathToVideo the path that allows to download the video of the publication.
 	 */
 	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, LocalDate date,
-			int year, String abstractText, String keywords, String doi, String isbn, String issn, URL dblpUrl,
+			int year, String abstractText, String keywords, String doi, String halId, String isbn, String issn, URL dblpUrl,
 			URL extraUrl, PublicationLanguage language, String pdfContent, String awardContent,
 			URL pathToVideo) {
-		updatePublicationNoSave(publication, title, type, date, year, abstractText, keywords, doi, isbn,
+		updatePublicationNoSave(publication, title, type, date, year, abstractText, keywords, doi, halId, isbn,
 				issn, dblpUrl.toExternalForm(), extraUrl.toExternalForm(), language, pdfContent, awardContent,
 				pathToVideo.toExternalForm());
 	}
@@ -119,6 +126,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 * @param abstractText the new text of the abstract.
 	 * @param keywords the new list of keywords.
 	 * @param doi the new DOI number.
+	 * @param halId the new identifier of the publication on HAL.
 	 * @param isbn the new ISBN number.
 	 * @param issn the new ISSN number.
 	 * @param dblpUrl the new URL to the DBLP page of the publication.
@@ -129,7 +137,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 * @param pathToVideo the path that allows to download the video of the publication.
 	 */
 	protected void updatePublicationNoSave(Publication publication, String title, PublicationType type, LocalDate date,
-			int year, String abstractText, String keywords, String doi, String isbn, String issn, String dblpUrl,
+			int year, String abstractText, String keywords, String doi, String halId, String isbn, String issn, String dblpUrl,
 			String extraUrl, PublicationLanguage language, String pathToPdfFile, String pathToAwardCertificate,
 			String pathToVideo) {
 		if (!Strings.isNullOrEmpty(title)) {
@@ -147,7 +155,8 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 		publication.setPublicationYear(year);
 		publication.setAbstractText(Strings.emptyToNull(abstractText));
 		publication.setKeywords(Strings.emptyToNull(keywords));
-		publication.setDOI(this.doiTools.getDOINumberFromDOIUrl(Strings.emptyToNull(doi)));
+		publication.setDOI(this.doiTools.getDOINumberFromDOIUrlOrNull(Strings.emptyToNull(doi)));
+		publication.setHalId(this.halTools.getHALNumberFromHALUrlOrNull(Strings.emptyToNull(halId)));
 		if (!(publication instanceof JournalBasedPublication) && !(publication instanceof ConferenceBasedPublication)) {
 			publication.setISBN(Strings.emptyToNull(isbn));
 			publication.setISSN(Strings.emptyToNull(issn));

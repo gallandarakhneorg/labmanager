@@ -32,6 +32,7 @@ import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.repository.publication.type.ConferencePaperRepository;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.publication.AbstractPublicationTypeService;
@@ -62,6 +63,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param constants the accessor to the live constants.
 	 * @param downloadableFileManager downloadable file manager.
 	 * @param doiTools the tools for manipulating the DOI.
+	 * @param halTools the tools for manipulating the HAL ids.
 	 * @param repository the repository for this service.
 	 * @param membershipService the service for accessing the memberships.
 	 */
@@ -70,9 +72,10 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 			@Autowired Constants constants,
 			@Autowired DownloadableFileManager downloadableFileManager,
 			@Autowired DoiTools doiTools,
+			@Autowired HalTools halTools,
 			@Autowired ConferencePaperRepository repository,
 			@Autowired MembershipService membershipService) {
-		super(messages, constants, downloadableFileManager, doiTools);
+		super(messages, constants, downloadableFileManager, doiTools, halTools);
 		this.repository = repository;
 		this.membershipService = membershipService;
 	}
@@ -171,6 +174,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param abstractText the new text of the abstract.
 	 * @param keywords the new list of keywords.
 	 * @param doi the new DOI number.
+	 * @param halId the new HAL id.
 	 * @param isbn the new ISBN number.
 	 * @param issn the new ISSN number.
 	 * @param dblpUrl the new URL to the DBLP page of the publication.
@@ -194,7 +198,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 */
 	public void updateConferencePaper(int pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
-			String doi, String isbn, String issn, String dblpUrl, String extraUrl,
+			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			Conference conference, int conferenceOccurrenceNumber, String volume, String number,
 			String pages, String editors, String series, String orga, String address) {
@@ -203,7 +207,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 			final ConferencePaper paper = res.get();
 
 			updatePublicationNoSave(paper, title, type, date, year,
-					abstractText, keywords, doi, isbn, issn, dblpUrl,
+					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,
 					extraUrl, language, pdfContent, awardContent,
 					pathToVideo);
 
