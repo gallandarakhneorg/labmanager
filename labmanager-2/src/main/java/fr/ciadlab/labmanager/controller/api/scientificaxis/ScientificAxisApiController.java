@@ -173,11 +173,11 @@ public class ScientificAxisApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deleteScientificAxis")
+	@DeleteMapping("/" + Constants.SCIENTIFIC_AXIS_DELETING_ENDPOINT)
 	public void deleteScientificAxis(
 			@RequestParam(required = false, name = Constants.AXIS_ENDPOINT_PARAMETER) Integer axis,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deleteScientificAxis", axis); //$NON-NLS-1$
+		ensureCredentials(username, Constants.SCIENTIFIC_AXIS_DELETING_ENDPOINT, axis);
 		if (axis == null || axis.intValue() == 0) {
 			throw new IllegalStateException("Scientific axis not found"); //$NON-NLS-1$
 		}

@@ -204,4 +204,14 @@ public class PersonInvitationService extends AbstractService {
 		this.invitationRepository.save(invitation);
 	}
 
+	/** Replies if the given identifier is for a person who is associated to an invitation as inverter or invitee.
+	 * 
+	 * @param id the identifier of the person.
+	 * @return {@code true} if the person is an inviter or an invitee.
+	 * @since 3.6
+	 */
+	public boolean isAssociated(int id) {
+		return !this.invitationRepository.findAllByGuestIdOrInviterId(id, id).isEmpty();
+	}
+
 }

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.math.BigDecimal;
 import java.math.BigInteger;
+import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -27,8 +28,12 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializable;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.conference.Conference;
@@ -249,6 +254,32 @@ public final class JsonUtils {
 	 */
 	public static CachedGenerator cache(JsonGenerator generator) {
 		return new CachedGenerator(generator);
+	}
+
+	/** Create a JSON object mapper with the proper configuration.
+	 * This mapper enables to serialize the {@link LocalDate}.
+	 *
+	 * @return the configured mapper.
+	 */
+	public static ObjectMapper createMapper() {
+		final ObjectMapper mapper = new ObjectMapper();
+		mapper.registerModule(new JavaTimeModule());
+		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+		mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
+		return mapper;
+	}
+	
+	
+	/** Create the JSON node for the entity.
+	 *
+	 * @param entity the entity.
+	 * @return the JSON node, never {@code null}.
+	 * @throws JsonProcessingException if the nodes cannot be created
+	 */
+	public static JsonNode getJsonNode(Object entity) throws JsonProcessingException {
+		final ObjectMapper mapper = JsonUtils.createMapper();
+		final String temporaryContent = mapper.writeValueAsString(entity);
+		return mapper.readTree(temporaryContent);
 	}
 
 	/** Generator of JSON with cached entities.

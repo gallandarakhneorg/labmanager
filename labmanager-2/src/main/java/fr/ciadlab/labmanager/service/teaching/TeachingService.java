@@ -305,4 +305,14 @@ public class TeachingService extends AbstractService {
 				(fn, th) -> this.fileManager.savePdfAndThumbnailFiles(fn, th, uploadedFile));
 	}
 
+	/** Replies if the given identifier is for a teacher.
+	 *
+	 * @param id the identifier of the person.
+	 * @return {@code true} if the person is a teacher.
+	 * @since 3.6
+	 */
+	public boolean isTeacher(int id) {
+		return !this.teachingActivityRepository.findDistinctByPersonId(Integer.valueOf(id)).isEmpty();
+	}
+
 }

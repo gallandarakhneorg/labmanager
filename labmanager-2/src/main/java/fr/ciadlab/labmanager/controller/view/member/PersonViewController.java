@@ -145,7 +145,7 @@ public class PersonViewController extends AbstractViewController {
 	 */
 	@GetMapping(value = "/" + Constants.PERSON_EDITING_ENDPOINT)
 	public ModelAndView showPersonEditor(
-			@RequestParam(required = false) Integer person,
+			@RequestParam(required = false, name = Constants.PERSON_ENDPOINT_PARAMETER) Integer person,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.PERSON_EDITING_ENDPOINT, person);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PERSON_EDITING_ENDPOINT);

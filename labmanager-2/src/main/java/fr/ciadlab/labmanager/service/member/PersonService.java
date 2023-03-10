@@ -98,6 +98,13 @@ public class PersonService extends AbstractService {
 	 * @param wosPlatfom the tool for accessing the remote WoS platform.
 	 * @param nameParser the parser of person names.
 	 * @param nameComparator the comparator of person names.
+	 * @param structureService the service for accessing the associated structures.
+	 * @param invitationService the service for accessing the person invitations.
+	 * @param juryMembershipService the service for accessing the jury memberships.
+	 * @param membershipService the service for accessing the organization memberships.
+	 * @param projectService the service for accessing the projects.
+	 * @param supervisionService the service for accessing the student supervisions.
+	 * @param teachingService the service for accessing the teaching activities.
 	 */
 	public PersonService(
 			@Autowired MessageSourceAccessor messages,

@@ -33,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.conference.Conference;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.conference.ConferenceService;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -67,10 +68,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 @RestController
 @CrossOrigin
 public class ConferenceApiController extends AbstractApiController {
-
-	private static final int COMPUTE_CONFERENCE_INDICATOR_UPDATES_TIMEOUT = 1200000;
-
-	private static final int HUNDRED = 100;
 
 	private ConferenceService conferenceService;
 
@@ -153,11 +150,11 @@ public class ConferenceApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deleteConference")
+	@DeleteMapping("/" + Constants.CONFERENCE_DELETING_ENDPOINT)
 	public void deleteConference(
-			@RequestParam Integer conference,
+			@RequestParam(name = Constants.CONFERENCE_ENDPOINT_PARAMETER) Integer conference,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deleteConference", conference); //$NON-NLS-1$
+		ensureCredentials(username, Constants.CONFERENCE_DELETING_ENDPOINT, conference);
 		if (conference == null || conference.intValue() == 0) {
 			throw new IllegalStateException("Conference not found"); //$NON-NLS-1$
 		}
@@ -222,7 +219,7 @@ public class ConferenceApiController extends AbstractApiController {
 		ensureCredentials(username, Constants.GET_JSON_FOR_CONFERENCE_INDICATOR_UPDATES_ENDPOINT, Integer.valueOf(year));
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
-		final SseEmitter emitter = new SseEmitter(Long.valueOf(COMPUTE_CONFERENCE_INDICATOR_UPDATES_TIMEOUT));
+		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));
 		service.execute(() -> {
 			asyncGetJsonForConferenceIndicatorUpdates(emitter, year);
 		});
@@ -230,7 +227,7 @@ public class ConferenceApiController extends AbstractApiController {
 	}
 
 	private void asyncGetJsonForConferenceIndicatorUpdates(SseEmitter emitter, int year) {
-		final DefaultProgression progress = new DefaultProgression(0, 0, HUNDRED, false);
+		final DefaultProgression progress = new DefaultProgression(0, 0, Constants.HUNDRED, false);
 		progress.addProgressionListener(new ProgressionListener() {
 			@Override
 			public void onProgressionValueChanged(ProgressionEvent event) {
@@ -238,7 +235,7 @@ public class ConferenceApiController extends AbstractApiController {
 				content.put("percent", Integer.valueOf((int) event.getPercent())); //$NON-NLS-1$
 				content.put("terminated", Boolean.FALSE); //$NON-NLS-1$
 				try {
-					final ObjectMapper mapper = new ObjectMapper();
+					final ObjectMapper mapper = JsonUtils.createMapper();
 					final SseEventBuilder sseevent = SseEmitter.event().data(mapper.writeValueAsString(content), MediaType.APPLICATION_JSON);
 					emitter.send(sseevent);
 				} catch (RuntimeException ex) {
@@ -280,7 +277,7 @@ public class ConferenceApiController extends AbstractApiController {
 				}, indicators, false, false);
 			});
 			final Map<String, Object> content = new HashMap<>();
-			content.put("percent", Integer.valueOf(HUNDRED)); //$NON-NLS-1$
+			content.put("percent", Integer.valueOf(Constants.HUNDRED)); //$NON-NLS-1$
 			content.put("terminated", Boolean.TRUE); //$NON-NLS-1$
 			content.put("data", data); //$NON-NLS-1$
 			try {
@@ -319,7 +316,7 @@ public class ConferenceApiController extends AbstractApiController {
 		}
 		Map<Integer, CoreRanking> changes = null;
 		try (StringReader sr = new StringReader(rawChanges)) {
-			final ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = JsonUtils.createMapper();
 			try (JsonParser parser = mapper.createParser(sr)) {
 				final Map<String, String> stringMap = parser.readValueAs(Map.class);
 				changes = stringMap.entrySet().parallelStream().collect(Collectors.toConcurrentMap(

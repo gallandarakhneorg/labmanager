@@ -24,6 +24,7 @@ import java.util.Map;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.supervision.SupervisionService;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -121,7 +122,7 @@ public class SupervisionApiController extends AbstractApiController {
 			//
 			final List<Map<String, String>> supervisorsObj;
 			try (final ByteArrayInputStream bais = new ByteArrayInputStream(supervisors.getBytes())) {
-				final ObjectMapper mapper = new ObjectMapper();
+				final ObjectMapper mapper = JsonUtils.createMapper();
 				supervisorsObj = mapper.readValue(bais, List.class);
 			} catch (Throwable ex) {
 				throw new RuntimeException("Supervisors are invalid"); //$NON-NLS-1$
@@ -159,7 +160,7 @@ public class SupervisionApiController extends AbstractApiController {
 	 */
 	@DeleteMapping("/" + Constants.SUPERVISION_DELETION_ENDPOINT)
 	public void deleteJuryMembership(
-			@RequestParam Integer id,
+			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER) Integer id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.SUPERVISION_DELETION_ENDPOINT, id);
 		if (id == null || id.intValue() == 0) {

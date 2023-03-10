@@ -48,6 +48,7 @@ import fr.ciadlab.labmanager.io.json.DatabaseToZipExporter;
 import fr.ciadlab.labmanager.io.json.DatabaseToZipExporter.ZipExporter;
 import fr.ciadlab.labmanager.io.json.ExtraPublicationProvider;
 import fr.ciadlab.labmanager.io.json.JsonTool;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.SimilarPublicationProvider;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.apache.catalina.connector.ClientAbortException;
@@ -90,8 +91,6 @@ import org.springframework.web.servlet.mvc.method.annotation.StreamingResponseBo
 @RestController
 @CrossOrigin
 public class JsonDatabaseExporterApiController extends AbstractApiController {
-
-	private static final int SAVE_DATABASE_TO_SERVER_ZIP_SERVICE_TIMEOUT = 1200000;
 
 	private static final int THOUSAND = 1000;
 
@@ -176,7 +175,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 		ensureCredentials(username, Constants.SAVE_DATABASE_TO_SERVER_ZIP_BATCH_ENDPOINT);
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
-		final SseEmitter emitter = new SseEmitter(Long.valueOf(SAVE_DATABASE_TO_SERVER_ZIP_SERVICE_TIMEOUT));
+		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));
 		service.execute(() -> {
 			JsonDatabaseExporterApiController.this.asyncZipExporter.asyncSaveDetabaseToLocalZip(emitter, getLogger(), getMessageSourceAccessor());
 		});
@@ -481,7 +480,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 						//content.put("message", Strings.nullToEmpty(message)); //$NON-NLS-1$
 						//
 						try {
-							final ObjectMapper mapper = new ObjectMapper();
+							final ObjectMapper mapper = JsonUtils.createMapper();
 							final SseEventBuilder sseevent = SseEmitter.event().data(mapper.writeValueAsString(content));
 							emitter.send(sseevent);
 						} catch (IOException ex) {

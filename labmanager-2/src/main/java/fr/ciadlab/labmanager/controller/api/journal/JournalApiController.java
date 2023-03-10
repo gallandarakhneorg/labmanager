@@ -29,6 +29,7 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -201,11 +202,11 @@ public class JournalApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deleteJournal")
+	@DeleteMapping("/" + Constants.JOURNAL_DELETING_ENDPOINT)
 	public void deleteJournal(
-			@RequestParam Integer journal,
+			@RequestParam(name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deleteJournal", journal); //$NON-NLS-1$
+		ensureCredentials(username, Constants.JOURNAL_DELETING_ENDPOINT, journal);
 		if (journal == null || journal.intValue() == 0) {
 			throw new IllegalStateException("Journal not found"); //$NON-NLS-1$
 		}
@@ -303,7 +304,7 @@ public class JournalApiController extends AbstractApiController {
 		}
 		final Map<String, Map<String, ?>> changes;
 		try (StringReader sr = new StringReader(rawChanges)) {
-			final ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = JsonUtils.createMapper();
 			try (JsonParser parser = mapper.createParser(sr)) {
 				changes = parser.readValueAs(Map.class);
 			}

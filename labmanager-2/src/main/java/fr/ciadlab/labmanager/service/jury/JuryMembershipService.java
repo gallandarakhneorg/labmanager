@@ -219,4 +219,17 @@ public class JuryMembershipService extends AbstractService {
 		this.membershipRepository.save(membership);
 	}
 
+	/** Replies if the given identifier is for a person who is participating to a jury.
+	 * This participation may be as candidate or member of the jury itself.
+	 *
+	 * @param id the identifier of the person.
+	 * @return {@code true} if the person is candidate or member of a jury.
+	 * @since 3.6
+	 */
+	public boolean isInvolved(int id) {
+		return !this.membershipRepository.findAllByPersonId(id).isEmpty()
+				|| !this.membershipRepository.findAllByCandidateId(id).isEmpty()
+				|| !this.membershipRepository.findAllByPromotersId(id).isEmpty();
+	}
+
 }

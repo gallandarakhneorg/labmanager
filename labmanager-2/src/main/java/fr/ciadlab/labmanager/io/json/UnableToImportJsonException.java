@@ -50,7 +50,7 @@ public class UnableToImportJsonException extends Exception {
 		msg.append(elementIdx);
 		msg.append("]"); //$NON-NLS-1$
 		try {
-			final ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = JsonUtils.createMapper();
 			String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(source);
 			msg.append(" = "); //$NON-NLS-1$
 			msg.append(jsonResult);

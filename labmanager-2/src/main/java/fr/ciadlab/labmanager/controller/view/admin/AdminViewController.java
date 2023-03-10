@@ -150,4 +150,23 @@ public class AdminViewController extends AbstractViewController {
 		return modelAndView;
 	}
 
+
+	/** Compute and show the orphan entities in the JPA.
+	 *
+	 * @param username the name of the logged-in user.
+	 * @return the model-view object.
+	 */
+	@GetMapping(value = "/orphanEntities")
+	public ModelAndView conferenceRankingUpdater(
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		ensureCredentials(username, "orphanEntities"); //$NON-NLS-1$
+		final ModelAndView modelAndView = new ModelAndView("orphanEntities"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, false);
+		//
+		modelAndView.addObject("batchUrl", endpoint(Constants.COMPUTE_ORPHAN_ENTITIES_ENDPOINT)); //$NON-NLS-1$
+		modelAndView.addObject("finishingUrl", endpoint(Constants.ADMIN_ENDPOINT)); //$NON-NLS-1$
+		//
+		return modelAndView;
+	}
+
 }

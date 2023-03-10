@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -96,7 +97,7 @@ public class PublicationImporterApiController extends AbstractApiController {
 		ensureCredentials(username, Constants.SAVE_BIBTEX_ENDPOINT);
 		try {
 			// Pass the changes string as JSON to extract the expected types of publications. 
-			final ObjectMapper json = new ObjectMapper();
+			final ObjectMapper json = JsonUtils.createMapper();
 			final String inChanges = inString(changes);
 			final Map<String, PublicationType> expectedTypes = new TreeMap<>();
 			if (inChanges != null) {

@@ -1920,6 +1920,29 @@ public class PublicationService extends AbstractPublicationService {
 				})
 				.collect(Collectors.toList());
 	}
+
+	/** Replies the list of the publications that are associated to the conference with the given identifier.
+	 *
+	 * @param conferenceId the identifier of the conference.
+	 * @return the list of the associated publications.
+	 * @since 3.6
+	 */
+	public List<ConferenceBasedPublication> getPublicationsForConference(int conferenceId) {
+		return this.publicationRepository.findAll().stream()
+				.filter(it -> it instanceof ConferenceBasedPublication)
+				.map(it -> (ConferenceBasedPublication) it)
+				.filter(it -> it.getConference() != null && it.getConference().getId() == conferenceId)
+				.collect(Collectors.toList());
+	}
+
+	/** Replies if the given id corresponds to an author.
+	 *
+	 * @param id the identifier of the person.
+	 * @return {@code true} if the person is an author.
+	 * @since 3.6
+	 */
+	public boolean isAuthor(int id) {
+		return !this.publicationRepository.findAllByAuthorshipsPersonId(id).isEmpty();
 	}
 
 }

@@ -226,7 +226,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 		getLogger().info("Reading JSON description"); //$NON-NLS-1$
 		// Read the JSON content
 		try (final InputStreamReader isr = new InputStreamReader(entryStream)) {
-			final ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = JsonUtils.createMapper();
 			return mapper.readTree(isr);
 		}
 	}

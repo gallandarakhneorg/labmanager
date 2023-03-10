@@ -94,8 +94,8 @@ public class PersonInvitationViewController extends AbstractViewController {
 	 */
 	@GetMapping("/" + Constants.PERSON_INVITATION_EDITING_ENDPOINT)
 	public ModelAndView personInvitationEditor(
-			@RequestParam(required = true) int person,
-			@RequestParam(required = false, name = "goto") String gotoName,
+			@RequestParam(required = true, name = Constants.PERSON_ENDPOINT_PARAMETER) int person,
+			@RequestParam(required = false, name = Constants.GOTO_ENDPOINT_PARAMETER) String gotoName,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.PERSON_INVITATION_EDITING_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.PERSON_INVITATION_EDITING_ENDPOINT);

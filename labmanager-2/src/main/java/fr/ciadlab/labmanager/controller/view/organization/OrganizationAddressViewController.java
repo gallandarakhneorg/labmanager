@@ -107,7 +107,7 @@ public class OrganizationAddressViewController extends AbstractViewController {
 	 */
 	@GetMapping(value = "/" + Constants.ORGANIZATION_ADDRESS_EDITING_ENDPOINT)
 	public ModelAndView showAddressEditor(
-			@RequestParam(required = false) Integer address,
+			@RequestParam(required = false, name = Constants.ADDRESS_ENDPOINT_PARAMETER) Integer address,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.ORGANIZATION_ADDRESS_EDITING_ENDPOINT, address);
 		final ModelAndView modelAndView = new ModelAndView("addressEditor"); //$NON-NLS-1$

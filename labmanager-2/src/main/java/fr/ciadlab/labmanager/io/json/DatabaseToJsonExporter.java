@@ -193,7 +193,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> exportFromDatabase(SimilarPublicationProvider similarPublicationProvider,
 			ExtraPublicationProvider extraPublicationProvider) throws Exception {
-		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectMapper mapper = JsonUtils.createMapper();
 		final JsonNode obj = exportFromDatabaseToJsonObject(mapper.getNodeFactory(), similarPublicationProvider, extraPublicationProvider);
 		if (obj != null) {
 			return mapper.treeToValue(obj, Map.class);

@@ -36,6 +36,7 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.scimago.ScimagoPlatform;
 import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform;
 import fr.ciadlab.labmanager.io.wos.WebOfSciencePlatform.WebOfScienceJournal;
@@ -448,7 +449,7 @@ public class JournalService extends AbstractService {
 		final Progression progress0 = progress == null ? new DefaultProgression() : progress; 
 		final List<Journal> journals = this.journalRepository.findAll();
 		progress0.setProperties(0, 0, journals.size(), false);
-		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectMapper mapper = JsonUtils.createMapper();
 		final ObjectNode root = new ObjectNode(mapper.getNodeFactory());
 		final ArrayNode dataNode = root.putArray("data"); //$NON-NLS-1$
 		for (final Journal journal : journals) {

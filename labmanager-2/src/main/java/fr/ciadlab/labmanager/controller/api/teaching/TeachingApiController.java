@@ -33,6 +33,7 @@ import fr.ciadlab.labmanager.entities.teaching.TeacherRole;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivity;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivityLevel;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivityType;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.teaching.TeachingService;
@@ -168,7 +169,7 @@ public class TeachingApiController extends AbstractApiController {
 		//
 		final Map<TeachingActivityType, Float> hours = new HashMap<>();
 		if (!Strings.isNullOrEmpty(annualWorkPerType)) {
-			final ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = JsonUtils.createMapper();
 			try {
 				@SuppressWarnings("unchecked")
 				List<Map<?, ?>> rawHours = mapper.readValue(annualWorkPerType, List.class);
@@ -230,11 +231,11 @@ public class TeachingApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deleteTeachingActivity")
+	@DeleteMapping("/" + Constants.TEACHING_ACTIVITY_DELETING_ENDPOINT)
 	public void deleteTeachingActivity(
-			@RequestParam Integer activity,
+			@RequestParam(name = Constants.ACTIVITY_ENDPOINT_PARAMETER) Integer activity,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deleteProject", activity); //$NON-NLS-1$
+		ensureCredentials(username, Constants.TEACHING_ACTIVITY_DELETING_ENDPOINT, activity);
 		if (activity == null || activity.intValue() == 0) {
 			throw new IllegalStateException("Activity not found"); //$NON-NLS-1$
 		}

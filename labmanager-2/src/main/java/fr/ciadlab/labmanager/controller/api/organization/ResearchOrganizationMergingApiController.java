@@ -30,6 +30,7 @@ import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.organization.OrganizationMergingService;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -57,10 +58,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 @RestController
 @CrossOrigin
 public class ResearchOrganizationMergingApiController extends AbstractApiController {
-
-	private static final int COMPUTE_DUPLICATE_ORGANIZATIONS_SERVICE_TIMEOUT = 1200000;
-
-	private static final int PERCENT_100_NUM = 100;
 
 	private OrganizationMergingService mergingService;
 
@@ -115,7 +112,7 @@ public class ResearchOrganizationMergingApiController extends AbstractApiControl
 		ensureCredentials(username, Constants.COMPUTE_DUPLICATE_ORGANIZATIONS_ENDPOINT);
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
-		final SseEmitter emitter = new SseEmitter(Long.valueOf(COMPUTE_DUPLICATE_ORGANIZATIONS_SERVICE_TIMEOUT));
+		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));
 		service.execute(() -> {
 			try {
 				final MutableInt dupCount = new MutableInt();
@@ -165,17 +162,17 @@ public class ResearchOrganizationMergingApiController extends AbstractApiControl
 		content.put("terminated", Boolean.TRUE); //$NON-NLS-1$
 		content.put("duplicates", allDuplicates); //$NON-NLS-1$
 		//
-		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectMapper mapper = JsonUtils.createMapper();
 		final SseEventBuilder event = SseEmitter.event().data(mapper.writeValueAsString(content));
 		emitter.send(event);
 	}
 
 	private void sendDuplicateArrayBuildingStep(SseEmitter emitter, int duplicateIndex, int duplicateCount, int personTotal) throws IOException {
-		final int duplicatePercent = (duplicateCount * PERCENT_100_NUM) / personTotal;
-		final int extraPercent = ((duplicateIndex + 1) * PERCENT_100_NUM) / duplicateCount;
+		final int duplicatePercent = (duplicateCount * Constants.HUNDRED) / personTotal;
+		final int extraPercent = ((duplicateIndex + 1) * Constants.HUNDRED) / duplicateCount;
 		//
 		final String message = getMessage("researchOrganizationMergingApiController.Progress2", //$NON-NLS-1$
-				Integer.toString(PERCENT_100_NUM), Integer.toString(duplicatePercent), Integer.valueOf(extraPercent));
+				Integer.toString(Constants.HUNDRED), Integer.toString(duplicatePercent), Integer.valueOf(extraPercent));
 		//
 		final Map<String, Object> content = new HashMap<>();
 		content.put("duplicates", Integer.valueOf(duplicatePercent)); //$NON-NLS-1$
@@ -184,14 +181,14 @@ public class ResearchOrganizationMergingApiController extends AbstractApiControl
 		content.put("terminated", Boolean.FALSE); //$NON-NLS-1$
 		content.put("message", Strings.nullToEmpty(message)); //$NON-NLS-1$
 		//
-		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectMapper mapper = JsonUtils.createMapper();
 		final SseEventBuilder event = SseEmitter.event().data(mapper.writeValueAsString(content));
 		emitter.send(event);
 	}
 
 	private void sendDuplicateComputationStep(SseEmitter emitter, int personIndex, int duplicateCount, int personTotal) throws IOException {
-		final int percent = ((personIndex + 1) * PERCENT_100_NUM) / personTotal;
-		final int duplicatePercent = (duplicateCount * PERCENT_100_NUM) / personTotal;
+		final int percent = ((personIndex + 1) * Constants.HUNDRED) / personTotal;
+		final int duplicatePercent = (duplicateCount * Constants.HUNDRED) / personTotal;
 		//
 		final String message = getMessage("researchOrganizationMergingApiController.Progress", //$NON-NLS-1$
 				Integer.toString(percent), Integer.toString(duplicatePercent));
@@ -203,7 +200,7 @@ public class ResearchOrganizationMergingApiController extends AbstractApiControl
 		content.put("terminated", Boolean.FALSE); //$NON-NLS-1$
 		content.put("message", Strings.nullToEmpty(message)); //$NON-NLS-1$
 		//
-		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectMapper mapper = JsonUtils.createMapper();
 		final SseEventBuilder event = SseEmitter.event().data(mapper.writeValueAsString(content));
 		emitter.send(event);
 	}

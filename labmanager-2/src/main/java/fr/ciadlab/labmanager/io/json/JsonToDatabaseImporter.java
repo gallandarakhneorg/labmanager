@@ -475,7 +475,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	public Stats importJsonFileToDatabase(InputStream inputStream) throws Exception {
 		final JsonNode content;
 		try (final InputStreamReader isr = new InputStreamReader(inputStream)) {
-			final ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = JsonUtils.createMapper();
 			content = mapper.readTree(isr);
 		}
 		return importJsonFileToDatabase(content, false, null);

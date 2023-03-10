@@ -163,7 +163,7 @@ public class JuryMembershipApiController extends AbstractApiController {
 	 */
 	@DeleteMapping("/" + Constants.JURY_MEMBERSHIP_DELETION_ENDPOINT)
 	public void deleteJuryMembership(
-			@RequestParam Integer id,
+			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER) Integer id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.JURY_MEMBERSHIP_DELETION_ENDPOINT, id);
 		if (id == null || id.intValue() == 0) {

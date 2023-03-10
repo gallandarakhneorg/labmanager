@@ -67,14 +67,14 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	public String exportPublicationsWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
 			String... rootKeys) throws Exception {
 		final JsonNode root = exportPublicationsAsTreeWithRootKeys(publications, configurator, null, rootKeys);
-		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectMapper mapper = JsonUtils.createMapper();
 		return mapper.writer().writeValueAsString(root);
 	}
 
 	@Override
 	public JsonNode exportPublicationsAsTreeWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
 			Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
-		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectMapper mapper = JsonUtils.createMapper();
 		final JsonNode node = exportPublicationsAsTree(publications, configurator, callback, mapper);
 		JsonNode root = node;
 		if (rootKeys != null) {

@@ -36,6 +36,7 @@ import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.project.ProjectService;
 import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
@@ -206,7 +207,7 @@ public class ProjectApiController extends AbstractApiController {
 		final String inParticipants = inString(participants);
 		final Map<Integer, Role> participantMap = new HashMap<>();
 		if (!Strings.isNullOrEmpty(inParticipants)) {
-			final ObjectMapper jsonMapper = new ObjectMapper();
+			final ObjectMapper jsonMapper = JsonUtils.createMapper();
 			@SuppressWarnings("unchecked")
 			final List<Map<String,String>> input = jsonMapper.readValue(inParticipants, List.class);
 			if (input == null) {
@@ -231,7 +232,7 @@ public class ProjectApiController extends AbstractApiController {
 		final List<ProjectBudget> budgets = new ArrayList<>();
 		final String inLocalOrganizationBudgets = inString(localOrganizationBudgets);
 		if (!Strings.isNullOrEmpty(inLocalOrganizationBudgets)) {
-			final ObjectMapper jsonMapper = new ObjectMapper();
+			final ObjectMapper jsonMapper = JsonUtils.createMapper();
 			@SuppressWarnings("unchecked")
 			final List<Map<String,String>> input = jsonMapper.readValue(inLocalOrganizationBudgets, List.class);
 			if (input != null) {
@@ -294,9 +295,9 @@ public class ProjectApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deleteProject")
+	@DeleteMapping("/" + Constants.PROJECT_DELETING_ENDPOINT)
 	public void deleteProject(
-			@RequestParam Integer project,
+			@RequestParam(name = Constants.PROJECT_ENDPOINT_PARAMETER) Integer project,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, "deleteProject", project); //$NON-NLS-1$
 		if (project == null || project.intValue() == 0) {

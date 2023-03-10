@@ -132,11 +132,11 @@ public class OrganizationAddressApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deleteAddress")
+	@DeleteMapping("/" + Constants.ORGANIZATION_ADDRESS_DELETING_ENDPOINT)
 	public void deleteOrganizationAddress(
-			@RequestParam Integer address,
+			@RequestParam(name = Constants.ADDRESS_ENDPOINT_PARAMETER) Integer address,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deleteAddress", address); //$NON-NLS-1$
+		ensureCredentials(username, Constants.ORGANIZATION_ADDRESS_DELETING_ENDPOINT, address);
 		if (address == null || address.intValue() == 0) {
 			throw new IllegalStateException("Address not found"); //$NON-NLS-1$
 		}

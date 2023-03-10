@@ -70,15 +70,11 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 @CrossOrigin
 public class PublicationApiController extends AbstractApiController {
 
-	private static final int THUMBNAIL_SERVICE_TIMEOUT = 1200000;
-
 	private static final int THUMBNAIL_STEP_1 = 1;
 
 	private static final int THUMBNAIL_STEP_2 = 2;
 
 	private static final String PERCENT_100_STR = "100"; //$NON-NLS-1$
-
-	private static final int PERCENT_100_NUM = 100;
 
 	private PublicationService publicationService;
 
@@ -232,11 +228,11 @@ public class PublicationApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deletePublication")
+	@DeleteMapping("/" + Constants.PUBLICATION_DELETING_ENDPOINT)
 	public void deletePublication(
-			@RequestParam Integer publication,
+			@RequestParam(name = Constants.PUBLICATION_ENDPOINT_PARAMETER) Integer publication,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deletePublication", publication); //$NON-NLS-1$
+		ensureCredentials(username, Constants.PUBLICATION_DELETING_ENDPOINT, publication);
 		if (publication == null || publication.intValue() == 0) {
 			throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
 		}
@@ -253,25 +249,25 @@ public class PublicationApiController extends AbstractApiController {
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.REGENERATE_THUMBNAIL_ASYNC_ENDPOINT);
 		final ExecutorService service = Executors.newSingleThreadExecutor();
-		final SseEmitter emitter = new SseEmitter(Long.valueOf(THUMBNAIL_SERVICE_TIMEOUT));
+		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));
 		service.execute(() -> {
 			try {
 				final SizedIterator<File> thumbnail = this.fileManager.getThumbailFiles();
 				final SizedIterator<File> uploadedFiles = this.fileManager.getUploadedPdfFiles();
 				while (thumbnail.hasNext()) {
-					final int percent = (thumbnail.index() * PERCENT_100_NUM) / thumbnail.totalSize();
+					final int percent = (thumbnail.index() * Constants.HUNDRED) / thumbnail.totalSize();
 					sendProgressStep(emitter, THUMBNAIL_STEP_1, percent, getMessage("publicationApiController.DeletingThumbnails", Integer.valueOf(percent))); //$NON-NLS-1$
 					final File thumbnailFile = thumbnail.next();
 					FileSystem.delete(thumbnailFile);
 				}
-				sendProgressStep(emitter, THUMBNAIL_STEP_1, PERCENT_100_NUM, getMessage("publicationApiController.DeletingThumbnails", PERCENT_100_STR)); //$NON-NLS-1$
+				sendProgressStep(emitter, THUMBNAIL_STEP_1, Constants.HUNDRED, getMessage("publicationApiController.DeletingThumbnails", PERCENT_100_STR)); //$NON-NLS-1$
 				while (uploadedFiles.hasNext()) {
-					final int percent = (uploadedFiles.index() * PERCENT_100_NUM) / uploadedFiles.totalSize();
+					final int percent = (uploadedFiles.index() * Constants.HUNDRED) / uploadedFiles.totalSize();
 					sendProgressStep(emitter, THUMBNAIL_STEP_2, percent, getMessage("publicationApiController.GeneratingThumbnails", Integer.valueOf(percent))); //$NON-NLS-1$
 					final File uploadedFile = uploadedFiles.next();
 					this.fileManager.regenerateThumbnail(uploadedFile);
 				}
-				sendProgressStep(emitter, THUMBNAIL_STEP_2, PERCENT_100_NUM, getMessage("publicationApiController.GeneratingThumbnails", PERCENT_100_STR)); //$NON-NLS-1$
+				sendProgressStep(emitter, THUMBNAIL_STEP_2, Constants.HUNDRED, getMessage("publicationApiController.GeneratingThumbnails", PERCENT_100_STR)); //$NON-NLS-1$
 				emitter.complete();
 			} catch (ClientAbortException ex) {
 				// Do not log a message because the connection was closed by the client.
@@ -290,7 +286,7 @@ public class PublicationApiController extends AbstractApiController {
 		final JsonString jstring = Json.createValue(Strings.nullToEmpty(message));
 		final StringBuilder json = new StringBuilder();
 		json.append("{\"step\":").append(step) //$NON-NLS-1$
-		.append(",\"terminated\":").append(Boolean.toString(step == THUMBNAIL_STEP_2 && percent >= PERCENT_100_NUM)) //$NON-NLS-1$
+		.append(",\"terminated\":").append(Boolean.toString(step == THUMBNAIL_STEP_2 && percent >= Constants.HUNDRED)) //$NON-NLS-1$
 		.append(",\"percent\":").append(percent) //$NON-NLS-1$
 		.append(",\"message\":").append(jstring.toString()).append("}"); //$NON-NLS-1$ //$NON-NLS-2$
 		final SseEventBuilder event = SseEmitter.event().data(json.toString());

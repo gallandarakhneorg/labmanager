@@ -180,11 +180,11 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deleteOrganization")
+	@DeleteMapping("/" + Constants.ORGANIZATION_DELETING_ENDPOINT)
 	public void deleteOrganization(
-			@RequestParam Integer organization,
+			@RequestParam(name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deleteOrganization", organization); //$NON-NLS-1$
+		ensureCredentials(username, Constants.ORGANIZATION_DELETING_ENDPOINT, organization);
 		if (organization == null || organization.intValue() == 0) {
 			throw new IllegalStateException("Organization not found"); //$NON-NLS-1$
 		}

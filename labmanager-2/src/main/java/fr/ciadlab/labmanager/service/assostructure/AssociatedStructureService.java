@@ -308,4 +308,14 @@ public class AssociatedStructureService extends AbstractService {
 		return this.structureRepository.findDistinctPersonAssociatedStructures(Boolean.FALSE, idObj);
 	}
 
+	/** Replies if the given identifier is for a person who is involved in an associated structure, whatever her/his role.
+	 *
+	 * @param id the identifier of the person.
+	 * @return {@code true} if the person is involved in an associated structure.
+	 * @since 3.6
+	 */
+	public boolean isInvolved(int id) {
+		return !getAssociatedStructuresByPersonId(id).isEmpty();
+	}
+
 }

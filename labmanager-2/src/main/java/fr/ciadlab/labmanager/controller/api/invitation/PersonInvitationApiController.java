@@ -162,7 +162,7 @@ public class PersonInvitationApiController extends AbstractApiController {
 	 */
 	@DeleteMapping("/" + Constants.PERSON_INVITATION_DELETION_ENDPOINT)
 	public void deleteJuryMembership(
-			@RequestParam Integer id,
+			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER) Integer id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		ensureCredentials(username, Constants.PERSON_INVITATION_DELETION_ENDPOINT, id);
 		if (id == null || id.intValue() == 0) {

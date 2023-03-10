@@ -16,8 +16,6 @@
 
 package fr.ciadlab.labmanager.controller.view;
 
-import java.io.File;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -30,13 +28,8 @@ import java.util.regex.Pattern;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.AbstractCredentialController;
-import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
-import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilder;
-import org.springframework.web.util.UriBuilderFactory;
 
 /** Abstract implementation of a JEE Controller that provides views.
  * 
@@ -47,10 +40,6 @@ import org.springframework.web.util.UriBuilderFactory;
  * @mavenartifactid $ArtifactId$
  */
 public abstract class AbstractViewController extends AbstractCredentialController {
-
-	/** Factory of URI builder.
-	 */
-	protected final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
 
 	private static final String EMAIL_PATTERN_VALUE = "^([^@]+)@(.*?)\\.([^\\.]+)$"; //$NON-NLS-1$
 	
@@ -64,124 +53,6 @@ public abstract class AbstractViewController extends AbstractCredentialControlle
 	 */
 	public AbstractViewController(MessageSourceAccessor messages, Constants constants, String usernameKey) {
 		super(messages, constants, usernameKey);
-	}
-
-	/** Build the URL for accessing an endpoint with the given parameter name, but without setting the parameter value. 
-	 *
-	 * @param endpointName the name of the endpoint.
-	 * @param parameterName the parameter name.
-	 * @return the endpoint URL.
-	 */
-	protected String endpoint(String endpointName, String parameterName) {
-		return endpoint(endpointName, parameterName, ""); //$NON-NLS-1$
-	}
-
-	/** Build the URL for accessing an endpoint. 
-	 *
-	 * @param endpointName the name of the endpoint.
-	 * @return the endpoint URL.
-	 */
-	protected String endpoint(String endpointName) {
-		final UriBuilder b = endpointUriBuilder(endpointName);
-		return b.build().toASCIIString();
-	}
-
-	/** Build the URL for accessing an endpoint with the given parameter name, but without setting the parameter value. 
-	 *
-	 * @param endpointName the name of the endpoint.
-	 * @param parameterName the parameter name.
-	 * @param parameterValue the parameter value.
-	 * @return the endpoint URL.
-	 */
-	protected String endpoint(String endpointName, String parameterName, Object value) {
-		final UriBuilder b = endpointUriBuilder(endpointName);
-		if (!Strings.isNullOrEmpty(parameterName)) {
-			b.queryParam(parameterName, value);
-		}
-		return b.build().toASCIIString();
-	}
-
-	/** Build the URL for accessing an endpoint with the given parameter names, but without setting the parameter value. 
-	 *
-	 * @param endpointName the name of the endpoint.
-	 * @param parameterName0 the first parameter name.
-	 * @param parameterValue0 the first parameter value.
-	 * @param parameterName1 the second parameter name.
-	 * @return the endpoint URL.
-	 */
-	protected String endpoint(String endpointName, String parameterName0, Object value0, String parameterName1) {
-		final UriBuilder b = endpointUriBuilder(endpointName);
-		if (!Strings.isNullOrEmpty(parameterName0)) {
-			b.queryParam(parameterName0, value0);
-		}
-		if (!Strings.isNullOrEmpty(parameterName1)) {
-			b.queryParam(parameterName1, ""); //$NON-NLS-1$
-		}
-		return b.build().toASCIIString();
-	}
-
-	/** Create the URL builder for accessing an endpoint. 
-	 *
-	 * @param endpointName the name of the endpoint.
-	 * @return the endpoint URL. builder
-	 */
-	protected UriBuilder endpointUriBuilder(String endpointName) {
-		final UriBuilder b = this.uriBuilderFactory.builder();
-		b.path("/" + this.constants.getServerName() + "/" + endpointName); //$NON-NLS-1$ //$NON-NLS-2$
-		return b;
-	}
-
-	/** Build the URL from the root of the JPA server. 
-	 *
-	 * @param relativeFile the relative path to append to the server's root.
-	 * @return the rooted URL.
-	 */
-	protected String rooted(File relativeFile) {
-		final StringBuilder bb = new StringBuilder();
-		File f = relativeFile;
-		while (f != null) {
-			bb.insert(0, f.getName()).insert(0, "/"); //$NON-NLS-1$
-			f = f.getParentFile();
-		}
-		final UriBuilder b = this.uriBuilderFactory.builder();
-		b.path("/" + this.constants.getServerName() + bb.toString()); //$NON-NLS-1$
-		return b.build().toASCIIString();
-	}
-
-	/** Build the URL from the root of the JPA server. 
-	 *
-	 * @param relativeUrl the relative URL to append to the server's root.
-	 * @return the rooted URL.
-	 */
-	protected String rooted(String relativeUrl) {
-		final UriBuilder b = this.uriBuilderFactory.builder();
-		b.path("/" + this.constants.getServerName() + "/" + relativeUrl); //$NON-NLS-1$ //$NON-NLS-2$
-		return b.build().toASCIIString();
-	}
-
-	/** Create a root-based filename for a thumbnail.
-	 *
-	 * @param filename the filename of the picture.
-	 * @param preserveFileExtension indicates if the filename extension is preserved ({@code true}) or forced to JPEG
-	 *     ({@code false}.
-	 * @return the rooted filename of the picture.
-	 * @since 3.2
-	 */
-	protected String rootedThumbnail(String filename, boolean preserveFileExtension) {
-		try {
-			final URL url = new URL("file:" + filename); //$NON-NLS-1$
-			final URL normalized;
-			if (preserveFileExtension) {
-				normalized = url;
-			} else {
-				normalized = FileSystem.replaceExtension(url, DownloadableFileManager.JPEG_FILE_EXTENSION);
-			}
-			return rooted(normalized.getPath());
-		} catch (RuntimeException ex) {
-			throw ex;
-		} catch (Exception ex) {
-			throw new RuntimeException(ex);
-		}
 	}
 
 	/** Fill the attributes of the given model-view with the standard properties.

@@ -265,4 +265,15 @@ public class SupervisionService extends AbstractService {
 		this.supervisorRepository.save(supervisor);
 	}
 
+	/** Replies if the given identifier is for a person who participates to a supervision as student or supervisor.
+	 *
+	 * @param id the identifier of the person.
+	 * @return {@code true} if the person is a student or a supervisor involved in the supervision.
+	 * @since 3.6
+	 */
+	public boolean isInvolved(int id) {
+		return !this.supervisionRepository.findAllBySupervisedPersonPersonId(Integer.valueOf(id)).isEmpty()
+				|| !!this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Integer.valueOf(id)).isEmpty();
+	}
+
 }

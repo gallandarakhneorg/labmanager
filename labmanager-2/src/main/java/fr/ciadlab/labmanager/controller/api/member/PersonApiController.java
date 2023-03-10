@@ -34,6 +34,7 @@ import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.WebPageNaming;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.member.PersonService.PersonIndicators;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
@@ -81,10 +82,6 @@ import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEvent
 @RestController
 @CrossOrigin
 public class PersonApiController extends AbstractApiController {
-
-	private static final int COMPUTE_PERSON_INDICATOR_UPDATES_TIMEOUT = 1200000;
-
-	private static final int HUNDRED = 100;
 
 	private PersonService personService;
 
@@ -271,11 +268,11 @@ public class PersonApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deletePerson")
+	@DeleteMapping("/" + Constants.PERSON_DELETING_ENDPOINT)
 	public void deletePerson(
-			@RequestParam Integer person,
+			@RequestParam(name = Constants.PERSON_ENDPOINT_PARAMETER) Integer person,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deletePerson", person); //$NON-NLS-1$
+		ensureCredentials(username, Constants.PERSON_DELETING_ENDPOINT, person);
 		if (person == null || person.intValue() == 0) {
 			throw new IllegalStateException("Person not found"); //$NON-NLS-1$
 		}
@@ -334,7 +331,7 @@ public class PersonApiController extends AbstractApiController {
 		}
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
-		final SseEmitter emitter = new SseEmitter(Long.valueOf(COMPUTE_PERSON_INDICATOR_UPDATES_TIMEOUT));
+		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));
 		service.execute(() -> {
 			asyncGetJsonForPersonIndicatorUpdates(emitter, organizationObj);
 		});
@@ -342,7 +339,7 @@ public class PersonApiController extends AbstractApiController {
 	}
 
 	private void asyncGetJsonForPersonIndicatorUpdates(SseEmitter emitter, ResearchOrganization organization) {
-		final DefaultProgression progress = new DefaultProgression(0, 0, HUNDRED, false);
+		final DefaultProgression progress = new DefaultProgression(0, 0, Constants.HUNDRED, false);
 		progress.addProgressionListener(new ProgressionListener() {
 			@Override
 			public void onProgressionValueChanged(ProgressionEvent event) {
@@ -350,7 +347,7 @@ public class PersonApiController extends AbstractApiController {
 				content.put("percent", Integer.valueOf((int) event.getPercent())); //$NON-NLS-1$
 				content.put("terminated", Boolean.FALSE); //$NON-NLS-1$
 				try {
-					final ObjectMapper mapper = new ObjectMapper();
+					final ObjectMapper mapper = JsonUtils.createMapper();
 					final SseEventBuilder sseevent = SseEmitter.event().data(mapper.writeValueAsString(content), MediaType.APPLICATION_JSON);
 					emitter.send(sseevent);
 				} catch (RuntimeException ex) {
@@ -392,7 +389,7 @@ public class PersonApiController extends AbstractApiController {
 				}, indicators, false, false);
 			});
 			final Map<String, Object> content = new HashMap<>();
-			content.put("percent", Integer.valueOf(HUNDRED)); //$NON-NLS-1$
+			content.put("percent", Integer.valueOf(Constants.HUNDRED)); //$NON-NLS-1$
 			content.put("terminated", Boolean.TRUE); //$NON-NLS-1$
 			content.put("data", data); //$NON-NLS-1$
 			try {
@@ -426,7 +423,7 @@ public class PersonApiController extends AbstractApiController {
 		//
 		final Map<Integer, PersonIndicators> updates = new HashMap<>();
 		if (!Strings.isNullOrEmpty(data)) {
-			final ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = JsonUtils.createMapper();
 			@SuppressWarnings("unchecked")
 			Map<String, Map<String, Object>> data0 = mapper.readValue(data, Map.class);
 			for (final Entry<String, Map<String, Object>> entry : data0.entrySet()) {

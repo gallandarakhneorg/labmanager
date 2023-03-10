@@ -48,6 +48,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriBuilderFactory;
 
 /** Abstract implementation of a JEE component.
  * 
@@ -60,6 +63,10 @@ public abstract class AbstractComponent {
 
 	private static final String UNSET_STR = "-"; //$NON-NLS-1$
 	
+	/** Factory of URI builder.
+	 */
+	protected final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
+
 	/** Constants of the application.
 	 */
 	protected Constants constants;
@@ -716,6 +723,133 @@ public abstract class AbstractComponent {
 			getLogger().info(logMessage + fn.getPath());
 		}
 		return changed;
+	}
+
+	/** Build the URL for accessing an endpoint with the given parameter name, but without setting the parameter value. 
+	 *
+	 * @param endpointName the name of the endpoint.
+	 * @param parameterName the parameter name.
+	 * @return the endpoint URL.
+	 */
+	protected String endpoint(String endpointName, String parameterName) {
+		return endpoint(endpointName, parameterName, ""); //$NON-NLS-1$
+	}
+
+	/** Build the URL for accessing an endpoint. 
+	 *
+	 * @param endpointName the name of the endpoint.
+	 * @return the endpoint URL.
+	 */
+	protected String endpoint(String endpointName) {
+		return endpoint(endpointName, null, null, null, null);
+	}
+
+	/** Build the URL for accessing an endpoint with the given parameter name, but without setting the parameter value. 
+	 *
+	 * @param endpointName the name of the endpoint.
+	 * @param parameterName the parameter name.
+	 * @param parameterValue the parameter value.
+	 * @return the endpoint URL.
+	 */
+	protected String endpoint(String endpointName, String parameterName, Object value) {
+		return endpoint(endpointName, parameterName, value, null, null);
+	}
+
+	/** Build the URL for accessing an endpoint with the given parameter names, but without setting the parameter value. 
+	 *
+	 * @param endpointName the name of the endpoint.
+	 * @param parameterName0 the first parameter name.
+	 * @param parameterValue0 the first parameter value.
+	 * @param parameterName1 the second parameter name.
+	 * @return the endpoint URL.
+	 */
+	protected String endpoint(String endpointName, String parameterName0, Object parameterValue0, String parameterName1) {
+		return endpoint(endpointName, parameterName0, parameterValue0, parameterName1, ""); //$NON-NLS-1$
+	}
+
+	/** Build the URL for accessing an endpoint with the given parameter names. 
+	 *
+	 * @param endpointName the name of the endpoint.
+	 * @param parameterName0 the first parameter name.
+	 * @param parameterValue0 the first parameter value.
+	 * @param parameterName1 the second parameter name.
+	 * @param parameterValue1 the second parameter value.
+	 * @return the endpoint URL.
+	 * @sine 3.6
+	 */
+	protected String endpoint(String endpointName, String parameterName0, Object parameterValue0, String parameterName1, String parameterValue1) {
+		final UriBuilder b = endpointUriBuilder(endpointName);
+		if (!Strings.isNullOrEmpty(parameterName0)) {
+			b.queryParam(parameterName0, parameterValue0);
+		}
+		if (!Strings.isNullOrEmpty(parameterName1)) {
+			b.queryParam(parameterName1, parameterValue1);
+		}
+		return b.build().toASCIIString();
+	}
+
+	/** Create the URL builder for accessing an endpoint. 
+	 *
+	 * @param endpointName the name of the endpoint.
+	 * @return the endpoint URL. builder
+	 */
+	protected UriBuilder endpointUriBuilder(String endpointName) {
+		final UriBuilder b = this.uriBuilderFactory.builder();
+		b.path("/" + this.constants.getServerName() + "/" + endpointName); //$NON-NLS-1$ //$NON-NLS-2$
+		return b;
+	}
+
+	/** Build the URL from the root of the JPA server. 
+	 *
+	 * @param relativeFile the relative path to append to the server's root.
+	 * @return the rooted URL.
+	 */
+	protected String rooted(File relativeFile) {
+		final StringBuilder bb = new StringBuilder();
+		File f = relativeFile;
+		while (f != null) {
+			bb.insert(0, f.getName()).insert(0, "/"); //$NON-NLS-1$
+			f = f.getParentFile();
+		}
+		final UriBuilder b = this.uriBuilderFactory.builder();
+		b.path("/" + this.constants.getServerName() + bb.toString()); //$NON-NLS-1$
+		return b.build().toASCIIString();
+	}
+
+	/** Build the URL from the root of the JPA server. 
+	 *
+	 * @param relativeUrl the relative URL to append to the server's root.
+	 * @return the rooted URL.
+	 */
+	protected String rooted(String relativeUrl) {
+		final UriBuilder b = this.uriBuilderFactory.builder();
+		b.path("/" + this.constants.getServerName() + "/" + relativeUrl); //$NON-NLS-1$ //$NON-NLS-2$
+		return b.build().toASCIIString();
+	}
+
+	/** Create a root-based filename for a thumbnail.
+	 *
+	 * @param filename the filename of the picture.
+	 * @param preserveFileExtension indicates if the filename extension is preserved ({@code true}) or forced to JPEG
+	 *     ({@code false}.
+	 * @return the rooted filename of the picture.
+	 * @since 3.2
+	 */
+	protected String rootedThumbnail(String filename, boolean preserveFileExtension) {
+		try {
+			final URL url = new URL("file:" + filename); //$NON-NLS-1$
+			final URL normalized;
+			if (preserveFileExtension) {
+				normalized = url;
+			} else {
+				normalized = FileSystem.replaceExtension(url, DownloadableFileManager.JPEG_FILE_EXTENSION);
+			}
+			return rooted(normalized.getPath());
+		} catch (RuntimeException ex) {
+			throw ex;
+		} catch (Exception ex) {
+			throw new RuntimeException(ex);
+		}
 	}
 
 	/** Internal callback object.

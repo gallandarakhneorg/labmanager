@@ -97,7 +97,7 @@ public class JournalViewController extends AbstractViewController {
 	 */
 	@GetMapping(value = "/" + Constants.JOURNAL_EDITING_ENDPOINT)
 	public ModelAndView journalEditor(
-			@RequestParam(required = false) Integer journal,
+			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.JOURNAL_EDITING_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView("journalEditor"); //$NON-NLS-1$

@@ -31,6 +31,18 @@ import org.springframework.stereotype.Component;
 @Component
 public class Constants {
 
+	/** Default time out for the SSE requests.
+	 *
+	 * @since 3.6
+	 */
+	public static final int SSE_TIMEOUT = 1200000;
+	
+	/** Hundred.
+	 *
+	 * @since 3.6
+	 */
+	public static final int HUNDRED = 100;
+	
 	/** Anonymous user name.
 	 */
 	public static final String ANONYMOUS = "anonymous"; //$NON-NLS-1$
@@ -86,6 +98,10 @@ public class Constants {
 	/** Name of the endpoint parameter "journal".
 	 */
 	public static final String JOURNAL_ENDPOINT_PARAMETER = "journal"; //$NON-NLS-1$
+
+	/** Name of the endpoint parameter "address".
+	 */
+	public static final String ADDRESS_ENDPOINT_PARAMETER = "address"; //$NON-NLS-1$
 
 	/** Name of the endpoint parameter "inAttachment".
 	 */
@@ -156,6 +172,12 @@ public class Constants {
 	 */
 	public static final String ORGANIZATION_SAVING_ENDPOINT = "organizationSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for deleting an organization.
+	 *
+	 * @since 3.6
+	 */
+	public static final String ORGANIZATION_DELETING_ENDPOINT = "deleteOrganization"; //$NON-NLS-1$
+
 	/** Name of the endpoint for editing an organization address.
 	 *
 	 * @see #ORGANIZATION_ADDRESS_SAVING_ENDPOINT
@@ -168,6 +190,12 @@ public class Constants {
 	 */
 	public static final String ORGANIZATION_ADDRESS_SAVING_ENDPOINT = "addressSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for deleting an organization address.
+	 *
+	 * @since 3.6
+	 */
+	public static final String ORGANIZATION_ADDRESS_DELETING_ENDPOINT = "deleteAddress"; //$NON-NLS-1$
+
 	/** Name of the endpoint for list of persons.
 	 */
 	public static final String PERSON_LIST_ENDPOINT = "personList"; //$NON-NLS-1$
@@ -177,6 +205,12 @@ public class Constants {
 	 * @see #PERSON_SAVING_ENDPOINT
 	 */
 	public static final String PERSON_EDITING_ENDPOINT = "personEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving a person.
+	 *
+	 * @since 3.6
+	 */
+	public static final String PERSON_DELETING_ENDPOINT = "deletePerson"; //$NON-NLS-1$
 
 	/** Name of the endpoint for saving a person.
 	 *
@@ -225,9 +259,15 @@ public class Constants {
 	 */
 	public static final String PERSON_VCARD_ENDPOINT = "personVcard"; //$NON-NLS-1$
 
-	/** Name of the name of an endpoint parameter for representing a person.
+	/** Name of an endpoint parameter for representing a person.
 	 */
 	public static final String PERSON_ENDPOINT_PARAMETER = "person"; //$NON-NLS-1$
+
+	/** Name of an endpoint parameter for representing a goto.
+	 *
+	 * @since 3.6
+	 */
+	public static final String GOTO_ENDPOINT_PARAMETER = "goto"; //$NON-NLS-1$
 
 	/** Name of the name of an endpoint parameter for representing a personId.
 	 */
@@ -244,6 +284,12 @@ public class Constants {
 	 * @see #JOURNAL_SAVING_ENDPOINT
 	 */
 	public static final String JOURNAL_EDITING_ENDPOINT = "journalEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for deleting a journal.
+	 *
+	 * @since 3.6
+	 */
+	public static final String JOURNAL_DELETING_ENDPOINT = "deleteJournal"; //$NON-NLS-1$
 
 	/** Name of the endpoint for saving a journal.
 	 *
@@ -272,6 +318,12 @@ public class Constants {
 	 */
 	public static final String CONFERENCE_SAVING_ENDPOINT = "conferenceSave"; //$NON-NLS-1$
 
+	/** Name of the endpoint for deleting a conference.
+	 *
+	 * @since 3.6
+	 */
+	public static final String CONFERENCE_DELETING_ENDPOINT = "deleteConference"; //$NON-NLS-1$
+
 	/** Name of the endpoint for list of publications.
 	 */
 	public static final String PUBLICATION_LIST_ENDPOINT = "publicationList"; //$NON-NLS-1$
@@ -288,6 +340,12 @@ public class Constants {
 	 */
 	public static final String PUBLICATION_SAVING_ENDPOINT = "publicationSave"; //$NON-NLS-1$
 	
+	/** Name of the endpoint for deleting a publication.
+	 *
+	 * @since 3.6
+	 */
+	public static final String PUBLICATION_DELETING_ENDPOINT = "deletePublication"; //$NON-NLS-1$
+
 	/** Name of the endpoint for editing global indicators.
 	 *
 	 * @see #GLOBAL_INDICATORS_SAVING_ENDPOINT
@@ -387,6 +445,12 @@ public class Constants {
 	 */
 	public static final String SAVE_CONFERENCE_RANKING_ENDPOINT = "saveConferenceRanking"; //$NON-NLS-1$
 
+	/** Name of the endpoint's parameter for a conference.
+	 *
+	 * @since 3.6
+	 */
+	public static final String CONFERENCE_ENDPOINT_PARAMETER = "conference"; //$NON-NLS-1$
+
 	/** Name of the endpoint for deleting a conference ranking.
 	 *
 	 * @since 3.6
@@ -410,6 +474,12 @@ public class Constants {
 	 * @since 3.6
 	 */
 	public static final String SAVE_CONFERENCE_INDICATOR_UPDATES_ENDPOINT = "saveConferenceIndicatorUpdates"; //$NON-NLS-1$
+
+	/** Name of the endpoint for computing the orphan entities.
+	 *
+	 * @since 3.6
+	 */
+	public static final String COMPUTE_ORPHAN_ENTITIES_ENDPOINT = "computeOrphanEntities"; //$NON-NLS-1$
 
 	/** Name of the endpoint for saving the person indicator updates.
 	 *
@@ -435,6 +505,12 @@ public class Constants {
 	 */
 	public static final String PROJECT_SAVING_ENDPOINT = "saveProject"; //$NON-NLS-1$
 
+	/** Name of the endpoint for deleting of projects.
+	 *
+	 * @since 3.6
+	 */
+	public static final String PROJECT_DELETING_ENDPOINT = "deleteProject"; //$NON-NLS-1$
+
 	/** Name of the endpoint parameter "project".
 	 *
 	 * @since 3.0
@@ -459,6 +535,12 @@ public class Constants {
 	 */
 	public static final String ASSOCIATED_STRUCTURE_SAVING_ENDPOINT = "saveAssoStruct"; //$NON-NLS-1$
 
+	/** Name of the endpoint for deleting of associated structures.
+	 *
+	 * @since 3.6
+	 */
+	public static final String ASSOCIATED_STRUCTURE_DELETING_ENDPOINT = "deleteAssoStruct"; //$NON-NLS-1$
+
 	/** Name of the endpoint parameter "structure".
 	 *
 	 * @since 3.2
@@ -476,6 +558,12 @@ public class Constants {
 	 * @since 3.4
 	 */
 	public static final String TEACHING_ACTIVITY_EDITING_ENDPOINT = "teachingActivityEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for deleting teaching activities.
+	 *
+	 * @since 3.6
+	 */
+	public static final String TEACHING_ACTIVITY_DELETING_ENDPOINT = "deleteTeachingActivity"; //$NON-NLS-1$
 
 	/** Name of the endpoint for saving of teaching activity.
 	 *
@@ -500,6 +588,12 @@ public class Constants {
 	 * @since 3.5
 	 */
 	public static final String SCIENTIFIC_AXIS_EDITING_ENDPOINT = "scientificAxisEditor"; //$NON-NLS-1$
+
+	/** Name of the endpoint for deleting scientific axis.
+	 *
+	 * @since 3.6
+	 */
+	public static final String SCIENTIFIC_AXIS_DELETING_ENDPOINT = "scientificAxisEditor"; //$NON-NLS-1$
 
 	/** Name of the endpoint for saving of scientific axis.
 	 *

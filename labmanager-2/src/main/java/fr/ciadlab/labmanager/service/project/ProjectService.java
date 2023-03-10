@@ -1100,4 +1100,14 @@ public class ProjectService extends AbstractService {
 		return true;
 	}
 
+	/** Replies if the given identifier is for a person who is involved in a project.
+	 *
+	 * @param id the identifier of the person.
+	 * @return {@code true} if the person is participating to a project.
+	 * @since 3.6
+	 */
+	public boolean isInvolved(int id) {
+		return !this.projectRepository.findDistinctPersonProjects(Integer.valueOf(id)).isEmpty();
+	}
+
 }

@@ -58,8 +58,6 @@ public class DatabaseToZipExporter {
 
 	private static final int EIGHTY = 80;
 
-	private static final int HUNDRED = 100;
-
 	private static final int FIVE_HUNDRED = 500;
 
 	private DatabaseToJsonExporter jsonExporter;
@@ -105,7 +103,7 @@ public class DatabaseToZipExporter {
 		final String filename = Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json"; //$NON-NLS-1$
 		final ZipEntry entry = new ZipEntry(filename);
 		zos.putNextEntry(entry);
-		final ObjectMapper mapper = new ObjectMapper();
+		final ObjectMapper mapper = JsonUtils.createMapper();
 		try (UnclosableStream ucs = new UnclosableStream(zos)) {
 			mapper.writer().writeValue(ucs, json);
 		}
@@ -285,11 +283,11 @@ public class DatabaseToZipExporter {
 		public void exportToZip(OutputStream output) throws Exception {
 			this.progress.setProperties(0, 0, FIVE_HUNDRED + FIVE, false);
 			try (ZipOutputStream zos = new ZipOutputStream(output)) {
-				writePublicationFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
-				writeAddressFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
-				writeOrganizationFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
-				writeProjectFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
-				writeTeachingActivityFilesToZip(this.content, zos, this.progress.subTask(HUNDRED));
+				writePublicationFilesToZip(this.content, zos, this.progress.subTask(Constants.HUNDRED));
+				writeAddressFilesToZip(this.content, zos, this.progress.subTask(Constants.HUNDRED));
+				writeOrganizationFilesToZip(this.content, zos, this.progress.subTask(Constants.HUNDRED));
+				writeProjectFilesToZip(this.content, zos, this.progress.subTask(Constants.HUNDRED));
+				writeTeachingActivityFilesToZip(this.content, zos, this.progress.subTask(Constants.HUNDRED));
 				writeJsonToZip(this.content, zos, this.progress.subTask(FIVE));
 			}
 			this.progress.end();

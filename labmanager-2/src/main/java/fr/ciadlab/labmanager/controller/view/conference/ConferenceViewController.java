@@ -99,7 +99,7 @@ public class ConferenceViewController extends AbstractViewController {
 	 */
 	@GetMapping(value = "/" + Constants.CONFERENCE_EDITING_ENDPOINT)
 	public ModelAndView conferenceEditor(
-			@RequestParam(required = false) Integer conference,
+			@RequestParam(required = false, name = Constants.CONFERENCE_ENDPOINT_PARAMETER) Integer conference,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, Constants.CONFERENCE_EDITING_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView("conferenceEditor"); //$NON-NLS-1$

@@ -714,4 +714,14 @@ public class MembershipService extends AbstractService {
 			.collect(Collectors.toList());
 	}
 
+	/** Replies if the given identifier is the one of a member of an organization.
+	 *
+	 * @param id the identifier of a person.
+	 * @return {@code true} if the person is member of an organization.
+	 * @since 3.6
+	 */
+	public boolean isMember(int id) {
+		return !this.membershipRepository.findAllByPersonId(id).isEmpty();
+	}
+
 }

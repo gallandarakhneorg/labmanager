@@ -255,7 +255,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	@SuppressWarnings("unchecked")
 	private void ensureCacheBuffer() {
 		if (this.cacheBuffer == null) {
-			final ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = JsonUtils.createMapper();
 			if (!Strings.isNullOrEmpty(this.cache)) {
 				try {
 					this.cacheBuffer = mapper.readValue(this.cache, Map.class);
@@ -273,7 +273,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		if (this.cacheBuffer == null) {
 			this.cache = null;
 		} else {
-			final ObjectMapper mapper = new ObjectMapper();
+			final ObjectMapper mapper = JsonUtils.createMapper();
 			try {
 				this.cache = mapper.writeValueAsString(this.cacheBuffer);
 			} catch (JsonProcessingException ex) {

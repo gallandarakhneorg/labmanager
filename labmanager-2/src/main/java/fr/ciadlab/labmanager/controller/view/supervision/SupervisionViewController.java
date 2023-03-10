@@ -105,8 +105,8 @@ public class SupervisionViewController extends AbstractViewController {
 	 */
 	@GetMapping("/" + Constants.SUPERVISION_EDITING_ENDPOINT)
 	public ModelAndView supervisionEditor(
-			@RequestParam(required = true) int person,
-			@RequestParam(required = false, name = "goto") String gotoName,
+			@RequestParam(required = true, name = Constants.PERSON_ENDPOINT_PARAMETER) int person,
+			@RequestParam(required = false, name = Constants.GOTO_ENDPOINT_PARAMETER) String gotoName,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.SUPERVISION_EDITING_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.SUPERVISION_EDITING_ENDPOINT);

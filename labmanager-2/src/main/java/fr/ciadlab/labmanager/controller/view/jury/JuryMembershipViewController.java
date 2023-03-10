@@ -94,8 +94,8 @@ public class JuryMembershipViewController extends AbstractViewController {
 	 */
 	@GetMapping("/" + Constants.JURY_MEMBERSHIP_EDITING_ENDPOINT)
 	public ModelAndView juryMembershipEditor(
-			@RequestParam(required = true) int person,
-			@RequestParam(required = false, name = "goto") String gotoName,
+			@RequestParam(required = true, name = Constants.PERSON_ENDPOINT_PARAMETER) int person,
+			@RequestParam(required = false, name = Constants.GOTO_ENDPOINT_PARAMETER) String gotoName,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, Constants.JURY_MEMBERSHIP_EDITING_ENDPOINT);
 		final ModelAndView modelAndView = new ModelAndView(Constants.JURY_MEMBERSHIP_EDITING_ENDPOINT);

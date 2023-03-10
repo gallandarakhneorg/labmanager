@@ -34,6 +34,7 @@ import fr.ciadlab.labmanager.entities.assostructure.HolderRole;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.project.Project;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.assostructure.AssociatedStructureService;
 import fr.ciadlab.labmanager.service.assostructure.AssociatedStructureService.HolderDescription;
 import fr.ciadlab.labmanager.service.member.PersonService;
@@ -149,7 +150,7 @@ public class AssociatedStructureApiController extends AbstractApiController {
 		final String inHolders = inString(holders);
 		final Map<Integer, HolderDescription> holderList = new HashMap<>();
 		if (!Strings.isNullOrEmpty(inHolders)) {
-			final ObjectMapper jsonMapper = new ObjectMapper();
+			final ObjectMapper jsonMapper = JsonUtils.createMapper();
 			@SuppressWarnings("unchecked")
 			final List<Map<String,String>> input = jsonMapper.readValue(inHolders, List.class);
 			if (input == null) {
@@ -246,11 +247,11 @@ public class AssociatedStructureApiController extends AbstractApiController {
 	 * @param username the name of the logged-in user.
 	 * @throws Exception in case of error.
 	 */
-	@DeleteMapping("/deleteAssoStruct")
+	@DeleteMapping("/" + Constants.ASSOCIATED_STRUCTURE_DELETING_ENDPOINT)
 	public void deleteAssociatedStructure(
-			@RequestParam Integer structure,
+			@RequestParam(name = Constants.STRUCTURE_ENDPOINT_PARAMETER)  Integer structure,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deleteAssoStruct", structure); //$NON-NLS-1$
+		ensureCredentials(username, Constants.ASSOCIATED_STRUCTURE_DELETING_ENDPOINT, structure);
 		if (structure == null || structure.intValue() == 0) {
 			throw new IllegalStateException("Associated structure not found"); //$NON-NLS-1$
 		}
