@@ -27,7 +27,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.stream.Stream;
 
 import javax.imageio.ImageIO;
@@ -584,28 +586,35 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 		}
 	}
 
+	private static List<File> asList(File[] files) {
+		if (files == null || files.length == 0) {
+			return Collections.emptyList();
+		}
+		return Arrays.asList(files);
+	}
+
 	@Override
 	public SizedIterator<File> getUploadedPdfFiles() {
 		final File folder0 = normalizeForServerSide(getAwardRootFile());
 		final File folder1 = normalizeForServerSide(getPdfRootFile());
-		final File[] files0 = folder0.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION));
-		final File[] files1 = folder1.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION));
+		final List<File> files0 = asList(folder0.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION)));
+		final List<File> files1 = asList(folder1.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION)));
 		final Stream<File> combinedStream = Stream.concat(
-				Arrays.asList(files0).stream(),
-				Arrays.asList(files1).stream());
-		return new FileSizedIterator(files0.length + files1.length, combinedStream.iterator());
+				files0.stream(),
+				files1.stream());
+		return new FileSizedIterator(files0.size() + files1.size(), combinedStream.iterator());
 	}
 
 	@Override
 	public SizedIterator<File> getThumbailFiles() {
 		final File folder0 = normalizeForServerSide(getAwardRootFile());
 		final File folder1 = normalizeForServerSide(getPdfRootFile());
-		final File[] files0 = folder0.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION));
-		final File[] files1 = folder1.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION));
+		final List<File> files0 = asList(folder0.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION)));
+		final List<File> files1 = asList(folder1.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION)));
 		final Stream<File> combinedStream = Stream.concat(
-				Arrays.asList(files0).stream(),
-				Arrays.asList(files1).stream());
-		return new FileSizedIterator(files0.length + files1.length, combinedStream.iterator());
+				files0.stream(),
+				files1.stream());
+		return new FileSizedIterator(files0.size() + files1.size(), combinedStream.iterator());
 	}
 
 	@Override
