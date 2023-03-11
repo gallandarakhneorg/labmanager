@@ -692,7 +692,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 								boolean organizationChanged = false;
 								if (!Strings.isNullOrEmpty(orga.getPathToLogo())) {
 									final String ofn = orga.getPathToLogo();
-									final String fn = fileCallback.projectLogoFile(orga.getId(), ofn);
+									final String fn = fileCallback.organizationLogoFile(orga.getId(), ofn);
 									if (!Objects.equals(ofn, fn)) {
 										orga.setPathToLogo(fn);
 										organizationChanged = true;
