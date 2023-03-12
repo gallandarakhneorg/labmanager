@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="et_pb_row et_pb_row_0">
+	<div class="et_pb_column et_pb_column_4_4 et_pb_column_0 et_pb_css_mix_blend_mode_passthrough et-last-child">
+		<div class="et_pb_module et_pb_filterable_portfolio et_pb_filterable_portfolio_0 et_pb_portfolio et_pb_text_align_center et_pb_bg_layout_light et_pb_filterable_portfolio_grid clearfix"
+		     data-posts-number="100"
+		     style="display: block;">
+			<div class="et_pb_portfolio_filters clearfix"><ul class="clearfix">
+				<li class="et_pb_portfolio_filter et_pb_portfolio_filter_all"><a href="#" class="active" data-category-slug="all">All</a></li>
+				<li class="et_pb_portfolio_filter"><a href="#" data-category-slug="recherche-ub" class="">Projets de Recherche</a></li>
+				<li class="et_pb_portfolio_filter"><a href="#" data-category-slug="industriel-ub" class="">Projets Industriels</a></li>
+			</ul></div>
+			<div class="et_pb_portfolio_items_wrapper no_pagination">
+				<div class="et_pb_portfolio_items">
+					<th:block th:each="project, iProject : ${projects}"
+					          th:with="projectThumbail = ${projectImageProvider.getThumbnailPath(project)}">
+						<div th:id="${'post-' + project.id}"
+						     th:class="${'et_pb_portfolio_item et_pb_grid_item' + (project.category.name == 'COMPETITIVE_CALL_PROJECT' ? ' project_category_recherche-ub' : ' project_category_industriel-ub') + (project.category.name == 'COMPETITIVE_CALL_PROJECT' ? ' project_category-recherche-ub' : ' project_category-industriel-ub') + ' et_pb_filterable_portfolio_item_0_0 post-' + project.id + ' project type-project status-publish has-post-thumbnail hentry active' + ((iProject.index % maxColumns) == 0 ? ' first_in_row' : '')}"
+						     style="display: block;">
+							<a th:href="${project.webPageURI.toString}">
+								<span class="et_portfolio_image">
+									<img decoding="async"
+									     th:src="${projectThumbail}"
+									     th:alt="${project.acronym}"
+									     th:title="${project.scientificTitleOrAcronym}"
+									     class=""
+									     th:srcset="${projectThumbail + ' 479w, ' + projectThumbail + ' 480w'}"
+									     sizes="(max-width:479px) 479px, 100vw"
+									     width="400" height="284">
+									<span class="et_overlay"></span>
+								</span>
+							</a>
+						</div>
+					</th:block>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</html>

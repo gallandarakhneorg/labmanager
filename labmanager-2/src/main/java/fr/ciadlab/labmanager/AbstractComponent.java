@@ -33,7 +33,7 @@ import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.io.filemanager.FileManager;
 import fr.ciadlab.labmanager.runners.ConditionalOnInitializationLock;
 import fr.ciadlab.labmanager.service.conference.ConferenceService;
 import fr.ciadlab.labmanager.service.journal.JournalService;
@@ -716,7 +716,7 @@ public abstract class AbstractComponent {
 		}
 		if (uploadedFile != null && !uploadedFile.isEmpty()) {
 			final File fn = filename.get();
-			final File th = FileSystem.replaceExtension(fn, DownloadableFileManager.JPEG_FILE_EXTENSION);
+			final File th = FileSystem.replaceExtension(fn, FileManager.JPEG_FILE_EXTENSION);
 			save.apply(fn, th);
 			setter.accept(fn.getPath());
 			changed = true;
@@ -842,7 +842,7 @@ public abstract class AbstractComponent {
 			if (preserveFileExtension) {
 				normalized = url;
 			} else {
-				normalized = FileSystem.replaceExtension(url, DownloadableFileManager.JPEG_FILE_EXTENSION);
+				normalized = FileSystem.replaceExtension(url, FileManager.JPEG_FILE_EXTENSION);
 			}
 			return rooted(normalized.getPath());
 		} catch (RuntimeException ex) {

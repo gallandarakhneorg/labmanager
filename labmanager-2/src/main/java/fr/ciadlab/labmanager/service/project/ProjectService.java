@@ -1110,4 +1110,32 @@ public class ProjectService extends AbstractService {
 		return !this.projectRepository.findDistinctPersonProjects(Integer.valueOf(id)).isEmpty();
 	}
 
+	/** Replies the project with the given acronym or name.
+	 *
+	 * @param acronymOrName the acronym or the name of the project.
+	 * @return the project.
+	 * @since 3.6
+	 */
+	public Optional<Project> getProjectByAcronymOrName(String acronymOrName) {
+		return this.projectRepository.findDistinctByAcronymOrScientificTitle(acronymOrName, acronymOrName);
+	}
+
+	/** Replies the public project with the given acronym or name.
+	 * A public project is not confidential and has status "accepted".
+	 *
+	 * @param acronymOrName the acronym or the name of the project.
+	 * @return the project.
+	 * @since 3.6
+	 */
+	public Optional<Project> getPublicProjectByAcronymOrName(String acronymOrName) {
+		final Optional<Project> project = this.projectRepository.findDistinctByAcronymOrScientificTitle(acronymOrName, acronymOrName);
+		if (project.isPresent()) {
+			final Project prj = project.get();
+			if (prj.getStatus() == ProjectStatus.ACCEPTED && !prj.isConfidential()) {
+				return project;
+			}
+		}
+		return Optional.empty();
+	}
+
 }

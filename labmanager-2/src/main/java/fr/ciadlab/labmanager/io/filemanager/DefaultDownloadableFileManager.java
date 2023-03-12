@@ -61,15 +61,13 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Component
 @Primary
-public class DefaultDownloadableFileManager implements DownloadableFileManager {
+public class DefaultDownloadableFileManager extends AbstractFileManager implements DownloadableFileManager {
 
 	private static final int JPEG_RESOLUTION = 50;
 
 	private static final float JPEG_RESOLUTION_F = .5f;
 
 	private static final String TEMP_NAME = "labmanager_tmp"; //$NON-NLS-1$
-
-	private static final String DOWNLOADABLE_FOLDER_NAME = "Downloadables"; //$NON-NLS-1$
 
 	private static final String PDF_FOLDER_NAME = "PDFs"; //$NON-NLS-1$
 
@@ -115,25 +113,17 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 
 	private static final String SAVED_DATA_FOLDER_NAME = "Saves"; //$NON-NLS-1$
 
-	private final File uploadFolder;
-
 	private final File temporaryFolder;
 
-	/** Constructor with the given stream factory.
+	/** Constructor.
 	 *
-	 * @param factory the factory.
 	 * @param uploadFolder the path of the upload folder. It is defined by the property {@code labmanager.file.upload-directory}.
 	 * @param tempFolder the path of the temporary folder. It is defined by the property {@code labmanager.file.temp-directory}.
 	 */
 	public DefaultDownloadableFileManager(
 			@Value("${labmanager.file.upload-directory}") String uploadFolder,
 			@Value("${labmanager.file.temp-directory}") String tempFolder) {
-		final String f0 = Strings.emptyToNull(uploadFolder);
-		if (f0 == null) {
-			this.uploadFolder = null;
-		} else {
-			this.uploadFolder = FileSystem.convertStringToFile(f0).getAbsoluteFile();
-		}
+		super(uploadFolder);
 		final String f1 = Strings.emptyToNull(tempFolder);
 		if (f1 == null) {
 			this.temporaryFolder = null;
@@ -282,20 +272,6 @@ public class DefaultDownloadableFileManager implements DownloadableFileManager {
 	@Override
 	public File makeProjectPressDocumentPictureFilename(int projectId) {
 		return FileSystem.join(getProjectPressDocumentRootFile(), PROJECT_PRESS_DOCUMENT_FILE_PREFIX + Integer.valueOf(projectId) + JPEG_FILE_EXTENSION);
-	}
-
-	@Override
-	public File normalizeForServerSide(File file) {
-		if (file == null) {
-			return null;
-		}
-		if (file.isAbsolute()) {
-			return file;
-		}
-		if (this.uploadFolder != null) {
-			return FileSystem.join(this.uploadFolder, file);
-		}
-		return file.getAbsoluteFile();
 	}
 
 	@Override

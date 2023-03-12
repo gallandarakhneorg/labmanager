@@ -31,13 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public interface DownloadableFileManager {
-
-	/** JPEG filename extension.
-	 *
-	 * @since 3.0
-	 */
-	String JPEG_FILE_EXTENSION = ".jpg"; //$NON-NLS-1$
+public interface DownloadableFileManager extends FileManager {
 
 	/** Delete from the server the downloadable PDF file associated to the publication with given identifier.
 	 *
@@ -305,13 +299,6 @@ public interface DownloadableFileManager {
 	 * @since 3.4
 	 */
 	File makeTeachingActivitySlidesPictureFilename(int activityId);
-
-	/** Normalize a relative filename to be absolute for the server.
-	 *
-	 * @param file the relative filename.
-	 * @return the absolute filename.
-	 */
-	File normalizeForServerSide(File file);
 
 	/** Save the uploaded PDF file and its associated picture.
 	 *

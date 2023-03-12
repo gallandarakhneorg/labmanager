@@ -28,6 +28,7 @@ import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
+import fr.ciadlab.labmanager.service.project.ProjectService;
 import org.joda.time.LocalDate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,6 +55,8 @@ public class AdminViewController extends AbstractViewController {
 
 	private ResearchOrganizationService organizationService;
 
+	private ProjectService projectService;
+
 	private String helpUrl;
 
 	/** Constructor for injector.
@@ -62,6 +65,7 @@ public class AdminViewController extends AbstractViewController {
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the live constants.
 	 * @param organizationService the research organization service.
+	 * @param projectService the project service.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 * @param helpUrl the URL to the help or the documentation page.
 	 */
@@ -69,10 +73,12 @@ public class AdminViewController extends AbstractViewController {
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired ResearchOrganizationService organizationService,
+			@Autowired ProjectService projectService,
 			@Value("${labmanager.security.username-key}") String usernameKey,
 			@Value("${labmanager.web.help-url}") String helpUrl) {
 		super(messages, constants, usernameKey);
 		this.organizationService = organizationService;
+		this.projectService = projectService;
 		this.helpUrl = helpUrl;
 	}
 
@@ -109,6 +115,7 @@ public class AdminViewController extends AbstractViewController {
 		final int now = LocalDate.now().getYear();
 		modelAndView.addObject("yearList", Arrays.asList( //$NON-NLS-1$
 				Integer.valueOf(now), Integer.valueOf(now - 1), Integer.valueOf(now - 2)));
+		modelAndView.addObject("projectService", this.projectService); //$NON-NLS-1$
 		return modelAndView;
 	}
 

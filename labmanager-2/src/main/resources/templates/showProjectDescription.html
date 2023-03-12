@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<div class="et_pb_row et_pb_row_1">
+	<div class="et_pb_column et_pb_column_3_5 et_pb_column_1 et_pb_css_mix_blend_mode_passthrough">
+		<div class="et_pb_module et_pb_text et_pb_text_0 et_pb_text_align_center et_pb_bg_layout_dark">
+			<div class="et_pb_text_inner"><p>LE PROJET</p></div>
+		</div>
+		<div class="et_pb_module  et_pb_image et_pb_image_0">
+			<span class="et_pb_image_wrap">
+				<img decoding="async"
+				     width="600" height="408"
+				     th:src="${project.getPathToLogo}"
+				     alt=""
+				     th:title="${project.acronymOrScientificTitle}"
+				     th:srcset="${project.getPathToLogo + ' 600w, ' + project.getPathToLogo + ' 480w'}"
+				     sizes="(min-width: 0px) and (max-width: 480px) 480px, (min-width: 481px) 600px, 100vw"
+				     th:class="${'wp-image-' + project.id}"></span>
+		</div>
+		<div class="et_pb_module et_pb_text et_pb_text_1 et_pb_text_align_center et_pb_bg_layout_light">
+			<div class="et_pb_text_inner">
+				<div th:utext=${projectDescription}>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>		
+<div class="et_pb_row et_pb_row_1">
+	<div th:if="${projectProgress != null}"
+	     class="et_pb_column et_pb_column_4_4 et_pb_column_3 et_pb_css_mix_blend_mode_passthrough et-last-child">
+		<div class="et_pb_module et_pb_text et_pb_text_2 et_pb_text_align_center et_pb_bg_layout_dark">
+			<div class="et_pb_text_inner"><p th:utext="${'&Eacute;TAT D’AVANCEMENT DU PROJET ' + projectPeriod}"></p></div>
+		</div>
+		<div class="et_pb_module et_pb_circle_counter et_pb_circle_counter_0 container-width-change-notify et_pb_text_align_center et_pb_bg_layout_light">
+			<div class="et_pb_circle_counter_inner"
+			     th:data-number-value="${projectProgress}"
+			     data-bar-bg-color="#97bf0d">
+				<div class="percent"><p style="visibility: visible;"><span class="percent-value"
+				     th:utext="${projectProgress}"></span><span class="percent-sign">%</span></p></div>
+				<canvas height="225" width="225"></canvas>
+			</div>
+		</div>
+	</div>
+</div>
+<div class="et_pb_row et_pb_row_2">
+	<th:block th:each="video, iVideo : ${projectEmbeddedVideos}">
+		<div class="et_pb_column et_pb_column_4_4 et_pb_column_4 et_pb_css_mix_blend_mode_passthrough et-last-child">
+			<div th:class="${'et_pb_module et_pb_video et_pb_video_' + iVideo.index}">
+				<div class="et_pb_video_box">
+					<div class="fluid-width-video-wrapper"
+					     style="padding-top: 56.2963%;">
+						<iframe th:title="${project.scientificTitle + ' - ' + video.toExternalForm}"
+						        th:src="${video.toExternalForm}"
+	                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+	                            allowfullscreen=""
+	                            th:name="${'fitvid' + iVideo.index}"></iframe>
+					</div>
+				</div>
+			</div>
+		</div>
+	</th:block>
+</div>
+<div th:if="${project.pathToPressDocument != null}"
+     class="et_pb_row et_pb_row_3">
+	<div class="et_pb_column et_pb_column_4_4 et_pb_column_5 et_pb_css_mix_blend_mode_passthrough et-last-child">
+		<div class="et_pb_button_module_wrapper et_pb_button_0_wrapper et_pb_button_alignment_center et_pb_module">
+			<a class="et_pb_button et_pb_button_0 et_pb_bg_layout_light"
+			   th:href="${project.pathToPressDocument}"
+			   target="_blank"
+			   data-icon="i">Téléchargez le communiqué de presse</a>
+		</div>
+	</div>
+</div>
+<div class="et_pb_row et_pb_row_4">
+	<div class="et_pb_column et_pb_column_4_4 et_pb_column_5 et_pb_css_mix_blend_mode_passthrough et-last-child">
+		<div class="et_pb_module et_pb_text et_pb_text_3 et_clickable et_pb_text_align_center et_pb_bg_layout_dark">
+			<div class="et_pb_text_inner"><p>Visitez le site de
+				<th:block th:if="${project.projectURL != null}">
+					<a th:href="${project.projectURL}"
+					   target="_blank"
+					   class="noLink"><strong th:utext="${project.acronym}"></strong></a>
+				</th:block>
+				<th:block th:if="${project.projectURL == null}">
+					<strong th:utext="${project.acronym}"></strong>
+				</th:block>
+			</p></div>
+		</div>
+		<th:block th:each="image, iImage : ${project.pathsToImages}">
+			<div th:class="${'et_pb_module et_pb_image et_pb_image_' + iImage.index}">
+				<th:block th:if="${project.projectURL != null}">
+					<a th:href="${project.projectURL}"
+					   target="_blank"><span class="et_pb_image_wrap"><img
+					   decoding="async"
+					   width="1024" height="589"
+					   th:src="${image}" alt=""
+					   th:title="${project.scientificTitle}"
+					   th:srcset="${image + ' 980w, ' + image + ' 480w'}"
+					   sizes="(min-width: 0px) and (max-width: 480px) 480px, (min-width: 481px) and (max-width: 980px) 980px, (min-width: 981px) 1024px, 100vw"
+					   th:class="${'noLink wp-image-' + project.id}"></span></a>
+				</th:block>
+				<th:block th:if="${project.projectURL == null}">
+					<span class="et_pb_image_wrap"><img
+					   decoding="async"
+					   width="1024" height="589"
+					   th:src="${image}" alt=""
+					   th:title="${project.scientificTitle}"
+					   th:srcset="${image + ' 980w, ' + image + ' 480w'}"
+					   sizes="(min-width: 0px) and (max-width: 480px) 480px, (min-width: 481px) and (max-width: 980px) 980px, (min-width: 981px) 1024px, 100vw"
+					   th:class="${'wp-image-' + project.id}"></span>
+				</th:block>
+			</div>
+		</th:block>
+	</div>
+</div>
+</html>

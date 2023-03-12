@@ -18,13 +18,17 @@ package fr.ciadlab.labmanager.controller.view.project;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -41,12 +45,15 @@ import fr.ciadlab.labmanager.entities.project.ProjectStatus;
 import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.io.filemanager.ProjectImageManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.project.ProjectService;
 import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
+import fr.ciadlab.labmanager.utils.markdown.MarkdownTools;
 import fr.ciadlab.labmanager.utils.trl.TRL;
+import fr.ciadlab.labmanager.utils.youtube.YouTubeTools;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
@@ -85,6 +92,12 @@ public class ProjectViewController extends AbstractViewController {
 
 	private DownloadableFileManager fileManager;
 
+	private ProjectImageManager projectImageManager;
+
+	private MarkdownTools markdownTools;
+
+	private YouTubeTools youtubeTools;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
@@ -95,6 +108,9 @@ public class ProjectViewController extends AbstractViewController {
 	 * @param personService the service for accessing the persons.
 	 * @param scientificAxisService the service for accessing the scietific axes.
 	 * @param fileManager the manager of uploaded files.
+	 * @param projectImageManager the manager of project images.
+	 * @param markdownTools the tools for manipulating Markdown text.
+	 * @param youtubeTools the tools for manipulating YoutTube links.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public ProjectViewController(
@@ -105,6 +121,9 @@ public class ProjectViewController extends AbstractViewController {
 			@Autowired PersonService personService,
 			@Autowired ScientificAxisService scientificAxisService,
 			@Autowired DownloadableFileManager fileManager,
+			@Autowired ProjectImageManager projectImageManager,
+			@Autowired MarkdownTools markdownTools,
+			@Autowired YouTubeTools youtubeTools,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.projectService = projectService;
@@ -112,6 +131,9 @@ public class ProjectViewController extends AbstractViewController {
 		this.personService = personService;
 		this.scientificAxisService = scientificAxisService;
 		this.fileManager = fileManager;
+		this.projectImageManager = projectImageManager;
+		this.markdownTools = markdownTools;
+		this.youtubeTools = youtubeTools;
 	}
 
 	/** Replies the model-view component for managing the projects.
@@ -374,6 +396,269 @@ public class ProjectViewController extends AbstractViewController {
 				modelAndView.addObject("pathToPressDocumentThumbnail", file); //$NON-NLS-1$
 			}
 		}
+		return modelAndView;
+	}
+
+	/** Replies the public banner that shows up the public projects.
+	 *
+	 * @param dbId the database identifier of the person for who the projects must be exported.
+	 * @param webId the webpage identifier of the person for who the projects must be exported.
+	 * @param organization the identifier of the organization for which the projects must be exported.
+	 * @param startYear the first year of the projects. If it is provided, the {@code age} is ignored.
+	 * @param endYear the last year of the projects. If it is provided, the {@code age} is ignored.
+	 * @param age the age of the projects. If it is not provided, the default age is {@code 6}.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
+	 * @param username the name of the logged-in user.
+	 * @return the model-view of the project banner.
+	 * @since 3.6
+	 */
+	@GetMapping("/showProjectBanner")
+	public ModelAndView showProjectBanner(
+			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
+			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false) Integer startYear,
+			@RequestParam(required = false) Integer endYear,
+			@RequestParam(required = false, defaultValue = "6") int age,
+			@RequestParam(required = false, defaultValue = "false") boolean embedded,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		final String inWebId = inString(webId);
+		final ModelAndView modelAndView = new ModelAndView("showProjectBanner"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, embedded);
+		//
+		final Predicate<Project> temporalTester = getTemporalValidityPredicate(startYear, endYear, age);
+		//
+		final List<Project> projects = extractProjectListWithFilter(dbId, inWebId, organization).stream()
+				.filter(it -> temporalTester.test(it)
+						&& !Strings.isNullOrEmpty(it.getAcronym())
+						&& it.getWebPageURI() != null
+						&& !Strings.isNullOrEmpty(it.getPathToLogo()))
+				.collect(Collectors.toList());
+		modelAndView.addObject("projects", projects); //$NON-NLS-1$
+		//
+		modelAndView.addObject("projectImageProvider", this.projectImageManager); //$NON-NLS-1$
+		return modelAndView;
+	}
+
+	/** Find the project object that corresponds to the given identifier, acronym or name.
+	 *
+	 * @param project the identifier, acronym or the name of the project.
+	 * @param projectService the service that permits to access to the project object.
+	 * @return the project or {@code null}.
+	 */
+	protected Project getProjectWith(String project) {
+		if (!Strings.isNullOrEmpty(project)) {
+			try {
+				final int id = Integer.parseInt(project);
+				final Project projectObj = this.projectService.getProjectById(id);
+				if (projectObj != null) {
+					return projectObj;
+				}
+			} catch (Throwable ex) {
+				//
+			}
+			final Optional<Project> projectObj = this.projectService.getProjectByAcronymOrName(project);
+			if (projectObj.isPresent()) {
+				return projectObj.get();
+			}
+		}
+		return null;
+	}
+
+	/** Replies the public page that describes a project.
+	 *
+	 * @param project the identifier or the acronym of a project to be shown.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
+	 * @param username the name of the logged-in user.
+	 * @return the model-view of the project banner.
+	 * @since 3.6
+	 */
+	@GetMapping("/showProjectDescription")
+	public ModelAndView showProjectDescription(
+			@RequestParam(required = true) String project,
+			@RequestParam(required = false, defaultValue = "false") boolean embedded,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		final String inProject = inString(project);
+		final ModelAndView modelAndView = new ModelAndView("showProjectDescription"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, embedded);
+		//
+		final Project projectObj = getProjectWith(inProject);
+		if (projectObj == null) {
+			throw new IllegalArgumentException("Project not found"); //$NON-NLS-1$
+		}
+		if (Strings.isNullOrEmpty(projectObj.getAcronym())
+				&& Strings.isNullOrEmpty(projectObj.getPathToLogo())) {
+			throw new IllegalArgumentException("Project not found"); //$NON-NLS-1$
+		}
+		modelAndView.addObject("project", projectObj); //$NON-NLS-1$
+		//
+		final String description = this.markdownTools.markdownToHTML(projectObj.getDescription());
+		modelAndView.addObject("projectDescription", description); //$NON-NLS-1$
+		//
+		Integer projectProgress = null;
+		final LocalDate startDate = projectObj.getStartDate();
+		final LocalDate endDate = projectObj.getEndDate();
+		if (startDate != null && endDate != null) {
+			final LocalDate now = LocalDate.now();
+			if (now.isBefore(startDate)) {
+				projectProgress = Integer.valueOf(0);
+			} else if (now.isAfter(endDate)) {
+				projectProgress = Integer.valueOf(100);
+			} else {
+				final long totalDuration = endDate.toEpochDay() - startDate.toEpochDay();
+				final long currentDuration = now.toEpochDay() - startDate.toEpochDay();
+				final int progress = (int) ((currentDuration * 100) / totalDuration);
+				projectProgress = Integer.valueOf(Math.max(0, Math.min(100, progress)));
+			}
+		}
+		modelAndView.addObject("projectProgress", projectProgress); //$NON-NLS-1$
+		//
+		String period = null;
+		final int startYear = projectObj.getStartYear();
+		final int endYear = projectObj.getEndYear();
+		if (startYear != 0) {
+			if (endYear != 0) {
+				period = getMessage("html.YearRange", Integer.valueOf(startYear), Integer.valueOf(endYear)); //$NON-NLS-1$
+			} else {
+				period = getMessage("html.YearRangeNoEnd", Integer.valueOf(startYear)); //$NON-NLS-1$
+			}
+		} else if (endYear != 0) {
+			period = getMessage("html.YearRangeNoStart ", Integer.valueOf(endYear)); //$NON-NLS-1$
+		}
+		modelAndView.addObject("projectPeriod", period); //$NON-NLS-1$
+		//
+		final List<URL> videos = new ArrayList<>();
+		for (final URL url : projectObj.getVideoURLsObject()) {
+			final URL embeddedUrl = this.youtubeTools.embeddedVideoLink(url);
+			if (embeddedUrl != null) {
+				videos.add(embeddedUrl);
+			}
+		}
+		modelAndView.addObject("projectEmbeddedVideos", videos); //$NON-NLS-1$
+		//
+		return modelAndView;
+	}
+
+	private static Predicate<Project> getTemporalValidityPredicate(Integer startYear, Integer endYear, int age) {
+		final Predicate<Project> pred;
+		if (startYear != null && endYear != null) {
+			final LocalDate sd = LocalDate.of(startYear.intValue(), 1, 1);
+			final LocalDate ed = LocalDate.of(endYear.intValue(), 12, 31);
+			pred = it -> {
+				return it.isActiveIn(sd, ed);
+			};
+		} else if (startYear != null) {
+			pred = it -> {
+				if (it.getEndDate() != null) {
+					return startYear.intValue() <= it.getEndYear() ;
+				}
+				return true;
+			};
+		} else if (endYear != null) {
+			pred = it -> {
+				if (it.getStartDate() != null) {
+					return it.getStartYear() <= endYear.intValue();
+				}
+				return false;
+			};
+		} else {
+			final LocalDate now = LocalDate.now();
+			final LocalDate sd = LocalDate.of(now.getYear() - age, 1, 1);
+			final LocalDate ed = LocalDate.of(now.getYear(), 12, 31);
+			pred = it -> {
+				return it.isActiveIn(sd, ed);
+			};
+		}
+		return pred;
+	}
+
+	/** Replies the public banner that shows up the partners in the projects.
+	 *
+	 * @param dbId the database identifier of the person for who the projects must be exported.
+	 * @param webId the webpage identifier of the person for who the projects must be exported.
+	 * @param organization the identifier of the organization for which the projects must be exported.
+	 * @param startYear the first year of the projects. If it is provided, the {@code age} is ignored.
+	 * @param endYear the last year of the projects. If it is provided, the {@code age} is ignored.
+	 * @param age the age of the projects. If it is not provided, the default age is {@code 6}.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
+	 * @param username the name of the logged-in user.
+	 * @return the model-view of the project banner.
+	 * @since 3.6
+	 */
+	@GetMapping("/showProjectPartnerBanner")
+	public ModelAndView showProjectPartnerBanner(
+			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
+			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false) Integer startYear,
+			@RequestParam(required = false) Integer endYear,
+			@RequestParam(required = false, defaultValue = "6") int age,
+			@RequestParam(required = false, defaultValue = "false") boolean embedded,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		final String inWebId = inString(webId);
+		final ModelAndView modelAndView = new ModelAndView("showProjectPartnerBanner"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, embedded);
+		//
+		final Predicate<Project> temporalTester = getTemporalValidityPredicate(startYear, endYear, age);
+		//
+		final Set<ResearchOrganization> partners = new TreeSet<>(EntityUtils.getPreferredResearchOrganizationComparator());
+		extractProjectListWithFilter(dbId, inWebId, organization).stream()
+		.filter(it -> temporalTester.test(it) && !it.getParticipants().isEmpty())
+		.forEach(it -> {
+			if (it.getCoordinator() != null) {
+				partners.add(it.getCoordinator());
+			}
+			partners.addAll(it.getOtherPartners());
+		});
+		final List<ResearchOrganization> publicPartners = partners.stream()
+				.filter(it -> it.getPathToLogo() != null && !it.isMajorOrganization())
+				.collect(Collectors.toList());
+		modelAndView.addObject("partners", publicPartners); //$NON-NLS-1$
+		return modelAndView;
+	}
+
+	/** Replies the galery that shows up the public projects.
+	 *
+	 * @param dbId the database identifier of the person for who the projects must be exported.
+	 * @param webId the webpage identifier of the person for who the projects must be exported.
+	 * @param organization the identifier of the organization for which the projects must be exported.
+	 * @param startYear the first year of the projects. If it is provided, the {@code age} is ignored.
+	 * @param endYear the last year of the projects. If it is provided, the {@code age} is ignored.
+	 * @param age the age of the projects. If it is not provided, the default age is {@code 6}.
+	 * @param columns the maximum number of columns. DEfault is {@code 4}.
+	 * @param embedded indicates if the view will be embedded into a larger page, e.g., WordPress page. 
+	 * @param username the name of the logged-in user.
+	 * @return the model-view of the project banner.
+	 * @since 3.6
+	 */
+	@GetMapping("/showProjectGallery")
+	public ModelAndView showProjectGallery(
+			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
+			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false) Integer startYear,
+			@RequestParam(required = false) Integer endYear,
+			@RequestParam(required = false, defaultValue = "6") int age,
+			@RequestParam(required = false, defaultValue = "4") int columns,
+			@RequestParam(required = false, defaultValue = "false") boolean embedded,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
+		final String inWebId = inString(webId);
+		final ModelAndView modelAndView = new ModelAndView("showProjectGallery"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, embedded);
+		modelAndView.addObject("maxColumns", Integer.valueOf(columns)); //$NON-NLS-1$
+		//
+		final Predicate<Project> temporalTester = getTemporalValidityPredicate(startYear, endYear, age);
+		//
+		final List<Project> projects = extractProjectListWithFilter(dbId, inWebId, organization).stream()
+				.filter(it -> temporalTester.test(it)
+						&& !Strings.isNullOrEmpty(it.getAcronym())
+						&& it.getWebPageURI() != null
+						&& !Strings.isNullOrEmpty(it.getPathToLogo())
+						&& it.getCategory().isContractualProject())
+				.collect(Collectors.toList());
+		modelAndView.addObject("projects", projects); //$NON-NLS-1$
+		//
+		modelAndView.addObject("projectImageProvider", this.projectImageManager); //$NON-NLS-1$
 		return modelAndView;
 	}
 

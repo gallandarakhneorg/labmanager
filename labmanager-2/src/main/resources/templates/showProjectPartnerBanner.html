@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<div class="et_pb_module et_pb_fullwidth_code et_pb_fullwidth_code_0">
+	<div class="et_pb_code_inner">
+		<script th:if="${isEmbeddedPage}">
+		jQuery(document).ready(() => { 
+			$("#wpaft-logo-slider-logos-partenaires-fond-noir-new").owlCarousel({
+				items: 				Number(wpaft.items),
+				slideSpeed: 		Number(wpaft.slide_speed),
+				paginationSpeed: 	Number(wpaft.pagination_speed),
+				rewindSpeed: 		Number(wpaft.rewind_speed),
+				singleItem: 		Boolean('1' == wpaft.single_item),
+				autoPlay: 			Boolean('1' == wpaft.auto_play),
+				stopOnHover: 		Boolean('1' == wpaft.stop_on_hover),
+				navigation: 		Boolean('1' == wpaft.navigation),
+				pagination: 		Boolean('1' == wpaft.pagination),
+				responsive: 		Boolean('1' == wpaft.responsive)
+			});
+		});
+		</script>
+		<div id="wpaft-logo-slider-logos-partenaires-fond-noir-new" class="owl-carousel owl-theme" style="opacity: 1; display: block;">
+			<div class="owl-wrapper-outer">
+				<div class="owl-wrapper"
+				     style="width: 12628px; left: 0px; display: block; transition: all 500ms ease 0s; transform: translate3d(-3444px, 0px, 0px);">
+					<th:block th:each="partner : ${partners}">
+						<div class="owl-item" style="width: 287px;">
+							<div class="logo-container"
+							     th:with="imgpath = @{/{path}(path=${partner.pathToLogo})}">
+								<th:block th:if="${partner.organizationURL != null}">
+									<a target="_blank"
+									   class="noLink"
+									   th:href="${partner.organizationURL}">
+										<img loading="lazy" width="500" height="500"
+										     th:src="${imgpath}"
+										     th:title="${partner.nameOrAcronym}"
+										     class="attachment-full size-full wp-post-image"
+										     alt=""
+										     decoding="async"
+										     th:srcset="${imgpath + ' 500w, ' + imgpath + ' 480w'}"
+										     sizes="(min-width: 0px) and (max-width: 480px) 480px, (min-width: 481px) 500px, 100vw">
+									</a>
+								</th:block>
+								<th:block th:if="${partner.organizationURL == null}">
+									<img loading="lazy" width="500" height="500"
+									     th:src="${imgpath}"
+									     th:title="${partner.nameOrAcronym}"
+									     class="attachment-full size-full wp-post-image"
+									     alt=""
+									     decoding="async"
+									     th:srcset="${imgpath + ' 500w, ' + imgpath + ' 480w'}"
+									     sizes="(min-width: 0px) and (max-width: 480px) 480px, (min-width: 481px) 500px, 100vw">
+								</th:block>
+							</div>
+						</div>
+					</th:block>
+				</div>
+			</div>
+			<div class="owl-controls clickable"></div>
+		</div>
+	</div>
+</div>
+</html>

@@ -17,6 +17,7 @@
 package fr.ciadlab.labmanager.repository.project;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.project.Project;
@@ -88,5 +89,14 @@ public interface ProjectRepository extends JpaRepository<Project, Integer> {
 	 * @return the list of projects.
 	 */
 	List<Project> findDistinctByConfidentialAndStatus(Boolean confidential, ProjectStatus status);
+
+	/** Find a project with the given acronym or title. This function is case sensitive.
+	 *
+	 * @param acronym the acronym to search for.
+	 * @param scientificTitle the title to search for.
+	 * @return the project.
+	 * @since 3.6
+	 */
+	Optional<Project> findDistinctByAcronymOrScientificTitle(String acronym, String scientificTitle);
 
 }
