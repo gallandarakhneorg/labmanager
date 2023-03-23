@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.indicators.publication.count;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,17 +43,21 @@ public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnu
 
 	private ConferencePaperService conferencePaperService;
 
+	private final Predicate<? super ConferencePaper> filter;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 * @param conferencePaperService the service for accessing the conference papers.
+	 * @param filter the filter to apply on the paper collection.
 	 */
 	public AbstractConferencePaperCountIndicator(
 			MessageSourceAccessor messages,
 			Constants constants,
-			ConferencePaperService conferencePaperService) {
-		this(messages, constants, AbstractAnnualIndicator::sum, conferencePaperService);
+			ConferencePaperService conferencePaperService,
+			Predicate<? super ConferencePaper> filter) {
+		this(messages, constants, AbstractAnnualIndicator::sum, conferencePaperService, filter);
 	}
 
 	/** Constructor.
@@ -62,25 +67,31 @@ public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnu
 	 * @param mergingFunction the function that should be used for merging the annual values.
 	 *      If it is {@code null}, the {@link #sum(Map)} is used.
 	 * @param conferencePaperService the service for accessing the conference papers.
+	 * @param filter the filter to apply on the paper collection.
 	 */
 	public AbstractConferencePaperCountIndicator(
 			MessageSourceAccessor messages,
 			Constants constants,
 			Function<Map<Integer, Number>, Number> mergingFunction,
-			ConferencePaperService conferencePaperService) {
+			ConferencePaperService conferencePaperService,
+			Predicate<? super ConferencePaper> filter) {
 		super(messages, constants, mergingFunction);
 		this.conferencePaperService = conferencePaperService;
+		this.filter = filter;
 	}
 
 	@Override
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
 		final Set<ConferencePaper> papers = this.conferencePaperService.getConferencePapersByOrganizationId(organization.getId(), true);
 		//
-		final Stream<ConferencePaper> stream = filterByYearWindow(true, papers, it -> Integer.valueOf(it.getPublicationYear()))
+		Stream<ConferencePaper> stream = filterByYearWindow(true, papers, it -> Integer.valueOf(it.getPublicationYear()))
 				.filter(it -> {
 					final PublicationType type = it.getType();
 					return type == PublicationType.INTERNATIONAL_CONFERENCE_PAPER || type == PublicationType.NATIONAL_CONFERENCE_PAPER; 
 				});
+		if (this.filter != null) {
+			stream = stream.filter(this.filter);
+		}
 		//
 		final Map<Integer, Number> annualCounts = stream.collect(Collectors.toConcurrentMap(
 				it -> Integer.valueOf(it.getPublicationYear()),

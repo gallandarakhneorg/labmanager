@@ -164,7 +164,7 @@ public class AdminViewController extends AbstractViewController {
 	 * @return the model-view object.
 	 */
 	@GetMapping(value = "/orphanEntities")
-	public ModelAndView conferenceRankingUpdater(
+	public ModelAndView orphanEntities(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		ensureCredentials(username, "orphanEntities"); //$NON-NLS-1$
 		final ModelAndView modelAndView = new ModelAndView("orphanEntities"); //$NON-NLS-1$

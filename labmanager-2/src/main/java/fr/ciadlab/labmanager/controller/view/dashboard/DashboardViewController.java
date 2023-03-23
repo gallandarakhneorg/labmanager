@@ -20,7 +20,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -36,6 +35,7 @@ import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.project.ProjectService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
+import fr.ciadlab.labmanager.service.publication.PublicationStatService;
 import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,6 +65,8 @@ public class DashboardViewController extends AbstractViewController {
 	private ResearchOrganizationService organizationService;
 
 	private PublicationService publicationService;
+
+	private PublicationStatService publicationStatService;
 	
 	private ProjectService projectService;
 
@@ -76,7 +78,8 @@ public class DashboardViewController extends AbstractViewController {
 	 * @param messages the accessor to the localized messages.
 	 * @param constants the constants of the app.
 	 * @param organizationService the service for accessing to the research organizations.
-	 * @param publicationService the service for accessing to the publications.
+	 * @param publicationService the service for accessing the publications.
+	 * @param publicationStatService the service for computing stats on publications.
 	 * @param projectService the service for accessing to the projects.
 	 * @param membershipService the service for accessing the memberships.
 	 * @param usernameKey the key string for encrypting the usernames.
@@ -86,22 +89,37 @@ public class DashboardViewController extends AbstractViewController {
 			@Autowired Constants constants,
 			@Autowired ResearchOrganizationService organizationService,
 			@Autowired PublicationService publicationService,
+			@Autowired PublicationStatService publicationStatService,
 			@Autowired ProjectService projectService,
 			@Autowired MembershipService membershipService,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.organizationService = organizationService;
 		this.publicationService = publicationService;
+		this.publicationStatService = publicationStatService;
 		this.projectService = projectService;
 		this.membershipService = membershipService;
 	}
 
+	private static String toTimeRange(int start, int end, boolean exclude) {
+		final int max = exclude ? end - 1 : end;
+		if (max == start) {
+			return Integer.toString(start);
+		}
+		if (max > start) {
+			return Integer.toString(start) + "-" + Integer.toString(max); //$NON-NLS-1$
+		}
+		return Integer.toString(max) + "-" + Integer.toString(start); //$NON-NLS-1$
+	}
+	
 	/** Replies the model-view component for displaying the dashboard of the publications of a specific research organization.
 	 *
 	 * @param organization the identifier or the name of the organization.
 	 * @param startYear the first year of the publications. If it is provided, the {@code age} is ignored.
 	 * @param endYear the last year of the publications. If it is provided, the {@code age} is ignored.
-	 * @param age the age of the publications. If it is not provided, the default age is {@code 6}.
+	 * @param age the age of the publications. If it is not provided, the default age is {@code 5}.
+	 * @param excludeLastYear indicates if the last year in the time windows should be excluded from stats. Usually, the
+	 *     last year is the current year and it is not finished.
 	 * @param journalRanking the name of the ranking system. If it is not provided, the default ranking system is provided by
 	 *      {@link JournalRankingSystem#getDefault()}, i.e. {@link JournalRankingSystem#SCIMAGO}.
 	 * @param username the name of the logged-in user.
@@ -112,7 +130,8 @@ public class DashboardViewController extends AbstractViewController {
 			@RequestParam(required = true) String organization,
 			@RequestParam(required = false) Integer startYear,
 			@RequestParam(required = false) Integer endYear,
-			@RequestParam(required = false, defaultValue = "6") int age,
+			@RequestParam(required = false, defaultValue = "5") int age,
+			@RequestParam(required = false, defaultValue = "true") boolean excludeLastYear,
 			@RequestParam(required = false) String journalRanking,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		readCredentials(username, "publicationDashboard", organization); //$NON-NLS-1$
@@ -127,56 +146,66 @@ public class DashboardViewController extends AbstractViewController {
 		final Set<Publication> publicationSet = this.publicationService.getPublicationsByOrganizationId(organizationObj.getId(), true, false);
 		final List<Publication> publications;
 		final int referenceYear;
+		int timeRangeStart;
+		int timeRangeEnd;
 		if (startYear != null && endYear != null) {
-			final int sy;
-			final int ey;
 			if (startYear.intValue() > endYear.intValue()) {
-				sy = endYear.intValue();
-				ey = startYear.intValue();
+				timeRangeStart = endYear.intValue();
+				timeRangeEnd = startYear.intValue();
 			} else {
-				sy = startYear.intValue();
-				ey = endYear.intValue();
+				timeRangeStart = startYear.intValue();
+				timeRangeEnd = endYear.intValue();
 			}
-			referenceYear = ey;
-			publications = publicationSet.stream()
-					.filter(it -> {
-						final int y = it.getPublicationYear();
-						return sy <= y && y <= ey;
-					})
-					.collect(Collectors.toList());				
+			referenceYear = timeRangeEnd;
 		} else if (startYear != null) {
 			referenceYear = LocalDate.now().getYear();
-			publications = publicationSet.stream()
-					.filter(it -> it.getPublicationYear() >= startYear.intValue())
-					.collect(Collectors.toList());				
+			timeRangeStart = startYear.intValue();
+			timeRangeEnd = referenceYear;
 		} else if (endYear != null) {
 			referenceYear = endYear.intValue();
-			publications = publicationSet.stream()
-					.filter(it -> it.getPublicationYear() <= endYear.intValue())
-					.collect(Collectors.toList());				
+			timeRangeStart = referenceYear - age;
+			timeRangeEnd = referenceYear;
 		} else {
 			referenceYear = LocalDate.now().getYear();
-			final int firstYear = referenceYear - age;
-			publications = publicationSet.stream()
-					.filter(it -> it.getPublicationYear() >= firstYear)
-					.collect(Collectors.toList());
+			timeRangeStart = referenceYear - age;
+			timeRangeEnd = referenceYear;
 		}
+		publications = publicationSet.stream()
+				.filter(it -> it.getPublicationYear() >= timeRangeStart && it.getPublicationYear() <= timeRangeEnd)
+				.collect(Collectors.toList());
 		//
 		final ModelAndView modelAndView = new ModelAndView("publicationDashboard"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
+		modelAndView.addObject("paperTimeRange", toTimeRange(timeRangeStart, timeRangeEnd, excludeLastYear)); //$NON-NLS-1$
+		modelAndView.addObject("minYear", Integer.valueOf(timeRangeStart)); //$NON-NLS-1$
+		if (excludeLastYear) {
+			modelAndView.addObject("maxYear", Integer.valueOf(timeRangeEnd - 1)); //$NON-NLS-1$
+		} else {
+			modelAndView.addObject("maxYear", Integer.valueOf(timeRangeEnd)); //$NON-NLS-1$
+		}
+		modelAndView.addObject("lastYear", Integer.valueOf(referenceYear)); //$NON-NLS-1$
 		modelAndView.addObject("journalRankingSystem", journalRankingSystem.getLabel()); //$NON-NLS-1$
-		modelAndView.addObject("publicationsPerYear", this.publicationService.getNumberOfPublicationsPerYear(publications)); //$NON-NLS-1$
-		modelAndView.addObject("publicationsPerCategory", this.publicationService.getNumberOfPublicationsPerCategory(publications, journalRankingSystem)); //$NON-NLS-1$
-		modelAndView.addObject("publicationsPerQuartile", this.publicationService.getNumberOfPublicationsPerQuartile(publications, journalRankingSystem)); //$NON-NLS-1$
-		modelAndView.addObject("publicationsPerJournal", this.publicationService.getNumberOfPublicationsPerJournal(publications, referenceYear)); //$NON-NLS-1$
-		modelAndView.addObject("publicationsPerCountry", this.publicationService.getNumberOfPublicationsPerCountry(publications, organizationObj)); //$NON-NLS-1$
-		modelAndView.addObject("publicationsPerResearchAxis", this.publicationService.getNumberOfPublicationsPerScientificAxis(publications)); //$NON-NLS-1$
-		//
-		final AtomicInteger minYear = new AtomicInteger();
-		final AtomicInteger maxYear = new AtomicInteger();
-		modelAndView.addObject("publicationsPerMember", this.publicationService.getNumberOfPublicationsPerMember(publications, organizationObj, journalRankingSystem, minYear, maxYear)); //$NON-NLS-1$
-		modelAndView.addObject("publicationsPerMemberMinYear", Integer.valueOf(minYear.get())); //$NON-NLS-1$
-		modelAndView.addObject("publicationsPerMemberMaxYear", Integer.valueOf(maxYear.get())); //$NON-NLS-1$
+		modelAndView.addObject("publicationsPerYear", this.publicationStatService.getNumberOfPublicationsPerYear( //$NON-NLS-1$
+				publications, journalRankingSystem,
+				true, true, true, true, false, false));
+		modelAndView.addObject("publicationsPerCategory", this.publicationStatService.getNumberOfPublicationsPerCategory( //$NON-NLS-1$
+				publications, journalRankingSystem, timeRangeEnd, excludeLastYear));
+		modelAndView.addObject("publicationsPerQuartile", this.publicationStatService.getNumberOfPublicationsPerQuartile( //$NON-NLS-1$
+				publications, journalRankingSystem, timeRangeEnd, excludeLastYear));
+		modelAndView.addObject("publicationsPerCoreRank", this.publicationStatService.getNumberOfPublicationsPerCoreRank( //$NON-NLS-1$
+				publications, timeRangeEnd, excludeLastYear));
+		modelAndView.addObject("publicationsPerResearchAxis", this.publicationStatService.getNumberOfPublicationsPerScientificAxis( //$NON-NLS-1$
+				publications, timeRangeEnd, excludeLastYear));
+		modelAndView.addObject("publicationsPerJournal", this.publicationStatService.getNumberOfPublicationsPerJournal( //$NON-NLS-1$
+				publications, referenceYear, excludeLastYear));
+		modelAndView.addObject("publicationsPerConference", this.publicationStatService.getNumberOfPublicationsPerConference( //$NON-NLS-1$
+				publications, referenceYear, excludeLastYear));
+		modelAndView.addObject("publicationsPerCountry", this.publicationStatService.getNumberOfPublicationsPerCountry( //$NON-NLS-1$
+				publications, organizationObj, timeRangeEnd, excludeLastYear));
+		modelAndView.addObject("publicationsPerMember", this.publicationStatService.getNumberOfPublicationsPerMember( //$NON-NLS-1$
+				publications, organizationObj, journalRankingSystem, timeRangeStart, timeRangeEnd));
+		modelAndView.addObject("publicationRates", this.publicationStatService.getPublicationAnnualRates( //$NON-NLS-1$
+				publications, organizationObj, journalRankingSystem, timeRangeStart, timeRangeEnd, excludeLastYear));
 		//
 		return modelAndView;
 	}

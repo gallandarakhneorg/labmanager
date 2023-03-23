@@ -37,6 +37,7 @@ import fr.ciadlab.labmanager.entities.conference.ConferenceComparator;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitationComparator;
 import fr.ciadlab.labmanager.entities.journal.JournalComparator;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipComparator;
+import fr.ciadlab.labmanager.entities.member.MemberStatus;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.MembershipComparator;
 import fr.ciadlab.labmanager.entities.member.NameBasedMembershipComparator;
@@ -51,6 +52,7 @@ import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.project.ProjectBudgetComparator;
 import fr.ciadlab.labmanager.entities.project.ProjectComparator;
 import fr.ciadlab.labmanager.entities.project.ProjectMemberComparator;
+import fr.ciadlab.labmanager.entities.publication.Production;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationComparator;
 import fr.ciadlab.labmanager.entities.publication.SorensenDicePublicationComparator;
@@ -974,6 +976,42 @@ public final class EntityUtils {
 			}
 		}
 		return false;
+	}
+
+	/** Replies if the given production has an author who is a PhD student.
+	 *
+	 * @param production the production to test.
+	 * @return {@code true} if one author is a PhD student.
+	 * @since 3.6
+	 */
+	public static boolean hasPhDStudentAuthor(Production production) {
+		final int year = production.getPublicationYear();
+		final LocalDate d0 = LocalDate.of(year, 1, 1);
+		final LocalDate d1 = LocalDate.of(year, 12, 31);
+		return production.getAuthorships().stream().anyMatch(
+				it -> it.getPerson() != null && hasPhdStudentMembership(it.getPerson().getMemberships(), d0, d1));
+	}
+
+	private static boolean hasPhdStudentMembership(Set<Membership> memberships, LocalDate d0, LocalDate d1) {
+		return memberships.stream().anyMatch(it -> it.getMemberStatus() == MemberStatus.PHD_STUDENT && it.isActiveIn(d0, d1));
+	}
+
+	/** Replies if the given production has an author who is a Postdoc.
+	 *
+	 * @param production the production to test.
+	 * @return {@code true} if one author is a Postdoc.
+	 * @since 3.6
+	 */
+	public static boolean hasPostdocAuthor(Production production) {
+		final int year = production.getPublicationYear();
+		final LocalDate d0 = LocalDate.of(year, 1, 1);
+		final LocalDate d1 = LocalDate.of(year, 12, 31);
+		return production.getAuthorships().stream().anyMatch(
+				it -> it.getPerson() != null && hasPostdocMembership(it.getPerson().getMemberships(), d0, d1));
+	}
+
+	private static boolean hasPostdocMembership(Set<Membership> memberships, LocalDate d0, LocalDate d1) {
+		return memberships.stream().anyMatch(it -> it.getMemberStatus() == MemberStatus.POSTDOC && it.isActiveIn(d0, d1));
 	}
 
 }

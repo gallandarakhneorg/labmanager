@@ -45,7 +45,7 @@ public class ScimagoJournalPaperCountIndicator extends AbstractRankedJournalPape
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired JournalPaperService journalPaperService) {
-		super(messages, constants, journalPaperService);
+		super(messages, constants, journalPaperService, null);
 	}
 
 	@Override

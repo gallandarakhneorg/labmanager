@@ -14,53 +14,50 @@
  * http://www.ciad-lab.fr/
  */
 
-package fr.ciadlab.labmanager.indicators.publication.count;
+package fr.ciadlab.labmanager.indicators.publication.fte;
 
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
+import fr.ciadlab.labmanager.indicators.members.fte.PhdStudentFteIndicator;
+import fr.ciadlab.labmanager.indicators.publication.count.PhdScimagoJournalPaperCountIndicator;
 import fr.ciadlab.labmanager.utils.Unit;
-import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
-/** Count the number of journal papers ranked on WoS.
+/** Calculate the number of ranked papers per PhD student per year for Scimago journals. 
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.2
+ * @since 3.6
  */
 @Component
-public class WosJournalPaperCountIndicator extends AbstractRankedJournalPaperCountIndicator {
+public class ScimagoJournalPaperPhdRatioIndicator extends AbstractRankedJournalPaperFteRatioIndicator {
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
-	 * @param journalPaperService the service for accessing the journal papers.
+	 * @param fteIndicator the indicator that counts the PhD students.
+	 * @param paperCount the counter of Scimago papers.
 	 */
-	public WosJournalPaperCountIndicator(
+	public ScimagoJournalPaperPhdRatioIndicator(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired JournalPaperService journalPaperService) {
-		super(messages, constants, journalPaperService, null);
-	}
-
-	@Override
-	public JournalRankingSystem getJournalRankingSystem() {
-		return JournalRankingSystem.WOS;
+			@Autowired PhdStudentFteIndicator fteIndicator,
+			@Autowired PhdScimagoJournalPaperCountIndicator paperCount) {
+		super(messages, constants, fteIndicator, paperCount);
 	}
 
 	@Override
 	public String getName() {
-		return getMessage("wosJournalPaperCountIndicator.name", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
+		return getMessage("scimagoJournalPaperPhdRatioIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
 	public String getLabel(Unit unit) {
-		return getLabelWithYears("wosJournalPaperCountIndicator.label", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
+		return getLabelWithYears("scimagoJournalPaperPhdRatioIndicator.label"); //$NON-NLS-1$
 	}
 
 }

@@ -19,6 +19,7 @@ package fr.ciadlab.labmanager.indicators.publication.count;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -28,6 +29,7 @@ import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
 import fr.ciadlab.labmanager.indicators.AbstractAnnualIndicator;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
 import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
+import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Count the number of ranked journal papers for an organization.
@@ -42,17 +44,21 @@ public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractA
 
 	private JournalPaperService journalPaperService;
 
+	private final Predicate<? super JournalPaper> filter;
+
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
 	 * @param journalPaperService the service for accessing the journal papers.
+	 * @param filter the filter to be used for the publications.
 	 */
 	public AbstractRankedJournalPaperCountIndicator(
 			MessageSourceAccessor messages,
 			Constants constants,
-			JournalPaperService journalPaperService) {
-		this(messages, constants, AbstractAnnualIndicator::sum, journalPaperService);
+			JournalPaperService journalPaperService,
+			Predicate<? super JournalPaper> filter) {
+		this(messages, constants, AbstractAnnualIndicator::sum, journalPaperService, filter);
 	}
 
 	/** Constructor.
@@ -62,14 +68,18 @@ public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractA
 	 * @param mergingFunction the function that should be used for merging the annual values.
 	 *      If it is {@code null}, the {@link #sum(Map)} is used.
 	 * @param journalPaperService the service for accessing the journal papers.
+	 * @param filter the filter to be used for the publications.
 	 */
 	public AbstractRankedJournalPaperCountIndicator(
 			MessageSourceAccessor messages,
 			Constants constants,
 			Function<Map<Integer, Number>, Number> mergingFunction,
-			JournalPaperService journalPaperService) {
+			JournalPaperService journalPaperService,
+			Predicate<? super JournalPaper> filter) {
 		super(messages, constants, mergingFunction);
 		this.journalPaperService = journalPaperService;
+		this.filter = filter;
+		
 	}
 
 	/** Replies the journal ranking system to be used.
@@ -85,13 +95,16 @@ public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractA
 		Stream<JournalPaper> stream = filterByYearWindow(false, papers, it -> Integer.valueOf(it.getPublicationYear()));
 		switch (getJournalRankingSystem()) {
 		case SCIMAGO:
-			stream = stream.filter(it -> it.getScimagoQIndex() != null);
+			stream = stream.filter(it -> QuartileRanking.normalize(it.getScimagoQIndex()) != QuartileRanking.NR);
 			break;
 		case WOS:
-			stream = stream.filter(it -> it.getWosQIndex() != null);
+			stream = stream.filter(it -> QuartileRanking.normalize(it.getWosQIndex()) != QuartileRanking.NR);
 			break;
 		default:
 			throw new IllegalArgumentException("Unsupported ranking system"); //$NON-NLS-1$
+		}
+		if (this.filter != null) {
+			stream = stream.filter(this.filter);
 		}
 		//
 		final Map<Integer, Number> rankedPapers = stream.collect(Collectors.toConcurrentMap(

@@ -24,19 +24,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import java.util.function.IntFunction;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -44,17 +37,13 @@ import java.util.stream.Collectors;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.ciadlab.labmanager.configuration.Constants;
-import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
-import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
-import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.Book;
@@ -94,14 +83,9 @@ import fr.ciadlab.labmanager.service.publication.type.PatentService;
 import fr.ciadlab.labmanager.service.publication.type.ReportService;
 import fr.ciadlab.labmanager.service.publication.type.ThesisService;
 import fr.ciadlab.labmanager.utils.ComposedException;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
-import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
-import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.util.CountryCode;
-import org.arakhne.afc.util.MultiCollection;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -118,6 +102,8 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service
 public class PublicationService extends AbstractPublicationService {
+
+	private static final String MESSAGE_PREFIX = "publicationService."; //$NON-NLS-1$
 
 	private PublicationRepository publicationRepository;
 
@@ -661,7 +647,7 @@ public class PublicationService extends AbstractPublicationService {
 					if (expectedType != null) {
 						if (!publication.getType().isCompatibleWith(expectedType)) {
 							throw new IllegalArgumentException(
-									getMessage("publicationService.IncompatibleBibTeXEntryType", //$NON-NLS-1$
+									getMessage(MESSAGE_PREFIX + "IncompatibleBibTeXEntryType", //$NON-NLS-1$
 											publication.getPreferredStringId(),
 											publication.getType().name(),
 											publication.getType().getLabel(),
@@ -1519,406 +1505,6 @@ public class PublicationService extends AbstractPublicationService {
 		}
 		this.publicationRepository.save(publication);
 		this.authorshipRepository.flush();
-	}
-
-	/** Replies the numbers of publications per year for the given set of publications.
-	 *
-	 * @param publications the publications to analyze.
-	 * @return rows with: year, journal paper count, conference paper count.
-	 * @since 3.6
-	 */
-	@SuppressWarnings("static-method")
-	public List<List<Integer>> getNumberOfPublicationsPerYear(Collection<? extends Publication> publications) {
-		final Map<Integer, Collection<Publication>> publicationsPerYear = publications.stream()
-				.collect(Collectors.toMap(
-						it -> Integer.valueOf(it.getPublicationYear()),
-						it -> Collections.singleton(it),
-						(a, b) -> {
-							final MultiCollection<Publication> multi = new MultiCollection<>();
-							multi.addCollection(a);
-							multi.addCollection(b);
-							return multi;
-						}));
-		return publicationsPerYear.entrySet().stream()
-				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-				.map(it -> {
-					int acl = 0;
-					int cact = 0;
-					for (final Publication pub : it.getValue()) {
-						switch (pub.getCategory()) {
-						case ACL:
-						case ACLN:
-						case ASCL:
-							++acl;
-							break;
-						case C_ACTI:
-						case C_ACTN:
-						case C_AFF:
-						case C_COM:
-							++cact;
-							break;
-						case COS:
-						case COV:
-						case BRE:
-						case AP:
-						case C_INV:
-						case DO:
-						case OR:
-						case OS:
-						case OV:
-						case PAT:
-						case PT:
-						case PV:
-						case TH:
-						default:
-							break;
-						}
-					}
-					final List<Integer> columns = new ArrayList<>(3);
-					columns.add(it.getKey());
-					columns.add(Integer.valueOf(acl));
-					columns.add(Integer.valueOf(cact));
-					return columns;
-				})
-				.collect(Collectors.toList());
-	}
-
-	/** Replies the numbers of publications per category for the given set of publications.
-	 *
-	 * @param publications the publications to analyze.
-	 * @param rankingSystem the ranking system to be used.
-	 * @return rows with: category, count.
-	 * @since 3.6
-	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfPublicationsPerCategory(Collection<? extends Publication> publications, JournalRankingSystem rankingSystem) {
-		final JournalRankingSystem rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
-		final Map<PublicationCategory, Integer> publicationsPerYear = publications.stream()
-				.collect(Collectors.toMap(
-						it -> it.getCategory(rankingSystem0),
-						it -> Integer.valueOf(1),
-						(a, b) -> {
-							return Integer.valueOf(a.intValue() + b.intValue());
-						}));
-		return publicationsPerYear.entrySet().stream()
-				.filter(it -> it.getKey().isScientificEventPaper() || it.getKey().isScientificJournalPaper() || it.getKey().isScientificCultureDissemination())
-				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-				.map(it -> {
-					final List<Object> columns = new ArrayList<>(2);
-					columns.add(it.getKey().getAcronym());
-					columns.add(it.getValue());
-					return columns;
-				})
-				.collect(Collectors.toList());
-	}
-
-	/** Replies the numbers of publications per quartile for the given set of publications.
-	 *
-	 * @param publications the publications to analyze.
-	 * @param rankingSystem the ranking system to be used.
-	 * @return rows with: quartile, count.
-	 * @since 3.6
-	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfPublicationsPerQuartile(Collection<? extends Publication> publications, JournalRankingSystem rankingSystem) {
-		final JournalRankingSystem rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
-		final Function<JournalBasedPublication, QuartileRanking> ranking;
-		switch (rankingSystem0) {
-		case SCIMAGO:
-			ranking = it -> it.getScimagoQIndex();
-			break;
-		case WOS:
-			ranking = it -> it.getWosQIndex();
-			break;
-		default:
-			throw new IllegalStateException();
-		}
-		final Map<QuartileRanking, Integer> publicationsPerYear = publications.stream()
-				.filter(it -> it.getCategory() == PublicationCategory.ACL && it instanceof JournalBasedPublication)
-				.map(it -> (JournalBasedPublication) it)
-				.filter(it -> it.getScimagoQIndex() != null && it.getScimagoQIndex() != QuartileRanking.NR)
-				.collect(Collectors.toMap(
-						ranking,
-						it -> Integer.valueOf(1),
-						(a, b) -> {
-							return Integer.valueOf(a.intValue() + b.intValue());
-						}));
-		return publicationsPerYear.entrySet().stream()
-				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-				.map(it -> {
-					final List<Object> columns = new ArrayList<>(2);
-					columns.add(it.getKey().name());
-					columns.add(it.getValue());
-					return columns;
-				})
-				.collect(Collectors.toList());
-	}
-
-	/** Replies the numbers of publications per journal for the given set of publications.
-	 *
-	 * @param publications the publications to analyze.
-	 * @param referenceYear the year of reference for computing the quartiles.
-	 * @return rows with: journal name, publisher, Scimago, WoS, Impact factor, count.
-	 * @since 3.6
-	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfPublicationsPerJournal(Collection<? extends Publication> publications, int referenceYear) {
-		final Map<Journal, Integer> publicationsPerYear = publications.stream()
-				.filter(it -> it.getCategory() == PublicationCategory.ACL && it instanceof JournalBasedPublication)
-				.map(it -> (JournalBasedPublication) it)
-				.filter(it -> it.getJournal() != null)
-				.collect(Collectors.toMap(
-						it -> it.getJournal(),
-						it -> Integer.valueOf(1),
-						(a, b) -> {
-							return Integer.valueOf(a.intValue() + b.intValue());
-						}));
-		final Comparator<Journal> comparator = EntityUtils.getPreferredJournalComparator();
-		return publicationsPerYear.entrySet().stream()
-				.sorted((a, b) -> {
-					int cmp = a.getValue().compareTo(b.getValue());
-					if (cmp != 0) {
-						return -cmp;
-					}
-					cmp = Float.compare(a.getKey().getImpactFactorByYear(referenceYear), b.getKey().getImpactFactorByYear(referenceYear));
-					if (cmp != 0) {
-						return -cmp;
-					}
-					return comparator.compare(a.getKey(), b.getKey());
-				})
-				.map(it -> {
-					final Journal journal = it.getKey();
-					final List<Object> columns = new ArrayList<>(2);
-					columns.add(journal.getJournalName());
-					columns.add(journal.getPublisher());
-					columns.add(toString(journal.getScimagoQIndexByYear(referenceYear)));
-					columns.add(toString(journal.getWosQIndexByYear(referenceYear)));
-					columns.add(Float.valueOf(journal.getImpactFactorByYear(referenceYear)));
-					columns.add(it.getValue());
-					return columns;
-				})
-				.collect(Collectors.toList());
-	}
-
-	private static String toString(QuartileRanking ranking) {
-		return ranking == null || ranking == QuartileRanking.NR ? "" : ranking.name(); //$NON-NLS-1$
-	}
-
-	/** Replies the numbers of publications per country for the given set of publications.
-	 *
-	 * @param publications the publications to analyze.
-	 * @param referenceOrganization the organization for which the associated members are ignored in the counting.
-	 * @return rows with: country name, count.
-	 * @since 3.6
-	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfPublicationsPerCountry(Collection<? extends Publication> publications, ResearchOrganization referenceOrganization) {
-		final AtomicInteger papersWithUnknownCountry = new AtomicInteger();
-		final int[] numbers = new int[CountryCode.values().length + 1];
-		publications.stream()
-		.filter(it -> it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
-		.forEach(it -> {
-			final LocalDate tw0 = LocalDate.of(it.getPublicationYear(), 1, 1);
-			final LocalDate tw1 = LocalDate.of(it.getPublicationYear(), 12, 31);
-			final AtomicBoolean unknown = new AtomicBoolean(false);
-			final Set<CountryCode> countries = new HashSet<>();
-			for (final Person author : it.getAuthors()) {
-				if (author.getMemberships().stream()
-						.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization().getId() == referenceOrganization.getId())
-						.findAny().isEmpty()) {
-					final Optional<Membership> mbrWithCountry = author.getMemberships().stream()
-							.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization() != null && it0.getResearchOrganization().getCountry() != null)
-							.findAny();
-					if (mbrWithCountry.isPresent()) {
-						final CountryCode country = mbrWithCountry.get().getResearchOrganization().getCountry();
-						if (country != null) {
-							countries.add(country);
-						} else {
-							unknown.set(true);
-						}
-					} else {
-						unknown.set(true);
-					}
-				}
-			}
-			for (final CountryCode country : countries) {
-				++numbers[country.ordinal()];
-			}
-			if (unknown.get()) {
-				papersWithUnknownCountry.incrementAndGet();
-			}
-		});
-		numbers[numbers.length - 1] = papersWithUnknownCountry.get();
-		final CountryCode[] allCountries = CountryCode.values();
-		final AtomicInteger index = new AtomicInteger();
-		final IntFunction<List<Object>> converter = it -> {
-			final List<Object> columns = new ArrayList<>(2);
-			final int idx = index.getAndIncrement();
-			if (idx < allCountries.length) {
-				columns.add(CountryCodeUtils.getDisplayCountry(allCountries[idx]));
-			} else {
-				columns.add("?"); //$NON-NLS-1$
-			}
-			columns.add(Integer.valueOf(it));
-			return columns;
-		};
-		return Arrays.stream(numbers)
-				.mapToObj(converter)
-				.filter(it -> ((Integer) it.get(1)).intValue() > 0)
-				.sorted((a, b) -> - ((Integer) a.get(1)).compareTo((Integer) b.get(1)))
-				.collect(Collectors.toList());
-	}
-
-	/** Replies the numbers of publications per member for the given set of publications.
-	 *
-	 * @param publications the publications to analyze.
-	 * @param referenceOrganization the organization for which the associated members are ignored in the counting.
-	 * @param rankingSystem the ranking system to be used.
-	 * @param minYear the minimum year of the publications.
-	 * @param maxYear the maximum year of the publications.
-	 * @return rows with: member, journal count, conference count.
-	 * @since 3.6
-	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfPublicationsPerMember(Collection<? extends Publication> publications, ResearchOrganization referenceOrganization,
-			JournalRankingSystem rankingSystem, AtomicInteger minYear, AtomicInteger maxYear) {
-		minYear.set(Integer.MAX_VALUE);
-		maxYear.set(Integer.MIN_VALUE);
-		final Map<Person, Map<PublicationCategory, Map<Integer, Integer>>> stats = new HashMap<>();
-		publications.stream()
-		.filter(it -> it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
-		.forEach(it -> {
-			final int year = it.getPublicationYear();
-			if (year < minYear.intValue()) {
-				minYear.set(year);
-			}
-			if (year > maxYear.intValue()) {
-				maxYear.set(year);
-			}
-			final LocalDate tw0 = LocalDate.of(year, 1, 1);
-			final LocalDate tw1 = LocalDate.of(year, 12, 31);
-			final PublicationCategory category = it.getCategory(rankingSystem);
-			for (final Person author : it.getAuthors()) {
-				if (author.getMemberships().stream()
-						.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization().getId() == referenceOrganization.getId()
-						&& it0.isMainPosition() && !it0.getMemberStatus().isExternalPosition())
-						.findAny().isPresent()) {
-					final Map<PublicationCategory, Map<Integer, Integer>> stats0 = stats.computeIfAbsent(author, it0 -> new HashMap<>());
-					final Map<Integer, Integer> stats1 = stats0.computeIfAbsent(category, it0 -> new HashMap<>());
-					final Integer oldValue = stats1.get(Integer.valueOf(year));
-					if (oldValue == null) {
-						stats1.put(Integer.valueOf(year), Integer.valueOf(1));
-					} else {
-						stats1.put(Integer.valueOf(year), Integer.valueOf(oldValue.intValue() + 1));
-					}
-				}
-			}
-		});
-		final List<List<Object>> table = new ArrayList<>();
-		stats.entrySet().stream()
-		.forEach(it -> {
-			List<Object> columns;
-
-			columns = new ArrayList<>();
-			columns.add(it.getKey().getFullNameWithLastNameFirst());
-			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.ACL)) {
-				table.add(columns);
-			}
-
-			columns = new ArrayList<>();
-			columns.add(it.getKey().getFullNameWithLastNameFirst());
-			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.ACLN)) {
-				table.add(columns);
-			}
-
-			columns = new ArrayList<>();
-			columns.add(it.getKey().getFullNameWithLastNameFirst());
-			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.C_ACTI)) {
-				table.add(columns);
-			}
-
-			columns = new ArrayList<>();
-			columns.add(it.getKey().getFullNameWithLastNameFirst());
-			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.C_ACTN)) {
-				table.add(columns);
-			}
-
-			columns = new ArrayList<>();
-			columns.add(it.getKey().getFullNameWithLastNameFirst());
-			if (fillMemberTable(it.getValue(), columns, minYear.get(), maxYear.get(), PublicationCategory.C_COM)) {
-				table.add(columns);
-			}
-		});
-
-		return table.stream().sorted((a, b) -> {
-			int cmp = ((String) a.get(0)).compareToIgnoreCase((String) b.get(0));
-			if (cmp != 0) {
-				return cmp;
-			}
-			return ((String) a.get(1)).compareToIgnoreCase((String) b.get(1));
-		})
-				.collect(Collectors.toList());
-	}
-
-	private static boolean fillMemberTable(Map<PublicationCategory, Map<Integer, Integer>> input, List<Object> columns, int minYear, int maxYear, PublicationCategory category) {
-		final Map<Integer, Integer> stats = input.get(category);
-		columns.add(category.getAcronym());
-		int total = 0;
-		for (int y = minYear; y <= maxYear; ++y) {
-			Integer value = null;
-			if (stats != null) {
-				value = stats.get(Integer.valueOf(y));
-			}
-			if (value == null) {
-				value = Integer.valueOf(0);
-			}
-			columns.add(value);
-			total += value.intValue();
-		}
-		columns.add(Integer.valueOf(total));
-		return total > 0;
-	}
-
-	/** Replies the numbers of publications per research axis for the given set of publications.
-	 *
-	 * @param publications the publications to analyze.
-	 * @return rows with: axis, count.
-	 * @since 3.6
-	 */
-	public List<List<Object>> getNumberOfPublicationsPerScientificAxis(Collection<? extends Publication> publications) {
-		final Map<ScientificAxis, Integer> projectsPerAxis = new HashMap<>();
-		final AtomicInteger outsideAxis = new AtomicInteger(); 
-		publications.stream()
-		.forEach(it -> {
-			if (!it.getScientificAxes().isEmpty()) {
-				for (final ScientificAxis axis : it.getScientificAxes()) {
-					final Integer oldValue = projectsPerAxis.get(axis);
-					if (oldValue == null) {
-						projectsPerAxis.put(axis, Integer.valueOf(1));
-					} else {
-						projectsPerAxis.put(axis, Integer.valueOf(oldValue.intValue() + 1));
-					}
-				}
-			} else {
-				outsideAxis.incrementAndGet();
-			}
-		});
-		if (outsideAxis.intValue() > 0) {
-			final ScientificAxis outAxis = new ScientificAxis();
-			outAxis.setName(getMessage("publicationService.outsideScientificAxis")); //$NON-NLS-1$
-			projectsPerAxis.put(outAxis, Integer.valueOf(outsideAxis.get()));
-		}
-		return projectsPerAxis.entrySet().stream()
-				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
-				.map(it -> {
-					final List<Object> columns = new ArrayList<>(2);
-					final String name = Strings.isNullOrEmpty(it.getKey().getAcronym()) ? it.getKey().getName()
-							: it.getKey().getAcronym() + " - " + it.getKey().getName(); //$NON-NLS-1$
-					columns.add(name);
-					columns.add(it.getValue());
-					return columns;
-				})
-				.collect(Collectors.toList());
 	}
 
 	/** Replies the list of the publications that are associated to the conference with the given identifier.

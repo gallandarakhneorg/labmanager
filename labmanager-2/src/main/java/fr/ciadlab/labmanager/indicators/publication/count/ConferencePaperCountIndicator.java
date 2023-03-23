@@ -44,7 +44,7 @@ public class ConferencePaperCountIndicator extends AbstractConferencePaperCountI
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
 			@Autowired ConferencePaperService conferencePaperService) {
-		super(messages, constants, conferencePaperService);
+		super(messages, constants, conferencePaperService, null);
 	}
 
 	@Override

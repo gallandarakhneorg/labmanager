@@ -17,60 +17,46 @@
 package fr.ciadlab.labmanager.indicators.publication.fte;
 
 import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.indicators.AbstractAnnualIndicator;
-import fr.ciadlab.labmanager.indicators.publication.count.AbstractRankedJournalPaperCountIndicator;
+import fr.ciadlab.labmanager.indicators.members.fte.PhdStudentFteIndicator;
+import fr.ciadlab.labmanager.indicators.publication.count.PhdConferencePaperCountIndicator;
+import fr.ciadlab.labmanager.utils.Unit;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.stereotype.Component;
 
-/** Count the number of ranked journal papers per full-time equivalent per year.
+/** Count the number of conference papers per PhD student per year.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
- * @since 2.2
+ * @since 3.6
  */
-public abstract class AbstractRankedJournalPaperFteRatioIndicator extends AbstractAnnualIndicator {
+@Component
+public class ConferencePaperPhdRatioIndicator extends AbstractAnnualIndicator {
 
-	private AbstractRankedJournalPaperCountIndicator paperCount;
+	private PhdConferencePaperCountIndicator paperCount;
 
-	private AbstractAnnualIndicator fteIndicator;
-
-	/** Constructor.
-	 *
-	 * @param messages the provider of messages.
-	 * @param constants the accessor to the constants.
-	 * @param fteIndicator the indicator that counts the FTE.
-	 * @param paperCount the indicator for counting the ranked papers.
-	 */
-	public AbstractRankedJournalPaperFteRatioIndicator(
-			MessageSourceAccessor messages,
-			Constants constants,
-			AbstractAnnualIndicator fteIndicator,
-			AbstractRankedJournalPaperCountIndicator paperCount) {
-		this(messages, constants, AbstractAnnualIndicator::average, fteIndicator, paperCount);
-	}
+	private PhdStudentFteIndicator fteIndicator;
 
 	/** Constructor.
 	 *
 	 * @param messages the provider of messages.
 	 * @param constants the accessor to the constants.
-	 * @param mergingFunction the function that should be used for merging the annual values.
-	 *      If it is {@code null}, the {@link #sum(Map)} is used.
-	 * @param fteIndicator the indicator that counts the FTE.
-	 * @param paperCount the indicator for counting the ranked papers.
+	 * @param fteIndicator the indicator that counts the PhD students.
+	 * @param paperCount the indicator for counting the papers.
 	 */
-	public AbstractRankedJournalPaperFteRatioIndicator(
-			MessageSourceAccessor messages,
-			Constants constants,
-			Function<Map<Integer, Number>, Number> mergingFunction,
-			AbstractAnnualIndicator fteIndicator,
-			AbstractRankedJournalPaperCountIndicator paperCount) {
-		super(messages, constants, mergingFunction);
+	public ConferencePaperPhdRatioIndicator(
+			@Autowired MessageSourceAccessor messages,
+			@Autowired Constants constants,
+			@Autowired PhdStudentFteIndicator fteIndicator,
+			@Autowired PhdConferencePaperCountIndicator paperCount) {
+		super(messages, constants, AbstractAnnualIndicator::average);
 		this.fteIndicator = fteIndicator;
 		this.paperCount = paperCount;
 	}
@@ -92,6 +78,16 @@ public abstract class AbstractRankedJournalPaperFteRatioIndicator extends Abstra
 		//
 		setComputationDetails(ratios);
 		return ratios;
+	}
+
+	@Override
+	public String getName() {
+		return getMessage("conferencePaperPhdRatioIndicator.name"); //$NON-NLS-1$
+	}
+
+	@Override
+	public String getLabel(Unit unit) {
+		return getMessage("conferencePaperPhdRatioIndicator.label"); //$NON-NLS-1$
 	}
 
 }

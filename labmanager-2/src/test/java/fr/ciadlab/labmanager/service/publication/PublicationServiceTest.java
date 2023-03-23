@@ -58,6 +58,14 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.indicators.members.fte.PermanentResearcherFteIndicator;
+import fr.ciadlab.labmanager.indicators.members.fte.PhdStudentFteIndicator;
+import fr.ciadlab.labmanager.indicators.members.fte.PostdocFteIndicator;
+import fr.ciadlab.labmanager.indicators.publication.count.ScimagoJournalPaperCountIndicator;
+import fr.ciadlab.labmanager.indicators.publication.count.UnrankedJournalPaperCountIndicator;
+import fr.ciadlab.labmanager.indicators.publication.count.WosJournalPaperCountIndicator;
+import fr.ciadlab.labmanager.indicators.publication.fte.ScimagoJournalPaperFteRatioIndicator;
+import fr.ciadlab.labmanager.indicators.publication.fte.WosJournalPaperFteRatioIndicator;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
@@ -90,6 +98,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PublicationService}.

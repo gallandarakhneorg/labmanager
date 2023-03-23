@@ -17,7 +17,6 @@
 package fr.ciadlab.labmanager.entities.publication;
 
 import java.io.IOException;
-import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
@@ -53,14 +52,12 @@ import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
-import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
-import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;
 
@@ -78,7 +75,7 @@ import org.hibernate.annotations.PolymorphismType;
 @Table(name = "Publications")
 @Inheritance(strategy = InheritanceType.JOINED)
 @Polymorphism(type = PolymorphismType.IMPLICIT)
-public abstract class Publication implements Serializable, JsonSerializable, Comparable<Publication>, AttributeProvider, IdentifiableEntity {
+public abstract class Publication implements Production, JsonSerializable, Comparable<Publication>, AttributeProvider {
 
 	private static final long serialVersionUID = -5980560007123809890L;
 
@@ -482,10 +479,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		serialize(generator, serializers);
 	}
 
-	/** Replies the set of authorships. The authorships are replied in the order provided in the paper.
-	 *
-	 * @return the authorships.
-	 */
+	@Override
 	public List<Authorship> getAuthorships() {
 		final List<Authorship> sortedList = this.authorships.stream().sorted(AuthorshipComparator.DEFAULT).collect(Collectors.toList());
 		return sortedList;
@@ -515,6 +509,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 * @return the list of authors.
 	 * @see #getTemporaryAuthors()
 	 */
+	@Override
 	public List<Person> getAuthors() {
 		if (this.temporaryAuthors != null) {
 			return this.temporaryAuthors;
@@ -634,22 +629,8 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		}
 	}
 
-	/** Replies the category of publication.
-	 *
-	 * @return the category, never {@code null}.
-	 */
+	@Override
 	public PublicationCategory getCategory() {
-		return getCategoryWithSupplier(() -> Boolean.valueOf(isRanked()));
-	}
-
-	/** Replies the category of publication.
-	 *
-	 * @param rankingsystem indicated the type of ranking system that should be used for determining the category.
-	 *     If it is {@code null}, the {@link JournalRankingSystem#getDefault() default ranking system} is used.
-	 * @return the category, never {@code null}.
-	 * @since 3.6
-	 */
-	public PublicationCategory getCategory(JournalRankingSystem rankingsystem) {
 		return getCategoryWithSupplier(() -> Boolean.valueOf(isRanked()));
 	}
 
@@ -681,10 +662,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 	 */
 	public abstract boolean isRanked();
 
-	/** Replies the title of the publication.
-	 *
-	 * @return the title.
-	 */
+	@Override
 	@RequiredFieldInForm
 	public String getTitle() {
 		return this.title;
@@ -769,12 +747,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		}
 	}
 
-	/** Replies the year of publication.
-	 * If the publication date is specified, the year is extracted from this date.
-	 * If the publication date is not specified, the current year is replied.
-	 *
-	 * @return the year.
-	 */
+	@Override
 	public int getPublicationYear() {
 		return this.publicationYear;
 	}
@@ -847,12 +820,7 @@ public abstract class Publication implements Serializable, JsonSerializable, Com
 		this.issn = Strings.emptyToNull(issn);
 	}
 
-	/** Replies the DOI reference number that is associated to this publication.
-	 * Usually, the DOI number should not be prefixed by the {@code http://doi.org} prefix.
-	 *
-	 * @return the DOI reference or {@code null}.
-	 * @see "https://en.wikipedia.org/wiki/Digital_object_identifier"
-	 */
+	@Override
 	public String getDOI() {
 		return this.doi;
 	}

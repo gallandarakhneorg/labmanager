@@ -16,7 +16,6 @@
 
 package fr.ciadlab.labmanager.entities.publication;
 
-import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 
@@ -28,7 +27,7 @@ import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
  * @mavenartifactid $ArtifactId$
  * @since 3.6
  */
-public interface ConferenceBasedPublication extends IdentifiableEntity {
+public interface ConferenceBasedPublication extends Production {
 
 	/** Replies the conference in which the publication was published.
 	 *
@@ -70,7 +69,7 @@ public interface ConferenceBasedPublication extends IdentifiableEntity {
 
 	/** Replies the CORE index of the conference.
 	 *
-	 * @return the CORE ranking.
+	 * @return the CORE ranking, never {@code null}.
 	 */
 	CoreRanking getCoreRanking();
 

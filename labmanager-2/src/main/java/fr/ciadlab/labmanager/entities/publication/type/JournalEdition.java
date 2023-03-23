@@ -18,24 +18,16 @@ package fr.ciadlab.labmanager.entities.publication.type;
 
 import java.io.IOException;
 import java.util.Objects;
-import java.util.function.Supplier;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToOne;
 import javax.persistence.PrimaryKeyJoinColumn;
 import javax.persistence.Table;
 
 import com.google.common.base.Strings;
-import fr.ciadlab.labmanager.entities.journal.Journal;
-import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
+import fr.ciadlab.labmanager.entities.publication.AbstractJournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
-import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
-import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
-import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
-import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 
 /** Edition of a journal or a special issue of a journal.
  *
@@ -50,9 +42,9 @@ import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 @Entity
 @Table(name = "JournalEditions")
 @PrimaryKeyJoinColumn(name = "id")
-public class JournalEdition extends Publication implements JournalBasedPublication {
+public class JournalEdition extends AbstractJournalBasedPublication {
 
-	private static final long serialVersionUID = 2950457929302009775L;
+	private static final long serialVersionUID = -1849832728913103105L;
 
 	/** Number that represent the volume of the journal.
 	 */
@@ -68,11 +60,6 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 	 */
 	@Column
 	private String pages;
-
-	/** Reference to the journal.
-	 */
-	@ManyToOne(fetch = FetchType.LAZY)
-	private Journal journal;
 
 	/** Construct a journal edition with the given values.
 	 *
@@ -100,7 +87,6 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		h = HashCodeUtils.add(h, this.volume);
 		h = HashCodeUtils.add(h, this.number);
 		h = HashCodeUtils.add(h, this.pages);
-		h = HashCodeUtils.add(h, this.journal);
 		return h;
 	}
 
@@ -119,9 +105,6 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		if (!Objects.equals(this.pages, other.pages)) {
 			return false;
 		}
-		if (!Objects.equals(this.journal, other.journal)) {
-			return false;
-		}
 		return true;
 	}
 
@@ -137,11 +120,6 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		if (!Strings.isNullOrEmpty(getPages())) {
 			consumer.accept("pages", getPages()); //$NON-NLS-1$
 		}		
-		if (isRanked()) {
-			consumer.accept("scimagoQIndex", getScimagoQIndex()); //$NON-NLS-1$
-			consumer.accept("wosQIndex", getWosQIndex()); //$NON-NLS-1$
-			consumer.accept("impactFactor", Float.valueOf(getImpactFactor())); //$NON-NLS-1$
-		}
 	}
 
 	@Override
@@ -171,20 +149,6 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 		if (!Strings.isNullOrEmpty(getJournal().getISSN())) {
 			buf.append(", ISSN "); //$NON-NLS-1$
 			buf.append(getJournal().getISSN());
-		}
-		return buf.toString();
-	}
-
-	@Override
-	public String getPublicationTarget() {
-		final StringBuilder buf = new StringBuilder();
-		final Journal journal = getJournal();
-		if (journal != null) {
-			buf.append(journal.getJournalName());
-			if (!Strings.isNullOrEmpty(journal.getPublisher())) {
-				buf.append(", "); //$NON-NLS-1$
-				buf.append(journal.getPublisher());
-			}
 		}
 		return buf.toString();
 	}
@@ -235,147 +199,6 @@ public class JournalEdition extends Publication implements JournalBasedPublicati
 	 */
 	public void setPages(String range) {
 		this.pages = Strings.emptyToNull(range);
-	}
-
-	@Override
-	@RequiredFieldInForm
-	public Journal getJournal() {
-		return this.journal;
-	}
-
-	@Override
-	public void setJournal(Journal journal) {
-		this.journal = journal;
-	}
-
-	@Override
-	public QuartileRanking getScimagoQIndex() {
-		final Journal journal = getJournal();
-		if (journal != null) {
-			return journal.getScimagoQIndexByYear(getPublicationYear());
-		}
-		return QuartileRanking.NR;
-	}
-
-	@Override
-	public QuartileRanking getWosQIndex() {
-		final Journal journal = getJournal();
-		if (journal != null) {
-			return journal.getWosQIndexByYear(getPublicationYear());
-		}
-		return QuartileRanking.NR;
-	}
-
-	@Override
-	public float getImpactFactor() {
-		final Journal journal = getJournal();
-		if (journal != null) {
-			return journal.getImpactFactorByYear(getPublicationYear());
-		}
-		return 0f;
-	}
-
-	@Override
-	public boolean isRanked() {
-		final Journal journal = getJournal();
-		if (journal != null) {
-			return journal.getScimagoQIndexByYear(getPublicationYear()) != QuartileRanking.NR
-					|| journal.getWosQIndexByYear(getPublicationYear()) != QuartileRanking.NR;
-		}
-		return false;
-	}
-
-	@Override
-	public PublicationCategory getCategory(JournalRankingSystem rankingSystem) {
-		final JournalRankingSystem rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
-		final Supplier<Boolean> rank;
-		switch (rankingSystem0) {
-		case SCIMAGO:
-			rank = () -> {
-				final QuartileRanking r = getScimagoQIndex();
-				return Boolean.valueOf(r != null && r != QuartileRanking.NR);
-			};
-			break;
-		case WOS:
-			rank = () -> {
-				final QuartileRanking r = getWosQIndex();
-				return Boolean.valueOf(r != null && r != QuartileRanking.NR);
-			};
-			break;
-		default:
-			throw new IllegalStateException();
-		}
-		return getCategoryWithSupplier(rank);
-	}
-	/** Replies the ISBN number that is associated to this publication.
-	 * This functions delegates to the journal.
-	 *
-	 * @return the ISBN number or {@code null}.
-	 * @see "https://en.wikipedia.org/wiki/ISBN"
-	 * @deprecated See {@link Journal#getISBN()}
-	 */
-	@Override
-	@Deprecated(since = "2.0.0")
-	public String getISBN() {
-		if (this.journal != null) {
-			return this.journal.getISBN();
-		}
-		return null;
-	}
-
-	/** Change the ISBN number that is associated to this publication.
-	 * This functions delegates to the journal.
-	 *
-	 * @param isbn the ISBN number or {@code null}.
-	 * @see "https://en.wikipedia.org/wiki/ISBN"
-	 * @deprecated See {@link Journal#setISBN(String)}
-	 */
-	@Override
-	@Deprecated(since = "2.0.0")
-	public void setISBN(String isbn) {
-		if (this.journal != null) {
-			this.journal.setISBN(isbn);
-		}
-	}
-
-	/** Replies the ISSN number that is associated to this publication.
-	 * This functions delegates to the journal.
-	 *
-	 * @return the ISSN number or {@code null}.
-	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
-	 * @deprecated See {@link Journal#getISSN()}
-	 */
-	@Override
-	@Deprecated(since = "2.0.0")
-	public String getISSN() {
-		if (this.journal != null) {
-			return this.journal.getISSN();
-		}
-		return null;
-	}
-
-	/** Change the ISSN number that is associated to this publication.
-	 * This functions delegates to the journal.
-	 *
-	 * @param issn the ISSN number or {@code null}.
-	 * @see "https://en.wikipedia.org/wiki/International_Standard_Serial_Number"
-	 * @deprecated See {@link Journal#setISSN(String)}
-	 */
-	@Override
-	@Deprecated(since = "2.0.0")
-	public final void setISSN(String issn) {
-		if (this.journal != null) {
-			this.journal.setISSN(issn);
-		}
-	}
-
-	@Override
-	public Boolean getOpenAccess() {
-		final Journal journal = getJournal();
-		if (journal != null) {
-			return journal.getOpenAccess();
-		}
-		return null;
 	}
 
 }
