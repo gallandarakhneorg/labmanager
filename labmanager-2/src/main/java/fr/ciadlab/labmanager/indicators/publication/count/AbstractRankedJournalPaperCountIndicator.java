@@ -92,7 +92,7 @@ public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractA
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
 		final Set<JournalPaper> papers = this.journalPaperService.getJournalPapersByOrganizationId(organization.getId(), true, true);
 		//
-		Stream<JournalPaper> stream = filterByYearWindow(false, papers, it -> Integer.valueOf(it.getPublicationYear()));
+		Stream<JournalPaper> stream = filterByYearWindow(papers, it -> Integer.valueOf(it.getPublicationYear()));
 		switch (getJournalRankingSystem()) {
 		case SCIMAGO:
 			stream = stream.filter(it -> QuartileRanking.normalize(it.getScimagoQIndex()) != QuartileRanking.NR);

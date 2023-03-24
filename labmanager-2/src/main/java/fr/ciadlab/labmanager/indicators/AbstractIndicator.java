@@ -184,21 +184,14 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	/** Filter the given collection by years.
 	 *
 	 * @param <T> the type of elements in the collection.
-	 * @param parallel indicates if the stream is parallel or not.
 	 * @param collection the collection to filter.
 	 * @param yearExtractor the extractor of year from the elements.
 	 * @return the filtered stream.
 	 */
-	protected <T> Stream<T> filterByYearWindow(boolean parallel, Collection<T> collection, Function<T, Integer> yearExtractor) {
+	protected <T> Stream<T> filterByYearWindow(Collection<T> collection, Function<T, Integer> yearExtractor) {
 		final int start = getReferencePeriodStart().getYear();
 		final int end = getReferencePeriodEnd().getYear();
-		Stream<T> stream;
-		if (parallel) {
-			stream = collection.parallelStream();
-		} else {
-			stream = collection.stream();
-		}
-		return stream.filter(it -> {
+		return collection.stream().filter(it -> {
 			final Integer year = yearExtractor.apply(it);
 			return year != null && year.intValue() >= start && year.intValue() <= end;
 		});

@@ -61,7 +61,7 @@ public class UnrankedJournalPaperCountIndicator extends AbstractAnnualIndicator 
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
 		final Set<JournalPaper> papers = this.journalPaperService.getJournalPapersByOrganizationId(organization.getId(), true, true);
 		//
-		final Map<Integer, Number> rankedPapers = filterByYearWindow(false, papers, it -> Integer.valueOf(it.getPublicationYear()))
+		final Map<Integer, Number> rankedPapers = filterByYearWindow(papers, it -> Integer.valueOf(it.getPublicationYear()))
 				.filter(it -> !it.isRanked())
 				.collect(Collectors.toConcurrentMap(
 					it -> Integer.valueOf(it.getPublicationYear()),

@@ -84,7 +84,7 @@ public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnu
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
 		final Set<ConferencePaper> papers = this.conferencePaperService.getConferencePapersByOrganizationId(organization.getId(), true);
 		//
-		Stream<ConferencePaper> stream = filterByYearWindow(true, papers, it -> Integer.valueOf(it.getPublicationYear()))
+		Stream<ConferencePaper> stream = filterByYearWindow(papers, it -> Integer.valueOf(it.getPublicationYear()))
 				.filter(it -> {
 					final PublicationType type = it.getType();
 					return type == PublicationType.INTERNATIONAL_CONFERENCE_PAPER || type == PublicationType.NATIONAL_CONFERENCE_PAPER; 

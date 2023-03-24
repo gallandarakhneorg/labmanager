@@ -75,7 +75,7 @@ public abstract class AbstractProjectCountIndicator extends AbstractAnnualIndica
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
 		final List<Project> projects = this.projectService.getProjectsByOrganizationId(organization.getId());
 		//
-		Stream<Project> stream = filterByYearWindow(false, projects, it -> Integer.valueOf(it.getStartYear()));
+		Stream<Project> stream = filterByYearWindow(projects, it -> Integer.valueOf(it.getStartYear()));
 		stream = stream.filter(it -> isCountableProject(it));
 		//
 		final Map<Integer, Number> projectsPerYear = stream.collect(Collectors.toConcurrentMap(

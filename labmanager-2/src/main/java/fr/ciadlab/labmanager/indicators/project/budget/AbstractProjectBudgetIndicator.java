@@ -87,7 +87,7 @@ public abstract class AbstractProjectBudgetIndicator extends AbstractAnnualIndic
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
 		final List<Project> projects = this.projectService.getProjectsByOrganizationId(organization.getId());
 		//
-		Stream<Project> stream = filterByYearWindow(false, projects, it -> Integer.valueOf(it.getStartYear()));
+		Stream<Project> stream = filterByYearWindow(projects, it -> Integer.valueOf(it.getStartYear()));
 		stream = stream.filter(it -> isSelectableProject(it));
 		//
 		final Unit dataUnit = getValueUnitInJPA();
