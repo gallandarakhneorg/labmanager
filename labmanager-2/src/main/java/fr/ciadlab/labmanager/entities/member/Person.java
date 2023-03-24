@@ -119,6 +119,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	private static final String RESEARCHGATE_URL = "http://www.researchgate.net/profile/"; //$NON-NLS-1$
 
+	private static final String ADSCIENTIFICINDEX_URL = "https://www.adscientificindex.com/scientist/"; //$NON-NLS-1$
+
 	/** Identifier of a person.
 	 */
 	@Id
@@ -231,6 +233,11 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Column
 	private String researchGateId;
 
+	/** Identifier of the person on AD Scientific Index.
+	 */
+	@Column
+	private String adScientificIndexId;
+
 	/** H-index of the person provided by Google Scholar.
 	 */
 	@Column
@@ -342,6 +349,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		h = HashCodeUtils.add(h, this.researcherId);
 		h = HashCodeUtils.add(h, this.scopusId);
 		h = HashCodeUtils.add(h, this.researchGateId);
+		h = HashCodeUtils.add(h, this.adScientificIndexId);
 		h = HashCodeUtils.add(h, this.wosHindex);
 		h = HashCodeUtils.add(h, this.scopusHindex);
 		h = HashCodeUtils.add(h, this.googleScholarCitations);
@@ -421,6 +429,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			return false;
 		}
 		if (!Objects.equals(this.researchGateId, other.researchGateId)) {
+			return false;
+		}
+		if (!Objects.equals(this.adScientificIndexId, other.adScientificIndexId)) {
 			return false;
 		}
 		if (this.wosHindex != other.wosHindex) {
@@ -526,6 +537,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (!Strings.isNullOrEmpty(getResearchGateId())) {
 			consumer.accept("researchGateId", getResearchGateId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getAdScientificIndexId())) {
+			consumer.accept("adScientificIndexId", getAdScientificIndexId()); //$NON-NLS-1$
 		}
 		if (getGoogleScholarHindex() > 0) {
 			consumer.accept("googleScholarHindex", Integer.valueOf(getGoogleScholarHindex())); //$NON-NLS-1$
@@ -1826,6 +1840,40 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		} else {
 			setValidated(validated.booleanValue());
 		}
+	}
+
+	/** Replies the identifier of the person on AD Scientific INdex.
+	 *
+	 * @return the identifier.
+	 * @since 3.6
+	 */
+	public String getAdScientificIndexId() {
+		return this.adScientificIndexId;
+	}
+
+	/** Replies the URL of the person on AD Scientific Index.
+	 *
+	 * @return the URL.
+	 * @since 3.6
+	 */
+	public final URL getAdScientificIndexURL() {
+		if (!Strings.isNullOrEmpty(getAdScientificIndexId())) {
+			try {
+
+				return new URL(ADSCIENTIFICINDEX_URL + getAdScientificIndexId());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the identifier of the person on AD Scientific Index.
+	 *
+	 * @param id the identifier.
+	 */
+	public void setAdScientificIndexId(String id) {
+		this.adScientificIndexId = Strings.emptyToNull(id);
 	}
 
 }

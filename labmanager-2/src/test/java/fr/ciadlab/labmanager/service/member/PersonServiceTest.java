@@ -259,7 +259,7 @@ public class PersonServiceTest {
 	@Test
 	public void createPerson() {
 		final Person person = this.test.createPerson(true, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
-				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
+				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NLIN", "NGIT", "NRGID", "NADSI", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
 
 		assertNotNull(person);
@@ -285,6 +285,7 @@ public class PersonServiceTest {
 		assertEquals("NLIN", actual.getLinkedInId());
 		assertEquals("NGIT", actual.getGithubId());
 		assertEquals("NRGID", actual.getResearchGateId());
+		assertEquals("NADSI", actual.getAdScientificIndexId());
 		assertEquals("NFB", actual.getFacebookId());
 		assertEquals("NDBLP", actual.getDblpURL());
 		assertEquals("NACA", actual.getAcademiaURL());
@@ -301,7 +302,7 @@ public class PersonServiceTest {
 	@Test
 	public void updatePerson() {
 		Person person = this.test.updatePerson(234, true, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
-				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NLIN", "NGIT", "NRGID", "NFB", "NDBLP", "NACA",
+				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NLIN", "NGIT", "NRGID", "NADSI", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
 
 		assertNotNull(person);
@@ -333,6 +334,7 @@ public class PersonServiceTest {
 		verify(this.pers1, atLeastOnce()).setLinkedInId(eq("NLIN"));
 		verify(this.pers1, atLeastOnce()).setGithubId(eq("NGIT"));
 		verify(this.pers1, atLeastOnce()).setResearchGateId(eq("NRGID"));
+		verify(this.pers1, atLeastOnce()).setAdScientificIndexId("NADSI");
 		verify(this.pers1, atLeastOnce()).setFacebookId(eq("NFB"));
 		verify(this.pers1, atLeastOnce()).setDblpURL(eq("NDBLP"));
 		verify(this.pers1, atLeastOnce()).setAcademiaURL(eq("NACA"));

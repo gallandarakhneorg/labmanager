@@ -175,6 +175,7 @@ public class PersonService extends AbstractService {
 				null, // Gravatar Id
 				null, // Orcid
 				null, // ResearcherId
+				null, // AD Scientific Index
 				null, // Scopus Id
 				null, // Google Scholar
 				null, // Linked-In Id
@@ -211,6 +212,7 @@ public class PersonService extends AbstractService {
 	 * @param linkedInId the identifier of the person on LinkedIn.
 	 * @param githubId the identifier of the person on Github.
 	 * @param researchGateId the identifier of the person on ResearchGate.
+	 * @param adScientificIndexId the identifier of the person on AD Scientific Index.
 	 * @param facebookId the identifier of the person on Facebook.
 	 * @param dblpURL the URL of the person's page on DBLP.
 	 * @param academiaURL the URL of the person's page on Academia.edu.
@@ -228,7 +230,7 @@ public class PersonService extends AbstractService {
 	 */
 	public Person createPerson(boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
 			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId,
-			String scholarId, String linkedInId, String githubId, String researchGateId, String facebookId,
+			String scholarId, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId,
 			String dblpURL, String academiaURL, String cordisURL, WebPageNaming webPageNaming,
 			int scholarHindex, int wosHindex, int scopusHindex, int scholarCitations, int wosCitations, int scopusCitations) {
 		final Person res = new Person();
@@ -247,6 +249,7 @@ public class PersonService extends AbstractService {
 		res.setLinkedInId(linkedInId);
 		res.setGithubId(githubId);
 		res.setResearchGateId(researchGateId);
+		res.setAdScientificIndexId(adScientificIndexId);
 		res.setFacebookId(facebookId);
 		res.setDblpURL(dblpURL);
 		res.setAcademiaURL(academiaURL);
@@ -282,6 +285,7 @@ public class PersonService extends AbstractService {
 	 * @param linkedInId the identifier of the person on LinkedIn.
 	 * @param githubId the identifier of the person on Github.
 	 * @param researchGateId the identifier of the person on ResearchGate.
+	 * @param adScientificIndexId the identifier of the person on AD Scientific Index.
 	 * @param facebookId the identifier of the person on Facebook.
 	 * @param dblpURL the URL of the person's page on DBLP.
 	 * @param academiaURL the URL of the person's page on Academia.edu.
@@ -297,7 +301,7 @@ public class PersonService extends AbstractService {
 	 */
 	public Person updatePerson(int identifier, boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
 			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId, String scholarId,
-			String linkedInId, String githubId, String researchGateId, String facebookId, String dblpURL, String academiaURL,
+			String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId, String dblpURL, String academiaURL,
 			String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex, int scopusHindex,
 			int scholarCitations, int wosCitations, int scopusCitations) {
 		final Optional<Person> res = this.personRepository.findById(Integer.valueOf(identifier));
@@ -322,6 +326,7 @@ public class PersonService extends AbstractService {
 			person.setLinkedInId(linkedInId);
 			person.setGithubId(githubId);
 			person.setResearchGateId(researchGateId);
+			person.setAdScientificIndexId(adScientificIndexId);
 			person.setFacebookId(facebookId);
 			person.setDblpURL(dblpURL);
 			person.setAcademiaURL(academiaURL);

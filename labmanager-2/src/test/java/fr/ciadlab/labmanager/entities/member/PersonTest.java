@@ -645,6 +645,32 @@ public class PersonTest {
 		assertNull(this.test.getResearchGateURL());
 	}
 
+	@Test
+	public void getAdScientificIndexId() {
+		assertNull(this.test.getAdScientificIndexId());
+	}
+
+	@Test
+	public void setAdScientificIndexId() throws Exception {
+		assertNull(this.test.getAdScientificIndexId());
+
+		this.test.setAdScientificIndexId("xyz");
+		assertEquals("xyz", this.test.getAdScientificIndexId());
+		assertEquals(new URL("https://www.adscientificindex.com/scientist/xyz"), this.test.getAdScientificIndexURL());
+
+		this.test.setAdScientificIndexId(null);
+		assertNull(this.test.getAdScientificIndexId());
+		assertNull(this.test.getAdScientificIndexURL());
+
+		this.test.setAdScientificIndexId("xyz");
+		assertEquals("xyz", this.test.getAdScientificIndexId());
+		assertEquals(new URL("https://www.adscientificindex.com/scientist/xyz"), this.test.getAdScientificIndexURL());
+
+		this.test.setAdScientificIndexId("");
+		assertNull(this.test.getAdScientificIndexId());
+		assertNull(this.test.getAdScientificIndexURL());
+	}
+
 	private ResearchOrganization mockOrg(String acronym) {
 		ResearchOrganization o = mock(ResearchOrganization.class);
 		when(o.getType()).thenReturn(ResearchOrganizationType.LABORATORY);

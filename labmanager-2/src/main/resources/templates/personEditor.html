@@ -35,6 +35,7 @@
 	<div class="form-group" th:replace="fragments/form :: textInput(linkedInId, #{html.LinkedInId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.linkedInId : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInputWithDiv(githubId, #{html.GithubId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.githubId : ''}, personGithubPhoto)"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(researchGateId, #{html.ResearchGateId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.researchGateId : ''})"></div>
+	<div class="form-group" th:replace="fragments/form :: textInput(adScientificIndexId, #{html.AdScientificIndexId}, #{html.PlaceHolderAdScientificIndexId}, ${person != null ? person.adScientificIndexId : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(facebookId, #{html.FacebookId}, #{html.PlaceHolderIdentifier}, ${person != null ? person.facebookId : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(dblpURL, #{html.DblpURL}, #{html.PlaceHolderURL}, ${person != null ? person.dblpURL : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(academiaURL, #{html.AcademiaURL}, #{html.PlaceHolderURL}, ${person != null ? person.academiaURL : ''})"></div>

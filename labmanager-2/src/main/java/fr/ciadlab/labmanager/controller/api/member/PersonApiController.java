@@ -165,6 +165,7 @@ public class PersonApiController extends AbstractApiController {
 	 * @param linkedInId the identifier of the person on LinkedIn.
 	 * @param githubId the identifier of the person on Github.
 	 * @param researchGateId the identifier of the person on ResearchGate.
+	 * @param adScientificIndexId the identifier of the person on AD Scientific Index.
 	 * @param facebookId the identifier of the person on Facebook.
 	 * @param dblpURL the URL of the person's page on DBLP.
 	 * @param academiaURL the URL of the person's page on Academia.edu.
@@ -198,6 +199,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) String linkedInId,
 			@RequestParam(required = false) String githubId,
 			@RequestParam(required = false) String researchGateId,
+			@RequestParam(required = false) String adScientificIndexId,
 			@RequestParam(required = false) String facebookId,
 			@RequestParam(required = false) String dblpURL,
 			@RequestParam(required = false) String academiaURL,
@@ -227,6 +229,7 @@ public class PersonApiController extends AbstractApiController {
 		final String inLinkedInId = inString(linkedInId);
 		final String inGithubId = inString(githubId);
 		final String inResearchGateId = inString(researchGateId);
+		final String inAdScientificIndexId = inString(adScientificIndexId);
 		final String inFacebookId = inString(facebookId);
 		final String inDblpURL = inString(dblpURL);
 		final String inAcademiaURL = inString(academiaURL);
@@ -247,13 +250,15 @@ public class PersonApiController extends AbstractApiController {
 		if (person == null) {
 			optPerson = this.personService.createPerson(
 					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
-					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
+					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inLinkedInId, inGithubId,
+					inResearchGateId, inAdScientificIndexId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,
 					shindex, whindex, uhindex, scitations, wcitations, ucitations);
 		} else {
 			optPerson = this.personService.updatePerson(person.intValue(),
 					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
-					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inLinkedInId, inGithubId, inResearchGateId,
+					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inLinkedInId, inGithubId,
+					inResearchGateId, inAdScientificIndexId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,
 					shindex, whindex, uhindex, scitations, wcitations, ucitations);
 		}
