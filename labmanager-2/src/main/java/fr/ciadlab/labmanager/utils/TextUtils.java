@@ -75,4 +75,25 @@ public final class TextUtils {
 		return ""; //$NON-NLS-1$
 	}
 
+	/** Safe case-insensitive comparison of strings.
+	 *
+	 * @param a the first string.
+	 * @param b the second string.
+	 * @return negative if {@code a} is lower than {@code b}; position if {@code a} is greater than {@code b};
+	 *     otherwise {@code 0}.
+	 * @since 3.6
+	 */
+	public static int compareIgnoreCase(String a, String b) {
+		if (a == b) {
+			return 0;
+		}
+		if (a == null) {
+			return -1;
+		}
+		if (b == null) {
+			return 1;
+		}
+		return a.compareToIgnoreCase(b);
+	}
+
 }
