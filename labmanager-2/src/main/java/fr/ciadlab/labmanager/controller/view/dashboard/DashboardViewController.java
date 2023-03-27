@@ -31,7 +31,7 @@ import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.service.conference.ConferenceService;
-import fr.ciadlab.labmanager.service.member.MembershipService;
+import fr.ciadlab.labmanager.service.member.MembershipStatService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.project.ProjectService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
@@ -70,7 +70,7 @@ public class DashboardViewController extends AbstractViewController {
 	
 	private ProjectService projectService;
 
-	private MembershipService membershipService;
+	private MembershipStatService membershipStatService;
 
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
@@ -81,7 +81,7 @@ public class DashboardViewController extends AbstractViewController {
 	 * @param publicationService the service for accessing the publications.
 	 * @param publicationStatService the service for computing stats on publications.
 	 * @param projectService the service for accessing to the projects.
-	 * @param membershipService the service for accessing the memberships.
+	 * @param membershipStatService the service for computing the membership stats.
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public DashboardViewController(
@@ -91,14 +91,14 @@ public class DashboardViewController extends AbstractViewController {
 			@Autowired PublicationService publicationService,
 			@Autowired PublicationStatService publicationStatService,
 			@Autowired ProjectService projectService,
-			@Autowired MembershipService membershipService,
+			@Autowired MembershipStatService membershipStatService,
 			@Value("${labmanager.security.username-key}") String usernameKey) {
 		super(messages, constants, usernameKey);
 		this.organizationService = organizationService;
 		this.publicationService = publicationService;
 		this.publicationStatService = publicationStatService;
 		this.projectService = projectService;
-		this.membershipService = membershipService;
+		this.membershipStatService = membershipStatService;
 	}
 
 	private static String toTimeRange(int start, int end, boolean exclude) {
@@ -344,15 +344,15 @@ public class DashboardViewController extends AbstractViewController {
 		//
 		final ModelAndView modelAndView = new ModelAndView("membershipDashboard"); //$NON-NLS-1$
 		initModelViewWithInternalProperties(modelAndView, false);
-		modelAndView.addObject("membersPerYear", this.membershipService.getNumberOfMembersPerYear(memberships, minYear, maxYear)); //$NON-NLS-1$
+		modelAndView.addObject("membersPerYear", this.membershipStatService.getNumberOfMembersPerYear(memberships, minYear, maxYear)); //$NON-NLS-1$
 		//
 		final List<OrganizationAddress> addresses = organizationObj.getAddresses().stream().collect(Collectors.toList());
-		modelAndView.addObject("membersPerAddress", this.membershipService.getNumberOfMembersPerAddress(memberships, //$NON-NLS-1$ 
+		modelAndView.addObject("membersPerAddress", this.membershipStatService.getNumberOfMembersPerAddress(memberships, //$NON-NLS-1$ 
 				minYear, maxYear, organizationObj, addresses));
 		modelAndView.addObject("addresses", addresses.stream().map(it -> it.getName()).collect(Collectors.toList())); //$NON-NLS-1$
 		//
 		final List<ScientificAxis> axes = new ArrayList<>();
-		modelAndView.addObject("membersPerScientificAxis", this.membershipService.getNumberOfMembersPerScientificAxis(memberships, //$NON-NLS-1$ 
+		modelAndView.addObject("membersPerScientificAxis", this.membershipStatService.getNumberOfMembersPerScientificAxis(memberships, //$NON-NLS-1$ 
 				minYear, maxYear, organizationObj, axes));
 		modelAndView.addObject("scientificAxes", axes.stream() //$NON-NLS-1$
 				.map(it -> it.getAcronym() + " - " + it.getName()) //$NON-NLS-1$$
