@@ -456,9 +456,10 @@ public class PublicationStatService extends AbstractPublicationService {
 	public List<List<Object>> getNumberOfPublicationsPerScientificAxis(Collection<? extends Publication> publications,
 			int lastYear, boolean excludeLastYear) {
 		final Map<ScientificAxis, Integer> projectsPerAxis = new HashMap<>();
-		final AtomicInteger outsideAxis = new AtomicInteger(); 
+		final AtomicInteger outsideAxis = new AtomicInteger();
 		publications.stream()
-			.filter(it -> !excludeLastYear || it.getPublicationYear() != lastYear)
+			.filter(it -> (!excludeLastYear || it.getPublicationYear() != lastYear)
+					&& (it.getCategory().isScientificJournalPaper() || it.getCategory().isScientificEventPaper()))
 			.forEach(it -> {
 				if (!it.getScientificAxes().isEmpty()) {
 					for (final ScientificAxis axis : it.getScientificAxes()) {
