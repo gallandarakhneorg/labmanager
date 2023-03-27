@@ -30,6 +30,7 @@ import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.conference.ConferenceQualityAnnualIndicators;
 import fr.ciadlab.labmanager.service.conference.ConferenceService;
+import fr.ciadlab.labmanager.utils.TextUtils;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -118,7 +119,8 @@ public class ConferenceViewController extends AbstractViewController {
 		List<Conference> otherConferences = this.conferenceService.getAllConferences();
 		if (conferenceObj != null) {
 			otherConferences = otherConferences.stream().filter(it -> it.getId() != conferenceObj.getId())
-					.sorted((a, b) -> a.getAcronym().compareToIgnoreCase(b.getAcronym())).collect(Collectors.toList());
+					.sorted((a, b) -> TextUtils.compareIgnoreCase(a.getAcronym(), b.getAcronym()))
+					.collect(Collectors.toList());
 		}
 		//
 		modelAndView.addObject("conference", conferenceObj); //$NON-NLS-1$
