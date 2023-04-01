@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -30,11 +29,14 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -50,6 +52,7 @@ import fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming;
 import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
 import fr.ciadlab.labmanager.repository.organization.ResearchOrganizationRepository;
 import fr.ciadlab.labmanager.repository.project.ProjectMemberRepository;
@@ -1042,49 +1045,83 @@ public class ProjectService extends AbstractService {
 	 * @return rows with: country name, count.
 	 * @since 3.6
 	 */
-	@SuppressWarnings("static-method")
 	public List<List<Object>> getNumberOfProjectsPerCountry(Collection<? extends Project> projects, ResearchOrganization referenceOrganization) {
-		final AtomicInteger projectsWithUnknownCountry = new AtomicInteger();
-		final int[] numbers = new int[CountryCode.values().length + 1];
-		projects.stream()
-				.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
-				.forEach(it -> {
-					final Set<CountryCode> countries = new HashSet<>();
-					boolean unknown = false;
-					if (!getCountry(it.getCoordinator(), referenceOrganization, countries)) {
-						unknown = true;
-					}
-					for (final ResearchOrganization member : it.getOtherPartners()) {
-						if (!getCountry(member, referenceOrganization, countries)) {
-							unknown = true;
-						}							
-					}
-					for (final CountryCode country : countries) {
-						++numbers[country.ordinal()];
-					}
-					if (unknown) {
-						projectsWithUnknownCountry.incrementAndGet();
-					}
-				});
-		numbers[numbers.length - 1] = projectsWithUnknownCountry.get();
-		final CountryCode[] allCountries = CountryCode.values();
-		final AtomicInteger index = new AtomicInteger();
-		final IntFunction<List<Object>> converter = it -> {
-			final List<Object> columns = new ArrayList<>(2);
-			final int idx = index.getAndIncrement();
-			if (idx < allCountries.length) {
-				columns.add(allCountries[idx].getDisplayCountry());
-			} else {
-				columns.add("?"); //$NON-NLS-1$
+		final Map<CountryCode, Integer> projectsPerCountry = new TreeMap<>((a, b) -> {
+			if (a == b) {
+				return 0;
 			}
-			columns.add(Integer.valueOf(it));
-			return columns;
-		};
-		return Arrays.stream(numbers)
-			.mapToObj(converter)
-			.filter(it -> ((Integer) it.get(1)).intValue() > 0)
-			.sorted((a, b) -> - ((Integer) a.get(1)).compareTo((Integer) b.get(1)))
-			.collect(Collectors.toList());
+			if (a == null) {
+				return Integer.MIN_VALUE;
+			}
+			if (b == null) {
+				return Integer.MAX_VALUE;
+			}
+			return a.compareTo(b);
+		});
+		final Map<Integer, List<Map<String, Object>>> anonymousProjects = new TreeMap<>();
+		projects.stream()
+			.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
+			.forEach(it -> {
+				final Set<CountryCode> countriesForProject = new TreeSet<>();
+				if (!getCountry(it.getCoordinator(), referenceOrganization, countriesForProject)) {
+					addAnonymousProject(anonymousProjects, it, it.getCoordinator());
+				}
+				for (final ResearchOrganization member : it.getOtherPartners()) {
+					if (!getCountry(member, referenceOrganization, countriesForProject)) {
+						addAnonymousProject(anonymousProjects, it, it.getCoordinator());
+					}
+				}
+				for (final CountryCode country : countriesForProject) {
+					final Integer value = projectsPerCountry.get(country);
+					if (value == null) {
+						projectsPerCountry.put(country, Integer.valueOf(1));
+					} else {
+						projectsPerCountry.put(country, Integer.valueOf(value.intValue() + 1));
+					}
+				}
+			});
+		if (!anonymousProjects.isEmpty()) {
+			try {
+				final ObjectMapper jsonMapper = JsonUtils.createMapper();
+				getLogger().info("Project with country-less participant: " + jsonMapper.writeValueAsString(anonymousProjects)); //$NON-NLS-1$
+			} catch (JsonProcessingException ex) {
+				getLogger().error(ex.getLocalizedMessage(), ex);
+			}
+			projectsPerCountry.put(null, Integer.valueOf(anonymousProjects.size()));
+		}
+		return projectsPerCountry.entrySet().stream()
+				.map(it -> {
+					final List<Object> columns = new ArrayList<>(2);
+					final CountryCode cc = it.getKey();
+					if (cc == null) {
+						columns.add("?"); //$NON-NLS-1$
+					} else {
+						columns.add(cc.getDisplayCountry());
+					}
+					columns.add(it.getValue());
+					return columns;
+				})
+				// Sorted by quantity and country code
+				.sorted((a, b) -> {
+					final Integer na = (Integer) a.get(1);
+					final Integer nb = (Integer) b.get(1);
+					int cmp = nb.compareTo(na);
+					if (cmp != 0) {
+						return cmp;
+					}
+					final String la = (String) a.get(0);
+					final String lb = (String) b.get(0);
+					return la.compareToIgnoreCase(lb);
+				})
+				.collect(Collectors.toList());
+	}
+
+	private static void addAnonymousProject(Map<Integer, List<Map<String, Object>>> anonymousProjects, Project project, ResearchOrganization organization) {
+		final List<Map<String, Object>> invalidOrgas = anonymousProjects.computeIfAbsent(Integer.valueOf(project.getId()), it -> new ArrayList<>());
+		final Map<String, Object> orgaDesc = new HashMap<>();
+		orgaDesc.put("id", Integer.valueOf(organization.getId())); //$NON-NLS-1$
+		orgaDesc.put("name", organization.getName()); //$NON-NLS-1$
+		invalidOrgas.add(orgaDesc);
 	}
 
 	private static boolean getCountry(ResearchOrganization member, ResearchOrganization referenceOrganization,
@@ -1094,7 +1131,7 @@ public class ProjectService extends AbstractService {
 			if (code == null) {
 				return false;
 			}
-			countries.add(code);
+			countries.add(code.normalize());
 		}
 		return true;
 	}
