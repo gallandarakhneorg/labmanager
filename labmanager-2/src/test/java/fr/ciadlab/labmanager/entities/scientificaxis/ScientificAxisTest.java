@@ -355,8 +355,8 @@ public class ScientificAxisTest {
 		assertTrue(actual.contains(p0));
 		assertTrue(actual.contains(p1));
 
-		assertTrue(l0.contains(this.test));
-		assertTrue(l1.contains(this.test));
+		assertFalse(l0.contains(this.test));
+		assertFalse(l1.contains(this.test));
 	}
 
 	@Test
@@ -382,8 +382,8 @@ public class ScientificAxisTest {
 		assertTrue(actual.contains(p0));
 		assertTrue(actual.contains(p1));
 
-		assertTrue(l0.contains(this.test));
-		assertTrue(l1.contains(this.test));
+		assertFalse(l0.contains(this.test));
+		assertFalse(l1.contains(this.test));
 	}
 
 	@Test
@@ -409,8 +409,8 @@ public class ScientificAxisTest {
 		assertTrue(actual.contains(m0));
 		assertTrue(actual.contains(m1));
 
-		assertTrue(l0.contains(this.test));
-		assertTrue(l1.contains(this.test));
+		assertFalse(l0.contains(this.test));
+		assertFalse(l1.contains(this.test));
 	}
 
 }

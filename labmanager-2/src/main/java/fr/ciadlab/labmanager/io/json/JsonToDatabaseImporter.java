@@ -502,20 +502,24 @@ public class JsonToDatabaseImporter extends JsonTool {
 				insertGlobalIndicators(session, content.get(GLOBALINDICATORS_SECTION), objectRepository, aliasRepository);
 				final int nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
+				final int nb13 = insertScientificAxes(session, content.get(SCIENTIFIC_AXIS_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
 				final int nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
 				final int nb14 = insertConferences(session, content.get(CONFERENCES_SECTION), objectRepository, aliasRepository);
-				final int nb3 = insertOrganizationMemberships(session, content.get(ORGANIZATION_MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
-				final Pair<Integer, Integer> added = insertPublications(session, content.get(PUBLICATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
+				final JsonNode scientificAxisNode = content.get(SCIENTIFIC_AXIS_SECTION);
+				final int nb3 = insertOrganizationMemberships(session, content.get(ORGANIZATION_MEMBERSHIPS_SECTION),
+						scientificAxisNode, objectRepository, aliasRepository);
+				final Pair<Integer, Integer> added = insertPublications(session, content.get(PUBLICATIONS_SECTION),
+						scientificAxisNode, objectRepository, aliasRepository, fileCallback);
 				final int nb4 = added != null ? added.getLeft().intValue() : 0;
 				final int nb5 = added != null ? added.getRight().intValue() : 0;
 				final int nb7 = insertJuryMemberships(session, content.get(JURY_MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
 				final int nb8 = insertSupervisions(session, content.get(SUPERVISIONS_SECTION), objectRepository, aliasRepository);
 				final int nb9 = insertInvitations(session, content.get(INVITATIONS_SECTION), objectRepository, aliasRepository);
-				final int nb10 = insertProjects(session, content.get(PROJECTS_SECTION), objectRepository, aliasRepository, fileCallback);
+				final int nb10 = insertProjects(session, content.get(PROJECTS_SECTION), 
+						scientificAxisNode, objectRepository, aliasRepository, fileCallback);
 				final int nb11 = insertAssociatedStructures(session, content.get(ASSOCIATED_STRUCTURES_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb12 = insertTeachingActivities(session, content.get(TEACHING_ACTIVITY_SECTION), objectRepository, aliasRepository, fileCallback);
-				final int nb13 = insertScientificAxes(session, content.get(SCIENTIFIC_AXIS_SECTION), objectRepository, aliasRepository, fileCallback);
 				return new Stats(nb6, nb0, nb2, nb14, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11, nb12, nb13);
 			}
 		}
@@ -795,20 +799,60 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return nbNew;
 	}
 
+	private static Map<String, List<Integer>> extractScientificAxes(JsonNode scientificAxes,
+			Map<String, Integer> objectIdRepository, String jsonKey) {
+		final Map<String, List<Integer>> axes = new TreeMap<>();
+		if (scientificAxes != null) {
+			final Map<String, Integer> cache = new HashMap<>();
+			scientificAxes.forEach(axisNode -> {
+				final JsonNode mbrsNode = axisNode.get(jsonKey);
+				if (mbrsNode != null && mbrsNode.isArray() && !mbrsNode.isEmpty()) {
+					final String axisId = getId(axisNode);
+					if (Strings.isNullOrEmpty(axisId)) {
+						throw new IllegalArgumentException("Invalid reference to a membership's scientific axis"); //$NON-NLS-1$
+					}
+					Integer axisDbId = cache.get(axisId);
+					if (axisDbId == null) {
+						axisDbId = objectIdRepository.get(axisId);
+						if (axisDbId == null) {
+							throw new IllegalArgumentException("Invalid reference to a membership's scientific axis"); //$NON-NLS-1$
+						}
+						cache.put(axisId, axisDbId);
+					}
+					final Integer axisDbId0 = axisDbId;
+					mbrsNode.forEach(mbrNode -> {
+						final String mbrId = getRef(mbrNode);
+						if (Strings.isNullOrEmpty(mbrId)) {
+							throw new IllegalArgumentException("Invalid reference to a membership in the scientific axis: " + axisId); //$NON-NLS-1$
+						}
+						final List<Integer> listOfAxes = axes.computeIfAbsent(mbrId, it -> new ArrayList<>());
+						listOfAxes.add(axisDbId0);
+					});
+				}
+			});
+		}
+		return axes;
+	}
+
 	/** Create the organization memberships in the database.
 	 *
 	 * @param session the JPA session for managing transactions.
 	 * @param memberships the list of memberships in the Json source.
+	 * @param scientificAxes the list of scientific axes of the memberships in the Json source.
 	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
 	 * @param aliasRepository the repository of field aliases.
 	 * @return the number of new memberships in the database.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	protected int insertOrganizationMemberships(Session session, JsonNode memberships, Map<String, Integer> objectIdRepository,
-			Map<String, Set<String>> aliasRepository) throws Exception {
+	protected int insertOrganizationMemberships(Session session, JsonNode memberships, JsonNode scientificAxes,
+			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository) throws Exception {
 		int nbNew = 0;
 		if (memberships != null && !memberships.isEmpty()) {
 			getLogger().info("Inserting " + memberships.size() + " organization memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
+			// Extract the scientific axes for each membership
+			final Map<String, List<Integer>> axesOfMemberships = extractScientificAxes(
+					scientificAxes, objectIdRepository, MEMBERSHIPS_KEY);
+			//
 			final List<Pair<Membership, Integer>> addressPostProcessing = new ArrayList<>();
 			int i = 0;
 			for (JsonNode membershipObject : memberships) {
@@ -868,6 +912,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 						if (existing.isEmpty()) {
 							membership.setPerson(targetPerson.get());
 							membership.setResearchOrganization(targetOrganization.get());
+							// Attach scientific axes to the membership
+							final List<Integer> membershipScientificAxes = axesOfMemberships.get(id);
+							if (membershipScientificAxes != null && !membershipScientificAxes.isEmpty()) {
+								final List<ScientificAxis> axisInstances = this.scientificAxisRepository.findAllById(membershipScientificAxes);
+								membership.setScientificAxes(axisInstances);
+							}
 							if (!isFake()) {
 								membership = this.organizationMembershipRepository.save(membership);
 								this.personRepository.save(targetPerson.get());
@@ -1165,6 +1215,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 *
 	 * @param session the JPA session for managing transactions.
 	 * @param publications the list of publications in the Json source.
+	 * @param scientificAxes the list of scientific axes of the publications in the Json source.
 	 * @param objectIdRepository the repository of the JSON elements with {@code "@id"} field.
 	 * @param aliasRepository the repository of field aliases.
 	 * @param fileCallback a tool that is invoked when associated file is detected. It could be {@code null}.
@@ -1172,12 +1223,16 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 *     second number is the is the number of added persons.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	protected Pair<Integer, Integer> insertPublications(Session session, JsonNode publications, Map<String, Integer> objectIdRepository,
-			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
+	protected Pair<Integer, Integer> insertPublications(Session session, JsonNode publications, JsonNode scientificAxes,
+			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		int nbNewPublications = 0;
 		final MutableInt nbNewPersons = new MutableInt();
 		if (publications != null && !publications.isEmpty()) {
 			getLogger().info("Retreiving the existing publications..."); //$NON-NLS-1$
+			// Extract the scientific axes for each membership
+			final Map<String, List<Integer>> axesOfPublications = extractScientificAxes(
+					scientificAxes, objectIdRepository, PUBLICATIONS_KEY);
+			//
 			final List<Publication> allPublications = this.publicationRepository.findAll();
 			getLogger().info("Inserting " + publications.size() + " publications..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
@@ -1251,6 +1306,16 @@ public class JsonToDatabaseImporter extends JsonTool {
 							++authorRank;
 						}
 						session.getTransaction().commit();
+						final List<Integer> publicationScientificAxes = axesOfPublications.get(id);
+						if (publicationScientificAxes != null && !publicationScientificAxes.isEmpty()) {
+							session.beginTransaction();
+							final List<ScientificAxis> axisInstances = this.scientificAxisRepository.findAllById(publicationScientificAxes);
+							publication.setScientificAxes(axisInstances);
+							if (!isFake()) {
+								this.publicationService.save(publication);
+							}
+							session.getTransaction().commit();
+						}
 					} else {
 						// Publication is already in the database
 						getLogger().info("  X " + existing.get().getTitle() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -1669,17 +1734,22 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 *
 	 * @param session the JPA session for managing transactions.
 	 * @param projects the list of projects in the Json source.
+	 * @param scientificAxes the list of scientific axes of the projects in the Json source.
 	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
 	 * @param aliasRepository the repository of field aliases.
 	 * @param fileCallback a tool that is invoked when associated file is detected. It could be {@code null}.
 	 * @return the number of new projects in the database.
 	 * @throws Exception if a project cannot be created.
 	 */
-	protected int insertProjects(Session session, JsonNode projects, Map<String, Integer> objectIdRepository,
-			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
+	protected int insertProjects(Session session, JsonNode projects, JsonNode scientificAxes,
+			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		int nbNew = 0;
 		if (projects != null && !projects.isEmpty()) {
 			getLogger().info("Inserting " + projects.size() + " projects..."); //$NON-NLS-1$ //$NON-NLS-2$
+			// Extract the scientific axes for each membership
+			final Map<String, List<Integer>> axesOfProjects = extractScientificAxes(
+					scientificAxes, objectIdRepository, PROJECTS_KEY);
+			//
 			int i = 0;
 			for (JsonNode projectObject : projects) {
 				getLogger().info("> Project " + (i + 1) + "/" + projects.size()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1927,6 +1997,17 @@ public class JsonToDatabaseImporter extends JsonTool {
 							objectIdRepository.put(id, Integer.valueOf(project.getId()));
 						}
 						session.getTransaction().commit();
+						//
+						final List<Integer> projectScientificAxes = axesOfProjects.get(id);
+						if (projectScientificAxes != null && !projectScientificAxes.isEmpty()) {
+							session.beginTransaction();
+							final List<ScientificAxis> axisInstances = this.scientificAxisRepository.findAllById(projectScientificAxes);
+							project.setScientificAxes(axisInstances);
+							if (!isFake()) {
+								this.projectRepository.save(project);
+							}
+							session.getTransaction().commit();
+						}
 					}
 				} catch (Throwable ex) {
 					throw new UnableToImportJsonException(PROJECTS_SECTION, i, projectObject, ex);
@@ -2217,81 +2298,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 					final String id = getId(axisObject);
 					ScientificAxis axis = createObject(ScientificAxis.class, axisObject, aliasRepository, null);
 					if (axis != null) {
-						session.beginTransaction();
-
-						final JsonNode projectsNode = axisObject.get(PROJECTS_KEY);
-						if (projectsNode != null) {
-							final List<Project> loadedProjects = new ArrayList<>();
-							projectsNode.forEach(projectNode -> {
-								final String projectId = getRef(projectNode);
-								if (Strings.isNullOrEmpty(projectId)) {
-									throw new IllegalArgumentException("Invalid project reference for scientific axis with id: " + id); //$NON-NLS-1$
-								}
-								final Integer projectDbId = objectIdRepository.get(projectId);
-								if (projectDbId == null || projectDbId.intValue() == 0) {
-									throw new IllegalArgumentException("Invalid project reference for scientific axis with id: " + id); //$NON-NLS-1$
-								}
-								final Optional<Project> project = this.projectRepository.findById(projectDbId);
-								if (project.isEmpty()) {
-									throw new IllegalArgumentException("Invalid project reference for scientific axis with id: " + id); //$NON-NLS-1$
-								}
-								loadedProjects.add(project.get());
-							});
-							axis.setProjects(loadedProjects);
-							if (!isFake()) {
-								this.scientificAxisRepository.save(axis);
-							}
+						if (!isFake()) {
+							this.scientificAxisRepository.save(axis);
 						}
-
-						final JsonNode publicationsNode = axisObject.get(PUBLICATIONS_KEY);
-						if (publicationsNode != null) {
-							final List<Publication> loadedPublications = new ArrayList<>();
-							publicationsNode.forEach(publicationNode -> {
-								final String publicationId = getRef(publicationNode);
-								if (Strings.isNullOrEmpty(publicationId)) {
-									throw new IllegalArgumentException("Invalid publication reference for scientific axis with id: " + id); //$NON-NLS-1$
-								}
-								final Integer publicationDbId = objectIdRepository.get(publicationId);
-								if (publicationDbId == null || publicationDbId.intValue() == 0) {
-									throw new IllegalArgumentException("Invalid publication reference for scientific axis with id: " + id); //$NON-NLS-1$
-								}
-								final Optional<Publication> publication = this.publicationRepository.findById(publicationDbId);
-								if (publication.isEmpty()) {
-									throw new IllegalArgumentException("Invalid publication reference for scientific axis with id: " + id); //$NON-NLS-1$
-								}
-								loadedPublications.add(publication.get());
-							});
-							axis.setPublications(loadedPublications);
-							if (!isFake()) {
-								this.scientificAxisRepository.save(axis);
-							}
+						++nbNew;
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Integer.valueOf(axis.getId()));
 						}
-
-						final JsonNode membershipsNode = axisObject.get(MEMBERSHIPS_KEY);
-						if (membershipsNode != null) {
-							final List<Membership> loadedMemberships = new ArrayList<>();
-							membershipsNode.forEach(membershipNode -> {
-								final String membershipId = getRef(membershipNode);
-								if (Strings.isNullOrEmpty(membershipId)) {
-									throw new IllegalArgumentException("Invalid membership reference for scientific axis with id: " + id); //$NON-NLS-1$
-								}
-								final Integer membershipDbId = objectIdRepository.get(membershipId);
-								if (membershipDbId == null || membershipDbId.intValue() == 0) {
-									throw new IllegalArgumentException("Invalid membership reference for scientific axis with id: " + id); //$NON-NLS-1$
-								}
-								final Optional<Membership> membership = this.organizationMembershipRepository.findById(membershipDbId);
-								if (membership.isEmpty()) {
-									throw new IllegalArgumentException("Invalid membership reference for scientific axis with id: " + id); //$NON-NLS-1$
-								}
-								loadedMemberships.add(membership.get());
-							});
-							axis.setMemberships(loadedMemberships);
-							if (!isFake()) {
-								this.scientificAxisRepository.save(axis);
-							}
-						}
-
-						session.getTransaction().commit();
 					}
 				} catch (Throwable ex) {
 					throw new UnableToImportJsonException(SCIENTIFIC_AXIS_SECTION, i, axisObject, ex);

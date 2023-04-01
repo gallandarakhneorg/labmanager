@@ -29,8 +29,6 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
@@ -97,29 +95,17 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 
 	/** Projects which are associated to the scientific axis.
 	 */
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(
-			name = "scientific_axis_project", 
-			joinColumns = @JoinColumn(name = "axis_id"), 
-			inverseJoinColumns = @JoinColumn(name = "project_id"))
+	@ManyToMany(mappedBy = "scientificAxes", fetch = FetchType.LAZY)
 	private List<Project> projects = new ArrayList<>();
 
 	/** Publications which are associated to the scientific axis.
 	 */
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(
-			name = "scientific_axis_publication", 
-			joinColumns = @JoinColumn(name = "axis_id"), 
-			inverseJoinColumns = @JoinColumn(name = "publication_id"))
+	@ManyToMany(mappedBy = "scientificAxes", fetch = FetchType.LAZY)
 	private List<Publication> publications = new ArrayList<>();
 
 	/** Persons who are associated to the research axis.
 	 */
-	@ManyToMany(fetch = FetchType.LAZY)
-	@JoinTable(
-			name = "scientific_axis_membership", 
-			joinColumns = @JoinColumn(name = "axis_id"), 
-			inverseJoinColumns = @JoinColumn(name = "membership_id"))
+	@ManyToMany(mappedBy = "scientificAxes", fetch = FetchType.LAZY)
 	private List<Membership> memberships = new ArrayList<>();
 
 	/** Construct a scientific axis from the given values.
@@ -470,8 +456,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	}
 
 	/** Change the projects that are associated to this scientific axis.
-	 * This function updates the relationship from the axis to the project AND
-	 * from the project to the axis.
+	 * This function does not update the relationship from the publications to the axis.
 	 *
 	 * @param projects the projects associated to this axis.
 	 */
@@ -479,11 +464,9 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		if (this.projects == null) {
 			this.projects = new ArrayList<>();
 		} else {
-			this.projects.stream().parallel().forEach(it -> it.getScientificAxes().remove(this));
 			this.projects.clear();
 		}
 		if (projects != null && !projects.isEmpty()) {
-			projects.stream().parallel().forEach(it -> it.getScientificAxes().add(this));
 			this.projects.addAll(projects);
 		}
 	}
@@ -500,8 +483,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	}
 
 	/** Change the publications that are associated to this scientific axis.
-	 * This function updates the relationship from the axis to the publication AND
-	 * from the publication to the axis.
+	 * This function does not update the relationship from the publications to the axis.
 	 *
 	 * @param publications the publications associated to this axis.
 	 */
@@ -509,11 +491,9 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		if (this.publications == null) {
 			this.publications = new ArrayList<>();
 		} else {
-			this.publications.stream().parallel().forEach(it -> it.getScientificAxes().remove(this));
 			this.publications.clear();
 		}
 		if (publications != null && !publications.isEmpty()) {
-			publications.stream().parallel().forEach(it -> it.getScientificAxes().add(this));
 			this.publications.addAll(publications);
 		}
 	}
@@ -530,8 +510,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	}
 
 	/** Change the memberships that are associated to this scientific axis.
-	 * This function updates the relationship from the axis to the membership AND
-	 * from the membership to the axis.
+	 * This function does not update the relationship from the publications to the axis.
 	 *
 	 * @param memberships the memberships associated to this axis.
 	 */
@@ -539,11 +518,9 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		if (this.memberships == null) {
 			this.memberships = new ArrayList<>();
 		} else {
-			this.memberships.stream().parallel().forEach(it -> it.getScientificAxes().remove(this));
 			this.memberships.clear();
 		}
 		if (memberships != null && !memberships.isEmpty()) {
-			memberships.stream().parallel().forEach(it -> it.getScientificAxes().add(this));
 			this.memberships.addAll(memberships);
 		}
 	}

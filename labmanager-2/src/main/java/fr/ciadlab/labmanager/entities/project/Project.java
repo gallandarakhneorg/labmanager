@@ -265,7 +265,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 *
 	 * @since 3.5
 	 */
-	@ManyToMany(mappedBy = "projects", fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	private List<ScientificAxis> scientificAxes = new ArrayList<>();
 
 	/**
@@ -1538,11 +1538,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		if (this.scientificAxes == null) {
 			this.scientificAxes = new ArrayList<>();
 		} else {
-			this.scientificAxes.stream().parallel().forEach(it -> it.getProjects().remove(this));
 			this.scientificAxes.clear();
 		}
 		if (axes != null && !axes.isEmpty()) {
-			axes.stream().parallel().forEach(it -> it.getProjects().add(this));
 			this.scientificAxes.addAll(axes);
 		}
 	}

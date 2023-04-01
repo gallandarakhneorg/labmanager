@@ -58,14 +58,6 @@ public class ConferencePaper extends Publication implements ConferenceBasedPubli
 
 	private static final long serialVersionUID = -9134092744919459358L;
 
-	/** Name of the event that could be a conference or a workshop for examples.
-	 *
-	 * @deperecated Replace by {@link #conference} and {@link #conferenceOccurrenceNumber}.
-	 */
-	@Column
-	@Deprecated(forRemoval = true, since = "3.6")
-	private String scientificEventName;
-
 	/** Reference to the conference.
 	 *
 	 * @since 3.6
@@ -204,9 +196,6 @@ public class ConferencePaper extends Publication implements ConferenceBasedPubli
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
-		if (!Strings.isNullOrEmpty(getScientificEventName())) {
-			consumer.accept("scientificEventName", getScientificEventName()); //$NON-NLS-1$
-		}
 		if (getConferenceOccurrenceNumber() > 0) {
 			consumer.accept("conferenceOccurrenceNumber", Integer.valueOf(getConferenceOccurrenceNumber())); //$NON-NLS-1$
 		}
@@ -305,30 +294,8 @@ public class ConferencePaper extends Publication implements ConferenceBasedPubli
 					enclosingConference = enclosingConference.getEnclosingConference();
 				}
 			}
-		} else if (!Strings.isNullOrEmpty(getScientificEventName())) {
-			buf.append(getScientificEventName());
 		}
 		return buf.toString();
-	}
-
-	/** Replies the name of event (conference or workshop) in which the publication was published.
-	 * 
-	 * @return the name.
-	 * @deprecated See {@link #getConference()}
-	 */
-	@Deprecated(forRemoval = true, since = "3.6")
-	public String getScientificEventName() {
-		return this.scientificEventName;
-	}
-
-	/** Change the name of event (conference or workshop) in which the publication was published.
-	 * 
-	 * @param name the name.
-	 * @deprecated See {@link #setConference(Conference)}
-	 */
-	@Deprecated(forRemoval = true, since = "3.6")
-	public void setScientificEventName(String name) {
-		this.scientificEventName = Strings.emptyToNull(name);
 	}
 
 	@Override

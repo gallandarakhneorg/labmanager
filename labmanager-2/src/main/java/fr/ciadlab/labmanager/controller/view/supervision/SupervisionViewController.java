@@ -32,7 +32,7 @@ import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.service.member.MembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.supervision.SupervisionService;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -193,7 +193,7 @@ public class SupervisionViewController extends AbstractViewController {
 				.collect(Collectors.toList()); 
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		modelAndView.addObject("supervisions", sortedSupervisions); //$NON-NLS-1$
-		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
+		modelAndView.addObject("countryLabels", CountryCode.getAllDisplayCountries()); //$NON-NLS-1$
 		modelAndView.addObject("typeLabelKeyOrdering", Supervision.getAllLongTypeLabelKeys(personObj.getGender())); //$NON-NLS-1$
 		modelAndView.addObject("preferredSupervisorComparator", EntityUtils.getPreferredSupervisorComparator()); //$NON-NLS-1$
 		if (isLoggedIn()) {

@@ -30,7 +30,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import fr.ciadlab.labmanager.entities.member.Membership;
-import org.arakhne.afc.util.CountryCode;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

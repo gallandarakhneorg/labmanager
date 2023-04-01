@@ -176,7 +176,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the map from the indicator keys to the values.
 	 */
 	public Map<String, Number> getVisibleIndicatorsValues(ResearchOrganization organization) {
-		return getVisibleIndicatorStream().parallel().collect(Collectors.toConcurrentMap(
+		return getVisibleIndicatorStream().collect(Collectors.toConcurrentMap(
 				it -> it.getKey(),
 				it -> it.getNumericValue(organization)));
 	}

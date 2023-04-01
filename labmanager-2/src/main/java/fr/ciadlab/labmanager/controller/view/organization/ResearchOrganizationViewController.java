@@ -30,7 +30,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.service.organization.OrganizationAddressService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -156,8 +156,8 @@ public class ResearchOrganizationViewController extends AbstractViewController {
 		modelAndView.addObject("formActionUrl", rooted(Constants.ORGANIZATION_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", rooted(Constants.ORGANIZATION_LIST_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("defaultOrganizationType", ResearchOrganizationType.DEFAULT); //$NON-NLS-1$
-		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
-		modelAndView.addObject("defaultCountry", CountryCodeUtils.DEFAULT); //$NON-NLS-1$
+		modelAndView.addObject("countryLabels", CountryCode.getAllDisplayCountries()); //$NON-NLS-1$
+		modelAndView.addObject("defaultCountry", CountryCode.getDefault()); //$NON-NLS-1$
 		modelAndView.addObject("otherOrganizations", otherOrganizations); //$NON-NLS-1$
 		modelAndView.addObject("organizationAddresses", organizationAddresses); //$NON-NLS-1$
 		modelAndView.addObject("availableAddresses", availableAddresses); //$NON-NLS-1$

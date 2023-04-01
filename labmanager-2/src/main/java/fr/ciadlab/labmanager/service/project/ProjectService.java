@@ -56,12 +56,11 @@ import fr.ciadlab.labmanager.repository.project.ProjectMemberRepository;
 import fr.ciadlab.labmanager.repository.project.ProjectRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.member.MembershipService;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.trl.TRL;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.util.CountryCode;
 import org.arakhne.afc.util.MultiCollection;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -1074,7 +1073,7 @@ public class ProjectService extends AbstractService {
 			final List<Object> columns = new ArrayList<>(2);
 			final int idx = index.getAndIncrement();
 			if (idx < allCountries.length) {
-				columns.add(CountryCodeUtils.getDisplayCountry(allCountries[idx]));
+				columns.add(allCountries[idx].getDisplayCountry());
 			} else {
 				columns.add("?"); //$NON-NLS-1$
 			}

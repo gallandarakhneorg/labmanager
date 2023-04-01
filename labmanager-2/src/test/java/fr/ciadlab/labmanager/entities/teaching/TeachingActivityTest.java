@@ -16,21 +16,21 @@
 
 package fr.ciadlab.labmanager.entities.teaching;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Map.Entry;
 
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import org.apache.xerces.util.URI;
-import org.arakhne.afc.util.CountryCode;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

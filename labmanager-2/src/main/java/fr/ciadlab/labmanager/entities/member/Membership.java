@@ -139,7 +139,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 *
 	 * @since 3.5
 	 */
-	@ManyToMany(mappedBy = "memberships", fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	private List<ScientificAxis> scientificAxes = new ArrayList<>();
 
 	/** Construct a membership with the given values.
@@ -838,11 +838,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		if (this.scientificAxes == null) {
 			this.scientificAxes = new ArrayList<>();
 		} else {
-			this.scientificAxes.stream().parallel().forEach(it -> it.getMemberships().remove(this));
 			this.scientificAxes.clear();
 		}
 		if (axes != null && !axes.isEmpty()) {
-			axes.stream().parallel().forEach(it -> it.getMemberships().add(this));
 			this.scientificAxes.addAll(axes);
 		}
 	}

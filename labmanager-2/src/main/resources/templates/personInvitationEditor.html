@@ -28,7 +28,7 @@
 			<div class="form-group" th:replace="fragments/form :: textInput*(university_new, #{html.University}, #{html.PlaceHolderUniversityName},'')"></div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(country_new, #{html.Country}, ~{::option#option-country-new})">
 				<option id="option-country-new"
-				        th:each="country : ${T(org.arakhne.afc.util.CountryCode).values}"
+				        th:each="country : ${T(fr.ciadlab.labmanager.utils.country.CountryCode).values}"
 				        th:selected="${defaultCountry == country}"
 				        th:value="${country.name}"
 				        th:utext="#{html.CountryNameInList(${countryLabels.get(country)},${country.code})}"></option>
@@ -55,7 +55,7 @@
 			<div class="form-group" th:replace="fragments/form :: textInput*(${'university_' + invitation.id}, #{html.University}, #{html.PlaceHolderUniversityName}, ${invitation.university})"></div>
 			<div class="form-group" th:replace="fragments/form :: comboInput*(${'country_' + invitation.id}, #{html.Country}, ~{::option#option-country})">
 				<option id="option-country"
-				        th:each="country : ${T(org.arakhne.afc.util.CountryCode).values}"
+				        th:each="country : ${T(fr.ciadlab.labmanager.utils.country.CountryCode).values}"
 				        th:selected="${invitation.country == country}"
 				        th:value="${country.name}"
 				        th:utext="#{html.CountryNameInList(${countryLabels.get(country)},${country.code})}"></option>

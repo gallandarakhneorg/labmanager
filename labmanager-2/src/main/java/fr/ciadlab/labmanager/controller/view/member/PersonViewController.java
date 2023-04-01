@@ -225,7 +225,7 @@ public class PersonViewController extends AbstractViewController {
 		//
 		final ResearchOrganization organizationObj = getOrganizationWith(inString(organization), this.organizationService);
 		//
-		Stream<Membership> stream = personObj.getMemberships().stream().parallel();
+		Stream<Membership> stream = personObj.getMemberships().stream();
 		if (organizationObj == null) {
 			stream = stream.filter(it -> !it.isFuture());
 		} else {

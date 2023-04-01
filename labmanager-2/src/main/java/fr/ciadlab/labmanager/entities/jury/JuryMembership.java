@@ -44,10 +44,9 @@ import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.member.Gender;
 import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.arakhne.afc.util.CountryCode;
 
 /** Description of a jury for Master, PhD or HDR.
  * 
@@ -106,7 +105,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	 */
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private CountryCode country = CountryCodeUtils.DEFAULT;
+	private CountryCode country = CountryCode.getDefault();
 
 	/** Title of the works.
 	 */
@@ -411,7 +410,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	 * @return the display name of the country.
 	 */
 	public String getCountryDisplayName() {
-		return CountryCodeUtils.getDisplayCountry(this.country);
+		return this.country.getDisplayCountry();
 	}
 
 	/** Replies the country of the organization.
@@ -429,7 +428,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	 */
 	public void setCountry(CountryCode country) {
 		if (country == null) {
-			this.country = CountryCodeUtils.DEFAULT;
+			this.country = CountryCode.getDefault();
 		} else {
 			this.country = country;
 		}
@@ -443,7 +442,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 		if (Strings.isNullOrEmpty(country)) {
 			setCountry((CountryCode) null);
 		} else {
-			setCountry(CountryCodeUtils.valueOfCaseInsensitive(country));
+			setCountry(CountryCode.valueOfCaseInsensitive(country));
 		}
 	}
 
@@ -480,7 +479,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	 * @see #getAllLongTypeLabelKeys
 	 */
 	public String getLongTypeLabelKey(Gender gender) {
-		return buildLongTypeLabelKey(getType(), getDefenseType(), CountryCodeUtils.isFrance(getCountry()), gender);
+		return buildLongTypeLabelKey(getType(), getDefenseType(), getCountry().isFrance(), gender);
 	}
 
 	private static String buildLongTypeLabelKey(JuryMembershipType positionType, JuryType defenseType, boolean isFrance, Gender gender) {

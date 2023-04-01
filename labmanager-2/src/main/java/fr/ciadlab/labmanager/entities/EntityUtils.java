@@ -61,7 +61,6 @@ import fr.ciadlab.labmanager.entities.supervision.Supervision;
 import fr.ciadlab.labmanager.entities.supervision.SupervisionComparator;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorComparator;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivityComparator;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import info.debatty.java.stringsimilarity.SorensenDice;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.apache.commons.lang3.StringUtils;
@@ -863,7 +862,7 @@ public final class EntityUtils {
 					b.append(org.getNameOrAcronym());
 				}
 				b.append(", "); //$NON-NLS-1$
-				b.append(CountryCodeUtils.getDisplayCountry(org.getCountry()));
+				b.append(org.getCountry().getDisplayCountry());
 				if (postfix != null) {
 					b.append(postfix);
 				}

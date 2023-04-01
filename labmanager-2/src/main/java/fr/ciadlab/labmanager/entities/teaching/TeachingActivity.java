@@ -51,9 +51,8 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
-import org.arakhne.afc.util.CountryCode;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 
 /** Description of a teaching activity for a person.
  * 
@@ -83,7 +82,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 
 	/** Default teaching language.
 	 */
-	public static final CountryCode DEFAULT_LANGUAGE = CountryCodeUtils.DEFAULT;
+	public static final CountryCode DEFAULT_LANGUAGE = CountryCode.getDefault();
 
 	/** Identifier of the jury.
 	 */
@@ -613,7 +612,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		if (Strings.isNullOrEmpty(language)) {
 			setLanguage((CountryCode) null);
 		} else {
-			setLanguage(CountryCodeUtils.valueOfCaseInsensitive(language));
+			setLanguage(CountryCode.valueOfCaseInsensitive(language));
 		}
 	}
 

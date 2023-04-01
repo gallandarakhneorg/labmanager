@@ -57,6 +57,7 @@ import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.AuthorshipComparator;
+import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
@@ -591,6 +592,16 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			organizations.writeReferenceOrObjectField("researchOrganization", membership.getResearchOrganization(), () -> { //$NON-NLS-1$
 				JsonUtils.writeObjectAndAttributes(generator, membership.getResearchOrganization());
 			});
+			final List<ScientificAxis> axes = membership.getScientificAxes();
+			if (axes != null && !axes.isEmpty()) {
+				generator.writeArrayFieldStart("scientificAxes"); //$NON-NLS-1$
+				for (final ScientificAxis axis : axes) {
+					organizations.writeReferenceOrObject(axis, () -> {
+						JsonUtils.writeObjectAndAttributes(generator, axis);
+					});
+				}
+				generator.writeEndArray();
+			}
 			generator.writeEndObject();
 		}
 		generator.writeEndArray();

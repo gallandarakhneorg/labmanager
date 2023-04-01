@@ -27,7 +27,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
 import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -112,8 +112,8 @@ public class JuryMembershipViewController extends AbstractViewController {
 		final List<JuryMembership> sortedMemberships = memberships.stream().sorted(EntityUtils.getPreferredJuryMembershipComparator()).collect(Collectors.toList());
 		modelAndView.addObject("sortedMemberships", sortedMemberships); //$NON-NLS-1$
 		//
-		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
-		modelAndView.addObject("defaultCountry", CountryCodeUtils.DEFAULT); //$NON-NLS-1$
+		modelAndView.addObject("countryLabels", CountryCode.getAllDisplayCountries()); //$NON-NLS-1$
+		modelAndView.addObject("defaultCountry", CountryCode.getDefault()); //$NON-NLS-1$
 		//
 		modelAndView.addObject("savingUrl", rooted(Constants.JURY_MEMBERSHIP_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("deletionUrl", rooted(Constants.JURY_MEMBERSHIP_DELETION_ENDPOINT)); //$NON-NLS-1$
@@ -148,7 +148,7 @@ public class JuryMembershipViewController extends AbstractViewController {
 		final List<JuryMembership> sortedMemberships = memberships.stream().sorted(EntityUtils.getPreferredJuryMembershipComparator()).collect(Collectors.toList()); 
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		modelAndView.addObject("memberships", sortedMemberships); //$NON-NLS-1$
-		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
+		modelAndView.addObject("countryLabels", CountryCode.getAllDisplayCountries()); //$NON-NLS-1$
 		modelAndView.addObject("typeLabelKeyOrdering", JuryMembership.getAllLongTypeLabelKeys(personObj.getGender())); //$NON-NLS-1$
 		if (isLoggedIn()) {
 			modelAndView.addObject("editionUrl", endpoint(Constants.JURY_MEMBERSHIP_EDITING_ENDPOINT, //$NON-NLS-1$

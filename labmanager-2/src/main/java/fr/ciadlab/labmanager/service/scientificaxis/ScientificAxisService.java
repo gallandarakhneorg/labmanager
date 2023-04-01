@@ -25,6 +25,9 @@ import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.project.Project;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
+import fr.ciadlab.labmanager.repository.member.MembershipRepository;
+import fr.ciadlab.labmanager.repository.project.ProjectRepository;
+import fr.ciadlab.labmanager.repository.publication.PublicationRepository;
 import fr.ciadlab.labmanager.repository.scientificaxis.ScientificAxisRepository;
 import fr.ciadlab.labmanager.service.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,19 +47,34 @@ public class ScientificAxisService extends AbstractService {
 
 	private final ScientificAxisRepository scientificAxisRepository;
 
+	private final PublicationRepository publicationRepository;
+
+	private final MembershipRepository membershipRepository;
+
+	private final ProjectRepository projectRepository;
+
 	/** Constructor for injector.
 	 * This constructor is defined for being invoked by the IOC injector.
 	 *
 	 * @param messages the provider of localized messages.
 	 * @param constants the accessor to the live constants.
 	 * @param scientificAxisRepository the repository for accessing the scientific axes.
+	 * @param publicationRepository the repository for accessing the publications.
+	 * @param membershipRepository the repository for accessing the memberships.
+	 * @param projectRepository the repository for accessing the projects.
 	 */
 	public ScientificAxisService(
 			@Autowired MessageSourceAccessor messages,
 			@Autowired Constants constants,
-			@Autowired ScientificAxisRepository scientificAxisRepository) {
+			@Autowired ScientificAxisRepository scientificAxisRepository,
+			@Autowired PublicationRepository publicationRepository,
+			@Autowired MembershipRepository membershipRepository,
+			@Autowired ProjectRepository projectRepository) {
 		super(messages, constants);
 		this.scientificAxisRepository = scientificAxisRepository;
+		this.publicationRepository = publicationRepository;
+		this.membershipRepository = membershipRepository;
+		this.projectRepository = projectRepository;
 	}
 
 	/** Replies the list of all the scientific axes.
@@ -179,11 +197,37 @@ public class ScientificAxisService extends AbstractService {
 		this.scientificAxisRepository.save(axis);
 
 		axis.setProjects(projects);
-		axis.setPublications(publications);
-		axis.setMemberships(memberships);
 		this.scientificAxisRepository.save(axis);
+		
+		updateMemberships(axis, memberships);
+		updatePublications(axis, publications);
+		updateProjects(axis, projects);
+	}
+
+	private void updateMemberships(ScientificAxis axis, List<Membership> memberships) {
+		axis.setMemberships(memberships);
+		for (final Membership mbr : memberships) {
+			mbr.getScientificAxes().add(axis);
+		}
+		this.membershipRepository.saveAll(memberships);
+	}
+
+	private void updatePublications(ScientificAxis axis, List<Publication> publications) {
+		axis.setPublications(publications);
+		for (final Publication pub : publications) {
+			pub.getScientificAxes().add(axis);
+		}
+		this.publicationRepository.saveAll(publications);
 	}
 	
+	private void updateProjects(ScientificAxis axis, List<Project> projects) {
+		axis.setProjects(projects);
+		for (final Project prj : projects) {
+			prj.getScientificAxes().add(axis);
+		}
+		this.projectRepository.saveAll(projects);
+	}
+
 	/** Replies the scientific axes that have the given identifiers.
 	 *
 	 * @param identifiers the identifiers.

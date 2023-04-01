@@ -55,12 +55,6 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 
 	private static final long serialVersionUID = -6657050556989265460L;
 
-	/** Name of the event that could be a conference or a workshop for examples.
-	 */
-	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
-	@Deprecated(forRemoval = true, since = "3.6")
-	private String scientificEventName;
-
 	/** Reference to the conference.
 	 *
 	 * @since 3.6
@@ -154,9 +148,6 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	@Override
 	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
-		if (!Strings.isNullOrEmpty(getScientificEventName())) {
-			consumer.accept("scientificEventName", getScientificEventName()); //$NON-NLS-1$
-		}
 		if (getConferenceOccurrenceNumber() > 0) {
 			consumer.accept("conferenceOcccurrenceNumber", Integer.valueOf(getConferenceOccurrenceNumber())); //$NON-NLS-1$
 		}
@@ -223,30 +214,8 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 					enclosingConference = enclosingConference.getEnclosingConference();
 				}
 			}
-		} else if (!Strings.isNullOrEmpty(getScientificEventName())) {
-			buf.append(getScientificEventName());
 		}
 		return buf.toString();
-	}
-
-	/** Replies the name of event (conference or workshop) in which the publication was published.
-	 * 
-	 * @return the name.
-	 * @deprecated See {@link #getConference()}
-	 */
-	@Deprecated(forRemoval = true, since = "3.6")
-	public String getScientificEventName() {
-		return this.scientificEventName;
-	}
-
-	/** Change the name of event (conference or workshop) in which the publication was published.
-	 * 
-	 * @param name the name.
-	 * @deprecated See {@link #setConference(Conference)}
-	 */
-	@Deprecated(forRemoval = true, since = "3.6")
-	public void setScientificEventName(String name) {
-		this.scientificEventName = Strings.emptyToNull(name);
 	}
 
 	@Override

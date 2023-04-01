@@ -18,21 +18,20 @@ package fr.ciadlab.labmanager.service.publication;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.IntFunction;
 import java.util.stream.Collectors;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.conference.Conference;
@@ -62,12 +61,13 @@ import fr.ciadlab.labmanager.indicators.publication.fte.ScimagoJournalPaperPostd
 import fr.ciadlab.labmanager.indicators.publication.fte.WosJournalPaperFteRatioIndicator;
 import fr.ciadlab.labmanager.indicators.publication.fte.WosJournalPaperPhdRatioIndicator;
 import fr.ciadlab.labmanager.indicators.publication.fte.WosJournalPaperPostdocRatioIndicator;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.io.json.JsonUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.util.CountryCode;
 import org.arakhne.afc.util.MultiCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -590,6 +590,36 @@ public class PublicationStatService extends AbstractPublicationService {
 				.collect(Collectors.toList());
 	}
 
+	private static List<Membership> getLastMemberships(Person author, ResearchOrganization referenceOrganization, LocalDate tw0, LocalDate tw1) {
+		final int refOrgId = referenceOrganization.getId();
+		final List<Membership> lastMemberships = new ArrayList<>();
+		final MutableInt year = new MutableInt(Integer.MIN_VALUE);
+		author.getMemberships().stream()
+			.filter(it -> it.getMemberSinceWhen() == null || it.getMemberSinceWhen().getYear() <= tw0.getYear())
+			.forEach(it -> {
+				if (it.isActiveIn(tw0, tw1)) {
+					if (year.intValue() < tw0.getYear()) {
+						year.setValue(tw0.getYear());
+						lastMemberships.clear();
+					}
+					lastMemberships.add(it);
+				} else {
+					if (it.getMemberToWhen().getYear() > year.intValue()) {
+						year.setValue(it.getMemberToWhen().getYear());
+						lastMemberships.clear();
+						lastMemberships.add(it);
+					} else if (it.getMemberToWhen().getYear() == year.intValue()) {
+						lastMemberships.add(it);
+					}
+				}
+			});
+		// Ignore the authors who are in the reference organization
+		if (lastMemberships.stream().anyMatch(it -> refOrgId == it.getResearchOrganization().getId())) {
+			return null;
+		}
+		return lastMemberships;
+	}
+
 	/** Replies the numbers of publications per country for the given set of publications.
 	 *
 	 * @param publications the publications to analyze.
@@ -598,63 +628,93 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param excludeLastYear indicates if the value for the last year must be excluded.
 	 * @return rows with: country name, count.
 	 */
-	@SuppressWarnings("static-method")
 	public List<List<Object>> getNumberOfPublicationsPerCountry(Collection<? extends Publication> publications,
 			ResearchOrganization referenceOrganization, int lastYear, boolean excludeLastYear) {
-		final AtomicInteger papersWithUnknownCountry = new AtomicInteger();
-		final int[] numbers = new int[CountryCode.values().length + 1];
+		final Map<CountryCode, Integer> papersPerCountry = new TreeMap<>((a, b) -> {
+			if (a == b) {
+				return 0;
+			}
+			if (a == null) {
+				return Integer.MIN_VALUE;
+			}
+			if (b == null) {
+				return Integer.MAX_VALUE;
+			}
+			return a.compareTo(b);
+		});
+		final Map<Integer, List<Map<String, Object>>> anonymousPapers = new TreeMap<>();
 		publications.stream()
 			.filter(it -> (it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
 					&& (!excludeLastYear || it.getPublicationYear() != lastYear))
 			.forEach(it -> {
 				final LocalDate tw0 = LocalDate.of(it.getPublicationYear(), 1, 1);
 				final LocalDate tw1 = LocalDate.of(it.getPublicationYear(), 12, 31);
-				final AtomicBoolean unknown = new AtomicBoolean(false);
-				final Set<CountryCode> countries = new HashSet<>();
+				final Set<CountryCode> countriesForPaper = new TreeSet<>();
 				for (final Person author : it.getAuthors()) {
-					if (author.getMemberships().stream()
-							.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization().getId() == referenceOrganization.getId())
-							.findAny().isEmpty()) {
-						final Optional<Membership> mbrWithCountry = author.getMemberships().stream()
-								.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization() != null && it0.getResearchOrganization().getCountry() != null)
-								.findAny();
-						if (mbrWithCountry.isPresent()) {
-							final CountryCode country = mbrWithCountry.get().getResearchOrganization().getCountry();
-							if (country != null) {
-								countries.add(country);
-							} else {
-								unknown.set(true);
+					final List<Membership> lastMemberships = getLastMemberships(author, referenceOrganization, tw0, tw1);
+					// Test if the author is from the organization, or not.
+					// Only the author from other organizations are considered.
+					if (lastMemberships != null) {
+						if (!lastMemberships.isEmpty()) {
+							// The member is not member of the organization
+							for (final Membership membership : lastMemberships) {
+								final CountryCode country = membership.getResearchOrganization().getCountry();
+								if (country != null) {
+									countriesForPaper.add(country.normalize());
+								}
 							}
 						} else {
-							unknown.set(true);
+							// The member is not member of the organization, but no membership for determining the country
+							final List<Map<String, Object>> persons = anonymousPapers.computeIfAbsent(Integer.valueOf(it.getId()), it0 -> new ArrayList<>());
+							final Map<String, Object> authorDesc = new HashMap<>();
+							authorDesc.put("id", Integer.valueOf(author.getId())); //$NON-NLS-1$
+							authorDesc.put("name", author.getFullName()); //$NON-NLS-1$
+							persons.add(authorDesc);
 						}
 					}
 				}
-				for (final CountryCode country : countries) {
-					++numbers[country.ordinal()];
-				}
-				if (unknown.get()) {
-					papersWithUnknownCountry.incrementAndGet();
+				for (final CountryCode country : countriesForPaper) {
+					final Integer value = papersPerCountry.get(country);
+					if (value == null) {
+						papersPerCountry.put(country, Integer.valueOf(1));
+					} else {
+						papersPerCountry.put(country, Integer.valueOf(value.intValue() + 1));
+					}
 				}
 			});
-		numbers[numbers.length - 1] = papersWithUnknownCountry.get();
-		final CountryCode[] allCountries = CountryCode.values();
-		final AtomicInteger index = new AtomicInteger();
-		final IntFunction<List<Object>> converter = it -> {
-			final List<Object> columns = new ArrayList<>(2);
-			final int idx = index.getAndIncrement();
-			if (idx < allCountries.length) {
-				columns.add(CountryCodeUtils.getDisplayCountry(allCountries[idx]));
-			} else {
-				columns.add("?"); //$NON-NLS-1$
+		if (!anonymousPapers.isEmpty()) {
+			try {
+				final ObjectMapper jsonMapper = JsonUtils.createMapper();
+				getLogger().info("Papers with country-less author: " + jsonMapper.writeValueAsString(anonymousPapers)); //$NON-NLS-1$
+			} catch (JsonProcessingException ex) {
+				getLogger().error(ex.getLocalizedMessage(), ex);
 			}
-			columns.add(Integer.valueOf(it));
-			return columns;
-		};
-		return Arrays.stream(numbers)
-				.mapToObj(converter)
-				.filter(it -> ((Integer) it.get(1)).intValue() > 0)
-				.sorted((a, b) -> - ((Integer) a.get(1)).compareTo((Integer) b.get(1)))
+			papersPerCountry.put(null, Integer.valueOf(anonymousPapers.size()));
+		}
+		return papersPerCountry.entrySet().stream()
+				.map(it -> {
+					final List<Object> columns = new ArrayList<>(2);
+					final CountryCode cc = it.getKey();
+					if (cc == null) {
+						columns.add("?"); //$NON-NLS-1$
+					} else {
+						columns.add(cc.getDisplayCountry());
+					}
+					columns.add(it.getValue());
+					return columns;
+				})
+				// Sorted by quantity and country code
+				.sorted((a, b) -> {
+					final Integer na = (Integer) a.get(1);
+					final Integer nb = (Integer) b.get(1);
+					int cmp = nb.compareTo(na);
+					if (cmp != 0) {
+						return cmp;
+					}
+					final String la = (String) a.get(0);
+					final String lb = (String) b.get(0);
+					return la.compareToIgnoreCase(lb);
+				})
 				.collect(Collectors.toList());
 	}
 

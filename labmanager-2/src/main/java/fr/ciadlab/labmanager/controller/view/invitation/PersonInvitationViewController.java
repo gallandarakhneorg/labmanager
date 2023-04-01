@@ -27,7 +27,7 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
 import fr.ciadlab.labmanager.service.invitation.PersonInvitationService;
 import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -112,8 +112,8 @@ public class PersonInvitationViewController extends AbstractViewController {
 		final List<PersonInvitation> sortedInvitations = invitations.stream().sorted(EntityUtils.getPreferredPersonInvitationComparator()).collect(Collectors.toList());
 		modelAndView.addObject("sortedInvitations", sortedInvitations); //$NON-NLS-1$
 		//
-		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
-		modelAndView.addObject("defaultCountry", CountryCodeUtils.DEFAULT); //$NON-NLS-1$
+		modelAndView.addObject("countryLabels", CountryCode.getAllDisplayCountries()); //$NON-NLS-1$
+		modelAndView.addObject("defaultCountry", CountryCode.getDefault()); //$NON-NLS-1$
 		//
 		modelAndView.addObject("savingUrl", rooted(Constants.PERSON_INVITATION_SAVING_ENDPOINT)); //$NON-NLS-1$
 		modelAndView.addObject("deletionUrl", rooted(Constants.PERSON_INVITATION_DELETION_ENDPOINT)); //$NON-NLS-1$
@@ -148,7 +148,7 @@ public class PersonInvitationViewController extends AbstractViewController {
 		final List<PersonInvitation> sortedInvitations = invitationss.stream().sorted(EntityUtils.getPreferredPersonInvitationComparator()).collect(Collectors.toList()); 
 		modelAndView.addObject("person", personObj); //$NON-NLS-1$
 		modelAndView.addObject("invitations", sortedInvitations); //$NON-NLS-1$
-		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
+		modelAndView.addObject("countryLabels", CountryCode.getAllDisplayCountries()); //$NON-NLS-1$
 		modelAndView.addObject("typeLabelKeyOrdering", PersonInvitation.getAllLongTypeLabelKeys()); //$NON-NLS-1$
 		if (isLoggedIn()) {
 			modelAndView.addObject("editionUrl", endpoint(Constants.PERSON_INVITATION_EDITING_ENDPOINT, //$NON-NLS-1$

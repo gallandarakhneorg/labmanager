@@ -20,8 +20,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 
 import fr.ciadlab.labmanager.entities.member.PersonComparator;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
-import org.arakhne.afc.util.CountryCode;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -94,8 +93,8 @@ public class JuryMembershipComparator implements Comparator<JuryMembership> {
 			return Integer.MAX_VALUE;
 		}
 		// France has lower priority
-		final boolean f1 = CountryCodeUtils.isFrance(c1);
-		final boolean f2 = CountryCodeUtils.isFrance(c2);
+		final boolean f1 = c1.isFrance();
+		final boolean f2 = c2.isFrance();
 		if (f1 == f2) {
 			return c1.compareTo(c2);
 		}

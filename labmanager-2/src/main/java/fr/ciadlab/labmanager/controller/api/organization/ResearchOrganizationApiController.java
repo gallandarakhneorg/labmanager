@@ -24,9 +24,8 @@ import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganizationType;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.util.CountryCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -145,7 +144,7 @@ public class ResearchOrganizationApiController extends AbstractApiController {
 		ensureCredentials(username, Constants.ORGANIZATION_SAVING_ENDPOINT, organization);
 		try {
 			final ResearchOrganizationType typeObj = ResearchOrganizationType.valueOfCaseInsensitive(inString(type));
-			final CountryCode countryObj = CountryCodeUtils.valueOfCaseInsensitive(inString(country));
+			final CountryCode countryObj = CountryCode.valueOfCaseInsensitive(inString(country));
 			//
 			final String inAcronym = inString(acronym);
 			final String inName = inString(name);

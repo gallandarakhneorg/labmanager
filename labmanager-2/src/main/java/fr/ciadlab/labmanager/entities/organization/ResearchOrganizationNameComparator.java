@@ -19,8 +19,8 @@ package fr.ciadlab.labmanager.entities.organization;
 import java.util.Comparator;
 import java.util.Objects;
 
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import org.apache.commons.lang3.StringUtils;
-import org.arakhne.afc.util.CountryCode;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 

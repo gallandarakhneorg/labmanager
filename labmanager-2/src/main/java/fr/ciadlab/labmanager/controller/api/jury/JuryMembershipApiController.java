@@ -25,8 +25,7 @@ import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipType;
 import fr.ciadlab.labmanager.entities.jury.JuryType;
 import fr.ciadlab.labmanager.service.jury.JuryMembershipService;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
-import org.arakhne.afc.util.CountryCode;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -125,7 +124,7 @@ public class JuryMembershipApiController extends AbstractApiController {
 			if (inCountry == null) {
 				throw new RuntimeException("Country is missed"); //$NON-NLS-1$
 			}
-			final CountryCode countryObj = CountryCodeUtils.valueOfCaseInsensitive(inCountry);
+			final CountryCode countryObj = CountryCode.valueOfCaseInsensitive(inCountry);
 			//
 			if (inTitle == null) {
 				throw new RuntimeException("Title is missed"); //$NON-NLS-1$

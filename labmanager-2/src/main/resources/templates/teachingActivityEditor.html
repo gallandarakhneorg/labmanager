@@ -39,7 +39,7 @@
 	</div>
 	<div class="form-group" th:replace="fragments/form :: comboInput*(language, #{html.Language}, ~{::option#option-language})">
 		<option id="option-language"
-		        th:each="language : ${T(org.arakhne.afc.util.CountryCode).values}"
+		        th:each="language : ${T(fr.ciadlab.labmanager.utils.country.CountryCode).values}"
 		        th:selected="${(activity == null && language == defaultLanguage) || (activity != null && activity.language == language)}"
 		        th:value="${language.name}"
 		        th:utext="#{html.CountryNameInList(${countryLabels.get(language)},${language.code})}"></option>

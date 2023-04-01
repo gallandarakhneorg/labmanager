@@ -35,7 +35,7 @@ import fr.ciadlab.labmanager.entities.teaching.TeachingActivityType;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.teaching.TeachingService;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
@@ -217,7 +217,7 @@ public class TeachingViewController extends AbstractViewController {
 		//
 		modelAndView.addObject("formActionUrl", endpoint(Constants.TEACHING_ACTIVITY_SAVING_ENDPOINT, Constants.PERSON_ENDPOINT_PARAMETER, person)); //$NON-NLS-1$
 		modelAndView.addObject("formRedirectUrl", endpoint(Constants.TEACHING_ACTIVITY_LIST_ENDPOINT, Constants.DBID_ENDPOINT_PARAMETER, person)); //$NON-NLS-1$
-		modelAndView.addObject("countryLabels", CountryCodeUtils.getAllDisplayCountries()); //$NON-NLS-1$
+		modelAndView.addObject("countryLabels", CountryCode.getAllDisplayCountries()); //$NON-NLS-1$
 		modelAndView.addObject("defaultLanguage", TeachingActivity.DEFAULT_LANGUAGE); //$NON-NLS-1$
 		//
 		return modelAndView;

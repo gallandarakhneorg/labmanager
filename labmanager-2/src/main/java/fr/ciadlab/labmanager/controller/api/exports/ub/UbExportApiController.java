@@ -63,7 +63,6 @@ import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.project.ProjectService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.supervision.SupervisionService;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.lang3.tuple.Triple;
@@ -664,9 +663,9 @@ public class UbExportApiController extends AbstractApiController {
 			this.invitationService.getInvitationsForPerson(membership.getPerson().getId()).stream()
 				.filter(it -> it.getStartDate().getYear() <= year && year <= it.getEndDate().getYear())
 				.forEach(it -> {
-					if (!it.getType().isOutgoing() && !CountryCodeUtils.isFrance(it.getCountry())) {
+					if (!it.getType().isOutgoing() && !it.getCountry().isFrance()) {
 						incomingInvitations.incrementAndGet();
-					} else if (it.getType().isOutgoing() && !CountryCodeUtils.isFrance(it.getCountry())) {
+					} else if (it.getType().isOutgoing() && !it.getCountry().isFrance()) {
 						outgoingInvitations.incrementAndGet();
 					}
 				});

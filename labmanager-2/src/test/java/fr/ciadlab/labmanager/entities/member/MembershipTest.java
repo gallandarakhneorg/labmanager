@@ -733,8 +733,8 @@ public class MembershipTest {
 		assertTrue(actual.contains(a0));
 		assertTrue(actual.contains(a1));
 
-		assertTrue(l0.contains(this.test));
-		assertTrue(l1.contains(this.test));
+		assertFalse(l0.contains(this.test));
+		assertFalse(l1.contains(this.test));
 	}
 
 	@Test

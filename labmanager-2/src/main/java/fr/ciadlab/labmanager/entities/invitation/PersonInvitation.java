@@ -39,10 +39,9 @@ import fr.ciadlab.labmanager.entities.AttributeProvider;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.utils.CountryCodeUtils;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import fr.ciadlab.labmanager.utils.country.CountryCode;
 import org.apache.commons.lang3.mutable.MutableInt;
-import org.arakhne.afc.util.CountryCode;
 
 /** Description of an invitation for a person.
  * 
@@ -100,7 +99,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	 */
 	@Column(nullable = false)
 	@Enumerated(EnumType.STRING)
-	private CountryCode country = CountryCodeUtils.DEFAULT;
+	private CountryCode country = CountryCode.getDefault();
 
 	/** Title of the works.
 	 */
@@ -387,7 +386,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	 * @return the display name of the country.
 	 */
 	public String getCountryDisplayName() {
-		return CountryCodeUtils.getDisplayCountry(this.country);
+		return this.country.getDisplayCountry();
 	}
 
 	/** Replies the country of the organization.
@@ -405,7 +404,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	 */
 	public void setCountry(CountryCode country) {
 		if (country == null) {
-			this.country = CountryCodeUtils.DEFAULT;
+			this.country = CountryCode.getDefault();
 		} else {
 			this.country = country;
 		}
@@ -419,7 +418,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 		if (Strings.isNullOrEmpty(country)) {
 			setCountry((CountryCode) null);
 		} else {
-			setCountry(CountryCodeUtils.valueOfCaseInsensitive(country));
+			setCountry(CountryCode.valueOfCaseInsensitive(country));
 		}
 	}
 
@@ -429,7 +428,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	 * @see #getAllLongTypeLabelKeys
 	 */
 	public String getLongTypeLabelKey() {
-		return buildLongTypeLabelKey(getType(), CountryCodeUtils.isFrance(getCountry()));
+		return buildLongTypeLabelKey(getType(), getCountry().isFrance());
 	}
 
 	private static String buildLongTypeLabelKey(PersonInvitationType type, boolean isFrance) {

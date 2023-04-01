@@ -195,7 +195,7 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 *
 	 * @since 3.5
 	 */
-	@ManyToMany(mappedBy = "publications", fetch = FetchType.LAZY)
+	@ManyToMany(fetch = FetchType.LAZY)
 	private List<ScientificAxis> scientificAxes = new ArrayList<>();
 
 	@Transient
@@ -1161,8 +1161,9 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	}
 
 	/** Change the scientific axes that are associated to this publication.
-	 * This function updates the relationship from the axis to the publication AND
-	 * from the publication to the axis.
+	 * The instances of the scientific axes are updated through the JPA links.
+	 * This function is not updating the references from the axes to this publication
+	 * directly.
 	 *
 	 * @param axes the scientific axes associated to this publication.
 	 * @since 3.5
@@ -1171,11 +1172,9 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 		if (this.scientificAxes == null) {
 			this.scientificAxes = new ArrayList<>();
 		} else {
-			this.scientificAxes.stream().forEach(it -> it.getPublications().remove(this));
 			this.scientificAxes.clear();
 		}
 		if (axes != null && !axes.isEmpty()) {
-			axes.stream().forEach(it -> it.getPublications().add(this));
 			this.scientificAxes.addAll(axes);
 		}
 	}
