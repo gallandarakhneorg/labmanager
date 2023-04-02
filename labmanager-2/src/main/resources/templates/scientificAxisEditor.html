@@ -20,7 +20,7 @@
 	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(projects, #{html.ScientificAxisProjects}, #{html.AddScientificAxisProject})"></div>
 	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(publications, #{html.ScientificAxisPublications}, #{html.AddScientificAxisPublication})"></div>
 	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(memberships, #{html.ScientificAxisMemberships}, #{html.AddScientificAxisMembership})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedScientificAxis}, #{html.ValidatedAssociatedStructure}, ${structure != null ? structure.validated : false})"></div>
+	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedScientificAxis}, #{html.ValidatedScientificAxis}, ${axis != null ? axis.validated : false})"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
 const ALL_PROJECT_NAMES = new Map();
