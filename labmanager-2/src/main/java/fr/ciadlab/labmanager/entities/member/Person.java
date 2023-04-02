@@ -592,7 +592,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			organizations.writeReferenceOrObjectField("researchOrganization", membership.getResearchOrganization(), () -> { //$NON-NLS-1$
 				JsonUtils.writeObjectAndAttributes(generator, membership.getResearchOrganization());
 			});
-			final List<ScientificAxis> axes = membership.getScientificAxes();
+			final Set<ScientificAxis> axes = membership.getScientificAxes();
 			if (axes != null && !axes.isEmpty()) {
 				generator.writeArrayFieldStart("scientificAxes"); //$NON-NLS-1$
 				for (final ScientificAxis axis : axes) {

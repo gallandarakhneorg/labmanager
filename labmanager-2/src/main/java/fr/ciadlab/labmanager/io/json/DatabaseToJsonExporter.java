@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -1170,7 +1171,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 				// Other JPA entities must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
 
-				final List<Project> projects = axis.getProjects();
+				final Set<Project> projects = axis.getProjects();
 				if (projects != null && !projects.isEmpty()) {
 					final ArrayNode projectArray = jsonAxis.putArray(PROJECTS_KEY);
 					for (final Project project : projects) {
@@ -1181,7 +1182,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 					}
 				}
 
-				final List<Publication> publications = axis.getPublications();
+				final Set<Publication> publications = axis.getPublications();
 				if (publications != null && !publications.isEmpty()) {
 					final ArrayNode publicationArray = jsonAxis.putArray(PUBLICATIONS_KEY);
 					for (final Publication publication : publications) {
@@ -1192,7 +1193,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 					}
 				}
 
-				final List<Membership> memberships = axis.getMemberships();
+				final Set<Membership> memberships = axis.getMemberships();
 				if (memberships != null && !memberships.isEmpty()) {
 					final ArrayNode membershipArray = jsonAxis.putArray(MEMBERSHIPS_KEY);
 					for (final Membership membership : memberships) {

@@ -1477,17 +1477,17 @@ public class ProjectTest {
 
 	@Test
 	public void setScientificAxes() {
-		List<Project> l0 = new ArrayList<>();
+		Set<Project> l0 = new HashSet<>();
 		ScientificAxis a0 = mock(ScientificAxis.class);
 		when(a0.getProjects()).thenReturn(l0);
-		List<Project> l1 = new ArrayList<>();
+		Set<Project> l1 = new HashSet<>();
 		ScientificAxis a1 = mock(ScientificAxis.class);
 		when(a1.getProjects()).thenReturn(l1);
 		List<ScientificAxis> axes = Arrays.asList(a0, a1);
 
 		this.test.setScientificAxes(axes);
 
-		List<ScientificAxis> actual = this.test.getScientificAxes();
+		Set<ScientificAxis> actual = this.test.getScientificAxes();
 		assertNotNull(actual);
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(a0));

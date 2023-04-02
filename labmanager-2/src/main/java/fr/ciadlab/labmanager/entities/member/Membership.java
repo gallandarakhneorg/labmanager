@@ -19,9 +19,10 @@ package fr.ciadlab.labmanager.entities.member;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -140,7 +141,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @since 3.5
 	 */
 	@ManyToMany(fetch = FetchType.LAZY)
-	private List<ScientificAxis> scientificAxes = new ArrayList<>();
+	private Set<ScientificAxis> scientificAxes = new HashSet<>();
 
 	/** Construct a membership with the given values.
 	 *
@@ -820,9 +821,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @return the scientific axes.
 	 * @since 3.5
 	 */
-	public List<ScientificAxis> getScientificAxes() {
+	public Set<ScientificAxis> getScientificAxes() {
 		if (this.scientificAxes == null) {
-			this.scientificAxes = new ArrayList<>();
+			this.scientificAxes = new HashSet<>();
 		}
 		return this.scientificAxes;
 	}
@@ -834,9 +835,9 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @param axes the scientific axes associated to this membership.
 	 * @since 3.5
 	 */
-	public void setScientificAxes(List<ScientificAxis> axes) {
+	public void setScientificAxes(Collection<ScientificAxis> axes) {
 		if (this.scientificAxes == null) {
-			this.scientificAxes = new ArrayList<>();
+			this.scientificAxes = new HashSet<>();
 		} else {
 			this.scientificAxes.clear();
 		}

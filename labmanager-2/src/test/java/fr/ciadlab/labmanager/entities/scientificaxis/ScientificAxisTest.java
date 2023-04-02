@@ -28,7 +28,9 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.member.Membership;
 import fr.ciadlab.labmanager.entities.project.Project;
@@ -339,17 +341,17 @@ public class ScientificAxisTest {
 
 	@Test
 	public void setProjects() {
-		List<ScientificAxis> l0 = new ArrayList<>();
+		Set<ScientificAxis> l0 = new HashSet<>();
 		Project p0 = mock(Project.class);
 		when(p0.getScientificAxes()).thenReturn(l0);
-		List<ScientificAxis> l1 = new ArrayList<>();
+		Set<ScientificAxis> l1 = new HashSet<>();
 		Project p1 = mock(Project.class);
 		when(p1.getScientificAxes()).thenReturn(l1);
 		List<Project> prjs = Arrays.asList(p0, p1);
 
 		this.test.setProjects(prjs);
 
-		List<Project> actual = this.test.getProjects();
+		Set<Project> actual = this.test.getProjects();
 		assertNotNull(actual);
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(p0));
@@ -366,17 +368,17 @@ public class ScientificAxisTest {
 
 	@Test
 	public void setPublications() {
-		List<ScientificAxis> l0 = new ArrayList<>();
+		Set<ScientificAxis> l0 = new HashSet<>();
 		Publication p0 = mock(Publication.class);
 		when(p0.getScientificAxes()).thenReturn(l0);
-		List<ScientificAxis> l1 = new ArrayList<>();
+		Set<ScientificAxis> l1 = new HashSet<>();
 		Publication p1 = mock(Publication.class);
 		when(p1.getScientificAxes()).thenReturn(l1);
 		List<Publication> pubs = Arrays.asList(p0, p1);
 
 		this.test.setPublications(pubs);
 
-		List<Publication> actual = this.test.getPublications();
+		Set<Publication> actual = this.test.getPublications();
 		assertNotNull(actual);
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(p0));
@@ -393,17 +395,17 @@ public class ScientificAxisTest {
 
 	@Test
 	public void setMemberships() {
-		List<ScientificAxis> l0 = new ArrayList<>();
+		Set<ScientificAxis> l0 = new HashSet<>();
 		Membership m0 = mock(Membership.class);
 		when(m0.getScientificAxes()).thenReturn(l0);
-		List<ScientificAxis> l1 = new ArrayList<>();
+		Set<ScientificAxis> l1 = new HashSet<>();
 		Membership m1 = mock(Membership.class);
 		when(m1.getScientificAxes()).thenReturn(l1);
 		List<Membership> mbrs = Arrays.asList(m0, m1);
 
 		this.test.setMemberships(mbrs);
 
-		List<Membership> actual = this.test.getMemberships();
+		Set<Membership> actual = this.test.getMemberships();
 		assertNotNull(actual);
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(m0));

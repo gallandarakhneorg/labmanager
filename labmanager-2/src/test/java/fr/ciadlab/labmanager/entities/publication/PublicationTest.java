@@ -30,7 +30,9 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
@@ -572,17 +574,17 @@ public class PublicationTest {
 
 	@Test
 	public void setScientificAxes() {
-		List<Publication> l0 = new ArrayList<>();
+		Set<Publication> l0 = new HashSet<>();
 		ScientificAxis a0 = mock(ScientificAxis.class);
 		when(a0.getPublications()).thenReturn(l0);
-		List<Publication> l1 = new ArrayList<>();
+		Set<Publication> l1 = new HashSet<>();
 		ScientificAxis a1 = mock(ScientificAxis.class);
 		when(a1.getPublications()).thenReturn(l1);
 		List<ScientificAxis> axes = Arrays.asList(a0, a1);
 
 		this.test.setScientificAxes(axes);
 
-		List<ScientificAxis> actual = this.test.getScientificAxes();
+		Set<ScientificAxis> actual = this.test.getScientificAxes();
 		assertNotNull(actual);
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(a0));

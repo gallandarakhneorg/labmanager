@@ -24,6 +24,7 @@ import java.net.URL;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -266,7 +267,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @since 3.5
 	 */
 	@ManyToMany(fetch = FetchType.LAZY)
-	private List<ScientificAxis> scientificAxes = new ArrayList<>();
+	private Set<ScientificAxis> scientificAxes = new HashSet<>();
 
 	/**
 	 * Construct an empty project.
@@ -400,6 +401,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 			return false;
 		}
 		if (!Objects.equals(this.description, other.description)) {
+			return false;
+		}
+		if (!Objects.equals(this.learOrganization, other.learOrganization)) {
 			return false;
 		}
 		if (this.globalBudget != other.globalBudget) {
@@ -1520,9 +1524,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @return the scientific axes.
 	 * @since 3.5
 	 */
-	public List<ScientificAxis> getScientificAxes() {
+	public Set<ScientificAxis> getScientificAxes() {
 		if (this.scientificAxes == null) {
-			this.scientificAxes = new ArrayList<>();
+			this.scientificAxes = new HashSet<>();
 		}
 		return this.scientificAxes;
 	}
@@ -1534,9 +1538,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @param axes the scientific axes associated to this project.
 	 * @since 3.5
 	 */
-	public void setScientificAxes(List<ScientificAxis> axes) {
+	public void setScientificAxes(Collection<ScientificAxis> axes) {
 		if (this.scientificAxes == null) {
-			this.scientificAxes = new ArrayList<>();
+			this.scientificAxes = new HashSet<>();
 		} else {
 			this.scientificAxes.clear();
 		}

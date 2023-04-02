@@ -130,7 +130,7 @@ public abstract class AbstractTypedPublicationTest<T extends Publication> {
 		assertEquals("path/to/pdf", this.test.getPathToDownloadablePDF());
 		assertEquals("pref", this.test.getPreferredStringId());
 		assertEquals(LocalDate.of(2023, 2, 8), this.test.getPublicationDate());
-		List<ScientificAxis> axes = this.test.getScientificAxes();
+		Set<ScientificAxis> axes = this.test.getScientificAxes();
 		assertEquals(2, axes.size());
 		assertTrue(axes.contains(x0));
 		assertTrue(axes.contains(x1));

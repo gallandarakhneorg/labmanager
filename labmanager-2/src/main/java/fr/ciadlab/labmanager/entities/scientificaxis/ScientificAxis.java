@@ -19,9 +19,10 @@ package fr.ciadlab.labmanager.entities.scientificaxis;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -96,17 +97,17 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	/** Projects which are associated to the scientific axis.
 	 */
 	@ManyToMany(mappedBy = "scientificAxes", fetch = FetchType.LAZY)
-	private List<Project> projects = new ArrayList<>();
+	private Set<Project> projects = new HashSet<>();
 
 	/** Publications which are associated to the scientific axis.
 	 */
 	@ManyToMany(mappedBy = "scientificAxes", fetch = FetchType.LAZY)
-	private List<Publication> publications = new ArrayList<>();
+	private Set<Publication> publications = new HashSet<>();
 
 	/** Persons who are associated to the research axis.
 	 */
 	@ManyToMany(mappedBy = "scientificAxes", fetch = FetchType.LAZY)
-	private List<Membership> memberships = new ArrayList<>();
+	private Set<Membership> memberships = new HashSet<>();
 
 	/** Construct a scientific axis from the given values.
 	 * 
@@ -448,9 +449,9 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	 *
 	 * @return the projects.
 	 */
-	public List<Project> getProjects() {
+	public Set<Project> getProjects() {
 		if (this.projects == null) {
-			this.projects = new ArrayList<>();
+			this.projects = new HashSet<>();
 		}
 		return this.projects;
 	}
@@ -460,9 +461,9 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	 *
 	 * @param projects the projects associated to this axis.
 	 */
-	public void setProjects(List<Project> projects) {
+	public void setProjects(Collection<Project> projects) {
 		if (this.projects == null) {
-			this.projects = new ArrayList<>();
+			this.projects = new HashSet<>();
 		} else {
 			this.projects.clear();
 		}
@@ -475,9 +476,9 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	 *
 	 * @return the publications.
 	 */
-	public List<Publication> getPublications() {
+	public Set<Publication> getPublications() {
 		if (this.publications == null) {
-			this.publications = new ArrayList<>();
+			this.publications = new HashSet<>();
 		}
 		return this.publications;
 	}
@@ -487,9 +488,9 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	 *
 	 * @param publications the publications associated to this axis.
 	 */
-	public void setPublications(List<Publication> publications) {
+	public void setPublications(Collection<Publication> publications) {
 		if (this.publications == null) {
-			this.publications = new ArrayList<>();
+			this.publications = new HashSet<>();
 		} else {
 			this.publications.clear();
 		}
@@ -502,9 +503,9 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	 *
 	 * @return the memberships.
 	 */
-	public List<Membership> getMemberships() {
+	public Set<Membership> getMemberships() {
 		if (this.memberships == null) {
-			this.memberships = new ArrayList<>();
+			this.memberships = new HashSet<>();
 		}
 		return this.memberships;
 	}
@@ -514,9 +515,9 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	 *
 	 * @param memberships the memberships associated to this axis.
 	 */
-	public void setMemberships(List<Membership> memberships) {
+	public void setMemberships(Collection<Membership> memberships) {
 		if (this.memberships == null) {
-			this.memberships = new ArrayList<>();
+			this.memberships = new HashSet<>();
 		} else {
 			this.memberships.clear();
 		}

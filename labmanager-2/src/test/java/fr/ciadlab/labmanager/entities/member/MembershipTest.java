@@ -29,7 +29,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.organization.OrganizationAddress;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
@@ -717,17 +719,17 @@ public class MembershipTest {
 
 	@Test
 	public void setScientificAxes() {
-		List<Membership> l0 = new ArrayList<>();
+		Set<Membership> l0 = new HashSet<>();
 		ScientificAxis a0 = mock(ScientificAxis.class);
 		when(a0.getMemberships()).thenReturn(l0);
-		List<Membership> l1 = new ArrayList<>();
+		Set<Membership> l1 = new HashSet<>();
 		ScientificAxis a1 = mock(ScientificAxis.class);
 		when(a1.getMemberships()).thenReturn(l1);
 		List<ScientificAxis> axes = Arrays.asList(a0, a1);
 
 		this.test.setScientificAxes(axes);
 
-		List<ScientificAxis> actual = this.test.getScientificAxes();
+		Set<ScientificAxis> actual = this.test.getScientificAxes();
 		assertNotNull(actual);
 		assertEquals(2, actual.size());
 		assertTrue(actual.contains(a0));

@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.time.LocalDate;
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -196,7 +196,7 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 * @since 3.5
 	 */
 	@ManyToMany(fetch = FetchType.LAZY)
-	private List<ScientificAxis> scientificAxes = new ArrayList<>();
+	private Set<ScientificAxis> scientificAxes = new HashSet<>();
 
 	@Transient
 	private List<Person> temporaryAuthors = null;
@@ -1153,9 +1153,9 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 * @return the scientific axes.
 	 * @since 3.5
 	 */
-	public List<ScientificAxis> getScientificAxes() {
+	public Set<ScientificAxis> getScientificAxes() {
 		if (this.scientificAxes == null) {
-			this.scientificAxes = new ArrayList<>();
+			this.scientificAxes = new HashSet<>();
 		}
 		return this.scientificAxes;
 	}
@@ -1168,9 +1168,9 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 * @param axes the scientific axes associated to this publication.
 	 * @since 3.5
 	 */
-	public void setScientificAxes(List<ScientificAxis> axes) {
+	public void setScientificAxes(Collection<ScientificAxis> axes) {
 		if (this.scientificAxes == null) {
-			this.scientificAxes = new ArrayList<>();
+			this.scientificAxes = new HashSet<>();
 		} else {
 			this.scientificAxes.clear();
 		}
