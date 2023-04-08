@@ -22,10 +22,12 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.teaching.PedagogicalPracticeType;
 import fr.ciadlab.labmanager.entities.teaching.StudentType;
 import fr.ciadlab.labmanager.entities.teaching.TeacherRole;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivity;
@@ -151,6 +153,7 @@ public class TeachingService extends AbstractService {
 	 *      and practice works for computing the number of hETD.
 	 * @param numberOfStudents is an estimation of the number of students per year in the activity.
 	 * @param explanation is a text that describes the activity.
+	 * @param pedagogicalPracticeTypes the types of pedagogical practices that are applied in the teaching activity.
 	 * @param activityUrl is a link to an external website that is dedicated to the activity. 
 	 * @param sourceUrl is a link to an external website that provides source code for the activity.
 	 * @param annualWorkPerType maps the types of teaching activity to the annual number of hours.
@@ -164,14 +167,14 @@ public class TeachingService extends AbstractService {
 			TeachingActivityLevel level, StudentType studentType,
 			CountryCode language, String degree, ResearchOrganization university,
 			LocalDate startDate, LocalDate endDate, TeacherRole role, boolean differentHetdForTdTp,
-			int numberOfStudents, String explanation, URL activityUrl, URL sourceUrl,
-			Map<TeachingActivityType, Float> annualWorkPerType,
+			int numberOfStudents, String explanation, Set<PedagogicalPracticeType> pedagogicalPracticeTypes,
+			URL activityUrl, URL sourceUrl, Map<TeachingActivityType, Float> annualWorkPerType,
 			MultipartFile pathToSlides, boolean removePathToSlides) throws Exception {
 		final TeachingActivity activity = new TeachingActivity();
 		try {
 			updateTeachingActivity(activity,
 					person, code, title, level, studentType, language, degree, university, startDate, endDate,
-					role, differentHetdForTdTp, numberOfStudents, explanation,
+					role, differentHetdForTdTp, numberOfStudents, explanation, pedagogicalPracticeTypes,
 					activityUrl, sourceUrl, annualWorkPerType, pathToSlides, removePathToSlides);
 		} catch (Throwable ex) {
 			// Delete created activity
@@ -206,6 +209,7 @@ public class TeachingService extends AbstractService {
 	 *      and practice works for computing the number of hETD.
 	 * @param numberOfStudents is an estimation of the number of students per year in the activity.
 	 * @param explanation is a text that describes the activity.
+	 * @param pedagogicalPracticeTypes the types of pedagogical practices that are applied in the teaching activity.
 	 * @param activityUrl is a link to an external website that is dedicated to the activity. 
 	 * @param sourceUrl is a link to an external website that provides source code for the activity.
 	 * @param annualWorkPerType maps the types of teaching activity to the annual number of hours.
@@ -220,8 +224,8 @@ public class TeachingService extends AbstractService {
 			TeachingActivityLevel level, StudentType studentType,
 			CountryCode language, String degree, ResearchOrganization university,
 			LocalDate startDate, LocalDate endDate, TeacherRole role, boolean differentHetdForTdTp,
-			int numberOfStudents, String explanation, URL activityUrl, URL sourceUrl,
-			Map<TeachingActivityType, Float> annualWorkPerType,
+			int numberOfStudents, String explanation, Set<PedagogicalPracticeType> pedagogicalPracticeTypes,
+			URL activityUrl, URL sourceUrl, Map<TeachingActivityType, Float> annualWorkPerType,
 			MultipartFile pathToSlides, boolean removePathToSlides) throws Exception {
 		final Optional<TeachingActivity> res;
 		if (activity >= 0) {
@@ -232,7 +236,7 @@ public class TeachingService extends AbstractService {
 		if (res.isPresent()) {
 			updateTeachingActivity(res.get(),
 					person, code, title, level, studentType, language, degree, university, startDate, endDate,
-					role, differentHetdForTdTp, numberOfStudents, explanation,
+					role, differentHetdForTdTp, numberOfStudents, explanation, pedagogicalPracticeTypes,
 					activityUrl, sourceUrl, annualWorkPerType, pathToSlides, removePathToSlides);
 		}
 		return res;
@@ -256,6 +260,7 @@ public class TeachingService extends AbstractService {
 	 *      and practice works for computing the number of hETD.
 	 * @param numberOfStudents is an estimation of the number of students per year in the activity.
 	 * @param explanation is a text that describes the activity.
+	 * @param pedagogicalPracticeTypes the types of pedagogical practices that are applied in the teaching activity.
 	 * @param activityUrl is a link to an external website that is dedicated to the activity. 
 	 * @param sourceUrl is a link to an external website that provides source code for the activity.
 	 * @param annualWorkPerType maps the types of teaching activity to the annual number of hours.
@@ -269,8 +274,8 @@ public class TeachingService extends AbstractService {
 			TeachingActivityLevel level, StudentType studentType,
 			CountryCode language, String degree, ResearchOrganization university,
 			LocalDate startDate, LocalDate endDate, TeacherRole role, boolean differentHetdForTdTp,
-			int numberOfStudents, String explanation, URL activityUrl, URL sourceUrl,
-			Map<TeachingActivityType, Float> annualWorkPerType,
+			int numberOfStudents, String explanation, Set<PedagogicalPracticeType> pedagogicalPracticeTypes,
+			URL activityUrl, URL sourceUrl, Map<TeachingActivityType, Float> annualWorkPerType,
 			MultipartFile pathToSlides, boolean removePathToSlides) throws Exception {
 		activity.setActivityUrl(activityUrl);
 		activity.setCode(code);
@@ -278,6 +283,7 @@ public class TeachingService extends AbstractService {
 		activity.setStartDate(startDate);
 		activity.setEndDate(endDate);
 		activity.setExplanation(explanation);
+		activity.setPedagogicalPracticeTypes(pedagogicalPracticeTypes);
 		activity.setLanguage(language);
 		activity.setLevel(level);
 		activity.setNumberOfStudents(numberOfStudents);

@@ -19,15 +19,18 @@ package fr.ciadlab.labmanager.controller.api.teaching;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.teaching.PedagogicalPracticeType;
 import fr.ciadlab.labmanager.entities.teaching.StudentType;
 import fr.ciadlab.labmanager.entities.teaching.TeacherRole;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivity;
@@ -116,6 +119,7 @@ public class TeachingApiController extends AbstractApiController {
 	 *      and practice works for computing the number of hETD.
 	 * @param numberOfStudents is an estimation of the number of students per year in the activity.
 	 * @param explanation is a text that describes the activity.
+	 * @param pedagogicalPracticeTypes is the types of pedagogical practices that are applied in the teaching activity.
 	 * @param activityUrl is a link to an external website that is dedicated to the activity. 
 	 * @param sourceUrl is a link to an external website that provides source code for the activity.
 	 * @param annualWorkPerType Json array that is a list of maps. Each map has the keys {@code type} and
@@ -143,6 +147,7 @@ public class TeachingApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false") boolean differentHetdForTdTp,
 			@RequestParam(required = false, defaultValue = "0") int numberOfStudents,
 			@RequestParam(required = false) String explanation,
+			@RequestParam(required = false) List<String> pedagogicalPracticeTypes,
 			@RequestParam(required = false) String activityUrl,
 			@RequestParam(required = false) String sourceUrl,
 			@RequestParam(required = false) String annualWorkPerType,
@@ -165,6 +170,13 @@ public class TeachingApiController extends AbstractApiController {
 		final String inExplanation = inString(explanation);
 		final URL inActivityUrl = inURL(activityUrl);
 		final URL inSourceUrl = inURL(sourceUrl);
+		//
+		final Set<PedagogicalPracticeType> inPedagogicalPracticeTypes = new HashSet<>();
+		if (pedagogicalPracticeTypes != null) {
+			for (final String value : pedagogicalPracticeTypes) {
+				inPedagogicalPracticeTypes.add(PedagogicalPracticeType.valueOfCaseInsensitive(value));
+			}
+		}
 		//
 		final Map<TeachingActivityType, Float> hours = new HashMap<>();
 		if (!Strings.isNullOrEmpty(annualWorkPerType)) {
@@ -212,12 +224,14 @@ public class TeachingApiController extends AbstractApiController {
 			activityOpt = this.teachingService.createTeachingActivity(
 					personObj, inCode, inTitle, inLevel, inStudentType, inLanguage, inDegree, inUniversity.get(),
 					inStartDate, inEndDate, inRole, differentHetdForTdTp, numberOfStudents,
-					inExplanation, inActivityUrl, inSourceUrl, hours, pathToSlides, removePathToSlides);
+					inExplanation, inPedagogicalPracticeTypes, inActivityUrl, inSourceUrl, hours, pathToSlides,
+					removePathToSlides);
 		} else {
 			activityOpt = this.teachingService.updateTeachingActivity(activity.intValue(),
 					personObj, inCode, inTitle, inLevel, inStudentType, inLanguage, inDegree, inUniversity.get(),
 					inStartDate, inEndDate, inRole, differentHetdForTdTp, numberOfStudents,
-					inExplanation, inActivityUrl, inSourceUrl, hours, pathToSlides, removePathToSlides);
+					inExplanation, inPedagogicalPracticeTypes, inActivityUrl, inSourceUrl, hours, pathToSlides,
+					removePathToSlides);
 		}
 		if (activityOpt.isEmpty()) {
 			throw new IllegalStateException("Teaching activity not found"); //$NON-NLS-1$

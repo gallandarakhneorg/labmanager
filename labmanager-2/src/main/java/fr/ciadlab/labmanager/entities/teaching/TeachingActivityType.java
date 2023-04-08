@@ -55,7 +55,7 @@ public enum TeachingActivityType {
 
 	/** Supervision of student groups.
 	 */
-	GROUP_SUPERVISION(1f, 1f),
+	GROUP_SUPERVISION(1f, 2f/3f),
 
 	/** Supervision of student projects.
 	 */

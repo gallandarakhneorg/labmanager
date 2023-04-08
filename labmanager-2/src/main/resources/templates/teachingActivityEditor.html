@@ -57,6 +57,7 @@
 	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(annualWorkPerType, #{html.TeachingActivityAnnualHoursPerType}, #{html.AddTeachingActivityHours})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(numberOfStudents, #{html.TeachingActivityNumberOfStudents}, #{html.PlaceHolderPositiveInteger}, ${activity != null && activity.numberOfStudents > 0 ? activity.numberOfStudents : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textAreaInput(explanation, #{html.TeachingActivityExplanation}, ${''}, ${activity != null ? activity.explanation : ''})"></div>
+	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(pedagogicalPracticeTypes, #{html.PedagogicalPracticeTypes}, #{html.AddPedagogicalPracticeType})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(activityUrl, #{html.TeachingActivityURL}, #{html.PlaceHolderURL}, ${activity != null ? activity.activityUrl : ''})"></div>
 	<div class="form-group" th:replace="fragments/form :: textInput(sourceUrl, #{html.TeachingActivityCodeURL}, #{html.PlaceHolderURL}, ${activity != null ? activity.sourceUrl : ''})"></div>
 	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToSlides, #{html.TeachingActivitySlides})"></div>
@@ -68,6 +69,16 @@ var ALL_TEACHING_ACTIVITY_TYPE_OPTIONS = '';
 ALL_TEACHING_ACTIVITY_TYPES.set("[(${type.name})]", [[${type.getLabel()}]]);
 ALL_TEACHING_ACTIVITY_TYPE_OPTIONS = ALL_TEACHING_ACTIVITY_TYPE_OPTIONS + '<option value="[(${type.name})]">'+ [[${type.getLabel()}]] + '</option>';
 /*[/]*/
+
+const ALL_PEDAGOGICAL_PRATICE_TYPES = new Map();
+var ALL_PEDAGOGICAL_PRATICE_TYPE_OPTIONS = '';
+var typeName;
+/*[# th:each="type : ${sortedPedagogicalPracticeTypes}"]*/
+typeName = [[${type.getLabel}]];
+ALL_PEDAGOGICAL_PRATICE_TYPES.set("[(${type.name})]", typeName);
+ALL_PEDAGOGICAL_PRATICE_TYPE_OPTIONS = ALL_PEDAGOGICAL_PRATICE_TYPE_OPTIONS + '<option value="[(${type.name})]" title="[(${type.getDescription})]">' + typeName + '</option>';
+/*[/]*/
+
 $(document).ready(function () {
 	
 	// Initialize form validation
@@ -140,6 +151,61 @@ $(document).ready(function () {
 					return {
 						type: document.getElementById("swal-input1").value,
 						hours: document.getElementById("swal-input2").value,
+					};
+				},
+			}).then(result => {
+				if (result.isConfirmed) {
+					var value = result.value;
+					doCreateFct(value);
+				}
+			});
+		},
+	});
+	initDynamicDataList({
+		name: 'pedagogicalPracticeTypes',
+		columnCount: 1,
+		deleteLabel: [[#{html.DeletePedagogicalPracticeType}]],
+		deleteTitle: [[#{html.Delete}]],
+		deleteMessage: [[#{html.AreYouSureToDelete}]],
+		data: [
+			/*[# th:if="${activity != null}"]*//*[# th:each="pedagType : ${activity.pedagogicalPracticeTypes}"]*/
+	        {
+				id: "[(${pedagType.name})]",
+				name: [[${pedagType.getLabel}]],
+	        },
+		    /*[/]*//*[/]*/
+		],
+		dataName: (dt) => {
+			return dt['name'];
+		},
+		rowBuilder: (data, target, index) => {
+			target.append(data['name']);
+		},
+		dataConverter: (formData, fieldName, data) => {
+			var identifierList = [];
+			$.each(data, (index, element) => {
+				identifierList.push(element['id']);
+			});
+			formData.append(fieldName, identifierList);
+		},
+		dataCreator: (doCreateFct) => {
+			Swal.fire({
+				title: [[#{html.AddPedagogicalPracticeType}]],
+				icon: 'question',
+				showCancelButton: true,
+				confirmButtonColor: '#d33',
+				cancelButtonColor: '#99cc00',
+				confirmButtonText: [[#{html.Add}]],
+				grow: 'row',
+				html: "[(#{html.PedagogicalPraticeType})]<br/>"
+					+ '<select id="swal-input1" class="swal2-input">'
+					+ ALL_PEDAGOGICAL_PRATICE_TYPE_OPTIONS
+					+ '</select>',
+				preConfirm: () => {
+					var pid = document.getElementById("swal-input1").value;
+					return {
+						id: pid,
+						name: ALL_PEDAGOGICAL_PRATICE_TYPES.get(pid),
 					};
 				},
 			}).then(result => {

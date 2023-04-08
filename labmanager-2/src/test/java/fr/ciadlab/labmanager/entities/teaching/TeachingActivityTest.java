@@ -16,7 +16,7 @@
 
 package fr.ciadlab.labmanager.entities.teaching;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
@@ -25,8 +25,10 @@ import static org.mockito.Mockito.mock;
 
 import java.net.URL;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
@@ -890,6 +892,21 @@ public class TeachingActivityTest {
 		this.test.setPathToSlides("/path/to/slides");
 		this.test.setSourceUrl("https://github.com");
 		assertEquals("http://somewhere.com", this.test.getFirstUri().toString());
+	}
+	
+	@Test
+	public void getPedagogicalPracticeTypes() {
+		assertTrue(this.test.getPedagogicalPracticeTypes().isEmpty());
+	}
+
+	@Test
+	public void setPedagogicalPracticeTypes() {
+		this.test.setPedagogicalPracticeTypes(Arrays.asList(PedagogicalPracticeType.COLLABORATIVE_WORKS, PedagogicalPracticeType.INVERTED_CLASSROOM));
+		Set<PedagogicalPracticeType> types = this.test.getPedagogicalPracticeTypes();
+		assertNotNull(types);
+		assertEquals(2, types.size());
+		assertTrue(types.contains(PedagogicalPracticeType.COLLABORATIVE_WORKS));
+		assertTrue(types.contains(PedagogicalPracticeType.INVERTED_CLASSROOM));
 	}
 
 }

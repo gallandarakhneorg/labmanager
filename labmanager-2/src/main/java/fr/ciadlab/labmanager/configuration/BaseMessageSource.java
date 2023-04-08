@@ -35,6 +35,7 @@ import fr.ciadlab.labmanager.entities.project.Role;
 import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorType;
+import fr.ciadlab.labmanager.entities.teaching.PedagogicalPracticeType;
 import fr.ciadlab.labmanager.entities.teaching.StudentType;
 import fr.ciadlab.labmanager.entities.teaching.TeacherRole;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivityLevel;
@@ -211,6 +212,9 @@ public class BaseMessageSource {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (TRL item : EnumSet.allOf(TRL.class)) {
+				item.setMessageSourceAccessor(this.messages);
+			}
+			for (PedagogicalPracticeType item : EnumSet.allOf(PedagogicalPracticeType.class)) {
 				item.setMessageSourceAccessor(this.messages);
 			}
 			for (TeachingActivityType item : EnumSet.allOf(TeachingActivityType.class)) {

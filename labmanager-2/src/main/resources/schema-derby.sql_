@@ -47,6 +47,7 @@ create table supervisions_supervisors (supervision_id integer not null, supervis
 create table supervisors (id integer not null, percentage integer, type varchar(255), supervisor_id integer, primary key (id));
 create table teaching_activities (id integer not null, activity_url varchar(255), code varchar(255), degree varchar(255), different_hetd_for_td_tp boolean, end_date date, explanation varchar(32672), language varchar(255), level varchar(255), number_of_students integer, path_to_slides varchar(255), role varchar(255), source_url varchar(255), start_date date, student_type varchar(255), title varchar(255), person_id integer, university_id integer, primary key (id));
 create table teaching_activity_annual_work_per_type (teaching_activity_id integer not null, annual_work_per_type float, annual_work_per_type_key integer not null, primary key (teaching_activity_id, annual_work_per_type_key));
+create table teaching_activity_pedagogical_practice_types (teaching_activity_id integer not null, pedagogical_practice_types integer);
 create table theses (address varchar(255), institution varchar(255), id integer not null, primary key (id));
 alter table associated_structures_projects add constraint UK_ocxbhck6khgys619s5ij06w7j unique (projects_id);
 alter table conference_conference_annual_indicators_mapping add constraint UK_9snk58mxup8gp59r51gto9a5l unique (indicators_id);
@@ -121,4 +122,5 @@ alter table supervisors add constraint FK80nhp1yw15uvkajg7pwohkebj foreign key (
 alter table teaching_activities add constraint FK420hy9fnep9al0dvguv8ily7i foreign key (person_id) references persons;
 alter table teaching_activities add constraint FKps1umkau1p2mxsl0qqoqq1ldp foreign key (university_id) references research_orgs;
 alter table teaching_activity_annual_work_per_type add constraint FK5v9vm5cxqvi8j2oj8utpkdngo foreign key (teaching_activity_id) references teaching_activities;
+alter table teaching_activity_pedagogical_practice_types add constraint FK17vy50w9bsc0y2pfdy3np8ld foreign key (teaching_activity_id) references teaching_activities;
 alter table theses add constraint FKj0vei8vj25t5u0w39mgny07vv foreign key (id) references publications;

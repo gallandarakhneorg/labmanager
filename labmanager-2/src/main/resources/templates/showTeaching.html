@@ -51,7 +51,7 @@
 	            </a>
             	<div th:unless="${activity.firstUrl != null}" class="teachingActivityTitle" th:utext="${activity.title}"></div>
             	<div class="teachingActivityDetails"
-            	     th:with="st = ${T(fr.ciadlab.labmanager.entities.teaching.StudentType)}, ccu = ${T(fr.ciadlab.labmanager.utils.CountryCodeUtils)}">
+            	     th:with="st = ${T(fr.ciadlab.labmanager.entities.teaching.StudentType)}">
             		<th:block th:if="${#strings.isEmpty(activity.degree)}"
             		          th:utext="${activity.level.getLabel()}"></th:block>
             		<th:block th:unless="${#strings.isEmpty(activity.degree)}"
@@ -59,11 +59,11 @@
             		<th:block th:utext="${(activity.studentType != st.INITIAL_TRAINING ? ' (' + activity.studentType.getLabel() + ')' : '')}"></th:block>,
             		<th:block th:utext="${activity.university.nameOrAcronym}"></th:block><th:block
             			th:if="activity.university.country != null"
-            			th:utext="${', ' + ccu.getDisplayCountry(activity.university.country)}"></th:block><br/>
+            			th:utext="${', ' + activity.university.country.displayCountry}"></th:block><br/>
             		<th:block th:with="labelText = #{html.Since}" th:utext="${activity.getActivityYears(labelText)}"></th:block>
             </td>
             <td>
-				<span th:title="#{html.TaughtIn(${T(fr.ciadlab.labmanager.utils.CountryCodeUtils).getDisplayLanguage(activity.language)})}"
+				<span th:title="#{html.TaughtIn(${activity.language.displayLanguage})}"
 				      th:class="${'flag:' + activity.language.code.toUpperCase}"></span>            		
             </td>
             <td>

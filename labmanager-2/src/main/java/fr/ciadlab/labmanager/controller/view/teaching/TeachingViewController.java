@@ -27,6 +27,7 @@ import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
+import fr.ciadlab.labmanager.entities.teaching.PedagogicalPracticeType;
 import fr.ciadlab.labmanager.entities.teaching.StudentType;
 import fr.ciadlab.labmanager.entities.teaching.TeacherRole;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivity;
@@ -209,6 +210,9 @@ public class TeachingViewController extends AbstractViewController {
 		//
 		final List<TeachingActivityType> sortedActivityTypes = Arrays.asList(TeachingActivityType.values());
 		modelAndView.addObject("sortedActivityTypes", sortedActivityTypes); //$NON-NLS-1$
+		//
+		final List<PedagogicalPracticeType> sortedPedagogicalPracticeTypes = Arrays.asList(PedagogicalPracticeType.values());
+		modelAndView.addObject("sortedPedagogicalPracticeTypes", sortedPedagogicalPracticeTypes); //$NON-NLS-1$
 		//
 		final List<ResearchOrganization> organizations = this.organizationService.getAllResearchOrganizations().stream()
 				.sorted((a, b) -> a.getAcronymOrName().compareToIgnoreCase(b.getAcronymOrName()))

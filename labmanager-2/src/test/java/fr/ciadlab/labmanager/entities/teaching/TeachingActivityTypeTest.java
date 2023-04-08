@@ -148,7 +148,7 @@ public class TeachingActivityTypeTest {
 		assertEquals(1.25f, cons(TeachingActivityType.INTEGRATED_COURSES).getHetdFactor(true));
 		assertEquals(1f, cons(TeachingActivityType.TUTORIALS).getHetdFactor(true));
 		assertEquals(2f/3f, cons(TeachingActivityType.PRACTICAL_WORKS).getHetdFactor(true));
-		assertEquals(1f, cons(TeachingActivityType.GROUP_SUPERVISION).getHetdFactor(true));
+		assertEquals(2f/3f, cons(TeachingActivityType.GROUP_SUPERVISION).getHetdFactor(true));
 		assertEquals(2f/3f, cons(TeachingActivityType.PROJECT_SUPERVISION).getHetdFactor(true));
 		assertAllTreated();
 	}
@@ -170,7 +170,7 @@ public class TeachingActivityTypeTest {
 		assertEquals(2.5f, cons(TeachingActivityType.INTEGRATED_COURSES).convertHoursToHetd(2f, true));
 		assertEquals(2f, cons(TeachingActivityType.TUTORIALS).convertHoursToHetd(2f, true));
 		assertEquals(4f/3f, cons(TeachingActivityType.PRACTICAL_WORKS).convertHoursToHetd(2f, true));
-		assertEquals(2f, cons(TeachingActivityType.GROUP_SUPERVISION).convertHoursToHetd(2f, true));
+		assertEquals(4f/3f, cons(TeachingActivityType.GROUP_SUPERVISION).convertHoursToHetd(2f, true));
 		assertEquals(4f/3f, cons(TeachingActivityType.PROJECT_SUPERVISION).convertHoursToHetd(2f, true));
 		assertAllTreated();
 	}

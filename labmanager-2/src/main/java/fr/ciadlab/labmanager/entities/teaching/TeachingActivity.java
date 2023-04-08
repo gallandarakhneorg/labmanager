@@ -22,10 +22,13 @@ import java.net.URI;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
@@ -132,9 +135,6 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	/** Amount of work per type of activity per year.
 	 */
 	@ElementCollection
-	//@MapKeyColumn(name = "type")
-	//@Column(name = "annualWorkPerType")
-	//@CollectionTable(name = "teachingactivity_annualworkpertype", joinColumns = @JoinColumn(name = "id"))
 	private Map<TeachingActivityType, Float> annualWorkPerType;
 
 	/** Estimated number of students per year.
@@ -142,10 +142,15 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	@Column
 	private int numberOfStudents;
 
-	/** Explanation on the content of the teaching activity.
+	/** Explanation on the content of the teaching activity that may appear in the resume of the teacher.
 	 */
 	@Column(length = EntityUtils.LARGE_TEXT_SIZE)
 	private String explanation;
+
+	/** Types of pedagogical activities that are carried in the teaching activities.
+	 */
+	@ElementCollection
+	private Set<PedagogicalPracticeType> pedagogicalPracticeTypes;
 
 	/** Name of the degree
 	 */
@@ -253,6 +258,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		h = HashCodeUtils.add(h, this.annualWorkPerType);
 		h = HashCodeUtils.add(h, this.numberOfStudents);
 		h = HashCodeUtils.add(h, this.explanation);
+		h = HashCodeUtils.add(h, this.pedagogicalPracticeTypes);
 		h = HashCodeUtils.add(h, this.language);
 		h = HashCodeUtils.add(h, this.startDate);
 		h = HashCodeUtils.add(h, this.endDate);
@@ -338,6 +344,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		if (!Strings.isNullOrEmpty(getExplanation())) {
 			consumer.accept("explanation", getExplanation()); //$NON-NLS-1$
 		}
+		consumer.accept("pedagogicalPracticeTypes", getPedagogicalPracticeTypes()); //$NON-NLS-1$
 		if (getLanguage() != null) {
 			consumer.accept("language", getLanguage()); //$NON-NLS-1$
 		}
@@ -632,7 +639,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		this.degree = Strings.emptyToNull(degree);
 	}
 
-	/** Replies the explanation for the teaching activity.
+	/** Replies the explanation for the teaching activity that may appear in the resume of the teacher.
 	 *
 	 * @return the explanation.
 	 */
@@ -640,7 +647,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		return this.explanation;
 	}
 
-	/** Change the explanation for the teaching activity.
+	/** Change the explanation for the teaching activity that may appear in the resume of the teacher.
 	 *
 	 * @param explanation the explanation.
 	 */
@@ -1031,6 +1038,32 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 			}
 		}
 		return null;
+	}
+
+	/** Replies the types of pedagogical activities that are carried out in the teaching activity.
+	 *
+	 * @return the types of pedagogical activities.
+	 * @since 3.7
+	 */
+	public Set<PedagogicalPracticeType> getPedagogicalPracticeTypes() {
+		if (this.pedagogicalPracticeTypes == null) {
+			this.pedagogicalPracticeTypes = new HashSet<>();
+		}
+		return this.pedagogicalPracticeTypes;
+	}
+
+	/** Change the types of pedagogical activities that are carried out in the teaching activity.
+	 *
+	 * @param types the types of pedagogical activities.
+	 * @since 3.7
+	 */
+	public void setPedagogicalPracticeTypes(Collection<PedagogicalPracticeType> types) {
+		if (this.pedagogicalPracticeTypes == null) {
+			this.pedagogicalPracticeTypes = new HashSet<>();
+		} else {
+			this.pedagogicalPracticeTypes.clear();
+		}
+		this.pedagogicalPracticeTypes.addAll(types);
 	}
 
 }
