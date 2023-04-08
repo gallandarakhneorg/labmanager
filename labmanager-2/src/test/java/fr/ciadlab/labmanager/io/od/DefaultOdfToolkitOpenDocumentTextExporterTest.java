@@ -61,12 +61,15 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 	private MessageSourceAccessor messages;
 
+	private OdfTextDocumentHelper textHelper;
+
 	private DefaultOdfToolkitOpenDocumentTextExporter test;
 
 	@BeforeEach
 	public void setUp() {
 		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
-		this.test = new DefaultOdfToolkitOpenDocumentTextExporter(this.messages);
+		this.textHelper = new OdfTextDocumentHelper();
+		this.test = new DefaultOdfToolkitOpenDocumentTextExporter(this.messages, this.textHelper);
 	}
 
 	@Test

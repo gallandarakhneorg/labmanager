@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.io.od;
 
+import org.odftoolkit.odfdom.type.Color;
 import org.springframework.http.MediaType;
 
 /** Constants for Open Document standard.
@@ -35,5 +36,13 @@ public interface OpenDocumentConstants {
 	/** Mime type for ODT.
 	 */
 	MediaType ODT_MIME_TYPE = MediaType.parseMediaType(ODT_MIME_TYPE_VALUE);
+
+	/** Green color for CIAD lab.
+	 */
+	Color CIAD_GREEN = Color.valueOf("#95bc0f"); //$NON-NLS-1$
+
+	/** Dark green color for CIAD lab.
+	 */
+	Color CIAD_DARK_GREEN = Color.valueOf("#4b5e08"); //$NON-NLS-1$
 
 }

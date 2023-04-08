@@ -71,7 +71,7 @@ import fr.ciadlab.labmanager.io.bibtex.BibTeX;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.json.JsonExporter;
-import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
+import fr.ciadlab.labmanager.io.od.OpenDocumentTextPublicationExporter;
 import fr.ciadlab.labmanager.repository.conference.ConferenceRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -140,7 +140,7 @@ public class PublicationServiceTest {
 
 	private HtmlDocumentExporter html;
 
-	private OpenDocumentTextExporter odt;
+	private OpenDocumentTextPublicationExporter odt;
 
 	private JsonExporter json;
 	
@@ -184,7 +184,7 @@ public class PublicationServiceTest {
 		this.nameParser = new DefaultPersonNameParser();
 		this.bibtex = mock(BibTeX.class);
 		this.html = mock(HtmlDocumentExporter.class);
-		this.odt = mock(OpenDocumentTextExporter.class);
+		this.odt = mock(OpenDocumentTextPublicationExporter.class);
 		this.json = mock(JsonExporter.class);
 		this.membershipService = mock(MembershipService.class);
 		this.bookService = mock(BookService.class);

@@ -64,7 +64,7 @@ import fr.ciadlab.labmanager.io.bibtex.JournalFake;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.json.JsonExporter;
-import fr.ciadlab.labmanager.io.od.OpenDocumentTextExporter;
+import fr.ciadlab.labmanager.io.od.OpenDocumentTextPublicationExporter;
 import fr.ciadlab.labmanager.repository.conference.ConferenceRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -123,7 +123,7 @@ public class PublicationService extends AbstractPublicationService {
 
 	private HtmlDocumentExporter html;
 
-	private OpenDocumentTextExporter odt;
+	private OpenDocumentTextPublicationExporter odt;
 
 	private JsonExporter json;
 
@@ -196,7 +196,7 @@ public class PublicationService extends AbstractPublicationService {
 			@Autowired PersonNameParser nameParser,
 			@Autowired BibTeX bibtex,
 			@Autowired HtmlDocumentExporter html,
-			@Autowired OpenDocumentTextExporter odt,
+			@Autowired OpenDocumentTextPublicationExporter odt,
 			@Autowired JsonExporter json,
 			@Autowired DownloadableFileManager fileManager,
 			@Autowired MembershipService membershipService,

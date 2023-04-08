@@ -28,7 +28,7 @@ import fr.ciadlab.labmanager.io.PublicationExporter;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public interface OpenDocumentTextExporter extends PublicationExporter<byte[]> {
+public interface OpenDocumentTextPublicationExporter extends PublicationExporter<byte[]> {
 
 	/** Replies the ODT representation of the publications that are given as argument.
 	 * <p>The decorators for the names are usually the following (implementation may change them):

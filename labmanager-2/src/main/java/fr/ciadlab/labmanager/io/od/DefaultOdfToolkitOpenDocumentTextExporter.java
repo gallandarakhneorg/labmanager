@@ -48,23 +48,25 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Primary
-public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolkitOpenDocumentTextExporter {
+public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolkitOpenDocumentTextPublicationExporter {
 
 	private static final String MESSAGES_PREFIX = "defaultOdfToolkitOpenDocumentTextExporter."; //$NON-NLS-1$
 
 	/** Constructor.
 	 *
 	 * @param messages the accessor to the localized messages.
+	 * @param textHelper the helper for building the text elements.
 	 */
-	public DefaultOdfToolkitOpenDocumentTextExporter(@Autowired MessageSourceAccessor messages) {
-		super(messages);
+	public DefaultOdfToolkitOpenDocumentTextExporter(@Autowired MessageSourceAccessor messages,
+			@Autowired OdfTextDocumentHelper textHelper) {
+		super(messages, textHelper);
 	}
 	
 	@Override
 	protected void formatTitle(TextPElement odtText, String title, ExporterConfigurator configurator) {
-		final TextSpanElement odtSpan = newTextItalic(odtText);
+		final TextSpanElement odtSpan = this.textHelper.newTextItalic(odtText);
 		if (configurator.isColoredTitle()) {
-			odtSpan.setProperty(StyleTextPropertiesElement.Color, CIAD_GREEN.toString());
+			odtSpan.setProperty(StyleTextPropertiesElement.Color, OpenDocumentConstants.CIAD_GREEN.toString());
 		}
 		odtSpan.newTextNode(getLeftQuotes());
 		odtSpan.newTextNode(title);
@@ -75,79 +77,79 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 
 	@Override
 	protected void exportDescription(TextPElement odtText, Book publication) {
-		if (append(odtText, ", ", //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
 				publication.getEdition(),
-				decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, decorateBefore(publication.getSeries(), this.messages.getMessage(MESSAGES_PREFIX + "SERIES_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, this.textHelper.decorateBefore(publication.getSeries(), this.messages.getMessage(MESSAGES_PREFIX + "SERIES_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, decorateBefore(publication.getEditors(), this.messages.getMessage(MESSAGES_PREFIX + "EDITOR_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, this.textHelper.decorateBefore(publication.getEditors(), this.messages.getMessage(MESSAGES_PREFIX + "EDITOR_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, publication.getPublisher())) {
+		if (this.textHelper.append(odtText, publication.getPublisher())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, publication.getAddress())) {
+		if (this.textHelper.append(odtText, publication.getAddress())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 	}
 
 	@Override
 	protected void exportDescription(TextPElement odtText, BookChapter publication) {
-		if (append(odtText, ", ", //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
 				publication.getEdition(),
-				decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, decorateBefore(publication.getSeries(), this.messages.getMessage(MESSAGES_PREFIX + "SERIES_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, this.textHelper.decorateBefore(publication.getSeries(), this.messages.getMessage(MESSAGES_PREFIX + "SERIES_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, decorateBefore(publication.getEditors(), this.messages.getMessage(MESSAGES_PREFIX + "EDITOR_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, this.textHelper.decorateBefore(publication.getEditors(), this.messages.getMessage(MESSAGES_PREFIX + "EDITOR_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, publication.getPublisher())) {
+		if (this.textHelper.append(odtText, publication.getPublisher())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, publication.getAddress())) {
+		if (this.textHelper.append(odtText, publication.getAddress())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 	}
 
 	@Override
 	protected void exportDescription(TextPElement odtText, ConferencePaper publication) {
-		if (append(odtText, decorateBefore(publication.getPublicationTarget(), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, this.textHelper.decorateBefore(publication.getPublicationTarget(), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getEditors(), this.messages.getMessage(MESSAGES_PREFIX + "EDITOR_PREFIX")), //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getEditors(), this.messages.getMessage(MESSAGES_PREFIX + "EDITOR_PREFIX")), //$NON-NLS-1$
 				publication.getOrganization())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
@@ -155,17 +157,17 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (publication.getConference() != null) {
-			if (append(odtText, ", ", //$NON-NLS-1$
-					decorateBefore(publication.getConference().getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-					decorateBefore(publication.getConference().getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")), //$NON-NLS-1$
+			if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+					this.textHelper.decorateBefore(publication.getConference().getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+					this.textHelper.decorateBefore(publication.getConference().getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")), //$NON-NLS-1$
 					publication.getConference().getPublisher())) {
 				odtText.newTextNode(". "); //$NON-NLS-1$
 			}
 		}
-		if (append(odtText, decorateBefore(publication.getSeries(), this.messages.getMessage(MESSAGES_PREFIX + "SERIES_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, this.textHelper.decorateBefore(publication.getSeries(), this.messages.getMessage(MESSAGES_PREFIX + "SERIES_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, publication.getAddress())) {
+		if (this.textHelper.append(odtText, publication.getAddress())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		appendRanks(odtText, publication.getCoreRanking());
@@ -174,26 +176,26 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 	@Override
 	protected void exportDescription(TextPElement odtText, JournalPaper publication) {
 		final Journal journal = publication.getJournal();
-		if (journal != null && append(odtText, ",", //$NON-NLS-1$
-				decorateBefore(journal.getJournalName(), this.messages.getMessage(MESSAGES_PREFIX + "JOURNAL_PREFIX")), //$NON-NLS-1$
+		if (journal != null && this.textHelper.append(odtText, ",", //$NON-NLS-1$
+				this.textHelper.decorateBefore(journal.getJournalName(), this.messages.getMessage(MESSAGES_PREFIX + "JOURNAL_PREFIX")), //$NON-NLS-1$
 				publication.getSeries())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getJournal().getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getJournal().getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getJournal().getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getJournal().getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}		
-		if (journal != null && append(odtText, journal.getPublisher())) {
+		if (journal != null && this.textHelper.append(odtText, journal.getPublisher())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		appendRanks(odtText,
@@ -205,14 +207,14 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 	@Override
 	protected void exportDescription(TextPElement odtText, JournalEdition publication) {
 		final Journal journal = publication.getJournal();
-		if (journal != null && append(odtText,
-				decorateBefore(journal.getJournalName(), this.messages.getMessage(MESSAGES_PREFIX + "JOURNAL_PREFIX")))) { //$NON-NLS-1$
+		if (journal != null && this.textHelper.append(odtText,
+				this.textHelper.decorateBefore(journal.getJournalName(), this.messages.getMessage(MESSAGES_PREFIX + "JOURNAL_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getVolume(), this.messages.getMessage(MESSAGES_PREFIX + "VOLUME_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getPages(), this.messages.getMessage(MESSAGES_PREFIX + "PAGE_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
@@ -227,12 +229,12 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 			isbn = null;
 			issn = null;
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(isbn, this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(issn, this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(isbn, this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(issn, this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}		
-		if (journal != null && append(odtText, journal.getPublisher())) {
+		if (journal != null && this.textHelper.append(odtText, journal.getPublisher())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		appendRanks(odtText, publication.getScimagoQIndex(), publication.getWosQIndex(), publication.getImpactFactor());
@@ -240,35 +242,35 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 
 	@Override
 	protected void exportDescription(TextPElement odtText, KeyNote publication) {
-		if (append(odtText, decorateBefore(publication.getPublicationTarget(), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, this.textHelper.decorateBefore(publication.getPublicationTarget(), this.messages.getMessage(MESSAGES_PREFIX + "CONFERENCE_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getEditors(), this.messages.getMessage(MESSAGES_PREFIX + "EDITOR_PREFIX")), //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getEditors(), this.messages.getMessage(MESSAGES_PREFIX + "EDITOR_PREFIX")), //$NON-NLS-1$
 				publication.getOrganization())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getConference().getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getConference().getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getConference().getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getConference().getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, publication.getAddress())) {
+		if (this.textHelper.append(odtText, publication.getAddress())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 	}
 
 	@Override
 	protected void exportDescription(TextPElement odtText, Report publication) {
-		if (append(odtText, ", ", //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
 				publication.getReportType(),
-				decorateBefore(publication.getReportNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")))) { //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getReportNumber(), this.messages.getMessage(MESSAGES_PREFIX + "NUMBER_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
 				publication.getInstitution(),
 				publication.getAddress())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
@@ -276,16 +278,16 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 	}
 
 	@Override
 	protected void exportDescription(TextPElement odtText, Thesis publication) {
-		if (append(odtText, ", ", //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
 				this.messages.getMessage(MESSAGES_PREFIX + publication.getType().name()),
 				publication.getInstitution(),
 				publication.getAddress())) {
@@ -294,16 +296,16 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 	}
 
 	@Override
 	protected void exportDescription(TextPElement odtText, Patent publication) {
-		if (append(odtText, " ", //$NON-NLS-1$
+		if (this.textHelper.append(odtText, " ", //$NON-NLS-1$
 				this.messages.getMessage(MESSAGES_PREFIX + publication.getType().name()),
 				publication.getPatentNumber())) {
 			if (!Strings.isNullOrEmpty(publication.getPatentType())) {
@@ -315,7 +317,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 			}
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}		
-		if (append(odtText, ", ", //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
 				publication.getInstitution(),
 				publication.getAddress())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
@@ -323,9 +325,9 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 
@@ -333,12 +335,12 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 
 	@Override
 	protected void exportDescription(TextPElement odtText, MiscDocument publication) {
-		if (append(odtText, " ", //$NON-NLS-1$
+		if (this.textHelper.append(odtText, " ", //$NON-NLS-1$
 				publication.getDocumentType(),
 				publication.getDocumentNumber())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
 				publication.getHowPublished(),
 				publication.getOrganization(),
 				publication.getAddress())) {
@@ -347,12 +349,12 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 		if (appendDoiLink(odtText, publication.getDOI(), this.messages.getMessage(MESSAGES_PREFIX + "DOI_PREFIX"))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, ", ", //$NON-NLS-1$
-				decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
-				decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(odtText, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISBN(), this.messages.getMessage(MESSAGES_PREFIX + "ISBN_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(publication.getISSN(), this.messages.getMessage(MESSAGES_PREFIX + "ISSN_PREFIX")))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
-		if (append(odtText, publication.getPublisher())) {
+		if (this.textHelper.append(odtText, publication.getPublisher())) {
 			odtText.newTextNode(". "); //$NON-NLS-1$
 		}
 	}

@@ -17,8 +17,6 @@
 package fr.ciadlab.labmanager.io.od;
 
 import java.io.ByteArrayOutputStream;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
@@ -42,14 +40,12 @@ import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.odftoolkit.odfdom.doc.OdfTextDocument;
-import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
 import org.odftoolkit.odfdom.dom.element.text.TextAElement;
 import org.odftoolkit.odfdom.dom.element.text.TextHElement;
 import org.odftoolkit.odfdom.dom.element.text.TextListElement;
 import org.odftoolkit.odfdom.dom.element.text.TextListItemElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
 import org.odftoolkit.odfdom.dom.element.text.TextSpanElement;
-import org.odftoolkit.odfdom.type.Color;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Exporter of publications to Open Document Text based on the ODF toolkit.
@@ -61,15 +57,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @since 2.0.0
  * @see "https://odftoolkit.org"
  */
-public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends AbstractPublicationExporter implements OpenDocumentTextExporter {
-
-	/** Green color for CIAD lab.
-	 */
-	public static final Color CIAD_GREEN = Color.valueOf("#95bc0f"); //$NON-NLS-1$
-
-	/** Dark green color for CIAD lab.
-	 */
-	public static final Color CIAD_DARK_GREEN = Color.valueOf("#4b5e08"); //$NON-NLS-1$
+public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter extends AbstractPublicationExporter implements OpenDocumentTextPublicationExporter {
 
 	private static final String MESSAGES_PREFIX = "abstractOdfToolkitOpenDocumentTextExporter."; //$NON-NLS-1$
 
@@ -77,12 +65,18 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 	 */
 	protected final MessageSourceAccessor messages;
 
+	/** Text helper for building text elements in ODT format.
+	 */
+	protected final OdfTextDocumentHelper textHelper;
+
 	/** Constructor.
 	 *
 	 * @param messages the accessor to the localized message.
+	 * @param textHelper the helper for building the text elements.
 	 */
-	public AbstractOdfToolkitOpenDocumentTextExporter(MessageSourceAccessor messages) {
+	public AbstractOdfToolkitOpenDocumentTextPublicationExporter(MessageSourceAccessor messages, OdfTextDocumentHelper textHelper) {
 		this.messages = messages;
+		this.textHelper = textHelper;
 	}
 
 	/** Replies the string representation of left quotes.
@@ -181,7 +175,7 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 	 * @param year the year of the publication associated to the author.
 	 * @param configurator the configurator for the exporter.
 	 */
-	protected static void formatAuthorName(TextPElement odtText, Person person, int year, ExporterConfigurator configurator) {
+	protected void formatAuthorName(TextPElement odtText, Person person, int year, ExporterConfigurator configurator) {
 		assert configurator != null;
 		final ExportedAuthorStatus status = configurator.getExportedAuthorStatusFor(person, year);
 		final StringBuilder innerName = new StringBuilder();
@@ -192,19 +186,19 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 		TextSpanElement span;
 		switch (status) {
 		case SELECTED_PERSON:
-			span = newTextBoldUnderline(odtText);
+			span = this.textHelper.newTextBoldUnderline(odtText);
 			span.newTextNode(innerName.toString());
 			break;
 		case RESEARCHER:
-			span = newTextBold(odtText);
+			span = this.textHelper.newTextBold(odtText);
 			span.newTextNode(innerName.toString());
 			break;
 		case PHD_STUDENT:
-			span = newTextUnderline(odtText);
+			span = this.textHelper.newTextUnderline(odtText);
 			span.newTextNode(innerName.toString());
 			break;
 		case POSTDOC_ENGINEER:
-			span = newTextItalic(odtText);
+			span = this.textHelper.newTextItalic(odtText);
 			span.newTextNode(innerName.toString());
 			break;
 		case OTHER:
@@ -232,53 +226,6 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 		return false;
 	}
 
-	/** Replies a text that is underlined.
-	 * 
-	 * @param odtText the container.
-	 * @return the formating element.
-	 */
-	protected static TextSpanElement newTextUnderline(TextPElement odtText) {
-		final TextSpanElement odtSpan = odtText.newTextSpanElement();
-		odtSpan.setProperty(StyleTextPropertiesElement.TextUnderlineType, "single"); //$NON-NLS-1$
-		odtSpan.setProperty(StyleTextPropertiesElement.TextUnderlineStyle, "solid"); //$NON-NLS-1$
-		return odtSpan;
-	}
-
-	/** Replies a text that is italic.
-	 * 
-	 * @param odtText the container.
-	 * @return the formating element.
-	 */
-	protected static TextSpanElement newTextItalic(TextPElement odtText) {
-		final TextSpanElement odtSpan = odtText.newTextSpanElement();
-		odtSpan.setProperty(StyleTextPropertiesElement.FontStyle, "italic"); //$NON-NLS-1$
-		return odtSpan;
-	}
-
-	/** Replies a text that is bold.
-	 * 
-	 * @param odtText the container.
-	 * @return the formating element.
-	 */
-	protected static TextSpanElement newTextBold(TextPElement odtText) {
-		final TextSpanElement odtSpan = odtText.newTextSpanElement();
-		odtSpan.setProperty(StyleTextPropertiesElement.FontWeight, "bold"); //$NON-NLS-1$
-		return odtSpan;
-	}
-
-	/** Replies a text that is bold and underlined.
-	 * 
-	 * @param odtText the container.
-	 * @return the formating element.
-	 */
-	protected static TextSpanElement newTextBoldUnderline(TextPElement odtText) {
-		final TextSpanElement odtSpan = odtText.newTextSpanElement();
-		odtSpan.setProperty(StyleTextPropertiesElement.FontWeight, "bold"); //$NON-NLS-1$
-		odtSpan.setProperty(StyleTextPropertiesElement.TextUnderlineType, "single"); //$NON-NLS-1$
-		odtSpan.setProperty(StyleTextPropertiesElement.TextUnderlineStyle, "solid"); //$NON-NLS-1$
-		return odtSpan;
-	}
-
 	/** Replies the title with a format compliant with the HTML output.
 	 * 
 	 * @param odtText the receiver of the ODT content.
@@ -286,56 +233,6 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 	 * @param configurator the configurator of the exporter.
 	 */
 	protected abstract void formatTitle(TextPElement odtText, String title, ExporterConfigurator configurator);
-
-	/** Replies the string representation of the given number if it is strictly positive.
-	 * 
-	 * @param number the number.
-	 * @return the formatted number or {@code null} if the number is negative or nul.
-	 */
-	protected static String formatNumberIfStrictlyPositive(float number) {
-		if (number > 0f) {
-			final NumberFormat format = new DecimalFormat("#0.000"); //$NON-NLS-1$
-			return format.format(number);
-		}
-		return null;
-	}
-
-	/** Append the given values, with the given separator to the receiver.
-	 *
-	 * @param receiver the receiver.
-	 * @param separator the separator of values.
-	 * @param values the values to add.
-	 * @return {@code true} if a value was added.
-	 */
-	protected static boolean append(TextPElement receiver, String separator, String... values) {
-		assert receiver != null;
-		assert separator != null;
-		assert values != null;
-		boolean first = true;
-		boolean added = false;
-		for (final String value : values) {
-			if (!Strings.isNullOrEmpty(value)) {
-				if (first) {
-					first = false;
-				} else {
-					receiver.newTextNode(separator);
-				}
-				receiver.newTextNode(value);
-				added = true;
-			}
-		}
-		return added;
-	}
-
-	/** Append the given value if it is not empty.
-	 *
-	 * @param receiver the receiver.
-	 * @param values the values to add.
-	 * @return {@code true} if a value was added.
-	 */
-	protected static boolean append(TextPElement receiver, String value) {
-		return append(receiver, "", value); //$NON-NLS-1$
-	}
 
 	/** Append the given ranks to the receiver.
 	 *
@@ -346,7 +243,7 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 	 * @return {@code true} if the receiver has changed.
 	 */
 	protected boolean appendRanks(TextPElement receiver, QuartileRanking scimago, QuartileRanking wos, float impactFactor) {
-		final String impactFactorStr = formatNumberIfStrictlyPositive(impactFactor);
+		final String impactFactorStr = this.textHelper.formatNumberIfStrictlyPositive(impactFactor);
 		final QuartileRanking scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
 		final QuartileRanking wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
 		String rank = null;
@@ -354,10 +251,10 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 			if (wosNorm != scimagoNorm) {
 				final String scimagoStr = scimagoNorm.toString();
 				final String wosStr = wosNorm.toString();
-				if (append(receiver, ", ", //$NON-NLS-1$
-						decorateBefore(scimagoStr, this.messages.getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX")), //$NON-NLS-1$
-						decorateBefore(wosStr, this.messages.getMessage(MESSAGES_PREFIX + "WOS_PREFIX")), //$NON-NLS-1$
-						decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+				if (this.textHelper.append(receiver, ", ", //$NON-NLS-1$
+						this.textHelper.decorateBefore(scimagoStr, this.messages.getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX")), //$NON-NLS-1$
+						this.textHelper.decorateBefore(wosStr, this.messages.getMessage(MESSAGES_PREFIX + "WOS_PREFIX")), //$NON-NLS-1$
+						this.textHelper.decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
 					receiver.newTextNode(". "); //$NON-NLS-1$
 					return true;
 				}		
@@ -369,9 +266,9 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 		} else if (wosNorm != null) {
 			rank = wosNorm.toString();
 		}
-		if (append(receiver, ", ", //$NON-NLS-1$
-				decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX")), //$NON-NLS-1$
-				decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(receiver, ", ", //$NON-NLS-1$
+				this.textHelper.decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX")), //$NON-NLS-1$
+				this.textHelper.decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
 			receiver.newTextNode(". "); //$NON-NLS-1$
 			return true;
 		}		
@@ -390,25 +287,11 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 		if (coreNorm != null) {
 			rank = coreNorm.toString();
 		}
-		if (append(receiver,
-				decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "CORE_PREFIX")))) { //$NON-NLS-1$
+		if (this.textHelper.append(receiver,
+				this.textHelper.decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "CORE_PREFIX")))) { //$NON-NLS-1$
 			receiver.newTextNode(". "); //$NON-NLS-1$
 		}
 		return false;
-	}
-
-	/** Replies the value preceded by its decoration if the value is not {@code null} or empty.
-	 *
-	 * @param value the value to decorate.
-	 * @param decorator the text to append before the value.
-	 * @return the decorated value.
-	 */
-	protected static String decorateBefore(String value, String decorator) {
-		assert decorator != null;
-		if (!Strings.isNullOrEmpty(value)) {
-			return decorator + value;
-		}
-		return ""; //$NON-NLS-1$
 	}
 
 	/** Export in ODT the description of a single book.
@@ -538,7 +421,6 @@ public abstract class AbstractOdfToolkitOpenDocumentTextExporter extends Abstrac
 	 * @param publication the publication, never {@code null}.
 	 * @param configurator the configurator for the exporter.
 	 */
-	@SuppressWarnings("static-method")
 	protected void exportAuthors(TextPElement odtText, Publication publication, ExporterConfigurator configurator) {
 		assert configurator != null;
 		final int year = publication.getPublicationYear();
