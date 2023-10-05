@@ -73,7 +73,7 @@ public class DefaultProjectImageManagerTest {
 		when(project.getId()).thenReturn(1234);
 		String path = this.test.getThumbnailPath(project, false);
 		assertNotNull(path);
-		assertEquals("Downloadables/ProjectThumbnails/Prj1234.jpg", path);
+		assertEquals("Downloadables/ProjectThumbnails/Prj1234.jpg", path.replace('\\', '/'));
 	}
 
 }
