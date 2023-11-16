@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.controller.api.publication;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
+import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
+import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
 import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
@@ -132,6 +135,44 @@ public class PublicationApiController extends AbstractApiController {
 			return this.publicationService.getPublicationById(id.intValue());
 		}
 		return this.publicationService.getPublicationsByTitle(inTitle);
+	}
+	
+	/** Replies a paginated filtered ordered list of publications.
+	 * 
+	 * @param pageNumber number of the page to return
+	 * @param publicationsPerPage number of publications per page
+	 * @param orderBy publication entity field name to order data by
+	 * @param isOrderAsc order the results in ascending or descending order
+	 * @param publicationYears filter on the pubication year
+	 * @param publicationTypes Filter on the publication types
+	 * @param publicationAuthorIds filter on the authors
+	 * @return page of the publications according to filters provided 
+	 */
+	@GetMapping(value = "/getPublicationsPage", produces = "application/json; charset=UTF-8")
+	@ResponseBody
+	public Object getPublicationsPage(
+			@RequestParam(required = true) Integer pageNumber, 
+			@RequestParam(required = true) Integer publicationsPerPage,
+			@RequestParam(required = true) String orderBy,			
+			@RequestParam(required = true) Boolean isOrderAsc, 
+			@RequestParam(required = false) List<Integer> publicationYears, 
+			@RequestParam(required = false) List<String> publicationTypes, 
+			@RequestParam(required = false) List<Integer> publicationAuthorIds) {
+		
+		List<PublicationType> publicationTypeList = new ArrayList<PublicationType>();
+		if(publicationTypes!=null && !publicationTypes.isEmpty()){
+			publicationTypeList = publicationTypes.stream()
+				.map(PublicationType::valueOfCaseInsensitive)
+				.collect(Collectors.toList());
+		}
+		List<Person> authors = new ArrayList<Person>();
+		if(publicationAuthorIds!=null && !publicationAuthorIds.isEmpty()){
+			authors = personService.getPersonsByIds(publicationAuthorIds);
+		}					
+		return this.publicationService.getPublicationsPage(
+			pageNumber, publicationsPerPage, orderBy, isOrderAsc, 
+			publicationYears, publicationTypeList, authors)
+			.getContent();
 	}
 
 	/** Saving information of a publication. 

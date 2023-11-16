@@ -89,6 +89,11 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -243,6 +248,46 @@ public class PublicationService extends AbstractPublicationService {
 	 */
 	public List<Publication> getAllPublications() {
 		return this.publicationRepository.findAll();
+	}
+	
+	/** Replies the publications with pagination and filters. 
+	 * 
+	 * @param pageNumber number of the page to return
+	 * @param publicationsPerPage number of publications per page
+	 * @param orderBy publication entity field name to order data by
+	 * @param isOrderAsc order the results in ascending or descending order
+	 * @param publicationYears filter on the pubication year
+	 * @param publicationTypes Filter on the publication types
+	 * @param authors filter on the authors
+	 * @return page of the publications according to filters provided 
+	 */
+	public Page<Publication> getPublicationsPage(
+			Integer pageNumber, Integer publicationsPerPage, 
+			String orderBy, Boolean isOrderAsc,
+			List<Integer> publicationYears, 
+			List<PublicationType> publicationTypes, 
+			List<Person> authors) {
+		
+		Pageable pageable = PageRequest.of(pageNumber, publicationsPerPage, Sort.by(isOrderAsc ? Sort.Order.asc(orderBy) : Sort.Order.desc(orderBy)));
+		
+        Specification<Publication> filters = Specification.where(null);
+        if (publicationYears != null && !publicationYears.isEmpty()) {
+            filters = filters.and((root, query, criteriaBuilder) ->
+				root.get("publicationYear")
+					.in(publicationYears));
+        }
+        if (publicationTypes != null && !publicationTypes.isEmpty()) {
+            filters = filters.and((root, query, criteriaBuilder) ->
+				root.get("type")
+					.in(publicationTypes));
+        }
+        if (authors != null && !authors.isEmpty()) {
+            filters = filters.and((root, query, criteriaBuilder) ->
+            	root.join("authorships")
+					.join("person")
+					.in(authors));
+        }
+		return this.publicationRepository.findAll(filters, pageable);
 	}
 
 	/** Replies all the publications that have the given maximum age.

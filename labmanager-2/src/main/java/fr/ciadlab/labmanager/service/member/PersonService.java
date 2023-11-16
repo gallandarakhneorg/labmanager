@@ -146,6 +146,15 @@ public class PersonService extends AbstractService {
 		return byId.orElse(null);
 	}
 
+	/** Replies the persons with the given identifiers.
+	 *
+	 * @param identifiers the identifiers of the persons.
+	 * @return the persons.
+	 */
+	public List<Person> getPersonsByIds(List<Integer> identifiers) {
+		return this.personRepository.findAllById(identifiers);
+	}
+
 	/** Replies the person with the given webpage identifier.
 	 *
 	 * @param identifier the identifier of the webpage of the person.
