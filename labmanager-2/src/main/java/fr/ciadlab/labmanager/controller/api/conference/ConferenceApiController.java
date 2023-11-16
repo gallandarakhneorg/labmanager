@@ -33,6 +33,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.conference.Conference;
+import fr.ciadlab.labmanager.entities.member.Person;
+import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.conference.ConferenceService;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
@@ -52,6 +54,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter.SseEventBuilder;
@@ -327,6 +330,16 @@ public class ConferenceApiController extends AbstractApiController {
 		if (changes != null) {
 			this.conferenceService.updateConferenceIndicators(referenceYear, changes);
 		}
+	}
+
+	/** Replies all conferences.
+	 * 
+	 * @return conferences 
+	 */
+	@GetMapping(value = "/getAllConferences", produces = "application/json; charset=UTF-8")
+	@ResponseBody
+	public Object getAllConferences() {
+		return this.conferenceService.getAllConferences();
 	}
 	
 }

@@ -38,8 +38,10 @@ import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.bind.annotation.CookieValue;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /** REST Controller for scientific axis API.
@@ -182,6 +184,16 @@ public class ScientificAxisApiController extends AbstractApiController {
 			throw new IllegalStateException("Scientific axis not found"); //$NON-NLS-1$
 		}
 		this.scientificAxisService.removeScientificAxis(axis.intValue());
+	}
+
+	/** Replies all scientific axes.
+	 * 
+	 * @return scientific axes 
+	 */
+	@GetMapping(value = "/getAllScientificAxes", produces = "application/json; charset=UTF-8")
+	@ResponseBody
+	public Object getAllScientificAxes() {
+		return this.scientificAxisService.getAllScientificAxes();
 	}
 
 }
