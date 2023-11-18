@@ -121,10 +121,10 @@ public class JournalService extends AbstractService {
 	 *
 	 * @return the list of journal DTOs.
 	 */
-	public List<JournalDto> getJournalsDtoList() {
+	public List<JournalDto> getAllJournalDTOs() {
 		List<Journal> journals = this.journalRepository.findAll();
         return journals.stream()
-			.map(journal -> new JournalDto(journal.getId(), journal.getJournalName()))
+			.map(journal -> new JournalDto(journal))
 			.collect(Collectors.toList());
 	}
 

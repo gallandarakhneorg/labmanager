@@ -100,14 +100,14 @@ public class JournalApiController extends AbstractApiController {
 		return this.journalService.getJournalByName(inName);
 	}
 
-	/** Replies All the journals from the database.
+	/** Replies a summary of all the journals in the database.
 	 *
-	 * @return All the journals
+	 * @return All the journal summaries
 	 */
-	@GetMapping(value = "/getJournalList", produces = "application/json; charset=UTF-8")
+	@GetMapping(value = "/getAllJournalSummaries", produces = "application/json; charset=UTF-8")
 	@ResponseBody
-	public List<JournalDto> getJournalList() {
-		return this.journalService.getJournalsDtoList();
+	public List<JournalDto> getAllJournalSummaries() {
+		return this.journalService.getAllJournalDTOs();
 	}
 
 	/** Replies the quality indicators for a specific journal.

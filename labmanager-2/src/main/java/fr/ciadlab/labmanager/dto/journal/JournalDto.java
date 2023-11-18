@@ -16,6 +16,8 @@
 
 package fr.ciadlab.labmanager.dto.journal;
 
+import fr.ciadlab.labmanager.entities.journal.Journal;
+
 /**
  * Data Transfer Object (DTO) for representing a Journal.
  */
@@ -26,20 +28,15 @@ public class JournalDto {
 
     /** The name of the journal. */
     private String journalName;
-
-    public JournalDto() {
-        // 
-    }
-
+    
     /**
-     * Parameterized constructor to initialize the JournalDto.
+     * Parameterized constructor to initialize the JournalDto from a Journal.
      *
-     * @param id   The unique identifier of the journal.
-     * @param journalName The name of the journal.
+     * @param journal the journal
      */
-    public JournalDto(int id, String journalName) {
-        this.id = id;
-        this.journalName = journalName;
+    public JournalDto(Journal journal) {
+        this.id = journal.getId();
+        this.journalName = journal.getJournalName();
     }
 
     /**
@@ -52,29 +49,11 @@ public class JournalDto {
     }
 
     /**
-     * Set the unique identifier of the journal.
-     *
-     * @param id The unique identifier to set.
-     */
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    /**
      * Get the name of the journal.
      *
      * @return The name of the journal.
      */
     public String getjournalName() {
         return journalName;
-    }
-
-    /**
-     * Set the name of the journal.
-     *
-     * @param journalName The name to set.
-     */
-    public void setjournalName(String journalName) {
-        this.journalName = journalName;
     }
 }
