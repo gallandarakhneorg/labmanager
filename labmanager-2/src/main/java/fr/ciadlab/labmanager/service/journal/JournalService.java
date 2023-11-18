@@ -23,6 +23,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.stream.Collectors;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -33,6 +34,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.dto.journal.JournalDto;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
@@ -113,6 +115,17 @@ public class JournalService extends AbstractService {
 	 */
 	public List<Journal> getAllJournals() {
 		return this.journalRepository.findAll();
+	}
+
+	/** Replies the DTOs for all the journals in the database.
+	 *
+	 * @return the list of journal DTOs.
+	 */
+	public List<JournalDto> getJournalsDtoList() {
+		List<Journal> journals = this.journalRepository.findAll();
+        return journals.stream()
+			.map(journal -> new JournalDto(journal.getId(), journal.getJournalName()))
+			.collect(Collectors.toList());
 	}
 
 	/** Replies the journal with the given identifier.

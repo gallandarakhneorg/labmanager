@@ -27,6 +27,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
+import fr.ciadlab.labmanager.dto.journal.JournalDto;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.journal.JournalQualityAnnualIndicators;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
@@ -97,6 +98,16 @@ public class JournalApiController extends AbstractApiController {
 			return this.journalService.getJournalById(id.intValue());
 		}
 		return this.journalService.getJournalByName(inName);
+	}
+
+	/** Replies All the journals from the database.
+	 *
+	 * @return All the journals
+	 */
+	@GetMapping(value = "/getJournalList", produces = "application/json; charset=UTF-8")
+	@ResponseBody
+	public List<JournalDto> getJournalList() {
+		return this.journalService.getJournalsDtoList();
 	}
 
 	/** Replies the quality indicators for a specific journal.
