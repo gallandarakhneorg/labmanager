@@ -32,9 +32,8 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
+import fr.ciadlab.labmanager.dto.conference.ConferenceDto;
 import fr.ciadlab.labmanager.entities.conference.Conference;
-import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.conference.ConferenceService;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
@@ -336,10 +335,10 @@ public class ConferenceApiController extends AbstractApiController {
 	 * 
 	 * @return conferences 
 	 */
-	@GetMapping(value = "/getAllConferences", produces = "application/json; charset=UTF-8")
+	@GetMapping(value = "/getAllConferenceSummaries", produces = "application/json; charset=UTF-8")
 	@ResponseBody
-	public Object getAllConferences() {
-		return this.conferenceService.getAllConferences();
+	public List<ConferenceDto> getAllConferenceSummaries() {
+		return this.conferenceService.getAllConferenceDTOs();
 	}
 	
 }

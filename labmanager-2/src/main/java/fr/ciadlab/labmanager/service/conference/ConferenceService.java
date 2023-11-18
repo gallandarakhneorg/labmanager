@@ -25,8 +25,10 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 import fr.ciadlab.labmanager.configuration.Constants;
+import fr.ciadlab.labmanager.dto.conference.ConferenceDto;
 import fr.ciadlab.labmanager.entities.IdentifiableEntityComparator;
 import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.conference.ConferenceQualityAnnualIndicators;
@@ -97,6 +99,17 @@ public class ConferenceService extends AbstractService {
 	 */
 	public List<Conference> getAllConferences() {
 		return this.conferenceRepository.findAll();
+	}
+
+	/** Replies all the conferences for the database as DTOs.
+	 *
+	 * @return the list of conferences as DTOs.
+	 */
+	public List<ConferenceDto> getAllConferenceDTOs() {
+		return getAllConferences()
+			.stream()
+			.map(conference -> new ConferenceDto(conference))
+			.collect(Collectors.toList());
 	}
 
 	/** Replies the conference with the given identifier.
