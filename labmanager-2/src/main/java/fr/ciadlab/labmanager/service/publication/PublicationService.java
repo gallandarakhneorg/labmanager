@@ -24,12 +24,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
@@ -289,6 +291,51 @@ public class PublicationService extends AbstractPublicationService {
         }
 		return this.publicationRepository.findAll(filters, pageable);
 	}
+
+    /** Retrieves the total number of publications per year.
+     *
+     * @return A map with publication years as keys and the corresponding counts as values.
+     */
+    public Map<Integer, Long> getTotalPublicationsPerYear() {
+        return getTotalPublications(publication -> publication.getPublicationYear());
+    }
+
+    /** Retrieves the total number of publications per type.
+     *
+     * @return A map with publication types as keys and the corresponding counts as values.
+     */
+    public Map<PublicationType, Long> getTotalPublicationsPerType() {
+        return getTotalPublications(publication -> publication.getType());
+    }
+	
+	/** Retrieves the total number of publications per author.
+     *
+     * @return A map with author names as keys and the corresponding counts as values.
+     */
+    public Map<Person, Long> getTotalPublicationsPerAuthor() {
+        Map<Person, Long> publicationsCount = new HashMap<>();
+        for (Publication publication : getAllPublications()) {
+            for (Person author : publication.getAuthors()) {
+				publicationsCount.put(author, publicationsCount.getOrDefault(author, 0L) + 1);
+			}
+        }
+        return publicationsCount;
+    }
+
+    /** Generic method to calculate the total number of publications based on a specified criteria.
+     *
+     * @param extractFunction The function to extract the criteria from a publication.
+     * @param <T>             The type of the criteria.
+     * @return A map with criteria values as keys and the corresponding publication counts as values.
+     */
+    private <T> Map<T, Long> getTotalPublications(Function<Publication, T> extractFunction) {
+        Map<T, Long> publicationsCount = new HashMap<>();
+        for (Publication publication : getAllPublications()) {
+            T key = extractFunction.apply(publication);
+            publicationsCount.put(key, publicationsCount.getOrDefault(key, 0L) + 1);
+        }
+        return publicationsCount;
+    }
 
 	/** Replies all the publications that have the given maximum age.
 	 *

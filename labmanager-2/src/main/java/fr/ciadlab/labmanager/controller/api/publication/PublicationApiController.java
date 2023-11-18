@@ -34,6 +34,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
+import fr.ciadlab.labmanager.dto.publication.AuthorPublicationCountDto;
+import fr.ciadlab.labmanager.dto.publication.TypePublicationCountDto;
+import fr.ciadlab.labmanager.dto.publication.YearPublicationCountDto;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
@@ -173,6 +176,54 @@ public class PublicationApiController extends AbstractApiController {
 			pageNumber, publicationsPerPage, orderBy, isOrderAsc, 
 			publicationYears, publicationTypeList, authors)
 			.getContent();
+	}
+
+    /** Retrieves the total number of publications per year.
+     *
+     * @return A map with publication years as keys and the corresponding counts as values.
+     */
+    @GetMapping("/getTotalPublicationsPerYear")
+    public List<YearPublicationCountDto> getTotalPublicationsPerYear() {
+		return this.publicationService
+			.getTotalPublicationsPerYear()
+			.entrySet()
+			.stream()
+			.map(entry -> new YearPublicationCountDto(
+				entry.getKey(),
+				entry.getValue()))
+			.collect(Collectors.toList());
+	}
+
+    /** Retrieves the total number of publications per author.
+     *
+     * @return A map with author names as keys and the corresponding counts as values.
+     */
+    @GetMapping("/getTotalPublicationsPerAuthor")
+    public List<AuthorPublicationCountDto> getTotalPublicationsPerAuthor() {
+		return this.publicationService
+			.getTotalPublicationsPerAuthor()
+			.entrySet()
+			.stream()
+			.map(entry -> new AuthorPublicationCountDto(
+				entry.getKey(),
+				entry.getValue()))
+			.collect(Collectors.toList());
+	}
+
+    /** Retrieves the total number of publications per type.
+     *
+     * @return A map with publication types as keys and the corresponding counts as values.
+     */
+    @GetMapping("/getTotalPublicationsPerType")
+    public List<TypePublicationCountDto> getTotalPublicationsPerType() {
+		return this.publicationService
+			.getTotalPublicationsPerType()
+			.entrySet()
+			.stream()
+			.map(entry -> new TypePublicationCountDto(
+				entry.getKey(),
+				entry.getValue()))
+			.collect(Collectors.toList());
 	}
 
 	/** Saving information of a publication. 
