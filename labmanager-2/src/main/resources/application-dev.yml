@@ -5,47 +5,48 @@ logging:
   level:
     fr.ciadlab: DEBUG
   file:
-    path: /some_path/labmanager-tmp
+    path: /tmp/ciadlab
 
 spring:
   datasource:
-    url: jdbc:h2:file:/some_path/labmanager-tmp/db
-    driverClassName: org.h2.Driver
+    # Derby database
+    driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
+    url: jdbc:derby:/tmp/ciadlab/db;create=true
+    generate-unique-name: false
     username: sa
     password:
-  jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
-    hibernate:
-      ddl-auto: update
 
-server:
-  servlet:
-    context-path: /LabManagerApi
-  error:
-    include-message: always
-    include-binding-errors: always
-    include-stacktrace: never
-    include-exception: false
+  sql:
+    init:
+      platform: derby
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.DerbyTenSevenDialect
+      # Lines dedicated only to generating the SQL script file, it is not applied to the DB. These are from JPA, not from Hibernate
+      javax:
+        persistence:
+          schema-generation:
+            scripts:
+              action: create
+              create-target: schema-derby-gen.sql
+              create-source: metadata
+
+  jackson:
+    serialization:
+      indent-output: true
 
 management:
   endpoint:
     logfile:
       # Path to the log file
-      external-file: /some_path/labmanager-tmp/LabManagerApi.log
+      external-file: /tmp/ciadlab/LabManagerApi.log
 
 labmanager:
-  default-organization: CIAD
-  default-super-organization: UTBM
-  default-lear-organization: UTBM
   file:
-    upload-directory: /some_path/labmanager-tmp
-    temp-directory: /some_path/labmanager-tmp
+    upload-directory: /tmp/ciadlab
   web:
-    publish-resources: /some_path/labmanager-tmp/Downloadables/
-    help-url: https://www.ciad-lab.fr/docs/
+    publish-resources: /tmp/ciadlab/Downloadables/
   debug: true
-  security:
-    username-key: some-key
-  init:
-    data-source: /some_path/labmanager/labmanager-2/src/main/resources/data.json
-    enable: true

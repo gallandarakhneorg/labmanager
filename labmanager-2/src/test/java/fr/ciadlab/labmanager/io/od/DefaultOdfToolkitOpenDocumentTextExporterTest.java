@@ -178,8 +178,6 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 			}
 			try (FileOutputStream fos = new FileOutputStream(file)) {
 				fos.write(content);
-			} catch (Throwable e) {
-				//
 			}
 		}
 	}
