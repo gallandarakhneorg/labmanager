@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -34,7 +35,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
+import fr.ciadlab.labmanager.controller.view.publication.PublicationsStat;
 import fr.ciadlab.labmanager.dto.publication.AuthorPublicationCountDto;
+import fr.ciadlab.labmanager.dto.publication.PublicationsStatsDto;
 import fr.ciadlab.labmanager.dto.publication.TypePublicationCountDto;
 import fr.ciadlab.labmanager.dto.publication.YearPublicationCountDto;
 import fr.ciadlab.labmanager.entities.member.Person;
@@ -139,7 +142,40 @@ public class PublicationApiController extends AbstractApiController {
 		}
 		return this.publicationService.getPublicationsByTitle(inTitle);
 	}
-	
+
+	/** Replies the statistics for the publications and for the author with the given identifier.
+	 *
+	 * @param dbId the database identifier of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
+	 * @param webId the identifier of the webpage of the person. You should provide one of {@code dbId}, {@code webId} or {@code name}.
+	 * @return the global and year per year statistics of the author.
+	 */
+	@GetMapping("/getPublicationsStats")
+	public PublicationsStatsDto getPublicationsStats(
+			@RequestParam(required = false) Integer dbId,
+			@RequestParam(required = false) String webId) {
+
+		final List<Publication> publications;
+		if (dbId != null && dbId.intValue() != 0) {
+			publications = this.publicationService.getPublicationsByPersonId(dbId.intValue());
+		} else if (!Strings.isNullOrEmpty(webId)) {
+			publications = this.publicationService.getPublicationsByPersonWebPageId(webId);
+		} else {
+			publications = this.publicationService.getAllPublications();
+		}
+
+		final Map<Integer, PublicationsStat> statsPerYear = new TreeMap<>();
+		final PublicationsStat globalStats = new PublicationsStat(Integer.MIN_VALUE);
+
+		for (final Publication p : publications) {
+			final Integer y = Integer.valueOf(p.getPublicationYear());
+			final PublicationsStat stats = statsPerYear.computeIfAbsent(y,
+				it -> new PublicationsStat(it.intValue()));
+			stats.increment(p.getType(), p.isRanked(), 1);
+			globalStats.increment(p.getType(), p.isRanked(), 1);
+		}
+		return new PublicationsStatsDto(globalStats, statsPerYear);
+	}
+
 	/** Replies a paginated filtered ordered list of publications.
 	 * 
 	 * @param pageNumber number of the page to return
