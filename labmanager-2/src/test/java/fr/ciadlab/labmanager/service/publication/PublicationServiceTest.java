@@ -72,6 +72,7 @@ import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.json.JsonExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextPublicationExporter;
+import fr.ciadlab.labmanager.io.ris.RIS;
 import fr.ciadlab.labmanager.repository.conference.ConferenceRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -138,6 +139,8 @@ public class PublicationServiceTest {
 
 	private BibTeX bibtex;
 
+	private RIS ris;
+
 	private HtmlDocumentExporter html;
 
 	private OpenDocumentTextPublicationExporter odt;
@@ -183,6 +186,7 @@ public class PublicationServiceTest {
 		this.conferenceRepository = mock(ConferenceRepository.class);
 		this.nameParser = new DefaultPersonNameParser();
 		this.bibtex = mock(BibTeX.class);
+		this.ris = mock(RIS.class);
 		this.html = mock(HtmlDocumentExporter.class);
 		this.odt = mock(OpenDocumentTextPublicationExporter.class);
 		this.json = mock(JsonExporter.class);
@@ -200,7 +204,7 @@ public class PublicationServiceTest {
 		this.test = new PublicationService(this.messages, new Constants(), this.publicationRepository, this.prePublicationFactory,
 				this.authorshipRepository,
 				this.personService, this.personRepository,
-				this.journalRepository, this.conferenceRepository, this.nameParser, this.bibtex, this.html,
+				this.journalRepository, this.conferenceRepository, this.nameParser, this.bibtex, this.ris, this.html,
 				this.odt, this.json, this.fileManager, this.membershipService,
 				this.bookService, this.bookChapterService, this.conferencePaperService,
 				this.journalEditionService, this.journalPaperService, this.keyNoteService,
@@ -439,6 +443,31 @@ public class PublicationServiceTest {
 
 		ArgumentCaptor<Iterable> arg = ArgumentCaptor.forClass(Iterable.class);
 		verify(this.bibtex, only()).exportPublications(arg.capture(), any());
+		Iterable<Publication> it = arg.getValue();
+		assertNotNull(it);
+		Iterator<Publication> iterator = it.iterator();
+		assertSame(this.pub0, iterator.next());
+		assertSame(this.pub2, iterator.next());
+		assertFalse(iterator.hasNext());
+	}
+
+	@Test
+	public void exportRIS_Collection_null() {
+		String ris = this.test.exportRIS((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class)));
+		assertNull(ris);
+	}
+
+	@Test
+	public void exportRIS_Collection() {
+		when(this.ris.exportPublications(any(Iterable.class), any())).thenReturn("abc");
+		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
+
+		String bibtex = this.test.exportRIS(pubs, new ExporterConfigurator(mock(JournalService.class)));
+
+		assertEquals("abc", bibtex);
+
+		ArgumentCaptor<Iterable> arg = ArgumentCaptor.forClass(Iterable.class);
+		verify(this.ris, only()).exportPublications(arg.capture(), any());
 		Iterable<Publication> it = arg.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();

@@ -53,6 +53,16 @@ public interface HtmlPageExporter extends HtmlExporter {
 	String getButtonToExportPublicationToBibTeX(int publicationId,
 			ExporterConfigurator configurator);
 
+	/** Replies the button for exporting the publication to RIS.
+	 *
+	 * @param publicationId the identifier of the publication.
+	 * @param configurator the configuration for the exporter.
+	 * @return the HTML code.
+	 * @since 3.7
+	 */
+	String getButtonToExportPublicationToRIS(int publicationId,
+			ExporterConfigurator configurator);
+
 	/** Replies the button for exporting the publication to HTML page.
 	 *
 	 * @param publicationId the identifier of the publication.

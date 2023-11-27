@@ -295,6 +295,56 @@ public class PublicationExportApiController extends AbstractApiController {
 	}
 
 	/**
+	 * Export publications to RIS.
+	 * This function takes one of the following parameters:<ul>
+	 * <li>{@code identifiers}: a list of publication identifiers to export.</li>
+	 * <li>{@code organization}: the identifier of a research organization for which the publications should be exported.</li>
+	 * <li>{@code author}: the identifier of an author.</li>
+	 * <li>{@code journal}: the identifier of a journal.</li>
+	 * </ul>
+	 * <p>If both author and organization identifiers are provided, the publications of the authors are prioritized.
+	 *
+	 * @param identifiers the array of publication identifiers that should be exported.
+	 * @param dbId the database identifier of the author for who the publications must be exported.
+	 * @param webId the webpage identifier of the author for who the publications must be exported.
+	 * @param organization the identifier of the organization for which the publications must be exported.
+	 * @param journal the identifier of the journal for which the publications must be exported.
+	 * @param includeSuborganizations if the argument {@code organization} is provided, indicates if the publications
+	 *     of the sub-organizations should also be exported (if value is {@code true}), or ignored (if value is {@code true}).
+	 * @param filterAuthorshipsWithActiveMemberships indicates if the authorships must correspond to active memberships
+	 *      (if value is {@code true}).
+	 * @param inAttachment indicates if the BibTeX is provided as attached document or not. By default, the value is
+	 *     {@code false}.
+	 * @return the RIS description of the publications.
+	 * @throws Exception if it is impossible to redirect to the error page.
+	 * @since 3.7
+	 */
+	@GetMapping(value = "/" + Constants.EXPORT_RIS_ENDPOINT)
+	@ResponseBody
+	public ResponseEntity<String> exportRIS(
+			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER, required = false) List<Integer> identifiers,
+			@RequestParam(required = false, name = Constants.DBID_ENDPOINT_PARAMETER) Integer dbId,
+			@RequestParam(required = false, name = Constants.WEBID_ENDPOINT_PARAMETER) String webId,
+			@RequestParam(required = false, name = Constants.ORGANIZATION_ENDPOINT_PARAMETER) Integer organization,
+			@RequestParam(required = false, name = Constants.JOURNAL_ENDPOINT_PARAMETER) Integer journal,
+			@RequestParam(required = false, defaultValue = "true") boolean includeSuborganizations,
+			@RequestParam(required = false, defaultValue = "true") boolean filterAuthorshipsWithActiveMemberships,
+			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment) throws Exception {
+		final ExporterCallback<String> cb = (pubs, configurator) -> this.publicationService.exportRIS(pubs, configurator);
+		final String content = export(identifiers, dbId, inString(webId), organization, journal, false, false,
+				includeSuborganizations, filterAuthorshipsWithActiveMemberships, Boolean.FALSE, Boolean.FALSE,
+				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
+		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE_UTF8);
+		if (inAttachment != null && inAttachment.booleanValue()) {
+			final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
+			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
+					+ Constants.DEFAULT_PUBLICATIONS_ATTACHMENT_BASENAME
+					+ "_" + simpleDateFormat.format(new Date()) + ".ris\""); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		return bb.body(content);
+	}
+
+	/**
 	 * Export publications to Open Document Text (ODT).
 	 * This function takes one of the following parameters:<ul>
 	 * <li>{@code identifiers}: a list of publication identifiers to export.</li>

@@ -244,6 +244,8 @@ public class PublicationViewController extends AbstractViewController {
 			final UriBuilderFactory factory = new DefaultUriBuilderFactory();
 			modelAndView.addObject("endpoint_export_bibtex", //$NON-NLS-1$
 					buildUri(factory, dbId, inWebId, organizationIdObj, journal, Constants.EXPORT_BIBTEX_ENDPOINT));
+			modelAndView.addObject("endpoint_export_ris", //$NON-NLS-1$
+					buildUri(factory, dbId, inWebId, organizationIdObj, journal, Constants.EXPORT_RIS_ENDPOINT));
 			modelAndView.addObject("endpoint_export_odt", //$NON-NLS-1$
 					buildUri(factory, dbId, inWebId, organizationIdObj, journal, Constants.EXPORT_ODT_ENDPOINT));
 			modelAndView.addObject("endpoint_export_html", //$NON-NLS-1$

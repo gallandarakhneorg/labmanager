@@ -133,6 +133,18 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	@Override
+	public String getButtonToExportPublicationToRIS(int publicationId, ExporterConfigurator configurator) {
+		final StringBuilder html = new StringBuilder();
+		if (publicationId != 0) {
+			exportPublicationButton(html, "btRis", "fa-file-lines", //$NON-NLS-1$ //$NON-NLS-2$
+					this.messages.getMessage("ciadHtmlPageExporter.exportToRIS"),  //$NON-NLS-1$
+					Constants.EXPORT_RIS_ENDPOINT,
+					publicationId, "RIS", configurator); //$NON-NLS-1$
+		}
+		return html.toString();
+	}
+
+	@Override
 	public String getButtonToExportPublicationToHtml(int publicationId, ExporterConfigurator configurator) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {

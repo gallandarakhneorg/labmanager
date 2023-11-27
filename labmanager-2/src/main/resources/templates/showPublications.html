@@ -26,6 +26,9 @@
 	                    <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal" th:title="#{html.ExportToBibTeX}">
 	                        <i class="fa-solid fa-file-lines"></i>&nbsp;&nbsp;<th:block th:utext="#{html.BibTeX}"></th:block>
 	                    </button>
+	                    <button type="button" class="btn btn-sm btn-success" id="btRisGlobal" th:title="#{html.ExportToRIS}">
+	                        <i class="fa-solid fa-file-lines"></i>&nbsp;&nbsp;<th:block th:utext="#{html.RIS}"></th:block>
+	                    </button>
 	                    <button type="button" class="btn btn-sm btn-success" id="btWordGlobal" th:title="#{html.ExportToOdt}">
 	                        <i class="fa-solid fa-file-word"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Odt}"></th:block>
 	                    </button>
@@ -176,6 +179,14 @@ $(document).ready(() => {
 		id: 'btBibtexGlobal',
 		dataSource: dtable,
 		url: "[(${endpoint_export_bibtex})]",
+		perTypeSelector: '#groupType',
+		perYearSelector: '#groupYear',
+	});
+
+	attachGlobalPublicationDownloadHandler({
+		id: 'btRisGlobal',
+		dataSource: dtable,
+		url: "[(${endpoint_export_ris})]",
 		perTypeSelector: '#groupType',
 		perYearSelector: '#groupYear',
 	});

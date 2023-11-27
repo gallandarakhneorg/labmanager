@@ -65,6 +65,7 @@ import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.io.html.HtmlDocumentExporter;
 import fr.ciadlab.labmanager.io.json.JsonExporter;
 import fr.ciadlab.labmanager.io.od.OpenDocumentTextPublicationExporter;
+import fr.ciadlab.labmanager.io.ris.RIS;
 import fr.ciadlab.labmanager.repository.conference.ConferenceRepository;
 import fr.ciadlab.labmanager.repository.journal.JournalRepository;
 import fr.ciadlab.labmanager.repository.member.PersonRepository;
@@ -121,6 +122,8 @@ public class PublicationService extends AbstractPublicationService {
 
 	private BibTeX bibtex;
 
+	private RIS ris;
+
 	private HtmlDocumentExporter html;
 
 	private OpenDocumentTextPublicationExporter odt;
@@ -168,6 +171,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param conferenceRepository the repository of the conferences.
 	 * @param nameParser the parser of person names.
 	 * @param bibtex the tool for managing BibTeX source.
+	 * @param ris the tool for managing RIS source.
 	 * @param html the tool for exporting to HTML.
 	 * @param odt the tool for exporting to Open Document Text.
 	 * @param json the tool for exporting to JSON.
@@ -195,6 +199,7 @@ public class PublicationService extends AbstractPublicationService {
 			@Autowired ConferenceRepository conferenceRepository,
 			@Autowired PersonNameParser nameParser,
 			@Autowired BibTeX bibtex,
+			@Autowired RIS ris,
 			@Autowired HtmlDocumentExporter html,
 			@Autowired OpenDocumentTextPublicationExporter odt,
 			@Autowired JsonExporter json,
@@ -220,6 +225,7 @@ public class PublicationService extends AbstractPublicationService {
 		this.conferenceRepository = conferenceRepository;
 		this.nameParser = nameParser;
 		this.bibtex = bibtex;
+		this.ris = ris;
 		this.html = html;
 		this.odt = odt;
 		this.json = json;
@@ -745,6 +751,21 @@ public class PublicationService extends AbstractPublicationService {
 			return null;
 		}
 		return this.bibtex.exportPublications(publications, configurator);
+	}
+
+	/**
+	 * Export function for RIS using a list of publication identifiers.
+	 *
+	 * @param publications the array of publications that should be exported.
+	 * @param configurator the configurator of the exporter.
+	 * @return the RIS description of the publications with the given identifiers.
+	 * @since 3.7
+	 */
+	public String exportRIS(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
+		if (publications == null) {
+			return null;
+		}
+		return this.ris.exportPublications(publications, configurator);
 	}
 
 	/**

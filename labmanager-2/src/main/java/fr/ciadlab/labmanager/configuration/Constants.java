@@ -59,6 +59,12 @@ public class Constants {
 	 */
 	public static final String EXPORT_BIBTEX_ENDPOINT = "exportBibTeX"; //$NON-NLS-1$
 
+	/** Name of the endpoint for exporting to RIS.
+	 *
+	 * @since 3.7
+	 */
+	public static final String EXPORT_RIS_ENDPOINT = "exportRIS"; //$NON-NLS-1$
+
 	/** Name of the endpoint for exporting to OpenDocument Text.
 	 */
 	public static final String EXPORT_ODT_ENDPOINT = "exportOdt"; //$NON-NLS-1$
