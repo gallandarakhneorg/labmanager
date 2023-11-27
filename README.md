@@ -12,7 +12,7 @@ The **documentation for the contributors and developpers** is in the [CONTRIBUTI
 
 ## 3. Model Definition
 
-The model of the application is based on the definition of JEE entities that represent the data managed by the software.
+The model of the application is based on the definition of J2E entities that represent the data managed by the software.
 
 ### 3.1 Research Organizations
 
@@ -125,7 +125,7 @@ systemctl restart tomcat9
 ## 5. Software License
 
 ```
-Copyright (c) 2019-22, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
+Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
 All rights reserved.
 
 This software is the confidential and proprietary information
