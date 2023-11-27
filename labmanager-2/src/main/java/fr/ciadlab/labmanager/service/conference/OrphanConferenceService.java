@@ -1,7 +1,7 @@
 /*
  * $Id$
  * 
- * Copyright (c) 2019-22, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
+ * Copyright (c) 2019-2024, CIAD Laboratory, Universite de Technologie de Belfort Montbeliard
  * All rights reserved.
  *
  * This software is the confidential and proprietary information
