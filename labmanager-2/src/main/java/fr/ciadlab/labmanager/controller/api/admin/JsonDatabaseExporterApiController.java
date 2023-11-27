@@ -35,8 +35,6 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.servlet.http.HttpServletResponse;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.base.Throwables;
 import fr.ciadlab.labmanager.configuration.Constants;
@@ -51,6 +49,7 @@ import fr.ciadlab.labmanager.io.json.JsonTool;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.SimilarPublicationProvider;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;

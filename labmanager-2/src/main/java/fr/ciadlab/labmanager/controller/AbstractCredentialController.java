@@ -23,11 +23,11 @@ import java.util.Base64;
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
-import javax.servlet.http.HttpServletRequest;
 
 import fr.ciadlab.labmanager.AbstractComponent;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.utils.HttpRequestUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
 

@@ -515,7 +515,7 @@ public class PublicationServiceTest {
 	@Test
 	public void exportJson_Collection() throws Exception {
 		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
-		when(this.json.exportPublicationsWithRootKeys(any(Iterable.class), any(), any())).thenReturn("abc");
+		when(this.json.exportPublicationsWithRootKeys(any(Iterable.class), any(), any(String[].class))).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
 		String json = this.test.exportJson(pubs, configurator);
@@ -524,7 +524,8 @@ public class PublicationServiceTest {
 
 		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
 		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
-		verify(this.json, only()).exportPublicationsWithRootKeys(arg0.capture(), arg1.capture(), any());
+		ArgumentCaptor<String[]> arg2 = ArgumentCaptor.forClass(String[].class);
+		verify(this.json, only()).exportPublicationsWithRootKeys(arg0.capture(), arg1.capture(), arg2.capture());
 		Iterable<Publication> it = arg0.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();
@@ -532,6 +533,7 @@ public class PublicationServiceTest {
 		assertSame(this.pub2, iterator.next());
 		assertFalse(iterator.hasNext());
 		assertNotNull(arg1.getValue());
+		assertNotNull(arg2.getValue());
 	}
 
 	@Test
@@ -555,7 +557,7 @@ public class PublicationServiceTest {
 		ArgumentCaptor<Iterable> arg0 = ArgumentCaptor.forClass(Iterable.class);
 		ArgumentCaptor<ExporterConfigurator> arg1 = ArgumentCaptor.forClass(ExporterConfigurator.class);
 		ArgumentCaptor<Procedure2> arg2 = ArgumentCaptor.forClass(Procedure2.class);
-		verify(this.json, only()).exportPublicationsAsTreeWithRootKeys(arg0.capture(), arg1.capture(), arg2.capture(), any());
+		verify(this.json, only()).exportPublicationsAsTreeWithRootKeys(arg0.capture(), arg1.capture(), arg2.capture());
 		Iterable<Publication> it = arg0.getValue();
 		assertNotNull(it);
 		Iterator<Publication> iterator = it.iterator();

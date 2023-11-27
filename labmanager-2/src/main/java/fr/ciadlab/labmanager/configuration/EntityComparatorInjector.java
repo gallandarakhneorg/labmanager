@@ -16,8 +16,6 @@
 
 package fr.ciadlab.labmanager.configuration;
 
-import javax.annotation.PostConstruct;
-
 import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureComparator;
 import fr.ciadlab.labmanager.entities.assostructure.AssociatedStructureHolderComparator;
@@ -39,6 +37,7 @@ import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxisComparator;
 import fr.ciadlab.labmanager.entities.supervision.SupervisionComparator;
 import fr.ciadlab.labmanager.entities.supervision.SupervisorComparator;
 import fr.ciadlab.labmanager.entities.teaching.TeachingActivityComparator;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 

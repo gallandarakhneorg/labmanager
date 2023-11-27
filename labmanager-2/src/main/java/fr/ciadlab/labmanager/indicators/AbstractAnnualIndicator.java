@@ -16,6 +16,7 @@
 
 package fr.ciadlab.labmanager.indicators;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -24,7 +25,6 @@ import java.util.function.Function;
 import com.google.common.util.concurrent.AtomicDouble;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
-import org.joda.time.LocalDate;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of a computed value that indicates a key element for an organization.

@@ -18,8 +18,6 @@ package fr.ciadlab.labmanager.service.admin;
 
 import java.util.List;
 
-import javax.transaction.Transactional;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
@@ -27,6 +25,7 @@ import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.OrphanEntityBuilder;
+import jakarta.transaction.Transactional;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;

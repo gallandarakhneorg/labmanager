@@ -1741,6 +1741,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new projects in the database.
 	 * @throws Exception if a project cannot be created.
 	 */
+	@SuppressWarnings("removal")
 	protected int insertProjects(Session session, JsonNode projects, JsonNode scientificAxes,
 			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		int nbNew = 0;

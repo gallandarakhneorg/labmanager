@@ -20,8 +20,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
-import javax.transaction.Transactional;
-
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitation;
 import fr.ciadlab.labmanager.entities.invitation.PersonInvitationType;
@@ -31,6 +29,7 @@ import fr.ciadlab.labmanager.service.AbstractService;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.utils.country.CountryCode;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Service;

@@ -7,17 +7,17 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.7.2</version>
+        <version>3.2.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
     <groupId>fr.ciadlab.web</groupId>
     <artifactId>labmanager</artifactId>
-    <version>3.7.0-SNAPSHOT</version>
+    <version>3.8.0-SNAPSHOT</version>
     <packaging>war</packaging>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>17</java.version>
     </properties>
 
     <dependencies>
@@ -47,9 +47,8 @@
         	<artifactId>spring-boot-devtools</artifactId>
         </dependency>
         <dependency>
-            <groupId>mysql</groupId>
-            <artifactId>mysql-connector-java</artifactId>
-            <scope>runtime</scope>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
         	<!-- The following connector to database is used for local development only -->
@@ -57,28 +56,35 @@
 			<artifactId>derby</artifactId>
 		</dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.33</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.71</version>
+            <version>1.77</version>
         </dependency>
 		<dependency> 
 		    <groupId>com.opencsv</groupId> 
 		    <artifactId>opencsv</artifactId> 
-		    <version>5.7.1</version> 
+		    <version>5.9</version> 
 		</dependency> 
         <dependency>
             <groupId>org.odftoolkit</groupId>
             <artifactId>odfdom-java</artifactId>
-            <version>0.10.0</version>
+            <version>0.11.0</version>
         </dependency>
         <dependency>
             <groupId>org.jbibtex</groupId>
             <artifactId>jbibtex</artifactId>
             <version>1.0.20</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.difty.kris</groupId>
+            <artifactId>kris-io</artifactId>
+            <version>0.5.0</version>
         </dependency>
         <dependency>
             <groupId>info.debatty</groupId>
@@ -88,7 +94,7 @@
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-text</artifactId>
-            <version>1.9</version>
+            <version>1.11.0</version>
         </dependency>
         <dependency>
             <groupId>org.arakhne.afc.core</groupId>
@@ -103,22 +109,22 @@
 		<dependency>
 		  <groupId>com.luhuiguo</groupId>
 		  <artifactId>aspose-pdf</artifactId>
-		  <version>22.9</version>
+		  <version>23.1</version>
 		</dependency>
 		<dependency>
 		  <groupId>com.luhuiguo</groupId>
 		  <artifactId>aspose-slides</artifactId>
-		  <version>22.9</version>
+		  <version>23.1</version>
 		</dependency>
 		<dependency>
 			<groupId>com.microsoft.playwright</groupId>
 			<artifactId>playwright</artifactId>
-			<version>1.29.0</version>
+			<version>1.40.0</version>
 		</dependency>
 		<dependency>
 		    <groupId>com.vladsch.flexmark</groupId>
 		    <artifactId>flexmark-all</artifactId>
-		    <version>0.64.0</version>
+		    <version>0.64.8</version>
 		</dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -153,10 +159,10 @@
 		  <dependency>
 		    <groupId>javax.xml.bind</groupId>
 		    <artifactId>jaxb-api</artifactId>
+		    <version>2.3.1</version>
 		    <scope>test</scope>
 		  </dependency>
     </dependencies>
-
 
     <build>
     	<finalName>LabManagerApi##${mainVersionNumber}</finalName>
@@ -232,7 +238,7 @@
 			<plugin>
 				<groupId>org.codehaus.gmavenplus</groupId>
 				<artifactId>gmavenplus-plugin</artifactId>
-				<version>2.0.0</version>
+				<version>3.0.2</version>
 				<executions>
 					<execution>
 						<id>compute-project-properties</id>
@@ -267,7 +273,7 @@ project.properties["mainVersionNumber"] = version + '-' + projectBuildId;
 						<groupId>org.apache.groovy</groupId>
 						<artifactId>groovy-all</artifactId>
 						<type>pom</type> 
-						<version>4.0.3</version>
+						<version>4.0.15</version>
 					</dependency>
 				</dependencies>
 			</plugin>

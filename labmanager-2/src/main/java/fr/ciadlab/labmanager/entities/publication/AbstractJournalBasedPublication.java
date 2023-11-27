@@ -20,18 +20,17 @@ import java.io.IOException;
 import java.util.Objects;
 import java.util.function.Supplier;
 
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
-
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.hibernate.annotations.Polymorphism;
 import org.hibernate.annotations.PolymorphismType;

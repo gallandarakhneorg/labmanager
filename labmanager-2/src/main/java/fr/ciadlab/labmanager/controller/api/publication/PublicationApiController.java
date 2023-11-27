@@ -18,6 +18,7 @@ package fr.ciadlab.labmanager.controller.api.publication;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -26,11 +27,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import javax.json.Json;
-import javax.json.JsonString;
-import javax.servlet.http.HttpServletResponse;
-
-import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.api.AbstractApiController;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -39,10 +35,12 @@ import fr.ciadlab.labmanager.io.filemanager.DownloadableFileManager;
 import fr.ciadlab.labmanager.service.member.PersonService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.catalina.connector.ClientAbortException;
 import org.apache.commons.lang3.StringUtils;
 import org.arakhne.afc.sizediterator.SizedIterator;
 import org.arakhne.afc.vmutil.FileSystem;
+import org.json.JSONWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -283,13 +281,16 @@ public class PublicationApiController extends AbstractApiController {
 	}
 
 	private static void sendProgressStep(SseEmitter emitter, int step, int percent, String message) throws IOException {
-		final JsonString jstring = Json.createValue(Strings.nullToEmpty(message));
-		final StringBuilder json = new StringBuilder();
-		json.append("{\"step\":").append(step) //$NON-NLS-1$
-		.append(",\"terminated\":").append(Boolean.toString(step == THUMBNAIL_STEP_2 && percent >= Constants.HUNDRED)) //$NON-NLS-1$
-		.append(",\"percent\":").append(percent) //$NON-NLS-1$
-		.append(",\"message\":").append(jstring.toString()).append("}"); //$NON-NLS-1$ //$NON-NLS-2$
-		final SseEventBuilder event = SseEmitter.event().data(json.toString());
+		final StringWriter swriter = new StringWriter();
+		JSONWriter writer = new JSONWriter(swriter);
+		writer.object();
+		writer.key("step").value(step); //$NON-NLS-1$
+		writer.key("terminated").value(Boolean.toString(step == THUMBNAIL_STEP_2 && percent >= Constants.HUNDRED)); //$NON-NLS-1$
+		writer.key("percent").value(percent); //$NON-NLS-1$
+		writer.key("message").value(message); //$NON-NLS-1$
+		writer.endObject();
+		swriter.flush();
+		final SseEventBuilder event = SseEmitter.event().data(swriter.toString());
 		emitter.send(event);
 	}
 

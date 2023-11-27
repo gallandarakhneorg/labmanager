@@ -16,10 +16,10 @@
 
 package fr.ciadlab.labmanager.utils;
 
-import javax.json.Json;
-import javax.json.JsonObjectBuilder;
-import javax.servlet.http.HttpServletRequest;
+import java.io.StringWriter;
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.json.JSONWriter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
@@ -60,14 +60,19 @@ public class HttpRequestUtils {
 			return "0.0.0.0"; //$NON-NLS-1$
 		}
 		final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-		final JsonObjectBuilder bb = Json.createObjectBuilder();
+		final StringWriter swriter = new StringWriter();
+		JSONWriter writer = new JSONWriter(swriter);
+		writer.object();
 		for (String header: IP_HEADER_CANDIDATES) {
 			final String ipList = request.getHeader(header);
 			if (ipList != null && ipList.length() != 0 && !"unknown".equalsIgnoreCase(ipList)) { //$NON-NLS-1$
-				bb.add(header, ipList);
+				writer = writer.key(header);
+				writer = writer.value(ipList);
 			}
 		}
-		bb.add("_REMOTE_ADDR", request.getRemoteAddr()); //$NON-NLS-1$
-		return bb.build().toString();
+		writer.key("_REMOTE_ADDR"); //$NON-NLS-1$
+		writer.value(request.getRemoteAddr());
+		writer = writer.endObject();
+		return swriter.toString();
 	}
 }

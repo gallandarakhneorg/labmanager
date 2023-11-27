@@ -19,15 +19,14 @@ package fr.ciadlab.labmanager.entities.publication.type;
 import java.io.IOException;
 import java.util.Objects;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.PrimaryKeyJoinColumn;
-import javax.persistence.Table;
-
 import com.google.common.base.Strings;
 import fr.ciadlab.labmanager.entities.publication.AbstractJournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.PrimaryKeyJoinColumn;
+import jakarta.persistence.Table;
 
 /** Edition of a journal or a special issue of a journal.
  *

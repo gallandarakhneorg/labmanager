@@ -19,8 +19,6 @@ package fr.ciadlab.labmanager.configuration;
 import java.util.EnumSet;
 import java.util.Locale;
 
-import javax.annotation.PostConstruct;
-
 import fr.ciadlab.labmanager.controller.api.member.GeneralMemberType;
 import fr.ciadlab.labmanager.entities.jury.JuryMembershipType;
 import fr.ciadlab.labmanager.entities.jury.JuryType;
@@ -46,6 +44,7 @@ import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import fr.ciadlab.labmanager.utils.funding.FundingScheme;
 import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import fr.ciadlab.labmanager.utils.trl.TRL;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.context.annotation.Bean;

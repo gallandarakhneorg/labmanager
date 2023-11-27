@@ -108,8 +108,8 @@ public class OnlineWebOfSciencePlatformTest {
 		URL url = new URL("https://www.webofscience.com/wos/author/record/367073");
 		WebOfSciencePerson person = this.test.getPersonRanking(url, null);
 		assertNotNull(person);
-		assertTrue(person.hindex >= 13);
-		assertTrue(person.citations >= 651);
+		assertTrue(person.hindex >= 13, "Current Hindex=" + person.hindex);
+		assertTrue(person.citations >= 651, "Current citations=" + person.citations);
 	}
 
 }

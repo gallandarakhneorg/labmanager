@@ -30,8 +30,6 @@ import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
-import javax.servlet.http.HttpServletResponse;
-
 import fr.ciadlab.labmanager.configuration.Constants;
 import fr.ciadlab.labmanager.controller.view.AbstractViewController;
 import fr.ciadlab.labmanager.entities.conference.Conference;
@@ -52,6 +50,7 @@ import fr.ciadlab.labmanager.service.organization.ResearchOrganizationService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.scientificaxis.ScientificAxisService;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
+import jakarta.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
