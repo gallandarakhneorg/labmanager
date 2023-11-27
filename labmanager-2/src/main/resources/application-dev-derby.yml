@@ -1,0 +1,52 @@
+# This configuration is activated if you active the "dev" profile:
+#   -Dspring.profiles.active=dev
+
+logging:
+  level:
+    fr.ciadlab: DEBUG
+  file:
+    path: /some_path/labmanager-tmp
+
+spring:
+  datasource:
+    # Derby database
+    driver-class-name: org.apache.derby.jdbc.EmbeddedDriver
+    url: jdbc:derby:/some_path/labmanager-tmp/db;create=true
+    generate-unique-name: false
+    username: sa
+    password:
+
+  sql:
+    init:
+      platform: derby
+
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.DerbyTenSevenDialect
+      # Lines dedicated only to generating the SQL script file, it is not applied to the DB. These are from JPA, not from Hibernate
+      javax:
+        persistence:
+          schema-generation:
+            scripts:
+              action: create
+              create-target: schema-derby-gen.sql
+              create-source: metadata
+
+  jackson:
+    serialization:
+      indent-output: true
+
+management:
+  endpoint:
+    logfile:
+      # Path to the log file
+      external-file: /some_path/labmanager-tmp/LabManagerApi.log
+
+labmanager:
+  file:
+    upload-directory: /some_path/labmanager-tmp
+  web:
+    publish-resources: /some_path/labmanager-tmp/Downloadables/
+  debug: true
