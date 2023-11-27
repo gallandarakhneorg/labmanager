@@ -389,6 +389,26 @@ project.properties["mainVersionNumber"] = version + '-' + projectBuildId;
 				<role>UTBM Student - Contributions to version 3.0</role>
 			</roles>
 		</contributor>
+		<contributor>
+			<name>Lucas Bruton</name>
+			<properties>
+				<id>lbruton</id>
+				<githubId>LucasBruton</githubId>
+			</properties>
+			<roles>
+				<role>UTBM Student - Contributions to version 3.8</role>
+			</roles>
+		</contributor>
+		<contributor>
+			<name>Youri AUBRY</name>
+			<properties>
+				<id>yaubry</id>
+				<githubId>Molrn</githubId>
+			</properties>
+			<roles>
+				<role>UTBM Student - Contributions to version 3.8</role>
+			</roles>
+		</contributor>
 	</contributors>
 
 </project>
