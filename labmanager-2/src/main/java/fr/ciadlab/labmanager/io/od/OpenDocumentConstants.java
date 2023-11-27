@@ -45,4 +45,10 @@ public interface OpenDocumentConstants {
 	 */
 	Color CIAD_DARK_GREEN = Color.valueOf("#4b5e08"); //$NON-NLS-1$
 
+	/** Relative path to the ODT document that is a template for the RIPEC-C3 activity report.
+	 *
+	 * @since 3.7
+	 */
+	String ODT_REPEC_C3_TEMPLATE_PATH = "odt/ripec_c3_template.odt"; //$NON-NLS-1$
+
 }

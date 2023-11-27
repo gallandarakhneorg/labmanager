@@ -16,10 +16,13 @@
 
 package fr.ciadlab.labmanager.io.od;
 
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.arakhne.afc.vmutil.Resources;
+import org.odftoolkit.odfdom.doc.OdfTextDocument;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
 import org.odftoolkit.odfdom.dom.element.text.TextSpanElement;
@@ -40,6 +43,22 @@ public class OdfTextDocumentHelper {
 	 */
 	public OdfTextDocumentHelper() {
 		//
+	}
+
+	/** Open the document that corresponds to the given template.
+	 *
+	 * @param templatePath the path to the initial ODT template.
+	 * @return the ODT document. 
+	 * @throws Exception if it is impossible to create the ODF document.
+	 */
+	@SuppressWarnings("static-method")
+	public OdfTextDocument openOdtTemplate(String templatePath) throws Exception {
+		if (Strings.isNullOrEmpty(templatePath)) {
+			return OdfTextDocument.newTextDocument();
+		}
+		try (final InputStream is = Resources.getResourceAsStream(templatePath)) {
+			return OdfTextDocument.loadDocument(is);
+		}
 	}
 
 	/** Append the given values, with the given separator to the receiver.
