@@ -411,4 +411,10 @@ project.properties["mainVersionNumber"] = version + '-' + projectBuildId;
 		</contributor>
 	</contributors>
 
+	<licenses>
+	   <license>
+	     <name>AGPL-3.0</name>
+	   </license>
+	</licenses>
+
 </project>
