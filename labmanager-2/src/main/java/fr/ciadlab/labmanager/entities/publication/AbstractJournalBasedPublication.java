@@ -30,13 +30,8 @@ import fr.ciadlab.labmanager.utils.ranking.JournalRankingSystem;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
-import jakarta.persistence.Inheritance;
-import jakarta.persistence.InheritanceType;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import org.apache.jena.ext.com.google.common.base.Strings;
-import org.hibernate.annotations.Polymorphism;
-import org.hibernate.annotations.PolymorphismType;
 
 /** Abstract publication that is related to a journal.
  * 
@@ -47,9 +42,6 @@ import org.hibernate.annotations.PolymorphismType;
  * @since 3.6
  */
 @Entity
-@Table(name = "JournalBasedPublications")
-@Inheritance(strategy = InheritanceType.JOINED)
-@Polymorphism(type = PolymorphismType.IMPLICIT)
 public abstract class AbstractJournalBasedPublication extends Publication implements JournalBasedPublication {
 
 	private static final long serialVersionUID = 5389842889949388812L;

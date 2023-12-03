@@ -26,9 +26,8 @@ import fr.ciadlab.labmanager.entities.publication.AbstractJournalBasedPublicatio
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Paper in a journal.
@@ -42,8 +41,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @mavenartifactid $ArtifactId$
  */
 @Entity
-@Table(name = "JournalPapers")
-@PrimaryKeyJoinColumn(name = "id")
+@DiscriminatorValue("JournalPaper")
 public class JournalPaper extends AbstractJournalBasedPublication {
 
 	private static final long serialVersionUID = 3238033613426660222L;

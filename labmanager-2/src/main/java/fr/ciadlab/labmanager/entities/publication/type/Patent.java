@@ -27,9 +27,8 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** A patent.
@@ -43,8 +42,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @mavenartifactid $ArtifactId$
  */
 @Entity
-@Table(name = "Patents")
-@PrimaryKeyJoinColumn(name = "id")
+@DiscriminatorValue("Patent")
 public class Patent extends Publication {
 
 	private static final long serialVersionUID = -4184253717435746463L;

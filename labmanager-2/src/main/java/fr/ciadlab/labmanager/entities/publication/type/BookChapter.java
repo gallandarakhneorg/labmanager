@@ -28,9 +28,8 @@ import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Chapter of a book.
@@ -44,8 +43,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @mavenartifactid $ArtifactId$
  */
 @Entity
-@Table(name = "BookChapters")
-@PrimaryKeyJoinColumn(name = "id")
+@DiscriminatorValue("BookChapter")
 public class BookChapter extends Publication {
 
 	private static final long serialVersionUID = 1191620361523483766L;

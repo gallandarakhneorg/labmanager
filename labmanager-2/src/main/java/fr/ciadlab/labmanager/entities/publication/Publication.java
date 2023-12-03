@@ -45,6 +45,7 @@ import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -60,8 +61,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.transaction.Transactional;
-import org.hibernate.annotations.Polymorphism;
-import org.hibernate.annotations.PolymorphismType;
 
 /** Abstract representation of a research publication.
  * This class contains the fields that are usually shared between many of the different types of research publications.
@@ -72,11 +71,12 @@ import org.hibernate.annotations.PolymorphismType;
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @see "https://thorben-janssen.com/complete-guide-inheritance-strategies-jpa-hibernate/"
  */
 @Entity
 @Table(name = "Publications")
-@Inheritance(strategy = InheritanceType.JOINED)
-@Polymorphism(type = PolymorphismType.IMPLICIT)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "Publication_Type")
 public abstract class Publication implements Production, JsonSerializable, Comparable<Publication>, AttributeProvider {
 
 	private static final long serialVersionUID = -5980560007123809890L;

@@ -33,11 +33,10 @@ import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import fr.ciadlab.labmanager.utils.RequiredFieldInForm;
 import fr.ciadlab.labmanager.utils.ranking.CoreRanking;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Keynote in a conference or a workshop.
@@ -51,8 +50,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @mavenartifactid $ArtifactId$
  */
 @Entity
-@Table(name = "KeyNotes")
-@PrimaryKeyJoinColumn(name = "id")
+@DiscriminatorValue("KeyNote")
 public class KeyNote extends Publication implements ConferenceBasedPublication {
 
 	private static final long serialVersionUID = -6657050556989265460L;

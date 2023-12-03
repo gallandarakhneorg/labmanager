@@ -27,9 +27,8 @@ import fr.ciadlab.labmanager.entities.EntityUtils;
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** Book.
@@ -43,8 +42,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @mavenartifactid $ArtifactId$
  */
 @Entity
-@Table(name = "Books")
-@PrimaryKeyJoinColumn(name = "id")
+@DiscriminatorValue("Book")
 public class Book extends Publication {
 
 	private static final long serialVersionUID = -3794504301844157501L;

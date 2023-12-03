@@ -69,10 +69,10 @@
 				</a>
             </td>
             <td>
-                <th:block th:if="${journal.publishedPapers.size <= 0}" th:utext="${journal.publishedPapers.size}"></th:block>
-                <a th:if="${journal.publishedPapers.size > 0}"
+                <th:block th:if="${!journal.hasPublishedPaper}" th:utext="0"></th:block>
+                <a th:if="${journal.hasPublishedPaper}"
                    th:href="@{/publicationList(journal=${journal.id})}">
-	                <th:block th:utext="${journal.publishedPapers.size}"></th:block></a>
+	                <th:block th:utext="${journal.getPublishedPapers.size}"></th:block></a>
             </td>
             <td>
             	<th:block th:if="${journal.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>

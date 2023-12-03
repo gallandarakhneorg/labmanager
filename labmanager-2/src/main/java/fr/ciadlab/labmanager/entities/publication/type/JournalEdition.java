@@ -27,9 +27,8 @@ import fr.ciadlab.labmanager.entities.publication.AbstractJournalBasedPublicatio
 import fr.ciadlab.labmanager.entities.publication.Publication;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import jakarta.persistence.PrimaryKeyJoinColumn;
-import jakarta.persistence.Table;
 
 /** Edition of a journal or a special issue of a journal.
  *
@@ -42,8 +41,7 @@ import jakarta.persistence.Table;
  * @mavenartifactid $ArtifactId$
  */
 @Entity
-@Table(name = "JournalEditions")
-@PrimaryKeyJoinColumn(name = "id")
+@DiscriminatorValue("JournalEdition")
 public class JournalEdition extends AbstractJournalBasedPublication {
 
 	private static final long serialVersionUID = -1849832728913103105L;
