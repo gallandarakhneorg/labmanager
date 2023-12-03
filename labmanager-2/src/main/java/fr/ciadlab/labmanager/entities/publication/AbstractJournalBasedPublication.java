@@ -89,7 +89,9 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 		super.forEachAttribute(consumer);
 		if (isRanked()) {
 			consumer.accept("scimagoQIndex", getScimagoQIndex()); //$NON-NLS-1$
+			consumer.accept("scimagoCategory", getScimagoCategory()); //$NON-NLS-1$
 			consumer.accept("wosQIndex", getWosQIndex()); //$NON-NLS-1$
+			consumer.accept("wosCategory", getWosCategory()); //$NON-NLS-1$
 			consumer.accept("impactFactor", Float.valueOf(getImpactFactor())); //$NON-NLS-1$
 		}
 	}
@@ -129,12 +131,30 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 	}
 
 	@Override
+	public String getScimagoCategory() {
+		final Journal journal = getJournal();
+		if (journal != null) {
+			return journal.getScimagoCategory();
+		}
+		return null;
+	}
+
+	@Override
 	public QuartileRanking getWosQIndex() {
 		final Journal journal = getJournal();
 		if (journal != null) {
 			return journal.getWosQIndexByYear(getPublicationYear());
 		}
 		return QuartileRanking.NR;
+	}
+
+	@Override
+	public String getWosCategory() {
+		final Journal journal = getJournal();
+		if (journal != null) {
+			return journal.getWosCategory();
+		}
+		return null;
 	}
 
 	@Override

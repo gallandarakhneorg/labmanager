@@ -14,11 +14,12 @@ function formatPublicationDetails(d, config) {
 	var scimagoQuartile = d.scimagoQIndex && d.scimagoQIndex != "" && d.scimagoQIndex != "NR" ? ("<tr><td>"
 		+ labels['scimago'] + "<td>" + d.scimagoQIndex
 		+ "&nbsp;[<span title=\"" + labels['scimagoNote'] + "\" style=\"cursor:help\">*</span>]"
-		+ (d.scimagoQIndex_imageUrl && d.scimagoQIndex_imageUrl != "" ? '<img class="publicationDetailsScimagoQuartile" src="'
-		+ d.scimagoQIndex_imageUrl + '" />' : '') + '</td></tr>') : "";
+		+ (d.scimagoCategory != null && d.scimagoCategory != "" ? (" (" + d.scimagoCategory + ")") : "")
+		+ '</td></tr>') : "";
 	var wosQuartile = d.wosQIndex && d.wosQIndex != "" && d.wosQIndex != "NR" ? ("<tr><td>"
 		+ labels['wos'] + "</td><td>" + d.wosQIndex
 		+ "&nbsp;[<span title=\"" + labels['wosNote'] + "\" style=\"cursor:help\">*</span>]"
+		+ (d.wosCategory != null && d.wosCategory != "" ? (" (" + d.wosCategory + ")") : "")
 		+ '</td></tr>') : "";
 	var coreRanking = d.coreRanking && d.coreRanking != "" ? ("<tr><td>"
 		+ labels['core'] + "</td><td>" + d.coreRanking

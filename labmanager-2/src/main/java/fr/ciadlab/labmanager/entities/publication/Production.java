@@ -25,7 +25,7 @@ import java.util.List;
 import fr.ciadlab.labmanager.entities.IdentifiableEntity;
 import fr.ciadlab.labmanager.entities.member.Person;
 
-/** Represents all the productions (publications, etc.) of the orgnaization.
+/** Represents all the productions (publications, etc.) of the organization.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$

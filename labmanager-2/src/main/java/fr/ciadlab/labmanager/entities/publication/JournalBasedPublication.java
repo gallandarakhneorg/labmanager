@@ -50,11 +50,25 @@ public interface JournalBasedPublication extends Production {
 	 */
 	QuartileRanking getScimagoQIndex();
 
+	/** Replies the category that is used for obtaining the Scimago Q-index.
+	 *
+	 * @return the Scimago category or {@code null}.
+	 * @since 3.8
+	 */
+	String getScimagoCategory();
+
 	/** Replies the JCR/Web-of-Science Q-index.
 	 *
 	 * @return the JCR/WOS ranking, never {@code null}.
 	 */
 	QuartileRanking getWosQIndex();
+
+	/** Replies the category that is used for obtaining the JCR/Web-of-Science Q-index.
+	 *
+	 * @return the JCR/Web-of-Science category or {@code null}.
+	 * @since 3.8
+	 */
+	String getWosCategory();
 
 	/** Replies the journal impact factor.
 	 *

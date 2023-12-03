@@ -187,6 +187,17 @@ public class JournalPaperTest extends AbstractTypedPublicationTest<JournalPaper>
 	}
 
 	@Test
+	public void getScimagoCategory() {
+		assertNull(this.test.getScimagoCategory());
+
+		final Journal jour = mock(Journal.class);
+		when(jour.getScimagoCategory()).thenReturn("abcd");
+		this.test.setJournal(jour);
+
+		assertEquals("abcd", this.test.getScimagoCategory());
+	}
+
+	@Test
 	public void getWosQIndex() {
 		assertSame(QuartileRanking.NR, this.test.getWosQIndex());
 
@@ -196,6 +207,17 @@ public class JournalPaperTest extends AbstractTypedPublicationTest<JournalPaper>
 		this.test.setPublicationYear(2022);
 
 		assertSame(QuartileRanking.Q2, this.test.getWosQIndex());
+	}
+
+	@Test
+	public void getWosCategory() {
+		assertNull(this.test.getWosCategory());
+
+		final Journal jour = mock(Journal.class);
+		when(jour.getWosCategory()).thenReturn("abcd");
+		this.test.setJournal(jour);
+
+		assertEquals("abcd", this.test.getWosCategory());
 	}
 
 	@Test
