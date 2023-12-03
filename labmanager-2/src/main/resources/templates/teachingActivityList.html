@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs"/>
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
 
-<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="~{fragments/table :: adminTableDefinition(${changeEnabled})}"/>
 
-<th:block th:replace="fragments/nav :: teachingActivityListBar(${person.fullNameWithLastNameFirst})"/>
+<th:block th:replace="~{fragments/nav :: teachingActivityListBar(${person.fullNameWithLastNameFirst})}"/>
 
 <a id="btAddTeachingActivity" class="btn btn-warning mt-4 pr-4 pl-4"
    th:if="${changeEnabled}" th:utext="#{html.AddTeachingActivity1(${person.fullNameWithLastNameFirst})}"
    th:href="${additionUrl + person.id}"></a>
 
-<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
     <thead>
         <th th:utext="#{html.Id}"></th>
         <th th:utext="#{html.Code}"></th>
@@ -55,11 +55,11 @@
 				<th:block th:if="${activity.endDate != null}"
 				          th:utext="${activity.endDate.toString()}"></th:block>
             </td>
-            <td th:replace="fragments/table :: adminToolButtons(${activity.id}, ${activity.codeOrTitle},
+            <td th:replace="~{fragments/table :: adminToolButtons(${activity.id}, ${activity.codeOrTitle},
             		#{html.EditTeachingActivity2(${activity.codeOrTitle}, ${person.fullNameWithLastNameFirst})},
             		#{html.DeleteTeachingActivity2(${activity.codeOrTitle}, ${person.fullNameWithLastNameFirst})},
             		~{::.admin-tool-buttons},
-            		null, null, null, null)">
+            		null, null, null, null)}">
             </td>
         </tr>
     </tbody>

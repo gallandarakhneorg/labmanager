@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs"/>
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
 
-<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="~{fragments/table :: adminTableDefinition(${changeEnabled})}"/>
 
-<th:block th:replace="fragments/nav :: assostructListBar"/>
+<th:block th:replace="~{fragments/nav :: assostructListBar}"/>
 
 <a id="btAddAssociatedStructure" class="btn btn-warning mt-4 pr-4 pl-4"
    th:if="${changeEnabled}" th:utext="#{html.AddAssociatedStructure}"
    th:href="${URLS_edit}"></a>
 
-<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
     <thead>
         <th th:utext="#{html.Id}"></th>
         <th th:utext="#{html.Acronym}"></th>
@@ -69,11 +69,11 @@
             	<th:block th:if="${structure.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
             	<th:block th:unless="${structure.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
             </td>
-            <td th:replace="fragments/table :: adminToolButtons(${structure.id}, ${structure.acronymOrName},
+            <td th:replace="~{fragments/table :: adminToolButtons(${structure.id}, ${structure.acronymOrName},
             		#{html.EditAssociatedStructure1(${structure.acronymOrName})},
             		#{html.DeleteAssociatedStructure1(${structure.acronymOrName})},
             		~{::.admin-tool-buttons},
-            		null, null, null, null)">
+            		null, null, null, null)}">
             </td>
         </tr>
     </tbody>

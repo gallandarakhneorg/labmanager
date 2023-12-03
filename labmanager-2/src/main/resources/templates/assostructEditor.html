@@ -1,42 +1,42 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs" />
-<th:block th:replace="fragments/form :: formLibs" />
-<th:block th:replace="fragments/formfileinput :: all" />
-<th:block th:replace="fragments/formdynlist :: all" />
+<th:block th:replace="~{fragments/general :: allBaseLibs}" />
+<th:block th:replace="~{fragments/form :: formLibs}" />
+<th:block th:replace="~{fragments/formfileinput :: all}" />
+<th:block th:replace="~{fragments/formdynlist :: all}" />
 
 <th:block th:if="${structure != null}">
-	<th:block th:replace="fragments/nav :: assostructListBar*(#{html.EditAssociatedStructure1(${structure.acronymOrName})})"/>
+	<th:block th:replace="~{fragments/nav :: assostructListBar*(#{html.EditAssociatedStructure1(${structure.acronymOrName})})}"/>
 </th:block>
 <th:block th:if="${structure == null}">
-	<th:block th:replace="fragments/nav :: assostructListBar*(#{html.AddAssociatedStructure})"/>
+	<th:block th:replace="~{fragments/nav :: assostructListBar*(#{html.AddAssociatedStructure})}"/>
 </th:block>
 
-<form th:replace="fragments/form :: entityForm(structure, ${structure == null ? '' : structure.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.AssociatedStructureSavingError}, ~{::.form-group})">
-	<div class="form-group" th:replace="fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderAssociatedStructureAcronym}, ${structure != null ? structure.acronym : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderAssociatedStructureName}, ${structure != null ? structure.name : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(type, #{html.AssociatedStructureType}, ~{::option#option-types})">
+<form th:replace="~{fragments/form :: entityForm(structure, ${structure == null ? '' : structure.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.AssociatedStructureSavingError}, ~{::.form-group})}">
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderAssociatedStructureAcronym}, ${structure != null ? structure.acronym : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderAssociatedStructureName}, ${structure != null ? structure.name : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(type, #{html.AssociatedStructureType}, ~{::option#option-types})}">
 		<option id="option-types"
 		        th:each="type : ${sortedTypes}"
 		        th:selected="${structure != null && structure.type == type}"
 		        th:value="${type.name}"
 		        th:utext="${type.getLabel()}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: dateInput*(creationDate, #{html.CreationDate}, ${formattedCreationDate})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(creationDuration, #{html.Duration}, #{html.PlaceHolderMonthDuration}, ${structure != null && structure.creationDuration > 0 ? structure.creationDuration : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(fundingOrganization, #{html.AssociatedStructureFundingOrganization}, ~{::option#option-fundingOrganization})">
+	<div class="form-group" th:replace="~{fragments/form :: dateInput*(creationDate, #{html.CreationDate}, ${formattedCreationDate})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(creationDuration, #{html.Duration}, #{html.PlaceHolderMonthDuration}, ${structure != null && structure.creationDuration > 0 ? structure.creationDuration : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(fundingOrganization, #{html.AssociatedStructureFundingOrganization}, ~{::option#option-fundingOrganization})}">
 		<option id="option-fundingOrganization"
 		        th:each="fundingOrganization : ${organizations}"
 		        th:selected="${structure != null && structure.fundingOrganization != null && structure.fundingOrganization.id == fundingOrganization.id}"
 		        th:value="${fundingOrganization.id}"
 		        th:utext="${fundingOrganization.acronym + ' - ' + fundingOrganization.name}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(holders, #{html.AssociatedStructureHolders}, #{html.AddAssociatedStructureHolder})"></div>
-	<div class="form-group" th:replace="fragments/form :: textAreaInput(description, #{html.Description}, #{html.PlaceHolderAssociatedStructureDescription}, ${structure != null ? structure.description : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(budget, #{html.AssociatedStructureBudget}, #{html.PlaceHolderAssociatedStructureBudget}, ${structure != null && structure.budget > 0 ? structure.budget : ''})"></div>
-	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(projects, #{html.AssociatedStructureProjects}, #{html.AddProject})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(confidential, #{html.AssociatedStructureConfidential}, #{html.AssociatedStructureConfidential}, ${structure != null ? structure.confidential : false})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedAssociatedStructure}, #{html.ValidatedAssociatedStructure}, ${structure != null ? structure.validated : false})"></div>
+	<div class="form-group" th:replace="~{fragments/formdynlist :: dynamicDataList(holders, #{html.AssociatedStructureHolders}, #{html.AddAssociatedStructureHolder})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textAreaInput(description, #{html.Description}, #{html.PlaceHolderAssociatedStructureDescription}, ${structure != null ? structure.description : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(budget, #{html.AssociatedStructureBudget}, #{html.PlaceHolderAssociatedStructureBudget}, ${structure != null && structure.budget > 0 ? structure.budget : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/formdynlist :: dynamicDataList(projects, #{html.AssociatedStructureProjects}, #{html.AddProject})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: checkInput(confidential, #{html.AssociatedStructureConfidential}, #{html.AssociatedStructureConfidential}, ${structure != null ? structure.confidential : false})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: checkInput(validated, #{html.ValidatedAssociatedStructure}, #{html.ValidatedAssociatedStructure}, ${structure != null ? structure.validated : false})}"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
 const ALL_ORGANIZATIONS = new Map();

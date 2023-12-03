@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs-with-bundles}"/>
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
 
-<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="~{fragments/table :: adminTableDefinition(${changeEnabled})}"/>
 
-<th:block th:replace="fragments/nav :: simpleBar(#{html.OrphanEntities})"/>
+<th:block th:replace="~{fragments/nav :: simpleBar(#{html.OrphanEntities})}"/>
 
 <div id="compute-orphans">
 	<div class="progress">
@@ -14,7 +14,7 @@
 	<div id="progress-message"></div>
 </div>
 <div id="show-orphans" style="display: none;">
-	<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+	<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
 	    <thead>
 	        <th th:utext="#{html.Type}"></th>
 	        <th th:utext="#{html.Entity}"></th>

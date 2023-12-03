@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs"/>
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
 
-<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="~{fragments/table :: adminTableDefinition(${changeEnabled})}"/>
 
-<th:block th:replace="fragments/nav :: organizationListBar"/>
+<th:block th:replace="~{fragments/nav :: organizationListBar}"/>
 
 <a id="btAddOrganization" class="btn btn-warning mt-4 pr-4 pl-4"
    th:if="${changeEnabled}" th:utext="#{html.AddOrganization}"
    th:href="${URLS_edit}"></a>
 
-<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
 	<thead>
 		<th th:text="#{html.Id}"></th>
 		<th th:text="#{html.Acronym}"></th>
@@ -70,12 +70,12 @@
             	<th:block th:if="${organization.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
             	<th:block th:unless="${organization.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
             </td>
-            <td th:replace="fragments/table :: adminToolButtons(${organization.id}, ${organization.getAcronymOrName},
+            <td th:replace="~{fragments/table :: adminToolButtons(${organization.id}, ${organization.getAcronymOrName},
             		#{html.EditOrganization1(${organization.acronymOrName})},
             		#{html.DeleteOrganization1(${organization.acronymOrName})},
             		null,
             		organization, organization, organization,
-            		@{/getOrganizationData(id=${organization.id})} )"></td>
+            		@{/getOrganizationData(id=${organization.id})} )}"></td>
         </tr>
     </tbody>
 </table>

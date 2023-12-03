@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs"/>
-<th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
+<th:block th:replace="~{fragments/buttons :: interactiveDeletionProcess}" />
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
 
-<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="~{fragments/table :: adminTableDefinition(${changeEnabled})}"/>
 
-<th:block th:replace="fragments/nav :: publicationListBar"/>
+<th:block th:replace="~{fragments/nav :: publicationListBar}"/>
 
 <a id="btAddPublication" class="btn btn-warning mt-4 pr-4 pl-4"
    th:if="${changeEnabled}" th:utext="#{html.AddPublication}"
@@ -14,7 +14,7 @@
 <button id="btDeleteDisplayedPapers" class="btn btn-danger mt-4 pr-4 pl-4"
 	th:if="${changeEnabled}" th:utext="#{html.DeleteDisplayedPublications}"></button>
 
-<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
     <thead>
         <th th:text="#{html.Id}"></th>
         <th th:utext="#{html.Title}"></th>
@@ -89,12 +89,12 @@
             	<th:block th:if="${publication.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
             	<th:block th:unless="${publication.validated}"><i style="color:red"  class="fa-solid fa-triangle-exclamation">A</i></th:block>
             </td>
-            <td th:replace="fragments/table :: adminToolButtons(${publication.id}, ${publication.title},
+            <td th:replace="~{fragments/table :: adminToolButtons(${publication.id}, ${publication.title},
             		#{html.EditPublication1(${publication.title})},
             		#{html.DeletePublication1(${publication.title})},
             		null,
             		id, id, id,
-            		@{/exportJson(id=${publication.id},inAttachment=false)} )"></td>
+            		@{/exportJson(id=${publication.id},inAttachment=false)} )}"></td>
         </tr>
     </tbody>
 </table>

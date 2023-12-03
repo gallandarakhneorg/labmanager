@@ -1,43 +1,43 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs" />
-<th:block th:replace="fragments/form :: formLibs" />
-<th:block th:replace="fragments/buttons :: ajaxButtons" />
-<th:block th:replace="fragments/buttons :: waitButtons" />
-<th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
-<th:block th:replace="fragments/formselect2 :: all" />
+<th:block th:replace="~{fragments/general :: allBaseLibs}" />
+<th:block th:replace="~{fragments/form :: formLibs}" />
+<th:block th:replace="~{fragments/buttons :: ajaxButtons}" />
+<th:block th:replace="~{fragments/buttons :: waitButtons}" />
+<th:block th:replace="~{fragments/buttons :: interactiveDeletionProcess}" />
+<th:block th:replace="~{fragments/formselect2 :: all}" />
 
-<th:block th:replace="fragments/nav :: personListBar*(#{html.EditJuryMemberships(${person.fullName})})"/>
+<th:block th:replace="~{fragments/nav :: personListBar*(#{html.EditJuryMemberships(${person.fullName})})}"/>
 
 <form id="form">
 	<button id="btAdd" class="btn btn-warning mt-4 pr-4 pl-4"
 		th:if="${changeEnabled}" th:utext="#{html.AddMembership}"></button>
 	<th:block th:if="${changeEnabled}">
 		<div id="new-membership-input-area" class="form-super-group form-super-group-new" style="display:none">
-			<div class="form-group" th:replace="fragments/form :: dateInput(date_new, #{html.Date},'')"></div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(type_new, #{html.PositionType}, ~{::option#option-type-new})">
+			<div class="form-group" th:replace="~{fragments/form :: dateInput(date_new, #{html.Date},'')}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(type_new, #{html.PositionType}, ~{::option#option-type-new})}">
 				<option id="option-type-new"
 				        th:each="type : ${T(fr.ciadlab.labmanager.entities.jury.JuryMembershipType).values}"
 				        th:value="${type.name}"
 				        th:utext="${type.getLabel(person.gender)}"></option>
 			</div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(defenseType_new, #{html.DefenseType}, ~{::option#option-defenseType-new})">
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(defenseType_new, #{html.DefenseType}, ~{::option#option-defenseType-new})}">
 				<option id="option-defenseType-new"
 				        th:each="type : ${T(fr.ciadlab.labmanager.entities.jury.JuryType).values}"
 				        th:value="${type.name}"
 				        th:utext="${type.getLabel()}"></option>
 			</div>
-			<div class="form-group" th:replace="fragments/form :: textInput*(title_new, #{html.Title}, #{html.PlaceHolderJuryMembershipTitle},'')"></div>
-			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(candidate_new, #{html.CandidateName})"></div>
-			<div class="form-group" th:replace="fragments/form :: textInput*(university_new, #{html.University}, #{html.PlaceHolderUniversityName},'')"></div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(country_new, #{html.Country}, ~{::option#option-country-new})">
+			<div class="form-group" th:replace="~{fragments/form :: textInput*(title_new, #{html.Title}, #{html.PlaceHolderJuryMembershipTitle},'')}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: multiSelectionTextInput*(candidate_new, #{html.CandidateName})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: textInput*(university_new, #{html.University}, #{html.PlaceHolderUniversityName},'')}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(country_new, #{html.Country}, ~{::option#option-country-new})}">
 				<option id="option-country-new"
 				        th:each="country : ${T(fr.ciadlab.labmanager.utils.country.CountryCode).values}"
 				        th:selected="${defaultCountry == country}"
 				        th:value="${country.name}"
 				        th:utext="#{html.CountryNameInList(${countryLabels.get(country)},${country.code})}"></option>
 			</div>
-			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput(promoters_new, #{html.Promoters})"></div>
+			<div class="form-group" th:replace="~{fragments/form :: multiSelectionTextInput(promoters_new, #{html.Promoters})}"></div>
 			<button th:id="btSave_new" type="button"
 				class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
 				th:utext="#{html.Submit}"></button>
@@ -45,32 +45,32 @@
 	</th:block>
 	<th:block th:each="membership : ${sortedMemberships}">
 		<div th:id="${'editorblock' + membership.id}" class="form-super-group form-super-group-active">
-			<div class="form-group" th:replace="fragments/form :: dateInput(${'date_' + membership.id}, #{html.Date}, ${membership.date == null ? '' : membership.date.toString})"></div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(${'type_' + membership.id}, #{html.PositionType}, ~{::option#option-type})">
+			<div class="form-group" th:replace="~{fragments/form :: dateInput(${'date_' + membership.id}, #{html.Date}, ${membership.date == null ? '' : membership.date.toString})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(${'type_' + membership.id}, #{html.PositionType}, ~{::option#option-type})}">
 				<option id="option-type"
 				        th:each="typecst : ${T(fr.ciadlab.labmanager.entities.jury.JuryMembershipType).values}"
 				        th:selected="${membership.type == typecst}"
 				        th:value="${typecst.name}"
 				        th:utext="${typecst.getLabel(person.gender)}"></option>
 			</div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(${'defenseType_' + membership.id}, #{html.DefenseType}, ~{::option#option-defenseType})">
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(${'defenseType_' + membership.id}, #{html.DefenseType}, ~{::option#option-defenseType})}">
 				<option id="option-defenseType"
 				        th:each="typecst : ${T(fr.ciadlab.labmanager.entities.jury.JuryType).values}"
 				        th:selected="${membership.defenseType == typecst}"
 				        th:value="${typecst.name}"
 				        th:utext="${typecst.getLabel()}"></option>
 			</div>
-			<div class="form-group" th:replace="fragments/form :: textInput*(${'title_' + membership.id}, #{html.Title}, #{html.PlaceHolderJuryMembershipTitle}, ${membership.title})"></div>
-			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(${'candidate_' + membership.id}, #{html.CandidateName})"></div>
-			<div class="form-group" th:replace="fragments/form :: textInput*(${'university_' + membership.id}, #{html.University}, #{html.PlaceHolderUniversityName}, ${membership.university})"></div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(${'country_' + membership.id}, #{html.Country}, ~{::option#option-country})">
+			<div class="form-group" th:replace="~{fragments/form :: textInput*(${'title_' + membership.id}, #{html.Title}, #{html.PlaceHolderJuryMembershipTitle}, ${membership.title})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: multiSelectionTextInput*(${'candidate_' + membership.id}, #{html.CandidateName})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: textInput*(${'university_' + membership.id}, #{html.University}, #{html.PlaceHolderUniversityName}, ${membership.university})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(${'country_' + membership.id}, #{html.Country}, ~{::option#option-country})}">
 				<option id="option-country"
 				        th:each="country : ${T(fr.ciadlab.labmanager.utils.country.CountryCode).values}"
 				        th:selected="${membership.country == country}"
 				        th:value="${country.name}"
 				        th:utext="#{html.CountryNameInList(${countryLabels.get(country)},${country.code})}"></option>
 			</div>
-			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput(${'promoters_' + membership.id}, #{html.Promoters})"></div>
+			<div class="form-group" th:replace="~{fragments/form :: multiSelectionTextInput(${'promoters_' + membership.id}, #{html.Promoters})}"></div>
 			<button th:id="${'btSave_' + membership.id}" type="button"
 				class="btn btn-primary mt-4 pr-4 pl-4" th:if="${changeEnabled}"
 				th:utext="#{html.Submit}"></button>

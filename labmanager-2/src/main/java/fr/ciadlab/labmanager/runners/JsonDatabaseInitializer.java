@@ -38,8 +38,11 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.stereotype.Component;
 
 /** This component fill up the database with JSON format that is independent of the database engine.
- * It is searching for a file with the name {@code data-<platform>.json} at the
- * root folder of the class-path.
+ *
+ * <p>The configuration variable {@code labmanager.init.enable} enables to turn on or off this feature.
+ *
+ * <p>It is searching for a file with the name {@code data.json} or {@code data.zip} inside the folder
+ * that is specified by the configuration variable {@code labmanager.init.data-source}.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$

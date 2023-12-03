@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:unless="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs-with-bundles}"/>
 </th:block>
 <th:block th:if="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs-embedded}"/>
 </th:block>
-<th:block th:replace="fragments/table :: publicTable"/>
-<th:block th:replace="fragments/libs :: flags"/>
+<th:block th:replace="~{fragments/table :: publicTable}"/>
+<th:block th:replace="~{fragments/libs :: flags}"/>
 <a id="btAddTeachingActivity" class="btn btn-warning mt-4 pr-4 pl-4"
    th:if="${additionUrl != null}" th:utext="#{html.AddTeachingActivity1(${person.fullNameWithLastNameFirst})}"
    th:href="${additionUrl}"></a>

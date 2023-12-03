@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:unless="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
 </th:block>
 <th:block th:if="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs-embedded}"/>
 </th:block>
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
 
-<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
 	<thead>
 		<th th:utext="#{html.Year}"></th>
 		<th th:utext="#{html.JournalPapers}">ACL/ACLN/ASCL</th>

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
-<th:block th:replace="fragments/libs :: google-charts"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs-with-bundles}"/>
+<th:block th:replace="~{fragments/libs :: google-charts}"/>
 
-<th:block th:replace="fragments/nav :: dashboardPublicationsBar"/>
+<th:block th:replace="~{fragments/nav :: dashboardPublicationsBar}"/>
 
 <h2 th:utext="${'Publication Statistics for ' + paperTimeRange}"></h2>
 

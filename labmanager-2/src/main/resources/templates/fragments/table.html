@@ -77,12 +77,12 @@
 			return initAdministrationTable_base(config);
 		}
 		</script>
-		<th:block th:replace="fragments/libs :: sweetalert" />
-		<th:block th:if="${activateModifications}" th:replace="fragments/buttons :: interactiveDeletionProcess"></th:block>
+		<th:block th:replace="~{fragments/libs :: sweetalert}" />
+		<th:block th:if="${activateModifications}" th:replace="~{fragments/buttons :: interactiveDeletionProcess}"></th:block>
 	</th:block>
 
 	<th:block th:fragment="publicTable">
-		<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+		<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
 		<script type="text/javascript" th:src="@{/js/labmanager/tablep.js}"></script>
 	</th:block>
 </html>

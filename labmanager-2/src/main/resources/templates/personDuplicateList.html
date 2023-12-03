@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs"/>
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
-<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
-<th:block th:replace="fragments/buttons :: ajaxButtons"/>
-<th:block th:replace="fragments/buttons :: conditionButtons"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
+<th:block th:replace="~{fragments/table :: adminTableDefinition(${changeEnabled})}"/>
+<th:block th:replace="~{fragments/buttons :: ajaxButtons}"/>
+<th:block th:replace="~{fragments/buttons :: conditionButtons}"/>
 
-<th:block th:replace="fragments/nav :: personListBar*(#{html.MergePersons})"/>
+<th:block th:replace="~{fragments/nav :: personListBar*(#{html.MergePersons})}"/>
 
 <div id="duplicationComputation">
 	<div class="progress">
@@ -18,7 +18,7 @@
 </div>
 <div id="duplicationSummary" style="display:none">
 	<p th:utext="#{html.DuplicatePersonIntro}"></p>
-	<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+	<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
 	    <thead>
 	        <th th:text="#{html.Names}"></th>
 	        <th th:text="#{html.Organizations}"></th>

@@ -2,15 +2,15 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
     <th:block th:fragment="formLibs">
-    	<th:block th:replace="fragments/libs :: jquery-validation"></th:block>
-    	<th:block th:replace="fragments/libs :: sweetalert" th:if="${changeEnabled}"></th:block>
-    	<th:block th:replace="fragments/buttons :: ajaxButtons" th:if="${changeEnabled}"></th:block>
-    	<th:block th:replace="fragments/buttons :: waitButtons" th:if="${changeEnabled}"></th:block>
+    	<th:block th:replace="~{fragments/libs :: jquery-validation}"></th:block>
+    	<th:block th:replace="~{fragments/libs :: sweetalert}" th:if="${changeEnabled}"></th:block>
+    	<th:block th:replace="~{fragments/buttons :: ajaxButtons}" th:if="${changeEnabled}"></th:block>
+    	<th:block th:replace="~{fragments/buttons :: waitButtons}" th:if="${changeEnabled}"></th:block>
 		<script type="text/javascript" th:src="@{/js/labmanager/form.js}"></script>
 	</th:block>
 
 	<form th:fragment="genericForm(submitEnabled, groups)" id="form">
-		<th:block th:replace="fragments/form :: genericForm2(${submitEnabled}, #{html.Submit}, ${groups})"></th:block>
+		<th:block th:replace="~{fragments/form :: genericForm2(${submitEnabled}, #{html.Submit}, ${groups})}"></th:block>
 	</form>
 
 	<form th:fragment="genericForm2(submitEnabled, submitText, groups)" id="form">
@@ -72,11 +72,11 @@
     </th:block>
 
 	<div th:fragment="textInput(name, label, placeholder, value)" class="form-group">
-		<th:block th:replace="fragments/form :: textInputBase(${name}, ${label}, ${placeholder}, ${value}, null)"></th:block>
+		<th:block th:replace="~{fragments/form :: textInputBase(${name}, ${label}, ${placeholder}, ${value}, null)}"></th:block>
     </div>
     
 	<div th:fragment="textInput*(name, label, placeholder, value)" class="form-group">
-		<th:block th:replace="fragments/form :: textInputBase(${name}, ${label}, ${placeholder}, ${value}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/form :: textInputBase(${name}, ${label}, ${placeholder}, ${value}, 'required')}"></th:block>
     </div>
 
 	<div th:fragment="textInputWithDiv(name, label, placeholder, value, divId)" class="form-group">
@@ -93,11 +93,11 @@
     </th:block>
 
 	<div th:fragment="textInputDynamic(name, label, placeholder, value)" class="form-group dynamic-form-group" th:id="${'dynamic-form-group-' + name}">
-		<th:block th:replace="fragments/form :: textInputDynamicBase(${name}, ${label}, ${placeholder}, ${value}, null)"></th:block>
+		<th:block th:replace="~{fragments/form :: textInputDynamicBase(${name}, ${label}, ${placeholder}, ${value}, null)}"></th:block>
     </div>
 
 	<div th:fragment="textInputDynamic*(name, label, placeholder, value)" class="form-group dynamic-form-group" th:id="${'dynamic-form-group-' + name}">
-		<th:block th:replace="fragments/form :: textInputDynamicBase(${name}, ${label}, ${placeholder}, ${value}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/form :: textInputDynamicBase(${name}, ${label}, ${placeholder}, ${value}, 'required')}"></th:block>
     </div>
 
 	<th:block th:fragment="comboInputBase(name, label, options, className)" class="form-group">
@@ -116,19 +116,19 @@
     </th:block>
 
 	<div th:fragment="comboInputEmpty(name, label)" class="form-group">
-		<th:block th:replace="fragments/form :: comboInputBaseEmpty(${name}, ${label}, null)"></th:block>
+		<th:block th:replace="~{fragments/form :: comboInputBaseEmpty(${name}, ${label}, null)}"></th:block>
     </div>
 
 	<div th:fragment="comboInputEmpty*(name, label)" class="form-group">
-		<th:block th:replace="fragments/form :: comboInputBaseEmpty(${name}, ${label}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/form :: comboInputBaseEmpty(${name}, ${label}, 'required')}"></th:block>
     </div>
 
 	<div th:fragment="comboInput(name, label, options)" class="form-group">
-		<th:block th:replace="fragments/form :: comboInputBase(${name}, ${label}, ${options}, null)"></th:block>
+		<th:block th:replace="~{fragments/form :: comboInputBase(${name}, ${label}, ${options}, null)}"></th:block>
     </div>
 
 	<div th:fragment="comboInput*(name, label, options)" class="form-group">
-		<th:block th:replace="fragments/form :: comboInputBase(${name}, ${label}, ${options}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/form :: comboInputBase(${name}, ${label}, ${options}, 'required')}"></th:block>
     </div>
 
 	<th:block th:fragment="comboInputDynamicBase(name, label, options, className)" class="form-group dynamic-form-group" th:id="${'dynamic-form-group-' + name}">
@@ -140,11 +140,11 @@
     </th:block>
 
 	<div th:fragment="comboInputDynamic(name, label, options)" class="form-group dynamic-form-group" th:id="${'dynamic-form-group-' + name}">
-		<th:block th:replace="fragments/form :: comboInputDynamicBase(${name}, ${label}, ${options}, null)"></th:block>
+		<th:block th:replace="~{fragments/form :: comboInputDynamicBase(${name}, ${label}, ${options}, null)}"></th:block>
     </div>
 
 	<div th:fragment="comboInputDynamic*(name, label, options)" class="form-group dynamic-form-group" th:id="${'dynamic-form-group-' + name}">
-		<th:block th:replace="fragments/form :: comboInputDynamicBase(${name}, ${label}, ${options}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/form :: comboInputDynamicBase(${name}, ${label}, ${options}, 'required')}"></th:block>
     </div>
 
 	<th:block th:fragment="multiSelectionTextInputBase(name, label, className)" class="form-group">
@@ -155,11 +155,11 @@
     </th:block>
 
 	<div th:fragment="multiSelectionTextInput(name, label)" class="form-group">
-		<th:block th:replace="fragments/form :: multiSelectionTextInputBase(${name}, ${label}, null)"></th:block>
+		<th:block th:replace="~{fragments/form :: multiSelectionTextInputBase(${name}, ${label}, null)}"></th:block>
     </div>
     
 	<div th:fragment="multiSelectionTextInput*(name, label)" class="form-group">
-		<th:block th:replace="fragments/form :: multiSelectionTextInputBase(${name}, ${label}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/form :: multiSelectionTextInputBase(${name}, ${label}, 'required')}"></th:block>
     </div>
 
 	<div th:fragment="textAreaInput(name, label, placeholder, value)" class="form-group">
@@ -179,11 +179,11 @@
     </th:block>
 
 	<div th:fragment="monthInput(name, label, value, maxValue, enableMonth)" class="form-group">
-		<th:block th:replace="fragments/form :: monthInputBase(${name}, ${label}, ${value}, ${maxValue}, ${enableMonth}, null)"></th:block>
+		<th:block th:replace="~{fragments/form :: monthInputBase(${name}, ${label}, ${value}, ${maxValue}, ${enableMonth}, null)}"></th:block>
     </div>
 
 	<div th:fragment="monthInput*(name, label, value, maxValue, enableMonth)" class="form-group">
-		<th:block th:replace="fragments/form :: monthInputBase(${name}, ${label}, ${value}, ${maxValue}, ${enableMonth}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/form :: monthInputBase(${name}, ${label}, ${value}, ${maxValue}, ${enableMonth}, 'required')}"></th:block>
     </div>
 
 	<div th:fragment="dateInputBase(name, label, value, className)" class="form-group">
@@ -194,11 +194,11 @@
     </div>
 
 	<div th:fragment="dateInput(name, label, value)" class="form-group">
-		<th:block th:replace="fragments/form :: dateInputBase(${name}, ${label}, ${value}, null)"></th:block>
+		<th:block th:replace="~{fragments/form :: dateInputBase(${name}, ${label}, ${value}, null)}"></th:block>
     </div>
 
 	<div th:fragment="dateInput*(name, label, value)" class="form-group">
-		<th:block th:replace="fragments/form :: dateInputBase(${name}, ${label}, ${value}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/form :: dateInputBase(${name}, ${label}, ${value}, 'required')}"></th:block>
     </div>
 
 	<th:block th:fragment="checkInputBase(name, label, label2, value, className)" class="form-group">
@@ -208,11 +208,11 @@
     </th:block>
 
 	<div th:fragment="checkInput(name, label, label2, value)" class="form-group">
-		<th:block th:replace="fragments/form :: checkInputBase(${name}, ${label}, ${label2}, ${value}, null)"></th:block>
+		<th:block th:replace="~{fragments/form :: checkInputBase(${name}, ${label}, ${label2}, ${value}, null)}"></th:block>
     </div>
 
 	<div th:fragment="checkInput*(name, label, label2, value)" class="form-group">
-		<th:block th:replace="fragments/form :: checkInputBase(${name}, ${label}, ${label2}, ${value}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/form :: checkInputBase(${name}, ${label}, ${label2}, ${value}, 'required')}"></th:block>
     </div>
 
 </html>

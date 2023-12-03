@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
     <th:block th:fragment="all">
-		<th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
+		<th:block th:replace="~{fragments/buttons :: interactiveDeletionProcess}" />
 		<script type="text/javascript" th:src="@{/js/labmanager/formdynlist.js}"></script>
 	</th:block>
 
@@ -23,11 +23,11 @@
     </div>
 
 	<div th:fragment="dynamicDataList(name, label, addLabel)" class="form-group">
-		<th:block th:replace="fragments/formdynlist :: dynamicDataListBase(${name}, ${label}, ${addLabel}, null)"></th:block>
+		<th:block th:replace="~{fragments/formdynlist :: dynamicDataListBase(${name}, ${label}, ${addLabel}, null)}"></th:block>
     </div>
 
 	<div th:fragment="dynamicDataList*(name, label, addLabel)" class="form-group">
-		<th:block th:replace="fragments/formdynlist :: dynamicDataListBase(${name}, ${label}, ${addLabel}, 'required')"></th:block>
+		<th:block th:replace="~{fragments/formdynlist :: dynamicDataListBase(${name}, ${label}, ${addLabel}, 'required')}"></th:block>
     </div>
 
 </html>

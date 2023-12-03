@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs"/>
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
 
-<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="~{fragments/table :: adminTableDefinition(${changeEnabled})}"/>
 
-<th:block th:replace="fragments/nav :: personListBar"/>
+<th:block th:replace="~{fragments/nav :: personListBar}"/>
 
 <a id="btAddPerson" class="btn btn-warning mt-4 pr-4 pl-4"
    th:if="${changeEnabled}" th:utext="#{html.AddPerson}"
    th:href="${URLS_edit}"></a>
 
-<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
     <thead>
         <th th:text="#{html.Id}"></th>
         <th th:text="#{html.Vcard}"></th>
@@ -119,12 +119,12 @@
             	<th:block th:if="${person.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>
             	<th:block th:unless="${person.validated}"><i style="color:red" class="fa-solid fa-triangle-exclamation">A</i></th:block>
             </td>
-            <td th:replace="fragments/table :: adminToolButtons(${person.id}, ${person.fullName},
+            <td th:replace="~{fragments/table :: adminToolButtons(${person.id}, ${person.fullName},
             		#{html.EditPerson1(${person.fullName})},
             		#{html.DeletePerson1(${person.fullName})},
             		~{::.admin-tool-buttons},
             		dbId, dbId, dbId,
-            		@{/getPersonData(dbId=${person.id})} )">
+            		@{/getPersonData(dbId=${person.id})} )}">
             	<a th:href="@{/membershipEditor(personId=${person.id})}"
 				   th:if="${changeEnabled}"
 				   class="noLink admin-tool-buttons">

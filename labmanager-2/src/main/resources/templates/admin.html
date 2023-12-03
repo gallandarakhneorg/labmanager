@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs-with-bundles}"/>
 
 <div th:if="${helpUrl != null}" class="helpbutton">
   <a th:href="${helpUrl}" class="noLink" target="_blank"><span class="fa-solid fa-circle-question"></span></a>

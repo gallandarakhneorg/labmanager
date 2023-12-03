@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs" />
-<th:block th:replace="fragments/form :: formLibs" />
+<th:block th:replace="~{fragments/general :: allBaseLibs}" />
+<th:block th:replace="~{fragments/form :: formLibs}" />
 
 <th:block th:if="${conference != null}">
-	<th:block th:replace="fragments/nav :: conferenceListBar*(#{html.EditConference1(${conference.nameOrAcronym})})"/>
+	<th:block th:replace="~{fragments/nav :: conferenceListBar*(#{html.EditConference1(${conference.nameOrAcronym})})}"/>
 </th:block>
 <th:block th:if="${conference == null}">
-	<th:block th:replace="fragments/nav :: conferenceListBar*(#{html.AddConference})"/>
+	<th:block th:replace="~{fragments/nav :: conferenceListBar*(#{html.AddConference})}"/>
 </th:block>
 
-<form th:replace="fragments/form :: entityForm(conference, ${conference == null ? '' : conference.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.ConferenceSavingError}, ~{::.form-group})">
-	<div class="form-group" th:replace="fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderConferenceAcronym}, ${conference != null ? conference.acronym : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderConferenceName}, ${conference != null ? conference.name : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(publisher, #{html.Publisher}, #{html.PlaceHolderPublisher}, ${conference != null ? conference.publisher : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(isbn, #{html.ISBN}, #{html.PlaceHolderISBN}, ${conference != null ? conference.getISBN() : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(issn, #{html.ISSN}, #{html.PlaceHolderISSN}, ${conference != null ? conference.getISSN() : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(conferenceUrl, #{html.ConferenceURL}, #{html.PlaceHolderURL}, ${conference != null ? conference.conferenceURL : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(coreId, #{html.CoreId}, #{html.PlaceHolderIdentifier}, ${conference != null ? conference.coreId : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput(openAccess, #{html.OpenAccess}, ~{::option#option-openaccess})">
+<form th:replace="~{fragments/form :: entityForm(conference, ${conference == null ? '' : conference.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.ConferenceSavingError}, ~{::.form-group})}">
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderConferenceAcronym}, ${conference != null ? conference.acronym : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(name, #{html.Name}, #{html.PlaceHolderConferenceName}, ${conference != null ? conference.name : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(publisher, #{html.Publisher}, #{html.PlaceHolderPublisher}, ${conference != null ? conference.publisher : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(isbn, #{html.ISBN}, #{html.PlaceHolderISBN}, ${conference != null ? conference.getISBN() : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(issn, #{html.ISSN}, #{html.PlaceHolderISSN}, ${conference != null ? conference.getISSN() : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(conferenceUrl, #{html.ConferenceURL}, #{html.PlaceHolderURL}, ${conference != null ? conference.conferenceURL : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(coreId, #{html.CoreId}, #{html.PlaceHolderIdentifier}, ${conference != null ? conference.coreId : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: comboInput(openAccess, #{html.OpenAccess}, ~{::option#option-openaccess})}">
 		<option id="option-openaccess"
 		        th:selected="${conference == null || conference.openAccess == null}"
 		        value=""
@@ -32,7 +32,7 @@
 		        value="false"
 		        th:utext="#{html.NoOpenAccessConference}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: comboInput(enclosingConference, #{html.EnclosingConference}, ~{::option#option-encconf})">
+	<div class="form-group" th:replace="~{fragments/form :: comboInput(enclosingConference, #{html.EnclosingConference}, ~{::option#option-encconf})}">
 		<option id="option-encconf"
 		        th:selected="${conference == null || conference.enclosingConference == null}"
 		        value="0" th:utext="#{html.NoEnclosingConference}"></option>
@@ -42,7 +42,7 @@
 		        th:value="${otherConference.id}"
 		        th:utext="${otherConference.acronym + ' - ' + otherConference.name}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedConference}, #{html.ValidatedConference}, ${conference != null ? conference.validated : false})"></div>
+	<div class="form-group" th:replace="~{fragments/form :: checkInput(validated, #{html.ValidatedConference}, #{html.ValidatedConference}, ${conference != null ? conference.validated : false})}"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
 $(document).ready(function () {

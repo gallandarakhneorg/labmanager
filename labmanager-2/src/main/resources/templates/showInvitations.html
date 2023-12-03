@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:unless="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
 </th:block>
 <th:block th:if="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs-embedded}"/>
 </th:block>
-<th:block th:replace="fragments/table :: publicTable"/>
+<th:block th:replace="~{fragments/table :: publicTable}"/>
 <th:block th:if="${editionUrl != null}">
 	<a th:href="${editionUrl}" class="btn btn-warning mt-4 pr-4 pl-4"><span class="fa-solid fa-pen"></span><th:block th:utext="#{html.ChangeInvitations}"></th:block></a>
 </th:block>

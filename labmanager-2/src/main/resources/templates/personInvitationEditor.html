@@ -1,32 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs" />
-<th:block th:replace="fragments/form :: formLibs" />
-<th:block th:replace="fragments/buttons :: ajaxButtons" />
-<th:block th:replace="fragments/buttons :: waitButtons" />
-<th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
-<th:block th:replace="fragments/formselect2 :: all" />
+<th:block th:replace="~{fragments/general :: allBaseLibs}" />
+<th:block th:replace="~{fragments/form :: formLibs}" />
+<th:block th:replace="~{fragments/buttons :: ajaxButtons}" />
+<th:block th:replace="~{fragments/buttons :: waitButtons}" />
+<th:block th:replace="~{fragments/buttons :: interactiveDeletionProcess}" />
+<th:block th:replace="~{fragments/formselect2 :: all}" />
 
-<th:block th:replace="fragments/nav :: personListBar*(#{html.EditInvitations(${person.fullName})})"/>
+<th:block th:replace="~{fragments/nav :: personListBar*(#{html.EditInvitations(${person.fullName})})}"/>
 
 <form id="form">
 	<button id="btAdd" class="btn btn-warning mt-4 pr-4 pl-4"
 		th:if="${changeEnabled}" th:utext="#{html.AddInvitation}"></button>
 	<th:block th:if="${changeEnabled}">
 		<div id="new-invitation-input-area" class="form-super-group form-super-group-new" style="display:none">
-			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(guest_new, #{html.Guest})"></div>
-			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(inviter_new, #{html.Inviter})"></div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(type_new, #{html.InvitationType}, ~{::option#option-type-new})">
+			<div class="form-group" th:replace="~{fragments/form :: multiSelectionTextInput*(guest_new, #{html.Guest})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: multiSelectionTextInput*(inviter_new, #{html.Inviter})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(type_new, #{html.InvitationType}, ~{::option#option-type-new})}">
 				<option id="option-type-new"
 				        th:each="type : ${T(fr.ciadlab.labmanager.entities.invitation.PersonInvitationType).values}"
 				        th:value="${type.name}"
 				        th:utext="${type.label}"></option>
 			</div>
-			<div class="form-group" th:replace="fragments/form :: dateInput(startDate_new, #{html.StartDate},'')"></div>
-			<div class="form-group" th:replace="fragments/form :: dateInput(endDate_new, #{html.EndDate},'')"></div>
-			<div class="form-group" th:replace="fragments/form :: textInput*(title_new, #{html.Title}, #{html.PlaceHolderPersonInvitationTitle},'')"></div>
-			<div class="form-group" th:replace="fragments/form :: textInput*(university_new, #{html.University}, #{html.PlaceHolderUniversityName},'')"></div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(country_new, #{html.Country}, ~{::option#option-country-new})">
+			<div class="form-group" th:replace="~{fragments/form :: dateInput(startDate_new, #{html.StartDate},'')}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: dateInput(endDate_new, #{html.EndDate},'')}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: textInput*(title_new, #{html.Title}, #{html.PlaceHolderPersonInvitationTitle},'')}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: textInput*(university_new, #{html.University}, #{html.PlaceHolderUniversityName},'')}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(country_new, #{html.Country}, ~{::option#option-country-new})}">
 				<option id="option-country-new"
 				        th:each="country : ${T(fr.ciadlab.labmanager.utils.country.CountryCode).values}"
 				        th:selected="${defaultCountry == country}"
@@ -40,20 +40,20 @@
 	</th:block>
 	<th:block th:each="invitation : ${sortedInvitations}">
 		<div th:id="${'editorblock' + invitation.id}" class="form-super-group form-super-group-active">
-			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(${'guest_' + invitation.id}, #{html.Guest})"></div>
-			<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(${'inviter_' + invitation.id}, #{html.Inviter})"></div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(${'type_' + invitation.id}, #{html.InvitationType}, ~{::option#option-type})">
+			<div class="form-group" th:replace="~{fragments/form :: multiSelectionTextInput*(${'guest_' + invitation.id}, #{html.Guest})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: multiSelectionTextInput*(${'inviter_' + invitation.id}, #{html.Inviter})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(${'type_' + invitation.id}, #{html.InvitationType}, ~{::option#option-type})}">
 				<option id="option-type"
 				        th:each="type : ${T(fr.ciadlab.labmanager.entities.invitation.PersonInvitationType).values}"
 				        th:selected="${invitation.type == type}"
 				        th:value="${type.name}"
 				        th:utext="${type.label}"></option>
 			</div>
-			<div class="form-group" th:replace="fragments/form :: dateInput(${'startDate_' + invitation.id}, #{html.StartDate}, ${invitation.startDate == null ? '' : invitation.startDate.toString})"></div>
-			<div class="form-group" th:replace="fragments/form :: dateInput(${'endDate_' + invitation.id}, #{html.EndDate}, ${invitation.endDate == null ? '' : invitation.endDate.toString})"></div>
-			<div class="form-group" th:replace="fragments/form :: textInput*(${'title_' + invitation.id}, #{html.Title}, #{html.PlaceHolderPersonInvitationTitle}, ${invitation.title})"></div>
-			<div class="form-group" th:replace="fragments/form :: textInput*(${'university_' + invitation.id}, #{html.University}, #{html.PlaceHolderUniversityName}, ${invitation.university})"></div>
-			<div class="form-group" th:replace="fragments/form :: comboInput*(${'country_' + invitation.id}, #{html.Country}, ~{::option#option-country})">
+			<div class="form-group" th:replace="~{fragments/form :: dateInput(${'startDate_' + invitation.id}, #{html.StartDate}, ${invitation.startDate == null ? '' : invitation.startDate.toString})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: dateInput(${'endDate_' + invitation.id}, #{html.EndDate}, ${invitation.endDate == null ? '' : invitation.endDate.toString})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: textInput*(${'title_' + invitation.id}, #{html.Title}, #{html.PlaceHolderPersonInvitationTitle}, ${invitation.title})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: textInput*(${'university_' + invitation.id}, #{html.University}, #{html.PlaceHolderUniversityName}, ${invitation.university})}"></div>
+			<div class="form-group" th:replace="~{fragments/form :: comboInput*(${'country_' + invitation.id}, #{html.Country}, ~{::option#option-country})">
 				<option id="option-country"
 				        th:each="country : ${T(fr.ciadlab.labmanager.utils.country.CountryCode).values}"
 				        th:selected="${invitation.country == country}"

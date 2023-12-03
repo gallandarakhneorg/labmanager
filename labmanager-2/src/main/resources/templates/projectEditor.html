@@ -1,101 +1,101 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs" />
-<th:block th:replace="fragments/form :: formLibs" />
-<th:block th:replace="fragments/formfileinput :: all" />
-<th:block th:replace="fragments/formdynlist :: all" />
+<th:block th:replace="~{fragments/general :: allBaseLibs}" />
+<th:block th:replace="~{fragments/form :: formLibs}" />
+<th:block th:replace="~{fragments/formfileinput :: all}" />
+<th:block th:replace="~{fragments/formdynlist :: all}" />
 
 <th:block th:if="${project != null}">
-	<th:block th:replace="fragments/nav :: projectListBar*(#{html.EditProject1(${project.acronymOrScientificTitle})})"/>
+	<th:block th:replace="~{fragments/nav :: projectListBar*(#{html.EditProject1(${project.acronymOrScientificTitle})})}"/>
 </th:block>
 <th:block th:if="${project == null}">
-	<th:block th:replace="fragments/nav :: projectListBar*(#{html.AddProject})"/>
+	<th:block th:replace="~{fragments/nav :: projectListBar*(#{html.AddProject})}"/>
 </th:block>
 
-<form th:replace="fragments/form :: entityForm(project, ${project == null ? '' : project.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.ProjectSavingError}, ~{::.form-group})">
-	<div class="form-group" th:replace="fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderProjectAcronym}, ${project != null ? project.acronym : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(scientificTitle, #{html.ScientificTitle}, #{html.PlaceHolderProjectScientificTitle}, ${project != null ? project.scientificTitle : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: dateInput*(startDate, #{html.StartDate}, ${formattedStartDate})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(duration, #{html.Duration}, #{html.PlaceHolderMonthDuration}, ${project != null ? project.duration : '0'})"></div>
-	<div class="form-group" th:replace="fragments/form :: textAreaInput(description, #{html.Description}, #{html.PlaceHolderProjectDescription}, ${project != null ? project.description : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(globalBudget, #{html.ProjectGlobalBudget}, #{html.PlaceHolderProjectGlobalBudget}, ${project != null ? project.globalBudget : '0'})"></div>
-	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(localOrganizationBudgets, #{html.ProjectLocalOrganizationBudget}, #{html.AddProjectBudget})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(coordinator, #{html.ProjectCoordinator}, ~{::option#option-coordinator})">
+<form th:replace="~{fragments/form :: entityForm(project, ${project == null ? '' : project.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.ProjectSavingError}, ~{::.form-group})}">
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(acronym, #{html.Acronym}, #{html.PlaceHolderProjectAcronym}, ${project != null ? project.acronym : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(scientificTitle, #{html.ScientificTitle}, #{html.PlaceHolderProjectScientificTitle}, ${project != null ? project.scientificTitle : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: dateInput*(startDate, #{html.StartDate}, ${formattedStartDate})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(duration, #{html.Duration}, #{html.PlaceHolderMonthDuration}, ${project != null ? project.duration : '0'})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textAreaInput(description, #{html.Description}, #{html.PlaceHolderProjectDescription}, ${project != null ? project.description : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(globalBudget, #{html.ProjectGlobalBudget}, #{html.PlaceHolderProjectGlobalBudget}, ${project != null ? project.globalBudget : '0'})}"></div>
+	<div class="form-group" th:replace="~{fragments/formdynlist :: dynamicDataList*(localOrganizationBudgets, #{html.ProjectLocalOrganizationBudget}, #{html.AddProjectBudget})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(coordinator, #{html.ProjectCoordinator}, ~{::option#option-coordinator})}">
 		<option id="option-coordinator"
 		        th:each="coordinator : ${organizations}"
 		        th:selected="${project != null && project.coordinator != null && project.coordinator.id == coordinator.id}"
 		        th:value="${coordinator.id}"
 		        th:utext="${coordinator.acronym + ' - ' + coordinator.name}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(localOrganization, #{html.ProjectLocalOrganization}, ~{::option#option-localOrganization})">
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(localOrganization, #{html.ProjectLocalOrganization}, ~{::option#option-localOrganization})}">
 		<option id="option-localOrganization"
 		        th:each="localOrganization : ${organizations}"
 		        th:selected="${(project == null && defaultLocalOrganization != null && localOrganization.id == defaultLocalOrganization.id) || (project != null && project.localOrganization != null && project.localOrganization.id == localOrganization.id)}"
 		        th:value="${localOrganization.id}"
 		        th:utext="${localOrganization.acronym + ' - ' + localOrganization.name}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: comboInput(superOrganization, #{html.ProjectSuperOrganization}, ~{::option#option-superOrganization})">
+	<div class="form-group" th:replace="~{fragments/form :: comboInput(superOrganization, #{html.ProjectSuperOrganization}, ~{::option#option-superOrganization})}">
 		<option id="option-superOrganization"
 		        th:each="superOrganization : ${organizations}"
 		        th:selected="${(project == null && defaultSuperOrganization != null && superOrganization.id == defaultSuperOrganization.id) || (project != null && project.superOrganization != null && project.superOrganization.id == superOrganization.id)}"
 		        th:value="${superOrganization.id}"
 		        th:utext="${superOrganization.acronym + ' - ' + superOrganization.name}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(learOrganization, #{html.ProjectLearOrganization}, ~{::option#option-learOrganization})">
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(learOrganization, #{html.ProjectLearOrganization}, ~{::option#option-learOrganization})}">
 		<option id="option-learOrganization"
 		        th:each="learOrganization : ${organizations}"
 		        th:selected="${(project == null && defaultLearOrganization != null && learOrganization.id == defaultLearOrganization.id) || (project != null && project.learOrganization != null && project.learOrganization.id == learOrganization.id)}"
 		        th:value="${learOrganization.id}"
 		        th:utext="${learOrganization.acronym + ' - ' + learOrganization.name}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(otherPartners, #{html.ProjectOtherPartners}, #{html.AddProjectPartner})"></div>
-	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(participants, #{html.ProjectParticipants}, #{html.AddProjectParticipant})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(confidential, #{html.ProjectConfidential}, #{html.ProjectConfidential}, ${project != null ? project.confidential : false})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(status, #{html.ProjectStatus}, ~{::option#option-status})">
+	<div class="form-group" th:replace="~{fragments/formdynlist :: dynamicDataList(otherPartners, #{html.ProjectOtherPartners}, #{html.AddProjectPartner})}"></div>
+	<div class="form-group" th:replace="~{fragments/formdynlist :: dynamicDataList(participants, #{html.ProjectParticipants}, #{html.AddProjectParticipant})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: checkInput(confidential, #{html.ProjectConfidential}, #{html.ProjectConfidential}, ${project != null ? project.confidential : false})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(status, #{html.ProjectStatus}, ~{::option#option-status})}">
 		<option id="option-status"
 		        th:each="status : ${sortedStatus}"
 		        th:selected="${project != null && project.status == status}"
 		        th:value="${status.name}"
 		        th:utext="${status.getLabel()}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(contractType, #{html.ProjectContractType}, ~{::option#option-contracttype})">
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(contractType, #{html.ProjectContractType}, ~{::option#option-contracttype})}">
 		<option id="option-contracttype"
 		        th:each="type : ${sortedContractTypes}"
 		        th:selected="${project != null && project.contractType == type}"
 		        th:value="${type.name}"
 		        th:utext="${type.ordinal > 0 ? type.name() + ' - ' + type.getLabel() : type.getLabel()}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(openSource, #{html.OpenSource}, #{html.OpenSource}, ${project != null ? project.openSource : false})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(activityType, #{html.ProjectActivityType}, ~{::option#option-activitytype})">
+	<div class="form-group" th:replace="~{fragments/form :: checkInput(openSource, #{html.OpenSource}, #{html.OpenSource}, ${project != null ? project.openSource : false})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(activityType, #{html.ProjectActivityType}, ~{::option#option-activitytype})}">
 		<option id="option-activitytype"
 		        th:each="type : ${sortedActivityTypes}"
 		        th:selected="${project != null && project.activityType == type}"
 		        th:value="${type.name}"
 		        th:utext="${type.getLabel()}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: comboInput*(trl, #{html.ProjectTrl}, ~{::option#option-trl})">
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(trl, #{html.ProjectTrl}, ~{::option#option-trl})}">
 		<option id="option-trl"
 		        th:each="level : ${sortedTrls}"
 		        th:selected="${project != null && project.TRL == level}"
 		        th:value="${level.name}"
 		        th:utext="${level.name + ' - ' + level.getLabel()}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(scientificAxes, #{html.ProjectScientificAxes}, #{html.AddProjectScientificAxis})"></div>
-	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToScientificRequirements, #{html.ProjectScientificRequirements})"></div>
-	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadImage(pathToLogo, #{html.ProjectLogo})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(projectURL, #{html.ProjectURL}, #{html.PlaceHolderURL}, ${project != null ? project.projectURL : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput(webPageNaming, #{html.ProjectWebPageNaming}, ~{::option#option-webpagenaming})">
+	<div class="form-group" th:replace="~{fragments/formdynlist :: dynamicDataList*(scientificAxes, #{html.ProjectScientificAxes}, #{html.AddProjectScientificAxis})}"></div>
+	<div class="form-group" th:replace="~{fragments/formfileinput :: fileUploadPdf(pathToScientificRequirements, #{html.ProjectScientificRequirements})}"></div>
+	<div class="form-group" th:replace="~{fragments/formfileinput :: fileUploadImage(pathToLogo, #{html.ProjectLogo})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(projectURL, #{html.ProjectURL}, #{html.PlaceHolderURL}, ${project != null ? project.projectURL : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: comboInput(webPageNaming, #{html.ProjectWebPageNaming}, ~{::option#option-webpagenaming})}">
 		<option id="option-webpagenaming"
 		        th:each="naming : ${T(fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming).values}"
 		        th:selected="${(project == null && naming == defaultNaming) || (project != null && project.webPageNaming == naming)}"
 		        th:value="${naming.name}"
 		        th:utext="${naming.getLabel()}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadImages(pathsToImages, #{html.ProjectAssociatedImages})"></div>
-	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList(videoURLs, #{html.ProjectVideoURLs}, #{html.AddVideoURL})"></div>
-	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPpt(pathToPowerpoint, #{html.ProjectPowerPoint})"></div>
-	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToPressDocument, #{html.ProjectPressDocument})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedProject}, #{html.ValidatedProject}, ${project != null ? project.validated : false})"></div>
+	<div class="form-group" th:replace="~{fragments/formfileinput :: fileUploadImages(pathsToImages, #{html.ProjectAssociatedImages})}"></div>
+	<div class="form-group" th:replace="~{fragments/formdynlist :: dynamicDataList(videoURLs, #{html.ProjectVideoURLs}, #{html.AddVideoURL})}"></div>
+	<div class="form-group" th:replace="~{fragments/formfileinput :: fileUploadPpt(pathToPowerpoint, #{html.ProjectPowerPoint})}"></div>
+	<div class="form-group" th:replace="~{fragments/formfileinput :: fileUploadPdf(pathToPressDocument, #{html.ProjectPressDocument})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: checkInput(validated, #{html.ValidatedProject}, #{html.ValidatedProject}, ${project != null ? project.validated : false})}"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
 const ALL_ORGANIZATIONS = new Map();

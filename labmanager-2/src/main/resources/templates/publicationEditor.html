@@ -1,81 +1,81 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs" />
-<th:block th:replace="fragments/form :: formLibs" />
-<th:block th:replace="fragments/form :: dynamicInputFunctions" />
-<th:block th:replace="fragments/gravatar :: gravatarPicture" />
-<th:block th:replace="fragments/formselect2 :: all" />
-<th:block th:replace="fragments/formfileinput :: all" />
-<th:block th:replace="fragments/formdynlist :: all" />
+<th:block th:replace="~{fragments/general :: allBaseLibs}" />
+<th:block th:replace="~{fragments/form :: formLibs}" />
+<th:block th:replace="~{fragments/form :: dynamicInputFunctions}" />
+<th:block th:replace="~{fragments/gravatar :: gravatarPicture}" />
+<th:block th:replace="~{fragments/formselect2 :: all}" />
+<th:block th:replace="~{fragments/formfileinput :: all}" />
+<th:block th:replace="~{fragments/formdynlist :: all}" />
 
 <th:block th:if="${publication != null}">
-	<th:block th:replace="fragments/nav :: publicationListBar*(#{html.EditPublication1(${publication.title})})"/>
+	<th:block th:replace="~{fragments/nav :: publicationListBar*(#{html.EditPublication1(${publication.title})})}"/>
 </th:block>
 <th:block th:if="${publication == null}">
-	<th:block th:replace="fragments/nav :: publicationListBar*(#{html.AddPublication})"/>
+	<th:block th:replace="~{fragments/nav :: publicationListBar*(#{html.AddPublication})}"/>
 </th:block>
 
-<form th:replace="fragments/form :: entityForm(publication, ${publication == null ? '' : publication.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.GlobalIndicatorsSavingError}, ~{::.form-group})">
-	<div class="form-group" th:replace="fragments/form :: comboInput*(type, #{html.Type}, ~{::option#option-type})">
+<form th:replace="~{fragments/form :: entityForm(publication, ${publication == null ? '' : publication.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.GlobalIndicatorsSavingError}, ~{::.form-group})}">
+	<div class="form-group" th:replace="~{fragments/form :: comboInput*(type, #{html.Type}, ~{::option#option-type})}">
 		<option id="option-type"
 		        th:each="type : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values}"
 		        th:selected="${(publication == null && defaultPublicationType == type) || (publication != null && publication.type == type)}"
 		        th:value="${type.name + '/' + type.instanceType.simpleName}"
 		        th:utext="${type.getLabel() + ' ' + type.categories.toString()}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: textInput*(title, #{html.Title}, #{html.PlaceHolderTitle}, ${shared_title ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: multiSelectionTextInput*(authors, #{html.Authors})"></div>
-	<div class="form-group" th:replace="fragments/form :: monthInput*(publicationDate, #{html.PublicationDate}, ${dateYearMonth}, ${maxDateYearMonth}, ${dateYearMonth_enableMonth})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInputDynamic*(journal, #{html.Journal}, ~{::option#option-journal})">
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(title, #{html.Title}, #{html.PlaceHolderTitle}, ${shared_title ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: multiSelectionTextInput*(authors, #{html.Authors})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: monthInput*(publicationDate, #{html.PublicationDate}, ${dateYearMonth}, ${maxDateYearMonth}, ${dateYearMonth_enableMonth})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: comboInputDynamic*(journal, #{html.Journal}, ~{::option#option-journal})}">
 		<option id="option-journal"
 		        th:each="journal : ${#lists.sort(journals, T(fr.ciadlab.labmanager.entities.EntityUtils).getPreferredJournalComparator())}"
 		        th:selected="${journalIdentifier != null && journal.id == journalIdentifier.intValue()}"
 		        th:value="${journal.id}"
 		        th:utext="${journal.journalName + ' - ' + journal.publisher}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: comboInputDynamic*(conference, #{html.ScientificEventName}, ~{::option#option-conference})">
+	<div class="form-group" th:replace="~{fragments/form :: comboInputDynamic*(conference, #{html.ScientificEventName}, ~{::option#option-conference})}">
 		<option id="option-conference"
 		        th:each="conference : ${#lists.sort(conferences, T(fr.ciadlab.labmanager.entities.EntityUtils).getPreferredConferenceComparator())}"
 		        th:selected="${conferenceIdentifier != null && conference.id == conferenceIdentifier.intValue()}"
 		        th:value="${conference.id}"
 		        th:utext="${conference.acronym + ' - ' + conference.name}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic*(conferenceOccurrenceNumber, #{html.ConferenceOccurrenceNumber}, #{html.PlaceHolderPositiveInteger}, ${shared_conferenceOccurrenceNumber ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic*(bookTitle, #{html.BookTitle}, #{html.PlaceHolderPublicationBookTitle}, ${shared_bookTitle ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic*(howPublished, #{html.HowPublished}, #{html.PlaceHolderPublicationHowPublished}, ${shared_howPublished ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(chapterNumber, #{html.ChapterNumber}, #{html.PlaceHolderPublicationChapterNumber}, ${shared_chapterNumber ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(documentType, #{html.DocumentType}, #{html.PlaceHolderPublicationDocumentType}, ${shared_documentType ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(edition, #{html.Edition}, #{html.PlaceHolderPublicationEdition}, ${shared_edition ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(series, #{html.Series}, #{html.PlaceHolderPublicationSeries}, ${shared_series ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(volume, #{html.Volume}, #{html.PlaceHolderPublicationVolume}, ${shared_volume ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(number, #{html.Number}, #{html.PlaceHolderPublicationNumber}, ${shared_number ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(pages, #{html.Pages}, #{html.PlaceHolderPages}, ${shared_pages ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(editors, #{html.Editors}, #{html.PlaceHolderEditors}, ${shared_editors ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(organization, #{html.Organization}, #{html.PlaceHolderOrganizationName}, ${shared_organization ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(institution, #{html.Institution}, #{html.PlaceHolderInstitution}, ${shared_institution ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(doi, #{html.DOI}, #{html.PlaceHolderDOI}, ${shared_doi ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(halId, #{html.HalId}, #{html.PlaceHolderIdentifier}, ${publication != null ? publication.halId : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(publisher, #{html.Publisher}, #{html.PlaceHolderPublisher}, ${shared_publisher ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(address, #{html.Address}, #{html.PlaceHolderAddress}, ${shared_address ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(isbn, #{html.ISBN}, #{html.PlaceHolderISBN}, ${shared_isbn ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInputDynamic(issn, #{html.ISSN}, #{html.PlaceHolderISSN}, ${shared_issn ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textAreaInput(abstractText, #{html.AbstractText}, #{html.PlaceHolderAbstractText}, ${shared_abstractText ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(keywords, #{html.Keywords0}, #{html.PlaceHolderKeywords}, ${shared_keywords ?: ''})"></div>
-	<div class="form-group" th:replace="fragments/formdynlist :: dynamicDataList*(scientificAxes, #{html.PublicationScientificAxes}, #{html.AddPublicationScientificAxis})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(extraURL, #{html.ExtraURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.extraURL : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(dblpURL, #{html.DblpURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.dblpURL : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: textInput(videoURL, #{html.VideoURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.videoURL : ''})"></div>
-	<div class="form-group" th:replace="fragments/form :: comboInput(majorLanguage, #{html.Language}, ~{::option#option-language})">
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic*(conferenceOccurrenceNumber, #{html.ConferenceOccurrenceNumber}, #{html.PlaceHolderPositiveInteger}, ${shared_conferenceOccurrenceNumber ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic*(bookTitle, #{html.BookTitle}, #{html.PlaceHolderPublicationBookTitle}, ${shared_bookTitle ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic*(howPublished, #{html.HowPublished}, #{html.PlaceHolderPublicationHowPublished}, ${shared_howPublished ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(chapterNumber, #{html.ChapterNumber}, #{html.PlaceHolderPublicationChapterNumber}, ${shared_chapterNumber ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(documentType, #{html.DocumentType}, #{html.PlaceHolderPublicationDocumentType}, ${shared_documentType ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(edition, #{html.Edition}, #{html.PlaceHolderPublicationEdition}, ${shared_edition ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(series, #{html.Series}, #{html.PlaceHolderPublicationSeries}, ${shared_series ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(volume, #{html.Volume}, #{html.PlaceHolderPublicationVolume}, ${shared_volume ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(number, #{html.Number}, #{html.PlaceHolderPublicationNumber}, ${shared_number ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(pages, #{html.Pages}, #{html.PlaceHolderPages}, ${shared_pages ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(editors, #{html.Editors}, #{html.PlaceHolderEditors}, ${shared_editors ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(organization, #{html.Organization}, #{html.PlaceHolderOrganizationName}, ${shared_organization ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(institution, #{html.Institution}, #{html.PlaceHolderInstitution}, ${shared_institution ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(doi, #{html.DOI}, #{html.PlaceHolderDOI}, ${shared_doi ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(halId, #{html.HalId}, #{html.PlaceHolderIdentifier}, ${publication != null ? publication.halId : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(publisher, #{html.Publisher}, #{html.PlaceHolderPublisher}, ${shared_publisher ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(address, #{html.Address}, #{html.PlaceHolderAddress}, ${shared_address ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(isbn, #{html.ISBN}, #{html.PlaceHolderISBN}, ${shared_isbn ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInputDynamic(issn, #{html.ISSN}, #{html.PlaceHolderISSN}, ${shared_issn ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textAreaInput(abstractText, #{html.AbstractText}, #{html.PlaceHolderAbstractText}, ${shared_abstractText ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(keywords, #{html.Keywords0}, #{html.PlaceHolderKeywords}, ${shared_keywords ?: ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/formdynlist :: dynamicDataList*(scientificAxes, #{html.PublicationScientificAxes}, #{html.AddPublicationScientificAxis})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(extraURL, #{html.ExtraURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.extraURL : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(dblpURL, #{html.DblpURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.dblpURL : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: textInput(videoURL, #{html.VideoURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.videoURL : ''})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: comboInput(majorLanguage, #{html.Language}, ~{::option#option-language}}}">
 		<option id="option-language"
 		        th:each="language : ${T(fr.ciadlab.labmanager.entities.publication.PublicationLanguage).values}"
 		        th:selected="${publication != null && shared_majorLanguage == language}"
 		        th:value="${language.name}"
 		        th:utext="${language.label}"></option>
 	</div>
-	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToDownloadablePDF, #{html.PdfDocumentFor})"></div>
-	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadPdf(pathToDownloadableAwardCertificate, #{html.AwardDocumentFor})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(manualValidationForced, #{html.ManualValidationForced}, #{html.ManualValidationForced}, ${publication != null ? publication.manualValidationForced : false})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(validated, #{html.ValidatedPublication}, #{html.ValidatedPublication}, ${publication != null ? publication.validated : false})"></div>
+	<div class="form-group" th:replace="~{fragments/formfileinput :: fileUploadPdf(pathToDownloadablePDF, #{html.PdfDocumentFor})}"></div>
+	<div class="form-group" th:replace="~{fragments/formfileinput :: fileUploadPdf(pathToDownloadableAwardCertificate, #{html.AwardDocumentFor})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: checkInput(manualValidationForced, #{html.ManualValidationForced}, #{html.ManualValidationForced}, ${publication != null ? publication.manualValidationForced : false})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: checkInput(validated, #{html.ValidatedPublication}, #{html.ValidatedPublication}, ${publication != null ? publication.validated : false})}"></div>
 </form>
 <script type="text/javascript" th:inline="javascript">
 const ALL_SCIENTIFIC_AXIS_NAMES = new Map();

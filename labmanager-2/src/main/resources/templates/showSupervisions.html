@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:unless="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs-with-bundles"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs-with-bundles}"/>
 </th:block>
 <th:block th:if="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs-embedded}"/>
 </th:block>
-<th:block th:replace="fragments/table :: publicTable"/>
+<th:block th:replace="~{fragments/table :: publicTable}"/>
 <th:block th:if="${organization != null}">
 	<span class="dropdown">
     	<button type="button" class="btn btn-labeled btn-warning dropdown-toggle" data-bs-toggle="dropdown"

@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs"/>
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
-<th:block th:replace="fragments/buttons :: ajaxButtons"/>
-<th:block th:replace="fragments/buttons :: waitButtons"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
+<th:block th:replace="~{fragments/buttons :: ajaxButtons}"/>
+<th:block th:replace="~{fragments/buttons :: waitButtons}"/>
 
-<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="~{fragments/table :: adminTableDefinition(${changeEnabled})}"/>
 
-<th:block th:replace="fragments/nav :: globalIndicatorsBar"/>
+<th:block th:replace="~{fragments/nav :: globalIndicatorsBar}"/>
 
 <button id="btResetValues" class="btn btn-warning mt-4 pr-4 pl-4" th:utext="#{html.ResetIndicatorValues}"></button>
 
-<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
 	<thead>
 		<th th:text="#{html.Id}"></th>
 		<th th:text="#{html.Name}"></th>

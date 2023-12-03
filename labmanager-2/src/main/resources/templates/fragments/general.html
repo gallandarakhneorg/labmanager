@@ -10,13 +10,13 @@
 
     <th:block th:fragment="allBaseLibs">
 		<!-- Dependencies -->
-		<th:block th:replace="fragments/general :: general"/>
-		<th:block th:replace="fragments/libs :: jquery"/>
-		<th:block th:replace="fragments/libs :: bootstrap"/>
-		<th:block th:replace="fragments/libs :: modernizr"/>
-		<th:block th:replace="fragments/libs :: fontawesome"/>
-		<th:block th:replace="fragments/libs :: jquery-plugins"/>
-		<th:block th:replace="fragments/libs :: bootstrap-icons"/>
+		<th:block th:replace="~{fragments/general :: general}"/>
+		<th:block th:replace="~{fragments/libs :: jquery}"/>
+		<th:block th:replace="~{fragments/libs :: bootstrap}"/>
+		<th:block th:replace="~{fragments/libs :: modernizr}"/>
+		<th:block th:replace="~{fragments/libs :: fontawesome}"/>
+		<th:block th:replace="~{fragments/libs :: jquery-plugins}"/>
+		<th:block th:replace="~{fragments/libs :: bootstrap-icons}"/>
 		<!-- LabManager Style and Functions -->
 		<link rel="stylesheet" th:href="@{/css/labmanager/labmanager.css}"/>
     	<script type="text/javascript" th:src="@{/js/labmanager/labmanager-scripts.js}"></script>
@@ -24,25 +24,25 @@
 
     <th:block th:fragment="allBaseLibs-with-bundles">
 		<!-- Dependencies -->
-		<th:block th:replace="fragments/general :: general"/>
-		<th:block th:replace="fragments/libs :: jquery"/>
-		<th:block th:replace="fragments/libs :: bootstrap-bundles"/>
-		<th:block th:replace="fragments/libs :: modernizr"/>
-		<th:block th:replace="fragments/libs :: fontawesome"/>
-		<th:block th:replace="fragments/libs :: jquery-plugins"/>
-		<th:block th:replace="fragments/libs :: bootstrap-icons"/>
+		<th:block th:replace="~{fragments/general :: general}"/>
+		<th:block th:replace="~{fragments/libs :: jquery}"/>
+		<th:block th:replace="~{fragments/libs :: bootstrap-bundles}"/>
+		<th:block th:replace="~{fragments/libs :: modernizr}"/>
+		<th:block th:replace="~{fragments/libs :: fontawesome}"/>
+		<th:block th:replace="~{fragments/libs :: jquery-plugins}"/>
+		<th:block th:replace="~{fragments/libs :: bootstrap-icons}"/>
 		<!-- LabManager Style and Functions -->
 		<link rel="stylesheet" th:href="@{/css/labmanager/labmanager.css}"/>
     	<script type="text/javascript" th:src="@{/js/labmanager/labmanager-scripts.js}"></script>
 	</th:block>
 
     <th:block th:fragment="allBaseLibs-embedded">
-		<th:block th:replace="fragments/libs :: bootstrap-bundles"/>
+		<th:block th:replace="~{fragments/libs :: bootstrap-bundles}"/>
 		<link rel="stylesheet" th:href="@{/css/labmanager/bootstrap.wp.css}"/>
-		<th:block th:replace="fragments/libs :: modernizr"/>
-		<th:block th:replace="fragments/libs :: fontawesome"/>
-		<th:block th:replace="fragments/libs :: jquery-plugins"/>
-		<th:block th:replace="fragments/libs :: bootstrap-icons"/>
+		<th:block th:replace="~{fragments/libs :: modernizr}"/>
+		<th:block th:replace="~{fragments/libs :: fontawesome}"/>
+		<th:block th:replace="~{fragments/libs :: jquery-plugins}"/>
+		<th:block th:replace="~{fragments/libs :: bootstrap-icons}"/>
 		<!-- LabManager Style and Functions -->
 		<link rel="stylesheet" th:href="@{/css/labmanager/labmanager.css}"/>
     	<script type="text/javascript" th:src="@{/js/labmanager/labmanager-scripts.js}"></script>

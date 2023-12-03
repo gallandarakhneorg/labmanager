@@ -1,24 +1,24 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs" />
-<th:block th:replace="fragments/form :: formLibs" />
-<th:block th:replace="fragments/formfileinput :: all" />
-<th:block th:replace="fragments/buttons :: ajaxButtons" />
-<th:block th:replace="fragments/buttons :: waitButtons" />
-<th:block th:replace="fragments/buttons :: interactiveDeletionProcess" />
-<th:block th:replace="fragments/libs :: bootstrap-datatable"/>
+<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
+<th:block th:replace="~{fragments/form :: formLibs}"/>
+<th:block th:replace="~{fragments/formfileinput :: all}"/>
+<th:block th:replace="~{fragments/buttons :: ajaxButtons}"/>
+<th:block th:replace="~{fragments/buttons :: waitButtons}"/>
+<th:block th:replace="~{fragments/buttons :: interactiveDeletionProcess}"/>
+<th:block th:replace="~{fragments/libs :: bootstrap-datatable}"/>
 
-<th:block th:replace="fragments/table :: adminTableDefinition(${changeEnabled})"/>
+<th:block th:replace="~{fragments/table :: adminTableDefinition(${changeEnabled})}"/>
 
-<th:block th:replace="fragments/nav :: simpleBar(#{html.DatabaseBibTeXToJsonExport})"/>
+<th:block th:replace="~{fragments/nav :: simpleBar(#{html.DatabaseBibTeXToJsonExport})}"/>
 
-<form th:replace="fragments/form :: genericForm2(true, #{html.GenerateJson}, ~{::.form-group})">
-	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadBibTeX(bibtexFile, #{html.ImportBibTeXFiles})"></div>
-	<div class="form-group" th:replace="fragments/form :: checkInput(downloadJson, #{html.DownloadJson}, #{html.DownloadJson}, false)"></div>
+<form th:replace="~{fragments/form :: genericForm2(true, #{html.GenerateJson}, ~{::.form-group})">
+	<div class="form-group" th:replace="~{fragments/formfileinput :: fileUploadBibTeX(bibtexFile, #{html.ImportBibTeXFiles})}"></div>
+	<div class="form-group" th:replace="~{fragments/form :: checkInput(downloadJson, #{html.DownloadJson}, #{html.DownloadJson}, false)}"></div>
 </form>
 <div id="analysisArea" style="display:none">
 	<hr/>
-	<table th:replace="fragments/table :: adminTable(~{::thead}, ~{::tbody})">
+	<table th:replace="~{fragments/table :: adminTable(~{::thead}, ~{::tbody})}">
 	    <thead>
 	        <th></th>
 	        <th th:utext="#{html.Id}"></th>

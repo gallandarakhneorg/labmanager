@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs" />
-<th:block th:replace="fragments/form :: formLibs" />
-<th:block th:replace="fragments/formfileinput :: all" />
-<th:block th:replace="fragments/buttons :: ajaxButtons" />
-<th:block th:replace="fragments/buttons :: waitButtons" />
+<th:block th:replace="~{fragments/general :: allBaseLibs}" />
+<th:block th:replace="~{fragments/form :: formLibs}" />
+<th:block th:replace="~{fragments/formfileinput :: all}" />
+<th:block th:replace="~{fragments/buttons :: ajaxButtons}" />
+<th:block th:replace="~{fragments/buttons :: waitButtons}" />
 
-<th:block th:replace="fragments/nav :: journalListBar*(#{html.UpdateJournalRankings})"/>
+<th:block th:replace="~{fragments/nav :: journalListBar*(#{html.UpdateJournalRankings})}"/>
 
-<form th:replace="fragments/form :: genericForm(false, ~{::.form-group})">
-	<div class="form-group" th:replace="fragments/form :: textInput*(referenceYear, #{html.Year}, #{html.PlaceHolderReferenceYear}, ${referenceYear})"></div>
-	<div class="form-group" th:replace="fragments/formfileinput :: fileUploadCsv(wosCsvFile, #{html.ImportWosCsvFile})"></div>
+<form th:replace="~{fragments/form :: genericForm(false, ~{::.form-group})}">
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(referenceYear, #{html.Year}, #{html.PlaceHolderReferenceYear}, ${referenceYear})}"></div>
+	<div class="form-group" th:replace="~{fragments/formfileinput :: fileUploadCsv(wosCsvFile, #{html.ImportWosCsvFile})}"></div>
 	<th:block class="form-group">
 		<hr/>
 		<div id="loadingIndicator" style="display:none">

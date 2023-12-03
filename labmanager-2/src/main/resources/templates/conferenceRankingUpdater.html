@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<th:block th:replace="fragments/general :: allBaseLibs" />
-<th:block th:replace="fragments/form :: formLibs" />
-<th:block th:replace="fragments/formfileinput :: all" />
-<th:block th:replace="fragments/buttons :: ajaxButtons" />
-<th:block th:replace="fragments/buttons :: waitButtons" />
+<th:block th:replace="~{fragments/general :: allBaseLibs}" />
+<th:block th:replace="~{fragments/form :: formLibs}" />
+<th:block th:replace="~{fragments/formfileinput :: all}" />
+<th:block th:replace="~{fragments/buttons :: ajaxButtons}" />
+<th:block th:replace="~{fragments/buttons :: waitButtons}" />
 
-<th:block th:replace="fragments/nav :: conferenceListBar*(#{html.UpdateConferenceRankings})"/>
+<th:block th:replace="~{fragments/nav :: conferenceListBar*(#{html.UpdateConferenceRankings})}"/>
 
-<form th:replace="fragments/form :: genericForm(true, ~{::.form-group})">
-	<div class="form-group" th:replace="fragments/form :: textInput*(referenceYear, #{html.Year}, #{html.PlaceHolderReferenceYear}, ${referenceYear})"></div>
+<form th:replace="~{fragments/form :: genericForm(true, ~{::.form-group})}">
+	<div class="form-group" th:replace="~{fragments/form :: textInput*(referenceYear, #{html.Year}, #{html.PlaceHolderReferenceYear}, ${referenceYear})}"></div>
 	<th:block class="form-group">
 		<hr/>
 		<div id="loadingIndicator">

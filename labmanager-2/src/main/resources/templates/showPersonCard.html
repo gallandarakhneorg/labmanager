@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <th:block th:unless="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs}"/>
 </th:block>
 <th:block th:if="${isEmbeddedPage}">
-	<th:block th:replace="fragments/general :: allBaseLibs-embedded"/>
+	<th:block th:replace="~{fragments/general :: allBaseLibs-embedded}"/>
 </th:block>
-<th:block th:replace="fragments/libs :: sweetalert"/>
-<th:block th:if="${enableQrcode}" th:replace="fragments/libs :: qrcode-js"/>
+<th:block th:replace="~{fragments/libs :: sweetalert}"/>
+<th:block th:if="${enableQrcode}" th:replace="~{fragments/libs :: qrcode-js}"/>
 <div class="row">
        <div class="card">
            <div class="card-body person-card">
@@ -52,19 +52,19 @@
 				<div class="person-card-email"
 				     th:unless="${!enableEmail || #strings.isEmpty(person.email)}">
 					<span class="fa-solid fa-at"></span>
-					<th:block th:replace="fragments/general :: obfuscatedEmail(person-card-contact-obfemail,null)"/>
+					<th:block th:replace="~{fragments/general :: obfuscatedEmail(person-card-contact-obfemail,null)}"/>
 	            	<th:block th:if="${personEditionUrl != null}"><a th:href="${personEditionUrl}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
 				</div>
 				<div class="person-card-phone person-card-officephone"
 				     th:unless="${!enableOfficePhone || #strings.isEmpty(person.officePhone)}">
 				     <span class="fa-solid fa-phone"></span>
-					<th:block th:replace="fragments/general :: obfuscatedPhone(person-card-contact-obfophone,o)"/>
+					<th:block th:replace="~{fragments/general :: obfuscatedPhone(person-card-contact-obfophone,o)}"/>
 	            	<th:block th:if="${personEditionUrl != null}"><a th:href="${personEditionUrl}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
 				</div>
 				<div class="person-card-phone person-card-mobilephone"
 				     th:unless="${!enableMobilePhone || #strings.isEmpty(person.mobilePhone)}">
 				     <span class="fa-solid fa-mobile"></span>
-					<th:block th:replace="fragments/general :: obfuscatedPhone(person-card-contact-obfmphone,m)"/>
+					<th:block th:replace="~{fragments/general :: obfuscatedPhone(person-card-contact-obfmphone,m)}"/>
 	            	<th:block th:if="${personEditionUrl != null}"><a th:href="${personEditionUrl}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
 				</div>
 			</div>

@@ -18,6 +18,9 @@ spring:
         dialect: org.hibernate.dialect.MySQL5Dialect
         format-sql: true
         auto_quote_keyword: true
+        transaction:
+          jta:
+            platform: org.hibernate.engine.transaction.jta.platform.internal.StandardJtaPlatformResolver
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
