@@ -279,6 +279,33 @@ project.properties["mainVersionNumber"] = version + '-' + projectBuildId;
 					</dependency>
 				</dependencies>
 			</plugin>
+			<plugin>
+		        <groupId>com.google.code.maven-replacer-plugin</groupId>
+		        <artifactId>replacer</artifactId>
+		        <version>1.5.3</version>
+		        <executions>
+		          <execution>
+		            <id>write-labmanager-api-version</id>
+		            <phase>process-sources</phase>
+		            <goals>
+		              <goal>replace</goal>
+		            </goals>
+		            <configuration>
+		              <encoding>${project.build.sourceEncoding}</encoding>
+		              <file>${project.basedir}/src/main/java/fr/ciadlab/labmanager/Constants.java</file>
+		              <regexFlags>
+		                <regexFlag>MULTILINE</regexFlag>
+		              </regexFlags>
+		              <replacements>
+		                <replacement>
+		                  <token>(MANAGER_VERSION *= *")([^"]+)(";)</token>
+		                  <value>$1${mainVersionNumber}$3</value>
+		                </replacement>
+		              </replacements>
+		            </configuration>
+		          </execution>
+	          </executions>
+          </plugin>
         </plugins>
     </build>
 
