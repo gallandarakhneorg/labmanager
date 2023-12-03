@@ -44,7 +44,7 @@ public enum PersonInvitationType {
 		}
 	},
 
-	/** Incoming guest student.
+	/** Incoming guest PhD student.
 	 */
 	INCOMING_GUEST_PHD_STUDENT {
 		@Override
@@ -53,7 +53,7 @@ public enum PersonInvitationType {
 		}
 	},
 
-	/** Incoming guest student.
+	/** Outgoing guest.
 	 */
 	OUTGOING_GUEST {
 		@Override
