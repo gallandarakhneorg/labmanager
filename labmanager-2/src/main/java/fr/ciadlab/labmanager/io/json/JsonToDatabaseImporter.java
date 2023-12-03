@@ -104,6 +104,7 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Functions.Function3;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -437,22 +438,9 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	public void importDataFileToDatabase(URL url) throws Exception {
 		final Stats stats = importJsonFileToDatabase(url);
-		getLogger().info("Summary of inserts:\n" //$NON-NLS-1$
-				+ stats.addresses + " addresses;\n" //$NON-NLS-1$
-				+ stats.organizations + " organizations;\n" //$NON-NLS-1$
-				+ stats.journals + " journals;\n" //$NON-NLS-1$
-				+ stats.conferences + " conferences;\n" //$NON-NLS-1$
-				+ stats.persons + " explicit persons;\n" //$NON-NLS-1$
-				+ stats.authors + " external authors;\n" //$NON-NLS-1$
-				+ stats.organizationMemberships + " organization memberships;\n" //$NON-NLS-1$
-				+ stats.publications + " publications;\n" //$NON-NLS-1$
-				+ stats.juryMemberships + " jury memberships;\n" //$NON-NLS-1$
-				+ stats.supervisions + " supervisions;\n" //$NON-NLS-1$
-				+ stats.invitations + " invitations;\n" //$NON-NLS-1$
-				+ stats.projects + " projects;\n" //$NON-NLS-1$
-				+ stats.associatedStructures + " associated structures;\n" //$NON-NLS-1$
-				+ stats.teachingActivities + " teaching activities;\n" //$NON-NLS-1$
-				+ stats.scientificAxes + " scientific axes.\n"); //$NON-NLS-1$
+		if (stats != null) {
+			stats.logSummaryOn(getLogger());
+		}
 	}
 
 	/** Run the importer for JSON data source only.
@@ -2452,6 +2440,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 */
 		public final int publications;
 
+		/** Number of files that are associated to publications.
+		 * 
+		 * @since 3.8
+		 */
+		public int publicationAssociatedFiles;
+
 		/** Number of created jury memberships.
 		 */
 		public final int juryMemberships;
@@ -2530,6 +2524,44 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 */
 		Stats() {
 			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+		}
+
+		/** Update the number of files that were associated to publications.
+		 *
+		 * @param fileCount the number of associated files.
+		 * @since 3.8
+		 */
+		public void setPublicationAssociatedFileCount(int fileCount) {
+			this.publicationAssociatedFiles = fileCount > 0 ? fileCount : 0;
+		}
+
+		/** Log the summary of the import on the given logger.
+		 * This functions outputs the numbers of entities per entity type that were imported
+		 * into the database.
+		 *
+		 * @param logger the receiver of the log messages.
+		 * @since 3.8
+		 */
+		public void logSummaryOn(Logger logger) {
+			logger.info("Summary of imported entities in the database:"); //$NON-NLS-1$
+			logger.info(" |-> addresses: " + this.addresses); //$NON-NLS-1$
+			logger.info(" |-> organizations: " + this.organizations); //$NON-NLS-1$
+			logger.info(" |-> journals: " + this.journals); //$NON-NLS-1$
+			logger.info(" |-> conferences: " + this.conferences); //$NON-NLS-1$
+			logger.info(" |-> persons: " + this.persons); //$NON-NLS-1$
+			logger.info(" |-> external authors: " + this.authors); //$NON-NLS-1$
+			logger.info(" |-> organization memberships: " + this.organizationMemberships); //$NON-NLS-1$
+			logger.info(" |-> publications: " + this.publications); //$NON-NLS-1$
+			if (this.publicationAssociatedFiles > 0) {
+				logger.info(" |    \\-> associated files: " + this.publicationAssociatedFiles); //$NON-NLS-1$
+			}
+			logger.info(" |-> jury memberships: " + this.juryMemberships); //$NON-NLS-1$
+			logger.info(" |-> person supervisions: " + this.supervisions); //$NON-NLS-1$
+			logger.info(" |-> person invitations: " + this.invitations); //$NON-NLS-1$
+			logger.info(" |-> projects: " + this.projects); //$NON-NLS-1$
+			logger.info(" |-> associated structures: " + this.associatedStructures); //$NON-NLS-1$
+			logger.info(" |-> teaching activities: " + this.teachingActivities); //$NON-NLS-1$
+			logger.info(" \\-> scientific axes: " + this.scientificAxes); //$NON-NLS-1$
 		}
 
 	}

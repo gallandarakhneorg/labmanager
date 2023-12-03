@@ -154,22 +154,10 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 			if (content != null) {
 				final UploadedFileManager callback = new UploadedFileManager();
 				final Stats stats = this.jsonImporter.importJsonFileToDatabase(content, true, callback);
-				getLogger().info("Summary of inserts from the ZIP archive:\n" //$NON-NLS-1$
-						+ stats.addresses + " addresses;\n" //$NON-NLS-1$
-						+ stats.organizations + " organizations;\n" //$NON-NLS-1$
-						+ stats.journals + " journals;\n" //$NON-NLS-1$
-						+ stats.conferences + " conferences;\n" //$NON-NLS-1$
-						+ stats.persons + " explicit persons;\n" //$NON-NLS-1$
-						+ stats.authors + " external authors;\n" //$NON-NLS-1$
-						+ stats.organizationMemberships + " organization memberships;\n" //$NON-NLS-1$
-						+ stats.publications + " publications;\n" //$NON-NLS-1$
-						+ callback.getFileCount() + " attached files;\n" //$NON-NLS-1$
-						+ stats.juryMemberships + " jury memberships;\n" //$NON-NLS-1$
-						+ stats.invitations + " supervisions;\n" //$NON-NLS-1$
-						+ stats.projects + " projects;\n" //$NON-NLS-1$
-						+ stats.associatedStructures + " associated structures;\n" //$NON-NLS-1$
-						+ stats.teachingActivities + " teaching activities;\n" //$NON-NLS-1$
-						+ stats.scientificAxes + " scientific axes."); //$NON-NLS-1$
+				if (stats != null) {
+					stats.setPublicationAssociatedFileCount(callback.getFileCount());
+					stats.logSummaryOn(getLogger());
+				}
 			} else {
 				cleanTargetFolders();
 				getLogger().info("Nothing to be inserted from: " + url); //$NON-NLS-1$
