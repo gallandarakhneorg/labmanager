@@ -81,6 +81,8 @@ import org.springframework.web.bind.annotation.RestController;
 @CrossOrigin
 public class MembershipApiController extends AbstractApiController {
 
+	private static final int CREATION_TRIES = 3;
+	
 	private MembershipService membershipService;
 
 	private ResearchOrganizationService organizationService;
@@ -200,9 +202,9 @@ public class MembershipApiController extends AbstractApiController {
 				if (statusObj == null) {
 					throw new IllegalArgumentException("Member status is missed"); //$NON-NLS-1$
 				}
-				boolean continueCreation;
+				int continueCreation = CREATION_TRIES;
 				do {
-					continueCreation = false;
+					--continueCreation;
 					final Pair<Membership, Boolean> result = this.membershipService.addMembership(
 							organization.intValue(),
 							organizationAddress,
@@ -235,12 +237,13 @@ public class MembershipApiController extends AbstractApiController {
 									otherMembership.getFrenchBap(),
 									otherMembership.isMainPosition(),
 									axes);
-							continueCreation = true;
 						} else {
 							throw new IllegalStateException("A membership is already active. It is not allowed to create multiple active memberships for the same organization"); //$NON-NLS-1$
 						}
+					} else {
+						continueCreation = 0;
 					}
-				} while (continueCreation);
+				} while (continueCreation > 0);
 			} else {
 				// Update an existing membership.
 				this.membershipService.updateMembershipById(

@@ -37,7 +37,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'responsibility_' + minMembershipId}, #{html.Responsibility(${person.fullName})}, ~{::option#option-responsibility-new})}">
 				<option id="option-responsibility-new" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-responsibility-new"
-				        th:each="responsibility : ${allResponsabilities.entrySet}"
+				        th:each="responsibility : ${allResponsabilities.entrySet()}"
 				        th:selected="${preferredResponsibility != null && responsibility.value == preferredResponsibility}"
 				        th:value="${responsibility.value.name}"
 				        th:utext="${responsibility.value.isSpecific ? (responsibility.key + ' *') : responsibility.key}"></option>
@@ -98,7 +98,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'responsibility_' + membership.id}, #{html.Responsibility(${person.fullName})}, ~{::option#option-responsibility})}">
 				<option id="option-responsibility" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-responsibility"
-				        th:each="responsibility : ${allResponsabilities.entrySet}"
+				        th:each="responsibility : ${allResponsabilities.entrySet()}"
 				        th:selected="${membership != null && membership.responsibility == responsibility.value}"
 				        th:value="${responsibility.value.name}"
 				        th:utext="${responsibility.value.isSpecific() ? (responsibility.key + ' *') : responsibility.key}"></option>

@@ -260,9 +260,9 @@ public class MembershipService extends AbstractService {
 			if (optPerson.isPresent()) {
 				final Person person = optPerson.get();
 				if (!forceCreation) {
-					// We don't need to add the membership is the person is already involved in the organization
+					// We don't need to add the membership if the person is already involved in the organization
 					final Optional<Membership> ro = person.getMemberships().stream().filter(
-							it -> it.isActive() && it.getResearchOrganization().getId() == organizationId).findAny();
+							it -> it.isActiveIn(startDate, endDate) && it.getResearchOrganization().getId() == organizationId).findAny();
 					if (ro.isPresent()) {
 						final Membership activeMembership = ro.get();
 						final LocalDate sd = activeMembership.getMemberSinceWhen();

@@ -42,6 +42,7 @@ import fr.ciadlab.labmanager.utils.bap.FrenchBap;
 import fr.ciadlab.labmanager.utils.cnu.CnuSection;
 import fr.ciadlab.labmanager.utils.conrs.ConrsSection;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /** Tests for {@link Membership}.
@@ -580,16 +581,41 @@ public class MembershipTest {
 		assertFalse(this.test.isActiveAt(ld));
 	}
 
-
 	@Test
-	public void isActiveIn_noStart_noEnd() {
+	@DisplayName("isActiveIn(w1, w2) with [null, null]")
+	public void isActiveIn_notNull_notNull_noStart_noEnd() {
 		final LocalDate s = LocalDate.of(2022, 1, 1);
 		final LocalDate e = LocalDate.of(2022, 12, 31);
 		assertTrue(this.test.isActiveIn(s, e));
 	}
 
 	@Test
-	public void isActiveIn_noStart() {
+	@DisplayName("isActiveIn(null, null) with [null, null]")
+	public void isActiveIn_null_null_noStart_noEnd() {
+		final LocalDate s = null;
+		final LocalDate e = null;
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(w1, null) with [null, null]")
+	public void isActiveIn_notNull_null_noStart_noEnd() {
+		final LocalDate s = LocalDate.of(2022, 1, 1);
+		final LocalDate e = null;
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(null, w2) with [null, null]")
+	public void isActiveIn_null_notNull_noStart_noEnd() {
+		final LocalDate s = null;
+		final LocalDate e = LocalDate.of(2022, 12, 31);
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(w1, w2) with [null, d2]")
+	public void isActiveIn_notNull_notNull_noStart() {
 		final LocalDate s = LocalDate.of(2022, 1, 1);
 		final LocalDate e = LocalDate.of(2022, 12, 31);
 		//
@@ -610,7 +636,74 @@ public class MembershipTest {
 	}
 
 	@Test
-	public void isActiveIn_noEnd() {
+	@DisplayName("isActiveIn(null, null) with [null, d2]")
+	public void isActiveIn_null_null_noStart() {
+		final LocalDate s = null;
+		final LocalDate e = null;
+		//
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2022, 1, 1));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2021, 12, 31));
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(w1, null) with [null, d2]")
+	public void isActiveIn_notNull_null_noStart() {
+		final LocalDate s = LocalDate.of(2022, 1, 1);
+		final LocalDate e = null;
+		//
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
+		assertFalse(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2022, 1, 1));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2021, 12, 31));
+		assertFalse(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(null, w2) with [null, d2]")
+	public void isActiveIn_null_notNull_noStart() {
+		final LocalDate s = null;
+		final LocalDate e = LocalDate.of(2022, 12, 31);
+		//
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2022, 1, 1));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberToWhen(LocalDate.of(2021, 12, 31));
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(w1, w2) with [d1, null]")
+	public void isActiveIn_notNull_notNull_noEnd() {
 		final LocalDate s = LocalDate.of(2022, 1, 1);
 		final LocalDate e = LocalDate.of(2022, 12, 31);
 		//
@@ -631,13 +724,173 @@ public class MembershipTest {
 	}
 
 	@Test
-	public void isActiveIn() {
+	@DisplayName("isActiveIn(null, null) with [d1, null]")
+	public void isActiveIn_null_null_noEnd() {
+		final LocalDate s = null;
+		final LocalDate e = null;
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 12, 31));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 01, 01));
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(w1, null) with [d1, null]")
+	public void isActiveIn_notNull_null_noEnd() {
+		final LocalDate s = LocalDate.of(2022, 1, 1);
+		final LocalDate e = null;
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 12, 31));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 01, 01));
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(null, w2) with [d1, null]")
+	public void isActiveIn_null_notNull_noEnd() {
+		final LocalDate s = null;
+		final LocalDate e = LocalDate.of(2022, 12, 31);
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
+		assertFalse(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 12, 31));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 01, 01));
+		assertFalse(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(w1, w2) with [d1, d2]")
+	public void isActiveIn_notNull_notNull() {
 		final LocalDate s = LocalDate.of(2022, 1, 1);
 		final LocalDate e = LocalDate.of(2022, 12, 31);
 		//
 		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
 		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
 		assertFalse(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertFalse(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(null, null) with [d1, d2]")
+	public void isActiveIn_null_null() {
+		final LocalDate s = null;
+		final LocalDate e = null;
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(w1, null) with [d1, d2]")
+	public void isActiveIn_notNull_null() {
+		final LocalDate s = LocalDate.of(2022, 1, 1);
+		final LocalDate e = null;
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
+		assertFalse(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2022, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2023, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2023, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
+	}
+
+	@Test
+	@DisplayName("isActiveIn(null, w2) with [d1, d2]")
+	public void isActiveIn_null_notNull() {
+		final LocalDate s = null;
+		final LocalDate e = LocalDate.of(2022, 12, 31);
+		//
+		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
+		this.test.setMemberToWhen(LocalDate.of(2021, 5, 5));
+		assertTrue(this.test.isActiveIn(s, e));
 		//
 		this.test.setMemberSinceWhen(LocalDate.of(2021, 5, 5));
 		this.test.setMemberToWhen(LocalDate.of(2022, 5, 5));

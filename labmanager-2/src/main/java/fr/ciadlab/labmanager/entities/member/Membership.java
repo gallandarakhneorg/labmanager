@@ -674,16 +674,28 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 
 	/** Replies if the membership is active during the given time windows.
 	 * A membership is active if the current date is inside the membership time windows.
+	 * If a date is {@code null}, it is assumed to be infinity.
 	 *
-	 * @param windowStart is the start date of the windows, never {@code null}.
-	 * @param windowEnd is the end date of the windows, never {@code null}.
+	 * @param windowStart is the start date of the windows, or {@code null} for an infinite date in the past.
+	 * @param windowEnd is the end date of the windows, or {@code null} for an infinite date in the future.
 	 * @return {@code true} if the membership time windows intersects the given date window.
 	 */
 	public boolean isActiveIn(LocalDate windowStart, LocalDate windowEnd) {
+		if (windowStart == null && windowEnd == null) {
+			return true;
+		}
+		final LocalDate start = getMemberSinceWhen();
+		if (windowStart == null) {
+			assert windowEnd != null;
+			return start == null ||  !windowEnd.isBefore(start);
+		}
+		final LocalDate end = getMemberToWhen();
+		if (windowEnd == null) {
+			assert windowStart != null;
+			return end == null ||  !windowStart.isAfter(end);
+		}
 		assert windowStart != null;
 		assert windowEnd != null;
-		final LocalDate start = getMemberSinceWhen();
-		final LocalDate end = getMemberToWhen();
 		if (start != null) {
 			if (end != null) {
 				return !windowEnd.isBefore(start) && !windowStart.isAfter(end);

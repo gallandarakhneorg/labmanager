@@ -112,7 +112,7 @@ $(document).ready(function () {
 		deleteTitle: [[#{html.Delete}]],
 		deleteMessage: [[#{html.AreYouSureToDelete}]],
 		data: [
-			/*[# th:if="${activity != null}"]*//*[# th:each="hours : ${activity.annualWorkPerType.entrySet}"]*/
+			/*[# th:if="${activity != null}"]*//*[# th:each="hours : ${activity.annualWorkPerType.entrySet()}"]*/
 	        {
 				type: "[(${hours.key.name})]",
 				hours: [(${hours.value})],
