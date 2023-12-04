@@ -105,6 +105,11 @@ function initPublicationDataTable(config) {
 	(!('infoTextId' in config)) && (config['infoTextId'] = 'tableInfos');
 	(!('publicationDescription' in config)) && (config['publicationDescription'] = (data, type, row) => {
 		var cnt = '<p class="publicationTitlePart"><span class="publicationTitle">' + row.title + '</span>';
+		if (row.pathToDownloadablePDF) {
+		    cnt += "<a href=\"";
+		    cnt += config['serviceRootUrl'] + row.pathToDownloadablePDF;
+		    cnt += "\" class=\"publicationTitle\"><span class=\"fa-solid fa-file-pdf\"></span></a>";
+		}
 		if (config['editionUrl']) {
 		    cnt += "<a href=\"";
 		    cnt += config['editionUrl'] + row.id;
