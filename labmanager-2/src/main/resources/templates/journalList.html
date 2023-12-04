@@ -52,13 +52,13 @@
             <td th:with="qindex=${journal.getScimagoQIndexByYear(currentYear)}">
             	<a th:href="@{/getJournalQualityIndicators(journal=${journal.id})}">
 	                <th:block th:if="${qindex != null && qindex != T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).NR}"
-	                          th:utext="${qindex.toString}"></th:block>
+	                          th:utext="${qindex.toString()}"></th:block>
             	</a>
             </td>
             <td th:with="qindex=${journal.getWosQIndexByYear(currentYear)}">
             	<a th:href="@{/getJournalQualityIndicators(journal=${journal.id})}">
 	                <th:block th:if="${qindex != null && qindex != T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).NR}"
-	                          th:utext="${qindex.toString}"></th:block>
+	                          th:utext="${qindex.toString()}"></th:block>
             	</a>
             </td>
             <td th:with="impactFactor=${journal.getImpactFactorByYear(currentYear)}">

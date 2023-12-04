@@ -17,7 +17,7 @@
 						<div th:id="${'post-' + project.id}"
 						     th:class="${'et_pb_portfolio_item et_pb_grid_item' + (project.category.name == 'COMPETITIVE_CALL_PROJECT' ? ' project_category_recherche-ub' : ' project_category_industriel-ub') + (project.category.name == 'COMPETITIVE_CALL_PROJECT' ? ' project_category-recherche-ub' : ' project_category-industriel-ub') + ' et_pb_filterable_portfolio_item_0_0 post-' + project.id + ' project type-project status-publish has-post-thumbnail hentry active' + ((iProject.index % maxColumns) == 0 ? ' first_in_row' : '')}"
 						     style="display: block;">
-							<a th:href="${project.webPageURI.toString}">
+							<a th:href="${project.webPageURI.toString()}">
 								<span class="et_portfolio_image">
 									<img decoding="async"
 									     th:src="${projectThumbail}"

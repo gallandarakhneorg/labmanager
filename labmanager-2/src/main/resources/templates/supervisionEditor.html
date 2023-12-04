@@ -223,7 +223,7 @@ ALL_SUPERVISOR_NAMES_OPTIONS = ALL_SUPERVISOR_NAMES_OPTIONS + '<option value="[(
 /*[/]*/    
 const ALL_SUPERVISOR_TYPES = new Map();
 var ALL_SUPERVISOR_TYPES_OPTIONS = '';
-/*[# th:each="supervisorType : ${T(fr.ciadlab.labmanager.entities.supervision.SupervisorType).values}"]*/
+/*[# th:each="supervisorType : ${T(fr.ciadlab.labmanager.entities.supervision.SupervisorType).values()}"]*/
 ALL_SUPERVISOR_TYPES.set("[(${supervisorType.name})]", [[${supervisorType.getLabel(null)}]]);
 ALL_SUPERVISOR_TYPES_OPTIONS = ALL_SUPERVISOR_TYPES_OPTIONS + '<option value="[(${supervisorType.name})]">' + [[${supervisorType.getLabel(null)}]] + '</option>';
 /*[/]*/

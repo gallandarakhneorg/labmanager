@@ -51,7 +51,7 @@ function showComponents2() {
 	$('#form-dynamic-groups').show();
 }
 const CORE_RANKING_LABELS = new Map();
-/*[# th:each="ranking : ${T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).values}"]*/
+/*[# th:each="ranking : ${T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).values()}"]*/
 CORE_RANKING_LABELS.set([[${ranking.name}]], [[${ranking.toString()}]]);
 /*[/]*/
 function appendIndicatorCell($trElement, currentValue, newValue, style) {

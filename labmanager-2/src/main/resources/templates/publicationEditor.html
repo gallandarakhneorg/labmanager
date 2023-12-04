@@ -18,7 +18,7 @@
 <form th:replace="~{fragments/form :: entityForm(publication, ${publication == null ? '' : publication.id}, ${formActionUrl}, ${formRedirectUrl}, #{html.GlobalIndicatorsSavingError}, ~{::.form-group})}">
 	<div class="form-group" th:replace="~{fragments/form :: comboInput*(type, #{html.Type}, ~{::option#option-type})}">
 		<option id="option-type"
-		        th:each="type : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values}"
+		        th:each="type : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values()}"
 		        th:selected="${(publication == null && defaultPublicationType == type) || (publication != null && publication.type == type)}"
 		        th:value="${type.name + '/' + type.instanceType.simpleName}"
 		        th:utext="${type.getLabel() + ' ' + type.categories.toString()}"></option>
@@ -65,9 +65,9 @@
 	<div class="form-group" th:replace="~{fragments/form :: textInput(extraURL, #{html.ExtraURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.extraURL : ''})}"></div>
 	<div class="form-group" th:replace="~{fragments/form :: textInput(dblpURL, #{html.DblpURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.dblpURL : ''})}"></div>
 	<div class="form-group" th:replace="~{fragments/form :: textInput(videoURL, #{html.VideoURL}, #{html.PlaceHolderURL}, ${publication != null ? publication.videoURL : ''})}"></div>
-	<div class="form-group" th:replace="~{fragments/form :: comboInput(majorLanguage, #{html.Language}, ~{::option#option-language}}}">
+	<div class="form-group" th:replace="~{fragments/form :: comboInput(majorLanguage, #{html.Language}, ~{::option#option-language})}">
 		<option id="option-language"
-		        th:each="language : ${T(fr.ciadlab.labmanager.entities.publication.PublicationLanguage).values}"
+		        th:each="language : ${T(fr.ciadlab.labmanager.entities.publication.PublicationLanguage).values()}"
 		        th:selected="${publication != null && shared_majorLanguage == language}"
 		        th:value="${language.name}"
 		        th:utext="${language.label}"></option>
@@ -114,7 +114,7 @@ $(document).ready(function () {
                 required: false,
                 url: true
             },
-            /*[# th:each="field : ${requiredFields.values}"]*/
+            /*[# th:each="field : ${requiredFields.values()}"]*/
             "[(${field})]": {
             	required: true
             },

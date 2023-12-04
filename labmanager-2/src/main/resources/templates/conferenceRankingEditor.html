@@ -28,7 +28,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(coreIndex_new, #{html.CoreRanking0}, ~{::option#option-core-new})}">
 				<option id="option-core-new" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-core-new"
-				        th:each="core : ${T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).values}"
+				        th:each="core : ${T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).values()}"
 				        th:value="${core.name}"
 				        th:utext="${core.toString()}"></option>
 			</div>
@@ -46,7 +46,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'coreIndex_' + ranking.referenceYear}, #{html.CoreRanking0}, ~{::option#option-core})}">
 				<option id="option-core" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-core"
-				        th:each="core : ${T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).values}"
+				        th:each="core : ${T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).values()}"
 				        th:value="${core.name}"
 				        th:selected="${core == ranking.coreIndex}"
 				        th:utext="${core.toString()}"></option>

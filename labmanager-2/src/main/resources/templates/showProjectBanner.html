@@ -18,7 +18,7 @@
 						     sizes="(max-width:479px) 479px, 100vw"
 						     th:class="${'wp-image-' + project.id}">
 						<div class="meta">
-							<a th:href="${project.webPageURI.toString}">
+							<a th:href="${project.webPageURI.toString()}">
 								<span class="et_overlay"></span>
 								<h3 class="et_pb_module_header" th:utext="${project.acronym}"></h3>
 								<p class="post-meta et_multi_view_hidden" th:utext="${project.startYear}"></p>

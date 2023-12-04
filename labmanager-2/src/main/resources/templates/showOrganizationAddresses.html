@@ -32,7 +32,7 @@
 $(document).ready(() => {
 	/*[# th:each="address, iAddress : ${addresses}" th:if="${address.googleMapLink != null}"]*/
 	$(document).on('click', "[(${'#orga_addresses_block_' + iAddress.index})]", (event) => {
-		window.location.href = "[(${address.googleMapURL.toExternalForm})]";
+		window.location.href = "[(${address.googleMapURL.toString()})]";
 	});
 	/*[/]*/ 
 });

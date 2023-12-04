@@ -55,7 +55,7 @@
 		            	<th:block th:unless="${invitation.inviter.webPageURI != null}"
 		            	          th:utext="${invitation.inviter.fullNameWithLastNameFirst}"></th:block>
 	            	</th:block>
-	            	<br/><th:block th:utext="#{html.DateInterval(${invitation.startDate.toString}, ${invitation.endDate.toString})}"></th:block>
+	            	<br/><th:block th:utext="#{html.DateInterval(${invitation.startDate.toString()}, ${invitation.endDate.toString()})}"></th:block>
             	</div>
             </td>
         </tbody>

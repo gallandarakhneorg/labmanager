@@ -56,7 +56,7 @@
             </td>
             <td th:with="cindex=${conference.getCoreIndexByYear(currentYear)}">
             	<th:block th:if="${cindex != null && cindex != T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).NR}"
-	                      th:utext="${cindex.toString}"></th:block>
+	                      th:utext="${cindex.toString()}"></th:block>
             </td>
             <td>
             	<th:block th:if="${conference.validated}"><i style="color:green" class="fa-solid fa-check-circle">B</i></th:block>

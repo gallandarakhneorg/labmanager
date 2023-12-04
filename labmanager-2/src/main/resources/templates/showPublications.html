@@ -145,10 +145,10 @@ $(document).ready(() => {
 			exports: "[(#{html.Exports})]",
 			management: "[(#{html.Management})]",
 		},
-		enableFilters: "[(${#bools.isTrue(enableFilters).toString})]" === 'true',
-		enableYearFilter: "[(${#bools.isTrue(enableFilters && enableYearFilter).toString})]" === 'true',
-		enableTypeFilter: "[(${#bools.isTrue(enableFilters && enableTypeFilter).toString})]" === 'true',
-		enableAuthorFilter: "[(${#bools.isTrue(enableFilters && enableAuthorFilter).toString})]" === 'true',
+		enableFilters: "[(${#bools.isTrue(enableFilters).toString()})]" === 'true',
+		enableYearFilter: "[(${#bools.isTrue(enableFilters && enableYearFilter).toString()})]" === 'true',
+		enableTypeFilter: "[(${#bools.isTrue(enableFilters && enableTypeFilter).toString()})]" === 'true',
+		enableAuthorFilter: "[(${#bools.isTrue(enableFilters && enableAuthorFilter).toString()})]" === 'true',
 	    /*[# th:if="${enableFilters && enableAuthorFilter}"]*/
  		searchPanes: [
  			{

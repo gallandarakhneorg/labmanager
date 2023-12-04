@@ -86,7 +86,7 @@
 	<div class="form-group" th:replace="~{fragments/form :: textInput(projectURL, #{html.ProjectURL}, #{html.PlaceHolderURL}, ${project != null ? project.projectURL : ''})}"></div>
 	<div class="form-group" th:replace="~{fragments/form :: comboInput(webPageNaming, #{html.ProjectWebPageNaming}, ~{::option#option-webpagenaming})}">
 		<option id="option-webpagenaming"
-		        th:each="naming : ${T(fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming).values}"
+		        th:each="naming : ${T(fr.ciadlab.labmanager.entities.project.ProjectWebPageNaming).values()}"
 		        th:selected="${(project == null && naming == defaultNaming) || (project != null && project.webPageNaming == naming)}"
 		        th:value="${naming.name}"
 		        th:utext="${naming.getLabel()}"></option>
@@ -110,7 +110,7 @@ ALL_PERSON_OPTIONS = ALL_PERSON_OPTIONS + '<option value="[(${person.id})]">'+ [
 /*[/]*/
 const ALL_ROLES = new Map();
 var ALL_ROLE_OPTIONS =  '';
-/*[# th:each="role : ${T(fr.ciadlab.labmanager.entities.project.Role).values}"]*/
+/*[# th:each="role : ${T(fr.ciadlab.labmanager.entities.project.Role).values()}"]*/
 ALL_ROLES.set("[(${role.name})]", [[${role.getLabel()}]]);
 ALL_ROLE_OPTIONS = ALL_ROLE_OPTIONS + '<option value="[(${role.name})]">'+ [[${role.getLabel()}]] + '</option>';
 /*[/]*/

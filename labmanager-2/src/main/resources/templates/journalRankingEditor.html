@@ -33,14 +33,14 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(scimagoQIndex_new, #{html.ScimagoQIndex0}, ~{::option#option-scimago-new})}">
 				<option id="option-scimago-new" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-scimago-new"
-				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values}"
+				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values()}"
 				        th:value="${quartile.name}"
 				        th:utext="${quartile.name}"></option>
 			</div>
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(wosQIndex_new, #{html.WosQIndex0}, ~{::option#option-wos-new})}">
 				<option id="option-wos-new" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-wos-new"
-				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values}"
+				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values()}"
 				        th:value="${quartile.name}"
 				        th:utext="${quartile.name}"></option>
 			</div>
@@ -59,7 +59,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'scimagoQIndex_' + ranking.referenceYear}, #{html.ScimagoQIndex0}, ~{::option#option-scimago})}">
 				<option id="option-scimago" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-scimago"
-				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values}"
+				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values()}"
 				        th:value="${quartile.name}"
 				        th:selected="${quartile == ranking.getScimagoQIndex()}"
 				        th:utext="${quartile.name}"></option>
@@ -67,7 +67,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'wosQIndex_' + ranking.referenceYear}, #{html.WosQIndex0}, ~{::option#option-wos})}">
 				<option id="option-wos" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-wos"
-				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values}"
+				        th:each="quartile : ${T(fr.ciadlab.labmanager.utils.ranking.QuartileRanking).values()}"
 				        th:selected="${quartile == ranking.getWosQIndex()}"
 				        th:value="${quartile.name}"
 				        th:utext="${quartile.name}"></option>
