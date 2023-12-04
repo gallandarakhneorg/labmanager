@@ -69,11 +69,11 @@
             <td>
             	<a class="simpleLink"
             	   th:unless="${#strings.isEmpty(activity.sourceUrl)}"
-            	   th:href="activity.sourceUrl"
+            	   th:href="${activity.sourceUrl}"
             	   th:title="#{html.TeachingActivitySource}"><span class="fa-solid fa-code"></span></a>
             	<a class="simpleLink"
             	   th:unless="${#strings.isEmpty(activity.pathToSlides)}"
-            	   th:href="activity.pathToSlides"
+            	   th:href="${activity.pathToSlides}"
             	   th:title="#{html.TeachingActivitySlides}"><span class="fa-solid fa-file-pdf"></span></a>
             </td>
         </tbody>
