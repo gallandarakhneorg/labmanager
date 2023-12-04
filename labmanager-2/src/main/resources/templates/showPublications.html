@@ -24,16 +24,16 @@
 	                <div th:if="${enableExports}" class="mb-xl-3" role="group" id="buttonsContainer">
 	                    &nbsp;
 	                    <button type="button" class="btn btn-sm btn-success" id="btBibtexGlobal" th:title="#{html.ExportToBibTeX}">
-	                        <i class="fa-solid fa-file-lines"></i>&nbsp;&nbsp;<th:block th:utext="#{html.BibTeX}"></th:block>
+	                        <img th:src="@{/images/icon/bibtex_w_file.svg}" class="exportbuttonimage"></img>
 	                    </button>
 	                    <button type="button" class="btn btn-sm btn-success" id="btRisGlobal" th:title="#{html.ExportToRIS}">
-	                        <i class="fa-solid fa-file-lines"></i>&nbsp;&nbsp;<th:block th:utext="#{html.RIS}"></th:block>
+	                        <img th:src="@{/images/icon/ris_w_file.svg}" class="exportbuttonimage"></img>
 	                    </button>
 	                    <button type="button" class="btn btn-sm btn-success" id="btWordGlobal" th:title="#{html.ExportToOdt}">
-	                        <i class="fa-solid fa-file-word"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Odt}"></th:block>
+	                        <img th:src="@{/images/icon/odt_w_file.svg}" class="exportbuttonimage"></img>
 	                    </button>
 	                    <button type="button" class="btn btn-sm btn-success" id="btHtmlGlobal" th:title="#{html.ExportToHtml}">
-	                        <i class="fa-solid fa-file-code"></i>&nbsp;&nbsp;<th:block th:utext="#{html.Html}"></th:block>
+	                        <img th:src="@{/images/icon/html_w_file.svg}" class="exportbuttonimage"></img>
 	                    </button>
 	                </div>
 					<h4 th:if="${enableSearch}" class="header-title" th:utext="#{html.Search}"></h4>

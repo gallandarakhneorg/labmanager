@@ -30,6 +30,11 @@ a:active.simpleLink {
     text-decoration: underline dotted;
 	cursor:pointer;
 }
+img.exportbuttonimage {
+	height:40px;
+	border:0px;
+	margin:0px;
+}
 .form-control.is-valid {
     border-color: #0d64c1;
     border-width:2px;

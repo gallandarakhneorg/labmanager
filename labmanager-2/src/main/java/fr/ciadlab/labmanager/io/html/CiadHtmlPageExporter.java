@@ -105,7 +105,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	private void exportPublicationButton(StringBuilder html, String buttonClass, String buttonIconClass,
-			String tooltip, String endpoint, int id, String label, ExporterConfigurator configurator) {
+			String buttonIconPath, String tooltip, String endpoint, int id, String label, ExporterConfigurator configurator) {
 		UriBuilder builder = new DefaultUriBuilderFactory().builder();
 		builder = builder.path("/" + this.constants.getServerName() + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
 		builder = configurator.applyQueryParams(builder);
@@ -116,10 +116,19 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		html.append("\" href=\"").append(builder.build().toString()); //$NON-NLS-1$
 		html.append("\" title=\""); //$NON-NLS-1$
 		html.append(tooltip);
-		html.append("\"><i class=\"fa-solid "); //$NON-NLS-1$
-		html.append(buttonIconClass);
 		html.append("\">"); //$NON-NLS-1$
-		html.append(label);
+		if (!Strings.isNullOrEmpty(buttonIconPath)) {
+			builder = new DefaultUriBuilderFactory().builder();
+			builder = builder.path("/" + this.constants.getServerName() + "/" + buttonIconPath); //$NON-NLS-1$ //$NON-NLS-2$
+			html.append("<img src=\""); //$NON-NLS-1$
+			html.append(builder.build().toString());
+			html.append("\" class=\"exportbuttonimage\"/>"); //$NON-NLS-1$
+		} else if (!Strings.isNullOrEmpty(buttonIconClass)) {
+			html.append("<i class=\"fa-solid "); //$NON-NLS-1$
+			html.append(buttonIconClass);
+			html.append("\">"); //$NON-NLS-1$
+			html.append(label);
+		}
 		html.append("</i></a>"); //$NON-NLS-1$
 	}
 
@@ -127,7 +136,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	public String getButtonToExportPublicationToBibTeX(int publicationId, ExporterConfigurator configurator) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
-			exportPublicationButton(html, "btBibtex", "fa-file-lines", //$NON-NLS-1$ //$NON-NLS-2$
+			exportPublicationButton(html, "btBibtex", "fa-file-lines", Constants.EXPORT_BIBTEX_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
 					this.messages.getMessage("ciadHtmlPageExporter.exportToBibTeX"),  //$NON-NLS-1$
 					Constants.EXPORT_BIBTEX_ENDPOINT,
 					publicationId, "BibTeX", configurator); //$NON-NLS-1$
@@ -139,7 +148,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	public String getButtonToExportPublicationToRIS(int publicationId, ExporterConfigurator configurator) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
-			exportPublicationButton(html, "btRis", "fa-file-lines", //$NON-NLS-1$ //$NON-NLS-2$
+			exportPublicationButton(html, "btRis", "fa-file-lines", Constants.EXPORT_RIS_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
 					this.messages.getMessage("ciadHtmlPageExporter.exportToRIS"),  //$NON-NLS-1$
 					Constants.EXPORT_RIS_ENDPOINT,
 					publicationId, "RIS", configurator); //$NON-NLS-1$
@@ -151,7 +160,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	public String getButtonToExportPublicationToHtml(int publicationId, ExporterConfigurator configurator) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
-			exportPublicationButton(html, "btHtml", "fa-file-code", //$NON-NLS-1$ //$NON-NLS-2$
+			exportPublicationButton(html, "btHtml", "fa-file-code", Constants.EXPORT_HTML_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
 					this.messages.getMessage("ciadHtmlPageExporter.exportToHtml"),  //$NON-NLS-1$
 					Constants.EXPORT_HTML_ENDPOINT,
 					publicationId, "HTML", configurator); //$NON-NLS-1$
@@ -163,7 +172,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	public String getButtonToExportPublicationToOpenDocument(int publicationId, ExporterConfigurator configurator) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
-			exportPublicationButton(html, "btWord", "fa-file-word", //$NON-NLS-1$ //$NON-NLS-2$
+			exportPublicationButton(html, "btWord", "fa-file-word", Constants.EXPORT_ODT_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
 					this.messages.getMessage("ciadHtmlPageExporter.exportToOdt"),  //$NON-NLS-1$
 					Constants.EXPORT_ODT_ENDPOINT,
 					publicationId, "ODT", configurator); //$NON-NLS-1$
