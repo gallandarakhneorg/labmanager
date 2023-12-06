@@ -204,6 +204,7 @@ public class DefaultVcardBuilder implements VcardBuilder {
 		append(vcard, URL_PREFIX, person.getWebPageURI());
 		append(vcard, URL_PREFIX, person.getOrcidURL());
 		append(vcard, URL_PREFIX, person.getGoogleScholarURL());
+		append(vcard, URL_PREFIX, person.getHalURL());
 		append(vcard, URL_PREFIX, person.getResearcherIdURL());
 		append(vcard, URL_PREFIX, person.getResearchGateURL());
 		append(vcard, URL_PREFIX, person.getAdScientificIndexURL());

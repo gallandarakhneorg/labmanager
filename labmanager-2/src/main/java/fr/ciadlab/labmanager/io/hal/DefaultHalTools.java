@@ -43,14 +43,14 @@ import org.springframework.stereotype.Component;
 public class DefaultHalTools implements HalTools {
 
 	private static final URL HAL_BASE;
-
+	
 	private static final String HAL_PATTERN_STR = "^hal\\-.*+$"; //$NON-NLS-1$
-
+		
 	private static final Pattern HAL_PATTERN;
 
 	static {
 		try {
-			HAL_BASE = new URL("https://hal.science"); //$NON-NLS-1$
+			HAL_BASE = new URL(HAL_URL_BASE);
 		} catch (MalformedURLException ex) {
 			throw new Error(ex);
 		}

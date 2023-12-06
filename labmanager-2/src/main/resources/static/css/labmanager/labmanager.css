@@ -406,6 +406,14 @@ span.person-card-googlescholar-index:before {
 	width: 20px;
 	height: 20px;
 }
+.person-card-hal-link {
+	background: url("../../images/icon/hal.svg") no-repeat;
+	background-size: 18px 18px;
+	background-position: 50% 100%;
+	display: inline-block;
+	width: 20px;
+	height: 20px;
+}
 .person-card-linkedin-link {
 	background: url("../../images/icon/linkedin.svg") no-repeat;
 	background-size: 18px 18px;

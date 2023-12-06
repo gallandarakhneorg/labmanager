@@ -48,6 +48,7 @@ import fr.ciadlab.labmanager.entities.organization.ResearchOrganization;
 import fr.ciadlab.labmanager.entities.publication.Authorship;
 import fr.ciadlab.labmanager.entities.publication.AuthorshipComparator;
 import fr.ciadlab.labmanager.entities.scientificaxis.ScientificAxis;
+import fr.ciadlab.labmanager.io.hal.HalTools;
 import fr.ciadlab.labmanager.io.json.JsonUtils;
 import fr.ciadlab.labmanager.io.json.JsonUtils.CachedGenerator;
 import fr.ciadlab.labmanager.utils.HashCodeUtils;
@@ -119,6 +120,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	private static final String SCOPUS_URL = "https://www.scopus.com/authid/detail.uri?authorId="; //$NON-NLS-1$
 
 	private static final String GOOGLESCHOLAR_URL = "https://scholar.google.fr/citations?user="; //$NON-NLS-1$
+
+	private static final String HAL_URL = HalTools.HAL_URL_BASE + "search/index/?qa%5Bidentifiers_id%5D%5B%5D="; //$NON-NLS-1$
 
 	private static final String RESEARCHGATE_URL = "http://www.researchgate.net/profile/"; //$NON-NLS-1$
 
@@ -230,6 +233,11 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	@Column
 	private String googleScholarId;
+
+	/** HAL Identifier of the person.
+	 */
+	@Column
+	private String idhal;
 
 	/** Identifier of the person on Research Gate.
 	 */
@@ -349,6 +357,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		h = HashCodeUtils.add(h, this.officeRoom);
 		h = HashCodeUtils.add(h, this.orcid);
 		h = HashCodeUtils.add(h, this.googleScholarId);
+		h = HashCodeUtils.add(h, this.idhal);
 		h = HashCodeUtils.add(h, this.researcherId);
 		h = HashCodeUtils.add(h, this.scopusId);
 		h = HashCodeUtils.add(h, this.researchGateId);
@@ -423,6 +432,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			return false;
 		}
 		if (!Objects.equals(this.googleScholarId, other.googleScholarId)) {
+			return false;
+		}
+		if (!Objects.equals(this.idhal, other.idhal)) {
 			return false;
 		}
 		if (!Objects.equals(this.researcherId, other.researcherId)) {
@@ -537,6 +549,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
 			consumer.accept("googleScholarId", getGoogleScholarId()); //$NON-NLS-1$
+		}
+		if (!Strings.isNullOrEmpty(getIdhal())) {
+			consumer.accept("idhal", getIdhal()); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getResearchGateId())) {
 			consumer.accept("researchGateId", getResearchGateId()); //$NON-NLS-1$
@@ -1348,6 +1363,39 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public void setGoogleScholarId(String id) {
 		this.googleScholarId = Strings.emptyToNull(id);
+	}
+
+	/** Replies the HAL identifier of the person.
+	 *
+	 * @return the idhal.
+	 * @since 3.8
+	 */
+	public String getIdhal() {
+		return this.idhal;
+	}
+
+	/** Replies the URL of the person on HAL.
+	 *
+	 * @return the URL.
+	 */
+	public final URL getHalURL() {
+		if (!Strings.isNullOrEmpty(getIdhal())) {
+			try {
+
+				return new URL(HAL_URL + getIdhal());
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
+	/** Change the HAL identifier of the person.
+	 *
+	 * @param idhal the idhal.
+	 */
+	public void setIdhal(String idhal) {
+		this.idhal = Strings.emptyToNull(idhal);
 	}
 
 	/** Replies the identifier of the person on ResearchGate.

@@ -181,6 +181,7 @@ public class PersonService extends AbstractService {
 				null, // AD Scientific Index
 				null, // Scopus Id
 				null, // Google Scholar
+				null, // Hal Id
 				null, // Linked-In Id
 				null, // Github Id
 				null, // Research Gate Id
@@ -212,6 +213,7 @@ public class PersonService extends AbstractService {
 	 * @param researcherId the identifier of the person on ResearchId/WOS/Publon.
 	 * @param scopusId the identifier of the person on Scopus.
 	 * @param scholarId the identifier of the person on Google Scholar.
+	 * @param idhal the identifier of the person on HAL.
 	 * @param linkedInId the identifier of the person on LinkedIn.
 	 * @param githubId the identifier of the person on Github.
 	 * @param researchGateId the identifier of the person on ResearchGate.
@@ -233,7 +235,7 @@ public class PersonService extends AbstractService {
 	 */
 	public Person createPerson(boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
 			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId,
-			String scholarId, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId,
+			String scholarId, String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId,
 			String dblpURL, String academiaURL, String cordisURL, WebPageNaming webPageNaming,
 			int scholarHindex, int wosHindex, int scopusHindex, int scholarCitations, int wosCitations, int scopusCitations) {
 		final Person res = new Person();
@@ -249,6 +251,7 @@ public class PersonService extends AbstractService {
 		res.setResearcherId(researcherId);
 		res.setScopusId(scopusId);
 		res.setGoogleScholarId(scholarId);
+		res.setIdhal(idhal);
 		res.setLinkedInId(linkedInId);
 		res.setGithubId(githubId);
 		res.setResearchGateId(researchGateId);
@@ -285,6 +288,7 @@ public class PersonService extends AbstractService {
 	 * @param researcherId the identifier of the person on ResearchId/WOS/Publon.
 	 * @param scopusId the identifier of the person on Scopus.
 	 * @param scholarId the identifier of the person on Google Scholar.
+	 * @param idhal the identifier of the person on HAL.
 	 * @param linkedInId the identifier of the person on LinkedIn.
 	 * @param githubId the identifier of the person on Github.
 	 * @param researchGateId the identifier of the person on ResearchGate.
@@ -304,8 +308,8 @@ public class PersonService extends AbstractService {
 	 */
 	public Person updatePerson(int identifier, boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
 			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId, String scholarId,
-			String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId, String dblpURL, String academiaURL,
-			String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex, int scopusHindex,
+			String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId, String dblpURL,
+			String academiaURL, String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex, int scopusHindex,
 			int scholarCitations, int wosCitations, int scopusCitations) {
 		final Optional<Person> res = this.personRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
@@ -326,6 +330,7 @@ public class PersonService extends AbstractService {
 			person.setResearcherId(researcherId);
 			person.setScopusId(scopusId);
 			person.setGoogleScholarId(scholarId);
+			person.setIdhal(idhal);
 			person.setLinkedInId(linkedInId);
 			person.setGithubId(githubId);
 			person.setResearchGateId(researchGateId);

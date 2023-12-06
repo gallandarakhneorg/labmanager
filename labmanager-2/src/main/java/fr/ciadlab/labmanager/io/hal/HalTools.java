@@ -31,6 +31,12 @@ import java.net.URL;
  */
 public interface HalTools {
 
+	/** Base URL for all HAL websites with trailing slash.
+	 *
+	 * @since 3.8
+	 */
+	String HAL_URL_BASE = "https://hal.science/"; //$NON-NLS-1$
+	
 	/** Replies the HAL number that is specified inside the given HAL URL.
 	 * A HAL URL is based on the standard {@link "https://hal.science"} to which
 	 * the HAL number is added.

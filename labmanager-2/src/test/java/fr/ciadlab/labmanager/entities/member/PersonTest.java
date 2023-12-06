@@ -620,6 +620,37 @@ public class PersonTest {
 	}
 
 	@Test
+	public void getIdhal() {
+		assertNull(this.test.getIdhal());
+	}
+
+	@Test
+	public void getHalURL() {
+		assertNull(this.test.getHalURL());
+	}
+
+	@Test
+	public void setIdhal() throws Exception {
+		assertNull(this.test.getIdhal());
+
+		this.test.setIdhal("xyz");
+		assertEquals("xyz", this.test.getIdhal());
+		assertEquals(new URL("https://hal.science/search/index/?qa%5Bidentifiers_id%5D%5B%5D=xyz"), this.test.getHalURL());
+
+		this.test.setIdhal(null);
+		assertNull(this.test.getIdhal());
+		assertNull(this.test.getHalURL());
+
+		this.test.setIdhal("xyz");
+		assertEquals("xyz", this.test.getIdhal());
+		assertEquals(new URL("https://hal.science/search/index/?qa%5Bidentifiers_id%5D%5B%5D=xyz"), this.test.getHalURL());
+
+		this.test.setIdhal("");
+		assertNull(this.test.getIdhal());
+		assertNull(this.test.getHalURL());
+	}
+
+	@Test
 	public void getResearchGateId() {
 		assertNull(this.test.getResearchGateId());
 	}

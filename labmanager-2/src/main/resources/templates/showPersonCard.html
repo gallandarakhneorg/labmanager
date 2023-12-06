@@ -122,6 +122,10 @@
 			           th:title="#{html.LinksGoogleScholarTitle(${person.googleScholarId})}">
 			           <a th:href="${person.googleScholarURL}"><span class="person-card-googlescholar-link"></span></a></span>
 			     <span class="person-card-link"
+			           th:unless="${#strings.isEmpty(person.idhal)}"
+			           th:title="#{html.LinksHalTitle(${person.idhal})}">
+			           <a th:href="${person.halURL}"><span class="person-card-hal-link"></span></a></span>
+			     <span class="person-card-link"
 			           th:unless="${#strings.isEmpty(person.adScientificIndexId)}"
 			           th:title="#{html.LinksAdScientificIndexTitle(${person.adScientificIndexId})}">
 			           <a th:href="${person.adScientificIndexURL}"><span class="person-card-adscientificindex-link"></span></a></span>
