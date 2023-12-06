@@ -554,12 +554,12 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false") boolean failOnMissedConference,
 			@RequestParam(required = false, name = Constants.CHECKINDB_ENDPOINT_PARAMETER, defaultValue = "false") boolean checkInDb) throws Exception {
 		if (risFile == null || risFile.isEmpty()) {
-			throw new IllegalArgumentException(getMessage("publicationImporterApiController.NoBibTeXSource")); //$NON-NLS-1$
+			throw new IllegalArgumentException(getMessage("publicationImporterApiController.NoRISSource")); //$NON-NLS-1$
 		}
 		List<Publication> publications;
 		try (final InputStream inputStream = risFile.getInputStream()) {
 			try (final Reader reader = new InputStreamReader(inputStream)) {
-				publications = this.publicationService.readPublicationsFromRIS(reader, true, true, !failOnMissedJournal, !failOnMissedConference);
+				publications = this.publicationService.readPublicationsFromRIS(reader, true, true, true, !failOnMissedJournal, !failOnMissedConference);
 			}
 		}
 		return extractPublicationJson(publications, "RIS", checkInDb); //$NON-NLS-1$

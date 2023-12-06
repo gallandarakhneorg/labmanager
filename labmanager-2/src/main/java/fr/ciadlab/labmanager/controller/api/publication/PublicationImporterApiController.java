@@ -163,7 +163,7 @@ public class PublicationImporterApiController extends AbstractApiController {
 			final Map<String, PublicationType> expectedTypes = preparePublicationSaving(changes);
 			// Import the publications that are specified in the map of expected types.
 			try (final Reader reader = new InputStreamReader(risFile.getInputStream())) {
-				this.publicationService.importBibTeXPublications(reader, expectedTypes, createMissedJournals, createMissedConferences);
+				this.publicationService.importRISPublications(reader, expectedTypes, createMissedJournals, createMissedConferences);
 			}
 		} catch (Throwable ex) {
 			getLogger().error(ex.getLocalizedMessage(), ex);

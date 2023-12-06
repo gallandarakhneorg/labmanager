@@ -108,7 +108,7 @@ function initFileUploadSingleBibTeX(config) {
  */
 function initFileUploadSingleRIS(config) {
  	config['fileTypeName'] = 'ris';
- 	config['mimeTypes'] = [ 'application/text-plain' ],
+ 	config['mimeTypes'] = [ 'application/x-research-info-systems', 'text/ris', 'application/x-ris', 'application/text-plain' ],
  	config['fileExtensionMatcher'] = (vName) => { return vName.match(/\.ris$/i) };
  	config['fileExtensionArray'] = [ 'ris' ];
 	(!('componentIdPrefix' in config)) && (config['componentIdPrefix'] = "fileUploadRIS_");

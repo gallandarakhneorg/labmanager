@@ -604,6 +604,10 @@ public class PublicationService extends AbstractPublicationService {
 	 * of an exportation tentative.
 	 *
 	 * @param ris the stream that contains the RIS description of the publications.
+	 * @param keepRisId indicates if the RIS reference id should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the reference ids are provided to the publication.
+	 *     If this argument is {@code false}, the reference ids are ignored.
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
@@ -621,9 +625,9 @@ public class PublicationService extends AbstractPublicationService {
 	 * @see "https://en.wikipedia.org/wiki/RIS_(file_format)"
 	 * @since 3.8
 	 */
-	public List<Publication> readPublicationsFromRIS(Reader ris, boolean assignRandomId,
+	public List<Publication> readPublicationsFromRIS(Reader ris, boolean keepRisId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
-		return this.ris.extractPublications(ris, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
+		return this.ris.extractPublications(ris, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
 				createMissedConference);
 	}
 
@@ -679,7 +683,7 @@ public class PublicationService extends AbstractPublicationService {
 			boolean createMissedJournals, boolean createMissedConferences) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
-		final List<Publication> importablePublications = readPublicationsFromRIS(ris, false, true,
+		final List<Publication> importablePublications = readPublicationsFromRIS(ris, true, false, true,
 				createMissedJournals, createMissedConferences);
 		return importPublications(importablePublications, importedEntriesWithExpectedType);
 	}
@@ -793,8 +797,8 @@ public class PublicationService extends AbstractPublicationService {
 					}
 				}
 			} catch (Throwable ex) {
-				final Throwable ex0 = new IllegalArgumentException("Unable to import the publication from BibTeX: " //$NON-NLS-1$
-						+ publication.getTitle(), ex);
+				final Throwable ex0 = new IllegalArgumentException("Unable to import the publication: " //$NON-NLS-1$
+						+ publication.getTitle() + ". " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$
 				getLogger().error(ex0.getLocalizedMessage(), ex0);
 				errors.add(ex0);
 			}
@@ -808,7 +812,9 @@ public class PublicationService extends AbstractPublicationService {
 	/**
 	 * Export function for BibTeX using a list of publication identifiers.
 	 *
+	 * @param publications the arr	 * @param publications the array of publications that should be exported.
 	 * @param publications the array of publications that should be exported.
+ay of publications that should be exported.
 	 * @param configurator the configurator of the exporter.
 	 * @return the BibTeX description of the publications with the given identifiers.
 	 */

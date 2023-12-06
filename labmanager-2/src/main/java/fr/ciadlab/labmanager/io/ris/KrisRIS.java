@@ -573,12 +573,12 @@ public class KrisRIS extends AbstractRIS {
 	}
 
 	@Override
-	public Stream<Publication> getPublicationStreamFrom(Reader ris, boolean assignRandomId,
+	public Stream<Publication> getPublicationStreamFrom(Reader ris, boolean keepRisId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference)
 					throws Exception {
 		return KRisIO.processToStream(ris).map(it -> {
 			try {
-				return createPublicationFor(it, assignRandomId, ensureAtLeastOneMember, createMissedJournal, createMissedConference);
+				return createPublicationFor(it, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal, createMissedConference);
 			} catch (Exception ex) {
 				throw new RuntimeException(ex);
 			}
@@ -833,6 +833,10 @@ public class KrisRIS extends AbstractRIS {
 	 * This function does not save the publication in the database.
 	 *
 	 * @param record the entry itself.
+	 * @param keepRisId indicates if the RIS reference id should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the reference ids are provided to the publication.
+	 *     If this argument is {@code false}, the reference ids are ignored.
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
@@ -843,7 +847,7 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the publication.
 	 * @throws Exception if RIS record cannot be parsed.
 	 */
-	protected Publication createPublicationFor(RisRecord record, boolean assignRandomId,
+	protected Publication createPublicationFor(RisRecord record, boolean keepRisId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
 		final PublicationType type = getPublicationTypeFor(record);
 		if (type != null) {
@@ -1049,6 +1053,16 @@ public class KrisRIS extends AbstractRIS {
 				finalPublication.setTemporaryAuthors(authors);
 			} catch (Throwable ex) {
 				throw new IllegalArgumentException("Invalid RIS record: " + record.getReferenceId()+ ". " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
+			}
+
+			if (keepRisId) {
+				final String cid = record.getReferenceId();
+				if (Strings.isNullOrEmpty(cid)) {
+					finalPublication.setPreferredStringId(null);
+				} else {
+					final String cleanId = cid.replaceAll("[^a-zA-Z0-9_-]+", "_"); //$NON-NLS-1$ //$NON-NLS-2$
+					finalPublication.setPreferredStringId(cleanId);
+				}
 			}
 
 			if (assignRandomId) {

@@ -648,7 +648,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the publication.
 	 * @throws Exception if LaTeX code cannot be parsed.
 	 */
-	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keeyBibTeXId, boolean assignRandomId,
+	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keepBibTeXId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
 		final PublicationType type = getPublicationTypeFor(entry);
 		if (type != null) {
@@ -804,7 +804,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				throw new IllegalArgumentException("Invalid BibTeX entry: " + key.getValue() + ". " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
-			if (keeyBibTeXId) {
+			if (keepBibTeXId) {
 				final String cleanKey = entry.getKey().getValue().replaceAll("[^a-zA-Z0-9_-]+", "_"); //$NON-NLS-1$ //$NON-NLS-2$
 				finalPublication.setPreferredStringId(cleanKey);
 			}

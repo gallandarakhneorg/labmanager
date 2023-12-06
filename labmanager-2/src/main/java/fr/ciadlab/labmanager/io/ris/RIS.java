@@ -51,6 +51,10 @@ public interface RIS extends PublicationExporter<String> {
 	 * This function does not save the publication in the database, as well as the authors.
 	 *
 	 * @param ris the RIS data
+	 * @param keepRisId indicates if the RIS reference id should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the reference ids are provided to the publication.
+	 *     If this argument is {@code false}, the reference ids are ignored.
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
@@ -67,9 +71,9 @@ public interface RIS extends PublicationExporter<String> {
 	 * @see #extractPublications(String)
 	 * @since 3.8
 	 */
-	default List<Publication> extractPublications(String ris, boolean assignRandomId, boolean ensureAtLeastOneMember,
+	default List<Publication> extractPublications(String ris, boolean keepRisId, boolean assignRandomId, boolean ensureAtLeastOneMember,
 			boolean createMissedJournal, boolean createMissedConference) throws Exception {
-		return getPublicationStreamFrom(ris, assignRandomId, ensureAtLeastOneMember,
+		return getPublicationStreamFrom(ris, keepRisId, assignRandomId, ensureAtLeastOneMember,
 				createMissedJournal, createMissedConference).collect(Collectors.toList());
 	}
 
@@ -77,6 +81,10 @@ public interface RIS extends PublicationExporter<String> {
 	 * This function does not save the publication in the database.
 	 *
 	 * @param ris the RIS data
+	 * @param keepRisId indicates if the RIS reference id should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the reference ids are provided to the publication.
+	 *     If this argument is {@code false}, the reference ids are ignored.
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
@@ -93,9 +101,9 @@ public interface RIS extends PublicationExporter<String> {
 	 * @see #extractPublications(String)
 	 * @since 3.8
 	 */
-	default List<Publication> extractPublications(Reader ris, boolean assignRandomId, boolean ensureAtLeastOneMember,
+	default List<Publication> extractPublications(Reader ris, boolean keepRisId, boolean assignRandomId, boolean ensureAtLeastOneMember,
 			boolean createMissedJournal, boolean createMissedConference) throws Exception {
-		return getPublicationStreamFrom(ris, assignRandomId, ensureAtLeastOneMember,
+		return getPublicationStreamFrom(ris, keepRisId, assignRandomId, ensureAtLeastOneMember,
 				createMissedJournal, createMissedConference).collect(Collectors.toList());
 	}
 
@@ -103,6 +111,10 @@ public interface RIS extends PublicationExporter<String> {
 	 * This function does not save the publication in the database.
 	 *
 	 * @param ris the RIS data
+	 * @param keepRisId indicates if the RIS reference id should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the reference ids are provided to the publication.
+	 *     If this argument is {@code false}, the reference ids are ignored.
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
@@ -120,11 +132,11 @@ public interface RIS extends PublicationExporter<String> {
 	 * @see #extractPublications(Reader)
 	 * @since 3.8
 	 */
-	default Stream<Publication> getPublicationStreamFrom(String ris, boolean assignRandomId,
+	default Stream<Publication> getPublicationStreamFrom(String ris, boolean keepRisId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
 		if (!Strings.isNullOrEmpty(ris)) {
 			try (final Reader reader = new StringReader(ris)) {
-				return getPublicationStreamFrom(reader, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
+				return getPublicationStreamFrom(reader, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
 						createMissedConference);
 			}
 		}
@@ -135,6 +147,10 @@ public interface RIS extends PublicationExporter<String> {
 	 * This function does not save the publication in the database.
 	 *
 	 * @param ris the RIS data
+	 * @param keepRisId indicates if the RIS reference id should be used as the
+	 *     {@link Publication#getPreferredStringId() preferred string-based ID} of the publication.
+	 *     If this argument is {@code true}, the reference ids are provided to the publication.
+	 *     If this argument is {@code false}, the reference ids are ignored.
 	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
 	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
 	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
@@ -152,7 +168,7 @@ public interface RIS extends PublicationExporter<String> {
 	 * @see #extractPublications(String)
 	 * @since 3.8
 	 */
-	Stream<Publication> getPublicationStreamFrom(Reader ris, boolean assignRandomId, boolean ensureAtLeastOneMember,
+	Stream<Publication> getPublicationStreamFrom(Reader ris, boolean keepRisId, boolean assignRandomId, boolean ensureAtLeastOneMember,
 			boolean createMissedJournal, boolean createMissedConference) throws Exception;
 
 	@Override
