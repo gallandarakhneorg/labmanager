@@ -218,6 +218,8 @@ Some JS libraries are embedded in the project, e.g. Bootstrap. For upgrading the
 $> mvn clean install
 ```
 
+* Update the paths in the file `path/to/src/labmanager-2/src/main/resources/templates/fragments/libs.html`.
+
 
 ## 4. Merge your contributions to the Master server
 
