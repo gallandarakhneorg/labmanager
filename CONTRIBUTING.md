@@ -4,7 +4,7 @@ This document provides general guidelines for the contributors.
 
 ## 1. Installation for developers
 
-### 1.1. Base tools
+### 1.1. Prerequirements
 
 The following tools must be installed for contributing to the project, and testing these contributions:
 
@@ -13,7 +13,7 @@ The following tools must be installed for contributing to the project, and testi
 * **Git:** It is recommended to install a Git tool that could be used outside the development environment, e.g. the command-line interface or windows tools.
 * **Eclipse:** You must install a specific version of Eclipse: [Eclipse IDE for Enterprise Java and Web Developers](https://www.eclipse.org/downloads/)
 * **Database:**
-  * *For developers,* you don't need to install a database system. The project is configured for using a Apache Derby database or H2 database that are local file-based.
+  * *For developers,* you don't need to install a database system. The project is configured for using a Apache Derby database that is in-memory and local file-based.
   * *For production,* the project is configured for using MySQL 5.0.3 (or higher). Therefore, you must [download and install MySQL](https://dev.mysql.com/downloads/installer/) on the production server.
 
 ### 1.2. First creation of the project
@@ -37,9 +37,9 @@ The compilation must be successful.
   * Select the importer `Maven > Existing Maven Projects` ![Screenshot 1](./resources/eclipse0.png)
   * On the next page of the wizard, you must select the root source folder that contains a `pom.xml` file, i.e., `/path/to/src/labmanager-2`
   * Click on the `Finish` button to create the project
-* **Change of the development configuration:** During the development stage, you will have to use a specific Spring configuration. This configuration is stored into the file `src/main/resources/application-dev.yml` as a YAML configuration file associated to the profile "dev". You must edit this file with your local information as described below. *Don't save these changes on the Git repository*.
-  * *Change the developer database configuration:* H2 or Apache Derby was selected as a local database engine for contributors because it is easy to install and use. The configuration file uses H2 local database by default. If you prefer to use Apache Derby, copy the content of the file `src/main/resources/application-dev-derby.yml`
-  * *Change the logging configuration:* Spring boot logs the messages into files. The content of the configuration file contains:
+* **Change of the development configuration:** During the development stage, you will have to use a specific SpringBoot configuration. This configuration is stored into the file `src/main/resources/application-dev.yml` as a YAML configuration file associated to the profile "dev". You must edit this file with your local information as described below. *Don't save these changes on the Git repository*.
+  * *Change the developer database configuration:* Apache Derby was selected as a local database engine for contributors because it is easy to install and use. The configuration file uses Derby local database by default.
+  * *Change the logging configuration:* SpringBoot logs the messages into files. The content of the configuration file contains:
 ```
 # Path to the log file
 external-file: /tmp/labmanager-tmp/LabManagerApi.log
@@ -49,26 +49,26 @@ external-file: /tmp/labmanager-tmp/LabManagerApi.log
 ```
 upload-directory: /tmp/labmanager-tmp
 ```
-    Replace `/tmp/labmanager-tmp` by the name of the folder in which all the uploaded files must be copied, including PDF of the publications and award certificates.
+Replace `/tmp/labmanager-tmp` by the name of the folder in which all the uploaded files must be copied, including PDF of the publications and award certificates.
   * *Change the publishing configuration of the resources:* Many documents and files are stored into the back-end server and should be accessible from an external browser. To enable this access, the configuration file must be updated for giving to the app the name of the folder that must be published. The content of the configuration file contains:
 ```
 publish-resources: /tmp/labmanager-tmp/Downloadables/
 ```
-    Replace `/tmp/labmanager-tmp/Downloadables/` by the name of the folder in which all the public resources of the app are located. The name `Downloadables` must not be changed because it is hard-coded in the app. The folder name `/tmp/labmanager-tmp` is usually the same as for the `upload-directory` configuration to enable the access of the uploaded PDF files from a browser.
+Replace `/tmp/labmanager-tmp/Downloadables/` by the name of the folder in which all the public resources of the app are located. The name `Downloadables` must not be changed because it is hard-coded in the app. The folder name `/tmp/labmanager-tmp` is usually the same as for the `upload-directory` configuration to enable the access of the uploaded PDF files from a browser.
 
 
 ### 1.3. Launching of the project
 
-For launching the backend services into a local Tomcat server, you could launch it into the Eclipse environment. To do so, you have to create a run configuration. You may launch a "Spring Boot" app if you have installed the Spring Boot plugings in your IDE, or launch a "Java" app if you have not installed them.
+For launching the backend services into a local Tomcat server, you could launch it into the Eclipse environment. To do so, you have to create a run configuration. You may launch a SpringBoot app if you have installed the SpringBoot plugins in your IDE, or launch a "Java" app if you have not installed them.
 
-* *For Spring Boot App:*
+* *For SpringBoot App:*
   * Open the menu `Run > Run configurations`
-  * Select the type `Spring Boot App` and click on the `Create new run configuration` button at the top of the list
+  * Select the type `SpringBoot App` and click on the `Create new run configuration` button at the top of the list
   * Enter the name of the run configuration on the right part of the wizard windows, e.g. with `labmanager`
   * Select the `labmanager-2` project below
   * Enter the main type: `fr.ciadlab.labmanager.LabManagerApplication`
   * Enter the profile: `dev` (or the name of the YAML configuration you would like to use, see `application-dev.yml`)
-  * Click on the `Run` button for saving the launch configuration and launching the Spring Boot application
+  * Click on the `Run` button for saving the launch configuration and launching the SpringBoot application
 * *For Regular Java App:*
   * Open the menu `Run > Run configurations`
   * Select the type `Java Application` and click on the `Create new run configuration` button at the top of the list
@@ -80,25 +80,8 @@ For launching the backend services into a local Tomcat server, you could launch 
 
 ### 1.4. Initial database schema creation
 
-By default, JPA is not creating the database schema. Indeed, it is configured for updating the content of the database from an existing schema.
-Therefore, it is necessary to create the initial database schema when you start from an empty database.
-
-The project is configured for creating automatically a SQL script for creating the database schema. It is created into the project folder, i.e., `./labmanager-2/`.
-The name of the script is `schema-<platform>-gen.sql`, where `<platform>` is the name of the database platform that is configured in the `spring.sql.init.platform` configuration property.
-By default, in the development environment, the platform is `h2` (it may be also `derby` or `mysql`).
-
-**Caution 1:** if the file `schema-<platform>-gen.sql` does not exist in your source folder, you have to launch the project into Eclipse once for forcing its generation.
-
-**Caution 2:** the content of the file `schema-<platform>-gen.sql` is updated by Spring Boot at each launch without removing the previous content. It means that if you launch multiple times the application, the content of this file will contain the multiple times SQL statements. Consequently, before using the file `schema-<platform>-gen.sql`, it is recommended to delete it and regenerate it from nothing.
-
-For creating the database schema, you have to follow the steps:
-
-* Copy `./labmanager-2/schema-<platform>-gen.sql` into `./labmanager-2/src/main/resources/schema-<platform>.sql`
-* Launch the project in Eclipse
-* Wait for successful project launching, and then stop the run.
-* Delete the file `./labmanager-2/src/main/resources/schema-<platform>.sql`
-
-Now you database should be ready with an up-to-date schema and with empty tables.
+By default, JPA is creating the database schema.
+The project is configured for creating automatically a schema in the database from the JPA entities.
 
 ### 1.5. Inject initial data into the database
 
@@ -106,22 +89,20 @@ The SQL script for creating the database schema does not contains the SQL statem
 
 #### 1.5.1. Injecting data from data.json
 
-The project is configured for inserting automatically the data that is described into a specific JSON file with the location and name `./labmanager-2/src/main/resources/data.json`.
-A basic JSON file is provided with a set of toy data: `data.json_`. The real set of data for the laboratory could be provided by the project manager.
-Copy the JSON file provided by the project manager into the folder `./labmanager-2/src/main/resources/` and ensures that the name of the new file is `data.json`.
+The project is configured for inserting automatically the data that is described into a specific JSON file in a folder that is specified in the developer YAML confiuration file, with key `labmanager.init.data-source`.
 
 For injecting initial data in the database, you have to follow the steps:
 
-* Copy the JSON file into `./labmanager-2/src/main/resources/data.json`
+* Copy the JSON into the folder specified in the developer YAML configuration `labmanager.init.data-source`
 * Launch the project in Eclipse
 * Wait for successful project launching, and then stop the run.
-* Delete the file `./labmanager-2/src/main/resources/data.json`
+* Delete the JSON file
 
 Now you database contains the based data that is validated by the project development team.
 
 #### 1.5.2. Injecting data from data.zip
 
-The previous data injection approach works well for populating the database tables. However, extra data is not injected, such as the images, the PDF files associated to the entities in the database.
+The previous JSON-based data injection approach works well for populating the database tables. However, extra data is not injected, such as the images or the PDF files associated to the entities in the database.
 To inject a complete set of data (with associated files) in the database and the associated folders, you could use an archive file named `data.zip` that contains:
 
 * a file named `dbcontent.json` that is the JSON file mentionned above.
@@ -129,10 +110,10 @@ To inject a complete set of data (with associated files) in the database and the
 
 For injecting initial data in the database, you have to follow the steps:
 
-* Copy the ZIP file into `./labmanager-2/src/main/resources/data.zip`
+* Copy the ZIP file into the folder specified in the developer YAML configuration `labmanager.init.data-source`
 * Launch the project in Eclipse
 * Wait for successful project launching, and then stop the run.
-* Delete the file `./labmanager-2/src/main/resources/data.zip`
+* Delete the ZIP file
 
 Now you database contains the based data that is validated by the project development team.
 
@@ -223,15 +204,38 @@ public void setNewField(Number value) {
 ```
 * **Because you have added a column for the JPA entity, it is mandatory to reset the database. You have to delete completely the database and create it again.**
 
+## 3. Upgrade the JS libraries
 
-## 3. Merge your contributions to the Master server
+Some JS libraries are embedded in the project, e.g. Bootstrap. For upgrading these libraries to newer versions, please follow the steps:
 
-As soon as all your contributions are comitted on your fork Git repository, it is possible to provide your changes to the Master development team through a *Pull Request* (PR) on Github:
+* Sources of the JS libraries are stored in the source folder `/path/to/src/labmanager2/static-resources`
+* Upgrade the libraries in the previously mentionned folder
+* Remove old versions of the libraries from the previously mentionned folder
+* All the files that are stored in `/path/to/src/labmanager2/static-resources` will be automatically copied in the project resources, except files in `/path/to/src/labmanager2/static-resources/old`
+* For copying the JS files in the project, use Maven with:
+
+```sh
+$> mvn clean install
+```
+
+
+## 4. Merge your contributions to the Master server
+
+### 4.1. Project Software License
+
+All your contributions to the project will be distributed under the project license. See [LICENSE](COPYRIGHT.txt) for more details.
+You must accept this license for pushing your contributions in the project.
+
+### 4.2. Pushing your contributions
+
+As soon as all your contributions are committed on your fork Git repository, it is possible to provide your changes to the Master development team through a *Pull Request* (PR) on Github:
 
 * Open the Master Git Repository on [Github](https://github.com/gallandarakhneorg/labmanager)
 * Open the PR page
 * Create a new PR
 * Select your fork Git repository as the source of the PR
 * Fill-up the PR form
+* Submit
 
+Your PR will be reviewed by the Master development team to determine if it will be accepted or rejected.
 
