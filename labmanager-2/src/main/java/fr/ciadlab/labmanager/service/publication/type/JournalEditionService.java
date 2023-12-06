@@ -99,13 +99,30 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param number the number of the journal.
 	 * @param pages the pages in the journal.
 	 * @param journal the associated journal.
+	 * @param saveInDb {@code true} for saving the publication in the database.
+	 * @return the created journal edition.
+	 * @since 3.8
+	 */
+	public JournalEdition createJournalEdition(Publication publication, String volume, String number, String pages, Journal journal, boolean saveInDb) {
+		final JournalEdition res = new JournalEdition(publication, volume, number, pages);
+		res.setJournal(journal);
+		if (saveInDb) {
+			this.repository.save(res);
+		}
+		return res;
+	}
+
+	/** Create a journal edition.
+	 *
+	 * @param publication the publication to copy.
+	 * @param volume the volume of the journal.
+	 * @param number the number of the journal.
+	 * @param pages the pages in the journal.
+	 * @param journal the associated journal.
 	 * @return the created journal edition.
 	 */
 	public JournalEdition createJournalEdition(Publication publication, String volume, String number, String pages, Journal journal) {
-		final JournalEdition res = new JournalEdition(publication, volume, number, pages);
-		res.setJournal(journal);
-		this.repository.save(res);
-		return res;
+		return createJournalEdition(publication, volume, number, pages, journal, true);
 	}
 
 	/** Update the journal edition with the given identifier.

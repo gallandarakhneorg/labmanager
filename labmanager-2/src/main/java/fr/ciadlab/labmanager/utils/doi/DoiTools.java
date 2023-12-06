@@ -70,7 +70,7 @@ public interface DoiTools {
 	/** Replies the DOI number that is specified inside the given DOI URL.
 	 * A DOI URL is based on the standard {@link "https://doi.org"} to which
 	 * the DOI number is added.
-	 * If the input string is not a valid URL, the string is parsed a a DOI number.
+	 * If the input string is not a valid URL, the string is parsed as a DOI number.
 	 *
 	 * @param url the DOI URL.
 	 * @return the DOI number, or {@code null} if the given URL does not corresponds to a DOI url.

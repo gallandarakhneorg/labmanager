@@ -109,7 +109,10 @@
 			    	   th:href="@{/showBibTeXImporter}" class="btn btn-labeled btn-secondary" role="button">
 			    		<span class="fa-solid fa-upload"></span>&nbsp;<th:block th:utext="#{html.ImportBibTeX}"></th:block></a>
 			    	<a th:if="${changeEnabled}"
-			    	   th:href="@{/regenerateThumbnail}" class="btn btn-labeled btn-warning" role="button">
+			    	   th:href="@{/showRISImporter}" class="btn btn-labeled btn-warning" role="button">
+			    		<span class="fa-solid fa-upload"></span>&nbsp;<th:block th:utext="#{html.ImportRIS}"></th:block></a>
+			    	<a th:if="${changeEnabled}"
+			    	   th:href="@{/regenerateThumbnail}" class="btn btn-labeled btn-success" role="button">
 			    		<span class="fa-solid fa-sync"></span>&nbsp;<th:block th:utext="#{html.RegeneratePictures}"></th:block></a>
 			    </p>
 				<div class="card-footer">

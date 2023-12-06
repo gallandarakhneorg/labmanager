@@ -475,9 +475,21 @@ public class Constants {
 	 */
 	public static final String IMPORT_BIBTEX_VIEW_ENDPOINT = "showBibTeXImporter"; //$NON-NLS-1$
 
+	/** Name of the endpoint for selecting a RIS file to import.
+	 *
+	 * @since 3.8
+	 */
+	public static final String IMPORT_RIS_VIEW_ENDPOINT = "showRISImporter"; //$NON-NLS-1$
+
 	/** Name of the endpoint for reading a BibTeX file and providing a JSON description.
 	 */
 	public static final String GET_JSON_FROM_BIBTEX_ENDPOINT = "getJsonFromBibTeX"; //$NON-NLS-1$
+
+	/** Name of the endpoint for reading a RIS file and providing a JSON description.
+	 *
+	 * @since 3.8
+	 */
+	public static final String GET_JSON_FROM_RIS_ENDPOINT = "getJsonFromRIS"; //$NON-NLS-1$
 
 	/** Name of the endpoint parameter for checking that an entity is already in the database and
 	 * marking accordingly the entity in the output.
@@ -487,6 +499,12 @@ public class Constants {
 	/** Name of the endpoint for saving a BibTeX file and providing a JSON description.
 	 */
 	public static final String SAVE_BIBTEX_ENDPOINT = "saveBibTeX"; //$NON-NLS-1$
+
+	/** Name of the endpoint for saving a RIS file and providing a JSON description.
+	 *
+	 * @since 3.8
+	 */
+	public static final String SAVE_RIS_ENDPOINT = "saveRIS"; //$NON-NLS-1$
 
 	/** Name of the endpoint for deleting a membership.
 	 */

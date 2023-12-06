@@ -26,6 +26,10 @@ GLOBAL_FORM_DATA_INPUT_TRANSFORMERS.push((formData) => {
 				var isManuallyRemoved = $hiddenElt.value
 				formData.append('@fileUpload_removed_' + fieldName, isManuallyRemoved);
 			});
+			$.each($('#fileUploadRIS_removed_' + fieldName), (index, $hiddenElt) => {
+				var isManuallyRemoved = $hiddenElt.value
+				formData.append('@fileUpload_removed_' + fieldName, isManuallyRemoved);
+			});
 			$.each($('#fileUploadImage_removed_' + fieldName), (index, $hiddenElt) => {
 				var isManuallyRemoved = $hiddenElt.value
 				formData.append('@fileUpload_removed_' + fieldName, isManuallyRemoved);
@@ -55,7 +59,7 @@ GLOBAL_FORM_DATA_INPUT_TRANSFORMERS.push((formData) => {
  *        provided, the `id` or `obj` must be provided.
  *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
  *        provided, the `selector` or `id` must be provided.
- *      * `enableRemove` indicates if the component enables to remove a selected BibTeX file. Default is `true`.
+ *      * `enableRemove` indicates if the component enables to remove a selected PDF file. Default is `true`.
  *      * `basename` the basename of the file that is initially shown in the component.
  *      * `picture` the path to the picture that provides a view on the initially selected file.
  *      * `onSelected` a function invoked when a file is seleted. This function takes the file object as argument.
@@ -87,6 +91,27 @@ function initFileUploadSingleBibTeX(config) {
  	config['fileExtensionMatcher'] = (vName) => { return vName.match(/\.(bib|bibtex)$/i) };
  	config['fileExtensionArray'] = [ 'bib', 'bibtex' ];
 	(!('componentIdPrefix' in config)) && (config['componentIdPrefix'] = "fileUploadBibTeX_");
+	initFileUploadSingleFile_base(config);
+}
+
+/** Initialize the input component for selecting and uploading a single RIS file.
+ * @param config the map of the configuration elements:
+ *      * `name` the name of the field to upload.
+ *      * `id` the identifier of the button that is used for obtaining the button with jQuery. If this `id` is not
+ *        provided, the `selector` or `obj` must be provided.
+ *      * `selector` the jQuery selector for obtaining the button. If this `selector` is not
+ *        provided, the `id` or `obj` must be provided.
+ *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
+ *        provided, the `selector` or `id` must be provided.
+ *      * `enableRemove` indicates if the component enables to remove a selected RIS file. Default is `true`.
+ *      * `onSelected` a function invoked when a file is seleted. This function takes the file object as argument.
+ */
+function initFileUploadSingleRIS(config) {
+ 	config['fileTypeName'] = 'ris';
+ 	config['mimeTypes'] = [ 'application/text-plain' ],
+ 	config['fileExtensionMatcher'] = (vName) => { return vName.match(/\.ris$/i) };
+ 	config['fileExtensionArray'] = [ 'ris' ];
+	(!('componentIdPrefix' in config)) && (config['componentIdPrefix'] = "fileUploadRIS_");
 	initFileUploadSingleFile_base(config);
 }
 
@@ -185,7 +210,7 @@ function initFileUploadSinglePpt(config) {
  *        provided, the `id` or `obj` must be provided.
  *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
  *        provided, the `selector` or `id` must be provided.
- *      * `enableRemove` indicates if the component enables to remove a selected BibTeX file. Default is `true`.
+ *      * `enableRemove` indicates if the component enables to remove a selected file. Default is `true`.
  *      * `basename` the basename of the file that is initially shown in the component.
  *      * `picture` the path to the picture that provides a view on the initially selected file.
  *      * `mimeType` the MIME type of the accepted files to upload.
@@ -280,7 +305,7 @@ function initFileUploadSingleFile_base(config) {
  *        provided, the `id` or `obj` must be provided.
  *      * `obj` the button that is used for obtaining the button with jQuery. If this `obj` is not
  *        provided, the `selector` or `id` must be provided.
- *      * `enableRemove` indicates if the component enables to remove a selected BibTeX file. Default is `true`.
+ *      * `enableRemove` indicates if the component enables to remove a selected file. Default is `true`.
  *      * `files` the array of hashs that represent the selected files. Each entry is a hash with the keys
  *        `basename` and `picture` for representing the basename and the view.
  *      * `mimeType` the MIME type of the accepted files to upload.

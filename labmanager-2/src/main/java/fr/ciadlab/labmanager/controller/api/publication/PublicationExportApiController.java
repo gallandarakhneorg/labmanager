@@ -43,6 +43,7 @@ import fr.ciadlab.labmanager.io.ExporterConfigurator;
 import fr.ciadlab.labmanager.io.bibtex.BibTeXConstants;
 import fr.ciadlab.labmanager.io.json.JsonTool;
 import fr.ciadlab.labmanager.io.od.OpenDocumentConstants;
+import fr.ciadlab.labmanager.io.ris.RISConstants;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.publication.PublicationService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
@@ -337,7 +338,7 @@ public class PublicationExportApiController extends AbstractApiController {
 		final String content = export(identifiers, dbId, inString(webId), organization, journal, false, false,
 				includeSuborganizations, filterAuthorshipsWithActiveMemberships, Boolean.FALSE, Boolean.FALSE,
 				Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, Boolean.FALSE, cb);
-		BodyBuilder bb = ResponseEntity.ok().contentType(BibTeXConstants.MIME_TYPE_UTF8);
+		BodyBuilder bb = ResponseEntity.ok().contentType(RISConstants.MIME_TYPE_UTF8);
 		if (inAttachment != null && inAttachment.booleanValue()) {
 			final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 			bb = bb.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
@@ -481,6 +482,22 @@ public class PublicationExportApiController extends AbstractApiController {
 		return bb.body(content);
 	}
 
+	private JsonNode extractPublicationJson(List<Publication> publications, String sourceName, boolean checkInDb) throws Exception {
+		if (publications != null && !publications.isEmpty()) {
+			final ExporterConfigurator configurator = new ExporterConfigurator(this.journalService);
+			final Procedure2<Publication, ObjectNode> callback;
+			if (checkInDb) {
+				callback = this::checkDuplicates;
+			} else {
+				callback = null;
+			}
+			final JsonNode root = this.publicationService.exportJsonAsTree(publications, configurator, callback, "data"); //$NON-NLS-1$
+			getLogger().info("Providing the JSON representation of the " + sourceName + " publications"); //$NON-NLS-1$ //$NON-NLS-2$
+			return root;
+		}
+		throw new IllegalArgumentException("No publication in the " + sourceName + " file"); //$NON-NLS-1$ //$NON-NLS-2$
+	}
+
 	/** Read a BibTeX file and replies the publications as JSON.
 	 *
 	 * @param bibtexFile the uploaded BibTeX files.
@@ -511,19 +528,41 @@ public class PublicationExportApiController extends AbstractApiController {
 				publications = this.publicationService.readPublicationsFromBibTeX(reader, true, true, true, !failOnMissedJournal, !failOnMissedConference);
 			}
 		}
-		if (publications != null && !publications.isEmpty()) {
-			final ExporterConfigurator configurator = new ExporterConfigurator(this.journalService);
-			final Procedure2<Publication, ObjectNode> callback;
-			if (checkInDb) {
-				callback = this::checkDuplicates;
-			} else {
-				callback = null;
-			}
-			final JsonNode root = this.publicationService.exportJsonAsTree(publications, configurator, callback, "data"); //$NON-NLS-1$
-			getLogger().info("Providing the JSON representation of the BibTeX publications"); //$NON-NLS-1$
-			return root;
+		return extractPublicationJson(publications, "BibTeX", checkInDb); //$NON-NLS-1$
+	}
+
+	/** Read a RIS file and replies the publications as JSON.
+	 *
+	 * @param risFile the uploaded RIS files.
+	 * @param failOnMissedJournal indicates if the service should fail if a journal is unknown from the JPA database.
+	 *    If this parameter is {@code false}, the JSON node will contains a journal that is marked as invalid/fake
+	 *    with the {@code _fakeEntity} property.
+	 * @param failOnMissedConference indicates if the service should fail if a conference is unknown from the JPA database.
+	 *    If this parameter is {@code false}, the JSON node will contains a conference that is marked as invalid/fake
+	 *    with the {@code _fakeEntity} property.
+	 * @param checkInDb indicates if the entries from the RIS should be searched in the database and marked
+	 *    if a similar publication is inside the database.
+	 * @return the list of publications from the RIS file.
+	 * @throws Exception if the RIS file cannot be used.
+	 * @since 3.8
+	 */
+	@PostMapping(value = "/" + Constants.GET_JSON_FROM_RIS_ENDPOINT)
+	@ResponseBody
+	public JsonNode getJsonFromRIS(
+			@RequestParam(required = false) MultipartFile risFile,
+			@RequestParam(required = false, defaultValue = "false") boolean failOnMissedJournal,
+			@RequestParam(required = false, defaultValue = "false") boolean failOnMissedConference,
+			@RequestParam(required = false, name = Constants.CHECKINDB_ENDPOINT_PARAMETER, defaultValue = "false") boolean checkInDb) throws Exception {
+		if (risFile == null || risFile.isEmpty()) {
+			throw new IllegalArgumentException(getMessage("publicationImporterApiController.NoBibTeXSource")); //$NON-NLS-1$
 		}
-		throw new IllegalArgumentException("No publication in the BibTeX file"); //$NON-NLS-1$
+		List<Publication> publications;
+		try (final InputStream inputStream = risFile.getInputStream()) {
+			try (final Reader reader = new InputStreamReader(inputStream)) {
+				publications = this.publicationService.readPublicationsFromRIS(reader, true, true, !failOnMissedJournal, !failOnMissedConference);
+			}
+		}
+		return extractPublicationJson(publications, "RIS", checkInDb); //$NON-NLS-1$
 	}
 
 	private void checkDuplicates(Publication publication, ObjectNode json) {

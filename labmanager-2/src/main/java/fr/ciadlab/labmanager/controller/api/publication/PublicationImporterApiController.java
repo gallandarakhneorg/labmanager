@@ -75,6 +75,30 @@ public class PublicationImporterApiController extends AbstractApiController {
 		this.publicationService = publicationService;
 	}
 
+	private static Map<String, PublicationType> preparePublicationSaving(String changes) throws Exception {
+		final ObjectMapper json = JsonUtils.createMapper();
+		final String inChanges = inString(changes);
+		final Map<String, PublicationType> expectedTypes = new TreeMap<>();
+		if (inChanges != null) {
+			final Map<String, Object> jsonChanges;
+			try (final ByteArrayInputStream sis = new ByteArrayInputStream(inChanges.getBytes())) {
+				jsonChanges = json.readerForMapOf(Map.class).readValue(sis);
+			}
+			for (final Entry<String, Object> entry : jsonChanges.entrySet()) {
+				@SuppressWarnings("unchecked")
+				final Map<String, Object> sub = (Map<String, Object>) entry.getValue();
+				if (sub != null && BooleanUtils.toBoolean(sub.getOrDefault("import", Boolean.FALSE).toString())) { //$NON-NLS-1$
+					final Object expectedTypeStr = sub.get("type"); //$NON-NLS-1$
+					if (expectedTypeStr != null && !Strings.isNullOrEmpty(expectedTypeStr.toString())) {
+						final PublicationType type = PublicationType.valueOfCaseInsensitive(expectedTypeStr.toString());
+						expectedTypes.put(entry.getKey(), type);
+					}
+				}
+			}
+		}
+		return expectedTypes;
+	}
+
 	/** Save a BibTeX file in the database.
 	 *
 	 * @param bibtexFile the uploaded BibTeX files.
@@ -100,29 +124,46 @@ public class PublicationImporterApiController extends AbstractApiController {
 		ensureCredentials(username, Constants.SAVE_BIBTEX_ENDPOINT);
 		try {
 			// Pass the changes string as JSON to extract the expected types of publications. 
-			final ObjectMapper json = JsonUtils.createMapper();
-			final String inChanges = inString(changes);
-			final Map<String, PublicationType> expectedTypes = new TreeMap<>();
-			if (inChanges != null) {
-				final Map<String, Object> jsonChanges;
-				try (final ByteArrayInputStream sis = new ByteArrayInputStream(inChanges.getBytes())) {
-					jsonChanges = json.readerForMapOf(Map.class).readValue(sis);
-				}
-				for (final Entry<String, Object> entry : jsonChanges.entrySet()) {
-					@SuppressWarnings("unchecked")
-					final Map<String, Object> sub = (Map<String, Object>) entry.getValue();
-					if (sub != null && BooleanUtils.toBoolean(sub.getOrDefault("import", Boolean.FALSE).toString())) { //$NON-NLS-1$
-						final Object expectedTypeStr = sub.get("type"); //$NON-NLS-1$
-						if (expectedTypeStr != null && !Strings.isNullOrEmpty(expectedTypeStr.toString())) {
-							final PublicationType type = PublicationType.valueOfCaseInsensitive(expectedTypeStr.toString());
-							expectedTypes.put(entry.getKey(), type);
-						}
-					}
-				}
-			}
+			final Map<String, PublicationType> expectedTypes = preparePublicationSaving(changes);
 			// Import the publications that are specified in the map of expected types.
 			try (final Reader reader = new InputStreamReader(bibtexFile.getInputStream())) {
-				this.publicationService.importPublications(reader, expectedTypes, createMissedJournals, createMissedConferences);
+				this.publicationService.importBibTeXPublications(reader, expectedTypes, createMissedJournals, createMissedConferences);
+			}
+		} catch (Throwable ex) {
+			getLogger().error(ex.getLocalizedMessage(), ex);
+			throw ex;
+		}
+	}
+
+	/** Save a RIS file in the database.
+	 *
+	 * @param risFile the uploaded RIS files.
+	 * @param changes a JSON string that represents the changes. It is expected to be a map in which the keys are
+	 *     the RIS identifiers, and the values are sub-maps with the key {@code import} indicates if an entry should be
+	 *     imported or not (with boolean value), and the key {@code type} is the string representation of the type of
+	 *     publication to be considered for the BibTeX entry. If this expected publication type does not corresponds
+	 *     to the type of RIS entry, an exception is thrown.
+	 * @param createMissedJournals indicates if the missed journals in the database should be created on-the-fly from
+	 *     the RIS data.
+	 * @param createMissedConferences indicates if the missed conferences in the database should be created on-the-fly from
+	 *     the RIS data.
+	 * @param username the name of the logged-in user.
+	 * @throws Exception if it is impossible to import the RIS file in the database.
+	 */
+	@PostMapping(value = "/" + Constants.SAVE_RIS_ENDPOINT)
+	public void saveRIS(
+			@RequestParam(required = false) MultipartFile risFile,
+			@RequestParam(required = false) String changes,
+			@RequestParam(required = false, defaultValue = "true") boolean createMissedJournals,
+			@RequestParam(required = false, defaultValue = "true") boolean createMissedConferences,
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
+		ensureCredentials(username, Constants.SAVE_RIS_ENDPOINT);
+		try {
+			// Pass the changes string as JSON to extract the expected types of publications. 
+			final Map<String, PublicationType> expectedTypes = preparePublicationSaving(changes);
+			// Import the publications that are specified in the map of expected types.
+			try (final Reader reader = new InputStreamReader(risFile.getInputStream())) {
+				this.publicationService.importBibTeXPublications(reader, expectedTypes, createMissedJournals, createMissedConferences);
 			}
 		} catch (Throwable ex) {
 			getLogger().error(ex.getLocalizedMessage(), ex);

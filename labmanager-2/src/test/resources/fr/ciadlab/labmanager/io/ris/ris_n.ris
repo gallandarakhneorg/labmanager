@@ -1,0 +1,47 @@
+TY  - JOUR
+T1  - T-lymphocytes from normal human peritoneum are phenotypically different from their counterparts in peripheral blood and CD3- lymphocyte subsets contain mRNA for the recombination activating gene RAG-1
+AU  - Hartmann,J.
+AU  - Maassen,V.
+AU  - Rieber,P.
+AU  - Fricke,H.
+PY  - 1995
+Y1  - 1995///
+KW  - Peritoneum
+KW  - T cell
+KW  - T lymphocyte
+KW  - lymphocyte
+KW  - immunology
+KW  - CD3
+KW  - human
+KW  - Adult
+KW  - blood
+RP  - IN FILE
+SP  - 2626
+EP  - 2631
+JF  - European Journal of Immunology
+JA  - Eur.J.Immunol.
+VL  - 25
+N2  - These findings are compatible with the hypothesis that the adult human peritoneum provides a microenvirinment capable of supporting a thymus-independent differentiation of T lymphocytes.
+ER  - 
+
+TY  - CPAPER
+AU  - Baldoni, Matteo
+AU  - Baroglio, Cristina
+AU  - Micalizio, Roberto
+AU  - Tedeschi, Stefano
+ED  - Mathieu, Philippe
+ED  - Dignum, Frank
+ED  - Novais, Paulo
+ED  - De la Prieta, Fernando
+PY  - 2023
+DA  - 2023//
+TI  - Towards Exception Handling in the SARL Agent Platform
+BT  - Advances in Practical Applications of Agents, Multi-Agent Systems, and Cognitive Mimetics. The PAAMS Collection
+SP  - 403
+EP  - 408
+PB  - Springer Nature Switzerland
+CY  - Cham
+AB  - We demonstrate how exception handling can be realized in the SARL agent platform. We see exception handling as a mechanism binding some agents, entitled to raise given exceptions, to the ones entitled to handle them. To this end, we define dedicated exception spaces through which defining the agents’ behavior in presence of exceptions.
+SN  - 978-3-031-37616-0
+ID  - 10.1007/978-3-031-37616-0_33
+ER  - 

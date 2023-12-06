@@ -19,6 +19,7 @@
 
 package fr.ciadlab.labmanager.io.ris;
 
+import java.util.Random;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +40,8 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 public abstract class AbstractRIS implements RIS {
 
 	private static final Pattern PAGES_PATTERN = Pattern.compile("^\\s*([0-9]+)(?:\\s*\\-+\\s*([0-9]+)\\s*)?$"); //$NON-NLS-1$
+
+	private final Random random = new Random();
 
 	/** Parse the string that represents a page range.
 	 *
@@ -65,6 +68,14 @@ public abstract class AbstractRIS implements RIS {
 			}
 		}
 		return null;
+	}
+
+	/** Generate an UUID.
+	 *
+	 * @return the UUID.
+	 */
+	protected Integer generateUUID() {
+		return Integer.valueOf(Math.abs(this.random.nextInt()));
 	}
 
 }

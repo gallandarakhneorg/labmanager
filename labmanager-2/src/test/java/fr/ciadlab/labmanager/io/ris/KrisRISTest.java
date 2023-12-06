@@ -19,7 +19,6 @@ package fr.ciadlab.labmanager.io.ris;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -44,14 +43,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.ciadlab.labmanager.configuration.BaseMessageSource;
 import fr.ciadlab.labmanager.entities.conference.Conference;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
-import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.Book;
@@ -65,8 +62,7 @@ import fr.ciadlab.labmanager.entities.publication.type.Patent;
 import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
-import fr.ciadlab.labmanager.io.bibtex.JBibtexBibTeX.ConferenceNameComponents;
-import fr.ciadlab.labmanager.io.bibtex.bugfix.BugfixLaTeXPrinter;
+import fr.ciadlab.labmanager.io.bibtex.JBibtexBibTeXTest;
 import fr.ciadlab.labmanager.service.conference.ConferenceService;
 import fr.ciadlab.labmanager.service.journal.JournalService;
 import fr.ciadlab.labmanager.service.member.PersonService;
@@ -74,22 +70,23 @@ import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
 import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
 import fr.ciadlab.labmanager.service.publication.type.BookService;
 import fr.ciadlab.labmanager.service.publication.type.ConferencePaperService;
+import fr.ciadlab.labmanager.service.publication.type.JournalEditionService;
 import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
+import fr.ciadlab.labmanager.service.publication.type.KeyNoteService;
 import fr.ciadlab.labmanager.service.publication.type.MiscDocumentService;
 import fr.ciadlab.labmanager.service.publication.type.ReportService;
 import fr.ciadlab.labmanager.service.publication.type.ThesisService;
+import fr.ciadlab.labmanager.utils.doi.DefaultDoiTools;
+import fr.ciadlab.labmanager.utils.doi.DoiTools;
 import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.Resources;
-import org.jbibtex.LaTeXObject;
-import org.jbibtex.LaTeXParser;
-import org.jbibtex.LaTeXPrinter;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link KrisRIS}.
  * 
@@ -102,11 +99,67 @@ import org.springframework.context.support.MessageSourceAccessor;
 @ExtendWith(MockitoExtension.class)
 public class KrisRISTest {
 
+	private PrePublicationFactory prePublicationFactory;
+
+	private JournalService journalService;
+
+	private ConferenceService conferenceService;
+
+	private PersonService personService;
+
+	private BookService bookService;
+
+	private BookChapterService bookChapterService;
+
+	private ConferencePaperService conferencePaperService;
+
+	private JournalPaperService journalPaperService;
+
+	private MiscDocumentService miscDocumentService;
+
+	private ReportService reportService;
+
+	private ThesisService thesisService;
+
+	private KeyNoteService keyNoteService;
+
+	private JournalEditionService journalEditionService;
+
+	private DoiTools doiTools;
+
 	private KrisRIS test;
 
 	@BeforeEach
 	public void setUp() {
-		this.test = new KrisRIS();
+		this.prePublicationFactory = mock(PrePublicationFactory.class);
+		this.journalService = mock(JournalService.class);
+		this.conferenceService = mock(ConferenceService.class);
+		this.personService = mock(PersonService.class);
+		this.bookService = mock(BookService.class);
+		this.bookChapterService = mock(BookChapterService.class);
+		this.conferencePaperService = mock(ConferencePaperService.class);
+		this.journalPaperService = mock(JournalPaperService.class);
+		this.miscDocumentService = mock(MiscDocumentService.class);
+		this.reportService = mock(ReportService.class);
+		this.thesisService = mock(ThesisService.class);
+		this.keyNoteService = mock(KeyNoteService.class);
+		this.journalEditionService = mock(JournalEditionService.class);
+		this.doiTools = new DefaultDoiTools();
+		this.test = new KrisRIS(
+				this.prePublicationFactory,
+				this.journalService,
+				this.conferenceService,
+				this.personService,
+				this.bookService,
+				this.bookChapterService,
+				this.conferencePaperService,
+				this.journalPaperService,
+				this.miscDocumentService,
+				this.reportService,
+				this.thesisService,
+				this.keyNoteService,
+				this.journalEditionService,
+				this.doiTools);
 	}
 
 	private String lines(String... lines) {
@@ -152,6 +205,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(journal)")
 	public void exportPublications_journalPaper() {
 		Journal journal = mock(Journal.class);
 		when(journal.getJournalName()).thenReturn("journal name//1");
@@ -197,6 +251,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(book)")
 	public void exportPublications_book() {
 		Book pub = mock(Book.class);
 		preparePublicationForExportTest(pub, PublicationType.INTERNATIONAL_BOOK);
@@ -238,6 +293,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(bookChapter)")
 	public void exportPublications_bookChapter() {
 		BookChapter pub = mock(BookChapter.class);
 		preparePublicationForExportTest(pub, PublicationType.INTERNATIONAL_BOOK_CHAPTER);
@@ -279,6 +335,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(PhDThesis)")
 	public void exportPublications_phdthesis() {
 		Thesis pub = mock(Thesis.class);
 		preparePublicationForExportTest(pub, PublicationType.PHD_THESIS);
@@ -341,6 +398,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(journalEdition)")
 	public void exportPublications_journalEdition() {
 		Journal journal = mock(Journal.class);
 		when(journal.getJournalName()).thenReturn("journal name//1");
@@ -386,6 +444,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(conferencePaper)")
 	public void exportPublications_conferencePaper() {
 		Conference conf = mock(Conference.class);
 		when(conf.getAcronym()).thenReturn("ACR");
@@ -434,6 +493,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(keyNote)")
 	public void exportPublications_keynote() {
 		Conference conf = mock(Conference.class);
 		when(conf.getAcronym()).thenReturn("ACR");
@@ -474,6 +534,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(techReport)")
 	public void exportPublications_techreport() {
 		Report pub = mock(Report.class);
 		preparePublicationForExportTest(pub, PublicationType.TECHNICAL_REPORT);
@@ -508,6 +569,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(manual)")
 	public void exportPublications_manual() {
 		Report pub = mock(Report.class);
 		preparePublicationForExportTest(pub, PublicationType.TUTORIAL_DOCUMENTATION);
@@ -542,6 +604,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(patent)")
 	public void exportPublications_patent() {
 		Patent pub = mock(Patent.class);
 		preparePublicationForExportTest(pub, PublicationType.INTERNATIONAL_PATENT);
@@ -576,6 +639,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(misc artistic production)")
 	public void exportPublications_misc() {
 		MiscDocument pub = mock(MiscDocument.class);
 		preparePublicationForExportTest(pub, PublicationType.ARTISTIC_PRODUCTION);
@@ -589,7 +653,7 @@ public class KrisRISTest {
 		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
 
 		assertEquals(lines(
-				"TY  - GEN",
+				"TY  - ART",
 				"AB  - Abs 1",
 				"AU  - Lastname1, Firstname1",
 				"AU  - Lastname0, Firstname0",
@@ -614,6 +678,7 @@ public class KrisRISTest {
 	}
 
 	@Test
+	@DisplayName("exportPublications(x) / publication type")
 	public void exportPublications_perPublicationType() {
 		for (final PublicationType type : PublicationType.values()) {
 			Publication pub = mock(type.getInstanceType());
@@ -633,6 +698,141 @@ public class KrisRISTest {
 
 			assertFalse(Strings.isNullOrEmpty(bibtex));
 		}
+	}
+
+	private Stream<Publication> getPublicationStreamFromTest(String filename) throws Exception {
+		URL url = Resources.getResource(getClass().getPackageName().replaceAll("\\.", "/") + "/" + filename);
+		try (Reader r = new InputStreamReader(url.openStream())) {
+			return this.test.getPublicationStreamFrom(r, false, false, false, false);
+		}
+	}
+
+	@Test
+	public void getPublicationStreamFrom_0() throws Exception {
+		Stream<Publication> pubs = getPublicationStreamFromTest("ris_0.ris");
+		assertNotNull(pubs);
+		List<Publication> list = pubs.collect(Collectors.toList());
+		assertTrue(list.isEmpty());
+	}
+
+	@Test
+	public void getPublicationStreamFrom_n() throws Exception {
+		Publication prePublication = mock(Publication.class);
+		when(this.prePublicationFactory.createPrePublication(
+				any(), any(), any(), any(), any(), anyInt(), any(), any(), any(),
+				any(), any(), any(), any(), any(), any(), any())).thenReturn(prePublication);
+
+		JournalPaper jp = mock(JournalPaper.class);
+		when(this.journalPaperService.createJournalPaper(
+				any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(jp);
+
+		ConferencePaper cp = mock(ConferencePaper.class);
+		when(this.conferencePaperService.createConferencePaper(
+				any(), any(), anyInt(), any(), any(), any(), any(), any(), any(), any(), anyBoolean())).thenReturn(cp);
+
+		Journal journal = mock(Journal.class);
+		when(this.journalService.getJournalsByName(any())).thenReturn(Collections.singleton(journal));
+
+		Conference conference = mock(Conference.class);
+		when(this.conferenceService.getConferencesByName(any())).thenReturn(Collections.singleton(conference));
+
+		Person p0 = mock(Person.class);
+		Person p1 = mock(Person.class);
+		when(this.personService.extractPersonsFrom(any(), anyBoolean(), anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
+
+		Stream<Publication> pubs = getPublicationStreamFromTest("ris_n.ris");
+		assertNotNull(pubs);
+		List<Publication> list = pubs.collect(Collectors.toList());
+		assertFalse(list.isEmpty());
+		assertEquals(2, list.size());
+
+		Publication p;
+
+		p = list.get(0);
+		assertTrue(p instanceof JournalPaper);
+		verify(this.journalService).getJournalsByName(
+				eq("European Journal of Immunology")); // journal name
+		verify(this.prePublicationFactory, atLeastOnce()).createPrePublication(
+				eq(PublicationType.INTERNATIONAL_JOURNAL_PAPER), //type
+				eq("T-lymphocytes from normal human peritoneum are phenotypically different from their counterparts in peripheral blood and CD3- lymphocyte subsets contain mRNA for the recombination activating gene RAG-1"), // title
+				eq("These findings are compatible with the hypothesis that the adult human peritoneum provides a microenvirinment capable of supporting a thymus-independent differentiation of T lymphocytes."), // abstract
+				eq("Peritoneum; T cell; T lymphocyte; lymphocyte; immunology; CD3; human; Adult; blood"), // keywords
+				isNull(), // date
+				eq(1995), // year
+				isNull(), // isbn
+				isNull(), // issn
+				isNull(), // doi
+				isNull(), // halid
+				isNull(), // extra url
+				isNull(), // video url
+				isNull(), // dblp url
+				isNull(), // pdf path
+				isNull(), // award path
+				eq(PublicationLanguage.ENGLISH));
+		ArgumentCaptor<Publication> actualPrePublication = ArgumentCaptor.forClass(Publication.class);
+		verify(this.journalPaperService).createJournalPaper(
+				actualPrePublication.capture(), // publication
+				eq("25"), // volume
+				isNull(), // number
+				eq("2626-2631"), // pages
+				isNull(), // series
+				same(journal), // journal
+				eq(false));
+		assertNotNull(actualPrePublication.getValue());
+		assertSame(prePublication, actualPrePublication.getValue());
+		verify(p).setTemporaryAuthors(any());
+		verify(this.personService).extractPersonsFrom(
+				eq("Hartmann,J. and Maassen,V. and Rieber,P. and Fricke,H."), // authors
+				eq(true),
+				eq(false),
+				eq(false));
+
+		p = list.get(1);
+		assertTrue(p instanceof ConferencePaper);
+		verify(this.conferenceService).getConferencesByName(
+				eq("Advances in Practical Applications of Agents, Multi-Agent Systems, and Cognitive Mimetics. The PAAMS Collection")); // conference name
+		verify(this.prePublicationFactory, atLeastOnce()).createPrePublication(
+				eq(PublicationType.INTERNATIONAL_CONFERENCE_PAPER), // type
+				eq("Towards Exception Handling in the SARL Agent Platform"), // title
+				eq("We demonstrate how exception handling can be realized in the SARL agent platform. We see exception handling as a mechanism binding some agents, entitled to raise given exceptions, to the ones entitled to handle them. To this end, we define dedicated exception spaces through which defining the agents’ behavior in presence of exceptions."), // abstract
+				isNull(), // keywords
+				isNull(), // date
+				eq(2023), // year
+				eq("978-3-031-37616-0"), // isbn
+				isNull(), // issn
+				eq("10.1007/978-3-031-37616-0_33"), // doi
+				isNull(), // halid
+				isNull(), // extra url
+				isNull(), // video url
+				isNull(), // dblp url
+				isNull(), // pdf path
+				isNull(), // award path
+				eq(PublicationLanguage.ENGLISH));
+		ArgumentCaptor<Conference> actualConference = ArgumentCaptor.forClass(Conference.class);
+		actualPrePublication = ArgumentCaptor.forClass(Publication.class);
+		verify(this.conferencePaperService).createConferencePaper(
+				actualPrePublication.capture(),
+				actualConference.capture(),
+				eq(0),
+				isNull(), // volume
+				isNull(), // number
+				eq("403-408"), // pages
+				// TODO: Bug in Kris API, only the last editor field is read, multiple "ED" are ignored
+				eq("De la Prieta, Fernando"), // editors
+				isNull(), // series
+				isNull(), // organization
+				isNull(), // address
+				eq(false));
+		assertNotNull(actualPrePublication.getValue());
+		assertSame(prePublication, actualPrePublication.getValue());
+		assertNotNull(actualConference.getValue());
+		assertSame(conference, actualConference.getValue());
+		verify(p).setTemporaryAuthors(any());
+		verify(this.personService).extractPersonsFrom(
+				eq("Baldoni, Matteo and Baroglio, Cristina and Micalizio, Roberto and Tedeschi, Stefano"), // authors
+				eq(true),
+				eq(false),
+				eq(false));
 	}
 
 }

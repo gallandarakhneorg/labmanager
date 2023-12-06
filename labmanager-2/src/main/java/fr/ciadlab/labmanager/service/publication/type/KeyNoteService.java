@@ -101,12 +101,31 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 *     with {@code AND}.
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
+	 * @param saveInDb {@code true} for saving the publication in the database.
+	 * @return the created keynote.
+	 * @since 3.8
+	 */
+	public KeyNote createKeyNote(Publication publication, Conference conference, int conferenceOccurrenceNumber, String editors, String orga, String address, boolean saveInDb) {
+		final KeyNote res = new KeyNote(publication, conference, conferenceOccurrenceNumber, editors, orga, address);
+		if (saveInDb) {
+			this.repository.save(res);
+		}
+		return res;
+	}
+
+	/** Create a keynote.
+	 *
+	 * @param publication the publication to copy.
+	 * @param conference the reference to the conference
+	 * @param conferenceOccurrenceNumber the number of the conference's occurrence.
+	 * @param editors the list of the names of the editors. Each name may have the format {@code LAST, VON, FIRST} and the names may be separated
+	 *     with {@code AND}.
+	 * @param orga the name of the organization institution.
+	 * @param address the geographical location of the event, usually a city and a country.
 	 * @return the created keynote.
 	 */
 	public KeyNote createKeyNote(Publication publication, Conference conference, int conferenceOccurrenceNumber, String editors, String orga, String address) {
-		final KeyNote res = new KeyNote(publication, conference, conferenceOccurrenceNumber, editors, orga, address);
-		this.repository.save(res);
-		return res;
+		return createKeyNote(publication, conference, conferenceOccurrenceNumber, editors, orga, address, true);
 	}
 
 	/** Update the keynote with the given identifier.

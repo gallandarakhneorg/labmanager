@@ -51,7 +51,6 @@ import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
-import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
 import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
 import fr.ciadlab.labmanager.entities.publication.PublicationType;
 import fr.ciadlab.labmanager.entities.publication.type.Book;
@@ -65,7 +64,6 @@ import fr.ciadlab.labmanager.entities.publication.type.Patent;
 import fr.ciadlab.labmanager.entities.publication.type.Report;
 import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
-import fr.ciadlab.labmanager.io.bibtex.JBibtexBibTeX.ConferenceNameComponents;
 import fr.ciadlab.labmanager.io.bibtex.bugfix.BugfixLaTeXPrinter;
 import fr.ciadlab.labmanager.service.conference.ConferenceService;
 import fr.ciadlab.labmanager.service.journal.JournalService;
@@ -305,7 +303,7 @@ public class JBibtexBibTeXTest {
 	}
 
 	private Stream<Publication> getPublicationStreamFromTest(String filename) throws Exception {
-		URL url = Resources.getResource(JBibtexBibTeXTest.class.getPackageName().replaceAll("\\.", "/") + "/" + filename);
+		URL url = Resources.getResource(getClass().getPackageName().replaceAll("\\.", "/") + "/" + filename);
 		try (Reader r = new InputStreamReader(url.openStream())) {
 			return this.test.getPublicationStreamFrom(r, false, false, false, false, false);
 		}
@@ -1007,222 +1005,6 @@ public class JBibtexBibTeXTest {
 		String input = "éàç(D-λLBP++HOG)";
 		String output = this.test.toTeXString(input);
 		assertEquals("{\\'{e}}{\\`{a}}{\\c{c}}(D-λLBP++HOG)", output);
-	}
-
-	@Test
-	public void parseConferenceName_null() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName(null);
-		assertNotNull(components);
-		assertEquals(0, components.occurrenceNumber);
-		assertNull(components.name);
-	}
-
-	@Test
-	public void parseConferenceName_empty_01() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("");
-		assertNotNull(components);
-		assertEquals(0, components.occurrenceNumber);
-		assertNull(components.name);
-	}
-
-	@Test
-	public void parseConferenceName_empty_02() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("-");
-		assertNotNull(components);
-		assertEquals(0, components.occurrenceNumber);
-		assertNull(components.name);
-	}
-
-	@Test
-	public void parseConferenceName_empty_03() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("----");
-		assertNotNull(components);
-		assertEquals(0, components.occurrenceNumber);
-		assertNull(components.name);
-	}
-
-	@Test
-	public void parseConferenceName_spaces() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("   ");
-		assertNotNull(components);
-		assertEquals(0, components.occurrenceNumber);
-		assertNull(components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withoutNumber() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(0, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withoutPostfix() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("14 International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(14, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_0() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("14th International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(14, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_1() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("14 th International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(14, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_2() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("1ST International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(1, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_3() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("1 st International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(1, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_4() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("2nD International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(2, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_5() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("2 nd International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(2, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_6() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("3RD International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(3, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_7() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("3 rd International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(3, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_8() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("4TH International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(4, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_9() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("4 th International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(4, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_10() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("1ère International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(1, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_11() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("1 ère International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(1, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_12() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("1ere International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(1, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_13() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("1 ere International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(1, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_14() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("1er International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(1, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_15() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("1 er International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(1, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_16() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("125ème International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(125, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_17() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("125 ème International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(125, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_18() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("125eme International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(125, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
-	}
-
-	@Test
-	public void parseConferenceName_withPostfix_19() {
-		ConferenceNameComponents components = JBibtexBibTeX.parseConferenceName("125 eme International Conference on Articial Intelligence");
-		assertNotNull(components);
-		assertEquals(125, components.occurrenceNumber);
-		assertEquals("International Conference on Articial Intelligence", components.name);
 	}
 
 }

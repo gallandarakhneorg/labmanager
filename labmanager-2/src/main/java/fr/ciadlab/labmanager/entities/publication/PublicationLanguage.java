@@ -94,6 +94,19 @@ public enum PublicationLanguage {
 	 *     a known language.
 	 */
 	public static PublicationLanguage valueOfCaseInsensitive(String name) {
+		return valueOfCaseInsensitive(name, getDefault());
+	}
+
+	/** Replies the publication language that corresponds to the given name, with a case-insensitive
+	 * test of the name.
+	 *
+	 * @param name the name of the language, to search for.
+	 * @param defaultValue the default language.
+	 * @return the type, or the value {@code defaultValue} if the name does not corresponds to
+	 *     a known language.
+	 * @since 3.8
+	 */
+	public static PublicationLanguage valueOfCaseInsensitive(String name, PublicationLanguage defaultValue) {
 		if (!Strings.isNullOrEmpty(name)) {
 			for (final PublicationLanguage lang : values()) {
 				if (name.equalsIgnoreCase(lang.name())) {
@@ -101,7 +114,7 @@ public enum PublicationLanguage {
 				}
 			}
 		}
-		return getDefault();
+		return defaultValue;
 	}
 
 	/** Replies the Java locale that corresponds to the publication language.

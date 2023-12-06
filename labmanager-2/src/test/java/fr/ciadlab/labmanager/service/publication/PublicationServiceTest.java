@@ -95,6 +95,7 @@ import fr.ciadlab.labmanager.utils.names.DefaultPersonNameParser;
 import fr.ciadlab.labmanager.utils.names.PersonNameParser;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -237,6 +238,7 @@ public class PublicationServiceTest {
 	}
 
 	@Test
+	@DisplayName("getAllPublications")
 	public void getAllPublications() {
 		final List<Publication> list = this.test.getAllPublications();
 		assertNotNull(list);
@@ -247,6 +249,7 @@ public class PublicationServiceTest {
 	}
 
 	@Test
+	@DisplayName("getPublicationById")
 	public void getPublicationById() {
 		assertNull(this.test.getPublicationById(-4756));
 		assertNull(this.test.getPublicationById(0));
@@ -257,6 +260,7 @@ public class PublicationServiceTest {
 	}
 
 	@Test
+	@DisplayName("getPublicationByTitle")
 	public void getPublicationsByTitle() {
 		final List<Publication> expected = Arrays.asList(this.pub0, this.pub2);
 		when(this.publicationRepository.findAllByTitleIgnoreCase(anyString())).then(it -> expected);
@@ -266,6 +270,7 @@ public class PublicationServiceTest {
 	}
 
 	@Test
+	@DisplayName("removePublication")
 	public void removePublication() {
 		this.test.removePublication(234, false);
 
@@ -278,6 +283,7 @@ public class PublicationServiceTest {
 	}
 
 	@Test
+	@DisplayName("save(Publication...)")
 	public void save() {
 		Person pers0 = mock(Person.class);
 		when(pers0.getId()).thenReturn(1234);
@@ -334,22 +340,25 @@ public class PublicationServiceTest {
 	}
 
 	@Test
-	public void importPublications_null() throws Exception {
-		List<Integer> ids = this.test.importPublications(null, null, false, false);
+	@DisplayName("importBibTeXPublications(null, null, false, false)")
+	public void importBibTeXPublications_null() throws Exception {
+		List<Integer> ids = this.test.importBibTeXPublications(null, null, false, false);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
 
 	@Test
-	public void importPublications_empty() throws Exception {
+	@DisplayName("importBibTeXPublications(\"\", null, false, false)")
+	public void importBibTeXPublications_empty() throws Exception {
 		Reader rd = new StringReader("");
-		List<Integer> ids = this.test.importPublications(rd, null, false, false);
+		List<Integer> ids = this.test.importBibTeXPublications(rd, null, false, false);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
 
 	@Test
-	public void importPublications_0() throws Exception {
+	@DisplayName("importBibTeXPublications(p, null, false, false)")
+	public void importBibTeXPublications_0() throws Exception {
 		String bibtex = "--valid-bibtex--";
 		Person a0 = mock(Person.class);
 		when(a0.getId()).thenReturn(1234);
@@ -400,7 +409,103 @@ public class PublicationServiceTest {
 			return Optional.empty();
 		});
 
-		List<Integer> ids = this.test.importPublications(new StringReader(bibtex), null, false, false);
+		List<Integer> ids = this.test.importBibTeXPublications(new StringReader(bibtex), null, false, false);
+
+		assertNotNull(ids);
+		assertEquals(2, ids.size());
+		assertEquals(987, ids.get(0));
+		assertEquals(874, ids.get(1));
+
+		verify(this.publicationRepository, atLeastOnce()).save(same(p0));
+		verify(this.publicationRepository, atLeastOnce()).save(same(p1));
+
+		verify(this.personRepository, atLeastOnce()).save(same(a1));
+
+		verify(p0, atLeastOnce()).setTemporaryAuthors(same(null));
+
+		verify(p1, atLeastOnce()).setTemporaryAuthors(same(null));
+
+		verify( this.personRepository, atLeastOnce()).findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(eq(874));
+		
+		ArgumentCaptor<Authorship> arg0 = ArgumentCaptor.forClass(Authorship.class);
+		verify(this.authorshipRepository, atLeastOnce()).save(arg0.capture());
+		assertAuthorship(arg0, 1234, 987, 0);
+		assertAuthorship(arg0, 2345, 987, 1);
+		assertAuthorship(arg0, 2345, 874, 0);
+		assertAuthorship(arg0, 3456, 874, 1);
+	}
+
+	@Test
+	@DisplayName("importRISPublications(null, null, false, false)")
+	public void importRISPublications_null() throws Exception {
+		List<Integer> ids = this.test.importRISPublications(null, null, false, false);
+		assertNotNull(ids);
+		assertTrue(ids.isEmpty());
+	}
+
+	@Test
+	@DisplayName("importRISPublications(\"\", null, false, false)")
+	public void importRISPublications_empty() throws Exception {
+		Reader rd = new StringReader("");
+		List<Integer> ids = this.test.importRISPublications(rd, null, false, false);
+		assertNotNull(ids);
+		assertTrue(ids.isEmpty());
+	}
+
+	@Test
+	@DisplayName("importRISPublications(p, null, false, false)")
+	public void importRISPublications_0() throws Exception {
+		String ris = "--valid-ris--";
+		Person a0 = mock(Person.class);
+		when(a0.getId()).thenReturn(1234);
+		when(a0.getFirstName()).thenReturn("Fa0");
+		when(a0.getLastName()).thenReturn("La0");
+		Person a1 = mock(Person.class);
+		when(a1.getId()).thenReturn(2345);
+		when(a1.getFirstName()).thenReturn("Fa1");
+		when(a1.getLastName()).thenReturn("La1");
+		Person a2 = mock(Person.class);
+		when(a2.getId()).thenReturn(3456);
+		when(a2.getFirstName()).thenReturn("Fa2");
+		when(a2.getLastName()).thenReturn("La2");
+		Publication p0 = mock(Publication.class);
+		when(p0.getId()).thenReturn(987);
+		when(p0.getAuthors()).thenReturn(Arrays.asList(a0, a1));
+		Publication p1 = mock(Publication.class);
+		when(p1.getId()).thenReturn(874);
+		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
+		when(this.ris.extractPublications(any(Reader.class), anyBoolean(), anyBoolean(),
+				anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
+		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
+			switch ((Integer) it.getArgument(0)) {
+			case 1234:
+				return Optional.of(a0);
+			case 2345:
+				return Optional.of(a1);
+			case 3456:
+				return Optional.of(a2);
+			}
+			return Optional.empty();
+		});
+		when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyInt())).thenReturn(Collections.singletonList(null));
+
+		lenient().when(this.publicationRepository.findById(anyInt())).then(it -> {
+			switch (((Integer) it.getArgument(0)).intValue()) {
+			case 123:
+				return Optional.of(this.pub0);
+			case 234:
+				return Optional.of(this.pub1);
+			case 345:
+				return Optional.of(this.pub2);
+			case 987:
+				return Optional.of(p0);
+			case 874:
+				return Optional.of(p1);
+			}
+			return Optional.empty();
+		});
+
+		List<Integer> ids = this.test.importRISPublications(new StringReader(ris), null, false, false);
 
 		assertNotNull(ids);
 		assertEquals(2, ids.size());

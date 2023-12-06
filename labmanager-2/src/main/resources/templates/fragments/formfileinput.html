@@ -24,8 +24,19 @@
 		<label th:for="${'fileUploadBibTeX_' + name}" class="col-form-label" th:utext="${label}"></label>
 		<input class="form-control" type="file"
 		       data-preview-file-type="text"
-		       accept=".bib,.bibtex,text/x-bibtex"
+		       accept=".bib, .bibtex, text/x-bibtex"
 		       th:id="${'fileUploadBibTeX_' + name}" th:name="${name}"></input>
+    </div>
+
+	<div th:fragment="fileUploadRIS(name, label)" class="form-group">
+		<input type="text" class="form-control"
+		       th:id="${'fileUploadRIS_removed_' + name}" 
+		       hidden="true" value="false" />
+		<label th:for="${'fileUploadRIS_' + name}" class="col-form-label" th:utext="${label}"></label>
+		<input class="form-control" type="file"
+		       data-preview-file-type="text"
+		       accept=".ris,application/text-plain"
+		       th:id="${'fileUploadRIS_' + name}" th:name="${name}"></input>
     </div>
 
 	<div th:fragment="fileUploadImage(name, label)" class="form-group">

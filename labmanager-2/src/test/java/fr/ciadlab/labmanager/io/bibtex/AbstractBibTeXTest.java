@@ -16,82 +16,17 @@
 
 package fr.ciadlab.labmanager.io.bibtex;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertSame;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.lenient;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.Reader;
 import java.io.Writer;
-import java.net.URL;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import fr.ciadlab.labmanager.configuration.BaseMessageSource;
-import fr.ciadlab.labmanager.entities.conference.Conference;
-import fr.ciadlab.labmanager.entities.journal.Journal;
-import fr.ciadlab.labmanager.entities.member.Person;
-import fr.ciadlab.labmanager.entities.publication.ConferenceBasedPublication;
-import fr.ciadlab.labmanager.entities.publication.JournalBasedPublication;
 import fr.ciadlab.labmanager.entities.publication.Publication;
-import fr.ciadlab.labmanager.entities.publication.PublicationCategory;
-import fr.ciadlab.labmanager.entities.publication.PublicationLanguage;
-import fr.ciadlab.labmanager.entities.publication.PublicationType;
-import fr.ciadlab.labmanager.entities.publication.type.Book;
-import fr.ciadlab.labmanager.entities.publication.type.BookChapter;
-import fr.ciadlab.labmanager.entities.publication.type.ConferencePaper;
-import fr.ciadlab.labmanager.entities.publication.type.JournalEdition;
-import fr.ciadlab.labmanager.entities.publication.type.JournalPaper;
-import fr.ciadlab.labmanager.entities.publication.type.KeyNote;
-import fr.ciadlab.labmanager.entities.publication.type.MiscDocument;
-import fr.ciadlab.labmanager.entities.publication.type.Patent;
-import fr.ciadlab.labmanager.entities.publication.type.Report;
-import fr.ciadlab.labmanager.entities.publication.type.Thesis;
 import fr.ciadlab.labmanager.io.ExporterConfigurator;
-import fr.ciadlab.labmanager.io.bibtex.JBibtexBibTeX.ConferenceNameComponents;
-import fr.ciadlab.labmanager.io.bibtex.bugfix.BugfixLaTeXPrinter;
-import fr.ciadlab.labmanager.service.conference.ConferenceService;
-import fr.ciadlab.labmanager.service.journal.JournalService;
-import fr.ciadlab.labmanager.service.member.PersonService;
-import fr.ciadlab.labmanager.service.publication.PrePublicationFactory;
-import fr.ciadlab.labmanager.service.publication.type.BookChapterService;
-import fr.ciadlab.labmanager.service.publication.type.BookService;
-import fr.ciadlab.labmanager.service.publication.type.ConferencePaperService;
-import fr.ciadlab.labmanager.service.publication.type.JournalPaperService;
-import fr.ciadlab.labmanager.service.publication.type.MiscDocumentService;
-import fr.ciadlab.labmanager.service.publication.type.ReportService;
-import fr.ciadlab.labmanager.service.publication.type.ThesisService;
-import fr.ciadlab.labmanager.utils.ranking.QuartileRanking;
-import org.apache.jena.ext.com.google.common.base.Strings;
-import org.arakhne.afc.vmutil.Resources;
-import org.jbibtex.LaTeXObject;
-import org.jbibtex.LaTeXParser;
-import org.jbibtex.LaTeXPrinter;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link AbstractBibtex}.
  * 

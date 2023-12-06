@@ -64,11 +64,11 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 import fr.ciadlab.labmanager.entities.conference.Conference;
+import fr.ciadlab.labmanager.entities.conference.ConferenceUtils;
+import fr.ciadlab.labmanager.entities.conference.ConferenceUtils.ConferenceNameComponents;
 import fr.ciadlab.labmanager.entities.journal.Journal;
 import fr.ciadlab.labmanager.entities.member.Person;
 import fr.ciadlab.labmanager.entities.publication.Publication;
@@ -200,45 +200,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	private static final String MESSAGE_PREFIX = "jBibtexBibTeX."; //$NON-NLS-1$
 
-	private static final String EMPTY_FIELD_PATTERN_STR = "^[*+_:;,.=\\-\\\\]+$"; //$NON-NLS-1$
-
-	private static final Pattern EMPTY_FIELD_PATTERN = Pattern.compile(EMPTY_FIELD_PATTERN_STR);
-
-	private static final String[] PREFIXES = {
-			"the",	//$NON-NLS-1$
-			"a",	//$NON-NLS-1$
-			"an",	//$NON-NLS-1$
-			"le",	//$NON-NLS-1$
-			"la",	//$NON-NLS-1$
-			"l'",	//$NON-NLS-1$
-			"les",	//$NON-NLS-1$
-			"un",	//$NON-NLS-1$
-			"une",	//$NON-NLS-1$
-			"der",	//$NON-NLS-1$
-			"das",	//$NON-NLS-1$
-			"die",	//$NON-NLS-1$
-			"ein",	//$NON-NLS-1$
-			"el",	//$NON-NLS-1$
-			"la",	//$NON-NLS-1$
-			"las",	//$NON-NLS-1$
-			"los",	//$NON-NLS-1$
-			"un",	//$NON-NLS-1$
-			"una",	//$NON-NLS-1$
-	};
-
-	private static final String[] CONFERENCE_NUMBER_POSTFIX = {
-			"st",	//$NON-NLS-1$
-			"nd",	//$NON-NLS-1$
-			"rd",	//$NON-NLS-1$
-			"th",	//$NON-NLS-1$
-			"ère",	//$NON-NLS-1$
-			"ere",	//$NON-NLS-1$
-			"er",	//$NON-NLS-1$
-			"ème",	//$NON-NLS-1$
-			"eme",	//$NON-NLS-1$
-			"",	//$NON-NLS-1$
-	};
-
 	private MessageSourceAccessor messages;
 
 	private PrePublicationFactory prePublicationFactory;
@@ -362,7 +323,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		return Collections.<Publication>emptyList().stream();
 	}
 
-
 	/** Replies the publication type that could support the given BibTeX entry.
 	 *
 	 * @param entry the BibTeX entry.
@@ -421,22 +381,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				|| KEY_VIDEO.equals(field));
 	}
 
-	private static String normalizeString(String value)  {
-		if (value != null) {
-			String nvalue = value.trim();
-			final Matcher matcher = EMPTY_FIELD_PATTERN.matcher(nvalue);
-			if (matcher.matches()) {
-				return null;
-			}
-			return Strings.emptyToNull(nvalue);
-		}
-		return null;
-	}
-
 	private static String field(BibTeXEntry entry, Key key) throws Exception {
 		final Value value = entry.getField(key);
 		if (value != null) {
-			String strValue = normalizeString(value.toUserString());
+			String strValue = ConferenceUtils.normalizeString(value.toUserString());
 			if (isLaTeXField(key)) {
 				strValue = parseTeXString(strValue, entry);
 			}
@@ -448,7 +396,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	private static String fieldRequired(BibTeXEntry entry, Key key) throws Exception {
 		final Value value = entry.getField(key);
 		if (value != null) {
-			String strValue = normalizeString(value.toUserString());
+			String strValue = ConferenceUtils.normalizeString(value.toUserString());
 			if (isLaTeXField(key)) {
 				strValue = parseTeXString(strValue, entry);
 			}
@@ -461,53 +409,11 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	private static String fieldRequiredCleanPrefix(BibTeXEntry entry, Key key) throws Exception {
 		String value = field(entry, key);
-		if (!Strings.isNullOrEmpty(value)) {
-			for (final String prefix : PREFIXES) {
-				final Pattern pattern = Pattern.compile("^\\s*" + Pattern.quote(prefix) + "\\s+", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$ //$NON-NLS-2$
-				final Matcher matcher = pattern.matcher(value);
-				value = matcher.replaceFirst(""); //$NON-NLS-1$
-			}
-		}
+		value = ConferenceUtils.removePrefixArticles(value);
 		if (!Strings.isNullOrEmpty(value)) {
 			return value;
 		}
 		throw new IllegalStateException("Field '" + key.getValue() + "' is required for entry: " + entry.getKey().getValue()); //$NON-NLS-1$ //$NON-NLS-2$
-	}
-
-	/** Extract the occurrence number and name of a conference from the given full name.
-	 * 
-	 * <p>If the argument is equal to {@code 14th International Conference on Artificial Intelligence}, then this function
-	 * extract the name of the conference, i.e., {@code International Conference on Artificial Intelligence} and
-	 * the conference occurrence's number is {@code 14}.
-	 *
-	 * @param name the name to analyze.
-	 * @return the conference name's components.
-	 */
-	public static ConferenceNameComponents parseConferenceName(String name) {
-		if (name != null) {
-			final String nname = normalizeString(name.trim());
-			if (!Strings.isNullOrEmpty(nname)) {
-				final StringBuilder patternStr = new StringBuilder();
-				for (final String postfix : CONFERENCE_NUMBER_POSTFIX) {
-					patternStr.setLength(0);
-					patternStr.append("^([0-9]+)\\s*");//$NON-NLS-1$
-					patternStr.append(postfix);
-					patternStr.append("\\s+(.*?)$");//$NON-NLS-1$
-					final Pattern pattern = Pattern.compile(patternStr.toString(), Pattern.CASE_INSENSITIVE);
-					final Matcher matcher = pattern.matcher(nname);
-					if (matcher.matches()) {
-						try {
-							final int number = Integer.parseInt(matcher.group(1));
-							return new ConferenceNameComponents(number, matcher.group(2));
-						} catch (Throwable ex) {
-							//
-						}
-					}
-				}
-			}
-			return new ConferenceNameComponents(0, Strings.emptyToNull(nname));
-		}
-		return new ConferenceNameComponents(0, null);
 	}
 
 	private static String field(BibTeXEntry entry, String key) throws Exception {
@@ -794,7 +700,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				break;
 			case INTERNATIONAL_CONFERENCE_PAPER:
 				String conferenceName = fieldRequiredCleanPrefix(entry, KEY_BOOKTITLE);
-				final ConferenceNameComponents nameComponents = parseConferenceName(conferenceName);
+				final ConferenceNameComponents nameComponents = ConferenceUtils.parseConferenceName(conferenceName);
 				final Conference conference;
 				if (createMissedConference) {
 					conference = findConferenceOrCreateProxy(key, nameComponents.name,
@@ -1449,35 +1355,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_PUBLISHER, document.getPublisher());
 		addField(entry, KEY_ADDRESS, document.getAddress());
 		return entry;
-	}
-
-	/** Components of a conference name.
-	 * 
-	 * @author $Author: sgalland$
-	 * @version $Name$ $Revision$ $Date$
-	 * @mavengroupid $GroupId$
-	 * @mavenartifactid $ArtifactId$
-	 * @since 3.6
-	 */
-	public static class ConferenceNameComponents {
-
-		/** Number of the conference occurrence.
-		 */
-		public final int occurrenceNumber;
-		
-		/** Conference name.
-		 */
-		public final String name;
-
-		/** Constructor.
-		 *
-		 * @param number number of the conference occurrence.
-		 * @param name conference name.
-		 */
-		ConferenceNameComponents(int number, String name) {
-			this.occurrenceNumber = number;
-			this.name = name;
-		}
 	}
 
 }

@@ -564,7 +564,7 @@ public class PublicationService extends AbstractPublicationService {
 		}
 	}
 
-	/** Parse the given BibTeX file and extract the publications without adding them in the datagase.
+	/** Parse the given BibTeX file and extract the publications without adding them in the database.
 	 * The format of the BibTeX is a standard that is briefly described
 	 * on {@link "https://en.wikipedia.org/wiki/BibTeX"}.
 	 * If multiple BibTeX entries are defined into the given input string, each of them is subject
@@ -581,7 +581,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param ensureAtLeastOneMember if {@code true}, at least one member of a research organization is required from the
 	 *     the list of the persons. If {@code false}, the list of persons could contain no organization member.
 	 * @param createMissedJournal if {@code true} the missed journals from the JPA database will be automatically the subject
-	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thown when
+	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a journal is missed from the JPA database.
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
@@ -594,6 +594,36 @@ public class PublicationService extends AbstractPublicationService {
 	public List<Publication> readPublicationsFromBibTeX(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
 		return this.bibtex.extractPublications(bibtex, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
+				createMissedConference);
+	}
+
+	/** Parse the given RIS file and extract the publications without adding them in the database.
+	 * The format of the RIS is a standard that is briefly described
+	 * on {@link "https://en.wikipedia.org/wiki/RIS_(file_format)"}.
+	 * If multiple RIS entries are defined into the given input string, each of them is subject
+	 * of an exportation tentative.
+	 *
+	 * @param ris the stream that contains the RIS description of the publications.
+	 * @param assignRandomId indicates if a random identifier will be assigned to the created entities.
+	 *     If this argument is {@code true}, a numeric id will be computed and assign to all the JPA entities.
+	 *     If this argument is {@code false}, the ids of the JPA entities will be the default values, i.e., {@code 0}.
+	 * @param ensureAtLeastOneMember if {@code true}, at least one member of a research organization is required from the
+	 *     the list of the persons. If {@code false}, the list of persons could contain no organization member.
+	 * @param createMissedJournal if {@code true} the missed journals from the JPA database will be automatically the subject
+	 *     of the creation of a {@link JournalFake journal fake} for the caller. If {@code false}, an exception is thrown when
+	 *     a journal is missed from the JPA database.
+	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
+	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
+	 *     a conference is missed from the JPA database.
+	 * @return the list of the publications that are successfully extracted.
+	 * @throws Exception if it is impossible to parse the given BibTeX source.
+	 * @see RIS
+	 * @see "https://en.wikipedia.org/wiki/RIS_(file_format)"
+	 * @since 3.8
+	 */
+	public List<Publication> readPublicationsFromRIS(Reader ris, boolean assignRandomId,
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
+		return this.ris.extractPublications(ris, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
 				createMissedConference);
 	}
 
@@ -616,14 +646,47 @@ public class PublicationService extends AbstractPublicationService {
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
 	 */
-	@SuppressWarnings("null")
-	public List<Integer> importPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType,
+	public List<Integer> importBibTeXPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType,
 			boolean createMissedJournals, boolean createMissedConferences) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
 		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true,
 				createMissedJournals, createMissedConferences);
+		return importPublications(importablePublications, importedEntriesWithExpectedType);
+	}
 
+	/** Import publications from a RIS string. The format of the RIS is a standard that is briefly described
+	 * on {@link "https://en.wikipedia.org/wiki/RIS_(file_format)"}.
+	 * If multiple RIS entries are defined into the given input string, each of them is subject
+	 * of an importation tentative. If the import process is successful, the database identifier of the publication
+	 * is replied.
+	 *
+	 * @param ris the stream that contains the RIS description of the publications.
+	 * @param importedEntriesWithExpectedType a map that list the entries to import (keys corresponds to the RIS identifiers) and the
+	 *      expected publication type (as the map values) or {@code null} map value if we accept the "default" publication type.
+	 *      If this argument is {@code null} or the map is empty, then all the RIS entries will be imported.
+	 * @param createMissedJournals indicates if the missed journals in the database should be created on-the-fly from
+	 *     the RIS data.
+	 * @param createMissedConferences indicates if the missed conferences in the database should be created on-the-fly from
+	 *     the RIS data.
+	 * @return the list of the identifiers of the publications that are successfully imported.
+	 * @throws Exception if it is impossible to parse the given RIS source.
+	 * @see RIS
+	 * @see "https://en.wikipedia.org/wiki/RIS_(file_format)"
+	 * @since 3.8
+	 */
+	public List<Integer> importRISPublications(Reader ris, Map<String, PublicationType> importedEntriesWithExpectedType,
+			boolean createMissedJournals, boolean createMissedConferences) throws Exception {
+		// Holds the publications that we are trying to import.
+		// The publications are not yet imported into the database.
+		final List<Publication> importablePublications = readPublicationsFromRIS(ris, false, true,
+				createMissedJournals, createMissedConferences);
+		return importPublications(importablePublications, importedEntriesWithExpectedType);
+	}
+
+	@SuppressWarnings("null")
+	private List<Integer> importPublications(List<Publication> importablePublications,
+			Map<String, PublicationType> importedEntriesWithExpectedType) throws Exception {
 		//Holds the IDs of the successfully imported IDs. We'll need it for type differentiation later.
 		final List<Integer> importedPublicationIdentifiers = new ArrayList<>();
 

@@ -526,6 +526,26 @@ public class PublicationViewController extends AbstractViewController {
 		return modelAndView;
 	}
 
+	/** Show the view for importing RIS files.
+	 *
+	 * @param username the name of the logged-in user.
+	 * @return the model-view object.
+	 * @throws IOException if there is some internal IO error when building the form's data.
+	 */
+	@GetMapping(value = "/" + Constants.IMPORT_RIS_VIEW_ENDPOINT)
+	public ModelAndView showRISImporter(
+			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws IOException {
+		ensureCredentials(username, Constants.IMPORT_RIS_VIEW_ENDPOINT);
+		final ModelAndView modelAndView = new ModelAndView("importRIS"); //$NON-NLS-1$
+		initModelViewWithInternalProperties(modelAndView, false);
+		//
+		modelAndView.addObject("risJsonActionUrl", endpoint(Constants.GET_JSON_FROM_RIS_ENDPOINT, //$NON-NLS-1$
+				Constants.CHECKINDB_ENDPOINT_PARAMETER, Boolean.TRUE));
+		modelAndView.addObject("formActionUrl", rooted(Constants.SAVE_RIS_ENDPOINT)); //$NON-NLS-1$
+		//
+		return modelAndView;
+	}
+
 	/** Add the URL to model that permits to retrieve the publication list.
 	 *
 	 * @param modelAndView the model-view to configure for redirection.
