@@ -30,13 +30,13 @@
 				     th:utext="${introText}"></div>
 				<div class="person-card-membership person-card-membership-emph"
 				     th:each="resp : ${responsibilities}"
-				     th:if="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}">
+				     th:if="${T(fr.utbm.ciad.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}">
 				    <th:block th:utext="#{html.ResponsabilityInApos(${resp.responsibility.getLabel(person.gender)},${resp.researchOrganization.acronymOrName})}"></th:block>
                 	<th:block th:if="${membershipEditionUrl != null}"><a th:href="${membershipEditionUrl + '&goto=' + resp.id}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
 				</div>
 				<div class="person-card-membership person-card-membership-emph"
 				     th:each="resp : ${responsibilities}"
-				     th:unless="${T(fr.ciadlab.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}">
+				     th:unless="${T(fr.utbm.ciad.labmanager.utils.TextUtils).isApostrophable(resp.researchOrganization.acronymOrName)}">
 				    <th:block th:utext="#{html.ResponsabilityInNotApos(${resp.responsibility.getLabel(person.gender)},${resp.researchOrganization.acronymOrName})}"></th:block>
                 	<th:block th:if="${membershipEditionUrl != null}"><a th:href="${membershipEditionUrl + '&goto=' + resp.id}" class="noLink"><span class="fa-solid fa-pen"></span></a></th:block>
 			    </div>

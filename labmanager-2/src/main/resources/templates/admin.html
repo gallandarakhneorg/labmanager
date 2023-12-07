@@ -130,7 +130,7 @@
 								<ul class="dropdown-menu dropdown-submenu">
 									<li><a class="dropdown-item" th:href="@{/showPublications(organization=${organization.id})}" th:utext="#{html.All}"></a></li>
 									<li><hr class="dropdown-divider"></li>
-									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.utbm.ciad.labmanager.data.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
 									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
 									       class="dropdown-item"
 									       th:href="@{/showPublications(dbId=${membership.person.id})}"
@@ -194,7 +194,7 @@
 								<ul class="dropdown-menu dropdown-submenu">
 									<li><a class="dropdown-item" th:href="@{/showProjects(organization=${organization.id})}" th:utext="#{html.All}"></a></li>
 									<li><hr class="dropdown-divider"></li>
-									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.utbm.ciad.labmanager.data.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
 									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
 									       class="dropdown-item"
 									       th:href="@{/showProjects(dbId=${membership.person.id})}"
@@ -216,7 +216,7 @@
 								<ul class="dropdown-menu dropdown-submenu">
 									<li><a class="dropdown-item" th:href="@{/showProjectBanner(organization=${organization.id})}" th:utext="#{html.All}"></a></li>
 									<li><hr class="dropdown-divider"></li>
-									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.utbm.ciad.labmanager.data.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
 									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
 									       class="dropdown-item"
 									       th:href="@{/showProjectBanner(dbId=${membership.person.id})}"
@@ -234,7 +234,7 @@
 								<button type="button" class="dropdown-item"
 								   th:utext="${organization.acronymOrName}"></button>
 								<ul class="dropdown-menu dropdown-submenu">
-									<li><a th:each="project : ${#lists.sort(projectService.getPublicProjectsByOrganizationId(organization.id), T(fr.ciadlab.labmanager.entities.EntityUtils).preferredProjectComparator)}"
+									<li><a th:each="project : ${#lists.sort(projectService.getPublicProjectsByOrganizationId(organization.id), T(fr.utbm.ciad.labmanager.data.EntityUtils).preferredProjectComparator)}"
 									       th:if="${!#strings.isEmpty(project.Acronym) && !#strings.isEmpty(project.pathToLogo)}"
 									       class="dropdown-item"
 									       th:href="@{/showProjectDescription(project=${project.id})}"
@@ -368,7 +368,7 @@
 								<button type="button" class="dropdown-item"
 								   th:utext="${organization.acronymOrName}"></button>
 								<ul class="dropdown-menu dropdown-submenu">
-									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.utbm.ciad.labmanager.data.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
 									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
 									       class="dropdown-item"
 									       th:href="@{/showSupervisions(dbId=${membership.person.id})}"
@@ -386,7 +386,7 @@
 								<button type="button" class="dropdown-item"
 								        th:utext="${organization.acronymOrName}"></button>
 								<ul class="dropdown-menu dropdown-submenu">
-									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.utbm.ciad.labmanager.data.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
 									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
 									       class="dropdown-item"
 									       th:href="@{/showJuryMemberships(dbId=${membership.person.id})}"
@@ -404,7 +404,7 @@
 								<button type="button" class="dropdown-item"
 								        th:utext="${organization.acronymOrName}"></button>
 								<ul class="dropdown-menu dropdown-submenu">
-									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.utbm.ciad.labmanager.data.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
 									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
 									       class="dropdown-item"
 									       th:href="@{/showInvitations(dbId=${membership.person.id})}"
@@ -475,7 +475,7 @@
 								<button type="button" class="dropdown-item"
 								   th:utext="${organization.acronymOrName}"></button>
 								<ul class="dropdown-menu dropdown-submenu">
-									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+									<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.utbm.ciad.labmanager.data.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
 									       th:if="${membership.isActive && membership.isMainPosition && membership.memberStatus.isResearcher && membership.memberStatus.hierachicalLevel <= 2}"
 									       class="dropdown-item"
 									       th:href="@{/showTeaching(dbId=${membership.person.id})}"

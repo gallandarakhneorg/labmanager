@@ -51,7 +51,7 @@
 	            </a>
             	<div th:unless="${activity.firstUrl != null}" class="teachingActivityTitle" th:utext="${activity.title}"></div>
             	<div class="teachingActivityDetails"
-            	     th:with="st = ${T(fr.ciadlab.labmanager.entities.teaching.StudentType)}">
+            	     th:with="st = ${T(fr.utbm.ciad.labmanager.data.teaching.StudentType)}">
             		<th:block th:if="${#strings.isEmpty(activity.degree)}"
             		          th:utext="${activity.level.getLabel()}"></th:block>
             		<th:block th:unless="${#strings.isEmpty(activity.degree)}"

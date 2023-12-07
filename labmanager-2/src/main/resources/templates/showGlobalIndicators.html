@@ -4,7 +4,7 @@
 <div class="globalOrganizationIndicators">
 	<div class="globalOrganizationIndicator"
 	     th:each="indicatorPair : ${indicators}"
-	     th:with="indicator = ${indicatorPair.left}, value = ${indicatorPair.right}, tutils = ${T(fr.ciadlab.labmanager.utils.TextUtils)}, vunit = ${T(fr.ciadlab.labmanager.utils.Unit).fromNumericValue(value)}">
+	     th:with="indicator = ${indicatorPair.left}, value = ${indicatorPair.right}, tutils = ${T(fr.utbm.ciad.labmanager.utils.TextUtils)}, vunit = ${T(fr.utbm.ciad.labmanager.utils.Unit).fromNumericValue(value)}">
 		<div class="globalIndicatorValue"
 		     th:utext="${tutils.formatNumber(value, vunit, backendLocale)}"
 		     th:title="#{html.GlobalIndicatorTooltip(${lastUpdate.toString()})}"></div>

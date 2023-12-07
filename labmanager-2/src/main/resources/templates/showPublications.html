@@ -119,7 +119,7 @@ $(document).ready(() => {
 		editionUrl: "[(${editionUrl})]",
 	    /*[/]*/
 		categoryLabels: {
-	        /*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
+	        /*[# th:each="category : ${T(fr.utbm.ciad.labmanager.data.publication.PublicationCategory).values()}"]*/
 			"[(${category.name})]": "[(${category.getLabel() + ' (' + category.name + ')'})]",
 	        /*[/]*/
 		},
@@ -221,7 +221,7 @@ $(document).ready(() => {
     /*[# th:if="${enableSortChanges}"]*/
 	initSortCriteriaFeature({
 		categoryRanks: {
-			/*[# th:each="category : ${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory).values()}"]*/
+			/*[# th:each="category : ${T(fr.utbm.ciad.labmanager.data.publication.PublicationCategory).values()}"]*/
 			"[(${category.getLabel()})]": parseInt("[(${category.ordinal()})]"),
 			/*[/]*/
 		},

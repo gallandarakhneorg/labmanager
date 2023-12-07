@@ -50,7 +50,7 @@
             	<span class="projectTitle" th:utext="${project.scientificTitle}"></span>
             </td>
             <td>
-            	<th:block th:if="${project.category != T(fr.ciadlab.labmanager.entities.project.ProjectCategory).OPEN_SOURCE}"
+            	<th:block th:if="${project.category != T(fr.utbm.ciad.labmanager.data.project.ProjectCategory).OPEN_SOURCE}"
             	          th:utext="${project.majorFundingScheme.getLabel()}"></th:block>
             </td>
             <td>

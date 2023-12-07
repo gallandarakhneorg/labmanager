@@ -23,8 +23,8 @@
 	</thead>
 	<tbody>
 		<tr th:each="stat : ${stats}"
-		    th:with="counts=${stat.value},year=${stat.key},tt=${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory)}">
-		    <!--/*@thymesVar id="counts" type="fr.ciadlab.labmanager.controller.publication.PublicationsStat"*/-->
+		    th:with="counts=${stat.value},year=${stat.key},tt=${T(fr.utbm.ciad.labmanager.data.publication.PublicationCategory)}">
+		    <!--/*@thymesVar id="counts" type="fr.utbm.ciad.labmanager.views.tl.publication.PublicationsStat"*/-->
 			<td th:utext="${year}"></td>
 			<td th:utext="${counts.count(tt.ACL, tt.ACLN, tt.ASCL)}"></td>
 			<td th:utext="${counts.count(tt.C_ACTI, tt.C_ACTN, tt.C_AFF)}"></td>
@@ -38,7 +38,7 @@
 		</tr>
 		<tr style="border-top: 2px solid #dee2e6;font-weight: bold;"
 		    th:if="${globalStats}"
-		    th:with="tt=${T(fr.ciadlab.labmanager.entities.publication.PublicationCategory)}">
+		    th:with="tt=${T(fr.utbm.ciad.labmanager.data.publication.PublicationCategory)}">
 			<td th:text="#{html.Total}"></td>
 			<td th:utext="${globalStats.count(tt.ACL, tt.ACLN, tt.ASCL)}"></td>
 			<td th:utext="${globalStats.count(tt.C_ACTI, tt.C_ACTN, tt.C_AFF)}"></td>

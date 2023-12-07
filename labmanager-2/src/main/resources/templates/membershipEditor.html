@@ -25,7 +25,7 @@
 			</div>
 			<div class="form-group" th:replace="~{fragments/form :: comboInput*(${'status_' + minMembershipId}, #{html.Status}, ~{::option#option-status-new})}">
 				<option id="option-status-new"
-				        th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values()}"
+				        th:each="status : ${T(fr.utbm.ciad.labmanager.data.member.MemberStatus).values()}"
 				        th:selected="${preferredStatus != null && status == preferredStatus}"
 				        th:value="${status.name}"
 				        th:utext="${status.getLabel(person.gender) + (status.isPhDOwner() ? ' (PhD)' : '')}"></option>
@@ -45,7 +45,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'cnuSection_' + minMembershipId}, #{html.CnuSection}, ~{::option#option-cnu-new})}">
 				<option id="option-cnu-new" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-cnu-new"
-				        th:each="cnuSection : ${T(fr.ciadlab.labmanager.utils.cnu.CnuSection).values()}"
+				        th:each="cnuSection : ${T(fr.utbm.ciad.labmanager.utils.cnu.CnuSection).values()}"
 				        th:selected="${preferredCnuSection != null && cnuSection == preferredCnuSection}"
 				        th:value="${cnuSection.number}"
 				        th:utext="${cnuSection.number + ' - ' + cnuSection.getLabel()}"></option>
@@ -53,7 +53,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'conrsSection_' + minMembershipId}, #{html.ConrsSection}, ~{::option#option-conrs-new})}">
 				<option id="option-conrs-new" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-conrs-new"
-				        th:each="conrsSection : ${T(fr.ciadlab.labmanager.utils.conrs.ConrsSection).values()}"
+				        th:each="conrsSection : ${T(fr.utbm.ciad.labmanager.utils.conrs.ConrsSection).values()}"
 				        th:selected="${preferredConrsSection != null && conrsSection == preferredConrsSection}"
 				        th:value="${conrsSection.number}"
 				        th:utext="${conrsSection.number + ' - ' + conrsSection.getLabel()}"></option>
@@ -61,7 +61,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'frenchBap_' + minMembershipId}, #{html.FrenchBap}, ~{::option#option-fbap-new})}">
 				<option id="option-fbap-new" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-fbap-new"
-				        th:each="frenchBap : ${T(fr.ciadlab.labmanager.utils.bap.FrenchBap).values()}"
+				        th:each="frenchBap : ${T(fr.utbm.ciad.labmanager.utils.bap.FrenchBap).values()}"
 				        th:selected="${preferredFrenchBap != null && frenchBap == preferredFrenchBap}"
 				        th:value="${frenchBap.shortName}"
 				        th:utext="${frenchBap.shortName + ' - ' + frenchBap.getLabel()}"></option>
@@ -86,7 +86,7 @@
 			</div>
 			<div class="form-group" th:replace="~{fragments/form :: comboInput*(${'status_' + membership.id}, #{html.Status}, ~{::option#option-status})}">
 				<option id="option-status"
-				        th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values()}"
+				        th:each="status : ${T(fr.utbm.ciad.labmanager.data.member.MemberStatus).values()}"
 				        th:selected="${membership != null && membership.memberStatus == status}"
 				        th:value="${status.name}"
 				        th:utext="${status.getLabel() + (status.isPhDOwner() ? ' (PhD)' : '')}"></option>
@@ -106,7 +106,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'cnuSection_' + membership.id}, #{html.CnuSection}, ~{::option#option-cnu})}">
 				<option id="option-cnu" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-cnu"
-				        th:each="cnuSection : ${T(fr.ciadlab.labmanager.utils.cnu.CnuSection).values()}"
+				        th:each="cnuSection : ${T(fr.utbm.ciad.labmanager.utils.cnu.CnuSection).values()}"
 				        th:selected="${membership != null && membership.cnuSection == cnuSection}"
 				        th:value="${cnuSection.number}"
 				        th:utext="${cnuSection.number + ' - ' + cnuSection.getLabel()}"></option>
@@ -114,7 +114,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'conrsSection_' + membership.id}, #{html.ConrsSection}, ~{::option#option-conrs})}">
 				<option id="option-conrs" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-conrs"
-				        th:each="conrsSection : ${T(fr.ciadlab.labmanager.utils.conrs.ConrsSection).values()}"
+				        th:each="conrsSection : ${T(fr.utbm.ciad.labmanager.utils.conrs.ConrsSection).values()}"
 				        th:selected="${membership != null && membership.conrsSection == conrsSection}"
 				        th:value="${conrsSection.number}"
 				        th:utext="${conrsSection.number + ' - ' + conrsSection.getLabel()}"></option>
@@ -122,7 +122,7 @@
 			<div class="form-group" th:replace="~{fragments/form :: comboInput(${'frenchBap_' + membership.id}, #{html.FrenchBap}, ~{::option#option-fbap})}">
 				<option id="option-fbap" value="" th:utext="#{html.NotSpecified}"></option>
 				<option id="option-fbap"
-				        th:each="frenchBap : ${T(fr.ciadlab.labmanager.utils.bap.FrenchBap).values()}"
+				        th:each="frenchBap : ${T(fr.utbm.ciad.labmanager.utils.bap.FrenchBap).values()}"
 				        th:selected="${membership != null && membership.frenchBap == frenchBap}"
 				        th:value="${frenchBap.shortName}"
 				        th:utext="${frenchBap.shortName + ' - ' + frenchBap.getLabel()}"></option>

@@ -38,21 +38,21 @@ $(document).ready(() => {
 		url: "[(${url})]",
 		enableFilters: "[(${#bools.isTrue(enableFilters).toString()})]" === 'true',
 		statusLabels: {
-	        /*[# th:each="status : ${T(fr.ciadlab.labmanager.entities.member.MemberStatus).values()}"]*/
-		        /*[# th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values()}" th:if="${gender.hasLabel()}"]*/
+	        /*[# th:each="status : ${T(fr.utbm.ciad.labmanager.data.member.MemberStatus).values()}"]*/
+		        /*[# th:each="gender : ${T(fr.utbm.ciad.labmanager.data.member.Gender).values()}" th:if="${gender.hasLabel()}"]*/
 			"[(${status.name + '_' + gender.name})]": "[(${status.getLabel(gender)})]",
 		        /*[/]*/
 	        /*[/]*/
 		},
 		responsibilityLabels: {
-	        /*[# th:each="responsibility : ${T(fr.ciadlab.labmanager.entities.member.Responsibility).values()}"]*/
-		        /*[# th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values()}" th:if="${gender.hasLabel()}"]*/
+	        /*[# th:each="responsibility : ${T(fr.utbm.ciad.labmanager.data.member.Responsibility).values()}"]*/
+		        /*[# th:each="gender : ${T(fr.utbm.ciad.labmanager.data.member.Gender).values()}" th:if="${gender.hasLabel()}"]*/
 			"[(${responsibility.name + '_' + gender.name})]": "[(${responsibility.getLabel(gender)})]",
 		        /*[/]*/
 	        /*[/]*/
 		},
 		types: {
-	        /*[# th:each="type : ${T(fr.ciadlab.labmanager.controller.api.member.GeneralMemberType).values()}"]*/
+	        /*[# th:each="type : ${T(fr.utbm.ciad.labmanager.rest.member.GeneralMemberType).values()}"]*/
 			"[(${type.name})]": {
 				label: [[${type.getLabel()}]],
 				order: [[${type.ordinal}]],

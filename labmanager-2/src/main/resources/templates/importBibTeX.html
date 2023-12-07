@@ -70,9 +70,9 @@ function buildPublicationDetails($parent, pub) {
 function getCompatiblePublicationTypes(type) {
 	var types = [];
 	switch (type) {
-	/*[# th:each="type : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values()}"]*/
+	/*[# th:each="type : ${T(fr.utbm.ciad.labmanager.data.publication.PublicationType).values()}"]*/
 	case "[(${type.name})]":
-		/*[# th:each="type1 : ${T(fr.ciadlab.labmanager.entities.publication.PublicationType).values()}"]*/
+		/*[# th:each="type1 : ${T(fr.utbm.ciad.labmanager.data.publication.PublicationType).values()}"]*/
 			/*[# th:if="${type.isCompatibleWith(type1)}"]*/
 		types.push({
 			'name': "[(${type1.name})]",

@@ -53,7 +53,7 @@ ALL_PERSON_OPTIONS = ALL_PERSON_OPTIONS + '<option value="[(${person.id})]">' + 
 /*[/]*/
 const ALL_ROLES = new Map();
 var ALL_ROLE_OPTIONS =  '';
-/*[# th:each="role : ${T(fr.ciadlab.labmanager.entities.assostructure.HolderRole).values()}"]*/
+/*[# th:each="role : ${T(fr.utbm.ciad.labmanager.data.assostructure.HolderRole).values()}"]*/
 ALL_ROLES.set("[(${role.name})]", [[${role.getLabel()}]]);
 ALL_ROLE_OPTIONS = ALL_ROLE_OPTIONS + '<option value="[(${role.name})]">' + [[${role.getLabel()}]] + '</option>';
 /*[/]*/

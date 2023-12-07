@@ -55,7 +55,7 @@
                           th:utext="#{html.no}"></th:block>
             </td>
             <td th:with="cindex=${conference.getCoreIndexByYear(currentYear)}">
-            	<th:block th:if="${cindex != null && cindex != T(fr.ciadlab.labmanager.utils.ranking.CoreRanking).NR}"
+            	<th:block th:if="${cindex != null && cindex != T(fr.utbm.ciad.labmanager.utils.ranking.CoreRanking).NR}"
 	                      th:utext="${cindex.toString()}"></th:block>
             </td>
             <td>

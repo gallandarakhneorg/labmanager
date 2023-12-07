@@ -16,7 +16,7 @@
 				<div class="orga_addresses_contentbox">
 					<div class="orga_addresses_content"><p>
 					<th:block th:if="${address.complement != null}"
-					          th:with="eutils = ${T(fr.ciadlab.labmanager.entities.EntityUtils)}">
+					          th:with="eutils = ${T(fr.utbm.ciad.labmanager.data.EntityUtils)}">
 						<th:block th:each="component : ${eutils.getAddressComplementComponents(address.complement)}">
 							<th:block th:utext="${component}"></th:block><br>
 						</th:block>

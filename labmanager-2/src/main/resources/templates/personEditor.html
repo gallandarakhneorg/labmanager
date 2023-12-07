@@ -18,7 +18,7 @@
 	<div class="form-group" th:replace="~{fragments/form :: textInput*(firstName, #{html.FirstName}, #{html.PlaceHolderPersonFirstName}, ${person != null ? person.firstName : ''})}"></div>
 	<div class="form-group" th:replace="~{fragments/form :: comboInput(gender, #{html.Gender}, ~{::option#option-openaccess})}">
 		<option id="option-openaccess"
-		        th:each="gender : ${T(fr.ciadlab.labmanager.entities.member.Gender).values()}"
+		        th:each="gender : ${T(fr.utbm.ciad.labmanager.data.member.Gender).values()}"
 		        th:selected="${(person == null && gender == defaultGender) || (person != null && person.gender == gender)}"
 		        th:value="${gender.name}"
 		        th:utext="${gender.getLabel()}"></option>
@@ -43,7 +43,7 @@
 	<div class="form-group" th:replace="~{fragments/form :: textInput(cordisURL, #{html.CordisURL}, #{html.PlaceHolderURL}, ${person != null ? person.cordisURL : ''})}"></div>
 	<div class="form-group" th:replace="~{fragments/form :: comboInput(webPageNaming, #{html.WebPageNaming}, ~{::option#option-webpagenaming})}">
 		<option id="option-webpagenaming"
-		        th:each="naming : ${T(fr.ciadlab.labmanager.entities.member.WebPageNaming).values()}"
+		        th:each="naming : ${T(fr.utbm.ciad.labmanager.data.member.WebPageNaming).values()}"
 		        th:selected="${(person == null && naming == defaultNaming) || (person != null && person.webPageNaming == naming)}"
 		        th:value="${naming.name}"
 		        th:utext="${naming.getLabel()}"></option>

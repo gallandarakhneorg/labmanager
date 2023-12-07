@@ -13,7 +13,7 @@
    	            id="dropdownAddSupervision" aria-expanded="false">
     	<span class="fa-solid fa-pen"></span>&nbsp;<th:block th:utext="#{html.AddSupervisionIn(${organization.acronymOrName})}"></th:block></button>
     	<ul class="dropdown-menu" aria-labelledby="dropdownAddSupervision">
-			<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.ciadlab.labmanager.entities.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
+			<li><a th:each="membership : ${#lists.sort(organization.memberships, T(fr.utbm.ciad.labmanager.data.EntityUtils).preferredPersonNameBasedMembershipComparator)}"
 			       th:if="${!membership.isFuture && membership.isMainPosition && membership.memberStatus.isSupervisable}"
 			       class="dropdown-item"
 			       th:href="@{/showSupervisions(dbId=${membership.person.id})}"
@@ -54,7 +54,7 @@
             <td>
             	<div class="supervisionTitle" th:utext="${supervision.title}"></div>
             	<div class="supervisionDetails"
-            	     th:with="utils = ${T(fr.ciadlab.labmanager.entities.EntityUtils)}">
+            	     th:with="utils = ${T(fr.utbm.ciad.labmanager.data.EntityUtils)}">
 	            	<th:block th:utext="${utils.getNameInUniversity(supervision, ', ') + ', ' + countryLabels.get(supervision.supervisedPerson.researchOrganization.country)}"></th:block>
 	            	<br/>
 	            	<th:block th:if="${supervision.supervisors.size > 1}" th:utext="#{html.Supervisors0}"></th:block>
