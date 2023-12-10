@@ -37,6 +37,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -84,6 +87,27 @@ public class ResearchOrganizationService extends AbstractService {
 	 */
 	public List<ResearchOrganization> getAllResearchOrganizations() {
 		return this.organizationRepository.findAll();
+	}
+
+	/** Replies all the research organizations.
+	 *
+	 * @param pageable the manager of the pages.
+	 * @return the research organizations.
+	 * @since 4.0
+	 */
+	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable) {
+		return this.organizationRepository.findAll(pageable);
+	}
+
+	/** Replies all the research organizations.
+	 *
+	 * @param pageable the manager of the pages.
+	 * @param filter the filter of organizations.
+	 * @return the research organizations.
+	 * @since 4.0
+	 */
+	public Page<ResearchOrganization> getAllResearchOrganizations(Pageable pageable, Specification<ResearchOrganization> filter) {
+		return this.organizationRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the research organization with the given identifier.

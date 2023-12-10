@@ -135,7 +135,7 @@ public class AssociatedStructureApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false") boolean confidential,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.ASSOCIATED_STRUCTURE_SAVING_ENDPOINT, structure);
+		//TODO ensureCredentials(username, Constants.ASSOCIATED_STRUCTURE_SAVING_ENDPOINT, structure);
 
 		// Analyze parameters
 		final String inAcronym = inString(acronym);
@@ -254,7 +254,7 @@ public class AssociatedStructureApiController extends AbstractApiController {
 	public void deleteAssociatedStructure(
 			@RequestParam(name = Constants.STRUCTURE_ENDPOINT_PARAMETER)  Integer structure,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.ASSOCIATED_STRUCTURE_DELETING_ENDPOINT, structure);
+		//TODO ensureCredentials(username, Constants.ASSOCIATED_STRUCTURE_DELETING_ENDPOINT, structure);
 		if (structure == null || structure.intValue() == 0) {
 			throw new IllegalStateException("Associated structure not found"); //$NON-NLS-1$
 		}

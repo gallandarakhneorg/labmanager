@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.supervision;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for surpervision declaration.
  * 
@@ -31,7 +32,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @since 2.1
  */
-public interface SupervisionRepository extends JpaRepository<Supervision, Integer> {
+public interface SupervisionRepository extends JpaRepository<Supervision, Integer>, JpaSpecificationExecutor<Supervision> {
 
 	/** Replies all the supervisions associated to the person with the given identifier, when he/she is the supervised person.
 	 *

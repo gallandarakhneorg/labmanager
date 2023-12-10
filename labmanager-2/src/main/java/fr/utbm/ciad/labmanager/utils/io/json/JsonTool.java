@@ -77,6 +77,12 @@ public abstract class JsonTool {
 	 */
 	public static final String PERSONS_SECTION = "persons"; //$NON-NLS-1$
 
+	/** Main section of the JSON that is dedicated to application users.
+	 *
+	 * @since 4.0
+	 */
+	public static final String APPLICATION_USERS_SECTION = "applicationUsers"; //$NON-NLS-1$
+
 	/** Main section of the JSON that is dedicated to associated structures.
 	 *
 	 * @since 3.2
@@ -271,6 +277,12 @@ public abstract class JsonTool {
 	/** Prefix for person identifiers.
 	 */
 	protected  static final String PERSON_ID_PREFIX = "/pers#"; //$NON-NLS-1$
+
+	/** Prefix for person identifiers.
+	 *
+	 * @since 4.0
+	 */
+	protected  static final String APPLICATION_USER_ID_PREFIX = "/auser#"; //$NON-NLS-1$
 
 	/** Prefix for journal identifiers.
 	 */

@@ -73,7 +73,7 @@ public class GlobalIndicatorApiController extends AbstractApiController {
 	public void saveGlobalIndicators(
 			@RequestParam(required = false) List<String> visibleIndicators,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		ensureCredentials(username, Constants.GLOBAL_INDICATORS_SAVING_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.GLOBAL_INDICATORS_SAVING_ENDPOINT);
 		this.indicatorService.setVisibleIndicators(visibleIndicators);
 	}
 
@@ -84,7 +84,7 @@ public class GlobalIndicatorApiController extends AbstractApiController {
 	@PutMapping("/" + Constants.RESET_INDICATOR_CACHE_ENDPOINT)
 	public void resetIndicatorCache(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		ensureCredentials(username, Constants.RESET_INDICATOR_CACHE_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.RESET_INDICATOR_CACHE_ENDPOINT);
 		this.indicatorService.clearCache();
 	}
 

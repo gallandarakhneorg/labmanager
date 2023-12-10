@@ -33,6 +33,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -74,6 +77,27 @@ public class OrganizationAddressService extends AbstractService {
 	 */
 	public List<OrganizationAddress> getAllAddresses() {
 		return this.addressRepository.findAll();
+	}
+
+	/** Replies all the organizations' addresses.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the address.
+	 * @since 4.0
+	 */
+	public Page<OrganizationAddress> getAllAddresses(Pageable pageable) {
+		return this.addressRepository.findAll(pageable);
+	}
+
+	/** Replies all the organizations' addresses.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of addresses.
+	 * @return the address.
+	 * @since 4.0
+	 */
+	public Page<OrganizationAddress> getAllAddresses(Pageable pageable, Specification<OrganizationAddress> filter) {
+		return this.addressRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the organization address with the given identifier.

@@ -42,6 +42,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing journal paper.
@@ -89,6 +92,27 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 */
 	public List<JournalPaper> getAllJournalPapers() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the journal papers.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the journal papers.
+	 * @since 4.0
+	 */
+	public Page<JournalPaper> getAllJournalPapers(Pageable pageable) {
+		return this.repository.findAll(pageable);
+	}
+
+	/** Replies all the journal papers.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of papers.
+	 * @return the journal papers.
+	 * @since 4.0
+	 */
+	public Page<JournalPaper> getAllJournalPapers(Pageable pageable, Specification<JournalPaper> filter) {
+		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the journal paper with the given identifier.

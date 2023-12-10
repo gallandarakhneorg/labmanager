@@ -458,8 +458,9 @@ public class PublicationExportApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		readCredentials(username, Constants.EXPORT_JSON_ENDPOINT);
-		final Boolean isLoggedIn = Boolean.valueOf(isLoggedIn());
+		//TODO readCredentials(username, Constants.EXPORT_JSON_ENDPOINT);
+		//TODO final Boolean isLoggedIn = Boolean.valueOf(isLoggedIn());
+		final Boolean isLoggedIn = Boolean.FALSE;
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
 		final Boolean isAjaxObj = Boolean.valueOf(isAjax);
 		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();

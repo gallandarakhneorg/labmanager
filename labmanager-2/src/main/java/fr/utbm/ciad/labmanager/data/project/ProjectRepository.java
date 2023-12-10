@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -35,7 +36,7 @@ import org.springframework.data.repository.query.Param;
  * @mavenartifactid $ArtifactId$
  * @since 3.0
  */
-public interface ProjectRepository extends JpaRepository<Project, Integer> {
+public interface ProjectRepository extends JpaRepository<Project, Integer>, JpaSpecificationExecutor<Project> {
 
 	/** Replies all the projects that match the different organization identifiers.
 	 * The identifier is compared to, the coordinator, the local organization,

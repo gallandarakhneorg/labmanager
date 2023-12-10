@@ -38,6 +38,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing keynotes.
@@ -80,6 +83,27 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 */
 	public List<KeyNote> getAllKeyNotes() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the keynotes.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the keynotes.
+	 * @since 4.0
+	 */
+	public Page<KeyNote> getAllKeyNotes(Pageable pageable) {
+		return this.repository.findAll(pageable);
+	}
+
+	/** Replies all the keynotes.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the fitler of keynotes.
+	 * @return the keynotes.
+	 * @since 4.0
+	 */
+	public Page<KeyNote> getAllKeyNotes(Pageable pageable, Specification<KeyNote> filter) {
+		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the keynotes with the given identifier.

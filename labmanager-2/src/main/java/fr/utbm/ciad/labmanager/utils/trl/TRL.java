@@ -22,7 +22,7 @@ package fr.utbm.ciad.labmanager.utils.trl;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.BaseMessageSource;
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Technology readiness levels (TRLs) are a method for estimating the maturity of technologies during the acquisition phase

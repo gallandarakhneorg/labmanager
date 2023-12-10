@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for jury memberships.
  * 
@@ -32,7 +33,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public interface JuryMembershipRepository extends JpaRepository<JuryMembership, Integer> {
+public interface JuryMembershipRepository extends JpaRepository<JuryMembership, Integer>, JpaSpecificationExecutor<JuryMembership> {
 
 	/** Replies the list of memberships that are associated to the person with the given identifier.
 	 *

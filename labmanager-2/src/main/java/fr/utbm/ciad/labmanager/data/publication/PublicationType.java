@@ -24,7 +24,7 @@ import java.util.Set;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.Sets;
-import fr.utbm.ciad.labmanager.configuration.BaseMessageSource;
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.publication.type.Book;
 import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
 import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;

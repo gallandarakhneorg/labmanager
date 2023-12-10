@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.project;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for project members.
  * 
@@ -31,7 +32,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @since 3.0
  */
-public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Integer> {
+public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Integer>, JpaSpecificationExecutor<ProjectMember> {
 
 	/** Replies the list of the project members that corresponds to the person with the given identifier.
 	 *

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA Repository for journal papers.
  * 
@@ -32,7 +33,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface JournalPaperRepository extends JpaRepository<JournalPaper, Integer> {
+public interface JournalPaperRepository extends JpaRepository<JournalPaper, Integer>, JpaSpecificationExecutor<JournalPaper> {
 
 	/** Replies the journal papers that are associated to the journal with the given identifier.
 	 *

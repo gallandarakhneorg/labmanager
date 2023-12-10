@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.indicator;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for global indicators.
  * 
@@ -29,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface GlobalIndicatorsRepository extends JpaRepository<GlobalIndicators, Integer> {
+public interface GlobalIndicatorsRepository extends JpaRepository<GlobalIndicators, Integer>, JpaSpecificationExecutor<GlobalIndicators> {
 	//
 }

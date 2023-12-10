@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.invitation;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for person invitations.
  * 
@@ -31,7 +32,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @since 2.2
  */
-public interface PersonInvitationRepository extends JpaRepository<PersonInvitation, Integer> {
+public interface PersonInvitationRepository extends JpaRepository<PersonInvitation, Integer>, JpaSpecificationExecutor<PersonInvitation> {
 
 	/** Replies the invitations for the given person whatever if he/she is invitee or inviter.
 	 *

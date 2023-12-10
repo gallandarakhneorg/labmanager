@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.organization;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA Repository for the research organizations.
  * 
@@ -32,7 +33,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @see ResearchOrganization
  */
-public interface ResearchOrganizationRepository extends JpaRepository<ResearchOrganization, Integer> {
+public interface ResearchOrganizationRepository extends JpaRepository<ResearchOrganization, Integer>, JpaSpecificationExecutor<ResearchOrganization> {
 
 	/** Find a research organization with the given acronym or name. This function is case sensitive.
 	 *

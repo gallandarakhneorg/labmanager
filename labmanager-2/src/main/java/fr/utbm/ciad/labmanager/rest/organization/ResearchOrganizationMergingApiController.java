@@ -93,7 +93,7 @@ public class ResearchOrganizationMergingApiController extends AbstractApiControl
 			@RequestParam(required = true) Integer target,
 			@RequestParam(required = true) List<Integer> sources,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "mergeOrganizations", target); //$NON-NLS-1$
+		//TODO ensureCredentials(username, "mergeOrganizations", target); //$NON-NLS-1$
 		if (sources != null && !sources.isEmpty()) {
 			try {
 				this.mergingService.mergeOrganizationsById(sources, target);
@@ -112,7 +112,7 @@ public class ResearchOrganizationMergingApiController extends AbstractApiControl
 	@GetMapping(value = "/" + Constants.COMPUTE_DUPLICATE_ORGANIZATIONS_ENDPOINT, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter computeDuplicateOrganizations(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		ensureCredentials(username, Constants.COMPUTE_DUPLICATE_ORGANIZATIONS_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.COMPUTE_DUPLICATE_ORGANIZATIONS_ENDPOINT);
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));

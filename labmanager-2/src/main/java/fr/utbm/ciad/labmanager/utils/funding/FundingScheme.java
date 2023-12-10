@@ -22,7 +22,7 @@ package fr.utbm.ciad.labmanager.utils.funding;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.BaseMessageSource;
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** The enumeration {@code FundingScheme} provides a list of well-known funding sources.

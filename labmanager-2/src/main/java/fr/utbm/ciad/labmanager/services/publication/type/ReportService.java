@@ -37,6 +37,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing reports.
@@ -79,6 +82,27 @@ public class ReportService extends AbstractPublicationTypeService {
 	 */
 	public List<Report> getAllReports() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the reports.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the reports.
+	 * @since 4.0
+	 */
+	public Page<Report> getAllReports(Pageable pageable) {
+		return this.repository.findAll(pageable);
+	}
+
+	/** Replies all the reports.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of reports.
+	 * @return the reports.
+	 * @since 4.0
+	 */
+	public Page<Report> getAllReports(Pageable pageable, Specification<Report> filter) {
+		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the report with the given identifier.

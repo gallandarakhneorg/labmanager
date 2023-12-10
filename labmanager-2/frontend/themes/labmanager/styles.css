@@ -1,0 +1,8 @@
+@import url('./main-layout.css');
+@import url('./views/welcome-view.css');
+@import url('./views/my-dashboard-view.css');
+@import url('./views/my-profile-view.css');
+@import url('./views/my-publications-view.css');
+@import url('./views/my-projects-view.css');
+@import url('./views/my-contracts-view.css');
+@import url('./views/my-supervisions-view.css');

@@ -53,6 +53,9 @@ import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service related to the journals.
@@ -116,6 +119,27 @@ public class JournalService extends AbstractService {
 	 */
 	public List<Journal> getAllJournals() {
 		return this.journalRepository.findAll();
+	}
+
+	/** Replies all the journals for the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of journals.
+	 * @since 4.0
+	 */
+	public Page<Journal> getAllJournals(Pageable pageable) {
+		return this.journalRepository.findAll(pageable);
+	}
+
+	/** Replies all the journals for the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of journals.
+	 * @return the list of journals.
+	 * @since 4.0
+	 */
+	public Page<Journal> getAllJournals(Pageable pageable, Specification<Journal> filter) {
+		return this.journalRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the journal with the given identifier.

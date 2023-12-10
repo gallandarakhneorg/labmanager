@@ -34,6 +34,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class Constants {
 
+	// TODO Remove unnecessary constants
+	
 	/** URL path of the icons with terminal slash.
 	 *
 	 * @since 3.8

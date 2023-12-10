@@ -141,7 +141,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(defaultValue = "false", required = false) boolean strictName,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
 		final String inWebId = inString(webId);
-		ensureCredentials(username, "getPersonData", dbId, inWebId); //$NON-NLS-1$
+		//TODO ensureCredentials(username, "getPersonData", dbId, inWebId); //$NON-NLS-1$
 		final Person person = getPersonWith(dbId, inWebId, null, this.personService, this.nameParser);
 		if (person == null) {
 			throw new IllegalArgumentException("Person not found"); //$NON-NLS-1$
@@ -218,7 +218,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer scopusCitations,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.PERSON_SAVING_ENDPOINT, person);
+		//TODO ensureCredentials(username, Constants.PERSON_SAVING_ENDPOINT, person);
 		final String inFirstName = inString(firstName);
 		final String inLastName = inString(lastName);
 		final String inGender = inString(gender);
@@ -283,7 +283,7 @@ public class PersonApiController extends AbstractApiController {
 	public void deletePerson(
 			@RequestParam(name = Constants.PERSON_ENDPOINT_PARAMETER) Integer person,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.PERSON_DELETING_ENDPOINT, person);
+		//TODO ensureCredentials(username, Constants.PERSON_DELETING_ENDPOINT, person);
 		if (person == null || person.intValue() == 0) {
 			throw new IllegalStateException("Person not found"); //$NON-NLS-1$
 		}
@@ -334,7 +334,7 @@ public class PersonApiController extends AbstractApiController {
 			@RequestParam(required = true) int organization,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
 		final Integer id = Integer.valueOf(organization);
-		ensureCredentials(username, Constants.GET_JSON_FOR_PERSON_INDICATOR_UPDATES_ENDPOINT, id);
+		//TODO ensureCredentials(username, Constants.GET_JSON_FOR_PERSON_INDICATOR_UPDATES_ENDPOINT, id);
 		//
 		final ResearchOrganization organizationObj = getOrganizationWith(id, null, this.organizationService);
 		if (organizationObj == null) {
@@ -430,7 +430,7 @@ public class PersonApiController extends AbstractApiController {
 	public void savePersonIndicatorUpdates(
 			@RequestParam(required = true) String data,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.SAVE_PERSON_INDICATOR_UPDATES_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.SAVE_PERSON_INDICATOR_UPDATES_ENDPOINT);
 		//
 		final Map<Integer, PersonIndicators> updates = new HashMap<>();
 		if (!Strings.isNullOrEmpty(data)) {

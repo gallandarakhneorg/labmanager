@@ -157,7 +157,7 @@ public class TeachingApiController extends AbstractApiController {
 			@RequestParam(required = false) MultipartFile pathToSlides,
 			@RequestParam(required = false, defaultValue = "false", name = "@fileUpload_removed_pathToSlides") boolean removePathToSlides,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.TEACHING_ACTIVITY_SAVING_ENDPOINT, person, activity);
+		//TODO ensureCredentials(username, Constants.TEACHING_ACTIVITY_SAVING_ENDPOINT, person, activity);
 		// Analyze parameters
 		final String inCode = inString(code);
 		final String inTitle = inString(title);
@@ -251,7 +251,7 @@ public class TeachingApiController extends AbstractApiController {
 	public void deleteTeachingActivity(
 			@RequestParam(name = Constants.ACTIVITY_ENDPOINT_PARAMETER) Integer activity,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.TEACHING_ACTIVITY_DELETING_ENDPOINT, activity);
+		//TODO ensureCredentials(username, Constants.TEACHING_ACTIVITY_DELETING_ENDPOINT, activity);
 		if (activity == null || activity.intValue() == 0) {
 			throw new IllegalStateException("Activity not found"); //$NON-NLS-1$
 		}

@@ -122,7 +122,7 @@ public class ConferenceApiController extends AbstractApiController {
 			@RequestParam(required = false) Integer enclosingConference,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.CONFERENCE_SAVING_ENDPOINT, conference);
+		//TODO ensureCredentials(username, Constants.CONFERENCE_SAVING_ENDPOINT, conference);
 		//
 		final String inAcronym = inString(acronym);
 		final String inName = inString(name);
@@ -157,7 +157,7 @@ public class ConferenceApiController extends AbstractApiController {
 	public void deleteConference(
 			@RequestParam(name = Constants.CONFERENCE_ENDPOINT_PARAMETER) Integer conference,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.CONFERENCE_DELETING_ENDPOINT, conference);
+		//TODO ensureCredentials(username, Constants.CONFERENCE_DELETING_ENDPOINT, conference);
 		if (conference == null || conference.intValue() == 0) {
 			throw new IllegalStateException("Conference not found"); //$NON-NLS-1$
 		}
@@ -178,7 +178,7 @@ public class ConferenceApiController extends AbstractApiController {
 			@RequestParam(required = true) int year,
 			@RequestParam(required = false) String coreIndex,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.SAVE_CONFERENCE_RANKING_ENDPOINT, Integer.valueOf(conference));
+		//TODO ensureCredentials(username, Constants.SAVE_CONFERENCE_RANKING_ENDPOINT, Integer.valueOf(conference));
 		final Conference conferenceObj = this.conferenceService.getConferenceById(conference);
 		if (conferenceObj == null) {
 			throw new IllegalArgumentException("Conference not found with: " + conference); //$NON-NLS-1$
@@ -200,7 +200,7 @@ public class ConferenceApiController extends AbstractApiController {
 			@RequestParam(required = true) int conference,
 			@RequestParam(required = true) int year,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.DELETE_CONFERENCE_RANKING_ENDPOINT, Integer.valueOf(conference), Integer.valueOf(year));
+		//TODO ensureCredentials(username, Constants.DELETE_CONFERENCE_RANKING_ENDPOINT, Integer.valueOf(conference), Integer.valueOf(year));
 		final Conference conferenceObj = this.conferenceService.getConferenceById(conference);
 		if (conferenceObj == null) {
 			throw new IllegalArgumentException("Conference not found with: " + conference); //$NON-NLS-1$
@@ -219,7 +219,7 @@ public class ConferenceApiController extends AbstractApiController {
 	public SseEmitter getJsonForConferenceIndicatorUpdates(
 			@RequestParam(required = true) int year,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.GET_JSON_FOR_CONFERENCE_INDICATOR_UPDATES_ENDPOINT, Integer.valueOf(year));
+		//TODO ensureCredentials(username, Constants.GET_JSON_FOR_CONFERENCE_INDICATOR_UPDATES_ENDPOINT, Integer.valueOf(year));
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));
@@ -311,7 +311,7 @@ public class ConferenceApiController extends AbstractApiController {
 	public void saveJournalIndicatorUpdates(
 			@RequestParam(required = true) Map<String, String> data,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.SAVE_CONFERENCE_INDICATOR_UPDATES_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.SAVE_CONFERENCE_INDICATOR_UPDATES_ENDPOINT);
 		final int referenceYear = ensureYear(data, "referenceYear"); //$NON-NLS-1$
 		final String rawChanges = ensureString(data, "changes"); //$NON-NLS-1$
 		if (Strings.isNullOrEmpty(rawChanges)) {

@@ -101,7 +101,7 @@ public class JuryMembershipApiController extends AbstractApiController {
 			@RequestParam(required = false) String country,
 			@RequestParam(required = false) List<String> promoters,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.JURY_MEMBERSHIP_SAVING_ENDPOINT, Integer.valueOf(person));
+		//TODO ensureCredentials(username, Constants.JURY_MEMBERSHIP_SAVING_ENDPOINT, Integer.valueOf(person));
 		try {
 			final String inDate = inString(date);
 			final String inType = inString(type);
@@ -167,7 +167,7 @@ public class JuryMembershipApiController extends AbstractApiController {
 	public void deleteJuryMembership(
 			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER) Integer id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.JURY_MEMBERSHIP_DELETION_ENDPOINT, id);
+		//TODO ensureCredentials(username, Constants.JURY_MEMBERSHIP_DELETION_ENDPOINT, id);
 		if (id == null || id.intValue() == 0) {
 			throw new IllegalStateException("Missing the jury membership id"); //$NON-NLS-1$
 		}

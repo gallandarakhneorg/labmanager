@@ -91,6 +91,8 @@ import fr.utbm.ciad.labmanager.data.supervision.SupervisorType;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
+import fr.utbm.ciad.labmanager.data.user.User;
+import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import fr.utbm.ciad.labmanager.services.indicator.GlobalIndicatorsService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
@@ -166,6 +168,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private ScientificAxisRepository scientificAxisRepository;
 
+	private UserRepository userRepository;
+
 	private final Multimap<String, String> fieldAliases = LinkedListMultimap.create();
 
 	private boolean fake;
@@ -195,6 +199,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param structureRepository the repository of the associated structures.
 	 * @param teachingRepository the repository of the teaching activities.
 	 * @param scientificAxisRepository the repository of the scientific axes.
+	 * @param userRepository the repository of the application users.
 	 */
 	public JsonToDatabaseImporter(
 			@Autowired SessionFactory sessionFactory,
@@ -219,7 +224,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired ProjectRepository projectRepository,
 			@Autowired AssociatedStructureRepository structureRepository,
 			@Autowired TeachingActivityRepository teachingRepository,
-			@Autowired ScientificAxisRepository scientificAxisRepository) {
+			@Autowired ScientificAxisRepository scientificAxisRepository,
+			@Autowired UserRepository userRepository) {
 		this.sessionFactory = sessionFactory;
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
@@ -243,6 +249,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		this.structureRepository = structureRepository;
 		this.teachingRepository = teachingRepository;
 		this.scientificAxisRepository = scientificAxisRepository;
+		this.userRepository = userRepository;
 		initializeFieldAliases();
 	}
 
@@ -511,7 +518,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 						scientificAxisNode, objectRepository, aliasRepository, fileCallback);
 				final int nb11 = insertAssociatedStructures(session, content.get(ASSOCIATED_STRUCTURES_SECTION), objectRepository, aliasRepository, fileCallback);
 				final int nb12 = insertTeachingActivities(session, content.get(TEACHING_ACTIVITY_SECTION), objectRepository, aliasRepository, fileCallback);
-				return new Stats(nb6, nb0, nb2, nb14, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11, nb12, nb13);
+				final int nb15 = insertApplicationUsers(session, content.get(APPLICATION_USERS_SECTION), objectRepository, aliasRepository);
+				return new Stats(nb6, nb0, nb2, nb14, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11, nb12, nb13, nb15);
 			}
 		}
 		return new Stats();
@@ -2307,6 +2315,64 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return nbNew;
 	}
 
+	/** Create the application users in the database.
+	 *
+	 * @param session the JPA session for managing transactions.
+	 * @param users the list of application users in the Json source.
+	 * @param objectIdRepository the mapping from JSON {@code @id} field and the JPA database identifier.
+	 * @param aliasRepository the repository of field aliases.
+	 * @return the number of new users in the database.
+	 * @throws Exception if an user cannot be created.
+	 */
+	protected int insertApplicationUsers(Session session, JsonNode users, Map<String, Integer> objectIdRepository,
+			Map<String, Set<String>> aliasRepository) throws Exception {
+		int nbNew = 0;
+		if (users != null && !users.isEmpty()) {
+			getLogger().info("Inserting " + users.size() + " application users..."); //$NON-NLS-1$ //$NON-NLS-2$
+			int i = 0;
+			for (JsonNode userObject : users) {
+				getLogger().info("> User " + (i + 1) + "/" + users.size()); //$NON-NLS-1$ //$NON-NLS-2$
+				try {
+					final String id = getId(userObject);
+					User user = createObject(User.class, userObject, aliasRepository, null);
+					if (user != null) {
+						session.beginTransaction();
+
+						final String personId = getRef(userObject.get(PERSON_KEY));
+						if (Strings.isNullOrEmpty(personId)) {
+							throw new IllegalArgumentException("Invalid person reference for application user with id: " + id); //$NON-NLS-1$
+						}
+						final Integer personDbId = objectIdRepository.get(personId);
+						if (personDbId == null || personDbId.intValue() == 0) {
+							throw new IllegalArgumentException("Invalid person reference for application user with id: " + id); //$NON-NLS-1$
+						}
+						final Optional<Person> person = this.personRepository.findById(personDbId);
+						if (person.isEmpty()) {
+							throw new IllegalArgumentException("Invalid person reference for application user with id: " + id); //$NON-NLS-1$
+						}
+						user.setPerson(person.get());
+
+						if (!isFake()) {
+							this.userRepository.save(user);
+						}
+
+						++nbNew;
+						getLogger().info("  + " + user.getLogin() + " (id: " + user.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+						if (!Strings.isNullOrEmpty(id)) {
+							objectIdRepository.put(id, Integer.valueOf(user.getId()));
+						}
+
+						session.getTransaction().commit();
+					}
+				} catch (Throwable ex) {
+					throw new UnableToImportJsonException(APPLICATION_USERS_SECTION, i, userObject, ex);
+				}
+				++i;
+			}
+		}
+		return nbNew;
+	}
+
 	/** Callback for files that are associated to elements from the JSON.
 	 * 
 	 * @author $Author: sgalland$
@@ -2482,6 +2548,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 */
 		public final int scientificAxes;
 
+		/** Number of created application users.
+		 * 
+		 * @since 4.0
+		 */
+		public final int applicationUsers;
+
 		/** Constructor.
 		 *
 		 * @param addresses the number of created addresses.
@@ -2499,10 +2571,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param associatedStructures the number of associated structures.
 		 * @param teachingActivities the number of teaching activities.
 		 * @param scientificAxes the number of scientific axes.
+		 * @param applicationUsers the number of application users.
 		 */
 		Stats(int addresses, int organizations, int journals, int conferences, int persons, int authors,
 				int memberships, int publications, int juryMemberships, int supervisions, int invitations,
-				int projects, int associatedStructures, int teachingActivities, int scientificAxes) {
+				int projects, int associatedStructures, int teachingActivities, int scientificAxes,
+				int applicationUsers) {
 			this.addresses = addresses;
 			this.organizations = organizations;
 			this.journals = journals;
@@ -2518,12 +2592,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 			this.associatedStructures = associatedStructures;
 			this.teachingActivities = teachingActivities;
 			this.scientificAxes = scientificAxes;
+			this.applicationUsers = applicationUsers;
 		}
 
 		/** Constructor.
 		 */
 		Stats() {
-			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
+			this(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0);
 		}
 
 		/** Update the number of files that were associated to publications.
@@ -2549,6 +2624,9 @@ public class JsonToDatabaseImporter extends JsonTool {
 			logger.info(" |-> journals: " + this.journals); //$NON-NLS-1$
 			logger.info(" |-> conferences: " + this.conferences); //$NON-NLS-1$
 			logger.info(" |-> persons: " + this.persons); //$NON-NLS-1$
+			if (this.applicationUsers > 0) {
+				logger.info(" |    \\-> application users: " + this.applicationUsers); //$NON-NLS-1$
+			}
 			logger.info(" |-> external authors: " + this.authors); //$NON-NLS-1$
 			logger.info(" |-> organization memberships: " + this.organizationMemberships); //$NON-NLS-1$
 			logger.info(" |-> publications: " + this.publications); //$NON-NLS-1$

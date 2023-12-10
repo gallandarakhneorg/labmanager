@@ -35,6 +35,9 @@ import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for scientific axes.
@@ -86,6 +89,27 @@ public class ScientificAxisService extends AbstractService {
 	 */
 	public List<ScientificAxis> getAllScientificAxes() {
 		return this.scientificAxisRepository.findAll();
+	}
+
+	/** Replies the list of all the scientific axes.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of all the scientific axes.
+	 * @since 4.0
+	 */
+	public Page<ScientificAxis> getAllScientificAxes(Pageable pageable) {
+		return this.scientificAxisRepository.findAll(pageable);
+	}
+
+	/** Replies the list of all the scientific axes.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of the axes.
+	 * @return the list of all the scientific axes.
+	 * @since 4.0
+	 */
+	public Page<ScientificAxis> getAllScientificAxes(Pageable pageable, Specification<ScientificAxis> filter) {
+		return this.scientificAxisRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the scientific axis that has the given identifier.

@@ -37,6 +37,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing books.
@@ -79,6 +82,27 @@ public class BookService extends AbstractPublicationTypeService {
 	 */
 	public List<Book> getAllBooks() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the books.
+	 *
+	 * @param pageable the manager of pageS.
+	 * @return the books.
+	 * @since 4.0
+	 */
+	public Page<Book> getAllBooks(Pageable pageable) {
+		return this.repository.findAll(pageable);
+	}
+
+	/** Replies all the books.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of books.
+	 * @return the books.
+	 * @since 4.0
+	 */
+	public Page<Book> getAllBooks(Pageable pageable, Specification<Book> filter) {
+		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the book with the given identifier.

@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA Repository for the persons.
  * 
@@ -33,7 +34,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface PersonRepository extends JpaRepository<Person, Integer> {
+public interface PersonRepository extends JpaRepository<Person, Integer>, JpaSpecificationExecutor<Person> {
 
 	/** Replies a person who has the given first and last names.
 	 * 

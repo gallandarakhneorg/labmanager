@@ -19,32 +19,36 @@
 
 package fr.utbm.ciad.labmanager;
 
+import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.aspectj.EnableSpringConfigured;
 
-/** Definition of the SpringBoot application for the CIAD lab website.
+/**
+ * The entry point of the Spring Boot application.
+ *
+ * Use the @PWA annotation make the application installable on phones, tablets
+ * and some desktop browsers.
  * 
  * @author $Author: sgalland$
- * @author $Author: tmartine$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
+ * @since 4.0
  */
 @SpringBootApplication
-@Configuration
-@EnableSpringConfigured
-public class LabManagerApplication extends SpringBootServletInitializer {
+@Theme(value = "labmanager")
+public class LabManagerApplication implements AppShellConfigurator {
 
-	/** Main program for the LabManager server.
-	 *
-	 * @param args arguments.
-	 */
+    private static final long serialVersionUID = 3672131574382734484L;
+
+    /** Starting point for the LabManaer application.
+     *
+     * @param args the commande-line arguments.
+     */
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-		SpringApplication.run(LabManagerApplication.class, args);
-	}
+        SpringApplication.run(LabManagerApplication.class, args);
+    }
 
 }

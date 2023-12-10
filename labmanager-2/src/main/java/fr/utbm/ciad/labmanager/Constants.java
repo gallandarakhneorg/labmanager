@@ -31,7 +31,7 @@ public final class Constants {
 
 	/** Version number of the Lab Manager API.
 	 */
-	public static final String MANAGER_VERSION = "3.8.0"; //$NON-NLS-1$
+	public static final String MANAGER_VERSION = "4.0.0"; //$NON-NLS-1$
 	
 	private Constants() {
 		//

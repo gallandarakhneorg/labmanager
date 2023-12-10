@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.journal;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for journal quality indicators.
  * 
@@ -29,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface JournalQualityAnnualIndicatorsRepository extends JpaRepository<JournalQualityAnnualIndicators, Integer> {
+public interface JournalQualityAnnualIndicatorsRepository extends JpaRepository<JournalQualityAnnualIndicators, Integer>, JpaSpecificationExecutor<JournalQualityAnnualIndicators> {
 	//
 }

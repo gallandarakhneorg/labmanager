@@ -93,6 +93,9 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -252,6 +255,27 @@ public class PublicationService extends AbstractPublicationService {
 	 */
 	public List<Publication> getAllPublications() {
 		return this.publicationRepository.findAll();
+	}
+
+	/** Replies all the publications from the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the publications.
+	 * @since 4.0
+	 */
+	public Page<Publication> getAllPublications(Pageable pageable) {
+		return this.publicationRepository.findAll(pageable);
+	}
+
+	/** Replies all the publications from the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of publications.
+	 * @return the publications.
+	 * @since 4.0
+	 */
+	public Page<Publication> getAllPublications(Pageable pageable, Specification<Publication> filter) {
+		return this.publicationRepository.findAll(filter, pageable);
 	}
 
 	/** Replies all the publications that have the given maximum age.
@@ -688,7 +712,6 @@ public class PublicationService extends AbstractPublicationService {
 		return importPublications(importablePublications, importedEntriesWithExpectedType);
 	}
 
-	@SuppressWarnings("null")
 	private List<Integer> importPublications(List<Publication> importablePublications,
 			Map<String, PublicationType> importedEntriesWithExpectedType) throws Exception {
 		//Holds the IDs of the successfully imported IDs. We'll need it for type differentiation later.

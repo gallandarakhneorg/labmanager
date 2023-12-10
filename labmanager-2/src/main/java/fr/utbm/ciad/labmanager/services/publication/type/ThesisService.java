@@ -37,6 +37,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing theses.
@@ -79,6 +82,27 @@ public class ThesisService extends AbstractPublicationTypeService {
 	 */
 	public List<Thesis> getAllTheses() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the theses.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the theses.
+	 * @since 4.0
+	 */
+	public Page<Thesis> getAllTheses(Pageable pageable) {
+		return this.repository.findAll(pageable);
+	}
+
+	/** Replies all the theses.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of theses.
+	 * @return the theses.
+	 * @since 4.0
+	 */
+	public Page<Thesis> getAllTheses(Pageable pageable, Specification<Thesis> filter) {
+		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the thesis with the given identifier.

@@ -28,8 +28,8 @@ import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
 
-import fr.utbm.ciad.labmanager.configuration.BaseMessageSource;
 import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;

@@ -59,6 +59,9 @@ import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing the persons.
@@ -137,6 +140,27 @@ public class PersonService extends AbstractService {
 	 */
 	public List<Person> getAllPersons() {
 		return this.personRepository.findAll();
+	}
+
+	/** Replies the list of all the persons from the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return all the persons.
+	 * @since 4.0
+	 */
+	public Page<Person> getAllPersons(Pageable pageable) {
+		return this.personRepository.findAll(pageable);
+	}
+
+	/** Replies the list of all the persons from the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of persons.
+	 * @return all the persons.
+	 * @since 4.0
+	 */
+	public Page<Person> getAllPersons(Pageable pageable, Specification<Person> filter) {
+		return this.personRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the person with the given identifier.

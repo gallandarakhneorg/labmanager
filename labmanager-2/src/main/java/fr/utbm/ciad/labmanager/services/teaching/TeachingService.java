@@ -43,6 +43,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -94,6 +97,27 @@ public class TeachingService extends AbstractService {
 	 */
 	public List<TeachingActivity> getAllActivities() {
 		return this.teachingActivityRepository.findAll();
+	}
+
+	/** Replies all the known teaching activities.
+	 *
+	 * @param pageable a manager of pages.
+	 * @return all the activities, never {@code null}.
+	 * @since 4.0
+	 */
+	public Page<TeachingActivity> getAllActivities(Pageable pageable) {
+		return this.teachingActivityRepository.findAll(pageable);
+	}
+
+	/** Replies all the known teaching activities.
+	 *
+	 * @param pageable a manager of pages.
+	 * @param filter the fitler to apply to the users.
+	 * @return all the activities, never {@code null}.
+	 * @since 4.0
+	 */
+	public Page<TeachingActivity> getAllActivities(Pageable pageable, Specification<TeachingActivity> filter) {
+		return this.teachingActivityRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the teaching activity that has the given identifier.

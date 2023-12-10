@@ -19,7 +19,7 @@
 
 package fr.utbm.ciad.labmanager.rest;
 
-import fr.utbm.ciad.labmanager.components.AbstractCredentialController;
+import fr.utbm.ciad.labmanager.components.AbstractComponent;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.http.MediaType;
@@ -31,7 +31,7 @@ import org.springframework.http.MediaType;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public abstract class AbstractApiController extends AbstractCredentialController {
+public abstract class AbstractApiController extends AbstractComponent {
 
 	/** Name of the MIME type for CSV files.
 	 *
@@ -68,7 +68,7 @@ public abstract class AbstractApiController extends AbstractCredentialController
 	 * @param usernameKey the key string for encrypting the usernames.
 	 */
 	public AbstractApiController(MessageSourceAccessor messages, Constants constants, String usernameKey) {
-		super(messages, constants, usernameKey);
+		super(messages, constants);
 	}
 
 }

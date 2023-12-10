@@ -38,6 +38,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing editions of journal and journal special issues.
@@ -80,6 +83,27 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 */
 	public List<JournalEdition> getAllJournalEditions() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the journal editions.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the journal editions.
+	 * @since 4.0
+	 */
+	public Page<JournalEdition> getAllJournalEditions(Pageable pageable) {
+		return this.repository.findAll(pageable);
+	}
+
+	/** Replies all the journal editions.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of journal editions.
+	 * @return the journal editions.
+	 * @since 4.0
+	 */
+	public Page<JournalEdition> getAllJournalEditions(Pageable pageable, Specification<JournalEdition> filter) {
+		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the journal edition with the given identifier.

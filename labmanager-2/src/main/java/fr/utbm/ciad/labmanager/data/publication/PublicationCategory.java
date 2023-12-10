@@ -22,7 +22,7 @@ package fr.utbm.ciad.labmanager.data.publication;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.BaseMessageSource;
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** A publication category defines a family of research papers in France.

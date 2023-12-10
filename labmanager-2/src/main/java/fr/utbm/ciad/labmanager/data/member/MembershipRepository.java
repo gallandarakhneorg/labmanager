@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for the membership relations.
  *
@@ -33,7 +34,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface MembershipRepository extends JpaRepository<Membership, Integer> {
+public interface MembershipRepository extends JpaRepository<Membership, Integer>, JpaSpecificationExecutor<Membership> {
 
 	/** Find the membership by their organization and member identifiers.
 	 *

@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for the authorship relations.
  * 
@@ -32,7 +33,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface AuthorshipRepository extends JpaRepository<Authorship, Integer> {
+public interface AuthorshipRepository extends JpaRepository<Authorship, Integer>, JpaSpecificationExecutor<Authorship> {
 
 	/** Find an authorship that corresponds tothe given person identifier and publication identifier.
 	 *

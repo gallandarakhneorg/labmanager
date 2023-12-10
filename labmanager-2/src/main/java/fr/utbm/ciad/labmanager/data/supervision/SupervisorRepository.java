@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.supervision;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for surpervisor declaration.
  * 
@@ -29,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @since 2.1
  */
-public interface SupervisorRepository extends JpaRepository<Supervisor, Integer> {
+public interface SupervisorRepository extends JpaRepository<Supervisor, Integer>, JpaSpecificationExecutor<Supervisor> {
 	//
 }

@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.teaching;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for teaching activity declaration.
  * 
@@ -31,7 +32,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @since 3.4
  */
-public interface TeachingActivityRepository extends JpaRepository<TeachingActivity, Integer> {
+public interface TeachingActivityRepository extends JpaRepository<TeachingActivity, Integer>, JpaSpecificationExecutor<TeachingActivity> {
 
 	/** Replies the list of activities that associated to the person with the given id.
 	 *

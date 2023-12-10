@@ -163,7 +163,7 @@ public class MembershipApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") boolean closeActive,
 			@RequestParam(required = false) List<Integer> scientificAxes,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.MEMBERSHIP_SAVING_ENDPOINT, person);
+		//TODO ensureCredentials(username, Constants.MEMBERSHIP_SAVING_ENDPOINT, person);
 		try {
 			final String inStatus = inString(status);
 			final String inResponsibility = inString(responsibility);
@@ -271,7 +271,7 @@ public class MembershipApiController extends AbstractApiController {
 	public void deleteMembership(
 			@RequestParam Integer id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.MEMBERSHIP_DELETION_ENDPOINT, id);
+		//TODO ensureCredentials(username, Constants.MEMBERSHIP_DELETION_ENDPOINT, id);
 		if (id == null || id.intValue() == 0) {
 			throw new IllegalStateException("Missing the membership id"); //$NON-NLS-1$
 		}
@@ -301,7 +301,7 @@ public class MembershipApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false", name = Constants.FORAJAX_ENDPOINT_PARAMETER) Boolean forAjax,
 			@RequestParam(required = false, defaultValue = "false", name = Constants.INATTACHMENT_ENDPOINT_PARAMETER) Boolean inAttachment,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		readCredentials(username, Constants.EXPORT_MEMBERS_TO_JSON_ENDPOINT, Integer.valueOf(organization));
+		//TODO readCredentials(username, Constants.EXPORT_MEMBERS_TO_JSON_ENDPOINT, Integer.valueOf(organization));
 		final boolean isAjax = forAjax != null && forAjax.booleanValue();
 		final boolean isAttachment = !isAjax && inAttachment != null && inAttachment.booleanValue();
 		final Predicate<ResearchOrganization> otherOrganizationTypePredicate;

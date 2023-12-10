@@ -64,6 +64,7 @@ import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisionComparator;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisorComparator;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityComparator;
+import fr.utbm.ciad.labmanager.data.user.UserComparator;
 import info.debatty.java.stringsimilarity.SorensenDice;
 import info.debatty.java.stringsimilarity.interfaces.NormalizedStringSimilarity;
 import org.apache.commons.lang3.StringUtils;
@@ -109,6 +110,8 @@ public final class EntityUtils {
 	private static ProjectComparator PROJECT_COMPARATOR; 
 
 	private static TeachingActivityComparator TEACHING_ACTIVITY_COMPARATOR; 
+
+	private static UserComparator USER_COMPARATOR; 
 
 	private static OrganizationAddressComparator ORGANIZATION_ADDRESS_COMPARATOR; 
 
@@ -458,6 +461,31 @@ public final class EntityUtils {
 	public static void setPreferredTeachingActivityComparator(TeachingActivityComparator comparator) {
 		synchronized (EntityUtils.class) {
 			TEACHING_ACTIVITY_COMPARATOR = comparator;
+		}
+	}
+
+	/** Replies the preferred comparator of application users.
+	 *
+	 * @return the comparator.
+	 * @since 4.0
+	 */
+	public static UserComparator getPreferredUserComparator() {
+		synchronized (EntityUtils.class) {
+			if (USER_COMPARATOR == null) {
+				USER_COMPARATOR = new UserComparator(getPreferredPersonComparator());
+			}
+			return USER_COMPARATOR;
+		}
+	}
+
+	/** Change the preferred comparator of application users.
+	 *
+	 * @param comparator the comparator.
+	 * @since 4.0
+	 */
+	public static void setPreferredUserComparator(UserComparator comparator) {
+		synchronized (EntityUtils.class) {
+			USER_COMPARATOR = comparator;
 		}
 	}
 

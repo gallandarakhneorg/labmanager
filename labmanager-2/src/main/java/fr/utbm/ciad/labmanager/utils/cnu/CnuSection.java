@@ -22,7 +22,7 @@ package fr.utbm.ciad.labmanager.utils.cnu;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.BaseMessageSource;
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
 import org.springframework.context.support.MessageSourceAccessor;

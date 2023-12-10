@@ -22,7 +22,7 @@ package fr.utbm.ciad.labmanager.rest.member;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.BaseMessageSource;
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Responsibility;

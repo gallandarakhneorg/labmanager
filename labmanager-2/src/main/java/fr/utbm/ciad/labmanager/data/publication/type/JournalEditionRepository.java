@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.publication.type;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA Repository for editions of journals and special issues.
  * 
@@ -29,7 +30,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface JournalEditionRepository extends JpaRepository<JournalEdition, Integer> {
+public interface JournalEditionRepository extends JpaRepository<JournalEdition, Integer>, JpaSpecificationExecutor<JournalEdition> {
 	//
 }
 

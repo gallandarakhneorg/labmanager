@@ -124,7 +124,7 @@ public class PersonMergingApiController extends AbstractApiController {
 			@RequestParam(required = true) Integer target,
 			@RequestParam(required = true) List<Integer> sources,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "mergePersons", target); //$NON-NLS-1$
+		//TODO ensureCredentials(username, "mergePersons", target); //$NON-NLS-1$
 		if (sources != null && !sources.isEmpty()) {
 			try {
 				this.mergingService.mergePersonsById(sources, target);
@@ -143,7 +143,7 @@ public class PersonMergingApiController extends AbstractApiController {
 	@GetMapping(value = "/" + Constants.COMPUTE_PERSON_DUPLICATE_NAMES_ENDPOINT, produces = MediaType.TEXT_EVENT_STREAM_VALUE)
 	public SseEmitter computePersonDuplicateNames(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		ensureCredentials(username, Constants.COMPUTE_PERSON_DUPLICATE_NAMES_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.COMPUTE_PERSON_DUPLICATE_NAMES_ENDPOINT);
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));

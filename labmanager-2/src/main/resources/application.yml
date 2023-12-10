@@ -24,9 +24,9 @@ spring:
 
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/*****?serverTimezone=UTC
-    username: *****
-    password: *****
+    url: jdbc:mysql://localhsome_path/labmanager/labmanager-2/src/main/resourcesost:3306/labmanager?serverTimezone=UTC
+    username: ciadlabwpbdd
+    password: ci@dlAbpas$
 
   servlet:
     multipart:
@@ -72,6 +72,8 @@ labmanager:
     publish-resources: /var/www/ciad-lab.fr/Downloadables/
     help-url: https://www.ciad-lab.fr/docs/
   debug: false
+  security:
+    username-key: 27b0e0c60fec4b60
   splash-screen: "\n
     .  _____ _____          _____    _           _     \n
     . / ____|_   _|   /\\   |  __ \\  | |         | |    \n

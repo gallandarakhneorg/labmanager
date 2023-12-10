@@ -46,6 +46,9 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service related to the conferences.
@@ -100,6 +103,27 @@ public class ConferenceService extends AbstractService {
 	 */
 	public List<Conference> getAllConferences() {
 		return this.conferenceRepository.findAll();
+	}
+
+	/** Replies all the conferences for the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of conferences.
+	 * @since 4.0
+	 */
+	public Page<Conference> getAllConferences(Pageable pageable) {
+		return this.conferenceRepository.findAll(pageable);
+	}
+
+	/** Replies all the conferences for the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of conferences.
+	 * @return the list of conferences.
+	 * @since 4.0
+	 */
+	public Page<Conference> getAllConferences(Pageable pageable, Specification<Conference> filter) {
+		return this.conferenceRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the conference with the given identifier.

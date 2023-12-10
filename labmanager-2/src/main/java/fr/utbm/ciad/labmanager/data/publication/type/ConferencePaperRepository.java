@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.publication.type;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA Repository for conference and workshop papers.
  * 
@@ -31,7 +32,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface ConferencePaperRepository extends JpaRepository<ConferencePaper, Integer> {
+public interface ConferencePaperRepository extends JpaRepository<ConferencePaper, Integer>, JpaSpecificationExecutor<ConferencePaper> {
 
 	/** Replies the list of conference papers for the persons with the given identifiers.
 	 *

@@ -77,6 +77,8 @@ import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
+import fr.utbm.ciad.labmanager.data.user.User;
+import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -124,6 +126,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	private ScientificAxisRepository scientificAxisRepository;
 
+	private UserRepository userRepository;
+
 	/** Constructor.
 	 * 
 	 * @param addressRepository the accessor to the organization address repository.
@@ -141,6 +145,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param structureRepository the accessor to the associated structures.
 	 * @param teachingRepository the accessor to the teaching activities.
 	 * @param scientificAxisRepository the accessor to the scientific axes.
+	 * @param userRepository the accessor to the application users.
 	 */
 	public DatabaseToJsonExporter(
 			@Autowired OrganizationAddressRepository addressRepository,
@@ -157,7 +162,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired ProjectRepository projectRepository,
 			@Autowired AssociatedStructureRepository structureRepository,
 			@Autowired TeachingActivityRepository teachingRepository,
-			@Autowired ScientificAxisRepository scientificAxisRepository) {
+			@Autowired ScientificAxisRepository scientificAxisRepository,
+			@Autowired UserRepository userRepository) {
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;
@@ -173,6 +179,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		this.structureRepository = structureRepository;
 		this.teachingRepository = teachingRepository;
 		this.scientificAxisRepository = scientificAxisRepository;
+		this.userRepository = userRepository;
 	}
 
 	/** Run the exporter.
@@ -245,6 +252,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		exportAssociatedStructures(root, repository);
 		exportTeachingActivities(root, repository);
 		exportScientificAxes(root, repository);
+		exportApplicationUsers(root, repository);
 		if (root.size() > 0) {
 			root.set(LAST_CHANGE_FIELDNAME, factory.textNode(LocalDate.now().toString()));
 			return root;
@@ -1215,6 +1223,42 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			if (array.size() > 0) {
 				root.set(SCIENTIFIC_AXIS_SECTION, array);
+			}
+		}
+	}
+
+	/** Export the application users to the given JSON root element.
+	 *
+	 * @param root the receiver of the JSON elements.
+	 * @param repository the repository of elements that maps an object to its JSON id.
+	 * @throws Exception if there is problem for exporting.
+	 */
+	protected void exportApplicationUsers(ObjectNode root, Map<Object, String> repository) throws Exception {
+		final List<User> users = this.userRepository.findAll();
+		if (!users.isEmpty()) {
+			final ArrayNode array = root.arrayNode();
+			int i = 0;
+			for (final User user : users) {
+				final ObjectNode jsonUser = array.objectNode();
+
+				final String id = APPLICATION_USER_ID_PREFIX + i;
+				exportObject(jsonUser, id, user, jsonUser, null);
+
+				// Persons must be added explicitly because the "exportObject" function
+				// ignore the getter functions for all.
+				final String personId = repository.get(user.getPerson());
+				if (!Strings.isNullOrEmpty(personId)) {
+					addReference(jsonUser, PERSON_KEY, personId);
+				}
+
+				if (jsonUser.size() > 0) {
+					repository.put(user, id);
+					array.add(jsonUser);
+					++i;
+				}
+			}
+			if (array.size() > 0) {
+				root.set(APPLICATION_USERS_SECTION, array);
 			}
 		}
 	}

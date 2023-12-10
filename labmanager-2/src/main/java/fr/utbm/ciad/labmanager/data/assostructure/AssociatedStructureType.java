@@ -22,7 +22,7 @@ package fr.utbm.ciad.labmanager.data.assostructure;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.BaseMessageSource;
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Describe the type of associated structure.

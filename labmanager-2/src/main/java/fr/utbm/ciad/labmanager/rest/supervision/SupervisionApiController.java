@@ -109,7 +109,7 @@ public class SupervisionApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "false") boolean jointPosition,
 			@RequestParam(required = false, defaultValue = "false") boolean entrepreneur,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.SUPERVISION_SAVING_ENDPOINT, Integer.valueOf(membership));
+		//TODO ensureCredentials(username, Constants.SUPERVISION_SAVING_ENDPOINT, Integer.valueOf(membership));
 		try {
 			final String inTitle = inString(title);
 			final FundingScheme fundingSchemeObj = FundingScheme.valueOfCaseInsensitive(inString(fundingScheme));
@@ -165,7 +165,7 @@ public class SupervisionApiController extends AbstractApiController {
 	public void deleteJuryMembership(
 			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER) Integer id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.SUPERVISION_DELETION_ENDPOINT, id);
+		//TODO ensureCredentials(username, Constants.SUPERVISION_DELETION_ENDPOINT, id);
 		if (id == null || id.intValue() == 0) {
 			throw new IllegalStateException("Missing the supervision id"); //$NON-NLS-1$
 		}

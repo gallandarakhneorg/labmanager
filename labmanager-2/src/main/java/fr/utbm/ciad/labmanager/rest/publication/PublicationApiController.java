@@ -159,7 +159,7 @@ public class PublicationApiController extends AbstractApiController {
 			@RequestParam(required = false) List<Integer> scientificAxes,
 			@RequestParam Map<String, String> allParameters,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.PUBLICATION_SAVING_ENDPOINT, publication);
+		//TODO ensureCredentials(username, Constants.PUBLICATION_SAVING_ENDPOINT, publication);
 		final List<String> inAuthors = authors.stream().map(it -> inString(it)).filter(it -> it != null).collect(Collectors.toList());
 		// First check if the authors follows the constraints
 		if (!this.personService.containsAMember(inAuthors, true)) {
@@ -233,7 +233,7 @@ public class PublicationApiController extends AbstractApiController {
 	public void deletePublication(
 			@RequestParam(name = Constants.PUBLICATION_ENDPOINT_PARAMETER) Integer publication,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.PUBLICATION_DELETING_ENDPOINT, publication);
+		//TODO ensureCredentials(username, Constants.PUBLICATION_DELETING_ENDPOINT, publication);
 		if (publication == null || publication.intValue() == 0) {
 			throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
 		}
@@ -248,7 +248,7 @@ public class PublicationApiController extends AbstractApiController {
 	@GetMapping(value = "/" + Constants.REGENERATE_THUMBNAIL_ASYNC_ENDPOINT)
 	public SseEmitter regenerateThumbnailAsync(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) {
-		ensureCredentials(username, Constants.REGENERATE_THUMBNAIL_ASYNC_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.REGENERATE_THUMBNAIL_ASYNC_ENDPOINT);
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));
 		service.execute(() -> {
@@ -311,7 +311,7 @@ public class PublicationApiController extends AbstractApiController {
 		if (publications == null) {
 			throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
 		}
-		ensureCredentials(username, "deletePublications", publications.toString()); //$NON-NLS-1$
+		//TODO ensureCredentials(username, "deletePublications", publications.toString()); //$NON-NLS-1$
 		if (publications.isEmpty()) {
 			throw new IllegalStateException("Publication not found"); //$NON-NLS-1$
 		}

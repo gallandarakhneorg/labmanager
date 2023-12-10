@@ -146,7 +146,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	public ResponseEntity<StreamingResponseBody> exportDatabaseToZip(
 			HttpServletResponse response,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
+		//TODO ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
 		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.valueOf("application/zip")) //$NON-NLS-1$
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" //$NON-NLS-1$
@@ -174,7 +174,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	@Async
 	public SseEmitter saveDatabaseToZip(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.SAVE_DATABASE_TO_SERVER_ZIP_BATCH_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.SAVE_DATABASE_TO_SERVER_ZIP_BATCH_ENDPOINT);
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));
@@ -193,7 +193,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 	@GetMapping("/exportDatabaseToJson")
 	public ResponseEntity<Map<String, Object>> exportDatabaseToJson(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
+		//TODO ensureCredentials(username, "exportDatabaseToJson"); //$NON-NLS-1$
 		final Map<String, Object> content = this.jsonExporter.exportFromDatabase();
 		final SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd"); //$NON-NLS-1$
 		final BodyBuilder bb = ResponseEntity.ok().contentType(MediaType.APPLICATION_JSON)
@@ -289,7 +289,7 @@ public class JsonDatabaseExporterApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") boolean addNewBibTeXEntries,
 			@RequestParam(required = false, defaultValue = "false") boolean markDuplicateTitles,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.GET_JSON_FROM_DATABASE_AND_BIBTEX_ENDPOINT);
 		//
 		// Read the BibTeX file obtaining informations that could be injected into the JSON if needed.
 		final BibTeXSimilarPublicationProvider provider = new BibTeXSimilarPublicationProvider(this.publicationService, bibtexFile);

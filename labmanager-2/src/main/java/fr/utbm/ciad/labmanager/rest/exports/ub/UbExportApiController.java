@@ -208,7 +208,7 @@ public class UbExportApiController extends AbstractApiController {
 			@RequestParam(required = true) String organization,
 			@RequestParam(required = true) int year,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		readCredentials(username, "exportUbAnnualIndicators", organization, Integer.valueOf(year)); //$NON-NLS-1$
+		//TODO readCredentials(username, "exportUbAnnualIndicators", organization, Integer.valueOf(year)); //$NON-NLS-1$
 		final ResearchOrganization organizationObj = getOrganizationWith(organization, this.organizationService);
 		if (organizationObj == null) {
 			throw new IllegalArgumentException("Organization not found for: " + organization); //$NON-NLS-1$

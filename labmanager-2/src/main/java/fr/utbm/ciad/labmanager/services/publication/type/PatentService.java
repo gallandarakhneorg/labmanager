@@ -37,6 +37,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing patents.
@@ -79,6 +82,27 @@ public class PatentService extends AbstractPublicationTypeService {
 	 */
 	public List<Patent> getAllPatents() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the patents.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the patents.
+	 * @since 4.0
+	 */
+	public Page<Patent> getAllPatents(Pageable pageable) {
+		return this.repository.findAll(pageable);
+	}
+
+	/** Replies all the patents.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of patents.
+	 * @return the patents.
+	 * @since 4.0
+	 */
+	public Page<Patent> getAllPatents(Pageable pageable, Specification<Patent> filter) {
+		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the patent with the given identifier.

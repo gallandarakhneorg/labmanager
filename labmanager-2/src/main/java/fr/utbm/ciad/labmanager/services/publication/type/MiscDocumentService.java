@@ -37,6 +37,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing miscellaneous documents.
@@ -79,6 +82,27 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	 */
 	public List<MiscDocument> getAllMiscDocuments() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the miscellaneous documents.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the miscellaneous documents.
+	 * @since 4.0
+	 */
+	public Page<MiscDocument> getAllMiscDocuments(Pageable pageable) {
+		return this.repository.findAll(pageable);
+	}
+
+	/** Replies all the miscellaneous documents.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of miscellaneous documents.
+	 * @return the miscellaneous documents.
+	 * @since 4.0
+	 */
+	public Page<MiscDocument> getAllMiscDocuments(Pageable pageable, Specification<MiscDocument> filter) {
+		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the miscellaneous document with the given identifier.

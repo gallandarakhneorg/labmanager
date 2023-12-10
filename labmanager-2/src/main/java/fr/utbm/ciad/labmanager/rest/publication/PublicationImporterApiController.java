@@ -121,7 +121,7 @@ public class PublicationImporterApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") boolean createMissedJournals,
 			@RequestParam(required = false, defaultValue = "true") boolean createMissedConferences,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.SAVE_BIBTEX_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.SAVE_BIBTEX_ENDPOINT);
 		try {
 			// Pass the changes string as JSON to extract the expected types of publications. 
 			final Map<String, PublicationType> expectedTypes = preparePublicationSaving(changes);
@@ -157,7 +157,7 @@ public class PublicationImporterApiController extends AbstractApiController {
 			@RequestParam(required = false, defaultValue = "true") boolean createMissedJournals,
 			@RequestParam(required = false, defaultValue = "true") boolean createMissedConferences,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.SAVE_RIS_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.SAVE_RIS_ENDPOINT);
 		try {
 			// Pass the changes string as JSON to extract the expected types of publications. 
 			final Map<String, PublicationType> expectedTypes = preparePublicationSaving(changes);

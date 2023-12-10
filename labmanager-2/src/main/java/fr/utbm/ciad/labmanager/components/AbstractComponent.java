@@ -40,7 +40,6 @@ import fr.utbm.ciad.labmanager.services.conference.ConferenceService;
 import fr.utbm.ciad.labmanager.services.journal.JournalService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.organization.ResearchOrganizationService;
-import fr.utbm.ciad.labmanager.utils.MaintenanceException;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -95,17 +94,6 @@ public abstract class AbstractComponent {
 	public AbstractComponent(MessageSourceAccessor messages, Constants constants) {
 		this.messages = messages;
 		this.constants = constants;
-	}
-
-	/** Check if the server is on maintenance.
-	 * If the service is on maintenance an {@link MaintenanceException exception} is thrown.
-	 * This exception could be catch by the server for building a proper HTTP response.
-	 */
-	protected void checkMaintenance() {
-		final File lockFile = ConditionalOnInitializationLock.getLockFilename(this.dataSource);
-		if (lockFile != null && lockFile.exists()) {
-			throw new MaintenanceException();
-		}
 	}
 
 	/** Replies the logger of this service.

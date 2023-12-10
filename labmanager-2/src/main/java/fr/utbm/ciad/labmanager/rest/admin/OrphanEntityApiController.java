@@ -91,7 +91,7 @@ public class OrphanEntityApiController extends AbstractApiController {
 	@GetMapping(value = "/" + Constants.COMPUTE_ORPHAN_ENTITIES_ENDPOINT)
 	public SseEmitter computeOrphanEntities(
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.COMPUTE_ORPHAN_ENTITIES_ENDPOINT);
+		//TODO ensureCredentials(username, Constants.COMPUTE_ORPHAN_ENTITIES_ENDPOINT);
 		//
 		final ExecutorService service = Executors.newSingleThreadExecutor();
 		final SseEmitter emitter = new SseEmitter(Long.valueOf(Constants.SSE_TIMEOUT));

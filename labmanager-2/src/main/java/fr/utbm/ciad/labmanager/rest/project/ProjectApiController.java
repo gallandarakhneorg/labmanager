@@ -178,7 +178,7 @@ public class ProjectApiController extends AbstractApiController {
 			@RequestParam(required = false) List<Integer> scientificAxes,
 			@RequestParam(required = false, defaultValue = "false") boolean validated,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.PROJECT_SAVING_ENDPOINT, project);
+		//TODO ensureCredentials(username, Constants.PROJECT_SAVING_ENDPOINT, project);
 
 		// Analyze parameters
 		final String inAcronym = inString(acronym);
@@ -302,7 +302,7 @@ public class ProjectApiController extends AbstractApiController {
 	public void deleteProject(
 			@RequestParam(name = Constants.PROJECT_ENDPOINT_PARAMETER) Integer project,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, "deleteProject", project); //$NON-NLS-1$
+		//TODO ensureCredentials(username, "deleteProject", project); //$NON-NLS-1$
 		if (project == null || project.intValue() == 0) {
 			throw new IllegalStateException("Project not found"); //$NON-NLS-1$
 		}

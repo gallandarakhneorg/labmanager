@@ -24,6 +24,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA Repository for the organization addresses.
  * 
@@ -33,7 +34,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @see OrganizationAddress
  */
-public interface OrganizationAddressRepository extends JpaRepository<OrganizationAddress, Integer> {
+public interface OrganizationAddressRepository extends JpaRepository<OrganizationAddress, Integer>, JpaSpecificationExecutor<OrganizationAddress> {
 
 	/** Find an address from its symbolic name.
 	 *

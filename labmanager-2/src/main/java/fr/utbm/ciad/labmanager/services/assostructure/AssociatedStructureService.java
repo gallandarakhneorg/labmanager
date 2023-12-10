@@ -38,6 +38,9 @@ import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for the associated structures.
@@ -289,6 +292,27 @@ public class AssociatedStructureService extends AbstractService {
 	 */
 	public List<AssociatedStructure> getAllAssociatedStructures() {
 		return this.structureRepository.findAll();
+	}
+
+	/** Replies the list of all the associated structures.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of all the associated structures.
+	 * @since 4.0
+	 */
+	public Page<AssociatedStructure> getAllAssociatedStructures(Pageable pageable) {
+		return this.structureRepository.findAll(pageable);
+	}
+
+	/** Replies the list of all the associated structures.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of structures.
+	 * @return the list of all the associated structures.
+	 * @since 4.0
+	 */
+	public Page<AssociatedStructure> getAllAssociatedStructures(Pageable pageable, Specification<AssociatedStructure> filter) {
+		return this.structureRepository.findAll(filter, pageable);
 	}
 
 	/** Replies the list of the associated structures that are associated to the organization with the given identifier.

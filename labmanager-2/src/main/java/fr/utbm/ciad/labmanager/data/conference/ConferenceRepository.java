@@ -23,6 +23,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -37,7 +38,7 @@ import org.springframework.data.repository.query.Param;
  * @mavenartifactid $ArtifactId$
  * @since 3.6
  */
-public interface ConferenceRepository extends JpaRepository<Conference, Integer> {
+public interface ConferenceRepository extends JpaRepository<Conference, Integer>, JpaSpecificationExecutor<Conference> {
 
 	/** Find the conference with the given acronym or name.
 	 *

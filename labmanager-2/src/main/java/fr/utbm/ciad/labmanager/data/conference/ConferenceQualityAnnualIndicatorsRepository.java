@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.conference;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA repository for conference quality indicators.
  * 
@@ -29,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @since 3.6
  */
-public interface ConferenceQualityAnnualIndicatorsRepository extends JpaRepository<ConferenceQualityAnnualIndicators, Integer> {
+public interface ConferenceQualityAnnualIndicatorsRepository extends JpaRepository<ConferenceQualityAnnualIndicators, Integer>, JpaSpecificationExecutor<ConferenceQualityAnnualIndicators> {
 	//
 }

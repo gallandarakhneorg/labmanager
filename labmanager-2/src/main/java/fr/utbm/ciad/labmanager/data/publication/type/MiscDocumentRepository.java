@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.publication.type;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA Repository for uncategorized documents.
  * 
@@ -29,7 +30,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface MiscDocumentRepository extends JpaRepository<MiscDocument, Integer> {
+public interface MiscDocumentRepository extends JpaRepository<MiscDocument, Integer>, JpaSpecificationExecutor<MiscDocument> {
 	//
 }
 

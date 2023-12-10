@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.assostructure;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
@@ -33,7 +34,7 @@ import org.springframework.data.repository.query.Param;
  * @mavenartifactid $ArtifactId$
  * @since 3.2
  */
-public interface AssociatedStructureRepository extends JpaRepository<AssociatedStructure, Integer> {
+public interface AssociatedStructureRepository extends JpaRepository<AssociatedStructure, Integer>, JpaSpecificationExecutor<AssociatedStructure> {
 
 	/** Replies all the associated structures that match the organization identifier, and the confidential
 	 * flag.

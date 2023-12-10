@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.scientificaxis;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
 /** JPA Repository for the scientific axis.
  * 
@@ -29,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @since 3.5
  */
-public interface ScientificAxisRepository extends JpaRepository<ScientificAxis, Integer> {
+public interface ScientificAxisRepository extends JpaRepository<ScientificAxis, Integer>, JpaSpecificationExecutor<ScientificAxis> {
 	//
 }

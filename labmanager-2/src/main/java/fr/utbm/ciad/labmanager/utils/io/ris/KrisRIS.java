@@ -1026,6 +1026,30 @@ public class KrisRIS extends AbstractRIS {
 						field(record, "address", record.getPublishingPlace()), //$NON-NLS-1$
 						false);
 				break;
+			case EUROPEAN_PATENT:
+			case HDR_THESIS:
+			case INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE:
+			case INTERNATIONAL_ORAL_COMMUNICATION:
+			case INTERNATIONAL_PATENT:
+			case INTERNATIONAL_POSTER:
+			case INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
+			case NATIONAL_BOOK:
+			case NATIONAL_BOOK_CHAPTER:
+			case NATIONAL_CONFERENCE_PAPER:
+			case NATIONAL_JOURNAL_EDITION:
+			case NATIONAL_JOURNAL_PAPER:
+			case NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE:
+			case NATIONAL_KEYNOTE:
+			case NATIONAL_ORAL_COMMUNICATION:
+			case NATIONAL_PATENT:
+			case NATIONAL_POSTER:
+			case NATIONAL_PRESENTATION:
+			case NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
+			case PROJECT_REPORT:
+			case RESEARCH_TRANSFERT_REPORT:
+			case SCIENTIFIC_CULTURE_BOOK:
+			case SCIENTIFIC_CULTURE_BOOK_CHAPTER:
+			case TEACHING_DOCUMENT:
 			default:
 				throw new IllegalArgumentException("Unsupported type of publication for RIS record: " + record.getReferenceId()); //$NON-NLS-1$
 			}

@@ -65,12 +65,19 @@ import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.trl.TRL;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.util.MultiCollection;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -138,6 +145,27 @@ public class ProjectService extends AbstractService {
 		return this.projectRepository.findAll();
 	}
 
+	/** Replies the list of all the projects from the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of projects, never {@code null}.
+	 * @since 4.0
+	 */
+	public Page<Project> getAllProjects(Pageable pageable) {
+		return this.projectRepository.findAll(pageable);
+	}
+
+	/** Replies the list of all the projects from the database.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of projects.
+	 * @return the list of projects, never {@code null}.
+	 * @since 4.0
+	 */
+	public Page<Project> getAllProjects(Pageable pageable, Specification<Project> filter) {
+		return this.projectRepository.findAll(filter, pageable);
+	}
+
 	/** Replies the list of all the public projects from the database.
 	 * A public project is not confidential and has status "accepted".
 	 *
@@ -145,6 +173,29 @@ public class ProjectService extends AbstractService {
 	 */
 	public List<Project> getAllPublicProjects() {
 		return this.projectRepository.findDistinctByConfidentialAndStatus(Boolean.FALSE, ProjectStatus.ACCEPTED);
+	}
+
+	/** Replies the list of all the public projects from the database.
+	 * A public project is not confidential and has status "accepted".
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the list of public projects, never {@code null}.
+	 * @since 4.0
+	 */
+	public Page<Project> getAllPublicProjects(Pageable pageable) {
+		return this.projectRepository.findAll(PublicProjectSpecification.SINGLETON, pageable);
+	}
+
+	/** Replies the list of all the public projects from the database.
+	 * A public project is not confidential and has status "accepted".
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of projects.
+	 * @return the list of public projects, never {@code null}.
+	 * @since 4.0
+	 */
+	public Page<Project> getAllPublicProjects(Pageable pageable, Specification<Project> filter) {
+		return this.projectRepository.findAll(PublicProjectSpecification.SINGLETON.and(filter), pageable);
 	}
 
 	/** Replies the project with the given identifier.
@@ -1175,6 +1226,31 @@ public class ProjectService extends AbstractService {
 			}
 		}
 		return Optional.empty();
+	}
+
+	/** Specification that i validating public project.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public static class PublicProjectSpecification implements Specification<Project> {
+
+		/** Singleton for this criteria.
+		 */
+		public static final PublicProjectSpecification SINGLETON = new PublicProjectSpecification();
+		
+		private static final long serialVersionUID = 7747763215609636462L;
+
+		@Override
+		public Predicate toPredicate(Root<Project> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+			final Predicate p1 = criteriaBuilder.equal(root.get("confidential"), Boolean.FALSE); //$NON-NLS-1$
+			final Predicate p2 = criteriaBuilder.equal(root.get("status"), ProjectStatus.ACCEPTED); //$NON-NLS-1$
+			return criteriaBuilder.and(p1, p2);
+		}
+
 	}
 
 }

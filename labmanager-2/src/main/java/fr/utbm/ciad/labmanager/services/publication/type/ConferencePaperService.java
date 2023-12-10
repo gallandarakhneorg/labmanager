@@ -42,6 +42,9 @@ import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 /** Service for managing papers for conferences and workshops.
@@ -89,6 +92,27 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 */
 	public List<ConferencePaper> getAllConferencePapers() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the conference papers.
+	 *
+	 * @param pageable the manager of pages.
+	 * @return the papers.
+	 * @since 4.0
+	 */
+	public Page<ConferencePaper> getAllConferencePapers(Pageable pageable) {
+		return this.repository.findAll(pageable);
+	}
+
+	/** Replies all the conference papers.
+	 *
+	 * @param pageable the manager of pages.
+	 * @param filter the filter of papers.
+	 * @return the papers.
+	 * @since 4.0
+	 */
+	public Page<ConferencePaper> getAllConferencePapers(Pageable pageable, Specification<ConferencePaper> filter) {
+		return this.repository.findAll(filter, pageable);
 	}
 
 	/** Replies the conference paper with the given identifier.

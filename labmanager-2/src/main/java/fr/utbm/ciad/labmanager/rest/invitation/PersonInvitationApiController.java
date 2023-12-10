@@ -97,7 +97,7 @@ public class PersonInvitationApiController extends AbstractApiController {
 			@RequestParam(required = false) String university,
 			@RequestParam(required = false) String country,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.PERSON_INVITATION_SAVING_ENDPOINT, Integer.valueOf(person));
+		//TODO ensureCredentials(username, Constants.PERSON_INVITATION_SAVING_ENDPOINT, Integer.valueOf(person));
 		try {
 			final String inStartDate = inString(startDate);
 			final String inEndDate = inString(endDate);
@@ -166,7 +166,7 @@ public class PersonInvitationApiController extends AbstractApiController {
 	public void deleteJuryMembership(
 			@RequestParam(name = Constants.ID_ENDPOINT_PARAMETER) Integer id,
 			@CookieValue(name = "labmanager-user-id", defaultValue = Constants.ANONYMOUS) byte[] username) throws Exception {
-		ensureCredentials(username, Constants.PERSON_INVITATION_DELETION_ENDPOINT, id);
+		//TODO ensureCredentials(username, Constants.PERSON_INVITATION_DELETION_ENDPOINT, id);
 		if (id == null || id.intValue() == 0) {
 			throw new IllegalStateException("Missing the person invitation id"); //$NON-NLS-1$
 		}
