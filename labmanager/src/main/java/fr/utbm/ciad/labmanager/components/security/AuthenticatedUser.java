@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.components.security;
 
 import java.util.Optional;
 
+import com.google.common.base.Strings;
 import com.vaadin.flow.spring.security.AuthenticationContext;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
@@ -71,6 +72,21 @@ public class AuthenticatedUser {
 	 */
 	public void logout() {
 		this.authenticationContext.logout();
+	}
+
+	/** Replies the name of the user. This function is implemented for logging purpose only.
+	 *
+	 * @param user the user
+	 * @return the name or the empty string.
+	 */
+	public static String getUserName(AuthenticatedUser user) {
+		if (user != null) {
+			final Optional<User> ouser = user.get();
+			if (ouser.isPresent()) {
+				return Strings.nullToEmpty(ouser.get().getLogin());
+			}
+		}
+		return ""; //$NON-NLS-1$
 	}
 
 }

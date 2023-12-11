@@ -79,9 +79,19 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	private static final long serialVersionUID = -1312811718336186349L;
 
+	/** Base URL of the ResearchGate platform, with the final slash character.
+	 *
+	 * @since 4.0
+	 */
+	public static final String RESEARCHGATE_BASE_URL = "http://www.researchgate.net/"; //$NON-NLS-1$
+
+	/** URL of the Gravatar photo database, with the terminal slash character.
+	 */
+	public static final String GRAVATAR_ROOT_URL = "https://www.gravatar.com/"; //$NON-NLS-1$
+
 	/** Base URL for gravatar pictures.
 	 */
-	public static final String GRAVATAR_URL = "https://www.gravatar.com/avatar/"; //$NON-NLS-1$
+	public static final String GRAVATAR_URL = GRAVATAR_ROOT_URL + "avatar/"; //$NON-NLS-1$
 
 	/** HTML query parameter name for specifying the size of an avatar on Gravatar.
 	 */
@@ -103,29 +113,71 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 */
 	public static final String GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM = "s"; //$NON-NLS-1$
 
-	private static final String ORCID_URL = "https://orcid.org/"; //$NON-NLS-1$
+	/** Base URL of the Scopus platform, with the final slash character.
+	 *
+	 * @since 4.0
+	 */
+	public static final String SCOPUS_BASE_URL = "https://www.scopus.com/"; //$NON-NLS-1$
 
-	private static final String FACEBOOK_URL = "https://www.facebook.com/"; //$NON-NLS-1$
+	/** Base URL of the ORCID platform, with the final slash character.
+	 *
+	 * @since 4.0
+	 */
+	public static final String ORCID_BASE_URL = "https://orcid.org/"; //$NON-NLS-1$
 
-	private static final String GITHUB_URL = "https://www.github.com/"; //$NON-NLS-1$
-	
-	private static final String LINKEDIN_URL = "http://linkedin.com/in/"; //$NON-NLS-1$
+	/** Base URL of the Web-Of-Science platform, with the final slash character.
+	 *
+	 * @since 4.0
+	 */
+	public static final String WOS_BASE_URL = "https://www.webofscience.com/"; //$NON-NLS-1$
+
+	/** Base URL of the Gogle Scholar platform, with the final slash character.
+	 *
+	 * @since 4.0
+	 */
+	public static final String GSCHOLAR_BASE_URL = "https://scholar.google.fr/"; //$NON-NLS-1$
+
+	/** Base URL of the AD Sscientific Index platform, with the final slash character.
+	 *
+	 * @since 4.0
+	 */
+	public static final String ADSCIENTIFICINDEX_BASE_URL = "https://www.adscientificindex.com/"; //$NON-NLS-1$
+
+	/** Base URL of the LinkedIn platform, with the final slash character.
+	 *
+	 * @since 4.0
+	 */
+	public static final String LINKEDIN_BASE_URL = "http://linkedin.com/"; //$NON-NLS-1$
+
+	/** Base URL of the GitHub platform, with the final slash character.
+	 *
+	 * @since 4.0
+	 */
+	public static final String GITHUB_BASE_URL = "https://www.github.com/"; //$NON-NLS-1$
+
+	/** Base URL of the Facebook platform, with the final slash character.
+	 *
+	 * @since 4.0
+	 */
+	public static final String FACEBOOK_BASE_URL = "https://www.facebook.com/"; //$NON-NLS-1$
+
+	private static final String LINKEDIN_URL = LINKEDIN_BASE_URL + "in/"; //$NON-NLS-1$
 
 	/** Before 2022, ResearcherId was linked to Publons.
 	 * Since 2022, Publons was integrated in Web-of-Science.
 	 * The old URL of ResearcherId is {@code http://www.researcherid.com/rid/}.
 	 */
-	private static final String RESEARCHERID_URL = "https://www.webofscience.com/wos/author/rid/"; //$NON-NLS-1$
+	private static final String WOS_URL = WOS_BASE_URL + "wos/author/rid/"; //$NON-NLS-1$
 
-	private static final String SCOPUS_URL = "https://www.scopus.com/authid/detail.uri?authorId="; //$NON-NLS-1$
+	private static final String SCOPUS_URL = SCOPUS_BASE_URL + "authid/detail.uri?authorId="; //$NON-NLS-1$
 
-	private static final String GOOGLESCHOLAR_URL = "https://scholar.google.fr/citations?user="; //$NON-NLS-1$
+	private static final String GOOGLESCHOLAR_URL = GSCHOLAR_BASE_URL + "citations?user="; //$NON-NLS-1$
 
 	private static final String HAL_URL = HalTools.HAL_URL_BASE + "search/index/?qa%5Bidentifiers_id%5D%5B%5D="; //$NON-NLS-1$
 
-	private static final String RESEARCHGATE_URL = "http://www.researchgate.net/profile/"; //$NON-NLS-1$
+	private static final String RESEARCHGATE_URL = RESEARCHGATE_BASE_URL + "profile/"; //$NON-NLS-1$
 
-	private static final String ADSCIENTIFICINDEX_URL = "https://www.adscientificindex.com/scientist/"; //$NON-NLS-1$
+	private static final String ADSCIENTIFICINDEX_URL = ADSCIENTIFICINDEX_BASE_URL + "scientist/"; //$NON-NLS-1$
 
 	/** Identifier of a person.
 	 */
@@ -813,7 +865,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getOrcidURL() {
 		if (!Strings.isNullOrEmpty(getORCID())) {
 			try {
-				return new URL(ORCID_URL + getORCID());
+				return new URL(ORCID_BASE_URL + getORCID());
 			} catch (Throwable ex) {
 				//
 			}
@@ -1113,7 +1165,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (!Strings.isNullOrEmpty(getFacebookId())) {
 			try {
 
-				return new URL(FACEBOOK_URL + getFacebookId());
+				return new URL(FACEBOOK_BASE_URL + getFacebookId());
 			} catch (Throwable ex) {
 				//
 			}
@@ -1146,7 +1198,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
 
-				return new URL(GITHUB_URL + getGithubId());
+				return new URL(GITHUB_BASE_URL + getGithubId());
 			} catch (Throwable ex) {
 				//
 			}
@@ -1247,7 +1299,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (!Strings.isNullOrEmpty(getResearcherId())) {
 			try {
 
-				return new URL(RESEARCHERID_URL + getResearcherId());
+				return new URL(WOS_URL + getResearcherId());
 			} catch (Throwable ex) {
 				//
 			}

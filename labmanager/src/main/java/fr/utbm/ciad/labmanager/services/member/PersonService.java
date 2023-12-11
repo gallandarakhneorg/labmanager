@@ -134,6 +134,14 @@ public class PersonService extends AbstractService {
 		this.nameComparator = nameComparator;
 	}
 
+	/** Save the given person in the JPA infrastructure.
+	 *
+	 * @param person the person to save.
+	 */
+	public void save(Person person) {
+		this.personRepository.saveAndFlush(person);
+	}
+
 	/** Replies the list of all the persons from the database.
 	 *
 	 * @return all the persons.
