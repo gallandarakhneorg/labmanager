@@ -51,6 +51,7 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.Membership;
@@ -83,6 +84,8 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 	private static final long serialVersionUID = -7781377605320634897L;
 
+	private final Constants constants;
+
 	private final PersonService personService;
 
 	private final MembershipService membershipService;
@@ -105,13 +108,16 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 	/** Constructor.
 	 *
+	 * @param constants the constants of the application.
 	 * @param personService the service for accessing to the persons.
 	 * @param membershipService the service for accessing to the memberships.
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
 	 *     the memberships are sorted in reverse chronological order first.
 	 * @param dataProvider the provider of lazy data.
 	 */
-	public AbstractPersonListView(PersonService personService, MembershipService membershipService, ChronoMembershipComparator membershipComparator) {
+	public AbstractPersonListView(Constants constants, PersonService personService, MembershipService membershipService,
+			ChronoMembershipComparator membershipComparator, PersonDataProvider dataProvider) {
+		this.constants = constants;
 		this.personService = personService;
 		this.membershipService = membershipService;
 		this.membershipComparator = membershipComparator;
