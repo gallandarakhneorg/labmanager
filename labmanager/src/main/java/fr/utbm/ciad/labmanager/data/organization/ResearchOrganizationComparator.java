@@ -20,8 +20,8 @@
 package fr.utbm.ciad.labmanager.data.organization;
 
 import java.util.Comparator;
-import java.util.Objects;
 
+import fr.utbm.ciad.labmanager.utils.Comparators;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
@@ -53,7 +53,7 @@ public class ResearchOrganizationComparator implements Comparator<ResearchOrgani
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = Objects.compare(o1.getType(), o2.getType(), (a, b) -> a.compareTo(b));
+		int cmp = Comparators.compare(o1.getType(), o2.getType());
 		if (cmp != 0) {
 			return cmp;
 		}

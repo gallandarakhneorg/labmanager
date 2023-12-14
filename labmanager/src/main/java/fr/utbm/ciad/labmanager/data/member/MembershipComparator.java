@@ -19,8 +19,11 @@
 
 package fr.utbm.ciad.labmanager.data.member;
 
+import java.util.Comparator;
+
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressComparator;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
+import fr.utbm.ciad.labmanager.utils.Comparators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -35,7 +38,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Primary
-public class MembershipComparator extends AbstractMembershipComparator {
+public class MembershipComparator implements Comparator<Membership> {
 
 	private PersonComparator personComparator;
 
@@ -80,31 +83,30 @@ public class MembershipComparator extends AbstractMembershipComparator {
 		if (n != 0) {
 			return n;
 		}
-		n = compareDate(o1.getMemberSinceWhen(), o2.getMemberSinceWhen());
+		n = Comparators.compareDateRange(
+				o1.getMemberSinceWhen(), o1.getMemberToWhen(),
+				o2.getMemberSinceWhen(), o2.getMemberToWhen());
 		if (n != 0) {
-			return n;
-		}
-		n = compareDate(o1.getMemberToWhen(), o2.getMemberToWhen());
-		if (n != 0) {
-			return n;
+			// Reverse the order to get the more recent memberships first
+			return -n;
 		}
 		n = this.personComparator.compare(o1.getPerson(), o2.getPerson());
 		if (n != 0) {
 			return n;
 		}
-		n = compareResponsabilities(o1.getResponsibility(), o2.getResponsibility());
+		n = Comparators.compare(o1.getResponsibility(), o2.getResponsibility());
 		if (n != 0) {
 			return n;
 		}
-		n = compareCnuSection(o1.getCnuSection(), o2.getCnuSection());
+		n = Comparators.compare(o1.getCnuSection(), o2.getCnuSection());
 		if (n != 0) {
 			return n;
 		}
-		n = compareConrsSection(o1.getConrsSection(), o2.getConrsSection());
+		n = Comparators.compare(o1.getConrsSection(), o2.getConrsSection());
 		if (n != 0) {
 			return n;
 		}
-		n = compareFrenchBap(o1.getFrenchBap(), o2.getFrenchBap());
+		n = Comparators.compare(o1.getFrenchBap(), o2.getFrenchBap());
 		if (n != 0) {
 			return n;
 		}

@@ -19,13 +19,16 @@
 
 package fr.utbm.ciad.labmanager.data.member;
 
+import java.util.Comparator;
+
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
+import fr.utbm.ciad.labmanager.utils.Comparators;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 
-/** Comparator of memberships. Memberships are sorted by date (from future to past), then by organization, person
- * and CNU section.
+/** Comparator of memberships. Memberships are sorted by termination status, organization,
+ * date (from future to past), person and CNU section.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -34,7 +37,7 @@ import org.springframework.stereotype.Component;
  */
 @Component
 @Primary
-public class ChronoMembershipComparator extends AbstractMembershipComparator {
+public class ChronoMembershipComparator implements Comparator<Membership> {
 
 	private PersonComparator personComparator;
 
@@ -65,17 +68,14 @@ public class ChronoMembershipComparator extends AbstractMembershipComparator {
 		if (n != 0) {
 			return n;
 		}
-		n = compareStartDate(o1.getMemberSinceWhen(), o2.getMemberSinceWhen());
-		if (n != 0) {
-			return n;
-		}
-		n = compareEndDate(o1.getMemberToWhen(), o2.getMemberToWhen());
-		if (n != 0) {
-			return n;
-		}
 		n = this.organizationComparator.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
 		if (n != 0) {
 			return n;
+		}
+		n = Comparators.compareDateRange(o1.getMemberSinceWhen(), o1.getMemberToWhen(), o2.getMemberSinceWhen(), o2.getMemberToWhen());
+		if (n != 0) {
+			// Negate the result for sorting from future to past
+			return -n;
 		}
 		n = o1.getMemberStatus().compareTo(o2.getMemberStatus());
 		if (n != 0) {
@@ -85,19 +85,19 @@ public class ChronoMembershipComparator extends AbstractMembershipComparator {
 		if (n != 0) {
 			return n;
 		}
-		n = compareResponsabilities(o1.getResponsibility(), o2.getResponsibility());
+		n = Comparators.compare(o1.getResponsibility(), o2.getResponsibility());
 		if (n != 0) {
 			return n;
 		}
-		n = compareCnuSection(o1.getCnuSection(), o2.getCnuSection());
+		n = Comparators.compare(o1.getCnuSection(), o2.getCnuSection());
 		if (n != 0) {
 			return n;
 		}
-		n = compareConrsSection(o1.getConrsSection(), o2.getConrsSection());
+		n = Comparators.compare(o1.getConrsSection(), o2.getConrsSection());
 		if (n != 0) {
 			return n;
 		}
-		n = compareFrenchBap(o1.getFrenchBap(), o2.getFrenchBap());
+		n = Comparators.compare(o1.getFrenchBap(), o2.getFrenchBap());
 		if (n != 0) {
 			return n;
 		}

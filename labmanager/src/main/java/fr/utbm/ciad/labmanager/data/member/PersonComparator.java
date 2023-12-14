@@ -20,8 +20,8 @@
 package fr.utbm.ciad.labmanager.data.member;
 
 import java.util.Comparator;
-import java.util.Objects;
 
+import fr.utbm.ciad.labmanager.utils.Comparators;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -56,7 +56,7 @@ public class PersonComparator implements Comparator<Person> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = Objects.compare(o1.getGender(), o2.getGender(), (a, b) -> a.compareTo(b));
+		cmp = Comparators.compare(o1.getGender(), o2.getGender());
 		if (cmp != 0) {
 			return cmp;
 		}
