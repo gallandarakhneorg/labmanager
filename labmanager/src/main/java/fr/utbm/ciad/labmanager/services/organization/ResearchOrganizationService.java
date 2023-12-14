@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -87,6 +88,37 @@ public class ResearchOrganizationService extends AbstractService {
 	 */
 	public List<ResearchOrganization> getAllResearchOrganizations() {
 		return this.organizationRepository.findAll();
+	}
+
+	/** Replies all the research organizations.
+	 *
+	 * @param filter the filter of organizations.
+	 * @return the research organizations.
+	 * @since 4.0
+	 */
+	public List<ResearchOrganization> getAllResearchOrganizations(Specification<ResearchOrganization> filter) {
+		return this.organizationRepository.findAll(filter);
+	}
+
+	/** Replies all the research organizations.
+	 *
+	 * @param filter the filter of organizations.
+	 * @param sortOrder the order specification to use for sorting the organizations.
+	 * @return the research organizations.
+	 * @since 4.0
+	 */
+	public List<ResearchOrganization> getAllResearchOrganizations(Specification<ResearchOrganization> filter, Sort sortOrder) {
+		return this.organizationRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the research organizations.
+	 *
+	 * @param sortOrder the order specification to use for sorting the organizations.
+	 * @return the research organizations.
+	 * @since 4.0
+	 */
+	public List<ResearchOrganization> getAllResearchOrganizations(Sort sortOrder) {
+		return this.organizationRepository.findAll(sortOrder);
 	}
 
 	/** Replies all the research organizations.

@@ -54,7 +54,7 @@ public abstract class AbstractPublicationService extends AbstractService {
 
 	/** Filter the given publication for returning only those that have authors with an active membership.
 	 *
-	 * @param <P> the type of the publications to be fitlered.
+	 * @param <P> the type of the publications to be filtered.
 	 * @param publications the publications to filter.
 	 * @param organizationId the identifier of the organization for which the publications are accepted.
 	 * @param includeSubOrganizations indicates if the members of the suborganizations are considered.

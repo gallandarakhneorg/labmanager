@@ -35,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -77,6 +78,37 @@ public class OrganizationAddressService extends AbstractService {
 	 */
 	public List<OrganizationAddress> getAllAddresses() {
 		return this.addressRepository.findAll();
+	}
+
+	/** Replies all the organizations' addresses.
+	 *
+	 * @param filter the filter of addresses.
+	 * @return the address.
+	 * @since 4.0
+	 */
+	public List<OrganizationAddress> getAllAddresses(Specification<OrganizationAddress> filter) {
+		return this.addressRepository.findAll(filter);
+	}
+
+	/** Replies all the organizations' addresses.
+	 *
+	 * @param filter the filter of addresses.
+	 * @param sortOrder the order specification to use for sorting the addresses.
+	 * @return the address.
+	 * @since 4.0
+	 */
+	public List<OrganizationAddress> getAllAddresses(Specification<OrganizationAddress> filter, Sort sortOrder) {
+		return this.addressRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the organizations' addresses.
+	 *
+	 * @param sortOrder the order specification to use for sorting the addresses.
+	 * @return the address.
+	 * @since 4.0
+	 */
+	public List<OrganizationAddress> getAllAddresses(Sort sortOrder) {
+		return this.addressRepository.findAll(sortOrder);
 	}
 
 	/** Replies all the organizations' addresses.

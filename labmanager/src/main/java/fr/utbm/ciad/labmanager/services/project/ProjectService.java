@@ -77,6 +77,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -143,6 +144,37 @@ public class ProjectService extends AbstractService {
 	 */
 	public List<Project> getAllProjects() {
 		return this.projectRepository.findAll();
+	}
+
+	/** Replies the list of all the projects from the database.
+	 *
+	 * @param filter the filter of projects.
+	 * @return the list of projects, never {@code null}.
+	 * @since 4.0
+	 */
+	public List<Project> getAllProjects(Specification<Project> filter) {
+		return this.projectRepository.findAll(filter);
+	}
+
+	/** Replies the list of all the projects from the database.
+	 *
+	 * @param filter the filter of projects.
+	 * @param sortOrder the order specification to use for sorting the projects.
+	 * @return the list of projects, never {@code null}.
+	 * @since 4.0
+	 */
+	public List<Project> getAllProjects(Specification<Project> filter, Sort sortOrder) {
+		return this.projectRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies the list of all the projects from the database.
+	 *
+	 * @param sortOrder the order specification to use for sorting the projects.
+	 * @return the list of projects, never {@code null}.
+	 * @since 4.0
+	 */
+	public List<Project> getAllProjects(Sort sortOrder) {
+		return this.projectRepository.findAll(sortOrder);
 	}
 
 	/** Replies the list of all the projects from the database.

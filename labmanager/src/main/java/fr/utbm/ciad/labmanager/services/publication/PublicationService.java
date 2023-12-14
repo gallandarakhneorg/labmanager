@@ -95,6 +95,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -255,6 +256,37 @@ public class PublicationService extends AbstractPublicationService {
 	 */
 	public List<Publication> getAllPublications() {
 		return this.publicationRepository.findAll();
+	}
+
+	/** Replies all the publications from the database.
+	 *
+	 * @param filter the filter of publications.
+	 * @return the publications.
+	 * @since 4.0
+	 */
+	public List<Publication> getAllPublications(Specification<Publication> filter) {
+		return this.publicationRepository.findAll(filter);
+	}
+
+	/** Replies all the publications from the database.
+	 *
+	 * @param filter the filter of publications.
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the publications.
+	 * @since 4.0
+	 */
+	public List<Publication> getAllPublications(Specification<Publication> filter, Sort sortOrder) {
+		return this.publicationRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the publications from the database.
+	 *
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the publications.
+	 * @since 4.0
+	 */
+	public List<Publication> getAllPublications(Sort sortOrder) {
+		return this.publicationRepository.findAll(sortOrder);
 	}
 
 	/** Replies all the publications from the database.

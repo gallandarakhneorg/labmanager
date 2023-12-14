@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -82,6 +83,37 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	 */
 	public List<BookChapter> getAllBookChapters() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the book chapters.
+	 *
+	 * @param filter the filter of chapters.
+	 * @return the book chapters.
+	 * @since 4.0
+	 */
+	public List<BookChapter> getAllBookChapters(Specification<BookChapter> filter) {
+		return this.repository.findAll(filter);
+	}
+
+	/** Replies all the book chapters.
+	 *
+	 * @param filter the filter of chapters.
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the book chapters.
+	 * @since 4.0
+	 */
+	public List<BookChapter> getAllBookChapters(Specification<BookChapter> filter, Sort sortOrder) {
+		return this.repository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the book chapters.
+	 *
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the book chapters.
+	 * @since 4.0
+	 */
+	public List<BookChapter> getAllBookChapters(Sort sortOrder) {
+		return this.repository.findAll(sortOrder);
 	}
 
 	/** Replies all the book chapters.

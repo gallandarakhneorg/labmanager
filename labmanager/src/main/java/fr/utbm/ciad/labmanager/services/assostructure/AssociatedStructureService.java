@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -292,6 +293,37 @@ public class AssociatedStructureService extends AbstractService {
 	 */
 	public List<AssociatedStructure> getAllAssociatedStructures() {
 		return this.structureRepository.findAll();
+	}
+
+	/** Replies the list of all the associated structures.
+	 *
+	 * @param filter the filter of structures.
+	 * @return the list of all the associated structures.
+	 * @since 4.0
+	 */
+	public List<AssociatedStructure> getAllAssociatedStructures(Specification<AssociatedStructure> filter) {
+		return this.structureRepository.findAll(filter);
+	}
+
+	/** Replies the list of all the associated structures.
+	 *
+	 * @param filter the filter of structures.
+	 * @param sortOrder the order specification to use for sorting the associated structures.
+	 * @return the list of all the associated structures.
+	 * @since 4.0
+	 */
+	public List<AssociatedStructure> getAllAssociatedStructures(Specification<AssociatedStructure> filter, Sort sortOrder) {
+		return this.structureRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies the list of all the associated structures.
+	 *
+	 * @param sortOrder the order specification to use for sorting the associated structures.
+	 * @return the list of all the associated structures.
+	 * @since 4.0
+	 */
+	public List<AssociatedStructure> getAllAssociatedStructures(Sort sortOrder) {
+		return this.structureRepository.findAll(sortOrder);
 	}
 
 	/** Replies the list of all the associated structures.

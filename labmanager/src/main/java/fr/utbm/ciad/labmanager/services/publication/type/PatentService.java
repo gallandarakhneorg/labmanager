@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -82,6 +83,37 @@ public class PatentService extends AbstractPublicationTypeService {
 	 */
 	public List<Patent> getAllPatents() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the patents.
+	 *
+	 * @param filter the filter of patents.
+	 * @return the patents.
+	 * @since 4.0
+	 */
+	public List<Patent> getAllPatents(Specification<Patent> filter) {
+		return this.repository.findAll(filter);
+	}
+
+	/** Replies all the patents.
+	 *
+	 * @param filter the filter of patents.
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the patents.
+	 * @since 4.0
+	 */
+	public List<Patent> getAllPatents(Specification<Patent> filter, Sort sortOrder) {
+		return this.repository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the patents.
+	 *
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the patents.
+	 * @since 4.0
+	 */
+	public List<Patent> getAllPatents(Sort sortOrder) {
+		return this.repository.findAll(sortOrder);
 	}
 
 	/** Replies all the patents.

@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -83,6 +84,37 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 */
 	public List<JournalEdition> getAllJournalEditions() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the journal editions.
+	 *
+	 * @param filter the filter of journal editions.
+	 * @return the journal editions.
+	 * @since 4.0
+	 */
+	public List<JournalEdition> getAllJournalEditions(Specification<JournalEdition> filter) {
+		return this.repository.findAll(filter);
+	}
+
+	/** Replies all the journal editions.
+	 *
+	 * @param filter the filter of journal editions.
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the journal editions.
+	 * @since 4.0
+	 */
+	public List<JournalEdition> getAllJournalEditions(Specification<JournalEdition> filter, Sort sortOrder) {
+		return this.repository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the journal editions.
+	 *
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the journal editions.
+	 * @since 4.0
+	 */
+	public List<JournalEdition> getAllJournalEditions(Sort sortOrder) {
+		return this.repository.findAll(sortOrder);
 	}
 
 	/** Replies all the journal editions.

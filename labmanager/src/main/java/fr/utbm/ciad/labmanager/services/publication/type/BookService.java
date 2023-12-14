@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -82,6 +83,37 @@ public class BookService extends AbstractPublicationTypeService {
 	 */
 	public List<Book> getAllBooks() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the books.
+	 *
+	 * @param filter the filter of books.
+	 * @return the books.
+	 * @since 4.0
+	 */
+	public List<Book> getAllBooks(Specification<Book> filter) {
+		return this.repository.findAll(filter);
+	}
+
+	/** Replies all the books.
+	 *
+	 * @param filter the filter of books.
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the books.
+	 * @since 4.0
+	 */
+	public List<Book> getAllBooks(Specification<Book> filter, Sort sortOrder) {
+		return this.repository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the books.
+	 *
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the books.
+	 * @since 4.0
+	 */
+	public List<Book> getAllBooks(Sort sortOrder) {
+		return this.repository.findAll(sortOrder);
 	}
 
 	/** Replies all the books.

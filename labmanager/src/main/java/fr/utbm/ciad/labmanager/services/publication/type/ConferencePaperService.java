@@ -44,6 +44,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -92,6 +93,37 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 */
 	public List<ConferencePaper> getAllConferencePapers() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the conference papers.
+	 *
+	 * @param filter the filter of papers.
+	 * @return the papers.
+	 * @since 4.0
+	 */
+	public List<ConferencePaper> getAllConferencePapers(Specification<ConferencePaper> filter) {
+		return this.repository.findAll(filter);
+	}
+
+	/** Replies all the conference papers.
+	 *
+	 * @param filter the filter of papers.
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the papers.
+	 * @since 4.0
+	 */
+	public List<ConferencePaper> getAllConferencePapers(Specification<ConferencePaper> filter, Sort sortOrder) {
+		return this.repository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the conference papers.
+	 *
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the papers.
+	 * @since 4.0
+	 */
+	public List<ConferencePaper> getAllConferencePapers(Sort sortOrder) {
+		return this.repository.findAll(sortOrder);
 	}
 
 	/** Replies all the conference papers.

@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -82,6 +83,37 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	 */
 	public List<MiscDocument> getAllMiscDocuments() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the miscellaneous documents.
+	 *
+	 * @param filter the filter of miscellaneous documents.
+	 * @return the miscellaneous documents.
+	 * @since 4.0
+	 */
+	public List<MiscDocument> getAllMiscDocuments(Specification<MiscDocument> filter) {
+		return this.repository.findAll(filter);
+	}
+
+	/** Replies all the miscellaneous documents.
+	 *
+	 * @param filter the filter of miscellaneous documents.
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the miscellaneous documents.
+	 * @since 4.0
+	 */
+	public List<MiscDocument> getAllMiscDocuments(Specification<MiscDocument> filter, Sort sortOrder) {
+		return this.repository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the miscellaneous documents.
+	 *
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the miscellaneous documents.
+	 * @since 4.0
+	 */
+	public List<MiscDocument> getAllMiscDocuments(Sort sortOrder) {
+		return this.repository.findAll(sortOrder);
 	}
 
 	/** Replies all the miscellaneous documents.

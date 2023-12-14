@@ -48,6 +48,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -103,6 +104,37 @@ public class ConferenceService extends AbstractService {
 	 */
 	public List<Conference> getAllConferences() {
 		return this.conferenceRepository.findAll();
+	}
+
+	/** Replies all the conferences for the database.
+	 *
+	 * @param filter the filter of conferences.
+	 * @return the list of conferences.
+	 * @since 4.0
+	 */
+	public List<Conference> getAllConferences(Specification<Conference> filter) {
+		return this.conferenceRepository.findAll(filter);
+	}
+
+	/** Replies all the conferences for the database.
+	 *
+	 * @param filter the filter of conferences.
+	 * @param sortOrder the order specification to use for sorting the conferences.
+	 * @return the list of conferences.
+	 * @since 4.0
+	 */
+	public List<Conference> getAllConferences(Specification<Conference> filter, Sort sortOrder) {
+		return this.conferenceRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the conferences for the database.
+	 *
+	 * @param sortOrder the order specification to use for sorting the conferences.
+	 * @return the list of conferences.
+	 * @since 4.0
+	 */
+	public List<Conference> getAllConferences(Sort sortOrder) {
+		return this.conferenceRepository.findAll(sortOrder);
 	}
 
 	/** Replies all the conferences for the database.

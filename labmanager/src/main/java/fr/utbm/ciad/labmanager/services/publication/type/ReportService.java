@@ -39,6 +39,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -82,6 +83,37 @@ public class ReportService extends AbstractPublicationTypeService {
 	 */
 	public List<Report> getAllReports() {
 		return this.repository.findAll();
+	}
+
+	/** Replies all the reports.
+	 *
+	 * @param filter the filter of reports.
+	 * @return the reports.
+	 * @since 4.0
+	 */
+	public List<Report> getAllReports(Specification<Report> filter) {
+		return this.repository.findAll(filter);
+	}
+
+	/** Replies all the reports.
+	 *
+	 * @param filter the filter of reports.
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the reports.
+	 * @since 4.0
+	 */
+	public List<Report> getAllReports(Specification<Report> filter, Sort sortOrder) {
+		return this.repository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the reports.
+	 *
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the reports.
+	 * @since 4.0
+	 */
+	public List<Report> getAllReports(Sort sortOrder) {
+		return this.repository.findAll(sortOrder);
 	}
 
 	/** Replies all the reports.

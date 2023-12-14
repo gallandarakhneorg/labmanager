@@ -45,6 +45,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -101,6 +102,38 @@ public class TeachingService extends AbstractService {
 
 	/** Replies all the known teaching activities.
 	 *
+	 * @param filter the filter to apply to the activities.
+	 * @return all the activities, never {@code null}.
+	 * @since 4.0
+	 */
+	public List<TeachingActivity> getAllActivities(Specification<TeachingActivity> filter) {
+		return this.teachingActivityRepository.findAll(filter);
+	}
+
+	/** Replies all the known teaching activities.
+	 *
+	 * @param filter the filter to apply to the activities.
+	 * @param sortOrder the order specification to use for sorting the activities.
+	 * @return all the activities, never {@code null}.
+	 * @since 4.0
+	 */
+	public List<TeachingActivity> getAllActivities(Specification<TeachingActivity> filter, Sort sortOrder) {
+		return this.teachingActivityRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the known teaching activities.
+	 *
+	 * @param filter the filter to apply to the activities.
+	 * @param sortOrder the order specification to use for sorting the activities.
+	 * @return all the activities, never {@code null}.
+	 * @since 4.0
+	 */
+	public List<TeachingActivity> getAllActivities(Sort sortOrder) {
+		return this.teachingActivityRepository.findAll(sortOrder);
+	}
+
+	/** Replies all the known teaching activities.
+	 *
 	 * @param pageable a manager of pages.
 	 * @return all the activities, never {@code null}.
 	 * @since 4.0
@@ -112,7 +145,7 @@ public class TeachingService extends AbstractService {
 	/** Replies all the known teaching activities.
 	 *
 	 * @param pageable a manager of pages.
-	 * @param filter the fitler to apply to the users.
+	 * @param filter the filter to apply to the activities.
 	 * @return all the activities, never {@code null}.
 	 * @since 4.0
 	 */

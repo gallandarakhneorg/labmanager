@@ -30,6 +30,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -80,8 +81,40 @@ public class UserService extends AbstractService {
 
 	/** Replies all the known users.
 	 *
+	 * @param sortOrder the order specification to use for sorting the users.
+	 * @return all the users, never {@code null}.
+	 * @since 4.0
+	 */
+	public List<User> getAllUsers(Sort sortOrder) {
+		return this.userRepository.findAll(sortOrder);
+	}
+
+	/** Replies all the known users.
+	 *
+	 * @param filter the filter to apply to the user list.
+	 * @return all the users, never {@code null}.
+	 * @since 4.0
+	 */
+	public List<User> getAllUsers(Specification<User> filter) {
+       return this.userRepository.findAll(filter);
+   }
+
+	/** Replies all the known users.
+	 *
+	 * @param filter the filter to apply to the user list.
+	 * @param sortOrder the order specification to use for sorting the users.
+	 * @return all the users, never {@code null}.
+	 * @since 4.0
+	 */
+	public List<User> getAllUsers(Specification<User> filter, Sort sortOrder) {
+      return this.userRepository.findAll(filter, sortOrder);
+  }
+
+	/** Replies all the known users.
+	 *
 	 * @param pageable the manager of pagers.
 	 * @return all the users, never {@code null}.
+	 * @since 4.0
 	 */
 	public Page<User> getAllUsers(Pageable pageable) {
 		return this.userRepository.findAll(pageable);
@@ -92,12 +125,13 @@ public class UserService extends AbstractService {
 	 * @param pageable the manager of pagers.
 	 * @param filter the filter to apply to the user list.
 	 * @return all the users, never {@code null}.
+	 * @since 4.0
 	 */
 	public Page<User> getAllUsers(Pageable pageable, Specification<User> filter) {
         return this.userRepository.findAll(filter, pageable);
     }
 
-    /** Replies the application user that has the given identifier.
+	/** Replies the application user that has the given identifier.
 	 *
 	 * @param id the identifier.
 	 * @return the user or {@code null} if the user cannot be found.

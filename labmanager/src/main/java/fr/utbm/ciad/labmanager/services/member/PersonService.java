@@ -61,6 +61,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -148,6 +149,37 @@ public class PersonService extends AbstractService {
 	 */
 	public List<Person> getAllPersons() {
 		return this.personRepository.findAll();
+	}
+
+	/** Replies the list of all the persons from the database.
+	 *
+	 * @param filter the filter of persons.
+	 * @return all the persons.
+	 * @since 4.0
+	 */
+	public List<Person> getAllPersons(Specification<Person> filter) {
+		return this.personRepository.findAll(filter);
+	}
+
+	/** Replies the list of all the persons from the database.
+	 *
+	 * @param filter the filter of persons.
+	 * @param sortOrder the order specification to use for sorting the persons.
+	 * @return all the persons.
+	 * @since 4.0
+	 */
+	public List<Person> getAllPersons(Specification<Person> filter, Sort sortOrder) {
+		return this.personRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies the list of all the persons from the database.
+	 *
+	 * @param sortOrder the order specification to use for sorting the persons.
+	 * @return all the persons.
+	 * @since 4.0
+	 */
+	public List<Person> getAllPersons(Sort sortOrder) {
+		return this.personRepository.findAll(sortOrder);
 	}
 
 	/** Replies the list of all the persons from the database.

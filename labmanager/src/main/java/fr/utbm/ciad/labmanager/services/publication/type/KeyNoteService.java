@@ -40,6 +40,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -87,6 +88,37 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 
 	/** Replies all the keynotes.
 	 *
+	 * @param filter the filter of keynotes.
+	 * @return the keynotes.
+	 * @since 4.0
+	 */
+	public List<KeyNote> getAllKeyNotes(Specification<KeyNote> filter) {
+		return this.repository.findAll(filter);
+	}
+
+	/** Replies all the keynotes.
+	 *
+	 * @param filter the filter of keynotes.
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the keynotes.
+	 * @since 4.0
+	 */
+	public List<KeyNote> getAllKeyNotes(Specification<KeyNote> filter, Sort sortOrder) {
+		return this.repository.findAll(filter, sortOrder);
+	}
+
+	/** Replies all the keynotes.
+	 *
+	 * @param sortOrder the order specification to use for sorting the publications.
+	 * @return the keynotes.
+	 * @since 4.0
+	 */
+	public List<KeyNote> getAllKeyNotes(Sort sortOrder) {
+		return this.repository.findAll(sortOrder);
+	}
+
+	/** Replies all the keynotes.
+	 *
 	 * @param pageable the manager of pages.
 	 * @return the keynotes.
 	 * @since 4.0
@@ -98,7 +130,7 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	/** Replies all the keynotes.
 	 *
 	 * @param pageable the manager of pages.
-	 * @param filter the fitler of keynotes.
+	 * @param filter the filter of keynotes.
 	 * @return the keynotes.
 	 * @since 4.0
 	 */

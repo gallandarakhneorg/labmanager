@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -89,6 +90,37 @@ public class ScientificAxisService extends AbstractService {
 	 */
 	public List<ScientificAxis> getAllScientificAxes() {
 		return this.scientificAxisRepository.findAll();
+	}
+
+	/** Replies the list of all the scientific axes.
+	 *
+	 * @param filter the filter of the axes.
+	 * @return the list of all the scientific axes.
+	 * @since 4.0
+	 */
+	public List<ScientificAxis> getAllScientificAxes(Specification<ScientificAxis> filter) {
+		return this.scientificAxisRepository.findAll(filter);
+	}
+
+	/** Replies the list of all the scientific axes.
+	 *
+	 * @param filter the filter of the axes.
+	 * @param sortOrder the order specification to use for sorting the scientific axes.
+	 * @return the list of all the scientific axes.
+	 * @since 4.0
+	 */
+	public List<ScientificAxis> getAllScientificAxes(Specification<ScientificAxis> filter, Sort sortOrder) {
+		return this.scientificAxisRepository.findAll(filter, sortOrder);
+	}
+
+	/** Replies the list of all the scientific axes.
+	 *
+	 * @param sortOrder the order specification to use for sorting the scientific axes.
+	 * @return the list of all the scientific axes.
+	 * @since 4.0
+	 */
+	public List<ScientificAxis> getAllScientificAxes(Sort sortOrder) {
+		return this.scientificAxisRepository.findAll(sortOrder);
 	}
 
 	/** Replies the list of all the scientific axes.
