@@ -144,7 +144,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 
 	/** Reference to the super organization.
 	 */
-	@ManyToOne(fetch = FetchType.LAZY)
+	@ManyToOne(fetch = FetchType.EAGER)
 	private ResearchOrganization superOrganization;
 
 	/** References to the sub organizations.
