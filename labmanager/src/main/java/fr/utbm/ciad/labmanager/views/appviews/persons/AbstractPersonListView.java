@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -50,7 +51,9 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
+import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
+import fr.utbm.ciad.labmanager.components.avataritem.AvatarItem;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
 import fr.utbm.ciad.labmanager.data.member.Gender;
@@ -145,7 +148,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		mobileFilters.addClassNames(LumoUtility.Padding.MEDIUM, LumoUtility.BoxSizing.BORDER, LumoUtility.AlignItems.CENTER);
 		mobileFilters.addClassName("mobile-filters"); //$NON-NLS-1$
 
-		Icon mobileIcon = new Icon("lumo", "plus"); //$NON-NLS-1$ //$NON-NLS-2$
+		Icon mobileIcon = LumoIcon.PLUS.create();
 		Span filtersHeading = new Span(getTranslation("views.filters")); //$NON-NLS-1$
 		mobileFilters.add(mobileIcon, filtersHeading);
 		mobileFilters.setFlexGrow(1, filtersHeading);
@@ -197,6 +200,30 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		return createOrganizationComponent(person.getGender(), new MembershipIterator(person));
 	}
 
+	private Component createNameComponent(Person person) {
+		final String fullName = person.getFullNameWithLastNameFirst();
+		final URL photo = person.getPhotoURL();
+
+		String contactDetails = person.getEmail();
+		if (Strings.isNullOrEmpty(contactDetails)) {
+			contactDetails = person.getMobilePhone();
+			if (Strings.isNullOrEmpty(contactDetails)) {
+				contactDetails = person.getOfficePhone();
+			}
+		}
+		
+		final AvatarItem avatar = new AvatarItem();
+		avatar.setHeading(fullName);
+		if (!Strings.isNullOrEmpty(contactDetails)) {
+			avatar.setDescription(contactDetails);
+		}
+		if (photo != null) {
+			avatar.setAvatarURL(photo.toExternalForm());
+		}
+
+		return avatar;
+	}
+
 	/** Create the grid component.
 	 *
 	 * @return the grid component.
@@ -205,6 +232,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		final Grid<Person> grid = new Grid<>(Person.class, false);
 
 		this.nameColumn = grid.addColumn(it -> it.getFullNameWithLastNameFirst())
+				.setRenderer(new ComponentRenderer<>(this::createNameComponent))
 				.setAutoWidth(true)
 				.setSortProperty("lastName", "firstName"); //$NON-NLS-1$ //$NON-NLS-2$
 		this.orcidColumn = grid.addColumn(person -> person.getORCID())

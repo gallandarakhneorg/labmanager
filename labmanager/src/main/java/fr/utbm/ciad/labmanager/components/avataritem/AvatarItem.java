@@ -46,6 +46,16 @@ public class AvatarItem extends Composite<HorizontalLayout> implements HasSize {
 	/** Constructor.
 	 */
 	public AvatarItem() {
+		this(null, null, new Avatar());
+	}
+
+	/** Construtor.
+	 *
+	 * @param heading the heading text.
+	 * @param description the description;
+	 * @param avatar the avatar to display.
+	 */
+	public AvatarItem(String heading, String description, Avatar avatar) {
 		getContent().setAlignItems(FlexComponent.Alignment.CENTER);
 
 		this.description.getStyle()
@@ -58,16 +68,7 @@ public class AvatarItem extends Composite<HorizontalLayout> implements HasSize {
 
 		getContent().add(column);
 		getContent().getStyle().set("line-height", "var(--lumo-line-height-m)"); //$NON-NLS-1$ //$NON-NLS-2$
-	}
 
-	/** Construtor.
-	 *
-	 * @param heading the heading text.
-	 * @param description the description;
-	 * @param avatar the avatar to display.
-	 */
-	public AvatarItem(String heading, String description, Avatar avatar) {
-		this();
 		setHeading(heading);
 		setDescription(description);
 		setAvatar(avatar);
@@ -98,6 +99,16 @@ public class AvatarItem extends Composite<HorizontalLayout> implements HasSize {
 			existing.removeFromParent();
 		}
 		getContent().addComponentAsFirst(avatar);
+	}
+
+	/** Change the URL of the avatar.
+	 *
+	 * @param url the URL of the avatar..
+	 */
+	public void setAvatarURL(String url) {
+		if (getContent().getComponentAt(0) instanceof Avatar existing) {
+			existing.setImage(url);
+		}
 	}
 
 }
