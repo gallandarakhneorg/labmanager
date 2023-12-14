@@ -272,7 +272,11 @@ if (isDevelVersion) {
 }
 project.properties["baseVersionNumber"] = version;
 def projectBuildId = (new java.text.SimpleDateFormat("yyyyMMddHHmm")).format(session.getStartTime());
-project.properties["baseApplicationBuildId"] = projectBuildId
+if (isDevelVersion) {
+	project.properties["baseApplicationBuildId"] = "~"
+} else {
+	project.properties["baseApplicationBuildId"] = projectBuildId
+}
 project.properties["mainVersionNumber"] = project.properties["baseVersionNumber"] + project.properties["baseApplicationBuildId"];
 ]]>
 						</script>

@@ -153,15 +153,16 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		return new Filters(() -> refreshGrid());
 	}
 
-	private static Component createOrganizationComponent(Gender personGender, Iterator<Membership> memberships) {
+	private Component createOrganizationComponent(Gender personGender, Iterator<Membership> memberships) {
 		if (memberships.hasNext()) {
 			final List<Span> spans = new ArrayList<>();
 			while (memberships.hasNext()) {
 				final Membership mbr = memberships.next();
 				final ResearchOrganization organization = mbr.getResearchOrganization();
 				final String name = organization.getAcronymOrName();
+				final String position = mbr.getMemberStatus().getLabel(personGender);
 				Span span = new Span(name);
-				span.setTitle(mbr.getMemberStatus().getLabel(personGender));
+				span.setTitle(getTranslation("views.persons.list_organization_title", organization.getNameOrAcronym(), position)); //$NON-NLS-1$
 				if (mbr.isFormer()) {
 					BadgeState.CONTRAST_PILL.assignTo(span);
 				} else {
@@ -249,7 +250,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		private static final Pattern PATTERN = Pattern.compile(".[\\p{M}]"); //$NON-NLS-1$
 
 		private static final String FOR_ONE = "_"; //$NON-NLS-1$
-		
+
 		private static final String FOR_MANY = "%"; //$NON-NLS-1$
 
 		private static final Normalizer2 NORMALIZER = Normalizer2.getNFKDInstance();
@@ -279,7 +280,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 			this.includeNames = new Checkbox(true);
 			this.includeOrcids = new Checkbox(true);
-			this.includeOrganizations = new Checkbox(true);
+			this.includeOrganizations = new Checkbox(false);
 
 			final HorizontalLayout options = new HorizontalLayout();
 			options.setSpacing(false);
@@ -328,7 +329,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 			}
 			return allCases;
 		}
-		
+
 		/** Build the HQL query for the filtering.
 		 * 
 		 * @param cases the list of all the words to search for.
@@ -346,12 +347,26 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 					predicates0.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("lastName")), lcf)); //$NON-NLS-1$
 					predicates0.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("firstName")), lcf)); //$NON-NLS-1$
 				}
-				
+
 				if (this.includeOrcids.getValue() == Boolean.TRUE) {
 					predicates0.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("orcid")), lcf)); //$NON-NLS-1$
 				}
 				if (this.includeOrganizations.getValue() == Boolean.TRUE) {
-					//predicates.add(criteriaBuilder.like(criteriaBuilder.lower(root.get("orcid")), lcf)); //$NON-NLS-1$
+					final Predicate startPeriodPredicate = criteriaBuilder.or(
+							criteriaBuilder.isNull(root.get("memberships").get("memberSinceWhen")), //$NON-NLS-1$ //$NON-NLS-2$
+							criteriaBuilder.lessThanOrEqualTo(root.get("memberships").get("memberSinceWhen"), criteriaBuilder.localDate())); //$NON-NLS-1$ //$NON-NLS-2$
+
+					final Predicate endPeriodPredicate = criteriaBuilder.or(
+							criteriaBuilder.isNull(root.get("memberships").get("memberToWhen")), //$NON-NLS-1$ //$NON-NLS-2$
+							criteriaBuilder.greaterThanOrEqualTo(root.get("memberships").get("memberToWhen"), criteriaBuilder.localDate())); //$NON-NLS-1$ //$NON-NLS-2$
+
+					final Predicate textPredicate = criteriaBuilder.or(
+							criteriaBuilder.like(criteriaBuilder.lower(root.get("memberships").get("researchOrganization").get("acronym")), lcf), //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+							criteriaBuilder.like(criteriaBuilder.lower(root.get("memberships").get("researchOrganization").get("name")), lcf)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+
+					final Predicate gpredicate = criteriaBuilder.and(startPeriodPredicate, endPeriodPredicate, textPredicate);
+
+					predicates0.add(gpredicate);
 				}
 				predicates.add(criteriaBuilder.or(predicates0.toArray(new Predicate[predicates0.size()])));
 			}
@@ -414,7 +429,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 				}
 			}
 		}
-		
+
 		@Override
 		public boolean hasNext() {
 			return this.next != null;
@@ -426,7 +441,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 			searchNext();
 			return currentNext;
 		}
-		
+
 	}
 
 }

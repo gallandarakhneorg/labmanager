@@ -35,7 +35,7 @@ public final class Constants {
 	
 	/** Build id that is also the date of the release.
 	 */
-	public static final String MANAGER_BUILD_ID = "202312141026"; //$NON-NLS-1$
+	public static final String MANAGER_BUILD_ID = "~"; //$NON-NLS-1$
 
 	private Constants() {
 		//
