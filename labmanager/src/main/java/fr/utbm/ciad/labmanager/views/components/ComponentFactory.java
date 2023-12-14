@@ -120,7 +120,6 @@ public final class ComponentFactory {
 		final TextField content = new TextField();
 		final StreamResource imageResource = newStreamImage(iconPath);
 		final Image image = new Image(imageResource, href);
-		image.setAlt(imageResource.getName());
 		image.setMinHeight(iconSize, Unit.POINTS);
 		image.setMaxHeight(iconSize, Unit.POINTS);
 		image.setMinWidth(iconSize, Unit.POINTS);

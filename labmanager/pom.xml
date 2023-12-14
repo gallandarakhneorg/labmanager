@@ -272,7 +272,8 @@ if (isDevelVersion) {
 }
 project.properties["baseVersionNumber"] = version;
 def projectBuildId = (new java.text.SimpleDateFormat("yyyyMMddHHmm")).format(session.getStartTime());
-project.properties["mainVersionNumber"] = project.properties["baseVersionNumber"] + projectBuildId;
+project.properties["baseApplicationBuildId"] = projectBuildId
+project.properties["mainVersionNumber"] = project.properties["baseVersionNumber"] + project.properties["baseApplicationBuildId"];
 ]]>
 						</script>
 					</scripts>
@@ -307,6 +308,10 @@ project.properties["mainVersionNumber"] = project.properties["baseVersionNumber"
 		                <replacement>
 		                  <token>(MANAGER_VERSION *= *")([^"]+)(";)</token>
 		                  <value>$1${baseVersionNumber}$3</value>
+		                </replacement>
+		                <replacement>
+		                  <token>(MANAGER_BUILD_ID *= *")([^"]+)(";)</token>
+		                  <value>$1${baseApplicationBuildId}$3</value>
 		                </replacement>
 		              </replacements>
 		            </configuration>

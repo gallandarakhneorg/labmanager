@@ -48,6 +48,7 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
+import fr.utbm.ciad.labmanager.views.appviews.about.AboutView;
 import fr.utbm.ciad.labmanager.views.appviews.assocstructures.AssociatedStructuresView;
 import fr.utbm.ciad.labmanager.views.appviews.assocstructures.MyAssociatedStructuresView;
 import fr.utbm.ciad.labmanager.views.appviews.conferences.ConferencesView;
@@ -75,6 +76,7 @@ import fr.utbm.ciad.labmanager.views.appviews.supervisions.SupervisionsView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.MyTeachingActivitiesView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingActivitiesView;
 import fr.utbm.ciad.labmanager.views.appviews.welcome.WelcomeView;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
@@ -112,7 +114,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 * @param accessChecker the access checker.
 	 * @param applicationName name of the application.
 	 */
-	public MainLayout(AuthenticatedUser authenticatedUser, AccessAnnotationChecker accessChecker,
+	public MainLayout(@Autowired AuthenticatedUser authenticatedUser, @Autowired AccessAnnotationChecker accessChecker,
 			@Value("${labmanager.application-name}") String applicationName) {
 		this.authenticatedUser = authenticatedUser;
 		this.accessChecker = accessChecker;
@@ -320,6 +322,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	protected void createDocumentationNavigation(SideNav nav) {
 		final SideNavItem documentations = new SideNavItem(getTranslation("views.navitem.documentations")); //$NON-NLS-1$
 		documentations.addItem(new SideNavItem(getTranslation("views.navitem.online_manuals"), ViewConstants.ONLINE_MANUAL_URL, LineAwesomeIcon.BOOK_SOLID.create())); //$NON-NLS-1$
+		documentations.addItem(new SideNavItem(getTranslation("views.navitem.about_app"), AboutView.class, LineAwesomeIcon.COPYRIGHT_SOLID.create())); //$NON-NLS-1$
 		nav.addItem(documentations);
 	}
 

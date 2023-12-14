@@ -33,6 +33,10 @@ public final class Constants {
 	 */
 	public static final String MANAGER_VERSION = "4.0.0"; //$NON-NLS-1$
 	
+	/** Build id that is also the date of the release.
+	 */
+	public static final String MANAGER_BUILD_ID = "202312141026"; //$NON-NLS-1$
+
 	private Constants() {
 		//
 	}
