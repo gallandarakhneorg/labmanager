@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.views.appviews.persons;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -35,6 +36,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.Grid.Column;
+import com.vaadin.flow.component.grid.GridSortOrder;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.html.Div;
@@ -43,6 +45,7 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.data.provider.SortDirection;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
@@ -62,6 +65,9 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import org.apache.jena.ext.com.google.common.base.Strings;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 
 /** Abstract implementation of a list of persons.
@@ -83,6 +89,8 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 	private final ChronoMembershipComparator membershipComparator;
 
+	private final PersonDataProvider dataProvider;
+
 	private Grid<Person> grid;
 
 	private Column<Person> validationColumn;
@@ -101,11 +109,13 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 	 * @param membershipService the service for accessing to the memberships.
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
 	 *     the memberships are sorted in reverse chronological order first.
+	 * @param dataProvider the provider of lazy data.
 	 */
 	public AbstractPersonListView(PersonService personService, MembershipService membershipService, ChronoMembershipComparator membershipComparator) {
 		this.personService = personService;
 		this.membershipService = membershipService;
 		this.membershipComparator = membershipComparator;
+		this.dataProvider = dataProvider;
 
 		final VerticalLayout rootContainer = getContent();
 
@@ -150,7 +160,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 	 * @return the filters
 	 */
 	protected Filters createFilters() {
-		return new Filters(() -> refreshGrid());
+		return new Filters(this::refreshGrid);
 	}
 
 	private Component createOrganizationComponent(Gender personGender, Iterator<Membership> memberships) {
@@ -190,28 +200,35 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 		this.nameColumn = grid.addColumn(it -> it.getFullNameWithLastNameFirst())
 				.setAutoWidth(true)
-				.setSortable(true);
+				.setSortProperty("lastName", "firstName"); //$NON-NLS-1$ //$NON-NLS-2$
 		this.orcidColumn = grid.addColumn(person -> person.getORCID())
-				.setAutoWidth(true)
-				.setSortable(true);
+				.setAutoWidth(false)
+				.setSortProperty("orcid"); //$NON-NLS-1$
 		this.organizationColumn = grid.addColumn(person -> person)
 				.setRenderer(new ComponentRenderer<>(this::createOrganizationComponent))
-				.setAutoWidth(true)
-				.setSortable(true);
+				.setAutoWidth(false)
+				.setSortable(false);
 		this.validationColumn = grid.addColumn(new BadgeRenderer<>((data, callback) -> {
 			if (data.isValidated()) {
 				callback.create(BadgeState.SUCCESS, null, getTranslation("views.validated")); //$NON-NLS-1$
 			} else {
 				callback.create(BadgeState.ERROR, null, getTranslation("views.validable")); //$NON-NLS-1$
 			}
-		})).setAutoWidth(false).setSortable(true).setWidth("0%"); //$NON-NLS-1$
+		}))
+				.setAutoWidth(false)
+				.setSortProperty("validated") //$NON-NLS-1$
+				.setWidth("0%"); //$NON-NLS-1$
 
 		grid.setPageSize(ViewConstants.GRID_PAGE_SIZE);
 		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
 		grid.addClassNames(LumoUtility.Border.TOP, LumoUtility.BorderColor.CONTRAST_10);
+		
+		// Default sorting on names
+		grid.sort(Collections.singletonList(new GridSortOrder<>(this.nameColumn, SortDirection.ASCENDING)));
 
-		final GridLazyDataView<Person> dataView =  grid.setItems(query -> { 
-			return this.personService.getAllPersons(
+		final GridLazyDataView<Person> dataView =  grid.setItems(query -> {
+			return this.dataProvider.fetch(
+					this.personService,
 					VaadinSpringDataHelpers.toSpringPageRequest(query),
 					this.filters).stream();
 		});
@@ -375,8 +392,9 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 		@Override
 		public Predicate toPredicate(Root<Person> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
-			if (!this.keywords.isEmpty()) {
-				final List<StringBuilder> cases = buildCases(this.keywords.getValue());
+			final String kws = this.keywords.getValue().trim();
+			if (!Strings.isNullOrEmpty(kws)) {
+				final List<StringBuilder> cases = buildCases(kws);
 				return buildQuery(cases, root, criteriaBuilder);
 			}
 			return null;
@@ -394,7 +412,29 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 	}
 
-	/** Membership iterator for the person list view.
+	/** Provider of data for persons to be displayed in the list of persons view.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	@FunctionalInterface
+	protected interface PersonDataProvider {
+
+		/** Fetch person data.
+		 *
+		 * @param personService the service to have access tothe JPA.
+		 * @param pageRequest the request for paging the data.
+		 * @param filters the filters to apply for selecting the data.
+		 * @return the lazy data page.
+		 */
+		Page<Person> fetch(PersonService personService, PageRequest pageRequest, Filters filters);
+
+	}
+
+		/** Membership iterator for the person list view.
 	 * This iterator assumes that the memberships are sorted according to a {@link ChronoMembershipComparator}
 	 * and it stops as soon as all the active memberships are returned, or if there is none, when the first
 	 * former memberships is returned. Future memberships are not considered.
