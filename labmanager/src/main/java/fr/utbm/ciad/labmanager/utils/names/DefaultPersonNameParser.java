@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.names;
 
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -29,6 +28,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
+import com.ibm.icu.text.Normalizer2;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableObject;
 import org.apache.commons.text.WordUtils;
@@ -304,8 +304,14 @@ public class DefaultPersonNameParser implements PersonNameParser {
 				// Normalize white-spaces, e.g., "    " -> " "
 				final String normalizedName3 = normalizedName2.replaceAll("\\s+", " "); //$NON-NLS-1$ //$NON-NLS-2$
 				// Remove accents and special characters
-				final String normalizedName4 = Normalizer.normalize(normalizedName3, Normalizer.Form.NFD)
-						.replaceAll("[^\\p{ASCII}]", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				final Normalizer2 normalizer = Normalizer2.getNFKDInstance();
+				String normalizedName4;
+				if (!normalizer.isNormalized(normalizedName3)) {
+					normalizedName4 = normalizer.normalize(normalizedName3);
+				} else {
+					normalizedName4 = normalizedName3;
+				}
+				normalizedName4 = normalizedName4.replaceAll("[^\\p{ASCII}]", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				// Upper-case the name
 				return normalizedName4.toUpperCase();
 			}

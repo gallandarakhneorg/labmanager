@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.data;
 
-import java.text.Normalizer;
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,6 +32,7 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import com.ibm.icu.text.Normalizer2;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureComparator;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderComparator;
@@ -527,7 +527,10 @@ public final class EntityUtils {
 			return null;
 		}
 		String str = a.toLowerCase().trim();
-		str = Normalizer.normalize(str, Normalizer.Form.NFD);
+		final Normalizer2 normalizer = Normalizer2.getNFDInstance();
+		if (!normalizer.isNormalized(str)) {
+			str = normalizer.normalize(str);
+		}
 		return str.replaceAll("\\P{InBasic_Latin}", ""); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 

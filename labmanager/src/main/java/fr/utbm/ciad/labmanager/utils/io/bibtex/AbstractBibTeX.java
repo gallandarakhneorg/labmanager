@@ -19,9 +19,9 @@
 
 package fr.utbm.ciad.labmanager.utils.io.bibtex;
 
-import java.text.Normalizer;
 import java.util.Random;
 
+import com.ibm.icu.text.Normalizer2;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
@@ -141,7 +141,13 @@ public abstract class AbstractBibTeX implements BibTeX {
 	}
 
 	private static void convertToTex(StringBuilder content, String text) {
-		final String normalizedString = Normalizer.normalize(text, Normalizer.Form.NFKD);
+		final Normalizer2 normalizer = Normalizer2.getNFKDInstance();
+		final String normalizedString;
+		if (!normalizer.isNormalized(text)) {
+			normalizedString = normalizer.normalize(text);
+		} else {
+			normalizedString = text;
+		}
 		// Accents follow the associated characters in the normalized form.
 		final MutableInt prev = new MutableInt(0);
 		normalizedString.chars().forEach(it -> {
