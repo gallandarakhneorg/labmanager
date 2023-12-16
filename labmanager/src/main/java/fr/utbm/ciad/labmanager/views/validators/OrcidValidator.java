@@ -48,14 +48,14 @@ public class OrcidValidator extends RegexpValidator {
 	 * ORCID id.
 	 * <p>
 	 * This constructor creates a validator which does accept an empty string
-	 * as a valid ORCID id. Use {@link #OrcidValidator(String, boolean)}
+	 * as a valid ORCID id. Use {@link #OrcidValidator(String, String, boolean)}
 	 * constructor with {@code false} as a value for the second argument to
-	 * create a validator which accepts an empty string.
+	 * create a validator which not accepts an empty string.
 	 *
 	 * @param errorMessage the message to display in case the value does not validate.
 	 * @param warningMessage the message to display in case the value does validate but is empty. It could be
 	 *     {@code null} to disable the warning.
-	 * @see #OrcidValidator(String, boolean)
+	 * @see #OrcidValidator(String, String, boolean)
 	 */
 	public OrcidValidator(String errorMessage, String warningMessage) {
 		this(errorMessage, warningMessage, true);

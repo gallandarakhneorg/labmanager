@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.components.avataritem;
+package fr.utbm.ciad.labmanager.views.components;
 
 import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.HasSize;

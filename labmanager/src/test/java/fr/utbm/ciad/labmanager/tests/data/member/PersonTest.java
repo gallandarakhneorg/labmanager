@@ -42,6 +42,8 @@ import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
+import fr.utbm.ciad.labmanager.utils.country.CountryCode;
+import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -1128,16 +1130,16 @@ public class PersonTest {
 	public void setOfficePhone() throws Exception {
 		assertNull(this.test.getOfficePhone());
 
-		this.test.setOfficePhone("xyz");
-		assertEquals("xyz", this.test.getOfficePhone());
+		this.test.setOfficePhone(new PhoneNumber(CountryCode.FRANCE, "123456789"));
+		assertEquals(new PhoneNumber(CountryCode.FRANCE, "123456789"), this.test.getOfficePhone());
 
 		this.test.setOfficePhone(null);
 		assertNull(this.test.getOfficePhone());
 
-		this.test.setOfficePhone("852");
-		assertEquals("852", this.test.getOfficePhone());
+		this.test.setOfficePhone(new PhoneNumber(CountryCode.AFGHANISTAN, "987654321"));
+		assertEquals(new PhoneNumber(CountryCode.AFGHANISTAN, "987654321"), this.test.getOfficePhone());
 
-		this.test.setOfficePhone("");
+		this.test.setOfficePhone(null);
 		assertNull(this.test.getOfficePhone());
 	}
 
@@ -1150,16 +1152,16 @@ public class PersonTest {
 	public void setMobilePhone() throws Exception {
 		assertNull(this.test.getMobilePhone());
 
-		this.test.setMobilePhone("xyz");
-		assertEquals("xyz", this.test.getMobilePhone());
+		this.test.setMobilePhone(new PhoneNumber(CountryCode.FRANCE, "123456789"));
+		assertEquals(new PhoneNumber(CountryCode.FRANCE, "123456789"), this.test.getMobilePhone());
 
 		this.test.setMobilePhone(null);
 		assertNull(this.test.getMobilePhone());
 
-		this.test.setMobilePhone("852");
-		assertEquals("852", this.test.getMobilePhone());
+		this.test.setMobilePhone(new PhoneNumber(CountryCode.AFGHANISTAN, "987654321"));
+		assertEquals(new PhoneNumber(CountryCode.AFGHANISTAN, "987654321"), this.test.getMobilePhone());
 
-		this.test.setMobilePhone("");
+		this.test.setMobilePhone(null);
 		assertNull(this.test.getMobilePhone());
 	}
 

@@ -74,11 +74,11 @@ import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.DetailsWithErrorMarkStatusHandler;
+import fr.utbm.ciad.labmanager.views.components.PhoneNumberField;
 import fr.utbm.ciad.labmanager.views.components.UserIdentityChangedObserver;
 import fr.utbm.ciad.labmanager.views.validators.OrcidValidator;
 import fr.utbm.ciad.labmanager.views.validators.UrlValidator;
@@ -118,9 +118,9 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 
 	private TextField email;
 
-	private TextField officePhone;
+	private PhoneNumberField officePhone;
 
-	private TextField mobilePhone;
+	private PhoneNumberField mobilePhone;
 
 	private TextField officeRoom;
 
@@ -423,7 +423,7 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 	 * @param receiver the receiver of the component
 	 */
 	protected void createContactInformationComponents(VerticalLayout receiver) {
-		final FormLayout content = ComponentFactory.newColumnForm(2);
+		final FormLayout content = ComponentFactory.newColumnForm(1);
 
 		this.email = new TextField();
 		this.email.setRequired(true);
@@ -431,15 +431,15 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 		this.email.setClearButtonVisible(true);
 		content.add(this.email, 2);
 
-		this.officePhone = ComponentFactory.newPhoneNumberField(CountryCode.FRANCE);
+		this.officePhone = new PhoneNumberField();
 		this.officePhone.setClearButtonVisible(true);
 		this.officePhone.setPrefixComponent(VaadinIcon.PHONE.create());
-		content.add(this.officePhone);
+		content.add(this.officePhone, 2);
 
-		this.mobilePhone = ComponentFactory.newPhoneNumberField(CountryCode.FRANCE);
+		this.mobilePhone = new PhoneNumberField();
 		this.mobilePhone.setClearButtonVisible(true);
 		this.mobilePhone.setPrefixComponent(VaadinIcon.MOBILE.create());
-		content.add(this.mobilePhone);
+		content.add(this.mobilePhone, 2);
 
 		this.officeRoom = new TextField();
 		this.officeRoom.setClearButtonVisible(true);
@@ -454,8 +454,14 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 			.withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"))) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.email, this.contactInformationDetails))
 			.bind(Person::getEmail, Person::setEmail);
-		this.binder.forField(this.officePhone).bind(Person::getOfficePhone, Person::setOfficePhone);
-		this.binder.forField(this.mobilePhone).bind(Person::getMobilePhone, Person::setMobilePhone);
+		this.binder.forField(this.officePhone)
+			.withValidator(this.officePhone.getDefaultValidator())
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.officePhone, this.contactInformationDetails))
+			.bind(Person::getOfficePhone, Person::setOfficePhone);
+		this.binder.forField(this.mobilePhone)
+			.withValidator(this.mobilePhone.getDefaultValidator())
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.mobilePhone, this.contactInformationDetails))
+			.bind(Person::getMobilePhone, Person::setMobilePhone);
 		this.binder.forField(this.officeRoom).bind(Person::getOfficeRoom, Person::setOfficeRoom);
 	}
 
@@ -704,11 +710,17 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 		this.gravatarId.setLabel(getTranslation("views.persons.gravatar_id")); //$NON-NLS-1$
 		this.gravatarId.setHelperText(getTranslation("views.persons.gravatar_id.helper")); //$NON-NLS-1$
 
+		final String helpPhone = getTranslation("views.phonenumber.help"); //$NON-NLS-1$
+		final String errPhone = getTranslation("views.phonenumber.invalid"); //$NON-NLS-1$
+
 		this.contactInformationDetails.setSummaryText(getTranslation("views.persons.contact_informations")); //$NON-NLS-1$
 		this.email.setLabel(getTranslation("views.persons.email")); //$NON-NLS-1$
 		this.email.setErrorMessage(getTranslation("views.persons.email.error")); //$NON-NLS-1$
 		this.officePhone.setLabel(getTranslation("views.persons.officephone")); //$NON-NLS-1$
+		this.officePhone.setDynamicHelperText(helpPhone);
+		this.officePhone.setErrorMessage(errPhone);
 		this.mobilePhone.setLabel(getTranslation("views.persons.mobilephone")); //$NON-NLS-1$
+		this.mobilePhone.setDynamicHelperText(helpPhone);
 		this.officeRoom.setLabel(getTranslation("views.persons.officeroom")); //$NON-NLS-1$
 		this.officeRoom.setHelperText(getTranslation("views.persons.officeroom.helper")); //$NON-NLS-1$
 

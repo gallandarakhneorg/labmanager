@@ -47,6 +47,7 @@ import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipRepository;
 import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.gscholar.GoogleScholarPlatform;
 import fr.utbm.ciad.labmanager.utils.io.scopus.ScopusPlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
@@ -54,6 +55,7 @@ import fr.utbm.ciad.labmanager.utils.names.DefaultPersonNameParser;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameComparator;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
 import fr.utbm.ciad.labmanager.utils.names.SorensenDicePersonNameComparator;
+import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -259,7 +261,9 @@ public class PersonServiceTest {
 
 	@Test
 	public void createPerson() {
-		final Person person = this.test.createPerson(true, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
+		final PhoneNumber num1 = new PhoneNumber(CountryCode.FRANCE, "123456789");
+		final PhoneNumber num2 = new PhoneNumber(CountryCode.FRANCE, "987654321");
+		final Person person = this.test.createPerson(true, "NFN", "NLN", Gender.FEMALE, "NE", num1, num2, "NR1",
 				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NHAL", "NLIN", "NGIT", "NRGID", "NADSI", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
 
@@ -275,8 +279,8 @@ public class PersonServiceTest {
 		assertEquals("NLN", actual.getLastName());
 		assertSame(Gender.FEMALE, actual.getGender());
 		assertEquals("NE", actual.getEmail());
-		assertEquals("NP1", actual.getOfficePhone());
-		assertEquals("NP2", actual.getMobilePhone());
+		assertSame(num1, actual.getOfficePhone());
+		assertSame(num2, actual.getMobilePhone());
 		assertEquals("NR1", actual.getOfficeRoom());
 		assertEquals("NGRAV", actual.getGravatarId());
 		assertEquals("NORCID", actual.getORCID());
@@ -303,7 +307,9 @@ public class PersonServiceTest {
 
 	@Test
 	public void updatePerson() {
-		Person person = this.test.updatePerson(234, true, "NFN", "NLN", Gender.FEMALE, "NE", "NP1", "NP2", "NR1",
+		final PhoneNumber num1 = new PhoneNumber(CountryCode.FRANCE, "123456789");
+		final PhoneNumber num2 = new PhoneNumber(CountryCode.FRANCE, "987654321");
+		Person person = this.test.updatePerson(234, true, "NFN", "NLN", Gender.FEMALE, "NE", num1, num2, "NR1",
 				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NHAL", "NLIN", "NGIT", "NRGID", "NADSI", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
 
@@ -325,8 +331,8 @@ public class PersonServiceTest {
 		verify(this.pers1, atLeastOnce()).setLastName(eq("NLN"));
 		verify(this.pers1, atLeastOnce()).setGender(same(Gender.FEMALE));
 		verify(this.pers1, atLeastOnce()).setEmail(eq("NE"));
-		verify(this.pers1, atLeastOnce()).setOfficePhone(eq("NP1"));
-		verify(this.pers1, atLeastOnce()).setMobilePhone(eq("NP2"));
+		verify(this.pers1, atLeastOnce()).setOfficePhone(same(num1));
+		verify(this.pers1, atLeastOnce()).setMobilePhone(same(num2));
 		verify(this.pers1, atLeastOnce()).setOfficeRoom(eq("NR1"));
 		verify(this.pers1, atLeastOnce()).setGravatarId(eq("NGRAV"));
 		verify(this.pers1, atLeastOnce()).setORCID(eq("NORCID"));

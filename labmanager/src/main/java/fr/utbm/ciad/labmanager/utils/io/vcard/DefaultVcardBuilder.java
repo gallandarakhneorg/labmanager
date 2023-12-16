@@ -27,6 +27,7 @@ import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
+import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -134,9 +135,11 @@ public class DefaultVcardBuilder implements VcardBuilder {
 		}
 	}
 
-	private static void appendTel(StringBuilder vcard, String type, String number) {
-		if (!Strings.isNullOrEmpty(number)) {
-			vcard.append(TEL_TYPE).append(type).append(TEL_NUM).append(number.replaceAll("\\s+", "-")).append("\n"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	private static void appendTel(StringBuilder vcard, String type, PhoneNumber number) {
+		if (number != null) {
+			vcard.append(TEL_TYPE).append(type).append(TEL_NUM)
+				.append(number.toInternationalForm().replaceAll("\\s+", "-")) //$NON-NLS-1$ //$NON-NLS-2$
+				.append("\n"); //$NON-NLS-1$
 		}
 	}
 

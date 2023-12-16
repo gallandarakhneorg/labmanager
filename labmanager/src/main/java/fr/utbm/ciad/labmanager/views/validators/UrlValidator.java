@@ -46,7 +46,7 @@ public class UrlValidator extends AbstractValidator<String> {
 	 * This constructor creates a validator which doesn't accept an empty string
 	 * as a valid URL address. Use {@link #UrlValidator(String, boolean)}
 	 * constructor with {@code true} as a value for the second argument to
-	 * create a validator which accepts an empty string.
+	 * create a validator which not accepts an empty string.
 	 *
 	 * @param errorMessage the message to display in case the value does not validate.
 	 * @see #UrlValidator(String, boolean)

@@ -44,6 +44,7 @@ import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.io.vcard.VcardBuilder;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameComparator;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
+import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.ProgressionEvent;
@@ -250,19 +251,21 @@ public class PersonApiController extends AbstractApiController {
 		final int scitations = googleScholarCitations == null ? 0 : googleScholarCitations.intValue();
 		final int wcitations = wosCitations == null ? 0 : wosCitations.intValue();
 		final int ucitations = scopusCitations == null ? 0 : scopusCitations.intValue();
+		final PhoneNumber officePhoneObj = Strings.isNullOrEmpty(inOfficePhone) ? null : PhoneNumber.parse(inOfficePhone);
+		final PhoneNumber mobilePhoneObj = Strings.isNullOrEmpty(inMobilePhone) ? null : PhoneNumber.parse(inMobilePhone);
 		//
 		final Person optPerson;
 		//
 		if (person == null) {
 			optPerson = this.personService.createPerson(
-					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
+					validated, inFirstName, inLastName, genderObj, inEmail, officePhoneObj, mobilePhoneObj, inOfficeRoom,
 					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inIdhal, inLinkedInId, inGithubId,
 					inResearchGateId, inAdScientificIndexId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,
 					shindex, whindex, uhindex, scitations, wcitations, ucitations);
 		} else {
 			optPerson = this.personService.updatePerson(person.intValue(),
-					validated, inFirstName, inLastName, genderObj, inEmail, inOfficePhone, inMobilePhone, inOfficeRoom,
+					validated, inFirstName, inLastName, genderObj, inEmail, officePhoneObj, mobilePhoneObj, inOfficeRoom,
 					inGravatarId, inOrcid, inResearcherId, inScopusId, inGoogleScholarId, inIdhal, inLinkedInId, inGithubId,
 					inResearchGateId, inAdScientificIndexId,
 					inFacebookId, inDblpURL, inAcademiaURL, inCordisURL, webPageNamingObj,

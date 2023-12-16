@@ -96,8 +96,10 @@ import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import fr.utbm.ciad.labmanager.services.indicator.GlobalIndicatorsService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
+import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
+import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -749,6 +751,31 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return nbNew;
 	}
 
+	private static PhoneNumber getPhoneNumber(JsonNode content, String key) {
+		if (content != null && !Strings.isNullOrEmpty(key) && content.isObject()) {
+			try {
+				final JsonNode value = content.get(key);
+				if (value != null) {
+					if (value.isObject()) {
+						final CountryCode country = getEnum(value, COUNTRY_KEY, CountryCode.class);
+						if (country != null) {
+							final JsonNode numberNode = value.get(NUMBER_KEY);
+							if (numberNode != null && numberNode.isTextual()) {
+								final String number = numberNode.textValue();
+								return new PhoneNumber(country, number);
+							}
+						}
+					} else if (value.isTextual()) {
+						return PhoneNumber.parse(value.textValue());
+					}
+				}
+			} catch (Throwable ex) {
+				//
+			}
+		}
+		return null;
+	}
+
 	/** Create the persons in the database.
 	 *
 	 * @param session the JPA session for managing transactions.
@@ -770,6 +797,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 					final String id = getId(personObject);
 					Person person = createObject(Person.class, personObject, aliasRepository, null);
 					if (person != null) {
+						// Get the phone numbers
+						final PhoneNumber officePhone = getPhoneNumber(personObject, OFFICE_PHONE_NUMBER_KEY);
+						person.setOfficePhone(officePhone);
+						final PhoneNumber mobilePhone = getPhoneNumber(personObject, MOBILE_PHONE_NUMBER_KEY);
+						person.setMobilePhone(mobilePhone);
+
+						// Finalize import
 						session.beginTransaction();
 						final Optional<Person> existing = this.personRepository.findDistinctByFirstNameAndLastName(person.getFirstName(), person.getLastName());
 						if (existing.isEmpty()) {

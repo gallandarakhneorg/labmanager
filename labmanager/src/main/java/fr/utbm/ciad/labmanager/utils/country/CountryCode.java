@@ -27,8 +27,9 @@ import com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Pure;
 import org.springframework.context.i18n.LocaleContextHolder;
 
-/** This enumeration gives the official codes of the countries
- * given by the ISO 3166-1.
+/** This enumeration gives a list of countries with the official codes of the countries
+ * given by the ISO 3166-1, and the phone prefix information that is provided by
+ * International Telecommunication Union (ITU) and defined in the ITU-T ISO standards E.123 and E.164.
  *
  * @author <a target="_blank" href="http://www.arakhne.org/homes/galland.html">St&eacute;phane GALLAND</a>
  * @version 17.0 2020-01-04 14:51:19
@@ -40,7 +41,7 @@ public enum CountryCode {
 
 	/** AF.
 	 */
-	AFGHANISTAN("AF") { //$NON-NLS-1$
+	AFGHANISTAN("af", 93, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -78,7 +79,7 @@ public enum CountryCode {
 	},
 	/** AX.
 	 */
-	ALAND_ISLANDS("AX") { //$NON-NLS-1$
+	ALAND_ISLANDS("ax", 358, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FINLAND;
@@ -116,7 +117,7 @@ public enum CountryCode {
 	},
 	/** AL.
 	 */
-	ALBANIA("AL") { //$NON-NLS-1$
+	ALBANIA("al", 355, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -154,7 +155,7 @@ public enum CountryCode {
 	},
 	/** DZ.
 	 */
-	ALGERIA("DZ") { //$NON-NLS-1$
+	ALGERIA("dz", 213, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -192,7 +193,7 @@ public enum CountryCode {
 	},
 	/** AS.
 	 */
-	AMERICAN_SAMOA("AS") { //$NON-NLS-1$
+	AMERICAN_SAMOA("as", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -230,7 +231,7 @@ public enum CountryCode {
 	},
 	/** AD.
 	 */
-	ANDORRA("AD") { //$NON-NLS-1$
+	ANDORRA("ad", 376, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -268,7 +269,7 @@ public enum CountryCode {
 	},
 	/** AO.
 	 */
-	ANGOLA("AO") { //$NON-NLS-1$
+	ANGOLA("ao", 244, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -306,7 +307,7 @@ public enum CountryCode {
 	},
 	/** AI.
 	 */
-	ANGUILLA("AI") { //$NON-NLS-1$
+	ANGUILLA("ai", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -344,7 +345,7 @@ public enum CountryCode {
 	},
 	/** AQ.
 	 */
-	ANTARCTICA("AQ") { //$NON-NLS-1$
+	ANTARCTICA("aq", 0, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -382,7 +383,7 @@ public enum CountryCode {
 	},
 	/** AG.
 	 */
-	ANTIGUA_AND_BARBUDA("AG") { //$NON-NLS-1$
+	ANTIGUA_AND_BARBUDA("ag", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -420,7 +421,7 @@ public enum CountryCode {
 	},
 	/** AR.
 	 */
-	ARGENTINA("AR") { //$NON-NLS-1$
+	ARGENTINA("ar", 54, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -458,7 +459,7 @@ public enum CountryCode {
 	},
 	/** AM.
 	 */
-	ARMENIA("AM") { //$NON-NLS-1$
+	ARMENIA("am", 374, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -496,7 +497,7 @@ public enum CountryCode {
 	},
 	/** AW.
 	 */
-	ARUBA("AW") { //$NON-NLS-1$
+	ARUBA("aw", 297, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NETHERLANDS;
@@ -534,7 +535,7 @@ public enum CountryCode {
 	},
 	/** AU.
 	 */
-	AUSTRALIA("AU") { //$NON-NLS-1$
+	AUSTRALIA("au", 61, "0011", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -572,7 +573,7 @@ public enum CountryCode {
 	},
 	/** AT.
 	 */
-	AUSTRIA("AT") { //$NON-NLS-1$
+	AUSTRIA("at", 43, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -610,7 +611,7 @@ public enum CountryCode {
 	},
 	/** AZ.
 	 */
-	AZERBAIJAN("AZ") { //$NON-NLS-1$
+	AZERBAIJAN("az", 994, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -649,7 +650,7 @@ public enum CountryCode {
 
 	/** BS.
 	 */
-	BAHAMAS("BS") { //$NON-NLS-1$
+	BAHAMAS("bs", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -687,7 +688,7 @@ public enum CountryCode {
 	},
 	/** BH.
 	 */
-	BAHRAIN("BH") { //$NON-NLS-1$
+	BAHRAIN("bh", 973, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -725,7 +726,7 @@ public enum CountryCode {
 	},
 	/** BD.
 	 */
-	BANGLADESH("BD") { //$NON-NLS-1$
+	BANGLADESH("bd", 880, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -763,7 +764,7 @@ public enum CountryCode {
 	},
 	/** BB.
 	 */
-	BARBADOS("BB") { //$NON-NLS-1$
+	BARBADOS("bb", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -801,7 +802,7 @@ public enum CountryCode {
 	},
 	/** BY.
 	 */
-	BELARUS("BY") { //$NON-NLS-1$
+	BELARUS("by", 375, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -839,7 +840,7 @@ public enum CountryCode {
 	},
 	/** BE.
 	 */
-	BELGIUM("BE") { //$NON-NLS-1$
+	BELGIUM("be", 32, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -877,7 +878,7 @@ public enum CountryCode {
 	},
 	/** BZ.
 	 */
-	BELIZE("BZ") { //$NON-NLS-1$
+	BELIZE("bz", 501, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -915,7 +916,7 @@ public enum CountryCode {
 	},
 	/** BJ.
 	 */
-	BENIN("BJ") { //$NON-NLS-1$
+	BENIN("bj", 229, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -953,7 +954,7 @@ public enum CountryCode {
 	},
 	/** BM.
 	 */
-	BERMUDA("BM") { //$NON-NLS-1$
+	BERMUDA("bm", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -991,7 +992,7 @@ public enum CountryCode {
 	},
 	/** BT.
 	 */
-	BHUTAN("BT") { //$NON-NLS-1$
+	BHUTAN("BT", 975, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1029,7 +1030,7 @@ public enum CountryCode {
 	},
 	/** BO.
 	 */
-	BOLIVIA("BO") { //$NON-NLS-1$
+	BOLIVIA("bo", 591, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1067,7 +1068,7 @@ public enum CountryCode {
 	},
 	/** BQ.
 	 */
-	SAINT_EUSTATIUS_AND_SABA_BONAIRE("BQ") { //$NON-NLS-1$
+	SAINT_EUSTATIUS_AND_SABA_BONAIRE("bq", 599, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NETHERLANDS;
@@ -1105,7 +1106,7 @@ public enum CountryCode {
 	},
 	/** BA.
 	 */
-	BOSNIA_AND_HERZEGOVINA("BA") { //$NON-NLS-1$
+	BOSNIA_AND_HERZEGOVINA("ba", 387, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1143,7 +1144,7 @@ public enum CountryCode {
 	},
 	/** BW.
 	 */
-	BOTSWANA("BW") { //$NON-NLS-1$
+	BOTSWANA("bw", 267, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1181,7 +1182,7 @@ public enum CountryCode {
 	},
 	/** BV.
 	 */
-	BOUVET_ISLAND("BV") { //$NON-NLS-1$
+	BOUVET_ISLAND("BV", 47, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NORWAY;
@@ -1219,7 +1220,7 @@ public enum CountryCode {
 	},
 	/** BR.
 	 */
-	BRAZIL("BR") { //$NON-NLS-1$
+	BRAZIL("br", 55, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1257,7 +1258,7 @@ public enum CountryCode {
 	},
 	/** IO.
 	 */
-	BRITISH_INDIAN_OCEAN_TERRITORY("IO") { //$NON-NLS-1$
+	BRITISH_INDIAN_OCEAN_TERRITORY("io", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -1295,7 +1296,7 @@ public enum CountryCode {
 	},
 	/** BN.
 	 */
-	BRUNEI_DARUSSALAM("BN") { //$NON-NLS-1$
+	BRUNEI_DARUSSALAM("bn", 673, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1333,7 +1334,7 @@ public enum CountryCode {
 	},
 	/** BG.
 	 */
-	BULGARIA("BG") { //$NON-NLS-1$
+	BULGARIA("bg", 359, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1371,7 +1372,7 @@ public enum CountryCode {
 	},
 	/** BF.
 	 */
-	BURKINA_FASO("BF") { //$NON-NLS-1$
+	BURKINA_FASO("bf", 226, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1409,7 +1410,7 @@ public enum CountryCode {
 	},
 	/** BI.
 	 */
-	BURUNDI("BI") { //$NON-NLS-1$
+	BURUNDI("bi", 257, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1448,7 +1449,7 @@ public enum CountryCode {
 
 	/** KH.
 	 */
-	CAMBODIA("KH") { //$NON-NLS-1$
+	CAMBODIA("kh", 855, "007", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1486,7 +1487,7 @@ public enum CountryCode {
 	},
 	/** CM.
 	 */
-	CAMEROON("CM") { //$NON-NLS-1$
+	CAMEROON("cm", 237, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1524,7 +1525,7 @@ public enum CountryCode {
 	},
 	/** CA.
 	 */
-	CANADA("CA") { //$NON-NLS-1$
+	CANADA("ca", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1562,7 +1563,7 @@ public enum CountryCode {
 	},
 	/** CV.
 	 */
-	CAPE_VERDE("CV") { //$NON-NLS-1$
+	CAPE_VERDE("cv", 238, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1600,7 +1601,7 @@ public enum CountryCode {
 	},
 	/** KY.
 	 */
-	CAYMAN_ISLANDS("KY") { //$NON-NLS-1$
+	CAYMAN_ISLANDS("ky", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -1638,7 +1639,7 @@ public enum CountryCode {
 	},
 	/** CF.
 	 */
-	CENTRAL_AFRICAN_REPUBLIC("CF") { //$NON-NLS-1$
+	CENTRAL_AFRICAN_REPUBLIC("cf", 236, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1676,7 +1677,7 @@ public enum CountryCode {
 	},
 	/** TD.
 	 */
-	CHAD("TD") { //$NON-NLS-1$
+	CHAD("td", 235, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1714,7 +1715,7 @@ public enum CountryCode {
 	},
 	/** CL.
 	 */
-	CHILE("CL") { //$NON-NLS-1$
+	CHILE("cl", 56, "1YZ0", "1YZ") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1752,7 +1753,7 @@ public enum CountryCode {
 	},
 	/** CN.
 	 */
-	CHINA("CN") { //$NON-NLS-1$
+	CHINA("cn", 86, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1790,7 +1791,7 @@ public enum CountryCode {
 	},
 	/** CX.
 	 */
-	CHRISTMAS_ISLAND("CX") { //$NON-NLS-1$
+	CHRISTMAS_ISLAND("cx", 672, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return AUSTRALIA;
@@ -1828,7 +1829,7 @@ public enum CountryCode {
 	},
 	/** CC.
 	 */
-	COCOS_ISLANDS("CC") { //$NON-NLS-1$
+	COCOS_ISLANDS("cc", 672, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return AUSTRALIA;
@@ -1866,7 +1867,7 @@ public enum CountryCode {
 	},
 	/** CO.
 	 */
-	COLOMBIA("CO") { //$NON-NLS-1$
+	COLOMBIA("co", 57, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1904,7 +1905,7 @@ public enum CountryCode {
 	},
 	/** KM.
 	 */
-	COMOROS("KM") { //$NON-NLS-1$
+	COMOROS("km", 269, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1942,7 +1943,7 @@ public enum CountryCode {
 	},
 	/** CG.
 	 */
-	CONGO("CG") { //$NON-NLS-1$
+	CONGO("cg", 242, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1980,7 +1981,7 @@ public enum CountryCode {
 	},
 	/** CD.
 	 */
-	CONGO_DEMOCRATIC_REPUBLIC("CD") { //$NON-NLS-1$
+	CONGO_DEMOCRATIC_REPUBLIC("cd", 243, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2018,7 +2019,7 @@ public enum CountryCode {
 	},
 	/** CK.
 	 */
-	COOK_ISLANDS("CK") { //$NON-NLS-1$
+	COOK_ISLANDS("ck", 682, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2056,7 +2057,7 @@ public enum CountryCode {
 	},
 	/** CR.
 	 */
-	COSTA_RICA("CR") { //$NON-NLS-1$
+	COSTA_RICA("cr", 506, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2094,7 +2095,7 @@ public enum CountryCode {
 	},
 	/** CI.
 	 */
-	COTE_D_IVOIRE("CI") { //$NON-NLS-1$
+	COTE_D_IVOIRE("ci", 225, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2132,7 +2133,7 @@ public enum CountryCode {
 	},
 	/** HR.
 	 */
-	CROATIA("HR") { //$NON-NLS-1$
+	CROATIA("hr", 385, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2170,7 +2171,7 @@ public enum CountryCode {
 	},
 	/** CU.
 	 */
-	CUBA("CU") { //$NON-NLS-1$
+	CUBA("cu", 53, "119", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2208,7 +2209,7 @@ public enum CountryCode {
 	},
 	/** CW.
 	 */
-	CURACAO("CW") { //$NON-NLS-1$
+	CURACAO("cw", 599, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NETHERLANDS;
@@ -2246,7 +2247,7 @@ public enum CountryCode {
 	},
 	/** CY.
 	 */
-	CYPRUS("CY") { //$NON-NLS-1$
+	CYPRUS("cy", 357, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2284,7 +2285,7 @@ public enum CountryCode {
 	},
 	/** CZ.
 	 */
-	CZECH_REPUBLIC("CZ") { //$NON-NLS-1$
+	CZECH_REPUBLIC("cz", 420, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2323,7 +2324,7 @@ public enum CountryCode {
 
 	/** DK.
 	 */
-	DENMARK("DK") { //$NON-NLS-1$
+	DENMARK("dk", 45, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2361,7 +2362,7 @@ public enum CountryCode {
 	},
 	/** DJ.
 	 */
-	DJIBOUTI("DJ") { //$NON-NLS-1$
+	DJIBOUTI("dj", 253, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2399,7 +2400,7 @@ public enum CountryCode {
 	},
 	/** DM.
 	 */
-	DOMINICA("DM") { //$NON-NLS-1$
+	DOMINICA("dm", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2437,7 +2438,7 @@ public enum CountryCode {
 	},
 	/** DO.
 	 */
-	DOMINICAN_REPUBLIC("DO") { //$NON-NLS-1$
+	DOMINICAN_REPUBLIC("do", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2476,7 +2477,7 @@ public enum CountryCode {
 
 	/** EC.
 	 */
-	ECUADOR("EC") { //$NON-NLS-1$
+	ECUADOR("ec", 593, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2514,7 +2515,7 @@ public enum CountryCode {
 	},
 	/** EG.
 	 */
-	EGYPT("EG") { //$NON-NLS-1$
+	EGYPT("eg", 20, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2552,7 +2553,7 @@ public enum CountryCode {
 	},
 	/** SV.
 	 */
-	EL_SALVADOR("SV") { //$NON-NLS-1$
+	EL_SALVADOR("sv", 503, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2590,7 +2591,7 @@ public enum CountryCode {
 	},
 	/** GQ.
 	 */
-	EQUATORIAL_GUINEA("GQ") { //$NON-NLS-1$
+	EQUATORIAL_GUINEA("gq", 240, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2628,7 +2629,7 @@ public enum CountryCode {
 	},
 	/** ER.
 	 */
-	ERITREA("ER") { //$NON-NLS-1$
+	ERITREA("er", 291, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2666,7 +2667,7 @@ public enum CountryCode {
 	},
 	/** EE.
 	 */
-	ESTONIA("EE") { //$NON-NLS-1$
+	ESTONIA("ee", 372, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2704,7 +2705,7 @@ public enum CountryCode {
 	},
 	/** ET.
 	 */
-	ETHIOPIA("ET") { //$NON-NLS-1$
+	ETHIOPIA("et", 251, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2743,7 +2744,7 @@ public enum CountryCode {
 
 	/** FK.
 	 */
-	FALKLAND_ISLANDS("FK") { //$NON-NLS-1$
+	FALKLAND_ISLANDS("fk", 500, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -2781,7 +2782,7 @@ public enum CountryCode {
 	},
 	/** FO.
 	 */
-	FAROE_ISLANDS("FO") { //$NON-NLS-1$
+	FAROE_ISLANDS("fo", 298, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return DENMARK;
@@ -2819,7 +2820,7 @@ public enum CountryCode {
 	},
 	/** FJ.
 	 */
-	FIJI("FJ") { //$NON-NLS-1$
+	FIJI("fj", 679, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2857,7 +2858,7 @@ public enum CountryCode {
 	},
 	/** FI.
 	 */
-	FINLAND("FI") { //$NON-NLS-1$
+	FINLAND("fi", 358, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2895,7 +2896,7 @@ public enum CountryCode {
 	},
 	/** FR.
 	 */
-	FRANCE("FR") { //$NON-NLS-1$
+	FRANCE("fr", 33, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2933,7 +2934,7 @@ public enum CountryCode {
 	},
 	/** GF.
 	 */
-	FRENCH_GUIANA("GF") { //$NON-NLS-1$
+	FRENCH_GUIANA("gf", 594, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -2971,7 +2972,7 @@ public enum CountryCode {
 	},
 	/** PF.
 	 */
-	FRENCH_POLYNESIA("PF") { //$NON-NLS-1$
+	FRENCH_POLYNESIA("pf", 689, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -3009,7 +3010,7 @@ public enum CountryCode {
 	},
 	/** TF.
 	 */
-	FRENCH_SOUTHERN_TERRITORIES("TF") { //$NON-NLS-1$
+	FRENCH_SOUTHERN_TERRITORIES("tf", 262, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -3048,7 +3049,7 @@ public enum CountryCode {
 
 	/** GA.
 	 */
-	GABON("GA") { //$NON-NLS-1$
+	GABON("ga", 241, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3086,7 +3087,7 @@ public enum CountryCode {
 	},
 	/** GM.
 	 */
-	GAMBIA("GM") { //$NON-NLS-1$
+	GAMBIA("gm", 220, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3124,7 +3125,7 @@ public enum CountryCode {
 	},
 	/** GE.
 	 */
-	GEORGIA("GE") { //$NON-NLS-1$
+	GEORGIA("ge", 995, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3162,7 +3163,7 @@ public enum CountryCode {
 	},
 	/** DE.
 	 */
-	GERMANY("DE") { //$NON-NLS-1$
+	GERMANY("de", 49, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3200,7 +3201,7 @@ public enum CountryCode {
 	},
 	/** GH.
 	 */
-	GHANA("GH") { //$NON-NLS-1$
+	GHANA("ghg", 233, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3238,7 +3239,7 @@ public enum CountryCode {
 	},
 	/** GI.
 	 */
-	GIBRALTAR("GI") { //$NON-NLS-1$
+	GIBRALTAR("gi", 350, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -3276,7 +3277,7 @@ public enum CountryCode {
 	},
 	/** GR.
 	 */
-	GREECE("GR") { //$NON-NLS-1$
+	GREECE("gr", 30, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3314,7 +3315,7 @@ public enum CountryCode {
 	},
 	/** GL.
 	 */
-	GREENLAND("GL") { //$NON-NLS-1$
+	GREENLAND("gl", 299, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return DENMARK;
@@ -3352,7 +3353,7 @@ public enum CountryCode {
 	},
 	/** GD.
 	 */
-	GRENADA("GD") { //$NON-NLS-1$
+	GRENADA("gd", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3390,7 +3391,7 @@ public enum CountryCode {
 	},
 	/** GP.
 	 */
-	GUADELOUPE("GP") { //$NON-NLS-1$
+	GUADELOUPE("gp", 590, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -3428,7 +3429,7 @@ public enum CountryCode {
 	},
 	/** GU.
 	 */
-	GUAM("GU") { //$NON-NLS-1$
+	GUAM("gu", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -3466,7 +3467,7 @@ public enum CountryCode {
 	},
 	/** GT.
 	 */
-	GUATEMALA("GT") { //$NON-NLS-1$
+	GUATEMALA("gt", 502, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3504,7 +3505,7 @@ public enum CountryCode {
 	},
 	/** GG.
 	 */
-	GUERNSEY("GG") { //$NON-NLS-1$
+	GUERNSEY("GG", 44, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -3542,7 +3543,7 @@ public enum CountryCode {
 	},
 	/** GN.
 	 */
-	GUINEA("GN") { //$NON-NLS-1$
+	GUINEA("gn", 224, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3580,7 +3581,7 @@ public enum CountryCode {
 	},
 	/** GW.
 	 */
-	GUINEA_BISSAU("GW") { //$NON-NLS-1$
+	GUINEA_BISSAU("gw", 245, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3618,7 +3619,7 @@ public enum CountryCode {
 	},
 	/** GY.
 	 */
-	GUYANA("GY") { //$NON-NLS-1$
+	GUYANA("gy", 592, "001", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3657,7 +3658,7 @@ public enum CountryCode {
 
 	/** HT.
 	 */
-	HAITI("HT") { //$NON-NLS-1$
+	HAITI("ht", 509, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3695,7 +3696,7 @@ public enum CountryCode {
 	},
 	/** HM.
 	 */
-	HEARD_ISLAND_AND_MCDONALD_ISLANDS("HM") { //$NON-NLS-1$
+	HEARD_ISLAND_AND_MCDONALD_ISLANDS("hm", 672, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return AUSTRALIA;
@@ -3733,7 +3734,7 @@ public enum CountryCode {
 	},
 	/** HN.
 	 */
-	HONDURAS("HN") { //$NON-NLS-1$
+	HONDURAS("hn", 504, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3771,7 +3772,7 @@ public enum CountryCode {
 	},
 	/** HK.
 	 */
-	HONG_KONG("HK") { //$NON-NLS-1$
+	HONG_KONG("hk", 852, "001", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return CHINA;
@@ -3809,7 +3810,7 @@ public enum CountryCode {
 	},
 	/** HU.
 	 */
-	HUNGARY("HU") { //$NON-NLS-1$
+	HUNGARY("hu", 36, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3848,7 +3849,7 @@ public enum CountryCode {
 
 	/** IS.
 	 */
-	ICELAND("IS") { //$NON-NLS-1$
+	ICELAND("is", 354, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3886,7 +3887,7 @@ public enum CountryCode {
 	},
 	/** IN.
 	 */
-	INDIA("IN") { //$NON-NLS-1$
+	INDIA("in", 91, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3924,7 +3925,7 @@ public enum CountryCode {
 	},
 	/** ID.
 	 */
-	INDONESIA("ID") { //$NON-NLS-1$
+	INDONESIA("id", 62, "001", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3962,7 +3963,7 @@ public enum CountryCode {
 	},
 	/** IR.
 	 */
-	IRAN("IR") { //$NON-NLS-1$
+	IRAN("ir", 98, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4000,7 +4001,7 @@ public enum CountryCode {
 	},
 	/** IQ.
 	 */
-	IRAQ("IQ") { //$NON-NLS-1$
+	IRAQ("iq", 964, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4038,7 +4039,7 @@ public enum CountryCode {
 	},
 	/** IE.
 	 */
-	IRELAND("IE") { //$NON-NLS-1$
+	IRELAND("ie", 353, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4076,7 +4077,7 @@ public enum CountryCode {
 	},
 	/** IM.
 	 */
-	ISLE_OF_MAN("IM") { //$NON-NLS-1$
+	ISLE_OF_MAN("im", 44, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -4114,7 +4115,7 @@ public enum CountryCode {
 	},
 	/** IL.
 	 */
-	ISRAEL("IL") { //$NON-NLS-1$
+	ISRAEL("il", 972, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4152,7 +4153,7 @@ public enum CountryCode {
 	},
 	/** IT.
 	 */
-	ITALY("IT") { //$NON-NLS-1$
+	ITALY("it", 39, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4191,7 +4192,7 @@ public enum CountryCode {
 
 	/** JM.
 	 */
-	JAMAICA("JM") { //$NON-NLS-1$
+	JAMAICA("jm", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4229,7 +4230,7 @@ public enum CountryCode {
 	},
 	/** JP.
 	 */
-	JAPAN("JP") { //$NON-NLS-1$
+	JAPAN("jp", 81, "010", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4267,7 +4268,7 @@ public enum CountryCode {
 	},
 	/** JE.
 	 */
-	JERSEY("JE") { //$NON-NLS-1$
+	JERSEY("je", 44, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -4305,7 +4306,7 @@ public enum CountryCode {
 	},
 	/** JO.
 	 */
-	JORDAN("JO") { //$NON-NLS-1$
+	JORDAN("jo", 962, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4344,7 +4345,7 @@ public enum CountryCode {
 
 	/** KZ.
 	 */
-	KAZAKHSTAN("KZ") { //$NON-NLS-1$
+	KAZAKHSTAN("kz", 7, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4382,7 +4383,7 @@ public enum CountryCode {
 	},
 	/** KE.
 	 */
-	KENYA("KE") { //$NON-NLS-1$
+	KENYA("ke", 254, "000", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4420,7 +4421,7 @@ public enum CountryCode {
 	},
 	/** KI.
 	 */
-	KIRIBATI("KI") { //$NON-NLS-1$
+	KIRIBATI("ki", 686, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4458,7 +4459,7 @@ public enum CountryCode {
 	},
 	/** KP.
 	 */
-	KOREA_DEMOCRATIC_PEOPLE_REPUBLIC("KP") { //$NON-NLS-1$
+	KOREA_DEMOCRATIC_PEOPLE_REPUBLIC("kp", 850, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4496,7 +4497,7 @@ public enum CountryCode {
 	},
 	/** KR.
 	 */
-	KOREA_REPUBLIC("KR") { //$NON-NLS-1$
+	KOREA_REPUBLIC("kr", 82, "001.002", "0.082") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4534,7 +4535,7 @@ public enum CountryCode {
 	},
 	/** KW.
 	 */
-	KUWAIT("KW") { //$NON-NLS-1$
+	KUWAIT("kw", 965, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4572,7 +4573,7 @@ public enum CountryCode {
 	},
 	/** KG.
 	 */
-	KYRGYZSTAN("KG") { //$NON-NLS-1$
+	KYRGYZSTAN("kg", 996, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4611,7 +4612,7 @@ public enum CountryCode {
 
 	/** LA.
 	 */
-	LAO("LA") { //$NON-NLS-1$
+	LAO("la", 856, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4649,7 +4650,7 @@ public enum CountryCode {
 	},
 	/** LV.
 	 */
-	LATVIA("LV") { //$NON-NLS-1$
+	LATVIA("lv", 371, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4687,7 +4688,7 @@ public enum CountryCode {
 	},
 	/** LB.
 	 */
-	LEBANON("LB") { //$NON-NLS-1$
+	LEBANON("lb", 961, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4725,7 +4726,7 @@ public enum CountryCode {
 	},
 	/** LS.
 	 */
-	LESOTHO("LS") { //$NON-NLS-1$
+	LESOTHO("ls", 266, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4763,7 +4764,7 @@ public enum CountryCode {
 	},
 	/** LR.
 	 */
-	LIBERIA("LR") { //$NON-NLS-1$
+	LIBERIA("lr", 231, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4801,7 +4802,7 @@ public enum CountryCode {
 	},
 	/** LY.
 	 */
-	LIBYAN_ARAB_JAMAHIRIYA("LY") { //$NON-NLS-1$
+	LIBYAN_ARAB_JAMAHIRIYA("ly", 218, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4839,7 +4840,7 @@ public enum CountryCode {
 	},
 	/** LI.
 	 */
-	LIECHTENSTEIN("LI") { //$NON-NLS-1$
+	LIECHTENSTEIN("li", 423, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4877,7 +4878,7 @@ public enum CountryCode {
 	},
 	/** LT.
 	 */
-	LITHUANIA("LT") { //$NON-NLS-1$
+	LITHUANIA("lt", 370, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4915,7 +4916,7 @@ public enum CountryCode {
 	},
 	/** LU.
 	 */
-	LUXEMBOURG("LU") { //$NON-NLS-1$
+	LUXEMBOURG("lu", 352, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4954,7 +4955,7 @@ public enum CountryCode {
 
 	/** MO.
 	 */
-	MACAO("MO") { //$NON-NLS-1$
+	MACAO("mo", 853, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return CHINA;
@@ -4992,7 +4993,7 @@ public enum CountryCode {
 	},
 	/** MK.
 	 */
-	MACEDONIA("MK") { //$NON-NLS-1$
+	MACEDONIA("mk", 389, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5030,7 +5031,7 @@ public enum CountryCode {
 	},
 	/** MG.
 	 */
-	MADAGASCAR("MG") { //$NON-NLS-1$
+	MADAGASCAR("mg", 261, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5068,7 +5069,7 @@ public enum CountryCode {
 	},
 	/** MW.
 	 */
-	MALAWI("MW") { //$NON-NLS-1$
+	MALAWI("mw", 265, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5106,7 +5107,7 @@ public enum CountryCode {
 	},
 	/** MY.
 	 */
-	MALAYSIA("MY") { //$NON-NLS-1$
+	MALAYSIA("my", 60, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5144,7 +5145,7 @@ public enum CountryCode {
 	},
 	/** MV.
 	 */
-	MALDIVES("MV") { //$NON-NLS-1$
+	MALDIVES("mv", 960, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5182,7 +5183,7 @@ public enum CountryCode {
 	},
 	/** ML.
 	 */
-	MALI("ML") { //$NON-NLS-1$
+	MALI("ml", 223, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5220,7 +5221,7 @@ public enum CountryCode {
 	},
 	/** MT.
 	 */
-	MALTA("MT") { //$NON-NLS-1$
+	MALTA("mt", 356, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5258,7 +5259,7 @@ public enum CountryCode {
 	},
 	/** MH.
 	 */
-	MARSHALL_ISLANDS("MH") { //$NON-NLS-1$
+	MARSHALL_ISLANDS("mh", 692, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5296,7 +5297,7 @@ public enum CountryCode {
 	},
 	/** MQ.
 	 */
-	MARTINIQUE("MQ") { //$NON-NLS-1$
+	MARTINIQUE("mq", 596, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -5334,7 +5335,7 @@ public enum CountryCode {
 	},
 	/** MR.
 	 */
-	MAURITANIA("MR") { //$NON-NLS-1$
+	MAURITANIA("mr", 222, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5372,7 +5373,7 @@ public enum CountryCode {
 	},
 	/** MU.
 	 */
-	MAURITIUS("MU") { //$NON-NLS-1$
+	MAURITIUS("mu", 230, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5410,7 +5411,7 @@ public enum CountryCode {
 	},
 	/** YT.
 	 */
-	MAYOTTE("YT") { //$NON-NLS-1$
+	MAYOTTE("yt", 262, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -5448,7 +5449,7 @@ public enum CountryCode {
 	},
 	/** MX.
 	 */
-	MEXICO("MX") { //$NON-NLS-1$
+	MEXICO("mx", 52, null, "01") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5486,7 +5487,7 @@ public enum CountryCode {
 	},
 	/** FM.
 	 */
-	MICRONESIA("FM") { //$NON-NLS-1$
+	MICRONESIA("fm", 691, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5524,7 +5525,7 @@ public enum CountryCode {
 	},
 	/** MD.
 	 */
-	MOLDOVA("MD") { //$NON-NLS-1$
+	MOLDOVA("md", 373, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5562,7 +5563,7 @@ public enum CountryCode {
 	},
 	/** MC.
 	 */
-	MONACO("MC") { //$NON-NLS-1$
+	MONACO("mc", 377, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5600,7 +5601,7 @@ public enum CountryCode {
 	},
 	/** MN.
 	 */
-	MONGOLIA("MN") { //$NON-NLS-1$
+	MONGOLIA("mn", 976, "001", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5638,7 +5639,7 @@ public enum CountryCode {
 	},
 	/** ME.
 	 */
-	MONTENEGRO("ME") { //$NON-NLS-1$
+	MONTENEGRO("me", 382, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5676,7 +5677,7 @@ public enum CountryCode {
 	},
 	/** MS.
 	 */
-	MONTSERRAT("MS") { //$NON-NLS-1$
+	MONTSERRAT("mq", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -5714,7 +5715,7 @@ public enum CountryCode {
 	},
 	/** MA.
 	 */
-	MOROCCO("MA") { //$NON-NLS-1$
+	MOROCCO("ma", 212, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5752,7 +5753,7 @@ public enum CountryCode {
 	},
 	/** MZ.
 	 */
-	MOZAMBIQUE("MZ") { //$NON-NLS-1$
+	MOZAMBIQUE("mz", 258, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5790,7 +5791,7 @@ public enum CountryCode {
 	},
 	/** MM.
 	 */
-	MYANMAR("MM") { //$NON-NLS-1$
+	MYANMAR("mm", 95, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5829,7 +5830,7 @@ public enum CountryCode {
 
 	/** NA.
 	 */
-	NAMIBIA("NA") { //$NON-NLS-1$
+	NAMIBIA("na", 264, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5867,7 +5868,7 @@ public enum CountryCode {
 	},
 	/** NR.
 	 */
-	NAURU("NR") { //$NON-NLS-1$
+	NAURU("nr", 674, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5905,7 +5906,7 @@ public enum CountryCode {
 	},
 	/** NP.
 	 */
-	NEPAL("NP") { //$NON-NLS-1$
+	NEPAL("np", 977, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5943,7 +5944,7 @@ public enum CountryCode {
 	},
 	/** NL.
 	 */
-	NETHERLANDS("NL") { //$NON-NLS-1$
+	NETHERLANDS("nl", 31, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5981,7 +5982,7 @@ public enum CountryCode {
 	},
 	/** NC.
 	 */
-	NEW_CALEDONIA("NC") { //$NON-NLS-1$
+	NEW_CALEDONIA("nc", 687, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -6019,7 +6020,7 @@ public enum CountryCode {
 	},
 	/** NZ.
 	 */
-	NEW_ZEALAND("NZ") { //$NON-NLS-1$
+	NEW_ZEALAND("nz", 64, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6057,7 +6058,7 @@ public enum CountryCode {
 	},
 	/** NI.
 	 */
-	NICARAGUA("NI") { //$NON-NLS-1$
+	NICARAGUA("no", 505, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6095,7 +6096,7 @@ public enum CountryCode {
 	},
 	/** NE.
 	 */
-	NIGER("NE") { //$NON-NLS-1$
+	NIGER("ne", 227, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6133,7 +6134,7 @@ public enum CountryCode {
 	},
 	/** NG.
 	 */
-	NIGERIA("NG") { //$NON-NLS-1$
+	NIGERIA("ng", 234, "009", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6171,7 +6172,7 @@ public enum CountryCode {
 	},
 	/** NU.
 	 */
-	NIUE("NU") { //$NON-NLS-1$
+	NIUE("nu", 683, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -6209,7 +6210,7 @@ public enum CountryCode {
 	},
 	/** NF.
 	 */
-	NORFOLK_ISLAND("NF") { //$NON-NLS-1$
+	NORFOLK_ISLAND("nf", 672, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return AUSTRALIA;
@@ -6247,7 +6248,7 @@ public enum CountryCode {
 	},
 	/** MP.
 	 */
-	NORTHERN_MARIANA_ISLANDS("MP") { //$NON-NLS-1$
+	NORTHERN_MARIANA_ISLANDS("mp", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -6285,7 +6286,7 @@ public enum CountryCode {
 	},
 	/** NO.
 	 */
-	NORWAY("NO") { //$NON-NLS-1$
+	NORWAY("no", 47, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6324,7 +6325,7 @@ public enum CountryCode {
 
 	/** OM.
 	 */
-	OMAN("OM") { //$NON-NLS-1$
+	OMAN("om", 968, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6363,7 +6364,7 @@ public enum CountryCode {
 
 	/** PK.
 	 */
-	PAKISTAN("PK") { //$NON-NLS-1$
+	PAKISTAN("pk", 92, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6401,7 +6402,7 @@ public enum CountryCode {
 	},
 	/** PW.
 	 */
-	PALAU("PW") { //$NON-NLS-1$
+	PALAU("pw", 680, "011", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6439,7 +6440,7 @@ public enum CountryCode {
 	},
 	/** PS.
 	 */
-	PALESTINIAN_TERRITORY("PS") { //$NON-NLS-1$
+	PALESTINIAN_TERRITORY("ps", 970, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6477,7 +6478,7 @@ public enum CountryCode {
 	},
 	/** PA.
 	 */
-	PANAMA("PA") { //$NON-NLS-1$
+	PANAMA("pa", 507, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6515,7 +6516,7 @@ public enum CountryCode {
 	},
 	/** PG.
 	 */
-	PAPUA_NEW_GUINEA("PG") { //$NON-NLS-1$
+	PAPUA_NEW_GUINEA("pg", 675, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6553,7 +6554,7 @@ public enum CountryCode {
 	},
 	/** PY.
 	 */
-	PARAGUAY("PY") { //$NON-NLS-1$
+	PARAGUAY("py", 595, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6591,7 +6592,7 @@ public enum CountryCode {
 	},
 	/** PE.
 	 */
-	PERU("PE") { //$NON-NLS-1$
+	PERU("pe", 51, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6629,7 +6630,7 @@ public enum CountryCode {
 	},
 	/** PH.
 	 */
-	PHILIPPINES("PH") { //$NON-NLS-1$
+	PHILIPPINES("ph", 63, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6665,9 +6666,9 @@ public enum CountryCode {
 			return false;
 		}
 	},
-	/** PN.
+	/** PN. TDOO
 	 */
-	PITCAIRN("PN") { //$NON-NLS-1$
+	PITCAIRN("pn", 0, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -6705,7 +6706,7 @@ public enum CountryCode {
 	},
 	/** PL.
 	 */
-	POLAND("PL") { //$NON-NLS-1$
+	POLAND("pl", 48, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6743,7 +6744,7 @@ public enum CountryCode {
 	},
 	/** PT.
 	 */
-	PORTUGAL("PT") { //$NON-NLS-1$
+	PORTUGAL("pt", 351, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6781,7 +6782,7 @@ public enum CountryCode {
 	},
 	/** PR.
 	 */
-	PUERTO_RICO("PR") { //$NON-NLS-1$
+	PUERTO_RICO("pr", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -6820,7 +6821,7 @@ public enum CountryCode {
 
 	/** QA.
 	 */
-	QATAR("QA") { //$NON-NLS-1$
+	QATAR("qa", 974, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6859,7 +6860,7 @@ public enum CountryCode {
 
 	/** RE.
 	 */
-	REUNION("RE") { //$NON-NLS-1$
+	REUNION("RE", 262, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -6897,7 +6898,7 @@ public enum CountryCode {
 	},
 	/** RO.
 	 */
-	ROMANIA("RO") { //$NON-NLS-1$
+	ROMANIA("ro", 40, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6935,7 +6936,7 @@ public enum CountryCode {
 	},
 	/** RU.
 	 */
-	RUSSIAN_FEDERATION("RU") { //$NON-NLS-1$
+	RUSSIAN_FEDERATION("ru", 7, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6973,7 +6974,7 @@ public enum CountryCode {
 	},
 	/** RW.
 	 */
-	RWANDA("RW") { //$NON-NLS-1$
+	RWANDA("rw", 250, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7012,7 +7013,7 @@ public enum CountryCode {
 
 	/** BL.
 	 */
-	SAINT_BARTHELEMY("BL") { //$NON-NLS-1$
+	SAINT_BARTHELEMY("bl", 590, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -7050,7 +7051,7 @@ public enum CountryCode {
 	},
 	/** SH.
 	 */
-	SAINT_HELENA("SH") { //$NON-NLS-1$
+	SAINT_HELENA("sh", 247, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7088,7 +7089,7 @@ public enum CountryCode {
 	},
 	/** KN.
 	 */
-	SAINT_KITTS_AND_NEVIS("KN") { //$NON-NLS-1$
+	SAINT_KITTS_AND_NEVIS("kn", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7126,7 +7127,7 @@ public enum CountryCode {
 	},
 	/** LC.
 	 */
-	SAINT_LUCIA("LC") { //$NON-NLS-1$
+	SAINT_LUCIA("lc", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7164,7 +7165,7 @@ public enum CountryCode {
 	},
 	/** PM.
 	 */
-	SAINT_PIERRE_AND_MIQUELON("PM") { //$NON-NLS-1$
+	SAINT_PIERRE_AND_MIQUELON("pm", 508, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -7202,7 +7203,7 @@ public enum CountryCode {
 	},
 	/** VC.
 	 */
-	SAINT_VINCENT_AND_THE_GRENADINES("VC") { //$NON-NLS-1$
+	SAINT_VINCENT_AND_THE_GRENADINES("vc", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7240,7 +7241,7 @@ public enum CountryCode {
 	},
 	/** WS.
 	 */
-	SAMOA("WS") { //$NON-NLS-1$
+	SAMOA("ws", 685, "0", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7278,7 +7279,7 @@ public enum CountryCode {
 	},
 	/** SM.
 	 */
-	SAN_MARINO("SM") { //$NON-NLS-1$
+	SAN_MARINO("sm", 378, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7316,7 +7317,7 @@ public enum CountryCode {
 	},
 	/** MF.
 	 */
-	SAINT_MARTIN_FRENCH_SIDE("MF") { //$NON-NLS-1$
+	SAINT_MARTIN_FRENCH_SIDE("mf", 590, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -7354,7 +7355,7 @@ public enum CountryCode {
 	},
 	/** ST.
 	 */
-	SAO_TOME_AND_PRINCIPE("ST") { //$NON-NLS-1$
+	SAO_TOME_AND_PRINCIPE("st", 239, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7392,7 +7393,7 @@ public enum CountryCode {
 	},
 	/** SA.
 	 */
-	SAUDI_ARABIA("SA") { //$NON-NLS-1$
+	SAUDI_ARABIA("sa", 966, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7430,7 +7431,7 @@ public enum CountryCode {
 	},
 	/** SN.
 	 */
-	SENEGAL("SN") { //$NON-NLS-1$
+	SENEGAL("sn", 221, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7468,7 +7469,7 @@ public enum CountryCode {
 	},
 	/** RS.
 	 */
-	SERBIA("RS") { //$NON-NLS-1$
+	SERBIA("rs", 381, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7506,7 +7507,7 @@ public enum CountryCode {
 	},
 	/** SC.
 	 */
-	SEYCHELLES("SC") { //$NON-NLS-1$
+	SEYCHELLES("sc", 248, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7544,7 +7545,7 @@ public enum CountryCode {
 	},
 	/** SL.
 	 */
-	SIERRA_LEONE("SL") { //$NON-NLS-1$
+	SIERRA_LEONE("sl", 232, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7582,7 +7583,7 @@ public enum CountryCode {
 	},
 	/** SG.
 	 */
-	SINGAPORE("SG") { //$NON-NLS-1$
+	SINGAPORE("sg", 65, "001.008", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7620,7 +7621,7 @@ public enum CountryCode {
 	},
 	/** SX.
 	 */
-	SINT_MAARTEN_DUTCH_SIDE("SX") { //$NON-NLS-1$
+	SINT_MAARTEN_DUTCH_SIDE("sx", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NETHERLANDS;
@@ -7658,7 +7659,7 @@ public enum CountryCode {
 	},
 	/** SK.
 	 */
-	SLOVAKIA("SK") { //$NON-NLS-1$
+	SLOVAKIA("sk", 421, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7696,7 +7697,7 @@ public enum CountryCode {
 	},
 	/** SI.
 	 */
-	SLOVENIA("SI") { //$NON-NLS-1$
+	SLOVENIA("si", 386, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7734,7 +7735,7 @@ public enum CountryCode {
 	},
 	/** SB.
 	 */
-	SOLOMON_ISLANDS("SB") { //$NON-NLS-1$
+	SOLOMON_ISLANDS("sb", 677, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7772,7 +7773,7 @@ public enum CountryCode {
 	},
 	/** SO.
 	 */
-	SOMALIA("SO") { //$NON-NLS-1$
+	SOMALIA("so", 252, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7810,7 +7811,7 @@ public enum CountryCode {
 	},
 	/** ZA.
 	 */
-	SOUTH_AFRICA("ZA") { //$NON-NLS-1$
+	SOUTH_AFRICA("za", 27, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7848,7 +7849,7 @@ public enum CountryCode {
 	},
 	/** GS.
 	 */
-	SOUTH_GEORGIA_AND_THE_SOUTH_SANDWICH_ISLANDS("GS") { //$NON-NLS-1$
+	SOUTH_GEORGIA_AND_THE_SOUTH_SANDWICH_ISLANDS("GS", 500, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7886,7 +7887,7 @@ public enum CountryCode {
 	},
 	/** ES.
 	 */
-	SPAIN("ES") { //$NON-NLS-1$
+	SPAIN("es", 34, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7924,7 +7925,7 @@ public enum CountryCode {
 	},
 	/** LK.
 	 */
-	SRI_LANKA("LK") { //$NON-NLS-1$
+	SRI_LANKA("lk", 94, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7962,7 +7963,7 @@ public enum CountryCode {
 	},
 	/** SD.
 	 */
-	SUDAN("SD") { //$NON-NLS-1$
+	SUDAN("sd", 249, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8000,7 +8001,7 @@ public enum CountryCode {
 	},
 	/** SR.
 	 */
-	SURINAME("SR") { //$NON-NLS-1$
+	SURINAME("sr", 597, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8038,7 +8039,7 @@ public enum CountryCode {
 	},
 	/** SJ.
 	 */
-	SVALBARD_AND_JAN_MAYEN("SJ") { //$NON-NLS-1$
+	SVALBARD_AND_JAN_MAYEN("sj", 47, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NORWAY;
@@ -8076,7 +8077,7 @@ public enum CountryCode {
 	},
 	/** SZ.
 	 */
-	SWAZILAND("SZ") { //$NON-NLS-1$
+	SWAZILAND("sz", 268, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8114,7 +8115,7 @@ public enum CountryCode {
 	},
 	/** SE.
 	 */
-	SWEDEN("SE") { //$NON-NLS-1$
+	SWEDEN("se", 46, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8152,7 +8153,7 @@ public enum CountryCode {
 	},
 	/** CH.
 	 */
-	SWITZERLAND("CH") { //$NON-NLS-1$
+	SWITZERLAND("ch", 41, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8190,7 +8191,7 @@ public enum CountryCode {
 	},
 	/** SY.
 	 */
-	SYRIAN_ARAB_REPUBLIC("SY") { //$NON-NLS-1$
+	SYRIAN_ARAB_REPUBLIC("sy", 963, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8229,7 +8230,7 @@ public enum CountryCode {
 
 	/** TW.
 	 */
-	TAIWAN("TW") { //$NON-NLS-1$
+	TAIWAN("tw", 886, "002", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8267,7 +8268,7 @@ public enum CountryCode {
 	},
 	/** TJ.
 	 */
-	TAJIKISTAN("TJ") { //$NON-NLS-1$
+	TAJIKISTAN("tj", 992, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8305,7 +8306,7 @@ public enum CountryCode {
 	},
 	/** TZ.
 	 */
-	TANZANIA("TZ") { //$NON-NLS-1$
+	TANZANIA("tz", 255, "000", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8343,7 +8344,7 @@ public enum CountryCode {
 	},
 	/** TH.
 	 */
-	THAILAND("TH") { //$NON-NLS-1$
+	THAILAND("th", 66, "001", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8381,7 +8382,7 @@ public enum CountryCode {
 	},
 	/** TL.
 	 */
-	TIMOR_LESTE("TL") { //$NON-NLS-1$
+	TIMOR_LESTE("tl", 670, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8419,7 +8420,7 @@ public enum CountryCode {
 	},
 	/** TG.
 	 */
-	TOGO("TG") { //$NON-NLS-1$
+	TOGO("tg", 228, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8457,7 +8458,7 @@ public enum CountryCode {
 	},
 	/** TK.
 	 */
-	TOKELAU("TK") { //$NON-NLS-1$
+	TOKELAU("tk", 690, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NEW_ZEALAND;
@@ -8495,7 +8496,7 @@ public enum CountryCode {
 	},
 	/** TO.
 	 */
-	TONGA("TO") { //$NON-NLS-1$
+	TONGA("to", 676, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8533,7 +8534,7 @@ public enum CountryCode {
 	},
 	/** TT.
 	 */
-	TRINIDAD_AND_TOBAGO("TT") { //$NON-NLS-1$
+	TRINIDAD_AND_TOBAGO("tt", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8571,7 +8572,7 @@ public enum CountryCode {
 	},
 	/** TN.
 	 */
-	TUNISIA("TN") { //$NON-NLS-1$
+	TUNISIA("tn", 216, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8609,7 +8610,7 @@ public enum CountryCode {
 	},
 	/** TR.
 	 */
-	TURKEY("TR") { //$NON-NLS-1$
+	TURKEY("tr", 90, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8647,7 +8648,7 @@ public enum CountryCode {
 	},
 	/** TM.
 	 */
-	TURKMENISTAN("TM") { //$NON-NLS-1$
+	TURKMENISTAN("tm", 993, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8685,7 +8686,7 @@ public enum CountryCode {
 	},
 	/** TC.
 	 */
-	TURKS_AND_CAICOS_ISLANDS("TC") { //$NON-NLS-1$
+	TURKS_AND_CAICOS_ISLANDS("tc", 1, "0", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -8723,7 +8724,7 @@ public enum CountryCode {
 	},
 	/** TV.
 	 */
-	TUVALU("TV") { //$NON-NLS-1$
+	TUVALU("tv", 688, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -8762,7 +8763,7 @@ public enum CountryCode {
 
 	/** UG.
 	 */
-	UGANDA("UG") { //$NON-NLS-1$
+	UGANDA("ug", 256, "000", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8800,7 +8801,7 @@ public enum CountryCode {
 	},
 	/** UA.
 	 */
-	UKRAINE("UA") { //$NON-NLS-1$
+	UKRAINE("ua", 380, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8838,7 +8839,7 @@ public enum CountryCode {
 	},
 	/** AE.
 	 */
-	UNITED_ARAB_EMIRATES("AE") { //$NON-NLS-1$
+	UNITED_ARAB_EMIRATES("ae", 971, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8876,7 +8877,7 @@ public enum CountryCode {
 	},
 	/** GB.
 	 */
-	UNITED_KINGDOM("GB") { //$NON-NLS-1$
+	UNITED_KINGDOM("gb", 44, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8914,7 +8915,7 @@ public enum CountryCode {
 	},
 	/** US.
 	 */
-	UNITED_STATES("US") { //$NON-NLS-1$
+	UNITED_STATES("us", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8950,9 +8951,9 @@ public enum CountryCode {
 			return false;
 		}
 	},
-	/** UM.
+	/** UM. TDOO
 	 */
-	UNITED_STATES_MINOR_OUTLYING_ISLANDS("UM") { //$NON-NLS-1$
+	UNITED_STATES_MINOR_OUTLYING_ISLANDS("um", 0, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -8990,7 +8991,7 @@ public enum CountryCode {
 	},
 	/** UY.
 	 */
-	URUGUAY("UY") { //$NON-NLS-1$
+	URUGUAY("uy", 598, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9028,7 +9029,7 @@ public enum CountryCode {
 	},
 	/** UZ.
 	 */
-	UZBEKISTAN("UZ") { //$NON-NLS-1$
+	UZBEKISTAN("uz", 998, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9067,7 +9068,7 @@ public enum CountryCode {
 
 	/** VU.
 	 */
-	VANUATU("VU") { //$NON-NLS-1$
+	VANUATU("vu", 678, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9105,7 +9106,7 @@ public enum CountryCode {
 	},
 	/** VA.
 	 */
-	VATICAN_CITY_STATE("VA") { //$NON-NLS-1$
+	VATICAN_CITY_STATE("va", 379, "", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9143,7 +9144,7 @@ public enum CountryCode {
 	},
 	/** VE.
 	 */
-	VENEZUELA("VE") { //$NON-NLS-1$
+	VENEZUELA("ve", 58, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9181,7 +9182,7 @@ public enum CountryCode {
 	},
 	/** VN.
 	 */
-	VIETNAM("VN") { //$NON-NLS-1$
+	VIETNAM("vn", 84, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9219,7 +9220,7 @@ public enum CountryCode {
 	},
 	/** VG.
 	 */
-	VIRGIN_ISLANDS_BRITISH_SIDE("VG") { //$NON-NLS-1$
+	VIRGIN_ISLANDS_BRITISH_SIDE("vg", 284, "011", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -9257,7 +9258,7 @@ public enum CountryCode {
 	},
 	/** VI.
 	 */
-	VIRGIN_ISLANDS_US_SIDE("VI") { //$NON-NLS-1$
+	VIRGIN_ISLANDS_US_SIDE("vi", 340, "011", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -9296,7 +9297,7 @@ public enum CountryCode {
 
 	/** WF.
 	 */
-	WALLIS_AND_FUTUNA("WF") { //$NON-NLS-1$
+	WALLIS_AND_FUTUNA("wf", 681, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -9334,7 +9335,7 @@ public enum CountryCode {
 	},
 	/** EH.
 	 */
-	WESTERN_SAHARA("EH") { //$NON-NLS-1$
+	WESTERN_SAHARA("eh", 212, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return MOROCCO;
@@ -9373,7 +9374,7 @@ public enum CountryCode {
 
 	/** Y.
 	 */
-	YEMEN("Y") { //$NON-NLS-1$
+	YEMEN("y", 967, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9412,7 +9413,7 @@ public enum CountryCode {
 
 	/** ZM.
 	 */
-	ZAMBIA("ZM") { //$NON-NLS-1$
+	ZAMBIA("zm", 260, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9450,7 +9451,7 @@ public enum CountryCode {
 	},
 	/** ZW.
 	 */
-	ZIMBABWE("ZW") { //$NON-NLS-1$
+	ZIMBABWE("zw", 263, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9489,8 +9490,74 @@ public enum CountryCode {
 
 	private final String code;
 
-	CountryCode(String isoCode) {
-		this.code = isoCode.toLowerCase();
+	private final int callingCode;
+
+	private final String internationalPhonePrefix;
+
+	private final String nationalPhonePrefix;
+
+	CountryCode(String isoCode, int callingCode, String internationalPhonePrefix, String nationalPhonePrefix) {
+		this.code = isoCode;
+		this.callingCode = callingCode;
+		this.internationalPhonePrefix = internationalPhonePrefix;
+		this.nationalPhonePrefix = nationalPhonePrefix;
+	}
+
+	/** Replies the country calling code of this country.
+	 * The country calling code is a number prefix (usually two or three digit long), which help you dial
+	 * a phone number located in another country from the one you are in. It is assigned and managed 
+	 * by International Telecommunication Union (ITU) and defined in the ITU-T ISO standards: E.123 and E.164.
+	 *
+	 * @return the country calling code, or {@code 0} if there is no code for this country.
+	 * @since 18.0
+	 * @see #getInternationalPhonePrefix()
+	 * @see #getNationalPhonePrefix()
+	 */
+	public int getCallingCode() {
+		return this.callingCode;
+	}
+
+	/** Replies the international phone prefix. It is another representation of the
+	 * {@link #getCallingCode()} country calling code} for this country.
+	 * It is the part of the phone number when it is written using its international notation,
+	 * but without the famous {@code +} sign followed by the {@link #getCallingCode() calling code}
+	 * and the rest of number.
+	 *
+	 * <p>For example, the phone number {@code 0033123456789} is a french phone number because
+	 * it has the international prefix {@code 0033} that corresponds to the calling code {@code 33}.
+	 * This number could also be written {@code +33123456789} (another international number notation}
+	 * or {@code 0123456789} (the national number notation}.
+	 *
+	 * @return the international phone prefix.
+	 * @since 18.0
+	 * @see #getCallingCode()
+	 * @see #getNationalPhonePrefix()
+	 */
+	public String getInternationalPhonePrefix() {
+		if (this.internationalPhonePrefix == null) {
+			return "00"; //$NON-NLS-1$
+		}
+		return this.internationalPhonePrefix;
+	}
+
+	/** Replies the national phone prefix for this country.
+	 * It is the part of the phone number when it is written using its national notation.
+	 *
+	 * <p>For example, the phone number {@code 0123456789} is a french phone number because
+	 * it has the national prefix {@code 0}.
+	 * This number could also be written {@code +33123456789} or {@code 0033123456789} that
+	 * are using both the international number notation.
+	 *
+	 * @return the international phone prefix.
+	 * @since 18.0
+	 * @see #getCallingCode()
+	 * @see #getInternationalPhonePrefix()
+	 */
+	public String getNationalPhonePrefix() {
+		if (this.nationalPhonePrefix == null) {
+			return "0"; //$NON-NLS-1$
+		}
+		return this.nationalPhonePrefix;
 	}
 
 	/** Replies the ISO 3166-1 code for the current country.
@@ -9505,13 +9572,34 @@ public enum CountryCode {
 	/** Replies the country code for the given locale.
 	 *
 	 * @param locale the locale.
-	 * @return the country code
+	 * @return the country code, or {@code null} if there is no country code for the locale.
 	 */
 	@Pure
 	public static CountryCode fromLocale(Locale locale) {
-		final String c = locale.getCountry();
+		if (locale != null) {
+			final String c = locale.getCountry();
+			for (final CountryCode cc : CountryCode.values()) {
+				if (cc.code.equalsIgnoreCase(c)) {
+					return cc;
+				}
+			}
+		}
+		return null;
+	}
+
+
+	/** Replies the country code for the given calling code.
+	 * This function replies the first country that has the given
+	 * calling code, in the case these is multiple country with the
+	 * same calling code.
+	 *
+	 * @param code the calling code.
+	 * @return the country code, or {@code null} if no country was found.
+	 */
+	@Pure
+	public static CountryCode fromCallingCode(int code) {
 		for (final CountryCode cc : CountryCode.values()) {
-			if (cc.code.equalsIgnoreCase(c)) {
+			if (cc.callingCode == code) {
 				return cc;
 			}
 		}

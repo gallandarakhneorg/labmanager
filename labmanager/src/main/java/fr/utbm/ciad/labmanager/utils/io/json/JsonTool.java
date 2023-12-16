@@ -362,6 +362,30 @@ public abstract class JsonTool {
 	 */
 	protected static final String GRANT_KEY = "grant"; //$NON-NLS-1$
 
+	/** Name of the field for the reference to an office phone number.
+	 *
+	 * @since 4.0
+	 */
+	protected static final String OFFICE_PHONE_NUMBER_KEY = "officePhone"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to an mobile phone number.
+	 *
+	 * @since 4.0
+	 */
+	protected static final String MOBILE_PHONE_NUMBER_KEY = "mobilePhone"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to country code.
+	 *
+	 * @since 4.0
+	 */
+	protected static final String COUNTRY_KEY = "country"; //$NON-NLS-1$
+
+	/** Name of the field for the reference to number.
+	 *
+	 * @since 4.0
+	 */
+	protected static final String NUMBER_KEY = "number"; //$NON-NLS-1$
+
 	/** Name of the field for the reference to a coordinator organization.
 	 *
 	 * @since 3.0

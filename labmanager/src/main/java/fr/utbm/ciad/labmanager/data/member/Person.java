@@ -44,6 +44,7 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
+import fr.utbm.ciad.labmanager.data.PhoneNumberJPAConverter;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipComparator;
@@ -52,8 +53,10 @@ import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils.CachedGenerator;
+import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -100,7 +103,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	/** Base URL for github pictures.
 	 */
 	public static final String GITHUB_AVATAR_URL = "https://avatars.githubusercontent.com/"; //$NON-NLS-1$
-	
+
 	/** HTML query parameter name for specifying the size of an avatar on Github.
 	 */
 	public static final String GITHUB_AVATAR_SIZE_PARAM = "s"; //$NON-NLS-1$
@@ -108,7 +111,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	/** Base URL for Google scholar pictures.
 	 */
 	public static final String GOOGLE_SCHOLAR_AVATAR_URL = "https://scholar.googleusercontent.com/citations?view_op=view_photo&user="; //$NON-NLS-1$
-	
+
 	/** HTML query parameter name for specifying the size of an avatar on Google Scholar.
 	 */
 	public static final String GOOGLE_SCHOLAR_AVATAR_SIZE_PARAM = "s"; //$NON-NLS-1$
@@ -231,13 +234,15 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	/** Office phone number, using the international prefix if possible.
 	 */
-	@Column(length = EntityUtils.VERY_SMALL_TEXT_SIZE)
-	private String officePhone;
+	@Column
+	@Convert(converter = PhoneNumberJPAConverter.class)
+	private PhoneNumber officePhone;
 
 	/** Mobile phone number, using the international prefix if possible.
 	 */
-	@Column(length = EntityUtils.VERY_SMALL_TEXT_SIZE)
-	private String mobilePhone;
+	@Column
+	@Convert(converter = PhoneNumberJPAConverter.class)
+	private PhoneNumber mobilePhone;
 
 	/** Number of the office room.
 	 */
@@ -581,12 +586,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (!Strings.isNullOrEmpty(getLinkedInId())) {
 			consumer.accept("linkedInId", getLinkedInId()); //$NON-NLS-1$
 		}
-		if (!Strings.isNullOrEmpty(getMobilePhone())) {
-			consumer.accept("mobilePhone", getMobilePhone()); //$NON-NLS-1$
-		}
-		if (!Strings.isNullOrEmpty(getOfficePhone())) {
-			consumer.accept("officePhone", getOfficePhone()); //$NON-NLS-1$
-		}
 		if (!Strings.isNullOrEmpty(getOfficeRoom())) {
 			consumer.accept("officeRoom", getOfficeRoom()); //$NON-NLS-1$
 		}
@@ -637,6 +636,12 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		}
 		if (getWebPageURI() != null) {
 			consumer.accept("webPageURI", getWebPageURI()); //$NON-NLS-1$
+		}
+		if (getMobilePhone() != null) {
+			consumer.accept("mobilePhone", getMobilePhone()); //$NON-NLS-1$
+		}
+		if (getOfficePhone() != null) {
+			consumer.accept("officePhone", getOfficePhone()); //$NON-NLS-1$
 		}
 		consumer.accept("validated", Boolean.valueOf(isValidated())); //$NON-NLS-1$
 	}
@@ -1742,7 +1747,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @return the number.
 	 */
-	public String getOfficePhone() {
+	public PhoneNumber getOfficePhone() {
 		return this.officePhone;
 	}
 
@@ -1751,8 +1756,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @param number the number.
 	 */
-	public void setOfficePhone(String number) {
-		this.officePhone = Strings.emptyToNull(number);
+	public void setOfficePhone(PhoneNumber number) {
+		this.officePhone = number;
 	}
 
 	/** Replies the mobile phone number of the person. This phone number is supposed to follows the international
@@ -1760,7 +1765,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @return the number.
 	 */
-	public String getMobilePhone() {
+	public PhoneNumber getMobilePhone() {
 		return this.mobilePhone;
 	}
 
@@ -1769,8 +1774,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @param number the number.
 	 */
-	public void setMobilePhone(String number) {
-		this.mobilePhone = Strings.emptyToNull(number);
+	public void setMobilePhone(PhoneNumber number) {
+		this.mobilePhone = number;
 	}
 
 	/** Replies the office room's number of the person.

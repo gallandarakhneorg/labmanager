@@ -79,6 +79,7 @@ import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
+import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -456,6 +457,11 @@ public class DatabaseToJsonExporter extends JsonTool {
 				final String id = PERSON_ID_PREFIX + i;
 				exportObject(jsonPerson, id, person, jsonPerson, null);
 
+				// Phone numbers must be added explicitly because the "exportObject" function
+				// ignore the getter functions for all.
+				exportPhoneNumber(jsonPerson, OFFICE_PHONE_NUMBER_KEY, person.getOfficePhone());
+				exportPhoneNumber(jsonPerson, MOBILE_PHONE_NUMBER_KEY, person.getMobilePhone());
+				
 				if (jsonPerson.size() > 0) {
 					repository.put(person, id);
 					array.add(jsonPerson);
@@ -465,6 +471,24 @@ public class DatabaseToJsonExporter extends JsonTool {
 			if (array.size() > 0) {
 				root.set(PERSONS_SECTION, array);
 			}
+		}
+	}
+
+	/** Export a phone number.
+	 *
+	 * @param receiver the receiver of the phone number.
+	 * @param key the name of the JSON key to create.
+	 * @param number the phone number to export.
+	 */
+	@SuppressWarnings("static-method")
+	protected void exportPhoneNumber(ObjectNode receiver, String key, PhoneNumber number) {
+		if (number != null) {
+			ObjectNode numberNode = receiver.putObject(key);
+			Object country = convertValue(number.getCountry());
+			if (country != null) {
+				numberNode.put(COUNTRY_KEY, country.toString());
+			}
+			numberNode.put(NUMBER_KEY, number.getLocalNumber());
 		}
 	}
 

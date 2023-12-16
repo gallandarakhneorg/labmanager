@@ -54,6 +54,7 @@ import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform.WebOfSciencePerson;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameComparator;
 import fr.utbm.ciad.labmanager.utils.names.PersonNameParser;
+import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
@@ -297,8 +298,8 @@ public class PersonService extends AbstractService {
 	 * @see #createPerson(String, String)
 	 * @see Gender
 	 */
-	public Person createPerson(boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
-			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId,
+	public Person createPerson(boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
+			PhoneNumber mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId,
 			String scholarId, String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId,
 			String dblpURL, String academiaURL, String cordisURL, WebPageNaming webPageNaming,
 			int scholarHindex, int wosHindex, int scopusHindex, int scholarCitations, int wosCitations, int scopusCitations) {
@@ -370,8 +371,8 @@ public class PersonService extends AbstractService {
 	 * @param scopusCitations the number of citations for the person on Scopus.
 	 * @return the updated person.
 	 */
-	public Person updatePerson(int identifier, boolean validated, String firstName, String lastName, Gender gender, String email, String officePhone,
-			String mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId, String scholarId,
+	public Person updatePerson(int identifier, boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
+			PhoneNumber mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId, String scholarId,
 			String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId, String dblpURL,
 			String academiaURL, String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex, int scopusHindex,
 			int scholarCitations, int wosCitations, int scopusCitations) {
@@ -420,8 +421,10 @@ public class PersonService extends AbstractService {
 	/** Remove the person with the given identifier from the database.
 	 *
 	 * @param identifier the identifier of the person in the database.
+	 * @return the removed person, disconnected from the JPA infrastructure; or {@code null} if
+	 *     the identifier does not correspond to a person.
 	 */
-	public void removePerson(int identifier) {
+	public Person removePerson(int identifier) {
 		final Integer id = Integer.valueOf(identifier);
 		final Optional<Person> optPerson = this.personRepository.findById(id);
 		if (optPerson.isPresent()) {
@@ -447,10 +450,12 @@ public class PersonService extends AbstractService {
 				}
 				this.publicationRepository.save(publication);
 			}
-			// membership and autorship are deleted by cascade
+			// membership and authorship are deleted by cascade
 			person.deleteAllAuthorships();
 			this.personRepository.deleteById(id);
+			return person;
 		}
+		return null;
 	}
 
 	/** Replies the database identifier for the person with the last name and first name.

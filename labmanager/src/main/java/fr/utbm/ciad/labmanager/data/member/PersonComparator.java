@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.member;
 import java.util.Comparator;
 
 import fr.utbm.ciad.labmanager.utils.Comparators;
+import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -60,11 +61,11 @@ public class PersonComparator implements Comparator<Person> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = StringUtils.compare(o1.getOfficePhone(), o2.getOfficePhone());
+		cmp = comparePhones(o1.getOfficePhone(), o2.getOfficePhone());
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = StringUtils.compare(o1.getMobilePhone(), o2.getMobilePhone());
+		cmp = comparePhones(o1.getMobilePhone(), o2.getMobilePhone());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -157,6 +158,13 @@ public class PersonComparator implements Comparator<Person> {
 			return cmp;
 		}
 		return Integer.compare(o1.getId(), o2.getId());
+	}
+
+	private static int comparePhones(PhoneNumber p1, PhoneNumber p2) {
+		if (p1 == null) {
+			return Integer.MIN_VALUE;
+		}
+		return p1.compareTo(p2);
 	}
 
 }
