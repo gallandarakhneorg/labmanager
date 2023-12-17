@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.appviews.persons;
+package fr.utbm.ciad.labmanager.views.components.persons;
 
 import static fr.utbm.ciad.labmanager.views.ViewConstants.ACADEMIA_EDU_BASE_URL;
 import static fr.utbm.ciad.labmanager.views.ViewConstants.ACADEMIA_EDU_ICON;
@@ -38,12 +38,11 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.WOS_ICON;
 
 import java.net.URL;
 
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
@@ -58,7 +57,6 @@ import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
-import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.IntegerField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -85,9 +83,8 @@ import fr.utbm.ciad.labmanager.views.components.validators.OrcidValidator;
 import fr.utbm.ciad.labmanager.views.components.validators.UrlValidator;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
-/** Abstract implementation for the information related to a person.
+/** Abstract implementation for the editor of the information related to a person.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -96,7 +93,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @since 4.0
  */
 @Uses(Icon.class)
-public abstract class AbstractPersonEditorView extends Composite<VerticalLayout> implements LocaleChangeObserver {
+public abstract class AbstractPersonEditor extends Composite<VerticalLayout> implements LocaleChangeObserver {
 
 	private static final long serialVersionUID = 6088942935576032576L;
 	
@@ -172,10 +169,6 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 
 	private Details administrationDetails;
 
-	private Button saveButton;
-
-	private Button validateButton;
-
 	private ComboBox<WebPageNaming> webpageConvention;
 
 	private Checkbox validatedPerson;
@@ -187,13 +180,12 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 	/** Constructor.
 	 *
 	 * @param person the person to edit, never {@code null}.
-	 * @param personService the service for accessing to the person. If it is {@code null},
-	 *     the function {@link #doSave(Person)} will be invoked; otherwise the repository will be invoked.
+	 * @param personService the service for accessing to the person.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractPersonEditorView(Person person, PersonService personService, AuthenticatedUser authenticatedUser,
+	public AbstractPersonEditor(Person person, PersonService personService, AuthenticatedUser authenticatedUser,
 			MessageSourceAccessor messages, Logger logger) {
 		assert person != null;
 
@@ -201,54 +193,33 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 		this.editedPerson = person;
 		this.logger = logger;
 		this.authenticatedUser = authenticatedUser;
-		
-		final VerticalLayout rootContainer = getContent();
-		rootContainer.setSpacing(true);
+
+		final boolean isAdmin = this.authenticatedUser != null && this.authenticatedUser.get().isPresent()
+				&& this.authenticatedUser.get().get().getRole() == UserRole.ADMIN;
+
+		createContent(getContent(), isAdmin, personService);
+	}
+
+	/** Create the content of the editor.
+	 *
+	 * @param rootContainer the container.
+	 * @param isAdmin indicates if the user has the administrator role.
+	 * @param personService the service for accessing to the person.
+	 */
+	protected void createContent(VerticalLayout rootContainer, boolean isAdmin, PersonService personService) {
+		rootContainer.setSpacing(false);
 
 		createPersonalInformationComponents(rootContainer);
 		createContactInformationComponents(rootContainer);
 		createResearcherIdsComponents(rootContainer);
 		createIndexesComponents(rootContainer);
 		createSocialLinksComponents(rootContainer);
-
-		final boolean isAdmin = this.authenticatedUser != null && this.authenticatedUser.get().isPresent()
-				&& this.authenticatedUser.get().get().getRole() == UserRole.ADMIN;
 		
 		if (isAdmin) {
 			createAdministrationComponents(rootContainer);
 		}
 
-		this.binder.setBean(person);
-		
-		final HorizontalLayout bar = new HorizontalLayout();
-		rootContainer.add(bar);
-		
-		this.saveButton = new Button("", event -> { //$NON-NLS-1$
-			if (this.binder.validate().isOk()) {
-				doSave(this.editedPerson, personService);
-			} else {
-				notifyInvalidity();
-			}
-		});
-		this.saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		this.saveButton.addClickShortcut(Key.ENTER);
-		this.saveButton.setIcon(LineAwesomeIcon.SAVE_SOLID.create());
-		bar.add(this.saveButton);
-
-		this.validateButton = null;
-		if (isAdmin) {
-			this.validateButton = new Button("", event -> { //$NON-NLS-1$
-				doValidate(this.editedPerson);
-				if (this.binder.validate().isOk()) {
-					doSave(this.editedPerson, personService);
-				} else {
-					notifyInvalidity();
-				}
-			});
-			this.validateButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-			this.validateButton.setIcon(LineAwesomeIcon.CHECK_DOUBLE_SOLID.create());
-			bar.add(this.validateButton);
-		}
+		this.binder.setBean(getEditedPerson());
 	}
 	
 	/** Replies the person which is shown and edited by this view.
@@ -259,6 +230,14 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 		return this.editedPerson;
 	}
 
+	/** Replies the binder of data to the fields.
+	 *
+	 * @return the binder.
+	 */
+	protected Binder<Person> getDataBinder() {
+		return this.binder;
+	}
+
 	/** Invoked for saving the person. This function must be overridden by the child class that need to do a specific
 	 * saving process. 
 	 *
@@ -266,8 +245,9 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 	 *     the default implementation does nothing. This function must be overridden to save the person
 	 *     without a repository.
 	 * @param person the person to save.
+	 * @return {@code true} if the saving was a success.
 	 */
-	protected void doSave(Person person, PersonService personService) {
+	protected boolean doSave(Person person, PersonService personService) {
 		if (personService != null) {
 			try {
 				personService.save(person);
@@ -278,10 +258,12 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 					}
 				}
 				notifySaved();
+				return true;
 			} catch (Throwable ex) {
 				notifySavingError(ex);
 			}
 		}
+		return false;
 	}
 
 	/** Invoked for validating the person. This function does not save.
@@ -301,8 +283,13 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 
 	/** Notify the user that its personal information has changed.
 	 */
+	@SuppressWarnings("static-method")
 	protected void notifyAuthenticatedUserChange() {
-		final UserIdentityChangedObserver app = findAncestor(UserIdentityChangedObserver.class);
+		UserIdentityChangedObserver app = null;
+		final Component view = UI.getCurrent().getCurrentView();
+		if (view != null) {
+			app = view.findAncestor(UserIdentityChangedObserver.class);
+		}
 		if (app != null) {
 			app.authenticatedUserIdentityChange();
 		}
@@ -789,9 +776,6 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 		this.webpageConvention.setLabel(getTranslation("views.persons.administration.webpage_naming")); //$NON-NLS-1$
 		this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
 		this.validatedPerson.setLabel(getTranslation("views.persons.administration.validated_person")); //$NON-NLS-1$
-
-		this.saveButton.setText(getTranslation("views.save")); //$NON-NLS-1$
-		this.validateButton.setText(getTranslation("views.validate")); //$NON-NLS-1$
 	}
 
 }

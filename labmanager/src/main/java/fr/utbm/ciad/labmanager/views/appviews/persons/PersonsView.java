@@ -21,13 +21,18 @@ package fr.utbm.ciad.labmanager.views.appviews.persons;
 
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.persons.AbstractPersonListView;
 import jakarta.annotation.security.PermitAll;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** List all the persons.
  * 
@@ -43,6 +48,8 @@ public class PersonsView extends AbstractPersonListView implements HasDynamicTit
 
 	private static final long serialVersionUID = 1616874715478139507L;
 
+	private static final Logger LOGGER = LoggerFactory.getLogger(PersonsView.class);
+
 	/** Constructor.
 	 *
 	 * @param constants the constants of the application.
@@ -50,11 +57,15 @@ public class PersonsView extends AbstractPersonListView implements HasDynamicTit
 	 * @param membershipService the service for accessing the membership JPA.
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
 	 *     the memberships are sorted in reverse chronological order first.
+	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param authenticatedUser the connected user.
 	 */
     public PersonsView(@Autowired  Constants constants, @Autowired PersonService personService,
-    		@Autowired MembershipService membershipService, @Autowired ChronoMembershipComparator membershipComparator) {
+    		@Autowired MembershipService membershipService, @Autowired ChronoMembershipComparator membershipComparator,
+    		@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages) {
     	super(constants, personService, membershipService, membershipComparator,
-    			(ps, query, filters) -> ps.getAllPersons(query, filters));
+    			(ps, query, filters) -> ps.getAllPersons(query, filters),
+    			authenticatedUser, messages, LOGGER);
     }
 
 	@Override

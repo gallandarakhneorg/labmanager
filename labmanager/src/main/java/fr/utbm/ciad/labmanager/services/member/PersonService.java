@@ -66,6 +66,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Service for managing the persons.
  * 
@@ -201,6 +202,7 @@ public class PersonService extends AbstractService {
 	 * @return all the persons.
 	 * @since 4.0
 	 */
+	@Transactional(readOnly = true)
 	public Page<Person> getAllPersons(Pageable pageable, Specification<Person> filter) {
 		return this.personRepository.findAll(filter, pageable);
 	}
@@ -425,6 +427,7 @@ public class PersonService extends AbstractService {
 	 * @return the removed person, disconnected from the JPA infrastructure; or {@code null} if
 	 *     the identifier does not correspond to a person.
 	 */
+	@Transactional
 	public Person removePerson(int identifier) {
 		final Integer id = Integer.valueOf(identifier);
 		final Optional<Person> optPerson = this.personRepository.findById(id);
@@ -451,8 +454,8 @@ public class PersonService extends AbstractService {
 				}
 				this.publicationRepository.save(publication);
 			}
-			// membership and authorship are deleted by cascade
 			person.deleteAllAuthorships();
+			this.personRepository.save(person);
 			this.personRepository.deleteById(id);
 			return person;
 		}

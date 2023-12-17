@@ -66,7 +66,6 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.transaction.Transactional;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Represent a person.
@@ -1040,7 +1039,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @param pub is the publication authorship.
 	 */
-	@Transactional
 	public void deleteAuthorship(Authorship pub) {
 		if (this.authorships != null) {
 			this.authorships.remove(pub);
@@ -1049,7 +1047,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	/** Delete all the publications for the person.
 	 */
-	@Transactional
 	public void deleteAllAuthorships() {
 		if (this.authorships != null) {
 			this.authorships.clear();
