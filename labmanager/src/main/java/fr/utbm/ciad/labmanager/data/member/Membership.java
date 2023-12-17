@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
@@ -49,6 +50,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Relation between a person and a research organization.
  * 
@@ -253,15 +255,8 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		return EntityUtils.getPreferredMembershipComparator().compare(this, o);
 	}
 
-	/** {@inheritDoc}
-	 * <p>The attributes that are not considered by this function are:<ul>
-	 * <li>{@code id}</li>
-	 * <li>{@code person}</li>
-	 * <li>{@code researchOrganization}</li>
-	 * </ul>
-	 */
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getCnuSection() != null) {
 			consumer.accept("cnuSection", Integer.valueOf(getCnuSection().getNumber())); //$NON-NLS-1$
 		}
@@ -806,11 +801,13 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	/** Replies the short description of this membership. It is composed of the status, organization and dates.
 	 * This short description is usually used in the form for describing the membership.
 	 *
+	 * @param messages the accessor to the localized labels.
+	 * @param locale the locale to use for generating the labels.
 	 * @return the short description of the membership.
 	 */
-	public String getShortDescription() {
+	public String getShortDescription(MessageSourceAccessor messages, Locale locale) {
 		final StringBuilder b = new StringBuilder();
-		b.append(getMemberStatus().getLabel(getPerson().getGender()));
+		b.append(getMemberStatus().getLabel(messages, getPerson().getGender(), false, locale));
 		b.append(" - ").append(getResearchOrganization().getAcronymOrName()); //$NON-NLS-1$
 		b.append(" ["); //$NON-NLS-1$
 		if (getMemberSinceWhen() != null && getMemberToWhen() != null) {

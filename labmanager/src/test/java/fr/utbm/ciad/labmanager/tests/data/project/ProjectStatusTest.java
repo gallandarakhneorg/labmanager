@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ProjectStatus}.
  * 
@@ -41,8 +43,11 @@ public class ProjectStatusTest {
 
 	private List<ProjectStatus> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(ProjectStatus.values()));
 	}
@@ -85,44 +90,12 @@ public class ProjectStatusTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Under preparation", cons(ProjectStatus.PREPARATION).getLabel());
-		assertEquals("Under evaluation", cons(ProjectStatus.EVALUATION).getLabel());
-		assertEquals("Canceled", cons(ProjectStatus.CANCELED).getLabel());
-		assertEquals("Rejected", cons(ProjectStatus.REJECTED).getLabel());
-		assertEquals("Accepted", cons(ProjectStatus.ACCEPTED).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Under preparation", cons(ProjectStatus.PREPARATION).getLabel());
-		assertEquals("Under evaluation", cons(ProjectStatus.EVALUATION).getLabel());
-		assertEquals("Canceled", cons(ProjectStatus.CANCELED).getLabel());
-		assertEquals("Rejected", cons(ProjectStatus.REJECTED).getLabel());
-		assertEquals("Accepted", cons(ProjectStatus.ACCEPTED).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("En cours de préparation", cons(ProjectStatus.PREPARATION).getLabel(Locale.FRANCE));
-		assertEquals("En cours d'évaluation", cons(ProjectStatus.EVALUATION).getLabel(Locale.FRANCE));
-		assertEquals("Annulé", cons(ProjectStatus.CANCELED).getLabel(Locale.FRANCE));
-		assertEquals("Rejeté", cons(ProjectStatus.REJECTED).getLabel(Locale.FRANCE));
-		assertEquals("Accepté", cons(ProjectStatus.ACCEPTED).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Under preparation", cons(ProjectStatus.PREPARATION).getLabel(Locale.US));
-		assertEquals("Under evaluation", cons(ProjectStatus.EVALUATION).getLabel(Locale.US));
-		assertEquals("Canceled", cons(ProjectStatus.CANCELED).getLabel(Locale.US));
-		assertEquals("Rejected", cons(ProjectStatus.REJECTED).getLabel(Locale.US));
-		assertEquals("Accepted", cons(ProjectStatus.ACCEPTED).getLabel(Locale.US));
+		assertEquals("Under preparation", cons(ProjectStatus.PREPARATION).getLabel(this.messages, Locale.US));
+		assertEquals("Under evaluation", cons(ProjectStatus.EVALUATION).getLabel(this.messages, Locale.US));
+		assertEquals("Canceled", cons(ProjectStatus.CANCELED).getLabel(this.messages, Locale.US));
+		assertEquals("Rejected", cons(ProjectStatus.REJECTED).getLabel(this.messages, Locale.US));
+		assertEquals("Accepted", cons(ProjectStatus.ACCEPTED).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

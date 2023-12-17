@@ -27,6 +27,7 @@ import java.io.FileOutputStream;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
@@ -71,7 +72,7 @@ public class CiadHtmlPageExporterTest {
 
 	@BeforeEach
 	public void setUp() throws Exception {
-		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.doiTools = mock(DoiTools.class);
 		when(this.doiTools.getDOIUrlFromDOINumber(any())).thenReturn(new URL("https://doi.org/XXX"));
 		this.halTools = mock(HalTools.class);
@@ -81,7 +82,7 @@ public class CiadHtmlPageExporterTest {
 
 	@Test
 	public void exportPublications_Iterable_null() throws Exception {
-		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null)));
+		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null, Locale.US)));
 	}
 
 	@Test
@@ -169,7 +170,7 @@ public class CiadHtmlPageExporterTest {
 
 		when(a1.getMemberships()).thenReturn(Collections.singleton(m1));
 
-		ExporterConfigurator configurator = new ExporterConfigurator(null);
+		ExporterConfigurator configurator = new ExporterConfigurator(null, Locale.US);
 
 		String content = this.test.exportPublications(Arrays.asList(p0, p1, p2), configurator);
 

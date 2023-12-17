@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.data.project;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.google.common.base.Strings;
@@ -37,6 +38,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Description of a specific budget for a project.
  * 
@@ -118,7 +120,7 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getBudget() > 0f) {
 			consumer.accept("budget", Float.valueOf(getBudget())); //$NON-NLS-1$
 		}

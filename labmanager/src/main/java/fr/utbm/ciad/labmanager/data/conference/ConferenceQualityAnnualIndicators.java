@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.data.conference;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,6 +38,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** History of the quality indicators for a conference.
  * 
@@ -124,7 +126,7 @@ public class ConferenceQualityAnnualIndicators implements Serializable, Attribut
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getCoreIndex() != null) {
 			consumer.accept("coreIndex", getCoreIndex()); //$NON-NLS-1$
 		}

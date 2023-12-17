@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -80,6 +81,7 @@ import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
 /** Utilities for RIS based on the Kris library.
@@ -124,6 +126,7 @@ public class KrisRIS extends AbstractRIS {
 
 	/** Constructor. This constructor is ready for injection.
 	 *
+	 * @param messages the accessor to the localized strings.
 	 * @param prePublicationFactory the factory of pre-publications.
 	 * @param journalService the service for accessing the journals.
 	 * @param conferenceService the service for accessing the conferences.
@@ -140,6 +143,7 @@ public class KrisRIS extends AbstractRIS {
 	 * @param doiTools the service for manipulating DOI.
 	 */
 	public KrisRIS(
+			@Autowired MessageSourceAccessor messages,
 			@Autowired PrePublicationFactory prePublicationFactory,
 			@Autowired JournalService journalService,
 			@Autowired ConferenceService conferenceService,
@@ -154,6 +158,7 @@ public class KrisRIS extends AbstractRIS {
 			@Autowired KeyNoteService keyNoteService,
 			@Autowired JournalEditionService journalEditionService,
 			@Autowired DoiTools doiTools) {
+		super(messages);
 		this.prePublicationFactory = prePublicationFactory;
 		this.journalService = journalService;
 		this.journalPaperService = journalPaperService;
@@ -177,24 +182,25 @@ public class KrisRIS extends AbstractRIS {
 		final Iterator<? extends Publication> iterator = publications.iterator();
 		while (iterator.hasNext()) {
 			final Publication publication = iterator.next();
-			exportPublication(publication, records);
+			exportPublication(configurator.getLocale(), publication, records);
 		}
 		KRisIO.export(records, output);
 	}
 
 	/** Export a single publication to RIS record.
 	 * 
+	 * @param locale the locale to use for the export.
 	 * @param publication the publication to export.
 	 * @param records the receiver of the new record.
 	 */
-	protected void exportPublication(Publication publication, List<RisRecord> records) {
+	protected void exportPublication(Locale locale, Publication publication, List<RisRecord> records) {
 		RisRecord record = null;
 		switch (publication.getType()) {
 		case INTERNATIONAL_JOURNAL_PAPER:
 		case INTERNATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE:
 		case NATIONAL_JOURNAL_PAPER:
 		case NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE:
-			record = createRecord((JournalPaper) publication, RisType.JOUR);
+			record = createRecord((JournalPaper) publication, RisType.JOUR, locale);
 			break;
 		case INTERNATIONAL_CONFERENCE_PAPER:
 		case NATIONAL_CONFERENCE_PAPER:
@@ -202,60 +208,60 @@ public class KrisRIS extends AbstractRIS {
 		case NATIONAL_ORAL_COMMUNICATION:
 		case INTERNATIONAL_POSTER:
 		case NATIONAL_POSTER:
-			record = createRecord((ConferencePaper) publication);
+			record = createRecord((ConferencePaper) publication, locale);
 			break;
 		case INTERNATIONAL_BOOK:
 		case NATIONAL_BOOK:
 		case SCIENTIFIC_CULTURE_BOOK:
-			record = createRecord((Book) publication);
+			record = createRecord((Book) publication, locale);
 			break;
 		case INTERNATIONAL_BOOK_CHAPTER:
 		case NATIONAL_BOOK_CHAPTER:
 		case SCIENTIFIC_CULTURE_BOOK_CHAPTER:
-			record = createRecord((BookChapter) publication);
+			record = createRecord((BookChapter) publication, locale);
 			break;
 		case HDR_THESIS:
 		case PHD_THESIS:
 		case MASTER_THESIS:
-			record = createRecord((Thesis) publication);
+			record = createRecord((Thesis) publication, locale);
 			break;
 		case INTERNATIONAL_JOURNAL_EDITION:
 		case NATIONAL_JOURNAL_EDITION:
-			record = createRecord((JournalEdition) publication);
+			record = createRecord((JournalEdition) publication, locale);
 			break;
 		case INTERNATIONAL_KEYNOTE:
 		case NATIONAL_KEYNOTE:
-			record = createRecord((KeyNote) publication);
+			record = createRecord((KeyNote) publication, locale);
 			break;
 		case TECHNICAL_REPORT:
 		case PROJECT_REPORT:
 		case RESEARCH_TRANSFERT_REPORT:
 		case TEACHING_DOCUMENT:
 		case TUTORIAL_DOCUMENTATION:
-			record = createRecord((Report) publication);
+			record = createRecord((Report) publication, locale);
 			break;
 		case INTERNATIONAL_PATENT:
 		case EUROPEAN_PATENT:
 		case NATIONAL_PATENT:
-			record = createRecord((Patent) publication);
+			record = createRecord((Patent) publication, locale);
 			break;
 		case SCIENTIFIC_CULTURE_PAPER:
-			record = createRecord((JournalPaper) publication, RisType.MGZN);
+			record = createRecord((JournalPaper) publication, RisType.MGZN, locale);
 			break;
 		case ARTISTIC_PRODUCTION:
-			record = createRecord((MiscDocument) publication, RisType.ART);
+			record = createRecord((MiscDocument) publication, RisType.ART, locale);
 			break;
 		case RESEARCH_TOOL:
-			record = createRecord((MiscDocument) publication, RisType.COMP);
+			record = createRecord((MiscDocument) publication, RisType.COMP, locale);
 			break;
 		case INTERNATIONAL_PRESENTATION:
 		case NATIONAL_PRESENTATION:
 		case INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
 		case NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
-			record = createRecord((MiscDocument) publication, RisType.PCOMM);
+			record = createRecord((MiscDocument) publication, RisType.PCOMM, locale);
 			break;
 		case OTHER:
-			record = createRecord((MiscDocument) publication, RisType.GEN);
+			record = createRecord((MiscDocument) publication, RisType.GEN, locale);
 			break;
 		default:
 			throw new IllegalArgumentException("Unsupported publication type for export: " + publication.getType()); //$NON-NLS-1$
@@ -270,10 +276,10 @@ public class KrisRIS extends AbstractRIS {
 	 * @param risType the type of the record.
 	 * @param publication the publication to export.
 	 * @param insertIssnIsbn indicates if the ISBN/ISSN number should be inserted.
+	 * @param locale the lcoale to use for the export.
 	 * @return the record builder.
 	 */
-	@SuppressWarnings("static-method")
-	protected RisRecord.Builder createStandardRecord(RisType risType, Publication publication, boolean insertIssnIsbn) {
+	protected RisRecord.Builder createStandardRecord(RisType risType, Publication publication, boolean insertIssnIsbn, Locale locale) {
 		final List<String> authors = publication.getAuthors().stream()
 				.map(it -> it.getLastName() + ", " + it.getFirstName()) //$NON-NLS-1$
 				.collect(Collectors.toList());
@@ -290,23 +296,17 @@ public class KrisRIS extends AbstractRIS {
 		final PublicationType type = publication.getType();
 		final PublicationCategory cat = publication.getCategory();
 		// Force the Java locale to get the text that is corresponding to the language of the paper
-		final java.util.Locale loc = java.util.Locale.getDefault();
 		final String publicationType;
 		final String publicationTypeName;
-		try {
-			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
-			if (cat != null) {
-				publicationType = cat.name();
-				publicationTypeName = cat.getLabel();
-			} else if (type != null) {
-				publicationType = type.name();
-				publicationTypeName = type.getLabel();
-			} else {
-				publicationType = null;
-				publicationTypeName = null;
-			}
-		} finally {
-			java.util.Locale.setDefault(loc);
+		if (cat != null) {
+			publicationType = cat.name();
+			publicationTypeName = cat.getLabel(getMessageSourceAccessor(), locale);
+		} else if (type != null) {
+			publicationType = type.name();
+			publicationTypeName = type.getLabel(getMessageSourceAccessor(), locale);
+		} else {
+			publicationType = null;
+			publicationTypeName = null;
 		}
 		RisRecord.Builder builder = new RisRecord.Builder()
 				.type(risType)
@@ -333,10 +333,11 @@ public class KrisRIS extends AbstractRIS {
 	 *
 	 * @param publication the publication to export.
 	 * @param risType the type of paper.
+	 * @param locale the locale to use for the export.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(JournalPaper publication, RisType risType) {
-		RisRecord.Builder builder = createStandardRecord(risType, publication, false);
+	protected RisRecord createRecord(JournalPaper publication, RisType risType, Locale locale) {
+		RisRecord.Builder builder = createStandardRecord(risType, publication, false, locale);
 		final Journal journal = publication.getJournal();
 		if (journal != null) {
 			final String isbnissn = Arrays.asList(journal.getISBN(), journal.getISSN()).stream()
@@ -372,8 +373,8 @@ public class KrisRIS extends AbstractRIS {
 	 * @param publication the publication to export.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(ConferencePaper publication) {
-		RisRecord.Builder builder = createStandardRecord(RisType.CPAPER, publication, false);
+	protected RisRecord createRecord(ConferencePaper publication, Locale locale) {
+		RisRecord.Builder builder = createStandardRecord(RisType.CPAPER, publication, false, locale);
 		final Conference conference = publication.getConference();
 		if (conference != null) {
 			final String isbnissn = Arrays.asList(conference.getISBN(), conference.getISSN()).stream()
@@ -406,8 +407,8 @@ public class KrisRIS extends AbstractRIS {
 	 * @param publication the publication to export.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(Book publication) {
-		RisRecord.Builder builder = createStandardRecord(RisType.BOOK, publication, true)
+	protected RisRecord createRecord(Book publication, Locale locale) {
+		RisRecord.Builder builder = createStandardRecord(RisType.BOOK, publication, true, locale)
 				.publisher(publication.getPublisher())
 				.publishingPlace(publication.getAddress())
 				.editor(publication.getEditors())
@@ -427,8 +428,8 @@ public class KrisRIS extends AbstractRIS {
 	 * @param publication the publication to export.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(BookChapter publication) {
-		RisRecord.Builder builder = createStandardRecord(RisType.CHAP, publication, true)
+	protected RisRecord createRecord(BookChapter publication, Locale locale) {
+		RisRecord.Builder builder = createStandardRecord(RisType.CHAP, publication, true, locale)
 				.secondaryTitle(publication.getBookTitle())
 				.section(publication.getChapterNumber())
 				.publisher(publication.getPublisher())
@@ -450,17 +451,9 @@ public class KrisRIS extends AbstractRIS {
 	 * @param publication the publication to export.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(Thesis publication) {
-		// Force the Java locale to get the text that is corresponding to the language of the paper
-		final java.util.Locale loc = java.util.Locale.getDefault();
-		final String thesisType;
-		try {
-			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
-			thesisType = publication.getType().getLabel();
-		} finally {
-			java.util.Locale.setDefault(loc);
-		}
-		final RisRecord.Builder builder = createStandardRecord(RisType.THES, publication, true)
+	protected RisRecord createRecord(Thesis publication, Locale locale) {
+		final String thesisType = publication.getType().getLabel(getMessageSourceAccessor(), locale);
+		final RisRecord.Builder builder = createStandardRecord(RisType.THES, publication, true, locale)
 				.publisher(publication.getInstitution())
 				.publishingPlace(publication.getAddress())
 				.custom3(thesisType);
@@ -472,8 +465,8 @@ public class KrisRIS extends AbstractRIS {
 	 * @param publication the publication to export.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(JournalEdition publication) {
-		RisRecord.Builder builder = createStandardRecord(RisType.EDBOOK, publication, true);
+	protected RisRecord createRecord(JournalEdition publication, Locale locale) {
+		RisRecord.Builder builder = createStandardRecord(RisType.EDBOOK, publication, true, locale);
 		final Journal journal = publication.getJournal();
 		if (journal != null) {
 			final String isbnissn = Arrays.asList(journal.getISBN(), journal.getISSN()).stream()
@@ -508,17 +501,9 @@ public class KrisRIS extends AbstractRIS {
 	 * @param publication the publication to export.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(KeyNote publication) {
-		// Force the Java locale to get the text that is corresponding to the language of the paper
-		final java.util.Locale loc = java.util.Locale.getDefault();
-		final String keyNoteType;
-		try {
-			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
-			keyNoteType = publication.getType().getLabel();
-		} finally {
-			java.util.Locale.setDefault(loc);
-		}
-		final RisRecord.Builder builder = createStandardRecord(RisType.HEAR, publication, true)
+	protected RisRecord createRecord(KeyNote publication, Locale locale) {
+		final String keyNoteType = publication.getType().getLabel(getMessageSourceAccessor(), locale);
+		final RisRecord.Builder builder = createStandardRecord(RisType.HEAR, publication, true, locale)
 				.periodicalNameFullFormatJO(publication.getPublicationTarget())
 				.editor(publication.getEditors())
 				.publisher(publication.getOrganization())
@@ -532,8 +517,8 @@ public class KrisRIS extends AbstractRIS {
 	 * @param publication the publication to export.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(Report publication) {
-		final RisRecord.Builder builder = createStandardRecord(RisType.RPRT, publication, true)
+	protected RisRecord createRecord(Report publication, Locale locale) {
+		final RisRecord.Builder builder = createStandardRecord(RisType.RPRT, publication, true, locale)
 				.volumeNumber(publication.getReportNumber())
 				.publisher(publication.getInstitution())
 				.publishingPlace(publication.getAddress())
@@ -546,8 +531,8 @@ public class KrisRIS extends AbstractRIS {
 	 * @param publication the publication to export.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(Patent publication) {
-		final RisRecord.Builder builder = createStandardRecord(RisType.PAT, publication, true)
+	protected RisRecord createRecord(Patent publication, Locale locale) {
+		final RisRecord.Builder builder = createStandardRecord(RisType.PAT, publication, true, locale)
 				.publishingPlace(publication.getAddress())
 				.publisherStandardNumber(publication.getPatentNumber())
 				.publisher(publication.getInstitution())
@@ -561,8 +546,8 @@ public class KrisRIS extends AbstractRIS {
 	 * @param risType the RIS type for the given publication.
 	 * @return the RIS record.
 	 */
-	protected RisRecord createRecord(MiscDocument publication, RisType risType) {
-		final RisRecord.Builder builder = createStandardRecord(risType, publication, true)
+	protected RisRecord createRecord(MiscDocument publication, RisType risType, Locale locale) {
+		final RisRecord.Builder builder = createStandardRecord(risType, publication, true, locale)
 				.secondaryTitle(publication.getHowPublished())
 				.volumeNumber(publication.getDocumentNumber())
 				.editor(publication.getOrganization())
@@ -574,11 +559,11 @@ public class KrisRIS extends AbstractRIS {
 
 	@Override
 	public Stream<Publication> getPublicationStreamFrom(Reader ris, boolean keepRisId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference)
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference, Locale locale)
 					throws Exception {
 		return KRisIO.processToStream(ris).map(it -> {
 			try {
-				return createPublicationFor(it, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal, createMissedConference);
+				return createPublicationFor(it, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal, createMissedConference, locale);
 			} catch (Exception ex) {
 				throw new RuntimeException(ex);
 			}
@@ -848,8 +833,9 @@ public class KrisRIS extends AbstractRIS {
 	 * @throws Exception if RIS record cannot be parsed.
 	 */
 	protected Publication createPublicationFor(RisRecord record, boolean keepRisId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
-		final PublicationType type = getPublicationTypeFor(record);
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference,
+			Locale locale) throws Exception {
+		final PublicationType type = getPublicationTypeFor(record, locale);
 		if (type != null) {
 			// Create a generic publication
 			final int year = fieldYear(record, record.getPublicationYear());
@@ -1098,7 +1084,7 @@ public class KrisRIS extends AbstractRIS {
 		throw new IllegalArgumentException("Unsupported type of RIS record for: " + record.getReferenceId()); //$NON-NLS-1$
 	}
 
-	private static boolean isMasterThesis(RisRecord record) {
+	private boolean isMasterThesis(RisRecord record, Locale locale) {
 		final String type = record.getCustom3();
 		if (!Strings.isNullOrEmpty(type)) {
 			try {
@@ -1107,7 +1093,7 @@ public class KrisRIS extends AbstractRIS {
 				final String label;
 				try {
 					java.util.Locale.setDefault(lang.getLocale());
-					label = PublicationType.MASTER_THESIS.getLabel();
+					label = PublicationType.MASTER_THESIS.getLabel(getMessageSourceAccessor(), locale);
 				} finally {
 					java.util.Locale.setDefault(loc);
 				}
@@ -1124,8 +1110,7 @@ public class KrisRIS extends AbstractRIS {
 	 * @param record the RIS record.
 	 * @return the publication type.
 	 */
-	@SuppressWarnings("static-method")
-	protected PublicationType getPublicationTypeFor(RisRecord record) {
+	protected PublicationType getPublicationTypeFor(RisRecord record, Locale locale) {
 		switch (record.getType()) {
 		case EJOUR:
 		case JFULL:
@@ -1149,7 +1134,7 @@ public class KrisRIS extends AbstractRIS {
 			return PublicationType.INTERNATIONAL_JOURNAL_EDITION;
 		case MANSCPT:
 		case THES:
-			if (isMasterThesis(record)) {
+			if (isMasterThesis(record, locale)) {
 				return PublicationType.MASTER_THESIS;
 			}
 			return PublicationType.PHD_THESIS;

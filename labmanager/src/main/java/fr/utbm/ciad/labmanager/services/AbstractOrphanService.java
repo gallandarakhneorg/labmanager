@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -114,13 +115,14 @@ public abstract class AbstractOrphanService<T extends IdentifiableEntity> extend
 	 * @param editionArgument the argument to pass to the edition endpoint for specifying the entity's identifier. 
 	 * @param deletionEndpoint the endpoint for deleting the orphan entities.
 	 * @param deletionParameter the parameter for specifying the entity to be deleted to the deletion endpoint.
+	 * @param locale the locale to use.
 	 * @param progress the progress indicator.
 	 */
 	protected void computeOrphansInJson(ArrayNode receiver, JpaRepository<T, Integer> repository,
 			OrphanEntityBuilder<T> builder, String editionEndpoint, String editionParameter,
-			String deletionEndpoint, String deletionParameter, Progression progress) {
+			String deletionEndpoint, String deletionParameter, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, repository, builder, editionEndpoint, editionParameter, null, null,
-				deletionEndpoint, deletionParameter, progress);
+				deletionEndpoint, deletionParameter, locale, progress);
 	}
 
 	/** Compute the orphans and put them in a Json node.
@@ -134,18 +136,19 @@ public abstract class AbstractOrphanService<T extends IdentifiableEntity> extend
 	 * @param editionValue1 the value of the second name of argument to pass to the edition endpoint. 
 	 * @param deletionEndpoint the endpoint for deleting the orphan entities.
 	 * @param deletionParameter the parameter for specifying the entity to be deleted to the deletion endpoint.
+	 * @param locale the locale to use.
 	 * @param progress the progress indicator.
 	 */
 	protected void computeOrphansInJson(ArrayNode receiver, JpaRepository<T, Integer> repository,
 			OrphanEntityBuilder<T> builder, String editionEndpoint, String editionParameter0,
 			String editionParameter1, Function<T, String> editionValue1,
-			String deletionEndpoint, String deletionParameter, Progression progress) {
+			String deletionEndpoint, String deletionParameter, Locale locale, Progression progress) {
 		List<T> list = repository.findAll();
 		progress.setProperties(0, 0, list.size(), false);
 		for (final T entity : list) {
-			final String reason = builder.getOrphanCriteria(entity);
+			final String reason = builder.getOrphanCriteria(entity, locale);
 			if (!Strings.isNullOrEmpty(reason)) {
-				final String label = builder.getOrphanEntityLabel(entity);
+				final String label = builder.getOrphanEntityLabel(entity, locale);
 				createOrphanJsonNode(receiver,
 						editionEndpoint, editionParameter0,
 						editionParameter1, editionValue1 == null ? null : editionValue1.apply(entity),

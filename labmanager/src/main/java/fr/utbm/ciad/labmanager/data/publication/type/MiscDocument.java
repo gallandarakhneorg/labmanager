@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.publication.type;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -31,6 +32,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Document that is of an unspecified type.
  *
@@ -133,7 +135,7 @@ public class MiscDocument extends Publication {
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
 		if (!Strings.isNullOrEmpty(getOrganization())) {
 			consumer.accept("organization", getOrganization()); //$NON-NLS-1$

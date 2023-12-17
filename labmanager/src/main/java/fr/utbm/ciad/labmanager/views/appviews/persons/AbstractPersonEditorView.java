@@ -48,6 +48,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.details.Details;
+import com.vaadin.flow.component.details.DetailsVariant;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
@@ -82,8 +83,9 @@ import fr.utbm.ciad.labmanager.views.components.phones.PhoneNumberField;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
 import fr.utbm.ciad.labmanager.views.components.validators.OrcidValidator;
 import fr.utbm.ciad.labmanager.views.components.validators.UrlValidator;
-import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
+import org.springframework.context.support.MessageSourceAccessor;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** Abstract implementation for the information related to a person.
  * 
@@ -99,6 +101,8 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 	private static final long serialVersionUID = 6088942935576032576L;
 	
 	private final Logger logger;
+
+	private final MessageSourceAccessor messages;
 
 	private final AuthenticatedUser authenticatedUser;
 
@@ -168,6 +172,10 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 
 	private Details administrationDetails;
 
+	private Button saveButton;
+
+	private Button validateButton;
+
 	private ComboBox<WebPageNaming> webpageConvention;
 
 	private Checkbox validatedPerson;
@@ -182,12 +190,14 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 	 * @param personService the service for accessing to the person. If it is {@code null},
 	 *     the function {@link #doSave(Person)} will be invoked; otherwise the repository will be invoked.
 	 * @param authenticatedUser the connected user.
+	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
 	public AbstractPersonEditorView(Person person, PersonService personService, AuthenticatedUser authenticatedUser,
-			Logger logger) {
+			MessageSourceAccessor messages, Logger logger) {
 		assert person != null;
 
+		this.messages = messages;
 		this.editedPerson = person;
 		this.logger = logger;
 		this.authenticatedUser = authenticatedUser;
@@ -213,19 +223,21 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 		final HorizontalLayout bar = new HorizontalLayout();
 		rootContainer.add(bar);
 		
-		final Button saveButton = new Button(getTranslation("views.save"), event -> { //$NON-NLS-1$
+		this.saveButton = new Button("", event -> { //$NON-NLS-1$
 			if (this.binder.validate().isOk()) {
 				doSave(this.editedPerson, personService);
 			} else {
 				notifyInvalidity();
 			}
 		});
-		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		saveButton.addClickShortcut(Key.ENTER);
-		bar.add(saveButton);
+		this.saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		this.saveButton.addClickShortcut(Key.ENTER);
+		this.saveButton.setIcon(LineAwesomeIcon.SAVE_SOLID.create());
+		bar.add(this.saveButton);
 
+		this.validateButton = null;
 		if (isAdmin) {
-			final Button validateButton = new Button(getTranslation("views.validate"), event -> { //$NON-NLS-1$
+			this.validateButton = new Button("", event -> { //$NON-NLS-1$
 				doValidate(this.editedPerson);
 				if (this.binder.validate().isOk()) {
 					doSave(this.editedPerson, personService);
@@ -233,8 +245,9 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 					notifyInvalidity();
 				}
 			});
-			validateButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-			bar.add(validateButton);
+			this.validateButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+			this.validateButton.setIcon(LineAwesomeIcon.CHECK_DOUBLE_SOLID.create());
+			bar.add(this.validateButton);
 		}
 	}
 	
@@ -383,7 +396,7 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 
 		this.gender = new ComboBox<>();
 		this.gender.setItems(Gender.values());
-		this.gender.setItemLabelGenerator(Gender::getLabel);
+		this.gender.setItemLabelGenerator(this::getGenderLabel);
 		this.gender.setValue(Gender.NOT_SPECIFIED);
 		content.add(this.gender, 2);
 
@@ -410,6 +423,10 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 		this.binder.forField(this.firstname).bind(Person::getFirstName, Person::setFirstName);
 		this.binder.forField(this.gender).bind(Person::getGender, Person::setGender);
 		this.binder.forField(this.gravatarId).bind(Person::getGravatarId, Person::setGravatarId);
+	}
+
+	private String getGenderLabel(Gender gender) {
+		return gender.getLabel(this.messages, getLocale());
 	}
 
 	/** Create the components for entering the contact informations.
@@ -679,13 +696,12 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 	 *
 	 * @param receiver the receiver of the component
 	 */
-	@RolesAllowed("ROLE_ADMIN")
 	protected void createAdministrationComponents(VerticalLayout receiver) {
 		final FormLayout content = ComponentFactory.newColumnForm(1);
 
 		this.webpageConvention = new ComboBox<>();
 		this.webpageConvention.setItems(WebPageNaming.values());
-		this.webpageConvention.setItemLabelGenerator(WebPageNaming::getLabel);
+		this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
 		this.webpageConvention.setValue(WebPageNaming.UNSPECIFIED);
 		content.add(this.webpageConvention);
 
@@ -694,10 +710,15 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 
 		this.administrationDetails = new Details("", content); //$NON-NLS-1$
 		this.administrationDetails.setOpened(false);
+		this.administrationDetails.addThemeVariants(DetailsVariant.FILLED);
 		receiver.add(this.administrationDetails);
 
 		this.binder.forField(this.webpageConvention).bind(Person::getWebPageNaming, Person::setWebPageNaming);
 		this.binder.forField(this.validatedPerson).bind(Person::isValidated, Person::setValidated);
+	}
+
+	private String getWebPageNamingLabel(WebPageNaming naming) {
+		return naming.getLabel(this.messages, getLocale());
 	}
 
 	@Override
@@ -707,6 +728,7 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 		this.firstname.setLabel(getTranslation("views.persons.last_name")); //$NON-NLS-1$
 		this.gender.setLabel(getTranslation("views.persons.gender")); //$NON-NLS-1$
 		this.gender.setHelperText(getTranslation("views.persons.gender.helper")); //$NON-NLS-1$);
+		this.gender.setItemLabelGenerator(this::getGenderLabel);
 		this.gravatarId.setLabel(getTranslation("views.persons.gravatar_id")); //$NON-NLS-1$
 		this.gravatarId.setHelperText(getTranslation("views.persons.gravatar_id.helper")); //$NON-NLS-1$
 
@@ -765,7 +787,11 @@ public abstract class AbstractPersonEditorView extends Composite<VerticalLayout>
 
 		this.administrationDetails.setSummaryText(getTranslation("views.persons.administration_details")); //$NON-NLS-1$
 		this.webpageConvention.setLabel(getTranslation("views.persons.administration.webpage_naming")); //$NON-NLS-1$
+		this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
 		this.validatedPerson.setLabel(getTranslation("views.persons.administration.validated_person")); //$NON-NLS-1$
+
+		this.saveButton.setText(getTranslation("views.save")); //$NON-NLS-1$
+		this.validateButton.setText(getTranslation("views.validate")); //$NON-NLS-1$
 	}
 
 }

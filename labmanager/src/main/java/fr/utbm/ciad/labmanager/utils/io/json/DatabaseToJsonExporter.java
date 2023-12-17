@@ -83,6 +83,7 @@ import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.tuple.Pair;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
 /** Exporter of JSON data from the database.
@@ -131,6 +132,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 	/** Constructor.
 	 * 
+	 * @param messages the accessor to the localized messages.
 	 * @param addressRepository the accessor to the organization address repository.
 	 * @param organizationRepository the accessor to the organization repository.
 	 * @param personRepository the accessor to the person repository.
@@ -149,6 +151,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @param userRepository the accessor to the application users.
 	 */
 	public DatabaseToJsonExporter(
+			@Autowired MessageSourceAccessor messages,
 			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
 			@Autowired PersonRepository personRepository,
@@ -165,6 +168,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			@Autowired TeachingActivityRepository teachingRepository,
 			@Autowired ScientificAxisRepository scientificAxisRepository,
 			@Autowired UserRepository userRepository) {
+		super(messages);
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
 		this.personRepository = personRepository;

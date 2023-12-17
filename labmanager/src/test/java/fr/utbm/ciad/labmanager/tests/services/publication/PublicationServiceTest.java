@@ -50,6 +50,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
 
@@ -344,7 +345,7 @@ public class PublicationServiceTest {
 	@Test
 	@DisplayName("importBibTeXPublications(null, null, false, false)")
 	public void importBibTeXPublications_null() throws Exception {
-		List<Integer> ids = this.test.importBibTeXPublications(null, null, false, false);
+		List<Integer> ids = this.test.importBibTeXPublications(null, null, false, false, Locale.US);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -353,7 +354,7 @@ public class PublicationServiceTest {
 	@DisplayName("importBibTeXPublications(\"\", null, false, false)")
 	public void importBibTeXPublications_empty() throws Exception {
 		Reader rd = new StringReader("");
-		List<Integer> ids = this.test.importBibTeXPublications(rd, null, false, false);
+		List<Integer> ids = this.test.importBibTeXPublications(rd, null, false, false, Locale.US);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -411,7 +412,7 @@ public class PublicationServiceTest {
 			return Optional.empty();
 		});
 
-		List<Integer> ids = this.test.importBibTeXPublications(new StringReader(bibtex), null, false, false);
+		List<Integer> ids = this.test.importBibTeXPublications(new StringReader(bibtex), null, false, false, Locale.US);
 
 		assertNotNull(ids);
 		assertEquals(2, ids.size());
@@ -440,7 +441,7 @@ public class PublicationServiceTest {
 	@Test
 	@DisplayName("importRISPublications(null, null, false, false)")
 	public void importRISPublications_null() throws Exception {
-		List<Integer> ids = this.test.importRISPublications(null, null, false, false);
+		List<Integer> ids = this.test.importRISPublications(null, null, false, false, Locale.US);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -449,7 +450,7 @@ public class PublicationServiceTest {
 	@DisplayName("importRISPublications(\"\", null, false, false)")
 	public void importRISPublications_empty() throws Exception {
 		Reader rd = new StringReader("");
-		List<Integer> ids = this.test.importRISPublications(rd, null, false, false);
+		List<Integer> ids = this.test.importRISPublications(rd, null, false, false, Locale.US);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -477,7 +478,7 @@ public class PublicationServiceTest {
 		when(p1.getId()).thenReturn(874);
 		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
 		when(this.ris.extractPublications(any(Reader.class), anyBoolean(), anyBoolean(), anyBoolean(),
-				anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
+				anyBoolean(), anyBoolean(), any(Locale.class))).thenReturn(Arrays.asList(p0, p1));
 		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
 			switch ((Integer) it.getArgument(0)) {
 			case 1234:
@@ -507,7 +508,7 @@ public class PublicationServiceTest {
 			return Optional.empty();
 		});
 
-		List<Integer> ids = this.test.importRISPublications(new StringReader(ris), null, false, false);
+		List<Integer> ids = this.test.importRISPublications(new StringReader(ris), null, false, false, Locale.US);
 
 		assertNotNull(ids);
 		assertEquals(2, ids.size());
@@ -535,7 +536,7 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportBibTeX_Collection_null() {
-		String bibtex = this.test.exportBibTeX((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class)));
+		String bibtex = this.test.exportBibTeX((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class), Locale.US));
 		assertNull(bibtex);
 	}
 
@@ -544,7 +545,7 @@ public class PublicationServiceTest {
 		when(this.bibtex.exportPublications(any(Iterable.class), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		String bibtex = this.test.exportBibTeX(pubs, new ExporterConfigurator(mock(JournalService.class)));
+		String bibtex = this.test.exportBibTeX(pubs, new ExporterConfigurator(mock(JournalService.class), Locale.US));
 
 		assertEquals("abc", bibtex);
 
@@ -560,7 +561,7 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportRIS_Collection_null() {
-		String ris = this.test.exportRIS((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class)));
+		String ris = this.test.exportRIS((Collection<Publication>) null, new ExporterConfigurator(mock(JournalService.class), Locale.US));
 		assertNull(ris);
 	}
 
@@ -569,7 +570,7 @@ public class PublicationServiceTest {
 		when(this.ris.exportPublications(any(Iterable.class), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
-		String bibtex = this.test.exportRIS(pubs, new ExporterConfigurator(mock(JournalService.class)));
+		String bibtex = this.test.exportRIS(pubs, new ExporterConfigurator(mock(JournalService.class), Locale.US));
 
 		assertEquals("abc", bibtex);
 
@@ -585,14 +586,14 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportHtml_Collection_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
 		String html = this.test.exportHtml((Collection<Publication>) null, configurator);
 		assertNull(html);
 	}
 
 	@Test
 	public void exportHtml_Collection() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
 		when(this.html.exportPublications(any(Iterable.class), any())).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
@@ -614,14 +615,14 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportOdt_Collection_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
 		byte[] odt = this.test.exportOdt((Collection<Publication>) null, configurator);
 		assertNull(odt);
 	}
 
 	@Test
 	public void exportOdt_Collection() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
 		when(this.odt.exportPublications(any(Iterable.class), any())).thenReturn("abc".getBytes());
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
@@ -643,14 +644,14 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportJson_Collection_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
 		String html = this.test.exportJson((Collection<Publication>) null, configurator);
 		assertNull(html);
 	}
 
 	@Test
 	public void exportJson_Collection() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
 		when(this.json.exportPublicationsWithRootKeys(any(Iterable.class), any(), any(String[].class))).thenReturn("abc");
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);
 
@@ -674,14 +675,14 @@ public class PublicationServiceTest {
 
 	@Test
 	public void exportJsonAsTree_Collection_null() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
 		JsonNode json = this.test.exportJsonAsTree((Collection<Publication>) null, configurator, null);
 		assertNull(json);
 	}
 
 	@Test
 	public void exportJsonAsTree_Collection() throws Exception {
-		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class));
+		ExporterConfigurator configurator = new ExporterConfigurator(mock(JournalService.class), Locale.US);
 		JsonNode root = mock(JsonNode.class);
 		when(this.json.exportPublicationsAsTreeWithRootKeys(any(Iterable.class), any(), any())).thenReturn(root);
 		Collection<Publication> pubs = Arrays.asList(this.pub0, this.pub2);

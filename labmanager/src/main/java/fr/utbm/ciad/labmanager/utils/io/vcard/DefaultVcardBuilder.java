@@ -29,7 +29,9 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.web.util.UriComponents;
@@ -85,6 +87,16 @@ public class DefaultVcardBuilder implements VcardBuilder {
 	private static final String ADR_TYPE = "ADR:TYPE="; //$NON-NLS-1$
 
 	private static final String ADR_VALUE = ":"; //$NON-NLS-1$
+
+	private final MessageSourceAccessor messages;
+
+	/** Constructor with injection.
+	 *
+	 * @param messages the accessor to the localized messages.
+	 */
+	public DefaultVcardBuilder(@Autowired MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
 	
 	private static void append(StringBuilder vcard, String property, String value) {
 		if (!Strings.isNullOrEmpty(value)) {
@@ -174,9 +186,9 @@ public class DefaultVcardBuilder implements VcardBuilder {
 		}
 	}
 
-	private static void append(StringBuilder vcard, Membership membership, Membership university) {
+	private static void append(MessageSourceAccessor messages, StringBuilder vcard, Membership membership, Membership university) {
 		if (membership != null) {
-			append(vcard, TITLE, membership.getMemberStatus().getLabel(Locale.US));
+			append(vcard, TITLE, membership.getMemberStatus().getLabel(messages, null, false, Locale.US));
 			final StringBuilder org = new StringBuilder();
 			ResearchOrganization ro = membership.getResearchOrganization();
 			if (university == null) {
@@ -192,7 +204,7 @@ public class DefaultVcardBuilder implements VcardBuilder {
 			}
 			append(vcard, ORGANIZATION, org.toString());
 			if (membership.getResponsibility() != null) {
-				append(vcard, ROLE, membership.getResponsibility().getLabel(membership.getPerson().getGender(), Locale.US));
+				append(vcard, ROLE, membership.getResponsibility().getLabel(messages, membership.getPerson().getGender(), Locale.US));
 			}
 		}
 	}
@@ -201,7 +213,7 @@ public class DefaultVcardBuilder implements VcardBuilder {
 	public String build(Person person, ResearchOrganization organization) {
 		final StringBuilder vcard = new StringBuilder();
 		vcard.append(VCARD_START);
-		append(vcard, NAME, person.getLastName(), person.getFirstName(), null, person.getCivilTitle(Locale.US));
+		append(vcard, NAME, person.getLastName(), person.getFirstName(), null, person.getCivilTitle(this.messages, Locale.US));
 		append(vcard, FULLNAME, person.getFullName());
 		append(vcard, EMAIL, person.getEmail());
 		append(vcard, URL_PREFIX, person.getWebPageURI());
@@ -242,7 +254,7 @@ public class DefaultVcardBuilder implements VcardBuilder {
 			}
 		}
 		if (detailMembership != null) {
-			append(vcard, detailMembership, universityMembership);
+			append(this.messages, vcard, detailMembership, universityMembership);
 		}
 		appendPhoto(vcard, person.getPhotoURL());
 		vcard.append(VCARD_END);

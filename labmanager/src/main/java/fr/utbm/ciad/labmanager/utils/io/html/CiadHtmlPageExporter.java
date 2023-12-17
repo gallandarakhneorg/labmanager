@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.utils.io.html;
 import java.io.File;
 import java.net.URI;
 import java.net.URL;
+import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
@@ -137,7 +138,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btBibtex", "fa-file-lines", Constants.EXPORT_BIBTEX_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
-					this.messages.getMessage("ciadHtmlPageExporter.exportToBibTeX"),  //$NON-NLS-1$
+					getMessageSourceAccessor().getMessage("ciadHtmlPageExporter.exportToBibTeX", configurator.getLocale()),  //$NON-NLS-1$
 					Constants.EXPORT_BIBTEX_ENDPOINT,
 					publicationId, "BibTeX", configurator); //$NON-NLS-1$
 		}
@@ -149,7 +150,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btRis", "fa-file-lines", Constants.EXPORT_RIS_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
-					this.messages.getMessage("ciadHtmlPageExporter.exportToRIS"),  //$NON-NLS-1$
+					getMessageSourceAccessor().getMessage("ciadHtmlPageExporter.exportToRIS", configurator.getLocale()),  //$NON-NLS-1$
 					Constants.EXPORT_RIS_ENDPOINT,
 					publicationId, "RIS", configurator); //$NON-NLS-1$
 		}
@@ -161,7 +162,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btHtml", "fa-file-code", Constants.EXPORT_HTML_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
-					this.messages.getMessage("ciadHtmlPageExporter.exportToHtml"),  //$NON-NLS-1$
+					getMessageSourceAccessor().getMessage("ciadHtmlPageExporter.exportToHtml", configurator.getLocale()),  //$NON-NLS-1$
 					Constants.EXPORT_HTML_ENDPOINT,
 					publicationId, "HTML", configurator); //$NON-NLS-1$
 		}
@@ -173,7 +174,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btWord", "fa-file-word", Constants.EXPORT_ODT_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
-					this.messages.getMessage("ciadHtmlPageExporter.exportToOdt"),  //$NON-NLS-1$
+					getMessageSourceAccessor().getMessage("ciadHtmlPageExporter.exportToOdt", configurator.getLocale()),  //$NON-NLS-1$
 					Constants.EXPORT_ODT_ENDPOINT,
 					publicationId, "ODT", configurator); //$NON-NLS-1$
 		}
@@ -181,7 +182,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	@Override
-	public String getButtonToEditPublication(int publicationId) {
+	public String getButtonToEditPublication(int publicationId, Locale locale) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
 			html.append("<a class=\"btn btn-xs btn-success\" href=\"/"); //$NON-NLS-1$
@@ -189,21 +190,21 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 			html.append("addPublication?publicationId="); //$NON-NLS-1$
 			html.append(publicationId);
 			html.append("\" <i class=\"fa fa-edit\">"); //$NON-NLS-1$
-			html.append(this.messages.getMessage(MESSAGES_PREFIX + "EDIT_BUTTON_LABEL")); //$NON-NLS-1$
+			html.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "EDIT_BUTTON_LABEL", locale)); //$NON-NLS-1$
 			html.append("</i></a>"); //$NON-NLS-1$
 		}
 		return html.toString();
 	}
 
 	@Override
-	public String getButtonToDeletePublication(int publicationId) {
+	public String getButtonToDeletePublication(int publicationId, Locale locale) {
 		final StringBuilder html = new StringBuilder();
 		if (publicationId != 0) {
 			html.append("<a class=\"btn btn-xs btn-danger\" href=\"/"); //$NON-NLS-1$
 			html.append(this.constants.getServerName()).append("/deletePublication?publicationId="); //$NON-NLS-1$
 			html.append(publicationId);
 			html.append("\" <i class=\"fa fa-delete\">"); //$NON-NLS-1$
-			html.append(this.messages.getMessage(MESSAGES_PREFIX + "DELETE_BUTTON_LABEL")); //$NON-NLS-1$
+			html.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "DELETE_BUTTON_LABEL", locale)); //$NON-NLS-1$
 			html.append("</i></a>"); //$NON-NLS-1$
 		}
 		return html.toString();
@@ -254,13 +255,13 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 			final URL url = this.doiTools.getDOIUrlFromDOINumber(publication.getDOI());
 			final StringBuilder b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(publication.getDOI()).append(HTML_ATAG_2);
-			links.append(this.messages.getMessage(MESSAGES_PREFIX + "doiLabel", new Object[] {b0.toString()})); //$NON-NLS-1$
+			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "doiLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(publication.getHalId())) {
 			final URL url = this.halTools.getHALUrlFromHALNumber(publication.getHalId());
 			final StringBuilder b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(publication.getHalId()).append(HTML_ATAG_2);
-			links.append(this.messages.getMessage(MESSAGES_PREFIX + "halidLabel", new Object[] {b0.toString()})); //$NON-NLS-1$
+			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "halidLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
 		URL url = publication.getDblpURLObject();
 		if (url != null) {
@@ -269,7 +270,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 			}
 			final StringBuilder b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(url.toExternalForm()).append(HTML_ATAG_2);
-			links.append(this.messages.getMessage(MESSAGES_PREFIX + "dblpLabel", new Object[] {b0.toString()})); //$NON-NLS-1$
+			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "dblpLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
 		url = publication.getVideoURLObject();
 		if (url != null) {
@@ -278,7 +279,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 			}
 			final StringBuilder b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(url.toExternalForm()).append(HTML_ATAG_2);
-			links.append(this.messages.getMessage(MESSAGES_PREFIX + "videoLabel", new Object[] {b0.toString()})); //$NON-NLS-1$
+			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "videoLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
 		url = publication.getExtraURLObject();
 		if (url != null) {
@@ -287,7 +288,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 			}
 			final StringBuilder b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(url.toExternalForm()).append(HTML_ATAG_2);
-			links.append(this.messages.getMessage(MESSAGES_PREFIX + "extraUrlLabel", new Object[] {b0.toString()})); //$NON-NLS-1$
+			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "extraUrlLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
 		return links.toString();
 	}

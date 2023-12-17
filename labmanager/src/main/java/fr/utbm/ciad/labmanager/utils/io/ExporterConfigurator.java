@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.utils.io;
 
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.function.Predicate;
@@ -80,12 +81,16 @@ public class ExporterConfigurator {
 
 	private final JournalService service;
 
+	private final Locale locale;
+
 	/** Constructor.
 	 *
 	 * @param service the journal service.
+	 * @param locale the locale to be used.
 	 */
-	public ExporterConfigurator(JournalService service) {
+	public ExporterConfigurator(JournalService service, Locale locale) {
 		this.service = service;
+		this.locale = locale;
 	}
 
 	/** Replies the service dedicated to journals.
@@ -94,6 +99,14 @@ public class ExporterConfigurator {
 	 */
 	public JournalService getJournalService() {
 		return this.service;
+	}
+	
+	/** Replies the locale to be used.
+	 *
+	 * @return the locale.
+	 */
+	public Locale getLocale() {
+		return this.locale;
 	}
 
 	/** Replies if the publications must be grouped by year.

@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.components.indicators.members.count;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractInstantIndicator;
@@ -55,13 +56,13 @@ public class PhdStudentCountIndicator extends AbstractInstantIndicator {
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("phdStudentCountIndicator.name"); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "phdStudentCountIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithoutYears("phdStudentCountIndicator.label"); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getLabelWithoutYears(locale, "phdStudentCountIndicator.label"); //$NON-NLS-1$
 	}
 
 	@Override

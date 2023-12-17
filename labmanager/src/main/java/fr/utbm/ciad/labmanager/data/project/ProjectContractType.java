@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.data.project;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Describe the type of contract that is related to a project.
@@ -63,44 +62,15 @@ public enum ProjectContractType {
 	PI;
 
 	private static final String MESSAGE_PREFIX = "projectContractType."; //$NON-NLS-1$
-	
-	private MessageSourceAccessor messages;
-
-	/** Replies the message accessor to be used.
-	 *
-	 * @return the accessor.
-	 */
-	public MessageSourceAccessor getMessageSourceAccessor() {
-		if (this.messages == null) {
-			this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
-		}
-		return this.messages;
-	}
-
-	/** Change the message accessor to be used.
-	 *
-	 * @param messages the accessor.
-	 */
-	public void setMessageSourceAccessor(MessageSourceAccessor messages) {
-		this.messages = messages;
-	}
-
-	/** Replies the label of the contract type in the current language.
-	 *
-	 * @return the label of the contract type in the current language.
-	 */
-	public String getLabel() {
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name());
-		return Strings.nullToEmpty(label);
-	}
 
 	/** Replies the label of the contract type in the given language.
 	 *
+	 * @param messages the accessor to the localized labels.
 	 * @param locale the locale to use.
 	 * @return the label of the contract type in the given  language.
 	 */
-	public String getLabel(Locale locale) {
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name(), locale);
+	public String getLabel(MessageSourceAccessor messages, Locale locale) {
+		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 

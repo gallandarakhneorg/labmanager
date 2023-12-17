@@ -16,6 +16,8 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.publication.count;
 
+import java.util.Locale;
+
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
 import fr.utbm.ciad.labmanager.utils.Unit;
@@ -54,13 +56,13 @@ public class WosJournalPaperCountIndicator extends AbstractRankedJournalPaperCou
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("wosJournalPaperCountIndicator.name", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "wosJournalPaperCountIndicator.name", getJournalRankingSystem().getLabel(getMessageSourceAccessor(), locale)); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithYears("wosJournalPaperCountIndicator.label", getJournalRankingSystem().getLabel()); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getLabelWithYears(locale, "wosJournalPaperCountIndicator.label", getJournalRankingSystem().getLabel(getMessageSourceAccessor(), locale)); //$NON-NLS-1$
 	}
 
 }

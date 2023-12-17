@@ -16,6 +16,7 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.publication.count;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -73,13 +74,13 @@ public class UnrankedJournalPaperCountIndicator extends AbstractAnnualIndicator 
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("unrankedJournalPaperCountIndicator.name"); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "unrankedJournalPaperCountIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getMessage("unrankedJournalPaperCountIndicator.label"); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getMessage(locale, "unrankedJournalPaperCountIndicator.label"); //$NON-NLS-1$
 	}
 
 }

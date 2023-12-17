@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.organization;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
@@ -65,30 +67,30 @@ public class OrphanOrganizationAddressService extends AbstractOrphanService<Orga
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.addressRepository, this,
 				Constants.ORGANIZATION_ADDRESS_EDITING_ENDPOINT, Constants.ADDRESS_ENDPOINT_PARAMETER,
 				Constants.ORGANIZATION_ADDRESS_DELETING_ENDPOINT, Constants.ADDRESS_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(OrganizationAddress address) {
+	public String getOrphanCriteria(OrganizationAddress address, Locale locale) {
 		if (this.organizationService.getAllResearchOrganizations().stream()
 				.anyMatch(it -> it.getAddresses().stream().anyMatch(it0 -> it0.getId() == address.getId()))) {
 			return null;
 		}
-		return getMessage(MESSAGE_PREFIX + "NotUsed"); //$NON-NLS-1$
+		return getMessage(locale, MESSAGE_PREFIX + "NotUsed"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getOrphanEntityLabel(OrganizationAddress entity) {
+	public String getOrphanEntityLabel(OrganizationAddress entity, Locale locale) {
 		return entity.getFullAddress();
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

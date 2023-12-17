@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
@@ -51,6 +52,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Table for storing the global indicators to show up.
  * 
@@ -134,7 +136,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getId() != 0) {
 			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
 		}

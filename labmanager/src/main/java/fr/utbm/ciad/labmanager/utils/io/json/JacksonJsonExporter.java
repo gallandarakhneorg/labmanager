@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.utils.io.json;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Locale;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -78,7 +79,7 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	public JsonNode exportPublicationsAsTreeWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
 			Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
 		final ObjectMapper mapper = JsonUtils.createMapper();
-		final JsonNode node = exportPublicationsAsTree(publications, configurator, callback, mapper);
+		final JsonNode node = exportPublicationsAsTree(publications, configurator, callback, mapper, configurator.getLocale());
 		JsonNode root = node;
 		if (rootKeys != null) {
 			for (int i = rootKeys.length - 1; i >= 0; --i) {
@@ -98,11 +99,12 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	 * @param callback a function that is invoked for each publication for giving the opportunity
 	 *     to fill up the Json node of the publication.
 	 * @param mapper the JSON object creator and mapper.
+	 * @param locale the locale to use.
 	 * @return the representation of the publications.
 	 * @throws Exception if the publication cannot be converted.
 	 */
 	public JsonNode exportPublicationsAsTree(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
-			Procedure2<Publication, ObjectNode> callback, ObjectMapper mapper) throws Exception {
+			Procedure2<Publication, ObjectNode> callback, ObjectMapper mapper, Locale locale) throws Exception {
 		if (publications == null) {
 			return mapper.nullNode();
 		}
@@ -131,10 +133,10 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 			// Add labels for type and category
 			if (configurator.isTypeAndCategoryLabels()) {
 				if (entryNode.has("type")) { //$NON-NLS-1$
-					entryNode.set("htmlTypeLabel", mapper.valueToTree(publication.getType().getLabel())); //$NON-NLS-1$
+					entryNode.set("htmlTypeLabel", mapper.valueToTree(publication.getType().getLabel(getMessageSourceAccessor(), locale))); //$NON-NLS-1$
 				}
 				if (entryNode.has("category")) { //$NON-NLS-1$
-					entryNode.set("htmlCategoryLabel", mapper.valueToTree(publication.getCategory().getLabel())); //$NON-NLS-1$
+					entryNode.set("htmlCategoryLabel", mapper.valueToTree(publication.getCategory().getLabel(getMessageSourceAccessor(), locale))); //$NON-NLS-1$
 				}
 			}
 			//
@@ -172,14 +174,14 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 					entryNode.set("htmlExports", array0); //$NON-NLS-1$
 				}
 				if (configurator.isEditButtons()) {
-					final String editButton = this.htmlPageExporter.getButtonToEditPublication(publication.getId());
+					final String editButton = this.htmlPageExporter.getButtonToEditPublication(publication.getId(), locale);
 					if (!Strings.isNullOrEmpty(editButton)) {
 						final JsonNode editNode = mapper.valueToTree(editButton);
 						entryNode.set("htmlEdit", editNode); //$NON-NLS-1$
 					}
 				}
 				if (configurator.isDeleteButtons()) {
-					final String deleteButton = this.htmlPageExporter.getButtonToDeletePublication(publication.getId());
+					final String deleteButton = this.htmlPageExporter.getButtonToDeletePublication(publication.getId(), locale);
 					if (!Strings.isNullOrEmpty(deleteButton)) {
 						final JsonNode deleteNode = mapper.valueToTree(deleteButton);
 						entryNode.set("htmlDelete", deleteNode); //$NON-NLS-1$

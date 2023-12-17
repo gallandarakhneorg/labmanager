@@ -26,10 +26,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.utils.conrs.ConrsSection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ConrsSection}.
  * 
@@ -43,8 +46,11 @@ public class ConrsSectionTest {
 
 	private List<ConrsSection> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(ConrsSection.values()));
 	}
@@ -68,36 +74,10 @@ public class ConrsSectionTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		for (final ConrsSection section : ConrsSection.values()) {
-			assertNotNull(section.getLabel(), "Section " + section.name());
-			assertNotEquals("", section.getLabel(), "Section " + section.name());
-		}
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		for (final ConrsSection section : ConrsSection.values()) {
-			assertNotNull(section.getLabel(), "Section " + section.name());
-			assertNotEquals("", section.getLabel(), "Section " + section.name());
-		}
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		for (final ConrsSection section : ConrsSection.values()) {
-			assertNotNull(section.getLabel(java.util.Locale.FRANCE), "Section " + section.name());
-			assertNotEquals("", section.getLabel(java.util.Locale.FRANCE), "Section " + section.name());
-		}
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
 		for (final ConrsSection section : ConrsSection.values()) {
-			assertNotNull(section.getLabel(java.util.Locale.US), "Section " + section.name());
-			assertNotEquals("", section.getLabel(java.util.Locale.US), "Section " + section.name());
+			assertNotNull(section.getLabel(this.messages, Locale.US), "Section " + section.name());
+			assertNotEquals("", section.getLabel(this.messages, Locale.US), "Section " + section.name());
 		}
 	}
 

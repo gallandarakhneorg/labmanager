@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
@@ -49,6 +50,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** A scientific axis that represents a transversal research activity
  * 
@@ -180,7 +182,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
 		if (getId() != 0) {
 			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$

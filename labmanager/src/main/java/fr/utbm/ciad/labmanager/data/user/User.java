@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.data.user;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.google.common.base.Strings;
@@ -39,6 +40,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Description of a user of the application.
  * 
@@ -124,7 +126,7 @@ public class User implements Serializable, AttributeProvider, Comparable<User>, 
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getRole() != null) {
 			consumer.accept("role", getRole()); //$NON-NLS-1$
 		}

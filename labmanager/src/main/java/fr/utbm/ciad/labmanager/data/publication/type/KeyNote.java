@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.data.publication.type;
 
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 
@@ -38,6 +39,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.ManyToOne;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Keynote in a conference or a workshop.
  *
@@ -146,7 +148,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
 		if (getConferenceOccurrenceNumber() > 0) {
 			consumer.accept("conferenceOcccurrenceNumber", Integer.valueOf(getConferenceOccurrenceNumber())); //$NON-NLS-1$

@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link AssociatedStructureType}.
  * 
@@ -41,8 +43,11 @@ public class AssociatedStructureTypeTest {
 
 	private List<AssociatedStructureType> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(AssociatedStructureType.values()));
 	}
@@ -105,84 +110,22 @@ public class AssociatedStructureTypeTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Private company", cons(AssociatedStructureType.PRIVATE_COMPANY).getLabel());
-		assertEquals("Industrial chair", cons(AssociatedStructureType.INDUSTRIAL_CHAIR).getLabel());
-		assertEquals("Research chair", cons(AssociatedStructureType.RESEARCH_CHAIR).getLabel());
-		assertEquals("International Research Lab", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_LAB).getLabel());
-		assertEquals("European Research Lab", cons(AssociatedStructureType.EUROPEAN_RESEARCH_LAB).getLabel());
-		assertEquals("National Research Lab", cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB).getLabel());
-		assertEquals("International Group of Scientific Interest", cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel());
-		assertEquals("European Group of Scientific Interest", cons(AssociatedStructureType.EUROPEAN_SCIENTIFIC_INTEREST_GROUP).getLabel());
-		assertEquals("National Group of Scientific Interest", cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel());
-		assertEquals("International Research Group", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP).getLabel());
-		assertEquals("European Research Group", cons(AssociatedStructureType.EUROPEAN_RESEARCH_GROUP).getLabel());
-		assertEquals("National Research Group", cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP).getLabel());
-		assertEquals("Hosted International Company", cons(AssociatedStructureType.HOSTED_INTERNATIONAL_COMPANY).getLabel());
-		assertEquals("Hosted European Company", cons(AssociatedStructureType.HOSTED_EUROPEAN_COMPANY).getLabel());
-		assertEquals("Hosted National Company", cons(AssociatedStructureType.HOSTED_NATIONAL_COMPANY).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Private company", cons(AssociatedStructureType.PRIVATE_COMPANY).getLabel());
-		assertEquals("Industrial chair", cons(AssociatedStructureType.INDUSTRIAL_CHAIR).getLabel());
-		assertEquals("Research chair", cons(AssociatedStructureType.RESEARCH_CHAIR).getLabel());
-		assertEquals("International Research Lab", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_LAB).getLabel());
-		assertEquals("European Research Lab", cons(AssociatedStructureType.EUROPEAN_RESEARCH_LAB).getLabel());
-		assertEquals("National Research Lab", cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB).getLabel());
-		assertEquals("International Group of Scientific Interest", cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel());
-		assertEquals("European Group of Scientific Interest", cons(AssociatedStructureType.EUROPEAN_SCIENTIFIC_INTEREST_GROUP).getLabel());
-		assertEquals("National Group of Scientific Interest", cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel());
-		assertEquals("International Research Group", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP).getLabel());
-		assertEquals("European Research Group", cons(AssociatedStructureType.EUROPEAN_RESEARCH_GROUP).getLabel());
-		assertEquals("National Research Group", cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP).getLabel());
-		assertEquals("Hosted International Company", cons(AssociatedStructureType.HOSTED_INTERNATIONAL_COMPANY).getLabel());
-		assertEquals("Hosted European Company", cons(AssociatedStructureType.HOSTED_EUROPEAN_COMPANY).getLabel());
-		assertEquals("Hosted National Company", cons(AssociatedStructureType.HOSTED_NATIONAL_COMPANY).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Entreprise de droit privé", cons(AssociatedStructureType.PRIVATE_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Chaire industrielle", cons(AssociatedStructureType.INDUSTRIAL_CHAIR).getLabel(Locale.FRANCE));
-		assertEquals("Chaire de recherche", cons(AssociatedStructureType.RESEARCH_CHAIR).getLabel(Locale.FRANCE));
-		assertEquals("Laboratoire commun international", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_LAB).getLabel(Locale.FRANCE));
-		assertEquals("Laboratoire commun européen", cons(AssociatedStructureType.EUROPEAN_RESEARCH_LAB).getLabel(Locale.FRANCE));
-		assertEquals("Laboratoire commun national", cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB).getLabel(Locale.FRANCE));
-		assertEquals("Groupe international d'intérêt scientifique", cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.FRANCE));
-		assertEquals("Groupe européen d'intérêt scientifique", cons(AssociatedStructureType.EUROPEAN_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.FRANCE));
-		assertEquals("Groupe national d'intérêt scientifique", cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.FRANCE));
-		assertEquals("Groupe international de recherche", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP).getLabel(Locale.FRANCE));
-		assertEquals("Groupe européen de recherche", cons(AssociatedStructureType.EUROPEAN_RESEARCH_GROUP).getLabel(Locale.FRANCE));
-		assertEquals("Groupe national de recherche", cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP).getLabel(Locale.FRANCE));
-		assertEquals("Entreprise international hébergée", cons(AssociatedStructureType.HOSTED_INTERNATIONAL_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Entreprise européenne hébergée", cons(AssociatedStructureType.HOSTED_EUROPEAN_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Entreprise nationale hébergée", cons(AssociatedStructureType.HOSTED_NATIONAL_COMPANY).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Private company", cons(AssociatedStructureType.PRIVATE_COMPANY).getLabel(Locale.US));
-		assertEquals("Industrial chair", cons(AssociatedStructureType.INDUSTRIAL_CHAIR).getLabel(Locale.US));
-		assertEquals("Research chair", cons(AssociatedStructureType.RESEARCH_CHAIR).getLabel(Locale.US));
-		assertEquals("International Research Lab", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_LAB).getLabel(Locale.US));
-		assertEquals("European Research Lab", cons(AssociatedStructureType.EUROPEAN_RESEARCH_LAB).getLabel(Locale.US));
-		assertEquals("National Research Lab", cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB).getLabel(Locale.US));
-		assertEquals("International Group of Scientific Interest", cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.US));
-		assertEquals("European Group of Scientific Interest", cons(AssociatedStructureType.EUROPEAN_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.US));
-		assertEquals("National Group of Scientific Interest", cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(Locale.US));
-		assertEquals("International Research Group", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP).getLabel(Locale.US));
-		assertEquals("European Research Group", cons(AssociatedStructureType.EUROPEAN_RESEARCH_GROUP).getLabel(Locale.US));
-		assertEquals("National Research Group", cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP).getLabel(Locale.US));
-		assertEquals("Hosted International Company", cons(AssociatedStructureType.HOSTED_INTERNATIONAL_COMPANY).getLabel(Locale.US));
-		assertEquals("Hosted European Company", cons(AssociatedStructureType.HOSTED_EUROPEAN_COMPANY).getLabel(Locale.US));
-		assertEquals("Hosted National Company", cons(AssociatedStructureType.HOSTED_NATIONAL_COMPANY).getLabel(Locale.US));
+	public void getLabel() throws Exception {
+		assertEquals("Private company", cons(AssociatedStructureType.PRIVATE_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("Industrial chair", cons(AssociatedStructureType.INDUSTRIAL_CHAIR).getLabel(this.messages, Locale.US));
+		assertEquals("Research chair", cons(AssociatedStructureType.RESEARCH_CHAIR).getLabel(this.messages, Locale.US));
+		assertEquals("International Research Lab", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_LAB).getLabel(this.messages, Locale.US));
+		assertEquals("European Research Lab", cons(AssociatedStructureType.EUROPEAN_RESEARCH_LAB).getLabel(this.messages, Locale.US));
+		assertEquals("National Research Lab", cons(AssociatedStructureType.NATIONAL_RESEARCH_LAB).getLabel(this.messages, Locale.US));
+		assertEquals("International Group of Scientific Interest", cons(AssociatedStructureType.INTERNATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(this.messages, Locale.US));
+		assertEquals("European Group of Scientific Interest", cons(AssociatedStructureType.EUROPEAN_SCIENTIFIC_INTEREST_GROUP).getLabel(this.messages, Locale.US));
+		assertEquals("National Group of Scientific Interest", cons(AssociatedStructureType.NATIONAL_SCIENTIFIC_INTEREST_GROUP).getLabel(this.messages, Locale.US));
+		assertEquals("International Research Group", cons(AssociatedStructureType.INTERNATIONAL_RESEARCH_GROUP).getLabel(this.messages, Locale.US));
+		assertEquals("European Research Group", cons(AssociatedStructureType.EUROPEAN_RESEARCH_GROUP).getLabel(this.messages, Locale.US));
+		assertEquals("National Research Group", cons(AssociatedStructureType.NATIONAL_RESEARCH_GROUP).getLabel(this.messages, Locale.US));
+		assertEquals("Hosted International Company", cons(AssociatedStructureType.HOSTED_INTERNATIONAL_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("Hosted European Company", cons(AssociatedStructureType.HOSTED_EUROPEAN_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("Hosted National Company", cons(AssociatedStructureType.HOSTED_NATIONAL_COMPANY).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

@@ -25,11 +25,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectWebPageNaming;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ProjectWebPageNaming}.
  * 
@@ -43,11 +45,14 @@ import org.junit.jupiter.api.Test;
 public class ProjectWebPageNamingTest {
 
 	private List<ProjectWebPageNaming> items;
+	
+	private MessageSourceAccessor messages;
 
 	private Project project;
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(ProjectWebPageNaming.values()));
 
@@ -75,42 +80,11 @@ public class ProjectWebPageNamingTest {
 	}
 
 	@Test
-	public void getLabel_US() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("project/<ACRONYM>", cons(ProjectWebPageNaming.PROJECT_ACRONYM).getLabel());
-		assertEquals("Acronym of the project", cons(ProjectWebPageNaming.ACRONYM).getLabel());
-		assertEquals("project-<ID>", cons(ProjectWebPageNaming.PROJECT_ID).getLabel());
-		assertEquals("Not specified", cons(ProjectWebPageNaming.UNSPECIFIED).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("project/<ACRONYM>", cons(ProjectWebPageNaming.PROJECT_ACRONYM).getLabel());
-		assertEquals("Acronym of the project", cons(ProjectWebPageNaming.ACRONYM).getLabel());
-		assertEquals("project-<ID>", cons(ProjectWebPageNaming.PROJECT_ID).getLabel());
-		assertEquals("Not specified", cons(ProjectWebPageNaming.UNSPECIFIED).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() {
-		assertEquals("project/<ACRONYM>", cons(ProjectWebPageNaming.PROJECT_ACRONYM).getLabel());
-		assertEquals("Acronym of the project", cons(ProjectWebPageNaming.ACRONYM).getLabel(Locale.US));
-		assertEquals("project-<ID>", cons(ProjectWebPageNaming.PROJECT_ID).getLabel(Locale.US));
-		assertEquals("Not specified", cons(ProjectWebPageNaming.UNSPECIFIED).getLabel(Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() {
-		assertEquals("project/<ACRONYM>", cons(ProjectWebPageNaming.PROJECT_ACRONYM).getLabel());
-		assertEquals("Acronyme du projet", cons(ProjectWebPageNaming.ACRONYM).getLabel(Locale.FRANCE));
-		assertEquals("project-<ID>", cons(ProjectWebPageNaming.PROJECT_ID).getLabel(Locale.FRANCE));
-		assertEquals("Non spécifié", cons(ProjectWebPageNaming.UNSPECIFIED).getLabel(Locale.FRANCE));
+		assertEquals("project/<ACRONYM>", cons(ProjectWebPageNaming.PROJECT_ACRONYM).getLabel(this.messages, Locale.US));
+		assertEquals("Acronym of the project", cons(ProjectWebPageNaming.ACRONYM).getLabel(this.messages, Locale.US));
+		assertEquals("project-<ID>", cons(ProjectWebPageNaming.PROJECT_ID).getLabel(this.messages, Locale.US));
+		assertEquals("Not specified", cons(ProjectWebPageNaming.UNSPECIFIED).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

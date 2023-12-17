@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.teaching.TeacherRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link TeacherRole}.
  * 
@@ -40,9 +42,12 @@ import org.junit.jupiter.api.Test;
 public class TeacherRoleTest {
 
 	private List<TeacherRole> items;
+	
+	private MessageSourceAccessor messages;
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(TeacherRole.values()));
 	}
@@ -81,36 +86,10 @@ public class TeacherRoleTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Creator and supervisor", cons(TeacherRole.CREATOR).getLabel());
-		assertEquals("Supervisor", cons(TeacherRole.SUPERVISOR).getLabel());
-		assertEquals("Participant", cons(TeacherRole.PARTICIPANT).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Creator and supervisor", cons(TeacherRole.CREATOR).getLabel());
-		assertEquals("Supervisor", cons(TeacherRole.SUPERVISOR).getLabel());
-		assertEquals("Participant", cons(TeacherRole.PARTICIPANT).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Créateur et responsable", cons(TeacherRole.CREATOR).getLabel(Locale.FRANCE));
-		assertEquals("Responsable", cons(TeacherRole.SUPERVISOR).getLabel(Locale.FRANCE));
-		assertEquals("Participant", cons(TeacherRole.PARTICIPANT).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Creator and supervisor", cons(TeacherRole.CREATOR).getLabel(Locale.US));
-		assertEquals("Supervisor", cons(TeacherRole.SUPERVISOR).getLabel(Locale.US));
-		assertEquals("Participant", cons(TeacherRole.PARTICIPANT).getLabel(Locale.US));
+		assertEquals("Creator and supervisor", cons(TeacherRole.CREATOR).getLabel(this.messages, Locale.US));
+		assertEquals("Supervisor", cons(TeacherRole.SUPERVISOR).getLabel(this.messages, Locale.US));
+		assertEquals("Participant", cons(TeacherRole.PARTICIPANT).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

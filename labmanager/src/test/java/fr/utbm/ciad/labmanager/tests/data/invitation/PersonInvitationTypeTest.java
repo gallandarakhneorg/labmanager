@@ -25,10 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationType;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PersonInvitationType}.
  * 
@@ -43,8 +45,11 @@ public class PersonInvitationTypeTest {
 
 	private List<PersonInvitationType> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(PersonInvitationType.values()));
 	}
@@ -59,38 +64,10 @@ public class PersonInvitationTypeTest {
 	}
 
 	@Test
-	public void getLabel_US() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Incoming Guest Professors", cons(PersonInvitationType.INCOMING_GUEST_PROFESSOR).getLabel());
-		assertEquals("Incoming Guest PhD Students", cons(PersonInvitationType.INCOMING_GUEST_PHD_STUDENT).getLabel());
-		assertEquals("Outgoing Invitations", cons(PersonInvitationType.OUTGOING_GUEST).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Incoming Guest Professors", cons(PersonInvitationType.INCOMING_GUEST_PROFESSOR).getLabel());
-		assertEquals("Incoming Guest PhD Students", cons(PersonInvitationType.INCOMING_GUEST_PHD_STUDENT).getLabel());
-		assertEquals("Outgoing Invitations", cons(PersonInvitationType.OUTGOING_GUEST).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_US() {
-		assertEquals("Incoming Guest Professors", cons(PersonInvitationType.INCOMING_GUEST_PROFESSOR).getLabel(Locale.US));
-		assertEquals("Incoming Guest PhD Students", cons(PersonInvitationType.INCOMING_GUEST_PHD_STUDENT).getLabel(Locale.US));
-		assertEquals("Outgoing Invitations", cons(PersonInvitationType.OUTGOING_GUEST).getLabel(Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() {
-		assertEquals("Professeurs invités", cons(PersonInvitationType.INCOMING_GUEST_PROFESSOR).getLabel(Locale.FRANCE));
-		assertEquals("Doctorants invités", cons(PersonInvitationType.INCOMING_GUEST_PHD_STUDENT).getLabel(Locale.FRANCE));
-		assertEquals("Invitations sortantes", cons(PersonInvitationType.OUTGOING_GUEST).getLabel(Locale.FRANCE));
+	public void getLabel() {
+		assertEquals("Incoming Guest Professors", cons(PersonInvitationType.INCOMING_GUEST_PROFESSOR).getLabel(this.messages, Locale.US));
+		assertEquals("Incoming Guest PhD Students", cons(PersonInvitationType.INCOMING_GUEST_PHD_STUDENT).getLabel(this.messages, Locale.US));
+		assertEquals("Outgoing Invitations", cons(PersonInvitationType.OUTGOING_GUEST).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

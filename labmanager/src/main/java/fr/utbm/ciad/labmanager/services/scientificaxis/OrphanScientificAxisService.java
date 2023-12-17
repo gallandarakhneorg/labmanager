@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.scientificaxis;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
@@ -60,15 +62,15 @@ public class OrphanScientificAxisService extends AbstractOrphanService<Scientifi
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.scientificAxisRepository, this,
 				Constants.SCIENTIFIC_AXIS_EDITING_ENDPOINT, Constants.AXIS_ENDPOINT_PARAMETER,
 				Constants.SCIENTIFIC_AXIS_DELETING_ENDPOINT, Constants.AXIS_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(ScientificAxis axis) {
+	public String getOrphanCriteria(ScientificAxis axis, Locale locale) {
 		if (!axis.getProjects().isEmpty()) {
 			return null;
 		}
@@ -78,17 +80,17 @@ public class OrphanScientificAxisService extends AbstractOrphanService<Scientifi
 		if (!axis.getMemberships().isEmpty()) {
 			return null;
 		}
-		return getMessage(MESSAGE_PREFIX + "NoLink"); //$NON-NLS-1$
+		return getMessage(locale, MESSAGE_PREFIX + "NoLink"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getOrphanEntityLabel(ScientificAxis entity) {
+	public String getOrphanEntityLabel(ScientificAxis entity, Locale locale) {
 		return entity.getAcronymOrName();
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

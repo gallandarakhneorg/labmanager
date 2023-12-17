@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -627,6 +628,7 @@ public class PersonService extends AbstractService {
 	 * number of citations.
 	 *
 	 * @param organization the organization in which the persons to be considered are involved.
+	 * @param locale the locale to use.
 	 * @param progression the progression indicator. 
 	 * @param callback the callback for consuming the the map that maps persons to the maps of the updates.
 	 *      THe keys are: {@code id}, {@code name}, {@code wosHindex}, {@code currentWosHindex},
@@ -634,6 +636,7 @@ public class PersonService extends AbstractService {
 	 * @throws Exception if is it impossible to access to a remote resource.
 	 */
 	public void computePersonRankingIndicatorUpdates(ResearchOrganization organization,
+			Locale locale,
 			Progression progression,
 			BiConsumer<Person, Map<String, Object>> callback) throws Exception {
 		final Set<Person> treatedIdentifiers = new TreeSet<>(new IdentifiableEntityComparator());
@@ -644,7 +647,7 @@ public class PersonService extends AbstractService {
 			final Person person = membership.getPerson();
 			final Progression subTasks = progress.subTask(1, 0, 3);
 			if (treatedIdentifiers.add(person)) {
-				progress.setComment(getMessage("personService.GetPersonIndicatorUpdatesFor", person.getFullNameWithLastNameFirst())); //$NON-NLS-1$
+				progress.setComment(getMessage(locale, "personService.GetPersonIndicatorUpdatesFor", person.getFullNameWithLastNameFirst())); //$NON-NLS-1$
 				final Map<String, Object> newPersonIndicators = new HashMap<>();
 				readGoogleScholarIndicators(person, newPersonIndicators);
 				subTasks.increment();

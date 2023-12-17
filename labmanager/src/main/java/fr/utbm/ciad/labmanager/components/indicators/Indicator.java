@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.components.indicators;
 
 import java.time.LocalDate;
+import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.utils.Unit;
@@ -46,9 +47,10 @@ public interface Indicator {
 
 	/** Replies the name of the indicator.
 	 *
+	 * @param locale the locale in which the label must be replied.
 	 * @return the name.
 	 */
-	String getName();
+	String getName(Locale locale);
 
 	/** Replies the details of the computation of the indicator.
 	 * The details provides information about how the computation was done for the indicator.
@@ -64,9 +66,10 @@ public interface Indicator {
 	 * provided as argument.
 	 *
 	 * @param unit the unit to be used for displaying the value.
+	 * @param locale the locale in which the label must be replied.
 	 * @return the label.
 	 */
-	String getLabel(Unit unit);
+	String getLabel(Unit unit, Locale locale);
 
 	/** Replies the start of the reference period for this indicator.
 	 *

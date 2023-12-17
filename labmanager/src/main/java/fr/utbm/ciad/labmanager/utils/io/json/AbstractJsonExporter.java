@@ -33,7 +33,7 @@ public abstract class AbstractJsonExporter implements JsonExporter {
 
 	/** Provider of localized messages.
 	 */
-	protected final MessageSourceAccessor messages;
+	private final MessageSourceAccessor messages;
 
 	/** Constructor.
 	 *
@@ -42,5 +42,14 @@ public abstract class AbstractJsonExporter implements JsonExporter {
 	public AbstractJsonExporter(MessageSourceAccessor messages) {
 		this.messages = messages;
 	}
+	
+	/** Replies the accessor to the localized strings.
+	 *
+	 * @return the accessor.
+	 */
+	protected MessageSourceAccessor getMessageSourceAccessor() {
+		return this.messages;
+	}
+
 
 }

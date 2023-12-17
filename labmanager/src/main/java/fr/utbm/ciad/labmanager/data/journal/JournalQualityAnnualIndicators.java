@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.data.journal;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -37,6 +38,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** History of the quality indicators for a journal.
  * 
@@ -152,7 +154,7 @@ public class JournalQualityAnnualIndicators implements Serializable, AttributePr
 	 * </ul>
 	 */
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getScimagoQIndex() != null) {
 			consumer.accept("scimagoQIndex", getScimagoQIndex()); //$NON-NLS-1$
 		}

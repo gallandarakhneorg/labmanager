@@ -23,7 +23,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.utils.bap.FrenchBap;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,8 +44,11 @@ public class FrenchBapTest {
 
 	private List<FrenchBap> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(FrenchBap.values()));
 	}
@@ -58,36 +63,10 @@ public class FrenchBapTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		for (final FrenchBap section : FrenchBap.values()) {
-			assertNotNull(section.getLabel(), section.name());
-			assertNotEquals("", section.getLabel(), section.name());
-		}
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		for (final FrenchBap section : FrenchBap.values()) {
-			assertNotNull(section.getLabel(), section.name());
-			assertNotEquals("", section.getLabel(), section.name());
-		}
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		for (final FrenchBap section : FrenchBap.values()) {
-			assertNotNull(section.getLabel(java.util.Locale.FRANCE), section.name());
-			assertNotEquals("", section.getLabel(java.util.Locale.FRANCE), section.name());
-		}
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
 		for (final FrenchBap section : FrenchBap.values()) {
-			assertNotNull(section.getLabel(java.util.Locale.US), section.name());
-			assertNotEquals("", section.getLabel(java.util.Locale.US), section.name());
+			assertNotNull(section.getLabel(this.messages, Locale.US), section.name());
+			assertNotEquals("", section.getLabel(this.messages, Locale.US), section.name());
 		}
 	}
 

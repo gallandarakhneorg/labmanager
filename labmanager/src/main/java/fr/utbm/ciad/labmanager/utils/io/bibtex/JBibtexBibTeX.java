@@ -62,6 +62,7 @@ import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Stream;
@@ -200,8 +201,6 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	private static final String MESSAGE_PREFIX = "jBibtexBibTeX."; //$NON-NLS-1$
 
-	private MessageSourceAccessor messages;
-
 	private PrePublicationFactory prePublicationFactory;
 
 	private JournalService journalService;
@@ -252,7 +251,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			@Autowired MiscDocumentService miscDocumentService,
 			@Autowired ReportService reportService,
 			@Autowired ThesisService thesisService) {
-		this.messages = messages;
+		super(messages);
 		this.prePublicationFactory = prePublicationFactory;
 		this.journalService = journalService;
 		this.conferenceService = conferenceService;
@@ -864,7 +863,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	protected BibTeXDatabase createDatabase(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
 		final BibTeXDatabase db = new BibTeXDatabase();
 		for (final Publication publication : publications) {
-			addPublication(db, publication);
+			addPublication(db, publication, configurator.getLocale());
 		}
 		return db;
 	}
@@ -873,8 +872,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 *
 	 * @param database the JBibTeX database.
 	 * @param publication the publication to put into the database.
+	 * @param locale the locale to use.
 	 */
-	protected void addPublication(BibTeXDatabase database, Publication publication) {
+	protected void addPublication(BibTeXDatabase database, Publication publication, Locale locale) {
 		final BibTeXEntry entry;
 		switch (publication.getType()) {
 		case INTERNATIONAL_JOURNAL_PAPER:
@@ -882,7 +882,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		case NATIONAL_JOURNAL_PAPER:
 		case NATIONAL_JOURNAL_PAPER_WITHOUT_COMMITTEE:
 		case SCIENTIFIC_CULTURE_PAPER:
-			entry = createBibTeXEntry((JournalPaper) publication);
+			entry = createBibTeXEntry((JournalPaper) publication, locale);
 			break;
 		case INTERNATIONAL_CONFERENCE_PAPER:
 		case INTERNATIONAL_ORAL_COMMUNICATION:
@@ -890,42 +890,42 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		case NATIONAL_CONFERENCE_PAPER:
 		case NATIONAL_ORAL_COMMUNICATION:
 		case NATIONAL_POSTER:
-			entry = createBibTeXEntry((ConferencePaper) publication);
+			entry = createBibTeXEntry((ConferencePaper) publication, locale);
 			break;
 		case INTERNATIONAL_BOOK:
 		case NATIONAL_BOOK:
 		case SCIENTIFIC_CULTURE_BOOK:
-			entry = createBibTeXEntry((Book) publication);
+			entry = createBibTeXEntry((Book) publication, locale);
 			break;
 		case INTERNATIONAL_BOOK_CHAPTER:
 		case NATIONAL_BOOK_CHAPTER:
 		case SCIENTIFIC_CULTURE_BOOK_CHAPTER:
-			entry = createBibTeXEntry((BookChapter) publication);
+			entry = createBibTeXEntry((BookChapter) publication, locale);
 			break;
 		case HDR_THESIS:
 		case PHD_THESIS:
 		case MASTER_THESIS:
-			entry = createBibTeXEntry((Thesis) publication);
+			entry = createBibTeXEntry((Thesis) publication, locale);
 			break;
 		case INTERNATIONAL_JOURNAL_EDITION:
 		case NATIONAL_JOURNAL_EDITION:
-			entry = createBibTeXEntry((JournalEdition) publication);
+			entry = createBibTeXEntry((JournalEdition) publication, locale);
 			break;
 		case INTERNATIONAL_KEYNOTE:
 		case NATIONAL_KEYNOTE:
-			entry = createBibTeXEntry((KeyNote) publication);
+			entry = createBibTeXEntry((KeyNote) publication, locale);
 			break;
 		case TECHNICAL_REPORT:
 		case PROJECT_REPORT:
 		case RESEARCH_TRANSFERT_REPORT:
 		case TEACHING_DOCUMENT:
 		case TUTORIAL_DOCUMENTATION:
-			entry = createBibTeXEntry((Report) publication);
+			entry = createBibTeXEntry((Report) publication, locale);
 			break;
 		case INTERNATIONAL_PATENT:
 		case EUROPEAN_PATENT:
 		case NATIONAL_PATENT:
-			entry = createBibTeXEntry((Patent) publication);
+			entry = createBibTeXEntry((Patent) publication, locale);
 			break;
 		case ARTISTIC_PRODUCTION:
 		case RESEARCH_TOOL:
@@ -934,7 +934,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		case INTERNATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
 		case NATIONAL_SCIENTIFIC_CULTURE_PRESENTATION:
 		case OTHER:
-			entry = createBibTeXEntry((MiscDocument) publication);
+			entry = createBibTeXEntry((MiscDocument) publication, locale);
 			break;
 		default:
 			throw new IllegalArgumentException("Unsupported publication type for export: " + publication.getType()); //$NON-NLS-1$
@@ -1033,7 +1033,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		}
 	}
 
-	private void fillBibTeXEntry(BibTeXEntry entry, Publication publication, Key authorKey) {
+	private void fillBibTeXEntry(BibTeXEntry entry, Publication publication, Key authorKey, Locale locale) {
 		addField(entry, KEY_TITLE, publication.getTitle(), true);
 
 		final StringBuilder authorNames = new StringBuilder();
@@ -1063,14 +1063,13 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		// Force the Java locale to get the text that is corresponding to the language of the paper
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {
-			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
 			if (type != null) {
 				addField(entry, KEY_PUBLICATION_TYPE, type.name());
-				addField(entry, KEY_PUBLICATION_TYPE_NAME, type.getLabel());
+				addField(entry, KEY_PUBLICATION_TYPE_NAME, type.getLabel(getMessageSourceAccessor(), locale));
 			}
 			if (cat != null) {
 				addField(entry, KEY_PUBLICATION_CATEGORY, cat.name());
-				addField(entry, KEY_PUBLICATION_CATEGORY_NAME, cat.getLabel());
+				addField(entry, KEY_PUBLICATION_CATEGORY_NAME, cat.getLabel(getMessageSourceAccessor(), locale));
 			}
 		} finally {
 			java.util.Locale.setDefault(loc);
@@ -1078,7 +1077,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private void addNoteForJournal(BibTeXEntry entry, PublicationLanguage language, 
-			QuartileRanking scimago, QuartileRanking wos, float impactFactor) {
+			QuartileRanking scimago, QuartileRanking wos, float impactFactor, Locale locale) {
 		// Force the Java locale to get the text that is corresponding to the language of the paper
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {
@@ -1088,25 +1087,25 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			final QuartileRanking wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
 			if (scimagoNorm != null && wosNorm != null) {
 				if (scimagoNorm != wosNorm) {
-					note.append(this.messages.getMessage(MESSAGE_PREFIX + "SCIMAGO_WOS_QUARTILES", //$NON-NLS-1$
-							new Object[] {scimagoNorm.toString(), wosNorm.toString()}));
+					note.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "SCIMAGO_WOS_QUARTILES", //$NON-NLS-1$
+							new Object[] {scimagoNorm.toString(), wosNorm.toString()}, locale));
 				} else {
-					note.append(this.messages.getMessage(MESSAGE_PREFIX + "QUARTILES", //$NON-NLS-1$
-							new Object[] {scimagoNorm.toString()}));
+					note.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "QUARTILES", //$NON-NLS-1$
+							new Object[] {scimagoNorm.toString()}, locale));
 				}
 			} else if (scimagoNorm != null) {
-				note.append(this.messages.getMessage(MESSAGE_PREFIX + "SCIMAGO_QUARTILE", //$NON-NLS-1$
-						new Object[] {scimagoNorm.toString()}));
+				note.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "SCIMAGO_QUARTILE", //$NON-NLS-1$
+						new Object[] {scimagoNorm.toString()}, locale));
 			} else if (wosNorm != null) {
-				note.append(this.messages.getMessage(MESSAGE_PREFIX + "WOS_QUARTILE", //$NON-NLS-1$
-						new Object[] {wosNorm.toString()}));
+				note.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "WOS_QUARTILE", //$NON-NLS-1$
+						new Object[] {wosNorm.toString()}, locale));
 			}
 			if (impactFactor > 0f) {
 				if (note.length() > 0) {
 					note.append(", "); //$NON-NLS-1$
 				}
-				note.append(this.messages.getMessage(MESSAGE_PREFIX + "IMPACT_FACTOR", //$NON-NLS-1$
-						new Object[] {Float.valueOf(impactFactor)}));
+				note.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "IMPACT_FACTOR", //$NON-NLS-1$
+						new Object[] {Float.valueOf(impactFactor)}, locale));
 			}
 			addField(entry, KEY_NOTE, note.toString());
 		} finally {
@@ -1114,15 +1113,15 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		}
 	}
 
-	private void addNoteForConference(BibTeXEntry entry, PublicationLanguage language, CoreRanking core) {
+	private void addNoteForConference(BibTeXEntry entry, PublicationLanguage language, CoreRanking core, Locale locale) {
 		// Force the Java locale to get the text that is corresponding to the language of the paper
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(language.getLocale());
 			final CoreRanking coreNorm = core == null || core == CoreRanking.NR ? null : core;
 			if (coreNorm != null) {
-				addField(entry, KEY_NOTE, this.messages.getMessage(MESSAGE_PREFIX + "CORE_RANKING", //$NON-NLS-1$
-						new Object[] {coreNorm.toString()}));
+				addField(entry, KEY_NOTE, getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "CORE_RANKING", //$NON-NLS-1$
+						new Object[] {coreNorm.toString()}, locale));
 			}
 		} finally {
 			java.util.Locale.setDefault(loc);
@@ -1132,11 +1131,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	/** Create a JBibTeX entry for a journal paper.
 	 *
 	 * @param paper the journal paper to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(JournalPaper paper) {
+	protected BibTeXEntry createBibTeXEntry(JournalPaper paper, Locale locale) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_ARTICLE, createBibTeXId(paper));
-		fillBibTeXEntry(entry, paper, KEY_AUTHOR);
+		fillBibTeXEntry(entry, paper, KEY_AUTHOR, locale);
 		final Journal journal = paper.getJournal();
 		if (journal != null) {
 			addField(entry, KEY_JOURNAL, journal.getJournalName());
@@ -1156,22 +1156,23 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			addField(entry, KEY_WOS_QINDEX, paper.getWosQIndex());
 		}
 		if (paper.getImpactFactor() > 0f) {
-			addField(entry, KEY_IMPACT_FACTOR, this.messages.getMessage(MESSAGE_PREFIX + "RAW_IMPACT_FACTOR", //$NON-NLS-1$
-					new Object[] {Float.valueOf(paper.getImpactFactor())}));
+			addField(entry, KEY_IMPACT_FACTOR, getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "RAW_IMPACT_FACTOR", //$NON-NLS-1$
+					new Object[] {Float.valueOf(paper.getImpactFactor())}, locale));
 		}
 		addNoteForJournal(entry, paper.getMajorLanguage(), paper.getScimagoQIndex(),
-				paper.getWosQIndex(), paper.getImpactFactor());
+				paper.getWosQIndex(), paper.getImpactFactor(), locale);
 		return entry;
 	}
 
 	/** Create a JBibTeX entry for a conference paper.
 	 *
 	 * @param paper the conference paper to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(ConferencePaper paper) {
+	protected BibTeXEntry createBibTeXEntry(ConferencePaper paper, Locale locale) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(paper));
-		fillBibTeXEntry(entry, paper, KEY_AUTHOR);
+		fillBibTeXEntry(entry, paper, KEY_AUTHOR, locale);
 		addField(entry, KEY_BOOKTITLE, paper.getPublicationTarget());
 		addField(entry, KEY_VOLUME, paper.getVolume());
 		addField(entry, KEY_NUMBER, paper.getNumber());
@@ -1188,18 +1189,19 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			addField(entry, KEY_ISSN, paper.getConference().getISSN());
 			addField(entry, KEY_PUBLISHER, paper.getConference().getPublisher());
 		}
-		addNoteForConference(entry, paper.getMajorLanguage(), paper.getCoreRanking());
+		addNoteForConference(entry, paper.getMajorLanguage(), paper.getCoreRanking(), locale);
 		return entry;
 	}
 
 	/** Create a JBibTeX entry for a book.
 	 *
 	 * @param book the book to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(Book book) {
+	protected BibTeXEntry createBibTeXEntry(Book book, Locale locale) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_BOOK, createBibTeXId(book));
-		fillBibTeXEntry(entry, book, KEY_AUTHOR);
+		fillBibTeXEntry(entry, book, KEY_AUTHOR, locale);
 		addField(entry, KEY_EDITION, book.getEdition());
 		addField(entry, KEY_SERIES, book.getSeries());
 		addField(entry, KEY_VOLUME, book.getVolume());
@@ -1214,11 +1216,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	/** Create a JBibTeX entry for a book chapter.
 	 *
 	 * @param chapter the book chapter to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(BookChapter chapter) {
+	protected BibTeXEntry createBibTeXEntry(BookChapter chapter, Locale locale) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_INCOLLECTION, createBibTeXId(chapter));
-		fillBibTeXEntry(entry, chapter, KEY_AUTHOR);
+		fillBibTeXEntry(entry, chapter, KEY_AUTHOR, locale);
 		addField(entry, KEY_BOOKTITLE, chapter.getBookTitle());
 		addField(entry, KEY_CHAPTER, chapter.getChapterNumber());
 		addField(entry, KEY_EDITION, chapter.getEdition());
@@ -1235,19 +1238,20 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	/** Create a JBibTeX entry for a thesis.
 	 *
 	 * @param thesis the thesis to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(Thesis thesis) {
+	protected BibTeXEntry createBibTeXEntry(Thesis thesis, Locale locale) {
 		final Key pubType = thesis.getType() == PublicationType.MASTER_THESIS ? TYPE_MASTERSTHESIS : TYPE_PHDTHESIS;
 		final BibTeXEntry entry = new BibTeXEntry(pubType, createBibTeXId(thesis));
-		fillBibTeXEntry(entry, thesis, KEY_AUTHOR);
+		fillBibTeXEntry(entry, thesis, KEY_AUTHOR, locale);
 		addField(entry, KEY_SCHOOL, thesis.getInstitution());
 		addField(entry, KEY_ADDRESS, thesis.getAddress());
 		// Force the Java locale to get the text that is corresponding to the language of the paper
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(thesis.getMajorLanguage().getLocale());
-			addField(entry, KEY_TYPE, thesis.getType().getLabel());
+			addField(entry, KEY_TYPE, thesis.getType().getLabel(getMessageSourceAccessor(), locale));
 		} finally {
 			java.util.Locale.setDefault(loc);
 		}
@@ -1257,11 +1261,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	/** Create a JBibTeX entry for a journal edition.
 	 *
 	 * @param edition the journal edition to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(JournalEdition edition) {
+	protected BibTeXEntry createBibTeXEntry(JournalEdition edition, Locale locale) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_BOOK, createBibTeXId(edition));
-		fillBibTeXEntry(entry, edition, KEY_EDITOR);
+		fillBibTeXEntry(entry, edition, KEY_EDITOR, locale);
 		final Journal journal = edition.getJournal();
 		if (journal != null) {
 			addField(entry, KEY_JOURNAL, journal.getJournalName());
@@ -1280,22 +1285,23 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			addField(entry, KEY_WOS_QINDEX, edition.getWosQIndex());
 		}
 		if (edition.getImpactFactor() > 0f) {
-			addField(entry, KEY_IMPACT_FACTOR, this.messages.getMessage(MESSAGE_PREFIX + "RAW_IMPACT_FACTOR", //$NON-NLS-1$
-					new Object[] {Float.valueOf(edition.getImpactFactor())}));
+			addField(entry, KEY_IMPACT_FACTOR, getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "RAW_IMPACT_FACTOR", //$NON-NLS-1$
+					new Object[] {Float.valueOf(edition.getImpactFactor())}, locale));
 		}
 		addNoteForJournal(entry, edition.getMajorLanguage(), edition.getScimagoQIndex(),
-				edition.getWosQIndex(), edition.getImpactFactor());
+				edition.getWosQIndex(), edition.getImpactFactor(), locale);
 		return entry;
 	}
 
 	/** Create a JBibTeX entry for a keynote.
 	 *
 	 * @param keynote the keynote to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(KeyNote keynote) {
+	protected BibTeXEntry createBibTeXEntry(KeyNote keynote, Locale locale) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(keynote));
-		fillBibTeXEntry(entry, keynote, KEY_AUTHOR);
+		fillBibTeXEntry(entry, keynote, KEY_AUTHOR, locale);
 		addField(entry, KEY_BOOKTITLE, keynote.getPublicationTarget());
 		addField(entry, KEY_EDITOR, keynote.getEditors());
 		addField(entry, KEY_ORGANIZATION, keynote.getOrganization());
@@ -1304,7 +1310,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		final java.util.Locale loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(keynote.getMajorLanguage().getLocale());
-			addField(entry, KEY_NOTE, keynote.getType().getLabel());
+			addField(entry, KEY_NOTE, keynote.getType().getLabel(getMessageSourceAccessor(), locale));
 		} finally {
 			java.util.Locale.setDefault(loc);
 		}
@@ -1314,21 +1320,22 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	/** Create a JBibTeX entry for a report.
 	 *
 	 * @param report the report to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(Report report) {
+	protected BibTeXEntry createBibTeXEntry(Report report, Locale locale) {
 		final BibTeXEntry entry;
 		if (report.getType() == PublicationType.TEACHING_DOCUMENT
 				|| report.getType() == PublicationType.TUTORIAL_DOCUMENTATION) {
 			entry = new BibTeXEntry(TYPE_MANUAL, createBibTeXId(report));
-			fillBibTeXEntry(entry, report, KEY_AUTHOR);
+			fillBibTeXEntry(entry, report, KEY_AUTHOR, locale);
 			addField(entry, KEY_EDITION, report.getReportNumber());
 			addField(entry, KEY_ORGANIZATION, report.getInstitution());
 			addField(entry, KEY_ADDRESS, report.getAddress());
 			addField(entry, KEY_NOTE, report.getReportType());
 		} else {
 			entry = new BibTeXEntry(TYPE_TECHREPORT, createBibTeXId(report));
-			fillBibTeXEntry(entry, report, KEY_AUTHOR);
+			fillBibTeXEntry(entry, report, KEY_AUTHOR, locale);
 			addField(entry, KEY_NUMBER, report.getReportNumber());
 			addField(entry, KEY_INSTITUTION, report.getInstitution());
 			addField(entry, KEY_ADDRESS, report.getAddress());
@@ -1340,11 +1347,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	/** Create a JBibTeX entry for a patent.
 	 *
 	 * @param patent the patent to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(Patent patent) {
+	protected BibTeXEntry createBibTeXEntry(Patent patent, Locale locale) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_MISC, createBibTeXId(patent));
-		fillBibTeXEntry(entry, patent, KEY_AUTHOR);
+		fillBibTeXEntry(entry, patent, KEY_AUTHOR, locale);
 		addField(entry, KEY_ADDRESS, patent.getAddress());
 		addField(entry, KEY_NOTE, patent.getPatentType());
 		// Force the Java locale to get the text that is corresponding to the language of the patent
@@ -1354,14 +1362,14 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			final StringBuilder howPublished = new StringBuilder();
 			if (!Strings.isNullOrEmpty(patent.getPatentNumber())
 					&& !Strings.isNullOrEmpty(patent.getInstitution())) {
-				howPublished.append(this.messages.getMessage(MESSAGE_PREFIX + "PATENT_NUMBER_INSTITUTION", //$NON-NLS-1$
-						new Object[] {patent.getPatentNumber(), patent.getInstitution()}));
+				howPublished.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "PATENT_NUMBER_INSTITUTION", //$NON-NLS-1$
+						new Object[] {patent.getPatentNumber(), patent.getInstitution()}, locale));
 			} else if (!Strings.isNullOrEmpty(patent.getPatentNumber())) {
-				howPublished.append(this.messages.getMessage(MESSAGE_PREFIX + "PATENT_NUMBER", //$NON-NLS-1$
-						new Object[] {patent.getPatentNumber()}));
+				howPublished.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "PATENT_NUMBER", //$NON-NLS-1$
+						new Object[] {patent.getPatentNumber()}, locale));
 			} else if (!Strings.isNullOrEmpty(patent.getInstitution())) {
-				howPublished.append(this.messages.getMessage(MESSAGE_PREFIX + "PATENT_INSTITUTION", //$NON-NLS-1$
-						new Object[] {patent.getInstitution()}));
+				howPublished.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "PATENT_INSTITUTION", //$NON-NLS-1$
+						new Object[] {patent.getInstitution()}, locale));
 			} 
 			addField(entry, KEY_HOWPUBLISHED, howPublished.toString());
 		} finally {
@@ -1373,11 +1381,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	/** Create a JBibTeX entry for a misc document.
 	 *
 	 * @param document the misc document to put into the database.
+	 * @param locale the locale to use.
 	 * @return the JBibTeX entry.
 	 */
-	protected BibTeXEntry createBibTeXEntry(MiscDocument document) {
+	protected BibTeXEntry createBibTeXEntry(MiscDocument document, Locale locale) {
 		final BibTeXEntry entry = new BibTeXEntry(TYPE_MISC, createBibTeXId(document));
-		fillBibTeXEntry(entry, document, KEY_AUTHOR);
+		fillBibTeXEntry(entry, document, KEY_AUTHOR, locale);
 		addField(entry, KEY_HOWPUBLISHED, document.getHowPublished());
 		addField(entry, KEY_TYPE, document.getDocumentType());
 		addField(entry, KEY_NUMBER, document.getDocumentNumber());

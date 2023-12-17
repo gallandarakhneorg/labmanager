@@ -26,6 +26,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
@@ -69,14 +70,14 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 	@BeforeEach
 	public void setUp() {
-		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.textHelper = new OdfTextDocumentHelper();
 		this.test = new DefaultOdfToolkitOpenDocumentTextExporter(this.messages, this.textHelper);
 	}
 
 	@Test
 	public void exportPublications_Iterable_null() throws Exception {
-		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null)));
+		assertNull(this.test.exportPublications(null, new ExporterConfigurator(null, Locale.US)));
 	}
 
 	@Test
@@ -165,7 +166,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporterTest {
 
 		when(a1.getMemberships()).thenReturn(Collections.singleton(m1));
 
-		ExporterConfigurator configurator = new ExporterConfigurator(null);
+		ExporterConfigurator configurator = new ExporterConfigurator(null, Locale.US);
 
 		byte[] content = this.test.exportPublications(Arrays.asList(p0, p1, p2), configurator);
 

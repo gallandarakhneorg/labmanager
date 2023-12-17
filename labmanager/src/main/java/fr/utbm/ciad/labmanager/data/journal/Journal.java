@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -57,6 +58,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import org.arakhne.afc.util.IntegerList;
 import org.arakhne.afc.util.ListUtil;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Scientific or scientific culture dissemination journal.
  * This class provides all the necessary information and tools for managing the journals and their quality indicators.
@@ -265,7 +267,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * </ul>
 	 */
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getId() != 0) {
 			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
 		}

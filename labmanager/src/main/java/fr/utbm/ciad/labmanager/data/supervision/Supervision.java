@@ -24,6 +24,7 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -52,6 +53,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Description of a person supervision.
  * 
@@ -206,7 +208,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getTitle() != null) {
 			consumer.accept("title", getTitle()); //$NON-NLS-1$
 		}

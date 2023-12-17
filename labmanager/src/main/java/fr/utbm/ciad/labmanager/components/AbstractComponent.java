@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
@@ -133,11 +134,12 @@ public abstract class AbstractComponent {
 
 	/** Short-hand function for {@link #getMessageSourceAccessor()} and {@link MessageSourceAccessor#getMessage(String, Object[])}.
 	 *
+	 * @param locale the locale to be used.
 	 * @param key the message id.
 	 * @param args the arguments to inject in the string.
 	 * @return the string.
 	 */
-	public String getMessage(String key, Object... args) {
+	public String getMessage(Locale locale, String key, Object... args) {
 		return getMessageSourceAccessor().getMessage(key, args);
 	}
 

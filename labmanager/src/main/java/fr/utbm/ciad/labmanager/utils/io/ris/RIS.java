@@ -26,6 +26,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -66,15 +67,16 @@ public interface RIS extends PublicationExporter<String> {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param locale the locale to use.
 	 * @return the list of publications that are detected in the RIS data.
 	 * @throws Exception if the RIS source cannot be processed.
 	 * @see #extractPublications(String)
 	 * @since 3.8
 	 */
 	default List<Publication> extractPublications(String ris, boolean keepRisId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal, boolean createMissedConference) throws Exception {
+			boolean createMissedJournal, boolean createMissedConference, Locale locale) throws Exception {
 		return getPublicationStreamFrom(ris, keepRisId, assignRandomId, ensureAtLeastOneMember,
-				createMissedJournal, createMissedConference).collect(Collectors.toList());
+				createMissedJournal, createMissedConference, locale).collect(Collectors.toList());
 	}
 
 	/** Extract the publications from a RIS source.
@@ -96,15 +98,16 @@ public interface RIS extends PublicationExporter<String> {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param locale the locale to use.
 	 * @return the list of publications that are detected in the RIS data.
 	 * @throws Exception if the RIS source cannot be processed.
 	 * @see #extractPublications(String)
 	 * @since 3.8
 	 */
 	default List<Publication> extractPublications(Reader ris, boolean keepRisId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal, boolean createMissedConference) throws Exception {
+			boolean createMissedJournal, boolean createMissedConference, Locale locale) throws Exception {
 		return getPublicationStreamFrom(ris, keepRisId, assignRandomId, ensureAtLeastOneMember,
-				createMissedJournal, createMissedConference).collect(Collectors.toList());
+				createMissedJournal, createMissedConference, locale).collect(Collectors.toList());
 	}
 
 	/** Extract the publications from a RIS source.
@@ -126,6 +129,7 @@ public interface RIS extends PublicationExporter<String> {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param locale the locale to use for importing.
 	 * @return the stream of publications that are detected in the RIS data.
 	 * @throws Exception if the RIS source cannot be processed.
 	 * @see #getPublicationStreamFrom(Reader)
@@ -133,11 +137,12 @@ public interface RIS extends PublicationExporter<String> {
 	 * @since 3.8
 	 */
 	default Stream<Publication> getPublicationStreamFrom(String ris, boolean keepRisId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference,
+			Locale locale) throws Exception {
 		if (!Strings.isNullOrEmpty(ris)) {
 			try (final Reader reader = new StringReader(ris)) {
 				return getPublicationStreamFrom(reader, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
-						createMissedConference);
+						createMissedConference, locale);
 			}
 		}
 		return Collections.<Publication>emptySet().stream();
@@ -162,6 +167,7 @@ public interface RIS extends PublicationExporter<String> {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param locale the locale to use for importing.
 	 * @return the stream of publications that are detected in the RIS data.
 	 * @throws Exception if the RIS source cannot be processed.
 	 * @see #getPublicationStreamFrom(String)
@@ -169,7 +175,7 @@ public interface RIS extends PublicationExporter<String> {
 	 * @since 3.8
 	 */
 	Stream<Publication> getPublicationStreamFrom(Reader ris, boolean keepRisId, boolean assignRandomId, boolean ensureAtLeastOneMember,
-			boolean createMissedJournal, boolean createMissedConference) throws Exception;
+			boolean createMissedJournal, boolean createMissedConference, Locale locale) throws Exception;
 
 	@Override
 	default String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {

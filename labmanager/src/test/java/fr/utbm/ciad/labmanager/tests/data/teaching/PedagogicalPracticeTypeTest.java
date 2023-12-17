@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.teaching.PedagogicalPracticeType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PedagogicalPracticeType}.
  * 
@@ -41,8 +43,11 @@ public class PedagogicalPracticeTypeTest {
 
 	private List<PedagogicalPracticeType> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(PedagogicalPracticeType.values()));
 	}
@@ -101,150 +106,38 @@ public class PedagogicalPracticeTypeTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Collaborative works", cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getLabel());
-		assertEquals("Distance learning", cons(PedagogicalPracticeType.DISTANCE_LEARNING).getLabel());
-		assertEquals("Historical pedagogical method", cons(PedagogicalPracticeType.HISTORICAL_METHOD).getLabel());
-		assertEquals("Inverted classroom", cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getLabel());
-		assertEquals("Use of modern presentation tools", cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getLabel());
-		assertEquals("Other method", cons(PedagogicalPracticeType.OTHER_METHOD).getLabel());
-		assertEquals("Pedagogy 3.0", cons(PedagogicalPracticeType.PEDAGOGY_3_0).getLabel());
-		assertEquals("Problem based learning", cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getLabel());
-		assertEquals("Project-oriented pedagogy", cons(PedagogicalPracticeType.PROJECT_ORIENTED).getLabel());
-		assertEquals("Reverse class", cons(PedagogicalPracticeType.REVERSE_CLASS).getLabel());
-		assertEquals("Serious game", cons(PedagogicalPracticeType.SERIOUS_GAME).getLabel());
-		assertEquals("Learning with social network", cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getLabel());
-		assertEquals("Virtual classroom", cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Collaborative works", cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getLabel());
-		assertEquals("Distance learning", cons(PedagogicalPracticeType.DISTANCE_LEARNING).getLabel());
-		assertEquals("Historical pedagogical method", cons(PedagogicalPracticeType.HISTORICAL_METHOD).getLabel());
-		assertEquals("Inverted classroom", cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getLabel());
-		assertEquals("Use of modern presentation tools", cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getLabel());
-		assertEquals("Other method", cons(PedagogicalPracticeType.OTHER_METHOD).getLabel());
-		assertEquals("Pedagogy 3.0", cons(PedagogicalPracticeType.PEDAGOGY_3_0).getLabel());
-		assertEquals("Problem based learning", cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getLabel());
-		assertEquals("Project-oriented pedagogy", cons(PedagogicalPracticeType.PROJECT_ORIENTED).getLabel());
-		assertEquals("Reverse class", cons(PedagogicalPracticeType.REVERSE_CLASS).getLabel());
-		assertEquals("Serious game", cons(PedagogicalPracticeType.SERIOUS_GAME).getLabel());
-		assertEquals("Learning with social network", cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getLabel());
-		assertEquals("Virtual classroom", cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Travail collaboratif", cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getLabel(Locale.FRANCE));
-		assertEquals("Formation à distance", cons(PedagogicalPracticeType.DISTANCE_LEARNING).getLabel(Locale.FRANCE));
-		assertEquals("Méthode historique", cons(PedagogicalPracticeType.HISTORICAL_METHOD).getLabel(Locale.FRANCE));
-		assertEquals("Classe inversée", cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getLabel(Locale.FRANCE));
-		assertEquals("Utilisation d'outils récents de présentation", cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getLabel(Locale.FRANCE));
-		assertEquals("Authe méthode", cons(PedagogicalPracticeType.OTHER_METHOD).getLabel(Locale.FRANCE));
-		assertEquals("Pédagogie 3.0", cons(PedagogicalPracticeType.PEDAGOGY_3_0).getLabel(Locale.FRANCE));
-		assertEquals("Apprentissage par problème", cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getLabel(Locale.FRANCE));
-		assertEquals("Pédagogie orientée projet", cons(PedagogicalPracticeType.PROJECT_ORIENTED).getLabel(Locale.FRANCE));
-		assertEquals("Classe renversée", cons(PedagogicalPracticeType.REVERSE_CLASS).getLabel(Locale.FRANCE));
-		assertEquals("Pédagogie basée sur un jeu sérieux", cons(PedagogicalPracticeType.SERIOUS_GAME).getLabel(Locale.FRANCE));
-		assertEquals("Usage pédagogique des réseaux sociaux", cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getLabel(Locale.FRANCE));
-		assertEquals("Classe virtuelle", cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Collaborative works", cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getLabel(Locale.US));
-		assertEquals("Distance learning", cons(PedagogicalPracticeType.DISTANCE_LEARNING).getLabel(Locale.US));
-		assertEquals("Historical pedagogical method", cons(PedagogicalPracticeType.HISTORICAL_METHOD).getLabel(Locale.US));
-		assertEquals("Inverted classroom", cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getLabel(Locale.US));
-		assertEquals("Use of modern presentation tools", cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getLabel(Locale.US));
-		assertEquals("Other method", cons(PedagogicalPracticeType.OTHER_METHOD).getLabel(Locale.US));
-		assertEquals("Pedagogy 3.0", cons(PedagogicalPracticeType.PEDAGOGY_3_0).getLabel(Locale.US));
-		assertEquals("Problem based learning", cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getLabel(Locale.US));
-		assertEquals("Project-oriented pedagogy", cons(PedagogicalPracticeType.PROJECT_ORIENTED).getLabel(Locale.US));
-		assertEquals("Reverse class", cons(PedagogicalPracticeType.REVERSE_CLASS).getLabel(Locale.US));
-		assertEquals("Serious game", cons(PedagogicalPracticeType.SERIOUS_GAME).getLabel(Locale.US));
-		assertEquals("Learning with social network", cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getLabel(Locale.US));
-		assertEquals("Virtual classroom", cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getLabel(Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getDescription_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertNotNull(cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.DISTANCE_LEARNING).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.HISTORICAL_METHOD).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.OTHER_METHOD).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.PEDAGOGY_3_0).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.PROJECT_ORIENTED).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.REVERSE_CLASS).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.SERIOUS_GAME).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getDescription());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getDescrition_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertNotNull(cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.DISTANCE_LEARNING).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.HISTORICAL_METHOD).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.OTHER_METHOD).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.PEDAGOGY_3_0).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.PROJECT_ORIENTED).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.REVERSE_CLASS).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.SERIOUS_GAME).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getDescription());
-		assertNotNull(cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getDescription());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getDescription_Locale_FR() throws Exception {
-		assertNotNull(cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.DISTANCE_LEARNING).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.HISTORICAL_METHOD).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.OTHER_METHOD).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.PEDAGOGY_3_0).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.PROJECT_ORIENTED).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.REVERSE_CLASS).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.SERIOUS_GAME).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getDescription(Locale.FRANCE));
-		assertNotNull(cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getDescription(Locale.FRANCE));
+		assertEquals("Collaborative works", cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getLabel(this.messages, Locale.US));
+		assertEquals("Distance learning", cons(PedagogicalPracticeType.DISTANCE_LEARNING).getLabel(this.messages, Locale.US));
+		assertEquals("Historical pedagogical method", cons(PedagogicalPracticeType.HISTORICAL_METHOD).getLabel(this.messages, Locale.US));
+		assertEquals("Inverted classroom", cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getLabel(this.messages, Locale.US));
+		assertEquals("Use of modern presentation tools", cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getLabel(this.messages, Locale.US));
+		assertEquals("Other method", cons(PedagogicalPracticeType.OTHER_METHOD).getLabel(this.messages, Locale.US));
+		assertEquals("Pedagogy 3.0", cons(PedagogicalPracticeType.PEDAGOGY_3_0).getLabel(this.messages, Locale.US));
+		assertEquals("Problem based learning", cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getLabel(this.messages, Locale.US));
+		assertEquals("Project-oriented pedagogy", cons(PedagogicalPracticeType.PROJECT_ORIENTED).getLabel(this.messages, Locale.US));
+		assertEquals("Reverse class", cons(PedagogicalPracticeType.REVERSE_CLASS).getLabel(this.messages, Locale.US));
+		assertEquals("Serious game", cons(PedagogicalPracticeType.SERIOUS_GAME).getLabel(this.messages, Locale.US));
+		assertEquals("Learning with social network", cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getLabel(this.messages, Locale.US));
+		assertEquals("Virtual classroom", cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getDescription_Locale_US() throws Exception {
-		assertNotNull(cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.DISTANCE_LEARNING).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.HISTORICAL_METHOD).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.OTHER_METHOD).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.PEDAGOGY_3_0).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.PROJECT_ORIENTED).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.REVERSE_CLASS).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.SERIOUS_GAME).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getDescription(Locale.US));
-		assertNotNull(cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getDescription(Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.COLLABORATIVE_WORKS).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.DISTANCE_LEARNING).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.HISTORICAL_METHOD).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.INVERTED_CLASSROOM).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.MODERN_PRESENTATION_TOOLS).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.OTHER_METHOD).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.PEDAGOGY_3_0).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.PROBLEM_BASED_LEARNING).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.PROJECT_ORIENTED).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.REVERSE_CLASS).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.SERIOUS_GAME).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.SOCIAL_NETWORK_LEARNING).getDescription(this.messages, Locale.US));
+		assertNotNull(cons(PedagogicalPracticeType.VIRTUAL_CLASSROOM).getDescription(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

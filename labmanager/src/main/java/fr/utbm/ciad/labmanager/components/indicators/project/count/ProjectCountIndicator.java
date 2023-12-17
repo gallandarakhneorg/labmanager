@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.project.count;
 
+import java.util.Locale;
+
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectCategory;
@@ -53,13 +55,13 @@ public class ProjectCountIndicator extends AbstractProjectCountIndicator {
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("projectCountIndicator.name"); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "projectCountIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithYears("projectCountIndicator.label"); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getLabelWithYears(locale, "projectCountIndicator.label"); //$NON-NLS-1$
 	}
 
 	@Override

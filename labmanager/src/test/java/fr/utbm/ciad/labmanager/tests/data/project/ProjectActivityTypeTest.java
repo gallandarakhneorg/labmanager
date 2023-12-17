@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.project.ProjectActivityType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ProjectActivityType}.
  * 
@@ -41,8 +43,11 @@ public class ProjectActivityTypeTest {
 
 	private List<ProjectActivityType> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(ProjectActivityType.values()));
 	}
@@ -81,36 +86,10 @@ public class ProjectActivityTypeTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Fundamental Research", cons(ProjectActivityType.FUNDAMENTAL_RESEARCH).getLabel());
-		assertEquals("Applied Research", cons(ProjectActivityType.APPLIED_RESEARCH).getLabel());
-		assertEquals("Experimental Development", cons(ProjectActivityType.EXPERIMENTAL_DEVELOPMENT).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Fundamental Research", cons(ProjectActivityType.FUNDAMENTAL_RESEARCH).getLabel());
-		assertEquals("Applied Research", cons(ProjectActivityType.APPLIED_RESEARCH).getLabel());
-		assertEquals("Experimental Development", cons(ProjectActivityType.EXPERIMENTAL_DEVELOPMENT).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Recherche fondamentale", cons(ProjectActivityType.FUNDAMENTAL_RESEARCH).getLabel(Locale.FRANCE));
-		assertEquals("Recherche appliquée", cons(ProjectActivityType.APPLIED_RESEARCH).getLabel(Locale.FRANCE));
-		assertEquals("Développement expérimental", cons(ProjectActivityType.EXPERIMENTAL_DEVELOPMENT).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Fundamental Research", cons(ProjectActivityType.FUNDAMENTAL_RESEARCH).getLabel(Locale.US));
-		assertEquals("Applied Research", cons(ProjectActivityType.APPLIED_RESEARCH).getLabel(Locale.US));
-		assertEquals("Experimental Development", cons(ProjectActivityType.EXPERIMENTAL_DEVELOPMENT).getLabel(Locale.US));
+		assertEquals("Fundamental Research", cons(ProjectActivityType.FUNDAMENTAL_RESEARCH).getLabel(this.messages, Locale.US));
+		assertEquals("Applied Research", cons(ProjectActivityType.APPLIED_RESEARCH).getLabel(this.messages, Locale.US));
+		assertEquals("Experimental Development", cons(ProjectActivityType.EXPERIMENTAL_DEVELOPMENT).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

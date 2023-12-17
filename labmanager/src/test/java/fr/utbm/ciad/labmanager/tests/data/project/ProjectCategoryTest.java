@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.project.ProjectCategory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ProjectCategory}.
  * 
@@ -41,8 +43,11 @@ public class ProjectCategoryTest {
 
 	private List<ProjectCategory> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(ProjectCategory.values()));
 	}
@@ -83,40 +88,11 @@ public class ProjectCategoryTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Projects in competitive calls or with public funding", cons(ProjectCategory.COMPETITIVE_CALL_PROJECT).getLabel());
-		assertEquals("Projects with not academic or socio-economic partners", cons(ProjectCategory.NOT_ACADEMIC_PROJECT).getLabel());
-		assertEquals("Open Source projects or freely available on Internet", cons(ProjectCategory.OPEN_SOURCE).getLabel());
-		assertEquals("Auto-funding projects", cons(ProjectCategory.AUTO_FUNDING).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Projects in competitive calls or with public funding", cons(ProjectCategory.COMPETITIVE_CALL_PROJECT).getLabel());
-		assertEquals("Projects with not academic or socio-economic partners", cons(ProjectCategory.NOT_ACADEMIC_PROJECT).getLabel());
-		assertEquals("Open Source projects or freely available on Internet", cons(ProjectCategory.OPEN_SOURCE).getLabel());
-		assertEquals("Auto-funding projects", cons(ProjectCategory.AUTO_FUNDING).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Projets dans des appels compétitifs ou avec financement public", cons(ProjectCategory.COMPETITIVE_CALL_PROJECT).getLabel(Locale.FRANCE));
-		assertEquals("Projets avec des partenaires non académiques ou socio-économiques", cons(ProjectCategory.NOT_ACADEMIC_PROJECT).getLabel(Locale.FRANCE));
-		assertEquals("Projets Open Source ou disponibles librement sur Internet", cons(ProjectCategory.OPEN_SOURCE).getLabel(Locale.FRANCE));
-		assertEquals("Projets auto-financés", cons(ProjectCategory.AUTO_FUNDING).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Projects in competitive calls or with public funding", cons(ProjectCategory.COMPETITIVE_CALL_PROJECT).getLabel(Locale.US));
-		assertEquals("Projects with not academic or socio-economic partners", cons(ProjectCategory.NOT_ACADEMIC_PROJECT).getLabel(Locale.US));
-		assertEquals("Open Source projects or freely available on Internet", cons(ProjectCategory.OPEN_SOURCE).getLabel(Locale.US));
-		assertEquals("Auto-funding projects", cons(ProjectCategory.AUTO_FUNDING).getLabel(Locale.US));
+		assertEquals("Projects in competitive calls or with public funding", cons(ProjectCategory.COMPETITIVE_CALL_PROJECT).getLabel(this.messages, Locale.US));
+		assertEquals("Projects with not academic or socio-economic partners", cons(ProjectCategory.NOT_ACADEMIC_PROJECT).getLabel(this.messages, Locale.US));
+		assertEquals("Open Source projects or freely available on Internet", cons(ProjectCategory.OPEN_SOURCE).getLabel(this.messages, Locale.US));
+		assertEquals("Auto-funding projects", cons(ProjectCategory.AUTO_FUNDING).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

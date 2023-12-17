@@ -25,6 +25,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import fr.utbm.ciad.labmanager.data.member.Membership;
@@ -50,7 +51,7 @@ public class ExporterConfiguratorTest {
 
 	@BeforeEach
 	public void setUp() {
-		this.test = new ExporterConfigurator(mock(JournalService.class));
+		this.test = new ExporterConfigurator(mock(JournalService.class), Locale.US);
 	}
 
 	@Test

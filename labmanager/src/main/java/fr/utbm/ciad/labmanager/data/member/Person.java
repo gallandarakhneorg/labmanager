@@ -67,6 +67,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.transaction.Transactional;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Represent a person.
  * 
@@ -532,15 +533,8 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		return EntityUtils.getPreferredPersonComparator().compare(this, o);
 	}
 
-	/** {@inheritDoc}
-	 * <p>The attributes that are not considered by this function are:<ul>
-	 * <li>{@code id}</li>
-	 * <li>{@code publications}</li>
-	 * <li>{@code researchOrganizations}</li>
-	 * </ul>
-	 */
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getId() != 0) {
 			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
 		}
@@ -565,8 +559,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (getGender() != null) {
 			consumer.accept("gender", getGender()); //$NON-NLS-1$
 		}
-		if (getCivilTitle() != null) {
-			consumer.accept("civilTitle", getCivilTitle()); //$NON-NLS-1$
+		final String title = getCivilTitle(messages, locale); 
+		if (!Strings.isNullOrEmpty(title)) {
+			consumer.accept("civilTitle", title); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			consumer.accept("githubId", getGithubId()); //$NON-NLS-1$
@@ -1796,28 +1791,15 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
 	 * on the values replied by {@link #getActiveOrFinishedMemberships()} and {@link #getGender()}.
-	 * The language of the title depends on the current locale.
 	 *
-	 * @return the civil title, or {@code null} if none.
-	 * @see #getCivilTitle(Locale)
-	 * @see #getCivilTitle(boolean)
-	 * @see #getCivilTitle(boolean, Locale)
-	 */
-	public final String getCivilTitle() {
-		return getCivilTitle(true);
-	}
-
-	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
-	 * on the values replied by {@link #getActiveOrFinishedMemberships()} and {@link #getGender()}.
-	 *
+	 * @param messages the accessor to the localized labels.
+	 * @param locale the locale to use for generating the labels.
 	 * @param locale the locale to use for generating the civil title.
 	 * @return the civil title, or {@code null} if none.
-	 * @see #getCivilTitle()
-	 * @see #getCivilTitle(boolean)
-	 * @see #getCivilTitle(boolean, Locale)
+	 * @see #getCivilTitle(MessageSourceAccessor, Locale, boolean)
 	 */
-	public final String getCivilTitle(Locale locale) {
-		return getCivilTitle(true);
+	public final String getCivilTitle(MessageSourceAccessor messages, Locale locale) {
+		return getCivilTitle(messages, locale, true);
 	}
 
 	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
@@ -1825,43 +1807,20 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 * is evaluated to {@code true}, the value replied by {@link #getGender()}.
 	 * The language of the title depends on the current locale.
 	 *
+	 * @param messages the accessor to the localized labels.
+	 * @param locale the locale to use for generating the labels.
 	 * @param includeGenderTitle indicates if the gender title should be consider and eventually replied.
 	 * @return the civil title, or {@code null} if none.
-	 * @see #getCivilTitle(Locale)
-	 * @see #getCivilTitle()
-	 * @see #getCivilTitle(boolean, Locale)
+	 * @see #getCivilTitle(MessageSourceAccessor, Locale)
 	 */
-	public String getCivilTitle(boolean includeGenderTitle) {
+	public String getCivilTitle(MessageSourceAccessor messages, Locale locale, boolean includeGenderTitle) {
 		final MemberStatus status = findHigherMemberStatus();
 		String title = null;
 		if (status != null) {
-			title = status.getCivilTitle();
+			title = status.getCivilTitle(messages, locale);
 		}
 		if (includeGenderTitle && Strings.isNullOrEmpty(title)) {
-			title = getGender().getCivilTitle();
-		}
-		return Strings.emptyToNull(title);
-	}
-
-	/** Replies the preferred civil title for this person. This civil title is not stored and computed based
-	 * on the values replied by {@link #getActiveOrFinishedMemberships()}, and, if {@code includeGenderTitle}
-	 * is evaluated to {@code true}, the value replied by {@link #getGender()}.
-	 *
-	 * @param includeGenderTitle indicates if the gender title should be consider and eventually replied.
-	 * @param locale the locale to use for generating the civil title.
-	 * @return the civil title, or {@code null} if none.
-	 * @see #getCivilTitle()
-	 * @see #getCivilTitle(boolean)
-	 * @see #getCivilTitle(Locale)
-	 */
-	public String getCivilTitle(boolean includeGenderTitle, Locale locale) {
-		final MemberStatus status = findHigherMemberStatus();
-		String title = null;
-		if (status != null) {
-			title = status.getCivilTitle(locale);
-		}
-		if (includeGenderTitle && Strings.isNullOrEmpty(title)) {
-			title = getGender().getCivilTitle(locale);
+			title = getGender().getCivilTitle(messages, locale);
 		}
 		return Strings.emptyToNull(title);
 	}

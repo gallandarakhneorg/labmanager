@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.project;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.project.Project;
@@ -63,49 +65,49 @@ public class OrphanProjectService extends AbstractOrphanService<Project> {
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.projectRepository, this,
 				Constants.PROJECT_EDITING_ENDPOINT, Constants.PROJECT_ENDPOINT_PARAMETER,
 				Constants.PROJECT_DELETING_ENDPOINT, Constants.PROJECT_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(Project project) {
+	public String getOrphanCriteria(Project project, Locale locale) {
 		if (project.getCoordinator() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoCoordinator"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoCoordinator"); //$NON-NLS-1$
 		}
 		if (project.getBudgets().isEmpty()) {
-			return getMessage(MESSAGE_PREFIX + "EmptyBudgetList"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "EmptyBudgetList"); //$NON-NLS-1$
 		}
 		if (project.getStartDate() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoStartDate"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoStartDate"); //$NON-NLS-1$
 		}
 		if (project.getLocalOrganization() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoLocalOrganization"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoLocalOrganization"); //$NON-NLS-1$
 		}
 		if (project.getLearOrganization() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoLearOrganization"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoLearOrganization"); //$NON-NLS-1$
 		}
 		if (project.getParticipants().isEmpty()) {
-			return getMessage(MESSAGE_PREFIX + "EmptyParticipantList"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "EmptyParticipantList"); //$NON-NLS-1$
 		}
 		for (final ProjectMember participant : project.getParticipants()) {
 			if (participant.getPerson() == null) {
-				return getMessage(MESSAGE_PREFIX + "MissedPersonForParticipant"); //$NON-NLS-1$
+				return getMessage(locale, MESSAGE_PREFIX + "MissedPersonForParticipant"); //$NON-NLS-1$
 			}
 		}
 		return null;
 	}
 
 	@Override
-	public String getOrphanEntityLabel(Project entity) {
+	public String getOrphanEntityLabel(Project entity, Locale locale) {
 		return entity.getAcronymOrScientificTitle() + " - " + entity.getStartYear(); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

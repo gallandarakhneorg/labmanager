@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -49,6 +50,7 @@ import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Description of a jury for Master, PhD or HDR.
  * 
@@ -214,7 +216,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	 * </ul>
 	 */
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getType() != null) {
 			consumer.accept("type", getType()); //$NON-NLS-1$
 		}

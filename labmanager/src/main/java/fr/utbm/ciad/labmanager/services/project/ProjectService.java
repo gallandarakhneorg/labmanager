@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -949,11 +950,11 @@ public class ProjectService extends AbstractService {
 	/** Replies the numbers of projects per funding scheme for the given set of projects.
 	 *
 	 * @param projects the projects to analyze.
+	 * @param locale the  locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
 	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfProjectsPerType(Collection<? extends Project> projects) {
+	public List<List<Object>> getNumberOfProjectsPerType(Collection<? extends Project> projects, Locale locale) {
 		final Map<ProjectCategory, Integer> projectsPerCategory = projects.stream()
 				.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
 				.collect(Collectors.toMap(
@@ -966,7 +967,7 @@ public class ProjectService extends AbstractService {
 			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 			.map(it -> {
 				final List<Object> columns = new ArrayList<>(2);
-				columns.add(it.getKey().getLabel());
+				columns.add(it.getKey().getLabel(getMessageSourceAccessor(), locale));
 				columns.add(it.getValue());
 				return columns;
 			})
@@ -976,11 +977,11 @@ public class ProjectService extends AbstractService {
 	/** Replies the numbers of academic projects per funding scheme for the given set of projects.
 	 *
 	 * @param projects the projects to analyze.
+	 * @param locale the locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
 	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfAcademicProjectsPerType(Collection<? extends Project> projects) {
+	public List<List<Object>> getNumberOfAcademicProjectsPerType(Collection<? extends Project> projects, Locale locale) {
 		final Map<FundingScheme, Integer> projectsPerScheme = projects.stream()
 				.filter(it -> it.getMajorFundingScheme().isCompetitive() && it.getStatus() == ProjectStatus.ACCEPTED)
 				.collect(Collectors.toMap(
@@ -993,7 +994,7 @@ public class ProjectService extends AbstractService {
 			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 			.map(it -> {
 				final List<Object> columns = new ArrayList<>(2);
-				columns.add(it.getKey().getLabel());
+				columns.add(it.getKey().getLabel(getMessageSourceAccessor(), locale));
 				columns.add(it.getValue());
 				return columns;
 			})
@@ -1003,11 +1004,11 @@ public class ProjectService extends AbstractService {
 	/** Replies the numbers of not-academic projects per funding scheme for the given set of projects.
 	 *
 	 * @param projects the projects to analyze.
+	 * @param locale the locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
 	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfNotAcademicProjectsPerType(Collection<? extends Project> projects) {
+	public List<List<Object>> getNumberOfNotAcademicProjectsPerType(Collection<? extends Project> projects, Locale locale) {
 		final Map<FundingScheme, Integer> projectsPerScheme = projects.stream()
 				.filter(it -> (it.getMajorFundingScheme().isAcademicButContractual() || it.getMajorFundingScheme().isNotAcademic())
 							&& it.getStatus() == ProjectStatus.ACCEPTED)
@@ -1021,7 +1022,7 @@ public class ProjectService extends AbstractService {
 			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 			.map(it -> {
 				final List<Object> columns = new ArrayList<>(2);
-				columns.add(it.getKey().getLabel());
+				columns.add(it.getKey().getLabel(getMessageSourceAccessor(), locale));
 				columns.add(it.getValue());
 				return columns;
 			})
@@ -1031,11 +1032,11 @@ public class ProjectService extends AbstractService {
 	/** Replies the numbers of projects per activity type for the given set of projects.
 	 *
 	 * @param projects the projects to analyze.
+	 * @param locale the locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
 	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfProjectsPerActivityType(Collection<? extends Project> projects) {
+	public List<List<Object>> getNumberOfProjectsPerActivityType(Collection<? extends Project> projects, Locale locale) {
 		final Map<ProjectActivityType, Integer> projectsPerType = projects.stream()
 				.filter(it -> it.getActivityType() != null && it.getStatus() == ProjectStatus.ACCEPTED)
 				.collect(Collectors.toMap(
@@ -1048,7 +1049,7 @@ public class ProjectService extends AbstractService {
 			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 			.map(it -> {
 				final List<Object> columns = new ArrayList<>(2);
-				columns.add(it.getKey().getLabel());
+				columns.add(it.getKey().getLabel(getMessageSourceAccessor(), locale));
 				columns.add(it.getValue());
 				return columns;
 			})
@@ -1058,11 +1059,11 @@ public class ProjectService extends AbstractService {
 	/** Replies the numbers of projects per TRL for the given set of projects.
 	 *
 	 * @param projects the projects to analyze.
+	 * @param locale the locale to use.
 	 * @return rows with: type, count.
 	 * @since 3.6
 	 */
-	@SuppressWarnings("static-method")
-	public List<List<Object>> getNumberOfProjectsPerTRL(Collection<? extends Project> projects) {
+	public List<List<Object>> getNumberOfProjectsPerTRL(Collection<? extends Project> projects, Locale locale) {
 		final Map<TRL, Integer> projectsPerTRL = projects.stream()
 				.filter(it -> it.getTRL() != null && it.getStatus() == ProjectStatus.ACCEPTED)
 				.collect(Collectors.toMap(
@@ -1075,7 +1076,7 @@ public class ProjectService extends AbstractService {
 			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 			.map(it -> {
 				final List<Object> columns = new ArrayList<>(2);
-				columns.add(it.getKey().name() + " - " + it.getKey().getLabel()); //$NON-NLS-1$
+				columns.add(it.getKey().name() + " - " + it.getKey().getLabel(getMessageSourceAccessor(), locale)); //$NON-NLS-1$
 				columns.add(it.getValue());
 				return columns;
 			})
@@ -1085,10 +1086,11 @@ public class ProjectService extends AbstractService {
 	/** Replies the numbers of projects per research axis for the given set of projects.
 	 *
 	 * @param projects the projects to analyze.
+	 * @param locale the locale to use.
 	 * @return rows with: axis, count.
 	 * @since 3.6
 	 */
-	public List<List<Object>> getNumberOfProjectsPerScientificAxis(Collection<? extends Project> projects) {
+	public List<List<Object>> getNumberOfProjectsPerScientificAxis(Collection<? extends Project> projects, Locale locale) {
 		final Map<ScientificAxis, Integer> projectsPerAxis = new HashMap<>();
 		final AtomicInteger outsideAxis = new AtomicInteger(); 
 		projects.stream()
@@ -1108,7 +1110,7 @@ public class ProjectService extends AbstractService {
 				});
 		if (outsideAxis.intValue() > 0) {
 			final ScientificAxis outAxis = new ScientificAxis();
-			outAxis.setName(getMessage("projectService.outsideScientificAxis")); //$NON-NLS-1$
+			outAxis.setName(getMessage(locale, "projectService.outsideScientificAxis")); //$NON-NLS-1$
 			projectsPerAxis.put(outAxis, Integer.valueOf(outsideAxis.get()));
 		}
 		return projectsPerAxis.entrySet().stream()

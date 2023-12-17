@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services.conference;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -72,30 +73,30 @@ public class OrphanConferenceService extends AbstractOrphanService<Conference> {
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.conferenceRepository, this,
 				Constants.CONFERENCE_EDITING_ENDPOINT, Constants.CONFERENCE_ENDPOINT_PARAMETER,
 				Constants.CONFERENCE_DELETING_ENDPOINT, Constants.CONFERENCE_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(Conference conference) {
+	public String getOrphanCriteria(Conference conference, Locale locale) {
 		final List<ConferenceBasedPublication> pubs = this.publicationService.getPublicationsForConference(conference.getId());
 		if (pubs.isEmpty()) {
-			return getMessage(MESSAGE_PREFIX + "ConferenceWithoutPublication"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "ConferenceWithoutPublication"); //$NON-NLS-1$
 		}
 		return null;
 	}
 
 	@Override
-	public String getOrphanEntityLabel(Conference entity) {
+	public String getOrphanEntityLabel(Conference entity, Locale locale) {
 		return entity.getAcronym() + " - " + entity.getName(); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

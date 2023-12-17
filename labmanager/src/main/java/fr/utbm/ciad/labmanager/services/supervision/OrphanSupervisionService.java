@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services.supervision;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -63,41 +64,41 @@ public class OrphanSupervisionService extends AbstractOrphanService<Supervision>
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.supervisionRepository, this,
 				Constants.SUPERVISION_EDITING_ENDPOINT, Constants.PERSON_ENDPOINT_PARAMETER,
 				Constants.SUPERVISION_DELETION_ENDPOINT, Constants.ID_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(Supervision supervision) {
+	public String getOrphanCriteria(Supervision supervision, Locale locale) {
 		if (supervision.getSupervisedPerson() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoSupervisedPerson"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoSupervisedPerson"); //$NON-NLS-1$
 		}
 		if (supervision.getFunding() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoFunding"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoFunding"); //$NON-NLS-1$
 		}
 		if (supervision.getSupervisors().isEmpty()) {
-			return getMessage(MESSAGE_PREFIX + "EmptySupervisorList"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "EmptySupervisorList"); //$NON-NLS-1$
 		}
 		for (final Supervisor supervisor : supervision.getSupervisors()) {
 			if (supervisor.getSupervisor() == null) {
-				return getMessage(MESSAGE_PREFIX + "NoPersonForSupervisor"); //$NON-NLS-1$
+				return getMessage(locale, MESSAGE_PREFIX + "NoPersonForSupervisor"); //$NON-NLS-1$
 			}
 		}
 		return null;
 	}
 
 	@Override
-	public String getOrphanEntityLabel(Supervision entity) {
+	public String getOrphanEntityLabel(Supervision entity, Locale locale) {
 		if (entity.getSupervisedPerson() != null) {
-			return "? - " + join(entity.getSupervisors()) + " - " + entity.getYear(); //$NON-NLS-1$ //$NON-NLS-2$
+			return "? - " + join(entity.getSupervisors(), locale) + " - " + entity.getYear(); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		return entity.getSupervisedPerson().getPerson() + " - " + join(entity.getSupervisors()) + " - " + entity.getYear(); //$NON-NLS-1$ //$NON-NLS-2$
+		return entity.getSupervisedPerson().getPerson() + " - " + join(entity.getSupervisors(), locale) + " - " + entity.getYear(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
-	private static String join(List<Supervisor> supervisors) {
+	private static String join(List<Supervisor> supervisors, Locale locale) {
 		final StringBuffer buffer = new StringBuffer();
 		for (final Supervisor supervisor : supervisors) {
 			if (buffer.length() > 0) {
@@ -110,8 +111,8 @@ public class OrphanSupervisionService extends AbstractOrphanService<Supervision>
 
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

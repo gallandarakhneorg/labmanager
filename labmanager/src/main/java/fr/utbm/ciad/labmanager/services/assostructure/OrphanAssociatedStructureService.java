@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.assostructure;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
@@ -61,40 +63,41 @@ public class OrphanAssociatedStructureService extends AbstractOrphanService<Asso
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.structureRepository, this,
 				Constants.ASSOCIATED_STRUCTURE_EDITING_ENDPOINT, Constants.STRUCTURE_ENDPOINT_PARAMETER,
 				Constants.ASSOCIATED_STRUCTURE_DELETING_ENDPOINT, Constants.STRUCTURE_ENDPOINT_PARAMETER,
+				locale,
 				progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(AssociatedStructure structure) {
+	public String getOrphanCriteria(AssociatedStructure structure, Locale locale) {
 		if (structure.getHolders().isEmpty()) {
-			return getMessage(MESSAGE_PREFIX + "EmptyHolderList"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "EmptyHolderList"); //$NON-NLS-1$
 		}
 		if (structure.getCreationDate() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoCreationDate"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoCreationDate"); //$NON-NLS-1$
 		}
 		for (final AssociatedStructureHolder holder : structure.getHolders()) {
 			if (holder.getPerson() == null) {
-				return getMessage(MESSAGE_PREFIX + "NoPersonInHolder"); //$NON-NLS-1$
+				return getMessage(locale, MESSAGE_PREFIX + "NoPersonInHolder"); //$NON-NLS-1$
 			}
 			if (holder.getOrganization() == null) {
-				return getMessage(MESSAGE_PREFIX + "NoOrganizationInHolder"); //$NON-NLS-1$
+				return getMessage(locale, MESSAGE_PREFIX + "NoOrganizationInHolder"); //$NON-NLS-1$
 			}
 		}
 		return null;
 	}
 
 	@Override
-	public String getOrphanEntityLabel(AssociatedStructure entity) {
+	public String getOrphanEntityLabel(AssociatedStructure entity, Locale locale) {
 		return entity.getAcronym() + " - " + entity.getName(); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

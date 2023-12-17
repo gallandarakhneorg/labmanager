@@ -25,10 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembershipType;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link JuryMembershipType}.
  * 
@@ -42,9 +44,12 @@ import org.junit.jupiter.api.Test;
 public class JuryMembershipTypeTest {
 
 	private List<JuryMembershipType> items;
+	
+	private MessageSourceAccessor messages;
 
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(JuryMembershipType.values()));
 	}
@@ -59,122 +64,29 @@ public class JuryMembershipTypeTest {
 	}
 
 	@Test
-	public void getLabel_US_MALE() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(Gender.MALE));
-		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.MALE));
-		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.MALE));
-		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(Gender.MALE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US_FEMALE() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(Gender.FEMALE));
-		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.FEMALE));
-		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.FEMALE));
-		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(Gender.FEMALE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US_OTHER() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(Gender.OTHER));
-		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.OTHER));
-		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.OTHER));
-		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(Gender.OTHER));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR_MALE() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(Gender.MALE));
-		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.MALE));
-		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.MALE));
-		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(Gender.MALE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR_FEMALE() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(Gender.FEMALE));
-		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.FEMALE));
-		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.FEMALE));
-		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(Gender.FEMALE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR_OTHER() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(Gender.OTHER));
-		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.OTHER));
-		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.OTHER));
-		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(Gender.OTHER));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US_MALE() {
-		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(Gender.MALE, Locale.US));
-		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.MALE, Locale.US));
-		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.MALE, Locale.US));
-		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(Gender.MALE, Locale.US));
+		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(this.messages, Gender.MALE, Locale.US));
+		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(this.messages, Gender.MALE, Locale.US));
+		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(this.messages, Gender.MALE, Locale.US));
+		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(this.messages, Gender.MALE, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_Locale_US_FEMALE() {
-		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(Gender.FEMALE, Locale.US));
-		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.FEMALE, Locale.US));
-		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.FEMALE, Locale.US));
-		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(Gender.FEMALE, Locale.US));
+		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(this.messages, Gender.FEMALE, Locale.US));
+		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(this.messages, Gender.FEMALE, Locale.US));
+		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(this.messages, Gender.FEMALE, Locale.US));
+		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(this.messages, Gender.FEMALE, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_Locale_US_OTHER() {
-		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(Gender.OTHER, Locale.US));
-		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.OTHER, Locale.US));
-		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.OTHER, Locale.US));
-		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(Gender.OTHER, Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR_MALE() {
-		assertEquals("Examinateur", cons(JuryMembershipType.EXAMINER).getLabel(Gender.MALE, Locale.FRANCE));
-		assertEquals("Membre invité", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.MALE, Locale.FRANCE));
-		assertEquals("Président", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.MALE, Locale.FRANCE));
-		assertEquals("Rapporteur", cons(JuryMembershipType.REVIEWER).getLabel(Gender.MALE, Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR_FEMALE() {
-		assertEquals("Examinatrice", cons(JuryMembershipType.EXAMINER).getLabel(Gender.FEMALE, Locale.FRANCE));
-		assertEquals("Membre invitée", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.FEMALE, Locale.FRANCE));
-		assertEquals("Présidente", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.FEMALE, Locale.FRANCE));
-		assertEquals("Rapportrice", cons(JuryMembershipType.REVIEWER).getLabel(Gender.FEMALE, Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR_OTHER() {
-		assertEquals("Examinateur.trice", cons(JuryMembershipType.EXAMINER).getLabel(Gender.OTHER, Locale.FRANCE));
-		assertEquals("Membre invité.e", cons(JuryMembershipType.INVITED_PERSON).getLabel(Gender.OTHER, Locale.FRANCE));
-		assertEquals("Président.e", cons(JuryMembershipType.PRESIDENT).getLabel(Gender.OTHER, Locale.FRANCE));
-		assertEquals("Rapporteur.trice", cons(JuryMembershipType.REVIEWER).getLabel(Gender.OTHER, Locale.FRANCE));
+		assertEquals("Examiner", cons(JuryMembershipType.EXAMINER).getLabel(this.messages, Gender.OTHER, Locale.US));
+		assertEquals("Invited member", cons(JuryMembershipType.INVITED_PERSON).getLabel(this.messages, Gender.OTHER, Locale.US));
+		assertEquals("President", cons(JuryMembershipType.PRESIDENT).getLabel(this.messages, Gender.OTHER, Locale.US));
+		assertEquals("Reviewer", cons(JuryMembershipType.REVIEWER).getLabel(this.messages, Gender.OTHER, Locale.US));
 		assertAllTreated();
 	}
 

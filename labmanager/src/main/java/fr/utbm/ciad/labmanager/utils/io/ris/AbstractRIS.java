@@ -25,6 +25,7 @@ import java.util.regex.Pattern;
 
 import fr.utbm.ciad.labmanager.utils.IntegerRange;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Utilities for RIS.
  * RIS is a standardized tag format developed by Research Information Systems, Incorporated to enable citation programs
@@ -43,6 +44,24 @@ public abstract class AbstractRIS implements RIS {
 
 	private final Random random = new Random();
 
+	private final MessageSourceAccessor messages;
+
+	/** Constructor.
+	 *
+	 * @param messages the accessor to the localized strings.
+	 */
+	public AbstractRIS(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
+	
+	/** Replies the accessor to the localized strings.
+	 *
+	 * @return the accessor.
+	 */
+	protected MessageSourceAccessor getMessageSourceAccessor() {
+		return this.messages;
+	}
+	
 	/** Parse the string that represents a page range.
 	 *
 	 * @param pages the string to parse.

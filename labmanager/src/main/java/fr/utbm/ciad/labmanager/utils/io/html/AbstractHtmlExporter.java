@@ -24,6 +24,7 @@ import java.text.NumberFormat;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
+import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -72,10 +73,6 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 */
 	protected final HalTools halTools;
 
-	/** Provider of localized messages.
-	 */
-	protected final MessageSourceAccessor messages;
-
 	/** Constructor.
 	 *
 	 * @param constants the accessor to the application constants.
@@ -84,8 +81,8 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 * @param halTools the tools for manipulating HAL identifiers.
 	 */
 	public AbstractHtmlExporter(Constants constants, MessageSourceAccessor messages, DoiTools doiTools, HalTools halTools) {
+		super(messages);
 		this.constants = constants;
-		this.messages = messages;
 		this.doiTools = doiTools;
 		this.halTools = halTools;
 	}
@@ -313,9 +310,10 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 * @param scimago the Scimago ranking.
 	 * @param wos the Web-of-Science ranking.
 	 * @param impactFactor the journal's impact factor.
+	 * @param locale the locale to use.
 	 * @return {@code true} if the receiver has changed.
 	 */
-	protected boolean appendRanks(StringBuilder receiver, QuartileRanking scimago, QuartileRanking wos, float impactFactor) {
+	protected boolean appendRanks(StringBuilder receiver, QuartileRanking scimago, QuartileRanking wos, float impactFactor, Locale locale) {
 		final String impactFactorStr = formatNumberIfStrictlyPositive(impactFactor);
 		final QuartileRanking scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
 		final QuartileRanking wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
@@ -325,9 +323,9 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 				final String scimagoStr = toHtml(scimagoNorm.toString());
 				final String wosStr = toHtml(wosNorm.toString());
 				if (append(receiver, ", ", //$NON-NLS-1$
-						decorateBefore(scimagoStr, this.messages.getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX")), //$NON-NLS-1$
-						decorateBefore(wosStr, this.messages.getMessage(MESSAGES_PREFIX + "WOS_PREFIX")), //$NON-NLS-1$
-						decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+						decorateBefore(scimagoStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX", locale)), //$NON-NLS-1$
+						decorateBefore(wosStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "WOS_PREFIX", locale)), //$NON-NLS-1$
+						decorateBefore(impactFactorStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX", locale)))) { //$NON-NLS-1$
 					receiver.append(". "); //$NON-NLS-1$
 					return true;
 				}		
@@ -340,8 +338,8 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 			rank = toHtml(wosNorm.toString());
 		}
 		if (append(receiver, ", ", //$NON-NLS-1$
-				decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX")), //$NON-NLS-1$
-				decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+				decorateBefore(rank, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX", locale)), //$NON-NLS-1$
+				decorateBefore(impactFactorStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX", locale)))) { //$NON-NLS-1$
 			receiver.append(". "); //$NON-NLS-1$
 			return true;
 		}		
@@ -352,12 +350,13 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 *
 	 * @param receiver the receiver of the HTML.
 	 * @param core the CORE ranking.
+	 * @param locale the locale to use.
 	 * @return {@code true} if the receiver has changed.
 	 */
-	protected boolean appendRanks(StringBuilder receiver, CoreRanking core) {
+	protected boolean appendRanks(StringBuilder receiver, CoreRanking core, Locale locale) {
 		final CoreRanking coreNorm = core == null || core == CoreRanking.NR ? null : core;
 		if (coreNorm != null && append(receiver,
-				decorateBefore(toHtml(coreNorm.toString()), this.messages.getMessage(MESSAGES_PREFIX + "CORE_PREFIX")))) { //$NON-NLS-1$
+				decorateBefore(toHtml(coreNorm.toString()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "CORE_PREFIX", locale)))) { //$NON-NLS-1$
 			receiver.append(". "); //$NON-NLS-1$
 			return true;
 		}
@@ -382,71 +381,81 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, Book publication);
+	protected abstract void exportDescription(StringBuilder html, Book publication, Locale locale);
 
 	/** Export in HTML the description of a single book chapter.
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, BookChapter publication);
+	protected abstract void exportDescription(StringBuilder html, BookChapter publication, Locale locale);
 
 	/** Export in HTML the description of a single conference paper.
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, ConferencePaper publication);
+	protected abstract void exportDescription(StringBuilder html, ConferencePaper publication, Locale locale);
 
 	/** Export in HTML the description of a single journal paper.
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, JournalPaper publication);
+	protected abstract void exportDescription(StringBuilder html, JournalPaper publication, Locale locale);
 
 	/** Export in HTML the description of a single journal edition.
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, JournalEdition publication);
+	protected abstract void exportDescription(StringBuilder html, JournalEdition publication, Locale locale);
 
 	/** Export in HTML the description of a single key-note.
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, KeyNote publication);
+	protected abstract void exportDescription(StringBuilder html, KeyNote publication, Locale locale);
 
 	/** Export in HTML the description of a single report.
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, Report publication);
+	protected abstract void exportDescription(StringBuilder html, Report publication, Locale locale);
 
 	/** Export in HTML the description of a single thesis.
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, Thesis publication);
+	protected abstract void exportDescription(StringBuilder html, Thesis publication, Locale locale);
 
 	/** Export in HTML the description of a single patent.
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, Patent publication);
+	protected abstract void exportDescription(StringBuilder html, Patent publication, Locale locale);
 
 	/** Export in HTML the description of a single document.
 	 *
 	 * @param html the receiver of the HTML.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(StringBuilder html, MiscDocument publication);
+	protected abstract void exportDescription(StringBuilder html, MiscDocument publication, Locale locale);
 
 	/** Export in HTML the description of a single publication.
 	 *
@@ -461,25 +470,25 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 		assert publicationClass != null;
 
 		if (publicationClass.equals(Book.class)) {
-			exportDescription(html, (Book) publication);
+			exportDescription(html, (Book) publication, configurator.getLocale());
 		} else if (publicationClass.equals(BookChapter.class)) {
-			exportDescription(html, (BookChapter) publication);
+			exportDescription(html, (BookChapter) publication, configurator.getLocale());
 		} else if (publicationClass.equals(ConferencePaper.class)) {
-			exportDescription(html, (ConferencePaper) publication);
+			exportDescription(html, (ConferencePaper) publication, configurator.getLocale());
 		} else if (publicationClass.equals(JournalEdition.class)) {
-			exportDescription(html, (JournalEdition) publication);
+			exportDescription(html, (JournalEdition) publication, configurator.getLocale());
 		} else if (publicationClass.equals(JournalPaper.class)) {
-			exportDescription(html, (JournalPaper) publication);
+			exportDescription(html, (JournalPaper) publication, configurator.getLocale());
 		} else if (publicationClass.equals(KeyNote.class)) {
-			exportDescription(html, (KeyNote) publication);
+			exportDescription(html, (KeyNote) publication, configurator.getLocale());
 		} else if (publicationClass.equals(Report.class)) {
-			exportDescription(html, (Report) publication);
+			exportDescription(html, (Report) publication, configurator.getLocale());
 		} else if (publicationClass.equals(Thesis.class)) {
-			exportDescription(html, (Thesis) publication);
+			exportDescription(html, (Thesis) publication, configurator.getLocale());
 		} else if (publicationClass.equals(Patent.class)) {
-			exportDescription(html, (Patent) publication);
+			exportDescription(html, (Patent) publication, configurator.getLocale());
 		} else if (publicationClass.equals(MiscDocument.class)) {
-			exportDescription(html, (MiscDocument) publication);
+			exportDescription(html, (MiscDocument) publication, configurator.getLocale());
 		} else {
 			throw new IllegalArgumentException("Unsupported publication type: " + publication.getType()); //$NON-NLS-1$
 		}

@@ -23,11 +23,14 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link MemberStatus}.
  * 
@@ -41,8 +44,11 @@ public class MemberStatusTest {
 
 	private List<MemberStatus> items;
 
+	private MessageSourceAccessor messages;
+	
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(MemberStatus.values()));
 	}
@@ -405,1442 +411,292 @@ public class MemberStatusTest {
 	}
 
 	@Test
-	public void getLabel_US() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel());
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel());
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel());
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel());
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel());
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel());
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel());
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel());
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel());
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel());
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel());
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel());
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel());
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel());
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel());
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel());
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel());
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel());
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel());
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel());
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel());
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel());
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel());
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel());
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel());
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel());
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel());
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel());
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel());
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel());
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel());
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel());
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel());
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel());
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel());
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel());
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel());
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel());
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel());
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel());
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel());
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel());
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel());
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel());
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel());
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel());
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_US() {
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(java.util.Locale.US));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(java.util.Locale.US));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(java.util.Locale.US));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(java.util.Locale.US));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(java.util.Locale.US));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(java.util.Locale.US));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(java.util.Locale.US));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(java.util.Locale.US));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(java.util.Locale.US));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() {
-		assertEquals("Professeur.e émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Professeur.e des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Directeur.trice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Chercheur.se", cons(MemberStatus.RESEARCHER_PHD).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Chercheur.se", cons(MemberStatus.RESEARCHER).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Doctorant.e", cons(MemberStatus.PHD_STUDENT).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e", cons(MemberStatus.ENGINEER_PHD).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e", cons(MemberStatus.ENGINEER).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Personnel administratif", cons(MemberStatus.ADMIN).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e", cons(MemberStatus.TEACHER_PHD).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e", cons(MemberStatus.TEACHER).getLabel(java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant.e master", cons(MemberStatus.MASTER_STUDENT).getLabel(java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant.e", cons(MemberStatus.OTHER_STUDENT).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(java.util.Locale.FRANCE));
-		assertEquals("Membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US_FEMALE() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.FEMALE));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.FEMALE));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.FEMALE));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.FEMALE));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.FEMALE));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.FEMALE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.FEMALE));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.FEMALE));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.FEMALE));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.FEMALE));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.FEMALE));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.FEMALE));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.FEMALE));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.FEMALE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR_FEMALE() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.FEMALE));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.FEMALE));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.FEMALE));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.FEMALE));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.FEMALE));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.FEMALE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.FEMALE));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.FEMALE));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.FEMALE));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.FEMALE));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.FEMALE));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.FEMALE));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.FEMALE));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.FEMALE));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.FEMALE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US_FEMALE() {
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.FEMALE, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR_FEMALE() {
-		assertEquals("Professeure émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Professeure des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Directrice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Enseignante chercheuse contractuelle", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Enseignante chercheuse contractuelle", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Chercheuse", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Chercheuse", cons(MemberStatus.RESEARCHER).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Ingénieure de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Ingénieure de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Doctorante", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Ingénieure", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Ingénieure", cons(MemberStatus.ENGINEER).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Personnel administratif", cons(MemberStatus.ADMIN).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Enseignante", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Enseignante", cons(MemberStatus.TEACHER).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiante master", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiante", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Membre associée", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertEquals("Membre associée", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.FEMALE, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US_MALE() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.MALE));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.MALE));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.MALE));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.MALE));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.MALE));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.MALE));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.MALE));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.MALE));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.MALE));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.MALE));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.MALE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.MALE));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.MALE));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.MALE));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.MALE));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.MALE));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.MALE));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.MALE));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.MALE));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.MALE));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.MALE));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.MALE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR_MALE() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.MALE));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.MALE));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.MALE));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.MALE));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.MALE));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.MALE));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.MALE));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.MALE));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.MALE));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.MALE));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.MALE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.MALE));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.MALE));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.MALE));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.MALE));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.MALE));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.MALE));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.MALE));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.MALE));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.MALE));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.MALE));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.MALE));
+		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.FEMALE, false, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_Locale_US_MALE() {
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.MALE, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.MALE, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR_MALE() {
-		assertEquals("Professeur émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Professeur des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Directeur de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Enseignant chercheur contractuel", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Enseignant chercheur contractuel", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Chercheur", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Chercheur", cons(MemberStatus.RESEARCHER).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Doctorant", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur", cons(MemberStatus.ENGINEER).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Personnel administratif", cons(MemberStatus.ADMIN).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Enseignant", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Enseignant", cons(MemberStatus.TEACHER).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant master", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Membre associé", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertEquals("Membre associé", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.MALE, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US_OTHER() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.OTHER));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.OTHER));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.OTHER));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.OTHER));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.OTHER));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.OTHER));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.OTHER));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.OTHER));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.OTHER));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.OTHER));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.OTHER));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.OTHER));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.OTHER));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.OTHER));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR_OTHER() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.OTHER));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.OTHER));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.OTHER));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.OTHER));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.OTHER));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.OTHER));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.OTHER));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.OTHER));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.OTHER));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.OTHER));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.OTHER));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.OTHER));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.OTHER));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.OTHER));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.OTHER));
+		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.MALE, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.MALE, false, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_Locale_US_OTHER() {
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.OTHER, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR_OTHER() {
-		assertEquals("Professeur.e émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Professeur.e des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Directeur.trice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Chercheur.se", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Chercheur.se", cons(MemberStatus.RESEARCHER).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Doctorant.e", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e", cons(MemberStatus.ENGINEER).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Personnel administratif", cons(MemberStatus.ADMIN).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e", cons(MemberStatus.TEACHER).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant.e master", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant.e", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertEquals("Membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.OTHER, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US_NOTSPECIFIED() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.NOT_SPECIFIED));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR_NOTSPECIFIED() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.NOT_SPECIFIED));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.NOT_SPECIFIED));
+		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.OTHER, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.OTHER, false, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_Locale_US_NOTSPECIFIED() {
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR_NOTSPECIFIED() {
-		assertEquals("Professeur.e émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Professeur.e des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Directeur.trice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Chercheur.se", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Chercheur.se", cons(MemberStatus.RESEARCHER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Doctorant.e", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e", cons(MemberStatus.ENGINEER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Personnel administratif", cons(MemberStatus.ADMIN).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e", cons(MemberStatus.TEACHER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant.e master", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant.e", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertEquals("Membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.NOT_SPECIFIED, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US_NULLGENDER() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel((Gender) null));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel((Gender) null));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel((Gender) null));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel((Gender) null));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel((Gender) null));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel((Gender) null));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel((Gender) null));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel((Gender) null));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel((Gender) null));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel((Gender) null));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel((Gender) null));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel((Gender) null));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel((Gender) null));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel((Gender) null));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel((Gender) null));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel((Gender) null));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel((Gender) null));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel((Gender) null));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel((Gender) null));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel((Gender) null));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel((Gender) null));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel((Gender) null));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel((Gender) null));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel((Gender) null));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR_NULLGENDER() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel((Gender) null));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel((Gender) null));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel((Gender) null));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel((Gender) null));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel((Gender) null));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel((Gender) null));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel((Gender) null));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel((Gender) null));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel((Gender) null));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel((Gender) null));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel((Gender) null));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel((Gender) null));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel((Gender) null));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel((Gender) null));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel((Gender) null));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel((Gender) null));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel((Gender) null));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel((Gender) null));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel((Gender) null));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel((Gender) null));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel((Gender) null));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel((Gender) null));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel((Gender) null));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel((Gender) null));
+		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.NOT_SPECIFIED, false, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_Locale_US_NULLGENDER() {
-		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel((Gender) null, java.util.Locale.US));
-		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel((Gender) null, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR_NULLGENDER() {
-		assertEquals("Professeur.e émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Professeur.e des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Directeur.trice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Chercheur.se", cons(MemberStatus.RESEARCHER_PHD).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Chercheur.se", cons(MemberStatus.RESEARCHER).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Doctorant.e", cons(MemberStatus.PHD_STUDENT).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e", cons(MemberStatus.ENGINEER_PHD).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Ingénieur.e", cons(MemberStatus.ENGINEER).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Personnel administratif", cons(MemberStatus.ADMIN).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e", cons(MemberStatus.TEACHER_PHD).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Enseignant.e", cons(MemberStatus.TEACHER).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant.e master", cons(MemberStatus.MASTER_STUDENT).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("\u00C9tudiant.e", cons(MemberStatus.OTHER_STUDENT).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertEquals("Membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel((Gender) null, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_US() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(true));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_FR() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(true));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_Locale_US() {
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(true, java.util.Locale.US));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(true, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_Locale_FR() {
-		assertEquals("Ancien.ne professeur.e émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne professeur.e des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne directeur.trice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne chercheur.se", cons(MemberStatus.RESEARCHER_PHD).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne chercheur.se", cons(MemberStatus.RESEARCHER).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne postdoc", cons(MemberStatus.POSTDOC).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne doctorant.e", cons(MemberStatus.PHD_STUDENT).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e", cons(MemberStatus.ENGINEER_PHD).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e", cons(MemberStatus.ENGINEER).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien personnel administratif", cons(MemberStatus.ADMIN).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e", cons(MemberStatus.TEACHER_PHD).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e", cons(MemberStatus.TEACHER).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne étudiant.e master", cons(MemberStatus.MASTER_STUDENT).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne étudiant.e", cons(MemberStatus.OTHER_STUDENT).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(true, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_US_FEMALE() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.FEMALE, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.FEMALE, true));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_FR_FEMALE() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.FEMALE, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.FEMALE, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.FEMALE, true));
+		assertEquals("Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, (Gender) null, false, Locale.US));
+		assertEquals("Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, (Gender) null, false, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_former_Locale_US_FEMALE() {
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.FEMALE, true, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_Locale_FR_FEMALE() {
-		assertEquals("Ancienne professeure émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne professeure des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne directrice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne enseignante chercheuse contractuelle", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne enseignante chercheuse contractuelle", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne chercheuse", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne chercheuse", cons(MemberStatus.RESEARCHER).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne ingénieure de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne ingénieure de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne doctorante", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne ingénieure", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne ingénieure", cons(MemberStatus.ENGINEER).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien personnel administratif", cons(MemberStatus.ADMIN).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne enseignante", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne enseignante", cons(MemberStatus.TEACHER).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne étudiante master", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne étudiante", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne membre associée", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancienne membre associée", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.FEMALE, true, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_US_MALE() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.MALE, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.MALE, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.MALE, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.MALE, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.MALE, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.MALE, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.MALE, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.MALE, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.MALE, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.MALE, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.MALE, true));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_FR_MALE() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.MALE, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.MALE, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.MALE, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.MALE, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.MALE, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.MALE, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.MALE, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.MALE, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.MALE, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.MALE, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.MALE, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.MALE, true));
+		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.FEMALE, true, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_former_Locale_US_MALE() {
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.MALE, true, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_Locale_FR_MALE() {
-		assertEquals("Ancien professeur émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien professeur des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien directeur de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien enseignant chercheur contractuel", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien enseignant chercheur contractuel", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien chercheur", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien chercheur", cons(MemberStatus.RESEARCHER).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien ingénieur de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien ingénieur de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien doctorant", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien ingénieur", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien ingénieur", cons(MemberStatus.ENGINEER).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien personnel administratif", cons(MemberStatus.ADMIN).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien enseignant", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien enseignant", cons(MemberStatus.TEACHER).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien étudiant master", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien étudiant", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien membre associé", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien membre associé", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.MALE, true, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_US_OTHER() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.OTHER, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.OTHER, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.OTHER, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.OTHER, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.OTHER, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.OTHER, true));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_FR_OTHER() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.OTHER, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.OTHER, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.OTHER, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.OTHER, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.OTHER, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.OTHER, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.OTHER, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.OTHER, true));
+		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.MALE, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.MALE, true, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_former_Locale_US_OTHER() {
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.OTHER, true, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_Locale_FR_OTHER() {
-		assertEquals("Ancien.ne professeur.e émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne professeur.e des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne directeur.trice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne chercheur.se", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne chercheur.se", cons(MemberStatus.RESEARCHER).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne doctorant.e", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e", cons(MemberStatus.ENGINEER).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien personnel administratif", cons(MemberStatus.ADMIN).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e", cons(MemberStatus.TEACHER).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne étudiant.e master", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne étudiant.e", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.OTHER, true, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_US_NOTSPECIFIED() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_FR_NOTSPECIFIED() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.NOT_SPECIFIED, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.NOT_SPECIFIED, true));
+		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.OTHER, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.OTHER, true, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_former_Locale_US_NOTSPECIFIED() {
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_Locale_FR_NOTSPECIFIED() {
-		assertEquals("Ancien.ne professeur.e émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne professeur.e des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne directeur.trice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne chercheur.se", cons(MemberStatus.RESEARCHER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne chercheur.se", cons(MemberStatus.RESEARCHER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne postdoc", cons(MemberStatus.POSTDOC).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne doctorant.e", cons(MemberStatus.PHD_STUDENT).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e", cons(MemberStatus.ENGINEER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e", cons(MemberStatus.ENGINEER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien personnel administratif", cons(MemberStatus.ADMIN).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e", cons(MemberStatus.TEACHER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e", cons(MemberStatus.TEACHER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne étudiant.e master", cons(MemberStatus.MASTER_STUDENT).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne étudiant.e", cons(MemberStatus.OTHER_STUDENT).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(Gender.NOT_SPECIFIED, true, java.util.Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_US_NULLGENDER() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(null, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(null, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(null, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(null, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(null, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(null, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(null, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(null, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(null, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(null, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(null, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(null, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(null, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(null, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(null, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(null, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(null, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(null, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(null, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(null, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(null, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(null, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(null, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(null, true));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_FR_NULLGENDER() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(null, true));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(null, true));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(null, true));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(null, true));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(null, true));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(null, true));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(null, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(null, true));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(null, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(null, true));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(null, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(null, true));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(null, true));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(null, true));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(null, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(null, true));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(null, true));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(null, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(null, true));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(null, true));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(null, true));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(null, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(null, true));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(null, true));
+		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, Gender.NOT_SPECIFIED, true, Locale.US));
 		assertAllTreated();
 	}
 
 	@Test
 	public void getLabel_former_Locale_US_NULLGENDER() {
-		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(null, true, java.util.Locale.US));
-		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(null, true, java.util.Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_former_Locale_FR_NULLGENDER() {
-		assertEquals("Ancien.ne professeur.e émérite", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne professeur.e des universités", cons(MemberStatus.FULL_PROFESSOR).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne directeur.trice de recherche", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences émérite HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences émérite", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne maître de conférences", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e chercheur.se contractuel.le", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne chercheur.se", cons(MemberStatus.RESEARCHER_PHD).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne chercheur.se", cons(MemberStatus.RESEARCHER).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e de recherche", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne postdoc", cons(MemberStatus.POSTDOC).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne doctorant.e", cons(MemberStatus.PHD_STUDENT).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e", cons(MemberStatus.ENGINEER_PHD).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne ingénieur.e", cons(MemberStatus.ENGINEER).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien personnel administratif", cons(MemberStatus.ADMIN).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e", cons(MemberStatus.TEACHER_PHD).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne enseignant.e", cons(MemberStatus.TEACHER).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne étudiant.e master", cons(MemberStatus.MASTER_STUDENT).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne étudiant.e", cons(MemberStatus.OTHER_STUDENT).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(null, true, java.util.Locale.FRANCE));
-		assertEquals("Ancien.ne membre associé.e", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(null, true, java.util.Locale.FRANCE));
+		assertEquals("Former Emeritus Professor", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Full Professor", cons(MemberStatus.FULL_PROFESSOR).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Research Director", cons(MemberStatus.RESEARCH_DIRECTOR).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor HDR", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Emeritus Associate Professor", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Associate Professor HDR", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Associate Professor", cons(MemberStatus.ASSOCIATE_PROFESSOR).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Contractual Teacher Researcher", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER_PHD).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Researcher", cons(MemberStatus.RESEARCHER).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Research Engineer", cons(MemberStatus.RESEARCH_ENGINEER).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Postdoc", cons(MemberStatus.POSTDOC).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former PhD Student", cons(MemberStatus.PHD_STUDENT).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER_PHD).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Engineer", cons(MemberStatus.ENGINEER).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Administrative Staff", cons(MemberStatus.ADMIN).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER_PHD).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Teacher", cons(MemberStatus.TEACHER).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Master Student", cons(MemberStatus.MASTER_STUDENT).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Student", cons(MemberStatus.OTHER_STUDENT).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getLabel(this.messages, null, true, Locale.US));
+		assertEquals("Former Associated Member", cons(MemberStatus.ASSOCIATED_MEMBER).getLabel(this.messages, null, true, Locale.US));
 		assertAllTreated();
 	}
 
@@ -1875,63 +731,30 @@ public class MemberStatusTest {
 
 	@Test
 	public void getFrenchAcronym_US() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("PR", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getFrenchAcronym());
-		assertEquals("PR", cons(MemberStatus.FULL_PROFESSOR).getFrenchAcronym());
-		assertEquals("DR", cons(MemberStatus.RESEARCH_DIRECTOR).getFrenchAcronym());
-		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym());
-		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getFrenchAcronym());
-		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym());
-		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR).getFrenchAcronym());
-		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getFrenchAcronym());
-		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getFrenchAcronym());
-		assertEquals("CR", cons(MemberStatus.RESEARCHER_PHD).getFrenchAcronym());
-		assertEquals("CR", cons(MemberStatus.RESEARCHER).getFrenchAcronym());
-		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getFrenchAcronym());
-		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER).getFrenchAcronym());
-		assertEquals("POSTDOC", cons(MemberStatus.POSTDOC).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.PHD_STUDENT).getFrenchAcronym());
-		assertEquals("IGE", cons(MemberStatus.ENGINEER_PHD).getFrenchAcronym());
-		assertEquals("IGE", cons(MemberStatus.ENGINEER).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.ADMIN).getFrenchAcronym());
-		assertEquals("PAST", cons(MemberStatus.TEACHER_PHD).getFrenchAcronym());
-		assertEquals("PAST", cons(MemberStatus.TEACHER).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.MASTER_STUDENT).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.OTHER_STUDENT).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER).getFrenchAcronym());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getFrenchAcronym_FR() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("PR", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getFrenchAcronym());
-		assertEquals("PR", cons(MemberStatus.FULL_PROFESSOR).getFrenchAcronym());
-		assertEquals("DR", cons(MemberStatus.RESEARCH_DIRECTOR).getFrenchAcronym());
-		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym());
-		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getFrenchAcronym());
-		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym());
-		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR).getFrenchAcronym());
-		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getFrenchAcronym());
-		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getFrenchAcronym());
-		assertEquals("CR", cons(MemberStatus.RESEARCHER_PHD).getFrenchAcronym());
-		assertEquals("CR", cons(MemberStatus.RESEARCHER).getFrenchAcronym());
-		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getFrenchAcronym());
-		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER).getFrenchAcronym());
-		assertEquals("POSTDOC", cons(MemberStatus.POSTDOC).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.PHD_STUDENT).getFrenchAcronym());
-		assertEquals("IGE", cons(MemberStatus.ENGINEER_PHD).getFrenchAcronym());
-		assertEquals("IGE", cons(MemberStatus.ENGINEER).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.ADMIN).getFrenchAcronym());
-		assertEquals("PAST", cons(MemberStatus.TEACHER_PHD).getFrenchAcronym());
-		assertEquals("PAST", cons(MemberStatus.TEACHER).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.MASTER_STUDENT).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.OTHER_STUDENT).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getFrenchAcronym());
-		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER).getFrenchAcronym());
+		assertEquals("PR", cons(MemberStatus.EMERITUS_FULL_PROFESSOR).getFrenchAcronym(this.messages));
+		assertEquals("PR", cons(MemberStatus.FULL_PROFESSOR).getFrenchAcronym(this.messages));
+		assertEquals("DR", cons(MemberStatus.RESEARCH_DIRECTOR).getFrenchAcronym(this.messages));
+		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym(this.messages));
+		assertEquals("MCF", cons(MemberStatus.EMERITUS_ASSOCIATE_PROFESSOR).getFrenchAcronym(this.messages));
+		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR_HDR).getFrenchAcronym(this.messages));
+		assertEquals("MCF", cons(MemberStatus.ASSOCIATE_PROFESSOR).getFrenchAcronym(this.messages));
+		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER_PHD).getFrenchAcronym(this.messages));
+		assertEquals("ECC", cons(MemberStatus.CONTRACTUAL_RESEARCHER_TEACHER).getFrenchAcronym(this.messages));
+		assertEquals("CR", cons(MemberStatus.RESEARCHER_PHD).getFrenchAcronym(this.messages));
+		assertEquals("CR", cons(MemberStatus.RESEARCHER).getFrenchAcronym(this.messages));
+		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER_PHD).getFrenchAcronym(this.messages));
+		assertEquals("IGR", cons(MemberStatus.RESEARCH_ENGINEER).getFrenchAcronym(this.messages));
+		assertEquals("POSTDOC", cons(MemberStatus.POSTDOC).getFrenchAcronym(this.messages));
+		assertEquals("", cons(MemberStatus.PHD_STUDENT).getFrenchAcronym(this.messages));
+		assertEquals("IGE", cons(MemberStatus.ENGINEER_PHD).getFrenchAcronym(this.messages));
+		assertEquals("IGE", cons(MemberStatus.ENGINEER).getFrenchAcronym(this.messages));
+		assertEquals("", cons(MemberStatus.ADMIN).getFrenchAcronym(this.messages));
+		assertEquals("PAST", cons(MemberStatus.TEACHER_PHD).getFrenchAcronym(this.messages));
+		assertEquals("PAST", cons(MemberStatus.TEACHER).getFrenchAcronym(this.messages));
+		assertEquals("", cons(MemberStatus.MASTER_STUDENT).getFrenchAcronym(this.messages));
+		assertEquals("", cons(MemberStatus.OTHER_STUDENT).getFrenchAcronym(this.messages));
+		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER_PHD).getFrenchAcronym(this.messages));
+		assertEquals("", cons(MemberStatus.ASSOCIATED_MEMBER).getFrenchAcronym(this.messages));
 		assertAllTreated();
 	}
 

@@ -23,6 +23,7 @@ import java.io.ByteArrayOutputStream;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.TextStyle;
+import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
@@ -64,10 +65,6 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 
 	private static final String MESSAGES_PREFIX = "abstractOdfToolkitOpenDocumentTextExporter."; //$NON-NLS-1$
 
-	/** Accessor to the localized messages.
-	 */
-	protected final MessageSourceAccessor messages;
-
 	/** Text helper for building text elements in ODT format.
 	 */
 	protected final OdfTextDocumentHelper textHelper;
@@ -78,24 +75,26 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 	 * @param textHelper the helper for building the text elements.
 	 */
 	public AbstractOdfToolkitOpenDocumentTextPublicationExporter(MessageSourceAccessor messages, OdfTextDocumentHelper textHelper) {
-		this.messages = messages;
+		super(messages);
 		this.textHelper = textHelper;
 	}
 
 	/** Replies the string representation of left quotes.
 	 *
+	 * @param locale the locale to be used.
 	 * @return the left quotes.
 	 */
-	public String getLeftQuotes() {
-		return this.messages.getMessage(MESSAGES_PREFIX + "LEFT_QUOTES"); //$NON-NLS-1$
+	public String getLeftQuotes(Locale locale) {
+		return getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "LEFT_QUOTES", locale); //$NON-NLS-1$
 	}
 
 	/** Replies the string representation of right quotes.
 	 *
+	 * @param locale the locale to be used.
 	 * @return the left quotes.
 	 */
-	public String getRightQuotes() {
-		return this.messages.getMessage(MESSAGES_PREFIX + "RIGHT_QUOTES"); //$NON-NLS-1$
+	public String getRightQuotes(Locale locale) {
+		return getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "RIGHT_QUOTES", locale); //$NON-NLS-1$
 	}
 
 	@SuppressWarnings("resource")
@@ -243,9 +242,10 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 	 * @param scimago the Scimago ranking.
 	 * @param wos the Web-of-Science ranking.
 	 * @param impactFactor the journal's impact factor.
+	 * @param locale the locale to be used.
 	 * @return {@code true} if the receiver has changed.
 	 */
-	protected boolean appendRanks(TextPElement receiver, QuartileRanking scimago, QuartileRanking wos, float impactFactor) {
+	protected boolean appendRanks(TextPElement receiver, QuartileRanking scimago, QuartileRanking wos, float impactFactor, Locale locale) {
 		final String impactFactorStr = this.textHelper.formatNumberIfStrictlyPositive(impactFactor);
 		final QuartileRanking scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
 		final QuartileRanking wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
@@ -255,9 +255,9 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 				final String scimagoStr = scimagoNorm.toString();
 				final String wosStr = wosNorm.toString();
 				if (this.textHelper.append(receiver, ", ", //$NON-NLS-1$
-						this.textHelper.decorateBefore(scimagoStr, this.messages.getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX")), //$NON-NLS-1$
-						this.textHelper.decorateBefore(wosStr, this.messages.getMessage(MESSAGES_PREFIX + "WOS_PREFIX")), //$NON-NLS-1$
-						this.textHelper.decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+						this.textHelper.decorateBefore(scimagoStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX", locale)), //$NON-NLS-1$
+						this.textHelper.decorateBefore(wosStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "WOS_PREFIX", locale)), //$NON-NLS-1$
+						this.textHelper.decorateBefore(impactFactorStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX", locale)))) { //$NON-NLS-1$
 					receiver.newTextNode(". "); //$NON-NLS-1$
 					return true;
 				}		
@@ -270,8 +270,8 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 			rank = wosNorm.toString();
 		}
 		if (this.textHelper.append(receiver, ", ", //$NON-NLS-1$
-				this.textHelper.decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX")), //$NON-NLS-1$
-				this.textHelper.decorateBefore(impactFactorStr, this.messages.getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX")))) { //$NON-NLS-1$
+				this.textHelper.decorateBefore(rank, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "JOURNALRANK_PREFIX", locale)), //$NON-NLS-1$
+				this.textHelper.decorateBefore(impactFactorStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "IMPACTFACTOR_PREFIX", locale)))) { //$NON-NLS-1$
 			receiver.newTextNode(". "); //$NON-NLS-1$
 			return true;
 		}		
@@ -282,16 +282,17 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 	 *
 	 * @param receiver the receiver of the HTML.
 	 * @param core the CORE ranking.
+	 * @param locale the locale to be used.
 	 * @return {@code true} if the receiver has changed.
 	 */
-	protected boolean appendRanks(TextPElement receiver, CoreRanking core) {
+	protected boolean appendRanks(TextPElement receiver, CoreRanking core, Locale locale) {
 		final CoreRanking coreNorm = core == null || core == CoreRanking.NR ? null : core;
 		String rank = null;
 		if (coreNorm != null) {
 			rank = coreNorm.toString();
 		}
 		if (this.textHelper.append(receiver,
-				this.textHelper.decorateBefore(rank, this.messages.getMessage(MESSAGES_PREFIX + "CORE_PREFIX")))) { //$NON-NLS-1$
+				this.textHelper.decorateBefore(rank, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "CORE_PREFIX", locale)))) { //$NON-NLS-1$
 			receiver.newTextNode(". "); //$NON-NLS-1$
 		}
 		return false;
@@ -301,71 +302,81 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, Book publication);
+	protected abstract void exportDescription(TextPElement odt, Book publication, Locale locale);
 
 	/** Export in ODT the description of a single book chapter.
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, BookChapter publication);
+	protected abstract void exportDescription(TextPElement odt, BookChapter publication, Locale locale);
 
 	/** Export in ODT the description of a single conference paper.
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, ConferencePaper publication);
+	protected abstract void exportDescription(TextPElement odt, ConferencePaper publication, Locale locale);
 
 	/** Export in ODT the description of a single journal paper.
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, JournalPaper publication);
+	protected abstract void exportDescription(TextPElement odt, JournalPaper publication, Locale locale);
 
 	/** Export in ODT the description of a single journal edition.
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, JournalEdition publication);
+	protected abstract void exportDescription(TextPElement odt, JournalEdition publication, Locale locale);
 
 	/** Export in ODT the description of a single key-note.
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, KeyNote publication);
+	protected abstract void exportDescription(TextPElement odt, KeyNote publication, Locale locale);
 
 	/** Export in ODT the description of a single report.
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, Report publication);
+	protected abstract void exportDescription(TextPElement odt, Report publication, Locale locale);
 
 	/** Export in ODT the description of a single thesis.
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, Thesis publication);
+	protected abstract void exportDescription(TextPElement odt, Thesis publication, Locale locale);
 
 	/** Export in ODT the description of a single patent.
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, Patent publication);
+	protected abstract void exportDescription(TextPElement odt, Patent publication, Locale locale);
 
 	/** Export in ODT the description of a single document.
 	 *
 	 * @param odt the receiver of the ODT content.
 	 * @param publication the publication, never {@code null}.
+	 * @param locale the locale to use for exporting.
 	 */
-	protected abstract void exportDescription(TextPElement odt, MiscDocument publication);
+	protected abstract void exportDescription(TextPElement odt, MiscDocument publication, Locale locale);
 
 
 	/** Export in ODT the description of a single publication.
@@ -381,25 +392,25 @@ public abstract class AbstractOdfToolkitOpenDocumentTextPublicationExporter exte
 		assert publicationClass != null;
 
 		if (publicationClass.equals(Book.class)) {
-			exportDescription(odtText, (Book) publication);
+			exportDescription(odtText, (Book) publication, configurator.getLocale());
 		} else if (publicationClass.equals(BookChapter.class)) {
-			exportDescription(odtText, (BookChapter) publication);
+			exportDescription(odtText, (BookChapter) publication, configurator.getLocale());
 		} else if (publicationClass.equals(ConferencePaper.class)) {
-			exportDescription(odtText, (ConferencePaper) publication);
+			exportDescription(odtText, (ConferencePaper) publication, configurator.getLocale());
 		} else if (publicationClass.equals(JournalEdition.class)) {
-			exportDescription(odtText, (JournalEdition) publication);
+			exportDescription(odtText, (JournalEdition) publication, configurator.getLocale());
 		} else if (publicationClass.equals(JournalPaper.class)) {
-			exportDescription(odtText, (JournalPaper) publication);
+			exportDescription(odtText, (JournalPaper) publication, configurator.getLocale());
 		} else if (publicationClass.equals(KeyNote.class)) {
-			exportDescription(odtText, (KeyNote) publication);
+			exportDescription(odtText, (KeyNote) publication, configurator.getLocale());
 		} else if (publicationClass.equals(Report.class)) {
-			exportDescription(odtText, (Report) publication);
+			exportDescription(odtText, (Report) publication, configurator.getLocale());
 		} else if (publicationClass.equals(Thesis.class)) {
-			exportDescription(odtText, (Thesis) publication);
+			exportDescription(odtText, (Thesis) publication, configurator.getLocale());
 		} else if (publicationClass.equals(Patent.class)) {
-			exportDescription(odtText, (Patent) publication);
+			exportDescription(odtText, (Patent) publication, configurator.getLocale());
 		} else if (publicationClass.equals(MiscDocument.class)) {
-			exportDescription(odtText, (MiscDocument) publication);
+			exportDescription(odtText, (MiscDocument) publication, configurator.getLocale());
 		} else {
 			throw new IllegalArgumentException("Unsupported publication type: " + publication.getType()); //$NON-NLS-1$
 		}

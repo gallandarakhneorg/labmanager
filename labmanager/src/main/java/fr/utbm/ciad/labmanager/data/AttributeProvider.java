@@ -20,6 +20,10 @@
 package fr.utbm.ciad.labmanager.data;
 
 import java.io.IOException;
+import java.util.Locale;
+
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Interface that represents an object that could provides attributes.
  * 
@@ -34,13 +38,32 @@ public interface AttributeProvider {
 	/** Invoke the given consumer on each attribute of this object.
 	 * This function is usually invoked by the functions that need to generate
 	 * a map of attributes for this object.
+	 *
 	 * <p>Several attributes are not considered by this function. They
 	 * are listed in the documentation of the implementation class.
+	 *
+	 * @param messages the accessor to the localized strings.
+	 * @param locale the current locale to consider for localized strings. 
+	 * @param consumer the consumer of the publication's attributes
+		 * @throws IOException on error.
+	 */
+	void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException ;
+
+	/** Invoke the given consumer on each attribute of this object.
+	 * This function is usually invoked by the functions that need to generate
+	 * a map of attributes for this object.
+	 *
+	 * <p>Several attributes are not considered by this function. They
+	 * are listed in the documentation of the implementation class.
+	 * 
+	 * <p>This function uses the US locale and the global accessor to the localized messages.
 	 *
 	 * @param consumer the consumer of the publication's attributes
 		 * @throws IOException on error.
 	 */
-	void forEachAttribute(AttributeConsumer consumer) throws IOException ;
+	default void forEachAttribute(AttributeConsumer consumer) throws IOException {
+		forEachAttribute(BaseMessageSource.getGlobalMessageAccessor(), Locale.US, consumer);
+	}
 
 	/** Interface that represents an object that could provides attributes.
 	 * 

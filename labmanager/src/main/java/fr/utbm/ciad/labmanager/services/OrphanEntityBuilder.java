@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.arakhne.afc.progress.Progression;
 
@@ -38,30 +40,34 @@ public interface OrphanEntityBuilder<T> {
 	 * class of this interface.
 	 *
 	 * @param receiver the JSON node that receives the orphan entities.
+	 * @param locale the locale to use.
 	 * @param progress a progress indicator.
 	 */
-	void computeOrphans(ArrayNode receiver, Progression progress);
+	void computeOrphans(ArrayNode receiver, Locale locale, Progression progress);
 
 	/** Replies the reason why the given entity may be considered as orphan.
 	 * An orphan entity is an entity that has no links to the existing
 	 * other entities and that could be safely deleted from the system.
 	 *
 	 * @param entity the entity to check.
+	 * @param locale the locale to use.
 	 * @return the reason to be orphan; or {@code null} if the entity is not orphan.
 	 */
-	String getOrphanCriteria(T entity);
+	String getOrphanCriteria(T entity, Locale locale);
 
 	/** Replies the name of the given entity.
 	 *
 	 * @param entity the entity to check.
+	 * @param locale the locale to use.
 	 * @return the name of the orphan entity.
 	 */
-	String getOrphanEntityLabel(T entity);
+	String getOrphanEntityLabel(T entity, Locale locale);
 
 	/** Replies the name of the type of the orphan entities that is supported by this builder.
 	 *
+	 * @param locale the locale to use.
 	 * @return the name of type of the orphan entities.
 	 */
-	String getOrphanTypeLabel();
+	String getOrphanTypeLabel(Locale locale);
 
 }

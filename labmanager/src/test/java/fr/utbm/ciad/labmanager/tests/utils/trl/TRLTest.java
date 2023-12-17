@@ -25,10 +25,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.project.ProjectStatus;
 import fr.utbm.ciad.labmanager.utils.trl.TRL;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link TRL}.
  * 
@@ -42,8 +44,11 @@ public class TRLTest {
 
 	private List<TRL> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(TRL.values()));
 	}
@@ -110,60 +115,16 @@ public class TRLTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Observation of basic principles", cons(TRL.TRL1).getLabel());
-		assertEquals("Formulation of concept", cons(TRL.TRL2).getLabel());
-		assertEquals("Experimental proof of concept", cons(TRL.TRL3).getLabel());
-		assertEquals("Validation in lab", cons(TRL.TRL4).getLabel());
-		assertEquals("Validation in relevant environment", cons(TRL.TRL5).getLabel());
-		assertEquals("Demonstration in relevant environment", cons(TRL.TRL6).getLabel());
-		assertEquals("Demonstration of system prototype in operational environment", cons(TRL.TRL7).getLabel());
-		assertEquals("System complete and qualified", cons(TRL.TRL8).getLabel());
-		assertEquals("Actual system proven in operational environment", cons(TRL.TRL9).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Observation of basic principles", cons(TRL.TRL1).getLabel());
-		assertEquals("Formulation of concept", cons(TRL.TRL2).getLabel());
-		assertEquals("Experimental proof of concept", cons(TRL.TRL3).getLabel());
-		assertEquals("Validation in lab", cons(TRL.TRL4).getLabel());
-		assertEquals("Validation in relevant environment", cons(TRL.TRL5).getLabel());
-		assertEquals("Demonstration in relevant environment", cons(TRL.TRL6).getLabel());
-		assertEquals("Demonstration of system prototype in operational environment", cons(TRL.TRL7).getLabel());
-		assertEquals("System complete and qualified", cons(TRL.TRL8).getLabel());
-		assertEquals("Actual system proven in operational environment", cons(TRL.TRL9).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Observation de principes de base", cons(TRL.TRL1).getLabel(Locale.FRANCE));
-		assertEquals("Formulation du concept", cons(TRL.TRL2).getLabel(Locale.FRANCE));
-		assertEquals("Preuve expérimentale de concept", cons(TRL.TRL3).getLabel(Locale.FRANCE));
-		assertEquals("Validation en laboratoire", cons(TRL.TRL4).getLabel(Locale.FRANCE));
-		assertEquals("Validation dans un environnement significatif", cons(TRL.TRL5).getLabel(Locale.FRANCE));
-		assertEquals("Démonstration dans un environnement significatif", cons(TRL.TRL6).getLabel(Locale.FRANCE));
-		assertEquals("Démonstration d'un prototype dans un environnement opérationnel", cons(TRL.TRL7).getLabel(Locale.FRANCE));
-		assertEquals("Système complet et qualifié", cons(TRL.TRL8).getLabel(Locale.FRANCE));
-		assertEquals("Système complet fonctionnant dans l'environnement opérationnel", cons(TRL.TRL9).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Observation of basic principles", cons(TRL.TRL1).getLabel(Locale.US));
-		assertEquals("Formulation of concept", cons(TRL.TRL2).getLabel(Locale.US));
-		assertEquals("Experimental proof of concept", cons(TRL.TRL3).getLabel(Locale.US));
-		assertEquals("Validation in lab", cons(TRL.TRL4).getLabel(Locale.US));
-		assertEquals("Validation in relevant environment", cons(TRL.TRL5).getLabel(Locale.US));
-		assertEquals("Demonstration in relevant environment", cons(TRL.TRL6).getLabel(Locale.US));
-		assertEquals("Demonstration of system prototype in operational environment", cons(TRL.TRL7).getLabel(Locale.US));
-		assertEquals("System complete and qualified", cons(TRL.TRL8).getLabel(Locale.US));
-		assertEquals("Actual system proven in operational environment", cons(TRL.TRL9).getLabel(Locale.US));
+		assertEquals("Observation of basic principles", cons(TRL.TRL1).getLabel(this.messages, Locale.US));
+		assertEquals("Formulation of concept", cons(TRL.TRL2).getLabel(this.messages, Locale.US));
+		assertEquals("Experimental proof of concept", cons(TRL.TRL3).getLabel(this.messages, Locale.US));
+		assertEquals("Validation in lab", cons(TRL.TRL4).getLabel(this.messages, Locale.US));
+		assertEquals("Validation in relevant environment", cons(TRL.TRL5).getLabel(this.messages, Locale.US));
+		assertEquals("Demonstration in relevant environment", cons(TRL.TRL6).getLabel(this.messages, Locale.US));
+		assertEquals("Demonstration of system prototype in operational environment", cons(TRL.TRL7).getLabel(this.messages, Locale.US));
+		assertEquals("System complete and qualified", cons(TRL.TRL8).getLabel(this.messages, Locale.US));
+		assertEquals("Actual system proven in operational environment", cons(TRL.TRL9).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

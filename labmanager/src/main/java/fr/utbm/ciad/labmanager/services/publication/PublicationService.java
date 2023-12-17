@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -675,6 +676,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param createMissedConference if {@code true} the missed conferences from the JPA database will be automatically the subject
 	 *     of the creation of a {@link ConferenceFake conference fake} for the caller. If {@code false}, an exception is thrown when
 	 *     a conference is missed from the JPA database.
+	 * @param locale the locale to use.
 	 * @return the list of the publications that are successfully extracted.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see RIS
@@ -682,9 +684,10 @@ public class PublicationService extends AbstractPublicationService {
 	 * @since 3.8
 	 */
 	public List<Publication> readPublicationsFromRIS(Reader ris, boolean keepRisId, boolean assignRandomId,
-			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
+			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference,
+			Locale locale) throws Exception {
 		return this.ris.extractPublications(ris, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
-				createMissedConference);
+				createMissedConference, locale);
 	}
 
 	/** Import publications from a BibTeX string. The format of the BibTeX is a standard that is briefly described
@@ -701,18 +704,19 @@ public class PublicationService extends AbstractPublicationService {
 	 *     the BibTeX data.
 	 * @param createMissedConferences indicates if the missed conferences in the database should be created on-the-fly from
 	 *     the BibTeX data.
+	 * @param locale the locale to use.
 	 * @return the list of the identifiers of the publications that are successfully imported.
 	 * @throws Exception if it is impossible to parse the given BibTeX source.
 	 * @see BibTeX
 	 * @see "https://en.wikipedia.org/wiki/BibTeX"
 	 */
 	public List<Integer> importBibTeXPublications(Reader bibtex, Map<String, PublicationType> importedEntriesWithExpectedType,
-			boolean createMissedJournals, boolean createMissedConferences) throws Exception {
+			boolean createMissedJournals, boolean createMissedConferences, Locale locale) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
 		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true,
 				createMissedJournals, createMissedConferences);
-		return importPublications(importablePublications, importedEntriesWithExpectedType);
+		return importPublications(importablePublications, importedEntriesWithExpectedType, locale);
 	}
 
 	/** Import publications from a RIS string. The format of the RIS is a standard that is briefly described
@@ -729,6 +733,7 @@ public class PublicationService extends AbstractPublicationService {
 	 *     the RIS data.
 	 * @param createMissedConferences indicates if the missed conferences in the database should be created on-the-fly from
 	 *     the RIS data.
+	 * @param locale the locale to use.
 	 * @return the list of the identifiers of the publications that are successfully imported.
 	 * @throws Exception if it is impossible to parse the given RIS source.
 	 * @see RIS
@@ -736,16 +741,17 @@ public class PublicationService extends AbstractPublicationService {
 	 * @since 3.8
 	 */
 	public List<Integer> importRISPublications(Reader ris, Map<String, PublicationType> importedEntriesWithExpectedType,
-			boolean createMissedJournals, boolean createMissedConferences) throws Exception {
+			boolean createMissedJournals, boolean createMissedConferences, Locale locale) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
 		final List<Publication> importablePublications = readPublicationsFromRIS(ris, true, false, true,
-				createMissedJournals, createMissedConferences);
-		return importPublications(importablePublications, importedEntriesWithExpectedType);
+				createMissedJournals, createMissedConferences, locale);
+		return importPublications(importablePublications, importedEntriesWithExpectedType, locale);
 	}
 
 	private List<Integer> importPublications(List<Publication> importablePublications,
-			Map<String, PublicationType> importedEntriesWithExpectedType) throws Exception {
+			Map<String, PublicationType> importedEntriesWithExpectedType,
+			Locale locale) throws Exception {
 		//Holds the IDs of the successfully imported IDs. We'll need it for type differentiation later.
 		final List<Integer> importedPublicationIdentifiers = new ArrayList<>();
 
@@ -778,12 +784,12 @@ public class PublicationService extends AbstractPublicationService {
 					if (expectedType != null) {
 						if (!publication.getType().isCompatibleWith(expectedType)) {
 							throw new IllegalArgumentException(
-									getMessage(MESSAGE_PREFIX + "IncompatibleBibTeXEntryType", //$NON-NLS-1$
+									getMessage(locale, MESSAGE_PREFIX + "IncompatibleBibTeXEntryType", //$NON-NLS-1$
 											publication.getPreferredStringId(),
 											publication.getType().name(),
-											publication.getType().getLabel(),
+											publication.getType().getLabel(getMessageSourceAccessor(), locale),
 											expectedType.name(),
-											expectedType.getLabel()));
+											expectedType.getLabel(getMessageSourceAccessor(), locale)));
 						}
 						publication.setType(expectedType);
 					}

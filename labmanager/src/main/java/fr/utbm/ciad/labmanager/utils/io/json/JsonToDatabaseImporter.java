@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
@@ -110,6 +111,7 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 
 /** Importer of JSON data into the database.
@@ -178,6 +180,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	/** Constructor.
 	 * 
+	 * @param messages the accessor to the localized strings.
 	 * @param sessionFactory the factory of an hibernate session.
 	 * @param addressRepository the accessor to the address repository.
 	 * @param organizationRepository the accessor to the organization repository.
@@ -204,6 +207,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param userRepository the repository of the application users.
 	 */
 	public JsonToDatabaseImporter(
+			@Autowired MessageSourceAccessor messages,
 			@Autowired SessionFactory sessionFactory,
 			@Autowired OrganizationAddressRepository addressRepository,
 			@Autowired ResearchOrganizationRepository organizationRepository,
@@ -228,6 +232,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			@Autowired TeachingActivityRepository teachingRepository,
 			@Autowired ScientificAxisRepository scientificAxisRepository,
 			@Autowired UserRepository userRepository) {
+		super(messages);
 		this.sessionFactory = sessionFactory;
 		this.addressRepository = addressRepository;
 		this.organizationRepository = organizationRepository;
@@ -1581,7 +1586,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 							++nbNew;
 							getLogger().info("  + " + targetPerson.get().getFullName() //$NON-NLS-1$
 									+ " - " + targetCandidate.get().getFullName() //$NON-NLS-1$
-									+ " - " + membership.getType().getLabel(Gender.NOT_SPECIFIED) //$NON-NLS-1$
+									+ " - " + membership.getType().getLabel(getMessageSourceAccessor(), Gender.NOT_SPECIFIED, Locale.US) //$NON-NLS-1$
 									+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
 								objectIdRepository.put(id, Integer.valueOf(membership.getId()));
@@ -1589,7 +1594,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						} else {
 							getLogger().info("  X " + targetPerson.get().getFullName() //$NON-NLS-1$
 									+ " - " + targetCandidate.get().getFullName() //$NON-NLS-1$
-									+ " - " + membership.getType().getLabel(Gender.NOT_SPECIFIED) //$NON-NLS-1$
+									+ " - " + membership.getType().getLabel(getMessageSourceAccessor(), Gender.NOT_SPECIFIED, Locale.US) //$NON-NLS-1$
 									+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
 								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
@@ -1675,7 +1680,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 						++nbNew;
 						getLogger().info("  + " + supervision.getSupervisedPerson().getPerson().getFullName() //$NON-NLS-1$
-								+ " - " + supervision.getSupervisedPerson().getShortDescription() //$NON-NLS-1$
+								+ " - " + supervision.getSupervisedPerson().getShortDescription(getMessageSourceAccessor(), Locale.US) //$NON-NLS-1$
 								+ " (id: " + supervision.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
 							objectIdRepository.put(id, Integer.valueOf(supervision.getId()));

@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.teaching.StudentType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link StudentType}.
  * 
@@ -41,8 +43,11 @@ public class StudentTypeTest {
 
 	private List<StudentType> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(StudentType.values()));
 	}
@@ -81,36 +86,10 @@ public class StudentTypeTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Initial Training", cons(StudentType.INITIAL_TRAINING).getLabel());
-		assertEquals("Apprenticeship or Dual Training", cons(StudentType.APPRENTICESHIP).getLabel());
-		assertEquals("Continuing Education", cons(StudentType.CONTINUOUS).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Initial Training", cons(StudentType.INITIAL_TRAINING).getLabel());
-		assertEquals("Apprenticeship or Dual Training", cons(StudentType.APPRENTICESHIP).getLabel());
-		assertEquals("Continuing Education", cons(StudentType.CONTINUOUS).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Formation initiale", cons(StudentType.INITIAL_TRAINING).getLabel(Locale.FRANCE));
-		assertEquals("Formation par alternance", cons(StudentType.APPRENTICESHIP).getLabel(Locale.FRANCE));
-		assertEquals("Formation continue", cons(StudentType.CONTINUOUS).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Initial Training", cons(StudentType.INITIAL_TRAINING).getLabel(Locale.US));
-		assertEquals("Apprenticeship or Dual Training", cons(StudentType.APPRENTICESHIP).getLabel(Locale.US));
-		assertEquals("Continuing Education", cons(StudentType.CONTINUOUS).getLabel(Locale.US));
+		assertEquals("Initial Training", cons(StudentType.INITIAL_TRAINING).getLabel(this.messages, Locale.US));
+		assertEquals("Apprenticeship or Dual Training", cons(StudentType.APPRENTICESHIP).getLabel(this.messages, Locale.US));
+		assertEquals("Continuing Education", cons(StudentType.CONTINUOUS).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

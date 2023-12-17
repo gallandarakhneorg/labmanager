@@ -16,6 +16,8 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.publication.fte;
 
+import java.util.Locale;
+
 import fr.utbm.ciad.labmanager.components.indicators.members.fte.PhdStudentFteIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.publication.count.PhdWosJournalPaperCountIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -51,13 +53,13 @@ public class WosJournalPaperPhdRatioIndicator extends AbstractRankedJournalPaper
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("wosJournalPaperPhdRatioIndicator.name"); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "wosJournalPaperPhdRatioIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithYears("wosJournalPaperPhdRatioIndicator.label"); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getLabelWithYears(locale, "wosJournalPaperPhdRatioIndicator.label"); //$NON-NLS-1$
 	}
 
 }

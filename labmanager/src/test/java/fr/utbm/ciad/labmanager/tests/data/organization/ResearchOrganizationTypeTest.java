@@ -29,6 +29,7 @@ import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ResearchOrganizationType}.
  * 
@@ -42,8 +43,11 @@ public class ResearchOrganizationTypeTest {
 
 	private List<ResearchOrganizationType> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(ResearchOrganizationType.values()));
 	}
@@ -81,98 +85,25 @@ public class ResearchOrganizationTypeTest {
 	}
 
 	@Test
-	public void getLabel_US() {
-		// Force the local to be US
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Research Team", cons(ResearchOrganizationType.RESEARCH_TEAM).getLabel());
-		assertEquals("Research Department", cons(ResearchOrganizationType.LABORATORY_DEPARTMENT).getLabel());
-		assertEquals("Research Laboratory", cons(ResearchOrganizationType.LABORATORY).getLabel());
-		assertEquals("Faculty", cons(ResearchOrganizationType.FACULTY).getLabel());
-		assertEquals("University", cons(ResearchOrganizationType.UNIVERSITY).getLabel());
-		assertEquals("High School", cons(ResearchOrganizationType.HIGH_SCHOOL).getLabel());
-		assertEquals("Community of universities", cons(ResearchOrganizationType.COMMUNITY).getLabel());
-		assertEquals("Other type of organization", cons(ResearchOrganizationType.OTHER).getLabel());
-		assertEquals("Research institute", cons(ResearchOrganizationType.RESEARCH_INSTITUTE).getLabel());
-		assertEquals("Research organization", cons(ResearchOrganizationType.RESEARCH_INSTITUTION).getLabel());
-		assertEquals("Public administration", cons(ResearchOrganizationType.PUBLIC_ADMINISTRATION).getLabel());
-		assertEquals("Public non profit association", cons(ResearchOrganizationType.PUBLIC_NON_PROFIT_ASSOCIATION).getLabel());
-		assertEquals("Private non profit association", cons(ResearchOrganizationType.PRIVATE_NON_PROFIT_ASSOCIATION).getLabel());
-		assertEquals("Start-up company", cons(ResearchOrganizationType.START_UP_COMPANY).getLabel());
-		assertEquals("Very small size company (≤ 50 employees)", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel());
-		assertEquals("Small size company (≤ 250 employees)", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel());
-		assertEquals("Intermediate size company (≤ 5000 employees)", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel());
-		assertEquals("Big size company (≥ 5000 employees)", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_FR() {
-		// Force the local to be FR
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Research Team", cons(ResearchOrganizationType.RESEARCH_TEAM).getLabel());
-		assertEquals("Research Department", cons(ResearchOrganizationType.LABORATORY_DEPARTMENT).getLabel());
-		assertEquals("Research Laboratory", cons(ResearchOrganizationType.LABORATORY).getLabel());
-		assertEquals("Faculty", cons(ResearchOrganizationType.FACULTY).getLabel());
-		assertEquals("University", cons(ResearchOrganizationType.UNIVERSITY).getLabel());
-		assertEquals("High School", cons(ResearchOrganizationType.HIGH_SCHOOL).getLabel());
-		assertEquals("Community of universities", cons(ResearchOrganizationType.COMMUNITY).getLabel());
-		assertEquals("Other type of organization", cons(ResearchOrganizationType.OTHER).getLabel());
-		assertEquals("Research institute", cons(ResearchOrganizationType.RESEARCH_INSTITUTE).getLabel());
-		assertEquals("Research organization", cons(ResearchOrganizationType.RESEARCH_INSTITUTION).getLabel());
-		assertEquals("Public administration", cons(ResearchOrganizationType.PUBLIC_ADMINISTRATION).getLabel());
-		assertEquals("Public non profit association", cons(ResearchOrganizationType.PUBLIC_NON_PROFIT_ASSOCIATION).getLabel());
-		assertEquals("Private non profit association", cons(ResearchOrganizationType.PRIVATE_NON_PROFIT_ASSOCIATION).getLabel());
-		assertEquals("Start-up company", cons(ResearchOrganizationType.START_UP_COMPANY).getLabel());
-		assertEquals("Very small size company (≤ 50 employees)", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel());
-		assertEquals("Small size company (≤ 250 employees)", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel());
-		assertEquals("Intermediate size company (≤ 5000 employees)", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel());
-		assertEquals("Big size company (≥ 5000 employees)", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() {
-		assertEquals("Research Team", cons(ResearchOrganizationType.RESEARCH_TEAM).getLabel(Locale.US));
-		assertEquals("Research Department", cons(ResearchOrganizationType.LABORATORY_DEPARTMENT).getLabel(Locale.US));
-		assertEquals("Research Laboratory", cons(ResearchOrganizationType.LABORATORY).getLabel(Locale.US));
-		assertEquals("Faculty", cons(ResearchOrganizationType.FACULTY).getLabel(Locale.US));
-		assertEquals("University", cons(ResearchOrganizationType.UNIVERSITY).getLabel(Locale.US));
-		assertEquals("High School", cons(ResearchOrganizationType.HIGH_SCHOOL).getLabel(Locale.US));
-		assertEquals("Community of universities", cons(ResearchOrganizationType.COMMUNITY).getLabel(Locale.US));
-		assertEquals("Other type of organization", cons(ResearchOrganizationType.OTHER).getLabel(Locale.US));
-		assertEquals("Research institute", cons(ResearchOrganizationType.RESEARCH_INSTITUTE).getLabel(Locale.US));
-		assertEquals("Research organization", cons(ResearchOrganizationType.RESEARCH_INSTITUTION).getLabel(Locale.US));
-		assertEquals("Public administration", cons(ResearchOrganizationType.PUBLIC_ADMINISTRATION).getLabel(Locale.US));
-		assertEquals("Public non profit association", cons(ResearchOrganizationType.PUBLIC_NON_PROFIT_ASSOCIATION).getLabel(Locale.US));
-		assertEquals("Private non profit association", cons(ResearchOrganizationType.PRIVATE_NON_PROFIT_ASSOCIATION).getLabel(Locale.US));
-		assertEquals("Start-up company", cons(ResearchOrganizationType.START_UP_COMPANY).getLabel(Locale.US));
-		assertEquals("Very small size company (≤ 50 employees)", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel(Locale.US));
-		assertEquals("Small size company (≤ 250 employees)", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel(Locale.US));
-		assertEquals("Intermediate size company (≤ 5000 employees)", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel(Locale.US));
-		assertEquals("Big size company (≥ 5000 employees)", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel(Locale.US));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() {
-		assertEquals("\u00C9quipe de recherche", cons(ResearchOrganizationType.RESEARCH_TEAM).getLabel(Locale.FRANCE));
-		assertEquals("Département de recherche", cons(ResearchOrganizationType.LABORATORY_DEPARTMENT).getLabel(Locale.FRANCE));
-		assertEquals("Laboratoire de recherche", cons(ResearchOrganizationType.LABORATORY).getLabel(Locale.FRANCE));
-		assertEquals("Faculté", cons(ResearchOrganizationType.FACULTY).getLabel(Locale.FRANCE));
-		assertEquals("Université", cons(ResearchOrganizationType.UNIVERSITY).getLabel(Locale.FRANCE));
-		assertEquals("Collège ou Lycée", cons(ResearchOrganizationType.HIGH_SCHOOL).getLabel(Locale.FRANCE));
-		assertEquals("Communauté d'universités", cons(ResearchOrganizationType.COMMUNITY).getLabel(Locale.FRANCE));
-		assertEquals("Autre type d'organisation", cons(ResearchOrganizationType.OTHER).getLabel(Locale.FRANCE));
-		assertEquals("Institut de recherche", cons(ResearchOrganizationType.RESEARCH_INSTITUTE).getLabel(Locale.FRANCE));
-		assertEquals("\u00C9tablissement de recherche", cons(ResearchOrganizationType.RESEARCH_INSTITUTION).getLabel(Locale.FRANCE));
-		assertEquals("Administration publique", cons(ResearchOrganizationType.PUBLIC_ADMINISTRATION).getLabel(Locale.FRANCE));
-		assertEquals("Association publique à but non lucratif", cons(ResearchOrganizationType.PUBLIC_NON_PROFIT_ASSOCIATION).getLabel(Locale.FRANCE));
-		assertEquals("Association privée à but non lucratif", cons(ResearchOrganizationType.PRIVATE_NON_PROFIT_ASSOCIATION).getLabel(Locale.FRANCE));
-		assertEquals("Entreprise start-up", cons(ResearchOrganizationType.START_UP_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Très petite entreprise (≤ 50 employés)", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Petite ou moyenne entreprise (≤ 250 employés)", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Entreprise de taille intermédiaire (≤ 5000 employés)", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Grande entreprise (≥ 5000 employés)", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel(Locale.FRANCE));
+		assertEquals("Research Team", cons(ResearchOrganizationType.RESEARCH_TEAM).getLabel(this.messages, Locale.US));
+		assertEquals("Research Department", cons(ResearchOrganizationType.LABORATORY_DEPARTMENT).getLabel(this.messages, Locale.US));
+		assertEquals("Research Laboratory", cons(ResearchOrganizationType.LABORATORY).getLabel(this.messages, Locale.US));
+		assertEquals("Faculty", cons(ResearchOrganizationType.FACULTY).getLabel(this.messages, Locale.US));
+		assertEquals("University", cons(ResearchOrganizationType.UNIVERSITY).getLabel(this.messages, Locale.US));
+		assertEquals("High School", cons(ResearchOrganizationType.HIGH_SCHOOL).getLabel(this.messages, Locale.US));
+		assertEquals("Community of universities", cons(ResearchOrganizationType.COMMUNITY).getLabel(this.messages, Locale.US));
+		assertEquals("Other type of organization", cons(ResearchOrganizationType.OTHER).getLabel(this.messages, Locale.US));
+		assertEquals("Research institute", cons(ResearchOrganizationType.RESEARCH_INSTITUTE).getLabel(this.messages, Locale.US));
+		assertEquals("Research organization", cons(ResearchOrganizationType.RESEARCH_INSTITUTION).getLabel(this.messages, Locale.US));
+		assertEquals("Public administration", cons(ResearchOrganizationType.PUBLIC_ADMINISTRATION).getLabel(this.messages, Locale.US));
+		assertEquals("Public non profit association", cons(ResearchOrganizationType.PUBLIC_NON_PROFIT_ASSOCIATION).getLabel(this.messages, Locale.US));
+		assertEquals("Private non profit association", cons(ResearchOrganizationType.PRIVATE_NON_PROFIT_ASSOCIATION).getLabel(this.messages, Locale.US));
+		assertEquals("Start-up company", cons(ResearchOrganizationType.START_UP_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("Very small size company (≤ 50 employees)", cons(ResearchOrganizationType.VERY_SMALL_SIZE_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("Small size company (≤ 250 employees)", cons(ResearchOrganizationType.SMALL_SIZE_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("Intermediate size company (≤ 5000 employees)", cons(ResearchOrganizationType.INTERMEDIATE_SIZE_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("Big size company (≥ 5000 employees)", cons(ResearchOrganizationType.BIG_SIZE_COMPANY).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

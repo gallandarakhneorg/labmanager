@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.data.publication;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
@@ -33,6 +34,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Author link between a person and a research publication.
  * 
@@ -126,7 +128,7 @@ public class Authorship implements Serializable, AttributeProvider, Comparable<A
 	 * </ul>
 	 */
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		consumer.accept("authorRank", Integer.valueOf(getAuthorRank())); //$NON-NLS-1$
 	}
 

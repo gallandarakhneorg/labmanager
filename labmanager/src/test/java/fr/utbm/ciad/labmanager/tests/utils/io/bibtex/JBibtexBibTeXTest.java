@@ -41,6 +41,7 @@ import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -129,7 +130,7 @@ public class JBibtexBibTeXTest {
 
 	@BeforeEach
 	public void setUp() {
-		this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.prePublicationFactory = mock(PrePublicationFactory.class);
 		this.journalService = mock(JournalService.class);
 		this.conferenceService = mock(ConferenceService.class);
@@ -482,7 +483,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPages()).thenReturn("pages/1");
 		when(pub.getScimagoQIndex()).thenReturn(QuartileRanking.Q2);
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@article{JournalPaper_123,",
@@ -529,7 +530,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPublisher()).thenReturn("publisher/1");
 		when(pub.getSeries()).thenReturn("series/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@book{Book_123,",
@@ -575,7 +576,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPublisher()).thenReturn("publisher/1");
 		when(pub.getSeries()).thenReturn("series/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@incollection{BookChapter_123,",
@@ -615,7 +616,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getInstitution()).thenReturn("inst/1");
 		when(pub.getAddress()).thenReturn("adr/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@phdthesis{Thesis_123,",
@@ -650,7 +651,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getInstitution()).thenReturn("inst/1");
 		when(pub.getAddress()).thenReturn("adr/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@mastersthesis{Thesis_123,",
@@ -695,7 +696,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPages()).thenReturn("pages/1");
 		when(pub.getScimagoQIndex()).thenReturn(QuartileRanking.Q2);
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@book{JournalEdition_123,",
@@ -749,7 +750,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getAddress()).thenReturn("adr/1");
 		when(pub.getEditors()).thenReturn("Editor1, Editor2 and Editor3, Editor4");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@inproceedings{ConferencePaper_123,",
@@ -796,7 +797,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getAddress()).thenReturn("adr/1");
 		when(pub.getEditors()).thenReturn("Editor1, Editor2 and Editor3, Editor4");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@inproceedings{KeyNote_123,",
@@ -833,7 +834,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getReportNumber()).thenReturn("num/1");
 		when(pub.getReportType()).thenReturn("type/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@techreport{Report_123,",
@@ -871,7 +872,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getReportNumber()).thenReturn("num/1");
 		when(pub.getReportType()).thenReturn("type/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@manual{Doc_123,",
@@ -909,7 +910,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getPatentNumber()).thenReturn("bre/1");
 		when(pub.getPatentType()).thenReturn("int./1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@misc{Patent_123,",
@@ -948,7 +949,7 @@ public class JBibtexBibTeXTest {
 		when(pub.getOrganization()).thenReturn("orga/1");
 		when(pub.getPublisher()).thenReturn("publisher/1");
 
-		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+		final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 		assertEquals(lines(
 				"@misc{Art_123,",
@@ -995,7 +996,7 @@ public class JBibtexBibTeXTest {
 			lenient().when(pub.getPublicationYear()).thenReturn(2022);
 			lenient().when(pub.getTitle()).thenReturn("title/" + type.name());
 
-			final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null));
+			final String bibtex = this.test.exportPublications(Arrays.asList(pub), new ExporterConfigurator(null, Locale.US));
 
 			assertFalse(Strings.isNullOrEmpty(bibtex));
 		}

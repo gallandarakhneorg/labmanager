@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.data.supervision;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.google.common.base.Strings;
@@ -39,6 +40,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Description of a supervisor.
  * 
@@ -116,7 +118,7 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getType() != null) {
 			consumer.accept("type", getType()); //$NON-NLS-1$
 		}

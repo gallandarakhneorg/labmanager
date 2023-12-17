@@ -30,6 +30,7 @@ import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Enable to edit the personal information for the user.
  * 
@@ -52,9 +53,11 @@ public class MyProfileView extends AbstractPersonEditorView implements HasDynami
 	 *
 	 * @param personService the service to access to the person JPA.
 	 * @param authenticatedUser the connected user.
+	 * @param messages the accessor to the localized messages (spring layer)
 	 */
-	public MyProfileView(@Autowired PersonService personService, @Autowired AuthenticatedUser authenticatedUser) {
-		super(authenticatedUser.get().get().getPerson(), personService, authenticatedUser, LOGGER);
+	public MyProfileView(@Autowired PersonService personService, @Autowired AuthenticatedUser authenticatedUser,
+			@Autowired MessageSourceAccessor messages) {
+		super(authenticatedUser.get().get().getPerson(), personService, authenticatedUser, messages, LOGGER);
 	}
 
 	@Override

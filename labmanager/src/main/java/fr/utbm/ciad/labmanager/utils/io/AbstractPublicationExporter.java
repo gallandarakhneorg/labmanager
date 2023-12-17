@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -32,6 +33,7 @@ import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationCategory;
 import org.arakhne.afc.util.ListUtil;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Provides tools for exporting publications.
  * 
@@ -43,6 +45,24 @@ import org.arakhne.afc.util.ListUtil;
  */
 public abstract class AbstractPublicationExporter {
 
+	private final MessageSourceAccessor messages;
+	
+	/** Constructor.
+	 *
+	 * @param messages the accessor to the localized strings.
+	 */
+	protected AbstractPublicationExporter(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
+
+	/** Replies the accessor to the localized strings.
+	 *
+	 * @return the accessor.
+	 */
+	protected MessageSourceAccessor getMessageSourceAccessor() {
+		return this.messages;
+	}
+	
 	/** Replies the comparator of publications that is used for sorting the publications.
 	 *
 	 * @return the comparator of publications.
@@ -54,15 +74,15 @@ public abstract class AbstractPublicationExporter {
 
 	/** Replies the preferred label for the given publication category.
 	 *
+	 * @param locale the locale to use for retrieving the labels.
 	 * @param category the category.
 	 * @return the label.
 	 */
-	@SuppressWarnings("static-method")
-	protected String getCategoryLabel(PublicationCategory category) {
+	protected String getCategoryLabel(Locale locale, PublicationCategory category) {
 		if (category == null) {
 			return ""; //$NON-NLS-1$
 		}
-		return category.getLabel() + " (" + category.name() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
+		return category.getLabel(getMessageSourceAccessor(), locale) + " (" + category.name() + ")"; //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	/** Replies the preferred label for the given publication year.
@@ -84,7 +104,7 @@ public abstract class AbstractPublicationExporter {
 	 * @param configurator the exporter configuration.
 	 * @param section the lambda for generating a section. 
 	 * @param subsection the lambda for generating a subsection. 
-	 * @param list the lambda for generating a list of publications. 
+	 * @param list the lambda for generating a list of publications.
 	 * @throws Exception if the export cannot be done.
 	 */
 	protected void exportPublicationsWithGroupingCriteria(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
@@ -95,7 +115,7 @@ public abstract class AbstractPublicationExporter {
 			if (configurator.isGroupedByCategory() && configurator.isGroupedByYear()) {
 				final Map<PublicationCategory, Map<Integer, List<Publication>>> groupedPublications = groupByCategoryAndYear(publications);
 				for (final Entry<PublicationCategory, Map<Integer, List<Publication>>> entry0 : groupedPublications.entrySet()) {
-					section.accept(getCategoryLabel(entry0.getKey()));
+					section.accept(getCategoryLabel(configurator.getLocale(), entry0.getKey()));
 					for (final Entry<Integer, List<Publication>> entry1 : entry0.getValue().entrySet()) {
 						subsection.accept(getYearLabel(entry1.getKey()));
 						list.accept(entry1.getValue());
@@ -104,7 +124,7 @@ public abstract class AbstractPublicationExporter {
 			} else if (configurator.isGroupedByCategory()) {
 				final Map<PublicationCategory, List<Publication>> groupedPublications = groupByCategory(publications);
 				for (final Entry<PublicationCategory, List<Publication>> entry : groupedPublications.entrySet()) {
-					section.accept(getCategoryLabel(entry.getKey()));
+					section.accept(getCategoryLabel(configurator.getLocale(), entry.getKey()));
 					list.accept(entry.getValue());
 				}
 			} else {

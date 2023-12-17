@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.member;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Person;
@@ -107,15 +109,15 @@ public class OrphanPersonService extends AbstractOrphanService<Person> {
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.personRepository, this,
 				Constants.PERSON_EDITING_ENDPOINT, Constants.PERSON_ENDPOINT_PARAMETER,
 				Constants.PERSON_DELETING_ENDPOINT, Constants.PERSON_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(Person person) {
+	public String getOrphanCriteria(Person person, Locale locale) {
 		final int id = person.getId();
 		if (this.publicationService.isAuthor(id)) {
 			return null;
@@ -141,17 +143,17 @@ public class OrphanPersonService extends AbstractOrphanService<Person> {
 		if (this.teachingService.isTeacher(id)) {
 			return null;
 		}
-		return getMessage(MESSAGE_PREFIX + "UnlinkedPerson"); //$NON-NLS-1$
+		return getMessage(locale, MESSAGE_PREFIX + "UnlinkedPerson"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getOrphanEntityLabel(Person entity) {
+	public String getOrphanEntityLabel(Person entity, Locale locale) {
 		return entity.getFullName();
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

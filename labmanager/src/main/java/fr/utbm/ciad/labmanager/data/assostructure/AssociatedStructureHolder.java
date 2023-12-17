@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.data.assostructure;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.google.common.base.Strings;
@@ -40,6 +41,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Description of an holder for the creation of an associated structure.
  * 
@@ -138,7 +140,7 @@ public class AssociatedStructureHolder implements Serializable, AttributeProvide
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getRole() != null) {
 			consumer.accept("role", getRole()); //$NON-NLS-1$
 			consumer.accept("roleDescription", getRoleDescription()); //$NON-NLS-1$

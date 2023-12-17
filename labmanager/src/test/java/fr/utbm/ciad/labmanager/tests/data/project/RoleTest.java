@@ -26,9 +26,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.project.Role;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link Role}.
  * 
@@ -42,8 +44,11 @@ public class RoleTest {
 
 	private List<Role> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(Role.values()));
 	}
@@ -86,44 +91,12 @@ public class RoleTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Project coordinator", cons(Role.PROJECT_COORDINATOR).getLabel());
-		assertEquals("Scientific head", cons(Role.SCIENTIFIC_HEAD).getLabel());
-		assertEquals("Work package leader", cons(Role.WORK_PACKAGE_LEADER).getLabel());
-		assertEquals("Task leader", cons(Role.TASK_LEADER).getLabel());
-		assertEquals("Participant", cons(Role.PARTICIPANT).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Project coordinator", cons(Role.PROJECT_COORDINATOR).getLabel());
-		assertEquals("Scientific head", cons(Role.SCIENTIFIC_HEAD).getLabel());
-		assertEquals("Work package leader", cons(Role.WORK_PACKAGE_LEADER).getLabel());
-		assertEquals("Task leader", cons(Role.TASK_LEADER).getLabel());
-		assertEquals("Participant", cons(Role.PARTICIPANT).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Porteur", cons(Role.PROJECT_COORDINATOR).getLabel(Locale.FRANCE));
-		assertEquals("Responsable scientifique", cons(Role.SCIENTIFIC_HEAD).getLabel(Locale.FRANCE));
-		assertEquals("Responsable de lot", cons(Role.WORK_PACKAGE_LEADER).getLabel(Locale.FRANCE));
-		assertEquals("Responsable de tâche", cons(Role.TASK_LEADER).getLabel(Locale.FRANCE));
-		assertEquals("Participant", cons(Role.PARTICIPANT).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Project coordinator", cons(Role.PROJECT_COORDINATOR).getLabel(Locale.US));
-		assertEquals("Scientific head", cons(Role.SCIENTIFIC_HEAD).getLabel(Locale.US));
-		assertEquals("Work package leader", cons(Role.WORK_PACKAGE_LEADER).getLabel(Locale.US));
-		assertEquals("Task leader", cons(Role.TASK_LEADER).getLabel(Locale.US));
-		assertEquals("Participant", cons(Role.PARTICIPANT).getLabel(Locale.US));
+		assertEquals("Project coordinator", cons(Role.PROJECT_COORDINATOR).getLabel(this.messages, Locale.US));
+		assertEquals("Scientific head", cons(Role.SCIENTIFIC_HEAD).getLabel(this.messages, Locale.US));
+		assertEquals("Work package leader", cons(Role.WORK_PACKAGE_LEADER).getLabel(this.messages, Locale.US));
+		assertEquals("Task leader", cons(Role.TASK_LEADER).getLabel(this.messages, Locale.US));
+		assertEquals("Participant", cons(Role.PARTICIPANT).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

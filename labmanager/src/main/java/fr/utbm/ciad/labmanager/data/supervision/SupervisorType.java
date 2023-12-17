@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.data.supervision;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -52,53 +51,19 @@ public enum SupervisorType {
 
 	private static final String MESSAGE_PREFIX = "supervisorType."; //$NON-NLS-1$
 
-	private MessageSourceAccessor messages;
-
-	/** Replies the message accessor to be used.
-	 *
-	 * @return the accessor.
-	 */
-	public MessageSourceAccessor getMessageSourceAccessor() {
-		if (this.messages == null) {
-			this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
-		}
-		return this.messages;
-	}
-
-	/** Change the message accessor to be used.
-	 *
-	 * @param messages the accessor.
-	 */
-	public void setMessageSourceAccessor(MessageSourceAccessor messages) {
-		this.messages = messages;
-	}
-
 	/** Replies the label of the type.
 	 *
-	 * @param gender the gender of the person.
-	 * @return the label of the type.
-	 */
-	public String getLabel(Gender gender) {
-		Gender g = gender;
-		if (g == null || g == Gender.NOT_SPECIFIED) {
-			g = Gender.OTHER;
-		}
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + g.name()); //$NON-NLS-1$
-		return Strings.nullToEmpty(label);
-	}
-
-	/** Replies the label of the type.
-	 *
+	 * @param messages the accessor to the localized labels.
 	 * @param gender the gender of the person.
 	 * @param locale the locale to use.
 	 * @return the label of the type.
 	 */
-	public String getLabel(Gender gender, Locale locale) {
+	public String getLabel(MessageSourceAccessor messages, Gender gender, Locale locale) {
 		Gender g = gender;
 		if (g == null || g == Gender.NOT_SPECIFIED) {
 			g = Gender.OTHER;
 		}
-		final String label = getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + "_" + g.name(), locale); //$NON-NLS-1$
+		final String label = messages.getMessage(MESSAGE_PREFIX + name() + "_" + g.name(), locale); //$NON-NLS-1$
 		return Strings.nullToEmpty(label);
 	}
 

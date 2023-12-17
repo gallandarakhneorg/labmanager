@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.jury;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
@@ -61,12 +63,12 @@ public class OrphanJuryMembershipService extends AbstractOrphanService<JuryMembe
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.membershipRepository, this,
 				Constants.JURY_MEMBERSHIP_EDITING_ENDPOINT, Constants.PERSON_ENDPOINT_PARAMETER,
 				Constants.GOTO_ENDPOINT_PARAMETER, it -> Integer.toString(it.getId()),
 				Constants.JURY_MEMBERSHIP_DELETION_ENDPOINT, Constants.ID_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
@@ -78,30 +80,30 @@ public class OrphanJuryMembershipService extends AbstractOrphanService<JuryMembe
 	}
 
 	@Override
-	public String getOrphanCriteria(JuryMembership jury) {
+	public String getOrphanCriteria(JuryMembership jury, Locale locale) {
 		if (jury.getPerson() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoPerson"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoPerson"); //$NON-NLS-1$
 		}
 		if (jury.getCandidate() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoCandidate"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoCandidate"); //$NON-NLS-1$
 		}
 		if (jury.getDate() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoDate"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoDate"); //$NON-NLS-1$
 		}
 		if (Strings.isNullOrEmpty(jury.getTitle())) {
-			return getMessage(MESSAGE_PREFIX + "EmptyTitle"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "EmptyTitle"); //$NON-NLS-1$
 		}
 		if (Strings.isNullOrEmpty(jury.getUniversity())) {
-			return getMessage(MESSAGE_PREFIX + "NoUniversity"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoUniversity"); //$NON-NLS-1$
 		}
 		if (jury.getPromoters().isEmpty()) {
-			return getMessage(MESSAGE_PREFIX + "EmptyPromoterList"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "EmptyPromoterList"); //$NON-NLS-1$
 		}
 		return null;
 	}
 
 	@Override
-	public String getOrphanEntityLabel(JuryMembership entity) {
+	public String getOrphanEntityLabel(JuryMembership entity, Locale locale) {
 		if (entity.getCandidate() != null && entity.getPerson() != null) {
 			return entity.getCandidate().getFullName() + " - " + entity.getPerson().getFullName() + " - " + entity.getDate(); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -115,8 +117,8 @@ public class OrphanJuryMembershipService extends AbstractOrphanService<JuryMembe
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

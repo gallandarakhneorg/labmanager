@@ -24,6 +24,7 @@ import java.util.Random;
 import com.ibm.icu.text.Normalizer2;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.jena.ext.com.google.common.base.Strings;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract implementation of the utilities for BibTeX.
  * 
@@ -68,6 +69,24 @@ public abstract class AbstractBibTeX implements BibTeX {
 	protected static final String KEY_LANGUAGE_NAME = "_language"; //$NON-NLS-1$
 
 	private final Random random = new Random();
+
+	private final MessageSourceAccessor messages;
+	
+	/** Constructor.
+	 *
+	 * @param messages the accessor to the localized strings.
+	 */
+	public AbstractBibTeX(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
+	
+	/** Replies the accessor to the localized strings.
+	 *
+	 * @return the accessor.
+	 */
+	protected MessageSourceAccessor getMessageSourceAccessor() {
+		return this.messages;
+	}
 	
 	/** Generate an UUID.
 	 *

@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.invitation;
 import java.io.IOException;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -44,6 +45,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import org.apache.commons.lang3.mutable.MutableInt;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Description of an invitation for a person.
  * 
@@ -194,7 +196,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getGuest() != null) {
 			consumer.accept("guest", getGuest()); //$NON-NLS-1$
 		}

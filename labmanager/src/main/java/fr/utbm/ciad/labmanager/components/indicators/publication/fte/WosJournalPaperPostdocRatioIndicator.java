@@ -16,6 +16,8 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.publication.fte;
 
+import java.util.Locale;
+
 import fr.utbm.ciad.labmanager.components.indicators.members.fte.PostdocFteIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.publication.count.PostdocWosJournalPaperCountIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -51,13 +53,13 @@ public class WosJournalPaperPostdocRatioIndicator extends AbstractRankedJournalP
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("wosJournalPaperPostdocRatioIndicator.name"); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "wosJournalPaperPostdocRatioIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithYears("wosJournalPaperPostdocRatioIndicator.label"); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getLabelWithYears(locale, "wosJournalPaperPostdocRatioIndicator.label"); //$NON-NLS-1$
 	}
 
 }

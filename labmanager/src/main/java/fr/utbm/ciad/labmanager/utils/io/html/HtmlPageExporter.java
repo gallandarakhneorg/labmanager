@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.utils.io.html;
 
+import java.util.Locale;
+
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 
@@ -87,16 +89,18 @@ public interface HtmlPageExporter extends HtmlExporter {
 	/** Replies the button for editing the publication.
 	 *
 	 * @param publicationId the identifier of the publication.
+	 * @param locale the locale to be used.
 	 * @return the HTML code.
 	 */
-	String getButtonToEditPublication(int publicationId);
+	String getButtonToEditPublication(int publicationId, Locale locale);
 
 	/** Replies the button for deleting the publication.
 	 *
 	 * @param publicationId the identifier of the publication.
+	 * @param locale the locale to use.
 	 * @return the HTML code.
 	 */
-	String getButtonToDeletePublication(int publicationId);
+	String getButtonToDeletePublication(int publicationId, Locale locale);
 
 	/** Generate the HTML links for the given publication.
 	 *

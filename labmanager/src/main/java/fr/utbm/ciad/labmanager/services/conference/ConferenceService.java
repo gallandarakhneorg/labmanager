@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.services.conference;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -364,10 +365,11 @@ public class ConferenceService extends AbstractService {
 	/** Compute the updates for the conference rankings.
 	 *
 	 * @param year the reference year.
+	 * @param locale the locale to use.
 	 * @param progression the progress indicator.
 	 * @param callback the call back that is invoked on all the conferences with updates.
 	 */
-	public void computeConferenceRankingIndicatorUpdates(int year, DefaultProgression progression, BiConsumer<Conference, Map<String, Object>> callback) {
+	public void computeConferenceRankingIndicatorUpdates(int year, Locale locale, DefaultProgression progression, BiConsumer<Conference, Map<String, Object>> callback) {
 		final Set<Conference> treatedIdentifiers = new TreeSet<>(new IdentifiableEntityComparator());
 		try (final Session session = this.sessionFactory.openSession()) {
 			final List<Conference> conferences = this.conferenceRepository.findAll();
@@ -375,7 +377,7 @@ public class ConferenceService extends AbstractService {
 			progress.setProperties(0, 0, conferences.size(), false);
 			for (final Conference conference: conferences) {
 				if (treatedIdentifiers.add(conference)) {
-					progress.setComment(getMessage("conferenceService.GetConferenceIndicatorUpdatesFor", conference.getNameOrAcronym())); //$NON-NLS-1$
+					progress.setComment(getMessage(locale, "conferenceService.GetConferenceIndicatorUpdatesFor", conference.getNameOrAcronym())); //$NON-NLS-1$
 					final Map<String, Object> newConferenceIndicators = new HashMap<>();
 					readCorePortalIndicators(session, year, conference, newConferenceIndicators);
 					if (!newConferenceIndicators.isEmpty()) {

@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.components.indicators;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -74,12 +75,13 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 
 	/** Replies the label with the year at the end.
 	 *
+	 * @param locale the locale in which the label must be replied.
 	 * @param key the key for the message.
 	 * @param arguments the arguments to put in the label.
 	 * @return the label with the year.
 	 */
-	protected final String getLabelWithYears(String key, Object... arguments) {
-		final StringBuilder text = new StringBuilder(getMessage(key, arguments));
+	protected final String getLabelWithYears(Locale locale, String key, Object... arguments) {
+		final StringBuilder text = new StringBuilder(getMessage(locale, key, arguments));
 		final LocalDate start = getReferencePeriodStart();
 		final LocalDate end = getReferencePeriodEnd();
 		if (start != null && end != null) {
@@ -102,12 +104,13 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 
 	/** Replies the label with the year at the end.
 	 *
+	 * @param locale the locale in which the label must be replied.
 	 * @param key the key for the message.
 	 * @param arguments the arguments to put in the label.
 	 * @return the label without the year.
 	 */
-	protected final String getLabelWithoutYears(String key, Object... arguments) {
-		return getMessage(key, arguments);
+	protected final String getLabelWithoutYears(Locale locale, String key, Object... arguments) {
+		return getMessage(locale, key, arguments);
 	}
 
 	@Override

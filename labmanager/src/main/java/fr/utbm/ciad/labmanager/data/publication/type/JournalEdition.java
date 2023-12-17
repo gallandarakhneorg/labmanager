@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.data.publication.type;
 
 import java.io.IOException;
+import java.util.Locale;
 import java.util.Objects;
 
 import com.google.common.base.Strings;
@@ -29,6 +30,7 @@ import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Edition of a journal or a special issue of a journal.
  *
@@ -109,7 +111,7 @@ public class JournalEdition extends AbstractJournalBasedPublication {
 	}
 
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		super.forEachAttribute(consumer);
 		if (!Strings.isNullOrEmpty(getVolume())) {
 			consumer.accept("volume", getVolume()); //$NON-NLS-1$

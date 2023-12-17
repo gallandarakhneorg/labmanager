@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.invitation;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
@@ -60,38 +62,38 @@ public class OrphanPersonInvitationService extends AbstractOrphanService<PersonI
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.invitationRepository, this,
 				Constants.PERSON_INVITATION_EDITING_ENDPOINT, Constants.PERSON_ENDPOINT_PARAMETER,
 				Constants.PERSON_INVITATION_DELETION_ENDPOINT, Constants.ID_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(PersonInvitation invitation) {
+	public String getOrphanCriteria(PersonInvitation invitation, Locale locale) {
 		if (invitation.getGuest() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoGuestPerson"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoGuestPerson"); //$NON-NLS-1$
 		}
 		if (invitation.getInviter() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoInviterPerson"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoInviterPerson"); //$NON-NLS-1$
 		}
 		if (invitation.getStartDate() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoStartDate"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoStartDate"); //$NON-NLS-1$
 		}
 		if (invitation.getEndDate() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoEndDate"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoEndDate"); //$NON-NLS-1$
 		}
 		return null;
 	}
 
 	@Override
-	public String getOrphanEntityLabel(PersonInvitation entity) {
+	public String getOrphanEntityLabel(PersonInvitation entity, Locale locale) {
 		return entity.getGuest() + " - " + entity.getInviter() + " - " + entity.getStartDate(); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

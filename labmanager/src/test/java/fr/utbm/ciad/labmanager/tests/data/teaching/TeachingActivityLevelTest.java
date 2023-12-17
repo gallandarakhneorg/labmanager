@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityLevel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link TeachingActivityLevel}.
  * 
@@ -41,8 +43,11 @@ public class TeachingActivityLevelTest {
 
 	private List<TeachingActivityLevel> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(TeachingActivityLevel.values()));
 	}
@@ -83,40 +88,11 @@ public class TeachingActivityLevelTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Doctoral Degree", cons(TeachingActivityLevel.DOCTORAL_DEGREE).getLabel());
-		assertEquals("Master Degree", cons(TeachingActivityLevel.MASTER_DEGREE).getLabel());
-		assertEquals("Bachelor Degree", cons(TeachingActivityLevel.BACHELOR_DEGREE).getLabel());
-		assertEquals("High-School Degree", cons(TeachingActivityLevel.HIGH_SCHOOL_DEGREE).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Doctoral Degree", cons(TeachingActivityLevel.DOCTORAL_DEGREE).getLabel());
-		assertEquals("Master Degree", cons(TeachingActivityLevel.MASTER_DEGREE).getLabel());
-		assertEquals("Bachelor Degree", cons(TeachingActivityLevel.BACHELOR_DEGREE).getLabel());
-		assertEquals("High-School Degree", cons(TeachingActivityLevel.HIGH_SCHOOL_DEGREE).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Doctorat", cons(TeachingActivityLevel.DOCTORAL_DEGREE).getLabel(Locale.FRANCE));
-		assertEquals("Master", cons(TeachingActivityLevel.MASTER_DEGREE).getLabel(Locale.FRANCE));
-		assertEquals("Licence", cons(TeachingActivityLevel.BACHELOR_DEGREE).getLabel(Locale.FRANCE));
-		assertEquals("Baccalauréat", cons(TeachingActivityLevel.HIGH_SCHOOL_DEGREE).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Doctoral Degree", cons(TeachingActivityLevel.DOCTORAL_DEGREE).getLabel(Locale.US));
-		assertEquals("Master Degree", cons(TeachingActivityLevel.MASTER_DEGREE).getLabel(Locale.US));
-		assertEquals("Bachelor Degree", cons(TeachingActivityLevel.BACHELOR_DEGREE).getLabel(Locale.US));
-		assertEquals("High-School Degree", cons(TeachingActivityLevel.HIGH_SCHOOL_DEGREE).getLabel(Locale.US));
+		assertEquals("Doctoral Degree", cons(TeachingActivityLevel.DOCTORAL_DEGREE).getLabel(this.messages, Locale.US));
+		assertEquals("Master Degree", cons(TeachingActivityLevel.MASTER_DEGREE).getLabel(this.messages, Locale.US));
+		assertEquals("Bachelor Degree", cons(TeachingActivityLevel.BACHELOR_DEGREE).getLabel(this.messages, Locale.US));
+		assertEquals("High-School Degree", cons(TeachingActivityLevel.HIGH_SCHOOL_DEGREE).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

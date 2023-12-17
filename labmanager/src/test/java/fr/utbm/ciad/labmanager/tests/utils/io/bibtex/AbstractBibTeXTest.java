@@ -21,8 +21,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+import java.util.Locale;
 import java.util.stream.Stream;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.AbstractBibTeX;
@@ -43,7 +45,7 @@ public class AbstractBibTeXTest {
 
 	@BeforeEach
 	public void setUp() {
-		this.test = new AbstractBibTeX() {
+		this.test = new AbstractBibTeX(BaseMessageSource.getGlobalMessageAccessor()) {
 
 			@Override
 			public String parseTeXString(String texString) throws Exception {
@@ -62,7 +64,6 @@ public class AbstractBibTeXTest {
 					ExporterConfigurator configurator) throws IOException {
 				throw new UnsupportedOperationException();
 			}
-			
 		};
 	}
 

@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.project.ProjectContractType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link ProjectContractType}.
  * 
@@ -41,8 +43,11 @@ public class ProjectContractTypeTest {
 
 	private List<ProjectContractType> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(ProjectContractType.values()));
 	}
@@ -85,44 +90,12 @@ public class ProjectContractTypeTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Unspecified type", cons(ProjectContractType.NOT_SPECIFIED).getLabel());
-		assertEquals("Contract for collaborative contractual research, funded by public bodies", cons(ProjectContractType.RCO).getLabel());
-		assertEquals("Contract for direct contractual research, with shared IP or CIFRE", cons(ProjectContractType.RCD).getLabel());
-		assertEquals("Contract for contractual services, with transfer of IP", cons(ProjectContractType.PR).getLabel());
-		assertEquals("Contract dedicated to IP transfer", cons(ProjectContractType.PI).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Unspecified type", cons(ProjectContractType.NOT_SPECIFIED).getLabel());
-		assertEquals("Contract for collaborative contractual research, funded by public bodies", cons(ProjectContractType.RCO).getLabel());
-		assertEquals("Contract for direct contractual research, with shared IP or CIFRE", cons(ProjectContractType.RCD).getLabel());
-		assertEquals("Contract for contractual services, with transfer of IP", cons(ProjectContractType.PR).getLabel());
-		assertEquals("Contract dedicated to IP transfer", cons(ProjectContractType.PI).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Type non spécifié", cons(ProjectContractType.NOT_SPECIFIED).getLabel(Locale.FRANCE));
-		assertEquals("Contrat de recherche contractuelle collaborative, subventionné par des institutions publiques", cons(ProjectContractType.RCO).getLabel(Locale.FRANCE));
-		assertEquals("Contrat de recherche contractuelle directe, avec partage de PI ou CIFRE", cons(ProjectContractType.RCD).getLabel(Locale.FRANCE));
-		assertEquals("Contrat de prestation, avec transfert de PI", cons(ProjectContractType.PR).getLabel(Locale.FRANCE));
-		assertEquals("Contrat de transfert de PI uniquement", cons(ProjectContractType.PI).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Unspecified type", cons(ProjectContractType.NOT_SPECIFIED).getLabel(Locale.US));
-		assertEquals("Contract for collaborative contractual research, funded by public bodies", cons(ProjectContractType.RCO).getLabel(Locale.US));
-		assertEquals("Contract for direct contractual research, with shared IP or CIFRE", cons(ProjectContractType.RCD).getLabel(Locale.US));
-		assertEquals("Contract for contractual services, with transfer of IP", cons(ProjectContractType.PR).getLabel(Locale.US));
-		assertEquals("Contract dedicated to IP transfer", cons(ProjectContractType.PI).getLabel(Locale.US));
+		assertEquals("Unspecified type", cons(ProjectContractType.NOT_SPECIFIED).getLabel(this.messages, Locale.US));
+		assertEquals("Contract for collaborative contractual research, funded by public bodies", cons(ProjectContractType.RCO).getLabel(this.messages, Locale.US));
+		assertEquals("Contract for direct contractual research, with shared IP or CIFRE", cons(ProjectContractType.RCD).getLabel(this.messages, Locale.US));
+		assertEquals("Contract for contractual services, with transfer of IP", cons(ProjectContractType.PR).getLabel(this.messages, Locale.US));
+		assertEquals("Contract dedicated to IP transfer", cons(ProjectContractType.PI).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

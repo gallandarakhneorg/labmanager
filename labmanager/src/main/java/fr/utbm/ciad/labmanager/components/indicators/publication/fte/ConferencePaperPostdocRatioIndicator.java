@@ -16,6 +16,7 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.publication.fte;
 
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -81,13 +82,13 @@ public class ConferencePaperPostdocRatioIndicator extends AbstractAnnualIndicato
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("conferencePaperPostdocRatioIndicator.name"); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "conferencePaperPostdocRatioIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getMessage("conferencePaperPostdocRatioIndicator.label"); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getMessage(locale, "conferencePaperPostdocRatioIndicator.label"); //$NON-NLS-1$
 	}
 
 }

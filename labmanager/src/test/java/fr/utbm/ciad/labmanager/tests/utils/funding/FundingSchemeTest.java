@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link FundingScheme}.
  * 
@@ -41,8 +43,11 @@ public class FundingSchemeTest {
 
 	private List<FundingScheme> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(FundingScheme.values()));
 	}
@@ -233,180 +238,46 @@ public class FundingSchemeTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("ADEME - Agence de la transition écologique", cons(FundingScheme.ADEME).getLabel());
-		assertEquals("ANR - Agence Nationale pour le Recherche", cons(FundingScheme.ANR).getLabel());
-		assertEquals("Campus France", cons(FundingScheme.CAMPUS_FRANCE).getLabel());
-		assertEquals("Institut Carnot", cons(FundingScheme.CARNOT).getLabel());
-		assertEquals("CIFRE - Conventions industrielles de formation par la recherche", cons(FundingScheme.CIFRE).getLabel());
-		assertEquals("CONACYT Mexican Funding", cons(FundingScheme.CONACYT).getLabel());
-		assertEquals("COST Action", cons(FundingScheme.COST_ACTION).getLabel());
-		assertEquals("CPER - Contrat Plan \u00C9tat Région", cons(FundingScheme.CPER).getLabel());
-		assertEquals("CSC - Chinease Scholarship Council", cons(FundingScheme.CSC).getLabel());
-		assertEquals("EDIH - European Digital Innovation Hubs", cons(FundingScheme.EDIH).getLabel());
-		assertEquals("European Company", cons(FundingScheme.EU_COMPANY).getLabel());
-		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel());
-		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel());
-		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel());
-		assertEquals("Eurostar - European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel());
-		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel());
-		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel());
-		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel());
-		assertEquals("Other French funds", cons(FundingScheme.FRENCH_OTHER).getLabel());
-		assertEquals("French University", cons(FundingScheme.FRENCH_UNIVERSITY).getLabel());
-		assertEquals("FUI - Fonds unique interministériel", cons(FundingScheme.FUI).getLabel());
-		assertEquals("H2020 - Horizon 2020", cons(FundingScheme.H2020).getLabel());
-		assertEquals("Horizon Europe", cons(FundingScheme.HORIZON_EUROPE).getLabel());
-		assertEquals("Hosting organization", cons(FundingScheme.HOSTING_ORGANIZATION).getLabel());
-		assertEquals("IDEX - Initiatives d'excellence / Plan d'Investissement d'Avenir", cons(FundingScheme.IDEX).getLabel());
-		assertEquals("International Company", cons(FundingScheme.INTERNATIONAL_COMPANY).getLabel());
-		assertEquals("International University", cons(FundingScheme.INTERNATIONAL_UNIVERSITY).getLabel());
-		assertEquals("Other international funds", cons(FundingScheme.INTERNTATIONAL_OTHER).getLabel());
-		assertEquals("Interreg Europe", cons(FundingScheme.INTERREG).getLabel());
-		assertEquals("ISITE - Initiatives Science-Innovation-Territoire-\u00C9conomie / Plan d'Investissement d'Avenir", cons(FundingScheme.ISITE).getLabel());
-		assertEquals("JPI Urban Europe", cons(FundingScheme.JPIEU).getLabel());
-		assertEquals("LIFE - Programme for the Environment and Climate Action", cons(FundingScheme.LIFE).getLabel());
-		assertEquals("Local institution", cons(FundingScheme.LOCAL_INSTITUTION).getLabel());
-		assertEquals("Nicolas Baudin Programme", cons(FundingScheme.NICOLAS_BAUDIN).getLabel());
-		assertEquals("Not funded", cons(FundingScheme.NOT_FUNDED).getLabel());
-		assertEquals("PHC - Partenariats Hubert Curien", cons(FundingScheme.PHC).getLabel());
-		assertEquals("PIA - Plan d'Investissement d'Avenir", cons(FundingScheme.PIA).getLabel());
-		assertEquals("Bourgogne-Franche-Comté Province", cons(FundingScheme.REGION_BFC).getLabel());
-		assertEquals("Self funded", cons(FundingScheme.SELF_FUNDING).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("ADEME - Agence de la transition écologique", cons(FundingScheme.ADEME).getLabel());
-		assertEquals("ANR - Agence Nationale pour le Recherche", cons(FundingScheme.ANR).getLabel());
-		assertEquals("Campus France", cons(FundingScheme.CAMPUS_FRANCE).getLabel());
-		assertEquals("Institut Carnot", cons(FundingScheme.CARNOT).getLabel());
-		assertEquals("CIFRE - Conventions industrielles de formation par la recherche", cons(FundingScheme.CIFRE).getLabel());
-		assertEquals("CONACYT Mexican Funding", cons(FundingScheme.CONACYT).getLabel());
-		assertEquals("COST Action", cons(FundingScheme.COST_ACTION).getLabel());
-		assertEquals("CPER - Contrat Plan \u00C9tat Région", cons(FundingScheme.CPER).getLabel());
-		assertEquals("CSC - Chinease Scholarship Council", cons(FundingScheme.CSC).getLabel());
-		assertEquals("EDIH - European Digital Innovation Hubs", cons(FundingScheme.EDIH).getLabel());
-		assertEquals("European Company", cons(FundingScheme.EU_COMPANY).getLabel());
-		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel());
-		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel());
-		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel());
-		assertEquals("Eurostar - European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel());
-		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel());
-		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel());
-		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel());
-		assertEquals("Other French funds", cons(FundingScheme.FRENCH_OTHER).getLabel());
-		assertEquals("French University", cons(FundingScheme.FRENCH_UNIVERSITY).getLabel());
-		assertEquals("FUI - Fonds unique interministériel", cons(FundingScheme.FUI).getLabel());
-		assertEquals("H2020 - Horizon 2020", cons(FundingScheme.H2020).getLabel());
-		assertEquals("Horizon Europe", cons(FundingScheme.HORIZON_EUROPE).getLabel());
-		assertEquals("Hosting organization", cons(FundingScheme.HOSTING_ORGANIZATION).getLabel());
-		assertEquals("IDEX - Initiatives d'excellence / Plan d'Investissement d'Avenir", cons(FundingScheme.IDEX).getLabel());
-		assertEquals("International Company", cons(FundingScheme.INTERNATIONAL_COMPANY).getLabel());
-		assertEquals("International University", cons(FundingScheme.INTERNATIONAL_UNIVERSITY).getLabel());
-		assertEquals("Other international funds", cons(FundingScheme.INTERNTATIONAL_OTHER).getLabel());
-		assertEquals("Interreg Europe", cons(FundingScheme.INTERREG).getLabel());
-		assertEquals("ISITE - Initiatives Science-Innovation-Territoire-\u00C9conomie / Plan d'Investissement d'Avenir", cons(FundingScheme.ISITE).getLabel());
-		assertEquals("JPI Urban Europe", cons(FundingScheme.JPIEU).getLabel());
-		assertEquals("LIFE - Programme for the Environment and Climate Action", cons(FundingScheme.LIFE).getLabel());
-		assertEquals("Local institution", cons(FundingScheme.LOCAL_INSTITUTION).getLabel());
-		assertEquals("Nicolas Baudin Programme", cons(FundingScheme.NICOLAS_BAUDIN).getLabel());
-		assertEquals("Not funded", cons(FundingScheme.NOT_FUNDED).getLabel());
-		assertEquals("PHC - Partenariats Hubert Curien", cons(FundingScheme.PHC).getLabel());
-		assertEquals("PIA - Plan d'Investissement d'Avenir", cons(FundingScheme.PIA).getLabel());
-		assertEquals("Bourgogne-Franche-Comté Province", cons(FundingScheme.REGION_BFC).getLabel());
-		assertEquals("Self funded", cons(FundingScheme.SELF_FUNDING).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("ADEME - Agence de la transition écologique", cons(FundingScheme.ADEME).getLabel(Locale.FRANCE));
-		assertEquals("ANR - Agence Nationale pour le Recherche", cons(FundingScheme.ANR).getLabel(Locale.FRANCE));
-		assertEquals("Campus France", cons(FundingScheme.CAMPUS_FRANCE).getLabel(Locale.FRANCE));
-		assertEquals("Institut Carnot", cons(FundingScheme.CARNOT).getLabel(Locale.FRANCE));
-		assertEquals("CIFRE - Conventions industrielles de formation par la recherche", cons(FundingScheme.CIFRE).getLabel(Locale.FRANCE));
-		assertEquals("Bourse mexicaine CONACYT", cons(FundingScheme.CONACYT).getLabel(Locale.FRANCE));
-		assertEquals("Action COST", cons(FundingScheme.COST_ACTION).getLabel(Locale.FRANCE));
-		assertEquals("CPER - Contrat Plan \u00C9tat Région", cons(FundingScheme.CPER).getLabel(Locale.FRANCE));
-		assertEquals("CSC - Chinease Scholarship Council", cons(FundingScheme.CSC).getLabel(Locale.FRANCE));
-		assertEquals("EDIH - European Digital Innovation Hubs", cons(FundingScheme.EDIH).getLabel(Locale.FRANCE));
-		assertEquals("Entreprise européenne", cons(FundingScheme.EU_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Autres fonds européens", cons(FundingScheme.EU_OTHER).getLabel(Locale.FRANCE));
-		assertEquals("Université européenne", cons(FundingScheme.EU_UNIVERSITY).getLabel(Locale.FRANCE));
-		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel(Locale.FRANCE));
-		assertEquals("Eurostar - Partenariat européen avec les PME innovantes", cons(FundingScheme.EUROSTAR).getLabel(Locale.FRANCE));
-		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel(Locale.FRANCE));
-		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel(Locale.FRANCE));
-		assertEquals("Entreprise française", cons(FundingScheme.FRENCH_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Autres fonds français", cons(FundingScheme.FRENCH_OTHER).getLabel(Locale.FRANCE));
-		assertEquals("Université française", cons(FundingScheme.FRENCH_UNIVERSITY).getLabel(Locale.FRANCE));
-		assertEquals("FUI - Fonds unique interministériel", cons(FundingScheme.FUI).getLabel(Locale.FRANCE));
-		assertEquals("H2020 - Horizon 2020", cons(FundingScheme.H2020).getLabel(Locale.FRANCE));
-		assertEquals("Horizon Europe", cons(FundingScheme.HORIZON_EUROPE).getLabel(Locale.FRANCE));
-		assertEquals("Organisation hébergeante", cons(FundingScheme.HOSTING_ORGANIZATION).getLabel(Locale.FRANCE));
-		assertEquals("IDEX - Initiatives d'excellence du Plan d'Investissement d'Avenir", cons(FundingScheme.IDEX).getLabel(Locale.FRANCE));
-		assertEquals("Entreprise internationale", cons(FundingScheme.INTERNATIONAL_COMPANY).getLabel(Locale.FRANCE));
-		assertEquals("Université internationale", cons(FundingScheme.INTERNATIONAL_UNIVERSITY).getLabel(Locale.FRANCE));
-		assertEquals("Autres fonds internationaux", cons(FundingScheme.INTERNTATIONAL_OTHER).getLabel(Locale.FRANCE));
-		assertEquals("Interreg Europe", cons(FundingScheme.INTERREG).getLabel(Locale.FRANCE));
-		assertEquals("ISITE - Initiatives Science-Innovation-Territoire-\u00C9conomie du Plan d'Investissement d'Avenir", cons(FundingScheme.ISITE).getLabel(Locale.FRANCE));
-		assertEquals("JPI Urban Europe", cons(FundingScheme.JPIEU).getLabel(Locale.FRANCE));
-		assertEquals("LIFE - Programme for the Environment and Climate Action", cons(FundingScheme.LIFE).getLabel(Locale.FRANCE));
-		assertEquals("Institution locale", cons(FundingScheme.LOCAL_INSTITUTION).getLabel(Locale.FRANCE));
-		assertEquals("Programme Nicolas Baudin", cons(FundingScheme.NICOLAS_BAUDIN).getLabel(Locale.FRANCE));
-		assertEquals("Aucun financement", cons(FundingScheme.NOT_FUNDED).getLabel(Locale.FRANCE));
-		assertEquals("PHC - Partenariats Hubert Curien", cons(FundingScheme.PHC).getLabel(Locale.FRANCE));
-		assertEquals("PIA - Plan d'Investissement d'Avenir", cons(FundingScheme.PIA).getLabel(Locale.FRANCE));
-		assertEquals("Région Bourgogne-Franche-Comté", cons(FundingScheme.REGION_BFC).getLabel(Locale.FRANCE));
-		assertEquals("Autofinancement", cons(FundingScheme.SELF_FUNDING).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("ADEME - Agence de la transition écologique", cons(FundingScheme.ADEME).getLabel(Locale.US));
-		assertEquals("ANR - Agence Nationale pour le Recherche", cons(FundingScheme.ANR).getLabel(Locale.US));
-		assertEquals("Campus France", cons(FundingScheme.CAMPUS_FRANCE).getLabel(Locale.US));
-		assertEquals("Institut Carnot", cons(FundingScheme.CARNOT).getLabel(Locale.US));
-		assertEquals("CIFRE - Conventions industrielles de formation par la recherche", cons(FundingScheme.CIFRE).getLabel(Locale.US));
-		assertEquals("CONACYT Mexican Funding", cons(FundingScheme.CONACYT).getLabel(Locale.US));
-		assertEquals("COST Action", cons(FundingScheme.COST_ACTION).getLabel(Locale.US));
-		assertEquals("CPER - Contrat Plan \u00C9tat Région", cons(FundingScheme.CPER).getLabel(Locale.US));
-		assertEquals("CSC - Chinease Scholarship Council", cons(FundingScheme.CSC).getLabel(Locale.US));
-		assertEquals("EDIH - European Digital Innovation Hubs", cons(FundingScheme.EDIH).getLabel(Locale.US));
-		assertEquals("European Company", cons(FundingScheme.EU_COMPANY).getLabel(Locale.US));
-		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel(Locale.US));
-		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel(Locale.US));
-		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel(Locale.US));
-		assertEquals("Eurostar - European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel(Locale.US));
-		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel(Locale.US));
-		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel(Locale.US));
-		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel(Locale.US));
-		assertEquals("Other French funds", cons(FundingScheme.FRENCH_OTHER).getLabel(Locale.US));
-		assertEquals("French University", cons(FundingScheme.FRENCH_UNIVERSITY).getLabel(Locale.US));
-		assertEquals("FUI - Fonds unique interministériel", cons(FundingScheme.FUI).getLabel(Locale.US));
-		assertEquals("H2020 - Horizon 2020", cons(FundingScheme.H2020).getLabel(Locale.US));
-		assertEquals("Horizon Europe", cons(FundingScheme.HORIZON_EUROPE).getLabel(Locale.US));
-		assertEquals("Hosting organization", cons(FundingScheme.HOSTING_ORGANIZATION).getLabel(Locale.US));
-		assertEquals("IDEX - Initiatives d'excellence / Plan d'Investissement d'Avenir", cons(FundingScheme.IDEX).getLabel(Locale.US));
-		assertEquals("International Company", cons(FundingScheme.INTERNATIONAL_COMPANY).getLabel(Locale.US));
-		assertEquals("International University", cons(FundingScheme.INTERNATIONAL_UNIVERSITY).getLabel(Locale.US));
-		assertEquals("Other international funds", cons(FundingScheme.INTERNTATIONAL_OTHER).getLabel(Locale.US));
-		assertEquals("Interreg Europe", cons(FundingScheme.INTERREG).getLabel(Locale.US));
-		assertEquals("ISITE - Initiatives Science-Innovation-Territoire-\u00C9conomie / Plan d'Investissement d'Avenir", cons(FundingScheme.ISITE).getLabel(Locale.US));
-		assertEquals("JPI Urban Europe", cons(FundingScheme.JPIEU).getLabel(Locale.US));
-		assertEquals("LIFE - Programme for the Environment and Climate Action", cons(FundingScheme.LIFE).getLabel(Locale.US));
-		assertEquals("Local institution", cons(FundingScheme.LOCAL_INSTITUTION).getLabel(Locale.US));
-		assertEquals("Nicolas Baudin Programme", cons(FundingScheme.NICOLAS_BAUDIN).getLabel(Locale.US));
-		assertEquals("Not funded", cons(FundingScheme.NOT_FUNDED).getLabel(Locale.US));
-		assertEquals("PHC - Partenariats Hubert Curien", cons(FundingScheme.PHC).getLabel(Locale.US));
-		assertEquals("PIA - Plan d'Investissement d'Avenir", cons(FundingScheme.PIA).getLabel(Locale.US));
-		assertEquals("Bourgogne-Franche-Comté Province", cons(FundingScheme.REGION_BFC).getLabel(Locale.US));
-		assertEquals("Self funded", cons(FundingScheme.SELF_FUNDING).getLabel(Locale.US));
+		assertEquals("ADEME - Agence de la transition écologique", cons(FundingScheme.ADEME).getLabel(this.messages, Locale.US));
+		assertEquals("ANR - Agence Nationale pour le Recherche", cons(FundingScheme.ANR).getLabel(this.messages, Locale.US));
+		assertEquals("Campus France", cons(FundingScheme.CAMPUS_FRANCE).getLabel(this.messages, Locale.US));
+		assertEquals("Institut Carnot", cons(FundingScheme.CARNOT).getLabel(this.messages, Locale.US));
+		assertEquals("CIFRE - Conventions industrielles de formation par la recherche", cons(FundingScheme.CIFRE).getLabel(this.messages, Locale.US));
+		assertEquals("CONACYT Mexican Funding", cons(FundingScheme.CONACYT).getLabel(this.messages, Locale.US));
+		assertEquals("COST Action", cons(FundingScheme.COST_ACTION).getLabel(this.messages, Locale.US));
+		assertEquals("CPER - Contrat Plan \u00C9tat Région", cons(FundingScheme.CPER).getLabel(this.messages, Locale.US));
+		assertEquals("CSC - Chinease Scholarship Council", cons(FundingScheme.CSC).getLabel(this.messages, Locale.US));
+		assertEquals("EDIH - European Digital Innovation Hubs", cons(FundingScheme.EDIH).getLabel(this.messages, Locale.US));
+		assertEquals("European Company", cons(FundingScheme.EU_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("Other european funds", cons(FundingScheme.EU_OTHER).getLabel(this.messages, Locale.US));
+		assertEquals("European University", cons(FundingScheme.EU_UNIVERSITY).getLabel(this.messages, Locale.US));
+		assertEquals("Eureka Clusters Programme", cons(FundingScheme.EUREKA).getLabel(this.messages, Locale.US));
+		assertEquals("Eurostar - European Partnership on Innovative SMEs", cons(FundingScheme.EUROSTAR).getLabel(this.messages, Locale.US));
+		assertEquals("FEDER - Fonds européen de développement régional", cons(FundingScheme.FEDER).getLabel(this.messages, Locale.US));
+		assertEquals("FITEC - France Ingénieurs TEChnologie", cons(FundingScheme.FITEC).getLabel(this.messages, Locale.US));
+		assertEquals("French Company", cons(FundingScheme.FRENCH_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("Other French funds", cons(FundingScheme.FRENCH_OTHER).getLabel(this.messages, Locale.US));
+		assertEquals("French University", cons(FundingScheme.FRENCH_UNIVERSITY).getLabel(this.messages, Locale.US));
+		assertEquals("FUI - Fonds unique interministériel", cons(FundingScheme.FUI).getLabel(this.messages, Locale.US));
+		assertEquals("H2020 - Horizon 2020", cons(FundingScheme.H2020).getLabel(this.messages, Locale.US));
+		assertEquals("Horizon Europe", cons(FundingScheme.HORIZON_EUROPE).getLabel(this.messages, Locale.US));
+		assertEquals("Hosting organization", cons(FundingScheme.HOSTING_ORGANIZATION).getLabel(this.messages, Locale.US));
+		assertEquals("IDEX - Initiatives d'excellence / Plan d'Investissement d'Avenir", cons(FundingScheme.IDEX).getLabel(this.messages, Locale.US));
+		assertEquals("International Company", cons(FundingScheme.INTERNATIONAL_COMPANY).getLabel(this.messages, Locale.US));
+		assertEquals("International University", cons(FundingScheme.INTERNATIONAL_UNIVERSITY).getLabel(this.messages, Locale.US));
+		assertEquals("Other international funds", cons(FundingScheme.INTERNTATIONAL_OTHER).getLabel(this.messages, Locale.US));
+		assertEquals("Interreg Europe", cons(FundingScheme.INTERREG).getLabel(this.messages, Locale.US));
+		assertEquals("ISITE - Initiatives Science-Innovation-Territoire-\u00C9conomie / Plan d'Investissement d'Avenir", cons(FundingScheme.ISITE).getLabel(this.messages, Locale.US));
+		assertEquals("JPI Urban Europe", cons(FundingScheme.JPIEU).getLabel(this.messages, Locale.US));
+		assertEquals("LIFE - Programme for the Environment and Climate Action", cons(FundingScheme.LIFE).getLabel(this.messages, Locale.US));
+		assertEquals("Local institution", cons(FundingScheme.LOCAL_INSTITUTION).getLabel(this.messages, Locale.US));
+		assertEquals("Nicolas Baudin Programme", cons(FundingScheme.NICOLAS_BAUDIN).getLabel(this.messages, Locale.US));
+		assertEquals("Not funded", cons(FundingScheme.NOT_FUNDED).getLabel(this.messages, Locale.US));
+		assertEquals("PHC - Partenariats Hubert Curien", cons(FundingScheme.PHC).getLabel(this.messages, Locale.US));
+		assertEquals("PIA - Plan d'Investissement d'Avenir", cons(FundingScheme.PIA).getLabel(this.messages, Locale.US));
+		assertEquals("Bourgogne-Franche-Comté Province", cons(FundingScheme.REGION_BFC).getLabel(this.messages, Locale.US));
+		assertEquals("Self funded", cons(FundingScheme.SELF_FUNDING).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

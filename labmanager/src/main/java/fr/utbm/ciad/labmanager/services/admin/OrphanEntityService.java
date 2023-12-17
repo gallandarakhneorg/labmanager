@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services.admin;
 
 import java.util.List;
+import java.util.Locale;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -64,13 +65,14 @@ public class OrphanEntityService extends AbstractService {
 	/** Detect the  orphan entities.
 	 *
 	 * @param builders the orphan detectors.
+	 * @param locale the locale to use.
 	 * @param progressListener the listener to be notified about progression of the analysis.
 	 * @return the JSON node that contains the orphan entities.
 	 */
 	@SuppressWarnings("static-method")
 	@Async
 	@Transactional
-	public ObjectNode detectOrphanEntities(List<? extends OrphanEntityBuilder<?>> builders, ProgressionListener progressListener) {
+	public ObjectNode detectOrphanEntities(List<? extends OrphanEntityBuilder<?>> builders, Locale locale, ProgressionListener progressListener) {
 		final DefaultProgression progress = new DefaultProgression(0, 0, builders.size() * Constants.HUNDRED, false);
 		if (progressListener != null) {
 			progress.addProgressionListener(progressListener);
@@ -80,17 +82,17 @@ public class OrphanEntityService extends AbstractService {
 		final ObjectNode root = new ObjectNode(mapper.getNodeFactory());
 		for (final OrphanEntityBuilder<?> builder : builders) {
 			final Progression prog = progress.subTask(Constants.HUNDRED);
-			detectOrphanEntities(root, builder, prog);
+			detectOrphanEntities(root, builder, locale, prog);
 			prog.end();
 		}
 		return root;
 	}
 
-	private static void detectOrphanEntities(ObjectNode root, OrphanEntityBuilder<?> builder, Progression progress) {
-		final String name = builder.getOrphanTypeLabel();
+	private static void detectOrphanEntities(ObjectNode root, OrphanEntityBuilder<?> builder, Locale locale, Progression progress) {
+		final String name = builder.getOrphanTypeLabel(locale);
 		if (!Strings.isNullOrEmpty(name)) {
 			final ArrayNode orphans = root.arrayNode();
-			builder.computeOrphans(orphans, progress);
+			builder.computeOrphans(orphans, locale, progress);
 			if (!orphans.isEmpty()) {
 				root.set(name, orphans);
 			}

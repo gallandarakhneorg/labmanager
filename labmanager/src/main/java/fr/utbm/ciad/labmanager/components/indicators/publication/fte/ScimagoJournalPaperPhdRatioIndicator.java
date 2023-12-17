@@ -16,6 +16,8 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.publication.fte;
 
+import java.util.Locale;
+
 import fr.utbm.ciad.labmanager.components.indicators.members.fte.PhdStudentFteIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.publication.count.PhdScimagoJournalPaperCountIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -51,13 +53,13 @@ public class ScimagoJournalPaperPhdRatioIndicator extends AbstractRankedJournalP
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("scimagoJournalPaperPhdRatioIndicator.name"); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "scimagoJournalPaperPhdRatioIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithYears("scimagoJournalPaperPhdRatioIndicator.label"); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getLabelWithYears(locale, "scimagoJournalPaperPhdRatioIndicator.label"); //$NON-NLS-1$
 	}
 
 }

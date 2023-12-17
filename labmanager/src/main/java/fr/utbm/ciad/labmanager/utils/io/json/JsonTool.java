@@ -42,6 +42,7 @@ import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Definition of constants for the JSON tools.
  * 
@@ -635,6 +636,24 @@ public abstract class JsonTool {
 	 */
 	private Logger logger;
 
+	private final MessageSourceAccessor messages;
+
+	/** Constructor.
+	 *
+	 * @param messages the accessor to the localized strings.
+	 */
+	protected JsonTool(MessageSourceAccessor messages) {
+		this.messages = messages;
+	}
+	
+	/** Replies the accessor to the localized strings.
+	 *
+	 * @return the accessor.
+	 */
+	protected MessageSourceAccessor getMessageSourceAccessor() {
+		return this.messages;
+	}
+	
 	/** Replies the logger of this service.
 	 *
 	 * @return the logger.

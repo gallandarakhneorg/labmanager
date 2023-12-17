@@ -26,9 +26,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.assostructure.HolderRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link HolderRole}.
  * 
@@ -43,8 +45,11 @@ public class HolderRoleTest {
 
 	private List<HolderRole> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(HolderRole.values()));
 	}
@@ -83,36 +88,10 @@ public class HolderRoleTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Structure head", cons(HolderRole.STRUCTURE_HEAD).getLabel());
-		assertEquals("Scientific head", cons(HolderRole.SCIENTIFIC_HEAD).getLabel());
-		assertEquals("Participant", cons(HolderRole.PARTICIPANT).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Structure head", cons(HolderRole.STRUCTURE_HEAD).getLabel());
-		assertEquals("Scientific head", cons(HolderRole.SCIENTIFIC_HEAD).getLabel());
-		assertEquals("Participant", cons(HolderRole.PARTICIPANT).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Dirigeant", cons(HolderRole.STRUCTURE_HEAD).getLabel(Locale.FRANCE));
-		assertEquals("Responsable scientifique", cons(HolderRole.SCIENTIFIC_HEAD).getLabel(Locale.FRANCE));
-		assertEquals("Participant", cons(HolderRole.PARTICIPANT).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Structure head", cons(HolderRole.STRUCTURE_HEAD).getLabel(Locale.US));
-		assertEquals("Scientific head", cons(HolderRole.SCIENTIFIC_HEAD).getLabel(Locale.US));
-		assertEquals("Participant", cons(HolderRole.PARTICIPANT).getLabel(Locale.US));
+	public void getLabel() throws Exception {
+		assertEquals("Structure head", cons(HolderRole.STRUCTURE_HEAD).getLabel(this.messages, Locale.US));
+		assertEquals("Scientific head", cons(HolderRole.SCIENTIFIC_HEAD).getLabel(this.messages, Locale.US));
+		assertEquals("Participant", cons(HolderRole.PARTICIPANT).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

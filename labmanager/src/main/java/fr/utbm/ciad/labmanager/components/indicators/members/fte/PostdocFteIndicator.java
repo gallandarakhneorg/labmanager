@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.components.indicators.members.fte;
 
 import java.time.LocalDate;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,13 +57,13 @@ public class PostdocFteIndicator extends AbstractAnnualIndicator {
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("postdocFteIndicator.name"); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "postdocFteIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithoutYears("postdocFteIndicator.label"); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getLabelWithoutYears(locale, "postdocFteIndicator.label"); //$NON-NLS-1$
 	}
 
 	/** Replies if the given membership is for a postdoc.

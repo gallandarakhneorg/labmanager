@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.teaching;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
@@ -61,29 +63,29 @@ public class OrphanTeachingService extends AbstractOrphanService<TeachingActivit
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.teachingActivityRepository, this,
 				Constants.TEACHING_ACTIVITY_EDITING_ENDPOINT, Constants.ACTIVITY_ENDPOINT_PARAMETER,
 				Constants.TEACHING_ACTIVITY_DELETING_ENDPOINT, Constants.ACTIVITY_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(TeachingActivity activity) {
+	public String getOrphanCriteria(TeachingActivity activity, Locale locale) {
 		if (activity.getStartDate() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoStartDate"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoStartDate"); //$NON-NLS-1$
 		}
 		if (activity.getPerson() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoPerson"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoPerson"); //$NON-NLS-1$
 		}
 		if (activity.getUniversity() == null) {
-			return getMessage(MESSAGE_PREFIX + "NoUniversity"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoUniversity"); //$NON-NLS-1$
 		}
 		return null;
 	}
 
 	@Override
-	public String getOrphanEntityLabel(TeachingActivity entity) {
+	public String getOrphanEntityLabel(TeachingActivity entity, Locale locale) {
 		if (entity.getPerson() != null) {
 			return entity.getCodeOrTitle() + " - ?"; //$NON-NLS-1$
 		}
@@ -91,8 +93,8 @@ public class OrphanTeachingService extends AbstractOrphanService<TeachingActivit
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 

@@ -26,6 +26,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -186,11 +187,12 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param ranking the quartile.
 	 * @param showNotRanked indicates if the label for the not ranked indicator is replied. It it is
 	 *      {@code false} the empty string is replied.
+	 * @param locale the locale to use.
 	 * @return the string representation of the given quartile.
 	 */
-	protected String toString(QuartileRanking ranking, boolean showNotRanked) {
+	protected String toString(QuartileRanking ranking, boolean showNotRanked, Locale locale) {
 		return ranking == null || ranking == QuartileRanking.NR
-				? (showNotRanked ? getMessage(MESSAGE_PREFIX + "NotRanked") : "") //$NON-NLS-1$ //$NON-NLS-2$
+				? (showNotRanked ? getMessage(locale, MESSAGE_PREFIX + "NotRanked") : "") //$NON-NLS-1$ //$NON-NLS-2$
 				: ranking.name();
 	}
 
@@ -199,22 +201,24 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param ranking the CORE ranking.
 	 * @param showNotRanked indicates if the label for the not ranked indicator is replied. It it is
 	 *      {@code false} the empty string is replied.
+	 * @param locale the locale to use.
 	 * @return the string representation of the given CORE ranking.
 	 */
-	protected String toString(CoreRanking ranking, boolean showNotRanked) {
+	protected String toString(CoreRanking ranking, boolean showNotRanked, Locale locale) {
 		return ranking == null || ranking == CoreRanking.NR
-				? (showNotRanked ? getMessage(MESSAGE_PREFIX + "NotRanked") : "") //$NON-NLS-1$ //$NON-NLS-2$
+				? (showNotRanked ? getMessage(locale, MESSAGE_PREFIX + "NotRanked") : "") //$NON-NLS-1$ //$NON-NLS-2$
 				: ranking.toString();
 	}
 
 	/** Replies the string representation of the given publication category.
 	 *
 	 * @param category the publiction category.
+	 * @param locale the locale to use.
 	 * @return the string representation of the given category.
 	 */
-	protected String toString(PublicationCategory category) {
-		return category == null ? getMessage(MESSAGE_PREFIX + "NoCategory") //$NON-NLS-1$
-				: getMessage(MESSAGE_PREFIX + "Category", category.getAcronym(), category.getLabel()); //$NON-NLS-1$
+	protected String toString(PublicationCategory category, Locale locale) {
+		return category == null ? getMessage(locale, MESSAGE_PREFIX + "NoCategory") //$NON-NLS-1$
+				: getMessage(locale, MESSAGE_PREFIX + "Category", category.getAcronym(), category.getLabel(getMessageSourceAccessor(), locale)); //$NON-NLS-1$
 	}
 
 	/** Replies the category of a publication.
@@ -359,10 +363,11 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param rankingSystem the ranking system to be used.
 	 * @param lastYear the last year of the publications.
 	 * @param excludeLastYear indicates if the value for the last year must be excluded.
+	 * @param locale the locale to use.
 	 * @return rows with: category, count.
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerCategory(Collection<? extends Publication> publications, JournalRankingSystem rankingSystem,
-			int lastYear, boolean excludeLastYear) {
+			int lastYear, boolean excludeLastYear, Locale locale) {
 		final JournalRankingSystem rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
 		final Map<PublicationCategory, Integer> publicationsPerYear = publications.stream()
 				.filter(it -> !excludeLastYear || it.getPublicationYear() != lastYear)
@@ -377,7 +382,7 @@ public class PublicationStatService extends AbstractPublicationService {
 				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 				.map(it -> {
 					final List<Object> columns = new ArrayList<>(2);
-					columns.add(toString(it.getKey()));
+					columns.add(toString(it.getKey(), locale));
 					columns.add(it.getValue());
 					return columns;
 				})
@@ -390,10 +395,11 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param rankingSystem the ranking system to be used.
 	 * @param lastYear the last year of the publications.
 	 * @param excludeLastYear indicates if the value for the last year must be excluded.
+	 * @param locale the locale to use.
 	 * @return rows with: quartile, count.
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerQuartile(Collection<? extends Publication> publications, JournalRankingSystem rankingSystem,
-			int lastYear, boolean excludeLastYear) {
+			int lastYear, boolean excludeLastYear, Locale locale) {
 		final JournalRankingSystem rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
 		final Map<QuartileRanking, Integer> publicationsPerYear = publications.stream()
 				.filter(it -> it instanceof JournalBasedPublication && (!excludeLastYear || it.getPublicationYear() != lastYear))
@@ -409,7 +415,7 @@ public class PublicationStatService extends AbstractPublicationService {
 				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 				.map(it -> {
 					final List<Object> columns = new ArrayList<>(2);
-					columns.add(toString(it.getKey(), true));
+					columns.add(toString(it.getKey(), true, locale));
 					columns.add(it.getValue());
 					return columns;
 				})
@@ -421,10 +427,11 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param publications the publications to analyze.
 	 * @param lastYear the last year of the publications.
 	 * @param excludeLastYear indicates if the value for the last year must be excluded.
+	 * @param locale the locale to use.
 	 * @return rows with: core, count.
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerCoreRank(Collection<? extends Publication> publications,
-			int lastYear, boolean excludeLastYear) {
+			int lastYear, boolean excludeLastYear, Locale locale) {
 		final Map<CoreRanking, Integer> publicationsPerYear = publications.stream()
 				.filter(it -> (it.getCategory() == PublicationCategory.C_ACTI
 					|| it.getCategory() == PublicationCategory.C_ACTN)
@@ -442,7 +449,7 @@ public class PublicationStatService extends AbstractPublicationService {
 				.map(it -> {
 					final List<Object> columns = new ArrayList<>(2);
 					final CoreRanking ranking = it.getKey();
-					columns.add(toString(ranking, true));
+					columns.add(toString(ranking, true, locale));
 					columns.add(it.getValue());
 					return columns;
 				})
@@ -454,10 +461,11 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param publications the publications to analyze.
 	 * @param lastYear the last year of the publications.
 	 * @param excludeLastYear indicates if the value for the last year must be excluded.
+	 * @param locale the locale to use.
 	 * @return rows with: axis, count.
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerScientificAxis(Collection<? extends Publication> publications,
-			int lastYear, boolean excludeLastYear) {
+			int lastYear, boolean excludeLastYear, Locale locale) {
 		final Map<ScientificAxis, Integer> projectsPerAxis = new HashMap<>();
 		final AtomicInteger outsideAxis = new AtomicInteger();
 		publications.stream()
@@ -479,7 +487,7 @@ public class PublicationStatService extends AbstractPublicationService {
 			});
 		if (outsideAxis.intValue() > 0) {
 			final ScientificAxis outAxis = new ScientificAxis();
-			outAxis.setName(getMessage(MESSAGE_PREFIX + "OutsideScientificAxis")); //$NON-NLS-1$
+			outAxis.setName(getMessage(locale, MESSAGE_PREFIX + "OutsideScientificAxis")); //$NON-NLS-1$
 			projectsPerAxis.put(outAxis, Integer.valueOf(outsideAxis.get()));
 		}
 		return projectsPerAxis.entrySet().stream()
@@ -500,10 +508,11 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param publications the publications to analyze.
 	 * @param referenceYear the year of reference for computing the quartiles.
 	 * @param excludeReferenceYear indicates if the value for the reference year must be excluded.
+	 * @param locale the locale to use.
 	 * @return rows with: journal name, publisher, Scimago, WoS, Impact factor, count.
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerJournal(Collection<? extends Publication> publications,
-			int referenceYear, boolean excludeReferenceYear) {
+			int referenceYear, boolean excludeReferenceYear, Locale locale) {
 		final Map<Journal, Integer> publicationsPerYear = publications.stream()
 				.filter(it -> it instanceof JournalBasedPublication
 						&& (!excludeReferenceYear || it.getPublicationYear() != referenceYear))
@@ -533,8 +542,8 @@ public class PublicationStatService extends AbstractPublicationService {
 					final List<Object> columns = new ArrayList<>(2);
 					columns.add(journal.getJournalName());
 					columns.add(journal.getPublisher());
-					columns.add(toString(journal.getScimagoQIndexByYear(referenceYear), false));
-					columns.add(toString(journal.getWosQIndexByYear(referenceYear), false));
+					columns.add(toString(journal.getScimagoQIndexByYear(referenceYear), false, locale));
+					columns.add(toString(journal.getWosQIndexByYear(referenceYear), false, locale));
 					columns.add(Float.valueOf(journal.getImpactFactorByYear(referenceYear)));
 					columns.add(it.getValue());
 					return columns;
@@ -551,10 +560,11 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param publications the publications to analyze.
 	 * @param referenceYear the year of reference for computing the CORE ranks.
 	 * @param excludeReferenceYear indicates if the value for the reference year must be excluded.
+	 * @param locale the locale to use.
 	 * @return rows with: journal name, publisher, Scimago, WoS, Impact factor, count.
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerConference(Collection<? extends Publication> publications,
-			int referenceYear, boolean excludeReferenceYear) {
+			int referenceYear, boolean excludeReferenceYear, Locale locale) {
 		final Map<Conference, Integer> publicationsPerYear = publications.stream()
 				.filter(it -> (it.getCategory() == PublicationCategory.C_ACTI
 					|| it.getCategory() == PublicationCategory.C_ACTN)
@@ -586,7 +596,7 @@ public class PublicationStatService extends AbstractPublicationService {
 					final List<Object> columns = new ArrayList<>(2);
 					columns.add(conference.getName() + " (" + conference.getAcronym() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 					columns.add(conference.getPublisher());
-					columns.add(toString(conference.getCoreIndexByYear(referenceYear), false));
+					columns.add(toString(conference.getCoreIndexByYear(referenceYear), false, locale));
 					columns.add(it.getValue());
 					return columns;
 				})
@@ -831,21 +841,22 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @param minYear the minimum year of the publications.
 	 * @param maxYear the maximum year of the publications.
 	 * @param excludeLastYear indicates if the value for the last year must be excluded from the global values.
+	 * @param locale the locale to use.
 	 * @return rows with: category, rates per year, global rate.
 	 * @since 3.6
 	 */
 	public List<List<Object>> getPublicationAnnualRates(Collection<? extends Publication> publications, ResearchOrganization referenceOrganization,
-			JournalRankingSystem rankingSystem, int minYear, int maxYear, boolean excludeLastYear) {
+			JournalRankingSystem rankingSystem, int minYear, int maxYear, boolean excludeLastYear, Locale locale) {
 		final List<List<Object>> table = new ArrayList<>();
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "ETP"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "ETP"), //$NON-NLS-1$
 				this.permanentResearcherCountIndicator.getValuesPerYear(referenceOrganization, minYear, maxYear),
 				minYear, maxYear, excludeLastYear);
 
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "PhdStudents"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "PhdStudents"), //$NON-NLS-1$
 				this.phdStudentCountIndicator.getValuesPerYear(referenceOrganization, minYear, maxYear),
 				minYear, maxYear, excludeLastYear);
 
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "Postdocs"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "Postdocs"), //$NON-NLS-1$
 				this.postdocCountIndicator.getValuesPerYear(referenceOrganization, minYear, maxYear),
 				minYear, maxYear, excludeLastYear);
 		
@@ -860,14 +871,14 @@ public class PublicationStatService extends AbstractPublicationService {
 		default:
 			throw new IllegalArgumentException("Unsupported type of ranking system"); //$NON-NLS-1$
 		}
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "ACL"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "ACL"), //$NON-NLS-1$
 				values, minYear, maxYear, excludeLastYear);
 
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "ACLN"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "ACLN"), //$NON-NLS-1$
 				this.unrankedJournalPaperCount.getValuesPerYear(referenceOrganization, minYear, maxYear),
 				minYear, maxYear, excludeLastYear);
 
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "CACTIN"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "CACTIN"), //$NON-NLS-1$
 				this.conferencePaperCount.getValuesPerYear(referenceOrganization, minYear, maxYear),
 				minYear, maxYear, excludeLastYear);
 
@@ -881,11 +892,11 @@ public class PublicationStatService extends AbstractPublicationService {
 		default:
 			throw new IllegalArgumentException("Unsupported type of ranking system"); //$NON-NLS-1$
 		}
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "PublicationRatioAclPerFTE"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "PublicationRatioAclPerFTE"), //$NON-NLS-1$
 				values,
 				minYear, maxYear, excludeLastYear);
 
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "PublicationRatioCactPerFTE"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "PublicationRatioCactPerFTE"), //$NON-NLS-1$
 				this.conferenceRateIndicator.getValuesPerYear(referenceOrganization, minYear, maxYear),
 				minYear, maxYear, excludeLastYear);
 
@@ -899,11 +910,11 @@ public class PublicationStatService extends AbstractPublicationService {
 		default:
 			throw new IllegalArgumentException("Unsupported type of ranking system"); //$NON-NLS-1$
 		}
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "PublicationRatioAclPerPhd"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "PublicationRatioAclPerPhd"), //$NON-NLS-1$
 				values,
 				minYear, maxYear, excludeLastYear);
 
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "PublicationRatioCactPerPhd"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "PublicationRatioCactPerPhd"), //$NON-NLS-1$
 				this.conferencePhdRateIndicator.getValuesPerYear(referenceOrganization, minYear, maxYear),
 				minYear, maxYear, excludeLastYear);
 
@@ -917,11 +928,11 @@ public class PublicationStatService extends AbstractPublicationService {
 		default:
 			throw new IllegalArgumentException("Unsupported type of ranking system"); //$NON-NLS-1$
 		}
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "PublicationRatioAclPerPostdoc"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "PublicationRatioAclPerPostdoc"), //$NON-NLS-1$
 				values,
 				minYear, maxYear, excludeLastYear);
 
-		addPublicationAnnualRates(table, getMessage(MESSAGE_PREFIX + "PublicationRatioCactPerPostdoc"), //$NON-NLS-1$
+		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "PublicationRatioCactPerPostdoc"), //$NON-NLS-1$
 				this.conferencePostdocRateIndicator.getValuesPerYear(referenceOrganization, minYear, maxYear),
 				minYear, maxYear, excludeLastYear);
 

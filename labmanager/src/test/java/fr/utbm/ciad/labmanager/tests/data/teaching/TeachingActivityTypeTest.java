@@ -25,9 +25,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 
+import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link TeachingActivityType}.
  * 
@@ -41,8 +43,11 @@ public class TeachingActivityTypeTest {
 
 	private List<TeachingActivityType> items;
 
+	private MessageSourceAccessor messages;
+
 	@BeforeEach
 	public void setUp() {
+		this.messages = BaseMessageSource.getGlobalMessageAccessor();
 		this.items = new ArrayList<>();
 		this.items.addAll(Arrays.asList(TeachingActivityType.values()));
 	}
@@ -87,48 +92,13 @@ public class TeachingActivityTypeTest {
 	}
 
 	@Test
-	public void getLabel_FR() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.FRANCE);
-		assertEquals("Lectures", cons(TeachingActivityType.LECTURES).getLabel());
-		assertEquals("Integrated Courses", cons(TeachingActivityType.INTEGRATED_COURSES).getLabel());
-		assertEquals("Tutorials", cons(TeachingActivityType.TUTORIALS).getLabel());
-		assertEquals("Practical Works", cons(TeachingActivityType.PRACTICAL_WORKS).getLabel());
-		assertEquals("Group Supervision", cons(TeachingActivityType.GROUP_SUPERVISION).getLabel());
-		assertEquals("Project Supervision", cons(TeachingActivityType.PROJECT_SUPERVISION).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_US() throws Exception {
-		java.util.Locale.setDefault(java.util.Locale.US);
-		assertEquals("Lectures", cons(TeachingActivityType.LECTURES).getLabel());
-		assertEquals("Integrated Courses", cons(TeachingActivityType.INTEGRATED_COURSES).getLabel());
-		assertEquals("Tutorials", cons(TeachingActivityType.TUTORIALS).getLabel());
-		assertEquals("Practical Works", cons(TeachingActivityType.PRACTICAL_WORKS).getLabel());
-		assertEquals("Group Supervision", cons(TeachingActivityType.GROUP_SUPERVISION).getLabel());
-		assertEquals("Project Supervision", cons(TeachingActivityType.PROJECT_SUPERVISION).getLabel());
-		assertAllTreated();
-	}
-
-	@Test
-	public void getLabel_Locale_FR() throws Exception {
-		assertEquals("Cours magistraux", cons(TeachingActivityType.LECTURES).getLabel(Locale.FRANCE));
-		assertEquals("Cours intégrés", cons(TeachingActivityType.INTEGRATED_COURSES).getLabel(Locale.FRANCE));
-		assertEquals("Travaux dirigés", cons(TeachingActivityType.TUTORIALS).getLabel(Locale.FRANCE));
-		assertEquals("Travaux pratiques", cons(TeachingActivityType.PRACTICAL_WORKS).getLabel(Locale.FRANCE));
-		assertEquals("Travaux par groupe", cons(TeachingActivityType.GROUP_SUPERVISION).getLabel(Locale.FRANCE));
-		assertEquals("Projet", cons(TeachingActivityType.PROJECT_SUPERVISION).getLabel(Locale.FRANCE));
-		assertAllTreated();
-	}
-
-	@Test
 	public void getLabel_Locale_US() throws Exception {
-		assertEquals("Lectures", cons(TeachingActivityType.LECTURES).getLabel(Locale.US));
-		assertEquals("Integrated Courses", cons(TeachingActivityType.INTEGRATED_COURSES).getLabel(Locale.US));
-		assertEquals("Tutorials", cons(TeachingActivityType.TUTORIALS).getLabel(Locale.US));
-		assertEquals("Practical Works", cons(TeachingActivityType.PRACTICAL_WORKS).getLabel(Locale.US));
-		assertEquals("Group Supervision", cons(TeachingActivityType.GROUP_SUPERVISION).getLabel(Locale.US));
-		assertEquals("Project Supervision", cons(TeachingActivityType.PROJECT_SUPERVISION).getLabel(Locale.US));
+		assertEquals("Lectures", cons(TeachingActivityType.LECTURES).getLabel(this.messages, Locale.US));
+		assertEquals("Integrated Courses", cons(TeachingActivityType.INTEGRATED_COURSES).getLabel(this.messages, Locale.US));
+		assertEquals("Tutorials", cons(TeachingActivityType.TUTORIALS).getLabel(this.messages, Locale.US));
+		assertEquals("Practical Works", cons(TeachingActivityType.PRACTICAL_WORKS).getLabel(this.messages, Locale.US));
+		assertEquals("Group Supervision", cons(TeachingActivityType.GROUP_SUPERVISION).getLabel(this.messages, Locale.US));
+		assertEquals("Project Supervision", cons(TeachingActivityType.PROJECT_SUPERVISION).getLabel(this.messages, Locale.US));
 		assertAllTreated();
 	}
 

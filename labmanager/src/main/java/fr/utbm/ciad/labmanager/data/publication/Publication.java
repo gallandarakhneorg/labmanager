@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -61,6 +62,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.persistence.Transient;
 import jakarta.transaction.Transactional;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** Abstract representation of a research publication.
  * This class contains the fields that are usually shared between many of the different types of research publications.
@@ -384,15 +386,8 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 		return EntityUtils.getPreferredPublicationComparator().compare(this, o);
 	}
 
-	/** {@inheritDoc}
-	 * <p>The attributes that are not considered by this function are:<ul>
-	 * <li>{@code id}</li>
-	 * <li>{@code authorships}</li>
-	 * <li>{@code authors}</li>
-	 * </ul>
-	 */
 	@Override
-	public void forEachAttribute(AttributeConsumer consumer) throws IOException {
+	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
 		if (getId() != 0) {
 			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$

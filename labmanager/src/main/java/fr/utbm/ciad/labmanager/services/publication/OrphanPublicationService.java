@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
@@ -62,44 +64,44 @@ public class OrphanPublicationService extends AbstractOrphanService<Publication>
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.publicationRepository, this,
 				Constants.PUBLICATION_EDITING_ENDPOINT, Constants.PUBLICATION_ENDPOINT_PARAMETER,
 				Constants.PUBLICATION_DELETING_ENDPOINT, Constants.PUBLICATION_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(Publication publication) {
+	public String getOrphanCriteria(Publication publication, Locale locale) {
 		if (publication.getAuthors().isEmpty()) {
-			return getMessage(MESSAGE_PREFIX + "EmptyAuthorList"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "EmptyAuthorList"); //$NON-NLS-1$
 		}
 		if (publication.getPublicationDate() == null && publication.getPublicationYear() == 0) {
-			return getMessage(MESSAGE_PREFIX + "NoDate"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoDate"); //$NON-NLS-1$
 		}
 		if (publication instanceof JournalBasedPublication) {
 			final JournalBasedPublication journalPub = (JournalBasedPublication) publication;
 			if (journalPub.getJournal() == null) {
-				return getMessage(MESSAGE_PREFIX + "MissedJournal"); //$NON-NLS-1$
+				return getMessage(locale, MESSAGE_PREFIX + "MissedJournal"); //$NON-NLS-1$
 			}
 		}
 		if (publication instanceof ConferenceBasedPublication) {
 			final ConferenceBasedPublication conferencePub = (ConferenceBasedPublication) publication;
 			if (conferencePub.getConference() == null) {
-				return getMessage(MESSAGE_PREFIX + "MissedConference"); //$NON-NLS-1$
+				return getMessage(locale, MESSAGE_PREFIX + "MissedConference"); //$NON-NLS-1$
 			}
 		}
 		return null;
 	}
 
 	@Override
-	public String getOrphanEntityLabel(Publication entity) {
+	public String getOrphanEntityLabel(Publication entity, Locale locale) {
 		return entity.getTitle() + ". " + entity.getWherePublishedShortDescription(); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

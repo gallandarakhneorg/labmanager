@@ -16,6 +16,8 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.publication.count;
 
+import java.util.Locale;
+
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.services.publication.type.ConferencePaperService;
@@ -49,13 +51,13 @@ public class PostdocConferencePaperCountIndicator extends AbstractConferencePape
 	}
 
 	@Override
-	public String getName() {
-		return getMessage("postdocConferencePaperCountIndicator.name"); //$NON-NLS-1$
+	public String getName(Locale locale) {
+		return getMessage(locale, "postdocConferencePaperCountIndicator.name"); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getLabel(Unit unit) {
-		return getLabelWithYears("postdocConferencePaperCountIndicator.label"); //$NON-NLS-1$
+	public String getLabel(Unit unit, Locale locale) {
+		return getLabelWithYears(locale, "postdocConferencePaperCountIndicator.label"); //$NON-NLS-1$
 	}
 
 }

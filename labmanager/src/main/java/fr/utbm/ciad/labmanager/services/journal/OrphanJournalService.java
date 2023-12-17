@@ -19,6 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.journal;
 
+import java.util.Locale;
+
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
@@ -66,30 +68,30 @@ public class OrphanJournalService extends AbstractOrphanService<Journal> {
 	}
 
 	@Override
-	public void computeOrphans(ArrayNode receiver, Progression progress) {
+	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.journalRepository, this,
 				Constants.JOURNAL_EDITING_ENDPOINT, Constants.JOURNAL_ENDPOINT_PARAMETER,
 				Constants.JOURNAL_DELETING_ENDPOINT, Constants.JOURNAL_ENDPOINT_PARAMETER,
-				progress);
+				locale, progress);
 	}
 
 	@Override
-	public String getOrphanCriteria(Journal journal) {
+	public String getOrphanCriteria(Journal journal, Locale locale) {
 		if (this.publicationRepository.findAll().stream()
 				.noneMatch(it -> it.getJournal() != null && it.getJournal().getId() == journal.getId())) {
-			return getMessage(MESSAGE_PREFIX + "NoPublication"); //$NON-NLS-1$
+			return getMessage(locale, MESSAGE_PREFIX + "NoPublication"); //$NON-NLS-1$
 		}
 		return null;
 	}
 
 	@Override
-	public String getOrphanEntityLabel(Journal entity) {
+	public String getOrphanEntityLabel(Journal entity, Locale locale) {
 		return entity.getJournalName() + " - " + entity.getPublisher(); //$NON-NLS-1$
 	}
 
 	@Override
-	public String getOrphanTypeLabel() {
-		return getMessage(MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
+	public String getOrphanTypeLabel(Locale locale) {
+		return getMessage(locale, MESSAGE_PREFIX + "Name"); //$NON-NLS-1$
 	}
 
 }

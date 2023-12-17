@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.data.member;
 import java.util.Locale;
 
 import com.google.common.base.Strings;
-import fr.utbm.ciad.labmanager.configuration.messages.BaseMessageSource;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Status of a person in a research organization.
@@ -1383,27 +1382,6 @@ public enum MemberStatus {
 
 	private static final String TITLE_POSTFIX = "_title"; //$NON-NLS-1$
 
-	private MessageSourceAccessor messages;
-
-	/** Replies the message accessor to be used.
-	 *
-	 * @return the accessor.
-	 */
-	public MessageSourceAccessor getMessageSourceAccessor() {
-		if (this.messages == null) {
-			this.messages = BaseMessageSource.getStaticMessageSourceAccessor();
-		}
-		return this.messages;
-	}
-
-	/** Change the message accessor to be used.
-	 *
-	 * @param messages the accessor.
-	 */
-	public void setMessageSourceAccessor(MessageSourceAccessor messages) {
-		this.messages = messages;
-	}
-
 	/** Replies if the status supposes that the member owns a PhD.
 	 *
 	 * @return {@code true} if the member is supposed to own a PhD.
@@ -1493,77 +1471,13 @@ public enum MemberStatus {
 
 	/** Replies the label of the status in the current language.
 	 *
-	 * @return the label of the status in the current language.
-	 */
-	public String getLabel() {
-		return getLabel(null, false, null);
-	}
-
-	/** Replies the label of the status in the current language.
-	 *
-	 * @param former is the status for a former member?
-	 * @return the label of the status in the current language.
-	 */
-	public String getLabel(boolean former) {
-		return getLabel(null, former, null);
-	}
-
-	/** Replies the label of the status in the current language.
-	 *
-	 * @param locale the locale to use.
-	 * @return the label of the status in the current language.
-	 */
-	public String getLabel(Locale locale) {
-		return getLabel(null, false, locale);
-	}
-
-	/** Replies the label of the status in the current language.
-	 *
-	 * @param former is the status for a former member?
-	 * @param locale the locale to use.
-	 * @return the label of the status in the current language.
-	 */
-	public String getLabel(boolean former, Locale locale) {
-		return getLabel(null, former, locale);
-	}
-
-	/** Replies the label of the status in the current language.
-	 *
-	 * @param gender the gender of the person concerned by the member status.
-	 * @return the label of the status in the current language.
-	 */
-	public String getLabel(Gender gender) {
-		return getLabel(gender, false, null);
-	}
-
-	/** Replies the label of the status in the current language.
-	 *
-	 * @param gender the gender of the person concerned by the member status.
-	 * @param locale the locale to use.
-	 * @return the label of the status in the current language.
-	 */
-	public String getLabel(Gender gender, Locale locale) {
-		return getLabel(gender, false, locale);
-	}
-
-	/** Replies the label of the status in the current language.
-	 *
-	 * @param gender the gender of the person concerned by the member status.
-	 * @param former is the status for a former member?
-	 * @return the label of the status in the current language.
-	 */
-	public String getLabel(Gender gender, boolean former) {
-		return getLabel(gender, former, null);
-	}
-
-	/** Replies the label of the status in the current language.
-	 *
+	 * @param messages the accessor to the localized labels.
 	 * @param gender the gender of the person concerned by the member status.
 	 * @param former is the status for a former member?
 	 * @param locale the locale to use.
 	 * @return the label of the status in the current language.
 	 */
-	public String getLabel(Gender gender, boolean former, Locale locale) {
+	public String getLabel(MessageSourceAccessor messages, Gender gender, boolean former, Locale locale) {
 		final Gender gndr = gender == null || gender == Gender.NOT_SPECIFIED ? Gender.OTHER : gender;
 		final StringBuilder key = new StringBuilder();
 		key.append(MESSAGE_PREFIX).append(name());
@@ -1573,23 +1487,24 @@ public enum MemberStatus {
 		key.append("_").append(gndr.name()); //$NON-NLS-1$
 		final String label;
 		if (locale == null) {
-			label = getMessageSourceAccessor().getMessage(key.toString());
+			label = messages.getMessage(key.toString());
 		} else {
-			label = getMessageSourceAccessor().getMessage(key.toString(), locale);
+			label = messages.getMessage(key.toString(), locale);
 		}
 		return Strings.nullToEmpty(label);
 	}
 
 	/** Replies the typical acronym used for this position in the French research bodies.
 	 *
+	 * @param messages the accessor to the localized acronyms.
 	 * @return the typical acronym in France for the position.
 	 * @since 3.6
 	 */
-	public String getFrenchAcronym() {
+	public String getFrenchAcronym(MessageSourceAccessor messages) {
 		final StringBuilder key = new StringBuilder();
 		key.append(MESSAGE_PREFIX).append(name());
 		key.append("_acronym"); //$NON-NLS-1$
-		final String label = getMessageSourceAccessor().getMessage(key.toString());
+		final String label = messages.getMessage(key.toString());
 		return Strings.nullToEmpty(label);
 	}
 
@@ -1613,21 +1528,13 @@ public enum MemberStatus {
 
 	/** Replies the civil title associated to this status, if it not a civil title based on gender.
 	 *
-	 * @return the civil title or {@code null} if none is defined.
-	 * @see Gender
-	 */
-	public String getCivilTitle() {
-		return Strings.emptyToNull(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + TITLE_POSTFIX, (String) null));
-	}
-
-	/** Replies the civil title associated to this status, if it not a civil title based on gender.
-	 *
+	 * @param messages the accessors to the localized titles.
 	 * @param locale the locale that must be used for creating the localized civil title. 
 	 * @return the civil title or {@code null} if none is defined.
 	 * @see Gender
 	 */
-	public String getCivilTitle(Locale locale) {
-		return Strings.emptyToNull(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + name() + TITLE_POSTFIX, (String) null, locale));
+	public String getCivilTitle(MessageSourceAccessor messages, Locale locale) {
+		return Strings.emptyToNull(messages.getMessage(MESSAGE_PREFIX + name() + TITLE_POSTFIX, (String) null, locale));
 	}
 
 }
