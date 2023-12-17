@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components;
+package fr.utbm.ciad.labmanager.views.components.details;
 
 import com.vaadin.flow.component.shared.HasValidationProperties;
 import com.vaadin.flow.data.binder.BindingValidationStatus;
@@ -25,7 +25,7 @@ import com.vaadin.flow.data.binder.BindingValidationStatus.Status;
 import com.vaadin.flow.data.binder.BindingValidationStatusHandler;
 
 /** Status handler that update the section marker in case of validation error.
- * 
+ *
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
  * @mavengroupid $GroupId$

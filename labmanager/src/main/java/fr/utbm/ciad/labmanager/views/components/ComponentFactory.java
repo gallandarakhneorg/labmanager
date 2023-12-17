@@ -20,18 +20,29 @@
 package fr.utbm.ciad.labmanager.views.components;
 
 import java.net.URL;
+import java.util.Optional;
 
+import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
+import com.vaadin.flow.component.confirmdialog.ConfirmDialog.ConfirmEvent;
+import com.vaadin.flow.component.contextmenu.HasMenuItems;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.icon.IconFactory;
+import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.server.StreamResource;
-import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.stereotype.Component;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** Factory of Vaadin components.
  * 
@@ -69,31 +80,6 @@ public final class ComponentFactory {
 			throw new IllegalArgumentException();
 		}
 		return content;
-	}
-
-	/** Create a text field for phone numbers, with international prefix.
-	 *
-	 * @param region the code of the region; never {@code null}.
-	 * @return the field.
-	 * @see #newPhoneNumberField(CountryCode)
-	 */
-	public static TextField newPhoneNumberField(String region) {
-		assert !Strings.isNullOrEmpty(region);
-		final TextField content = new TextField();
-		//final PhoneI18nFieldFormatter formatter = new PhoneI18nFieldFormatter(region);
-		//formatter.extend(content);
-		return content;
-	}
-
-	/** Create a text field for phone numbers, with international prefix.
-	 *
-	 * @param region the code of the region; never {@code null}.
-	 * @return the field.
-	 * @see #newPhoneNumberField(String)
-	 */
-	public static TextField newPhoneNumberField(CountryCode region) {
-		assert region != null;
-		return newPhoneNumberField(region.getCode());
 	}
 
 	/** Create a text field with a clickable 16x16 icon as suffix.
@@ -146,8 +132,254 @@ public final class ComponentFactory {
 			throw new IllegalArgumentException(ex);
 		}
 		final StreamResource imageResource = new StreamResource(FileSystem.largeBasename(url),
-		        () -> ComponentFactory.class.getResourceAsStream(iconPath));
+				() -> ComponentFactory.class.getResourceAsStream(iconPath));
 		return imageResource;
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param clickListener the listener on clicks on the item.
+	 * @return the created item.
+	 * @see #setIconItemText(MenuItem, String)
+	 */
+	public static MenuItem addIconItem(MenuBar menu, IconFactory icon, String label, String ariaLabel,
+			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+		return addIconItem(menu, icon, label, ariaLabel, false, clickListener);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @return the created item.
+	 * @see #setIconItemText(MenuItem, String)
+	 */
+	public static MenuItem addIconItem(MenuBar menu, IconFactory icon, String label, String ariaLabel) {
+		return addIconItem(menu, icon, label, ariaLabel, false, null);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param receiver the receiver of the new item.
+	 * @param icon the icon of the item, never {@code null}.
+	 * @param label the label of the item. It may be {@code null} for creating an item without text.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param isChild indicates if the item is for a sub-menu, when {@code true}; or the root item, when {@code false}.
+	 * @return the created item.
+	 * @see #setIconItemText(MenuItem, String)
+	 */
+	public static MenuItem addIconItem(HasMenuItems receiver, IconFactory icon, String label, String ariaLabel, boolean isChild) {
+		return addIconItem(receiver, icon, label, ariaLabel, isChild, null);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param receiver the receiver of the new item.
+	 * @param icon the icon of the item, never {@code null}.
+	 * @param label the label of the item. It may be {@code null} for creating an item without text.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param isChild indicates if the item is for a sub-menu, when {@code true}; or the root item, when {@code false}.
+	 * @param clickListener the listener on clicks on the item.
+	 * @return the created item.
+	 * @see #setIconItemText(MenuItem, String)
+	 */
+	public static MenuItem addIconItem(HasMenuItems receiver, IconFactory icon, String label, String ariaLabel, boolean isChild,
+			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+		assert icon != null; 
+		return addIconItem(receiver, icon.create(), label, ariaLabel, isChild, clickListener);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param clickListener the listener on clicks on the item.
+	 * @return the created item.
+	 * @see #setIconItemText(MenuItem, String)
+	 */
+	public static MenuItem addIconItem(MenuBar menu, LineAwesomeIcon icon, String label, String ariaLabel,
+			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+		return addIconItem(menu, icon, label, ariaLabel, false, clickListener);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param menu the receiver of the new item.
+	 * @param icon the icon of the item..
+	 * @param label the label of the item.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @return the created item.
+	 * @see #setIconItemText(MenuItem, String)
+	 */
+	public static MenuItem addIconItem(MenuBar menu, LineAwesomeIcon icon, String label, String ariaLabel) {
+		return addIconItem(menu, icon, label, ariaLabel, false, null);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param receiver the receiver of the new item.
+	 * @param icon the icon of the item, never {@code null}.
+	 * @param label the label of the item. It may be {@code null} for creating an item without text.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param isChild indicates if the item is for a sub-menu, when {@code true}; or the root item, when {@code false}.
+	 * @return the created item.
+	 * @see #setIconItemText(MenuItem, String)
+	 */
+	public static MenuItem addIconItem(HasMenuItems receiver, LineAwesomeIcon icon, String label, String ariaLabel, boolean isChild) {
+		return addIconItem(receiver, icon, label, ariaLabel, isChild, null);
+	}
+
+	/** Create a menu item with an icon and text and add it into the given receiver.
+	 *
+	 * @param receiver the receiver of the new item.
+	 * @param icon the icon of the item, never {@code null}.
+	 * @param label the label of the item. It may be {@code null} for creating an item without text.
+	 * @param ariaLabel the aria label of the item. It is recommended to have this aria label not {@code null} or empty when
+	 *     the {@code label} is {@code null} or empty, to enable disabled persons to have information on the feature of
+	 *     the menu item.
+	 * @param isChild indicates if the item is for a sub-menu, when {@code true}; or the root item, when {@code false}.
+	 * @param clickListener the listener on clicks on the item.
+	 * @return the created item.
+	 * @see #setIconItemText(MenuItem, String)
+	 */
+	public static MenuItem addIconItem(HasMenuItems receiver, LineAwesomeIcon icon, String label, String ariaLabel, boolean isChild,
+			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+		assert icon != null; 
+		return addIconItem(receiver, icon.create(), label, ariaLabel, isChild, clickListener);
+	}
+
+	private static <T extends com.vaadin.flow.component.Component & HasStyle> MenuItem addIconItem(
+			HasMenuItems receiver, T iconInstance, String label, String ariaLabel, boolean isChild,
+			ComponentEventListener<ClickEvent<MenuItem>> clickListener) {
+		assert iconInstance != null; 
+		if (isChild) {
+			iconInstance.getStyle().setWidth("var(--lumo-icon-size-s)"); //$NON-NLS-1$
+			iconInstance.getStyle().setHeight("var(--lumo-icon-size-s)"); //$NON-NLS-1$
+			iconInstance.getStyle().set("marginRight", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+		}
+		MenuItem item = receiver.addItem(iconInstance, clickListener);
+		if (!Strings.isNullOrEmpty(ariaLabel)) {
+			item.setAriaLabel(ariaLabel);
+		}
+		if (!Strings.isNullOrEmpty(label)) {
+			item.add(new Text(label));
+		}
+		return item;
+	}
+
+	/** Change te text of the given menu item assuming it was build with an itcon.
+	 *
+	 * @param item the item to change..
+	 * @param text the new text.
+	 * @return the item.
+	 * @see #addIconItem(MenuBar, LineAwesomeIcon, String, String)
+	 * @see #addIconItem(MenuBar, IconFactory, String, String)
+	 * @see #addIconItem(HasMenuItems, LineAwesomeIcon, String, String, boolean, ComponentEventListener)
+	 * @see #addIconItem(HasMenuItems, IconFactory, String, String, boolean, ComponentEventListener)
+	 */
+	public static MenuItem setIconItemText(MenuItem item, String text) {
+		final Optional<Text> eltOpt = item.getElement().getChildren()
+				.filter(it -> it.getComponent().isPresent() && it.getComponent().get() instanceof Text)
+				.map(it -> (Text) it.getComponent().get())
+				.findAny();
+		if (Strings.isNullOrEmpty(text)) {
+			if (eltOpt.isPresent()) {
+				final Text elt = eltOpt.get();
+				elt.removeFromParent();
+			}
+		} else if (eltOpt.isPresent()) {
+			final Text elt = eltOpt.get();
+			elt.setText(text);
+		} else {
+			item.add(new Text(text));
+		}
+		return item;
+	}
+
+	/** Create a dialog that asks for a critical question and that is modal.
+	 * This function does not attach an event handler to the confirm and cancel buttons.
+	 *
+	 * @param parent the parent component; mostly used for obtaining the translation of text.
+	 * @param title the title of the box.
+	 * @param message the message in the box.
+	 * @return the dialog.
+	 */
+	public static ConfirmDialog createDeletionDialog(com.vaadin.flow.component.Component parent, String title, String message) {
+		return createDeletionDialog(parent, title, message, null);
+	}
+
+	/** Create a dialog that asks for a critical question and that is modal.
+	 *
+	 * @param parent the parent component; mostly used for obtaining the translation of text.
+	 * @param title the title of the box.
+	 * @param message the message in the box.
+	 * @param confirmHandler the handler invoked when the confirm button is pushed.
+	 * @return the dialog.
+	 */
+	public static ConfirmDialog createDeletionDialog(com.vaadin.flow.component.Component parent, String title, String message,
+			ComponentEventListener<ConfirmEvent> confirmHandler) {
+		return createCriticalQuestionDialog(
+				title, message,
+				parent.getTranslation("views.delete"), //$NON-NLS-1$
+				confirmHandler);
+	}
+
+	/** Create a dialog that asks for a critical question and that is modal.
+	 * This function does not attach an event handler to the confirm and cancel buttons.
+	 *
+	 * @param title the title of the box.
+	 * @param message the message in the box.
+	 * @param confirmText the text of the confirm button.
+	 * @param confirmHandler the handler invoked when the confirm button is pushed.
+	 * @return the dialog.
+	 */
+	public static ConfirmDialog createCriticalQuestionDialog(String title, String message, String confirmText) {
+		return createCriticalQuestionDialog(title, message, confirmText, null);
+	}
+
+	/** Create a dialog that asks for a critical question and that is modal.
+	 *
+	 * @param title the title of the box.
+	 * @param message the message in the box.
+	 * @param confirmText the text of the confirm button.
+	 * @param confirmHandler the handler invoked when the confirm button is pushed.
+	 * @return the dialog.
+	 */
+	public static ConfirmDialog createCriticalQuestionDialog(String title, String message, String confirmText,
+			ComponentEventListener<ConfirmEvent> confirmHandler) {
+		final ConfirmDialog dialog = new ConfirmDialog();
+		dialog.setConfirmButtonTheme("error primary"); //$NON-NLS-1$
+		dialog.setHeader(title);
+		dialog.setText(message);
+		dialog.setConfirmText(confirmText);
+		dialog.setCancelable(true);
+		dialog.setCloseOnEsc(true);
+		if (confirmHandler != null) {
+			dialog.addConfirmListener(confirmHandler);
+		}
+		return dialog;
 	}
 
 }

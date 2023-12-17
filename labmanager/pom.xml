@@ -454,6 +454,16 @@ project.properties["mainVersionNumber"] = project.properties["baseVersionNumber"
 				<role>UTBM Student - Contributions to version 3.8</role>
 			</roles>
 		</contributor>
+		<contributor>
+			<name>Kaspar SCHERRER</name>
+			<properties>
+				<id>kscherrer</id>
+				<githubId>KasparScherrer</githubId>
+			</properties>
+			<roles>
+				<role>Author of LanguageSelect for Vaadin 14</role>
+			</roles>
+		</contributor>
 	</contributors>
 
 	<licenses>

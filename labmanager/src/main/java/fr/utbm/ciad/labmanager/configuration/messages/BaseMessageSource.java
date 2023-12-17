@@ -104,9 +104,7 @@ public class BaseMessageSource {
 	 */
 	public static MessageSource createMessageSource() {
 		final ReloadableResourceBundleMessageSource res = new ReloadableResourceBundleMessageSource();
-		//res.setDefaultEncoding("UTF-8"); //$NON-NLS-1$
-		// Force to use specified locale even if locale for current env is different
-		res.setFallbackToSystemLocale(true);
+		res.setFallbackToSystemLocale(false);
 		res.addBasenames(TRANSLATION_BASEFILE);
 		return res;
 	}

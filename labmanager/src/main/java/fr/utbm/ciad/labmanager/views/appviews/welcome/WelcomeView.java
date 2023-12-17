@@ -25,9 +25,11 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.select.SelectVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.messages.LanguageSelect;
 import jakarta.annotation.security.PermitAll;
 
 /** The default view of the labmanager application.
@@ -63,5 +65,13 @@ public class WelcomeView extends Composite<VerticalLayout> {
         getContent().add(layoutColumn2);
         layoutColumn2.add(icon);
         //layoutColumn2.add(loginForm);
-    }
+        
+        LanguageSelect select0 = LanguageSelect.newStandardLanguageSelect();
+        select0.addThemeVariants(SelectVariant.LUMO_SMALL);
+        layoutColumn2.add(select0);
+
+        LanguageSelect select1 = LanguageSelect.newFlagOnlyLanguageSelect();
+        select1.addThemeVariants(SelectVariant.LUMO_SMALL);
+        layoutColumn2.add(select1);
+	}
 }

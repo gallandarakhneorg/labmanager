@@ -76,12 +76,12 @@ import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.DetailsWithErrorMark;
-import fr.utbm.ciad.labmanager.views.components.DetailsWithErrorMarkStatusHandler;
-import fr.utbm.ciad.labmanager.views.components.PhoneNumberField;
-import fr.utbm.ciad.labmanager.views.components.UserIdentityChangedObserver;
-import fr.utbm.ciad.labmanager.views.validators.OrcidValidator;
-import fr.utbm.ciad.labmanager.views.validators.UrlValidator;
+import fr.utbm.ciad.labmanager.views.components.details.DetailsWithErrorMark;
+import fr.utbm.ciad.labmanager.views.components.details.DetailsWithErrorMarkStatusHandler;
+import fr.utbm.ciad.labmanager.views.components.phones.PhoneNumberField;
+import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
+import fr.utbm.ciad.labmanager.views.components.validators.OrcidValidator;
+import fr.utbm.ciad.labmanager.views.components.validators.UrlValidator;
 import jakarta.annotation.security.RolesAllowed;
 import org.slf4j.Logger;
 

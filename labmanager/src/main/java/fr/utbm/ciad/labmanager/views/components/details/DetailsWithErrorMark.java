@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components;
+package fr.utbm.ciad.labmanager.views.components.details;
 
 import java.util.Map;
 import java.util.WeakHashMap;

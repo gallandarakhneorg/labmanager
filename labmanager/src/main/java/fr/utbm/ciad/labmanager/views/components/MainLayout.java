@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.views.components;
 
 import java.net.URL;
+import java.util.Locale;
 import java.util.Optional;
 
 import com.vaadin.flow.component.Text;
@@ -27,14 +28,19 @@ import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
 import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.contextmenu.SubMenu;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
+import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.Scroller;
 import com.vaadin.flow.component.sidenav.SideNav;
 import com.vaadin.flow.component.sidenav.SideNavItem;
@@ -76,6 +82,9 @@ import fr.utbm.ciad.labmanager.views.appviews.supervisions.SupervisionsView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.MyTeachingActivitiesView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingActivitiesView;
 import fr.utbm.ciad.labmanager.views.appviews.welcome.WelcomeView;
+import fr.utbm.ciad.labmanager.views.components.messages.LanguageSelect;
+import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -104,9 +113,19 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private MenuItem logoutLink;
 
+	private MenuItem languagesLink;
+
+	private LanguageRecord[] languageLinks;
+
 	private Avatar avatar;
 
 	private Text username;
+
+	private SideNavItem position;
+
+	private SideNavItem myprofile;
+
+	private SideNavItem allpersons;
 
 	/** Constructor.
 	 *
@@ -120,11 +139,13 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		this.accessChecker = accessChecker;
 		this.applicationName = applicationName;
 		setPrimarySection(Section.DRAWER);
-		addDrawerContent();
-		addHeaderContent();
+		addNavigationPanel();
+		addViewHeader();
 	}
 
-	private void addHeaderContent() {
+	/** Add the title of the view, with the menu toggle button and the view title.
+	 */
+	protected void addViewHeader() {
 		final DrawerToggle toggle = new DrawerToggle();
 		toggle.setAriaLabel(getTranslation("views.menu_toggle")); //$NON-NLS-1$
 		this.viewTitle = new H2();
@@ -132,17 +153,16 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		addToNavbar(true, toggle, this.viewTitle);
 	}
 
-	private void addDrawerContent() {
-		final H1 appName = new H1(this.applicationName);
-		appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
-		final Header header = new Header(appName);
-		final Scroller scroller = new Scroller(createNavigation());
-		addToDrawer(header, scroller, createFooter());
+	/** Add the navigation panel, with the application header, the menus, and the navigation footer.
+	 */
+	protected void addNavigationPanel() {
+		final Scroller scroller = new Scroller(createNavigationPanelContent());
+		addToDrawer(createNavigationPanelHeader(), scroller, createNavigationPanelFooter());
 	}
 
-	/** Create the welcome items in the navigation bar.
+	/** Create the welcome items in the navigation panel.
 	 *
-	 * @param nav the navigation bar.
+	 * @param nav the navigation panel.
 	 */
 	protected void createWelcomeNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(WelcomeView.class)) {
@@ -150,35 +170,37 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 	}
 
-	/** Create the profile and career items in the navigation bar.
+	/** Create the profile and career items in the navigation panel.
 	 *
-	 * @param nav the navigation bar.
+	 * @param nav the navigation panel.
 	 */
 	protected void createProfileNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(MyProfileView.class)
 				|| this.accessChecker.hasAccess(MyMembershipsView.class)
 				|| this.accessChecker.hasAccess(PersonsView.class)
 				|| this.accessChecker.hasAccess(MembershipsView.class)) {
-			final SideNavItem positions = new SideNavItem(getTranslation("views.navitem.position")); //$NON-NLS-1$
+			this.position = new SideNavItem(null);
 			if (this.accessChecker.hasAccess(MyProfileView.class)) {
-				positions.addItem(new SideNavItem(getTranslation("views.navitem.my_profile"), MyProfileView.class, LineAwesomeIcon.USER_CIRCLE.create())); //$NON-NLS-1$
+				this.myprofile = new SideNavItem(null, MyProfileView.class, LineAwesomeIcon.USER_CIRCLE.create());
+				this.position.addItem(this.myprofile);
 			}
 			if (this.accessChecker.hasAccess(MyMembershipsView.class)) {
-				positions.addItem(new SideNavItem("My Positions", MyMembershipsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.position.addItem(new SideNavItem("My Positions", MyMembershipsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
 			if (this.accessChecker.hasAccess(PersonsView.class)) {
-				positions.addItem(new SideNavItem(getTranslation("views.navitem.all_persons"), PersonsView.class, LineAwesomeIcon.USERS_SOLID.create())); //$NON-NLS-1$
+				this.allpersons = new SideNavItem(null, PersonsView.class, LineAwesomeIcon.USERS_SOLID.create());
+				this.position.addItem(this.allpersons);
 			}
 			if (this.accessChecker.hasAccess(MembershipsView.class)) {
-				positions.addItem(new SideNavItem("Positions", MembershipsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.position.addItem(new SideNavItem("Positions", MembershipsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
-			nav.addItem(positions);
+			nav.addItem(position);
 		}
 	}
 
-	/** Create the scientific activities items in the navigation bar.
+	/** Create the scientific activities items in the navigation panel.
 	 *
-	 * @param nav the navigation bar.
+	 * @param nav the navigation panel.
 	 */
 	protected void createScientificActivitiesNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(MyPublicationsView.class)
@@ -241,9 +263,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 	}
 
-	/** Create the scientific influence items in the navigation bar.
+	/** Create the scientific influence items in the navigation panel.
 	 *
-	 * @param nav the navigation bar.
+	 * @param nav the navigation panel.
 	 */
 	protected void createScientificInfluenceNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(MyIncomingInvitationsView.class)
@@ -275,9 +297,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 	}
 
-	/** Create the teaching items in the navigation bar.
+	/** Create the teaching items in the navigation panel.
 	 *
-	 * @param nav the navigation bar.
+	 * @param nav the navigation panel.
 	 */
 	protected void createTeachingNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(MyTeachingActivitiesView.class)
@@ -315,9 +337,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		}
 	}
 
-	/** Create the documentation items in the navigation bar.
+	/** Create the documentation items in the navigation panel.
 	 *
-	 * @param nav the navigation bar.
+	 * @param nav the navigation panel.
 	 */
 	protected void createDocumentationNavigation(SideNav nav) {
 		final SideNavItem documentations = new SideNavItem(getTranslation("views.navitem.documentations")); //$NON-NLS-1$
@@ -326,7 +348,11 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		nav.addItem(documentations);
 	}
 
-	private SideNav createNavigation() {
+	/** Create the menus in the navigation panel.
+	 *
+	 * @return the created navigation panel.
+	 */
+	protected SideNav createNavigationPanelContent() {
 		final SideNav nav = new SideNav();
 		createWelcomeNavigation(nav);
 		createProfileNavigation(nav);
@@ -339,7 +365,28 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		return nav;
 	}
 
-	private Footer createFooter() {
+	/** Create the header of the navigation panel.
+	 *
+	 * @return the header of the navigation panel.
+	 */
+	protected Header createNavigationPanelHeader() {
+		final H1 appName = new H1(this.applicationName);
+		appName.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
+		return new Header(appName);
+	}
+
+	/** Create the footer of the navigation panel.
+	 *
+	 * @return the footer of the navigation panel.
+	 */
+	protected Footer createNavigationPanelFooter() {
+		this.avatar = null;
+		this.username = null;
+		this.loginLink = null;
+		this.logoutLink = null;
+		this.languageLinks = null;
+		this.languageLinks = null;
+		
 		final Footer layout = new Footer();
 		final Optional<User> maybeUser = this.authenticatedUser.get();
 		if (maybeUser.isPresent()) {
@@ -370,7 +417,31 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			div.getElement().getStyle().set("align-items", "center"); //$NON-NLS-1$//$NON-NLS-2$
 			div.getElement().getStyle().set("gap", "var(--lumo-space-s)"); //$NON-NLS-1$//$NON-NLS-2$
 			userName.add(div);
-			this.logoutLink = userName.getSubMenu().addItem("", e -> { //$NON-NLS-1$
+
+			final SubMenu mainMenu = userName.getSubMenu();
+
+			this.languagesLink = mainMenu.addItem(""); //$NON-NLS-1$s
+			final Locale[] locales = LanguageSelect.getAvailableLocales();
+			this.languageLinks = new LanguageRecord[locales.length];
+			final SubMenu languageSubMenu = this.languagesLink.getSubMenu();
+			int i = 0;
+			for (final Locale locale : LanguageSelect.getAvailableLocales()) {
+				final HorizontalLayout hl = new HorizontalLayout();
+				hl.setSpacing(false);
+				hl.setAlignItems(Alignment.CENTER);
+				final Image img = new Image(LanguageSelect.getDefaultLanguageFlag(locale), ""); //$NON-NLS-1$
+				img.setMaxHeight("var(--lumo-icon-size-s)"); //$NON-NLS-1$
+				img.getStyle().set("margin-right", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+				final Span text = new Span(""); //$NON-NLS-1$
+				this.languageLinks[i] = new LanguageRecord(locale, text);
+				hl.add(img, text);
+				languageSubMenu.addItem(hl, e -> {
+					LanguageSelect.setUILocale(locale);
+				});
+				++i;
+			}
+			
+			this.logoutLink = mainMenu.addItem("", e -> { //$NON-NLS-1$
 				this.authenticatedUser.logout();
 			});
 
@@ -388,7 +459,11 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		this.viewTitle.setText(getCurrentPageTitle());
 	}
 
-	private String getCurrentPageTitle() {
+	/** Replies the title of the current page.
+	 *
+	 * @return the current page title.
+	 */
+	protected String getCurrentPageTitle() {
 		final Object obj = getContent();
 		if (obj == null) {
 			return ""; //$NON-NLS-1$
@@ -403,11 +478,24 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
 		this.viewTitle.setText(getCurrentPageTitle());
+
+		this.position.setLabel(getTranslation("views.navitem.position")); //$NON-NLS-1$
+		this.myprofile.setLabel(this.getTranslation("views.navitem.my_profile")); //$NON-NLS-1$
+		this.allpersons.setLabel(getTranslation("views.navitem.all_persons")); //$NON-NLS-1$
+
 		if (this.loginLink != null) {
 			this.loginLink.setText(getTranslation("views.sign_in")); //$NON-NLS-1$
 		}
 		if (this.logoutLink != null) {
 			this.logoutLink.setText(getTranslation("views.sign_out")); //$NON-NLS-1$
+		}
+		if (this.languagesLink != null) {
+			this.languagesLink.setText(getTranslation("views.languages")); //$NON-NLS-1$
+		}
+		if (this.languageLinks != null) {
+			for (final LanguageRecord menuItem : this.languageLinks) {
+				menuItem.menuText.setText(StringUtils.capitalize(menuItem.locale.getDisplayLanguage(getLocale())));
+			}
 		}
 	}
 
@@ -431,6 +519,18 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 				this.username.setText(fullname);
 			}
 		}
+	}
+
+	/** Description of a language menu item.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	private record LanguageRecord(Locale locale, Span menuText) {
+		//
 	}
 
 }

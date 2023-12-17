@@ -17,12 +17,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components;
+package fr.utbm.ciad.labmanager.views.components.users;
 
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.ComponentEvent;
-
-/** Event that is fired when the identify of the connected user has changed from a component.
+/** Observer on the events that are fired when the identify of the connected user has changed from a component.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -30,17 +27,11 @@ import com.vaadin.flow.component.ComponentEvent;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class UserIdentityChanged extends ComponentEvent<Component> {
+@FunctionalInterface
+public interface UserIdentityChangedObserver {
 
-	private static final long serialVersionUID = -9205544696049615048L;
-
-	/** Constructor.
-	 *
-	 * @param source the source component.
-	 * @param fromClient indicates if the event was fired by the client-side or not.
+	/** Invoked when the user identity has changed.
 	 */
-	public UserIdentityChanged(Component source, boolean fromClient) {
-		super(source, fromClient);
-	}
+    void authenticatedUserIdentityChange();
 
 }
