@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.views.appviews.persons;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
@@ -52,7 +51,6 @@ public class PersonsView extends AbstractPersonListView implements HasDynamicTit
 
 	/** Constructor.
 	 *
-	 * @param constants the constants of the application.
 	 * @param personService the service for accessing the person JPA.
 	 * @param membershipService the service for accessing the membership JPA.
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
@@ -60,10 +58,10 @@ public class PersonsView extends AbstractPersonListView implements HasDynamicTit
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param authenticatedUser the connected user.
 	 */
-    public PersonsView(@Autowired  Constants constants, @Autowired PersonService personService,
+    public PersonsView(@Autowired PersonService personService,
     		@Autowired MembershipService membershipService, @Autowired ChronoMembershipComparator membershipComparator,
     		@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages) {
-    	super(constants, personService, membershipService, membershipComparator,
+    	super(personService, membershipService, membershipComparator,
     			(ps, query, filters) -> ps.getAllPersons(query, filters),
     			authenticatedUser, messages, LOGGER);
     }

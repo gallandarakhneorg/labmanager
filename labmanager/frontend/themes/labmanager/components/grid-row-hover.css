@@ -1,0 +1,9 @@
+[part~="row"]:hover [part~="body-cell"] {
+	--grid-hover-actions-display: flex;
+	/*background-color: darksalmon;*/
+}
+
+[part~="row"]:not(:hover) [part~="body-cell"] {
+	--grid-hover-actions-display: none;
+	/*background-color: azure;*/
+}

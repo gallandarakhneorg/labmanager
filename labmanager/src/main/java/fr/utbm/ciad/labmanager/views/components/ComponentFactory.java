@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.views.components;
 
 import java.net.URL;
 import java.util.Optional;
+import java.util.function.BiConsumer;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
@@ -32,11 +33,14 @@ import com.vaadin.flow.component.confirmdialog.ConfirmDialog.ConfirmEvent;
 import com.vaadin.flow.component.contextmenu.HasMenuItems;
 import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.grid.ColumnTextAlign;
+import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.html.Anchor;
 import com.vaadin.flow.component.html.AnchorTarget;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.IconFactory;
 import com.vaadin.flow.component.menubar.MenuBar;
+import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.server.StreamResource;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -380,6 +384,22 @@ public final class ComponentFactory {
 			dialog.addConfirmListener(confirmHandler);
 		}
 		return dialog;
+	}
+
+	/** Add an hidden column in the grid (usually the last column) for supporting the hover menu bar.
+	 *
+	 * @param <T> the type of data in the grid.
+	 * @param grid the grid to update.
+	 * @param generator the callback function for creating the buttons of the menu bar.
+	 */
+	public static <T> void addGridCellHoverMenuBar(Grid<T> grid, BiConsumer<T, MenuBar> generator) {
+		grid.addComponentColumn(it -> {
+			final MenuBar menuBar = new MenuBar();
+			menuBar.addClassName("hoverGridHlHide"); //$NON-NLS-1$
+			menuBar.addThemeVariants(MenuBarVariant.LUMO_ICON, MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
+			generator.accept(it, menuBar);
+			return menuBar;
+		}).setTextAlign(ColumnTextAlign.END).setKey("controls").setAutoWidth(true).setFlexGrow(0).setWidth("0px"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
 }

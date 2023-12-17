@@ -37,8 +37,8 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
-import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.dependency.CssImport;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.grid.Grid;
@@ -50,6 +50,7 @@ import com.vaadin.flow.component.grid.dataview.GridLazyDataView;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.SvgIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.notification.Notification;
@@ -65,7 +66,6 @@ import com.vaadin.flow.spring.data.VaadinSpringDataHelpers;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
 import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.Membership;
@@ -101,6 +101,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @since 4.0
  */
 @Uses(Icon.class)
+@CssImport(value = "./themes/labmanager/components/grid-row-hover.css", themeFor = "vaadin-grid")
 public abstract class AbstractPersonListView extends Composite<VerticalLayout> implements LocaleChangeObserver {
 
 	private static final long serialVersionUID = -7781377605320634897L;
@@ -110,8 +111,6 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 	private final MessageSourceAccessor messages;
 
 	private final AuthenticatedUser authenticatedUser;
-
-	private final Constants constants;
 
 	private final PersonService personService;
 
@@ -141,7 +140,6 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 	/** Constructor.
 	 *
-	 * @param constants the constants of the application.
 	 * @param personService the service for accessing to the persons.
 	 * @param membershipService the service for accessing to the memberships.
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
@@ -151,21 +149,20 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractPersonListView(Constants constants,
+	public AbstractPersonListView(
 			PersonService personService, MembershipService membershipService,
 			ChronoMembershipComparator membershipComparator, PersonDataProvider dataProvider,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		this.logger = logger;
 		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
-		this.constants = constants;
 		this.personService = personService;
 		this.membershipService = membershipService;
 		this.membershipComparator = membershipComparator;
 		this.dataProvider = dataProvider;
 
 		final VerticalLayout rootContainer = getContent();
-		
+
 		rootContainer.setSizeFull();
 		rootContainer.setPadding(false);
 		rootContainer.setSpacing(false);
@@ -220,6 +217,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		return new Filters(this::refreshGrid);
 	}
 
+	@SuppressWarnings("static-method")
 	private Component createOrganizationComponent(Gender personGender, Iterator<Membership> memberships) {
 		if (memberships.hasNext()) {
 			final List<Span> spans = new ArrayList<>();
@@ -262,7 +260,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 				}
 			}
 		}
-		
+
 		final AvatarItem avatar = new AvatarItem();
 		avatar.setHeading(fullName);
 		if (!Strings.isNullOrEmpty(contactDetails)) {
@@ -283,16 +281,16 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		if (isAdminRole()) {
 			final MenuBar menu = new MenuBar();
 			menu.addThemeVariants(MenuBarVariant.LUMO_ICON);
-			
+
 			this.addButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.PLUS_SOLID, null, null);
-			
-			this.editButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.PEN_SOLID, null, null, it -> editSelection());
+
+			this.editButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.EDIT_SOLID, null, null, it -> editSelection());
 			this.editButton.setEnabled(false);
-	
+
 			this.deleteButton = ComponentFactory.addIconItem(menu, LineAwesomeIcon.TRASH_SOLID, null, null, it -> deleteSelectionWithQuery());
 			this.deleteButton.addThemeNames("error"); //$NON-NLS-1$
 			this.deleteButton.setEnabled(false);
-			
+
 			return menu;
 		}
 		return null;
@@ -334,14 +332,22 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 	 * @see #deleteSelection()
 	 */
 	protected void deleteSelectionWithQuery() {
-		final Set<Person> selection = this.grid.getSelectedItems();
-		if (!selection.isEmpty()) {
-			final int size = selection.size();
+		deleteWithQuery(this.grid.getSelectedItems());
+	}
+
+	/** Query for the deletion the current selection and do the deletion if it is accepted.
+	 *
+	 * @param persons the person to be deleted.
+	 * @see #deleteSelection()
+	 */
+	protected void deleteWithQuery(Set<Person> persons) {
+		if (!persons.isEmpty()) {
+			final int size = persons.size();
 			ComponentFactory.createDeletionDialog(this,
 					getTranslation("views.persons.delete.title", Integer.valueOf(size)), //$NON-NLS-1$
 					getTranslation("views.persons.delete.message", Integer.valueOf(size)), //$NON-NLS-1$
 					it ->  deleteSelection())
-				.open();
+			.open();
 		}
 	}
 
@@ -372,35 +378,38 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		final Optional<Person> selection = this.grid.getSelectionModel().getFirstSelectedItem();
 		if (selection.isPresent()) {
 			final Person person = selection.get();
-			
-			final Dialog dialog = new Dialog();
-			dialog.setModal(true);
-			dialog.setCloseOnEsc(true);
-			dialog.setCloseOnOutsideClick(true);
-			dialog.setDraggable(true);
-			dialog.setResizable(true);			
-			dialog.setHeaderTitle(getTranslation("views.persons.edit_person", person.getFullName())); //$NON-NLS-1$
-			dialog.setWidthFull();
-
-			final EmbeddedPersonEditor editor = new EmbeddedPersonEditor(person, this.personService, this.authenticatedUser, this.messages);
-			dialog.add(editor);
-			
-			final Button saveButton = new Button(getTranslation("views.save"), e -> { //$NON-NLS-1$
-				if (editor.save(this.personService)) {
-					dialog.close();
-					refreshGrid();
-				}
-			});
-			saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-			saveButton.addClickShortcut(Key.ENTER);
-			saveButton.setIcon(LineAwesomeIcon.SAVE_SOLID.create());
-
-			final Button cancelButton = new Button(getTranslation("views.cancel"), e -> dialog.close()); //$NON-NLS-1$
-
-			dialog.getFooter().add(cancelButton, saveButton);
-
-			dialog.open();
+			edit(person);
 		}
+	}
+
+	private void edit(Person person) {
+		final Dialog dialog = new Dialog();
+		dialog.setModal(true);
+		dialog.setCloseOnEsc(true);
+		dialog.setCloseOnOutsideClick(true);
+		dialog.setDraggable(true);
+		dialog.setResizable(true);			
+		dialog.setHeaderTitle(getTranslation("views.persons.edit_person", person.getFullName())); //$NON-NLS-1$
+		dialog.setWidthFull();
+
+		final EmbeddedPersonEditor editor = new EmbeddedPersonEditor(person, this.personService, this.authenticatedUser, this.messages);
+		dialog.add(editor);
+
+		final Button saveButton = new Button(getTranslation("views.save"), e -> { //$NON-NLS-1$
+			if (editor.save(this.personService)) {
+				dialog.close();
+				refreshGrid();
+			}
+		});
+		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		saveButton.addClickShortcut(Key.ENTER);
+		saveButton.setIcon(LineAwesomeIcon.SAVE_SOLID.create());
+
+		final Button cancelButton = new Button(getTranslation("views.cancel"), e -> dialog.close()); //$NON-NLS-1$
+
+		dialog.getFooter().add(cancelButton, saveButton);
+
+		dialog.open();
 	}
 
 	/** Create the grid component.
@@ -418,6 +427,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		this.orcidColumn = grid.addColumn(person -> person.getORCID())
 				.setAutoWidth(true)
 				.setSortProperty("orcid"); //$NON-NLS-1$
+
 		this.organizationColumn = grid.addColumn(person -> person)
 				.setRenderer(new ComponentRenderer<>(this::createOrganizationComponent))
 				.setAutoWidth(true)
@@ -430,10 +440,22 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 			}
 		}))
 				.setAutoWidth(true)
-				.setFrozen(true)
 				.setFlexGrow(0)
 				.setSortProperty("validated") //$NON-NLS-1$
 				.setWidth("0%"); //$NON-NLS-1$
+
+		ComponentFactory.addGridCellHoverMenuBar(grid, (person, menuBar) -> {
+			MenuItem item = menuBar.addItem(LineAwesomeIcon.EDIT.create(), event -> {
+				edit(person);
+			});
+			item.setAriaLabel(getTranslation("views.edit")); //$NON-NLS-1$
+			final SvgIcon deleteIcon = LineAwesomeIcon.TRASH_SOLID.create();
+			deleteIcon.setColor("var(--lumo-error-color)"); //$NON-NLS-1$
+			item = menuBar.addItem(deleteIcon, event -> {
+				deleteWithQuery(Collections.singleton(person));
+			});
+			item.setAriaLabel(getTranslation("views.delete")); //$NON-NLS-1$
+		});
 
 		grid.setPageSize(ViewConstants.GRID_PAGE_SIZE);
 		grid.addThemeVariants(GridVariant.LUMO_NO_BORDER);
@@ -442,7 +464,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 		// Default sorting on names
 		grid.sort(Collections.singletonList(new GridSortOrder<>(this.nameColumn, SortDirection.ASCENDING)));
-		
+
 		if (isAdminRole()) {
 			grid.addSelectionListener(it -> {
 				final Set<?> selection = it.getAllSelectedItems();
@@ -461,7 +483,21 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		dataView.setItemCountEstimate(ViewConstants.GRID_PAGE_SIZE * 10); 
 		dataView.setItemCountEstimateIncrease(ViewConstants.GRID_PAGE_SIZE); 
 
+		// Edit on double click
+		grid.addItemDoubleClickListener(it -> {
+			executeDoubleClickAction(it.getItem());
+		});
+
 		return grid;
+	}
+	
+	/** Run the double click action for the person. By default, it runs the editor.
+	 * Subclass should override this function to change the double-click action.
+	 *
+	 * @param person the person with which the action must be run.
+	 */
+	protected void executeDoubleClickAction(Person person) {
+		edit(person);
 	}
 
 	/** Refresh the grid content.
@@ -669,7 +705,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 	}
 
-		/** Membership iterator for the person list view.
+	/** Membership iterator for the person list view.
 	 * This iterator assumes that the memberships are sorted according to a {@link ChronoMembershipComparator}
 	 * and it stops as soon as all the active memberships are returned, or if there is none, when the first
 	 * former memberships is returned. Future memberships are not considered.
