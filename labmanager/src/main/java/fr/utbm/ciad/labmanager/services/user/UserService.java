@@ -166,7 +166,6 @@ public class UserService extends AbstractService {
 	@Transactional
 	public void remove(User user) {
 		this.userRepository.delete(user);
-		assert user.getId() == 0;
 	}
 
 }

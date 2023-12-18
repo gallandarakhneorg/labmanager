@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager;
 
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.server.AppShellSettings;
 import com.vaadin.flow.theme.Theme;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -50,5 +51,11 @@ public class LabManagerApplication implements AppShellConfigurator {
 	public static void main(String[] args) {
         SpringApplication.run(LabManagerApplication.class, args);
     }
+
+	@Override
+	public void configurePage(AppShellSettings settings) {
+		settings.addLink("shortcut icon", "themes/labmanager/icons/favicon.ico"); //$NON-NLS-1$ //$NON-NLS-2$
+        settings.addFavIcon("icon", "themes/labmanager/icons/favicon.svg", "92x92"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	}
 
 }

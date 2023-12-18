@@ -47,7 +47,7 @@ public class DetailsWithErrorMark extends Details {
 	private static final long serialVersionUID = -7845592866965170183L;
 
 	private final Map<Object, Pair<Boolean, Boolean>> statuses = new WeakHashMap<>();
-	
+
 	private final HorizontalLayout errorBadge;
 
 	private final Span errorText = new Span();

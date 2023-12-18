@@ -22,7 +22,9 @@ package fr.utbm.ciad.labmanager.services.user;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
+import com.vaadin.flow.server.VaadinService;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
@@ -49,6 +51,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class UserSecurityService extends AbstractService implements UserDetailsService {
 
+	private static final String DEVELOPMENT_MODE_PASSWORD = "x"; //$NON-NLS-1$
+	
 	private final UserRepository userRepository;
 
 	/** Constructor for injector.
@@ -78,8 +82,14 @@ public class UserSecurityService extends AbstractService implements UserDetailsS
         if (Strings.isBlank(login)) {
             throw new UsernameNotFoundException("No institutional login specified for the user with login: " + username); //$NON-NLS-1$
         }
-        return new org.springframework.security.core.userdetails.User(login, "x", //TODO pwd
-                    getAuthorities(user));
+        final String password;
+        //if (VaadinService.getCurrent().getDeploymentConfiguration().isProductionMode()) {
+        //TODO pwd
+        password = DEVELOPMENT_MODE_PASSWORD;
+        //} else {
+        //	password = DEVELOPMENT_MODE_PASSWORD;
+        //}
+        return new org.springframework.security.core.userdetails.User(login, password, getAuthorities(user));
     }
 
     private static List<GrantedAuthority> getAuthorities(User user) {
