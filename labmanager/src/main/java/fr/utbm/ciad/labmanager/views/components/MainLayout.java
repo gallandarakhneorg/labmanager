@@ -468,8 +468,8 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		if (obj == null) {
 			return ""; //$NON-NLS-1$
 		}
-		if (obj instanceof HasDynamicTitle) {
-			return ((HasDynamicTitle) obj).getPageTitle();
+		if (obj instanceof HasDynamicTitle castValue) {
+			return castValue.getPageTitle();
 		}
 		final PageTitle title = obj.getClass().getAnnotation(PageTitle.class);
 		return title == null ? "" : getTranslation(title.value()); //$NON-NLS-1$

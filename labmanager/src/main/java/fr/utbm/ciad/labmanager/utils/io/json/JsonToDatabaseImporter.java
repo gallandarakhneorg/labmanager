@@ -1412,7 +1412,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 		// Attach journal if needed for the type of publication
 		final Journal targetJournal;
-		if (publication instanceof JournalBasedPublication) {
+		if (publication instanceof JournalBasedPublication journalPaper) {
 			final String journalId = getRef(publicationObject.get(JOURNAL_KEY));
 			if (Strings.isNullOrEmpty(journalId)) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
@@ -1426,7 +1426,6 @@ public class JsonToDatabaseImporter extends JsonTool {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
 			}
 			targetJournal = optJournal.get();
-			final JournalBasedPublication journalPaper = (JournalBasedPublication) publication;
 			journalPaper.setJournal(targetJournal);
 		} else {
 			targetJournal = null;
@@ -1435,7 +1434,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		// Attach conference if needed for the type of publication
 		final Conference targetConference;
 		// TODO: Thrown exception if the conference is not found
-		if (publication instanceof ConferenceBasedPublication) {
+		if (publication instanceof ConferenceBasedPublication conferencePaper) {
 			final String conferenceId = getRef(publicationObject.get(CONFERENCE_KEY));
 			if (Strings.isNullOrEmpty(conferenceId)) {
 				getLogger().warn("Conference not found for publication with id: " + id); //$NON-NLS-1$
@@ -1451,7 +1450,6 @@ public class JsonToDatabaseImporter extends JsonTool {
 					throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
 				}
 				targetConference = optConference.get();
-				final ConferenceBasedPublication conferencePaper = (ConferenceBasedPublication) publication;
 				conferencePaper.setConference(targetConference);
 			}
 		} else {

@@ -598,13 +598,13 @@ public class PublicationService extends AbstractPublicationService {
 			final List<Person> authors = publication.getTemporaryAuthors();
 			publication.setTemporaryAuthors(null);
 			this.publicationRepository.save(publication);
-			if (publication instanceof JournalBasedPublication) {
-				final Journal jour = ((JournalBasedPublication) publication).getJournal();
+			if (publication instanceof JournalBasedPublication jpublication) {
+				final Journal jour = jpublication.getJournal();
 				if (jour != null) {
 					this.journalRepository.save(jour);
 				}
-			} else if (publication instanceof ConferenceBasedPublication) {
-				final Conference conf = ((ConferenceBasedPublication) publication).getConference();
+			} else if (publication instanceof ConferenceBasedPublication cpublication) {
+				final Conference conf = cpublication.getConference();
 				if (conf != null) {
 					this.conferenceRepository.save(conf);
 				}
@@ -795,15 +795,13 @@ public class PublicationService extends AbstractPublicationService {
 					}
 
 					// Create the journal or the conference if it is missed
-					if (publication instanceof JournalBasedPublication) {
-						final JournalBasedPublication jbpub = (JournalBasedPublication) publication;
+					if (publication instanceof JournalBasedPublication jbpub) {
 						if (jbpub.getJournal() != null && jbpub.getJournal().isFakeEntity()) {
 							final Journal journal = new Journal(jbpub.getJournal());
 							this.journalRepository.save(journal);
 							jbpub.setJournal(journal);
 						}
-					} else if (publication instanceof ConferenceBasedPublication) {
-						final ConferenceBasedPublication cbpub = (ConferenceBasedPublication) publication;
+					} else if (publication instanceof ConferenceBasedPublication cbpub) {
 						if (cbpub.getConference() != null && cbpub.getConference().isFakeEntity()) {
 							final Conference conference = new Conference(cbpub.getConference());
 							this.conferenceRepository.save(conference);

@@ -68,33 +68,32 @@ public final class JsonUtils {
 	 */
 	@SuppressWarnings({ "unchecked", "rawtypes" })
 	public static void writeField(JsonGenerator generator, String name, Object value) throws IOException {
-		if (value instanceof JsonNode) {
+		if (value instanceof JsonNode castValue) {
 			generator.writeFieldName(name);
-			generator.writeTree((JsonNode) value);
-		} else if (value instanceof Byte) {
-			generator.writeNumberField(name, ((Byte) value).byteValue());
-		} else if (value instanceof Short) {
-			generator.writeNumberField(name, ((Short) value).shortValue());
-		} else if (value instanceof Integer) {
-			generator.writeNumberField(name, ((Integer) value).intValue());
-		} else if (value instanceof Long) {
-			generator.writeNumberField(name, ((Long) value).longValue());
-		} else if (value instanceof Float) {
-			generator.writeNumberField(name, ((Float) value).floatValue());
-		} else if (value instanceof Double) {
-			generator.writeNumberField(name, ((Double) value).doubleValue());
-		} else if (value instanceof BigInteger) {
-			generator.writeNumberField(name, (BigInteger) value);
-		} else if (value instanceof BigDecimal) {
-			generator.writeNumberField(name, (BigDecimal) value);
-		} else if (value instanceof Number) {
-			generator.writeNumberField(name, ((Number) value).doubleValue());
-		} else if (value instanceof Boolean) {
-			generator.writeBooleanField(name, ((Boolean) value).booleanValue());
+			generator.writeTree(castValue);
+		} else if (value instanceof Byte castValue) {
+			generator.writeNumberField(name, castValue.byteValue());
+		} else if (value instanceof Short castValue) {
+			generator.writeNumberField(name, castValue.shortValue());
+		} else if (value instanceof Integer castValue) {
+			generator.writeNumberField(name, castValue.intValue());
+		} else if (value instanceof Long castValue) {
+			generator.writeNumberField(name, castValue.longValue());
+		} else if (value instanceof Float castValue) {
+			generator.writeNumberField(name, castValue.floatValue());
+		} else if (value instanceof Double castValue) {
+			generator.writeNumberField(name, castValue.doubleValue());
+		} else if (value instanceof BigInteger castValue) {
+			generator.writeNumberField(name, castValue);
+		} else if (value instanceof BigDecimal castValue) {
+			generator.writeNumberField(name, castValue);
+		} else if (value instanceof Number castValue) {
+			generator.writeNumberField(name, castValue.doubleValue());
+		} else if (value instanceof Boolean castValue) {
+			generator.writeBooleanField(name, castValue.booleanValue());
 		} else if (value != null && (value.getClass().isEnum() || value instanceof Enum)) {
 			generator.writeObjectField(name, value);
-		} else if (value instanceof Map) {
-			final Map iter = (Map) value;
+		} else if (value instanceof Map iter) {
 			final Iterator<Entry> iterator = iter.entrySet().iterator();
 			generator.writeObjectFieldStart(name);
 			while (iterator.hasNext()) {
@@ -104,8 +103,7 @@ public final class JsonUtils {
 				}
 			}
 			generator.writeEndObject();
-		} else if (value instanceof Iterable) {
-			final Iterable<?> iter = (Iterable<?>) value;
+		} else if (value instanceof Iterable iter) {
 			final Iterator<?> iterator = iter.iterator();
 			generator.writeArrayFieldStart(name);
 			while (iterator.hasNext()) {
@@ -119,8 +117,7 @@ public final class JsonUtils {
 				writeValue(generator, Array.get(value, i));
 			}
 			generator.writeEndArray();
-		} else if (value instanceof JsonSerializable) {
-			final JsonSerializable serializable = (JsonSerializable) value;
+		} else if (value instanceof JsonSerializable serializable) {
 			generator.writeFieldName(name);
 			serializable.serialize(generator, null);
 		} else if (value != null) {
@@ -136,32 +133,31 @@ public final class JsonUtils {
 	 */
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static void writeValue(JsonGenerator generator, Object value) throws IOException {
-		if (value instanceof JsonNode) {
-			generator.writeTree((JsonNode) value);
-		} else if (value instanceof Byte) {
-			generator.writeNumber(((Byte) value).byteValue());
-		} else if (value instanceof Short) {
-			generator.writeNumber(((Short) value).shortValue());
-		} else if (value instanceof Integer) {
-			generator.writeNumber(((Integer) value).intValue());
-		} else if (value instanceof Long) {
-			generator.writeNumber(((Long) value).longValue());
-		} else if (value instanceof Float) {
-			generator.writeNumber(((Number) value).floatValue());
-		} else if (value instanceof Double) {
-			generator.writeNumber(((Number) value).doubleValue());
-		} else if (value instanceof BigInteger) {
-			generator.writeNumber((BigInteger) value);
-		} else if (value instanceof BigDecimal) {
-			generator.writeNumber((BigDecimal) value);
-		} else if (value instanceof Number) {
-			generator.writeNumber(((Number) value).doubleValue());
-		} else if (value instanceof Boolean) {
-			generator.writeBoolean(((Boolean) value).booleanValue());
+		if (value instanceof JsonNode castValue) {
+			generator.writeTree(castValue);
+		} else if (value instanceof Byte castValue) {
+			generator.writeNumber(castValue.byteValue());
+		} else if (value instanceof Short castValue) {
+			generator.writeNumber(castValue.shortValue());
+		} else if (value instanceof Integer castValue) {
+			generator.writeNumber(castValue.intValue());
+		} else if (value instanceof Long castValue) {
+			generator.writeNumber(castValue.longValue());
+		} else if (value instanceof Float castValue) {
+			generator.writeNumber(castValue.floatValue());
+		} else if (value instanceof Double castValue) {
+			generator.writeNumber(castValue.doubleValue());
+		} else if (value instanceof BigInteger castValue) {
+			generator.writeNumber(castValue);
+		} else if (value instanceof BigDecimal castValue) {
+			generator.writeNumber(castValue);
+		} else if (value instanceof Number castValue) {
+			generator.writeNumber(castValue.doubleValue());
+		} else if (value instanceof Boolean castValue) {
+			generator.writeBoolean(castValue.booleanValue());
 		} else if (value != null && (value.getClass().isEnum() || value instanceof Enum)) {
 			generator.writeObject(value);
-		} else if (value instanceof Map) {
-			final Map iter = (Map) value;
+		} else if (value instanceof Map iter) {
 			final Iterator<Entry> iterator = iter.entrySet().iterator();
 			generator.writeStartObject();
 			while (iterator.hasNext()) {
@@ -171,8 +167,7 @@ public final class JsonUtils {
 				}
 			}
 			generator.writeEndObject();
-		} else if (value instanceof Iterable) {
-			final Iterable<?> iter = (Iterable<?>) value;
+		} else if (value instanceof Iterable iter) {
 			final Iterator<?> iterator = iter.iterator();
 			generator.writeStartArray();
 			while (iterator.hasNext()) {
@@ -186,8 +181,7 @@ public final class JsonUtils {
 				writeValue(generator, Array.get(value, i));
 			}
 			generator.writeEndArray();
-		} else if (value instanceof JsonSerializable) {
-			final JsonSerializable serializable = (JsonSerializable) value;
+		} else if (value instanceof JsonSerializable serializable) {
 			serializable.serialize(generator, null);
 		} else if (value != null) {
 			generator.writeString(value.toString());
@@ -352,12 +346,10 @@ public final class JsonUtils {
 					writeField(this.generator, attrName, attrValue);
 				});
 				//
-				if (publication instanceof JournalBasedPublication) {
-					final JournalBasedPublication jpublication = (JournalBasedPublication) publication;
+				if (publication instanceof JournalBasedPublication jpublication) {
 					final Journal journal = jpublication.getJournal();
 					writeReferenceOrObjectField("journal", journal, () -> journalCreator.create(journal)); //$NON-NLS-1$
-				} else if (publication instanceof ConferenceBasedPublication) {
-					final ConferenceBasedPublication cpublication = (ConferenceBasedPublication) publication;
+				} else if (publication instanceof ConferenceBasedPublication cpublication) {
 					final Conference conference = cpublication.getConference();
 					writeReferenceOrObjectField("conference", conference, () -> conferenceCreator.create(conference)); //$NON-NLS-1$
 				}

@@ -179,11 +179,11 @@ public enum Unit {
 	}
 	
 	private static int numberOfDigits(Number value) {
-		if (value instanceof BigInteger) {
-			return numberOfDigits((BigInteger) value);
+		if (value instanceof BigInteger castValue) {
+			return numberOfDigits(castValue);
 		}
-		if (value instanceof BigDecimal) {
-			return numberOfDigits(((BigDecimal) value).toBigInteger());
+		if (value instanceof BigDecimal castValue) {
+			return numberOfDigits(castValue.toBigInteger());
 		}
 		final long lvalue = Math.abs(value.longValue());
 		long accumulator = 10;

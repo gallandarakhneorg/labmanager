@@ -67,16 +67,16 @@ public class BugfixLaTeXPrinter extends LaTeXPrinter {
 
 		for(LaTeXObject object : objects){
 
-			if(object instanceof LaTeXCommand){
-				print((LaTeXCommand)object, builder);
+			if(object instanceof LaTeXCommand cobject){
+				print(cobject, builder);
 			} else
 
-				if(object instanceof LaTeXGroup){
-					print((LaTeXGroup)object, builder);
+				if(object instanceof LaTeXGroup cobject){
+					print(cobject, builder);
 				} else
 
-					if(object instanceof LaTeXString){
-						print((LaTeXString)object, builder);
+					if(object instanceof LaTeXString cobject){
+						print(cobject, builder);
 					} else
 
 					{

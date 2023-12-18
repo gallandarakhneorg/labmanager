@@ -229,8 +229,8 @@ public class PublicationStatService extends AbstractPublicationService {
 	 */
 	protected static PublicationCategory getCategory(Production publication, JournalRankingSystem rankingSystem) {
 		final PublicationCategory category;
-		if (publication instanceof JournalBasedPublication) {
-			category = ((JournalBasedPublication) publication).getCategory(rankingSystem);
+		if (publication instanceof JournalBasedPublication jpublication) {
+			category = jpublication.getCategory(rankingSystem);
 		} else {
 			category = publication.getCategory();
 		}
@@ -244,8 +244,7 @@ public class PublicationStatService extends AbstractPublicationService {
 	 * @return the category.
 	 */
 	protected static QuartileRanking getQuartile(Production publication, JournalRankingSystem rankingSystem) {
-		if (publication instanceof JournalBasedPublication) {
-			final JournalBasedPublication pub = (JournalBasedPublication) publication;
+		if (publication instanceof JournalBasedPublication pub) {
 			switch (rankingSystem) {
 			case SCIMAGO:
 				return pub.getScimagoQIndex();

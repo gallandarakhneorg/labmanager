@@ -293,28 +293,28 @@ public class DatabaseToJsonExporter extends JsonTool {
 						objValue = convertValue(method.invoke(complement));
 					}
 				}
-				if (objValue instanceof String) {
-					rec.set(entry.getKey(), factory.textNode((String) objValue));
-				} else if (objValue instanceof Byte) {
-					rec.set(entry.getKey(), factory.numberNode((Byte) objValue));
-				} else if (objValue instanceof Short) {
-					rec.set(entry.getKey(), factory.numberNode((Short) objValue));
-				} else if (objValue instanceof Integer) {
-					rec.set(entry.getKey(), factory.numberNode((Integer) objValue));
-				} else if (objValue instanceof Long) {
-					rec.set(entry.getKey(), factory.numberNode((Long) objValue));
-				} else if (objValue instanceof Float) {
-					rec.set(entry.getKey(), factory.numberNode((Float) objValue));
-				} else if (objValue instanceof BigDecimal) {
-					rec.set(entry.getKey(), factory.numberNode((BigDecimal) objValue));
-				} else if (objValue instanceof BigInteger) {
-					rec.set(entry.getKey(), factory.numberNode((BigInteger) objValue));
-				} else if (objValue instanceof Number) {
-					rec.set(entry.getKey(), factory.numberNode(((Number) objValue).doubleValue()));
-				} else if (objValue instanceof Boolean) {
-					rec.set(entry.getKey(), factory.booleanNode(((Boolean) objValue).booleanValue()));
-				} else if (objValue instanceof Character) {
-					rec.set(entry.getKey(), factory.textNode(((Character) objValue).toString()));
+				if (objValue instanceof String castValue) {
+					rec.set(entry.getKey(), factory.textNode(castValue));
+				} else if (objValue instanceof Byte castValue) {
+					rec.set(entry.getKey(), factory.numberNode(castValue));
+				} else if (objValue instanceof Short castValue) {
+					rec.set(entry.getKey(), factory.numberNode(castValue));
+				} else if (objValue instanceof Integer castValue) {
+					rec.set(entry.getKey(), factory.numberNode(castValue));
+				} else if (objValue instanceof Long castValue) {
+					rec.set(entry.getKey(), factory.numberNode(castValue));
+				} else if (objValue instanceof Float castValue) {
+					rec.set(entry.getKey(), factory.numberNode(castValue));
+				} else if (objValue instanceof BigDecimal castValue) {
+					rec.set(entry.getKey(), factory.numberNode(castValue));
+				} else if (objValue instanceof BigInteger castValue) {
+					rec.set(entry.getKey(), factory.numberNode(castValue));
+				} else if (objValue instanceof Number castValue) {
+					rec.set(entry.getKey(), factory.numberNode(castValue.doubleValue()));
+				} else if (objValue instanceof Boolean castValue) {
+					rec.set(entry.getKey(), factory.booleanNode(castValue.booleanValue()));
+				} else if (objValue instanceof Character castValue) {
+					rec.set(entry.getKey(), factory.textNode(castValue.toString()));
 				}
 			}
 		}
@@ -761,8 +761,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		// Add the journal by hand because they are not exported implicitly by
 		// the "exportObject" function
 		// It is due to the reference to journal entities.
-		if (publication instanceof JournalBasedPublication) {
-			final JournalBasedPublication jbp = (JournalBasedPublication) publication;
+		if (publication instanceof JournalBasedPublication jbp) {
 			final Journal journal = jbp.getJournal();
 			if (journal != null) {
 				final String journalId = repository.get(journal);
@@ -779,8 +778,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		// Add the conference by hand because they are not exported implicitly by
 		// the "exportObject" function
 		// It is due to the reference to journal entities.
-		if (publication instanceof ConferenceBasedPublication) {
-			final ConferenceBasedPublication cbp = (ConferenceBasedPublication) publication;
+		if (publication instanceof ConferenceBasedPublication cbp) {
 			final Conference conference = cbp.getConference();
 			if (conference != null) {
 				final String conferenceId = repository.get(conference);

@@ -741,8 +741,8 @@ public abstract class JsonTool {
 	 */
 	protected static Number getNumberValue(JsonNode node) {
 		final Object raw = getRawValue(node);
-		if (raw instanceof Number) {
-			return (Number) raw;
+		if (raw instanceof Number castValue) {
+			return castValue;
 		}
 		if (raw != null) {
 			try {
@@ -858,20 +858,20 @@ public abstract class JsonTool {
 	protected static Object convertValue(Object value) {
 		if (value != null) {
 			final Class<?> type = value.getClass();
-			if (value instanceof CharSequence) {
-				return Strings.emptyToNull(((CharSequence) value).toString());
+			if (value instanceof CharSequence castValue) {
+				return Strings.emptyToNull(castValue.toString());
 			}
 			if (type.isPrimitive() || value instanceof Number || value instanceof Boolean) {
 				return value;
 			}
-			if (value instanceof Enum) {
-				return ((Enum<?>) value).name().toLowerCase();
+			if (value instanceof Enum castValue) {
+				return castValue.name().toLowerCase();
 			}
-			if (value instanceof LocalDate) {
-				return ((LocalDate) value).toString();
+			if (value instanceof LocalDate castValue) {
+				return castValue.toString();
 			}
-			if (value instanceof Character) {
-				return ((Character) value).toString();
+			if (value instanceof Character castValue) {
+				return castValue.toString();
 			}
 		}
 		return null;

@@ -123,8 +123,7 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 				entryNode.set("year", entryNode.get("publicationYear").deepCopy()); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			// Make aliasing for the Scimago Quartiles
-			if (entryNode.has("scimagoQIndex") && publication instanceof JournalBasedPublication) { //$NON-NLS-1$
-				final JournalBasedPublication jbp = (JournalBasedPublication) publication;
+			if (entryNode.has("scimagoQIndex") && publication instanceof JournalBasedPublication jbp) { //$NON-NLS-1$
 				final URL url = configurator.getJournalService().getScimagoQuartileImageURLByJournal(jbp.getJournal());
 				if (url != null) {
 					entryNode.set("scimagoQIndex_imageUrl", entryNode.textNode(url.toExternalForm())); //$NON-NLS-1$

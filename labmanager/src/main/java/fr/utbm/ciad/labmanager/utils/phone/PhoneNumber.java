@@ -128,8 +128,7 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this != obj && obj instanceof PhoneNumber) {
-			final PhoneNumber pn = (PhoneNumber) obj;
+		if (this != obj && obj instanceof PhoneNumber pn) {
 			return this.country == pn.country && this.localNumber.equalsIgnoreCase(pn.localNumber);
 		}
 		return super.equals(obj);
