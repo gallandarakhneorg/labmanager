@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
+import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
@@ -33,6 +34,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Service for the application users.
  * 
@@ -61,15 +63,6 @@ public class UserService extends AbstractService {
 		super(messages, constants);
 		this.userRepository = userRepository;
 	}
-
-//	/** Replies the application user for the person with the given identifier.
-//	 *
-//	 * @param id the identifier of the person.
-//	 * @return the user.
-//	 */
-//	public Optional<User> getUserByPersonId(int id) {
-//		return this.userRepository.findByPersonId(Integer.valueOf(id));
-//	}
 
 	/** Replies all the known users.
 	 *
@@ -142,6 +135,38 @@ public class UserService extends AbstractService {
 			return opt.get();
 		}
 		return null;
+	}
+
+	/** Replies the application user that is associated to the given person.
+	 *
+	 * @param person the person.
+	 * @return the user or {@code null} if the user cannot be found.
+	 */
+	public User getUserFor(Person person) {
+		final Optional<User> opt = this.userRepository.findByPersonId(person.getId());
+		if (opt.isPresent()) {
+			return opt.get();
+		}
+		return null;
+	}
+
+	/** Save the given user in the JPA infrastructure.
+	 *
+	 * @param user the user to save.
+	 */
+	@Transactional
+	public void save(User user) {
+		this.userRepository.saveAndFlush(user);
+	}
+
+	/** Remove the given user from the JPA infrastructure.
+	 *
+	 * @param user the user to remove.
+	 */
+	@Transactional
+	public void remove(User user) {
+		this.userRepository.delete(user);
+		assert user.getId() == 0;
 	}
 
 }

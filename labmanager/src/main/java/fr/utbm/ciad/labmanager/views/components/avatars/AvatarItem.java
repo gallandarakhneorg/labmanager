@@ -101,6 +101,25 @@ public class AvatarItem extends Composite<HorizontalLayout> implements HasSize {
 		getContent().addComponentAsFirst(avatar);
 	}
 
+	/** Change the avatar border color.
+	 *
+     * <p>The color index defines which color will be used for the border of the
+     * avatar. Color index N applies CSS variable {@code --vaadin-user-color-N}
+     * to the border.
+	 *
+	 * @param index the index of the color, or {@code null} to remove the border.
+	 */
+	public void setAvatarBorderColor(Integer index) {
+		if (getContent().getComponentAt(0) instanceof Avatar existing) {
+			// TODO: Bug fix in Vaadin Avatar, that is not supporting null argument in opposite to the API documentation.
+			if (index == null) {
+				existing.getElement().removeProperty("colorIndex"); //$NON-NLS-1$
+			} else {
+				existing.setColorIndex(index);
+			}
+		}
+	}
+
 	/** Change the URL of the avatar.
 	 *
 	 * @param url the URL of the avatar..

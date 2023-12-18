@@ -21,7 +21,9 @@ package fr.utbm.ciad.labmanager.views.components.persons;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.member.Person;
+import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -46,14 +48,19 @@ public class EmbeddedPersonEditor extends AbstractPersonEditor {
 	 *
 	 * @param person the person to edit, never {@code null}.
 	 * @param personService the service for accessing to the person. If it is {@code null},
-	 *     the function {@link #doSave(Person)} will be invoked; otherwise the repository will be invoked.
+	 *     the default implementation does nothing. This function must be overridden to save the person
+	 *     without a repository.
+	 * @param user the user associated to the person. It could be {@code null} if is it unknown.
+	 * @param userService the service for accessing to the person. If it is {@code null},
+	 *     the default implementation does nothing. This function must be overridden to save the user
+	 *     without a repository.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
-	public EmbeddedPersonEditor(Person person,
-			PersonService personService, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages) {
-		super(person, personService, authenticatedUser, messages, LOGGER);
+	public EmbeddedPersonEditor(Person person, PersonService personService,
+			User user, UserService userService,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
+		super(person, personService, user, userService, authenticatedUser, messages, LOGGER);
 	}
 
 
@@ -62,10 +69,13 @@ public class EmbeddedPersonEditor extends AbstractPersonEditor {
 	 * @param personService the service for accessing to the person. If it is {@code null},
 	 *     the default implementation does nothing. This function must be overridden to save the person
 	 *     without a repository.
+	 * @param userService the service for accessing to the person. If it is {@code null},
+	 *     the default implementation does nothing. This function must be overridden to save the user
+	 *     without a repository.
 	 * @return {@code true} if the saving was a success.
 	 */
-	public final boolean save(PersonService personService) {
-		return doSave(getEditedPerson(), personService);
+	public final boolean save(PersonService personService, UserService userService) {
+		return doSave(getEditedPerson(), personService, getEditedUser(), userService);
 	}
 
 }

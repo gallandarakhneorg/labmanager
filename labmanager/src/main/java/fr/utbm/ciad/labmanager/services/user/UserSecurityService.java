@@ -27,6 +27,7 @@ import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
+import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.security.core.GrantedAuthority;
@@ -73,7 +74,11 @@ public class UserSecurityService extends AbstractService implements UserDetailsS
             throw new UsernameNotFoundException("Invalid user with login: " + username); //$NON-NLS-1$
         }
         final User user = optUser.get();
-        return new org.springframework.security.core.userdetails.User(user.getLogin(), "x", //TODO pwd
+        final String login = user.getLogin();
+        if (Strings.isBlank(login)) {
+            throw new UsernameNotFoundException("No institutional login specified for the user with login: " + username); //$NON-NLS-1$
+        }
+        return new org.springframework.security.core.userdetails.User(login, "x", //TODO pwd
                     getAuthorities(user));
     }
 

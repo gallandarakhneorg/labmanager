@@ -25,6 +25,7 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.member.ChronoMembershipComparator;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.persons.AbstractPersonListView;
 import jakarta.annotation.security.PermitAll;
@@ -52,16 +53,17 @@ public class PersonsView extends AbstractPersonListView implements HasDynamicTit
 	/** Constructor.
 	 *
 	 * @param personService the service for accessing the person JPA.
+	 * @param userService the service for accessing the user JPA.
 	 * @param membershipService the service for accessing the membership JPA.
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
 	 *     the memberships are sorted in reverse chronological order first.
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param authenticatedUser the connected user.
 	 */
-    public PersonsView(@Autowired PersonService personService,
+    public PersonsView(@Autowired PersonService personService, @Autowired UserService userService,
     		@Autowired MembershipService membershipService, @Autowired ChronoMembershipComparator membershipComparator,
     		@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages) {
-    	super(personService, membershipService, membershipComparator,
+    	super(personService, userService, membershipService, membershipComparator,
     			(ps, query, filters) -> ps.getAllPersons(query, filters),
     			authenticatedUser, messages, LOGGER);
     }

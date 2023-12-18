@@ -42,6 +42,13 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
 	 */
 	Optional<User> findByLogin(String login);
 
+	/** Replies the application user with the given person id.
+	 *
+	 * @param personId the identifier of the person to search for.
+	 * @return the user.
+	 */
+	Optional<User> findByPersonId(int personId);
+
 	/** Replies all the application users with the given role.
 	 *
 	 * @param role the role to search for.

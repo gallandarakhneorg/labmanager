@@ -22,8 +22,10 @@ package fr.utbm.ciad.labmanager.views.components.persons;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -71,10 +73,11 @@ import fr.utbm.ciad.labmanager.data.member.Gender;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
+import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
 import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.avatars.AvatarItem;
@@ -106,6 +109,14 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 	private static final long serialVersionUID = -7781377605320634897L;
 
+	/** Define the color of the border of the regular user avatars: red.
+	 */
+	private static final int ADMINISTRATOR_BORDER_COLOR = 0;
+	
+	/** Define the color of the border of the regular user avatars: dark blue.
+	 */
+	private static final int USER_BORDER_COLOR = 5;
+
 	private final Logger logger;
 
 	private final MessageSourceAccessor messages;
@@ -114,11 +125,15 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 
 	private final PersonService personService;
 
+	private final UserService userService;
+
 	private final MembershipService membershipService;
 
 	private final ChronoMembershipComparator membershipComparator;
 
 	private final PersonDataProvider dataProvider;
+	
+	private Map<Integer, User> personIdToUserMap = new HashMap<>();
 
 	private Grid<Person> grid;
 
@@ -141,6 +156,7 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 	/** Constructor.
 	 *
 	 * @param personService the service for accessing to the persons.
+	 * @param userService the service for accessing to the users.
 	 * @param membershipService the service for accessing to the memberships.
 	 * @param membershipComparator the comparator that must be used for comparing the memberships. It is assumed that
 	 *     the memberships are sorted in reverse chronological order first.
@@ -150,17 +166,20 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 	 * @param logger the logger to be used by this view.
 	 */
 	public AbstractPersonListView(
-			PersonService personService, MembershipService membershipService,
+			PersonService personService, UserService userService, MembershipService membershipService,
 			ChronoMembershipComparator membershipComparator, PersonDataProvider dataProvider,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
 		this.logger = logger;
 		this.messages = messages;
 		this.authenticatedUser = authenticatedUser;
 		this.personService = personService;
+		this.userService = userService;
 		this.membershipService = membershipService;
 		this.membershipComparator = membershipComparator;
 		this.dataProvider = dataProvider;
 
+		refreshUsers();
+		
 		final VerticalLayout rootContainer = getContent();
 
 		rootContainer.setSizeFull();
@@ -248,21 +267,23 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		final String fullName = person.getFullNameWithLastNameFirst();
 		final URL photo = person.getPhotoURL();
 
-		String contactDetails = person.getEmail();
-		if (Strings.isNullOrEmpty(contactDetails)) {
-			PhoneNumber contactPhone = person.getMobilePhone();
-			if (contactPhone != null) {
-				contactDetails = contactPhone.toInternationalNationalForm();
-			} else {
-				contactPhone = person.getOfficePhone();
-				if (contactPhone != null) {
-					contactDetails = contactPhone.toInternationalNationalForm();
-				}
+		String contactDetails = null;
+		Integer avatarBorder = null;
+		final User user = this.personIdToUserMap.get(Integer.valueOf(person.getId()));
+		if (user != null) {
+			final String login = user.getLogin();
+			if (!Strings.isNullOrEmpty(login)) {
+				final UserRole role = user.getRole();
+				avatarBorder = Integer.valueOf(role == UserRole.ADMIN ? ADMINISTRATOR_BORDER_COLOR : USER_BORDER_COLOR);
+				contactDetails = getTranslation("views.persons.person_details.login", //$NON-NLS-1$
+						login,
+						role.getLabel(this.messages, getLocale()));
 			}
 		}
 
 		final AvatarItem avatar = new AvatarItem();
 		avatar.setHeading(fullName);
+		avatar.setAvatarBorderColor(avatarBorder);
 		if (!Strings.isNullOrEmpty(contactDetails)) {
 			avatar.setDescription(contactDetails);
 		}
@@ -392,11 +413,16 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		dialog.setHeaderTitle(getTranslation("views.persons.edit_person", person.getFullName())); //$NON-NLS-1$
 		dialog.setWidthFull();
 
-		final EmbeddedPersonEditor editor = new EmbeddedPersonEditor(person, this.personService, this.authenticatedUser, this.messages);
+		final User user = this.userService.getUserFor(person);
+		
+		final EmbeddedPersonEditor editor = new EmbeddedPersonEditor(
+				person, this.personService,
+				user, this.userService,
+				this.authenticatedUser, this.messages);
 		dialog.add(editor);
 
 		final Button saveButton = new Button(getTranslation("views.save"), e -> { //$NON-NLS-1$
-			if (editor.save(this.personService)) {
+			if (editor.save(this.personService, this.userService)) {
 				dialog.close();
 				refreshGrid();
 			}
@@ -500,9 +526,20 @@ public abstract class AbstractPersonListView extends Composite<VerticalLayout> i
 		edit(person);
 	}
 
+	/** Refresh the user list.
+	 */
+	private void refreshUsers() {
+		this.personIdToUserMap = new HashMap<>();
+		for (final User user : this.userService.getAllUsers()) {
+			final Person person = user.getPerson();
+			this.personIdToUserMap.put(Integer.valueOf(person.getId()), user);
+		}
+	}
+
 	/** Refresh the grid content.
 	 */
 	protected void refreshGrid() {
+		refreshUsers();
 		this.grid.getDataProvider().refreshAll();
 	}
 

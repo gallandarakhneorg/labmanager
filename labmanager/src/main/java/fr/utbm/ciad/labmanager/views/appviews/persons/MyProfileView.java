@@ -31,6 +31,7 @@ import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
+import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.persons.AbstractPersonEditor;
 import jakarta.annotation.security.PermitAll;
@@ -64,12 +65,15 @@ public class MyProfileView extends AbstractPersonEditor implements HasDynamicTit
 	/** Constructor.
 	 *
 	 * @param personService the service to access to the person JPA.
+	 * @param userService the service to access to the user JPA.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (spring layer)
 	 */
-	public MyProfileView(@Autowired PersonService personService, @Autowired AuthenticatedUser authenticatedUser,
-			@Autowired MessageSourceAccessor messages) {
-		super(authenticatedUser.get().get().getPerson(), personService, authenticatedUser, messages, LOGGER);
+	public MyProfileView(@Autowired PersonService personService, @Autowired UserService userService,
+			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages) {
+		super(authenticatedUser.get().get().getPerson(), personService,
+				authenticatedUser.get().get(), userService,
+				authenticatedUser, messages, LOGGER);
 	}
 
 	@Override
@@ -78,8 +82,9 @@ public class MyProfileView extends AbstractPersonEditor implements HasDynamicTit
 	}
 
 	@Override
-	protected void createContent(VerticalLayout rootContainer, boolean isAdmin, PersonService personService) {
-		super.createContent(rootContainer, isAdmin, personService);
+	protected void createContent(VerticalLayout rootContainer, boolean isAdmin, PersonService personService,
+			UserService userService) {
+		super.createContent(rootContainer, isAdmin, personService, userService);
 
 		rootContainer.setSpacing(true);
 		
@@ -87,8 +92,8 @@ public class MyProfileView extends AbstractPersonEditor implements HasDynamicTit
 		rootContainer.add(bar);
 		
 		this.saveButton = new Button("", event -> { //$NON-NLS-1$
-			if (getDataBinder().validate().isOk()) {
-				doSave(getEditedPerson(), personService);
+			if (getPersonDataBinder().validate().isOk()) {
+				doSave(getEditedPerson(), personService, getEditedUser(), userService);
 			} else {
 				notifyInvalidity();
 			}
@@ -102,8 +107,8 @@ public class MyProfileView extends AbstractPersonEditor implements HasDynamicTit
 		if (isAdmin) {
 			this.validateButton = new Button("", event -> { //$NON-NLS-1$
 				doValidate(getEditedPerson());
-				if (getDataBinder().validate().isOk()) {
-					doSave(getEditedPerson(), personService);
+				if (getPersonDataBinder().validate().isOk()) {
+					doSave(getEditedPerson(), personService, getEditedUser(), userService);
 				} else {
 					notifyInvalidity();
 				}
