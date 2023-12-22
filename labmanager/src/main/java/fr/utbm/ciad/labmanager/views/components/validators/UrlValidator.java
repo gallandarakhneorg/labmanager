@@ -24,6 +24,7 @@ import java.net.URL;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.AbstractValidator;
+import org.apache.jena.ext.com.google.common.base.Strings;
 
 /** A string validator for URL addresses.
  * 
@@ -86,11 +87,11 @@ public class UrlValidator extends AbstractValidator<String> {
      * @return true if the string matched, false otherwise
      */
     protected boolean isValid(String value) {
-		if (value == null || (this.allowEmptyValue && value.isEmpty())) {
-			return true;
+		if (Strings.isNullOrEmpty(value) || value.isBlank()) {
+			return this.allowEmptyValue;
 		}
         try {
-        	final URL url = new URL(value);
+        	final var url = new URL(value.trim());
         	assert url != null;
         	// URL was built, the format is good.
         	return true;

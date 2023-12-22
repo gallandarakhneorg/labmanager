@@ -25,7 +25,7 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.validator.RegexpValidator;
 import org.apache.jena.ext.com.google.common.base.Strings;
 
-/** A string validator for ORCID numbers.
+/** A string validator for GPS coordinates in Decimal Degrees format.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -33,11 +33,11 @@ import org.apache.jena.ext.com.google.common.base.Strings;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public class OrcidValidator extends RegexpValidator {
+public class GpsCoordinatesValidator extends RegexpValidator {
 
-	private static final long serialVersionUID = -5751450579330516322L;
+	private static final long serialVersionUID = -1636108224385443969L;
 
-	private static final String PATTERN = "^\\s*[0-9a-zA-Z]{4}\\-[0-9a-zA-Z]{4}\\-[0-9a-zA-Z]{4}\\-[0-9a-zA-Z]{4}\\s*$"; //$NON-NLS-1$
+	private static final String PATTERN = "^\\s*[+\\-]?[0-9]+\\s*(\\.[0-9]+)?\\s*,\\s*[+\\-]?\\s*[0-9]+(\\.[0-9]+)?\\s*$"; //$NON-NLS-1$
 
 	private final boolean allowEmptyValue;
 
@@ -45,25 +45,25 @@ public class OrcidValidator extends RegexpValidator {
 
 	/**
 	 * Creates a validator for checking that a string is a syntactically valid
-	 * ORCID id.
+	 * GPS coordinates.
 	 * <p>
 	 * This constructor creates a validator which does accept an empty string
-	 * as a valid ORCID id. Use {@link #OrcidValidator(String, String, boolean)}
+	 * as a valid coordinates. Use {@link #GpsCoordinatesValidator(String, String, boolean)}
 	 * constructor with {@code false} as a value for the second argument to
 	 * create a validator which not accepts an empty string.
 	 *
 	 * @param errorMessage the message to display in case the value does not validate.
 	 * @param warningMessage the message to display in case the value does validate but is empty. It could be
 	 *     {@code null} to disable the warning.
-	 * @see #OrcidValidator(String, String, boolean)
+	 * @see #GpsCoordinatesValidator(String, String, boolean)
 	 */
-	public OrcidValidator(String errorMessage, String warningMessage) {
-		this(errorMessage, warningMessage, false);
+	public GpsCoordinatesValidator(String errorMessage, String warningMessage) {
+		this(errorMessage, warningMessage, true);
 	}
 
 	/**
 	 * Creates a validator for checking that a string is a syntactically valid
-	 * ORCID id.
+	 * GPS coordinates.
 	 *
 	 * @param errorMessage the message to display in case the value does not validate. Must not be {@code null}.
 	 * @param warningMessageWhenEmpty the message to display in case the value does validate but is empty. It could be
@@ -71,7 +71,7 @@ public class OrcidValidator extends RegexpValidator {
 	 * @param allowEmpty if {@code true} then an empty string passes the validation,
 	 *     otherwise the validation fails.
 	 */
-	public OrcidValidator(String errorMessage, String warningMessageWhenEmpty, boolean allowEmpty) {
+	public GpsCoordinatesValidator(String errorMessage, String warningMessageWhenEmpty, boolean allowEmpty) {
 		super(errorMessage, PATTERN, true);
 		this.allowEmptyValue = allowEmpty;
 		this.warningMessageWhenEmpty = Strings.emptyToNull(warningMessageWhenEmpty);
