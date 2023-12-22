@@ -19,19 +19,29 @@
 
 package fr.utbm.ciad.labmanager.views.components;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOError;
+import java.io.IOException;
 import java.net.URL;
-import java.util.Optional;
+import java.util.Locale;
 import java.util.function.BiConsumer;
 
 import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasStyle;
+import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.Text;
 import com.vaadin.flow.component.Unit;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog;
 import com.vaadin.flow.component.confirmdialog.ConfirmDialog.ConfirmEvent;
 import com.vaadin.flow.component.contextmenu.HasMenuItems;
 import com.vaadin.flow.component.contextmenu.MenuItem;
+import com.vaadin.flow.component.dialog.Dialog;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.grid.ColumnTextAlign;
 import com.vaadin.flow.component.grid.Grid;
@@ -42,10 +52,12 @@ import com.vaadin.flow.component.icon.IconFactory;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.menubar.MenuBarVariant;
 import com.vaadin.flow.component.textfield.TextField;
+import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.server.StreamResource;
+import fr.utbm.ciad.labmanager.utils.country.CountryCode;
+import fr.utbm.ciad.labmanager.views.components.entities.AbstractEntityEditor;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
-import org.springframework.stereotype.Component;
 import org.vaadin.lineawesome.LineAwesomeIcon;
 
 /** Factory of Vaadin components.
@@ -56,7 +68,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-@Component
+@org.springframework.stereotype.Component
 public final class ComponentFactory {
 
 	private ComponentFactory() {
@@ -122,6 +134,14 @@ public final class ComponentFactory {
 		return content;
 	}
 
+	/** Create a image stream with the image representing an empty background.
+	 *
+	 * @return the stream.
+	 */
+	public static StreamResource newEmptyBackgroundStreamImage() {
+		return newStreamImage("/images/empty_background.png"); //$NON-NLS-1$
+	}
+
 	/** Create a image stream from an URL pointing a Java resource.
 	 *
 	 * @param iconPath the path of the icon in the Java resources, starting with a slash character.
@@ -135,9 +155,23 @@ public final class ComponentFactory {
 		} catch (Throwable ex) {
 			throw new IllegalArgumentException(ex);
 		}
-		final StreamResource imageResource = new StreamResource(FileSystem.largeBasename(url),
+		return new StreamResource(FileSystem.largeBasename(url),
 				() -> ComponentFactory.class.getResourceAsStream(iconPath));
-		return imageResource;
+	}
+
+	/** Create a resource stream from an URL pointing a Java resource.
+	 *
+	 * @param resourceFile the path to the server-side file.
+	 * @return the resource to the server-side file.
+	 */
+	public static StreamResource newStreamImage(File resourceFile) {
+		return new StreamResource(resourceFile.getName(), () -> {
+			try {
+				return new FileInputStream(resourceFile);
+			} catch (IOException ex) {
+				throw new IOError(ex);
+			}
+		});
 	}
 
 	/** Create a menu item with an icon and text and add it into the given receiver.

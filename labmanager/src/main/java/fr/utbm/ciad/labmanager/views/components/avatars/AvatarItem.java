@@ -26,6 +26,7 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.server.AbstractStreamResource;
 
 /** Item for representing an avatar with vaadin API.
  * 
@@ -127,6 +128,16 @@ public class AvatarItem extends Composite<HorizontalLayout> implements HasSize {
 	public void setAvatarURL(String url) {
 		if (getContent().getComponentAt(0) instanceof Avatar existing) {
 			existing.setImage(url);
+		}
+	}
+
+	/** Change the resource of the avatar image.
+	 *
+	 * @param resource the resource of the avatar image.
+	 */
+	public void setAvatarResource(AbstractStreamResource resource) {
+		if (getContent().getComponentAt(0) instanceof Avatar existing) {
+			existing.setImageResource(resource);
 		}
 	}
 
