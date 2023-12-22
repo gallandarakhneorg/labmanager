@@ -27,14 +27,12 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.function.BinaryOperator;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.databind.JsonSerializable;
@@ -48,11 +46,9 @@ import fr.utbm.ciad.labmanager.data.PhoneNumberJPAConverter;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.Authorship;
 import fr.utbm.ciad.labmanager.data.publication.AuthorshipComparator;
-import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils.CachedGenerator;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -395,7 +391,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.academiaURL);
 		h = HashCodeUtils.add(h, this.cordisURL);
 		h = HashCodeUtils.add(h, this.dblpURL);
@@ -406,7 +402,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		h = HashCodeUtils.add(h, this.githubId);
 		h = HashCodeUtils.add(h, this.googleScholarHindex);
 		h = HashCodeUtils.add(h, this.gravatarId);
-		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.lastName);
 		h = HashCodeUtils.add(h, this.linkedInId);
 		h = HashCodeUtils.add(h, this.mobilePhone);
@@ -436,10 +431,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final Person other = (Person) obj;
-		if (this.id != other.id) {
-			return false;
-		}
+		final var other = (Person) obj;
 		if (!Objects.equals(this.academiaURL, other.academiaURL)) {
 			return false;
 		}
@@ -558,7 +550,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		if (getGender() != null) {
 			consumer.accept("gender", getGender()); //$NON-NLS-1$
 		}
-		final String title = getCivilTitle(messages, locale); 
+		final var title = getCivilTitle(messages, locale); 
 		if (!Strings.isNullOrEmpty(title)) {
 			consumer.accept("civilTitle", title); //$NON-NLS-1$
 		}
@@ -647,12 +639,12 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			JsonUtils.writeField(generator, attrName, attrValue);
 		});
 		//
-		final CachedGenerator organizations = JsonUtils.cache(generator);
-		final CachedGenerator publications = JsonUtils.cache(generator);
-		final CachedGenerator journals = JsonUtils.cache(generator);
+		final var organizations = JsonUtils.cache(generator);
+		final var publications = JsonUtils.cache(generator);
+		final var journals = JsonUtils.cache(generator);
 		//
 		generator.writeArrayFieldStart("memberships"); //$NON-NLS-1$
-		for (final Membership membership : getMemberships()) {
+		for (final var membership : getMemberships()) {
 			generator.writeStartObject();
 			membership.forEachAttribute((attrName, attrValue) -> {
 				JsonUtils.writeField(generator, attrName, attrValue);
@@ -660,10 +652,10 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 			organizations.writeReferenceOrObjectField("researchOrganization", membership.getResearchOrganization(), () -> { //$NON-NLS-1$
 				JsonUtils.writeObjectAndAttributes(generator, membership.getResearchOrganization());
 			});
-			final Set<ScientificAxis> axes = membership.getScientificAxes();
+			final var axes = membership.getScientificAxes();
 			if (axes != null && !axes.isEmpty()) {
 				generator.writeArrayFieldStart("scientificAxes"); //$NON-NLS-1$
-				for (final ScientificAxis axis : axes) {
+				for (final var axis : axes) {
 					organizations.writeReferenceOrObject(axis, () -> {
 						JsonUtils.writeObjectAndAttributes(generator, axis);
 					});
@@ -675,7 +667,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		generator.writeEndArray();
 		//
 		generator.writeArrayFieldStart("authorships"); //$NON-NLS-1$
-		for (final Authorship authorship : getAuthorships()) {
+		for (final var authorship : getAuthorships()) {
 			generator.writeStartObject();
 			authorship.forEachAttribute((attrName, attrValue) -> {
 				JsonUtils.writeField(generator, attrName, attrValue);
@@ -796,7 +788,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	/** Recompute and reset the field for the webpage id.
 	 */
 	protected void resetWebPageId() {
-		final WebPageNaming naming = getWebPageNaming();
+		final var naming = getWebPageNaming();
 		if (naming == null) {
 			this.webPageId = null;
 		} else {
@@ -959,7 +951,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 * @return the recent membership for each organization.
 	 */
 	public Map<ResearchOrganization, Membership> getRecentMemberships(Predicate<? super Membership> filteringCondition) {
-		Stream<Membership> stream = getMemberships().stream();
+		var  stream = getMemberships().stream();
 		if (filteringCondition != null) {
 			stream = stream.filter(filteringCondition);
 		}
@@ -1161,7 +1153,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getFacebookURL() {
 		if (!Strings.isNullOrEmpty(getFacebookId())) {
 			try {
-
 				return new URL(FACEBOOK_BASE_URL + getFacebookId());
 			} catch (Throwable ex) {
 				//
@@ -1194,7 +1185,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getGithubURL() {
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
-
 				return new URL(GITHUB_BASE_URL + getGithubId());
 			} catch (Throwable ex) {
 				//
@@ -1231,7 +1221,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getGithubAvatarURL(int size) {
 		if (!Strings.isNullOrEmpty(getGithubId())) {
 			try {
-
 				return new URL(GITHUB_AVATAR_URL + getGithubId() + "?" + GITHUB_AVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
 			} catch (Throwable ex) {
 				//
@@ -1263,7 +1252,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getLinkedInURL() {
 		if (!Strings.isNullOrEmpty(getLinkedInId())) {
 			try {
-
 				return new URL(LINKEDIN_URL + getLinkedInId());
 			} catch (Throwable ex) {
 				//
@@ -1295,7 +1283,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getResearcherIdURL() {
 		if (!Strings.isNullOrEmpty(getResearcherId())) {
 			try {
-
 				return new URL(WOS_URL + getResearcherId());
 			} catch (Throwable ex) {
 				//
@@ -1329,7 +1316,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getScopusURL() {
 		if (!Strings.isNullOrEmpty(getScopusId())) {
 			try {
-
 				return new URL(SCOPUS_URL + getScopusId());
 			} catch (Throwable ex) {
 				//
@@ -1362,7 +1348,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getGoogleScholarURL() {
 		if (!Strings.isNullOrEmpty(getGoogleScholarId())) {
 			try {
-
 				return new URL(GOOGLESCHOLAR_URL + getGoogleScholarId());
 			} catch (Throwable ex) {
 				//
@@ -1430,7 +1415,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getHalURL() {
 		if (!Strings.isNullOrEmpty(getIdhal())) {
 			try {
-
 				return new URL(HAL_URL + getIdhal());
 			} catch (Throwable ex) {
 				//
@@ -1462,7 +1446,6 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	public final URL getResearchGateURL() {
 		if (!Strings.isNullOrEmpty(getResearchGateId())) {
 			try {
-
 				return new URL(RESEARCHGATE_URL + getResearchGateId());
 			} catch (Throwable ex) {
 				//
@@ -1715,7 +1698,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 * @see #getPhotoURL(int)
 	 */
 	public final URL getGravatarURL(int size) {
-		final String id = getGravatarId();
+		final var id = getGravatarId();
 		if (size > 0 && !Strings.isNullOrEmpty(id)) {
 			try {
 				return new URL(GRAVATAR_URL + id + "?" + GRAVATAR_SIZE_PARAM + "=" + Integer.toString(size)); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1811,7 +1794,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 * @see #getCivilTitle(MessageSourceAccessor, Locale)
 	 */
 	public String getCivilTitle(MessageSourceAccessor messages, Locale locale, boolean includeGenderTitle) {
-		final MemberStatus status = findHigherMemberStatus();
+		final var status = findHigherMemberStatus();
 		String title = null;
 		if (status != null) {
 			title = status.getCivilTitle(messages, locale);
@@ -1823,7 +1806,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	}
 
 	private MemberStatus findHigherMemberStatus() {
-		final Optional<MemberStatus> status = getActiveOrFinishedMemberships().values().stream().map(it -> it.getMemberStatus())
+		final var status = getActiveOrFinishedMemberships().values().stream().map(it -> it.getMemberStatus())
 				.min((a, b) -> {
 					final int cmp = Integer.compare(a.getHierachicalLevel(), b.getHierachicalLevel());
 					if (cmp != 0) {
@@ -1846,7 +1829,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 * @see #getGoogleScholarAvatarURL()
 	 */
 	public final URL getPhotoURL() {
-		URL url = getGravatarURL();
+		var url = getGravatarURL();
 		if (url != null) {
 			return url;
 		}
@@ -1870,7 +1853,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 * @see #getGoogleScholarAvatarURL(int)
 	 */
 	public final URL getPhotoURL(int size) {
-		URL url = getGravatarURL(size);
+		var url = getGravatarURL(size);
 		if (url != null) {
 			return url;
 		}

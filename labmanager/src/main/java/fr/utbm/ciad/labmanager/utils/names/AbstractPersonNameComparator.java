@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.utils.names;
 
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -67,10 +66,10 @@ public abstract class AbstractPersonNameComparator implements PersonNameComparat
 
 	@Override
 	public double getSimilarity(String fullName1, String fullName2) {
-		final String first1 = this.nameParser.parseFirstName(fullName1);
-		final String last1 = this.nameParser.parseLastName(fullName1);
-		final String first2 = this.nameParser.parseFirstName(fullName2);
-		final String last2 = this.nameParser.parseLastName(fullName2);
+		final var first1 = this.nameParser.parseFirstName(fullName1);
+		final var last1 = this.nameParser.parseLastName(fullName1);
+		final var first2 = this.nameParser.parseFirstName(fullName2);
+		final var last2 = this.nameParser.parseLastName(fullName2);
 		return getSimilarity(first1, last1, first2, last2);
 	}
 
@@ -81,15 +80,15 @@ public abstract class AbstractPersonNameComparator implements PersonNameComparat
 				|| this.nameParser.isShortName(firstName2)
 				|| this.nameParser.isShortName(lastName2);
 		//
-		final String first1 = this.nameParser.normalizeName(firstName1);
-		final Set<String> firsts1 = this.nameParser.getNormalizedNamesFor(firstName1, enableShortNames);
-		final String last1 = this.nameParser.normalizeName(lastName1);
-		final Set<String> lasts1 = this.nameParser.getNormalizedNamesFor(lastName1, enableShortNames);
+		final var first1 = this.nameParser.normalizeName(firstName1);
+		final var firsts1 = this.nameParser.getNormalizedNamesFor(firstName1, enableShortNames);
+		final var last1 = this.nameParser.normalizeName(lastName1);
+		final var lasts1 = this.nameParser.getNormalizedNamesFor(lastName1, enableShortNames);
 		//
-		final String first2 = this.nameParser.normalizeName(firstName2);
-		final Set<String> firsts2 = this.nameParser.getNormalizedNamesFor(firstName2, enableShortNames);
-		final String last2 = this.nameParser.normalizeName(lastName2);
-		final Set<String> lasts2 = this.nameParser.getNormalizedNamesFor(lastName2, enableShortNames);
+		final var first2 = this.nameParser.normalizeName(firstName2);
+		final var firsts2 = this.nameParser.getNormalizedNamesFor(firstName2, enableShortNames);
+		final var last2 = this.nameParser.normalizeName(lastName2);
+		final var lasts2 = this.nameParser.getNormalizedNamesFor(lastName2, enableShortNames);
 		//
 		return getSimilarity(
 				first1, firsts1,
@@ -126,16 +125,16 @@ public abstract class AbstractPersonNameComparator implements PersonNameComparat
 			String lastName1, Set<String> lastNames1,
 			String firstName2, Set<String> firstNames2,
 			String lastName2, Set<String> lastNames2) {
-		final NormalizedStringSimilarity similarityComputer = createStringSimilarityComputer();
+		final var similarityComputer = createStringSimilarityComputer();
 		
 		// FL vs. FL
-		double max = getSimilarity(similarityComputer, firstNames1, lastName1, firstNames2, lastName2);
+		var max = getSimilarity(similarityComputer, firstNames1, lastName1, firstNames2, lastName2);
 		if (max >= 1.0) {
 			return max;
 		}
 		
 		// FL vs. LF
-		double s = getSimilarity(similarityComputer, firstNames1, lastName1, lastNames2, firstName2);
+		var s = getSimilarity(similarityComputer, firstNames1, lastName1, lastNames2, firstName2);
 		if (s >= 1.0) {
 			return s;
 		}
@@ -165,8 +164,8 @@ public abstract class AbstractPersonNameComparator implements PersonNameComparat
 	}
 
 	protected double getSimilarity(NormalizedStringSimilarity similarityComputer, Set<String> first1, String last1, Set<String> first2, String last2) {
-		final double s0 = getSimilarity(similarityComputer, first1, first2);
-		final double s1 = getSimilarity(similarityComputer, last1, last2);
+		final var s0 = getSimilarity(similarityComputer, first1, first2);
+		final var s1 = getSimilarity(similarityComputer, last1, last2);
 		return (s0 + s1) / 2.0;
 	}
 
@@ -192,14 +191,14 @@ public abstract class AbstractPersonNameComparator implements PersonNameComparat
 			ens1 = name2;
 			ens2 = new TreeSet<>(name1);
 		}
-		double mmax = 0.0;
-		for (final String n1 : ens1) {
-			final Iterator<String> iter2 = ens2.iterator();
+		var mmax = 0.0;
+		for (final var n1 : ens1) {
+			final var iter2 = ens2.iterator();
 			String candidate = null;
-			double max = 0.0;
+			var max = 0.0;
 			while (iter2.hasNext()) {
-				final String n2 = iter2.next();
-				final double similarity = matcher.similarity(n1, n2);
+				final var n2 = iter2.next();
+				final var similarity = matcher.similarity(n1, n2);
 				if (similarity > max) {
 					max = similarity;
 					candidate = n2;

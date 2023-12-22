@@ -90,7 +90,7 @@ public abstract class AbstractPublicationComparator implements PublicationCompar
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = o1.getType().compareTo(o2.getType());
+		var cmp = o1.getType().compareTo(o2.getType());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -98,11 +98,7 @@ public abstract class AbstractPublicationComparator implements PublicationCompar
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = EntityUtils.getPreferredPersonListComparator().compare(o1.getAuthors(), o2.getAuthors());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return EntityUtils.getPreferredPersonListComparator().compare(o1.getAuthors(), o2.getAuthors());
 	}
 
 	private double similarity(String s1, String s2) {
@@ -116,7 +112,7 @@ public abstract class AbstractPublicationComparator implements PublicationCompar
 	}
 
 	private static String getPublicationDescription(Publication publication) {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(publication.getPublicationYear());
 		buf.append(',');
 		if (publication.getType() != null) {
@@ -151,8 +147,8 @@ public abstract class AbstractPublicationComparator implements PublicationCompar
 		if (publication1 == null || publication2 == null) {
 			return 0.0;
 		}
-		final String desc1 = getPublicationDescription(publication1);
-		final String desc2 = getPublicationDescription(publication2);
+		final var desc1 = getPublicationDescription(publication1);
+		final var desc2 = getPublicationDescription(publication2);
 		return similarity(desc1, desc2);
 	}
 

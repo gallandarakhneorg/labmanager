@@ -54,10 +54,10 @@ public class MyAssociatedStructuresView extends Composite<VerticalLayout> {
 	/** Constructor.
 	 */
     public MyAssociatedStructuresView() {
-        final TextField textField = new TextField();
-        TextField textField2 = new TextField();
-        final ComboBox<?> comboBox = new ComboBox<>();
-        final Button buttonPrimary = new Button();
+        final var textField = new TextField();
+        var textField2 = new TextField();
+        final var comboBox = new ComboBox();
+        final var buttonPrimary = new Button();
         getContent().setWidth("100%");
         getContent().getStyle().set("flex-grow", "1");
         textField.setLabel("Name");

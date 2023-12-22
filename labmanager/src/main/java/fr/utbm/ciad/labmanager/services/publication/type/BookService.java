@@ -143,8 +143,7 @@ public class BookService extends AbstractPublicationTypeService {
 	 * @return the book or {@code null}.
 	 */
 	public Book getBook(int identifier) {
-		final Optional<Book> byId = this.repository.findById(Integer.valueOf(identifier));
-		return byId.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a book.
@@ -183,7 +182,7 @@ public class BookService extends AbstractPublicationTypeService {
 	 */
 	public Book createBook(Publication publication, String volume, String number, String pages, String edition, String editors,
 			String series, String publisher, String address, boolean saveInDb) {
-		final Book res = new Book(publication, volume, number, pages, editors, address, series, publisher, edition);
+		final var res = new Book(publication, volume, number, pages, editors, address, series, publisher, edition);
 		if (saveInDb) {
 			this.repository.save(res);
 		}
@@ -229,9 +228,9 @@ public class BookService extends AbstractPublicationTypeService {
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, String edition, String editors,
 			String series, String publisher, String address) {
-		final Optional<Book> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final Book book = res.get();
+			final var book = res.get();
 
 			updatePublicationNoSave(book, title, type, date, year,
 					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,

@@ -185,11 +185,10 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.cnuSection);
 		h = HashCodeUtils.add(h, this.conrsSection);
 		h = HashCodeUtils.add(h, this.frenchBap);
-		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.memberSinceWhen);
 		h = HashCodeUtils.add(h, this.memberStatus);
 		h = HashCodeUtils.add(h, this.permanentPosition);
@@ -210,7 +209,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final Membership other = (Membership) obj;
+		final var other = (Membership) obj;
 		if (this.cnuSection != other.cnuSection) {
 			return false;
 		}
@@ -645,7 +644,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @return {@code true} if the membership time windows contains the current date.
 	 */
 	public boolean isActive() {
-		final LocalDate now = LocalDate.now();
+		final var now = LocalDate.now();
 		return isActiveAt(now);
 	}
 
@@ -656,11 +655,11 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @return {@code true} if the membership time windows contains the given date.
 	 */
 	public boolean isActiveAt(LocalDate now) {
-		final LocalDate start = getMemberSinceWhen();
+		final var start = getMemberSinceWhen();
 		if (start != null && now.isBefore(start)) {
 			return false;
 		}
-		final LocalDate end = getMemberToWhen();
+		final var end = getMemberToWhen();
 		if (end != null && now.isAfter(end)) {
 			return false;
 		}
@@ -679,12 +678,12 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		if (windowStart == null && windowEnd == null) {
 			return true;
 		}
-		final LocalDate start = getMemberSinceWhen();
+		final var start = getMemberSinceWhen();
 		if (windowStart == null) {
 			assert windowEnd != null;
 			return start == null ||  !windowEnd.isBefore(start);
 		}
-		final LocalDate end = getMemberToWhen();
+		final var end = getMemberToWhen();
 		if (windowEnd == null) {
 			assert windowStart != null;
 			return end == null ||  !windowStart.isAfter(end);
@@ -709,13 +708,13 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @return {@code true} if the membership is finished.
 	 */
 	public boolean isFormer() {
-		final LocalDate dt = getMemberToWhen();
+		final var dt = getMemberToWhen();
 		if (dt == null) {
 			// Without a end date, the membership is active for ever.
 			// So that it cannot be for a former member.
 			return false;
 		}
-		final LocalDate now = LocalDate.now();
+		final var now = LocalDate.now();
 		return now.isAfter(dt);
 	}
 
@@ -725,13 +724,13 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @return {@code true} if the membership is not yet started.
 	 */
 	public boolean isFuture() {
-		final LocalDate dt = getMemberSinceWhen();
+		final var dt = getMemberSinceWhen();
 		if (dt == null) {
 			// Without a start date, the membership is active since ever.
 			// So that it cannot be for a future member.
 			return false;
 		}
-		final LocalDate now = LocalDate.now();
+		final var now = LocalDate.now();
 		return now.isBefore(dt);
 	}
 
@@ -806,13 +805,13 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @return the short description of the membership.
 	 */
 	public String getShortDescription(MessageSourceAccessor messages, Locale locale) {
-		final StringBuilder b = new StringBuilder();
+		final var b = new StringBuilder();
 		b.append(getMemberStatus().getLabel(messages, getPerson().getGender(), false, locale));
 		b.append(" - ").append(getResearchOrganization().getAcronymOrName()); //$NON-NLS-1$
 		b.append(" ["); //$NON-NLS-1$
 		if (getMemberSinceWhen() != null && getMemberToWhen() != null) {
-			final int y0 = getMemberSinceWhen().getYear();
-			final int y1 = getMemberToWhen().getYear();
+			final var y0 = getMemberSinceWhen().getYear();
+			final var y1 = getMemberToWhen().getYear();
 			if (y0 != y1) {
 				b.append(y0).append("\u2192").append(y1); //$NON-NLS-1$
 			} else {
@@ -864,14 +863,14 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 * @since 3.6
 	 */
 	public int daysInYear(int year) {
-		LocalDate start = getMemberSinceWhen();
+		var start = getMemberSinceWhen();
 		if (start == null || start.getYear() < year) {
 			start = LocalDate.of(year, 1, 1);
 		} else if (start.getYear() > year) {
 			return 0;
 		}
 		//
-		LocalDate end = getMemberToWhen();
+		var end = getMemberToWhen();
 		if (end == null || end.getYear() > year) {
 			end = LocalDate.of(year, 12, 31);
 		} else if (end.getYear() < year) {

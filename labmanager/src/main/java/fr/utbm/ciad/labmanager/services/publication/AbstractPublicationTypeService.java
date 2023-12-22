@@ -113,7 +113,7 @@ public abstract class AbstractPublicationTypeService extends AbstractPublication
 	 */
 	@SuppressWarnings("static-method")
 	protected boolean isValidPublicationType(PublicationType type, Publication publication) {
-		final Class<? extends Publication> expectedType = type.getInstanceType();
+		final var expectedType = type.getInstanceType();
 		return expectedType.isInstance(publication);
 	}
 

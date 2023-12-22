@@ -52,7 +52,7 @@ public interface ScopusPlatform {
 	 * @throws Exception if rankings cannot be read.
 	 */
 	default ScopusPerson getPersonRanking(String personId, Progression progress) throws Exception {
-		final URL apiUrl = new URL("https://www.scopus.com/authid/detail.uri?authorId=" + personId); //$NON-NLS-1$
+		final var apiUrl = new URL("https://www.scopus.com/authid/detail.uri?authorId=" + personId); //$NON-NLS-1$
 		return getPersonRanking(apiUrl, progress);
 	}
 

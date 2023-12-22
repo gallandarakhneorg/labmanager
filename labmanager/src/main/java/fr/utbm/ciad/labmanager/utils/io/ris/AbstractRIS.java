@@ -20,7 +20,6 @@
 package fr.utbm.ciad.labmanager.utils.io.ris;
 
 import java.util.Random;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import fr.utbm.ciad.labmanager.utils.IntegerRange;
@@ -69,17 +68,17 @@ public abstract class AbstractRIS implements RIS {
 	 */
 	protected static IntegerRange parsePages(String pages) {
 		if (!Strings.isNullOrEmpty(pages)) {
-			final Matcher matcher = PAGES_PATTERN.matcher(pages);
+			final var matcher = PAGES_PATTERN.matcher(pages);
 			if (matcher.find()) {
 				try {
-					final String p0 = matcher.group(1);
+					final var p0 = matcher.group(1);
 					if (matcher.groupCount() > 1) {
-						final String p1 = matcher.group(2);
-						final int page0 = Integer.parseUnsignedInt(p0);
-						final int page1 = Integer.parseUnsignedInt(p1);
+						final var p1 = matcher.group(2);
+						final var page0 = Integer.parseUnsignedInt(p0);
+						final var page1 = Integer.parseUnsignedInt(p1);
 						return new IntegerRange(page0, page1);
 					}
-					final int page = Integer.parseUnsignedInt(p0);
+					final var page = Integer.parseUnsignedInt(p0);
 					return new IntegerRange(page, page);
 				} catch (Throwable ex) {
 					//

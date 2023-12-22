@@ -135,7 +135,7 @@ public enum Unit {
 	 * @return the unit.
 	 */
 	public static Unit fromUnitLabel(String label) {
-		for (final Unit unit : values()) {
+		for (final var unit : values()) {
 			if (label.equalsIgnoreCase(unit.getLabel())) {
 				return unit;
 			}
@@ -152,9 +152,9 @@ public enum Unit {
 	 */
 	public static Unit fromNumericValue(Number value) {
 		if (value != null) {
-			final int digitCount = numberOfDigits(value);
-			final int groups = (digitCount - 1) / 3;
-			final Unit[] values = values();
+			final var digitCount = numberOfDigits(value);
+			final var groups = (digitCount - 1) / 3;
+			final var values = values();
 			if (groups >= values.length) {
 				return values[values.length - 1];
 			}
@@ -164,9 +164,9 @@ public enum Unit {
 	}
 
 	private static int numberOfDigits(BigInteger value) {
-		BigInteger dvalue = value.abs();
-		BigInteger accumulator = new BigInteger("10"); //$NON-NLS-1$
-		int count = 1;
+		var dvalue = value.abs();
+		var accumulator = new BigInteger("10"); //$NON-NLS-1$
+		var count = 1;
 		while (dvalue.compareTo(accumulator) >= 0) {
 			++count;
 			if (count >= 25) {
@@ -185,9 +185,9 @@ public enum Unit {
 		if (value instanceof BigDecimal castValue) {
 			return numberOfDigits(castValue.toBigInteger());
 		}
-		final long lvalue = Math.abs(value.longValue());
-		long accumulator = 10;
-		int count = 1;
+		final var lvalue = Math.abs(value.longValue());
+		var accumulator = 10l;
+		var count = 1;
 		while (lvalue >= accumulator) {
 			++count;
 			if (count >= 25) {

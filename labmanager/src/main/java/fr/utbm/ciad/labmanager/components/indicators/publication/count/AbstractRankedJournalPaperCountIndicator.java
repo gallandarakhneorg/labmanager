@@ -17,11 +17,9 @@
 package fr.utbm.ciad.labmanager.components.indicators.publication.count;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -90,9 +88,9 @@ public abstract class AbstractRankedJournalPaperCountIndicator extends AbstractA
 
 	@Override
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
-		final Set<JournalPaper> papers = this.journalPaperService.getJournalPapersByOrganizationId(organization.getId(), true, true);
+		final var papers = this.journalPaperService.getJournalPapersByOrganizationId(organization.getId(), true, true);
 		//
-		Stream<JournalPaper> stream = filterByYearWindow(papers, it -> Integer.valueOf(it.getPublicationYear()));
+		var stream = filterByYearWindow(papers, it -> Integer.valueOf(it.getPublicationYear()));
 		switch (getJournalRankingSystem()) {
 		case SCIMAGO:
 			stream = stream.filter(it -> QuartileRanking.normalize(it.getScimagoQIndex()) != QuartileRanking.NR);

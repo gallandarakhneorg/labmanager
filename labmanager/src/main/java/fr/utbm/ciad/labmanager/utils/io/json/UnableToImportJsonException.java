@@ -20,7 +20,6 @@
 package fr.utbm.ciad.labmanager.utils.io.json;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 /** Exception thrown when it is impossible to import a JSON.
  * 
@@ -46,14 +45,14 @@ public class UnableToImportJsonException extends Exception {
 	}
 
 	private static String buildMessage(String mainKey, int elementIdx, Object source) {
-		final StringBuilder msg = new StringBuilder();
+		final var msg = new StringBuilder();
 		msg.append("Unable to import JSON data in "); //$NON-NLS-1$
 		msg.append(mainKey);
 		msg.append("["); //$NON-NLS-1$
 		msg.append(elementIdx);
 		msg.append("]"); //$NON-NLS-1$
 		try {
-			final ObjectMapper mapper = JsonUtils.createMapper();
+			final var mapper = JsonUtils.createMapper();
 			String jsonResult = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(source);
 			msg.append(" = "); //$NON-NLS-1$
 			msg.append(jsonResult);

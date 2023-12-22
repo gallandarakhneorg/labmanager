@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -47,7 +46,6 @@ import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils.CachedGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
@@ -248,8 +246,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.code);
 		h = HashCodeUtils.add(h, this.title);
@@ -280,7 +277,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final TeachingActivity other = (TeachingActivity) obj;
+		final var other = (TeachingActivity) obj;
 		if (!Objects.equals(this.person, other.person)) {
 			return false;
 		}
@@ -381,14 +378,14 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 			JsonUtils.writeField(generator, attrName, attrValue);
 		});
 		//
-		final CachedGenerator persons = JsonUtils.cache(generator);
-		final Person person = getPerson();
+		final var persons = JsonUtils.cache(generator);
+		final var person = getPerson();
 		persons.writeReferenceOrObjectField("person", person, () -> { //$NON-NLS-1$
 			JsonUtils.writeObjectAndAttributes(generator, person);
 		});
 		//
-		final CachedGenerator universities = JsonUtils.cache(generator);
-		final ResearchOrganization university = getUniversity();
+		final var universities = JsonUtils.cache(generator);
+		final var university = getUniversity();
 		universities.writeReferenceOrObjectField("university", university, () -> { //$NON-NLS-1$
 			JsonUtils.writeObjectAndAttributes(generator, university);
 		});
@@ -455,7 +452,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @see #getTitle()
 	 */
 	public String getCodeOrTitle() {
-		final String code = getCode();
+		final var code = getCode();
 		if (Strings.isNullOrEmpty(code)) {
 			return getTitle();
 		}
@@ -470,7 +467,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @see #getTitle()
 	 */
 	public String getTitleOrCode() {
-		final String title = getTitle();
+		final var title = getTitle();
 		if (Strings.isNullOrEmpty(title)) {
 			return getCode();
 		}
@@ -756,7 +753,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @return the activity's website, or {@code null} if none.
 	 */
 	public final URL getActivityUrlObject() {
-		final String url = getActivityUrl();
+		final var url = getActivityUrl();
 		if (!Strings.isNullOrEmpty(url)) {
 			try {
 				return new URL(url);
@@ -800,7 +797,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @return the source's website, or {@code null} if none.
 	 */
 	public final URL getSourceUrlObject() {
-		final String url = getSourceUrl();
+		final var url = getSourceUrl();
 		if (!Strings.isNullOrEmpty(url)) {
 			try {
 				return new URL(url);
@@ -920,13 +917,13 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @see #getAnnualWorkPerType() 
 	 */
 	public float getAnnualTotalHetd() {
-		float total = 0f;
-		final boolean different = isDifferentHetdForTdTp();
-		for (final Entry<TeachingActivityType, Float> activity : getAnnualWorkPerType().entrySet()) {
-			final Float hours = activity.getValue();
-			final TeachingActivityType type = activity.getKey();
+		var total = 0f;
+		final var different = isDifferentHetdForTdTp();
+		for (final var activity : getAnnualWorkPerType().entrySet()) {
+			final var hours = activity.getValue();
+			final var type = activity.getKey();
 			if (type != null && hours != null) {
-				final float vhours = hours.floatValue();
+				final var vhours = hours.floatValue();
 				if (vhours > 0f) {
 					total += type.convertHoursToHetd(vhours, different);
 				}
@@ -941,10 +938,10 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @see #getAnnualWorkPerType() 
 	 */
 	public float getAnnualTotalHours() {
-		float total = 0f;
-		for (final Float hours : getAnnualWorkPerType().values()) {
+		var total = 0f;
+		for (final var hours : getAnnualWorkPerType().values()) {
 			if (hours != null) {
-				final float vhours = hours.floatValue();
+				final var vhours = hours.floatValue();
 				if (vhours > 0f) {
 					total += vhours;
 				}
@@ -987,16 +984,16 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @return the activity years.
 	 */
 	public String getActivityYears(String sinceLabel) {
-		final LocalDate start = getStartDate();
-		final int sy = start.getYear();
-		final LocalDate end = getEndDate();
+		final var start = getStartDate();
+		final var sy = start.getYear();
+		final var end = getEndDate();
 		if (end == null) {
 			if (Strings.isNullOrEmpty(sinceLabel)) {
 				return Integer.toString(sy) + "+"; //$NON-NLS-1$
 			}
 			return MessageFormat.format(sinceLabel, Integer.toString(sy));
 		}
-		final int ey = end.getYear();
+		final var ey = end.getYear();
 		if (sy == ey) {
 			return Integer.toString(sy);
 		}
@@ -1012,7 +1009,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @return the first available URL.
 	 */
 	public String getFirstUrl() {
-		String url = getActivityUrl();
+		var url = getActivityUrl();
 		if (!Strings.isNullOrEmpty(url)) {
 			return url;
 		}
@@ -1033,7 +1030,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 * @return the first available URL.
 	 */
 	public URI getFirstUri() {
-		final String url = getFirstUrl();
+		final var url = getFirstUrl();
 		if (!Strings.isNullOrEmpty(url)) {
 			try {
 				return new URI(url);

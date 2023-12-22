@@ -114,7 +114,7 @@ public enum FrenchBap {
 	 * @return the label of the French BAP in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -127,7 +127,7 @@ public enum FrenchBap {
 	 */
 	public static FrenchBap valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final FrenchBap section : values()) {
+			for (final var section : values()) {
 				if (name.equalsIgnoreCase(section.name()) || name.equalsIgnoreCase(section.getShortName())) {
 					return section;
 				}

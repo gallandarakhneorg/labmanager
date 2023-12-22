@@ -21,7 +21,6 @@ package fr.utbm.ciad.labmanager.utils.io.od;
 
 import java.util.Locale;
 
-import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.publication.type.Book;
 import fr.utbm.ciad.labmanager.data.publication.type.BookChapter;
 import fr.utbm.ciad.labmanager.data.publication.type.ConferencePaper;
@@ -36,7 +35,6 @@ import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.odftoolkit.odfdom.dom.element.style.StyleTextPropertiesElement;
 import org.odftoolkit.odfdom.dom.element.text.TextPElement;
-import org.odftoolkit.odfdom.dom.element.text.TextSpanElement;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -69,7 +67,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 	
 	@Override
 	protected void formatTitle(TextPElement odtText, String title, ExporterConfigurator configurator) {
-		final TextSpanElement odtSpan = this.textHelper.newTextItalic(odtText);
+		final var odtSpan = this.textHelper.newTextItalic(odtText);
 		if (configurator.isColoredTitle()) {
 			odtSpan.setProperty(StyleTextPropertiesElement.Color, OpenDocumentConstants.CIAD_GREEN.toString());
 		}
@@ -180,7 +178,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 
 	@Override
 	protected void exportDescription(TextPElement odtText, JournalPaper publication, Locale locale) {
-		final Journal journal = publication.getJournal();
+		final var journal = publication.getJournal();
 		if (journal != null && this.textHelper.append(odtText, ",", //$NON-NLS-1$
 				this.textHelper.decorateBefore(journal.getJournalName(), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "JOURNAL_PREFIX", locale)), //$NON-NLS-1$
 				publication.getSeries())) {
@@ -212,7 +210,7 @@ public class DefaultOdfToolkitOpenDocumentTextExporter extends AbstractOdfToolki
 
 	@Override
 	protected void exportDescription(TextPElement odtText, JournalEdition publication, Locale locale) {
-		final Journal journal = publication.getJournal();
+		final var journal = publication.getJournal();
 		if (journal != null && this.textHelper.append(odtText,
 				this.textHelper.decorateBefore(journal.getJournalName(), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "JOURNAL_PREFIX", locale)))) { //$NON-NLS-1$
 			odtText.newTextNode(". "); //$NON-NLS-1$

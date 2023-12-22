@@ -22,18 +22,15 @@ package fr.utbm.ciad.labmanager.services.member;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
@@ -105,7 +102,7 @@ public class MembershipService extends AbstractService {
 	public List<Membership> getOrganizationMembers(ResearchOrganization organization, MemberFiltering memberFilter,
 			Predicate<MemberStatus> statusFilter) {
 		if (organization != null) {
-			Stream<Membership> stream = organization.getMemberships().stream();
+			var stream = organization.getMemberships().stream();
 			if (memberFilter != null) {
 				switch (memberFilter) {
 				case ACTIVES:
@@ -139,7 +136,7 @@ public class MembershipService extends AbstractService {
 	 */
 	public List<Membership> getOrganizationMembers(int identifier, MemberFiltering memberFilter,
 			Predicate<MemberStatus> statusFilter) {
-		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(identifier));
+		final var optOrg = this.organizationRepository.findById(Integer.valueOf(identifier));
 		if (optOrg.isPresent()) {
 			return getOrganizationMembers(optOrg.get(), memberFilter, statusFilter);
 		}
@@ -179,9 +176,9 @@ public class MembershipService extends AbstractService {
 			Predicate<? super Membership> organizationSelector) {
 		if (members != null) {
 			// Get the memberships in other organizations for the given members
-			final Stream<Membership> stream = members.stream().filter(organizationSelector);
+			final var stream = members.stream().filter(organizationSelector);
 			// Group by member id and extract only the research organizations
-			final Map<Integer, List<ResearchOrganization>> map = stream.collect(Collectors.groupingBy(
+			final var map = stream.collect(Collectors.groupingBy(
 					it -> Integer.valueOf(it.getPerson().getId()),
 					TreeMap::new,
 					Collectors.mapping(Membership::getResearchOrganization, Collectors.toList())));
@@ -197,7 +194,7 @@ public class MembershipService extends AbstractService {
 	 * @return the membership or {@code null}.
 	 */
 	public Membership getMembership(int organizationId, int memberId) {
-		final Optional<Membership> res = this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(
+		final var res = this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(
 				organizationId, memberId);
 		if (res.isPresent()) {
 			return res.get();
@@ -254,33 +251,33 @@ public class MembershipService extends AbstractService {
 			Responsibility responsibility, CnuSection cnuSection, ConrsSection conrsSection,
 			FrenchBap frenchBap, boolean isMainPosition, List<ScientificAxis> axes, boolean forceCreation) throws Exception {
 		assert memberStatus != null;
-		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
+		final var optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
 		if (optOrg.isPresent()) {
-			final Optional<Person> optPerson = this.personRepository.findById(Integer.valueOf(personId));
+			final var optPerson = this.personRepository.findById(Integer.valueOf(personId));
 			if (optPerson.isPresent()) {
-				final Person person = optPerson.get();
+				final var person = optPerson.get();
 				if (!forceCreation) {
 					// We don't need to add the membership if the person is already involved in the organization
-					final Optional<Membership> ro = person.getMemberships().stream().filter(
+					final var ro = person.getMemberships().stream().filter(
 							it -> it.isActiveIn(startDate, endDate) && it.getResearchOrganization().getId() == organizationId).findAny();
 					if (ro.isPresent()) {
-						final Membership activeMembership = ro.get();
-						final LocalDate sd = activeMembership.getMemberSinceWhen();
+						final var activeMembership = ro.get();
+						final var sd = activeMembership.getMemberSinceWhen();
 						if (endDate == null || sd == null || !endDate.isBefore(sd)) {
 							return Pair.of(ro.get(), Boolean.FALSE);
 						}
 					}
 				}
-				final ResearchOrganization organization = optOrg.get();
+				final var organization = optOrg.get();
 				OrganizationAddress address = null;
 				if (organizationAddressId != null && organizationAddressId.intValue() != 0) {
-					final Optional<OrganizationAddress> optAdr = organization.getAddresses().stream().filter(it -> organizationAddressId.intValue() == it.getId()).findAny();
+					final var optAdr = organization.getAddresses().stream().filter(it -> organizationAddressId.intValue() == it.getId()).findAny();
 					if (optAdr.isPresent()) {
 						address = optAdr.get();
 					}
 				}
 				
-				final Membership mem = new Membership();
+				final var mem = new Membership();
 				mem.setPerson(person);
 				mem.setResearchOrganization(organization);
 				mem.setOrganizationAddress(address);
@@ -325,18 +322,18 @@ public class MembershipService extends AbstractService {
 			MemberStatus memberStatus, boolean permanentPosition, Responsibility responsibility,
 			CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap,
 			boolean isMainPosition, List<ScientificAxis> axes) throws Exception {
-		final Optional<Membership> res = this.membershipRepository.findById(Integer.valueOf(membershipId));
+		final var res = this.membershipRepository.findById(Integer.valueOf(membershipId));
 		if (res.isPresent()) {
-			final Membership membership = res.get();
+			final var membership = res.get();
 			if (organizationId != null) {
-				final Optional<ResearchOrganization> res0 = this.organizationRepository.findById(organizationId);
+				final var res0 = this.organizationRepository.findById(organizationId);
 				if (res0.isEmpty()) {
 					throw new IllegalArgumentException("Cannot find organization with id: " + organizationId); //$NON-NLS-1$
 				}
 				membership.setResearchOrganization(res0.get());
 				OrganizationAddress address = null;
 				if (organizationAddressId != null && organizationAddressId.intValue() != 0) {
-					final Optional<OrganizationAddress> optAdr = res0.get().getAddresses().stream().filter(it -> organizationAddressId.intValue() == it.getId()).findAny();
+					final var optAdr = res0.get().getAddresses().stream().filter(it -> organizationAddressId.intValue() == it.getId()).findAny();
 					if (optAdr.isPresent()) {
 						address = optAdr.get();
 					}
@@ -368,18 +365,18 @@ public class MembershipService extends AbstractService {
 	 */
 	@Transactional
 	public void removeMembership(int membershipId) throws Exception {
-		final Integer mid = Integer.valueOf(membershipId);
-		final Optional<Membership> optMbr = this.membershipRepository.findById(mid);
+		final var mid = Integer.valueOf(membershipId);
+		final var optMbr = this.membershipRepository.findById(mid);
 		if (optMbr.isEmpty()) {
 			throw new IllegalStateException("Membership not found with id: " + membershipId); //$NON-NLS-1$
 		}
-		final Membership mbr = optMbr.get();
-		final Person person = mbr.getPerson();
+		final var mbr = optMbr.get();
+		final var person = mbr.getPerson();
 		if (person != null) {
 			person.getMemberships().remove(mbr);
 			mbr.setPerson(null);
 		}
-		final ResearchOrganization organization = mbr.getResearchOrganization();
+		final var organization = mbr.getResearchOrganization();
 		if (organization != null) {
 			organization.getMemberships().remove(mbr);
 			mbr.setResearchOrganization(null);
@@ -410,17 +407,17 @@ public class MembershipService extends AbstractService {
 	 * @see #getDirectMembersOf(int)
 	 */
 	public Set<Person> getMembersOf(int organizationId) {
-		final Optional<ResearchOrganization> optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
+		final var optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
 		if (optOrg.isPresent()) {
-			final ResearchOrganization organization = optOrg.get();
+			final var organization = optOrg.get();
 
-			final Set<Person> persons = new HashSet<>();
+			final var persons = new HashSet<Person>();
 
-			final Deque<ResearchOrganization> organizationCandidates = new LinkedList<>();
+			final var organizationCandidates = new LinkedList<ResearchOrganization>();
 			organizationCandidates.add(organization);
 
 			do {
-				final ResearchOrganization currentOrganization = organizationCandidates.removeFirst();
+				final var currentOrganization = organizationCandidates.removeFirst();
 				persons.addAll(getDirectMembersOf(currentOrganization.getId()));
 				organizationCandidates.addAll(currentOrganization.getSubOrganizations());
 			} while (!organizationCandidates.isEmpty());
@@ -459,7 +456,7 @@ public class MembershipService extends AbstractService {
 	 * @since 3.5
 	 */
 	public List<Membership> getMembershipsByIds(List<Integer> identifiers) {
-		List<Membership> memberships = this.membershipRepository.findAllById(identifiers);
+		var memberships = this.membershipRepository.findAllById(identifiers);
 		if (memberships.size() != identifiers.size()) {
 			throw new IllegalArgumentException("Membership not found"); //$NON-NLS-1$
 		}
@@ -473,8 +470,8 @@ public class MembershipService extends AbstractService {
 	 * @since 3.5
 	 */
 	public List<Membership> getMembershipsOfAge(int maxAge) {
-		final LocalDate startDate = LocalDate.of(LocalDate.now().getYear() - maxAge, 1, 1);
-		final LocalDate endDate = LocalDate.now();
+		final var startDate = LocalDate.of(LocalDate.now().getYear() - maxAge, 1, 1);
+		final var endDate = LocalDate.now();
 		return this.membershipRepository.findAll().parallelStream()
 				.filter(it -> it.isActiveIn(startDate, endDate))
 				.collect(Collectors.toList());

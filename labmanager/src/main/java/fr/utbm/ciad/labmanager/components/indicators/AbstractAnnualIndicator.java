@@ -21,7 +21,6 @@ package fr.utbm.ciad.labmanager.components.indicators;
 
 import java.time.LocalDate;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 
@@ -86,7 +85,7 @@ public abstract class AbstractAnnualIndicator extends AbstractIndicator implemen
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final Map<Integer, Number> values = getValuesPerYear(organization, getReferenceStartYear(), getReferenceEndYear());
+		final var values = getValuesPerYear(organization, getReferenceStartYear(), getReferenceEndYear());
 		return mergeValues(values);
 	}
 
@@ -96,7 +95,7 @@ public abstract class AbstractAnnualIndicator extends AbstractIndicator implemen
 	 * @return the sum value.
 	 */
 	protected static Number sum(Map<Integer, Number> values) {
-		final AtomicDouble sum = new AtomicDouble();
+		final var sum = new AtomicDouble();
 		values.values().parallelStream().forEach(it -> {
 			sum.addAndGet(it.doubleValue());
 		});
@@ -109,13 +108,13 @@ public abstract class AbstractAnnualIndicator extends AbstractIndicator implemen
 	 * @return the average value.
 	 */
 	protected static Number average(Map<Integer, Number> values) {
-		final AtomicDouble sum = new AtomicDouble();
-		final AtomicInteger count = new AtomicInteger();
+		final var sum = new AtomicDouble();
+		final var count = new AtomicInteger();
 		values.values().parallelStream().forEach(it -> {
 			sum.addAndGet(it.doubleValue());
 			count.incrementAndGet();
 		});
-		final int n = count.get();
+		final var n = count.get();
 		final double s;
 		if (n > 0) {
 			s = sum.doubleValue() / n;
@@ -143,8 +142,8 @@ public abstract class AbstractAnnualIndicator extends AbstractIndicator implemen
 	 * @since 2.4
 	 */
 	protected <T> void setComputationDetails(Map<Integer, Number> collection) {
-		final StringBuilder bb = new StringBuilder();
-		for (final Entry<Integer, Number> entry : collection.entrySet()) {
+		final var bb = new StringBuilder();
+		for (final var entry : collection.entrySet()) {
 			if (bb.length() > 0) {
 				bb.append("\n"); //$NON-NLS-1$
 			}

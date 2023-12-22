@@ -61,7 +61,7 @@ public interface PublicationComparator extends Comparator<Publication> {
 	 * @return {@code true} if the two given publications are similar.
 	 */
 	default boolean isSimilar(Publication publication1, Publication publication2) {
-		final double similarity = getSimilarity(publication1, publication2);
+		final var similarity = getSimilarity(publication1, publication2);
 		return similarity > getSimilarityLevel();
 	}
 

@@ -77,7 +77,7 @@ public enum PersonInvitationType {
 	 * @return the label of the type.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -90,7 +90,7 @@ public enum PersonInvitationType {
 	 */
 	public static PersonInvitationType valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final PersonInvitationType status : values()) {
+			for (final var status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
 					return status;
 				}

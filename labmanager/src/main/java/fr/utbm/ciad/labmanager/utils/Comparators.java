@@ -47,7 +47,7 @@ public final class Comparators {
 	 * @return 0 if {@code b0} = {@code b1}, negative if {@code b0} is {@code null} or {@code b0} &lt; {@code b1}, positive elsewhere.
 	 */
 	public static int compareDateRange(LocalDate s0, LocalDate e0, LocalDate s1, LocalDate e1) {
-		int cmp = compareEndDate(e0, e1);
+		var cmp = compareEndDate(e0, e1);
 		if (cmp != 0) {
 			return cmp;
 		}

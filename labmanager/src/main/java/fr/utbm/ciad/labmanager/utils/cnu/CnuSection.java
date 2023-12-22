@@ -1457,7 +1457,7 @@ public enum CnuSection {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -1470,7 +1470,7 @@ public enum CnuSection {
 	 */
 	public static CnuSection valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final CnuSection section : values()) {
+			for (final var section : values()) {
 				if (name.equalsIgnoreCase(section.name())) {
 					return section;
 				}
@@ -1487,7 +1487,7 @@ public enum CnuSection {
 	 */
 	public static CnuSection valueOf(Number number) {
 		if (number != null) {
-			final int n = number.intValue();
+			final var n = number.intValue();
 			return valueOf(n);
 		}
 		throw new IllegalArgumentException("Invalid CNU section: " + number); //$NON-NLS-1$
@@ -1500,7 +1500,7 @@ public enum CnuSection {
 	 * @throws IllegalArgumentException if the given number does not corresponds to a CNU section.
 	 */
 	public static CnuSection valueOf(int number) {
-		for (final CnuSection section : values()) {
+		for (final var section : values()) {
 			if (number == section.getNumber()) {
 				return section;
 			}

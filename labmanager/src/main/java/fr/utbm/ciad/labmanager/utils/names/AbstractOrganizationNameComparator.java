@@ -59,9 +59,9 @@ public abstract class AbstractOrganizationNameComparator implements Organization
 
 	@Override
 	public double getSimilarity(String acronym1, String name1, String acronym2, String name2) {
-		final NormalizedStringSimilarity similarityComputer = createStringSimilarityComputer();
-		final double s1 = similarityComputer.similarity(acronym1, acronym2);
-		final double s2 = similarityComputer.similarity(name1, name2);
+		final var similarityComputer = createStringSimilarityComputer();
+		final var s1 = similarityComputer.similarity(acronym1, acronym2);
+		final var s2 = similarityComputer.similarity(name1, name2);
 		return Math.max(s1, s2);
 	}
 

@@ -24,15 +24,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.microsoft.playwright.ElementHandle;
 import com.opencsv.CSVParserBuilder;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
@@ -75,18 +72,18 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 	private final Map<Integer, Map<String, WebOfScienceJournal>> rankingCache = new ConcurrentHashMap<>();
 
 	private static WebOfScienceJournal analyzeCsvRecord(Integer categoryColumn, Integer impactFactorColumn, String[] row) {
-		final Map<String, QuartileRanking> quartiles = new TreeMap<>();
+		final var quartiles = new TreeMap<String, QuartileRanking>();
 		if (categoryColumn != null) {
-			final String rawCategories = row[categoryColumn.intValue()];
+			final var rawCategories = row[categoryColumn.intValue()];
 			if (!Strings.isNullOrEmpty(rawCategories)) {
-				final String[] categories = rawCategories.split("\\s*[;]\\s*"); //$NON-NLS-1$
-				final Pattern pattern = Pattern.compile("\\s*(.+?)(?:\\s*\\-.*)?\\s*\\(([^\\)]+)\\)\\s*"); //$NON-NLS-1$
-				for (final String rawCategory : categories) {
-					final Matcher matcher = pattern.matcher(rawCategory);
+				final var categories = rawCategories.split("\\s*[;]\\s*"); //$NON-NLS-1$
+				final var pattern = Pattern.compile("\\s*(.+?)(?:\\s*\\-.*)?\\s*\\(([^\\)]+)\\)\\s*"); //$NON-NLS-1$
+				for (final var rawCategory : categories) {
+					final var matcher = pattern.matcher(rawCategory);
 					if (matcher.matches()) {
 						try {
-							final QuartileRanking quartile = QuartileRanking.valueOfCaseInsensitive(matcher.group(2));
-							final String name = matcher.group(1);
+							final var quartile = QuartileRanking.valueOfCaseInsensitive(matcher.group(2));
+							final var name = matcher.group(1);
 							if (!Strings.isNullOrEmpty(name)) {
 								quartiles.put(name.toLowerCase(), quartile);
 							}
@@ -97,9 +94,9 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 				}
 			}
 		}
-		float impactFactor = 0f;
+		var impactFactor = 0f;
 		if (impactFactorColumn != null) {
-			final String rawIf = row[impactFactorColumn.intValue()];
+			final var rawIf = row[impactFactorColumn.intValue()];
 			if (!Strings.isNullOrEmpty(rawIf)) {
 				try {
 					impactFactor = Float.parseFloat(rawIf);
@@ -117,17 +114,17 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 	@SuppressWarnings("resource")
 	private static void analyzeCsvRecords(InputStream csv, Progression progress, Consumer4 consumer) {
 		progress.setProperties(0, 0, 100, false);
-		try (final BufferedReader reader = new BufferedReader(new InputStreamReader(csv))) {
-			final CSVParserBuilder parserBuilder = new CSVParserBuilder();
+		try (final var reader = new BufferedReader(new InputStreamReader(csv))) {
+			final var parserBuilder = new CSVParserBuilder();
 			parserBuilder.withSeparator(';');
 			parserBuilder.withIgnoreLeadingWhiteSpace(true);
 			parserBuilder.withQuoteChar('"');
 			parserBuilder.withStrictQuotes(false);
-			final CSVReaderBuilder csvBuilder = new CSVReaderBuilder(reader);
+			final var csvBuilder = new CSVReaderBuilder(reader);
 			csvBuilder.withCSVParser(parserBuilder.build());
-			final CSVReader csvReader = csvBuilder.build();
+			final var csvReader = csvBuilder.build();
 			// Search for the column headers
-			String[] row = csvReader.readNext();
+			var row = csvReader.readNext();
 			if (row == null) {
 				throw new IOException("Unable to find the column \"" + ISSN_COLUMN + "\" in the WoS CSV data source"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -135,10 +132,10 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 			Integer issnColumn = null;
 			Integer eissnColumn = null;
 			Integer ifColumn = null;
-			final String prefix = IMPACT_FACTOR_COLUMN_PREFIX + " "; //$NON-NLS-1$
-			int i = 0;
+			final var prefix = IMPACT_FACTOR_COLUMN_PREFIX + " "; //$NON-NLS-1$
+			var i = 0;
 			while (i < row.length && ((issnColumn == null && eissnColumn == null) || categoryColumn == null || ifColumn == null)) {
-				final String name = row[i];
+				final var name = row[i];
 				if (issnColumn == null && ISSN_COLUMN.equalsIgnoreCase(name)) {
 					issnColumn = Integer.valueOf(i);
 				}
@@ -172,22 +169,22 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 	}
 	
 	private Map<String, WebOfScienceJournal> readJournalRanking(InputStream csv, Progression rootProgress) {
-		final Map<String, WebOfScienceJournal> ranking = new TreeMap<>();
+		final var ranking = new TreeMap<String, WebOfScienceJournal>();
 		analyzeCsvRecords(csv, rootProgress, (stream, issnColumn, eissnColumn, categoryColumn, ifColumn, progress) -> {
-			String[] row = stream.readNext();
-			final Progression rowProgress = progress.subTask(99, 0, row == null ? 0 : row.length);
+			var row = stream.readNext();
+			final var rowProgress = progress.subTask(99, 0, row == null ? 0 : row.length);
 			while (row != null) {
-				final WebOfScienceJournal journalRanking = analyzeCsvRecord(categoryColumn, ifColumn, row);
+				final var journalRanking = analyzeCsvRecord(categoryColumn, ifColumn, row);
 				if (journalRanking != null) {
 					// Put the ranking object two times in the map: one for the issn and one for the eissn 
 					if (issnColumn != null) {
-						final String journalId = normalizeIssn(row[issnColumn.intValue()]);
+						final var journalId = normalizeIssn(row[issnColumn.intValue()]);
 						if (!Strings.isNullOrEmpty(journalId)) {
 							ranking.put(journalId, journalRanking);
 						}
 					}
 					if (eissnColumn != null) {
-						final String journalId = normalizeIssn(row[eissnColumn.intValue()]);
+						final var journalId = normalizeIssn(row[eissnColumn.intValue()]);
 						if (!Strings.isNullOrEmpty(journalId)) {
 							ranking.put(journalId, journalRanking);
 						}
@@ -209,9 +206,9 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 
 	@Override
 	public WebOfSciencePerson getPersonRanking(URL wosProfile, Progression progress) throws Exception {
-		final Progression prog = ensureProgress(progress);
+		final var prog = ensureProgress(progress);
 		if (wosProfile != null) {
-			final AtomicReference<WebOfSciencePerson> output = new AtomicReference<>();
+			final var output = new AtomicReference<WebOfSciencePerson>();
 			loadHtmlPage(
 					DEFAULT_DEVELOPER,
 					wosProfile,
@@ -219,20 +216,20 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 					"[class=wat-author-metric]", //$NON-NLS-1$
 					5000,
 					(page, element0) -> {
-						final List<ElementHandle> elements = page.querySelectorAll("[class=wat-author-metric]"); //$NON-NLS-1$
-						int ihindex = -1;
-						int icitations = -1;
+						final var elements = page.querySelectorAll("[class=wat-author-metric]"); //$NON-NLS-1$
+						var ihindex = -1;
+						var icitations = -1;
 						if (elements.size() >= 0) {
-							final Integer hindex = readInt(elements.get(0));
+							final var hindex = readInt(elements.get(0));
 							ihindex = positiveInt(hindex);
 						}
 						if (elements.size() >= 2) {
-							final Integer citations = readInt(elements.get(2));
+							final var citations = readInt(elements.get(2));
 							icitations = positiveInt(citations);
 						}
 						output.set(new WebOfSciencePerson(ihindex, icitations));
 					});
-			final WebOfSciencePerson person = output.get();
+			final var person = output.get();
 			if (person != null) {
 				return person;
 			}

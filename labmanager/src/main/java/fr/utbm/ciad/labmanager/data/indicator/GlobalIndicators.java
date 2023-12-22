@@ -35,7 +35,6 @@ import java.util.Objects;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonSerializable;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
 import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import com.google.common.base.Strings;
@@ -111,8 +110,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.visibleIndicatorKeys);
 		return h;
 	}
@@ -125,10 +123,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final GlobalIndicators other = (GlobalIndicators) obj;
-		if (this.id != other.id) {
-			return false;
-		}
+		final var other = (GlobalIndicators) obj;
 		if (!Objects.equals(this.visibleIndicatorKeys, other.visibleIndicatorKeys)) {
 			return false;
 		}
@@ -201,7 +196,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	public List<String> getVisibleIndicatorKeyList() {
 		if (this.visibleIndicatorList == null) {
 			this.visibleIndicatorList= new ArrayList<>();
-			final String str = getVisibleIndicatorKeys();
+			final var str = getVisibleIndicatorKeys();
 			if (!Strings.isNullOrEmpty(str)) {
 				this.visibleIndicatorList.addAll(Arrays.asList(str.split("\\s*[,;:/]+\\s*"))); //$NON-NLS-1$
 			}
@@ -259,7 +254,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	@SuppressWarnings("unchecked")
 	private void ensureCacheBuffer() {
 		if (this.cacheBuffer == null) {
-			final ObjectMapper mapper = JsonUtils.createMapper();
+			final var mapper = JsonUtils.createMapper();
 			if (!Strings.isNullOrEmpty(this.cache)) {
 				try {
 					this.cacheBuffer = mapper.readValue(this.cache, Map.class);
@@ -277,7 +272,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 		if (this.cacheBuffer == null) {
 			this.cache = null;
 		} else {
-			final ObjectMapper mapper = JsonUtils.createMapper();
+			final var mapper = JsonUtils.createMapper();
 			try {
 				this.cache = mapper.writeValueAsString(this.cacheBuffer);
 			} catch (JsonProcessingException ex) {

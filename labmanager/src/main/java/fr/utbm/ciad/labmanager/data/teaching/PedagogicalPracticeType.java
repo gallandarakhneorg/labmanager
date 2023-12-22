@@ -139,7 +139,7 @@ public enum PedagogicalPracticeType {
 	 * @return the label of the practice type in the given  language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -150,7 +150,7 @@ public enum PedagogicalPracticeType {
 	 * @return the description of the practice type in the given  language.
 	 */
 	public String getDescription(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX_DESCRIPTION + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX_DESCRIPTION + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -163,7 +163,7 @@ public enum PedagogicalPracticeType {
 	 */
 	public static PedagogicalPracticeType valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final PedagogicalPracticeType ranking : values()) {
+			for (final var ranking : values()) {
 				if (name.equalsIgnoreCase(ranking.name())) {
 					return ranking;
 				}

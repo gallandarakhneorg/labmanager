@@ -118,7 +118,7 @@ public class OrphanPersonService extends AbstractOrphanService<Person> {
 
 	@Override
 	public String getOrphanCriteria(Person person, Locale locale) {
-		final int id = person.getId();
+		final var id = person.getId();
 		if (this.publicationService.isAuthor(id)) {
 			return null;
 		}

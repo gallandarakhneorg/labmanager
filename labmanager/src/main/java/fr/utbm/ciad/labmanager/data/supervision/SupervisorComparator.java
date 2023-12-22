@@ -59,7 +59,7 @@ public class SupervisorComparator implements Comparator<Supervisor> {
 		if (s2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = compareSupervisorTypes(s1.getType(), s2.getType());
+		var cmp = compareSupervisorTypes(s1.getType(), s2.getType());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -68,11 +68,7 @@ public class SupervisorComparator implements Comparator<Supervisor> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = this.personComparator.compare(s1.getSupervisor(), s2.getSupervisor());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(s1.getId(), s2.getId());
+		return this.personComparator.compare(s1.getSupervisor(), s2.getSupervisor());
 	}
 
 	private static int compareSupervisorTypes(SupervisorType t1, SupervisorType t2) {

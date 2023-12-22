@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.views.components.messages;
 
 import java.util.Arrays;
 import java.util.Locale;
-import java.util.Optional;
 
 import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
@@ -38,9 +37,7 @@ import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.internal.LocaleUtil;
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.StreamResource;
-import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
-import com.vaadin.flow.server.VaadinSession;
 import fr.utbm.ciad.labmanager.views.components.ComponentFactory;
 import jakarta.servlet.http.Cookie;
 
@@ -185,8 +182,8 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 	 * @return the language select.
 	 */
 	public static LanguageSelect newStandardLanguageSelect() {
-		final Locale[] locales = getAvailableLocales();
-		final LanguageSelect select = new LanguageSelect(true, locales);
+		final var locales = getAvailableLocales();
+		final var select = new LanguageSelect(true, locales);
 		return select;
 	}
 
@@ -196,8 +193,8 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 	 * @return the language select.
 	 */
 	public static LanguageSelect newFlagOnlyLanguageSelect() {
-		final Locale[] locales = getAvailableLocales();
-		final LanguageSelect select = new LanguageSelect(true, locales);
+		final var locales = getAvailableLocales();
+		final var select = new LanguageSelect(true, locales);
 		select.setRenderer(new LanguageSelectFlagItemRenderer(select));
 		select.setMaxWidth(52, Unit.POINTS);
 		return select;
@@ -209,9 +206,9 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 	 * @throws IllegalStateException if there is no i18n provider defined.
 	 */
 	public static Locale[] getAvailableLocales() {
-		final Optional<I18NProvider> i18NProvider = LocaleUtil.getI18NProvider();
+		final var i18NProvider = LocaleUtil.getI18NProvider();
 		if (i18NProvider.isPresent()) {
-			final Locale[] locales = i18NProvider.get().getProvidedLocales().toArray(size -> new Locale[size]);
+			final var locales = i18NProvider.get().getProvidedLocales().toArray(size -> new Locale[size]);
 			if (locales.length > 0) {
 				return locales;
 			}
@@ -243,7 +240,7 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 	 */
 	@SuppressWarnings("static-method")
 	protected void changeLanguageCookie(Locale locale) {
-		final Cookie languageCookie = new Cookie(LANGUAGE_COOKIE_NAME, locale.getLanguage());
+		final var languageCookie = new Cookie(LANGUAGE_COOKIE_NAME, locale.getLanguage());
 		languageCookie.setMaxAge(LANGUAGE_COOKIE_DURATION);
 		languageCookie.setPath("/"); //$NON-NLS-1$
 		VaadinService.getCurrentResponse().addCookie(languageCookie);
@@ -321,12 +318,12 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 	 */
 	public static void readLanguageCookies(ServiceInitEvent serviceInitEvent){
 		serviceInitEvent.getSource().addSessionInitListener(sessionEvent -> {
-			final VaadinRequest request = sessionEvent.getRequest();
-			final VaadinSession session = sessionEvent.getSession();
+			final var request = sessionEvent.getRequest();
+			final var session = sessionEvent.getSession();
 
-			final Cookie[] cookies = request.getCookies();
+			final var cookies = request.getCookies();
 			if (cookies != null) {
-				final Optional<Cookie> localeCookie = Arrays.stream(cookies).filter(c -> c.getName().equals(LANGUAGE_COOKIE_NAME)).findFirst();
+				final var localeCookie = Arrays.stream(cookies).filter(c -> c.getName().equals(LANGUAGE_COOKIE_NAME)).findFirst();
 				localeCookie.ifPresent(cookie -> session.setLocale(new Locale(cookie.getValue())));
 			}
 		});

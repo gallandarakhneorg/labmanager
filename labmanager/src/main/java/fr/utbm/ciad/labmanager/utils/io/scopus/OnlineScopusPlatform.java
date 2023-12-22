@@ -42,9 +42,9 @@ public class OnlineScopusPlatform extends AbstractWebScraper implements ScopusPl
 
 	@Override
 	public ScopusPerson getPersonRanking(URL scProfile, Progression progress) throws Exception {
-		final Progression prog = ensureProgress(progress);
+		final var prog = ensureProgress(progress);
 		if (scProfile != null) {
-			final AtomicReference<ScopusPerson> output = new AtomicReference<>();
+			final var output = new AtomicReference<ScopusPerson>();
 			loadHtmlPage(
 					DEFAULT_DEVELOPER,
 					scProfile,
@@ -52,13 +52,13 @@ public class OnlineScopusPlatform extends AbstractWebScraper implements ScopusPl
 					"[data-testid=metrics-section-citations-count]", //$NON-NLS-1$
 					0,
 					(page, element0) -> {
-						final Integer citations = readInt(element0, "[data-testid=unclickable-count]"); //$NON-NLS-1$
-						final int icitations = positiveInt(citations); 
-						final Integer hindex = readInt(page, "[data-testid=metrics-section-h-index]", "[data-testid=unclickable-count]"); //$NON-NLS-1$ //$NON-NLS-2$
-						final int ihindex = positiveInt(hindex);
+						final var citations = readInt(element0, "[data-testid=unclickable-count]"); //$NON-NLS-1$
+						final var icitations = positiveInt(citations); 
+						final var hindex = readInt(page, "[data-testid=metrics-section-h-index]", "[data-testid=unclickable-count]"); //$NON-NLS-1$ //$NON-NLS-2$
+						final var ihindex = positiveInt(hindex);
 						output.set(new ScopusPerson(ihindex, icitations));
 					});
-			final ScopusPerson person = output.get();
+			final var person = output.get();
 			if (person != null) {
 				return person;
 			}

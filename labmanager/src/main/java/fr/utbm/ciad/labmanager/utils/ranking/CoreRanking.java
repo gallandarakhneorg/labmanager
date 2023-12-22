@@ -78,7 +78,7 @@ public enum CoreRanking {
 	 */
     public static CoreRanking valueOfCaseInsensitive(String stringCoreRanking) {
     	if (!Strings.isNullOrEmpty(stringCoreRanking)) {
-	    	for (final CoreRanking candidate : values()) {
+	    	for (final var candidate : values()) {
 	    		if (candidate.name().equalsIgnoreCase(stringCoreRanking)
 	    				|| candidate.toString().equalsIgnoreCase(stringCoreRanking)) {
 	    			return candidate;

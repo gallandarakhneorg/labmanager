@@ -28,7 +28,6 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 /** Utilities for YouTube.
@@ -67,9 +66,9 @@ public class DefaultYouTubeTools implements YouTubeTools {
 	private final UriBuilderFactory uriBuilderFactory = new DefaultUriBuilderFactory();
 
 	private static String getVideoId(URL url) {
-		final String host = url.getHost();
+		final var host = url.getHost();
 		if (HOSTS.contains(host)) {
-			String path = url.getPath();
+			var path = url.getPath();
 			path = path.replaceFirst("^/+", "").replaceAll("/+$", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 			if (!Strings.isNullOrEmpty(path)) {
 				return path;
@@ -80,9 +79,9 @@ public class DefaultYouTubeTools implements YouTubeTools {
 	
 	@Override
 	public URL embeddedVideoLink(URL videoLink) {
-		final String id = getVideoId(videoLink);
+		final var id = getVideoId(videoLink);
 		if (!Strings.isNullOrEmpty(id)) {
-			final UriBuilder builder = this.uriBuilderFactory.builder();
+			final var builder = this.uriBuilderFactory.builder();
 			builder.scheme(PROTOCOL).host(EMBEDDED_HOST);
 			builder.pathSegment(PATH_PREFIX, id);
 			builder.queryParam(PARAM_NAME, PARAM_VALUE);

@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.publication.type;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -143,8 +142,7 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	 * @return the book chapter, or {@code null}.
 	 */
 	public BookChapter getBookChapter(int identifier) {
-		final Optional<BookChapter> res = this.repository.findById(Integer.valueOf(identifier));
-		return res.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a book chapter.
@@ -190,7 +188,7 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	public BookChapter createBookChapter(Publication publication, String bookTitle, String chapterNumber, String edition,
 			String volume, String number, String pages, String editors, String series,
 			String publisher, String address, boolean saveInDb) {
-		final BookChapter res = new BookChapter(publication, volume, number, pages, editors,
+		final var res = new BookChapter(publication, volume, number, pages, editors,
 				address, series, publisher, edition, bookTitle, chapterNumber);
 		if (saveInDb) {
 			this.repository.save(res);
@@ -239,9 +237,9 @@ public class BookChapterService extends AbstractPublicationTypeService {
 			String bookTitle, String chapterNumber, String edition,
 			String volume, String number, String pages, String editors, String series,
 			String publisher, String address) {
-		final Optional<BookChapter> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final BookChapter chapter = res.get();
+			final var chapter = res.get();
 
 			updatePublicationNoSave(chapter, title, type, date, year,
 					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,

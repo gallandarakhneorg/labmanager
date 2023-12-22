@@ -91,8 +91,7 @@ public class User implements Serializable, AttributeProvider, Comparable<User>, 
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.role);
 		h = HashCodeUtils.add(h, this.login);
 		h = HashCodeUtils.add(h, this.person);
@@ -107,7 +106,7 @@ public class User implements Serializable, AttributeProvider, Comparable<User>, 
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final User other = (User) obj;
+		final var other = (User) obj;
 		if (!Objects.equals(this.role, other.role)) {
 			return false;
 		}

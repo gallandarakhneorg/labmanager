@@ -70,7 +70,7 @@ public final class ComponentFactory {
 	 */
 	public static FormLayout newColumnForm(int columns) {
 		assert columns >= 1 && columns <= 2;
-		final FormLayout content = new FormLayout();
+		final var content = new FormLayout();
 		switch (columns) {
 		case 1:
 			// No specific configuration for a single column
@@ -107,14 +107,14 @@ public final class ComponentFactory {
 	 */
 	public static TextField newClickableIconTextField(String href, String iconPath, int iconSize) {
 		assert !Strings.isNullOrEmpty(href);
-		final TextField content = new TextField();
-		final StreamResource imageResource = newStreamImage(iconPath);
-		final Image image = new Image(imageResource, href);
+		final var content = new TextField();
+		final var imageResource = newStreamImage(iconPath);
+		final var image = new Image(imageResource, href);
 		image.setMinHeight(iconSize, Unit.POINTS);
 		image.setMaxHeight(iconSize, Unit.POINTS);
 		image.setMinWidth(iconSize, Unit.POINTS);
 		image.setMaxWidth(iconSize, Unit.POINTS);
-		final Anchor anchor = new Anchor(href, image);
+		final var anchor = new Anchor(href, image);
 		anchor.setTitle(href);
 		anchor.setTarget(AnchorTarget.BLANK);
 		anchor.setTabIndex(-1);
@@ -283,7 +283,7 @@ public final class ComponentFactory {
 			iconInstance.getStyle().setHeight("var(--lumo-icon-size-s)"); //$NON-NLS-1$
 			iconInstance.getStyle().set("marginRight", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
-		MenuItem item = receiver.addItem(iconInstance, clickListener);
+		var item = receiver.addItem(iconInstance, clickListener);
 		if (!Strings.isNullOrEmpty(ariaLabel)) {
 			item.setAriaLabel(ariaLabel);
 		}
@@ -304,17 +304,17 @@ public final class ComponentFactory {
 	 * @see #addIconItem(HasMenuItems, IconFactory, String, String, boolean, ComponentEventListener)
 	 */
 	public static MenuItem setIconItemText(MenuItem item, String text) {
-		final Optional<Text> eltOpt = item.getElement().getChildren()
+		final var eltOpt = item.getElement().getChildren()
 				.filter(it -> it.getComponent().isPresent() && it.getComponent().get() instanceof Text)
 				.map(it -> (Text) it.getComponent().get())
 				.findAny();
 		if (Strings.isNullOrEmpty(text)) {
 			if (eltOpt.isPresent()) {
-				final Text elt = eltOpt.get();
+				final var elt = eltOpt.get();
 				elt.removeFromParent();
 			}
 		} else if (eltOpt.isPresent()) {
-			final Text elt = eltOpt.get();
+			final var elt = eltOpt.get();
 			elt.setText(text);
 		} else {
 			item.add(new Text(text));
@@ -373,7 +373,7 @@ public final class ComponentFactory {
 	 */
 	public static ConfirmDialog createCriticalQuestionDialog(String title, String message, String confirmText,
 			ComponentEventListener<ConfirmEvent> confirmHandler) {
-		final ConfirmDialog dialog = new ConfirmDialog();
+		final var dialog = new ConfirmDialog();
 		dialog.setConfirmButtonTheme("error primary"); //$NON-NLS-1$
 		dialog.setHeader(title);
 		dialog.setText(message);
@@ -394,7 +394,7 @@ public final class ComponentFactory {
 	 */
 	public static <T> void addGridCellHoverMenuBar(Grid<T> grid, BiConsumer<T, MenuBar> generator) {
 		grid.addComponentColumn(it -> {
-			final MenuBar menuBar = new MenuBar();
+			final var menuBar = new MenuBar();
 			menuBar.addClassName("hoverGridHlHide"); //$NON-NLS-1$
 			menuBar.addThemeVariants(MenuBarVariant.LUMO_ICON, MenuBarVariant.LUMO_SMALL, MenuBarVariant.LUMO_TERTIARY_INLINE);
 			generator.accept(it, menuBar);

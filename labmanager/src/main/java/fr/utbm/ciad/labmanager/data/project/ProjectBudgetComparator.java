@@ -54,15 +54,11 @@ public class ProjectBudgetComparator implements Comparator<ProjectBudget> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = compareFundingScheme(o1.getFundingScheme(), o2.getFundingScheme());
+		var cmp = compareFundingScheme(o1.getFundingScheme(), o2.getFundingScheme());
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = Float.compare(o1.getBudget(), o2.getBudget());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return Float.compare(o1.getBudget(), o2.getBudget());
 	}
 
 

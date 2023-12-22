@@ -64,7 +64,7 @@ public class ChronoMembershipComparator implements Comparator<Membership> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = Integer.compare(period(o1), period(o2));
+		var n = Integer.compare(period(o1), period(o2));
 		if (n != 0) {
 			return n;
 		}
@@ -97,11 +97,7 @@ public class ChronoMembershipComparator implements Comparator<Membership> {
 		if (n != 0) {
 			return n;
 		}
-		n = Comparators.compare(o1.getFrenchBap(), o2.getFrenchBap());
-		if (n != 0) {
-			return n;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return Comparators.compare(o1.getFrenchBap(), o2.getFrenchBap());
 	}
 
 	private static int period(Membership d) {

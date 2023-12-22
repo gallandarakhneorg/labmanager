@@ -83,7 +83,7 @@ public class AssociatedStructureService extends AbstractService {
 	 * @return the associated structure, or {@code null} if there is no associated structure with the given id.
 	 */
 	public AssociatedStructure getAssociatedStructureById(int id) {
-		final Optional<AssociatedStructure> structureOpt = this.structureRepository.findById(Integer.valueOf(id));
+		final var structureOpt = this.structureRepository.findById(Integer.valueOf(id));
 		if (structureOpt.isPresent()) {
 			return structureOpt.get();
 		}
@@ -95,10 +95,10 @@ public class AssociatedStructureService extends AbstractService {
 	 * @param identifier the identifier of the structure to remove.
 	 */
 	public void removeAssociatedStructure(int identifier) {
-		final Integer id = Integer.valueOf(identifier);
-		final Optional<AssociatedStructure> structureOpt = this.structureRepository.findById(Integer.valueOf(identifier));
+		final var id = Integer.valueOf(identifier);
+		final var structureOpt = this.structureRepository.findById(Integer.valueOf(identifier));
 		if (structureOpt.isPresent()) {
-			final AssociatedStructure structure = structureOpt.get();
+			final var structure = structureOpt.get();
 			//
 			structure.setFundingOrganization(null);
 			structure.setHolders(null);
@@ -127,7 +127,7 @@ public class AssociatedStructureService extends AbstractService {
 			AssociatedStructureType type, LocalDate creationDate, int creationDuration, int fundingOrganization,
 			Map<Integer, HolderDescription> holders, String description, float budget,
 			List<? extends Project> projects, boolean confidential) {
-		final AssociatedStructure structure = new AssociatedStructure();
+		final var structure = new AssociatedStructure();
 		try {
 			updateAssociatedStructure(structure, validated, acronym, name, type, creationDate, creationDuration,
 					fundingOrganization, holders, description, budget, projects, confidential);
@@ -213,7 +213,7 @@ public class AssociatedStructureService extends AbstractService {
 		this.structureRepository.save(structure);
 
 		// Link the organization
-		final Optional<ResearchOrganization> fundingOrg = this.organizationRepository.findById(Integer.valueOf(fundingOrganization));
+		final var fundingOrg = this.organizationRepository.findById(Integer.valueOf(fundingOrganization));
 		if (fundingOrg.isEmpty()) {
 			throw new IllegalArgumentException("Funding organization not found with id " + fundingOrganization); //$NON-NLS-1$
 		}
@@ -221,11 +221,11 @@ public class AssociatedStructureService extends AbstractService {
 		this.structureRepository.save(structure);
 
 		// Link the holders
-		final List<AssociatedStructureHolder> structureHolders = new ArrayList<>();
+		final var structureHolders = new ArrayList<AssociatedStructureHolder>();
 		if (holders != null && !holders.isEmpty() && holders.size() != structureHolders.size()) {
 			holders.entrySet().stream().forEach(it -> {
-				final HolderDescription desc = it.getValue();
-				final AssociatedStructureHolder holderObject = new AssociatedStructureHolder();
+				final var desc = it.getValue();
+				final var holderObject = new AssociatedStructureHolder();
 				holderObject.setPerson(desc.person);
 				holderObject.setRole(desc.role);
 				holderObject.setRoleDescription(desc.roleDescription);
@@ -353,7 +353,7 @@ public class AssociatedStructureService extends AbstractService {
 	 * @return the list of associated structures.
 	 */
 	public List<AssociatedStructure> getAssociatedStructuresByOrganizationId(int id) {
-		final Integer idObj = Integer.valueOf(id);
+		final var idObj = Integer.valueOf(id);
 		return this.structureRepository.findDistinctOrganizationAssociatedStructures(Boolean.FALSE, idObj);
 	}
 
@@ -363,7 +363,7 @@ public class AssociatedStructureService extends AbstractService {
 	 * @return the list of associated structures.
 	 */
 	public List<AssociatedStructure> getAssociatedStructuresByPersonId(int id) {
-		final Integer idObj = Integer.valueOf(id);
+		final var idObj = Integer.valueOf(id);
 		return this.structureRepository.findDistinctPersonAssociatedStructures(Boolean.FALSE, idObj);
 	}
 

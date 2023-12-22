@@ -41,7 +41,6 @@ import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils.CachedGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -136,8 +135,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.startDate);
@@ -154,10 +152,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final ScientificAxis other = (ScientificAxis) obj;
-		if (this.id != other.id) {
-			return false;
-		}
+		final var other = (ScientificAxis) obj;
 		if (!Objects.equals(this.acronym, other.acronym)) {
 			return false;
 		}
@@ -209,12 +204,12 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 			JsonUtils.writeField(generator, attrName, attrValue);
 		});
 		//
-		final CachedGenerator projects = JsonUtils.cache(generator);
-		final CachedGenerator publications = JsonUtils.cache(generator);
-		final CachedGenerator memberships = JsonUtils.cache(generator);
+		final var projects = JsonUtils.cache(generator);
+		final var publications = JsonUtils.cache(generator);
+		final var memberships = JsonUtils.cache(generator);
 		//
 		generator.writeArrayFieldStart("projects"); //$NON-NLS-1$
-		for (final Project project : getProjects()) {
+		for (final var project : getProjects()) {
 			projects.writeReferenceOrObject(project, () -> {
 				JsonUtils.writeObjectAndAttributes(generator, project);
 			});
@@ -222,7 +217,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		generator.writeEndArray();
 		//
 		generator.writeArrayFieldStart("publications"); //$NON-NLS-1$
-		for (final Publication publication : getPublications()) {
+		for (final var publication : getPublications()) {
 			publications.writeReferenceOrObject(publication, () -> {
 				JsonUtils.writeObjectAndAttributes(generator, publication);
 			});
@@ -230,7 +225,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 		generator.writeEndArray();
 		//
 		generator.writeArrayFieldStart("memberships"); //$NON-NLS-1$
-		for (final Membership membership : getMemberships()) {
+		for (final var membership : getMemberships()) {
 			memberships.writeReferenceOrObject(membership, () -> {
 				JsonUtils.writeObjectAndAttributes(generator, membership);
 			});
@@ -375,7 +370,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	 * @return {@code true} if the axis time window contains the current date.
 	 */
 	public boolean isActive() {
-		final LocalDate now = LocalDate.now();
+		final var now = LocalDate.now();
 		return isActiveAt(now);
 	}
 
@@ -386,11 +381,11 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	 * @return {@code true} if the axis time window contains the given date.
 	 */
 	public boolean isActiveAt(LocalDate now) {
-		final LocalDate start = getStartDate();
+		final var start = getStartDate();
 		if (start != null && now.isBefore(start)) {
 			return false;
 		}
-		final LocalDate end = getEndDate();
+		final var end = getEndDate();
 		if (end != null && now.isAfter(end)) {
 			return false;
 		}
@@ -407,8 +402,8 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	public boolean isActiveIn(LocalDate windowStart, LocalDate windowEnd) {
 		assert windowStart != null;
 		assert windowEnd != null;
-		final LocalDate start = getStartDate();
-		final LocalDate end = getEndDate();
+		final var start = getStartDate();
+		final var end = getEndDate();
 		if (start != null) {
 			if (end != null) {
 				return !windowEnd.isBefore(start) && !windowStart.isAfter(end);

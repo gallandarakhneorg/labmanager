@@ -55,7 +55,7 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 		this.authenticatedUser = authenticatedUser;
 		setAction(RouteUtil.getRoutePath(VaadinService.getCurrent().getContext(), getClass()));
 
-		LoginI18n i18n = LoginI18n.createDefault();
+		final var i18n = LoginI18n.createDefault();
 		i18n.setHeader(new LoginI18n.Header());
 		i18n.getHeader().setTitle("CIAD Lab Manager");
 		i18n.getHeader().setDescription("Login using user/user or admin/admin");
@@ -75,4 +75,5 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 		}
 		setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
 	}
+
 }

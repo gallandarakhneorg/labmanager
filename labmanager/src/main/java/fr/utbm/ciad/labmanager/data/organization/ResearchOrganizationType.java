@@ -299,7 +299,7 @@ public enum ResearchOrganizationType {
 	 * @return the label of the type of organization.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -312,7 +312,7 @@ public enum ResearchOrganizationType {
 	 */
 	public static ResearchOrganizationType valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final ResearchOrganizationType status : values()) {
+			for (final var status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
 					return status;
 				}

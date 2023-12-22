@@ -21,7 +21,6 @@ package fr.utbm.ciad.labmanager.data.supervision;
 
 import java.time.LocalDate;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import fr.utbm.ciad.labmanager.data.member.MembershipComparator;
@@ -69,7 +68,7 @@ public class SupervisionComparator implements Comparator<Supervision> {
 		if (s2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = this.membershipComparator.compare(s1.getSupervisedPerson(), s2.getSupervisedPerson());
+		var cmp = this.membershipComparator.compare(s1.getSupervisedPerson(), s2.getSupervisedPerson());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -105,11 +104,7 @@ public class SupervisionComparator implements Comparator<Supervision> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = Boolean.compare(s1.isAbandonment(), s2.isAbandonment());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(s1.getId(), s2.getId());
+		return Boolean.compare(s1.isAbandonment(), s2.isAbandonment());
 	}
 
 	private static int compareStrings(String s1, String s2) {
@@ -161,12 +156,12 @@ public class SupervisionComparator implements Comparator<Supervision> {
 		if (s2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		final Iterator<Supervisor> it1 = s1.iterator();
-		final Iterator<Supervisor> it2 = s2.iterator();
+		final var it1 = s1.iterator();
+		final var it2 = s2.iterator();
 		while (it1.hasNext() && it2.hasNext()) {
-			final Supervisor su1 = it1.next();
-			final Supervisor su2 = it2.next();
-			final int cmp = this.supervisorComparator.compare(su1, su2);
+			final var su1 = it1.next();
+			final var su2 = it2.next();
+			final var cmp = this.supervisorComparator.compare(su1, su2);
 			if (cmp != 0) {
 				return cmp;
 			}

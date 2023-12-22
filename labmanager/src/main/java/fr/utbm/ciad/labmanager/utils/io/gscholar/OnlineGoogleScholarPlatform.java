@@ -20,10 +20,8 @@
 package fr.utbm.ciad.labmanager.utils.io.gscholar;
 
 import java.net.URL;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import com.microsoft.playwright.ElementHandle;
 import fr.utbm.ciad.labmanager.utils.io.AbstractWebScraper;
 import org.arakhne.afc.progress.Progression;
 import org.springframework.context.annotation.Primary;
@@ -44,9 +42,9 @@ public class OnlineGoogleScholarPlatform extends AbstractWebScraper implements G
 
 	@Override
 	public GoogleScholarPerson getPersonRanking(URL gsProfile, Progression progress) throws Exception {
-		final Progression prog = ensureProgress(progress);
+		final var prog = ensureProgress(progress);
 		if (gsProfile != null) {
-			final AtomicReference<GoogleScholarPerson> output = new AtomicReference<>();
+			final var output = new AtomicReference<GoogleScholarPerson>();
 			//"onetrust-reject-all-handler"
 			loadHtmlPage(
 					DEFAULT_DEVELOPER,
@@ -55,22 +53,22 @@ public class OnlineGoogleScholarPlatform extends AbstractWebScraper implements G
 					"table[id='gsc_rsb_st']", //$NON-NLS-1$
 					0,
 					(page, element0) -> {
-						final List<ElementHandle> elements = element0.asElement().querySelectorAll("td[class='gsc_rsb_std']"); //$NON-NLS-1$
+						final var elements = element0.asElement().querySelectorAll("td[class='gsc_rsb_std']"); //$NON-NLS-1$
 						if (elements != null) {
 							int ihindex = -1;
 							if (elements.size() > 2) {
-								final Integer hindex = readInt(elements.get(2));
+								final var hindex = readInt(elements.get(2));
 								ihindex = positiveInt(hindex);
 							}
 							int icitations = -1;
 							if (elements.size() > 0) {
-								final Integer citations = readInt(elements.get(0));
+								final var citations = readInt(elements.get(0));
 								icitations = positiveInt(citations); 
 							}
 							output.set(new GoogleScholarPerson(ihindex, icitations));
 						}
 					});
-			final GoogleScholarPerson person = output.get();
+			final var person = output.get();
 			if (person != null) {
 				return person;
 			}

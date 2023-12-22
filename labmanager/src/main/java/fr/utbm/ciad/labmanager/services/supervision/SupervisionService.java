@@ -23,12 +23,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
-import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisionRepository;
 import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
@@ -133,7 +130,7 @@ public class SupervisionService extends AbstractService {
 	public void addSupervision(int membership, List<Map<String, String>> supervisors, boolean abandonment,
 			String title, FundingScheme fundingScheme, String fundingDetails, LocalDate defenseDate,
 			String positionAfterSupervision, int numberOfAteRPositions, boolean jointPosition, boolean entrepreneur) {
-		final Supervision supervision = new Supervision();
+		final var supervision = new Supervision();
 		updateSupervisionWithoutSavingAndSupervisors(supervision, membership, abandonment, title, fundingScheme,
 				fundingDetails, defenseDate, positionAfterSupervision, numberOfAteRPositions, jointPosition, entrepreneur);
 		this.supervisionRepository.save(supervision);
@@ -163,9 +160,9 @@ public class SupervisionService extends AbstractService {
 	public void updateSupervision(int supervision, int membership, List<Map<String, String>> supervisors, boolean abandonment,
 			String title, FundingScheme fundingScheme, String fundingDetails, LocalDate defenseDate,
 			String positionAfterSupervision, int numberOfAteRPositions, boolean jointPosition, boolean entrepreneur) {
-		final Optional<Supervision> supervisionOpt = this.supervisionRepository.findById(Integer.valueOf(supervision));
+		final var supervisionOpt = this.supervisionRepository.findById(Integer.valueOf(supervision));
 		if (supervisionOpt.isPresent()) {
-			final Supervision supervisionObj = supervisionOpt.get();
+			final var supervisionObj = supervisionOpt.get();
 			updateSupervisionWithoutSavingAndSupervisors(supervisionObj, membership, abandonment, title, fundingScheme,
 					fundingDetails, defenseDate, positionAfterSupervision, numberOfAteRPositions, jointPosition, entrepreneur);
 			this.supervisionRepository.save(supervisionObj);
@@ -180,7 +177,7 @@ public class SupervisionService extends AbstractService {
 			String title, FundingScheme fundingScheme, String fundingDetails, LocalDate defenseDate,
 			String positionAfterSupervision, int numberOfAteRPositions, boolean jointPosition, boolean entrepreneur) {
 		assert supervision != null;
-		final Optional<Membership> membershipObj = this.membershipRepository.findById(Integer.valueOf(membership));
+		final var membershipObj = this.membershipRepository.findById(Integer.valueOf(membership));
 		if (membershipObj.isEmpty()) {
 			throw new IllegalArgumentException("Membership cannot be found with with: " + membership); //$NON-NLS-1$
 		}
@@ -197,9 +194,9 @@ public class SupervisionService extends AbstractService {
 	}
 
 	private List<Supervisor> makeSupervisorList(List<Map<String, String>> supervisors) {
-		final List<Supervisor> supervisorList = new ArrayList<>();
-		for (final Map<String, String> supervisorDesc : supervisors) {
-			final Supervisor sup = new Supervisor();
+		final var supervisorList = new ArrayList<Supervisor>();
+		for (final var supervisorDesc : supervisors) {
+			final var sup = new Supervisor();
 			int id;
 			try {
 				id = Integer.parseInt(supervisorDesc.get("supervisorId")); //$NON-NLS-1$
@@ -209,7 +206,7 @@ public class SupervisionService extends AbstractService {
 			if (id == 0) {
 				throw new IllegalArgumentException("Person not found with id: " + supervisorDesc.get("supervisorId")); //$NON-NLS-1$ //$NON-NLS-2$
 			}
-			final Person person = this.personService.getPersonById(id);
+			final var person = this.personService.getPersonById(id);
 			if (person == null) {
 				throw new IllegalArgumentException("Person not found with id: " + supervisorDesc.get("supervisorId")); //$NON-NLS-1$ //$NON-NLS-2$
 			}
@@ -243,8 +240,8 @@ public class SupervisionService extends AbstractService {
 	 */
 	@Transactional
 	public void removeSupervision(int identifier) {
-		final Integer mid = Integer.valueOf(identifier);
-		final Optional<Supervision> optSupervision = this.supervisionRepository.findById(mid);
+		final var mid = Integer.valueOf(identifier);
+		final var optSupervision = this.supervisionRepository.findById(mid);
 		if (optSupervision.isEmpty()) {
 			throw new IllegalStateException("Supervision not found with id: " + identifier); //$NON-NLS-1$
 		}

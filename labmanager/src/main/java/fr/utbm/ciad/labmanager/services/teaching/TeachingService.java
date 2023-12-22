@@ -159,7 +159,7 @@ public class TeachingService extends AbstractService {
 	 * @return the activity or {@code null} if the activity cannot be found.
 	 */
 	public TeachingActivity getActivityById(int id) {
-		final Optional<TeachingActivity> opt = this.teachingActivityRepository.findById(Integer.valueOf(id));
+		final var opt = this.teachingActivityRepository.findById(Integer.valueOf(id));
 		if (opt.isPresent()) {
 			return opt.get();
 		}
@@ -171,13 +171,14 @@ public class TeachingService extends AbstractService {
 	 * @param id the identifier.
 	 * @param removeAssociatedFiles indicates if the uploaded files that are associated to the activity should be deleted also.
 	 */
+	@Transactional
 	public void removeTeachingActivity(int id, boolean removeAssociatedFiles) {
-		final Integer identifier = Integer.valueOf(id);
-		final Optional<TeachingActivity> activityOpt = this.teachingActivityRepository.findById(identifier);
+		final var identifier = Integer.valueOf(id);
+		final var activityOpt = this.teachingActivityRepository.findById(identifier);
 		if (activityOpt.isPresent()) {
-			final TeachingActivity activity = activityOpt.get();
+			final var activity = activityOpt.get();
 			//
-			final String pathToSlides = activity.getPathToSlides();
+			final var pathToSlides = activity.getPathToSlides();
 			//
 			activity.setPerson(null);
 			activity.setUniversity(null);
@@ -230,7 +231,7 @@ public class TeachingService extends AbstractService {
 			int numberOfStudents, String explanation, Set<PedagogicalPracticeType> pedagogicalPracticeTypes,
 			URL activityUrl, URL sourceUrl, Map<TeachingActivityType, Float> annualWorkPerType,
 			MultipartFile pathToSlides, boolean removePathToSlides) throws Exception {
-		final TeachingActivity activity = new TeachingActivity();
+		final var activity = new TeachingActivity();
 		try {
 			updateTeachingActivity(activity,
 					person, code, title, level, studentType, language, degree, university, startDate, endDate,

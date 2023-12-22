@@ -28,20 +28,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
-import java.util.stream.Stream;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
@@ -295,13 +290,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private static <T extends Enum<T>> T getEnum(JsonNode content, String key, Class<T> type) {
 		if (content != null && !Strings.isNullOrEmpty(key) && content.isObject()) {
-			final JsonNode value = content.get(key);
+			final var value = content.get(key);
 			if (value != null) {
 				try {
-					final String name = value.asText();
-					final T[] constants = type.getEnumConstants();
+					final var name = value.asText();
+					final var constants = type.getEnumConstants();
 					if (constants != null) {
-						for (final T cons : constants) {
+						for (final var cons : constants) {
 							if (name.equalsIgnoreCase(cons.name())) {
 								return cons;
 							}
@@ -317,10 +312,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private static Float getFloat(JsonNode content, String key) {
 		if (content != null && !Strings.isNullOrEmpty(key) && content.isObject()) {
-			final JsonNode value = content.get(key);
+			final var value = content.get(key);
 			if (value != null) {
 				try {
-					final String name = value.asText();
+					final var name = value.asText();
 					if (!Strings.isNullOrEmpty(name)) {
 						return Float.valueOf(name);
 					}
@@ -334,10 +329,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private static int getInt(JsonNode content, String key, int defaultValue) {
 		if (content != null && !Strings.isNullOrEmpty(key) && content.isObject()) {
-			final JsonNode value = content.get(key);
+			final var value = content.get(key);
 			if (value != null) {
 				try {
-					final String strValue = value.asText();
+					final var strValue = value.asText();
 					if (!Strings.isNullOrEmpty(strValue)) {
 						return Integer.parseInt(strValue);
 					}
@@ -370,7 +365,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	}
 
 	private static String getId(JsonNode content) {
-		final JsonNode child = content.get(ID_FIELDNAME);
+		final var child = content.get(ID_FIELDNAME);
 		if (child != null) {
 			return Strings.emptyToNull(child.asText());
 		}
@@ -379,7 +374,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private static String getRef(JsonNode content) {
 		if (content != null && content.isObject()) {
-			final JsonNode value = content.get(ID_FIELDNAME);
+			final var value = content.get(ID_FIELDNAME);
 			if (value != null) {
 				return value.asText();
 			}
@@ -405,26 +400,26 @@ public class JsonToDatabaseImporter extends JsonTool {
 		if (!source.isObject()) {
 			throw new IllegalArgumentException("Source node for an object must be a Json map."); //$NON-NLS-1$
 		}
-		final T obj = type.getConstructor().newInstance();
-		final Iterator<Entry<String, JsonNode>> iterator = source.fields();
+		final var obj = type.getConstructor().newInstance();
+		final var iterator = source.fields();
 		while (iterator.hasNext()) {
-			final Entry<String, JsonNode> entry = iterator.next();
-			final String key = entry.getKey();
-			final JsonNode jsonValue = entry.getValue();
+			final var entry = iterator.next();
+			final var key = entry.getKey();
+			final var jsonValue = entry.getValue();
 			if (!Strings.isNullOrEmpty(key) && !key.startsWith(HIDDEN_FIELD_PREFIX)
 					&& !key.startsWith(SPECIAL_FIELD_PREFIX) &&!key.equalsIgnoreCase("id")) { //$NON-NLS-1$
-				final Set<String> aliases = aliasRepository.computeIfAbsent(key, it -> {
-					final TreeSet<String> set = new TreeSet<>();
+				final var aliases = aliasRepository.computeIfAbsent(key, it -> {
+					final var set = new TreeSet<String>();
 					set.add(SETTER_FUNCTION_PREFIX + key.toLowerCase());
 					if (key.startsWith(IS_GETTER_FUNCTION_PREFIX)) {
 						set.add(SETTER_FUNCTION_PREFIX + key.substring(IS_GETTER_FUNCTION_PREFIX.length()).toLowerCase());
 					}
-					for (final String alias : getFieldAliases(key)) {
+					for (final var alias : getFieldAliases(key)) {
 						set.add(SETTER_FUNCTION_PREFIX + alias.toLowerCase());
 					}
 					return set;
 				});
-				final Object rawValue = getRawValue(jsonValue);
+				final var rawValue = getRawValue(jsonValue);
 				final Method method;
 				if (rawValue != null) {
 					method = findSetterMethod(type, aliases, rawValue);
@@ -451,7 +446,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @see #importJsonFileToDatabase(URL)
 	 */
 	public void importDataFileToDatabase(URL url) throws Exception {
-		final Stats stats = importJsonFileToDatabase(url);
+		final var stats = importJsonFileToDatabase(url);
 		if (stats != null) {
 			stats.logSummaryOn(getLogger());
 		}
@@ -465,7 +460,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @see #importDataFileToDatabase(URL)
 	 */
 	public Stats importJsonFileToDatabase(URL url) throws Exception {
-		try (final InputStream is = url.openStream()) {
+		try (final var is = url.openStream()) {
 			return importJsonFileToDatabase(is);
 		}
 	}
@@ -479,8 +474,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	public Stats importJsonFileToDatabase(InputStream inputStream) throws Exception {
 		final JsonNode content;
-		try (final InputStreamReader isr = new InputStreamReader(inputStream)) {
-			final ObjectMapper mapper = JsonUtils.createMapper();
+		try (final var isr = new InputStreamReader(inputStream)) {
+			final var mapper = JsonUtils.createMapper();
 			content = mapper.readTree(isr);
 		}
 		return importJsonFileToDatabase(content, false, null);
@@ -497,35 +492,35 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	public Stats importJsonFileToDatabase(JsonNode content, boolean clearDatabase, FileCallback fileCallback) throws Exception {
 		if (content != null && !content.isEmpty()) {
-			final Map<String, Integer> objectRepository = new TreeMap<>();
-			final Map<String, Set<String>> aliasRepository = new TreeMap<>();
+			final var objectRepository = new TreeMap<String, Integer>();
+			final var aliasRepository = new TreeMap<String, Set<String>>();
 
-			try (final Session session = this.sessionFactory.openSession()) {
+			try (final var session = this.sessionFactory.openSession()) {
 				if (clearDatabase) {
 					clearDatabase(session);
 				}
 				insertGlobalIndicators(session, content.get(GLOBALINDICATORS_SECTION), objectRepository, aliasRepository);
-				final int nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository, fileCallback);
-				final int nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
-				final int nb13 = insertScientificAxes(session, content.get(SCIENTIFIC_AXIS_SECTION), objectRepository, aliasRepository, fileCallback);
-				final int nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
-				final int nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
-				final int nb14 = insertConferences(session, content.get(CONFERENCES_SECTION), objectRepository, aliasRepository);
-				final JsonNode scientificAxisNode = content.get(SCIENTIFIC_AXIS_SECTION);
-				final int nb3 = insertOrganizationMemberships(session, content.get(ORGANIZATION_MEMBERSHIPS_SECTION),
+				final var nb6 = insertAddresses(session, content.get(ORGANIZATIONADDRESSES_SECTION), objectRepository, aliasRepository, fileCallback);
+				final var nb0 = insertOrganizations(session, content.get(RESEARCHORGANIZATIONS_SECTION), objectRepository, aliasRepository, fileCallback);
+				final var nb13 = insertScientificAxes(session, content.get(SCIENTIFIC_AXIS_SECTION), objectRepository, aliasRepository, fileCallback);
+				final var nb1 = insertPersons(session, content.get(PERSONS_SECTION), objectRepository, aliasRepository);
+				final var nb2 = insertJournals(session, content.get(JOURNALS_SECTION), objectRepository, aliasRepository);
+				final var nb14 = insertConferences(session, content.get(CONFERENCES_SECTION), objectRepository, aliasRepository);
+				final var scientificAxisNode = content.get(SCIENTIFIC_AXIS_SECTION);
+				final var nb3 = insertOrganizationMemberships(session, content.get(ORGANIZATION_MEMBERSHIPS_SECTION),
 						scientificAxisNode, objectRepository, aliasRepository);
-				final Pair<Integer, Integer> added = insertPublications(session, content.get(PUBLICATIONS_SECTION),
+				final var added = insertPublications(session, content.get(PUBLICATIONS_SECTION),
 						scientificAxisNode, objectRepository, aliasRepository, fileCallback);
-				final int nb4 = added != null ? added.getLeft().intValue() : 0;
-				final int nb5 = added != null ? added.getRight().intValue() : 0;
-				final int nb7 = insertJuryMemberships(session, content.get(JURY_MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
-				final int nb8 = insertSupervisions(session, content.get(SUPERVISIONS_SECTION), objectRepository, aliasRepository);
-				final int nb9 = insertInvitations(session, content.get(INVITATIONS_SECTION), objectRepository, aliasRepository);
-				final int nb10 = insertProjects(session, content.get(PROJECTS_SECTION), 
+				final var nb4 = added != null ? added.getLeft().intValue() : 0;
+				final var nb5 = added != null ? added.getRight().intValue() : 0;
+				final var nb7 = insertJuryMemberships(session, content.get(JURY_MEMBERSHIPS_SECTION), objectRepository, aliasRepository);
+				final var nb8 = insertSupervisions(session, content.get(SUPERVISIONS_SECTION), objectRepository, aliasRepository);
+				final var nb9 = insertInvitations(session, content.get(INVITATIONS_SECTION), objectRepository, aliasRepository);
+				final var nb10 = insertProjects(session, content.get(PROJECTS_SECTION), 
 						scientificAxisNode, objectRepository, aliasRepository, fileCallback);
-				final int nb11 = insertAssociatedStructures(session, content.get(ASSOCIATED_STRUCTURES_SECTION), objectRepository, aliasRepository, fileCallback);
-				final int nb12 = insertTeachingActivities(session, content.get(TEACHING_ACTIVITY_SECTION), objectRepository, aliasRepository, fileCallback);
-				final int nb15 = insertApplicationUsers(session, content.get(APPLICATION_USERS_SECTION), objectRepository, aliasRepository);
+				final var nb11 = insertAssociatedStructures(session, content.get(ASSOCIATED_STRUCTURES_SECTION), objectRepository, aliasRepository, fileCallback);
+				final var nb12 = insertTeachingActivities(session, content.get(TEACHING_ACTIVITY_SECTION), objectRepository, aliasRepository, fileCallback);
+				final var nb15 = insertApplicationUsers(session, content.get(APPLICATION_USERS_SECTION), objectRepository, aliasRepository);
 				return new Stats(nb6, nb0, nb2, nb14, nb1, nb5, nb3, nb4, nb7, nb8, nb9, nb10, nb11, nb12, nb13, nb15);
 			}
 		}
@@ -560,10 +555,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		if (globalIndicators != null && !globalIndicators.isEmpty()) {
 			getLogger().info("Inserting global indicators..."); //$NON-NLS-1$
-			final JsonNode visibleIndicators = globalIndicators.get(VISIBLEGLOBALINDICATORS_KEY);
+			final var visibleIndicators = globalIndicators.get(VISIBLEGLOBALINDICATORS_KEY);
 			if (visibleIndicators != null && visibleIndicators.isArray()) {
-				final StringBuilder keys = new StringBuilder();
-				for (final JsonNode valueNode : visibleIndicators) {
+				final var keys = new StringBuilder();
+				for (final var valueNode : visibleIndicators) {
 					if (keys.length() > 0) {
 						keys.append(","); //$NON-NLS-1$
 					}
@@ -586,29 +581,29 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertAddresses(Session session, JsonNode addresses, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (addresses != null && !addresses.isEmpty()) {
 			getLogger().info("Inserting " + addresses.size() + " addresses..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (final JsonNode adrObject : addresses) {
+			var i = 0;
+			for (final var adrObject : addresses) {
 				getLogger().info("> Address " + (i + 1) + "/" + addresses.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(adrObject);
+					final var id = getId(adrObject);
 					session.beginTransaction();
-					OrganizationAddress adr = createObject(OrganizationAddress.class, adrObject,
+					var adr = createObject(OrganizationAddress.class, adrObject,
 							aliasRepository, null);
 					if (adr != null) {
-						final Optional<OrganizationAddress> existing = this.addressRepository.findDistinctByName(adr.getName());
+						final var existing = this.addressRepository.findDistinctByName(adr.getName());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
 								adr = this.addressRepository.save(adr);
 							}
 							// Ensure that attached files are correct
 							if (fileCallback != null) {
-								boolean publicationChanged = false;
+								var publicationChanged = false;
 								if (!Strings.isNullOrEmpty(adr.getPathToBackgroundImage())) {
-									final String ofn = adr.getPathToBackgroundImage();
-									final String fn = fileCallback.addressBackgroundImageFile(adr.getId(), ofn);
+									final var ofn = adr.getPathToBackgroundImage();
+									final var fn = fileCallback.addressBackgroundImageFile(adr.getId(), ofn);
 									if (!Objects.equals(ofn, fn)) {
 										adr.setPathToBackgroundImage(fn);
 										publicationChanged = true;
@@ -657,36 +652,36 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertOrganizations(Session session, JsonNode organizations, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (organizations != null && !organizations.isEmpty()) {
-			final Map<String, ResearchOrganization> objectInstanceRepository = new TreeMap<>();
+			final var objectInstanceRepository = new TreeMap<String, ResearchOrganization>();
 			getLogger().info("Inserting " + organizations.size() + " organizations..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			final List<Pair<ResearchOrganization, String>> superOrgas = new ArrayList<>();
-			for (final JsonNode orgaObject : organizations) {
+			var i = 0;
+			final var superOrgas = new ArrayList<Pair<ResearchOrganization, String>>();
+			for (final var orgaObject : organizations) {
 				getLogger().info("> Organization " + (i + 1) + "/" + organizations.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(orgaObject);
+					final var id = getId(orgaObject);
 					session.beginTransaction();
-					ResearchOrganization orga = createObject(ResearchOrganization.class, orgaObject,
+					var orga = createObject(ResearchOrganization.class, orgaObject,
 							aliasRepository, null);
 					if (orga != null) {
-						final Optional<ResearchOrganization> existing = this.organizationRepository.findDistinctByName(orga.getName());
+						final var existing = this.organizationRepository.findDistinctByName(orga.getName());
 						if (existing.isEmpty()) {
 							// Save addresses
-							final JsonNode addressesNode = orgaObject.get(ADDRESSES_KEY);
+							final var addressesNode = orgaObject.get(ADDRESSES_KEY);
 							if (addressesNode != null) {
-								final Set<OrganizationAddress> addrs = new TreeSet<>(EntityUtils.getPreferredOrganizationAddressComparator());
-								for (final JsonNode addressRefNode : addressesNode) {
-									final String addressRef = getRef(addressRefNode);
+								final var addrs = new TreeSet<>(EntityUtils.getPreferredOrganizationAddressComparator());
+								for (final var addressRefNode : addressesNode) {
+									final var addressRef = getRef(addressRefNode);
 									if (Strings.isNullOrEmpty(addressRef)) {
 										throw new IllegalArgumentException("Invalid address reference for organization with id: " + id); //$NON-NLS-1$
 									}
-									final Integer addressDbId = objectIdRepository.get(addressRef);
+									final var addressDbId = objectIdRepository.get(addressRef);
 									if (addressDbId == null || addressDbId.intValue() == 0) {
 										throw new IllegalArgumentException("Invalid address reference for organization with id: " + id); //$NON-NLS-1$
 									}
-									final Optional<OrganizationAddress> addressObj = this.addressRepository.findById(addressDbId);
+									final var addressObj = this.addressRepository.findById(addressDbId);
 									if (addressObj.isEmpty()) {
 										throw new IllegalArgumentException("Invalid address reference for organization with id: " + id); //$NON-NLS-1$
 									}
@@ -699,10 +694,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 							}
 							// Ensure that attached files are correct
 							if (fileCallback != null) {
-								boolean organizationChanged = false;
+								var organizationChanged = false;
 								if (!Strings.isNullOrEmpty(orga.getPathToLogo())) {
-									final String ofn = orga.getPathToLogo();
-									final String fn = fileCallback.organizationLogoFile(orga.getId(), ofn);
+									final var ofn = orga.getPathToLogo();
+									final var fn = fileCallback.organizationLogoFile(orga.getId(), ofn);
 									if (!Objects.equals(ofn, fn)) {
 										orga.setPathToLogo(fn);
 										organizationChanged = true;
@@ -719,7 +714,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 								objectIdRepository.put(id, Integer.valueOf(orga.getId()));
 							}
 							// Save hierarchical relation with other organization
-							final String superOrga = getRef(orgaObject.get(SUPER_ORGANIZATION_KEY));
+							final var superOrga = getRef(orgaObject.get(SUPER_ORGANIZATION_KEY));
 							if (!Strings.isNullOrEmpty(superOrga)) {
 								superOrgas.add(Pair.of(orga, superOrga));
 							}
@@ -738,8 +733,8 @@ public class JsonToDatabaseImporter extends JsonTool {
 				++i;
 			}
 			// Save hierarchical relations between organizations
-			for (final Pair<ResearchOrganization, String> entry : superOrgas) {
-				final ResearchOrganization sup = objectInstanceRepository.get(entry.getRight());
+			for (final var entry : superOrgas) {
+				final var sup = objectInstanceRepository.get(entry.getRight());
 				if (sup == null) {
 					throw new IllegalArgumentException("Invalid reference to Json element with id: " + entry.getRight()); //$NON-NLS-1$
 				}
@@ -759,14 +754,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 	private static PhoneNumber getPhoneNumber(JsonNode content, String key) {
 		if (content != null && !Strings.isNullOrEmpty(key) && content.isObject()) {
 			try {
-				final JsonNode value = content.get(key);
+				final var value = content.get(key);
 				if (value != null) {
 					if (value.isObject()) {
-						final CountryCode country = getEnum(value, COUNTRY_KEY, CountryCode.class);
+						final var country = getEnum(value, COUNTRY_KEY, CountryCode.class);
 						if (country != null) {
-							final JsonNode numberNode = value.get(NUMBER_KEY);
+							final var numberNode = value.get(NUMBER_KEY);
 							if (numberNode != null && numberNode.isTextual()) {
-								final String number = numberNode.textValue();
+								final var number = numberNode.textValue();
 								return new PhoneNumber(country, number);
 							}
 						}
@@ -792,25 +787,25 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertPersons(Session session, JsonNode persons, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (persons != null && !persons.isEmpty()) {
 			getLogger().info("Inserting " + persons.size() + " persons..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			for (JsonNode personObject : persons) {
+			for (var personObject : persons) {
 				getLogger().info("> Person " + (i + 1) + "/" + persons.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(personObject);
-					Person person = createObject(Person.class, personObject, aliasRepository, null);
+					final var id = getId(personObject);
+					var person = createObject(Person.class, personObject, aliasRepository, null);
 					if (person != null) {
 						// Get the phone numbers
-						final PhoneNumber officePhone = getPhoneNumber(personObject, OFFICE_PHONE_NUMBER_KEY);
+						final var officePhone = getPhoneNumber(personObject, OFFICE_PHONE_NUMBER_KEY);
 						person.setOfficePhone(officePhone);
-						final PhoneNumber mobilePhone = getPhoneNumber(personObject, MOBILE_PHONE_NUMBER_KEY);
+						final var mobilePhone = getPhoneNumber(personObject, MOBILE_PHONE_NUMBER_KEY);
 						person.setMobilePhone(mobilePhone);
 
 						// Finalize import
 						session.beginTransaction();
-						final Optional<Person> existing = this.personRepository.findDistinctByFirstNameAndLastName(person.getFirstName(), person.getLastName());
+						final var existing = this.personRepository.findDistinctByFirstNameAndLastName(person.getFirstName(), person.getLastName());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
 								person = this.personRepository.save(person);
@@ -839,17 +834,17 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private static Map<String, List<Integer>> extractScientificAxes(JsonNode scientificAxes,
 			Map<String, Integer> objectIdRepository, String jsonKey) {
-		final Map<String, List<Integer>> axes = new TreeMap<>();
+		final var axes = new TreeMap<String, List<Integer>>();
 		if (scientificAxes != null) {
-			final Map<String, Integer> cache = new HashMap<>();
+			final var cache = new HashMap<String, Integer>();
 			scientificAxes.forEach(axisNode -> {
-				final JsonNode mbrsNode = axisNode.get(jsonKey);
+				final var mbrsNode = axisNode.get(jsonKey);
 				if (mbrsNode != null && mbrsNode.isArray() && !mbrsNode.isEmpty()) {
-					final String axisId = getId(axisNode);
+					final var axisId = getId(axisNode);
 					if (Strings.isNullOrEmpty(axisId)) {
 						throw new IllegalArgumentException("Invalid reference to a membership's scientific axis"); //$NON-NLS-1$
 					}
-					Integer axisDbId = cache.get(axisId);
+					var axisDbId = cache.get(axisId);
 					if (axisDbId == null) {
 						axisDbId = objectIdRepository.get(axisId);
 						if (axisDbId == null) {
@@ -857,13 +852,13 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 						cache.put(axisId, axisDbId);
 					}
-					final Integer axisDbId0 = axisDbId;
+					final var axisDbId0 = axisDbId;
 					mbrsNode.forEach(mbrNode -> {
-						final String mbrId = getRef(mbrNode);
+						final var mbrId = getRef(mbrNode);
 						if (Strings.isNullOrEmpty(mbrId)) {
 							throw new IllegalArgumentException("Invalid reference to a membership in the scientific axis: " + axisId); //$NON-NLS-1$
 						}
-						final List<Integer> listOfAxes = axes.computeIfAbsent(mbrId, it -> new ArrayList<>());
+						final var listOfAxes = axes.computeIfAbsent(mbrId, it -> new ArrayList<>());
 						listOfAxes.add(axisDbId0);
 					});
 				}
@@ -884,61 +879,61 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertOrganizationMemberships(Session session, JsonNode memberships, JsonNode scientificAxes,
 			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (memberships != null && !memberships.isEmpty()) {
 			getLogger().info("Inserting " + memberships.size() + " organization memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
 			// Extract the scientific axes for each membership
-			final Map<String, List<Integer>> axesOfMemberships = extractScientificAxes(
+			final var axesOfMemberships = extractScientificAxes(
 					scientificAxes, objectIdRepository, MEMBERSHIPS_KEY);
 			//
-			final List<Pair<Membership, Integer>> addressPostProcessing = new ArrayList<>();
-			int i = 0;
-			for (JsonNode membershipObject : memberships) {
+			final var addressPostProcessing = new ArrayList<Pair<Membership, Integer>>();
+			var i = 0;
+			for (final var membershipObject : memberships) {
 				getLogger().info("> Organization membership " + (i + 1) + "/" + memberships.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(membershipObject);
-					Membership membership = createObject(Membership.class, membershipObject, aliasRepository, null);
+					final var id = getId(membershipObject);
+					var membership = createObject(Membership.class, membershipObject, aliasRepository, null);
 					if (membership != null) {
 						session.beginTransaction();
-						final String adrId = getRef(membershipObject.get(ADDRESS_KEY));
+						final var adrId = getRef(membershipObject.get(ADDRESS_KEY));
 						if (!Strings.isNullOrEmpty(adrId)) {
-							final Integer adrDbId = objectIdRepository.get(adrId);
+							final var adrDbId = objectIdRepository.get(adrId);
 							if (adrDbId == null || adrDbId.intValue() == 0) {
 								throw new IllegalArgumentException("Invalid address reference for organization membership with id: " + id); //$NON-NLS-1$
 							}
 							addressPostProcessing.add(Pair.of(membership, adrDbId));
 						}
 						//
-						final String personId = getRef(membershipObject.get(PERSON_KEY));
+						final var personId = getRef(membershipObject.get(PERSON_KEY));
 						if (Strings.isNullOrEmpty(personId)) {
 							throw new IllegalArgumentException("Invalid person reference for organization membership with id: " + id); //$NON-NLS-1$
 						}
-						final Integer personDbId = objectIdRepository.get(personId);
+						final var personDbId = objectIdRepository.get(personId);
 						if (personDbId == null || personDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid person reference for organizationm embership with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<Person> targetPerson = this.personRepository.findById(personDbId);
+						final var targetPerson = this.personRepository.findById(personDbId);
 						if (targetPerson.isEmpty()) {
 							throw new IllegalArgumentException("Invalid person reference for organization membership with id: " + id); //$NON-NLS-1$
 						}
 						//
-						final String orgaId = getRef(membershipObject.get(RESEARCHORGANIZATION_KEY));
+						final var orgaId = getRef(membershipObject.get(RESEARCHORGANIZATION_KEY));
 						if (Strings.isNullOrEmpty(orgaId)) {
 							throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
 						}
-						final Integer orgaDbId = objectIdRepository.get(orgaId);
+						final var orgaDbId = objectIdRepository.get(orgaId);
 						if (orgaDbId == null || orgaDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<ResearchOrganization> targetOrganization = this.organizationRepository.findById(orgaDbId);
+						final var targetOrganization = this.organizationRepository.findById(orgaDbId);
 						if (targetOrganization.isEmpty()) {
 							throw new IllegalArgumentException("Invalid organization reference for organization membership with id: " + id); //$NON-NLS-1$
 						}
 						//
-						final Set<Membership> existings = this.organizationMembershipRepository.findByResearchOrganizationIdAndPersonId(
+						final var existings = this.organizationMembershipRepository.findByResearchOrganizationIdAndPersonId(
 								targetOrganization.get().getId(), targetPerson.get().getId());
-						final Membership finalmbr0 = membership;
-						final Stream<Membership> existing0 = existings.stream().filter(it -> {
+						final var finalmbr0 = membership;
+						final var existing0 = existings.stream().filter(it -> {
 							assert it.getPerson().getId() == targetPerson.get().getId();
 							assert it.getResearchOrganization().getId() == targetOrganization.get().getId();
 							return Objects.equals(it.getMemberStatus(), finalmbr0.getMemberStatus())
@@ -946,14 +941,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 									&& Objects.equals(it.getMemberSinceWhen(), finalmbr0.getMemberSinceWhen())
 									&& Objects.equals(it.getMemberToWhen(), finalmbr0.getMemberToWhen());
 						});
-						final Optional<Membership> existing = existing0.findAny();
+						final var existing = existing0.findAny();
 						if (existing.isEmpty()) {
 							membership.setPerson(targetPerson.get());
 							membership.setResearchOrganization(targetOrganization.get());
 							// Attach scientific axes to the membership
-							final List<Integer> membershipScientificAxes = axesOfMemberships.get(id);
+							final var membershipScientificAxes = axesOfMemberships.get(id);
 							if (membershipScientificAxes != null && !membershipScientificAxes.isEmpty()) {
-								final List<ScientificAxis> axisInstances = this.scientificAxisRepository.findAllById(membershipScientificAxes);
+								final var axisInstances = this.scientificAxisRepository.findAllById(membershipScientificAxes);
 								membership.setScientificAxes(axisInstances);
 							}
 							if (!isFake()) {
@@ -986,9 +981,9 @@ public class JsonToDatabaseImporter extends JsonTool {
 			// Post processing of the addresses for avoiding lazy loading errors
 			if (!addressPostProcessing.isEmpty()) {
 				session.beginTransaction();
-				for (final Pair<Membership, Integer> pair : addressPostProcessing) {
-					final Membership membership = pair.getLeft();
-					final Optional<OrganizationAddress> targetAddress = this.addressRepository.findById(pair.getRight());
+				for (final var pair : addressPostProcessing) {
+					final var membership = pair.getLeft();
+					final var targetAddress = this.addressRepository.findById(pair.getRight());
 					if (targetAddress.isEmpty()) {
 						throw new IllegalArgumentException("Invalid address reference for organization membership with id: " + pair.getRight()); //$NON-NLS-1$
 					}
@@ -1012,69 +1007,69 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertJournals(Session session, JsonNode journals, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (journals != null && !journals.isEmpty()) {
 			getLogger().info("Inserting " + journals.size() + " journals..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (JsonNode journalObject : journals) {
+			var i = 0;
+			for (var journalObject : journals) {
 				getLogger().info("> Journal " + (i + 1) + "/" + journals.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(journalObject);
-					Journal journal = createObject(Journal.class, journalObject, aliasRepository, null);
+					final var id = getId(journalObject);
+					var journal = createObject(Journal.class, journalObject, aliasRepository, null);
 					if (journal != null) {
 						session.beginTransaction();
-						final Optional<Journal> existing = this.journalRepository.findByJournalName(journal.getJournalName());
+						final var existing = this.journalRepository.findByJournalName(journal.getJournalName());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
 								journal = this.journalRepository.save(journal);
 							}
 							// Create the quality indicators
-							final JsonNode history = journalObject.get(QUALITYINDICATORSHISTORY_KEY);
+							final var history = journalObject.get(QUALITYINDICATORSHISTORY_KEY);
 							if (history != null && !history.isEmpty()) {
-								final Iterator<Entry<String, JsonNode>> iterator = history.fields();
+								final var iterator = history.fields();
 								while (iterator.hasNext()) {
-									final Entry<String, JsonNode> historyEntry = iterator.next();
-									final int year = Integer.parseInt(historyEntry.getKey());
+									final var historyEntry = iterator.next();
+									final var year = Integer.parseInt(historyEntry.getKey());
 									String str = null;
 									if (historyEntry.getValue() != null) {
-										final JsonNode n = historyEntry.getValue().get(SCIMAGOQINDEX_KEY);
+										final var n = historyEntry.getValue().get(SCIMAGOQINDEX_KEY);
 										if (n != null) {
 											str = n.asText();
 										}
 									}
 									JournalQualityAnnualIndicators indicators = null; 
 									if (!Strings.isNullOrEmpty(str) ) {
-										final QuartileRanking scimago = QuartileRanking.valueOfCaseInsensitive(str);
+										final var scimago = QuartileRanking.valueOfCaseInsensitive(str);
 										if (scimago != null) {
 											indicators = journal.setScimagoQIndexByYear(year, scimago);
 										}
 									}
 									str = null;
 									if (historyEntry.getValue() != null) {
-										final JsonNode n = historyEntry.getValue().get(WOSQINDEX_KEY);
+										final var n = historyEntry.getValue().get(WOSQINDEX_KEY);
 										if (n != null) {
 											str = n.asText();
 										}
 									}
 									if (!Strings.isNullOrEmpty(str)) {
-										final QuartileRanking wos = QuartileRanking.valueOfCaseInsensitive(str);
+										final var wos = QuartileRanking.valueOfCaseInsensitive(str);
 										if (wos != null) {
-											final JournalQualityAnnualIndicators oindicators = indicators;
+											final var oindicators = indicators;
 											indicators = journal.setWosQIndexByYear(year, wos);
 											assert oindicators == null || oindicators == indicators;
 										}
 									}
 									Number flt = null;
 									if (historyEntry.getValue() != null) {
-										final JsonNode n = historyEntry.getValue().get(IMPACTFACTOR_KEY);
+										final var n = historyEntry.getValue().get(IMPACTFACTOR_KEY);
 										if (n != null) {
 											flt = Double.valueOf(n.asDouble());
 										}
 									}
 									if (flt != null) {
-										final float impactFactor = flt.floatValue();
+										final var impactFactor = flt.floatValue();
 										if (impactFactor > 0) {
-											final JournalQualityAnnualIndicators oindicators = indicators;
+											final var oindicators = indicators;
 											indicators = journal.setImpactFactorByYear(year, impactFactor);
 											assert oindicators == null || oindicators == indicators;
 										}
@@ -1113,7 +1108,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 	private static int parseMonthField(JsonNode value) {
 		if (value != null) {
-			final String text = value.asText();
+			final var text = value.asText();
 			if (!Strings.isNullOrEmpty(text)) {
 				switch (text.toLowerCase()) {
 				case "jan": //$NON-NLS-1$
@@ -1159,40 +1154,40 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertConferences(Session session, JsonNode conferences, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (conferences != null && !conferences.isEmpty()) {
 			getLogger().info("Inserting " + conferences.size() + " conferences..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			final List<Pair<Conference, String>> enclosingConferences = new ArrayList<>();
-			for (JsonNode conferenceObject : conferences) {
+			final var enclosingConferences = new ArrayList<Pair<Conference, String>>();
+			for (final var conferenceObject : conferences) {
 				getLogger().info("> Conference " + (i + 1) + "/" + conferences.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(conferenceObject);
-					Conference conference = createObject(Conference.class, conferenceObject, aliasRepository, null);
+					final var id = getId(conferenceObject);
+					var conference = createObject(Conference.class, conferenceObject, aliasRepository, null);
 					if (conference != null) {
 						session.beginTransaction();
-						final Optional<Conference> existing = this.conferenceRepository.findByAcronymOrName(conference.getName());
+						final var existing = this.conferenceRepository.findByAcronymOrName(conference.getName());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
 								conference = this.conferenceRepository.save(conference);
 							}
 							// Create the quality indicators
-							final JsonNode history = conferenceObject.get(QUALITYINDICATORSHISTORY_KEY);
+							final var history = conferenceObject.get(QUALITYINDICATORSHISTORY_KEY);
 							if (history != null && !history.isEmpty()) {
-								final Iterator<Entry<String, JsonNode>> iterator = history.fields();
+								final var iterator = history.fields();
 								while (iterator.hasNext()) {
-									final Entry<String, JsonNode> historyEntry = iterator.next();
-									final int year = Integer.parseInt(historyEntry.getKey());
+									final var historyEntry = iterator.next();
+									final var year = Integer.parseInt(historyEntry.getKey());
 									String str = null;
 									if (historyEntry.getValue() != null) {
-										final JsonNode n = historyEntry.getValue().get(COREINDEX_KEY);
+										final var n = historyEntry.getValue().get(COREINDEX_KEY);
 										if (n != null) {
 											str = n.asText();
 										}
 									}
 									ConferenceQualityAnnualIndicators indicators = null; 
 									if (!Strings.isNullOrEmpty(str) ) {
-										final CoreRanking core = CoreRanking.valueOfCaseInsensitive(str);
+										final var core = CoreRanking.valueOfCaseInsensitive(str);
 										if (core != null) {
 											indicators = conference.setCoreIndexByYear(year, core);
 										}
@@ -1203,7 +1198,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 								}
 							}
 							// Save the enclosing conferences to a differed creation of the links
-							final String enclConference = getRef(conferenceObject.get(ENCLOSING_CONFERENCE_KEY));
+							final var enclConference = getRef(conferenceObject.get(ENCLOSING_CONFERENCE_KEY));
 							if (!Strings.isNullOrEmpty(enclConference)) {
 								enclosingConferences.add(Pair.of(conference, enclConference));
 							}
@@ -1231,17 +1226,17 @@ public class JsonToDatabaseImporter extends JsonTool {
 				++i;
 			}
 			// Create the links between the conferences
-			for (final Pair<Conference, String> pair : enclosingConferences) {
-				final Integer conferenceDbId = objectIdRepository.get(pair.getValue());
+			for (final var pair : enclosingConferences) {
+				final var conferenceDbId = objectIdRepository.get(pair.getValue());
 				if (conferenceDbId == null || conferenceDbId.intValue() == 0) {
 					throw new IllegalArgumentException("Invalid enclosing conference reference with id: " + pair.getValue()); //$NON-NLS-1$
 				}
-				final Optional<Conference> optConference = this.conferenceRepository.findById(conferenceDbId);
+				final var optConference = this.conferenceRepository.findById(conferenceDbId);
 				if (optConference.isEmpty()) {
 					throw new IllegalArgumentException("Invalid enclosing conference reference with id: " + pair.getValue()); //$NON-NLS-1$
 				}
-				final Conference subConference = pair.getLeft();
-				final Conference enclosingConference = optConference.get();
+				final var subConference = pair.getLeft();
+				final var enclosingConference = optConference.get();
 				subConference.setEnclosingConference(enclosingConference);
 				this.conferenceRepository.save(subConference);
 			}
@@ -1263,26 +1258,26 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected Pair<Integer, Integer> insertPublications(Session session, JsonNode publications, JsonNode scientificAxes,
 			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
-		int nbNewPublications = 0;
-		final MutableInt nbNewPersons = new MutableInt();
+		var nbNewPublications = 0;
+		final var nbNewPersons = new MutableInt();
 		if (publications != null && !publications.isEmpty()) {
 			getLogger().info("Retreiving the existing publications..."); //$NON-NLS-1$
 			// Extract the scientific axes for each membership
-			final Map<String, List<Integer>> axesOfPublications = extractScientificAxes(
+			final var axesOfPublications = extractScientificAxes(
 					scientificAxes, objectIdRepository, PUBLICATIONS_KEY);
 			//
-			final List<Publication> allPublications = this.publicationRepository.findAll();
+			final var allPublications = this.publicationRepository.findAll();
 			getLogger().info("Inserting " + publications.size() + " publications..."); //$NON-NLS-1$ //$NON-NLS-2$
 			int i = 0;
-			for (JsonNode publicationObject : publications) {
+			for (final var publicationObject : publications) {
 				getLogger().info("> Publication " + (i + 1) + "/" + publications.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(publicationObject);
-					final Publication publication = createPublicationInstance(id,
+					final var id = getId(publicationObject);
+					final var publication = createPublicationInstance(id,
 							publicationObject, objectIdRepository, aliasRepository);
 					// Test if the publication is already inside the database
-					final Publication readOnlyPublication = publication;
-					final Optional<Publication> existing = allPublications.stream().filter(
+					final var readOnlyPublication = publication;
+					final var existing = allPublications.stream().filter(
 							it -> this.publicationComparator.isSimilar(it, readOnlyPublication)).findAny();
 					if (existing.isEmpty()) {
 						session.beginTransaction();
@@ -1292,18 +1287,18 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 						// Ensure that attached files are correct
 						if (fileCallback != null) {
-							boolean publicationChanged = false;
+							var publicationChanged = false;
 							if (!Strings.isNullOrEmpty(publication.getPathToDownloadablePDF())) {
-								final String ofn = publication.getPathToDownloadablePDF();
-								final String fn = fileCallback.publicationPdfFile(publication.getId(), ofn);
+								final var ofn = publication.getPathToDownloadablePDF();
+								final var fn = fileCallback.publicationPdfFile(publication.getId(), ofn);
 								if (!Objects.equals(ofn, fn)) {
 									publication.setPathToDownloadablePDF(fn);
 									publicationChanged = true;
 								}
 							}
 							if (!Strings.isNullOrEmpty(publication.getPathToDownloadableAwardCertificate())) {
-								final String ofn = publication.getPathToDownloadableAwardCertificate();
-								final String fn = fileCallback.publicationAwardFile(publication.getId(), ofn);
+								final var ofn = publication.getPathToDownloadableAwardCertificate();
+								final var fn = fileCallback.publicationAwardFile(publication.getId(), ofn);
 								if (!Objects.equals(ofn, fn)) {
 									publication.setPathToDownloadableAwardCertificate(fn);
 									publicationChanged = true;
@@ -1321,20 +1316,20 @@ public class JsonToDatabaseImporter extends JsonTool {
 						getLogger().info("  + " + publication.getTitle() + " (id: " + publication.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 
 						// Attach authors
-						final JsonNode authors = publicationObject.get(AUTHORS_KEY);
+						final var authors = publicationObject.get(AUTHORS_KEY);
 						if (authors == null || authors.isEmpty()) {
 							throw new IllegalArgumentException("No author for publication with id: " + id); //$NON-NLS-1$
 						}
-						int authorRank = 0;
-						final Iterator<JsonNode> iterator = authors.elements();
+						var authorRank = 0;
+						final var iterator = authors.elements();
 						while (iterator.hasNext()) {
-							final JsonNode authorObject = iterator.next();
-							final Person targetAuthor = findOrCreateAuthor(authorObject, objectIdRepository, nbNewPersons);
+							final var authorObject = iterator.next();
+							final var targetAuthor = findOrCreateAuthor(authorObject, objectIdRepository, nbNewPersons);
 							if (targetAuthor == null) {
 								throw new IllegalArgumentException("Invalid author reference for publication with id: " + id); //$NON-NLS-1$
 							}
 							//
-							Authorship authorship = new Authorship();
+							var authorship = new Authorship();
 							authorship.setPerson(targetAuthor);
 							authorship.setPublication(publication);
 							authorship.setAuthorRank(authorRank);
@@ -1344,10 +1339,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 							++authorRank;
 						}
 						session.getTransaction().commit();
-						final List<Integer> publicationScientificAxes = axesOfPublications.get(id);
+						final var publicationScientificAxes = axesOfPublications.get(id);
 						if (publicationScientificAxes != null && !publicationScientificAxes.isEmpty()) {
 							session.beginTransaction();
-							final List<ScientificAxis> axisInstances = this.scientificAxisRepository.findAllById(publicationScientificAxes);
+							final var axisInstances = this.scientificAxisRepository.findAllById(publicationScientificAxes);
 							publication.setScientificAxes(axisInstances);
 							if (!isFake()) {
 								this.publicationService.save(publication);
@@ -1381,15 +1376,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 	private Publication createPublicationInstance(String id, JsonNode publicationObject, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		// Retrieve the elements that characterize the type of the publication
-		final PublicationType type = getEnum(publicationObject, TYPE_KEY, PublicationType.class);
+		final var type = getEnum(publicationObject, TYPE_KEY, PublicationType.class);
 		if (type == null) {
 			throw new IllegalArgumentException("Missing publication type"); //$NON-NLS-1$
 		}
-		final Class<? extends Publication> publicationClass = type.getInstanceType();
+		final var publicationClass = type.getInstanceType();
 		assert publicationClass != null;
 
 		// Create the publication
-		Publication publication = createObject(publicationClass, publicationObject,
+		var publication = createObject(publicationClass, publicationObject,
 				aliasRepository, (attrName, attrValue, attrNode) -> {
 					// Keys "authors" and "journal" are not directly set. They have a specific
 					// code for associating authors and journals to the publication
@@ -1401,11 +1396,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 		}
 
 		// Attach month if it is provided
-		final int month = parseMonthField(publicationObject.get(MONTH_KEY));
+		final var month = parseMonthField(publicationObject.get(MONTH_KEY));
 		if (month > 0 && month <= 12) {
-			final int year = publication.getPublicationYear();
+			final var year = publication.getPublicationYear();
 			if (year != 0) {
-				final LocalDate localDate = LocalDate.of(year, month, 1);
+				final var localDate = LocalDate.of(year, month, 1);
 				publication.setPublicationDate(localDate);
 			}
 		}
@@ -1413,15 +1408,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 		// Attach journal if needed for the type of publication
 		final Journal targetJournal;
 		if (publication instanceof JournalBasedPublication journalPaper) {
-			final String journalId = getRef(publicationObject.get(JOURNAL_KEY));
+			final var journalId = getRef(publicationObject.get(JOURNAL_KEY));
 			if (Strings.isNullOrEmpty(journalId)) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
 			}
-			final Integer journalDbId = objectIdRepository.get(journalId);
+			final var journalDbId = objectIdRepository.get(journalId);
 			if (journalDbId == null || journalDbId.intValue() == 0) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
 			}
-			final Optional<Journal> optJournal = this.journalRepository.findById(journalDbId);
+			final var optJournal = this.journalRepository.findById(journalDbId);
 			if (optJournal.isEmpty()) {
 				throw new IllegalArgumentException("Invalid journal reference for publication with id: " + id); //$NON-NLS-1$
 			}
@@ -1435,17 +1430,17 @@ public class JsonToDatabaseImporter extends JsonTool {
 		final Conference targetConference;
 		// TODO: Thrown exception if the conference is not found
 		if (publication instanceof ConferenceBasedPublication conferencePaper) {
-			final String conferenceId = getRef(publicationObject.get(CONFERENCE_KEY));
+			final var conferenceId = getRef(publicationObject.get(CONFERENCE_KEY));
 			if (Strings.isNullOrEmpty(conferenceId)) {
 				getLogger().warn("Conference not found for publication with id: " + id); //$NON-NLS-1$
 				getLogger().warn("Field 'scientificEventName' will be used for publication with id: " + id); //$NON-NLS-1$
 				//throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
 			} else {
-				final Integer conferenceDbId = objectIdRepository.get(conferenceId);
+				final var conferenceDbId = objectIdRepository.get(conferenceId);
 				if (conferenceDbId == null || conferenceDbId.intValue() == 0) {
 					throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
 				}
-				final Optional<Conference> optConference = this.conferenceRepository.findById(conferenceDbId);
+				final var optConference = this.conferenceRepository.findById(conferenceDbId);
 				if (optConference.isEmpty()) {
 					throw new IllegalArgumentException("Invalid conference reference for publication with id: " + id); //$NON-NLS-1$
 				}
@@ -1474,22 +1469,22 @@ public class JsonToDatabaseImporter extends JsonTool {
 	private Person findOrCreateAuthor(JsonNode authorObject, Map<String, Integer> objectIdRepository, MutableInt nbNewPersons) {
 		assert authorObject != null;
 		Person targetAuthor = null;
-		final String authorId = getRef(authorObject);
+		final var authorId = getRef(authorObject);
 		if (!Strings.isNullOrEmpty(authorId)) {
-			final Integer personId = objectIdRepository.get(authorId);
+			final var personId = objectIdRepository.get(authorId);
 			if (personId != null && personId.intValue() != 0) {
 				targetAuthor = this.personService.getPersonById(personId.intValue());
 			}
 		}
 		if (targetAuthor == null) {
 			// The author is not a reference to a defined person
-			final String authorName = authorObject.asText();
-			final String firstName = this.personNameParser.parseFirstName(authorName);
-			final String lastName = this.personNameParser.parseLastName(authorName);
-			final Person optPerson = this.personService.getPersonBySimilarName(firstName, lastName);
+			final var authorName = authorObject.asText();
+			final var firstName = this.personNameParser.parseFirstName(authorName);
+			final var lastName = this.personNameParser.parseLastName(authorName);
+			final var optPerson = this.personService.getPersonBySimilarName(firstName, lastName);
 			if (optPerson == null) {
 				// This is a new person in the database
-				Person newAuthor = new Person();
+				var newAuthor = new Person();
 				newAuthor.setFirstName(this.personNameParser.formatNameForDisplay(firstName));
 				newAuthor.setLastName(this.personNameParser.formatNameForDisplay(lastName));
 				if (!isFake()) {
@@ -1515,59 +1510,59 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertJuryMemberships(Session session, JsonNode memberships, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (memberships != null && !memberships.isEmpty()) {
 			getLogger().info("Inserting " + memberships.size() + " jury memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (JsonNode membershipObject : memberships) {
+			var i = 0;
+			for (var membershipObject : memberships) {
 				getLogger().info("> Jury membership " + (i + 1) + "/" + memberships.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(membershipObject);
+					final var id = getId(membershipObject);
 					JuryMembership membership = createObject(JuryMembership.class, membershipObject, aliasRepository, null);
 					if (membership != null) {
 						session.beginTransaction();
 						// Person
-						final String personId = getRef(membershipObject.get(PERSON_KEY));
+						final var personId = getRef(membershipObject.get(PERSON_KEY));
 						if (Strings.isNullOrEmpty(personId)) {
 							throw new IllegalArgumentException("Invalid person reference for jury membership with id: " + id); //$NON-NLS-1$
 						}
-						final Integer personDbId = objectIdRepository.get(personId);
+						final var personDbId = objectIdRepository.get(personId);
 						if (personDbId == null || personDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid person reference for jury membership with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<Person> targetPerson = this.personRepository.findById(personDbId);
+						final var targetPerson = this.personRepository.findById(personDbId);
 						if (targetPerson.isEmpty()) {
 							throw new IllegalArgumentException("Invalid person reference for jury membership with id: " + id); //$NON-NLS-1$
 						}
 						membership.setPerson(targetPerson.get());
 						// Candidate
-						final String candidateId = getRef(membershipObject.get(CANDIDATE_KEY));
+						final var candidateId = getRef(membershipObject.get(CANDIDATE_KEY));
 						if (Strings.isNullOrEmpty(candidateId)) {
 							throw new IllegalArgumentException("Invalid candidate reference for jury membership with id: " + id); //$NON-NLS-1$
 						}
-						final Integer candidateDbId = objectIdRepository.get(candidateId);
+						final var candidateDbId = objectIdRepository.get(candidateId);
 						if (candidateDbId == null || candidateDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid candidate reference for jury membership with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<Person> targetCandidate = this.personRepository.findById(candidateDbId);
+						final var targetCandidate = this.personRepository.findById(candidateDbId);
 						if (targetCandidate.isEmpty()) {
 							throw new IllegalArgumentException("Invalid candidate reference for jury membership with id: " + id); //$NON-NLS-1$
 						}
 						membership.setCandidate(targetCandidate.get());
 						// Promoters
-						final JsonNode promotersNode = membershipObject.get(PROMOTERS_KEY);
+						final var promotersNode = membershipObject.get(PROMOTERS_KEY);
 						if (promotersNode != null && promotersNode.isArray()) {
-							final List<Person> promoters = new ArrayList<>();
-							for (final JsonNode promoterNode : promotersNode) {
-								final String promoterId = getRef(promoterNode);
+							final var promoters = new ArrayList<Person>();
+							for (final var promoterNode : promotersNode) {
+								final var promoterId = getRef(promoterNode);
 								if (Strings.isNullOrEmpty(promoterId)) {
 									throw new IllegalArgumentException("Invalid promoter reference for jury membership with id: " + id); //$NON-NLS-1$
 								}
-								final Integer promoterDbId = objectIdRepository.get(promoterId);
+								final var promoterDbId = objectIdRepository.get(promoterId);
 								if (promoterDbId == null || promoterDbId.intValue() == 0) {
 									throw new IllegalArgumentException("Invalid promoter reference for jury membership with id: " + id); //$NON-NLS-1$
 								}
-								final Optional<Person> targetPromoter = this.personRepository.findById(promoterDbId);
+								final var targetPromoter = this.personRepository.findById(promoterDbId);
 								if (targetPromoter.isEmpty()) {
 									throw new IllegalArgumentException("Invalid promoter reference for jury membership with id: " + id); //$NON-NLS-1$
 								}
@@ -1575,7 +1570,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 							}
 							membership.setPromoters(promoters);
 						}
-						final Optional<JuryMembership> existing = this.juryMembershipRepository.findByPersonIdAndCandidateIdAndType(
+						final var existing = this.juryMembershipRepository.findByPersonIdAndCandidateIdAndType(
 								targetPerson.get().getId(), targetCandidate.get().getId(), membership.getType());
 						if (existing.isEmpty()) {
 							if (!isFake()) {
@@ -1620,27 +1615,27 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertSupervisions(Session session, JsonNode supervisions, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (supervisions != null && !supervisions.isEmpty()) {
 			getLogger().info("Inserting " + supervisions.size() + " supervisions..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (JsonNode supervisionObject : supervisions) {
+			var i = 0;
+			for (var supervisionObject : supervisions) {
 				getLogger().info("> Supervision " + (i + 1) + "/" + supervisions.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(supervisionObject);
-					Supervision supervision = createObject(Supervision.class, supervisionObject, aliasRepository, null);
+					final var id = getId(supervisionObject);
+					var supervision = createObject(Supervision.class, supervisionObject, aliasRepository, null);
 					if (supervision != null) {
 						session.beginTransaction();
 						// Supervised Person
-						final String mbrId = getRef(supervisionObject.get(PERSON_KEY));
+						final var mbrId = getRef(supervisionObject.get(PERSON_KEY));
 						if (Strings.isNullOrEmpty(mbrId)) {
 							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
 						}
-						final Integer mbrDbId = objectIdRepository.get(mbrId);
+						final var mbrDbId = objectIdRepository.get(mbrId);
 						if (mbrDbId == null || mbrDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<Membership> targetMembership = this.organizationMembershipRepository.findById(mbrDbId);
+						final var targetMembership = this.organizationMembershipRepository.findById(mbrDbId);
 						if (targetMembership.isEmpty()) {
 							throw new IllegalArgumentException("Invalid membership reference for supervision with id: " + id); //$NON-NLS-1$
 						}
@@ -1649,20 +1644,20 @@ public class JsonToDatabaseImporter extends JsonTool {
 							this.supervisionRepository.save(supervision);
 						}
 						// Directors
-						final JsonNode supervisorsNode = supervisionObject.get(SUPERVISORS_KEY);
+						final var supervisorsNode = supervisionObject.get(SUPERVISORS_KEY);
 						if (supervisorsNode != null && supervisorsNode.isArray()) {
-							final List<Supervisor> supervisors = new ArrayList<>();
-							for (final JsonNode supervisorNode : supervisorsNode) {
-								final Supervisor supervisorObj = new Supervisor();
-								final String supervisorId = getRef(supervisorNode.get(PERSON_KEY));
+							final var supervisors = new ArrayList<Supervisor>();
+							for (final var supervisorNode : supervisorsNode) {
+								final var supervisorObj = new Supervisor();
+								final var supervisorId = getRef(supervisorNode.get(PERSON_KEY));
 								if (Strings.isNullOrEmpty(supervisorId)) {
 									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
 								}
-								final Integer supervisorDbId = objectIdRepository.get(supervisorId);
+								final var supervisorDbId = objectIdRepository.get(supervisorId);
 								if (supervisorDbId == null || supervisorDbId.intValue() == 0) {
 									throw new IllegalArgumentException("Invalid supervisor reference for supervision with id: " + id); //$NON-NLS-1$
 								}
-								final Optional<Person> targetSupervisor = this.personRepository.findById(supervisorDbId);
+								final var targetSupervisor = this.personRepository.findById(supervisorDbId);
 								if (targetSupervisor.isEmpty()) {
 									throw new IllegalArgumentException("Invalid supervisor reference for jury membership with id: " + id); //$NON-NLS-1$
 								}
@@ -1705,41 +1700,41 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertInvitations(Session session, JsonNode invitations, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (invitations != null && !invitations.isEmpty()) {
 			getLogger().info("Inserting " + invitations.size() + " invitations..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (JsonNode invitationObject : invitations) {
+			var i = 0;
+			for (var invitationObject : invitations) {
 				getLogger().info("> Invitation " + (i + 1) + "/" + invitations.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(invitationObject);
-					PersonInvitation invitation = createObject(PersonInvitation.class, invitationObject, aliasRepository, null);
+					final var id = getId(invitationObject);
+					var invitation = createObject(PersonInvitation.class, invitationObject, aliasRepository, null);
 					if (invitation != null) {
 						session.beginTransaction();
 						// Guest
-						final String guestId = getRef(invitationObject.get(GUEST_KEY));
+						final var guestId = getRef(invitationObject.get(GUEST_KEY));
 						if (Strings.isNullOrEmpty(guestId)) {
 							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
 						}
-						final Integer guestDbId = objectIdRepository.get(guestId);
+						final var guestDbId = objectIdRepository.get(guestId);
 						if (guestDbId == null || guestDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<Person> targetGuest = this.personRepository.findById(guestDbId);
+						final var targetGuest = this.personRepository.findById(guestDbId);
 						if (targetGuest.isEmpty()) {
 							throw new IllegalArgumentException("Invalid guest reference for invitation with id: " + id); //$NON-NLS-1$
 						}
 						invitation.setGuest(targetGuest.get());
 						// Inviter
-						final String inviterId = getRef(invitationObject.get(INVITER_KEY));
+						final var inviterId = getRef(invitationObject.get(INVITER_KEY));
 						if (Strings.isNullOrEmpty(inviterId)) {
 							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
 						}
-						final Integer inviterDbId = objectIdRepository.get(inviterId);
+						final var inviterDbId = objectIdRepository.get(inviterId);
 						if (inviterDbId == null || inviterDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<Person> targetInviter = this.personRepository.findById(inviterDbId);
+						final var targetInviter = this.personRepository.findById(inviterDbId);
 						if (targetInviter.isEmpty()) {
 							throw new IllegalArgumentException("Invalid inviter reference for invitation with id: " + id); //$NON-NLS-1$
 						}
@@ -1780,36 +1775,36 @@ public class JsonToDatabaseImporter extends JsonTool {
 	@SuppressWarnings("removal")
 	protected int insertProjects(Session session, JsonNode projects, JsonNode scientificAxes,
 			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (projects != null && !projects.isEmpty()) {
 			getLogger().info("Inserting " + projects.size() + " projects..."); //$NON-NLS-1$ //$NON-NLS-2$
 			// Extract the scientific axes for each membership
-			final Map<String, List<Integer>> axesOfProjects = extractScientificAxes(
+			final var axesOfProjects = extractScientificAxes(
 					scientificAxes, objectIdRepository, PROJECTS_KEY);
 			//
-			int i = 0;
-			for (JsonNode projectObject : projects) {
+			var i = 0;
+			for (var projectObject : projects) {
 				getLogger().info("> Project " + (i + 1) + "/" + projects.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(projectObject);
-					Project project = createObject(Project.class, projectObject, aliasRepository, null);
+					final var id = getId(projectObject);
+					var project = createObject(Project.class, projectObject, aliasRepository, null);
 					if (project != null) {
 						session.beginTransaction();
 
 						// Budgets
-						final JsonNode budgetsNode = projectObject.get(BUDGETS_KEY);
+						final var budgetsNode = projectObject.get(BUDGETS_KEY);
 						if (budgetsNode != null) {
-							final List<ProjectBudget> budgetList = new ArrayList<>();
+							final var budgetList = new ArrayList<ProjectBudget>();
 							budgetsNode.forEach(it -> {
-								final ProjectBudget budgetObject = new ProjectBudget();
-								String fundingValue = getStringValue(it.get(FUNDING_KEY));
+								final var budgetObject = new ProjectBudget();
+								var fundingValue = getStringValue(it.get(FUNDING_KEY));
 								// The following reading of the Json node "fundingScheme" is in the code for compatibility with old Json format.
 								if (fundingValue == null) {
 									fundingValue = getStringValue(it.get(FUNDINGSCHEME_KEY));
 								}
 								if (fundingValue != null) {
 									try {
-										final FundingScheme scheme = FundingScheme.valueOfCaseInsensitive(fundingValue.toString());
+										final var scheme = FundingScheme.valueOfCaseInsensitive(fundingValue.toString());
 										budgetObject.setFundingScheme(scheme);
 									} catch (Throwable ex) {
 										budgetObject.setFundingScheme(FundingScheme.NOT_FUNDED);
@@ -1817,11 +1812,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 								} else {
 									budgetObject.setFundingScheme(FundingScheme.NOT_FUNDED);
 								}
-								final Number budgetValue = getNumberValue(it.get(BUDGET_KEY));
+								final var budgetValue = getNumberValue(it.get(BUDGET_KEY));
 								if (budgetValue != null) {
 									budgetObject.setBudget(budgetValue.floatValue());
 								}
-								final String grantValue = getStringValue(it.get(GRANT_KEY));
+								final var grantValue = getStringValue(it.get(GRANT_KEY));
 								if (grantValue != null) {
 									budgetObject.setGrant(grantValue);
 								}
@@ -1835,11 +1830,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 
 						// Video URLs
-						final List<String> videoURLs = getStringList(projectObject, VIDEO_URLS_KEY);
+						final var videoURLs = getStringList(projectObject, VIDEO_URLS_KEY);
 						project.setVideoURLs(videoURLs);
 
 						// Paths to images
-						final List<String> pathsToImages = getStringList(projectObject, PATHS_TO_IMAGES_KEY);
+						final var pathsToImages = getStringList(projectObject, PATHS_TO_IMAGES_KEY);
 						project.setPathsToImages(pathsToImages);
 
 						if (!isFake()) {
@@ -1848,44 +1843,44 @@ public class JsonToDatabaseImporter extends JsonTool {
 
 						// Ensure that attached files are correct
 						if (fileCallback != null) {
-							boolean projectChanged = false;
+							var projectChanged = false;
 							if (!Strings.isNullOrEmpty(project.getPathToLogo())) {
-								final String ofn = project.getPathToLogo();
-								final String fn = fileCallback.projectLogoFile(project.getId(), ofn);
+								final var ofn = project.getPathToLogo();
+								final var fn = fileCallback.projectLogoFile(project.getId(), ofn);
 								if (!Objects.equals(ofn, fn)) {
 									project.setPathToLogo(fn);
 									projectChanged = true;
 								}
 							}
 							if (!Strings.isNullOrEmpty(project.getPathToPowerpoint())) {
-								final String ofn = project.getPathToPowerpoint();
-								final String fn = fileCallback.projectPowerpointFile(project.getId(), ofn);
+								final var ofn = project.getPathToPowerpoint();
+								final var fn = fileCallback.projectPowerpointFile(project.getId(), ofn);
 								if (!Objects.equals(ofn, fn)) {
 									project.setPathToPowerpoint(fn);
 									projectChanged = true;
 								}
 							}
 							if (!Strings.isNullOrEmpty(project.getPathToPressDocument())) {
-								final String ofn = project.getPathToPressDocument();
-								final String fn = fileCallback.projectPressDocumentFile(project.getId(), ofn);
+								final var ofn = project.getPathToPressDocument();
+								final var fn = fileCallback.projectPressDocumentFile(project.getId(), ofn);
 								if (!Objects.equals(ofn, fn)) {
 									project.setPathToPressDocument(fn);
 									projectChanged = true;
 								}
 							}
 							if (!Strings.isNullOrEmpty(project.getPathToScientificRequirements())) {
-								final String ofn = project.getPathToScientificRequirements();
-								final String fn = fileCallback.projectScientificRequirementsFile(project.getId(), ofn);
+								final var ofn = project.getPathToScientificRequirements();
+								final var fn = fileCallback.projectScientificRequirementsFile(project.getId(), ofn);
 								if (!Objects.equals(ofn, fn)) {
 									project.setPathToScientificRequirements(fn);
 									projectChanged = true;
 								}
 							}
 							if (!project.getPathsToImages().isEmpty()) {
-								final List<String> newPaths = new ArrayList<>();
+								final var newPaths = new ArrayList<String>();
 								int imageIndex = 0;
-								for (final String path : project.getPathsToImages()) {
-									final String fn = fileCallback.projectImageFile(project.getId(), imageIndex, path);
+								for (final var path : project.getPathsToImages()) {
+									final var fn = fileCallback.projectImageFile(project.getId(), imageIndex, path);
 									if (!Objects.equals(path, fn)) {
 										newPaths.add(fn);
 										projectChanged = true;
@@ -1902,15 +1897,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 
 						// Coordinator
-						final String coordinatorId = getRef(projectObject.get(COORDINATOR_KEY));
+						final var coordinatorId = getRef(projectObject.get(COORDINATOR_KEY));
 						if (Strings.isNullOrEmpty(coordinatorId)) {
 							throw new IllegalArgumentException("Invalid coordinator reference for project with id: " + id); //$NON-NLS-1$
 						}
-						final Integer coordinatorDbId = objectIdRepository.get(coordinatorId);
+						final var coordinatorDbId = objectIdRepository.get(coordinatorId);
 						if (coordinatorDbId == null || coordinatorDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid coordinator reference for project with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<ResearchOrganization> targetCoordinator = this.organizationRepository.findById(coordinatorDbId);
+						final var targetCoordinator = this.organizationRepository.findById(coordinatorDbId);
 						if (targetCoordinator.isEmpty()) {
 							throw new IllegalArgumentException("Invalid coordinator reference for project with id: " + id); //$NON-NLS-1$
 						}
@@ -1920,15 +1915,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 
 						// Local organization
-						final String localOrganizationId = getRef(projectObject.get(LOCAL_ORGANIZATION_KEY));
+						final var localOrganizationId = getRef(projectObject.get(LOCAL_ORGANIZATION_KEY));
 						if (Strings.isNullOrEmpty(localOrganizationId)) {
 							throw new IllegalArgumentException("Invalid local organization reference for project with id: " + id); //$NON-NLS-1$
 						}
-						final Integer localOrganizationDbId = objectIdRepository.get(localOrganizationId);
+						final var localOrganizationDbId = objectIdRepository.get(localOrganizationId);
 						if (localOrganizationDbId == null || localOrganizationDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid local organization reference for project with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<ResearchOrganization> targetLocalOrganization = this.organizationRepository.findById(localOrganizationDbId);
+						final var targetLocalOrganization = this.organizationRepository.findById(localOrganizationDbId);
 						if (targetLocalOrganization.isEmpty()) {
 							throw new IllegalArgumentException("Invalid local organization reference for project with id: " + id); //$NON-NLS-1$
 						}
@@ -1938,15 +1933,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 
 						// Super organization
-						final String superOrganizationId = getRef(projectObject.get(SUPER_ORGANIZATION_KEY));
+						final var superOrganizationId = getRef(projectObject.get(SUPER_ORGANIZATION_KEY));
 						if (Strings.isNullOrEmpty(superOrganizationId)) {
 							throw new IllegalArgumentException("Invalid super organization reference for project with id: " + id); //$NON-NLS-1$
 						}
-						final Integer superOrganizationDbId = objectIdRepository.get(superOrganizationId);
+						final var superOrganizationDbId = objectIdRepository.get(superOrganizationId);
 						if (superOrganizationDbId == null || superOrganizationDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid super organization reference for project with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<ResearchOrganization> targetSuperOrganization = this.organizationRepository.findById(superOrganizationDbId);
+						final var targetSuperOrganization = this.organizationRepository.findById(superOrganizationDbId);
 						if (targetSuperOrganization.isEmpty()) {
 							throw new IllegalArgumentException("Invalid super organization reference for project with id: " + id); //$NON-NLS-1$
 						}
@@ -1956,15 +1951,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 
 						// LEAR organization
-						final String learOrganizationId = getRef(projectObject.get(LEAR_ORGANIZATION_KEY));
+						final var learOrganizationId = getRef(projectObject.get(LEAR_ORGANIZATION_KEY));
 						if (Strings.isNullOrEmpty(learOrganizationId)) {
 							throw new IllegalArgumentException("Invalid LEAR organization reference for project with id: " + id); //$NON-NLS-1$
 						}
-						final Integer learOrganizationDbId = objectIdRepository.get(learOrganizationId);
+						final var learOrganizationDbId = objectIdRepository.get(learOrganizationId);
 						if (learOrganizationDbId == null || learOrganizationDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid LEAR organization reference for project with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<ResearchOrganization> targetLearOrganization = this.organizationRepository.findById(learOrganizationDbId);
+						final var targetLearOrganization = this.organizationRepository.findById(learOrganizationDbId);
 						if (targetLearOrganization.isEmpty()) {
 							throw new IllegalArgumentException("Invalid LEAR organization reference for project with id: " + id); //$NON-NLS-1$
 						}
@@ -1974,19 +1969,19 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 
 						// Other partners
-						final Set<ResearchOrganization> otherPartners = new HashSet<>();
-						final JsonNode otherPartnersNode = projectObject.get(OTHER_PARTNERS_KEY);
+						final var otherPartners = new HashSet<ResearchOrganization>();
+						final var otherPartnersNode = projectObject.get(OTHER_PARTNERS_KEY);
 						if (otherPartnersNode != null) {
 							otherPartnersNode.forEach(otherPartnerNode -> {
-								final String partnerId = getRef(otherPartnerNode);
+								final var partnerId = getRef(otherPartnerNode);
 								if (Strings.isNullOrEmpty(partnerId)) {
 									throw new IllegalArgumentException("Invalid partner reference for project with id: " + id); //$NON-NLS-1$
 								}
-								final Integer partnerDbId = objectIdRepository.get(partnerId);
+								final var partnerDbId = objectIdRepository.get(partnerId);
 								if (partnerDbId == null || partnerDbId.intValue() == 0) {
 									throw new IllegalArgumentException("Invalid partner reference for project with id: " + id); //$NON-NLS-1$
 								}
-								final Optional<ResearchOrganization> targetPartnerOrganization = this.organizationRepository.findById(partnerDbId);
+								final var targetPartnerOrganization = this.organizationRepository.findById(partnerDbId);
 								if (targetPartnerOrganization.isEmpty()) {
 									throw new IllegalArgumentException("Invalid partner reference for project with id: " + id); //$NON-NLS-1$
 								}
@@ -1999,24 +1994,24 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 
 						// Participants
-						final List<ProjectMember> participants = new ArrayList<>();
-						final JsonNode participantsNode = projectObject.get(PARTICIPANTS_KEY);
+						final var participants = new ArrayList<ProjectMember>();
+						final var participantsNode = projectObject.get(PARTICIPANTS_KEY);
 						if (participantsNode != null) {
 							participantsNode.forEach(participantNode -> {
-								final String participantId = getRef(participantNode.get(PERSON_KEY));
+								final var participantId = getRef(participantNode.get(PERSON_KEY));
 								if (Strings.isNullOrEmpty(participantId)) {
 									throw new IllegalArgumentException("Invalid parcticipant reference for project with id: " + id); //$NON-NLS-1$
 								}
-								final Integer participantDbId = objectIdRepository.get(participantId);
+								final var participantDbId = objectIdRepository.get(participantId);
 								if (participantDbId == null || participantDbId.intValue() == 0) {
 									throw new IllegalArgumentException("Invalid participant reference for project with id: " + id); //$NON-NLS-1$
 								}
-								final Optional<Person> targetParticipant = this.personRepository.findById(participantDbId);
+								final var targetParticipant = this.personRepository.findById(participantDbId);
 								if (targetParticipant.isEmpty()) {
 									throw new IllegalArgumentException("Invalid participant reference for project with id: " + id); //$NON-NLS-1$
 								}
-								final Role role = Role.valueOfCaseInsensitive(participantNode.get(ROLE_KEY).asText());
-								final ProjectMember member = new ProjectMember();
+								final var role = Role.valueOfCaseInsensitive(participantNode.get(ROLE_KEY).asText());
+								final var member = new ProjectMember();
 								member.setPerson(targetParticipant.get());
 								member.setRole(role);
 								participants.add(member);
@@ -2035,10 +2030,10 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 						session.getTransaction().commit();
 						//
-						final List<Integer> projectScientificAxes = axesOfProjects.get(id);
+						final var projectScientificAxes = axesOfProjects.get(id);
 						if (projectScientificAxes != null && !projectScientificAxes.isEmpty()) {
 							session.beginTransaction();
-							final List<ScientificAxis> axisInstances = this.scientificAxisRepository.findAllById(projectScientificAxes);
+							final var axisInstances = this.scientificAxisRepository.findAllById(projectScientificAxes);
 							project.setScientificAxes(axisInstances);
 							if (!isFake()) {
 								this.projectRepository.save(project);
@@ -2056,9 +2051,9 @@ public class JsonToDatabaseImporter extends JsonTool {
 	}
 
 	private static  List<String> getStringList(JsonNode node, String fieldName) {
-		final List<String> content = new ArrayList<>();
+		final var content = new ArrayList<String>();
 		if (node != null && !Strings.isNullOrEmpty(fieldName)) {
-			final JsonNode fieldNode = node.get(fieldName);
+			final var fieldNode = node.get(fieldName);
 			if (fieldNode != null && fieldNode.isArray()) {
 				fieldNode.forEach(it -> {
 					content.add(it.asText());
@@ -2080,27 +2075,27 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertAssociatedStructures(Session session, JsonNode structures, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (structures != null && !structures.isEmpty()) {
 			getLogger().info("Inserting " + structures.size() + " associated structures..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (JsonNode structureObject : structures) {
+			var i = 0;
+			for (var structureObject : structures) {
 				getLogger().info("> Associated Structure " + (i + 1) + "/" + structures.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(structureObject);
-					AssociatedStructure structure = createObject(AssociatedStructure.class, structureObject, aliasRepository, null);
+					final var id = getId(structureObject);
+					var structure = createObject(AssociatedStructure.class, structureObject, aliasRepository, null);
 					if (structure != null) {
 						session.beginTransaction();
 
-						final String fundingOrganizationId = getRef(structureObject.get(FUNDING_KEY));
+						final var fundingOrganizationId = getRef(structureObject.get(FUNDING_KEY));
 						if (Strings.isNullOrEmpty(fundingOrganizationId)) {
 							throw new IllegalArgumentException("Invalid funding organization reference for associated structure with id: " + id); //$NON-NLS-1$
 						}
-						final Integer fundingOrganizationDbId = objectIdRepository.get(fundingOrganizationId);
+						final var fundingOrganizationDbId = objectIdRepository.get(fundingOrganizationId);
 						if (fundingOrganizationDbId == null || fundingOrganizationDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid funding organization reference for associated structure with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<ResearchOrganization> fundingOrganization = this.organizationRepository.findById(fundingOrganizationDbId);
+						final var fundingOrganization = this.organizationRepository.findById(fundingOrganizationDbId);
 						if (fundingOrganization.isEmpty()) {
 							throw new IllegalArgumentException("Invalid funding organization reference for associated structure with id: " + id); //$NON-NLS-1$
 						}
@@ -2109,56 +2104,56 @@ public class JsonToDatabaseImporter extends JsonTool {
 							this.structureRepository.save(structure);
 						}
 
-						final List<AssociatedStructureHolder> holders = new ArrayList<>();
-						final JsonNode holdersNode = structureObject.get(HOLDERS_KEY);
+						final var holders = new ArrayList<AssociatedStructureHolder>();
+						final var holdersNode = structureObject.get(HOLDERS_KEY);
 						if (holdersNode != null) {
 							holdersNode.forEach(holderNode -> {
-								final AssociatedStructureHolder holderObj = new AssociatedStructureHolder();
+								final var holderObj = new AssociatedStructureHolder();
 								// Person
-								final String personId = getRef(holderNode.get(PERSON_KEY));
+								final var personId = getRef(holderNode.get(PERSON_KEY));
 								if (Strings.isNullOrEmpty(personId)) {
 									throw new IllegalArgumentException("Invalid holding person reference for associated structure with id: " + id); //$NON-NLS-1$
 								}
-								final Integer personDbId = objectIdRepository.get(personId);
+								final var personDbId = objectIdRepository.get(personId);
 								if (personDbId == null || personDbId.intValue() == 0) {
 									throw new IllegalArgumentException("Invalid holding person reference for associated structure with id: " + id); //$NON-NLS-1$
 								}
-								final Optional<Person> person = this.personRepository.findById(personDbId);
+								final var person = this.personRepository.findById(personDbId);
 								if (person.isEmpty()) {
 									throw new IllegalArgumentException("Invalid holding person reference for associated structure with id: " + id); //$NON-NLS-1$
 								}
 								holderObj.setPerson(person.get());
 								// Role
-								final HolderRole role = getEnum(holderNode, ROLE_KEY, HolderRole.class);
+								final var role = getEnum(holderNode, ROLE_KEY, HolderRole.class);
 								if (role == null) {
 									throw new IllegalArgumentException("Invalid holder role for associated structure with id: " + id); //$NON-NLS-1$
 								}
 								holderObj.setRole(role);
 								// Role description
-								final String roleDescription = getStringValue(holderNode.get(ROLE_DESCRIPTION_KEY));
+								final var roleDescription = getStringValue(holderNode.get(ROLE_DESCRIPTION_KEY));
 								if (!Strings.isNullOrEmpty(roleDescription)) {
 									holderObj.setRoleDescription(roleDescription);
 								}
 								// Organization
-								final String organizationId = getRef(holderNode.get(ORGANIZATION_KEY));
+								final var organizationId = getRef(holderNode.get(ORGANIZATION_KEY));
 								if (Strings.isNullOrEmpty(organizationId)) {
 									throw new IllegalArgumentException("Invalid holder organization reference for associated structure with id: " + id); //$NON-NLS-1$
 								}
-								final Integer organizationDbId = objectIdRepository.get(organizationId);
+								final var organizationDbId = objectIdRepository.get(organizationId);
 								if (organizationDbId == null || organizationDbId.intValue() == 0) {
 									throw new IllegalArgumentException("Invalid holder organization reference for associated structure with id: " + id); //$NON-NLS-1$
 								}
-								final Optional<ResearchOrganization> organization = this.organizationRepository.findById(organizationDbId);
+								final var organization = this.organizationRepository.findById(organizationDbId);
 								if (organization.isEmpty()) {
 									throw new IllegalArgumentException("Invalid holder organization reference for associated structure with id: " + id); //$NON-NLS-1$
 								}
 								holderObj.setOrganization(organization.get());
 								// Super organization
-								final String superOrganizationId = getRef(holderNode.get(SUPER_ORGANIZATION_KEY));
+								final var superOrganizationId = getRef(holderNode.get(SUPER_ORGANIZATION_KEY));
 								if (!Strings.isNullOrEmpty(superOrganizationId)) {
-									final Integer superOrganizationDbId = objectIdRepository.get(superOrganizationId);
+									final var superOrganizationDbId = objectIdRepository.get(superOrganizationId);
 									if (superOrganizationDbId != null && superOrganizationDbId.intValue() != 0) {
-										final Optional<ResearchOrganization> superOrganization = this.organizationRepository.findById(superOrganizationDbId);
+										final var superOrganization = this.organizationRepository.findById(superOrganizationDbId);
 										if (superOrganization.isPresent()) {
 											holderObj.setSuperOrganization(superOrganization.get());
 										}
@@ -2172,19 +2167,19 @@ public class JsonToDatabaseImporter extends JsonTool {
 							this.structureRepository.save(structure);
 						}
 
-						final List<Project> projects = new ArrayList<>();
-						final JsonNode projectsNode = structureObject.get(PROJECTS_KEY);
+						final var projects = new ArrayList<Project>();
+						final var projectsNode = structureObject.get(PROJECTS_KEY);
 						if (projectsNode != null) {
 							projectsNode.forEach(projectNode -> {
-								final String projectId = getRef(projectNode);
+								final var projectId = getRef(projectNode);
 								if (Strings.isNullOrEmpty(projectId)) {
 									throw new IllegalArgumentException("Invalid project reference for associated structure with id: " + id); //$NON-NLS-1$
 								}
-								final Integer projectDbId = objectIdRepository.get(projectId);
+								final var projectDbId = objectIdRepository.get(projectId);
 								if (projectDbId == null || projectDbId.intValue() == 0) {
 									throw new IllegalArgumentException("Invalid project reference for associated structure with id: " + id); //$NON-NLS-1$
 								}
-								final Optional<Project> project = this.projectRepository.findById(projectDbId);
+								final var project = this.projectRepository.findById(projectDbId);
 								if (project.isEmpty()) {
 									throw new IllegalArgumentException("Invalid project reference for associated structure with id: " + id); //$NON-NLS-1$
 								}
@@ -2225,27 +2220,27 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertTeachingActivities(Session session, JsonNode activities, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (activities != null && !activities.isEmpty()) {
 			getLogger().info("Inserting " + activities.size() + " teaching activities..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (JsonNode activityObject : activities) {
+			var i = 0;
+			for (var activityObject : activities) {
 				getLogger().info("> Teaching activity " + (i + 1) + "/" + activities.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(activityObject);
-					TeachingActivity activity = createObject(TeachingActivity.class, activityObject, aliasRepository, null);
+					final var id = getId(activityObject);
+					var activity = createObject(TeachingActivity.class, activityObject, aliasRepository, null);
 					if (activity != null) {
 						session.beginTransaction();
 
-						final String personId = getRef(activityObject.get(PERSON_KEY));
+						final var personId = getRef(activityObject.get(PERSON_KEY));
 						if (Strings.isNullOrEmpty(personId)) {
 							throw new IllegalArgumentException("Invalid person reference for teaching activity with id: " + id); //$NON-NLS-1$
 						}
-						final Integer personDbId = objectIdRepository.get(personId);
+						final var personDbId = objectIdRepository.get(personId);
 						if (personDbId == null || personDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid person reference for teaching activity with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<Person> person = this.personRepository.findById(personDbId);
+						final var person = this.personRepository.findById(personDbId);
 						if (person.isEmpty()) {
 							throw new IllegalArgumentException("Invalid person reference for teaching activity with id: " + id); //$NON-NLS-1$
 						}
@@ -2254,15 +2249,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 							this.teachingRepository.save(activity);
 						}
 
-						final String universityId = getRef(activityObject.get(UNIVERSITY_KEY));
+						final var universityId = getRef(activityObject.get(UNIVERSITY_KEY));
 						if (Strings.isNullOrEmpty(universityId)) {
 							throw new IllegalArgumentException("Invalid university reference for teaching activity with id: " + id); //$NON-NLS-1$
 						}
-						final Integer universityDbId = objectIdRepository.get(universityId);
+						final var universityDbId = objectIdRepository.get(universityId);
 						if (universityDbId == null || universityDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid university reference for teaching activity with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<ResearchOrganization> university = this.organizationRepository.findById(universityDbId);
+						final var university = this.organizationRepository.findById(universityDbId);
 						if (university.isEmpty()) {
 							throw new IllegalArgumentException("Invalid university reference for teaching activity with id: " + id); //$NON-NLS-1$
 						}
@@ -2271,18 +2266,18 @@ public class JsonToDatabaseImporter extends JsonTool {
 							this.teachingRepository.save(activity);
 						}
 
-						final Map<TeachingActivityType, Float> annualHoursMap = new HashMap<>();
-						final JsonNode annualHoursNode = activityObject.get(ANNUAL_HOURS_KEY);
+						final var annualHoursMap = new HashMap<TeachingActivityType, Float>();
+						final var annualHoursNode = activityObject.get(ANNUAL_HOURS_KEY);
 						if (annualHoursNode != null) {
 							annualHoursNode.forEach(annualHourNode -> {
 								// Hours
-								final Float hours = getFloat(annualHourNode, HOURS_KEY);
+								final var hours = getFloat(annualHourNode, HOURS_KEY);
 								if (hours == null) {
 									throw new IllegalArgumentException("Invalid hours for teahing activity with id: " + id); //$NON-NLS-1$
 								}
 								if (hours.floatValue() > 0f) {
 									// Type
-									final TeachingActivityType type = getEnum(annualHourNode, TYPE_KEY, TeachingActivityType.class);
+									final var type = getEnum(annualHourNode, TYPE_KEY, TeachingActivityType.class);
 									if (type == null) {
 										throw new IllegalArgumentException("Invalid activity type for teahing activity with id: " + id); //$NON-NLS-1$
 									}
@@ -2325,15 +2320,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertScientificAxes(Session session, JsonNode axes, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (axes != null && !axes.isEmpty()) {
 			getLogger().info("Inserting " + axes.size() + " scientific axes..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (JsonNode axisObject : axes) {
+			var i = 0;
+			for (var axisObject : axes) {
 				getLogger().info("> Scientific axis " + (i + 1) + "/" + axes.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(axisObject);
-					ScientificAxis axis = createObject(ScientificAxis.class, axisObject, aliasRepository, null);
+					final var id = getId(axisObject);
+					var axis = createObject(ScientificAxis.class, axisObject, aliasRepository, null);
 					if (axis != null) {
 						if (!isFake()) {
 							this.scientificAxisRepository.save(axis);
@@ -2363,27 +2358,27 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	protected int insertApplicationUsers(Session session, JsonNode users, Map<String, Integer> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
-		int nbNew = 0;
+		var nbNew = 0;
 		if (users != null && !users.isEmpty()) {
 			getLogger().info("Inserting " + users.size() + " application users..."); //$NON-NLS-1$ //$NON-NLS-2$
-			int i = 0;
-			for (JsonNode userObject : users) {
+			var i = 0;
+			for (var userObject : users) {
 				getLogger().info("> User " + (i + 1) + "/" + users.size()); //$NON-NLS-1$ //$NON-NLS-2$
 				try {
-					final String id = getId(userObject);
-					User user = createObject(User.class, userObject, aliasRepository, null);
+					final var id = getId(userObject);
+					var user = createObject(User.class, userObject, aliasRepository, null);
 					if (user != null) {
 						session.beginTransaction();
 
-						final String personId = getRef(userObject.get(PERSON_KEY));
+						final var personId = getRef(userObject.get(PERSON_KEY));
 						if (Strings.isNullOrEmpty(personId)) {
 							throw new IllegalArgumentException("Invalid person reference for application user with id: " + id); //$NON-NLS-1$
 						}
-						final Integer personDbId = objectIdRepository.get(personId);
+						final var personDbId = objectIdRepository.get(personId);
 						if (personDbId == null || personDbId.intValue() == 0) {
 							throw new IllegalArgumentException("Invalid person reference for application user with id: " + id); //$NON-NLS-1$
 						}
-						final Optional<Person> person = this.personRepository.findById(personDbId);
+						final var person = this.personRepository.findById(personDbId);
 						if (person.isEmpty()) {
 							throw new IllegalArgumentException("Invalid person reference for application user with id: " + id); //$NON-NLS-1$
 						}

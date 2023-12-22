@@ -20,7 +20,6 @@
 package fr.utbm.ciad.labmanager.data.member;
 
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,12 +58,12 @@ public class PersonListComparator implements Comparator<List<Person>> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		final Iterator<Person> it1 = o1.iterator();
-		final Iterator<Person> it2 = o2.iterator();
+		final var it1 = o1.iterator();
+		final var it2 = o2.iterator();
 		while (it1.hasNext() && it2.hasNext()) {
-			final Person p1 = it1.next();
-			final Person p2 = it2.next();
-			final int cmp = this.personComparator.compare(p1, p2);
+			final var p1 = it1.next();
+			final var p2 = it2.next();
+			final var cmp = this.personComparator.compare(p1, p2);
 			if (cmp != 0) {
 				return cmp;
 			}

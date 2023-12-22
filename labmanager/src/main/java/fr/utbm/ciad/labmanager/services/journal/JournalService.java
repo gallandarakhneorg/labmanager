@@ -180,7 +180,7 @@ public class JournalService extends AbstractService {
 	 * @return the journal, or {@code null} if none is defined.
 	 */
 	public Journal getJournalById(int identifier) {
-		final Optional<Journal> res = this.journalRepository.findById(Integer.valueOf(identifier));
+		final var res = this.journalRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
 			return res.get();
 		}
@@ -193,7 +193,7 @@ public class JournalService extends AbstractService {
 	 * @return the journal, or {@code null} if none is defined.
 	 */
 	public Journal getJournalByName(String name) {
-		final Set<Journal> res = getJournalsByName(name);
+		final var res = getJournalsByName(name);
 		if (res.isEmpty()) {
 			return null;
 		}
@@ -215,9 +215,9 @@ public class JournalService extends AbstractService {
 	 * @return the journal identifier, or {@code 0} if none is defined.
 	 */
 	public int getJournalIdByName(String name) {
-		final Set<Journal> res = this.journalRepository.findDistinctByJournalName(name);
+		final var res = this.journalRepository.findDistinctByJournalName(name);
 		if (!res.isEmpty()) {
-			final Journal journal = res.iterator().next();
+			final var journal = res.iterator().next();
 			if (journal != null) {
 				return journal.getId();
 			}
@@ -243,7 +243,7 @@ public class JournalService extends AbstractService {
 	 */
 	public Journal createJournal(boolean validated, String name, String address, String publisher, String isbn, String issn,
 			Boolean openAccess, String journalUrl, String scimagoId, String scimagoCategory, String wosId, String wosCategory) {
-		final Journal res = new Journal();
+		final var res = new Journal();
 		res.setJournalName(name);
 		res.setAddress(address);
 		res.setPublisher(publisher);
@@ -266,11 +266,12 @@ public class JournalService extends AbstractService {
 	 * @param identifier the identifier of the journal to remove.
 	 * @throws AttachedJournalPaperException when the journal has attached papers.
 	 */
+	@Transactional
 	public void removeJournal(int identifier) throws AttachedJournalPaperException {
-		final Integer id = Integer.valueOf(identifier);
-		final Optional<Journal> journalRef = this.journalRepository.findById(id);
+		final var id = Integer.valueOf(identifier);
+		final var journalRef = this.journalRepository.findById(id);
 		if (journalRef.isPresent()) {
-			final Journal journal = journalRef.get();
+			final var journal = journalRef.get();
 			if (journal.hasPublishedPaper()) {
 				throw new AttachedJournalPaperException();
 			}
@@ -297,9 +298,9 @@ public class JournalService extends AbstractService {
 	 */
 	public Journal updateJournal(int identifier, boolean validated, String name, String address, String publisher, String isbn, String issn,
 			Boolean openAccess, String journalUrl, String scimagoId, String scimagoCategory, String wosId, String wosCategory) {
-		final Optional<Journal> res = this.journalRepository.findById(Integer.valueOf(identifier));
+		final var res = this.journalRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
-			final Journal journal = res.get();
+			final var journal = res.get();
 			if (journal != null) {
 				if (!Strings.isNullOrEmpty(name)) {
 					journal.setJournalName(name);
@@ -331,13 +332,13 @@ public class JournalService extends AbstractService {
 	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
 	 */
 	public boolean linkPaper(int journalId, int paperId) {
-		final Integer idPaper = Integer.valueOf(paperId);
-		final Optional<JournalPaper> optPaper = this.publicationRepository.findById(idPaper);
+		final var idPaper = Integer.valueOf(paperId);
+		final var optPaper = this.publicationRepository.findById(idPaper);
 		if (optPaper.isPresent()) {
-			final Optional<Journal> optJournal = this.journalRepository.findById(Integer.valueOf(journalId));
+			final var optJournal = this.journalRepository.findById(Integer.valueOf(journalId));
 			if (optJournal.isPresent()) {
-				final JournalPaper paper = optPaper.get();
-				final Journal journal = optJournal.get();
+				final var paper = optPaper.get();
+				final var journal = optJournal.get();
 				unlinkPaper(paperId, false);
 				journal.getPublishedPapers().add(paper);
 				paper.setJournal(journal);
@@ -356,10 +357,10 @@ public class JournalService extends AbstractService {
 	 * @return {@code true} if the link is deleted; {@code false} if the link cannot be deleted.
 	 */
 	public boolean unlinkPaper(int paperId, boolean applySave) {
-		final Optional<JournalPaper> optPaper = this.publicationRepository.findById(Integer.valueOf(paperId));
+		final var optPaper = this.publicationRepository.findById(Integer.valueOf(paperId));
 		if (optPaper.isPresent()) {
-			final JournalPaper paper = optPaper.get();
-			final Journal linkedJournal = paper.getJournal();
+			final var paper = optPaper.get();
+			final var linkedJournal = paper.getJournal();
 			if (linkedJournal != null) {
 				if (linkedJournal.getPublishedPapers().remove(paper)) {
 					paper.setJournal(null);
@@ -389,7 +390,7 @@ public class JournalService extends AbstractService {
 	 * @return the quartile or {@code null} if none cannot be found.
 	 */
 	public QuartileRanking downloadScimagoQuartileByJournalId(int journalId) {
-		final Optional<Journal> res = this.journalRepository.findById(Integer.valueOf(journalId));
+		final var res = this.journalRepository.findById(Integer.valueOf(journalId));
 		if (res.isPresent()) {
 			return downloadScimagoQuartileByJournal(res.get());
 		}
@@ -431,14 +432,14 @@ public class JournalService extends AbstractService {
 	 */
 	public QuartileRanking downloadScimagoQuartileByJournal(Journal journal) {
 		if (journal != null) {
-			final String scimagoId = journal.getScimagoId();
+			final var scimagoId = journal.getScimagoId();
 			if (!Strings.isNullOrEmpty(scimagoId)) {
 				try {
-					final URL url = getScimagoQuartileImageURLByJournal(journal);
+					final var url = getScimagoQuartileImageURLByJournal(journal);
 					if (url != null) {
-						final BufferedImage image = this.netConnection.getImageFromURL(url);
-						final int rgba = image.getRGB(5, 55);
-						final int red = (rgba >> 16) & 0xff;
+						final var image = this.netConnection.getImageFromURL(url);
+						final var rgba = image.getRGB(5, 55);
+						final var red = (rgba >> 16) & 0xff;
 						switch (red) {
 						case 164:
 							return QuartileRanking.Q1;
@@ -505,43 +506,43 @@ public class JournalService extends AbstractService {
 	 * @since 2.5
 	 */
 	public JsonNode getJournalIndicatorUpdates(int referenceYear, InputStream wosCsv, Progression progress) throws Exception {
-		final Progression progress0 = progress == null ? new DefaultProgression() : progress; 
-		final List<Journal> journals = this.journalRepository.findAll();
+		final var progress0 = progress == null ? new DefaultProgression() : progress; 
+		final var journals = this.journalRepository.findAll();
 		progress0.setProperties(0, 0, journals.size(), false);
-		final ObjectMapper mapper = JsonUtils.createMapper();
-		final ObjectNode root = new ObjectNode(mapper.getNodeFactory());
-		final ArrayNode dataNode = root.putArray("data"); //$NON-NLS-1$
-		for (final Journal journal : journals) {
-			final ObjectNode journalNode = dataNode.objectNode();
-			final QuartileRanking lastScimagoQuartile = journal.getScimagoQIndexByYear(referenceYear);
-			final ObjectNode oldDataNode = journalNode.putObject("previous"); //$NON-NLS-1$
+		final var mapper = JsonUtils.createMapper();
+		final var root = new ObjectNode(mapper.getNodeFactory());
+		final var dataNode = root.putArray("data"); //$NON-NLS-1$
+		for (final var journal : journals) {
+			final var journalNode = dataNode.objectNode();
+			final var lastScimagoQuartile = journal.getScimagoQIndexByYear(referenceYear);
+			final var oldDataNode = journalNode.putObject("previous"); //$NON-NLS-1$
 			oldDataNode.put("scimagoQindex", lastScimagoQuartile.name()); //$NON-NLS-1$
 			if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
 				oldDataNode.put("scimagoCategory", journal.getScimagoCategory()); //$NON-NLS-1$
 			}
-			final QuartileRanking lastWosQuartile = journal.getWosQIndexByYear(referenceYear);
+			final var lastWosQuartile = journal.getWosQIndexByYear(referenceYear);
 			oldDataNode.put("wosQindex", lastWosQuartile.name()); //$NON-NLS-1$
 			if (!Strings.isNullOrEmpty(journal.getWosCategory())) {
 				oldDataNode.put("wosCategory", journal.getWosCategory()); //$NON-NLS-1$
 			}
-			final float lastImpactFactor = journal.getImpactFactorByYear(referenceYear);
+			final var lastImpactFactor = journal.getImpactFactorByYear(referenceYear);
 			if (lastImpactFactor > 0f) {
 				oldDataNode.put("impactFactor", Float.toString(lastImpactFactor)); //$NON-NLS-1$
 			}
 			// Read updates from the Scimago provider
 			if (!Strings.isNullOrEmpty(journal.getScimagoId())) {
-				final ObjectNode scimagoNode = journalNode.objectNode();
-				final Map<String, QuartileRanking> rankings = this.scimago.getJournalRanking(referenceYear, journal.getScimagoId(), null);
+				final var scimagoNode = journalNode.objectNode();
+				final var rankings = this.scimago.getJournalRanking(referenceYear, journal.getScimagoId(), null);
 				if (rankings != null) {
 					QuartileRanking q = null;
 					if (!Strings.isNullOrEmpty(journal.getScimagoCategory())) {
 						q = rankings.get(journal.getScimagoCategory());
 					}
 					if (q == null) {
-						final ArrayNode categories = scimagoNode.putArray("categories"); //$NON-NLS-1$
-						for (final Entry<String, QuartileRanking> category : rankings.entrySet()) {
+						final var categories = scimagoNode.putArray("categories"); //$NON-NLS-1$
+						for (final var category : rankings.entrySet()) {
 							if (!ScimagoPlatform.BEST.equals(category.getKey())) {
-								final ObjectNode categoryNode = categories.addObject();
+								final var categoryNode = categories.addObject();
 								categoryNode.put("name", category.getKey()); //$NON-NLS-1$
 								categoryNode.put("qindex", category.getValue().name()); //$NON-NLS-1$
 							}
@@ -558,8 +559,8 @@ public class JournalService extends AbstractService {
 			}
 			// Read updates from the Web-of-Science provider
 			if (wosCsv != null && !Strings.isNullOrEmpty(journal.getISSN())) {
-				final ObjectNode wosNode = journalNode.objectNode();
-				final WebOfScienceJournal rankings = this.wos.getJournalRanking(referenceYear, wosCsv, journal.getISSN(), null);
+				final var wosNode = journalNode.objectNode();
+				final var rankings = this.wos.getJournalRanking(referenceYear, wosCsv, journal.getISSN(), null);
 				if (rankings != null) {
 					if (rankings.impactFactor > 0f) {
 						journalNode.put("impactFactor", rankings.impactFactor); //$NON-NLS-1$
@@ -569,9 +570,9 @@ public class JournalService extends AbstractService {
 						q = rankings.quartiles.get(journal.getWosCategory());
 					}
 					if (q == null) {
-						final ArrayNode categories = wosNode.putArray("categories"); //$NON-NLS-1$
-						for (final Entry<String, QuartileRanking> category : rankings.quartiles.entrySet()) {
-							final ObjectNode categoryNode = categories.addObject();
+						final var categories = wosNode.putArray("categories"); //$NON-NLS-1$
+						for (final var category : rankings.quartiles.entrySet()) {
+							final var categoryNode = categories.addObject();
 							categoryNode.put("name", category.getKey()); //$NON-NLS-1$
 							categoryNode.put("qindex", category.getValue().name()); //$NON-NLS-1$
 						}
@@ -607,10 +608,10 @@ public class JournalService extends AbstractService {
 	 */
 	public void updateJournalIndicators(int referenceYear, Map<String, Map<String, ?>> changes) {
 		if (changes != null && !changes.isEmpty()) {
-			for (final Map<String, ?> journalUpdate : changes.values()) {
-				final int id = ensureInt(journalUpdate, "id"); //$NON-NLS-1$
-				final float impactFactor = optionalFloat(journalUpdate, "impactFactor"); //$NON-NLS-1$
-				String scimagoCategory = optionalStringWithUnsetConstant(journalUpdate, "scimagoCategory"); //$NON-NLS-1$
+			for (final var journalUpdate : changes.values()) {
+				final var id = ensureInt(journalUpdate, "id"); //$NON-NLS-1$
+				final var impactFactor = optionalFloat(journalUpdate, "impactFactor"); //$NON-NLS-1$
+				var scimagoCategory = optionalStringWithUnsetConstant(journalUpdate, "scimagoCategory"); //$NON-NLS-1$
 				final QuartileRanking scimagoQindex;
 				if (NOT_RANKED_STR.equals(scimagoCategory)) {
 					scimagoCategory = null;
@@ -618,7 +619,7 @@ public class JournalService extends AbstractService {
 				} else {
 					scimagoQindex = optionalEnum(journalUpdate, "scimagoQindex", QuartileRanking.class); //$NON-NLS-1$
 				}
-				String wosCategory = optionalStringWithUnsetConstant(journalUpdate, "wosCategory"); //$NON-NLS-1$
+				var wosCategory = optionalStringWithUnsetConstant(journalUpdate, "wosCategory"); //$NON-NLS-1$
 				final QuartileRanking wosQindex;
 				if (NOT_RANKED_STR.equals(wosCategory)) {
 					wosCategory = null;
@@ -642,19 +643,19 @@ public class JournalService extends AbstractService {
 	 */
 	protected void updateJournalIndicators(int id, int referenceYear, float impactFactor, QuartileRanking scimagoQindex,
 			String scimagoCategory, QuartileRanking wosQindex, String wosCategory) {
-		final Optional<Journal> optJournal = this.journalRepository.findById(Integer.valueOf(id));
+		final var optJournal = this.journalRepository.findById(Integer.valueOf(id));
 		if (optJournal.isEmpty()) {
 			throw new IllegalArgumentException("Journal with id " + id + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		//
-		final Journal journal = optJournal.get();
-		final Set<JournalQualityAnnualIndicators> indicators = new HashSet<>();
-		boolean changed = false;
+		final var journal = optJournal.get();
+		final var indicators = new HashSet<JournalQualityAnnualIndicators>();
+		var changed = false;
 		//
 		if (!Float.isNaN(impactFactor) && impactFactor > 0f) {
-			final float lastImpactFactor = journal.getImpactFactorByYear(referenceYear);
+			final var lastImpactFactor = journal.getImpactFactorByYear(referenceYear);
 			if (Float.isNaN(lastImpactFactor) || lastImpactFactor <= 0f || (lastImpactFactor > 0f && lastImpactFactor != impactFactor)) {
-				final JournalQualityAnnualIndicators indicator = journal.setImpactFactorByYear(referenceYear, impactFactor);
+				final var indicator = journal.setImpactFactorByYear(referenceYear, impactFactor);
 				indicators.add(indicator);
 			}
 		}
@@ -668,22 +669,22 @@ public class JournalService extends AbstractService {
 			changed = true;
 		}
 		//
-		final QuartileRanking normalizedScimagoQindex = QuartileRanking.normalize(scimagoQindex);
-		final QuartileRanking lastScimagoQindex = journal.getScimagoQIndexByYear(referenceYear);
+		final var normalizedScimagoQindex = QuartileRanking.normalize(scimagoQindex);
+		final var lastScimagoQindex = journal.getScimagoQIndexByYear(referenceYear);
 		if (lastScimagoQindex != normalizedScimagoQindex) {
-			final JournalQualityAnnualIndicators indicator = journal.setScimagoQIndexByYear(referenceYear, normalizedScimagoQindex);
+			final var indicator = journal.setScimagoQIndexByYear(referenceYear, normalizedScimagoQindex);
 			indicators.add(indicator);
 		}
 		//
-		final QuartileRanking normalizedWosQindex = QuartileRanking.normalize(wosQindex);
-		final QuartileRanking lastWosQindex = journal.getWosQIndexByYear(referenceYear);
+		final var normalizedWosQindex = QuartileRanking.normalize(wosQindex);
+		final var lastWosQindex = journal.getWosQIndexByYear(referenceYear);
 		if (lastWosQindex != normalizedWosQindex) {
-			final JournalQualityAnnualIndicators indicator = journal.setWosQIndexByYear(referenceYear, normalizedWosQindex);
+			final var indicator = journal.setWosQIndexByYear(referenceYear, normalizedWosQindex);
 			indicators.add(indicator);
 		}
 		//
 		if (!indicators.isEmpty()) {
-			for (final JournalQualityAnnualIndicators indicator : indicators) {
+			for (final var indicator : indicators) {
 				this.indicatorRepository.save(indicator);
 			}
 			this.journalRepository.save(journal);

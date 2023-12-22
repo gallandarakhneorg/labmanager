@@ -68,10 +68,10 @@ public class DetailsWithErrorMark extends Details {
 	 * @param content the content of the details component.
 	 */
 	public DetailsWithErrorMark(String title, Component content) {
-		final HorizontalLayout summary = new HorizontalLayout();
+		final var summary = new HorizontalLayout();
 		summary.setSpacing(false);
 
-		final Icon icon = VaadinIcon.EXCLAMATION_CIRCLE.create();
+		final var icon = VaadinIcon.EXCLAMATION_CIRCLE_O.create();
 		icon.getStyle().set("width", "var(--lumo-icon-size-s)");  //$NON-NLS-1$//$NON-NLS-2$
 		icon.getStyle().set("height", "var(--lumo-icon-size-s)");  //$NON-NLS-1$//$NON-NLS-2$
 
@@ -100,7 +100,7 @@ public class DetailsWithErrorMark extends Details {
 	 * @see #updateErrorMessage()
 	 */
 	public void setError(String message) {
-		final String normedText = Strings.emptyToNull(message);
+		final var normedText = Strings.emptyToNull(message);
 		this.errorText.setText(normedText);
 		this.errorBadge.setVisible(normedText != null);
 	}
@@ -110,9 +110,9 @@ public class DetailsWithErrorMark extends Details {
 	 * @see #setError(String)
 	 */
 	public void updateErrorMessage() {
-		int nbErrors = 0;
-		int nbWarnings = 0;
-		for (final Pair<Boolean, Boolean> pair : this.statuses.values()) {
+		var nbErrors = 0;
+		var nbWarnings = 0;
+		for (final var pair : this.statuses.values()) {
 			if (pair.getFirst().booleanValue()) {
 				++nbErrors;
 			} else if (pair.getSecond().booleanValue()) {
@@ -155,10 +155,10 @@ public class DetailsWithErrorMark extends Details {
 	 */
 	void updateStatus(Object field, boolean isError, boolean isWarning) {
 		// Update the status counters
-		boolean errorChange = false;
-		boolean warningChange = false;
+		var errorChange = false;
+		var warningChange = false;
 		if (isError || isWarning) {
-			final Pair<Boolean, Boolean> counts = this.statuses.get(field);
+			final var counts = this.statuses.get(field);
 			boolean hasError;
 			boolean hasWarning;
 			if (counts == null) {
@@ -183,7 +183,7 @@ public class DetailsWithErrorMark extends Details {
 				this.statuses.put(field, new Pair<>(Boolean.valueOf(hasError), Boolean.valueOf(hasWarning)));
 			}
 		} else {
-			final Pair<Boolean, Boolean> removedPair = this.statuses.remove(field);
+			final var removedPair = this.statuses.remove(field);
 			if (removedPair != null) {
 				if (removedPair.getFirst().booleanValue()) {
 					errorChange = true;

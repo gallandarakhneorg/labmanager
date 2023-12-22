@@ -405,11 +405,11 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 	}
 
 	private void updatePhoto() {
-		final URL photoURL = this.editedPerson.getPhotoURL();
+		final var photoURL = getEditedEntity().getPhotoURL();
 		this.photo.removeAll();
 		if (photoURL != null) {
-			final String url = photoURL.toExternalForm();
-			final Image image = new Image(url, url);
+			final var url = photoURL.toExternalForm();
+			final var image = new Image(url, url);
 			image.setMinHeight(ViewConstants.PHOTO_SIZE, Unit.PIXELS);
 			image.setMaxHeight(ViewConstants.PHOTO_SIZE, Unit.PIXELS);
 			image.setMinWidth(ViewConstants.PHOTO_SIZE, Unit.PIXELS);
@@ -494,7 +494,7 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 	 * @param receiver the receiver of the component
 	 */
 	protected void createContactInformationComponents(VerticalLayout receiver) {
-		final FormLayout content = ComponentFactory.newColumnForm(1);
+		final var content = ComponentFactory.newColumnForm(1);
 
 		this.email = new TextField();
 		this.email.setRequired(true);
@@ -547,7 +547,7 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 	 * @param receiver the receiver of the component
 	 */
 	protected void createResearcherIdsComponents(VerticalLayout receiver) {
-		final FormLayout content = ComponentFactory.newColumnForm(2);
+		final var content = ComponentFactory.newColumnForm(2);
 
 		this.orcid = ComponentFactory.newClickableIconTextField(Person.ORCID_BASE_URL, ORCID_ICON);
 		this.orcid.setClearButtonVisible(true);
@@ -596,7 +596,7 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 	 * @param receiver the receiver of the component
 	 */
 	protected void createIndexesComponents(VerticalLayout receiver) {
-		final FormLayout content0 = ComponentFactory.newColumnForm(1);
+		final var content0 = ComponentFactory.newColumnForm(1);
 
 		this.wosHindex = new IntegerField();
 		this.wosHindex.setMin(0);
@@ -619,7 +619,7 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 		this.gscholarHindex.setPrefixComponent(VaadinIcon.CONTROLLER.create());
 		content0.add(this.gscholarHindex);
 
-		final FormLayout content1 = ComponentFactory.newColumnForm(1);
+		final var content1 = ComponentFactory.newColumnForm(1);
 
 		this.wosCitations = new IntegerField();
 		this.wosCitations.setMin(0);

@@ -24,7 +24,6 @@ import java.io.InputStream;
 import java.time.LocalDate;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
-import java.util.List;
 
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.Resources;
@@ -32,7 +31,6 @@ import org.odftoolkit.odfdom.doc.OdfDocument.OdfMediaType;
 import org.odftoolkit.odfdom.doc.OdfSpreadsheetDocument;
 import org.odftoolkit.odfdom.doc.table.OdfTable;
 import org.odftoolkit.odfdom.doc.table.OdfTableCell;
-import org.odftoolkit.odfdom.doc.table.OdfTableCellRange;
 import org.odftoolkit.odfdom.doc.table.OdfTableRow;
 import org.odftoolkit.odfdom.dom.element.table.TableTableElement;
 import org.odftoolkit.odfdom.type.Color;
@@ -99,8 +97,8 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 	 * @throws Exception if it is impossible to create the ODF table.
 	 */
 	public TableHelper newTable(String title) throws Exception {
-		final OdfTable source = this.ods.getSpreadsheetTables().get(0);
-		final OdfTable target = OdfTable.getInstance((TableTableElement) source.getOdfElement().cloneElement());
+		final var source = this.ods.getSpreadsheetTables().get(0);
+		final var target = OdfTable.getInstance((TableTableElement) source.getOdfElement().cloneElement());
 		this.ods.getContentRoot().appendChild(target.getOdfElement());
 		target.setTableName(title);
 		return new TableHelper(target);
@@ -114,7 +112,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 	 * @throws Exception if it is impossible to get the ODF table.
 	 */
 	public TableHelper getTable(int index, String title) {
-		final OdfTable source = this.ods.getSpreadsheetTables().get(index);
+		final var source = this.ods.getSpreadsheetTables().get(index);
 		source.setTableName(title);
 		return new TableHelper(source);
 	}
@@ -127,7 +125,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 	 * @throws Exception if it is impossible to get the ODF table.
 	 */
 	public TableHelper getTable(String currentName, String newName) {
-		final OdfTable source = this.ods.getTableByName(currentName);
+		final var source = this.ods.getTableByName(currentName);
 		if (!Strings.isNullOrEmpty(newName)) {
 			source.setTableName(newName);
 		}
@@ -173,7 +171,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 			this.ods.getSpreadsheetTables().get(0).remove();
 		}
 		// Serialize the spreadsheet
-		try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+		try (final var output = new ByteArrayOutputStream()) {
 			this.ods.save(output);
 			output.flush();
 			return output.toByteArray();
@@ -205,7 +203,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @return the header row.
 		 */
 		public TableHeaderHelper getHeader() {
-			final OdfTableRow row = this.table.getRowByIndex(0);
+			final var row = this.table.getRowByIndex(0);
 			row.setUseOptimalHeight(true);
 			return new TableHeaderHelper(row);
 		}
@@ -234,9 +232,9 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @return the cell.
 		 */
 		public TableCellHelper getCell(int column, int row) {
-			final StringBuilder position = new StringBuilder();
+			final var position = new StringBuilder();
 			position.append((char) ('A' + (column % 26)));
-			int c = column / 26;
+			var c = column / 26;
 			while (c > 0) {
 				position.insert(0, (char) ('A' + c));
 				c = c / 26;
@@ -260,7 +258,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @return the new row.
 		 */
 		public TableContentRowHelper insertRowAfter(int rowIndex) {
-			final List<OdfTableRow> rows = this.table.insertRowsBefore(rowIndex, 1);
+			final var rows = this.table.insertRowsBefore(rowIndex, 1);
 			return new TableContentRowHelper(rows.get(0));
 		}
 
@@ -271,7 +269,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @param row1 the last index of the rows, inclusive.
 		 */
 		public void mergeVerticalCells(int column, int row0, int row1) {
-			final OdfTableCellRange range = this.table.getCellRangeByPosition(column, row0, column, row1);
+			final var range = this.table.getCellRangeByPosition(column, row0, column, row1);
 			range.merge();
 		}
 
@@ -304,7 +302,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @param title the title of the column.
 		 */
 		public void appendColumn(String title) {
-			final OdfTableCell cell = this.row.getCellByIndex(this.index);
+			final var cell = this.row.getCellByIndex(this.index);
 			++this.index;
 			cell.setStringValue(Strings.nullToEmpty(title));
 			cell.setHorizontalAlignment(HORIZONTAL_CENTER);
@@ -344,7 +342,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @return the row.
 		 */
 		public TableContentRowHelper appendRow() {
-			final OdfTableRow row = this.table.getRowByIndex(this.rowIndex);
+			final var row = this.table.getRowByIndex(this.rowIndex);
 			++this.rowIndex;
 			return new TableContentRowHelper(row);
 		}
@@ -384,7 +382,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @param value the content of the cell.
 		 */
 		public void append(String value) {
-			final OdfTableCell cell = this.row.getCellByIndex(this.index);
+			final var cell = this.row.getCellByIndex(this.index);
 			++this.index;
 			cell.setStringValue(Strings.nullToEmpty(value));
 			defaultContentCellStyle(cell);
@@ -401,7 +399,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 			} else {
 				calendar = null;
 			}
-			final OdfTableCell cell = this.row.getCellByIndex(this.index);
+			final var cell = this.row.getCellByIndex(this.index);
 			++this.index;
 			if (calendar == null) {
 				cell.setStringValue((String) null);
@@ -416,7 +414,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @param value the content of the cell.
 		 */
 		public void appendCurrency(Double value) {
-			final OdfTableCell cell = this.row.getCellByIndex(this.index);
+			final var cell = this.row.getCellByIndex(this.index);
 			++this.index;
 			cell.setCurrencyValue(value == null ? Double.valueOf(Double.NaN) : value, CURRENCY);
 			cell.setCurrencyFormat(CURRENCY, CURRENCY_FORMAT);
@@ -428,7 +426,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @param value the content of the cell.
 		 */
 		public void append(Long value) {
-			final OdfTableCell cell = this.row.getCellByIndex(this.index);
+			final var cell = this.row.getCellByIndex(this.index);
 			++this.index;
 			cell.setDoubleValue(Double.valueOf(value == null ? 0l : value.doubleValue()));
 			cell.setFormatString(LONG_FORMAT);
@@ -440,7 +438,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @param value the content of the cell.
 		 */
 		public void append(Double value) {
-			final OdfTableCell cell = this.row.getCellByIndex(this.index);
+			final var cell = this.row.getCellByIndex(this.index);
 			++this.index;
 			cell.setDoubleValue(value == null ? Double.valueOf(0.) : value);
 			cell.setFormatString(DOUBLE_FORMAT);
@@ -452,7 +450,7 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 * @param value the content of the cell.
 		 */
 		public void append(Boolean value) {
-			final OdfTableCell cell = this.row.getCellByIndex(this.index);
+			final var cell = this.row.getCellByIndex(this.index);
 			++this.index;
 			cell.setBooleanValue(value == null ? Boolean.FALSE : value);
 			defaultContentCellStyle(cell);
@@ -487,8 +485,8 @@ public class OdfSpreadsheetHelper implements AutoCloseable {
 		 */
 		public void replace(String inputText, String replacement) {
 			if (!Strings.isNullOrEmpty(inputText)) {
-				final String ovalue = Strings.nullToEmpty(this.cell.getStringValue());
-				final String nvalue = ovalue.replace(inputText, replacement);
+				final var ovalue = Strings.nullToEmpty(this.cell.getStringValue());
+				final var nvalue = ovalue.replace(inputText, replacement);
 				this.cell.setStringValue(nvalue);
 			}
 		}

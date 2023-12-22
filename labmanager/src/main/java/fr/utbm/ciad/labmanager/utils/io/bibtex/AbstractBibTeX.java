@@ -141,8 +141,8 @@ public abstract class AbstractBibTeX implements BibTeX {
 	@Override
 	public String toTeXString(String text, boolean protectAcronyms) {
 		if (!Strings.isNullOrEmpty(text)) {
-			final StringBuilder buffer = new StringBuilder();
-			for (final String word : text.split("[\\s\\h]+")) { //$NON-NLS-1$
+			final var buffer = new StringBuilder();
+			for (final var word : text.split("[\\s\\h]+")) { //$NON-NLS-1$
 				if (buffer.length() > 0) {
 					buffer.append(' ');
 				}
@@ -160,7 +160,7 @@ public abstract class AbstractBibTeX implements BibTeX {
 	}
 
 	private static void convertToTex(StringBuilder content, String text) {
-		final Normalizer2 normalizer = Normalizer2.getNFKDInstance();
+		final var normalizer = Normalizer2.getNFKDInstance();
 		final String normalizedString;
 		if (!normalizer.isNormalized(text)) {
 			normalizedString = normalizer.normalize(text);
@@ -168,10 +168,10 @@ public abstract class AbstractBibTeX implements BibTeX {
 			normalizedString = text;
 		}
 		// Accents follow the associated characters in the normalized form.
-		final MutableInt prev = new MutableInt(0);
+		final var prev = new MutableInt(0);
 		normalizedString.chars().forEach(it -> {
-			final String accent = getAccent(it);
-			final char current = (char) prev.intValue();
+			final var accent = getAccent(it);
+			final var current = (char) prev.intValue();
 			if (accent != null) {
 				if (current != 0) {
 					content.append("{\\").append(accent).append("{"); //$NON-NLS-1$ //$NON-NLS-2$

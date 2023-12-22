@@ -21,7 +21,6 @@ package fr.utbm.ciad.labmanager.services.invitation;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
@@ -102,9 +101,9 @@ public class PersonInvitationService extends AbstractService {
 			LocalDate startDate, LocalDate endDate,
 			PersonInvitationType type,
 			String title, String university, CountryCode country) {
-		final Person personObj = this.personService.getPersonById(person);
+		final var personObj = this.personService.getPersonById(person);
 		if (personObj != null) {
-			final PersonInvitation inv = new PersonInvitation();
+			final var inv = new PersonInvitation();
 			updatePersonInvitationWithoutSaving(inv, personObj, guest, inviter, startDate, endDate, type, title, university, country);
 			return this.invitationRepository.save(inv);
 		}
@@ -132,13 +131,13 @@ public class PersonInvitationService extends AbstractService {
 			LocalDate startDate, LocalDate endDate,
 			PersonInvitationType type,
 			String title, String university, CountryCode country) {
-		final Optional<PersonInvitation> optInvitation = this.invitationRepository.findById(Integer.valueOf(invitation));
+		final var optInvitation = this.invitationRepository.findById(Integer.valueOf(invitation));
 		if (optInvitation.isEmpty()) {
 			throw new IllegalArgumentException("Invitation not found with id: " + invitation); //$NON-NLS-1$
 		}
-		final PersonInvitation invitationObj = optInvitation.get();
+		final var invitationObj = optInvitation.get();
 		//
-		final Person personObj = this.personService.getPersonById(person);
+		final var personObj = this.personService.getPersonById(person);
 		if (personObj == null) {
 			throw new IllegalArgumentException("Person not found with id: " + person); //$NON-NLS-1$
 		}
@@ -167,8 +166,8 @@ public class PersonInvitationService extends AbstractService {
 			LocalDate startDate, LocalDate endDate,
 			PersonInvitationType type,
 			String title, String university, CountryCode country) {
-		final Person guestObj = extractPerson(guest, true, this.personService, this.nameParser);
-		final Person inviterObj = extractPerson(inviter, true, this.personService, this.nameParser);
+		final var guestObj = extractPerson(guest, true, this.personService, this.nameParser);
+		final var inviterObj = extractPerson(inviter, true, this.personService, this.nameParser);
 		if (person.getId() != guestObj.getId() && person.getId() != inviterObj.getId()) {
 			throw new IllegalArgumentException("Person with name '" + person.getFullName() + "' is neither guest nor inviter"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
@@ -190,8 +189,8 @@ public class PersonInvitationService extends AbstractService {
 	 */
 	@Transactional
 	public void removePersonInvitation(int invitationId) {
-		final Integer iid = Integer.valueOf(invitationId);
-		final Optional<PersonInvitation> optInv = this.invitationRepository.findById(iid);
+		final var iid = Integer.valueOf(invitationId);
+		final var optInv = this.invitationRepository.findById(iid);
 		if (optInv.isEmpty()) {
 			throw new IllegalStateException("Person invitation not found with id: " + invitationId); //$NON-NLS-1$
 		}

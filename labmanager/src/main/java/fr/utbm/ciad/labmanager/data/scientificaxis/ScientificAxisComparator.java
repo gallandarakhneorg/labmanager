@@ -55,7 +55,7 @@ public class ScientificAxisComparator implements Comparator<ScientificAxis> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = compareDate(o1.getEndDate(), o2.getEndDate());
+		var n = compareDate(o1.getEndDate(), o2.getEndDate());
 		if (n != 0) {
 			return n;
 		}
@@ -67,11 +67,7 @@ public class ScientificAxisComparator implements Comparator<ScientificAxis> {
 		if (n != 0) {
 			return n;
 		}
-		n = StringUtils.compareIgnoreCase(o1.getName(), o2.getName());
-		if (n != 0) {
-			return n;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return StringUtils.compareIgnoreCase(o1.getName(), o2.getName());
 	}
 
 	/** Null-safe comparison the two dates.

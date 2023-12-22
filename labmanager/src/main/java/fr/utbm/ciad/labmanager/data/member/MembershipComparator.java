@@ -71,7 +71,7 @@ public class MembershipComparator implements Comparator<Membership> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = this.organizationComparator.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
+		var n = this.organizationComparator.compare(o1.getResearchOrganization(), o2.getResearchOrganization());
 		if (n != 0) {
 			return n;
 		}
@@ -111,11 +111,7 @@ public class MembershipComparator implements Comparator<Membership> {
 			return n;
 		}
 		// Main position order is reversed to put the "true" before the "false"
-		n = Boolean.compare(o2.isMainPosition(), o1.isMainPosition());
-		if (n != 0) {
-			return n;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return Boolean.compare(o2.isMainPosition(), o1.isMainPosition());
 	}
 
 }

@@ -83,7 +83,7 @@ public enum Gender {
 	 * @return the label of the gender in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -94,7 +94,7 @@ public enum Gender {
 	 * @return the civil title or {@code null} if none is applicable.
 	 */
 	public String getCivilTitle(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name() + CIVIL_TITLE_POSTFIX, (String) null, locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name() + CIVIL_TITLE_POSTFIX, (String) null, locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -107,7 +107,7 @@ public enum Gender {
 	 */
 	public static Gender valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final Gender gender : values()) {
+			for (final var gender : values()) {
 				if (name.equalsIgnoreCase(gender.name())) {
 					return gender;
 				}

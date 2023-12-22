@@ -20,9 +20,6 @@
 package fr.utbm.ciad.labmanager.utils.io.html;
 
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.time.LocalDate;
-import java.time.Month;
 import java.time.format.TextStyle;
 import java.util.Locale;
 
@@ -41,7 +38,6 @@ import fr.utbm.ciad.labmanager.data.publication.type.Report;
 import fr.utbm.ciad.labmanager.data.publication.type.Thesis;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.AbstractPublicationExporter;
-import fr.utbm.ciad.labmanager.utils.io.ExportedAuthorStatus;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
@@ -123,13 +119,13 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	@SuppressWarnings("static-method")
 	protected String formatAuthorName(Person person, int year, ExporterConfigurator configurator) {
 		assert configurator != null;
-		final ExportedAuthorStatus status = configurator.getExportedAuthorStatusFor(person, year);
-		final StringBuilder innerName = new StringBuilder();
+		final var status = configurator.getExportedAuthorStatusFor(person, year);
+		final var innerName = new StringBuilder();
 		innerName.append(toHtml(person.getFirstName()));
 		innerName.append(" "); //$NON-NLS-1$
 		innerName.append(toHtml(person.getLastName().toUpperCase()));
 
-		final StringBuilder formattedName = new StringBuilder();
+		final var formattedName = new StringBuilder();
 		switch (status) {
 		case SELECTED_PERSON:
 			if (configurator.isSelectedPersonNameFormatted()) {
@@ -190,7 +186,7 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 */
 	protected static String formatNumberIfStrictlyPositive(float number) {
 		if (number > 0f) {
-			final NumberFormat format = new DecimalFormat("#0.000"); //$NON-NLS-1$
+			final var format = new DecimalFormat("#0.000"); //$NON-NLS-1$
 			return format.format(number);
 		}
 		return null;
@@ -205,12 +201,12 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 		if (utfString == null || utfString.length() == 0) {
 			return Strings.nullToEmpty(null);
 		}
-		int len = utfString.length();
-		final StringBuffer buffer = new StringBuffer(len);
+		var len = utfString.length();
+		final var buffer = new StringBuffer(len);
 		// true if last char was blank
-		boolean lastWasBlankChar = false;
-		for (int i = 0; i < len; i++) {
-			final char c = utfString.charAt(i);
+		var lastWasBlankChar = false;
+		for (var i = 0; i < len; i++) {
+			final var c = utfString.charAt(i);
 			if (c == ' ') {
 				// blank gets extra work,
 				// this solves the problem you get if you replace all
@@ -278,9 +274,9 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 		assert receiver != null;
 		assert separator != null;
 		assert values != null;
-		boolean first = true;
-		boolean added = false;
-		for (final String value : values) {
+		var first = true;
+		var added = false;
+		for (final var value : values) {
 			if (!Strings.isNullOrEmpty(value)) {
 				if (first) {
 					first = false;
@@ -314,14 +310,14 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 * @return {@code true} if the receiver has changed.
 	 */
 	protected boolean appendRanks(StringBuilder receiver, QuartileRanking scimago, QuartileRanking wos, float impactFactor, Locale locale) {
-		final String impactFactorStr = formatNumberIfStrictlyPositive(impactFactor);
-		final QuartileRanking scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
-		final QuartileRanking wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
+		final var impactFactorStr = formatNumberIfStrictlyPositive(impactFactor);
+		final var scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
+		final var wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
 		String rank = null;
 		if (scimagoNorm != null && wosNorm != null) {
 			if (wosNorm != scimagoNorm) {
-				final String scimagoStr = toHtml(scimagoNorm.toString());
-				final String wosStr = toHtml(wosNorm.toString());
+				final var scimagoStr = toHtml(scimagoNorm.toString());
+				final var wosStr = toHtml(wosNorm.toString());
 				if (append(receiver, ", ", //$NON-NLS-1$
 						decorateBefore(scimagoStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "SCIMAGO_PREFIX", locale)), //$NON-NLS-1$
 						decorateBefore(wosStr, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "WOS_PREFIX", locale)), //$NON-NLS-1$
@@ -354,7 +350,7 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	 * @return {@code true} if the receiver has changed.
 	 */
 	protected boolean appendRanks(StringBuilder receiver, CoreRanking core, Locale locale) {
-		final CoreRanking coreNorm = core == null || core == CoreRanking.NR ? null : core;
+		final var coreNorm = core == null || core == CoreRanking.NR ? null : core;
 		if (coreNorm != null && append(receiver,
 				decorateBefore(toHtml(coreNorm.toString()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "CORE_PREFIX", locale)))) { //$NON-NLS-1$
 			receiver.append(". "); //$NON-NLS-1$
@@ -466,7 +462,7 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 	protected void exportDescription(StringBuilder html, Publication publication, ExporterConfigurator configurator) {
 		html.append(formatTitle(publication.getTitle(), configurator));
 
-		final Class<? extends Publication> publicationClass = publication.getType().getInstanceType();
+		final var publicationClass = publication.getType().getInstanceType();
 		assert publicationClass != null;
 
 		if (publicationClass.equals(Book.class)) {
@@ -493,11 +489,11 @@ public abstract class AbstractHtmlExporter extends AbstractPublicationExporter i
 			throw new IllegalArgumentException("Unsupported publication type: " + publication.getType()); //$NON-NLS-1$
 		}
 
-		final LocalDate date = publication.getPublicationDate();
+		final var date = publication.getPublicationDate();
 		if (date != null) {
-			final Month month = date.getMonth();
+			final var month = date.getMonth();
 			assert month != null;
-			final String displayName = month.getDisplayName(TextStyle.FULL_STANDALONE, java.util.Locale.getDefault());
+			final var displayName = month.getDisplayName(TextStyle.FULL_STANDALONE, java.util.Locale.getDefault());
 			html.append(toHtml(displayName));
 			html.append(", "); //$NON-NLS-1$
 		}

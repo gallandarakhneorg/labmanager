@@ -80,13 +80,13 @@ public class OrphanPublicationService extends AbstractOrphanService<Publication>
 			return getMessage(locale, MESSAGE_PREFIX + "NoDate"); //$NON-NLS-1$
 		}
 		if (publication instanceof JournalBasedPublication) {
-			final JournalBasedPublication journalPub = (JournalBasedPublication) publication;
+			final var journalPub = (JournalBasedPublication) publication;
 			if (journalPub.getJournal() == null) {
 				return getMessage(locale, MESSAGE_PREFIX + "MissedJournal"); //$NON-NLS-1$
 			}
 		}
 		if (publication instanceof ConferenceBasedPublication) {
-			final ConferenceBasedPublication conferencePub = (ConferenceBasedPublication) publication;
+			final var conferencePub = (ConferenceBasedPublication) publication;
 			if (conferencePub.getConference() == null) {
 				return getMessage(locale, MESSAGE_PREFIX + "MissedConference"); //$NON-NLS-1$
 			}

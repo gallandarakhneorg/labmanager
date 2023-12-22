@@ -61,7 +61,7 @@ public enum ProjectActivityType {
 	 * @return the label of the activity type in the given  language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -74,7 +74,7 @@ public enum ProjectActivityType {
 	 */
 	public static ProjectActivityType valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final ProjectActivityType ranking : values()) {
+			for (final var ranking : values()) {
 				if (name.equalsIgnoreCase(ranking.name())) {
 					return ranking;
 				}

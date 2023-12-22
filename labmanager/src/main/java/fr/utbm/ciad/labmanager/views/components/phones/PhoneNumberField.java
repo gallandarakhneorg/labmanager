@@ -66,7 +66,7 @@ HasValidator<PhoneNumber>, HasClientValidation {
 	private static final String LOCAL_NUMBER_VALIDATION_PATTERN = "[0-9a-zA-Z \\/\\-]*"; //$NON-NLS-1$
 
 	private static final CountryCode[] SORTED_COUNTRIES = Arrays.asList(CountryCode.values()).stream().sorted((a, b) -> {
-		int cmp = a.getCallingCode() - b.getCallingCode();
+		var cmp = a.getCallingCode() - b.getCallingCode();
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -90,7 +90,7 @@ HasValidator<PhoneNumber>, HasClientValidation {
 	/** Constructor to create a phone number picker.
 	 */
 	public PhoneNumberField() {
-		final HorizontalLayout hl = new HorizontalLayout();
+		final var hl = new HorizontalLayout();
 		hl.setSpacing(false);
 
 		this.countries = new ComboBox<>();
@@ -129,13 +129,12 @@ HasValidator<PhoneNumber>, HasClientValidation {
 	 * @param isClientSide indicates if the event comes from the client.
 	 */
 	protected void fireValueChangeEventFromCountryChange(boolean isClientSide) {
-		final PhoneNumber current = generateModelValue();
+		final var current = generateModelValue();
 		if ((current == null && this.oldValue != null)
 				|| (current != null && (this.oldValue == null || !current.equals(this.oldValue)))) {
-			final PhoneNumber old = this.oldValue;
+			final var old = this.oldValue;
 			this.oldValue = current;
-			final ComponentValueChangeEvent<PhoneNumberField, PhoneNumber> evt = new ComponentValueChangeEvent<>(
-					this, this, old, isClientSide);
+			final var evt = new ComponentValueChangeEvent<>(this, this, old, isClientSide);
 			fireEvent(evt);
 		}
 	}
@@ -145,13 +144,12 @@ HasValidator<PhoneNumber>, HasClientValidation {
 	 * @param isClientSide indicates if the event comes from the client.
 	 */
 	protected void fireValueChangeEventFromNumberChange(boolean isClientSide) {
-		final PhoneNumber current = generateModelValue();
+		final var current = generateModelValue();
 		if ((current == null && this.oldValue != null)
 				|| (current != null && (this.oldValue == null || !current.equals(this.oldValue)))) {
-			final PhoneNumber old = this.oldValue;
+			final var old = this.oldValue;
 			this.oldValue = current;
-			final ComponentValueChangeEvent<PhoneNumberField, PhoneNumber> evt = new ComponentValueChangeEvent<>(
-					this, this, old, isClientSide);
+			final var evt = new ComponentValueChangeEvent<>(this, this, old, isClientSide);
 			fireEvent(evt);
 		}
 	}
@@ -159,11 +157,10 @@ HasValidator<PhoneNumber>, HasClientValidation {
 	/** Fire the event change due.
 	 */
 	protected void fireValueChangeEvent() {
-		final PhoneNumber current = generateModelValue();
-		final PhoneNumber old = this.oldValue;
+		final var current = generateModelValue();
+		final var old = this.oldValue;
 		this.oldValue = current;
-		final ComponentValueChangeEvent<PhoneNumberField, PhoneNumber> evt = new ComponentValueChangeEvent<>(
-				this, this, old, false);
+		final var evt = new ComponentValueChangeEvent<>(this, this, old, false);
 		fireEvent(evt);
 	}
 
@@ -183,7 +180,7 @@ HasValidator<PhoneNumber>, HasClientValidation {
 	 * @return the default country.
 	 */
 	public CountryCode getDefaultCountry() {
-		final CountryCode cc = CountryCode.fromLocale(getLocale());
+		final var cc = CountryCode.fromLocale(getLocale());
 		if (cc == null) {
 			return CountryCode.getDefault();
 		}
@@ -282,9 +279,9 @@ HasValidator<PhoneNumber>, HasClientValidation {
 	 */
 	protected void updateDynamicHelperText() {
 		if (this.hasDynamicHelpText && this.dynamicHelpText != null) {
-			final CountryCode cc = this.countries.getValue();
+			final var cc = this.countries.getValue();
 			if (cc != null) {
-				final String message = MessageFormat.format(this.dynamicHelpText,
+				final var message = MessageFormat.format(this.dynamicHelpText,
 						Integer.valueOf(cc.getCallingCode()),
 						cc.getInternationalPhonePrefix(),
 						cc.getNationalPhonePrefix());
@@ -327,7 +324,7 @@ HasValidator<PhoneNumber>, HasClientValidation {
 	 */
 	public void setDynamicHelperText(String helperText) {
 		if (this.hasDynamicHelpText) {
-			final String newValue = Strings.emptyToNull(helperText);
+			final var newValue = Strings.emptyToNull(helperText);
 			if (!Objects.equals(newValue, this.dynamicHelpText)) {
 				this.dynamicHelpText = newValue;
 				updateDynamicHelperText();
@@ -369,11 +366,11 @@ HasValidator<PhoneNumber>, HasClientValidation {
 
 	@Override
 	protected PhoneNumber generateModelValue() {
-		final String num = this.number.getValue();
+		final var num = this.number.getValue();
 		if (Strings.isNullOrEmpty(num)) {
 			return null;
 		}
-		CountryCode cc = this.countries.getValue();
+		var cc = this.countries.getValue();
 		if (cc == null) {
 			cc = getDefaultCountry();
 		}
@@ -390,7 +387,7 @@ HasValidator<PhoneNumber>, HasClientValidation {
 			this.number.clear();
 		} else {
 			this.countries.setValue(newPresentationValue.getCountry());
-			final String num = newPresentationValue.getLocalNumber();
+			final var num = newPresentationValue.getLocalNumber();
 			if (Strings.isNullOrEmpty(num)) {
 				this.number.clear();
 			} else {
@@ -492,7 +489,7 @@ HasValidator<PhoneNumber>, HasClientValidation {
 		 * @return the result of the validity check.
 		 */
 		ValidationResult checkValidity(PhoneNumber value) {
-			final boolean valueViolatePattern = PhoneNumberField.this.number.isInvalid();
+			final var valueViolatePattern = PhoneNumberField.this.number.isInvalid();
 			if (valueViolatePattern) {
 				return ValidationResult.error(""); //$NON-NLS-1$
 			}

@@ -140,7 +140,7 @@ public interface RIS extends PublicationExporter<String> {
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference,
 			Locale locale) throws Exception {
 		if (!Strings.isNullOrEmpty(ris)) {
-			try (final Reader reader = new StringReader(ris)) {
+			try (final var reader = new StringReader(ris)) {
 				return getPublicationStreamFrom(reader, keepRisId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
 						createMissedConference, locale);
 			}
@@ -179,7 +179,7 @@ public interface RIS extends PublicationExporter<String> {
 
 	@Override
 	default String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
-		try (final StringWriter writer = new StringWriter()) {
+		try (final var writer = new StringWriter()) {
 			exportPublications(writer, publications, configurator);
 			return Strings.emptyToNull(writer.toString());
 		} catch (IOException ex) {

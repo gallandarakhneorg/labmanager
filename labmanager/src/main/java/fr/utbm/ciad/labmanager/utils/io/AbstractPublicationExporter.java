@@ -25,7 +25,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.TreeMap;
 import java.util.function.Consumer;
 
@@ -113,31 +112,31 @@ public abstract class AbstractPublicationExporter {
 			Consumer<List<Publication>> list) throws Exception {
 		if (configurator.isGroupedByCategory() || configurator.isGroupedByYear()) {
 			if (configurator.isGroupedByCategory() && configurator.isGroupedByYear()) {
-				final Map<PublicationCategory, Map<Integer, List<Publication>>> groupedPublications = groupByCategoryAndYear(publications);
-				for (final Entry<PublicationCategory, Map<Integer, List<Publication>>> entry0 : groupedPublications.entrySet()) {
+				final var groupedPublications = groupByCategoryAndYear(publications);
+				for (final var entry0 : groupedPublications.entrySet()) {
 					section.accept(getCategoryLabel(configurator.getLocale(), entry0.getKey()));
-					for (final Entry<Integer, List<Publication>> entry1 : entry0.getValue().entrySet()) {
+					for (final var entry1 : entry0.getValue().entrySet()) {
 						subsection.accept(getYearLabel(entry1.getKey()));
 						list.accept(entry1.getValue());
 					}
 				}
 			} else if (configurator.isGroupedByCategory()) {
-				final Map<PublicationCategory, List<Publication>> groupedPublications = groupByCategory(publications);
-				for (final Entry<PublicationCategory, List<Publication>> entry : groupedPublications.entrySet()) {
+				final var groupedPublications = groupByCategory(publications);
+				for (final var entry : groupedPublications.entrySet()) {
 					section.accept(getCategoryLabel(configurator.getLocale(), entry.getKey()));
 					list.accept(entry.getValue());
 				}
 			} else {
-				final Map<Integer, List<Publication>> groupedPublications = groupByYear(publications);
-				for (final Entry<Integer, List<Publication>> entry : groupedPublications.entrySet()) {
+				final var groupedPublications = groupByYear(publications);
+				for (final var entry : groupedPublications.entrySet()) {
 					section.accept(getYearLabel(entry.getKey()));
 					list.accept(entry.getValue());
 				}
 			}
 		} else {
-			final List<Publication> ungroupedPublications = new ArrayList<>();
+			final var ungroupedPublications = new ArrayList<Publication>();
 			final Comparator<? super Publication> sorter = getPublicationComparator();
-			for (final Publication publication : publications) {
+			for (final var publication : publications) {
 				ListUtil.add(ungroupedPublications, sorter, publication, true, false);
 			}
 			list.accept(ungroupedPublications);
@@ -151,13 +150,13 @@ public abstract class AbstractPublicationExporter {
 	 * @param configurator the exporter configurator.
 	 */
 	protected Map<PublicationCategory, Map<Integer, List<Publication>>> groupByCategoryAndYear(Iterable<? extends Publication> publications) {
-		final Map<PublicationCategory, Map<Integer, List<Publication>>> content = new TreeMap<>();
+		final var content = new TreeMap<PublicationCategory, Map<Integer, List<Publication>>>();
 		final Comparator<? super Publication> sorter = getPublicationComparator();
-		for (final Publication publication : publications) {
-			final PublicationCategory category = publication.getCategory();
-			final Map<Integer, List<Publication>> years = content.computeIfAbsent(category, it -> new TreeMap<>(Collections.reverseOrder()));
-			final Integer year = Integer.valueOf(publication.getPublicationYear());
-			final List<Publication> list = years.computeIfAbsent(year, it -> new ArrayList<>());
+		for (final var publication : publications) {
+			final var category = publication.getCategory();
+			final var years = content.computeIfAbsent(category, it -> new TreeMap<>(Collections.reverseOrder()));
+			final var year = Integer.valueOf(publication.getPublicationYear());
+			final var list = years.computeIfAbsent(year, it -> new ArrayList<>());
 			ListUtil.add(list, sorter, publication, true, false);
 		}
 		return content;
@@ -170,11 +169,11 @@ public abstract class AbstractPublicationExporter {
 	 * @param configurator the exporter configurator.
 	 */
 	protected Map<PublicationCategory, List<Publication>> groupByCategory(Iterable<? extends Publication> publications) {
-		final Map<PublicationCategory, List<Publication>> content = new TreeMap<>();
+		final var content = new TreeMap<PublicationCategory, List<Publication>>();
 		final Comparator<? super Publication> sorter = getPublicationComparator();
-		for (final Publication publication : publications) {
-			final PublicationCategory category = publication.getCategory();
-			final List<Publication> list = content.computeIfAbsent(category, it -> new ArrayList<>());
+		for (final var publication : publications) {
+			final var category = publication.getCategory();
+			final var list = content.computeIfAbsent(category, it -> new ArrayList<>());
 			ListUtil.add(list, sorter, publication, true, false);
 		}
 		return content;
@@ -187,11 +186,11 @@ public abstract class AbstractPublicationExporter {
 	 * @param configurator the exporter configurator.
 	 */
 	protected Map<Integer, List<Publication>> groupByYear(Iterable<? extends Publication> publications) {
-		final Map<Integer, List<Publication>> content = new TreeMap<>(Collections.reverseOrder());
+		final var content = new TreeMap<Integer, List<Publication>>(Collections.reverseOrder());
 		final Comparator<? super Publication> sorter = getPublicationComparator();
-		for (final Publication publication : publications) {
-			final Integer year = Integer.valueOf(publication.getPublicationYear());
-			final List<Publication> list = content.computeIfAbsent(year, it -> new ArrayList<>());
+		for (final var publication : publications) {
+			final var year = Integer.valueOf(publication.getPublicationYear());
+			final var list = content.computeIfAbsent(year, it -> new ArrayList<>());
 			ListUtil.add(list, sorter, publication, true, false);
 		}
 		return content;

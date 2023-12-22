@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.members.count;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
@@ -70,11 +69,11 @@ public class PermanentResearcherCountIndicator extends AbstractInstantIndicator 
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final List<Membership> researchers = organization.getMemberships()
+		final var researchers = organization.getMemberships()
 				.parallelStream()
 				.filter(PermanentResearcherCountIndicator::isPermanentResearcher)
 				.collect(Collectors.toList());
-		final long nb = researchers.size();
+		final var nb = researchers.size();
 		setComputationDetails(researchers, it -> it.getPerson().getFullNameWithLastNameFirst());
 		return Long.valueOf(nb);
 	}
@@ -86,7 +85,7 @@ public class PermanentResearcherCountIndicator extends AbstractInstantIndicator 
 	 */
 	public static boolean isPermanentResearcher(Membership membership) {
 		if (membership != null && membership.isActive() && membership.isPermanentPosition()) {
-			final MemberStatus status = membership.getMemberStatus();
+			final var status = membership.getMemberStatus();
 			return !status.isExternalPosition() && status != MemberStatus.PHD_STUDENT
 					&& status.isResearcher() && status.isPermanentPositionAllowed();
 		}

@@ -53,7 +53,7 @@ public class JournalComparator implements Comparator<Journal> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = compareStr(o1.getJournalName(), o2.getJournalName());
+		var n = compareStr(o1.getJournalName(), o2.getJournalName());
 		if (n != 0) {
 			return n;
 		}
@@ -65,11 +65,7 @@ public class JournalComparator implements Comparator<Journal> {
 		if (n != 0) {
 			return n;
 		}
-		n = compareStr(o1.getISSN(), o2.getISSN());
-		if (n != 0) {
-			return n;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return compareStr(o1.getISSN(), o2.getISSN());
 	}
 
 	private static int compareStr(String s0, String s1) {

@@ -60,9 +60,9 @@ public class AuthenticatedUser {
 	 */
 	@Transactional
 	public Optional<User> get() {
-		final Optional<UserDetails> auth = this.authenticationContext.getAuthenticatedUser(UserDetails.class);
+		final var auth = this.authenticationContext.getAuthenticatedUser(UserDetails.class);
 		if (auth.isPresent()) {
-			final Optional<User> user = this.userRepository.findByLogin(auth.get().getUsername());
+			final var user = this.userRepository.findByLogin(auth.get().getUsername());
 			return user;
 		}
 		return Optional.empty();
@@ -81,7 +81,7 @@ public class AuthenticatedUser {
 	 */
 	public static String getUserName(AuthenticatedUser user) {
 		if (user != null) {
-			final Optional<User> ouser = user.get();
+			final var ouser = user.get();
 			if (ouser.isPresent()) {
 				return Strings.nullToEmpty(ouser.get().getLogin());
 			}

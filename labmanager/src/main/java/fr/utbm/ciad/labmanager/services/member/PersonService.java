@@ -138,14 +138,6 @@ public class PersonService extends AbstractService {
 		this.nameComparator = nameComparator;
 	}
 
-	/** Save the given person in the JPA infrastructure.
-	 *
-	 * @param person the person to save.
-	 */
-	public void save(Person person) {
-		this.personRepository.saveAndFlush(person);
-	}
-
 	/** Replies the list of all the persons from the database.
 	 *
 	 * @return all the persons.
@@ -213,7 +205,7 @@ public class PersonService extends AbstractService {
 	 * @return the person, or {@code null} if none.
 	 */
 	public Person getPersonById(int identifier) {
-		final Optional<Person> byId = this.personRepository.findById(Integer.valueOf(identifier));
+		final var byId = this.personRepository.findById(Integer.valueOf(identifier));
 		return byId.orElse(null);
 	}
 
@@ -223,7 +215,7 @@ public class PersonService extends AbstractService {
 	 * @return the person, or {@code null} if none.
 	 */
 	public Person getPersonByWebPageId(String identifier) {
-		final Optional<Person> byId = this.personRepository.findDistinctByWebPageId(identifier);
+		final var byId = this.personRepository.findDistinctByWebPageId(identifier);
 		return byId.orElse(null);
 	}
 
@@ -306,7 +298,7 @@ public class PersonService extends AbstractService {
 			String scholarId, String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId,
 			String dblpURL, String academiaURL, String cordisURL, WebPageNaming webPageNaming,
 			int scholarHindex, int wosHindex, int scopusHindex, int scholarCitations, int wosCitations, int scopusCitations) {
-		final Person res = new Person();
+		final var res = new Person();
 		res.setFirstName(firstName);
 		res.setLastName(lastName);
 		res.setGender(gender);
@@ -379,9 +371,9 @@ public class PersonService extends AbstractService {
 			String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId, String dblpURL,
 			String academiaURL, String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex, int scopusHindex,
 			int scholarCitations, int wosCitations, int scopusCitations) {
-		final Optional<Person> res = this.personRepository.findById(Integer.valueOf(identifier));
+		final var res = this.personRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
-			final Person person = res.get();
+			final var person = res.get();
 			if (!Strings.isNullOrEmpty(firstName)) {
 				person.setFirstName(firstName);
 			}
@@ -429,21 +421,21 @@ public class PersonService extends AbstractService {
 	 */
 	@Transactional
 	public Person removePerson(int identifier) {
-		final Integer id = Integer.valueOf(identifier);
-		final Optional<Person> optPerson = this.personRepository.findById(id);
+		final var id = Integer.valueOf(identifier);
+		final var optPerson = this.personRepository.findById(id);
 		if (optPerson.isPresent()) {
-			final Person person = optPerson.get();
-			for (final Authorship authorship : person.getAuthorships()) {
-				final int rank = authorship.getAuthorRank();
-				final Publication publication = authorship.getPublication();
+			final var person = optPerson.get();
+			for (final var authorship : person.getAuthorships()) {
+				final var rank = authorship.getAuthorRank();
+				final var publication = authorship.getPublication();
 				authorship.setPerson(null);
 				authorship.setPublication(null);
 				//When removing an author, reduce the ranks of the other authorships for the pubs he made.
-				final Iterator<Authorship> iterator = publication.getAuthorshipsRaw().iterator();
+				final var iterator = publication.getAuthorshipsRaw().iterator();
 				while (iterator.hasNext()) {
-					final Authorship otherAuthorsip = iterator.next();
+					final var otherAuthorsip = iterator.next();
 					if (authorship.getId() != otherAuthorsip.getId()) {
-						final int oRank = otherAuthorsip.getAuthorRank();
+						final var oRank = otherAuthorsip.getAuthorRank();
 						if (oRank > rank) {
 							otherAuthorsip.setAuthorRank(oRank - 1);
 							this.authorshipRepository.save(otherAuthorsip);
@@ -473,7 +465,7 @@ public class PersonService extends AbstractService {
 	 * @see #getPersonIdBySimilarName(String, String)
 	 */
 	public int getPersonIdByName(String firstName, String lastName) {
-		final Set<Person> res = this.personRepository.findByFirstNameAndLastName(firstName, lastName);
+		final var res = this.personRepository.findByFirstNameAndLastName(firstName, lastName);
 		if (res.size() > 0) {
 			return res.iterator().next().getId();
 		}
@@ -491,7 +483,7 @@ public class PersonService extends AbstractService {
 	 * @see #getPersonIdByName(String, String)
 	 */
 	public int getPersonIdBySimilarName(String firstName, String lastName) {
-		final Person person = getPersonBySimilarName(firstName, lastName);
+		final var person = getPersonBySimilarName(firstName, lastName);
 		if (person != null) {
 			return person.getId();
 		}
@@ -510,7 +502,7 @@ public class PersonService extends AbstractService {
 	 */
 	public Person getPersonBySimilarName(String firstName, String lastName) {
 		if (!Strings.isNullOrEmpty(firstName) || !Strings.isNullOrEmpty(lastName)) {
-			for (final Person person : this.personRepository.findAll()) {
+			for (final var person : this.personRepository.findAll()) {
 				if (this.nameComparator.isSimilar(firstName, lastName, person.getFirstName(), person.getLastName())) {
 					return person;
 				}
@@ -538,11 +530,11 @@ public class PersonService extends AbstractService {
 	 * @see #containsAMember(List)
 	 */
 	public List<Person> extractPersonsFrom(String authorText, boolean useNameSimilarity, boolean assignRandomId, boolean ensureAtLeastOneMember) {
-		final MutableInt memberCount = new MutableInt();
-		final List<Person> persons = new ArrayList<>();
+		final var memberCount = new MutableInt();
+		final var persons = new ArrayList<Person>();
 		this.nameParser.parseNames(authorText, (fn, von, ln, pos) -> {
 			// Build last name
-			final StringBuilder firstname = new StringBuilder();
+			final var firstname = new StringBuilder();
 			firstname.append(fn);
 			if (!Strings.isNullOrEmpty(von)) {
 				firstname.append(" "); //$NON-NLS-1$
@@ -587,11 +579,11 @@ public class PersonService extends AbstractService {
 	 * @return {@code true} if one person with a membership was found.
 	 */
 	public boolean containsAMember(List<String> authors, boolean useNameSimilarity) {
-		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
+		final var idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
 		try {
-			for (final String author : authors) {
+			for (final var author : authors) {
 				if (author != null) {
-					int authorId = 0;
+					var authorId = 0;
 					if (idPattern.matcher(author).matches()) {
 						// Numeric value means that the person is known.
 						try {
@@ -602,8 +594,8 @@ public class PersonService extends AbstractService {
 					}
 					if (authorId == 0) {
 						// The author seems to be not in the database already. Check it based on the name.
-						final String firstName = this.nameParser.parseFirstName(author);
-						final String lastName = this.nameParser.parseLastName(author);
+						final var firstName = this.nameParser.parseFirstName(author);
+						final var lastName = this.nameParser.parseLastName(author);
 						if (useNameSimilarity) {
 							authorId = getPersonIdBySimilarName(firstName, lastName);
 						} else {
@@ -612,7 +604,7 @@ public class PersonService extends AbstractService {
 					}
 					if (authorId != 0) {
 						// Check if the given author identifier corresponds to a known person with memberships.
-						final Optional<Person> optPers = this.personRepository.findById(Integer.valueOf(authorId));
+						final var optPers = this.personRepository.findById(Integer.valueOf(authorId));
 						if (optPers.isPresent() && !optPers.get().getMemberships().isEmpty()) {
 							throw new SuccessException();
 						}
@@ -642,16 +634,16 @@ public class PersonService extends AbstractService {
 			Locale locale,
 			Progression progression,
 			BiConsumer<Person, Map<String, Object>> callback) throws Exception {
-		final Set<Person> treatedIdentifiers = new TreeSet<>(new IdentifiableEntityComparator());
-		final Set<Membership> memberships = organization.getMemberships();
-		final Progression progress = progression == null ? new DefaultProgression() : progression;
+		final var treatedIdentifiers = new TreeSet<>(new IdentifiableEntityComparator());
+		final var memberships = organization.getMemberships();
+		final var progress = progression == null ? new DefaultProgression() : progression;
 		progress.setProperties(0, 0, memberships.size(), false);
-		for (final Membership membership : memberships) {
-			final Person person = membership.getPerson();
-			final Progression subTasks = progress.subTask(1, 0, 3);
+		for (final var membership : memberships) {
+			final var person = membership.getPerson();
+			final var subTasks = progress.subTask(1, 0, 3);
 			if (treatedIdentifiers.add(person)) {
 				progress.setComment(getMessage(locale, "personService.GetPersonIndicatorUpdatesFor", person.getFullNameWithLastNameFirst())); //$NON-NLS-1$
-				final Map<String, Object> newPersonIndicators = new HashMap<>();
+				final var newPersonIndicators = new HashMap<String, Object>();
 				readGoogleScholarIndicators(person, newPersonIndicators);
 				subTasks.increment();
 				readScopusIndicators(person, newPersonIndicators);
@@ -668,13 +660,13 @@ public class PersonService extends AbstractService {
 
 	private void readGoogleScholarIndicators(Person person, Map<String, Object> newIndicators) {
 		getLogger().info("Get Google Scholar indicators for " + person.getFullName()); //$NON-NLS-1$
-		final boolean hindexEnabled = person.getGoogleScholarHindex() > 0;
-		final boolean citationsEnabled = person.getGoogleScholarCitations() > 0;
+		final var hindexEnabled = person.getGoogleScholarHindex() > 0;
+		final var citationsEnabled = person.getGoogleScholarCitations() > 0;
 		if (!Strings.isNullOrEmpty(person.getGoogleScholarId()) && (hindexEnabled || citationsEnabled)) {
-			final URL url = person.getGoogleScholarURL();
+			final var url = person.getGoogleScholarURL();
 			if (url != null) {
 				try {
-					final GoogleScholarPerson indicators = this.googlePlatfom.getPersonRanking(url, null);
+					final var indicators = this.googlePlatfom.getPersonRanking(url, null);
 					if (indicators != null) {
 						if (hindexEnabled) {
 							if (indicators.hindex > 0) {
@@ -698,13 +690,13 @@ public class PersonService extends AbstractService {
 
 	private void readScopusIndicators(Person person, Map<String, Object> newIndicators) {
 		getLogger().info("Get Scopus indicators for " + person.getFullName()); //$NON-NLS-1$
-		final boolean hindexEnabled = person.getScopusHindex() > 0;
-		final boolean citationsEnabled = person.getScopusCitations() > 0;
+		final var hindexEnabled = person.getScopusHindex() > 0;
+		final var citationsEnabled = person.getScopusCitations() > 0;
 		if (!Strings.isNullOrEmpty(person.getScopusId()) && (hindexEnabled || citationsEnabled)) {
-			final URL url = person.getScopusURL();
+			final var url = person.getScopusURL();
 			if (url != null) {
 				try {
-					final ScopusPerson indicators = this.scopusPlatfom.getPersonRanking(url, null);
+					final var indicators = this.scopusPlatfom.getPersonRanking(url, null);
 					if (indicators != null) {
 						if (hindexEnabled) {
 							if (indicators.hindex > 0) {
@@ -728,13 +720,13 @@ public class PersonService extends AbstractService {
 
 	private void readWosIndicators(Person person, Map<String, Object> newIndicators) {
 		getLogger().info("Get WoS indicators for " + person.getFullName()); //$NON-NLS-1$
-		final boolean hindexEnabled = person.getWosHindex() > 0;
-		final boolean citationsEnabled = person.getWosCitations() > 0;
+		final var hindexEnabled = person.getWosHindex() > 0;
+		final var citationsEnabled = person.getWosCitations() > 0;
 		if (!Strings.isNullOrEmpty(person.getResearcherId()) && (hindexEnabled || citationsEnabled)) {
-			final URL url = person.getResearcherIdURL();
+			final var url = person.getResearcherIdURL();
 			if (url != null) {
 				try {
-					final WebOfSciencePerson indicators = this.wosPlatfom.getPersonRanking(url, null);
+					final var indicators = this.wosPlatfom.getPersonRanking(url, null);
 					if (indicators != null) {
 						if (hindexEnabled) {
 							if (indicators.hindex > 0) {
@@ -762,15 +754,15 @@ public class PersonService extends AbstractService {
 	 */
 	public void setPersonIndicators(Map<Integer, PersonIndicators> changes) {
 		if (changes != null) {
-			for (final Entry<Integer, PersonIndicators> entry : changes.entrySet()) {
-				final Optional<Person> person = this.personRepository.findById(entry.getKey());
+			for (final var entry : changes.entrySet()) {
+				final var person = this.personRepository.findById(entry.getKey());
 				if (person.isEmpty()) {
 					throw new IllegalArgumentException("Person not found: " + entry.getKey()); //$NON-NLS-1$
 				}
-				final PersonIndicators indicators = entry.getValue();
+				final var indicators = entry.getValue();
 				if (indicators != null) {
-					boolean change = false;
-					final Person pers = person.get();
+					var change = false;
+					final var pers = person.get();
 					if (indicators.wos.hindex >= 0) {
 						pers.setWosHindex(indicators.wos.hindex);
 						change = true;

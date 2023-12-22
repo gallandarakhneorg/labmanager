@@ -77,7 +77,7 @@ public class PermanentResearcherFteIndicator extends AbstractAnnualIndicator {
 	 */
 	public static boolean isPermanentResearcher(Membership membership, LocalDate startDate, LocalDate endDate) {
 		if (membership != null && membership.isActiveIn(startDate, endDate) && membership.isPermanentPosition()) {
-			final MemberStatus status = membership.getMemberStatus();
+			final var status = membership.getMemberStatus();
 			return !status.isExternalPosition() && status != MemberStatus.PHD_STUDENT
 					&& status.isResearcher() && status.isPermanentPositionAllowed();
 		}
@@ -86,9 +86,9 @@ public class PermanentResearcherFteIndicator extends AbstractAnnualIndicator {
 
 	@Override
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
-		final LocalDate startDate = LocalDate.of(startYear, 1, 1);
-		final LocalDate endDate = LocalDate.of(endYear, 12, 31);
-		final Map<Integer, Number> values = new ConcurrentHashMap<>();
+		final var startDate = LocalDate.of(startYear, 1, 1);
+		final var endDate = LocalDate.of(endYear, 12, 31);
+		final var values = new ConcurrentHashMap<Integer, Number>();
 		organization.getMemberships()
 			.parallelStream()
 			.filter(it -> isPermanentResearcher(it, startDate, endDate))
@@ -101,14 +101,14 @@ public class PermanentResearcherFteIndicator extends AbstractAnnualIndicator {
 	}
 
 	private static void updateValues(Map<Integer, Number> values, Membership membership, int startYear, int endYear) {
-		final float fte = membership.getMemberStatus().getUsualResearchFullTimeEquivalent();
-		for (int year = startYear; year <= endYear; ++year) {
-			final int dayCount = membership.daysInYear(year);
+		final var fte = membership.getMemberStatus().getUsualResearchFullTimeEquivalent();
+		for (var year = startYear; year <= endYear; ++year) {
+			final var dayCount = membership.daysInYear(year);
 			float annualFte = dayCount / LocalDate.of(year, 1, 1).lengthOfYear();
 			annualFte *= fte;
 			values.merge(Integer.valueOf(year), Float.valueOf(annualFte), 
 					(k0, k1) -> {
-						final float sum = k0.floatValue() + k1.floatValue();
+						final var sum = k0.floatValue() + k1.floatValue();
 						return Float.valueOf(sum);
 					});
 		}

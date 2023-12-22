@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.publication.type;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -153,8 +152,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @return the conference paper or {@code null}.
 	 */
 	public ConferencePaper getConferencePaper(int identifier) {
-		final Optional<ConferencePaper> byId = this.repository.findById(Integer.valueOf(identifier));
-		return byId.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 
@@ -171,7 +169,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 		} else {
 			members = this.membershipService.getDirectMembersOf(identifier);
 		}
-		final Set<Integer> identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
+		final var identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
 		return this.repository.findAllByAuthorshipsPersonIdIn(identifiers);
 	}
 
@@ -215,7 +213,7 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	public ConferencePaper createConferencePaper(Publication publication, Conference conference, int conferenceOccurrenceNumber,
 			String volume, String number, String pages, String editors, String series, String orga, String address,
 			boolean saveInDb) {
-		final ConferencePaper res = new ConferencePaper(publication, conference, conferenceOccurrenceNumber,
+		final var res = new ConferencePaper(publication, conference, conferenceOccurrenceNumber,
 				volume, number, pages, editors, orga, address, series);
 		if (saveInDb) {
 			this.repository.save(res);
@@ -261,9 +259,9 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			Conference conference, int conferenceOccurrenceNumber, String volume, String number,
 			String pages, String editors, String series, String orga, String address) {
-		final Optional<ConferencePaper> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final ConferencePaper paper = res.get();
+			final var paper = res.get();
 
 			updatePublicationNoSave(paper, title, type, date, year,
 					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,

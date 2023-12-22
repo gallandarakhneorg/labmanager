@@ -57,7 +57,7 @@ public final class TextUtils {
 		if (Strings.isNullOrEmpty(text)) {
 			return false;
 		}
-		final char c = Character.toLowerCase(text.charAt(0));
+		final var c = Character.toLowerCase(text.charAt(0));
 		return APOSTROPHE.contains(Character.valueOf(c));
 	}
 
@@ -70,9 +70,9 @@ public final class TextUtils {
 	 */
 	public static String formatNumber(Number number, Unit unit, Locale locale) {
 		if (number != null) {
-			final Number cvalue = unit == null ? number : unit.convertFromUnit(number);
-			final DecimalFormatSymbols symbols = new DecimalFormatSymbols(locale == null ? Locale.US : locale);
-			final DecimalFormat format = new DecimalFormat("#0.#", symbols); //$NON-NLS-1$
+			final var cvalue = unit == null ? number : unit.convertFromUnit(number);
+			final var symbols = new DecimalFormatSymbols(locale == null ? Locale.US : locale);
+			final var format = new DecimalFormat("#0.#", symbols); //$NON-NLS-1$
 			return format.format(cvalue);
 		}
 		return ""; //$NON-NLS-1$

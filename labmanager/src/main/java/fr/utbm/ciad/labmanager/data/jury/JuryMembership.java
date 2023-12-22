@@ -154,8 +154,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.type);
 		h = HashCodeUtils.add(h, this.defenseType);
@@ -175,7 +174,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final JuryMembership other = (JuryMembership) obj;
+		final var other = (JuryMembership) obj;
 		if (!Objects.equals(this.person, other.person)) {
 			return false;
 		}
@@ -487,7 +486,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	}
 
 	private static String buildLongTypeLabelKey(JuryMembershipType positionType, JuryType defenseType, boolean isFrance, Gender gender) {
-		final StringBuilder key = new StringBuilder("juryMembership."); //$NON-NLS-1$
+		final var key = new StringBuilder("juryMembership."); //$NON-NLS-1$
 		key.append(defenseType.name());
 		key.append("_"); //$NON-NLS-1$
 		key.append(positionType.name());
@@ -496,7 +495,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 		} else {
 			key.append("_other"); //$NON-NLS-1$
 		}
-		Gender g = gender;
+		var g = gender;
 		if (g == null || g == Gender.NOT_SPECIFIED) {
 			g = Gender.OTHER;
 		}
@@ -513,17 +512,17 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	 * @see #getLongTypeLabelKey
 	 */
 	public static Map<String, Integer> getAllLongTypeLabelKeys(Gender gender) {
-		final Map<String, Integer> keys = new TreeMap<>();
-		final MutableInt index = new MutableInt();
+		final var keys = new TreeMap<String, Integer>();
+		final var index = new MutableInt();
 		buildLongTypeLabelKeys(keys, index, false, gender);
 		buildLongTypeLabelKeys(keys, index, true, gender);
 		return keys;
 	}
 
 	private static void buildLongTypeLabelKeys(Map<String, Integer> keys, MutableInt index, boolean isFrance, Gender gender) {
-		for (final JuryMembershipType positionType : JuryMembershipType.values()) {
-			for (final JuryType defenseType : JuryType.values()) {
-				final String key = buildLongTypeLabelKey(positionType, defenseType, isFrance, gender);
+		for (final var positionType : JuryMembershipType.values()) {
+			for (final var defenseType : JuryType.values()) {
+				final var key = buildLongTypeLabelKey(positionType, defenseType, isFrance, gender);
 				keys.put(key, index.getValue());
 				index.increment();
 			}

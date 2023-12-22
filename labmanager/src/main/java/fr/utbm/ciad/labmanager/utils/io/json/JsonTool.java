@@ -22,14 +22,10 @@ package fr.utbm.ciad.labmanager.utils.io.json;
 import java.lang.reflect.Method;
 import java.time.LocalDate;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -726,7 +722,7 @@ public abstract class JsonTool {
 	 * @since 3.0
 	 */
 	protected static String getStringValue(JsonNode node) {
-		final Object raw = getRawValue(node);
+		final var raw = getRawValue(node);
 		if (raw != null) {
 			return Strings.emptyToNull(raw.toString());
 		}
@@ -740,7 +736,7 @@ public abstract class JsonTool {
 	 * @since 3.0
 	 */
 	protected static Number getNumberValue(JsonNode node) {
-		final Object raw = getRawValue(node);
+		final var raw = getRawValue(node);
 		if (raw instanceof Number castValue) {
 			return castValue;
 		}
@@ -765,8 +761,8 @@ public abstract class JsonTool {
 	protected static Method findSetterMethod(Class<?> type, Set<String> names, Object value) {
 		assert value != null;
 		try {
-			final Class<?> valueType = value.getClass();
-			final Collection<Method> methods = Arrays.asList(type.getMethods()).parallelStream().filter(it -> {
+			final var valueType = value.getClass();
+			final var methods = Arrays.asList(type.getMethods()).parallelStream().filter(it -> {
 				if (it.getParameterCount() == 1 && (names.contains(it.getName().toLowerCase()))) {
 					final Class<?> receiver = it.getParameterTypes()[0];
 					final Class<?> provider = valueType;
@@ -774,7 +770,7 @@ public abstract class JsonTool {
 				}
 				return false;
 			}) .collect(Collectors.toSet());
-			final int size = methods.size();
+			final var size = methods.size();
 			if (size > 1) {
 				throw new IllegalArgumentException("Too many setter function candidates (case insensitive) in type '" //$NON-NLS-1$
 						+ type.getName() + "' with names: " + names.toString()); //$NON-NLS-1$
@@ -793,17 +789,17 @@ public abstract class JsonTool {
 	 * @return the map of the methods. Keys are the names of the attributes, and the values are the setter functions.
 	 */
 	protected static Map<String, Method> findGetterMethods(Class<?> source) {
-		final Set<String> setters = new TreeSet<>();
-		final Map<String, Method> getters = new HashMap<>();
-		for (final Method meth : source.getMethods()) {
-			final String name = meth.getName().toLowerCase();
+		final var setters = new TreeSet<String>();
+		final var getters = new HashMap<String, Method>();
+		for (final var meth : source.getMethods()) {
+			final var name = meth.getName().toLowerCase();
 			if (meth.getParameterCount() == 1
 					&& (meth.getParameterTypes()[0].isPrimitive()
 							|| Number.class.equals(meth.getParameterTypes()[0])
 							|| String.class.equals(meth.getParameterTypes()[0])
 							|| Boolean.class.equals(meth.getParameterTypes()[0]))
 					&& name.startsWith(SETTER_FUNCTION_PREFIX)) {
-				final String attrName = toLowerFirst(meth.getName().substring(SETTER_FUNCTION_PREFIX.length()));
+				final var attrName = toLowerFirst(meth.getName().substring(SETTER_FUNCTION_PREFIX.length()));
 				setters.add(attrName);
 			} else 	if (meth.getParameterCount() == 0
 					&& (meth.getReturnType().isPrimitive()
@@ -816,10 +812,10 @@ public abstract class JsonTool {
 					&& (name.startsWith(GETTER_FUNCTION_PREFIX)
 							|| name.startsWith(IS_GETTER_FUNCTION_PREFIX))) {
 				if (name.startsWith(IS_GETTER_FUNCTION_PREFIX)) {
-					final String attrName = toLowerFirst(meth.getName().substring(IS_GETTER_FUNCTION_PREFIX.length()));
+					final var attrName = toLowerFirst(meth.getName().substring(IS_GETTER_FUNCTION_PREFIX.length()));
 					getters.put(attrName, meth);
 				} else {
-					final String attrName = toLowerFirst(meth.getName().substring(GETTER_FUNCTION_PREFIX.length()));
+					final var attrName = toLowerFirst(meth.getName().substring(GETTER_FUNCTION_PREFIX.length()));
 					getters.put(attrName, meth);
 				}
 			}
@@ -827,9 +823,9 @@ public abstract class JsonTool {
 		//
 		getters.remove("id"); //$NON-NLS-1$
 		//
-		final Iterator<Entry<String, Method>> iterator = getters.entrySet().iterator();
+		final var iterator = getters.entrySet().iterator();
 		while (iterator.hasNext()) {
-			final Entry<String, Method> entry = iterator.next();
+			final var entry = iterator.next();
 			if (!setters.contains(entry.getKey())) {
 				iterator.remove();
 			}
@@ -842,8 +838,8 @@ public abstract class JsonTool {
 		if (name.length() <= 0) {
 			return name.toLowerCase();
 		}
-		final Pattern pattern = Pattern.compile("^[A-Z]+$"); //$NON-NLS-1$
-		final Matcher matcher = pattern.matcher(name);
+		final var pattern = Pattern.compile("^[A-Z]+$"); //$NON-NLS-1$
+		final var matcher = pattern.matcher(name);
 		if (matcher.matches()) {
 			return name.toLowerCase();
 		}
@@ -857,7 +853,7 @@ public abstract class JsonTool {
 	 */
 	protected static Object convertValue(Object value) {
 		if (value != null) {
-			final Class<?> type = value.getClass();
+			final var type = value.getClass();
 			if (value instanceof CharSequence castValue) {
 				return Strings.emptyToNull(castValue.toString());
 			}
@@ -883,7 +879,7 @@ public abstract class JsonTool {
 	 * @param factory the factory of JSON nodes.
 	 */
 	protected static JsonNode createReference(String id, JsonNodeCreator factory) {
-		final ObjectNode ref = factory.objectNode();
+		final var ref = factory.objectNode();
 		ref.set(ID_FIELDNAME, factory.textNode(id));
 		return ref;
 	}
@@ -895,7 +891,7 @@ public abstract class JsonTool {
 	 * @param id the identifier.
 	 */
 	protected static void addReference(ObjectNode receiver, String key, String id) {
-		final JsonNode ref = createReference(id, receiver);
+		final var ref = createReference(id, receiver);
 		receiver.set(key, ref);
 	}
 
@@ -906,7 +902,7 @@ public abstract class JsonTool {
 	 * @since 3.2
 	 */
 	protected static void addReference(ArrayNode receiver, String id) {
-		final JsonNode ref = createReference(id, receiver);
+		final var ref = createReference(id, receiver);
 		receiver.add(ref);
 	}
 

@@ -21,10 +21,7 @@ package fr.utbm.ciad.labmanager.services.user;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
 
-import com.vaadin.flow.server.VaadinService;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
@@ -73,12 +70,12 @@ public class UserSecurityService extends AbstractService implements UserDetailsS
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        final Optional<User> optUser = this.userRepository.findByLogin(username);
+        final var optUser = this.userRepository.findByLogin(username);
         if (optUser.isEmpty()) {
             throw new UsernameNotFoundException("Invalid user with login: " + username); //$NON-NLS-1$
         }
-        final User user = optUser.get();
-        final String login = user.getLogin();
+        final var user = optUser.get();
+        final var login = user.getLogin();
         if (Strings.isBlank(login)) {
             throw new UsernameNotFoundException("No institutional login specified for the user with login: " + username); //$NON-NLS-1$
         }

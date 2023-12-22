@@ -51,7 +51,7 @@ public interface WebOfSciencePlatform {
 	 * @throws Exception if rankings cannot be read.
 	 */
 	default Map<String, WebOfScienceJournal> getJournalRanking(int year, URL csvUrl, Progression progress) throws Exception {
-		try (InputStream is = csvUrl.openStream()) {
+		try (final var is = csvUrl.openStream()) {
 			return getJournalRanking(year, is, progress);
 		}
 	}
@@ -67,7 +67,7 @@ public interface WebOfSciencePlatform {
 	 * @throws Exception if rankings cannot be read.
 	 */
 	default WebOfScienceJournal getJournalRanking(int year, URL csvUrl, String journalId, Progression progress) throws Exception {
-		try (InputStream is = csvUrl.openStream()) {
+		try (final var is = csvUrl.openStream()) {
 			return getJournalRanking(year, is, journalId, progress);
 		}
 	}
@@ -95,9 +95,9 @@ public interface WebOfSciencePlatform {
 	 * @throws Exception if rankings cannot be read.
 	 */
 	default WebOfScienceJournal getJournalRanking(int year, InputStream csv, String journalId, Progression progress) throws Exception {
-		final Map<String, WebOfScienceJournal> rankings0 = getJournalRanking(year, csv, progress);
-		final String normalizedId = normalizeIssn(journalId);
-		final WebOfScienceJournal rankings1 = rankings0.get(normalizedId);
+		final var rankings0 = getJournalRanking(year, csv, progress);
+		final var normalizedId = normalizeIssn(journalId);
+		final var rankings1 = rankings0.get(normalizedId);
 		return rankings1;
 	}
 

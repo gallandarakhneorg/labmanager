@@ -34,7 +34,6 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.Constants;
 import fr.utbm.ciad.labmanager.views.components.ComponentFactory;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
@@ -80,24 +79,24 @@ public class AboutView extends Composite<HorizontalLayout> implements HasDynamic
         getContent().setJustifyContentMode(JustifyContentMode.CENTER);
         getContent().setAlignItems(Alignment.CENTER);
 
-        final VerticalLayout vlayout = new VerticalLayout();
+        final var vlayout = new VerticalLayout();
         vlayout.setSizeUndefined();
         vlayout.setSpacing(true);
         vlayout.getStyle().set("flex-grow", "1"); //$NON-NLS-1$ //$NON-NLS-2$
         vlayout.setJustifyContentMode(JustifyContentMode.CENTER);
         vlayout.setAlignItems(Alignment.CENTER);
         
-        final StreamResource imageResource = ComponentFactory.newStreamImage(applicationImage);
-		final Image image = new Image(imageResource, applicationImage);
+        final var imageResource = ComponentFactory.newStreamImage(applicationImage);
+		final var image = new Image(imageResource, applicationImage);
 		image.setMinWidth(PERCENTAGE_IMAGE_SIZE, Unit.PERCENTAGE);
 		image.setMaxWidth(PERCENTAGE_IMAGE_SIZE, Unit.PERCENTAGE);
 		image.getStyle().setMargin(IMAGE_MARGINS);
 		
-		final H1 title = new H1(this.applicationName);
+		final var title = new H1(this.applicationName);
 
-		final H3 version = new H3(getTranslation("views.about.version", Constants.MANAGER_VERSION, Constants.MANAGER_BUILD_ID)); //$NON-NLS-1$
+		final var version = new H3(getTranslation("views.about.version", Constants.MANAGER_VERSION, Constants.MANAGER_BUILD_ID)); //$NON-NLS-1$
 
-		final HorizontalLayout copyright = new HorizontalLayout(VaadinIcon.COPYRIGHT.create(),
+		final var copyright = new HorizontalLayout(VaadinIcon.COPYRIGHT.create(),
 				new Text(applicationCopyrightText));
 		copyright.getStyle().setMargin(COPYRIGHT_MARGINS);
 		copyright.setJustifyContentMode(JustifyContentMode.CENTER);

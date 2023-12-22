@@ -62,7 +62,7 @@ public class JuryMembershipComparator implements Comparator<JuryMembership> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = compareDates(o1.getDate(), o2.getDate());
+		var n = compareDates(o1.getDate(), o2.getDate());
 		if (n != 0) {
 			return n;
 		}
@@ -78,11 +78,7 @@ public class JuryMembershipComparator implements Comparator<JuryMembership> {
 		if (n != 0) {
 			return n;
 		}
-		n = this.personComparator.compare(o1.getPerson(), o2.getPerson());
-		if (n != 0) {
-			return n;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return this.personComparator.compare(o1.getPerson(), o2.getPerson());
 	}
 
 	private static int compareCountries(CountryCode c1, CountryCode c2) {
@@ -96,8 +92,8 @@ public class JuryMembershipComparator implements Comparator<JuryMembership> {
 			return Integer.MAX_VALUE;
 		}
 		// France has lower priority
-		final boolean f1 = c1.isFrance();
-		final boolean f2 = c2.isFrance();
+		final var f1 = c1.isFrance();
+		final var f2 = c2.isFrance();
 		if (f1 == f2) {
 			return c1.compareTo(c2);
 		}

@@ -150,22 +150,19 @@ public class ScientificAxisService extends AbstractService {
 	 * @return the axis with the gien identifier, or {@code null} if there is no axis with this id.
 	 */
 	public ScientificAxis getScientificAxisById(int id) {
-		final Optional<ScientificAxis> axis = this.scientificAxisRepository.findById(Integer.valueOf(id));
-		if (axis.isPresent()) {
-			return axis.get();
-		}
-		return null;
+		return this.scientificAxisRepository.findById(Integer.valueOf(id)).orElse(null);
 	}
 
 	/** Delete the scientific axis with the given identifier.
 	 *
 	 * @param identifier the identifier of the axis to be deleted.
 	 */
+	@Transactional
 	public void removeScientificAxis(int identifier) {
-		final Integer id = Integer.valueOf(identifier);
-		final Optional<ScientificAxis> axisOpt = this.scientificAxisRepository.findById(id);
+		final var id = Integer.valueOf(identifier);
+		final var axisOpt = this.scientificAxisRepository.findById(id);
 		if (axisOpt.isPresent()) {
-			final ScientificAxis axis = axisOpt.get();
+			final var axis = axisOpt.get();
 			//
 			axis.setProjects(null);
 			this.scientificAxisRepository.deleteById(id);
@@ -187,7 +184,7 @@ public class ScientificAxisService extends AbstractService {
 	public Optional<ScientificAxis> createScientificAxis(boolean validated, String acronym, String name,
 			LocalDate startDate, LocalDate endDate, List<Project> projects, List<Publication> publications,
 			List<Membership> memberships) {
-		final ScientificAxis axis = new ScientificAxis();
+		final var axis = new ScientificAxis();
 		try {
 			updateScientificAxis(axis, validated, acronym, name, startDate, endDate, projects, publications, memberships);
 		} catch (Throwable ex) {
@@ -265,7 +262,7 @@ public class ScientificAxisService extends AbstractService {
 
 	private void updateMemberships(ScientificAxis axis, List<Membership> memberships) {
 		axis.setMemberships(memberships);
-		for (final Membership mbr : memberships) {
+		for (final var mbr : memberships) {
 			mbr.getScientificAxes().add(axis);
 		}
 		this.membershipRepository.saveAll(memberships);
@@ -273,7 +270,7 @@ public class ScientificAxisService extends AbstractService {
 
 	private void updatePublications(ScientificAxis axis, List<Publication> publications) {
 		axis.setPublications(publications);
-		for (final Publication pub : publications) {
+		for (final var pub : publications) {
 			pub.getScientificAxes().add(axis);
 		}
 		this.publicationRepository.saveAll(publications);
@@ -281,7 +278,7 @@ public class ScientificAxisService extends AbstractService {
 	
 	private void updateProjects(ScientificAxis axis, List<Project> projects) {
 		axis.setProjects(projects);
-		for (final Project prj : projects) {
+		for (final var prj : projects) {
 			prj.getScientificAxes().add(axis);
 		}
 		this.projectRepository.saveAll(projects);
@@ -293,7 +290,7 @@ public class ScientificAxisService extends AbstractService {
 	 * @return the axes.
 	 */
 	public List<ScientificAxis> getScientificAxesFor(List<Integer> identifiers) {
-		final List<ScientificAxis> axes = this.scientificAxisRepository.findAllById(identifiers);
+		final var axes = this.scientificAxisRepository.findAllById(identifiers);
 		if (axes.size() != identifiers.size()) {
 			throw new IllegalArgumentException("Scientific axis not found"); //$NON-NLS-1$
 		}

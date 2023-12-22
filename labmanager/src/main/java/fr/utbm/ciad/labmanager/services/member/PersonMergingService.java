@@ -22,10 +22,8 @@ package fr.utbm.ciad.labmanager.services.member;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -33,18 +31,12 @@ import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolder;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderRepository;
-import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
-import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
-import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonComparator;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
 import fr.utbm.ciad.labmanager.data.project.ProjectMember;
 import fr.utbm.ciad.labmanager.data.project.ProjectMemberRepository;
-import fr.utbm.ciad.labmanager.data.publication.Authorship;
-import fr.utbm.ciad.labmanager.data.supervision.Supervision;
-import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.services.invitation.PersonInvitationService;
 import fr.utbm.ciad.labmanager.services.jury.JuryMembershipService;
@@ -137,30 +129,30 @@ public class PersonMergingService extends AbstractService {
 	 */
 	public List<Set<Person>> getPersonDuplicates(Comparator<? super Person> comparator, PersonDuplicateCallback callback) throws Exception {
 		// Each list represents a group of authors that could be duplicate
-		final List<Set<Person>> matchingAuthors = new ArrayList<>();
+		final var matchingAuthors = new ArrayList<Set<Person>>();
 
 		// Copy the list of authors into another list in order to enable its
 		// modification during the function's process
-		final List<Person> authorsList = new ArrayList<>(this.personRepository.findAll());
+		final var authorsList = new ArrayList<>(this.personRepository.findAll());
 
 		final Comparator<? super Person> theComparator = comparator == null ? EntityUtils.getPreferredPersonComparator() : comparator;
 
-		final int total = authorsList.size();
+		final var total = authorsList.size();
 		// Notify the callback
 		if (callback != null) {
 			callback.onDuplicate(0, 0, total);
 		}
-		int duplicateCount = 0;
+		var duplicateCount = 0;
 		
-		for (int i = 0; i < authorsList.size() - 1; ++i) {
-			final Person referencePerson = authorsList.get(i);
+		for (var i = 0; i < authorsList.size() - 1; ++i) {
+			final var referencePerson = authorsList.get(i);
 
-			final Set<Person> currentMatching = new TreeSet<>(theComparator);
+			final var currentMatching = new TreeSet<Person>(theComparator);
 			currentMatching.add(referencePerson);
 
 			final ListIterator<Person> iterator2 = authorsList.listIterator(i + 1);
 			while (iterator2.hasNext()) {
-				final Person otherPerson = iterator2.next();
+				final var otherPerson = iterator2.next();
 				if (this.nameComparator.isSimilar(
 						referencePerson.getFirstName(), referencePerson.getLastName(),
 						otherPerson.getFirstName(), otherPerson.getLastName())) {
@@ -193,12 +185,12 @@ public class PersonMergingService extends AbstractService {
 	public void mergePersonsById(Collection<Integer> source, Integer target) throws Exception {
 		assert target != null;
 		assert source != null;
-		final Optional<Person> optTarget = this.personRepository.findById(target);
+		final var optTarget = this.personRepository.findById(target);
 		if (optTarget.isPresent()) {
-			final Person targetPerson = optTarget.get();
-			final List<Person> sourcePersons = this.personRepository.findAllById(source);
+			final var targetPerson = optTarget.get();
+			final var sourcePersons = this.personRepository.findAllById(source);
 			if (sourcePersons.size() != source.size()) {
-				for (final Person sp : sourcePersons) {
+				for (final var sp : sourcePersons) {
 					if (!source.contains(Integer.valueOf(sp.getId()))) {
 						throw new IllegalArgumentException("Source person not found with identifier: " + sp.getId()); //$NON-NLS-1$
 					}
@@ -223,10 +215,10 @@ public class PersonMergingService extends AbstractService {
 		assert target != null;
 		assert sources != null;
 		boolean changed = false;
-		for (final Person source : sources) {
+		for (final var source : sources) {
 			if (source.getId() != target.getId()) {
 				getLogger().info("Reassign to " + target.getFullName() + " the elements of " + source.getFullName()); //$NON-NLS-1$ //$NON-NLS-2$
-				boolean lchange = reassignPublications(source, target);
+				var lchange = reassignPublications(source, target);
 				lchange = reassignOrganizationMemberships(source, target) || lchange;
 				lchange = reassignJuryMemberships(source, target) || lchange;
 				lchange = reassignSupervisions(source, target) || lchange;
@@ -252,11 +244,11 @@ public class PersonMergingService extends AbstractService {
 	 */
 	@SuppressWarnings("static-method")
 	protected boolean reassignPublications(Person source, Person target) throws Exception {
-		final Set<Authorship> autPubs = source.getAuthorships();
-		final Iterator<Authorship> iterator = autPubs.iterator();
-		boolean changed = false;
+		final var autPubs = source.getAuthorships();
+		final var iterator = autPubs.iterator();
+		var changed = false;
 		while (iterator.hasNext()) {
-			final Authorship authorship = iterator.next();
+			final var authorship = iterator.next();
 			// Test if the target is co-author. If yes, don't do re-assignment to avoid
 			// the same person multiple times as author.
 			if (!authorship.getPublication().getAuthors().contains(target)) {
@@ -278,7 +270,7 @@ public class PersonMergingService extends AbstractService {
 	 */
 	protected boolean reassignOrganizationMemberships(Person source, Person target) throws Exception {
 		boolean changed = false;
-		for (final Membership membership : this.organizationMembershipService.getMembershipsForPerson(source.getId())) {
+		for (final var membership : this.organizationMembershipService.getMembershipsForPerson(source.getId())) {
 			source.getMemberships().remove(membership);
 			membership.setPerson(target);
 			target.getMemberships().add(membership);
@@ -296,16 +288,16 @@ public class PersonMergingService extends AbstractService {
 	 * @throws Exception if the change cannot be completed.
 	 */
 	protected boolean reassignJuryMemberships(Person source, Person target) throws Exception {
-		final Set<JuryMembership> changed = new TreeSet<>(EntityUtils.getPreferredJuryMembershipComparator());
-		for (final JuryMembership jmembership : this.juryMembershipService.getMembershipsForPerson(source.getId())) {
+		final var changed = new TreeSet<>(EntityUtils.getPreferredJuryMembershipComparator());
+		for (final var jmembership : this.juryMembershipService.getMembershipsForPerson(source.getId())) {
 			jmembership.setPerson(target);
 			changed.add(jmembership);
 		}
-		for (final JuryMembership jmembership : this.juryMembershipService.getMembershipsForCandidate(source.getId())) {
+		for (final var jmembership : this.juryMembershipService.getMembershipsForCandidate(source.getId())) {
 			jmembership.setCandidate(target);
 			changed.add(jmembership);
 		}
-		for (final JuryMembership jmembership : this.juryMembershipService.getMembershipsForPromoter(source.getId())) {
+		for (final var jmembership : this.juryMembershipService.getMembershipsForPromoter(source.getId())) {
 			final List<Person> list = new ArrayList<>(jmembership.getPromoters());
 			list.remove(source);
 			list.add(target);
@@ -315,7 +307,7 @@ public class PersonMergingService extends AbstractService {
 		if (changed.isEmpty()) {
 			return false;
 		}
-		for (final JuryMembership mbr : changed) {
+		for (final var mbr : changed) {
 			this.juryMembershipService.save(mbr);
 		}
 		return true;
@@ -329,11 +321,11 @@ public class PersonMergingService extends AbstractService {
 	 * @throws Exception if the change cannot be completed.
 	 */
 	protected boolean reassignSupervisions(Person source, Person target) throws Exception {
-		final Set<Supervisor> changed = new TreeSet<>(EntityUtils.getPreferredSupervisorComparator());
+		final var changed = new TreeSet<>(EntityUtils.getPreferredSupervisorComparator());
 		// Do not need to change the supervised person's membership because it is done by reassignJuryMemberships()
 		//
-		for (final Supervision supervision : this.supervisionService.getSupervisionsForSupervisor(source.getId())) {
-			for (final Supervisor supervisor : supervision.getSupervisors()) {
+		for (final var supervision : this.supervisionService.getSupervisionsForSupervisor(source.getId())) {
+			for (final var supervisor : supervision.getSupervisors()) {
 				if (supervisor.getSupervisor().getId() == source.getId()) {
 					supervisor.setSupervisor(target);
 					changed.add(supervisor);
@@ -344,7 +336,7 @@ public class PersonMergingService extends AbstractService {
 		if (changed.isEmpty()) {
 			return false;
 		}
-		for (final Supervisor sup : changed) {
+		for (final var sup : changed) {
 			this.supervisionService.save(sup);
 		}
 		return true;
@@ -358,8 +350,8 @@ public class PersonMergingService extends AbstractService {
 	 * @throws Exception if the change cannot be completed.
 	 */
 	protected boolean reassignInvitations(Person source, Person target) throws Exception {
-		final Set<PersonInvitation> changed = new TreeSet<>(EntityUtils.getPreferredPersonInvitationComparator());
-		for (final PersonInvitation invitation : this.invitationService.getInvitationsForPerson(source.getId())) {
+		final var changed = new TreeSet<>(EntityUtils.getPreferredPersonInvitationComparator());
+		for (final var invitation : this.invitationService.getInvitationsForPerson(source.getId())) {
 			if (invitation.getGuest().getId() == source.getId()) {
 				invitation.setGuest(target);
 				changed.add(invitation);
@@ -373,7 +365,7 @@ public class PersonMergingService extends AbstractService {
 		if (changed.isEmpty()) {
 			return false;
 		}
-		for (final PersonInvitation inv : changed) {
+		for (final var inv : changed) {
 			this.invitationService.save(inv);
 		}
 		return true;
@@ -387,8 +379,8 @@ public class PersonMergingService extends AbstractService {
 	 * @throws Exception if the change cannot be completed.
 	 */
 	protected boolean reassignProjects(Person source, Person target) throws Exception {
-		final List<ProjectMember> changed = new ArrayList<>();
-		for (final ProjectMember member : this.projectMemberRepository.findDistinctByPersonId(source.getId())) {
+		final var changed = new ArrayList<ProjectMember>();
+		for (final var member : this.projectMemberRepository.findDistinctByPersonId(source.getId())) {
 			if (member.getPerson().getId() == source.getId()) {
 				member.setPerson(target);
 				changed.add(member);
@@ -398,7 +390,7 @@ public class PersonMergingService extends AbstractService {
 		if (changed.isEmpty()) {
 			return false;
 		}
-		for (final ProjectMember mbr : changed) {
+		for (final var mbr : changed) {
 			this.projectMemberRepository.save(mbr);
 		}
 		return true;
@@ -412,8 +404,8 @@ public class PersonMergingService extends AbstractService {
 	 * @throws Exception if the change cannot be completed.
 	 */
 	protected boolean reassignAssociatedStructures(Person source, Person target) throws Exception {
-		final List<AssociatedStructureHolder> changed = new ArrayList<>();
-		for (final AssociatedStructureHolder holder : this.structureHolderRepository.findDistinctByPersonId(source.getId())) {
+		final var changed = new ArrayList<AssociatedStructureHolder>();
+		for (final var holder : this.structureHolderRepository.findDistinctByPersonId(source.getId())) {
 			if (holder.getPerson().getId() == source.getId()) {
 				holder.setPerson(target);
 				changed.add(holder);
@@ -423,7 +415,7 @@ public class PersonMergingService extends AbstractService {
 		if (changed.isEmpty()) {
 			return false;
 		}
-		for (final AssociatedStructureHolder holder : changed) {
+		for (final var holder : changed) {
 			this.structureHolderRepository.save(holder);
 		}
 		return true;

@@ -19,12 +19,10 @@
 
 package fr.utbm.ciad.labmanager.services;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.function.Function;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -68,7 +66,7 @@ public abstract class AbstractOrphanService<T extends IdentifiableEntity> extend
 	protected void createOrphanJsonNode(ArrayNode receiver, String editionEndpoint, String editionParameter0,
 			String editionParameter1, String editionValue1,  String deletionEndpoint, String deletionParameter,
 			T entity, String reason, String label) {
-		final ObjectNode orphanNode = receiver.addObject();
+		final var orphanNode = receiver.addObject();
 		orphanNode.put("id", entity.getId()); //$NON-NLS-1$
 		orphanNode.put("reason", reason); //$NON-NLS-1$
 		orphanNode.put("label", label); //$NON-NLS-1$
@@ -80,12 +78,6 @@ public abstract class AbstractOrphanService<T extends IdentifiableEntity> extend
 		}
 		orphanNode.put("edition", eendpoint); //$NON-NLS-1$
 		orphanNode.put("deletion", endpoint(deletionEndpoint, deletionParameter, getDeletionParameterValue(entity))); //$NON-NLS-1$
-		/*try {
-			final JsonNode node = JsonUtils.getJsonNode(entity);
-			orphanNode.set("entity", node); //$NON-NLS-1$
-		} catch (Throwable ex) {
-			getLogger().warn(ex.getLocalizedMessage(), ex);
-		}*/
 	}
 
 	/** Replies the identifier that is associated to the given entity and that should be passed in the edition link.
@@ -143,12 +135,12 @@ public abstract class AbstractOrphanService<T extends IdentifiableEntity> extend
 			OrphanEntityBuilder<T> builder, String editionEndpoint, String editionParameter0,
 			String editionParameter1, Function<T, String> editionValue1,
 			String deletionEndpoint, String deletionParameter, Locale locale, Progression progress) {
-		List<T> list = repository.findAll();
+		var list = repository.findAll();
 		progress.setProperties(0, 0, list.size(), false);
-		for (final T entity : list) {
-			final String reason = builder.getOrphanCriteria(entity, locale);
+		for (final var entity : list) {
+			final var reason = builder.getOrphanCriteria(entity, locale);
 			if (!Strings.isNullOrEmpty(reason)) {
-				final String label = builder.getOrphanEntityLabel(entity, locale);
+				final var label = builder.getOrphanEntityLabel(entity, locale);
 				createOrphanJsonNode(receiver,
 						editionEndpoint, editionParameter0,
 						editionParameter1, editionValue1 == null ? null : editionValue1.apply(entity),

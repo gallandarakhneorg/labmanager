@@ -66,7 +66,7 @@ public class SpringBasedI18NProvider implements I18NProvider {
 	@Override
 	public String getTranslation(String key, Locale locale, Object... params) {
 		assert !Strings.isNullOrEmpty(key);
-		final Locale concreteLocale = locale == null ? Locale.getDefault() : locale;
+		final var concreteLocale = locale == null ? Locale.getDefault() : locale;
 		return this.springMessageSource.getMessageSource().getMessage(key, params, concreteLocale);
 	}
 	

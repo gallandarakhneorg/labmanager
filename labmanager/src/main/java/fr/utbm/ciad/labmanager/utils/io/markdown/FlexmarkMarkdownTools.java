@@ -25,7 +25,6 @@ import com.vladsch.flexmark.ext.gfm.strikethrough.StrikethroughExtension;
 import com.vladsch.flexmark.ext.tables.TablesExtension;
 import com.vladsch.flexmark.html.HtmlRenderer;
 import com.vladsch.flexmark.parser.Parser;
-import com.vladsch.flexmark.util.ast.Node;
 import com.vladsch.flexmark.util.data.MutableDataSet;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
@@ -62,8 +61,8 @@ public class FlexmarkMarkdownTools implements MarkdownTools {
 	
 	@Override
 	public String markdownToHTML(String markdown) {
-        final Node document = this.parser.parse(markdown);
-        final String html = this.renderer.render(document);
+        final var document = this.parser.parse(markdown);
+        final var html = this.renderer.render(document);
 		return html;
 	}
 

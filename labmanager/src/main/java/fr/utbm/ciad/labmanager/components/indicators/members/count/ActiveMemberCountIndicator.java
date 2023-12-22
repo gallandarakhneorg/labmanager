@@ -19,13 +19,11 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.members.count;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractInstantIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
-import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -66,9 +64,9 @@ public class ActiveMemberCountIndicator extends AbstractInstantIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final List<Membership> members = organization.getMemberships().parallelStream().filter(
+		final var members = organization.getMemberships().parallelStream().filter(
 				it -> it.isActive() && !it.getMemberStatus().isExternalPosition()).collect(Collectors.toList());
-		final long nb = members.size();
+		final var nb = members.size();
 		setComputationDetails(members, it -> it.getPerson().getFullNameWithLastNameFirst());
 		return Long.valueOf(nb);
 	}

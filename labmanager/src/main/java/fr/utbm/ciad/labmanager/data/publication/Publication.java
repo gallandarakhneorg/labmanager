@@ -44,7 +44,6 @@ import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.RequiredFieldInForm;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils.CachedGenerator;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
@@ -289,13 +288,12 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.abstractText);
 		h = HashCodeUtils.add(h, this.dblpUrl);
 		h = HashCodeUtils.add(h, this.doi);
 		h = HashCodeUtils.add(h, this.extraUrl);
 		h = HashCodeUtils.add(h, this.halId);
-		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.isbn);
 		h = HashCodeUtils.add(h, this.issn);
 		h = HashCodeUtils.add(h, this.keywords);
@@ -323,7 +321,7 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Publication other = (Publication) obj;
+		final var other = (Publication) obj;
 		if (!Objects.equals(this.abstractText, other.abstractText)) {
 			return false;
 		}
@@ -437,7 +435,7 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 		if (!Strings.isNullOrEmpty(getTitle())) {
 			consumer.accept("title", getTitle()); //$NON-NLS-1$
 		}
-		final boolean ranked = isRanked();
+		final var ranked = isRanked();
 		consumer.accept("ranked", Boolean.valueOf(ranked)); //$NON-NLS-1$
 		if (getType() != null) {
 			consumer.accept("type", getType()); //$NON-NLS-1$
@@ -454,10 +452,10 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 			JsonUtils.writeField(generator, attrName, attrValue);
 		});
 		//
-		final CachedGenerator persons = JsonUtils.cache(generator);
+		final var persons = JsonUtils.cache(generator);
 		//
 		generator.writeArrayFieldStart("authors"); //$NON-NLS-1$
-		for (final Person author : getAuthors()) {
+		for (final var author : getAuthors()) {
 			persons.writeReferenceOrObject(author, () -> {
 				JsonUtils.writeObjectAndAttributes(generator, author);
 			});
@@ -569,7 +567,7 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 * @return the identifier
 	 */
 	public String computePreferredStringId() {
-		final StringBuilder b = new StringBuilder();
+		final var b = new StringBuilder();
 		b.append(getClass().getSimpleName());
 		b.append('_');
 		b.append(getId());
@@ -638,12 +636,12 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 * @since 3.6
 	 */
 	public PublicationCategory getCategoryWithSupplier(Supplier<Boolean> ranked) {
-		final PublicationType type = getType();
+		final var type = getType();
 		if (type == null) {
 			return null;
 		}
-		final Set<PublicationCategory> categories = type.getCategories();
-		final int size = categories.size();
+		final var categories = type.getCategories();
+		final var size = categories.size();
 		if (size <= 0) {
 			return PublicationCategory.AP;
 		} else if (size == 1) {

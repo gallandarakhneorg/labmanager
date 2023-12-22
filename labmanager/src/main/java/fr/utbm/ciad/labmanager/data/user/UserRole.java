@@ -51,7 +51,7 @@ public enum UserRole {
 	 * @return the label of the user role in the given language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -64,7 +64,7 @@ public enum UserRole {
 	 */
 	public static UserRole valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final UserRole ranking : values()) {
+			for (final var ranking : values()) {
 				if (name.equalsIgnoreCase(ranking.name())) {
 					return ranking;
 				}

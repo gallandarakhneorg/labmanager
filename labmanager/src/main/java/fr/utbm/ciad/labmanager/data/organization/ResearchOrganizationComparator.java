@@ -53,7 +53,7 @@ public class ResearchOrganizationComparator implements Comparator<ResearchOrgani
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = Comparators.compare(o1.getType(), o2.getType());
+		var cmp = Comparators.compare(o1.getType(), o2.getType());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -81,11 +81,7 @@ public class ResearchOrganizationComparator implements Comparator<ResearchOrgani
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = compareCountry(o1.getCountry(), o2.getCountry());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return compareCountry(o1.getCountry(), o2.getCountry());
 	}
 
 	private static int compareCountry(CountryCode c0, CountryCode c1) {

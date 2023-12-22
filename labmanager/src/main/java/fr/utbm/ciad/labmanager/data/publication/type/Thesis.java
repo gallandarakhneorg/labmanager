@@ -79,7 +79,7 @@ public class Thesis extends Publication {
 
 	@Override
 	public int hashCode() {
-		int h = super.hashCode();
+		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.institution);
 		h = HashCodeUtils.add(h, this.address);
 		return h;
@@ -90,7 +90,7 @@ public class Thesis extends Publication {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		final Thesis other = (Thesis) obj;
+		final var other = (Thesis) obj;
 		if (!Objects.equals(this.institution, other.institution)) {
 			return false;
 		}
@@ -114,7 +114,7 @@ public class Thesis extends Publication {
 	@Override
 	@JsonIgnore
 	public String getWherePublishedShortDescription() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(getInstitution());
 		if (!Strings.isNullOrEmpty(getAddress())) {
 			buf.append(", "); //$NON-NLS-1$
@@ -133,7 +133,7 @@ public class Thesis extends Publication {
 
 	@Override
 	public String getPublicationTarget() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(getInstitution());
 		return buf.toString();
 	}

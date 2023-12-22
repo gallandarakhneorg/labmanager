@@ -59,7 +59,7 @@ public class AssociatedStructureComparator implements Comparator<AssociatedStruc
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = compareString(o1.getAcronym(), o2.getAcronym());
+		var cmp = compareString(o1.getAcronym(), o2.getAcronym());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -87,11 +87,7 @@ public class AssociatedStructureComparator implements Comparator<AssociatedStruc
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = compareString(o1.getDescription(), o2.getDescription());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return compareString(o1.getDescription(), o2.getDescription());
 	}
 
 	/** Null-safe comparison the two strings.

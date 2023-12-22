@@ -38,12 +38,10 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils.CachedGenerator;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -194,8 +192,7 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.description);
@@ -221,7 +218,7 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final AssociatedStructure other = (AssociatedStructure) obj;
+		final var other = (AssociatedStructure) obj;
 		if (!Objects.equals(this.acronym, other.acronym)) {
 			return false;
 		}
@@ -297,31 +294,31 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 		forEachAttribute((attrName, attrValue) -> {
 			JsonUtils.writeField(generator, attrName, attrValue);
 		});
-		final CachedGenerator organizations = JsonUtils.cache(generator);
+		final var organizations = JsonUtils.cache(generator);
 		//
-		final ResearchOrganization organization = getFundingOrganization();
+		final var organization = getFundingOrganization();
 		organizations.writeReferenceOrObjectField("fundingOrganization", organization, () -> { //$NON-NLS-1$
 			JsonUtils.writeObjectAndAttributes(generator, organization);
 		});
 		//
 		generator.writeArrayFieldStart("holders"); //$NON-NLS-1$
-		for (final AssociatedStructureHolder holder : getHolders()) {
+		for (final var holder : getHolders()) {
 			generator.writeStartObject();
-			final Person person = holder.getPerson();
+			final var person = holder.getPerson();
 			organizations.writeReferenceOrObjectField("person", person, () -> { //$NON-NLS-1$
 				JsonUtils.writeObjectAndAttributes(generator, person);
 			});
-			final HolderRole role = holder.getRole();
+			final var role = holder.getRole();
 			JsonUtils.writeField(generator, "role", role); //$NON-NLS-1$
-			final String roleDescription = holder.getRoleDescription();
+			final var roleDescription = holder.getRoleDescription();
 			if (!Strings.isNullOrEmpty(roleDescription)) {
 				JsonUtils.writeField(generator, "roleDescription", roleDescription); //$NON-NLS-1$
 			}
-			final ResearchOrganization orga = holder.getOrganization();
+			final var orga = holder.getOrganization();
 			organizations.writeReferenceOrObjectField("organization", orga, () -> { //$NON-NLS-1$
 				JsonUtils.writeObjectAndAttributes(generator, orga);
 			});
-			final ResearchOrganization superOrga = holder.getOrganization();
+			final var superOrga = holder.getOrganization();
 			organizations.writeReferenceOrObjectField("superOrganization", superOrga, () -> { //$NON-NLS-1$
 				JsonUtils.writeObjectAndAttributes(generator, superOrga);
 			});
@@ -357,7 +354,7 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 	 * @see #getNameOrAcronym()
 	 */
 	public final String getAcronymOrName() {
-		final String acronym = getAcronym();
+		final var acronym = getAcronym();
 		if (Strings.isNullOrEmpty(acronym)) {
 			return getName();
 		}
@@ -370,7 +367,7 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 	 * @see #getAcronymOrName()
 	 */
 	public final String getNameOrAcronym() {
-		final String name = getName();
+		final var name = getName();
 		if (Strings.isNullOrEmpty(name)) {
 			return getAcronym();
 		}
@@ -622,9 +619,9 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 	 * @return the holders.
 	 */
 	public List<AssociatedStructureHolder> getHolders() {
-		final Set<AssociatedStructureHolder> raw = getHoldersRaw();
+		final var raw = getHoldersRaw();
 		assert raw != null;
-		final List<AssociatedStructureHolder> sortedList = raw.stream().sorted(EntityUtils.getPreferredAssociatedStructureHolderComparator()).collect(Collectors.toList());
+		final var sortedList = raw.stream().sorted(EntityUtils.getPreferredAssociatedStructureHolderComparator()).collect(Collectors.toList());
 		return sortedList;
 	}
 

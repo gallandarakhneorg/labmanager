@@ -18,13 +18,11 @@ package fr.utbm.ciad.labmanager.components.indicators.publication.count;
 
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
 import fr.utbm.ciad.labmanager.services.publication.type.JournalPaperService;
 import fr.utbm.ciad.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +58,7 @@ public class UnrankedJournalPaperCountIndicator extends AbstractAnnualIndicator 
 
 	@Override
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
-		final Set<JournalPaper> papers = this.journalPaperService.getJournalPapersByOrganizationId(organization.getId(), true, true);
+		final var papers = this.journalPaperService.getJournalPapersByOrganizationId(organization.getId(), true, true);
 		//
 		final Map<Integer, Number> rankedPapers = filterByYearWindow(papers, it -> Integer.valueOf(it.getPublicationYear()))
 				.filter(it -> !it.isRanked())

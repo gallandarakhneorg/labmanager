@@ -24,13 +24,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.ibm.icu.text.Normalizer2;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
@@ -149,7 +146,7 @@ public final class EntityUtils {
 		if (b == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = - Integer.compare(a.getPublicationYear(), b.getPublicationYear());
+		var cmp = - Integer.compare(a.getPublicationYear(), b.getPublicationYear());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -526,8 +523,8 @@ public final class EntityUtils {
 		if (a == null) {
 			return null;
 		}
-		String str = a.toLowerCase().trim();
-		final Normalizer2 normalizer = Normalizer2.getNFDInstance();
+		var str = a.toLowerCase().trim();
+		final var normalizer = Normalizer2.getNFDInstance();
 		if (!normalizer.isNormalized(str)) {
 			str = normalizer.normalize(str);
 		}
@@ -755,16 +752,16 @@ public final class EntityUtils {
 	 * @since 2.2
 	 */
 	public static String getNameInUniversity(Supervision supervision, String separator) {
-		final Membership membership = supervision.getSupervisedPerson();
-		final ResearchOrganization organization = membership.getResearchOrganization();
-		final StringBuilder outcome = new StringBuilder();
+		final var membership = supervision.getSupervisedPerson();
+		final var organization = membership.getResearchOrganization();
+		final var outcome = new StringBuilder();
 		outcome.append(organization.getNameOrAcronym());
 
-		final StringBuilder univBuffer = new StringBuilder();
-		final int univType = ResearchOrganizationType.UNIVERSITY.ordinal();
-		boolean univFound = false;
+		final var univBuffer = new StringBuilder();
+		final var univType = ResearchOrganizationType.UNIVERSITY.ordinal();
+		var univFound = false;
 		if (organization.getType().ordinal() <= univType) {
-			ResearchOrganization org = organization.getSuperOrganization();
+			var org = organization.getSuperOrganization();
 			while (org != null && org.getType().ordinal() <= univType) {
 				univFound = org.getType().ordinal() == univType;
 				univBuffer.append(separator);
@@ -774,14 +771,14 @@ public final class EntityUtils {
 		}
 
 		if (!univFound) {
-			final LocalDate timeStart = membership.getMemberSinceWhen() == null
+			final var timeStart = membership.getMemberSinceWhen() == null
 					? LocalDate.of(supervision.getYear(), 1, 1) : membership.getMemberSinceWhen();
-			final LocalDate timeEnd = membership.getMemberToWhen() == null
+			final var timeEnd = membership.getMemberToWhen() == null
 					? LocalDate.of(supervision.getYear(), 12, 31) : membership.getMemberToWhen();
-			final Iterator<Membership> iterator = supervision.getSupervisedPerson().getPerson().getMemberships().stream()
+			final var iterator = supervision.getSupervisedPerson().getPerson().getMemberships().stream()
 					.filter(it -> it.getId() != membership.getId() && it.isActiveIn(timeStart, timeEnd)).iterator();
 			while (iterator.hasNext()) {
-				final Membership mbr = iterator.next();
+				final var mbr = iterator.next();
 				if (mbr.getResearchOrganization().getType() == ResearchOrganizationType.UNIVERSITY) {
 					outcome.append(separator);
 					outcome.append(mbr.getResearchOrganization().getNameOrAcronym());
@@ -802,7 +799,7 @@ public final class EntityUtils {
 	 * @since 2.2
 	 */
 	public static ResearchOrganization getUniversityOrSchoolOrCompany(ResearchOrganization organization) {
-		ResearchOrganization current = organization;
+		var current = organization;
 		while (current != null && !current.getType().isEmployer()) {
 			current = current.getSuperOrganization();
 		}
@@ -819,7 +816,7 @@ public final class EntityUtils {
 	 * @since 3.6
 	 */
 	public static ResearchOrganization getUniversityOrSchoolOrCompany(ResearchOrganization... organizations) {
-		for (final ResearchOrganization organization : organizations) {
+		for (final var organization : organizations) {
 			if (organization.getType().isEmployer()) {
 				return organization;
 			}
@@ -834,7 +831,7 @@ public final class EntityUtils {
 	 * @since 3.6
 	 */
 	public static String getUniversityOrSchoolOrCompanyName(ResearchOrganization... organizations) {
-		final ResearchOrganization organization = getUniversityOrSchoolOrCompany(organizations);
+		final var organization = getUniversityOrSchoolOrCompany(organizations);
 		if (organization != null) {
 			return organization.getAcronymOrName();
 		}
@@ -848,11 +845,11 @@ public final class EntityUtils {
 	 * @return the employer or {@code null}.
 	 */
 	public static ResearchOrganization getUniversityOrSchoolOrCompany(Person person, Predicate<? super Membership> selector) {
-		Stream<Membership> stream = person.getMemberships().stream();
+		var stream = person.getMemberships().stream();
 		if (selector != null) {
 			stream = stream.filter(selector);
 		}
-		final Optional<ResearchOrganization> employer = stream
+		final var employer = stream
 				.map(it0 -> it0.getResearchOrganization())
 				.filter(it0 -> it0.getType().isEmployer())
 				.findAny();
@@ -873,20 +870,20 @@ public final class EntityUtils {
 	 * @since 2.2
 	 */
 	public static String getUniversityOrSchoolOrCompany(Supervision supervision, Person person, String prefix, String postfix, boolean acronym) {
-		final Membership membership = supervision.getSupervisedPerson();
-		final LocalDate timeStart = membership.getMemberSinceWhen() == null
+		final var membership = supervision.getSupervisedPerson();
+		final var timeStart = membership.getMemberSinceWhen() == null
 				? LocalDate.of(supervision.getYear(), 1, 1) : membership.getMemberSinceWhen();
-		final LocalDate timeEnd = membership.getMemberToWhen() == null
+		final var timeEnd = membership.getMemberToWhen() == null
 				? LocalDate.of(supervision.getYear(), 12, 31) : membership.getMemberToWhen();
-		final Iterator<Membership> iterator = person.getMemberships().stream()
+		final var iterator = person.getMemberships().stream()
 				.filter(it -> it.isActiveIn(timeStart, timeEnd)).iterator();
 		while (iterator.hasNext()) {
-			final Membership mbr = iterator.next();
-			final ResearchOrganization org = mbr.getResearchOrganization();
-			final ResearchOrganizationType otype = org.getType();
+			final var mbr = iterator.next();
+			final var org = mbr.getResearchOrganization();
+			final var otype = org.getType();
 			if (otype == ResearchOrganizationType.UNIVERSITY || otype == ResearchOrganizationType.HIGH_SCHOOL
 					|| otype == ResearchOrganizationType.OTHER) {
-				final StringBuilder b = new StringBuilder();
+				final var b = new StringBuilder();
 				if (prefix != null) {
 					b.append(prefix);
 				}
@@ -950,7 +947,7 @@ public final class EntityUtils {
 		if (Strings.isNullOrEmpty(complement)) {
 			return Collections.emptyList();
 		}
-		final String[] components = complement.split("[\n]+");  //$NON-NLS-1$
+		final var components = complement.split("[\n]+");  //$NON-NLS-1$
 		return Arrays.asList(components);
 	}
 
@@ -989,8 +986,8 @@ public final class EntityUtils {
 	 * @since 3.6
 	 */
 	public static Set<ResearchOrganization> getPartnersForProjects(Iterable<Project> projects) {
-		final Set<ResearchOrganization> partners = new HashSet<>();
-		for (final Project project : projects) {
+		final var partners = new HashSet<ResearchOrganization>();
+		for (final var project : projects) {
 			partners.addAll(project.getOtherPartners());
 		}
 		return partners;
@@ -1003,7 +1000,7 @@ public final class EntityUtils {
 	 * @since 3.6
 	 */
 	public static boolean hasOrganizationOutsideEurope(Set<ResearchOrganization> organizations) {
-		for (final ResearchOrganization organization : organizations) {
+		for (final var organization : organizations) {
 			if (organization.isInternational()) {
 				return true;
 			}
@@ -1018,9 +1015,9 @@ public final class EntityUtils {
 	 * @since 3.6
 	 */
 	public static boolean hasPhDStudentAuthor(Production production) {
-		final int year = production.getPublicationYear();
-		final LocalDate d0 = LocalDate.of(year, 1, 1);
-		final LocalDate d1 = LocalDate.of(year, 12, 31);
+		final var year = production.getPublicationYear();
+		final var d0 = LocalDate.of(year, 1, 1);
+		final var d1 = LocalDate.of(year, 12, 31);
 		return production.getAuthorships().stream().anyMatch(
 				it -> it.getPerson() != null && hasPhdStudentMembership(it.getPerson().getMemberships(), d0, d1));
 	}
@@ -1036,9 +1033,9 @@ public final class EntityUtils {
 	 * @since 3.6
 	 */
 	public static boolean hasPostdocAuthor(Production production) {
-		final int year = production.getPublicationYear();
-		final LocalDate d0 = LocalDate.of(year, 1, 1);
-		final LocalDate d1 = LocalDate.of(year, 12, 31);
+		final var year = production.getPublicationYear();
+		final var d0 = LocalDate.of(year, 1, 1);
+		final var d1 = LocalDate.of(year, 12, 31);
 		return production.getAuthorships().stream().anyMatch(
 				it -> it.getPerson() != null && hasPostdocMembership(it.getPerson().getMemberships(), d0, d1));
 	}

@@ -59,7 +59,7 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 		if (publications == null) {
 			return null;
 		}
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		html.append("<html><body>"); //$NON-NLS-1$
 		exportPublicationsWithGroupingCriteria(publications, configurator,
 				it -> html.append("<h1>").append(it).append("</h1>"), //$NON-NLS-1$ //$NON-NLS-2$
@@ -77,7 +77,7 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 	 */
 	protected void exportFlatList(StringBuilder html, Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
 		html.append("<ul>"); //$NON-NLS-1$
-		for (final Publication publication : publications) {
+		for (final var publication : publications) {
 			exportPublication(html, publication, configurator);
 		}
 		html.append("</ul>"); //$NON-NLS-1$
@@ -94,7 +94,7 @@ public class CiadHtmlDocumentExporter extends AbstractCiadHtmlExporter implement
 		assert publication != null;
 		assert configurator != null;
 		html.append("<li align=\"justify\">"); //$NON-NLS-1$
-		final java.util.Locale loc = java.util.Locale.getDefault();
+		final var loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
 			exportAuthors(html, publication, configurator, true);

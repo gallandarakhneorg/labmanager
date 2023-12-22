@@ -49,11 +49,10 @@ public class ComposedException extends Exception {
 	
 	@Override
 	public String getMessage() {
-		// TODO Auto-generated method stub
-		final String msg = super.getMessage();
+		final var msg = super.getMessage();
 		if (Strings.isNullOrEmpty(msg)) {
-			final StringBuilder b = new StringBuilder();
-			for (final Throwable ex : getCauses()) {
+			final var b = new StringBuilder();
+			for (final var ex : getCauses()) {
 				if (!Strings.isNullOrEmpty(ex.getLocalizedMessage())) {
 					if (b.length() > 0) {
 						b.append("\n"); //$NON-NLS-1$

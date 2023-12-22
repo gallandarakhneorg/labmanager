@@ -19,11 +19,9 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.project.budget;
 
-import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -88,12 +86,12 @@ public abstract class AbstractProjectBudgetIndicator extends AbstractAnnualIndic
 
 	@Override
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
-		final List<Project> projects = this.projectService.getProjectsByOrganizationId(organization.getId());
+		final var projects = this.projectService.getProjectsByOrganizationId(organization.getId());
 		//
-		Stream<Project> stream = filterByYearWindow(projects, it -> Integer.valueOf(it.getStartYear()));
+		var stream = filterByYearWindow(projects, it -> Integer.valueOf(it.getStartYear()));
 		stream = stream.filter(it -> isSelectableProject(it));
 		//
-		final Unit dataUnit = getValueUnitInJPA();
+		final var dataUnit = getValueUnitInJPA();
 		final Map<Integer, Number> projectsPerYear = stream.collect(Collectors.toConcurrentMap(
 				it -> Integer.valueOf(it.getStartYear()),
 				it -> Double.valueOf(dataUnit.convertToUnit(it.getTotalLocalOrganizationBudget())),

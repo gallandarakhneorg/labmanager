@@ -26,7 +26,6 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Random;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
@@ -168,7 +167,7 @@ public abstract class AbstractComponent {
 	 * @see #optionalString(Map, String)
 	 */
 	protected static String ensureString(Map<String, ?> attributes, String name) {
-		final String param = inString(attributes.get(name));
+		final var param = inString(attributes.get(name));
 		if (param == null) {
 			throw new IllegalArgumentException("Missed string parameter: " + name); //$NON-NLS-1$
 		}
@@ -184,7 +183,7 @@ public abstract class AbstractComponent {
 	 * @see #ensureString(Map, String)
 	 */
 	protected static String optionalString(Map<String, ?> attributes, String name) {
-		final String param = inString(attributes.get(name));
+		final var param = inString(attributes.get(name));
 		if (Strings.isNullOrEmpty(param)) {
 			return null;
 		}
@@ -201,7 +200,7 @@ public abstract class AbstractComponent {
 	 * @see #optionalString(Map, String)
 	 */
 	protected static String optionalStringWithUnsetConstant(Map<String, ?> attributes, String name) {
-		final String param = inString(attributes.get(name));
+		final var param = inString(attributes.get(name));
 		if (Strings.isNullOrEmpty(param) || UNSET_STR.equals(param)) {
 			return null;
 		}
@@ -217,7 +216,7 @@ public abstract class AbstractComponent {
 	 * @see #ensureString(Map, String)
 	 */
 	protected static boolean optionalBoolean(Map<String, ?> attributes, String name) {
-		final String param = inString(attributes.get(name));
+		final var param = inString(attributes.get(name));
 		if (param == null) {
 			return false;
 		}
@@ -237,7 +236,7 @@ public abstract class AbstractComponent {
 	 * @see #ensureString(Map, String)
 	 */
 	protected static float optionalFloat(Map<String, ?> attributes, String name) {
-		final String param = inString(attributes.get(name));
+		final var param = inString(attributes.get(name));
 		if (Strings.isNullOrEmpty(param)) {
 			return Float.NaN;
 		}
@@ -259,7 +258,7 @@ public abstract class AbstractComponent {
 	 * @since 3.6
 	 */
 	protected static int optionalInt(Map<String, ?> attributes, String name, int defaultValue) {
-		final String param = inString(attributes.get(name));
+		final var param = inString(attributes.get(name));
 		if (Strings.isNullOrEmpty(param)) {
 			return defaultValue;
 		}
@@ -280,9 +279,9 @@ public abstract class AbstractComponent {
 	 * @see #ensureString(Map, String)
 	 */
 	protected static <E extends Enum<E>> E optionalEnum(Map<String, ?> attributes, String name, Class<E> type) {
-		final String param = inString(attributes.get(name));
+		final var param = inString(attributes.get(name));
 		if (!Strings.isNullOrEmpty(param)) {
-			for (final E enumConstant : type.getEnumConstants()) {
+			for (final var enumConstant : type.getEnumConstants()) {
 				if (enumConstant.name().equalsIgnoreCase(param)) {
 					return enumConstant;
 				}
@@ -299,7 +298,7 @@ public abstract class AbstractComponent {
 	 * @return the value
 	 */
 	protected static LocalDate optionalDate(Map<String, ?> attributes, String name) {
-		final String dateStr = optionalString(attributes, name);
+		final var dateStr = optionalString(attributes, name);
 		LocalDate date = null;
 		if (!Strings.isNullOrEmpty(dateStr)) {
 			try {
@@ -324,7 +323,7 @@ public abstract class AbstractComponent {
 	 * @return the value
 	 */
 	protected static int ensureYear(Map<String, ?> attributes, String name) {
-		final String dateStr = ensureString(attributes, name);
+		final var dateStr = ensureString(attributes, name);
 		LocalDate date;
 		try {
 			date = LocalDate.parse(dateStr);
@@ -354,7 +353,7 @@ public abstract class AbstractComponent {
 	 * @return the value
 	 */
 	protected static int ensureInt(Map<String, ?> attributes, String name) {
-		final String intStr = ensureString(attributes, name);
+		final var intStr = ensureString(attributes, name);
 		try {
 			return Integer.parseInt(intStr);
 		} catch (Throwable ex) {
@@ -382,15 +381,15 @@ public abstract class AbstractComponent {
 	protected static Journal getJournalWith(String journal, JournalService journalService) {
 		if (!Strings.isNullOrEmpty(journal)) {
 			try {
-				final int id = Integer.parseInt(journal);
-				final Journal journalObj = journalService.getJournalById(id);
+				final var id = Integer.parseInt(journal);
+				final var journalObj = journalService.getJournalById(id);
 				if (journalObj != null) {
 					return journalObj;
 				}
 			} catch (Throwable ex) {
 				//
 			}
-			final Journal journalObj = journalService.getJournalByName(journal);
+			final var journalObj = journalService.getJournalByName(journal);
 			return journalObj;
 		}
 		return null;
@@ -406,15 +405,15 @@ public abstract class AbstractComponent {
 	protected static Conference getConferenceWith(String conference, ConferenceService conferenceService) {
 		if (!Strings.isNullOrEmpty(conference)) {
 			try {
-				final int id = Integer.parseInt(conference);
-				final Conference conferenceObj = conferenceService.getConferenceById(id);
+				final var id = Integer.parseInt(conference);
+				final var conferenceObj = conferenceService.getConferenceById(id);
 				if (conferenceObj != null) {
 					return conferenceObj;
 				}
 			} catch (Throwable ex) {
 				//
 			}
-			final Conference conferenceObj = conferenceService.getConferenceByName(conference);
+			final var conferenceObj = conferenceService.getConferenceByName(conference);
 			return conferenceObj;
 		}
 		return null;
@@ -439,9 +438,9 @@ public abstract class AbstractComponent {
 			return personService.getPersonByWebPageId(webId);
 		}
 		if (!Strings.isNullOrEmpty(name)) {
-			final String firstName = nameParser.parseFirstName(name);
-			final String lastName = nameParser.parseLastName(name);
-			final Person personObj = personService.getPersonBySimilarName(firstName, lastName);
+			final var firstName = nameParser.parseFirstName(name);
+			final var lastName = nameParser.parseLastName(name);
+			final var personObj = personService.getPersonBySimilarName(firstName, lastName);
 			return personObj;
 		}
 		return null;
@@ -456,15 +455,15 @@ public abstract class AbstractComponent {
 	protected static ResearchOrganization getOrganizationWith(String organization, ResearchOrganizationService organizationService) {
 		if (!Strings.isNullOrEmpty(organization)) {
 			try {
-				final int id = Integer.parseInt(organization);
-				final Optional<ResearchOrganization> organizationObj = organizationService.getResearchOrganizationById(id);
+				final var id = Integer.parseInt(organization);
+				final var organizationObj = organizationService.getResearchOrganizationById(id);
 				if (organizationObj.isPresent()) {
 					return organizationObj.get();
 				}
 			} catch (Throwable ex) {
 				//
 			}
-			final Optional<ResearchOrganization> organizationObj = organizationService.getResearchOrganizationByAcronymOrName(organization);
+			final var organizationObj = organizationService.getResearchOrganizationByAcronymOrName(organization);
 			if (organizationObj.isPresent()) {
 				return organizationObj.get();
 			}
@@ -482,15 +481,15 @@ public abstract class AbstractComponent {
 	 */
 	protected static ResearchOrganization getOrganizationWith(Integer dbId, String name, ResearchOrganizationService organizationService) {
 		if (dbId != null && dbId.intValue() != 0) {
-			final Optional<ResearchOrganization> organizationOpt = organizationService.getResearchOrganizationById(dbId.intValue());
+			final var organizationOpt = organizationService.getResearchOrganizationById(dbId.intValue());
 			if (organizationOpt.isEmpty()) {
 				return null;
 			}
 			return organizationOpt.get();
 		}
-		final String inOrganizationAcronym = inString(name);
+		final var inOrganizationAcronym = inString(name);
 		if (!Strings.isNullOrEmpty(inOrganizationAcronym)) {
-			final Optional<ResearchOrganization> organizationOpt = organizationService.getResearchOrganizationByAcronymOrName(name);
+			final var organizationOpt = organizationService.getResearchOrganizationByAcronymOrName(name);
 			if (organizationOpt.isEmpty()) {
 				return null;
 			}
@@ -505,8 +504,8 @@ public abstract class AbstractComponent {
 	 * @return the normalized string that is equivalent to the argument.
 	 */
 	public static String inString(Object input) {
-		final String strInput = input == null ? null : input.toString();
-		String out = Strings.emptyToNull(strInput);
+		final var strInput = input == null ? null : input.toString();
+		var out = Strings.emptyToNull(strInput);
 		if (out != null) {
 			out = out.trim();
 			out = Strings.emptyToNull(out);
@@ -521,7 +520,7 @@ public abstract class AbstractComponent {
 	 * @since 3.4
 	 */
 	public static URL inURL(Object input) {
-		final String strInput = inString(input);
+		final var strInput = inString(input);
 		if (!Strings.isNullOrEmpty(strInput)) {
 			try {
 				return new URL(strInput);
@@ -539,7 +538,7 @@ public abstract class AbstractComponent {
 	 * @since 3.0
 	 */
 	public static Float inFloat(Object input) {
-		final String strInput = inString(input);
+		final var strInput = inString(input);
 		if (!Strings.isNullOrEmpty(strInput)) {
 			try {
 				return Float.valueOf(strInput);
@@ -557,7 +556,7 @@ public abstract class AbstractComponent {
 	 * @since 3.4
 	 */
 	public static Integer inInteger(Object input) {
-		final String strInput = inString(input);
+		final var strInput = inString(input);
 		if (!Strings.isNullOrEmpty(strInput)) {
 			try {
 				return Integer.valueOf(strInput);
@@ -579,9 +578,9 @@ public abstract class AbstractComponent {
 	 * @since 3.6
 	 */
 	public static <E extends Enum<E>> E inEnum(Object input, Class<E> type, E defaultValue) {
-		final String param = inString(input);
+		final var param = inString(input);
 		if (!Strings.isNullOrEmpty(param)) {
-			for (final E enumConstant : type.getEnumConstants()) {
+			for (final var enumConstant : type.getEnumConstants()) {
 				if (enumConstant.name().equalsIgnoreCase(param)) {
 					return enumConstant;
 				}
@@ -598,7 +597,7 @@ public abstract class AbstractComponent {
 	 * @since 3.4
 	 */
 	public static int inInt(Object input, int defaultValue) {
-		final Integer value = inInteger(input);
+		final var value = inInteger(input);
 		if (value == null) {
 			return defaultValue;
 		}
@@ -616,9 +615,9 @@ public abstract class AbstractComponent {
 	 */
 	protected void forEarchPerson(List<String> persons, boolean createPerson,
 			PersonService personService, PersonNameParser nameParser, Consumer<Person> consumer) {
-		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
-		for (final String personDesc : persons) {
-			final Person person = extractPerson(personDesc, idPattern, createPerson, personService, nameParser);
+		final var idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
+		for (final var personDesc : persons) {
+			final var person = extractPerson(personDesc, idPattern, createPerson, personService, nameParser);
 			if (person != null) {
 				consumer.accept(person);
 			}
@@ -635,7 +634,7 @@ public abstract class AbstractComponent {
 	 */
 	protected Person extractPerson(String personDesc, boolean createPerson,
 			PersonService personService, PersonNameParser nameParser) {
-		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
+		final var idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
 		return extractPerson(personDesc, idPattern, createPerson, personService, nameParser);
 	}
 
@@ -653,8 +652,8 @@ public abstract class AbstractComponent {
 		}
 		if (personId == 0) {
 			// The person seems to be not in the database already. Check it based on the name.
-			final String firstName = nameParser.parseFirstName(personDesc);
-			final String lastName = nameParser.parseLastName(personDesc);
+			final var firstName = nameParser.parseFirstName(personDesc);
+			final var lastName = nameParser.parseLastName(personDesc);
 			personId = personService.getPersonIdByName(firstName, lastName);
 			if (personId == 0) {
 				// Now, it is sure that the person is unknown
@@ -696,7 +695,7 @@ public abstract class AbstractComponent {
 			String logMessage, Consumer<String> setter, Supplier<File> filename,
 			Callback delete, Saver save) throws IOException {
 		// Treat the uploaded files
-		boolean changed = false;
+		var changed = false;
 		if (explicitRemove) {
 			try {
 				delete.apply();
@@ -707,8 +706,8 @@ public abstract class AbstractComponent {
 			changed = true;
 		}
 		if (uploadedFile != null && !uploadedFile.isEmpty()) {
-			final File fn = filename.get();
-			final File th = FileSystem.replaceExtension(fn, FileManager.JPEG_FILE_EXTENSION);
+			final var fn = filename.get();
+			final var th = FileSystem.replaceExtension(fn, FileManager.JPEG_FILE_EXTENSION);
 			save.apply(fn, th);
 			setter.accept(fn.getPath());
 			changed = true;
@@ -786,7 +785,7 @@ public abstract class AbstractComponent {
 	 * @return the endpoint URL. builder
 	 */
 	protected UriBuilder endpointUriBuilder(String endpointName) {
-		final UriBuilder b = this.uriBuilderFactory.builder();
+		final var b = this.uriBuilderFactory.builder();
 		b.path("/" + this.constants.getServerName() + "/" + endpointName); //$NON-NLS-1$ //$NON-NLS-2$
 		return b;
 	}
@@ -797,13 +796,13 @@ public abstract class AbstractComponent {
 	 * @return the rooted URL.
 	 */
 	protected String rooted(File relativeFile) {
-		final StringBuilder bb = new StringBuilder();
+		final var bb = new StringBuilder();
 		File f = relativeFile;
 		while (f != null) {
 			bb.insert(0, f.getName()).insert(0, "/"); //$NON-NLS-1$
 			f = f.getParentFile();
 		}
-		final UriBuilder b = this.uriBuilderFactory.builder();
+		final var b = this.uriBuilderFactory.builder();
 		b.path("/" + this.constants.getServerName() + bb.toString()); //$NON-NLS-1$
 		return b.build().toASCIIString();
 	}
@@ -814,7 +813,7 @@ public abstract class AbstractComponent {
 	 * @return the rooted URL.
 	 */
 	protected String rooted(String relativeUrl) {
-		final UriBuilder b = this.uriBuilderFactory.builder();
+		final var b = this.uriBuilderFactory.builder();
 		b.path("/" + this.constants.getServerName() + "/" + relativeUrl); //$NON-NLS-1$ //$NON-NLS-2$
 		return b.build().toASCIIString();
 	}
@@ -829,7 +828,7 @@ public abstract class AbstractComponent {
 	 */
 	protected String rootedThumbnail(String filename, boolean preserveFileExtension) {
 		try {
-			final URL url = new URL("file:" + filename); //$NON-NLS-1$
+			final var url = new URL("file:" + filename); //$NON-NLS-1$
 			final URL normalized;
 			if (preserveFileExtension) {
 				normalized = url;

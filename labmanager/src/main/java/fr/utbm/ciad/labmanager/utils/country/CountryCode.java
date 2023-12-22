@@ -9562,7 +9562,7 @@ public enum CountryCode {
 
 	/** Replies the ISO 3166-1 code for the current country.
 	 *
-	 * @return the iso code for the country.
+	 * @return the iso code for the country in lower case.
 	 */
 	@Pure
 	public String getCode() {
@@ -9577,8 +9577,8 @@ public enum CountryCode {
 	@Pure
 	public static CountryCode fromLocale(Locale locale) {
 		if (locale != null) {
-			final String c = locale.getCountry();
-			for (final CountryCode cc : CountryCode.values()) {
+			final var c = locale.getCountry();
+			for (final var cc : CountryCode.values()) {
 				if (cc.code.equalsIgnoreCase(c)) {
 					return cc;
 				}
@@ -9598,7 +9598,7 @@ public enum CountryCode {
 	 */
 	@Pure
 	public static CountryCode fromCallingCode(int code) {
-		for (final CountryCode cc : CountryCode.values()) {
+		for (final var cc : CountryCode.values()) {
 			if (cc.callingCode == code) {
 				return cc;
 			}
@@ -9615,7 +9615,7 @@ public enum CountryCode {
 	 */
 	public static CountryCode valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final CountryCode code : CountryCode.values()) {
+			for (final var code : CountryCode.values()) {
 				if (name.equalsIgnoreCase(code.name())) {
 					return code;
 				}
@@ -9645,13 +9645,23 @@ public enum CountryCode {
 	 * @return the display name of the country.
 	 */
 	public String getDisplayCountry() {
-		final Locale targetLanguage = LocaleContextHolder.getLocale();
-		final String theCode = getCode();
-		final Locale countryLocale = new Locale(theCode, theCode);
-		if (targetLanguage == null) {
+		return getDisplayCountry(LocaleContextHolder.getLocale());
+	}
+
+	/** Replies the display name of the country.
+	 * The target language is the one provided by {@link LocaleContextHolder}.
+	 *
+	 * @param locale the locale used for selecting the term.
+	 * @return the display name of the country.
+	 * @since 4.0
+	 */
+	public String getDisplayCountry(Locale locale) {
+		final var theCode = getCode();
+		final var countryLocale = new Locale(theCode, theCode);
+		if (locale == null) {
 			return countryLocale.getDisplayCountry();
 		}
-		return countryLocale.getDisplayCountry(targetLanguage);
+		return countryLocale.getDisplayCountry(locale);
 	}
 
 	/** Replies the display name of the language associated to the country.
@@ -9660,13 +9670,23 @@ public enum CountryCode {
 	 * @return the display name of the country.
 	 */
 	public String getDisplayLanguage() {
-		final Locale targetLanguage = LocaleContextHolder.getLocale();
-		final String theCode = getCode();
-		final Locale countryLocale = new Locale(theCode, theCode);
-		if (targetLanguage == null) {
+		return getDisplayLanguage(LocaleContextHolder.getLocale());
+	}
+
+	/** Replies the display name of the language associated to the country.
+	 * The target language is the one provided by {@link LocaleContextHolder}.
+	 *
+	 * @param locale the locale used for selecting the term.
+	 * @return the display name of the country.
+	 * @since 4.0
+	 */
+	public String getDisplayLanguage(Locale locale) {
+		final var theCode = getCode();
+		final var countryLocale = new Locale(theCode, theCode);
+		if (locale == null) {
 			return countryLocale.getDisplayLanguage();
 		}
-		return countryLocale.getDisplayLanguage(targetLanguage);
+		return countryLocale.getDisplayLanguage(locale);
 	}
 
 	/** Replies all the display names of the countries.
@@ -9675,8 +9695,8 @@ public enum CountryCode {
 	 * @return the display names of the countries.
 	 */
 	public static Map<CountryCode, String> getAllDisplayCountries() {
-		final Map<CountryCode, String> labels = new TreeMap<>();
-		for (final CountryCode code : CountryCode.values()) {
+		final var labels = new TreeMap<CountryCode, String>();
+		for (final var code : CountryCode.values()) {
 			labels.put(code, code.getDisplayCountry());
 		}
 		return labels;
@@ -9697,7 +9717,7 @@ public enum CountryCode {
 	 * @return {@code true} if the sovereign/president/governor of the country is in Europe continent.
 	 */
 	public boolean isEuropeanSovereign() {
-		final CountryCode sovereign = getSovereignCountry();
+		final var sovereign = getSovereignCountry();
 		if (sovereign == null) {
 			return isEuropeanContinent();
 		}
@@ -9719,7 +9739,7 @@ public enum CountryCode {
 	 * @return {@code true} if the sovereign/president/governor of the country is in North-American continent.
 	 */
 	public boolean isNorthAmericanSovereign() {
-		final CountryCode sovereign = getSovereignCountry();
+		final var sovereign = getSovereignCountry();
 		if (sovereign == null) {
 			return isNorthAmericanContinent();
 		}
@@ -9741,7 +9761,7 @@ public enum CountryCode {
 	 * @return {@code true} if the sovereign/president/governor of the country is in South-American continent.
 	 */
 	public boolean isSouthAmericanSovereign() {
-		final CountryCode sovereign = getSovereignCountry();
+		final var sovereign = getSovereignCountry();
 		if (sovereign == null) {
 			return isSouthAmericanContinent();
 		}
@@ -9763,7 +9783,7 @@ public enum CountryCode {
 	 * @return {@code true} if the sovereign/president/governor of the country is in Asian continent.
 	 */
 	public boolean isAsianSovereign() {
-		final CountryCode sovereign = getSovereignCountry();
+		final var sovereign = getSovereignCountry();
 		if (sovereign == null) {
 			return isAsianContinent();
 		}
@@ -9785,7 +9805,7 @@ public enum CountryCode {
 	 * @return {@code true} if the sovereign/president/governor of the country is in Oceanic continent.
 	 */
 	public boolean isAustralianSovereign() {
-		final CountryCode sovereign = getSovereignCountry();
+		final var sovereign = getSovereignCountry();
 		if (sovereign == null) {
 			return isOceanicContinent();
 		}
@@ -9807,7 +9827,7 @@ public enum CountryCode {
 	 * @return {@code true} if the sovereign/president/governor of the country is in African continent.
 	 */
 	public boolean isAfricanSovereign() {
-		final CountryCode sovereign = getSovereignCountry();
+		final var sovereign = getSovereignCountry();
 		if (sovereign == null) {
 			return isAfricanContinent();
 		}
@@ -9846,8 +9866,8 @@ public enum CountryCode {
 	 * @return the normalized code.
 	 */
 	public CountryCode normalize() {
-		CountryCode current = this;
-		CountryCode sovereign = getSovereignCountry();
+		var current = this;
+		var sovereign = getSovereignCountry();
 		while (sovereign != null) {
 			current = sovereign;
 			sovereign = current.getSovereignCountry();

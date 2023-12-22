@@ -17,11 +17,9 @@
 package fr.utbm.ciad.labmanager.components.indicators.publication.count;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractAnnualIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -82,9 +80,9 @@ public abstract class AbstractConferencePaperCountIndicator extends AbstractAnnu
 
 	@Override
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
-		final Set<ConferencePaper> papers = this.conferencePaperService.getConferencePapersByOrganizationId(organization.getId(), true);
+		final var papers = this.conferencePaperService.getConferencePapersByOrganizationId(organization.getId(), true);
 		//
-		Stream<ConferencePaper> stream = filterByYearWindow(papers, it -> Integer.valueOf(it.getPublicationYear()))
+		var stream = filterByYearWindow(papers, it -> Integer.valueOf(it.getPublicationYear()))
 				.filter(it -> {
 					final PublicationType type = it.getType();
 					return type == PublicationType.INTERNATIONAL_CONFERENCE_PAPER || type == PublicationType.NATIONAL_CONFERENCE_PAPER; 

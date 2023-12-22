@@ -97,23 +97,23 @@ public final class JsonUtils {
 			final Iterator<Entry> iterator = iter.entrySet().iterator();
 			generator.writeObjectFieldStart(name);
 			while (iterator.hasNext()) {
-				final Entry elt = iterator.next();
+				final var elt = iterator.next();
 				if (elt.getKey() != null) {
 					writeField(generator, elt.getKey().toString(), elt.getValue());
 				}
 			}
 			generator.writeEndObject();
 		} else if (value instanceof Iterable iter) {
-			final Iterator<?> iterator = iter.iterator();
+			final var iterator = iter.iterator();
 			generator.writeArrayFieldStart(name);
 			while (iterator.hasNext()) {
-				final Object elt = iterator.next();
+				final var elt = iterator.next();
 				writeValue(generator, elt);
 			}
 			generator.writeEndArray();
 		} else if (value !=null && value.getClass().isArray()) {
 			generator.writeArrayFieldStart(name);
-			for (int i = 0; i < Array.getLength(value); ++i) {
+			for (var i = 0; i < Array.getLength(value); ++i) {
 				writeValue(generator, Array.get(value, i));
 			}
 			generator.writeEndArray();
@@ -161,23 +161,23 @@ public final class JsonUtils {
 			final Iterator<Entry> iterator = iter.entrySet().iterator();
 			generator.writeStartObject();
 			while (iterator.hasNext()) {
-				final Entry elt = iterator.next();
+				final var elt = iterator.next();
 				if (elt.getKey() != null) {
 					writeField(generator, elt.getKey().toString(), elt.getValue());
 				}
 			}
 			generator.writeEndObject();
 		} else if (value instanceof Iterable iter) {
-			final Iterator<?> iterator = iter.iterator();
+			final var  iterator = iter.iterator();
 			generator.writeStartArray();
 			while (iterator.hasNext()) {
-				final Object elt = iterator.next();
+				final var elt = iterator.next();
 				writeValue(generator, elt);
 			}
 			generator.writeEndArray();
 		} else if (value != null && value.getClass().isArray()) {
 			generator.writeStartArray();
-			for (int i = 0; i < Array.getLength(value); ++i) {
+			for (var i = 0; i < Array.getLength(value); ++i) {
 				writeValue(generator, Array.get(value, i));
 			}
 			generator.writeEndArray();
@@ -259,7 +259,7 @@ public final class JsonUtils {
 	 * @return the configured mapper.
 	 */
 	public static ObjectMapper createMapper() {
-		final ObjectMapper mapper = new ObjectMapper();
+		final var mapper = new ObjectMapper();
 		mapper.registerModule(new JavaTimeModule());
 		mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
 		mapper.disable(SerializationFeature.FAIL_ON_EMPTY_BEANS);
@@ -274,8 +274,8 @@ public final class JsonUtils {
 	 * @throws JsonProcessingException if the nodes cannot be created
 	 */
 	public static JsonNode getJsonNode(Object entity) throws JsonProcessingException {
-		final ObjectMapper mapper = JsonUtils.createMapper();
-		final String temporaryContent = mapper.writeValueAsString(entity);
+		final var mapper = JsonUtils.createMapper();
+		final var temporaryContent = mapper.writeValueAsString(entity);
 		return mapper.readTree(temporaryContent);
 	}
 
@@ -347,10 +347,10 @@ public final class JsonUtils {
 				});
 				//
 				if (publication instanceof JournalBasedPublication jpublication) {
-					final Journal journal = jpublication.getJournal();
+					final var journal = jpublication.getJournal();
 					writeReferenceOrObjectField("journal", journal, () -> journalCreator.create(journal)); //$NON-NLS-1$
 				} else if (publication instanceof ConferenceBasedPublication cpublication) {
-					final Conference conference = cpublication.getConference();
+					final var conference = cpublication.getConference();
 					writeReferenceOrObjectField("conference", conference, () -> conferenceCreator.create(conference)); //$NON-NLS-1$
 				}
 				//

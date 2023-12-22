@@ -48,7 +48,7 @@ public class IntegerRange implements Serializable {
 		this.separator = separator;
 		Integer mn = null;
 		Integer mx = null;
-		for (final Integer value : values) {
+		for (final var value : values) {
 			if (value != null) {
 				if (mn == null || value.intValue() < mn.intValue()) {
 					mn = value;
@@ -71,7 +71,7 @@ public class IntegerRange implements Serializable {
 		this.separator = separator;
 		Integer mn = null;
 		Integer mx = null;
-		for (final int value : values) {
+		for (final var value : values) {
 			if (mn == null || value < mn.intValue()) {
 				mn = Integer.valueOf(value);
 			}
@@ -117,8 +117,8 @@ public class IntegerRange implements Serializable {
 
 	@Override
 	public String toString() {
-		final Integer mn = getMin();
-		final Integer mx = getMax();
+		final var mn = getMin();
+		final var mx = getMax();
 		if (mn == null) {
 			if (mx == null) {
 				return ""; //$NON-NLS-1$
@@ -128,7 +128,7 @@ public class IntegerRange implements Serializable {
 		if (mx == null || mn.intValue() == mx.intValue()) {
 			return mn.toString();
 		}
-		final StringBuilder b = new StringBuilder();
+		final var b = new StringBuilder();
 		b.append(mn.toString());
 		b.append(this.separator);
 		b.append(mx.toString());

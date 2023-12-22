@@ -41,7 +41,6 @@ import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils.CachedGenerator;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -208,14 +207,13 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.country);
 		h = HashCodeUtils.add(h, this.description);
 		h = HashCodeUtils.add(h, this.majorOrganization);
 		h = HashCodeUtils.add(h, this.rnsr);
 		h = HashCodeUtils.add(h, this.nationalIdentifier);
-		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.organizationUrl);
 		h = HashCodeUtils.add(h, this.type);
@@ -232,10 +230,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final ResearchOrganization other = (ResearchOrganization) obj;
-		if (this.id != other.id) {
-			return false;
-		}
+		final var other = (ResearchOrganization) obj;
 		if (!Objects.equals(this.acronym, other.acronym)) {
 			return false;
 		}
@@ -329,11 +324,11 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 			JsonUtils.writeField(generator, attrName, attrValue);
 		});
 		//
-		final CachedGenerator organizations = JsonUtils.cache(generator);
-		final CachedGenerator persons = JsonUtils.cache(generator);
+		final var organizations = JsonUtils.cache(generator);
+		final var persons = JsonUtils.cache(generator);
 		//
 		generator.writeArrayFieldStart("addresses"); //$NON-NLS-1$
-		for (final OrganizationAddress address : getAddresses()) {
+		for (final var address : getAddresses()) {
 			organizations.writeReferenceOrObject(address, () -> {
 				JsonUtils.writeObjectAndAttributes(generator, address);
 			});
@@ -345,7 +340,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		});
 		//
 		generator.writeArrayFieldStart("subOrganizations"); //$NON-NLS-1$
-		for (final ResearchOrganization suborga : getSubOrganizations()) {
+		for (final var suborga : getSubOrganizations()) {
 			organizations.writeReferenceOrObject(suborga, () -> {
 				JsonUtils.writeObjectAndAttributes(generator, suborga);
 			});
@@ -353,7 +348,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		generator.writeEndArray();
 		//
 		generator.writeArrayFieldStart("memberships"); //$NON-NLS-1$
-		for (final Membership membership : getMemberships()) {
+		for (final var membership : getMemberships()) {
 			generator.writeStartObject();
 			membership.forEachAttribute((attrName, attrValue) -> {
 				JsonUtils.writeField(generator, attrName, attrValue);
@@ -685,7 +680,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 * @see #getRnsr()
 	 */
 	public URL getRnsrUrl() {
-		final String number = getRnsr();
+		final var number = getRnsr();
 		if (!Strings.isNullOrEmpty(number)) {
 			try {
 				return new URL(RNSR_URL + number);
@@ -720,7 +715,8 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		return this.majorOrganization;
 	}
 
-	/** Change if this organization is mared as a major organization.
+	/** Change if this organization is marked as a major organization.
+	 * The major organization is those for which the labmanager is deployed.
 	 *
 	 * @param major {@code true} if this organization is major.
 	 */
@@ -728,7 +724,8 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 		this.majorOrganization = major;
 	}
 
-	/** Change if this organization is mared as a major organization.
+	/** Change if this organization is marked as a major organization.
+	 * The major organization is those for which the labmanager is deployed.
 	 *
 	 * @param major {@code true} if this organization is major.
 	 */

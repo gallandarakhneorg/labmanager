@@ -19,9 +19,7 @@
 
 package fr.utbm.ciad.labmanager.utils.io.filemanager;
 
-import java.awt.Graphics;
 import java.awt.Image;
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
@@ -91,9 +89,9 @@ public class DefaultProjectImageManager extends AbstractFileManager implements P
 	 */
 	public String getThumbnailPath(Project project, boolean generateThumbnailsIfMissed) throws IOException {
 		if (project != null) {
-			final File filename = getThumbnailFilename(project);
+			final var filename = getThumbnailFilename(project);
 			if (filename != null) {
-				final File file = normalizeForServerSide(filename);
+				final var file = normalizeForServerSide(filename);
 				if (file != null) {
 					if (generateThumbnailsIfMissed && !file.exists()) {
 						generateThumbnailImage(project, file);
@@ -112,7 +110,7 @@ public class DefaultProjectImageManager extends AbstractFileManager implements P
 	 */
 	@SuppressWarnings("static-method")
 	protected File getThumbnailFilename(Project project) {
-		return FileSystem.join(new File(DOWNLOADABLE_FOLDER_NAME), THUMBNAIL_FOLDER_NAME, THUMBNAIL_FILE_PREFIX + project.getId() + JPEG_FILE_EXTENSION);
+		return FileSystem.join(new File(DefaultDownloadableFileManager.DOWNLOADABLE_FOLDER_NAME), THUMBNAIL_FOLDER_NAME, THUMBNAIL_FILE_PREFIX + project.getId() + JPEG_FILE_EXTENSION);
 	}
 
 	/** Build the public path of the thumbnail for the project.
@@ -132,10 +130,10 @@ public class DefaultProjectImageManager extends AbstractFileManager implements P
 	 * @throws IOException if the thumbnail image cannot be generated.
 	 */
 	public void generateThumbnailImage(Project project, File file) throws IOException {
-		final File localLogo = normalizeForServerSide(new File(project.getPathToLogo()));
-		final BufferedImage logoImage = ImageIO.read(localLogo);
-		final int logoWidth = logoImage.getWidth();
-		final int logoHeight = logoImage.getHeight();
+		final var localLogo = normalizeForServerSide(new File(project.getPathToLogo()));
+		final var logoImage = ImageIO.read(localLogo);
+		final var logoWidth = logoImage.getWidth();
+		final var logoHeight = logoImage.getHeight();
 		final Image smallLogo;
 		if (logoWidth > logoHeight) {
 			smallLogo = logoImage.getScaledInstance(LOGO_THUMBNAIL_WIDTH, -1, Image.SCALE_DEFAULT);
@@ -143,14 +141,14 @@ public class DefaultProjectImageManager extends AbstractFileManager implements P
 			smallLogo = logoImage.getScaledInstance(-1, LOGO_THUMBNAIL_HEIGHT, Image.SCALE_DEFAULT);
 		}
 		//
-		final URL background = geThumbnailBackground(project);
+		final var background = geThumbnailBackground(project);
 		assert background != null;
-		final BufferedImage fullImage = ImageIO.read(background);
-		final int iwidth = smallLogo.getWidth(null);
-		final int iheight = smallLogo.getHeight(null);
-		final int x = (fullImage.getWidth() - iwidth) / 2;
-		final int y = (fullImage.getHeight() - iheight) / 2;
-		final Graphics gd = fullImage.getGraphics();
+		final var fullImage = ImageIO.read(background);
+		final var iwidth = smallLogo.getWidth(null);
+		final var iheight = smallLogo.getHeight(null);
+		final var x = (fullImage.getWidth() - iwidth) / 2;
+		final var y = (fullImage.getHeight() - iheight) / 2;
+		final var gd = fullImage.getGraphics();
 		gd.drawImage(smallLogo, x, y, null);
 		//
 		file.getParentFile().mkdirs();
@@ -158,7 +156,7 @@ public class DefaultProjectImageManager extends AbstractFileManager implements P
 	}
 
 	private static URL geThumbnailBackground(Project project) {
-		final int idx = project.getId() % THUMBNAIL_BACKGROUND_COUNT;
+		final var idx = project.getId() % THUMBNAIL_BACKGROUND_COUNT;
 		return Resources.getResource(THUMBNAIL_RESOURCE_PREFIX + idx + JPEG_FILE_EXTENSION);
 	}
 

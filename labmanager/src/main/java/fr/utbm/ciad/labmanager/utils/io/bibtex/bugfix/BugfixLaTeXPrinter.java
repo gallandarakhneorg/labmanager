@@ -43,9 +43,9 @@ import org.jbibtex.LaTeXString;
  */
 @SuppressWarnings("all")
 public class BugfixLaTeXPrinter extends LaTeXPrinter {
-	
+
 	private final boolean replaceSingleQuote;
-	
+
 	/** Constructor.
 	 * 
 	 * @param replaceSingleQuote indicates if the single quotes must be replaced by their
@@ -56,44 +56,32 @@ public class BugfixLaTeXPrinter extends LaTeXPrinter {
 	}
 
 	public String print(List<LaTeXObject> objects){
-		TextBuilder builder = new TextBuilder();
-
+		var builder = new TextBuilder();
 		print(objects, builder);
-
 		return builder.buildString();
 	}
 
 	protected void print(List<LaTeXObject> objects, TextBuilder builder){
-
-		for(LaTeXObject object : objects){
-
+		for(final var object : objects){
 			if(object instanceof LaTeXCommand cobject){
 				print(cobject, builder);
-			} else
-
-				if(object instanceof LaTeXGroup cobject){
-					print(cobject, builder);
-				} else
-
-					if(object instanceof LaTeXString cobject){
-						print(cobject, builder);
-					} else
-
-					{
-						throw new IllegalArgumentException();
-					}
+			} else if(object instanceof LaTeXGroup cobject){
+				print(cobject, builder);
+			} else if(object instanceof LaTeXString cobject){
+				print(cobject, builder);
+			} else {
+				throw new IllegalArgumentException();
+			}
 		}
 	}
 
 	protected void print(LaTeXCommand command, TextBuilder builder){
-		char accent = getAccent(command.getName());
+		var accent = getAccent(command.getName());
 		if(accent > 0){
 			builder.setAccent(accent);
-
 			return;
 		}
-
-		String symbol = getSymbol(command.getName());
+		var symbol = getSymbol(command.getName());
 		if(symbol != null){
 			builder.append(symbol);
 		}
@@ -104,7 +92,7 @@ public class BugfixLaTeXPrinter extends LaTeXPrinter {
 	}
 
 	protected void print(LaTeXString string, TextBuilder builder){
-		String value = string.getValue();
+		var value = string.getValue();
 
 		if(value.contains("--")){
 			value = value.replace("---", "\u2014");
@@ -126,17 +114,14 @@ public class BugfixLaTeXPrinter extends LaTeXPrinter {
 		builder.append(value);
 	}
 
-	static
-	public String today(){
-		Calendar now = Calendar.getInstance();
-
+	static public String today(){
+		var now = Calendar.getInstance();
 		return LATEX_TODAY.format(now.getTime());
 	}
 
 	private static final DateFormat LATEX_TODAY = new SimpleDateFormat("MMMM dd, yyyy");
 
-	static
-	protected char getAccent(String name){
+	static protected char getAccent(String name){
 		char c = (name.length() == 1 ? name.charAt(0) : 0);
 
 		switch(c){
@@ -226,7 +211,7 @@ public class BugfixLaTeXPrinter extends LaTeXPrinter {
 				break;
 			}
 			break;
-// START BUG FIX (PR #28)
+			// START BUG FIX (PR #28)
 			// Circumflex
 		case '^':
 			switch(c){
@@ -321,7 +306,7 @@ public class BugfixLaTeXPrinter extends LaTeXPrinter {
 				break;
 			}
 			break;
-// END BUG FIX
+			// END BUG FIX
 			// Diaeresis
 		case '\"':
 			switch(c){
@@ -444,10 +429,10 @@ public class BugfixLaTeXPrinter extends LaTeXPrinter {
 		setSymbol("%", "%");
 		setSymbol("&", "&");
 		setSymbol("\\", "\\");
-// START BUG FIX (PR #28)
+		// START BUG FIX (PR #28)
 		setSymbol("i", "i");
 		setSymbol("I", "I");
-// END BUG FIX
+		// END BUG FIX
 		setSymbol("_", "_");
 		setSymbol("{", "{");
 		setSymbol("}", "}");
@@ -464,9 +449,9 @@ public class BugfixLaTeXPrinter extends LaTeXPrinter {
 		setSymbol("ss", "\u00df");
 
 		// Text-mode commands
-// START BUG FIX (PR #28)
+		// START BUG FIX (PR #28)
 		setSymbol("string", "");
-// END BUG FIX
+		// END BUG FIX
 		setSymbol("textasciicircum", "^");
 		setSymbol("textasciitilde", "~");
 		setSymbol("textbackslash", "\\");

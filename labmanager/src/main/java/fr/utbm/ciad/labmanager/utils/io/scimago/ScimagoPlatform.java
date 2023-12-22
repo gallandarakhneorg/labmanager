@@ -103,8 +103,8 @@ public interface ScimagoPlatform {
 	 * @throws Exception if rankings cannot be read.
 	 */
 	default Map<String, QuartileRanking> getJournalRanking(int year, URL csvUrl, String journalId, Progression progress) throws Exception {
-		final Map<String, Map<String, QuartileRanking>> rankings0 = getJournalRanking(year, csvUrl, progress);
-		final Map<String, QuartileRanking> rankings1 = rankings0.get(journalId);
+		final var rankings0 = getJournalRanking(year, csvUrl, progress);
+		final var rankings1 = rankings0.get(journalId);
 		if (rankings1 == null) {
 			return Collections.emptyMap();
 		}

@@ -25,7 +25,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.TreeMap;
 import java.util.function.Predicate;
@@ -40,7 +39,6 @@ import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils.CachedGenerator;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -176,8 +174,7 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.publisher);
@@ -198,10 +195,7 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final Conference other = (Conference) obj;
-		if (this.id != other.id) {
-			return false;
-		}
+		final var other = (Conference) obj;
 		if (!Objects.equals(this.acronym, other.acronym)) {
 			return false;
 		}
@@ -272,12 +266,12 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 		});
 		//
 		generator.writeObjectFieldStart("qualityIndicators"); //$NON-NLS-1$
-		for (final Entry<Integer, ConferenceQualityAnnualIndicators> indicators : getQualityIndicators().entrySet()) {
+		for (final var indicators : getQualityIndicators().entrySet()) {
 			generator.writeFieldId(indicators.getKey().intValue());
 			generator.writeObject(indicators.getValue());
 		}
 		//
-		final CachedGenerator conferences = JsonUtils.cache(generator);
+		final var conferences = JsonUtils.cache(generator);
 		conferences.writeReferenceOrObjectField("enclosingConference", getEnclosingConference(), () -> { //$NON-NLS-1$
 			JsonUtils.writeObjectAndAttributes(generator, getEnclosingConference());
 		});
@@ -459,7 +453,7 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 	 * @return the indicators or {@code null} if none were defined.
 	 */
 	public final ConferenceQualityAnnualIndicators getQualityIndicatorsForYear(int year) {
-		final Map<Integer, ConferenceQualityAnnualIndicators> allIndicators = getQualityIndicators();
+		final var allIndicators = getQualityIndicators();
 		if (allIndicators == null) {
 			return null;
 		}
@@ -474,12 +468,12 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 	 * @return the indicators or {@code null} if none were defined.
 	 */
 	public final ConferenceQualityAnnualIndicators getQualityIndicatorsFor(int year, Predicate<ConferenceQualityAnnualIndicators> selector) {
-		final Map<Integer, ConferenceQualityAnnualIndicators> allIndicators = getQualityIndicators();
+		final var allIndicators = getQualityIndicators();
 		if (allIndicators != null) {
-			final IntegerList ids = new IntegerList(allIndicators.keySet());
-			final int start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
-			for (int i = start; i >= 0; --i) {
-				final ConferenceQualityAnnualIndicators indicators = allIndicators.get(ids.get(i));
+			final var ids = new IntegerList(allIndicators.keySet());
+			final var start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
+			for (var i = start; i >= 0; --i) {
+				final var indicators = allIndicators.get(ids.get(i));
 				if (indicators != null && selector.test(indicators)) {
 					return indicators;
 				}
@@ -505,9 +499,9 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 	 * @return the index of the conference for the given year, never {@code null}.
 	 */
 	public CoreRanking getCoreIndexByYear(int year) {
-		final ConferenceQualityAnnualIndicators indicators = getQualityIndicatorsFor(year, it -> it.getCoreIndex() != null);
+		final var indicators = getQualityIndicatorsFor(year, it -> it.getCoreIndex() != null);
 		if (indicators != null) {
-			final CoreRanking ranking = indicators.getCoreIndex();
+			final var ranking = indicators.getCoreIndex();
 			if (ranking != null) {
 				return ranking;
 			}
@@ -522,7 +516,7 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 	 * @return the impacted annual indicators object
 	 */
 	public ConferenceQualityAnnualIndicators setCoreIndexByYear(int year, CoreRanking index) {
-		ConferenceQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+		var indicators = getQualityIndicatorsForYear(year);
 		if (indicators != null) {
 			indicators.setCoreIndex(index);
 		} else {
@@ -543,7 +537,7 @@ public class Conference implements Serializable, JsonSerializable, AttributeProv
 	 * @return {@code true} if the journal has CORE index.
 	 */
 	public boolean hasCoreIndexForYear(int year) {
-		final CoreRanking index = getCoreIndexByYear(year);
+		final var index = getCoreIndexByYear(year);
 		return index != CoreRanking.NR;
 	}
 

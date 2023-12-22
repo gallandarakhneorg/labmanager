@@ -19,65 +19,40 @@
 
 package fr.utbm.ciad.labmanager.utils.io.json;
 
-import java.lang.reflect.Method;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 import java.util.TreeMap;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeCreator;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolder;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureRepository;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
-import fr.utbm.ciad.labmanager.data.conference.ConferenceQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
-import fr.utbm.ciad.labmanager.data.indicator.GlobalIndicators;
 import fr.utbm.ciad.labmanager.data.indicator.GlobalIndicatorsRepository;
-import fr.utbm.ciad.labmanager.data.invitation.PersonInvitation;
 import fr.utbm.ciad.labmanager.data.invitation.PersonInvitationRepository;
-import fr.utbm.ciad.labmanager.data.journal.Journal;
-import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
-import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembershipRepository;
-import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
 import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
-import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
-import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
-import fr.utbm.ciad.labmanager.data.project.Project;
-import fr.utbm.ciad.labmanager.data.project.ProjectBudget;
-import fr.utbm.ciad.labmanager.data.project.ProjectMember;
 import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
 import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.data.publication.PublicationRepository;
-import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxisRepository;
-import fr.utbm.ciad.labmanager.data.supervision.Supervision;
 import fr.utbm.ciad.labmanager.data.supervision.SupervisionRepository;
-import fr.utbm.ciad.labmanager.data.supervision.Supervisor;
-import fr.utbm.ciad.labmanager.data.teaching.TeachingActivity;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
-import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
-import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import fr.utbm.ciad.labmanager.utils.phone.PhoneNumber;
 import org.apache.commons.lang3.tuple.Pair;
@@ -209,8 +184,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 	@SuppressWarnings("unchecked")
 	public Map<String, Object> exportFromDatabase(SimilarPublicationProvider similarPublicationProvider,
 			ExtraPublicationProvider extraPublicationProvider) throws Exception {
-		final ObjectMapper mapper = JsonUtils.createMapper();
-		final JsonNode obj = exportFromDatabaseToJsonObject(mapper.getNodeFactory(), similarPublicationProvider, extraPublicationProvider);
+		final var mapper = JsonUtils.createMapper();
+		final var obj = exportFromDatabaseToJsonObject(mapper.getNodeFactory(), similarPublicationProvider, extraPublicationProvider);
 		if (obj != null) {
 			return mapper.treeToValue(obj, Map.class);
 		}
@@ -240,8 +215,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 */
 	public JsonNode exportFromDatabaseToJsonObject(JsonNodeCreator factory, SimilarPublicationProvider similarPublicationProvider,
 			ExtraPublicationProvider extraPublicationProvider) throws Exception {
-		final ObjectNode root = factory.objectNode();
-		final Map<Object, String> repository = new HashMap<>();
+		final var root = factory.objectNode();
+		final var repository = new HashMap<Object, String>();
 		exportGlobalIndicators(root, repository);
 		exportAddresses(root, repository);
 		exportOrganizations(root, repository);
@@ -278,18 +253,18 @@ public class DatabaseToJsonExporter extends JsonTool {
 	@SuppressWarnings("static-method")
 	protected void exportObject(JsonNode receiver, String id, Object object, JsonNodeCreator factory, List<?> complements) throws Exception {
 		if (object != null) {
-			final ObjectNode rec = (ObjectNode) receiver;
+			final var rec = (ObjectNode) receiver;
 			if (!Strings.isNullOrEmpty(id)) {
 				rec.set(ID_FIELDNAME, factory.textNode(id));
 			}
-			final Map<String, Method> meths = findGetterMethods(object.getClass());
-			for (final Entry<String, Method> entry : meths.entrySet()) {
-				final Method method = entry.getValue();
-				Object objValue = convertValue(method.invoke(object));
+			final var meths = findGetterMethods(object.getClass());
+			for (final var entry : meths.entrySet()) {
+				final var method = entry.getValue();
+				var objValue = convertValue(method.invoke(object));
 				if (objValue == null && complements != null && !complements.isEmpty()) {
-					final Iterator<?> iterator = complements.iterator();
+					final var iterator = complements.iterator();
 					while (iterator.hasNext() && objValue == null) {
-						final Object complement = iterator.next();
+						final var complement = iterator.next();
 						objValue = convertValue(method.invoke(complement));
 					}
 				}
@@ -327,12 +302,12 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportGlobalIndicators(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<GlobalIndicators> indicators = this.globalIndicatorsRepository.findAll();
+		final var indicators = this.globalIndicatorsRepository.findAll();
 		if (!indicators.isEmpty()) {
-			final ObjectNode node = root.objectNode();
-			final GlobalIndicators ind = indicators.get(0);
-			final ArrayNode array = node.arrayNode();
-			for (final String key : ind.getVisibleIndicatorKeyList()) {
+			final var node = root.objectNode();
+			final var ind = indicators.get(0);
+			final var array = node.arrayNode();
+			for (final var key : ind.getVisibleIndicatorKeyList()) {
 				array.add(key);
 			}
 			if (array.size() > 0) {
@@ -351,15 +326,15 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportAddresses(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<OrganizationAddress> addresses = this.addressRepository.findAll();
+		final var addresses = this.addressRepository.findAll();
 		if (!addresses.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			final Map<Integer, ObjectNode> nodes = new TreeMap<>();
-			for (final OrganizationAddress address : addresses) {
-				final ObjectNode jsonAddress = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			final var nodes = new TreeMap<Integer, ObjectNode>();
+			for (final var address : addresses) {
+				final var jsonAddress = array.objectNode();
 
-				final String id = ORGANIZATIONADDRESS_ID_PREFIX + i;
+				final var id = ORGANIZATIONADDRESS_ID_PREFIX + i;
 				exportObject(jsonAddress, id, address, jsonAddress, null);
 
 				if (jsonAddress.size() > 0) {
@@ -382,15 +357,15 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportOrganizations(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<ResearchOrganization> organizations = this.organizationRepository.findAll();
+		final var organizations = this.organizationRepository.findAll();
 		if (!organizations.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			final Map<Integer, ObjectNode> nodes = new TreeMap<>();
-			for (final ResearchOrganization organization : organizations) {
-				final ObjectNode jsonOrganization = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			final var nodes = new TreeMap<Integer, ObjectNode>();
+			for (final var organization : organizations) {
+				final var jsonOrganization = array.objectNode();
 
-				final String id = RESEARCHORGANIZATION_ID_PREFIX + i;
+				final var id = RESEARCHORGANIZATION_ID_PREFIX + i;
 				exportObject(jsonOrganization, id, organization, jsonOrganization, null);
 
 				if (jsonOrganization.size() > 0) {
@@ -401,21 +376,21 @@ public class DatabaseToJsonExporter extends JsonTool {
 				}
 			}
 			// Export the addresses of the organization
-			for (final ResearchOrganization organization : organizations) {
+			for (final var organization : organizations) {
 				if (!organization.getAddresses().isEmpty()) {
-					final ArrayNode jsonAddresses = array.arrayNode();
-					for (final OrganizationAddress adr : organization.getAddresses()) {
-						final String id = repository.get(adr);
+					final var jsonAddresses = array.arrayNode();
+					for (final var adr : organization.getAddresses()) {
+						final var id = repository.get(adr);
 						if (Strings.isNullOrEmpty(id)) {
 							throw new IllegalStateException("Address not found: " + adr.getName()); //$NON-NLS-1$
 						}
-						final JsonNode ref = createReference(id, jsonAddresses);
+						final var ref = createReference(id, jsonAddresses);
 						if (ref != null) {
 							jsonAddresses.add(ref);
 						}
 					}
 					if (!jsonAddresses.isEmpty()) {
-						final ObjectNode objNode = nodes.get(Integer.valueOf(organization.getId()));
+						final var objNode = nodes.get(Integer.valueOf(organization.getId()));
 						if (objNode == null) {
 							throw new IllegalStateException("No JSON node created for organization: " + organization.getAcronymOrName()); //$NON-NLS-1$
 						}
@@ -425,13 +400,13 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 			// Export the super organization for enabling the building of the organization hierarchy
 			// This loop is externalized to be sure all the organizations are in the repository.
-			for (final ResearchOrganization organization : organizations) {
+			for (final var organization : organizations) {
 				if (organization.getSuperOrganization() != null) {
-					final String id = repository.get(organization.getSuperOrganization());
+					final var id = repository.get(organization.getSuperOrganization());
 					if (Strings.isNullOrEmpty(id)) {
 						throw new IllegalStateException("Organization not found: " + organization.getAcronymOrName()); //$NON-NLS-1$
 					}
-					final ObjectNode objNode = nodes.get(Integer.valueOf(organization.getId()));
+					final var objNode = nodes.get(Integer.valueOf(organization.getId()));
 					if (objNode == null) {
 						throw new IllegalStateException("No JSON node created for organization: " + organization.getAcronymOrName()); //$NON-NLS-1$
 					}
@@ -451,14 +426,14 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportPersons(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<Person> persons = this.personRepository.findAll();
+		final var persons = this.personRepository.findAll();
 		if (!persons.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final Person person : persons) {
-				final ObjectNode jsonPerson = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var person : persons) {
+				final var jsonPerson = array.objectNode();
 
-				final String id = PERSON_ID_PREFIX + i;
+				final var id = PERSON_ID_PREFIX + i;
 				exportObject(jsonPerson, id, person, jsonPerson, null);
 
 				// Phone numbers must be added explicitly because the "exportObject" function
@@ -487,8 +462,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 	@SuppressWarnings("static-method")
 	protected void exportPhoneNumber(ObjectNode receiver, String key, PhoneNumber number) {
 		if (number != null) {
-			ObjectNode numberNode = receiver.putObject(key);
-			Object country = convertValue(number.getCountry());
+			final var numberNode = receiver.putObject(key);
+			final var country = convertValue(number.getCountry());
 			if (country != null) {
 				numberNode.put(COUNTRY_KEY, country.toString());
 			}
@@ -503,23 +478,23 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportOrganizationMemberships(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<Membership> memberships = this.organizationMembershipRepository.findAll();
+		final var memberships = this.organizationMembershipRepository.findAll();
 		if (!memberships.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final Membership membership : memberships) {
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var membership : memberships) {
 				final String adrId;
 				if (membership.getOrganizationAddress() != null) {
 					adrId = repository.get(membership.getOrganizationAddress());
 				} else {
 					adrId = null;
 				}
-				final String personId = repository.get(membership.getPerson());
-				final String organizationId = repository.get(membership.getResearchOrganization());
+				final var personId = repository.get(membership.getPerson());
+				final var organizationId = repository.get(membership.getResearchOrganization());
 				if (!Strings.isNullOrEmpty(personId) && !Strings.isNullOrEmpty(organizationId)) {
-					final ObjectNode jsonMembership = array.objectNode();
+					final var jsonMembership = array.objectNode();
 
-					final String id = MEMBERSHIP_ID_PREFIX + i;
+					final var id = MEMBERSHIP_ID_PREFIX + i;
 					exportObject(jsonMembership, id, membership, jsonMembership, null);
 
 					// Address, person and organization must be added explicitly because the "exportObject" function
@@ -550,21 +525,21 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportJournals(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<Journal> journals = this.journalRepository.findAll();
+		final var journals = this.journalRepository.findAll();
 		if (!journals.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final Journal journal : journals) {
-				final ObjectNode jsonJournal = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var journal : journals) {
+				final var jsonJournal = array.objectNode();
 
-				final String id = JOURNAL_ID_PREFIX + i;
+				final var id = JOURNAL_ID_PREFIX + i;
 				exportObject(jsonJournal, id, journal, jsonJournal, null);
 
 				// Add the publication indicators by hand because they are not exported implicitly by
 				// the "exportObject" function
-				final ObjectNode indicatorMap = jsonJournal.objectNode();
-				for (final JournalQualityAnnualIndicators indicators : journal.getQualityIndicators().values()) {
-					final ObjectNode jsonIndicator = indicatorMap.objectNode();
+				final var indicatorMap = jsonJournal.objectNode();
+				for (final var indicators : journal.getQualityIndicators().values()) {
+					final var jsonIndicator = indicatorMap.objectNode();
 					exportObject(jsonIndicator, null, indicators, jsonIndicator, null);
 					// Remove the year because it is not necessary into the JSON map as value and the year is the key.
 					jsonIndicator.remove(REFERENCEYEAR_KEY);
@@ -595,22 +570,22 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportConferences(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<Conference> conferences = this.conferenceRepository.findAll();
+		final var conferences = this.conferenceRepository.findAll();
 		if (!conferences.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			final List<Pair<ObjectNode, Conference>> enclosingConferences = new ArrayList<>();
-			for (final Conference conference : conferences) {
-				final ObjectNode jsonConference = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			final var enclosingConferences = new ArrayList<Pair<ObjectNode, Conference>>();
+			for (final var conference : conferences) {
+				final var jsonConference = array.objectNode();
 
-				final String id = CONFERENCE_ID_PREFIX + i;
+				final var id = CONFERENCE_ID_PREFIX + i;
 				exportObject(jsonConference, id, conference, jsonConference, null);
 
 				// Add the quality indicators by hand because they are not exported implicitly by
 				// the "exportObject" function
-				final ObjectNode indicatorMap = jsonConference.objectNode();
-				for (final ConferenceQualityAnnualIndicators indicators : conference.getQualityIndicators().values()) {
-					final ObjectNode jsonIndicator = indicatorMap.objectNode();
+				final var indicatorMap = jsonConference.objectNode();
+				for (final var indicators : conference.getQualityIndicators().values()) {
+					final var jsonIndicator = indicatorMap.objectNode();
 					exportObject(jsonIndicator, null, indicators, jsonIndicator, null);
 					// Remove the year because it is not necessary into the JSON map as value and the year is the key.
 					jsonIndicator.remove(REFERENCEYEAR_KEY);
@@ -636,10 +611,10 @@ public class DatabaseToJsonExporter extends JsonTool {
 			}
 
 			// Export the enclosing conferences for enabling the building of the conference hierarchy.
-			for (final Pair<ObjectNode, Conference> pair : enclosingConferences) {
-				final ObjectNode node = pair.getLeft();
-				final Conference enclosingConference = pair.getRight();
-				final String id = repository.get(enclosingConference);
+			for (final var pair : enclosingConferences) {
+				final var node = pair.getLeft();
+				final var enclosingConference = pair.getRight();
+				final var id = repository.get(enclosingConference);
 				if (Strings.isNullOrEmpty(id)) {
 					throw new IllegalStateException("Conference not found: " + enclosingConference.getAcronymOrName()); //$NON-NLS-1$
 				}
@@ -665,13 +640,13 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 */
 	protected void exportPublications(ObjectNode root, Map<Object, String> repository, SimilarPublicationProvider similarPublicationProvider,
 			ExtraPublicationProvider extraPublicationProvider) throws Exception {
-		final List<Publication> publications = this.publicationRepository.findAll();
-		final ArrayNode array = root.arrayNode();
+		final var publications = this.publicationRepository.findAll();
+		final var array = root.arrayNode();
 		int i = 0;
 		if (!publications.isEmpty()) {
-			for (final Publication publication : publications) {
-				final ObjectNode jsonPublication = array.objectNode();
-				final String id = exportPublication(i, publication, root, jsonPublication, repository, similarPublicationProvider);
+			for (final var publication : publications) {
+				final var jsonPublication = array.objectNode();
+				final var id = exportPublication(i, publication, root, jsonPublication, repository, similarPublicationProvider);
 				if (jsonPublication.size() > 0) {
 					jsonPublication.set(HIDDEN_INTERNAL_DATA_SOURCE_KEY, jsonPublication.textNode(HIDDEN_INTERNAL_DATABASE_SOURCE_VALUE));
 					repository.put(publication, id);
@@ -682,9 +657,9 @@ public class DatabaseToJsonExporter extends JsonTool {
 		}
 		getLogger().info("Exporting " + array.size() + " publications from the database."); //$NON-NLS-1$ //$NON-NLS-2$
 		if (extraPublicationProvider != null) {
-			for (final Publication publication : extraPublicationProvider.getPublications()) {
-				final ObjectNode jsonPublication = array.objectNode();
-				final String id = exportPublication(i, publication, root, jsonPublication, repository, null);
+			for (final var publication : extraPublicationProvider.getPublications()) {
+				final var jsonPublication = array.objectNode();
+				final var id = exportPublication(i, publication, root, jsonPublication, repository, null);
 				if (jsonPublication.size() > 0) {
 					jsonPublication.set(HIDDEN_INTERNAL_DATA_SOURCE_KEY, jsonPublication.textNode(HIDDEN_INTERNAL_EXTERNAL_SOURCE_VALUE));
 					repository.put(publication, id);
@@ -725,7 +700,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 			similarPublications = Collections.emptyList();
 		}
 
-		final String id = PUBLICATION_ID_PREFIX + index;
+		final var id = PUBLICATION_ID_PREFIX + index;
 		exportObject(jsonPublication, id, publication, jsonPublication, similarPublications);
 
 		// Add the database identifier for information
@@ -736,9 +711,9 @@ public class DatabaseToJsonExporter extends JsonTool {
 		// Add the authors by hand because they are not exported implicitly by
 		// the "exportObject" function.
 		// It is due to the reference to person entities.
-		final ArrayNode authorArray = jsonPublication.arrayNode();
-		for (final Person author : publication.getAuthors()) {
-			String authorId = repository.get(author);
+		final var authorArray = jsonPublication.arrayNode();
+		for (final var author : publication.getAuthors()) {
+			var authorId = repository.get(author);
 			if (Strings.isNullOrEmpty(authorId)) {
 				// Author not found in the repository. It is a behavior that may
 				// occur when the authors are provided by a BibTeX source and the
@@ -762,9 +737,9 @@ public class DatabaseToJsonExporter extends JsonTool {
 		// the "exportObject" function
 		// It is due to the reference to journal entities.
 		if (publication instanceof JournalBasedPublication jbp) {
-			final Journal journal = jbp.getJournal();
+			final var journal = jbp.getJournal();
 			if (journal != null) {
-				final String journalId = repository.get(journal);
+				final var journalId = repository.get(journal);
 				if (Strings.isNullOrEmpty(journalId)) {
 					// Journal not found in the repository. It is an unexpected behavior but
 					// the name of the journal is output to JSON
@@ -779,9 +754,9 @@ public class DatabaseToJsonExporter extends JsonTool {
 		// the "exportObject" function
 		// It is due to the reference to journal entities.
 		if (publication instanceof ConferenceBasedPublication cbp) {
-			final Conference conference = cbp.getConference();
+			final var conference = cbp.getConference();
 			if (conference != null) {
-				final String conferenceId = repository.get(conference);
+				final var conferenceId = repository.get(conference);
 				if (Strings.isNullOrEmpty(conferenceId)) {
 					// Conference not found in the repository. It is an unexpected behavior but
 					// the name of the conference is output to JSON
@@ -796,10 +771,10 @@ public class DatabaseToJsonExporter extends JsonTool {
 	}
 
 	private String createPerson(ObjectNode root, Map<Object, String> repository, Person person) throws Exception {
-		final ArrayNode personNode = (ArrayNode) root.get(PERSONS_SECTION);
+		final var personNode = (ArrayNode) root.get(PERSONS_SECTION);
 		if (personNode != null) {
-			final ObjectNode jsonPerson = personNode.objectNode();
-			final String id = PERSON_ID_PREFIX + personNode.size();
+			final var jsonPerson = personNode.objectNode();
+			final var id = PERSON_ID_PREFIX + personNode.size();
 			exportObject(jsonPerson, id, person, jsonPerson, null);
 			repository.put(person, id);
 			personNode.add(jsonPerson);
@@ -815,29 +790,29 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportJuryMemberships(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<JuryMembership> memberships = this.juryMembershipRepository.findAll();
+		final var memberships = this.juryMembershipRepository.findAll();
 		if (!memberships.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final JuryMembership membership : memberships) {
-				final ObjectNode jsonMembership = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var membership : memberships) {
+				final var jsonMembership = array.objectNode();
 
-				final String id = JURY_MEMBERSHIP_ID_PREFIX + i;
+				final var id = JURY_MEMBERSHIP_ID_PREFIX + i;
 				exportObject(jsonMembership, id, membership, jsonMembership, null);
 
 				// Persons must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
-				final String personId = repository.get(membership.getPerson());
+				final var personId = repository.get(membership.getPerson());
 				if (!Strings.isNullOrEmpty(personId)) {
 					addReference(jsonMembership, PERSON_KEY, personId);
 				}
-				final String candidateId = repository.get(membership.getCandidate());
+				final var candidateId = repository.get(membership.getCandidate());
 				if (!Strings.isNullOrEmpty(candidateId)) {
 					addReference(jsonMembership, CANDIDATE_KEY, candidateId);
 				}
-				final ArrayNode promoterArray = jsonMembership.arrayNode();
-				for (final Person promoter : membership.getPromoters()) {
-					final String promoterId = repository.get(promoter);
+				final var promoterArray = jsonMembership.arrayNode();
+				for (final var promoter : membership.getPromoters()) {
+					final var promoterId = repository.get(promoter);
 					promoterArray.add(createReference(promoterId, jsonMembership));
 				}
 				if (promoterArray.size() > 0) {
@@ -861,26 +836,26 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportSupervisions(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<Supervision> supervisions = this.supervisionRepository.findAll();
+		final var supervisions = this.supervisionRepository.findAll();
 		if (!supervisions.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final Supervision supervision : supervisions) {
-				final ObjectNode jsonSupervision = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var supervision : supervisions) {
+				final var jsonSupervision = array.objectNode();
 
-				final String id = SUPERVISION_ID_PREFIX + i;
+				final var id = SUPERVISION_ID_PREFIX + i;
 				exportObject(jsonSupervision, id, supervision, jsonSupervision, null);
 
 				// Persons must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
-				final String personId = repository.get(supervision.getSupervisedPerson());
+				final var personId = repository.get(supervision.getSupervisedPerson());
 				if (!Strings.isNullOrEmpty(personId)) {
 					addReference(jsonSupervision, PERSON_KEY, personId);
 				}
-				final ArrayNode supervisorsArray = jsonSupervision.arrayNode();
-				for (final Supervisor supervisorDesc : supervision.getSupervisors()) {
-					final ObjectNode supervisorDescNode = supervisorsArray.objectNode();
-					final String supervisorId = repository.get(supervisorDesc.getSupervisor());
+				final var supervisorsArray = jsonSupervision.arrayNode();
+				for (final var supervisorDesc : supervision.getSupervisors()) {
+					final var supervisorDescNode = supervisorsArray.objectNode();
+					final var supervisorId = repository.get(supervisorDesc.getSupervisor());
 					supervisorDescNode.set(PERSON_KEY, createReference(supervisorId, supervisorDescNode));
 					supervisorDescNode.set(PERCENT_KEY, supervisorDescNode.numberNode(supervisorDesc.getPercentage())); 
 					supervisorDescNode.set(TYPE_KEY, supervisorDescNode.textNode(supervisorDesc.getType().name()));
@@ -907,19 +882,19 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportInvitations(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<PersonInvitation> invitations = this.invitationRepository.findAll();
+		final var invitations = this.invitationRepository.findAll();
 		if (!invitations.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final PersonInvitation invitation : invitations) {
-				final ObjectNode jsonInvitation = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var invitation : invitations) {
+				final var jsonInvitation = array.objectNode();
 
-				final String id = INVITATION_ID_PREFIX + i;
+				final var id = INVITATION_ID_PREFIX + i;
 				exportObject(jsonInvitation, id, invitation, jsonInvitation, null);
 
 				// Persons must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
-				String personId = repository.get(invitation.getGuest());
+				var personId = repository.get(invitation.getGuest());
 				if (!Strings.isNullOrEmpty(personId)) {
 					addReference(jsonInvitation, GUEST_KEY, personId);
 				}
@@ -945,23 +920,23 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportProjects(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<Project> projects = this.projectRepository.findAll();
+		final var projects = this.projectRepository.findAll();
 		if (!projects.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final Project project : projects) {
-				final ObjectNode jsonProject = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var project : projects) {
+				final var jsonProject = array.objectNode();
 
-				final String id = PROJECT_ID_PREFIX + i;
+				final var id = PROJECT_ID_PREFIX + i;
 				exportObject(jsonProject, id, project, jsonProject, null);
 
 				// Organizations and persons must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
-				final List<ProjectBudget> budgets = project.getBudgets();
+				final var budgets = project.getBudgets();
 				if (budgets != null && !budgets.isEmpty()) {
-					final ArrayNode budgetNode = jsonProject.arrayNode();
-					for (final ProjectBudget budget : budgets) {
-						final ObjectNode node = budgetNode.addObject();
+					final var budgetNode = jsonProject.arrayNode();
+					for (final var budget : budgets) {
+						final var node = budgetNode.addObject();
 						node.put(FUNDING_KEY, budget.getFundingScheme().name());
 						if (budget.getBudget() > 0f) {
 							node.put(BUDGET_KEY, Float.valueOf(budget.getBudget()));
@@ -975,27 +950,27 @@ public class DatabaseToJsonExporter extends JsonTool {
 					}
 				}
 
-				final String coordinatorId = repository.get(project.getCoordinator());
+				final var coordinatorId = repository.get(project.getCoordinator());
 				if (!Strings.isNullOrEmpty(coordinatorId)) {
 					addReference(jsonProject, COORDINATOR_KEY, coordinatorId);
 				}
-				final String localOrganizationId = repository.get(project.getLocalOrganization());
+				final var localOrganizationId = repository.get(project.getLocalOrganization());
 				if (!Strings.isNullOrEmpty(localOrganizationId)) {
 					addReference(jsonProject, LOCAL_ORGANIZATION_KEY, localOrganizationId);
 				}
-				final String superOrganizationId = repository.get(project.getSuperOrganization());
+				final var superOrganizationId = repository.get(project.getSuperOrganization());
 				if (!Strings.isNullOrEmpty(superOrganizationId)) {
 					addReference(jsonProject, SUPER_ORGANIZATION_KEY, superOrganizationId);
 				}
-				final String learOrganizationId = repository.get(project.getLearOrganization());
+				final var learOrganizationId = repository.get(project.getLearOrganization());
 				if (!Strings.isNullOrEmpty(learOrganizationId)) {
 					addReference(jsonProject, LEAR_ORGANIZATION_KEY, learOrganizationId);
 				}
-				final List<ResearchOrganization> otherPartners = project.getOtherPartners();
+				final var otherPartners = project.getOtherPartners();
 				if (!otherPartners.isEmpty()) {
-					final ArrayNode jsonPartners = jsonProject.arrayNode();
-					for (final ResearchOrganization partner : otherPartners) {
-						final String partnerId = repository.get(partner);
+					final var jsonPartners = jsonProject.arrayNode();
+					for (final var partner : otherPartners) {
+						final var partnerId = repository.get(partner);
 						if (!Strings.isNullOrEmpty(partnerId)) {
 							jsonPartners.add(createReference(partnerId, jsonPartners));
 						}
@@ -1004,13 +979,13 @@ public class DatabaseToJsonExporter extends JsonTool {
 						jsonProject.set(OTHER_PARTNERS_KEY, jsonPartners);
 					}
 				}
-				final List<ProjectMember> participants = project.getParticipants();
+				final var participants = project.getParticipants();
 				if (!participants.isEmpty()) {
-					final ArrayNode jsonParticipants = jsonProject.arrayNode();
-					for (final ProjectMember participant : participants) {
-						final String participantId = repository.get(participant.getPerson());
+					final var jsonParticipants = jsonProject.arrayNode();
+					for (final var participant : participants) {
+						final var participantId = repository.get(participant.getPerson());
 						if (!Strings.isNullOrEmpty(participantId)) {
-							final ObjectNode jsonParticipant = jsonParticipants.objectNode();
+							final var jsonParticipant = jsonParticipants.objectNode();
 							jsonParticipant.set(PERSON_KEY, createReference(participantId, jsonParticipant));
 							jsonParticipant.put(ROLE_KEY, participant.getRole().name());
 							jsonParticipants.add(jsonParticipant);
@@ -1043,8 +1018,8 @@ public class DatabaseToJsonExporter extends JsonTool {
 	@SuppressWarnings("static-method")
 	protected void exportStringList(ObjectNode receiver, String fieldName, List<String> data) {
 		if (data != null && !data.isEmpty()) {
-			final ArrayNode jsonArray = receiver.arrayNode();
-			for (final String element : data) {
+			final var jsonArray = receiver.arrayNode();
+			for (final var element : data) {
 				if (!Strings.isNullOrEmpty(element)) {
 					jsonArray.add(element);
 				}
@@ -1063,30 +1038,30 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @since 3.2
 	 */
 	protected void exportAssociatedStructures(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<AssociatedStructure> structures = this.structureRepository.findAll();
+		final var structures = this.structureRepository.findAll();
 		if (!structures.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final AssociatedStructure structure : structures) {
-				final ObjectNode jsonStructure = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var structure : structures) {
+				final var jsonStructure = array.objectNode();
 
-				final String id = ASSOCIATED_STRUCTURE_ID_PREFIX + i;
+				final var id = ASSOCIATED_STRUCTURE_ID_PREFIX + i;
 				exportObject(jsonStructure, id, structure, jsonStructure, null);
 
 				// Several fields must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
 
-				final String fundingOrganizationId = repository.get(structure.getFundingOrganization());
+				final var fundingOrganizationId = repository.get(structure.getFundingOrganization());
 				if (!Strings.isNullOrEmpty(fundingOrganizationId)) {
 					addReference(jsonStructure, FUNDING_KEY, fundingOrganizationId);
 				}
 
-				final List<AssociatedStructureHolder> holders = structure.getHolders();
+				final var holders = structure.getHolders();
 				if (holders != null && !holders.isEmpty()) {
-					final ArrayNode holderNode = jsonStructure.arrayNode();
-					for (final AssociatedStructureHolder holder : holders) {
-						final ObjectNode node = holderNode.addObject();
-						final String personId = repository.get(holder.getPerson());
+					final var holderNode = jsonStructure.arrayNode();
+					for (final var holder : holders) {
+						final var node = holderNode.addObject();
+						final var personId = repository.get(holder.getPerson());
 						if (!Strings.isNullOrEmpty(personId)) {
 							addReference(node, PERSON_KEY, personId);
 						}
@@ -1094,11 +1069,11 @@ public class DatabaseToJsonExporter extends JsonTool {
 						if (!Strings.isNullOrEmpty(holder.getRoleDescription())) {
 							node.put(ROLE_DESCRIPTION_KEY, holder.getRoleDescription());
 						}
-						final String organizationId = repository.get(holder.getOrganization());
+						final var organizationId = repository.get(holder.getOrganization());
 						if (!Strings.isNullOrEmpty(organizationId)) {
 							addReference(node, ORGANIZATION_KEY, organizationId);
 						}
-						final String superOrganizationId = repository.get(holder.getSuperOrganization());
+						final var superOrganizationId = repository.get(holder.getSuperOrganization());
 						if (!Strings.isNullOrEmpty(superOrganizationId)) {
 							addReference(node, SUPER_ORGANIZATION_KEY, superOrganizationId);
 						}
@@ -1108,10 +1083,10 @@ public class DatabaseToJsonExporter extends JsonTool {
 					}
 				}
 
-				final List<Project> projects = structure.getProjects();
+				final var projects = structure.getProjects();
 				if (projects != null && !projects.isEmpty()) {
-					final ArrayNode projectNode = jsonStructure.arrayNode();
-					for (final Project project : projects) {
+					final var projectNode = jsonStructure.arrayNode();
+					for (final var project : projects) {
 						final String projectId = repository.get(project);
 						addReference(projectNode, projectId);
 					}
@@ -1138,34 +1113,34 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @since 3.4
 	 */
 	protected void exportTeachingActivities(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<TeachingActivity> activities = this.teachingRepository.findAll();
+		final var activities = this.teachingRepository.findAll();
 		if (!activities.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
+			final var array = root.arrayNode();
 			int i = 0;
-			for (final TeachingActivity activity : activities) {
-				final ObjectNode jsonActivity = array.objectNode();
+			for (final var activity : activities) {
+				final var jsonActivity = array.objectNode();
 
-				final String id = TEACHING_ACTIVITY_ID_PREFIX + i;
+				final var id = TEACHING_ACTIVITY_ID_PREFIX + i;
 				exportObject(jsonActivity, id, activity, jsonActivity, null);
 
 				// Organizations and persons must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
-				final String personId = repository.get(activity.getPerson());
+				final var personId = repository.get(activity.getPerson());
 				if (!Strings.isNullOrEmpty(personId)) {
 					addReference(jsonActivity, PERSON_KEY, personId);
 				}
 
-				final String universityId = repository.get(activity.getUniversity());
+				final var universityId = repository.get(activity.getUniversity());
 				if (!Strings.isNullOrEmpty(universityId)) {
 					addReference(jsonActivity, UNIVERSITY_KEY, universityId);
 				}
 
-				final Map<TeachingActivityType, Float> annualWorkPerType = activity.getAnnualWorkPerType();
+				final var annualWorkPerType = activity.getAnnualWorkPerType();
 				if (annualWorkPerType != null && !annualWorkPerType.isEmpty()) {
-					final ArrayNode hoursNode = jsonActivity.arrayNode();
-					for (final Entry<TeachingActivityType, Float> hours : annualWorkPerType.entrySet()) {
-						final ObjectNode node = hoursNode.addObject();
-						final Float value = hours.getValue();
+					final var hoursNode = jsonActivity.arrayNode();
+					for (final var hours : annualWorkPerType.entrySet()) {
+						final var node = hoursNode.addObject();
+						final var value = hours.getValue();
 						if (value != null && value.floatValue() > 0f) {
 							node.put(TYPE_KEY, hours.getKey().name());
 							node.put(HOURS_KEY, value);
@@ -1195,46 +1170,46 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @since 3.4
 	 */
 	protected void exportScientificAxes(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<ScientificAxis> axes = this.scientificAxisRepository.findAll();
+		final var axes = this.scientificAxisRepository.findAll();
 		if (!axes.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final ScientificAxis axis : axes) {
-				final ObjectNode jsonAxis = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var axis : axes) {
+				final var jsonAxis = array.objectNode();
 
-				final String id = SCIENTFIC_AXIS_ID_PREFIX + i;
+				final var id = SCIENTFIC_AXIS_ID_PREFIX + i;
 				exportObject(jsonAxis, id, axis, jsonAxis, null);
 
 				// Other JPA entities must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
 
-				final Set<Project> projects = axis.getProjects();
+				final var projects = axis.getProjects();
 				if (projects != null && !projects.isEmpty()) {
-					final ArrayNode projectArray = jsonAxis.putArray(PROJECTS_KEY);
-					for (final Project project : projects) {
-						final String projectId = repository.get(project);
+					final var projectArray = jsonAxis.putArray(PROJECTS_KEY);
+					for (final var project : projects) {
+						final var projectId = repository.get(project);
 						if (!Strings.isNullOrEmpty(projectId)) {
 							addReference(projectArray, projectId);
 						}
 					}
 				}
 
-				final Set<Publication> publications = axis.getPublications();
+				final var publications = axis.getPublications();
 				if (publications != null && !publications.isEmpty()) {
-					final ArrayNode publicationArray = jsonAxis.putArray(PUBLICATIONS_KEY);
-					for (final Publication publication : publications) {
-						final String publicationId = repository.get(publication);
+					final var publicationArray = jsonAxis.putArray(PUBLICATIONS_KEY);
+					for (final var publication : publications) {
+						final var publicationId = repository.get(publication);
 						if (!Strings.isNullOrEmpty(publicationId)) {
 							addReference(publicationArray, publicationId);
 						}
 					}
 				}
 
-				final Set<Membership> memberships = axis.getMemberships();
+				final var memberships = axis.getMemberships();
 				if (memberships != null && !memberships.isEmpty()) {
-					final ArrayNode membershipArray = jsonAxis.putArray(MEMBERSHIPS_KEY);
-					for (final Membership membership : memberships) {
-						final String membershipId = repository.get(membership);
+					final var membershipArray = jsonAxis.putArray(MEMBERSHIPS_KEY);
+					for (final var membership : memberships) {
+						final var membershipId = repository.get(membership);
 						if (!Strings.isNullOrEmpty(membershipId)) {
 							addReference(membershipArray, membershipId);
 						}
@@ -1260,19 +1235,19 @@ public class DatabaseToJsonExporter extends JsonTool {
 	 * @throws Exception if there is problem for exporting.
 	 */
 	protected void exportApplicationUsers(ObjectNode root, Map<Object, String> repository) throws Exception {
-		final List<User> users = this.userRepository.findAll();
+		final var users = this.userRepository.findAll();
 		if (!users.isEmpty()) {
-			final ArrayNode array = root.arrayNode();
-			int i = 0;
-			for (final User user : users) {
-				final ObjectNode jsonUser = array.objectNode();
+			final var array = root.arrayNode();
+			var i = 0;
+			for (final var user : users) {
+				final var jsonUser = array.objectNode();
 
-				final String id = APPLICATION_USER_ID_PREFIX + i;
+				final var id = APPLICATION_USER_ID_PREFIX + i;
 				exportObject(jsonUser, id, user, jsonUser, null);
 
 				// Persons must be added explicitly because the "exportObject" function
 				// ignore the getter functions for all.
-				final String personId = repository.get(user.getPerson());
+				final var personId = repository.get(user.getPerson());
 				if (!Strings.isNullOrEmpty(personId)) {
 					addReference(jsonUser, PERSON_KEY, personId);
 				}

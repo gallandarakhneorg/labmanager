@@ -67,9 +67,9 @@ public abstract class AbstractOdfToolkitOpenDocumentTextRipecExporter implements
 	@Override
 	public byte[] exportRipecC3(ExporterConfigurator configurator) throws Exception {
 		final byte[] content;
-		try (final OdfTextDocument odt = this.textHelper.openOdtTemplate(getRipecC3TemplatePath())) {
+		try (final var odt = this.textHelper.openOdtTemplate(getRipecC3TemplatePath())) {
 			exportRipecC3(odt, configurator);
-			try (final ByteArrayOutputStream output = new ByteArrayOutputStream()) {
+			try (final var output = new ByteArrayOutputStream()) {
 				odt.save(output);
 				output.flush();
 				content = output.toByteArray();

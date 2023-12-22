@@ -165,7 +165,7 @@ public class ConferenceService extends AbstractService {
 	 * @return the conference or {@code null} if it has no conference with the given identifier.
 	 */
 	public Conference getConferenceById(int identifier) {
-		final Optional<Conference> opt = this.conferenceRepository.findById(Integer.valueOf(identifier));
+		final var opt = this.conferenceRepository.findById(Integer.valueOf(identifier));
 		if (opt.isPresent()) {
 			return opt.get();
 		}
@@ -189,11 +189,11 @@ public class ConferenceService extends AbstractService {
 	public Optional<Conference> createConference(boolean validated, String acronym, String name,
 			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId,
 			Integer enclosingConference) {
-		final Conference conference = new Conference();
+		final var conference = new Conference();
 		try {
 			Conference enclosingConferenceObj = null;
 			if (enclosingConference != null && enclosingConference.intValue() >= 0) {
-				final Optional<Conference> enc = this.conferenceRepository.findById(enclosingConference);
+				final var enc = this.conferenceRepository.findById(enclosingConference);
 				if (enc.isPresent()) {
 					enclosingConferenceObj = enc.get();
 				}

@@ -26,12 +26,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,11 +38,8 @@ import ch.difty.kris.domain.RisRecord;
 import ch.difty.kris.domain.RisType;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceUtils;
-import fr.utbm.ciad.labmanager.data.conference.ConferenceUtils.ConferenceNameComponents;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.PublicationCategory;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.data.publication.type.Book;
@@ -70,7 +65,6 @@ import fr.utbm.ciad.labmanager.services.publication.type.KeyNoteService;
 import fr.utbm.ciad.labmanager.services.publication.type.MiscDocumentService;
 import fr.utbm.ciad.labmanager.services.publication.type.ReportService;
 import fr.utbm.ciad.labmanager.services.publication.type.ThesisService;
-import fr.utbm.ciad.labmanager.utils.IntegerRange;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
 import fr.utbm.ciad.labmanager.utils.io.bibtex.ConferenceFake;
@@ -178,10 +172,10 @@ public class KrisRIS extends AbstractRIS {
 	@Override
 	public void exportPublications(Writer output, Iterable<? extends Publication> publications,
 			ExporterConfigurator configurator) throws IOException {
-		final List<RisRecord> records = new ArrayList<>();
-		final Iterator<? extends Publication> iterator = publications.iterator();
+		final var records = new ArrayList<RisRecord>();
+		final var iterator = publications.iterator();
 		while (iterator.hasNext()) {
-			final Publication publication = iterator.next();
+			final var publication = iterator.next();
 			exportPublication(configurator.getLocale(), publication, records);
 		}
 		KRisIO.export(records, output);
@@ -280,7 +274,7 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the record builder.
 	 */
 	protected RisRecord.Builder createStandardRecord(RisType risType, Publication publication, boolean insertIssnIsbn, Locale locale) {
-		final List<String> authors = publication.getAuthors().stream()
+		final var authors = publication.getAuthors().stream()
 				.map(it -> it.getLastName() + ", " + it.getFirstName()) //$NON-NLS-1$
 				.collect(Collectors.toList());
 		final List<String> keywords;
@@ -289,12 +283,12 @@ public class KrisRIS extends AbstractRIS {
 		} else {
 			keywords = Arrays.asList(publication.getKeywords().split("\\s*[,;:./]\\s*")).stream().filter(it -> !Strings.isNullOrEmpty(it)).toList(); //$NON-NLS-1$
 		}
-		final String url = Arrays.asList(
+		final var url = Arrays.asList(
 				publication.getExtraURL(), publication.getDblpURL(), publication.getVideoURL()).stream()
 				.filter(it -> !Strings.isNullOrEmpty(it))
 				.findFirst().orElse(null);
-		final PublicationType type = publication.getType();
-		final PublicationCategory cat = publication.getCategory();
+		final var type = publication.getType();
+		final var cat = publication.getCategory();
 		// Force the Java locale to get the text that is corresponding to the language of the paper
 		final String publicationType;
 		final String publicationTypeName;
@@ -308,7 +302,7 @@ public class KrisRIS extends AbstractRIS {
 			publicationType = null;
 			publicationTypeName = null;
 		}
-		RisRecord.Builder builder = new RisRecord.Builder()
+		var builder = new RisRecord.Builder()
 				.type(risType)
 				.title(publication.getTitle())
 				.authors(authors)
@@ -321,7 +315,7 @@ public class KrisRIS extends AbstractRIS {
 				.custom1(publicationType)
 				.custom2(publicationTypeName);
 		if (insertIssnIsbn) {
-			final String isbnissn = Arrays.asList(publication.getISBN(), publication.getISSN()).stream()
+			final var isbnissn = Arrays.asList(publication.getISBN(), publication.getISSN()).stream()
 					.filter(it -> !Strings.isNullOrEmpty(it))
 					.findFirst().orElse(null);
 			builder = builder.isbnIssn(isbnissn);
@@ -337,10 +331,10 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(JournalPaper publication, RisType risType, Locale locale) {
-		RisRecord.Builder builder = createStandardRecord(risType, publication, false, locale);
-		final Journal journal = publication.getJournal();
+		var builder = createStandardRecord(risType, publication, false, locale);
+		final var journal = publication.getJournal();
 		if (journal != null) {
-			final String isbnissn = Arrays.asList(journal.getISBN(), journal.getISSN()).stream()
+			final var isbnissn = Arrays.asList(journal.getISBN(), journal.getISSN()).stream()
 					.filter(it -> !Strings.isNullOrEmpty(it))
 					.findFirst().orElse(null);
 			builder = builder.periodicalNameFullFormatJO(journal.getJournalName())
@@ -352,7 +346,7 @@ public class KrisRIS extends AbstractRIS {
 				.volumeNumber(publication.getVolume())
 				.numberOfVolumes(publication.getNumber())
 				.section(publication.getSeries());
-		final IntegerRange range = parsePages(publication.getPages());
+		final var range = parsePages(publication.getPages());
 		if (range != null) {
 			builder = builder.startPage(range.getMin().toString()).endPage(range.getMax().toString());
 		}
@@ -374,10 +368,10 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(ConferencePaper publication, Locale locale) {
-		RisRecord.Builder builder = createStandardRecord(RisType.CPAPER, publication, false, locale);
-		final Conference conference = publication.getConference();
+		var builder = createStandardRecord(RisType.CPAPER, publication, false, locale);
+		final var conference = publication.getConference();
 		if (conference != null) {
-			final String isbnissn = Arrays.asList(conference.getISBN(), conference.getISSN()).stream()
+			final var isbnissn = Arrays.asList(conference.getISBN(), conference.getISSN()).stream()
 					.filter(it -> !Strings.isNullOrEmpty(it))
 					.findFirst().orElse(null);
 			builder = builder.secondaryTitle(conference.getName())
@@ -392,7 +386,7 @@ public class KrisRIS extends AbstractRIS {
 				.tertiaryTitle(publication.getSeries())
 				.editor(publication.getEditors())
 				.custom4(publication.getOrganization());
-		final IntegerRange range = parsePages(publication.getPages());
+		final var range = parsePages(publication.getPages());
 		if (range != null) {
 			builder = builder.startPage(range.getMin().toString()).endPage(range.getMax().toString());
 		}
@@ -408,7 +402,7 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(Book publication, Locale locale) {
-		RisRecord.Builder builder = createStandardRecord(RisType.BOOK, publication, true, locale)
+		var builder = createStandardRecord(RisType.BOOK, publication, true, locale)
 				.publisher(publication.getPublisher())
 				.publishingPlace(publication.getAddress())
 				.editor(publication.getEditors())
@@ -416,7 +410,7 @@ public class KrisRIS extends AbstractRIS {
 				.numberOfVolumes(publication.getNumber())
 				.edition(publication.getEdition())
 				.section(publication.getSeries());
-		final IntegerRange range = parsePages(publication.getPages());
+		final var range = parsePages(publication.getPages());
 		if (range != null) {
 			builder = builder.startPage(range.getMin().toString()).endPage(range.getMax().toString());
 		}
@@ -429,7 +423,7 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(BookChapter publication, Locale locale) {
-		RisRecord.Builder builder = createStandardRecord(RisType.CHAP, publication, true, locale)
+		var builder = createStandardRecord(RisType.CHAP, publication, true, locale)
 				.secondaryTitle(publication.getBookTitle())
 				.section(publication.getChapterNumber())
 				.publisher(publication.getPublisher())
@@ -439,7 +433,7 @@ public class KrisRIS extends AbstractRIS {
 				.numberOfVolumes(publication.getNumber())
 				.edition(publication.getEdition())
 				.tertiaryTitle(publication.getSeries());
-		final IntegerRange range = parsePages(publication.getPages());
+		final var range = parsePages(publication.getPages());
 		if (range != null) {
 			builder = builder.startPage(range.getMin().toString()).endPage(range.getMax().toString());
 		}
@@ -452,8 +446,8 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(Thesis publication, Locale locale) {
-		final String thesisType = publication.getType().getLabel(getMessageSourceAccessor(), locale);
-		final RisRecord.Builder builder = createStandardRecord(RisType.THES, publication, true, locale)
+		final var thesisType = publication.getType().getLabel(getMessageSourceAccessor(), locale);
+		final var builder = createStandardRecord(RisType.THES, publication, true, locale)
 				.publisher(publication.getInstitution())
 				.publishingPlace(publication.getAddress())
 				.custom3(thesisType);
@@ -466,10 +460,10 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(JournalEdition publication, Locale locale) {
-		RisRecord.Builder builder = createStandardRecord(RisType.EDBOOK, publication, true, locale);
-		final Journal journal = publication.getJournal();
+		var builder = createStandardRecord(RisType.EDBOOK, publication, true, locale);
+		final var journal = publication.getJournal();
 		if (journal != null) {
-			final String isbnissn = Arrays.asList(journal.getISBN(), journal.getISSN()).stream()
+			final var isbnissn = Arrays.asList(journal.getISBN(), journal.getISSN()).stream()
 					.filter(it -> !Strings.isNullOrEmpty(it))
 					.findFirst().orElse(null);
 			builder = builder.periodicalNameFullFormatJO(journal.getJournalName())
@@ -480,7 +474,7 @@ public class KrisRIS extends AbstractRIS {
 		builder = builder
 				.volumeNumber(publication.getVolume())
 				.numberOfVolumes(publication.getNumber());
-		final IntegerRange range = parsePages(publication.getPages());
+		final var range = parsePages(publication.getPages());
 		if (range != null) {
 			builder = builder.startPage(range.getMin().toString()).endPage(range.getMax().toString());
 		}
@@ -502,8 +496,8 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(KeyNote publication, Locale locale) {
-		final String keyNoteType = publication.getType().getLabel(getMessageSourceAccessor(), locale);
-		final RisRecord.Builder builder = createStandardRecord(RisType.HEAR, publication, true, locale)
+		final var keyNoteType = publication.getType().getLabel(getMessageSourceAccessor(), locale);
+		final var builder = createStandardRecord(RisType.HEAR, publication, true, locale)
 				.periodicalNameFullFormatJO(publication.getPublicationTarget())
 				.editor(publication.getEditors())
 				.publisher(publication.getOrganization())
@@ -518,7 +512,7 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(Report publication, Locale locale) {
-		final RisRecord.Builder builder = createStandardRecord(RisType.RPRT, publication, true, locale)
+		final var builder = createStandardRecord(RisType.RPRT, publication, true, locale)
 				.volumeNumber(publication.getReportNumber())
 				.publisher(publication.getInstitution())
 				.publishingPlace(publication.getAddress())
@@ -532,7 +526,7 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(Patent publication, Locale locale) {
-		final RisRecord.Builder builder = createStandardRecord(RisType.PAT, publication, true, locale)
+		final var builder = createStandardRecord(RisType.PAT, publication, true, locale)
 				.publishingPlace(publication.getAddress())
 				.publisherStandardNumber(publication.getPatentNumber())
 				.publisher(publication.getInstitution())
@@ -547,7 +541,7 @@ public class KrisRIS extends AbstractRIS {
 	 * @return the RIS record.
 	 */
 	protected RisRecord createRecord(MiscDocument publication, RisType risType, Locale locale) {
-		final RisRecord.Builder builder = createStandardRecord(risType, publication, true, locale)
+		final var builder = createStandardRecord(risType, publication, true, locale)
 				.secondaryTitle(publication.getHowPublished())
 				.volumeNumber(publication.getDocumentNumber())
 				.editor(publication.getOrganization())
@@ -572,7 +566,7 @@ public class KrisRIS extends AbstractRIS {
 
 	private static String fieldRequired(RisRecord record, String fieldName, String... fieldValue) throws Exception {
 		if (fieldValue != null && fieldValue.length > 0) {
-			for (final String value : fieldValue) {
+			for (final var value : fieldValue) {
 				if (!Strings.isNullOrEmpty(value)) {
 					return value;
 				}
@@ -583,7 +577,7 @@ public class KrisRIS extends AbstractRIS {
 
 	private static String field(RisRecord record, String fieldName, String... fieldValue) throws Exception {
 		if (fieldValue != null && fieldValue.length > 0) {
-			for (final String value : fieldValue) {
+			for (final var value : fieldValue) {
 				if (!Strings.isNullOrEmpty(value)) {
 					return value;
 				}
@@ -594,8 +588,8 @@ public class KrisRIS extends AbstractRIS {
 
 	private static String fieldKeywords(RisRecord record, String fieldName, List<String> fieldValue) throws Exception {
 		if (fieldValue != null && !fieldValue.isEmpty()) {
-			final StringBuilder kws = new StringBuilder();
-			for (final String kw : fieldValue) {
+			final var kws = new StringBuilder();
+			for (final var kw : fieldValue) {
 				if (!Strings.isNullOrEmpty(kw)) {
 					if (kws.length() > 0) {
 						kws.append("; "); //$NON-NLS-1$
@@ -610,9 +604,9 @@ public class KrisRIS extends AbstractRIS {
 
 	private String fieldDoi(RisRecord record, String... fieldValue) throws Exception {
 		if (fieldValue != null && fieldValue.length > 0) {
-			for (final String value : fieldValue) {
+			for (final var value : fieldValue) {
 				if (!Strings.isNullOrEmpty(value)) {
-					final String doi = this.doiTools.getDOINumberFromDOIUrlOrNull(value);
+					final var doi = this.doiTools.getDOINumberFromDOIUrlOrNull(value);
 					if (!Strings.isNullOrEmpty(doi)) {
 						return doi;
 					}
@@ -624,7 +618,7 @@ public class KrisRIS extends AbstractRIS {
 
 	private static String fieldIsbn(RisRecord record, String... fieldValue) throws Exception {
 		if (fieldValue != null && fieldValue.length > 0) {
-			for (final String value : fieldValue) {
+			for (final var value : fieldValue) {
 				if (!Strings.isNullOrEmpty(value)) {
 					if (value.replaceAll("[^0-9a-zA-Z]+", "").length() >= 10) { //$NON-NLS-1$ //$NON-NLS-2$
 						return value;
@@ -637,7 +631,7 @@ public class KrisRIS extends AbstractRIS {
 
 	private static String fieldIssn(RisRecord record, String... fieldValue) throws Exception {
 		if (fieldValue != null && fieldValue.length > 0) {
-			for (final String value : fieldValue) {
+			for (final var value : fieldValue) {
 				if (!Strings.isNullOrEmpty(value)) {
 					if (value.replaceAll("[^0-9a-zA-Z]+", "").length() == 8) { //$NON-NLS-1$ //$NON-NLS-2$
 						return value;
@@ -650,7 +644,7 @@ public class KrisRIS extends AbstractRIS {
 
 	private static int fieldYear(RisRecord record, String... fieldValue) throws Exception {
 		if (fieldValue != null && fieldValue.length > 0) {
-			for (final String value : fieldValue) {
+			for (final var value : fieldValue) {
 				if (!Strings.isNullOrEmpty(value)) {
 					if (value.matches("^[0-9]+$")) { //$NON-NLS-1$
 						try {
@@ -667,7 +661,7 @@ public class KrisRIS extends AbstractRIS {
 
 	private static LocalDate fieldDate(RisRecord record, String... fieldValue) throws Exception {
 		if (fieldValue != null && fieldValue.length > 0) {
-			for (final String value : fieldValue) {
+			for (final var value : fieldValue) {
 				if (!Strings.isNullOrEmpty(value)) {
 					try {
 						return LocalDate.parse(value);
@@ -682,9 +676,9 @@ public class KrisRIS extends AbstractRIS {
 
 	private static PublicationLanguage fieldLanguage(RisRecord record, String... fieldValue) throws Exception {
 		if (fieldValue != null && fieldValue.length > 0) {
-			for (final String value : fieldValue) {
+			for (final var value : fieldValue) {
 				if (!Strings.isNullOrEmpty(value)) {
-					final PublicationLanguage lang = PublicationLanguage.valueOfCaseInsensitive(value, null);
+					final var lang = PublicationLanguage.valueOfCaseInsensitive(value, null);
 					if (lang != null) {
 						return lang;
 					}
@@ -695,7 +689,7 @@ public class KrisRIS extends AbstractRIS {
 	}
 
 	private static String fieldPages(RisRecord record, String startPage, String endPage) throws Exception {
-		int spage = 0;
+		var spage = 0;
 		if (!Strings.isNullOrEmpty(startPage)) {
 			try {
 				spage = Integer.parseInt(startPage);
@@ -703,7 +697,7 @@ public class KrisRIS extends AbstractRIS {
 				spage = 0;
 			}
 		}
-		int epage = 0;
+		var epage = 0;
 		if (!Strings.isNullOrEmpty(endPage)) {
 			try {
 				epage = Integer.parseInt(endPage);
@@ -736,16 +730,16 @@ public class KrisRIS extends AbstractRIS {
 	}
 
 	private Journal findJournal(RisRecord record, String journalName, String referencePublisher, String referenceIssn) {
-		Set<Journal> journals = this.journalService.getJournalsByName(journalName);
+		var journals = this.journalService.getJournalsByName(journalName);
 		if (journals == null || journals.isEmpty()) {
 			throw new MissedJournalException(record.getReferenceId(), journalName);
 		}
 		if (journals.size() == 1) {
 			return journals.iterator().next();
 		}
-		final List<Journal> js = new LinkedList<>();
-		final StringBuilder msg = new StringBuilder();
-		for (final Journal journal : journals) {
+		final var js = new LinkedList<Journal>();
+		final var msg = new StringBuilder();
+		for (final var journal : journals) {
 			if (Objects.equals(journal.getISSN(), referenceIssn)
 				|| journal.getPublisher().contains(referencePublisher)) {
 				js.add(journal);
@@ -765,7 +759,7 @@ public class KrisRIS extends AbstractRIS {
 	}
 
 	private static String fieldRequiredCleanPrefix(RisRecord record, String fieldName, String... fieldValue) throws Exception {
-		String value = field(record, fieldName, fieldValue);
+		var value = field(record, fieldName, fieldValue);
 		value = ConferenceUtils.removePrefixArticles(value);
 		if (!Strings.isNullOrEmpty(value)) {
 			return value;
@@ -785,16 +779,16 @@ public class KrisRIS extends AbstractRIS {
 
 	private Conference findConference(RisRecord record, String conferenceName, String referencePublisher,
 			String referenceIsbn, String referenceIssn) {
-		Set<Conference> conferences = this.conferenceService.getConferencesByName(conferenceName);
+		var conferences = this.conferenceService.getConferencesByName(conferenceName);
 		if (conferences == null || conferences.isEmpty()) {
 			throw new MissedConferenceException(record.getReferenceId(), conferenceName);
 		}
 		if (conferences.size() == 1) {
 			return conferences.iterator().next();
 		}
-		final List<Conference> js = new LinkedList<>();
-		final StringBuilder msg = new StringBuilder();
-		for (final Conference conference : conferences) {
+		final var js = new LinkedList<Conference>();
+		final var msg = new StringBuilder();
+		for (final var conference : conferences) {
 			if (Objects.equals(conference.getISBN(), referenceIsbn)
 				|| Objects.equals(conference.getISSN(), referenceIssn)
 				|| conference.getPublisher().contains(referencePublisher)) {
@@ -835,11 +829,11 @@ public class KrisRIS extends AbstractRIS {
 	protected Publication createPublicationFor(RisRecord record, boolean keepRisId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference,
 			Locale locale) throws Exception {
-		final PublicationType type = getPublicationTypeFor(record, locale);
+		final var type = getPublicationTypeFor(record, locale);
 		if (type != null) {
 			// Create a generic publication
-			final int year = fieldYear(record, record.getPublicationYear());
-			final Publication genericPublication = this.prePublicationFactory.createPrePublication(
+			final var year = fieldYear(record, record.getPublicationYear());
+			final var genericPublication = this.prePublicationFactory.createPrePublication(
 					type,
 					fieldRequired(record, "title", record.getTitle(), record.getAlternativeTitle(), record.getPrimaryTitle(), record.getSecondaryTitle()), //$NON-NLS-1$
 					field(record, "abstract", record.getAbstr(), record.getAbstr2()), //$NON-NLS-1$
@@ -862,10 +856,10 @@ public class KrisRIS extends AbstractRIS {
 			final Publication finalPublication;
 			switch (type) {
 			case INTERNATIONAL_JOURNAL_PAPER:
-				String journalName = fieldRequired(record, "journal", record.getPeriodicalNameFullFormatJO(), //$NON-NLS-1$
+				var journalName = fieldRequired(record, "journal", record.getPeriodicalNameFullFormatJO(), //$NON-NLS-1$
 						record.getPeriodicalNameFullFormatJF(), record.getPeriodicalNameStandardAbbrevation(),
 						record.getPeriodicalNameUserAbbrevation(), record.getBt());
-				String publisherName = field(record, "publisher", record.getPublisher()); //$NON-NLS-1$
+				var publisherName = field(record, "publisher", record.getPublisher()); //$NON-NLS-1$
 				Journal journal;
 				if (createMissedJournal) {
 					journal = findJournalOrCreateProxy(record, journalName, publisherName, genericPublication.getISSN());
@@ -873,7 +867,7 @@ public class KrisRIS extends AbstractRIS {
 					journal = findJournal(record, journalName, publisherName, genericPublication.getISSN());
 				}
 				assert journal != null;
-				final JournalPaper journalPaper = this.journalPaperService.createJournalPaper(genericPublication,
+				final var journalPaper = this.journalPaperService.createJournalPaper(genericPublication,
 						field(record, "volume", record.getVolumeNumber()), //$NON-NLS-1$
 						field(record, "number", record.getNumberOfVolumes()), //$NON-NLS-1$
 						fieldPages(record, record.getStartPage(), record.getEndPage()),
@@ -893,7 +887,7 @@ public class KrisRIS extends AbstractRIS {
 					journal = findJournal(record, journalName, publisherName, genericPublication.getISSN());
 				}
 				assert journal != null;
-				final JournalEdition journalEdition = this.journalEditionService.createJournalEdition(genericPublication,
+				final var journalEdition = this.journalEditionService.createJournalEdition(genericPublication,
 						field(record, "volume", record.getVolumeNumber()), //$NON-NLS-1$
 						field(record, "number", record.getNumberOfVolumes()), //$NON-NLS-1$
 						fieldPages(record, record.getStartPage(), record.getEndPage()),
@@ -902,9 +896,9 @@ public class KrisRIS extends AbstractRIS {
 				finalPublication = journalEdition;
 				break;
 			case INTERNATIONAL_CONFERENCE_PAPER:
-				String conferenceName = fieldRequiredCleanPrefix(record, "conference", //$NON-NLS-1$
+				var conferenceName = fieldRequiredCleanPrefix(record, "conference", //$NON-NLS-1$
 						record.getSecondaryTitle(), record.getBt());
-				ConferenceNameComponents nameComponents = ConferenceUtils.parseConferenceName(conferenceName);
+				var nameComponents = ConferenceUtils.parseConferenceName(conferenceName);
 				Conference conference;
 				if (createMissedConference) {
 					conference = findConferenceOrCreateProxy(record, nameComponents.name,
@@ -918,7 +912,7 @@ public class KrisRIS extends AbstractRIS {
 							genericPublication.getISSN());
 				}
 				assert conference != null;
-				final ConferencePaper conferencePaper = this.conferencePaperService.createConferencePaper(genericPublication,
+				final var conferencePaper = this.conferencePaperService.createConferencePaper(genericPublication,
 						conference,
 						nameComponents.occurrenceNumber,
 						field(record, "volume", record.getVolumeNumber()), //$NON-NLS-1$
@@ -1042,12 +1036,12 @@ public class KrisRIS extends AbstractRIS {
 
 			// Generate the author list
 			final String authorsField;
-			final List<String> authorsList = record.getAuthors();
+			final var authorsList = record.getAuthors();
 			if (authorsList == null || authorsList.isEmpty()) {
 				authorsField = field(record, "authoreditor", record.getEditor()); //$NON-NLS-1$
 			} else {
-				final StringBuilder bb = new StringBuilder();
-				for (final String author : authorsList) {
+				final var bb = new StringBuilder();
+				for (final var author : authorsList) {
 					if (bb.length() > 0) {
 						bb.append(" and "); //$NON-NLS-1$
 					}
@@ -1056,7 +1050,7 @@ public class KrisRIS extends AbstractRIS {
 				authorsField = bb.toString();
 			}
 			try {
-				final List<Person> authors = this.personService.extractPersonsFrom(authorsField, true, assignRandomId, ensureAtLeastOneMember);
+				final var authors = this.personService.extractPersonsFrom(authorsField, true, assignRandomId, ensureAtLeastOneMember);
 				if (authors.isEmpty()) {
 					throw new IllegalArgumentException("No author for the RIS record: " + record.getReferenceId()); //$NON-NLS-1$
 				}
@@ -1066,11 +1060,11 @@ public class KrisRIS extends AbstractRIS {
 			}
 
 			if (keepRisId) {
-				final String cid = record.getReferenceId();
+				final var cid = record.getReferenceId();
 				if (Strings.isNullOrEmpty(cid)) {
 					finalPublication.setPreferredStringId(null);
 				} else {
-					final String cleanId = cid.replaceAll("[^a-zA-Z0-9_-]+", "_"); //$NON-NLS-1$ //$NON-NLS-2$
+					final var cleanId = cid.replaceAll("[^a-zA-Z0-9_-]+", "_"); //$NON-NLS-1$ //$NON-NLS-2$
 					finalPublication.setPreferredStringId(cleanId);
 				}
 			}
@@ -1085,11 +1079,11 @@ public class KrisRIS extends AbstractRIS {
 	}
 
 	private boolean isMasterThesis(RisRecord record, Locale locale) {
-		final String type = record.getCustom3();
+		final var type = record.getCustom3();
 		if (!Strings.isNullOrEmpty(type)) {
 			try {
-				final java.util.Locale loc = java.util.Locale.getDefault();
-				final PublicationLanguage lang = fieldLanguage(record, record.getLanguage());
+				final var loc = java.util.Locale.getDefault();
+				final var lang = fieldLanguage(record, record.getLanguage());
 				final String label;
 				try {
 					java.util.Locale.setDefault(lang.getLocale());

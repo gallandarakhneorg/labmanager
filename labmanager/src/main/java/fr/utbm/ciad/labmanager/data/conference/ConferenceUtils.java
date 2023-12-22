@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.data.conference;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
@@ -82,8 +81,8 @@ public final class ConferenceUtils {
 	 */
 	public static String normalizeString(String value)  {
 		if (value != null) {
-			String nvalue = value.trim();
-			final Matcher matcher = EMPTY_FIELD_PATTERN.matcher(nvalue);
+			var nvalue = value.trim();
+			final var matcher = EMPTY_FIELD_PATTERN.matcher(nvalue);
 			if (matcher.matches()) {
 				return null;
 			}
@@ -103,19 +102,19 @@ public final class ConferenceUtils {
 	 */
 	public static ConferenceNameComponents parseConferenceName(String name) {
 		if (name != null) {
-			final String nname = normalizeString(name.trim());
+			final var nname = normalizeString(name.trim());
 			if (!Strings.isNullOrEmpty(nname)) {
-				final StringBuilder patternStr = new StringBuilder();
-				for (final String postfix : CONFERENCE_NUMBER_POSTFIX) {
+				final var patternStr = new StringBuilder();
+				for (final var postfix : CONFERENCE_NUMBER_POSTFIX) {
 					patternStr.setLength(0);
 					patternStr.append("^([0-9]+)\\s*");//$NON-NLS-1$
 					patternStr.append(postfix);
 					patternStr.append("\\s+(.*?)$");//$NON-NLS-1$
-					final Pattern pattern = Pattern.compile(patternStr.toString(), Pattern.CASE_INSENSITIVE);
-					final Matcher matcher = pattern.matcher(nname);
+					final var pattern = Pattern.compile(patternStr.toString(), Pattern.CASE_INSENSITIVE);
+					final var matcher = pattern.matcher(nname);
 					if (matcher.matches()) {
 						try {
-							final int number = Integer.parseInt(matcher.group(1));
+							final var number = Integer.parseInt(matcher.group(1));
 							return new ConferenceNameComponents(number, matcher.group(2));
 						} catch (Throwable ex) {
 							//
@@ -135,11 +134,11 @@ public final class ConferenceUtils {
 	 * @return the sentence without prefix article.
 	 */
 	public static String removePrefixArticles(String sentence) {
-		String finalSentence = sentence;
+		var finalSentence = sentence;
 		if (!Strings.isNullOrEmpty(sentence)) {
-			for (final String prefix : PREFIXES) {
-				final Pattern pattern = Pattern.compile("^\\s*" + Pattern.quote(prefix) + "\\s+", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$ //$NON-NLS-2$
-				final Matcher matcher = pattern.matcher(finalSentence);
+			for (final var prefix : PREFIXES) {
+				final var pattern = Pattern.compile("^\\s*" + Pattern.quote(prefix) + "\\s+", Pattern.CASE_INSENSITIVE); //$NON-NLS-1$ //$NON-NLS-2$
+				final var matcher = pattern.matcher(finalSentence);
 				finalSentence = matcher.replaceFirst(""); //$NON-NLS-1$
 			}
 			finalSentence = finalSentence.trim();

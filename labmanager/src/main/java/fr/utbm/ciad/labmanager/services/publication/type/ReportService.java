@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.publication.type;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -143,8 +142,7 @@ public class ReportService extends AbstractPublicationTypeService {
 	 * @return the report or {@code null}.
 	 */
 	public Report getReport(int identifier) {
-		final Optional<Report> byId = this.repository.findById(Integer.valueOf(identifier));
-		return byId.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a report.
@@ -173,7 +171,7 @@ public class ReportService extends AbstractPublicationTypeService {
 	 */
 	public Report createReport(Publication publication,
 			String number, String type, String institution, String address, boolean saveInDb) {
-		final Report res = new Report(publication, institution, address, type, number);
+		final var res = new Report(publication, institution, address, type, number);
 		if (saveInDb) {
 			this.repository.save(res);
 		}
@@ -211,9 +209,9 @@ public class ReportService extends AbstractPublicationTypeService {
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String number, String reportType, String institution, String address) {
-		final Optional<Report> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final Report report = res.get();
+			final var report = res.get();
 
 			updatePublicationNoSave(report, title, type, date, year,
 					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,

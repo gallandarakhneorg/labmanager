@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.utils.doi;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
@@ -60,7 +59,7 @@ public class DefaultDoiTools implements DoiTools {
 	@Override
 	public String getDOINumberFromDOIUrl(URL url) {
 		if (url != null) {
-			String path = url.getPath();
+			var path = url.getPath();
 			if (!Strings.isNullOrEmpty(path)) {
 				if (path.startsWith("/")) { //$NON-NLS-1$
 					path = path.substring(1);
@@ -75,11 +74,11 @@ public class DefaultDoiTools implements DoiTools {
 	}
 
 	private static String validatePath(String path) {
-		String pth = path;
+		var pth = path;
 		if (!Strings.isNullOrEmpty(pth)) {
 			pth = pth.trim();
 			if (!Strings.isNullOrEmpty(pth)) {
-				final Matcher matcher = DOI_PATTERN.matcher(pth);
+				final var matcher = DOI_PATTERN.matcher(pth);
 				if (matcher.matches()) {
 					return pth;
 				}
@@ -93,7 +92,7 @@ public class DefaultDoiTools implements DoiTools {
 		if (!Strings.isNullOrEmpty(url)) {
 			String path = null;
 			try {
-				final URI urlObj = new URI(url);
+				final var urlObj = new URI(url);
 				path = urlObj.getPath();
 				if (Strings.isNullOrEmpty(path)) {
 					path = urlObj.getSchemeSpecificPart();

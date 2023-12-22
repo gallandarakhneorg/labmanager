@@ -143,11 +143,7 @@ public class UserService extends AbstractService {
 	 * @return the user or {@code null} if the user cannot be found.
 	 */
 	public User getUserFor(Person person) {
-		final Optional<User> opt = this.userRepository.findByPersonId(person.getId());
-		if (opt.isPresent()) {
-			return opt.get();
-		}
-		return null;
+		return this.userRepository.findByPersonId(person.getId()).orElse(null);
 	}
 
 	/** Save the given user in the JPA infrastructure.

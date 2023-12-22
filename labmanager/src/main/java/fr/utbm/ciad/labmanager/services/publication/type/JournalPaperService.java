@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.publication.type;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -153,8 +152,7 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @return the journal paper or {@code null}.
 	 */
 	public JournalPaper getJournalPaper(int identifier) {
-		final Optional<JournalPaper> byId = this.repository.findById(Integer.valueOf(identifier));
-		return byId.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 	/** Replies the journal papers that are associated to the journal with the given identifier.
@@ -181,8 +179,8 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 		} else {
 			members = this.membershipService.getDirectMembersOf(identifier);
 		}
-		final Set<Integer> identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
-		final Set<JournalPaper> publications = this.repository.findAllByAuthorshipsPersonIdIn(identifiers);
+		final var identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
+		final var publications = this.repository.findAllByAuthorshipsPersonIdIn(identifiers);
 		if (filterAuthorshipsWithActiveMemberships) {
 			return filterPublicationsWithMemberships(publications, identifier, includeSubOrganizations);
 		}
@@ -216,7 +214,7 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 */
 	public JournalPaper createJournalPaper(Publication publication, String volume, String number, String pages,
 			String series, Journal journal, boolean saveInDb) {
-		final JournalPaper res = new JournalPaper(publication, volume, number, pages, series);
+		final var res = new JournalPaper(publication, volume, number, pages, series);
 		res.setJournal(journal);
 		if (saveInDb) {
 			this.repository.save(res);
@@ -254,9 +252,9 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 			String doi, String halId, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, String series, Journal journal) {
-		final Optional<JournalPaper> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final JournalPaper paper = res.get();
+			final var paper = res.get();
 
 			updatePublicationNoSave(paper, title, type, date, year,
 					abstractText, keywords, doi, halId, null, null, dblpUrl,

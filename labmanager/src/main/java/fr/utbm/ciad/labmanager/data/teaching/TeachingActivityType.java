@@ -115,7 +115,7 @@ public enum TeachingActivityType {
 	 */
 	public static TeachingActivityType valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final TeachingActivityType ranking : values()) {
+			for (final var ranking : values()) {
 				if (name.equalsIgnoreCase(ranking.name())) {
 					return ranking;
 				}

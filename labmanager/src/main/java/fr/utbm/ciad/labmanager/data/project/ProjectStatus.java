@@ -63,7 +63,7 @@ public enum ProjectStatus {
 	 * @return the label of the project status in the given  language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -76,7 +76,7 @@ public enum ProjectStatus {
 	 */
 	public static ProjectStatus valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final ProjectStatus ranking : values()) {
+			for (final var ranking : values()) {
 				if (name.equalsIgnoreCase(ranking.name())) {
 					return ranking;
 				}

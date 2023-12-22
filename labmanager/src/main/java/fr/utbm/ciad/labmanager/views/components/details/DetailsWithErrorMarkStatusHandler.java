@@ -56,7 +56,7 @@ public class DetailsWithErrorMarkStatusHandler implements BindingValidationStatu
 		this.field.setErrorMessage(statusChange.getMessage().orElse("")); //$NON-NLS-1$
         this.field.setInvalid(statusChange.isError());
 		// Update the section message if needed
-		final Object status = statusChange.getStatus();
+		final var status = statusChange.getStatus();
 		if (status == Status.OK || status == Status.ERROR) {
 			this.section.updateStatus(this.field, status == Status.ERROR, false);
 		}

@@ -97,7 +97,7 @@ public class MiscDocument extends Publication {
 
 	@Override
 	public int hashCode() {
-		int h = super.hashCode();
+		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.organization);
 		h = HashCodeUtils.add(h, this.address);
 		h = HashCodeUtils.add(h, this.howPublished);
@@ -112,7 +112,7 @@ public class MiscDocument extends Publication {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		final MiscDocument other = (MiscDocument) obj;
+		final var other = (MiscDocument) obj;
 		if (!Objects.equals(this.organization, other.organization)) {
 			return false;
 		}
@@ -160,10 +160,10 @@ public class MiscDocument extends Publication {
 	@Override
 	@JsonIgnore
 	public String getWherePublishedShortDescription() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(getHowPublished());
-		final boolean b0 = !Strings.isNullOrEmpty(getDocumentNumber());
-		final boolean b1 = !Strings.isNullOrEmpty(getDocumentType());
+		final var b0 = !Strings.isNullOrEmpty(getDocumentNumber());
+		final var b1 = !Strings.isNullOrEmpty(getDocumentType());
 		if (b0 && b1) {
 			buf.append(", n. "); //$NON-NLS-1$
 			buf.append(getDocumentNumber());
@@ -203,7 +203,7 @@ public class MiscDocument extends Publication {
 
 	@Override
 	public String getPublicationTarget() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(getHowPublished());
 		if (!Strings.isNullOrEmpty(getPublisher())) {
 			buf.append(", "); //$NON-NLS-1$

@@ -63,7 +63,7 @@ public class NameBasedMembershipComparator implements Comparator<Membership> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = this.personComparator.compare(o1.getPerson(), o2.getPerson());
+		var n = this.personComparator.compare(o1.getPerson(), o2.getPerson());
 		if (n != 0) {
 			return n;
 		}
@@ -99,11 +99,7 @@ public class NameBasedMembershipComparator implements Comparator<Membership> {
 			return n;
 		}
 		// Main position order is reversed to put the "true" before the "false"
-		n = Boolean.compare(o2.isMainPosition(), o1.isMainPosition());
-		if (n != 0) {
-			return n;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return Boolean.compare(o2.isMainPosition(), o1.isMainPosition());
 	}
 
 }

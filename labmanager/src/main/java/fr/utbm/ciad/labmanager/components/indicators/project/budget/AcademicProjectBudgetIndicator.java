@@ -67,7 +67,7 @@ public class AcademicProjectBudgetIndicator extends AbstractProjectBudgetIndicat
 	@Override
 	public boolean isSelectableProject(Project project) {
 		if (project != null) {
-			final ProjectCategory cat = project.getCategory();
+			final var cat = project.getCategory();
 			return cat == ProjectCategory.COMPETITIVE_CALL_PROJECT || cat == ProjectCategory.AUTO_FUNDING;
 		}
 		return false;

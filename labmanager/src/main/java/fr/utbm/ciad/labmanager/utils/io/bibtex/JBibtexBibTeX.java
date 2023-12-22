@@ -61,19 +61,14 @@ import java.io.Writer;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 import java.util.stream.Stream;
 
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceUtils;
-import fr.utbm.ciad.labmanager.data.conference.ConferenceUtils.ConferenceNameComponents;
 import fr.utbm.ciad.labmanager.data.journal.Journal;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
-import fr.utbm.ciad.labmanager.data.publication.PublicationCategory;
 import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.data.publication.type.Book;
@@ -109,11 +104,8 @@ import org.jbibtex.BibTeXParser;
 import org.jbibtex.CharacterFilterReader;
 import org.jbibtex.DigitStringValue;
 import org.jbibtex.Key;
-import org.jbibtex.LaTeXObject;
 import org.jbibtex.LaTeXParser;
-import org.jbibtex.LaTeXPrinter;
 import org.jbibtex.StringValue;
-import org.jbibtex.Value;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -285,13 +277,13 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	protected static String parseTeXString(String texString, BibTeXEntry entry) throws Exception {
 		if (!Strings.isNullOrEmpty(texString)) {
 			try {
-				final LaTeXParser latexParser = new LaTeXParser();
-				List<LaTeXObject> latexObjects = latexParser.parse(texString);
-				final LaTeXPrinter latexPrinter = new BugfixLaTeXPrinter(false);
-				final String plainTextString = latexPrinter.print(latexObjects);
+				final var latexParser = new LaTeXParser();
+				var latexObjects = latexParser.parse(texString);
+				final var latexPrinter = new BugfixLaTeXPrinter(false);
+				final var plainTextString = latexPrinter.print(latexObjects);
 				return plainTextString;
 			} catch (Throwable ex) {
-				final String bibtexEntry = entry != null ? entry.getKey().getValue() : null;
+				final var bibtexEntry = entry != null ? entry.getKey().getValue() : null;
 				throw new RuntimeException(
 						"Unable to parse the following LaTeX text: " + texString //$NON-NLS-1$
 						+ "\nSource error is: " + ex.getLocalizedMessage() //$NON-NLS-1$
@@ -305,9 +297,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	@Override
 	public Stream<Publication> getPublicationStreamFrom(Reader bibtex, boolean keepBibTeXId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
-		try (Reader filteredReader = new CharacterFilterReader(bibtex)) {
-			final BibTeXParser bibtexParser = new BibTeXParser();
-			final BibTeXDatabase database = bibtexParser.parse(filteredReader);
+		try (var filteredReader = new CharacterFilterReader(bibtex)) {
+			final var bibtexParser = new BibTeXParser();
+			final var database = bibtexParser.parse(filteredReader);
 			if (database != null) {
 				return database.getEntries().entrySet().stream().map(it -> {
 					try {
@@ -381,9 +373,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private static String field(BibTeXEntry entry, Key key) throws Exception {
-		final Value value = entry.getField(key);
+		final var value = entry.getField(key);
 		if (value != null) {
-			String strValue = ConferenceUtils.normalizeString(value.toUserString());
+			var strValue = ConferenceUtils.normalizeString(value.toUserString());
 			if (isLaTeXField(key)) {
 				strValue = parseTeXString(strValue, entry);
 			}
@@ -393,9 +385,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private static String fieldRequired(BibTeXEntry entry, Key key) throws Exception {
-		final Value value = entry.getField(key);
+		final var value = entry.getField(key);
 		if (value != null) {
-			String strValue = ConferenceUtils.normalizeString(value.toUserString());
+			var strValue = ConferenceUtils.normalizeString(value.toUserString());
 			if (isLaTeXField(key)) {
 				strValue = parseTeXString(strValue, entry);
 			}
@@ -407,7 +399,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private static String fieldRequiredCleanPrefix(BibTeXEntry entry, Key key) throws Exception {
-		String value = field(entry, key);
+		var value = field(entry, key);
 		value = ConferenceUtils.removePrefixArticles(value);
 		if (!Strings.isNullOrEmpty(value)) {
 			return value;
@@ -420,7 +412,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private static String pages(BibTeXEntry entry) throws Exception {
-		String texValue = field(entry, KEY_PAGES);
+		var texValue = field(entry, KEY_PAGES);
 		if (!Strings.isNullOrEmpty(texValue)) {
 			// Some person uses the "--" LaTeX operator for representing a range
 			texValue = texValue.replaceAll("\\-+", "-"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -439,7 +431,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private static String orRequired(BibTeXEntry entry, Key k1, Key k2) throws Exception {
-		final String value = or(field(entry, k1), field(entry, k2));
+		final var value = or(field(entry, k1), field(entry, k2));
 		if (!Strings.isNullOrEmpty(value)) {
 			return value;
 		}
@@ -448,12 +440,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private static PublicationLanguage language(BibTeXEntry entry) throws Exception {
-		final String label = field(entry, new Key(KEY_LANGUAGE_NAME));
+		final var label = field(entry, new Key(KEY_LANGUAGE_NAME));
 		return PublicationLanguage.valueOfCaseInsensitive(label);
 	}
 
 	private static int year(BibTeXEntry entry) throws Exception {
-		final String yearValue = field(entry, KEY_YEAR);
+		final var yearValue = field(entry, KEY_YEAR);
 		if (Strings.isNullOrEmpty(yearValue)) {
 			throw new IllegalArgumentException("Invalid year format for: " + entry.getKey().getValue()); //$NON-NLS-1$
 		}
@@ -467,8 +459,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	}
 
 	private static LocalDate date(BibTeXEntry entry) throws Exception {
-		final int year = year(entry);
-		final String monthValue = field(entry, KEY_MONTH);
+		final var year = year(entry);
+		final var monthValue = field(entry, KEY_MONTH);
 		if (!Strings.isNullOrEmpty(monthValue)) {
 			switch (monthValue) {
 			case "01": //$NON-NLS-1$
@@ -538,8 +530,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	private Journal findJournal(Key key, String journalName, String dbId, String referencePublisher, String referenceIssn) {
 		if (!Strings.isNullOrEmpty(dbId)) {
 			try {
-				final int id = Integer.parseInt(dbId);
-				final Journal journal = this.journalService.getJournalById(id);
+				final var id = Integer.parseInt(dbId);
+				final var journal = this.journalService.getJournalById(id);
 				if (journal != null) {
 					return journal;
 				}
@@ -547,16 +539,16 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				// Silent
 			}
 		}
-		Set<Journal> journals = this.journalService.getJournalsByName(journalName);
+		var journals = this.journalService.getJournalsByName(journalName);
 		if (journals == null || journals.isEmpty()) {
 			throw new MissedJournalException(key.getValue(), journalName);
 		}
 		if (journals.size() == 1) {
 			return journals.iterator().next();
 		}
-		final List<Journal> js = new LinkedList<>();
-		final StringBuilder msg = new StringBuilder();
-		for (final Journal journal : journals) {
+		final var js = new LinkedList<Journal>();
+		final var msg = new StringBuilder();
+		for (final var journal : journals) {
 			if (Objects.equals(journal.getISSN(), referenceIssn)
 				|| journal.getPublisher().contains(referencePublisher)) {
 				js.add(journal);
@@ -589,8 +581,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			String referenceIsbn, String referenceIssn) {
 		if (!Strings.isNullOrEmpty(dbId)) {
 			try {
-				final int id = Integer.parseInt(dbId);
-				final Conference conference = this.conferenceService.getConferenceById(id);
+				final var id = Integer.parseInt(dbId);
+				final var conference = this.conferenceService.getConferenceById(id);
 				if (conference != null) {
 					return conference;
 				}
@@ -598,16 +590,16 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				// Silent
 			}
 		}
-		Set<Conference> conferences = this.conferenceService.getConferencesByName(conferenceName);
+		var conferences = this.conferenceService.getConferencesByName(conferenceName);
 		if (conferences == null || conferences.isEmpty()) {
 			throw new MissedConferenceException(key.getValue(), conferenceName);
 		}
 		if (conferences.size() == 1) {
 			return conferences.iterator().next();
 		}
-		final List<Conference> js = new LinkedList<>();
-		final StringBuilder msg = new StringBuilder();
-		for (final Conference conference : conferences) {
+		final var js = new LinkedList<Conference>();
+		final var msg = new StringBuilder();
+		for (final var conference : conferences) {
 			if (Objects.equals(conference.getISBN(), referenceIsbn)
 				|| Objects.equals(conference.getISSN(), referenceIssn)
 				|| conference.getPublisher().contains(referencePublisher)) {
@@ -649,10 +641,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 */
 	protected Publication createPublicationFor(Key key, BibTeXEntry entry, boolean keepBibTeXId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
-		final PublicationType type = getPublicationTypeFor(entry);
+		final var type = getPublicationTypeFor(entry);
 		if (type != null) {
 			// Create a generic publication
-			final Publication genericPublication = this.prePublicationFactory.createPrePublication(
+			final var genericPublication = this.prePublicationFactory.createPrePublication(
 					type,
 					fieldRequired(entry, KEY_TITLE),
 					field(entry, KEY_ABSTRACT_NAME),
@@ -674,7 +666,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			final Publication finalPublication;
 			switch (type) {
 			case INTERNATIONAL_JOURNAL_PAPER:
-				String journalName = fieldRequired(entry, KEY_JOURNAL);
+				var journalName = fieldRequired(entry, KEY_JOURNAL);
 				final Journal journal;
 				if (createMissedJournal) {
 					journal = findJournalOrCreateProxy(key, journalName,
@@ -698,8 +690,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 				finalPublication = journalPaper;
 				break;
 			case INTERNATIONAL_CONFERENCE_PAPER:
-				String conferenceName = fieldRequiredCleanPrefix(entry, KEY_BOOKTITLE);
-				final ConferenceNameComponents nameComponents = ConferenceUtils.parseConferenceName(conferenceName);
+				var conferenceName = fieldRequiredCleanPrefix(entry, KEY_BOOKTITLE);
+				final var nameComponents = ConferenceUtils.parseConferenceName(conferenceName);
 				final Conference conference;
 				if (createMissedConference) {
 					conference = findConferenceOrCreateProxy(key, nameComponents.name,
@@ -715,7 +707,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 							genericPublication.getISSN());
 				}
 				assert conference != null;
-				final ConferencePaper conferencePaper = this.conferencePaperService.createConferencePaper(genericPublication,
+				final var conferencePaper = this.conferencePaperService.createConferencePaper(genericPublication,
 						conference,
 						nameComponents.occurrenceNumber,
 						field(entry, KEY_VOLUME),
@@ -822,9 +814,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			}
 
 			// Generate the author list
-			final String authorField = orRequired(entry, KEY_AUTHOR, KEY_EDITOR);
+			final var authorField = orRequired(entry, KEY_AUTHOR, KEY_EDITOR);
 			try {
-				final List<Person> authors = this.personService.extractPersonsFrom(authorField, true, assignRandomId, ensureAtLeastOneMember);
+				final var authors = this.personService.extractPersonsFrom(authorField, true, assignRandomId, ensureAtLeastOneMember);
 				if (authors.isEmpty()) {
 					throw new IllegalArgumentException("No author for the BibTeX entry: " + key.getValue()); //$NON-NLS-1$
 				}
@@ -834,7 +826,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 			}
 
 			if (keepBibTeXId) {
-				final String cleanKey = entry.getKey().getValue().replaceAll("[^a-zA-Z0-9_-]+", "_"); //$NON-NLS-1$ //$NON-NLS-2$
+				final var cleanKey = entry.getKey().getValue().replaceAll("[^a-zA-Z0-9_-]+", "_"); //$NON-NLS-1$ //$NON-NLS-2$
 				finalPublication.setPreferredStringId(cleanKey);
 			}
 
@@ -849,8 +841,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	@Override
 	public void exportPublications(Writer output, Iterable<? extends Publication> publications, ExporterConfigurator configurator) throws IOException {
-		final BibTeXDatabase database = createDatabase(publications, configurator);
-		final BibTeXFormatter bibtexFormatter = new BibTeXFormatter();
+		final var database = createDatabase(publications, configurator);
+		final var bibtexFormatter = new BibTeXFormatter();
 		bibtexFormatter.format(database, output);
 	}
 
@@ -861,8 +853,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX database.
 	 */
 	protected BibTeXDatabase createDatabase(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
-		final BibTeXDatabase db = new BibTeXDatabase();
-		for (final Publication publication : publications) {
+		final var db = new BibTeXDatabase();
+		for (final var publication : publications) {
 			addPublication(db, publication, configurator.getLocale());
 		}
 		return db;
@@ -954,7 +946,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	private void addField(BibTeXEntry entry, Key key, String value, boolean protectAcronyms) {
 		if (!Strings.isNullOrEmpty(value)) {
-			final String txt = toTeXString(value, protectAcronyms);
+			final var txt = toTeXString(value, protectAcronyms);
 			entry.addField(key, new StringValue(txt, StringValue.Style.BRACED));
 		}
 	}
@@ -977,7 +969,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	private void addPageField(BibTeXEntry entry, String value) {
 		if (!Strings.isNullOrEmpty(value)) {
-			String texValue = toTeXString(value);
+			var texValue = toTeXString(value);
 			if (!Strings.isNullOrEmpty(texValue)) {
 				// Usually the range of values is represented with "--" in LaTeX
 				texValue = texValue.replaceAll("\\-+", "--"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -1036,8 +1028,8 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	private void fillBibTeXEntry(BibTeXEntry entry, Publication publication, Key authorKey, Locale locale) {
 		addField(entry, KEY_TITLE, publication.getTitle(), true);
 
-		final StringBuilder authorNames = new StringBuilder();
-		for (final Person person : publication.getAuthors()) {
+		final var authorNames = new StringBuilder();
+		for (final var person : publication.getAuthors()) {
 			if (authorNames.length() > 0) {
 				authorNames.append(" and "); //$NON-NLS-1$
 			}
@@ -1058,10 +1050,11 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 		addField(entry, KEY_ABSTRACT, publication.getAbstractText());
 		addField(entry, KEY_KEYWORD, publication.getKeywords());
 		addField(entry, KEY_LANGUAGE, publication.getMajorLanguage().name());
-		final PublicationType type = publication.getType();
-		final PublicationCategory cat = publication.getCategory();
+
+		final var type = publication.getType();
+		final var cat = publication.getCategory();
 		// Force the Java locale to get the text that is corresponding to the language of the paper
-		final java.util.Locale loc = java.util.Locale.getDefault();
+		final var loc = java.util.Locale.getDefault();
 		try {
 			if (type != null) {
 				addField(entry, KEY_PUBLICATION_TYPE, type.name());
@@ -1079,12 +1072,12 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	private void addNoteForJournal(BibTeXEntry entry, PublicationLanguage language, 
 			QuartileRanking scimago, QuartileRanking wos, float impactFactor, Locale locale) {
 		// Force the Java locale to get the text that is corresponding to the language of the paper
-		final java.util.Locale loc = java.util.Locale.getDefault();
+		final var loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(language.getLocale());
-			final StringBuilder note = new StringBuilder();
-			final QuartileRanking scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
-			final QuartileRanking wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
+			final var note = new StringBuilder();
+			final var scimagoNorm = scimago == null || scimago == QuartileRanking.NR ? null : scimago;
+			final var wosNorm = wos == null || wos == QuartileRanking.NR ? null : wos;
 			if (scimagoNorm != null && wosNorm != null) {
 				if (scimagoNorm != wosNorm) {
 					note.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "SCIMAGO_WOS_QUARTILES", //$NON-NLS-1$
@@ -1115,10 +1108,10 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 
 	private void addNoteForConference(BibTeXEntry entry, PublicationLanguage language, CoreRanking core, Locale locale) {
 		// Force the Java locale to get the text that is corresponding to the language of the paper
-		final java.util.Locale loc = java.util.Locale.getDefault();
+		final var loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(language.getLocale());
-			final CoreRanking coreNorm = core == null || core == CoreRanking.NR ? null : core;
+			final var coreNorm = core == null || core == CoreRanking.NR ? null : core;
 			if (coreNorm != null) {
 				addField(entry, KEY_NOTE, getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "CORE_RANKING", //$NON-NLS-1$
 						new Object[] {coreNorm.toString()}, locale));
@@ -1135,9 +1128,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX entry.
 	 */
 	protected BibTeXEntry createBibTeXEntry(JournalPaper paper, Locale locale) {
-		final BibTeXEntry entry = new BibTeXEntry(TYPE_ARTICLE, createBibTeXId(paper));
+		final var entry = new BibTeXEntry(TYPE_ARTICLE, createBibTeXId(paper));
 		fillBibTeXEntry(entry, paper, KEY_AUTHOR, locale);
-		final Journal journal = paper.getJournal();
+		final var journal = paper.getJournal();
 		if (journal != null) {
 			addField(entry, KEY_JOURNAL, journal.getJournalName());
 			addField(entry, KEY_ISBN, journal.getISBN());
@@ -1171,7 +1164,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX entry.
 	 */
 	protected BibTeXEntry createBibTeXEntry(ConferencePaper paper, Locale locale) {
-		final BibTeXEntry entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(paper));
+		final var entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(paper));
 		fillBibTeXEntry(entry, paper, KEY_AUTHOR, locale);
 		addField(entry, KEY_BOOKTITLE, paper.getPublicationTarget());
 		addField(entry, KEY_VOLUME, paper.getVolume());
@@ -1200,7 +1193,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX entry.
 	 */
 	protected BibTeXEntry createBibTeXEntry(Book book, Locale locale) {
-		final BibTeXEntry entry = new BibTeXEntry(TYPE_BOOK, createBibTeXId(book));
+		final var entry = new BibTeXEntry(TYPE_BOOK, createBibTeXId(book));
 		fillBibTeXEntry(entry, book, KEY_AUTHOR, locale);
 		addField(entry, KEY_EDITION, book.getEdition());
 		addField(entry, KEY_SERIES, book.getSeries());
@@ -1220,7 +1213,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX entry.
 	 */
 	protected BibTeXEntry createBibTeXEntry(BookChapter chapter, Locale locale) {
-		final BibTeXEntry entry = new BibTeXEntry(TYPE_INCOLLECTION, createBibTeXId(chapter));
+		final var entry = new BibTeXEntry(TYPE_INCOLLECTION, createBibTeXId(chapter));
 		fillBibTeXEntry(entry, chapter, KEY_AUTHOR, locale);
 		addField(entry, KEY_BOOKTITLE, chapter.getBookTitle());
 		addField(entry, KEY_CHAPTER, chapter.getChapterNumber());
@@ -1242,13 +1235,13 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX entry.
 	 */
 	protected BibTeXEntry createBibTeXEntry(Thesis thesis, Locale locale) {
-		final Key pubType = thesis.getType() == PublicationType.MASTER_THESIS ? TYPE_MASTERSTHESIS : TYPE_PHDTHESIS;
-		final BibTeXEntry entry = new BibTeXEntry(pubType, createBibTeXId(thesis));
+		final var pubType = thesis.getType() == PublicationType.MASTER_THESIS ? TYPE_MASTERSTHESIS : TYPE_PHDTHESIS;
+		final var entry = new BibTeXEntry(pubType, createBibTeXId(thesis));
 		fillBibTeXEntry(entry, thesis, KEY_AUTHOR, locale);
 		addField(entry, KEY_SCHOOL, thesis.getInstitution());
 		addField(entry, KEY_ADDRESS, thesis.getAddress());
 		// Force the Java locale to get the text that is corresponding to the language of the paper
-		final java.util.Locale loc = java.util.Locale.getDefault();
+		final var loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(thesis.getMajorLanguage().getLocale());
 			addField(entry, KEY_TYPE, thesis.getType().getLabel(getMessageSourceAccessor(), locale));
@@ -1265,9 +1258,9 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX entry.
 	 */
 	protected BibTeXEntry createBibTeXEntry(JournalEdition edition, Locale locale) {
-		final BibTeXEntry entry = new BibTeXEntry(TYPE_BOOK, createBibTeXId(edition));
+		final var entry = new BibTeXEntry(TYPE_BOOK, createBibTeXId(edition));
 		fillBibTeXEntry(entry, edition, KEY_EDITOR, locale);
-		final Journal journal = edition.getJournal();
+		final var journal = edition.getJournal();
 		if (journal != null) {
 			addField(entry, KEY_JOURNAL, journal.getJournalName());
 			addField(entry, KEY_ISBN, journal.getISBN());
@@ -1300,14 +1293,14 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX entry.
 	 */
 	protected BibTeXEntry createBibTeXEntry(KeyNote keynote, Locale locale) {
-		final BibTeXEntry entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(keynote));
+		final var entry = new BibTeXEntry(TYPE_INPROCEEDINGS, createBibTeXId(keynote));
 		fillBibTeXEntry(entry, keynote, KEY_AUTHOR, locale);
 		addField(entry, KEY_BOOKTITLE, keynote.getPublicationTarget());
 		addField(entry, KEY_EDITOR, keynote.getEditors());
 		addField(entry, KEY_ORGANIZATION, keynote.getOrganization());
 		addField(entry, KEY_ADDRESS, keynote.getAddress());
 		// Force the Java locale to get the text that is corresponding to the language of the paper
-		final java.util.Locale loc = java.util.Locale.getDefault();
+		final var loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(keynote.getMajorLanguage().getLocale());
 			addField(entry, KEY_NOTE, keynote.getType().getLabel(getMessageSourceAccessor(), locale));
@@ -1351,15 +1344,15 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX entry.
 	 */
 	protected BibTeXEntry createBibTeXEntry(Patent patent, Locale locale) {
-		final BibTeXEntry entry = new BibTeXEntry(TYPE_MISC, createBibTeXId(patent));
+		final var entry = new BibTeXEntry(TYPE_MISC, createBibTeXId(patent));
 		fillBibTeXEntry(entry, patent, KEY_AUTHOR, locale);
 		addField(entry, KEY_ADDRESS, patent.getAddress());
 		addField(entry, KEY_NOTE, patent.getPatentType());
 		// Force the Java locale to get the text that is corresponding to the language of the patent
-		final java.util.Locale loc = java.util.Locale.getDefault();
+		final var loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(patent.getMajorLanguage().getLocale());
-			final StringBuilder howPublished = new StringBuilder();
+			final var howPublished = new StringBuilder();
 			if (!Strings.isNullOrEmpty(patent.getPatentNumber())
 					&& !Strings.isNullOrEmpty(patent.getInstitution())) {
 				howPublished.append(getMessageSourceAccessor().getMessage(MESSAGE_PREFIX + "PATENT_NUMBER_INSTITUTION", //$NON-NLS-1$
@@ -1385,7 +1378,7 @@ public class JBibtexBibTeX extends AbstractBibTeX {
 	 * @return the JBibTeX entry.
 	 */
 	protected BibTeXEntry createBibTeXEntry(MiscDocument document, Locale locale) {
-		final BibTeXEntry entry = new BibTeXEntry(TYPE_MISC, createBibTeXId(document));
+		final var entry = new BibTeXEntry(TYPE_MISC, createBibTeXId(document));
 		fillBibTeXEntry(entry, document, KEY_AUTHOR, locale);
 		addField(entry, KEY_HOWPUBLISHED, document.getHowPublished());
 		addField(entry, KEY_TYPE, document.getDocumentType());

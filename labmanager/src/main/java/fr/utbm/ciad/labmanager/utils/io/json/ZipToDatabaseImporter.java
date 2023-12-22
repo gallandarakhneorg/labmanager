@@ -25,16 +25,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.utbm.ciad.labmanager.components.AbstractComponent;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonToDatabaseImporter.FileCallback;
-import fr.utbm.ciad.labmanager.utils.io.json.JsonToDatabaseImporter.Stats;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -90,15 +87,15 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 
 	private void deleteContent(File file) throws IOException {
 		if (file != null) {
-			final File absFile = this.download.normalizeForServerSide(file);
-			final File[] files = absFile.listFiles(it -> {
+			final var absFile = this.download.normalizeForServerSide(file);
+			final var files = absFile.listFiles(it -> {
 				return FileSystem.hasExtension(it, ".pdf") || FileSystem.hasExtension(it, ".jpg") //$NON-NLS-1$ //$NON-NLS-2$
 						 || FileSystem.hasExtension(it, ".jpeg") || FileSystem.hasExtension(it, ".gif") //$NON-NLS-1$ //$NON-NLS-2$
 						 || FileSystem.hasExtension(it, ".png") || FileSystem.hasExtension(it, ".ppt") //$NON-NLS-1$ //$NON-NLS-2$
 						 || FileSystem.hasExtension(it, ".pptx"); //$NON-NLS-1$
 			});
 			if (files != null && files.length > 0) {
-				for (final File child : files) {
+				for (final var child : files) {
 					FileSystem.delete(child);
 				}
 			}
@@ -112,7 +109,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 	 */
 	@SuppressWarnings("static-method")
 	protected boolean isAcceptedDataFile(String filename) {
-		final String ext = FileSystem.extension(filename);
+		final var ext = FileSystem.extension(filename);
 		return ".pdf".equals(ext) || ".jpeg".equals(ext) //$NON-NLS-1$ //$NON-NLS-2$
 			|| ".jpg".equals(ext) || ".gif".equals(ext) //$NON-NLS-1$ //$NON-NLS-2$
 			|| ".png".equals(ext) || ".ppt".equals(ext) //$NON-NLS-1$ //$NON-NLS-2$
@@ -130,12 +127,12 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 		//
 		try {
 			JsonNode content = null;
-			try (ZipInputStream zis = new ZipInputStream(url.openStream())) {
-				ZipEntry entry = zis.getNextEntry();
+			try (var zis = new ZipInputStream(url.openStream())) {
+				var entry = zis.getNextEntry();
 				while (entry != null) {
-					final String filename = entry.getName();
-					try (final ZippedFileInputStream entryStream = new ZippedFileInputStream(zis)) {
-						final String lower = filename.toLowerCase();
+					final var filename = entry.getName();
+					try (final var entryStream = new ZippedFileInputStream(zis)) {
+						final var lower = filename.toLowerCase();
 						if (lower.equals(Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json")) { //$NON-NLS-1$
 							if (content == null) {
 								content = readJson(entryStream);
@@ -152,8 +149,8 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 			}
 			// Inject the JSON content into the database; Change the uploaded files on the fly.
 			if (content != null) {
-				final UploadedFileManager callback = new UploadedFileManager();
-				final Stats stats = this.jsonImporter.importJsonFileToDatabase(content, true, callback);
+				final var callback = new UploadedFileManager();
+				final var stats = this.jsonImporter.importJsonFileToDatabase(content, true, callback);
 				if (stats != null) {
 					stats.setPublicationAssociatedFileCount(callback.getFileCount());
 					stats.logSummaryOn(getLogger());
@@ -180,7 +177,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 	 * @throws Exception if the file cannot be copied to the temporary folder.
 	 */
 	protected void copyAttachedFileToTemporaryArea(String filename, InputStream entryStream) throws Exception {
-		File outputFile = FileSystem.convertStringToFile(filename);
+		var outputFile = FileSystem.convertStringToFile(filename);
 		if (!outputFile.isAbsolute()) {
 			outputFile = FileSystem.join(this.download.getTemporaryRootFile(), outputFile);
 			outputFile = this.download.normalizeForServerSide(outputFile);
@@ -198,7 +195,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 	/** Delete all the files in the temporary area.
 	 */
 	protected void deleteTemporaryArea() {
-		File tempFile = this.download.getTemporaryRootFile();
+		var tempFile = this.download.getTemporaryRootFile();
 		tempFile = this.download.normalizeForServerSide(tempFile);
 		try {
 			FileSystem.delete(tempFile);
@@ -216,8 +213,8 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 	protected JsonNode readJson(InputStream entryStream) throws IOException {
 		getLogger().info("Reading JSON description"); //$NON-NLS-1$
 		// Read the JSON content
-		try (final InputStreamReader isr = new InputStreamReader(entryStream)) {
-			final ObjectMapper mapper = JsonUtils.createMapper();
+		try (final var isr = new InputStreamReader(entryStream)) {
+			final var mapper = JsonUtils.createMapper();
 			return mapper.readTree(isr);
 		}
 	}
@@ -267,28 +264,28 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 
 		@Override
 		public String addressBackgroundImageFile(int dbId, String filename) {
-			final String fileExtension = FileSystem.extension(filename);
+			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeAddressBackgroundImage(dbId, fileExtension));
 		}
 
 		@Override
 		public String organizationLogoFile(int dbId, String filename) {
-			final String fileExtension = FileSystem.extension(filename);
+			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeOrganizationLogoFilename(dbId, fileExtension));
 		}
 
 		@Override
 		public String projectLogoFile(int dbId, String filename) {
-			final String fileExtension = FileSystem.extension(filename);
+			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectLogoFilename(dbId, fileExtension));
 		}
 
 		@Override
 		public String projectImageFile(int dbId, int index, String filename) {
-			final String fileExtension = FileSystem.extension(filename);
+			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectImageFilename(dbId, index, fileExtension));
 		}
@@ -309,7 +306,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 
 		@Override
 		public String projectPowerpointFile(int dbId, String filename) {
-			final String fileExtension = FileSystem.extension(filename);
+			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectPowerpointFilename(dbId, fileExtension),
 					ZipToDatabaseImporter.this.download.makeProjectPowerpointPictureFilename(dbId));
@@ -317,9 +314,9 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 
 		private String moveFile(String inFilename, int outId, File outFilename, File outPictureName) {
 			try {
-				final File inFile = FileSystem.join(this.temporaryFolder, inFilename);
+				final var inFile = FileSystem.join(this.temporaryFolder, inFilename);
 				if (inFile.canRead()) {
-					final File outFile = ZipToDatabaseImporter.this.download.normalizeForServerSide(outFilename);
+					final var outFile = ZipToDatabaseImporter.this.download.normalizeForServerSide(outFilename);
 					mkdirs(outFile);
 					FileSystem.copy(inFile, outFile);
 					FileSystem.delete(inFile);
@@ -335,9 +332,9 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 
 		private String moveFile(String inFilename, int outId, File outFilename) {
 			try {
-				final File inFile = FileSystem.join(this.temporaryFolder, inFilename);
+				final var inFile = FileSystem.join(this.temporaryFolder, inFilename);
 				if (inFile.canRead()) {
-					final File outFile = ZipToDatabaseImporter.this.download.normalizeForServerSide(outFilename);
+					final var outFile = ZipToDatabaseImporter.this.download.normalizeForServerSide(outFilename);
 					mkdirs(outFile);
 					FileSystem.copy(inFile, outFile);
 					FileSystem.delete(inFile);

@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Objects;
-import java.util.Set;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
@@ -114,7 +113,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 
 	@Override
 	public int hashCode() {
-		int h = super.hashCode();
+		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.conference);
 		h = HashCodeUtils.add(h, this.conferenceOccurrenceNumber);
 		h = HashCodeUtils.add(h, this.editors);
@@ -128,7 +127,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		final KeyNote other = (KeyNote) obj;
+		final var other = (KeyNote) obj;
 		if (!Objects.equals(this.conference, other.conference)) {
 			return false;
 		}
@@ -167,7 +166,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	@Override
 	@JsonIgnore
 	public String getWherePublishedShortDescription() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(getPublicationTarget());
 		if (!Strings.isNullOrEmpty(getOrganization())) {
 			buf.append(", "); //$NON-NLS-1$
@@ -197,18 +196,18 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 
 	@Override
 	public String getPublicationTarget() {
-		final StringBuilder buf = new StringBuilder();
-		final Conference conference = getConference();
+		final var buf = new StringBuilder();
+		final var conference = getConference();
 		if (conference != null) {
-			final int number = getConferenceOccurrenceNumber();
+			final var number = getConferenceOccurrenceNumber();
 			if (number > 1) {
 				buf.append(number).append(ConferenceBasedPublication.getNumberDecorator(number, getMajorLanguage())).append(" "); //$NON-NLS-1$;
 			}
-			final int year = getPublicationYear();
+			final var year = getPublicationYear();
 			appendConferenceName(buf, conference, year);
-			Conference enclosingConference = conference.getEnclosingConference();
+			var enclosingConference = conference.getEnclosingConference();
 			if (enclosingConference != null) {
-				final Set<Integer> identifiers = new HashSet<>();
+				final var identifiers = new HashSet<Integer>();
 				identifiers.add(Integer.valueOf(conference.getId()));
 				while (enclosingConference != null && identifiers.add(Integer.valueOf(enclosingConference.getId()))) {
 					buf.append(", ").append("in").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -315,7 +314,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 
 	@Override
 	public CoreRanking getCoreRanking() {
-		final Conference conference = getConference();
+		final var conference = getConference();
 		if (conference != null) {
 			return conference.getCoreIndexByYear(getPublicationYear());
 		}
@@ -324,7 +323,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	
 	@Override
 	public boolean isRanked() {
-		final Conference conference = getConference();
+		final var conference = getConference();
 		if (conference != null) {
 			return conference.getCoreIndexByYear(getPublicationYear()) != CoreRanking.NR;
 		}
@@ -333,7 +332,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 
 	@Override
 	public Boolean getOpenAccess() {
-		final Conference conference = getConference();
+		final var conference = getConference();
 		if (conference != null) {
 			return conference.getOpenAccess();
 		}
@@ -348,7 +347,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	 */
 	@Deprecated(forRemoval = true, since = "3.6")
 	public String getPublisher() {
-		final Conference conference = getConference();
+		final var conference = getConference();
 		if (conference != null) {
 			return conference.getPublisher();
 		}
@@ -363,7 +362,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	 */
 	@Deprecated(forRemoval = true, since = "3.6")
 	public void setPublisher(String name) {
-		final Conference conference = getConference();
+		final var conference = getConference();
 		if (conference != null) {
 			conference.setPublisher(name);
 		}
@@ -379,7 +378,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	@Override
 	@Deprecated(since = "3.6")
 	public String getISBN() {
-		final Conference conference = getConference();
+		final var conference = getConference();
 		if (conference != null) {
 			return conference.getISBN();
 		}
@@ -396,7 +395,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	@Override
 	@Deprecated(since = "3.6")
 	public void setISBN(String isbn) {
-		final Conference conference = getConference();
+		final var conference = getConference();
 		if (conference != null) {
 			conference.setISBN(isbn);
 		}
@@ -412,7 +411,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	@Override
 	@Deprecated(since = "3.6")
 	public String getISSN() {
-		final Conference conference = getConference();
+		final var conference = getConference();
 		if (conference != null) {
 			return conference.getISSN();
 		}
@@ -429,7 +428,7 @@ public class KeyNote extends Publication implements ConferenceBasedPublication {
 	@Override
 	@Deprecated(since = "3.6")
 	public final void setISSN(String issn) {
-		final Conference conference = getConference();
+		final var conference = getConference();
 		if (conference != null) {
 			conference.setISSN(issn);
 		}

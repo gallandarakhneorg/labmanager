@@ -445,11 +445,11 @@ public enum Responsibility {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Gender gender, Locale locale) {
-		Gender g = gender;
+		var g = gender;
 		if (g == null || g == Gender.NOT_SPECIFIED) {
 			g = Gender.OTHER;
 		}
-		final String label = messages.getMessage(MESSAGE_PREFIX + name() + "_" + g.name(), locale); //$NON-NLS-1$
+		final var label = messages.getMessage(MESSAGE_PREFIX + name() + "_" + g.name(), locale); //$NON-NLS-1$
 		return Strings.nullToEmpty(label);
 	}
 
@@ -462,7 +462,7 @@ public enum Responsibility {
 	 */
 	public static Responsibility valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final Responsibility status : values()) {
+			for (final var status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
 					return status;
 				}

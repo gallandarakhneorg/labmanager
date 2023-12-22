@@ -34,7 +34,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import org.springframework.web.util.UriComponents;
 
 /** A builder of a Virtual Card File (VCF) based on the description on {@link "https://en.wikipedia.org/wiki/VCard"}.
  * <p>Virtual Card Format (VCF) or vCard is a digital file format for storing contact information.
@@ -107,8 +106,8 @@ public class DefaultVcardBuilder implements VcardBuilder {
 	private static void append(StringBuilder vcard, String property, String... value) {
 		if (value != null && value.length > 0) {
 			vcard.append(property);
-			boolean first = true;
-			for (final String val : value) {
+			var first = true;
+			for (final var val : value) {
 				if (first) {
 					first = false;
 				} else {
@@ -133,7 +132,7 @@ public class DefaultVcardBuilder implements VcardBuilder {
 
 	private static void appendAdr(StringBuilder vcard, String type, String postOfficeBox, String additionalNumber, String numberStreetAddress,
 			String locality, String region, String zipCode, String country) {
-		final StringBuilder value = new StringBuilder();
+		final var value = new StringBuilder();
 		appendTo(value, postOfficeBox);
 		appendTo(value, additionalNumber);
 		appendTo(value, numberStreetAddress);
@@ -169,7 +168,7 @@ public class DefaultVcardBuilder implements VcardBuilder {
 
 	private static void append(StringBuilder vcard, String property, URI uri) {
 		if (uri != null) {
-			final UriComponents currentUri =  ServletUriComponentsBuilder.fromCurrentContextPath().build();
+			final var currentUri =  ServletUriComponentsBuilder.fromCurrentContextPath().build();
 			URI nuri;
 			try {
 				nuri = new URI(
@@ -189,8 +188,8 @@ public class DefaultVcardBuilder implements VcardBuilder {
 	private static void append(MessageSourceAccessor messages, StringBuilder vcard, Membership membership, Membership university) {
 		if (membership != null) {
 			append(vcard, TITLE, membership.getMemberStatus().getLabel(messages, null, false, Locale.US));
-			final StringBuilder org = new StringBuilder();
-			ResearchOrganization ro = membership.getResearchOrganization();
+			final var org = new StringBuilder();
+			var ro = membership.getResearchOrganization();
 			if (university == null) {
 				do {
 					if (org.length() > 0) {
@@ -211,7 +210,7 @@ public class DefaultVcardBuilder implements VcardBuilder {
 
 	@Override
 	public String build(Person person, ResearchOrganization organization) {
-		final StringBuilder vcard = new StringBuilder();
+		final var vcard = new StringBuilder();
 		vcard.append(VCARD_START);
 		append(vcard, NAME, person.getLastName(), person.getFirstName(), null, person.getCivilTitle(this.messages, Locale.US));
 		append(vcard, FULLNAME, person.getFullName());
@@ -239,7 +238,7 @@ public class DefaultVcardBuilder implements VcardBuilder {
 				organization == null ? null : organization.getCountryDisplayName());
 		Membership universityMembership = null;
 		Membership detailMembership = null;
-		for (final Membership membership : person.getActiveMemberships().values()) {
+		for (final var membership : person.getActiveMemberships().values()) {
 			if (universityMembership == null
 					|| membership.getResearchOrganization().getType().compareTo(ResearchOrganizationType.UNIVERSITY) >= 0) {
 				universityMembership = membership;

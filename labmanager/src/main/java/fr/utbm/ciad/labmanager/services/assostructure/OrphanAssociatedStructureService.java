@@ -24,7 +24,6 @@ import java.util.Locale;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolder;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureRepository;
 import fr.utbm.ciad.labmanager.services.AbstractOrphanService;
 import org.arakhne.afc.progress.Progression;
@@ -79,7 +78,7 @@ public class OrphanAssociatedStructureService extends AbstractOrphanService<Asso
 		if (structure.getCreationDate() == null) {
 			return getMessage(locale, MESSAGE_PREFIX + "NoCreationDate"); //$NON-NLS-1$
 		}
-		for (final AssociatedStructureHolder holder : structure.getHolders()) {
+		for (final var holder : structure.getHolders()) {
 			if (holder.getPerson() == null) {
 				return getMessage(locale, MESSAGE_PREFIX + "NoPersonInHolder"); //$NON-NLS-1$
 			}

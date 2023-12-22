@@ -22,8 +22,6 @@ package fr.utbm.ciad.labmanager.services.indicator;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -84,7 +82,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the global indicators' object.
 	 */
 	public GlobalIndicators getGlobalIndicatorsNeverNull() {
-		final Optional<GlobalIndicators> opt = this.indicatorRepository.findAll().stream().findFirst();
+		final var opt = this.indicatorRepository.findAll().stream().findFirst();
 		GlobalIndicators gi;
 		if (opt.isEmpty()) {
 			gi = createGlobalIndicators();
@@ -99,7 +97,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the indicators or {@code null} if there is no global indicators yet.
 	 */
 	public GlobalIndicators getGlobalIndicatorsOrNull() {
-		final Optional<GlobalIndicators> opt = this.indicatorRepository.findAll().stream().findFirst();
+		final var opt = this.indicatorRepository.findAll().stream().findFirst();
 		if (opt.isPresent()) {
 			return opt.get();
 		}
@@ -129,7 +127,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the visible indicators in a stream.
 	 */
 	public Stream<? extends Indicator> getVisibleIndicatorStream() {
-		final List<String> indicatorKeys = getGlobalIndicatorsNeverNull().getVisibleIndicatorKeyList();		
+		final var indicatorKeys = getGlobalIndicatorsNeverNull().getVisibleIndicatorKeyList();		
 		return indicatorKeys.stream().map(it -> this.allIndicatorsPerKey.get(it)).filter(it -> it != null);
 	}
 
@@ -138,7 +136,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the invisible indicators.
 	 */
 	public List<? extends Indicator> getInvisibleIndicators() {
-		final Set<String> visibles = new TreeSet<>(getGlobalIndicatorsNeverNull().getVisibleIndicatorKeyList());
+		final var visibles = new TreeSet<>(getGlobalIndicatorsNeverNull().getVisibleIndicatorKeyList());
 		if (visibles.isEmpty()) {
 			return this.allIndicators;
 		}
@@ -152,7 +150,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @param visibleIndicators the list of th keys of the visible indicators.
 	 */
 	public void setVisibleIndicators(List<String> visibleIndicators) {
-		final StringBuilder keys = new StringBuilder();
+		final var keys = new StringBuilder();
 		for (final String key : visibleIndicators) {
 			if (keys.length() > 0) {
 				keys.append(","); //$NON-NLS-1$
@@ -167,7 +165,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @param visibleIndicators the list of th keys of the visible indicators.
 	 */
 	public void setVisibleIndicators(String visibleIndicators) {
-		final GlobalIndicators gi = getGlobalIndicatorsNeverNull();
+		final var gi = getGlobalIndicatorsNeverNull();
 		gi.setVisibleIndicatorKeys(visibleIndicators);
 		this.indicatorRepository.save(gi);
 	}
@@ -193,7 +191,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	 * @return the map from the indicator keys to the values.
 	 */
 	public List<Pair<? extends Indicator, Number>> getVisibleIndicatorsWithValues(ResearchOrganization organization, boolean useCache) {
-		final GlobalIndicators gi = getGlobalIndicatorsNeverNull();
+		final var gi = getGlobalIndicatorsNeverNull();
 		if (useCache) {
 			final Map<String, Number> cache;
 			if (gi.getCacheAge() > MAX_CACHE_AGE) {
@@ -205,7 +203,7 @@ public class GlobalIndicatorsService extends AbstractService {
 			assert cache != null;
 			return getVisibleIndicatorStream()
 				.map(it -> {
-					Number value = cache.get(it.getKey());
+					var value = cache.get(it.getKey());
 					if (value == null) {
 						value = it.getNumericValue(organization);
 						gi.setCachedValues(it.getKey(), value);
@@ -223,7 +221,7 @@ public class GlobalIndicatorsService extends AbstractService {
 	/** Clear the cache content.
 	 */
 	public void clearCache() {
-		final GlobalIndicators gi = getGlobalIndicatorsOrNull();
+		final var gi = getGlobalIndicatorsOrNull();
 		if (gi != null) {
 			gi.resetCachedValues();
 			this.indicatorRepository.save(gi);

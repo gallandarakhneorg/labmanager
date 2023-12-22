@@ -113,8 +113,7 @@ public class JournalQualityAnnualIndicators implements Serializable, AttributePr
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.impactFactor);
 		h = HashCodeUtils.add(h, this.referenceYear);
 		h = HashCodeUtils.add(h, this.scimagoQIndex);
@@ -130,10 +129,7 @@ public class JournalQualityAnnualIndicators implements Serializable, AttributePr
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final JournalQualityAnnualIndicators other = (JournalQualityAnnualIndicators) obj;
-		if (this.id != other.id) {
-			return false;
-		}
+		final var other = (JournalQualityAnnualIndicators) obj;
 		if (this.impactFactor != other.impactFactor) {
 			return false;
 		}

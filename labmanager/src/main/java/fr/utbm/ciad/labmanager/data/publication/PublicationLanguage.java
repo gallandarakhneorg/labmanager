@@ -108,7 +108,7 @@ public enum PublicationLanguage {
 	 */
 	public static PublicationLanguage valueOfCaseInsensitive(String name, PublicationLanguage defaultValue) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final PublicationLanguage lang : values()) {
+			for (final var lang : values()) {
 				if (name.equalsIgnoreCase(lang.name())) {
 					return lang;
 				}

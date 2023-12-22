@@ -21,13 +21,10 @@ package fr.utbm.ciad.labmanager.utils.io;
 
 import java.net.URL;
 
-import com.microsoft.playwright.Browser;
-import com.microsoft.playwright.BrowserType;
 import com.microsoft.playwright.BrowserType.LaunchOptions;
 import com.microsoft.playwright.ElementHandle;
 import com.microsoft.playwright.Page;
 import com.microsoft.playwright.Playwright;
-import com.microsoft.playwright.Response;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
@@ -64,8 +61,8 @@ public abstract class AbstractWebScraper {
 	 * @return the loaded element.
 	 */
 	protected static ElementHandle waitForElement(Page loadingPage, String selector) {
-		ElementHandle section = loadingPage.querySelector(selector);
-		final long timeout = System.currentTimeMillis() + TIMEOUT;
+		var section = loadingPage.querySelector(selector);
+		final var timeout = System.currentTimeMillis() + TIMEOUT;
 		while (section == null && System.currentTimeMillis() < timeout) {
 			Thread.yield();
 			section = loadingPage.querySelector(selector);
@@ -81,7 +78,7 @@ public abstract class AbstractWebScraper {
 	 */
 	protected static Integer readInt(ElementHandle handle, String selector) {
 		if (handle != null) {
-			final ElementHandle h0 = handle.querySelector(selector);
+			final var h0 = handle.querySelector(selector);
 			if (h0 != null) {
 				return readInt(h0);
 			}
@@ -96,11 +93,11 @@ public abstract class AbstractWebScraper {
 	 */
 	protected static Integer readInt(ElementHandle handle) {
 		if (handle != null) {
-			String content = handle.textContent();
+			var content = handle.textContent();
 			if (!Strings.isNullOrEmpty(content)) {
 				content = content.trim(); 
 				// Remove any mark that is related to the local format of the number
-				final String unformattedContent = content.replaceAll("[^0-9+\\-]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
+				final var unformattedContent = content.replaceAll("[^0-9+\\-]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
 				if (!Strings.isNullOrEmpty(unformattedContent)) {
 					try {
 						return Integer.valueOf(unformattedContent);
@@ -122,9 +119,9 @@ public abstract class AbstractWebScraper {
 	 */
 	protected static Integer readInt(Page handle, String selector0, String selector1) {
 		if (handle != null) {
-			final ElementHandle h0 = handle.querySelector(selector0);
+			final var h0 = handle.querySelector(selector0);
 			if (h0 != null) {
-				final ElementHandle h1 = h0.querySelector(selector1);
+				final var h1 = h0.querySelector(selector1);
 				if (h1 != null) {
 					return readInt(h1);
 				}
@@ -141,7 +138,7 @@ public abstract class AbstractWebScraper {
 	 */
 	protected static int positiveInt(Integer value) {
 		if (value != null) {
-			final int ivalue = value.intValue();
+			final var ivalue = value.intValue();
 			if (ivalue >= 0) {
 				return ivalue;
 			}
@@ -166,20 +163,20 @@ public abstract class AbstractWebScraper {
 		progress.setProperties(0, 0, 100, false);
 		try {
 			if (url != null) {
-				try (Playwright playwright = Playwright.create()) {
-					final BrowserType browserType = playwright.firefox();
-					final LaunchOptions options = new LaunchOptions();
+				try (var playwright = Playwright.create()) {
+					final var browserType = playwright.firefox();
+					final var options = new LaunchOptions();
 					options.setDevtools(developer);
-					try (final Browser browser = browserType.launch(options)) {
-						try (final Page page = browser.newPage()) {
+					try (final var browser = browserType.launch(options)) {
+						try (final var page = browser.newPage()) {
 							progress.setValue(20);
-							final Response response = page.navigate(url.toExternalForm());
+							final var response = page.navigate(url.toExternalForm());
 							response.finished();
 							progress.setValue(80);
 							if (waitingDuration > 0) {
 								Thread.sleep(waitingDuration);
 							}
-							ElementHandle section0 = waitForElement(page, loadElementSelector);
+							var section0 = waitForElement(page, loadElementSelector);
 							progress.setValue(95);
 							if (section0 != null) {
 								loadedHandler.apply(page, section0);

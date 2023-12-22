@@ -21,8 +21,6 @@ package fr.utbm.ciad.labmanager.views.components.badges;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.function.SerializableBiConsumer;
 import com.vaadin.flow.function.SerializableFunction;
@@ -54,14 +52,14 @@ public class BadgeRenderer<ITEM> extends ComponentRenderer<Component, ITEM>{
 
 	private static <ITEM> SerializableFunction<ITEM, Component> createComponentFunction(SerializableBiConsumer<ITEM, ComponentCreator> componentFunction) {
 		return it -> {
-			final OutputParameter<Component> component = new OutputParameter<>();
+			final var component = new OutputParameter<Component>();
 			final ComponentCreator creator = (badgeState, badgeText, badgeLabel) -> {
-				final BadgeState state = BadgeState.orDefault(badgeState);
-				final VaadinIcon vaadinIcon = state.getIcon();
-				final boolean isEmpty = Strings.isNullOrEmpty(badgeText);
+				final var state = BadgeState.orDefault(badgeState);
+				final var vaadinIcon = state.getIcon();
+				final var isEmpty = Strings.isNullOrEmpty(badgeText);
 				Component createdComponent = null;
 				if (vaadinIcon != null) {
-					final Icon icon = vaadinIcon.create();
+					final var icon = vaadinIcon.create();
 					icon.getStyle().set("padding", "var(--lumo-space-xs"); //$NON-NLS-1$ //$NON-NLS-2$
 					if (isEmpty) {
 						createdComponent = icon;

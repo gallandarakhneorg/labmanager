@@ -45,14 +45,12 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.funding.FundingScheme;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
-import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils.CachedGenerator;
 import fr.utbm.ciad.labmanager.utils.trl.TRL;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.CollectionTable;
@@ -347,8 +345,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.scientificTitle);
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.description);
@@ -391,7 +388,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Project other = (Project) obj;
+		final var other = (Project) obj;
 		if (!Objects.equals(this.scientificTitle, other.scientificTitle)) {
 			return false;
 		}
@@ -534,30 +531,30 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		forEachAttribute((attrName, attrValue) -> {
 			JsonUtils.writeField(generator, attrName, attrValue);
 		});
-		final CachedGenerator organizations = JsonUtils.cache(generator);
+		final var organizations = JsonUtils.cache(generator);
 		//
-		final ResearchOrganization coordinator = getCoordinator();
+		final var coordinator = getCoordinator();
 		organizations.writeReferenceOrObjectField("coordinator", coordinator, () -> { //$NON-NLS-1$
 			JsonUtils.writeObjectAndAttributes(generator, coordinator);
 		});
 		//
-		final ResearchOrganization localOrganization = getLocalOrganization();
+		final var localOrganization = getLocalOrganization();
 		organizations.writeReferenceOrObjectField("localOrganization", localOrganization, () -> { //$NON-NLS-1$
 			JsonUtils.writeObjectAndAttributes(generator, localOrganization);
 		});
 		//
-		final ResearchOrganization superOrganization = getSuperOrganization();
+		final var superOrganization = getSuperOrganization();
 		organizations.writeReferenceOrObjectField("superOrganization", superOrganization, () -> { //$NON-NLS-1$
 			JsonUtils.writeObjectAndAttributes(generator, superOrganization);
 		});
 		//
-		final ResearchOrganization learOrganization = getLearOrganization();
+		final var learOrganization = getLearOrganization();
 		organizations.writeReferenceOrObjectField("learOrganization", learOrganization, () -> { //$NON-NLS-1$
 			JsonUtils.writeObjectAndAttributes(generator, learOrganization);
 		});
 		//
 		generator.writeArrayFieldStart("otherPartners"); //$NON-NLS-1$
-		for (final ResearchOrganization otherPartner : getOtherPartners()) {
+		for (final var otherPartner : getOtherPartners()) {
 			organizations.writeReferenceOrObject(otherPartner, () -> {
 				JsonUtils.writeObjectAndAttributes(generator, otherPartner);
 			});
@@ -565,30 +562,30 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 		generator.writeEndArray();
 		//
 		generator.writeArrayFieldStart("participants"); //$NON-NLS-1$
-		for (final ProjectMember participant : getParticipants()) {
+		for (final var participant : getParticipants()) {
 			generator.writeStartObject();
-			final Person person = participant.getPerson();
+			final var person = participant.getPerson();
 			organizations.writeReferenceOrObjectField("person", person, () -> { //$NON-NLS-1$
 				JsonUtils.writeObjectAndAttributes(generator, person);
 			});
-			final Role role = participant.getRole();
+			final var role = participant.getRole();
 			JsonUtils.writeField(generator, "role", role); //$NON-NLS-1$
 			generator.writeEndObject();
 		}
 		generator.writeEndArray();
 		//
 		generator.writeArrayFieldStart("budgets"); //$NON-NLS-1$
-		for (final ProjectBudget budget : getBudgets()) {
+		for (final var budget : getBudgets()) {
 			generator.writeStartObject();
-			final FundingScheme scheme = budget.getFundingScheme();
+			final var scheme = budget.getFundingScheme();
 			if (scheme != null) {
 				JsonUtils.writeField(generator, "fundingScheme", scheme); //$NON-NLS-1$
 			}
-			final float budgetValue = budget.getBudget();
+			final var budgetValue = budget.getBudget();
 			if (budgetValue > 0f) {
 				JsonUtils.writeField(generator, "budget", Float.valueOf(budgetValue)); //$NON-NLS-1$
 			}
-			final String grant = budget.getGrant();
+			final var grant = budget.getGrant();
 			if (!Strings.isNullOrEmpty(grant)) {
 				JsonUtils.writeField(generator, "grant", grant); //$NON-NLS-1$
 			}
@@ -727,8 +724,8 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	public float getTotalLocalOrganizationBudget() {
 		if (this.totalLocalOrganizationBudget == null) {
-			float sum = 0f;
-			for (final ProjectBudget budget : getBudgets()) {
+			var sum = 0f;
+			for (final var budget : getBudgets()) {
 				sum += budget.getBudget();
 			}
 			this.totalLocalOrganizationBudget = Float.valueOf(sum);
@@ -737,15 +734,15 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	}
 
 	private float computeMonthFactor(int year) {
-		final int duration = getDuration();
+		final var duration = getDuration();
 		//
-		final LocalDate projectStart = getStartDate();
-		final int firstMonth = projectStart.getYear() < year ? 1 : projectStart.getMonthValue();
+		final var projectStart = getStartDate();
+		final var firstMonth = projectStart.getYear() < year ? 1 : projectStart.getMonthValue();
 		//
-		final LocalDate projectEnd = getEndDate().minus(1, ChronoUnit.DAYS);
-		final int lastMonth = projectEnd.getYear() > year ? 12 : projectEnd.getMonthValue();
+		final var projectEnd = getEndDate().minus(1, ChronoUnit.DAYS);
+		final var lastMonth = projectEnd.getYear() > year ? 12 : projectEnd.getMonthValue();
 		//
-		final int lduration = lastMonth - firstMonth + 1;
+		final var lduration = lastMonth - firstMonth + 1;
 		return (float) lduration / (float) duration;
 	}
 
@@ -759,8 +756,8 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	public float getEstimatedAnnualLocalOrganizationBudgetFor(int year) {
 		if (isActiveAt(year)) {
-			final float total = getTotalLocalOrganizationBudget();
-			final float factor = computeMonthFactor(year);
+			final var total = getTotalLocalOrganizationBudget();
+			final var factor = computeMonthFactor(year);
 			return total * factor;
 		}
 		return 0f;
@@ -1302,9 +1299,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @return the date, or {@code null} if there is no ending date
 	 */
 	public LocalDate getEndDate() {
-		final LocalDate sd = getStartDate();
+		final var sd = getStartDate();
 		if (sd != null) {
-			final int duration = getDuration();
+			final var duration = getDuration();
 			if (duration > 0) {
 				return sd.plusMonths(duration);
 			}
@@ -1317,7 +1314,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @return the year, or {@code 0}.
 	 */
 	public int getEndYear() {
-		final LocalDate sd = getEndDate();
+		final var sd = getEndDate();
 		if (sd != null) {
 			return sd.getYear();
 		}
@@ -1393,9 +1390,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @return the other partners.
 	 */
 	public List<ResearchOrganization> getOtherPartners() {
-		final Set<ResearchOrganization> raw = getOtherPartnersRaw();
+		final var raw = getOtherPartnersRaw();
 		assert raw != null;
-		final List<ResearchOrganization> sortedList = raw.stream().sorted(ResearchOrganizationComparator.DEFAULT).collect(Collectors.toList());
+		final var sortedList = raw.stream().sorted(ResearchOrganizationComparator.DEFAULT).collect(Collectors.toList());
 		return sortedList;
 	}
 
@@ -1513,9 +1510,9 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 */
 	public FundingScheme getMajorFundingScheme() {
 		// Assume "NOT_FUNDED" is the lowest important scheme
-		FundingScheme scheme = FundingScheme.NOT_FUNDED;
-		for (final ProjectBudget budget : getBudgets()) {
-			final FundingScheme sch = budget.getFundingScheme();
+		var scheme = FundingScheme.NOT_FUNDED;
+		for (final var budget : getBudgets()) {
+			final var sch = budget.getFundingScheme();
 			if (sch != null && scheme.compareTo(sch) < 0) {
 				scheme = sch;
 			}
@@ -1560,7 +1557,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @since 3.6
 	 */
 	public boolean isActive() {
-		final LocalDate now = LocalDate.now();
+		final var now = LocalDate.now();
 		return isActiveAt(now);
 	}
 
@@ -1572,11 +1569,11 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @since 3.6
 	 */
 	public boolean isActiveAt(LocalDate now) {
-		final LocalDate start = getStartDate();
+		final var start = getStartDate();
 		if (start != null && now.isBefore(start)) {
 			return false;
 		}
-		final LocalDate end = getEndDate();
+		final var end = getEndDate();
 		if (end != null && now.isAfter(end)) {
 			return false;
 		}
@@ -1591,8 +1588,8 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 * @since 3.6
 	 */
 	public boolean isActiveAt(int year) {
-		final int start = getStartYear();
-		final int end = getEndYear();
+		final var start = getStartYear();
+		final var end = getEndYear();
 		if (end == 0) {
 			return start <= year;
 		}
@@ -1610,8 +1607,8 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	public boolean isActiveIn(LocalDate windowStart, LocalDate windowEnd) {
 		assert windowStart != null;
 		assert windowEnd != null;
-		final LocalDate start = getStartDate();
-		final LocalDate end = getEndDate();
+		final var start = getStartDate();
+		final var end = getEndDate();
 		if (start != null) {
 			if (end != null) {
 				return !windowEnd.isBefore(start) && !windowStart.isAfter(end);

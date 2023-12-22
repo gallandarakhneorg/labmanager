@@ -20,14 +20,13 @@
 package fr.utbm.ciad.labmanager.utils.io.html;
 
 import java.io.File;
-import java.net.URI;
-import java.net.URL;
 import java.util.Locale;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.ExporterConfigurator;
+import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
@@ -36,7 +35,6 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilder;
 
 /** Utilities for exporting publications to HTML content based on the CIAD standard HTML style.
  * 
@@ -73,7 +71,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	private void buildPdfDownloadLink(StringBuilder html, String path, String label) {
-		final String jpeg = FileSystem.replaceExtension(new File(path), ".jpg").toString(); //$NON-NLS-1$
+		final var jpeg = FileSystem.replaceExtension(new File(path), FileManager.JPEG_FILE_EXTENSION).toString();
 		html.append("<a class=\"btn btn-xs btn-success\" href=\"/"); //$NON-NLS-1$
 		html.append(this.constants.getServerName());
 		html.append("/"); //$NON-NLS-1$
@@ -89,7 +87,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String getButtonToDownloadPublicationPDF(String pdfUrl) {
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		if (!Strings.isNullOrEmpty(pdfUrl)) {
 			buildPdfDownloadLink(html, pdfUrl, "PDF"); //$NON-NLS-1$
 		}
@@ -98,7 +96,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String getButtonToDownloadPublicationAwardCertificate(String awardUrl) {
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		if (!Strings.isNullOrEmpty(awardUrl)) {
 			buildPdfDownloadLink(html, awardUrl, "Award"); //$NON-NLS-1$
 		}
@@ -107,7 +105,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	private void exportPublicationButton(StringBuilder html, String buttonClass, String buttonIconClass,
 			String buttonIconPath, String tooltip, String endpoint, int id, String label, ExporterConfigurator configurator) {
-		UriBuilder builder = new DefaultUriBuilderFactory().builder();
+		var builder = new DefaultUriBuilderFactory().builder();
 		builder = builder.path("/" + this.constants.getServerName() + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
 		builder = configurator.applyQueryParams(builder);
 		builder = builder.queryParam("id", Integer.valueOf(id)); //$NON-NLS-1$
@@ -135,7 +133,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String getButtonToExportPublicationToBibTeX(int publicationId, ExporterConfigurator configurator) {
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btBibtex", "fa-file-lines", Constants.EXPORT_BIBTEX_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
 					getMessageSourceAccessor().getMessage("ciadHtmlPageExporter.exportToBibTeX", configurator.getLocale()),  //$NON-NLS-1$
@@ -147,7 +145,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String getButtonToExportPublicationToRIS(int publicationId, ExporterConfigurator configurator) {
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btRis", "fa-file-lines", Constants.EXPORT_RIS_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
 					getMessageSourceAccessor().getMessage("ciadHtmlPageExporter.exportToRIS", configurator.getLocale()),  //$NON-NLS-1$
@@ -159,7 +157,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String getButtonToExportPublicationToHtml(int publicationId, ExporterConfigurator configurator) {
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btHtml", "fa-file-code", Constants.EXPORT_HTML_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
 					getMessageSourceAccessor().getMessage("ciadHtmlPageExporter.exportToHtml", configurator.getLocale()),  //$NON-NLS-1$
@@ -171,7 +169,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String getButtonToExportPublicationToOpenDocument(int publicationId, ExporterConfigurator configurator) {
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btWord", "fa-file-word", Constants.EXPORT_ODT_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
 					getMessageSourceAccessor().getMessage("ciadHtmlPageExporter.exportToOdt", configurator.getLocale()),  //$NON-NLS-1$
@@ -183,7 +181,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String getButtonToEditPublication(int publicationId, Locale locale) {
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			html.append("<a class=\"btn btn-xs btn-success\" href=\"/"); //$NON-NLS-1$
 			html.append(this.constants.getServerName()).append("/"); //$NON-NLS-1$
@@ -198,7 +196,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String getButtonToDeletePublication(int publicationId, Locale locale) {
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			html.append("<a class=\"btn btn-xs btn-danger\" href=\"/"); //$NON-NLS-1$
 			html.append(this.constants.getServerName()).append("/deletePublication?publicationId="); //$NON-NLS-1$
@@ -217,7 +215,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		if (publications == null) {
 			return null;
 		}
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		html.append("<ul>"); //$NON-NLS-1$
 		for (final Publication publication : publications) {
 			exportPublication(html, publication, configurator);
@@ -237,7 +235,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 		assert publication != null;
 		assert configurator != null;
 		html.append("<li align=\"justify\">"); //$NON-NLS-1$
-		final java.util.Locale loc = java.util.Locale.getDefault();
+		final var loc = java.util.Locale.getDefault();
 		try {
 			java.util.Locale.setDefault(publication.getMajorLanguage().getLocale());
 			exportAuthors(html, publication, configurator, true);
@@ -250,25 +248,25 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String generateHtmlLinks(Publication publication, ExporterConfigurator configurator) {
-		final StringBuilder links = new StringBuilder();
+		final var links = new StringBuilder();
 		if (!Strings.isNullOrEmpty(publication.getDOI())) {
-			final URL url = this.doiTools.getDOIUrlFromDOINumber(publication.getDOI());
-			final StringBuilder b0 = new StringBuilder();
+			final var url = this.doiTools.getDOIUrlFromDOINumber(publication.getDOI());
+			final var b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(publication.getDOI()).append(HTML_ATAG_2);
 			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "doiLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(publication.getHalId())) {
-			final URL url = this.halTools.getHALUrlFromHALNumber(publication.getHalId());
-			final StringBuilder b0 = new StringBuilder();
+			final var url = this.halTools.getHALUrlFromHALNumber(publication.getHalId());
+			final var b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(publication.getHalId()).append(HTML_ATAG_2);
 			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "halidLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
-		URL url = publication.getDblpURLObject();
+		var url = publication.getDblpURLObject();
 		if (url != null) {
 			if (links.length() > 0 ) {
 				links.append(HTML_NEWLINE);
 			}
-			final StringBuilder b0 = new StringBuilder();
+			final var b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(url.toExternalForm()).append(HTML_ATAG_2);
 			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "dblpLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
@@ -277,7 +275,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 			if (links.length() > 0 ) {
 				links.append(HTML_NEWLINE);
 			}
-			final StringBuilder b0 = new StringBuilder();
+			final var b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(url.toExternalForm()).append(HTML_ATAG_2);
 			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "videoLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
@@ -286,7 +284,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 			if (links.length() > 0 ) {
 				links.append(HTML_NEWLINE);
 			}
-			final StringBuilder b0 = new StringBuilder();
+			final var b0 = new StringBuilder();
 			b0.append(HTML_ATAG_0).append(url.toExternalForm()).append(HTML_ATAG_1).append(url.toExternalForm()).append(HTML_ATAG_2);
 			links.append(getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "extraUrlLabel", new Object[] {b0.toString()}, configurator.getLocale())); //$NON-NLS-1$
 		}
@@ -295,10 +293,10 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 
 	@Override
 	public String generateHtmlAuthors(Publication publication, ExporterConfigurator configurator) {
-		final StringBuilder authors = new StringBuilder();
+		final var authors = new StringBuilder();
 		exportAuthors(authors, publication, configurator, false, (person, year) -> {
-			final URI webpage = person.getWebPageURI();
-			final StringBuilder b = new StringBuilder();
+			final var webpage = person.getWebPageURI();
+			final var b = new StringBuilder();
 			if (webpage == null) {
 				b.append(formatAuthorName(person, year.intValue(), configurator));
 			} else {

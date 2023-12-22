@@ -97,8 +97,7 @@ public class ConferenceQualityAnnualIndicators implements Serializable, Attribut
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.referenceYear);
 		h = HashCodeUtils.add(h, this.coreIndex);
 		return h;
@@ -112,10 +111,7 @@ public class ConferenceQualityAnnualIndicators implements Serializable, Attribut
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final ConferenceQualityAnnualIndicators other = (ConferenceQualityAnnualIndicators) obj;
-		if (this.id != other.id) {
-			return false;
-		}
+		final var other = (ConferenceQualityAnnualIndicators) obj;
 		if (this.referenceYear != other.referenceYear) {
 			return false;
 		}

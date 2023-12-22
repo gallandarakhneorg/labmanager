@@ -22,6 +22,7 @@ package fr.utbm.ciad.labmanager.data.publication;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Locale;
+import java.util.Objects;
 
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
@@ -98,18 +99,23 @@ public class Authorship implements Serializable, AttributeProvider, Comparable<A
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-		final Authorship that = (Authorship) o;
-		return this.id == that.id
-				&& this.publication == that.publication
-				&& this.person == that.person
-				&& this.authorRank == that.authorRank;
+		final var that = (Authorship) o;
+		if (this.authorRank != that.authorRank) {
+			return false;
+		}
+		if (!Objects.equals(this.publication, that.publication)) {
+			return false;
+		}
+		if (!Objects.equals(this.person, that.person)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.authorRank);
-		h = HashCodeUtils.add(h, this.id);
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.publication);
 		return h;

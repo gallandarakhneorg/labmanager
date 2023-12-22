@@ -19,7 +19,6 @@
 
 package fr.utbm.ciad.labmanager.services.publication;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
 import java.time.LocalDate;
@@ -27,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
@@ -317,8 +315,8 @@ public class PublicationService extends AbstractPublicationService {
 	 * @return the publications.
 	 */
 	public List<Publication> getPublicationsOfAge(int maxAge) {
-		final LocalDate startDate = LocalDate.of(LocalDate.now().getYear() - maxAge, 1, 1);
-		final LocalDate endDate = LocalDate.now();
+		final var startDate = LocalDate.of(LocalDate.now().getYear() - maxAge, 1, 1);
+		final var endDate = LocalDate.now();
 		return this.publicationRepository.findAll().parallelStream()
 				.filter(it -> isActiveIn(it, startDate, endDate))
 				.collect(Collectors.toList());
@@ -327,9 +325,9 @@ public class PublicationService extends AbstractPublicationService {
 	private static boolean isActiveIn(Publication publication, LocalDate windowStart, LocalDate windowEnd) {
 		assert windowStart != null;
 		assert windowEnd != null;
-		final int startYear = windowStart.getYear();
-		final int endYear = windowEnd.getYear();
-		final int year = publication.getPublicationYear();
+		final var startYear = windowStart.getYear();
+		final var endYear = windowEnd.getYear();
+		final var year = publication.getPublicationYear();
 		return year >= startYear && year <= endYear;
 	}
 
@@ -366,8 +364,8 @@ public class PublicationService extends AbstractPublicationService {
 		} else {
 			members = this.membershipService.getDirectMembersOf(identifier);
 		}
-		final Set<Integer> identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
-		final Set<Publication> publications = this.publicationRepository.findAllByAuthorshipsPersonIdIn(identifiers);
+		final var identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
+		final var publications = this.publicationRepository.findAllByAuthorshipsPersonIdIn(identifiers);
 		if (filterAuthorshipsWithActiveMemberships) {
 			return filterPublicationsWithMemberships(publications, identifier, includeSubOrganizations);
 		}
@@ -380,7 +378,7 @@ public class PublicationService extends AbstractPublicationService {
 	 * @return the publication, or {@code null} if not found.
 	 */
 	public Publication getPublicationById(int identifier) {
-		final Optional<Publication> byId = this.publicationRepository.findById(Integer.valueOf(identifier));
+		final var byId = this.publicationRepository.findById(Integer.valueOf(identifier));
 		return byId.orElse(null);
 	}
 
@@ -447,18 +445,18 @@ public class PublicationService extends AbstractPublicationService {
 	 * @return the added authorship
 	 */
 	public Authorship addAuthorship(int personId, int publicationId, int rank, boolean updateOtherAuthorshipRanks) {
-		final Optional<Person> optPerson = this.personRepository.findById(Integer.valueOf(personId));
+		final var optPerson = this.personRepository.findById(Integer.valueOf(personId));
 		if (optPerson.isPresent()) {
-			final Optional<Publication> optPub = this.publicationRepository.findById(Integer.valueOf(publicationId));
+			final var optPub = this.publicationRepository.findById(Integer.valueOf(publicationId));
 			if (optPub.isPresent()) {
-				final Publication publication = optPub.get();
+				final var publication = optPub.get();
 				// No need to add the authorship if the person is already linked to the publication
-				final Set<Authorship> currentAuthors = publication.getAuthorshipsRaw();
-				final Optional<Authorship> ro = currentAuthors.stream().filter(
+				final var currentAuthors = publication.getAuthorshipsRaw();
+				final var ro = currentAuthors.stream().filter(
 						it -> it.getPerson().getId() == personId).findAny();
 				if (ro.isEmpty()) {
-					final Person person = optPerson.get();
-					final Authorship authorship = new Authorship();
+					final var person = optPerson.get();
+					final var authorship = new Authorship();
 					authorship.setPerson(person);
 					authorship.setPublication(publication);
 					final int realRank;
@@ -469,8 +467,8 @@ public class PublicationService extends AbstractPublicationService {
 						} else {
 							// Need to be inserted
 							realRank = rank < 0 ? 0 : rank;
-							for (final Authorship currentAuthor : currentAuthors) {
-								final int orank = currentAuthor.getAuthorRank();
+							for (final var currentAuthor : currentAuthors) {
+								final var orank = currentAuthor.getAuthorRank();
 								if (orank >= rank) {
 									currentAuthor.setAuthorRank(orank + 1);
 									this.authorshipRepository.save(currentAuthor);
@@ -499,14 +497,14 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param removeAssociatedFiles indicates if the associated files (PDF, Award...) should be also deleted.
 	 */
 	public void removePublication(int identifier, boolean removeAssociatedFiles) {
-		final Integer id = Integer.valueOf(identifier);
-		final Optional<Publication> optPublication = this.publicationRepository.findById(Integer.valueOf(identifier));
+		final var id = Integer.valueOf(identifier);
+		final var optPublication = this.publicationRepository.findById(Integer.valueOf(identifier));
 		if (optPublication.isPresent()) {
-			final Publication publication = optPublication.get();
-			final Iterator<Authorship> iterator = publication.getAuthorships().iterator();
+			final var publication = optPublication.get();
+			final var iterator = publication.getAuthorships().iterator();
 			while (iterator.hasNext()) {
-				Authorship autship = iterator.next();
-				final Person person = autship.getPerson();
+				var autship = iterator.next();
+				final var person = autship.getPerson();
 				if (person != null) {
 					person.getAuthorships().remove(autship);
 					autship.setPerson(null);
@@ -541,14 +539,14 @@ public class PublicationService extends AbstractPublicationService {
 	 * @since 2.4
 	 */
 	public void removePublications(Collection<Integer> identifiers, boolean removeAssociatedFiles) {
-		final Set<Publication> publications = this.publicationRepository.findAllByIdIn(identifiers);
+		final var publications = this.publicationRepository.findAllByIdIn(identifiers);
 		if (!publications.isEmpty()) {
-			for (final Publication publication : publications) {
-				final int id = publication.getId();
-				final Iterator<Authorship> iterator = publication.getAuthorships().iterator();
+			for (final var publication : publications) {
+				final var id = publication.getId();
+				final var iterator = publication.getAuthorships().iterator();
 				while (iterator.hasNext()) {
-					final Authorship autship = iterator.next();
-					final Person person = autship.getPerson();
+					final var autship = iterator.next();
+					final var person = autship.getPerson();
 					if (person != null) {
 						person.getAuthorships().remove(autship);
 						autship.setPerson(null);
@@ -594,25 +592,25 @@ public class PublicationService extends AbstractPublicationService {
 	 * @param publications the list of publications to save in the database.
 	 */
 	public void save(List<? extends Publication> publications) {
-		for (final Publication publication : publications) {
-			final List<Person> authors = publication.getTemporaryAuthors();
+		for (final var publication : publications) {
+			final var authors = publication.getTemporaryAuthors();
 			publication.setTemporaryAuthors(null);
 			this.publicationRepository.save(publication);
 			if (publication instanceof JournalBasedPublication jpublication) {
-				final Journal jour = jpublication.getJournal();
+				final var jour = jpublication.getJournal();
 				if (jour != null) {
 					this.journalRepository.save(jour);
 				}
 			} else if (publication instanceof ConferenceBasedPublication cpublication) {
-				final Conference conf = cpublication.getConference();
+				final var conf = cpublication.getConference();
 				if (conf != null) {
 					this.conferenceRepository.save(conf);
 				}
 			}
 			if (authors != null) {
 				// Create the list of authors from the temporary (not yet saved) list. 
-				int rank = 0;
-				for (final Person author : authors) {
+				var rank = 0;
+				for (final var author : authors) {
 					this.personRepository.save(author);
 					addAuthorship(author.getId(), publication.getId(), rank, false);
 					++rank;
@@ -714,7 +712,7 @@ public class PublicationService extends AbstractPublicationService {
 			boolean createMissedJournals, boolean createMissedConferences, Locale locale) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
-		final List<Publication> importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true,
+		final var importablePublications = readPublicationsFromBibTeX(bibtex, true, false, true,
 				createMissedJournals, createMissedConferences);
 		return importPublications(importablePublications, importedEntriesWithExpectedType, locale);
 	}
@@ -744,7 +742,7 @@ public class PublicationService extends AbstractPublicationService {
 			boolean createMissedJournals, boolean createMissedConferences, Locale locale) throws Exception {
 		// Holds the publications that we are trying to import.
 		// The publications are not yet imported into the database.
-		final List<Publication> importablePublications = readPublicationsFromRIS(ris, true, false, true,
+		final var importablePublications = readPublicationsFromRIS(ris, true, false, true,
 				createMissedJournals, createMissedConferences, locale);
 		return importPublications(importablePublications, importedEntriesWithExpectedType, locale);
 	}
@@ -753,12 +751,12 @@ public class PublicationService extends AbstractPublicationService {
 			Map<String, PublicationType> importedEntriesWithExpectedType,
 			Locale locale) throws Exception {
 		//Holds the IDs of the successfully imported IDs. We'll need it for type differentiation later.
-		final List<Integer> importedPublicationIdentifiers = new ArrayList<>();
+		final var importedPublicationIdentifiers = new ArrayList<Integer>();
 
 		//We are going to try to import every publication in the list
-		final List<Throwable> errors = new LinkedList<>();
-		final boolean forceImport = importedEntriesWithExpectedType == null || importedEntriesWithExpectedType.isEmpty();
-		for (final Publication publication : importablePublications) {
+		final var errors = new LinkedList<Throwable>();
+		final var forceImport = importedEntriesWithExpectedType == null || importedEntriesWithExpectedType.isEmpty();
+		for (final var publication : importablePublications) {
 			try {
 				// Test if this publication should be imported
 				final boolean isImport;
@@ -797,13 +795,13 @@ public class PublicationService extends AbstractPublicationService {
 					// Create the journal or the conference if it is missed
 					if (publication instanceof JournalBasedPublication jbpub) {
 						if (jbpub.getJournal() != null && jbpub.getJournal().isFakeEntity()) {
-							final Journal journal = new Journal(jbpub.getJournal());
+							final var journal = new Journal(jbpub.getJournal());
 							this.journalRepository.save(journal);
 							jbpub.setJournal(journal);
 						}
 					} else if (publication instanceof ConferenceBasedPublication cbpub) {
 						if (cbpub.getConference() != null && cbpub.getConference().isFakeEntity()) {
-							final Conference conference = new Conference(cbpub.getConference());
+							final var conference = new Conference(cbpub.getConference());
 							this.conferenceRepository.save(conference);
 							cbpub.setConference(conference);
 						}
@@ -811,20 +809,20 @@ public class PublicationService extends AbstractPublicationService {
 
 					// Add the publication to the database and get the new assigned identifier
 					this.publicationRepository.save(publication);
-					final int publicationId = publication.getId();
-					final Integer publicationIdObj = Integer.valueOf(publicationId);
+					final var publicationId = publication.getId();
+					final var publicationIdObj = Integer.valueOf(publicationId);
 
 					// Adding the id of the current publication to the list
 					importedPublicationIdentifiers.add(publicationIdObj);
 
 					// For every authors assigned to this publication, save them into the database
-					final List<Person> authors = publication.getAuthors();
+					final var authors = publication.getAuthors();
 					publication.setTemporaryAuthors(null);
 					int rank = 0;
-					for (final Person author : authors) {
+					for (final var author : authors) {
 						try {
 							// Search for a person with a "similar name"
-							int personId = this.personService.getPersonIdBySimilarName(
+							var personId = this.personService.getPersonIdBySimilarName(
 									author.getFirstName(), author.getLastName());
 							// Create new author if is not inside the database.
 							// If we've already got the author with the abbreviated first name in DB, 
@@ -847,7 +845,7 @@ public class PublicationService extends AbstractPublicationService {
 							// Even if a larger try catch for exceptions exists, we need to delete
 							// first the imported publication and linked authorship
 							importedPublicationIdentifiers.remove(publicationIdObj);
-							for (final Authorship toRemove : this.authorshipRepository.findByPublicationId(publicationId)) {
+							for (final var toRemove : this.authorshipRepository.findByPublicationId(publicationId)) {
 								this.authorshipRepository.deleteById(Integer.valueOf(toRemove.getId()));
 							}
 							this.publicationRepository.deleteById(publicationIdObj);
@@ -856,7 +854,7 @@ public class PublicationService extends AbstractPublicationService {
 					}
 				}
 			} catch (Throwable ex) {
-				final Throwable ex0 = new IllegalArgumentException("Unable to import the publication: " //$NON-NLS-1$
+				final var ex0 = new IllegalArgumentException("Unable to import the publication: " //$NON-NLS-1$
 						+ publication.getTitle() + ". " + ex.getLocalizedMessage(), ex); //$NON-NLS-1$
 				getLogger().error(ex0.getLocalizedMessage(), ex0);
 				errors.add(ex0);
@@ -974,7 +972,7 @@ ay of publications that should be exported.
 	 * @return the value
 	 */
 	protected Journal ensureJournalInstance(Map<String, String> attributes, String name) {
-		final String journalIdStr = ensureString(attributes, name);
+		final var journalIdStr = ensureString(attributes, name);
 		if (Strings.isNullOrEmpty(journalIdStr)) {
 			throw new IllegalArgumentException("Missed journal: " + name); //$NON-NLS-1$
 		}
@@ -987,7 +985,7 @@ ay of publications that should be exported.
 		if (journalId == 0) {
 			throw new IllegalArgumentException("Missed journal: " + name); //$NON-NLS-1$
 		}
-		final Optional<Journal> optJournal = this.journalRepository.findById(Integer.valueOf(journalId));
+		final var optJournal = this.journalRepository.findById(Integer.valueOf(journalId));
 		if (optJournal.isEmpty()) {
 			throw new IllegalArgumentException("Unknown journal: " + name); //$NON-NLS-1$
 		}
@@ -1002,7 +1000,7 @@ ay of publications that should be exported.
 	 * @return the value
 	 */
 	protected Conference ensureConferenceInstance(Map<String, String> attributes, String name) {
-		final String conferenceIdStr = ensureString(attributes, name);
+		final var conferenceIdStr = ensureString(attributes, name);
 		if (Strings.isNullOrEmpty(conferenceIdStr)) {
 			throw new IllegalArgumentException("Missed conference: " + name); //$NON-NLS-1$
 		}
@@ -1015,7 +1013,7 @@ ay of publications that should be exported.
 		if (conferenceId == 0) {
 			throw new IllegalArgumentException("Missed conference: " + name); //$NON-NLS-1$
 		}
-		final Optional<Conference> optConference = this.conferenceRepository.findById(Integer.valueOf(conferenceId));
+		final var optConference = this.conferenceRepository.findById(Integer.valueOf(conferenceId));
 		if (optConference.isEmpty()) {
 			throw new IllegalArgumentException("Unknown conference: " + name); //$NON-NLS-1$
 		}
@@ -1040,13 +1038,13 @@ ay of publications that should be exported.
 			Map<String, String> attributes,
 			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate,
 			List<ScientificAxis> scientificAxes) throws IOException {
-		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
-		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
-		final LocalDate date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
-		final int year = ensureYear(attributes, "publicationDate"); //$NON-NLS-1$;
+		final var typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
+		final var languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
+		final var date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
+		final var year = ensureYear(attributes, "publicationDate"); //$NON-NLS-1$;
 
 		// First step : create the publication
-		final Publication publication = this.prePublicationFactory.createPrePublication(
+		final var publication = this.prePublicationFactory.createPrePublication(
 				typeEnum,
 				ensureString(attributes, "title"), //$NON-NLS-1$
 				optionalString(attributes, "abstractText"), //$NON-NLS-1$
@@ -1069,7 +1067,7 @@ ay of publications that should be exported.
 		publication.setManualValidationForced(optionalBoolean(attributes, "manualValidationForced")); //$NON-NLS-1$
 
 		// Third step : create the specific publication type
-		final Class<? extends Publication> publicationClass = typeEnum.getInstanceType();
+		final var publicationClass = typeEnum.getInstanceType();
 		final Publication createdPublication;
 
 		if (publicationClass.equals(Book.class)) {
@@ -1183,21 +1181,21 @@ ay of publications that should be exported.
 	public Optional<Publication> updatePublicationFromMap(int id, boolean validated, Map<String, String> attributes,
 			List<String> authors, MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate,
 			List<ScientificAxis> scientificAxes) throws IOException {
-		final PublicationType typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
+		final var typeEnum = PublicationType.valueOfCaseInsensitive(ensureString(attributes, "type")); //$NON-NLS-1$
 		// First step : find the publication
-		Optional<Publication> optPublication = this.publicationRepository.findById(Integer.valueOf(id));
+		var optPublication = this.publicationRepository.findById(Integer.valueOf(id));
 		if (optPublication.isEmpty()) {
 			throw new IllegalArgumentException("Publication not found with id: " + id); //$NON-NLS-1$
 		}
-		final Publication publication = optPublication.get();
+		final var publication = optPublication.get();
 		// Second step: check for any change of publication type
 		if (isInstanceTypeChangeNeeded(publication, typeEnum)) {
 			removePublication(id, false);
 			optPublication = createPublicationFromMap(validated, attributes, authors, downloadablePDF, downloadableAwardCertificate, scientificAxes);
 			if (optPublication.isPresent()) {
-				final Publication newPublication = optPublication.get();
-				final int newId = newPublication.getId();
-				final MutableBoolean associatedFilesChanged = new MutableBoolean(false);
+				final var newPublication = optPublication.get();
+				final var newId = newPublication.getId();
+				final var associatedFilesChanged = new MutableBoolean(false);
 				this.fileManager.moveFiles(id, newId, (key, source, target) -> {
 					switch (key) {
 					case "pdf": //$NON-NLS-1$
@@ -1233,7 +1231,7 @@ ay of publications that should be exported.
 	}
 
 	private static boolean isInstanceTypeChangeNeeded(Publication publication, PublicationType expectedType) {
-		final Class<? extends Publication> clazz = expectedType.getInstanceType();
+		final var clazz = expectedType.getInstanceType();
 		return !clazz.isInstance(publication);
 	}
 
@@ -1253,9 +1251,9 @@ ay of publications that should be exported.
 	protected void updateExistingPublicationFromMap(Publication publication, PublicationType type, boolean validated,
 			Map<String, String> attributes, List<String> authors, MultipartFile downloadablePDF,
 			MultipartFile downloadableAwardCertificate, List<ScientificAxis> scientificAxes) throws IOException {
-		final PublicationLanguage languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
-		final LocalDate date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
-		final int year = ensureYear(attributes, "publicationDate"); //$NON-NLS-1$;
+		final var languageEnum = PublicationLanguage.valueOfCaseInsensitive(ensureString(attributes, "majorLanguage")); //$NON-NLS-1$
+		final var date = optionalDate(attributes, "publicationDate"); //$NON-NLS-1$;
+		final var year = ensureYear(attributes, "publicationDate"); //$NON-NLS-1$;
 
 		// First step: Update the specific fields.
 		publication.setManualValidationForced(optionalBoolean(attributes, "manualValidationForced")); //$NON-NLS-1$
@@ -1271,7 +1269,7 @@ ay of publications that should be exported.
 		updateUploadedPDFs(publication, attributes, downloadablePDF, downloadableAwardCertificate, false);
 
 		// Fifth step : update the specific publication
-		final Class<? extends Publication> publicationClass = type.getInstanceType();
+		final var publicationClass = type.getInstanceType();
 
 		if (publicationClass.equals(Book.class)) {
 			this.bookService.updateBook(
@@ -1532,8 +1530,8 @@ ay of publications that should be exported.
 	protected void updateUploadedPDFs(Publication publication, Map<String, String> attributes,
 			MultipartFile downloadablePDF, MultipartFile downloadableAwardCertificate, boolean saveInDb) throws IOException {
 		// Treat the uploaded files
-		boolean hasUploaded = false;
-		final boolean expliteRemove0 = optionalBoolean(attributes, "@fileUpload_removed_pathToDownloadablePDF"); //$NON-NLS-1$
+		var hasUploaded = false;
+		final var expliteRemove0 = optionalBoolean(attributes, "@fileUpload_removed_pathToDownloadablePDF"); //$NON-NLS-1$
 		if (expliteRemove0) {
 			try {
 				this.fileManager.deleteDownloadablePublicationPdfFile(publication.getId());
@@ -1544,8 +1542,8 @@ ay of publications that should be exported.
 			hasUploaded = true;
 		}
 		if (downloadablePDF != null && !downloadablePDF.isEmpty()) {
-			final File pdfFilename = this.fileManager.makePdfFilename(publication.getId());
-			final File jpgFilename = this.fileManager.makePdfPictureFilename(publication.getId());
+			final var pdfFilename = this.fileManager.makePdfFilename(publication.getId());
+			final var jpgFilename = this.fileManager.makePdfPictureFilename(publication.getId());
 			this.fileManager.savePdfAndThumbnailFiles(pdfFilename, jpgFilename, downloadablePDF);
 			publication.setPathToDownloadablePDF(pdfFilename.getPath());
 			hasUploaded = true;
@@ -1562,8 +1560,8 @@ ay of publications that should be exported.
 			hasUploaded = true;
 		}
 		if (downloadableAwardCertificate != null && !downloadableAwardCertificate.isEmpty()) {
-			final File pdfFilename = this.fileManager.makeAwardFilename(publication.getId());
-			final File jpgFilename = this.fileManager.makeAwardPictureFilename(publication.getId());
+			final var pdfFilename = this.fileManager.makeAwardFilename(publication.getId());
+			final var jpgFilename = this.fileManager.makeAwardPictureFilename(publication.getId());
 			this.fileManager.savePdfAndThumbnailFiles(pdfFilename, jpgFilename, downloadableAwardCertificate);
 			publication.setPathToDownloadableAwardCertificate(pdfFilename.getPath());
 			hasUploaded = true;
@@ -1581,16 +1579,16 @@ ay of publications that should be exported.
 
 	private void updateAuthorList(boolean creation, Publication publication, List<String> authors) {
 		// First step: Update the list of authors.
-		final List<Authorship> oldAuthorships = creation ? Collections.emptyList() : getAuthorshipsFor(publication.getId());
+		final var oldAuthorships = creation ? Collections.<Authorship>emptyList() : getAuthorshipsFor(publication.getId());
 		Collector<Authorship, ?, Map<Integer, Authorship>> col = Collectors.toMap(
 				it -> Integer.valueOf(it.getPerson().getId()),
 				it -> it);
-		final Map<Integer, Authorship> oldIds = oldAuthorships.stream().collect(col);
-		final Pattern idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
-		int rank = 0;
-		for (final String author : authors) {
+		final var oldIds = oldAuthorships.stream().collect(col);
+		final var idPattern = Pattern.compile("\\d+"); //$NON-NLS-1$
+		var rank = 0;
+		for (final var author : authors) {
 			Person person = null;
-			int authorId = 0;
+			var authorId = 0;
 			if (idPattern.matcher(author).matches()) {
 				// Numeric value means that the person is known.
 				try {
@@ -1601,15 +1599,15 @@ ay of publications that should be exported.
 			}
 			if (authorId == 0) {
 				// The author seems to be not in the database already. Check it based on the name.
-				final String firstName = this.nameParser.parseFirstName(author);
-				final String lastName = this.nameParser.parseLastName(author);
+				final var firstName = this.nameParser.parseFirstName(author);
+				final var lastName = this.nameParser.parseLastName(author);
 				authorId = this.personService.getPersonIdByName(firstName, lastName);
 				if (authorId == 0) {
 					// Now, it is sure that the person is unknown
 					person = this.personService.createPerson(firstName, lastName);
 					getLogger().info("New person \"" + author + "\" created with id: " + authorId); //$NON-NLS-1$ //$NON-NLS-2$
 				} else {
-					final Optional<Person> optPers = this.personRepository.findById(Integer.valueOf(authorId));
+					final var optPers = this.personRepository.findById(Integer.valueOf(authorId));
 					if (optPers.isEmpty()) {
 						throw new IllegalArgumentException("Unknown person with id: " + authorId); //$NON-NLS-1$
 					}
@@ -1617,7 +1615,7 @@ ay of publications that should be exported.
 				}
 			} else {
 				// Check if the given author identifier corresponds to a known person.
-				final Optional<Person> optPers = this.personRepository.findById(Integer.valueOf(authorId));
+				final var optPers = this.personRepository.findById(Integer.valueOf(authorId));
 				if (optPers.isEmpty()) {
 					throw new IllegalArgumentException("Unknown person with id: " + authorId); //$NON-NLS-1$
 				}
@@ -1625,11 +1623,11 @@ ay of publications that should be exported.
 			}
 			assert person != null;
 			oldIds.remove(Integer.valueOf(person.getId()));
-			final Person fperson = person;
-			final Optional<Authorship> optAut = oldAuthorships.stream().filter(it -> it.getPerson().getId() == fperson.getId()).findFirst();
+			final var fperson = person;
+			final var optAut = oldAuthorships.stream().filter(it -> it.getPerson().getId() == fperson.getId()).findFirst();
 			if (optAut.isPresent()) {
 				// Author is already present in the authorships
-				final Authorship authorship = optAut.get();
+				final var authorship = optAut.get();
 				authorship.setPerson(person);
 				authorship.setAuthorRank(rank);
 				authorship.setPublication(publication);
@@ -1646,9 +1644,9 @@ ay of publications that should be exported.
 			++rank;
 		}
 		// Remove the old author ships
-		for (final Authorship oldAutshp : oldIds.values()) {
+		for (final var oldAutshp : oldIds.values()) {
 			publication.getAuthorshipsRaw().remove(oldAutshp);
-			final Person oldAuthor = oldAutshp.getPerson();
+			final var oldAuthor = oldAutshp.getPerson();
 			oldAuthor.getAuthorships().remove(oldAutshp);
 			oldAutshp.setPerson(null);
 			oldAutshp.setPublication(null);

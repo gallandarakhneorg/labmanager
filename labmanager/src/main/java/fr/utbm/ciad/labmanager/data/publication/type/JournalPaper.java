@@ -92,7 +92,7 @@ public class JournalPaper extends AbstractJournalBasedPublication {
 
 	@Override
 	public int hashCode() {
-		int h = super.hashCode();
+		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.volume);
 		h = HashCodeUtils.add(h, this.number);
 		h = HashCodeUtils.add(h, this.pages);
@@ -105,7 +105,7 @@ public class JournalPaper extends AbstractJournalBasedPublication {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		final JournalPaper other = (JournalPaper) obj;
+		final var other = (JournalPaper) obj;
 		if (!Objects.equals(this.volume, other.volume)) {
 			return false;
 		}
@@ -140,7 +140,7 @@ public class JournalPaper extends AbstractJournalBasedPublication {
 
 	@Override
 	public String getWherePublishedShortDescription() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(getJournal().getJournalName());
 		if (!Strings.isNullOrEmpty(getVolume())) {
 			buf.append(", vol. "); //$NON-NLS-1$

@@ -21,7 +21,6 @@ package fr.utbm.ciad.labmanager.utils;
 
 import java.io.StringWriter;
 
-import jakarta.servlet.http.HttpServletRequest;
 import org.json.JSONWriter;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -62,12 +61,12 @@ public class HttpRequestUtils {
 		if (RequestContextHolder.getRequestAttributes() == null) {
 			return "0.0.0.0"; //$NON-NLS-1$
 		}
-		final HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-		final StringWriter swriter = new StringWriter();
-		JSONWriter writer = new JSONWriter(swriter);
+		final var request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+		final var swriter = new StringWriter();
+		var writer = new JSONWriter(swriter);
 		writer.object();
-		for (String header: IP_HEADER_CANDIDATES) {
-			final String ipList = request.getHeader(header);
+		for (var header : IP_HEADER_CANDIDATES) {
+			final var ipList = request.getHeader(header);
 			if (ipList != null && ipList.length() != 0 && !"unknown".equalsIgnoreCase(ipList)) { //$NON-NLS-1$
 				writer = writer.key(header);
 				writer = writer.value(ipList);

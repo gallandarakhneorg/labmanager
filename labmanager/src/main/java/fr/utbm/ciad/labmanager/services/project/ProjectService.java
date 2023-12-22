@@ -43,7 +43,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
-import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.PersonRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
@@ -237,7 +236,7 @@ public class ProjectService extends AbstractService {
 	 * @return the project or {@code null} if there is no project with the given id.
 	 */
 	public Project getProjectById(int id) {
-		final Optional<Project> projectOpt = this.projectRepository.findById(Integer.valueOf(id));
+		final var projectOpt = this.projectRepository.findById(Integer.valueOf(id));
 		if (projectOpt.isPresent()) {
 			return projectOpt.get();
 		}
@@ -252,7 +251,7 @@ public class ProjectService extends AbstractService {
 	 * @return the list of projects for the organization with the given id.
 	 */
 	public List<Project> getProjectsByOrganizationId(int organizationId) {
-		final Integer idObj = Integer.valueOf(organizationId);
+		final var idObj = Integer.valueOf(organizationId);
 		return this.projectRepository.findDistinctOrganizationProjects(idObj);
 	}
 
@@ -265,7 +264,7 @@ public class ProjectService extends AbstractService {
 	 * @return the list of public projects for the organization with the given id.
 	 */
 	public List<Project> getPublicProjectsByOrganizationId(int organizationId) {
-		final Integer idObj = Integer.valueOf(organizationId);
+		final var idObj = Integer.valueOf(organizationId);
 		return this.projectRepository.findDistinctOrganizationProjects(Boolean.FALSE, ProjectStatus.ACCEPTED, idObj);
 	}
 
@@ -362,7 +361,7 @@ public class ProjectService extends AbstractService {
 		if (localOrganizationBudgets == null || localOrganizationBudgets.isEmpty()) {
 			throw new IllegalArgumentException("Funding and budget for the local organization is mandatory"); //$NON-NLS-1$
 		}
-		for (final ProjectBudget budget : localOrganizationBudgets) {
+		for (final var budget : localOrganizationBudgets) {
 			if (budget.getFundingScheme() == null || budget.getBudget() < 0f) {
 				throw new IllegalArgumentException("Funding and budget for the local organization is mandatory"); //$NON-NLS-1$
 			}
@@ -372,7 +371,7 @@ public class ProjectService extends AbstractService {
 
 		// Link the organizations
 
-		final Optional<ResearchOrganization> coordinatorOrg = this.organizationRepository.findById(Integer.valueOf(coordinator));
+		final var coordinatorOrg = this.organizationRepository.findById(Integer.valueOf(coordinator));
 		if (coordinatorOrg.isEmpty()) {
 			throw new IllegalArgumentException("Coordinator organization not found with id " + coordinator); //$NON-NLS-1$
 		}
@@ -423,10 +422,10 @@ public class ProjectService extends AbstractService {
 		}
 		project.setLearOrganization(learOrganizationOrg.get());
 		
-		final Set<ResearchOrganization> otherPartnersOrg = new HashSet<>();
+		final var otherPartnersOrg = new HashSet<ResearchOrganization>();
 		if (otherPartners != null && !otherPartners.isEmpty()) {
 			otherPartners.stream().forEach(it -> {
-				final Optional<ResearchOrganization> orga = this.organizationRepository.findById(it);
+				final var orga = this.organizationRepository.findById(it);
 				if (orga.isPresent()) {
 					otherPartnersOrg.add(orga.get());
 				}
@@ -438,16 +437,16 @@ public class ProjectService extends AbstractService {
 
 		// Link the participants
 
-		final List<ProjectMember> projectParticipants = new ArrayList<>();
+		final var projectParticipants = new ArrayList<ProjectMember>();
 		if (participants != null && !participants.isEmpty()) {
 			participants.entrySet().stream().forEach(it -> {
-				final Integer personId = it.getKey();
-				final Optional<Person> person = this.personRepository.findById(personId);
+				final var personId = it.getKey();
+				final var person = this.personRepository.findById(personId);
 				if (person.isEmpty()) {
 					throw new IllegalStateException("Person not found with id " + personId); //$NON-NLS-1$
 				}
-				final Role role = it.getValue();
-				final ProjectMember member = new ProjectMember();
+				final var role = it.getValue();
+				final var member = new ProjectMember();
 				member.setPerson(person.get());
 				member.setRole(role);
 				this.projectMemberRepository.save(member);

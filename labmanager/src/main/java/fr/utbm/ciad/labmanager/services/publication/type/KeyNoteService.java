@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.publication.type;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -144,8 +143,7 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 * @return the keynote or {@code null}.
 	 */
 	public KeyNote getKeyNote(int identifier) {
-		final Optional<KeyNote> byId = this.repository.findById(Integer.valueOf(identifier));
-		return byId.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a keynote.
@@ -162,7 +160,7 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 * @since 3.8
 	 */
 	public KeyNote createKeyNote(Publication publication, Conference conference, int conferenceOccurrenceNumber, String editors, String orga, String address, boolean saveInDb) {
-		final KeyNote res = new KeyNote(publication, conference, conferenceOccurrenceNumber, editors, orga, address);
+		final var res = new KeyNote(publication, conference, conferenceOccurrenceNumber, editors, orga, address);
 		if (saveInDb) {
 			this.repository.save(res);
 		}
@@ -217,9 +215,9 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			Conference conference, int conferenceOccurrenceNumber, String editors, String orga, String address) {
-		final Optional<KeyNote> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final KeyNote paper = res.get();
+			final var paper = res.get();
 
 			updatePublicationNoSave(paper, title, type, date, year,
 					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,

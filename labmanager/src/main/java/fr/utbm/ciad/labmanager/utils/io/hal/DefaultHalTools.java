@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.utils.io.hal;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
@@ -58,11 +57,11 @@ public class DefaultHalTools implements HalTools {
 	}
 
 	private static String validatePath(String path) {
-		String pth = path;
+		var pth = path;
 		if (!Strings.isNullOrEmpty(pth)) {
 			pth = pth.trim();
 			if (!Strings.isNullOrEmpty(pth)) {
-				final Matcher matcher = HAL_PATTERN.matcher(pth);
+				final var matcher = HAL_PATTERN.matcher(pth);
 				if (matcher.matches()) {
 					return pth;
 				}
@@ -74,7 +73,7 @@ public class DefaultHalTools implements HalTools {
 	@Override
 	public String getHALNumberFromHALUrl(URL url) {
 		if (url != null) {
-			String path = url.getPath();
+			var path = url.getPath();
 			if (!Strings.isNullOrEmpty(path)) {
 				if (path.startsWith("/")) { //$NON-NLS-1$
 					path = path.substring(1);
@@ -93,7 +92,7 @@ public class DefaultHalTools implements HalTools {
 		if (!Strings.isNullOrEmpty(url)) {
 			String path = null;
 			try {
-				final URI urlObj = new URI(url);
+				final var urlObj = new URI(url);
 				path = urlObj.getPath();
 				if (Strings.isNullOrEmpty(path)) {
 					path = urlObj.getSchemeSpecificPart();

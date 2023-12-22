@@ -138,7 +138,7 @@ public class OrganizationAddressService extends AbstractService {
 	 * @return the address or {@code null} if none.
 	 */
 	public OrganizationAddress getAddressById(int identifier) {
-		final Optional<OrganizationAddress> adr = this.addressRepository.findById(Integer.valueOf(identifier));
+		final var adr = this.addressRepository.findById(Integer.valueOf(identifier));
 		if (adr.isPresent()) {
 			return adr.get();
 		}
@@ -162,7 +162,7 @@ public class OrganizationAddressService extends AbstractService {
 	public Optional<OrganizationAddress> createAddress(boolean validated,
 			String name, String complement, String street, String zipCode, String city,
 			String mapCoordinates, String googleLink, MultipartFile backgroundImage) throws IOException {
-		final OrganizationAddress adr = new OrganizationAddress();
+		final var adr = new OrganizationAddress();
 		adr.setName(name);
 		adr.setComplement(complement);
 		adr.setStreet(street);
@@ -197,9 +197,9 @@ public class OrganizationAddressService extends AbstractService {
 	public Optional<OrganizationAddress> updateAddress(
 			int identifier, boolean validated, String name, String complement, String street, String zipCode,
 			String city, String mapCoordinates, String googleLink, MultipartFile backgroundImage, boolean removedBackgroundImage) throws IOException {
-		final Optional<OrganizationAddress> res = this.addressRepository.findById(Integer.valueOf(identifier));
+		final var res = this.addressRepository.findById(Integer.valueOf(identifier));
 		if (res.isPresent()) {
-			final OrganizationAddress address = res.get();
+			final var address = res.get();
 			if (!Strings.isNullOrEmpty(name)) {
 				address.setName(name);
 			}
@@ -236,9 +236,9 @@ public class OrganizationAddressService extends AbstractService {
 	protected void updateUploadedImage(OrganizationAddress address, MultipartFile backgroundImage,
 			boolean removedBackgroundImage, boolean saveInDb) throws IOException {
 		// Treat the uploaded files
-		boolean hasChanged = false;
+		var hasChanged = false;
 		if (removedBackgroundImage) {
-			final String ext = FileSystem.extension(address.getPathToBackgroundImage());
+			final var ext = FileSystem.extension(address.getPathToBackgroundImage());
 			try {
 				this.fileManager.deleteAddressBackgroundImage(address.getId(), ext);
 			} catch (Throwable ex) {
@@ -248,8 +248,8 @@ public class OrganizationAddressService extends AbstractService {
 			hasChanged = true;
 		}
 		if (backgroundImage != null && !backgroundImage.isEmpty()) {
-			final String ext = FileSystem.extension(backgroundImage.getOriginalFilename());
-			final File filename = this.fileManager.makeAddressBackgroundImage(address.getId(), ext);
+			final var ext = FileSystem.extension(backgroundImage.getOriginalFilename());
+			final var filename = this.fileManager.makeAddressBackgroundImage(address.getId(), ext);
 			this.fileManager.saveImage(filename, backgroundImage);
 			address.setPathToBackgroundImage(filename.getPath());
 			hasChanged = true;
@@ -264,8 +264,9 @@ public class OrganizationAddressService extends AbstractService {
 	 *
 	 * @param identifier the database identifier of the address.
 	 */
+	@Transactional
 	public void removeAddress(int identifier) {
-		final Integer id = Integer.valueOf(identifier);
+		final var id = Integer.valueOf(identifier);
 		this.addressRepository.deleteById(id);
 	}
 

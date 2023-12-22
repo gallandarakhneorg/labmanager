@@ -19,8 +19,6 @@
 
 package fr.utbm.ciad.labmanager.components.start;
 
-import java.io.File;
-import java.io.InputStream;
 import java.net.URL;
 
 import fr.utbm.ciad.labmanager.utils.io.json.JsonToDatabaseImporter;
@@ -119,11 +117,11 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	 */
 	protected static URL getDataURLInWar() {
 		try {
-			final URL url = Resources.getResource("/" + DATA_FILENAME); //$NON-NLS-1$
+			final var url = Resources.getResource("/" + DATA_FILENAME); //$NON-NLS-1$
 			if (url != null) {
 				try {
 					@SuppressWarnings("resource")
-					final InputStream is = url.openStream();
+					final var is = url.openStream();
 					if (is != null) {
 						is.close();
 					}
@@ -145,8 +143,8 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	protected URL getDataURLInLocalFileSystem() {
 		if (!Strings.isNullOrEmpty(this.dataSourceFolder)) {
 			try {
-				final File root = FileSystem.convertStringToFile(this.dataSourceFolder);
-				final File file = FileSystem.join(root, DATA_FILENAME);
+				final var root = FileSystem.convertStringToFile(this.dataSourceFolder);
+				final var file = FileSystem.join(root, DATA_FILENAME);
 				if (file != null && file.exists() && file.canRead()) {
 					try {
 						return FileSystem.convertFileToURL(file);
@@ -166,7 +164,7 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	 * @return the URL or {@code null} if none.
 	 */
 	protected URL getJsonDataURL() {
-		final URL url = getDataURLInWar();
+		final var url = getDataURLInWar();
 		if (url != null) {
 			return url;
 		}
@@ -180,8 +178,8 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	protected URL getZipDataURL() {
 		if (!Strings.isNullOrEmpty(this.dataSourceFolder)) {
 			try {
-				final File root = FileSystem.convertStringToFile(this.dataSourceFolder);
-				final File file = FileSystem.join(root, ARCHIVE_FILENAME);
+				final var root = FileSystem.convertStringToFile(this.dataSourceFolder);
+				final var file = FileSystem.join(root, ARCHIVE_FILENAME);
 				if (file != null && file.exists() && file.canRead()) {
 					try {
 						return FileSystem.convertFileToURL(file);
@@ -201,11 +199,11 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	 * @return the URL of the data source or {@code null} if none.
 	 */
 	protected URL detectDataUrl() {
-		final URL zipUrl = getZipDataURL();
+		final var zipUrl = getZipDataURL();
 		if (zipUrl != null) {
 			return zipUrl;
 		}
-		final URL jsonUrl = getJsonDataURL();
+		final var jsonUrl = getJsonDataURL();
 		if (jsonUrl != null) {
 			return jsonUrl;
 		}
@@ -243,9 +241,9 @@ public class JsonDatabaseInitializer implements ApplicationRunner {
 	@Override
 	public void run(ApplicationArguments args) throws Exception {
 		if (this.enabled) {
-			URL dataUrl = detectDataUrl();
+			final var dataUrl = detectDataUrl();
 			if (dataUrl != null) {
-				final Importer importer = detectImporter(dataUrl);
+				final var importer = detectImporter(dataUrl);
 				if (importer != null) {
 					doImport(dataUrl, importer);
 				} else {

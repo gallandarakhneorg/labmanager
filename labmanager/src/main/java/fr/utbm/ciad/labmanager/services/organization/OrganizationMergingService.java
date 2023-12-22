@@ -22,25 +22,18 @@ package fr.utbm.ciad.labmanager.services.organization;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.Iterator;
 import java.util.List;
-import java.util.ListIterator;
-import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructure;
-import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolder;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureHolderRepository;
 import fr.utbm.ciad.labmanager.data.assostructure.AssociatedStructureRepository;
-import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.MembershipRepository;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationComparator;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganizationRepository;
-import fr.utbm.ciad.labmanager.data.project.Project;
 import fr.utbm.ciad.labmanager.data.project.ProjectRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.utils.names.OrganizationNameComparator;
@@ -117,30 +110,30 @@ public class OrganizationMergingService extends AbstractService {
 	 */
 	public List<Set<ResearchOrganization>> getOrganizationDuplicates(Comparator<? super ResearchOrganization> comparator, OrganizationDuplicateCallback callback) throws Exception {
 		// Each list represents a group of organizations that could be duplicate
-		final List<Set<ResearchOrganization>> matchingOrganizations = new ArrayList<>();
+		final var matchingOrganizations = new ArrayList<Set<ResearchOrganization>>();
 
 		// Copy the list of organizations into another list in order to enable its
 		// modification during the function's process
-		final List<ResearchOrganization> organizationsList = new ArrayList<>(this.organizationService.getAllResearchOrganizations());
+		final var organizationsList = new ArrayList<>(this.organizationService.getAllResearchOrganizations());
 
 		final Comparator<? super ResearchOrganization> theComparator = comparator == null ? EntityUtils.getPreferredResearchOrganizationComparator() : comparator;
 
-		final int total = organizationsList.size();
+		final var total = organizationsList.size();
 		// Notify the callback
 		if (callback != null) {
 			callback.onDuplicate(0, 0, total);
 		}
 		int duplicateCount = 0;
 		
-		for (int i = 0; i < organizationsList.size() - 1; ++i) {
-			final ResearchOrganization referenceOrganization = organizationsList.get(i);
+		for (var i = 0; i < organizationsList.size() - 1; ++i) {
+			final var referenceOrganization = organizationsList.get(i);
 
-			final Set<ResearchOrganization> currentMatching = new TreeSet<>(theComparator);
+			final var currentMatching = new TreeSet<ResearchOrganization>(theComparator);
 			currentMatching.add(referenceOrganization);
 
-			final ListIterator<ResearchOrganization> iterator2 = organizationsList.listIterator(i + 1);
+			final var iterator2 = organizationsList.listIterator(i + 1);
 			while (iterator2.hasNext()) {
-				final ResearchOrganization otherOrganization = iterator2.next();
+				final var otherOrganization = iterator2.next();
 				if (this.nameComparator.isSimilar(
 						referenceOrganization.getAcronym(), referenceOrganization.getName(),
 						otherOrganization.getAcronym(), otherOrganization.getName())) {
@@ -171,12 +164,12 @@ public class OrganizationMergingService extends AbstractService {
 	public void mergeOrganizationsById(Collection<Integer> source, Integer target) throws Exception {
 		assert target != null;
 		assert source != null;
-		final Optional<ResearchOrganization> optTarget = this.organizationRepository.findById(target);
+		final var optTarget = this.organizationRepository.findById(target);
 		if (optTarget.isPresent()) {
-			final ResearchOrganization targetOrganization = optTarget.get();
-			final List<ResearchOrganization> sourceOrganizations = this.organizationRepository.findAllById(source);
+			final var targetOrganization = optTarget.get();
+			final var sourceOrganizations = this.organizationRepository.findAllById(source);
 			if (sourceOrganizations.size() != source.size()) {
-				for (final ResearchOrganization ro : sourceOrganizations) {
+				for (final var ro : sourceOrganizations) {
 					if (!source.contains(Integer.valueOf(ro.getId()))) {
 						throw new IllegalArgumentException("Source organization not found with identifier: " + ro.getId()); //$NON-NLS-1$
 					}
@@ -198,11 +191,11 @@ public class OrganizationMergingService extends AbstractService {
 	public void mergeOrganizations(Iterable<ResearchOrganization> sources, ResearchOrganization target) throws Exception {
 		assert target != null;
 		assert sources != null;
-		boolean changed = false;
-		for (final ResearchOrganization source : sources) {
+		var changed = false;
+		for (final var source : sources) {
 			if (source.getId() != target.getId()) {
 				getLogger().info("Reassign to " + target.getAcronymOrName() + " the elements of " + source.getAcronymOrName()); //$NON-NLS-1$ //$NON-NLS-2$
-				boolean lchange = reassignOrganizationMemberships(source, target);
+				var lchange = reassignOrganizationMemberships(source, target);
 				lchange = reassignProjects(source, target) || lchange;
 				lchange = reassignAssociatedStructures(source, target) || lchange;
 				this.organizationService.removeResearchOrganization(source.getId());
@@ -222,8 +215,8 @@ public class OrganizationMergingService extends AbstractService {
 	 * @throws Exception if the change cannot be completed.
 	 */
 	protected boolean reassignOrganizationMemberships(ResearchOrganization source, ResearchOrganization target) throws Exception {
-		boolean changed = false;
-		for (final Membership membership : this.membershipRepository.findDistinctByResearchOrganizationId(source.getId())) {
+		var changed = false;
+		for (final var membership : this.membershipRepository.findDistinctByResearchOrganizationId(source.getId())) {
 			membership.setResearchOrganization(target);
 			this.membershipRepository.save(membership);
 			changed = true;
@@ -239,11 +232,11 @@ public class OrganizationMergingService extends AbstractService {
 	 * @throws Exception if the change cannot be completed.
 	 */
 	protected boolean reassignProjects(ResearchOrganization source, ResearchOrganization target) throws Exception {
-		final Set<Project> changed = new TreeSet<>(EntityUtils.getPreferredProjectComparator());
+		final var changed = new TreeSet<>(EntityUtils.getPreferredProjectComparator());
 		
-		final int sourceId = source.getId();
+		final var sourceId = source.getId();
 		
-		for (final Project project : this.projectRepository.findAll()) {
+		for (final var project : this.projectRepository.findAll()) {
 			if (project.getCoordinator() != null && project.getCoordinator().getId() == sourceId) {
 				project.setCoordinator(target);
 				changed.add(project);
@@ -260,11 +253,11 @@ public class OrganizationMergingService extends AbstractService {
 				project.setLearOrganization(target);
 				changed.add(project);
 			}
-			final Set<ResearchOrganization> otherPartners = new TreeSet<>(project.getOtherPartnersRaw());
-			boolean found = false;
-			final Iterator<ResearchOrganization> iterator = otherPartners.iterator();
+			final var otherPartners = new TreeSet<>(project.getOtherPartnersRaw());
+			var found = false;
+			final var iterator = otherPartners.iterator();
 			while (iterator.hasNext()) {
-				final ResearchOrganization orga = iterator.next();
+				final var orga = iterator.next();
 				if (orga != null && orga.getId() == sourceId) {
 					found = true;
 					iterator.remove();
@@ -280,7 +273,7 @@ public class OrganizationMergingService extends AbstractService {
 		if (changed.isEmpty()) {
 			return false;
 		}
-		for (final Project project : changed) {
+		for (final var project : changed) {
 			this.projectRepository.save(project);
 		}
 		return true;
@@ -294,23 +287,23 @@ public class OrganizationMergingService extends AbstractService {
 	 * @throws Exception if the change cannot be completed.
 	 */
 	protected boolean reassignAssociatedStructures(ResearchOrganization source, ResearchOrganization target) throws Exception {
-		final Set<AssociatedStructure> changed = new TreeSet<>(EntityUtils.getPreferredAssociatedStructureComparator());
-		final int sourceId = source.getId();
-		for (final AssociatedStructure structure : this.structureRepository.findAll()) {
+		final var changed = new TreeSet<>(EntityUtils.getPreferredAssociatedStructureComparator());
+		final var sourceId = source.getId();
+		for (final var structure : this.structureRepository.findAll()) {
 			if (structure.getFundingOrganization() != null && structure.getFundingOrganization().getId() == sourceId) {
 				structure.setFundingOrganization(target);
 				changed.add(structure);
 			}
 		}
-		final boolean structureChanged = !changed.isEmpty();
+		final var structureChanged = !changed.isEmpty();
 		if (structureChanged) {
-			for (final AssociatedStructure structure : changed) {
+			for (final var structure : changed) {
 				this.structureRepository.save(structure);
 			}
 		}
 		//
-		final Set<AssociatedStructureHolder> changed1 = new TreeSet<>(EntityUtils.getPreferredAssociatedStructureHolderComparator());
-		for (final AssociatedStructureHolder holder : this.structureHolderRepository.findAll()) {
+		final var changed1 = new TreeSet<>(EntityUtils.getPreferredAssociatedStructureHolderComparator());
+		for (final var holder : this.structureHolderRepository.findAll()) {
 			if (holder.getOrganization() != null && holder.getOrganization().getId() == sourceId) {
 				holder.setOrganization(target);
 				changed1.add(holder);
@@ -320,9 +313,9 @@ public class OrganizationMergingService extends AbstractService {
 				changed1.add(holder);
 			}
 		}
-		final boolean holderChanged = !changed1.isEmpty();
+		final var holderChanged = !changed1.isEmpty();
 		if (holderChanged) {
-			for (final AssociatedStructureHolder holder : changed1) {
+			for (final var holder : changed1) {
 				this.structureHolderRepository.save(holder);
 			}
 		}

@@ -67,7 +67,7 @@ public enum QuartileRanking {
 	 */
 	public static QuartileRanking valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final QuartileRanking ranking : values()) {
+			for (final var ranking : values()) {
 				if (name.equalsIgnoreCase(ranking.name())) {
 					return ranking;
 				}

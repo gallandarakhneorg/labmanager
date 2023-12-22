@@ -23,11 +23,9 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.URL;
-import java.net.URLConnection;
 
 import javax.imageio.ImageIO;
 
@@ -43,19 +41,19 @@ public abstract class AbstractProxyNetConnection implements NetConnection {
 
 	@Override
 	public BufferedImage getImageFromURL(URL url) throws IOException {
-		final Proxy proxy = new Proxy(getProxyType(), new InetSocketAddress(getProxyAddress(), getProxyPort()));
-		final URLConnection connection = url.openConnection(proxy);
+		final var proxy = new Proxy(getProxyType(), new InetSocketAddress(getProxyAddress(), getProxyPort()));
+		final var connection = url.openConnection(proxy);
 		connection.connect();
-		try (final ByteArrayOutputStream out = new ByteArrayOutputStream()) {
-			try (final InputStream in = connection.getInputStream()) {
-				final byte[] buf = new byte[1024];
-				int n = 0;
+		try (final var out = new ByteArrayOutputStream()) {
+			try (final var in = connection.getInputStream()) {
+				final var buf = new byte[1024];
+				var n = 0;
 				while (-1 != (n = in.read(buf))) {
 					out.write(buf, 0, n);
 				}
 			}
-			final byte[] response = out.toByteArray();
-			try (final ByteArrayInputStream bis = new ByteArrayInputStream(response)) {
+			final var response = out.toByteArray();
+			try (final var bis = new ByteArrayInputStream(response)) {
 				return ImageIO.read(bis);
 			}
 		}

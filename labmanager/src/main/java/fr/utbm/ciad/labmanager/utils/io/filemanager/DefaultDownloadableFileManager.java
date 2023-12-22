@@ -38,11 +38,8 @@ import java.util.stream.Stream;
 import javax.imageio.ImageIO;
 
 import com.aspose.pdf.Document;
-import com.aspose.pdf.Page;
 import com.aspose.pdf.devices.JpegDevice;
 import com.aspose.pdf.devices.Resolution;
-import com.aspose.slides.ISlide;
-import com.aspose.slides.ISlideCollection;
 import com.aspose.slides.Presentation;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.sizediterator.SizedIterator;
@@ -72,6 +69,16 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	private static final String TEMP_NAME = "labmanager_tmp"; //$NON-NLS-1$
 
+	static final String DOWNLOADABLE_FOLDER_NAME = "Downloadables"; //$NON-NLS-1$
+
+	private static final String ORGANIZATION_LOGO_FOLDER_NAME = "OrganizationLogos"; //$NON-NLS-1$
+
+	private static final String ORGANIZATION_LOGO_FILE_PREFIX = "OrgLogo"; //$NON-NLS-1$
+
+	private static final String ADDRESS_BACKGROUND_FOLDER_NAME = "AddressBgs"; //$NON-NLS-1$
+
+	private static final String ADDRESS_BACKGROUND_FILE_PREFIX = "AddressBg"; //$NON-NLS-1$
+
 	private static final String PDF_FOLDER_NAME = "PDFs"; //$NON-NLS-1$
 
 	private static final String PDF_FILE_PREFIX = "PDF"; //$NON-NLS-1$
@@ -81,14 +88,6 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	private static final String AWARD_FOLDER_NAME = "Awards"; //$NON-NLS-1$
 
 	private static final String AWARD_FILE_PREFIX = "Award"; //$NON-NLS-1$
-
-	private static final String ADDRESS_BACKGROUND_FOLDER_NAME = "AddressBgs"; //$NON-NLS-1$
-
-	private static final String ADDRESS_BACKGROUND_FILE_PREFIX = "AddressBg"; //$NON-NLS-1$
-
-	private static final String ORGANIZATION_LOGO_FOLDER_NAME = "OrganizationLogos"; //$NON-NLS-1$
-
-	private static final String ORGANIZATION_LOGO_FILE_PREFIX = "OrgLogo"; //$NON-NLS-1$
 
 	private static final String PROJECT_LOGO_FOLDER_NAME = "ProjectLogos"; //$NON-NLS-1$
 
@@ -127,7 +126,7 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			@Value("${labmanager.file.upload-directory}") String uploadFolder,
 			@Value("${labmanager.file.temp-directory}") String tempFolder) {
 		super(uploadFolder);
-		final String f1 = Strings.emptyToNull(tempFolder);
+		final var f1 = Strings.emptyToNull(tempFolder);
 		if (f1 == null) {
 			this.temporaryFolder = null;
 		} else {
@@ -138,7 +137,7 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	@Override
 	public File getTemporaryRootFile() {
 		if (this.temporaryFolder == null) {
-			final File tmpRoot = new File(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
+			final var tmpRoot = new File(System.getProperty("java.io.tmpdir")); //$NON-NLS-1$
 			return new File(tmpRoot, TEMP_NAME);
 		}
 		return this.temporaryFolder;
@@ -279,8 +278,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteDownloadablePublicationPdfFile(int id) throws Exception {
-		File file = makePdfFilename(id);
-		File absFile = normalizeForServerSide(file);
+		var file = makePdfFilename(id);
+		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
@@ -293,8 +292,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteDownloadableAwardPdfFile(int id) {
-		File file = makeAwardFilename(id);
-		File absFile = normalizeForServerSide(file);
+		var file = makeAwardFilename(id);
+		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
@@ -307,8 +306,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteAddressBackgroundImage(int id, String fileExtension) {
-		final File file = makeAddressBackgroundImage(id, fileExtension);
-		final File absFile = normalizeForServerSide(file);
+		final var file = makeAddressBackgroundImage(id, fileExtension);
+		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
@@ -316,8 +315,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteOrganizationLogo(int id, String fileExtension) {
-		final File file = makeOrganizationLogoFilename(id, fileExtension);
-		final File absFile = normalizeForServerSide(file);
+		final var file = makeOrganizationLogoFilename(id, fileExtension);
+		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
@@ -325,8 +324,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteProjectLogo(int id, String fileExtension) {
-		final File file = makeProjectLogoFilename(id, fileExtension);
-		final File absFile = normalizeForServerSide(file);
+		final var file = makeProjectLogoFilename(id, fileExtension);
+		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
@@ -334,8 +333,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteProjectImage(int id, int imageIndex, String fileExtension) {
-		final File file = makeProjectImageFilename(id, imageIndex, fileExtension);
-		final File absFile = normalizeForServerSide(file);
+		final var file = makeProjectImageFilename(id, imageIndex, fileExtension);
+		final var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
@@ -343,8 +342,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteProjectScientificRequirements(int id) {
-		File file = makeProjectScientificRequirementsFilename(id);
-		File absFile = normalizeForServerSide(file);
+		var file = makeProjectScientificRequirementsFilename(id);
+		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
@@ -357,8 +356,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteProjectPowerpoint(int id, String fileExtension) {
-		File file = makeProjectPowerpointFilename(id, fileExtension);
-		File absFile = normalizeForServerSide(file);
+		var file = makeProjectPowerpointFilename(id, fileExtension);
+		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
@@ -371,8 +370,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteProjectPressDocument(int id) {
-		File file = makeProjectPressDocumentFilename(id);
-		File absFile = normalizeForServerSide(file);
+		var file = makeProjectPressDocumentFilename(id);
+		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}
@@ -385,16 +384,16 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void ensurePictureFile(File inputFilename, File pictureFilename) throws IOException {
-		final File inputFilenameAbs = normalizeForServerSide(inputFilename);
+		final var inputFilenameAbs = normalizeForServerSide(inputFilename);
 		if (inputFilenameAbs.canRead()) {
-			final File pictureFilenameAbs = normalizeForServerSide(pictureFilename);
+			final var pictureFilenameAbs = normalizeForServerSide(pictureFilename);
 			if (!pictureFilenameAbs.exists()) {
-				final File jpgUploadDir = pictureFilenameAbs.getParentFile();
+				final var jpgUploadDir = pictureFilenameAbs.getParentFile();
 				if (jpgUploadDir != null) {
 					jpgUploadDir.mkdirs();
 				}
-				final boolean isPdf = FileSystem.hasExtension(inputFilename, PDF_FILE_EXTENSION);
-				try (final OutputStream outputStream = new FileOutputStream(pictureFilenameAbs)) {
+				final var isPdf = FileSystem.hasExtension(inputFilename, PDF_FILE_EXTENSION);
+				try (final var outputStream = new FileOutputStream(pictureFilenameAbs)) {
 					if (isPdf) {
 						convertPdfToJpeg(inputFilenameAbs, outputStream);
 					} else {
@@ -406,12 +405,17 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			}
 		}
 	}
+	
+	@Override
+	public File toThumbnailFilename(File file) {
+		return FileSystem.replaceExtension(file, JPEG_FILE_EXTENSION);
+	}
 
 	private File saveMultipart(File filename, MultipartFile source, String errorMessage) throws IOException {
-		final File normalizedFilename = normalizeForServerSide(filename);
-		final File uploadDir = normalizedFilename.getParentFile();
+		final var normalizedFilename = normalizeForServerSide(filename);
+		final var uploadDir = normalizedFilename.getParentFile();
 		uploadDir.mkdirs();
-		try (final InputStream inputStream = source.getInputStream()) {
+		try (final var inputStream = source.getInputStream()) {
 			final Path filePath = normalizedFilename.toPath();
 			Files.copy(inputStream, filePath, StandardCopyOption.REPLACE_EXISTING);
 		} catch (IOException ioe) {
@@ -427,14 +431,14 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void savePowerpointAndThumbnailFiles(File pptFilename, File pictureFilename, MultipartFile powerpointDocument) throws IOException {
-		final File normalizedPdfFilename = saveMultipart(pptFilename, powerpointDocument, "Could not save PowerPoint: "); //$NON-NLS-1$
+		final var normalizedPdfFilename = saveMultipart(pptFilename, powerpointDocument, "Could not save PowerPoint: "); //$NON-NLS-1$
 		//
-		final File normalizedJpgFilename = normalizeForServerSide(pictureFilename);
-		final File jpgUploadDir = normalizedJpgFilename.getParentFile();
+		final var normalizedJpgFilename = normalizeForServerSide(pictureFilename);
+		final var jpgUploadDir = normalizedJpgFilename.getParentFile();
 		if (jpgUploadDir != null) {
 			jpgUploadDir.mkdirs();
 		}
-		try (final OutputStream outputStream = new FileOutputStream(normalizedJpgFilename)) {
+		try (final var outputStream = new FileOutputStream(normalizedJpgFilename)) {
 			convertPptToJpeg(normalizedPdfFilename, outputStream);
 		} catch (IOException ioe) {
 			throw new IOException("Could not save picture file: " + normalizedJpgFilename.getName(), ioe); //$NON-NLS-1$
@@ -443,11 +447,11 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	private static void convertPptToJpeg(File pptFile, OutputStream jpgStream) throws IOException {
 		BufferedImage thumbnail = null;
-		try (final InputStream pptStream = new FileInputStream(pptFile)) {
-			final Presentation pptDocument = new Presentation(pptStream);
-			final ISlideCollection slides = pptDocument.getSlides();
+		try (final var pptStream = new FileInputStream(pptFile)) {
+			final var pptDocument = new Presentation(pptStream);
+			final var slides = pptDocument.getSlides();
 			if (slides != null && slides.size() > 0) {
-				final ISlide slide = slides.get_Item(0);
+				final var slide = slides.get_Item(0);
 				if (slide != null) {
 					thumbnail = slide.getThumbnail(JPEG_RESOLUTION_F, JPEG_RESOLUTION_F);
 				}
@@ -458,16 +462,31 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 		}
 	}
 
+	private static void convertPptToJpeg(InputStream pptFile, OutputStream jpgStream) throws IOException {
+		BufferedImage thumbnail = null;
+		final var pptDocument = new Presentation(pptFile);
+		final var slides = pptDocument.getSlides();
+		if (slides != null && slides.size() > 0) {
+			final var slide = slides.get_Item(0);
+			if (slide != null) {
+				thumbnail = slide.getThumbnail(JPEG_RESOLUTION_F, JPEG_RESOLUTION_F);
+			}
+		}
+		if (thumbnail != null) {
+			ImageIO.write(thumbnail, "jpeg", jpgStream); //$NON-NLS-1$
+		}
+	}
+	
 	@Override
 	public void savePdfAndThumbnailFiles(File pdfFilename, File pictureFilename, MultipartFile multipartPdfFile) throws IOException {
-		final File normalizedPdfFilename = saveMultipart(pdfFilename, multipartPdfFile, "Could not save PDF file: "); //$NON-NLS-1$
+		final var normalizedPdfFilename = saveMultipart(pdfFilename, multipartPdfFile, "Could not save PDF file: "); //$NON-NLS-1$
 		//
-		final File normalizedJpgFilename = normalizeForServerSide(pictureFilename);
-		final File jpgUploadDir = normalizedJpgFilename.getParentFile();
+		final var normalizedJpgFilename = normalizeForServerSide(pictureFilename);
+		final var jpgUploadDir = normalizedJpgFilename.getParentFile();
 		if (jpgUploadDir != null) {
 			jpgUploadDir.mkdirs();
 		}
-		try (final OutputStream outputStream = new FileOutputStream(normalizedJpgFilename)) {
+		try (final var outputStream = new FileOutputStream(normalizedJpgFilename)) {
 			convertPdfToJpeg(normalizedPdfFilename, outputStream);
 		} catch (IOException ioe) {
 			throw new IOException("Could not save picture file: " + normalizedJpgFilename.getName(), ioe); //$NON-NLS-1$
@@ -475,14 +494,14 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 	}
 
 	private static void convertPdfToJpeg(File pdfFile, OutputStream jpgStream) throws IOException {
-		try (final InputStream pdfStream = new FileInputStream(pdfFile)) {
-			try (final Document pdfDocument = new Document(pdfStream)) {
+		try (final var pdfStream = new FileInputStream(pdfFile)) {
+			try (final var pdfDocument = new Document(pdfStream)) {
 				if (!pdfDocument.getPages().isEmpty()) {
-					final Resolution resolution = new Resolution(JPEG_RESOLUTION);
+					final var resolution = new Resolution(JPEG_RESOLUTION);
 					// Create JpegDevice object where second argument indicates the quality of resultant image
-					final JpegDevice jpegDevice = new JpegDevice(resolution, 100);
+					final var jpegDevice = new JpegDevice(resolution, 100);
 					// Convert a particular page and save the image to stream
-					try (final Page page = pdfDocument.getPages().get_Item(1)) {
+					try (final var page = pdfDocument.getPages().get_Item(1)) {
 						jpegDevice.process(page, jpgStream);
 					}
 				}
@@ -490,13 +509,37 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 		}
 	}
 
+	private static void convertPdfToJpeg(InputStream pdfFile, OutputStream jpgStream) {
+		try (final var pdfDocument = new Document(pdfFile)) {
+			if (!pdfDocument.getPages().isEmpty()) {
+				final var resolution = new Resolution(JPEG_RESOLUTION);
+				// Create JpegDevice object where second argument indicates the quality of resultant image
+				final var jpegDevice = new JpegDevice(resolution, 100);
+				// Convert a particular page and save the image to stream
+				try (final var page = pdfDocument.getPages().get_Item(1)) {
+					jpegDevice.process(page, jpgStream);
+				}
+			}
+		}
+	}
+
+	@Override
+	public void generateThumbnail(String basename, InputStream input, OutputStream output) throws IOException {
+		final var isPdf = FileSystem.hasExtension(basename, PDF_FILE_EXTENSION);
+		if (isPdf) {
+			convertPdfToJpeg(input, output);
+		} else {
+			convertPptToJpeg(input, output);
+		}
+	}
+
 	@Override
 	public void moveFiles(int sourceId, int targetId, Procedure3<String, String, String> callback) throws IOException {
-		final File sourcePdfRel = makePdfFilename(sourceId);
-		final File sourcePdfAbs = normalizeForServerSide(sourcePdfRel);
+		final var sourcePdfRel = makePdfFilename(sourceId);
+		final var sourcePdfAbs = normalizeForServerSide(sourcePdfRel);
 		if (sourcePdfAbs.exists()) {
-			final File targetPdfRel = makePdfFilename(targetId);
-			final File targetPdfAbs = normalizeForServerSide(targetPdfRel);
+			final var targetPdfRel = makePdfFilename(targetId);
+			final var targetPdfAbs = normalizeForServerSide(targetPdfRel);
 			if (targetPdfAbs.exists()) {
 				Files.deleteIfExists(sourcePdfAbs.toPath());
 				if (callback != null) {
@@ -510,11 +553,11 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			}
 		}
 
-		final File sourcePdfPictureRel = makePdfPictureFilename(sourceId);
-		final File sourcePdfPictureAbs = normalizeForServerSide(sourcePdfPictureRel);
+		final var sourcePdfPictureRel = makePdfPictureFilename(sourceId);
+		final var sourcePdfPictureAbs = normalizeForServerSide(sourcePdfPictureRel);
 		if (sourcePdfPictureAbs.exists()) {
-			final File targetPdfPictureRel = makePdfPictureFilename(targetId);
-			final File targetPdfPictureAbs = normalizeForServerSide(targetPdfPictureRel);
+			final var targetPdfPictureRel = makePdfPictureFilename(targetId);
+			final var targetPdfPictureAbs = normalizeForServerSide(targetPdfPictureRel);
 			if (targetPdfPictureAbs.exists()) {
 				Files.deleteIfExists(sourcePdfPictureAbs.toPath());
 				if (callback != null) {
@@ -528,11 +571,11 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			}
 		}
 
-		final File sourceAwardRel = makeAwardFilename(sourceId);
-		final File sourceAwardAbs = normalizeForServerSide(sourceAwardRel);
+		final var sourceAwardRel = makeAwardFilename(sourceId);
+		final var sourceAwardAbs = normalizeForServerSide(sourceAwardRel);
 		if (sourceAwardAbs.exists()) {
-			final File targetAwardRel = makeAwardFilename(targetId);
-			final File targetAwardAbs = normalizeForServerSide(targetAwardRel);
+			final var targetAwardRel = makeAwardFilename(targetId);
+			final var targetAwardAbs = normalizeForServerSide(targetAwardRel);
 			if (targetAwardAbs.exists()) {
 				Files.deleteIfExists(sourceAwardAbs.toPath());
 				if (callback != null) {
@@ -546,11 +589,11 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 			}
 		}
 
-		final File sourceAwardPictureRel = makeAwardPictureFilename(sourceId);
-		final File sourceAwardPictureAbs = normalizeForServerSide(sourceAwardPictureRel);
+		final var sourceAwardPictureRel = makeAwardPictureFilename(sourceId);
+		final var sourceAwardPictureAbs = normalizeForServerSide(sourceAwardPictureRel);
 		if (sourceAwardPictureAbs.exists()) {
-			final File targetAwardPictureRel = makeAwardPictureFilename(targetId);
-			final File targetAwardPictureAbs = normalizeForServerSide(targetAwardPictureRel);
+			final var targetAwardPictureRel = makeAwardPictureFilename(targetId);
+			final var targetAwardPictureAbs = normalizeForServerSide(targetAwardPictureRel);
 			if (targetAwardPictureAbs.exists()) {
 				Files.deleteIfExists(sourceAwardPictureAbs.toPath());
 				if (callback != null) {
@@ -574,11 +617,11 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public SizedIterator<File> getUploadedPdfFiles() {
-		final File folder0 = normalizeForServerSide(getAwardRootFile());
-		final File folder1 = normalizeForServerSide(getPdfRootFile());
-		final List<File> files0 = asList(folder0.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION)));
-		final List<File> files1 = asList(folder1.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION)));
-		final Stream<File> combinedStream = Stream.concat(
+		final var folder0 = normalizeForServerSide(getAwardRootFile());
+		final var folder1 = normalizeForServerSide(getPdfRootFile());
+		final var files0 = asList(folder0.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION)));
+		final var files1 = asList(folder1.listFiles(it -> FileSystem.hasExtension(it, PDF_FILE_EXTENSION)));
+		final var combinedStream = Stream.concat(
 				files0.stream(),
 				files1.stream());
 		return new FileSizedIterator(files0.size() + files1.size(), combinedStream.iterator());
@@ -586,11 +629,11 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public SizedIterator<File> getThumbailFiles() {
-		final File folder0 = normalizeForServerSide(getAwardRootFile());
-		final File folder1 = normalizeForServerSide(getPdfRootFile());
-		final List<File> files0 = asList(folder0.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION)));
-		final List<File> files1 = asList(folder1.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION)));
-		final Stream<File> combinedStream = Stream.concat(
+		final var folder0 = normalizeForServerSide(getAwardRootFile());
+		final var folder1 = normalizeForServerSide(getPdfRootFile());
+		final var files0 = asList(folder0.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION)));
+		final var files1 = asList(folder1.listFiles(it -> FileSystem.hasExtension(it, JPEG_FILE_EXTENSION)));
+		final var combinedStream = Stream.concat(
 				files0.stream(),
 				files1.stream());
 		return new FileSizedIterator(files0.size() + files1.size(), combinedStream.iterator());
@@ -604,8 +647,8 @@ public class DefaultDownloadableFileManager extends AbstractFileManager implemen
 
 	@Override
 	public void deleteTeachingActivitySlides(int id) {
-		File file = makeTeachingActivitySlidesFilename(id);
-		File absFile = normalizeForServerSide(file);
+		var file = makeTeachingActivitySlidesFilename(id);
+		var absFile = normalizeForServerSide(file);
 		if (absFile.exists()) {
 			absFile.delete();
 		}

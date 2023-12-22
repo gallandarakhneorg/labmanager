@@ -19,14 +19,12 @@
 
 package fr.utbm.ciad.labmanager.components.indicators.members.count;
 
-import java.util.List;
 import java.util.Locale;
 import java.util.stream.Collectors;
 
 import fr.utbm.ciad.labmanager.components.indicators.AbstractInstantIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
-import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.utils.Unit;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -67,10 +65,10 @@ public class PhdStudentCountIndicator extends AbstractInstantIndicator {
 
 	@Override
 	protected Number computeValue(ResearchOrganization organization) {
-		final List<Membership> students = organization.getMemberships().parallelStream().filter(
+		final var students = organization.getMemberships().parallelStream().filter(
 				it -> it.isActive() && it.getMemberStatus() == MemberStatus.PHD_STUDENT)
 				.collect(Collectors.toList());
-		final long nb = students.size();
+		final var nb = students.size();
 		setComputationDetails(students, it -> it.getPerson().getFullNameWithLastNameFirst());
 		return Long.valueOf(nb);
 	}

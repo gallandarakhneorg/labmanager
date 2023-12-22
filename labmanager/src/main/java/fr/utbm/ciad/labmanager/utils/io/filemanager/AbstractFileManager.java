@@ -25,7 +25,6 @@ import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 /** Utilities for managing the downloadable files. This implementation is dedicated to the WordPress service
  * of the lab.
@@ -36,7 +35,7 @@ import org.springframework.beans.factory.annotation.Value;
  * @mavenartifactid $ArtifactId$
  * @since 3.6
  */
-public class AbstractFileManager implements FileManager {
+public abstract class AbstractFileManager implements FileManager {
 
 	/** Path to the upload folder.
 	 */
@@ -48,9 +47,8 @@ public class AbstractFileManager implements FileManager {
 	 *
 	 * @param uploadFolder the path of the upload folder. It is defined by the property {@code labmanager.file.upload-directory}.
 	 */
-	public AbstractFileManager(
-			@Value("${labmanager.file.upload-directory}") String uploadFolder) {
-		final String f0 = Strings.emptyToNull(uploadFolder);
+	public AbstractFileManager(String uploadFolder) {
+		final var f0 = Strings.emptyToNull(uploadFolder);
 		if (f0 == null) {
 			this.uploadFolder = null;
 		} else {

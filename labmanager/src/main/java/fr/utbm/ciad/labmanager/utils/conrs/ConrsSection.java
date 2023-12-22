@@ -381,7 +381,7 @@ public enum ConrsSection {
 	 * @return the label of the CoNRS section in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -394,7 +394,7 @@ public enum ConrsSection {
 	 */
 	public static ConrsSection valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final ConrsSection section : values()) {
+			for (final var section : values()) {
 				if (name.equalsIgnoreCase(section.name())) {
 					return section;
 				}
@@ -424,7 +424,7 @@ public enum ConrsSection {
 	 * @throws IllegalArgumentException if the given number does not corresponds to a CoNRS section.
 	 */
 	public static ConrsSection valueOf(int number) {
-		for (final ConrsSection section : values()) {
+		for (final var section : values()) {
 			if (number == section.getNumber()) {
 				return section;
 			}

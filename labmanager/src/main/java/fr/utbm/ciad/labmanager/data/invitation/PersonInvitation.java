@@ -141,8 +141,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.guest);
 		h = HashCodeUtils.add(h, this.inviter);
 		h = HashCodeUtils.add(h, this.type);
@@ -162,7 +161,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final PersonInvitation other = (PersonInvitation) obj;
+		final var other = (PersonInvitation) obj;
 		if (!Objects.equals(this.guest, other.guest)) {
 			return false;
 		}
@@ -436,7 +435,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	}
 
 	private static String buildLongTypeLabelKey(PersonInvitationType type, boolean isFrance) {
-		final StringBuilder key = new StringBuilder("personInvitation."); //$NON-NLS-1$
+		final var key = new StringBuilder("personInvitation."); //$NON-NLS-1$
 		key.append(type.name());
 		if (isFrance) {
 			key.append("_fr"); //$NON-NLS-1$
@@ -453,8 +452,8 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	 * @see #getLongTypeLabelKey
 	 */
 	public static Map<String, Integer> getAllLongTypeLabelKeys() {
-		final Map<String, Integer> keys = new TreeMap<>();
-		final MutableInt index = new MutableInt();
+		final var keys = new TreeMap<String, Integer>();
+		final var index = new MutableInt();
 		buildLongTypeLabelKeys(keys, index, false, false);
 		buildLongTypeLabelKeys(keys, index, false, true);
 		buildLongTypeLabelKeys(keys, index, true, false);
@@ -463,9 +462,9 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	}
 
 	private static void buildLongTypeLabelKeys(Map<String, Integer> keys, MutableInt index, boolean outgoing, boolean isFrance) {
-		for (final PersonInvitationType type : PersonInvitationType.values()) {
+		for (final var type : PersonInvitationType.values()) {
 			if (type.isOutgoing() == outgoing) {
-				final String key = buildLongTypeLabelKey(type, isFrance);
+				final var key = buildLongTypeLabelKey(type, isFrance);
 				keys.put(key, index.getValue());
 				index.increment();
 			}

@@ -67,7 +67,7 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public int hashCode() {
-		int h = super.hashCode();
+		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.journal);
 		return h;
 	}
@@ -77,7 +77,7 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 		if (!super.equals(obj)) {
 			return false;
 		}
-		final AbstractJournalBasedPublication other = (AbstractJournalBasedPublication) obj;
+		final var other = (AbstractJournalBasedPublication) obj;
 		if (!Objects.equals(this.journal, other.journal)) {
 			return false;
 		}
@@ -98,8 +98,8 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public String getPublicationTarget() {
-		final StringBuilder buf = new StringBuilder();
-		final Journal journal = getJournal();
+		final var buf = new StringBuilder();
+		final var journal = getJournal();
 		if (journal != null) {
 			buf.append(journal.getJournalName());
 			if (!Strings.isNullOrEmpty(journal.getPublisher())) {
@@ -123,7 +123,7 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public QuartileRanking getScimagoQIndex() {
-		final Journal journal = getJournal();
+		final var journal = getJournal();
 		if (journal != null) {
 			return journal.getScimagoQIndexByYear(getPublicationYear());
 		}
@@ -132,7 +132,7 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public String getScimagoCategory() {
-		final Journal journal = getJournal();
+		final var journal = getJournal();
 		if (journal != null) {
 			return journal.getScimagoCategory();
 		}
@@ -141,7 +141,7 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public QuartileRanking getWosQIndex() {
-		final Journal journal = getJournal();
+		final var journal = getJournal();
 		if (journal != null) {
 			return journal.getWosQIndexByYear(getPublicationYear());
 		}
@@ -150,7 +150,7 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public String getWosCategory() {
-		final Journal journal = getJournal();
+		final var journal = getJournal();
 		if (journal != null) {
 			return journal.getWosCategory();
 		}
@@ -159,7 +159,7 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public float getImpactFactor() {
-		final Journal journal = getJournal();
+		final var journal = getJournal();
 		if (journal != null) {
 			return journal.getImpactFactorByYear(getPublicationYear());
 		}
@@ -173,7 +173,7 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public boolean isRanked(JournalRankingSystem rankingSystem) {
-		final Journal journal = getJournal();
+		final var journal = getJournal();
 		if (journal != null) {
 			if (rankingSystem != null) {
 				switch (rankingSystem) {
@@ -192,18 +192,18 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public PublicationCategory getCategory(JournalRankingSystem rankingSystem) {
-		final JournalRankingSystem rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
+		final var rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
 		final Supplier<Boolean> rank;
 		switch (rankingSystem0) {
 		case SCIMAGO:
 			rank = () -> {
-				final QuartileRanking r = getScimagoQIndex();
+				final var r = getScimagoQIndex();
 				return Boolean.valueOf(r != QuartileRanking.NR);
 			};
 			break;
 		case WOS:
 			rank = () -> {
-				final QuartileRanking r = getWosQIndex();
+				final var r = getWosQIndex();
 				return Boolean.valueOf(r != QuartileRanking.NR);
 			};
 			break;
@@ -277,7 +277,7 @@ public abstract class AbstractJournalBasedPublication extends Publication implem
 
 	@Override
 	public Boolean getOpenAccess() {
-		final Journal journal = getJournal();
+		final var journal = getJournal();
 		if (journal != null) {
 			return journal.getOpenAccess();
 		}

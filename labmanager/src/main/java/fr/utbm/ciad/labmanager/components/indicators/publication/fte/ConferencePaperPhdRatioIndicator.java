@@ -64,8 +64,8 @@ public class ConferencePaperPhdRatioIndicator extends AbstractAnnualIndicator {
 
 	@Override
 	public Map<Integer, Number> getValuesPerYear(ResearchOrganization organization, int startYear, int endYear) {
-		final Map<Integer, Number> rankedPapers = this.paperCount.getValuesPerYear(organization, startYear, endYear);
-		final Map<Integer, Number> ftes = this.fteIndicator.getValuesPerYear(organization, startYear, endYear);
+		final var rankedPapers = this.paperCount.getValuesPerYear(organization, startYear, endYear);
+		final var ftes = this.fteIndicator.getValuesPerYear(organization, startYear, endYear);
 		final Map<Integer, Number> ratios = rankedPapers.entrySet().parallelStream().collect(Collectors.toConcurrentMap(
 			Map.Entry::getKey,
 			it -> {

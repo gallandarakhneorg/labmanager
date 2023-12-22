@@ -21,7 +21,6 @@ package fr.utbm.ciad.labmanager.utils.phone;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -85,9 +84,9 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	 */
 	protected String cleanLocalNumber(String number) {
 		assert number != null;
-		String nnumber = number.toUpperCase();
+		var nnumber = number.toUpperCase();
 		nnumber = nnumber.replaceAll("[^0-9A-Za-z]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
-		final String natPrefix = this.country.getNationalPhonePrefix();
+		final var natPrefix = this.country.getNationalPhonePrefix();
 		if (!Strings.isNullOrEmpty(natPrefix) && nnumber.startsWith(natPrefix) && nnumber.length() > natPrefix.length()) {
 			nnumber = nnumber.substring(natPrefix.length());
 		}
@@ -105,15 +104,15 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	 */
 	protected static StringBuilder formatNumberByGroups(CharSequence number, StringBuilder formattedNumber) {
 		assert number != null;
-		final int size = number.length();
+		final var size = number.length();
 		if (size > 0) {
-			final int blockSize = (size % 3) == 0 ? 3 : 2;
-			for (int i = 0; i < blockSize; ++i) {
+			final var blockSize = (size % 3) == 0 ? 3 : 2;
+			for (var i = 0; i < blockSize; ++i) {
 				formattedNumber.append(number.charAt(i));
 			}
-			for (int i = blockSize; i < size;) {
+			for (var i = blockSize; i < size;) {
 				formattedNumber.append(' ');
-				for (int j = 0; i < size && j < blockSize; ++i, ++j) {
+				for (var j = 0; i < size && j < blockSize; ++i, ++j) {
 					formattedNumber.append(number.charAt(i));
 				}
 			}
@@ -136,7 +135,7 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.country);
 		h = HashCodeUtils.add(h, this.localNumber);
 		return h;
@@ -150,7 +149,7 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 		if (obj == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = this.country.compareTo(obj.country);
+		var cmp = this.country.compareTo(obj.country);
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -204,7 +203,7 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	 * @return the national form of this phone number, never {@code null}.
 	 */
 	public String toNationalForm() {
-		final StringBuilder number = new StringBuilder(getCountry().getNationalPhonePrefix());
+		final var number = new StringBuilder(getCountry().getNationalPhonePrefix());
 		number.append(getLocalNumber());
 		return formatNumberByGroups(number, new StringBuilder()).toString();
 	}
@@ -222,7 +221,7 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	 * @return the national form of this phone number, never {@code null}.
 	 */
 	public String toInternationalForm() {
-		StringBuilder number = new StringBuilder(PLUS_PREFIX);
+		var number = new StringBuilder(PLUS_PREFIX);
 		number.append(getCountry().getCallingCode()).append(' ');
 		return formatNumberByGroups(getLocalNumber(), number).toString();
 	}
@@ -241,8 +240,8 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	 * @return the national form of this phone number, never {@code null}.
 	 */
 	public String toInternationalFormWithNationalExitPrefix() {
-		final CountryCode cc = getCountry();
-		StringBuilder number = new StringBuilder(cc.getInternationalPhonePrefix());
+		final var cc = getCountry();
+		var number = new StringBuilder(cc.getInternationalPhonePrefix());
 		number.append(cc.getCallingCode()).append(' ');
 		return formatNumberByGroups(getLocalNumber(), number).toString();
 	}
@@ -261,11 +260,11 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	 * @return the national form of this phone number, never {@code null}.
 	 */
 	public String toInternationalNationalForm() {
-		final CountryCode cc = getCountry();
-		StringBuilder number = new StringBuilder(PLUS_PREFIX);
+		final var cc = getCountry();
+		var number = new StringBuilder(PLUS_PREFIX);
 		number.append(cc.getCallingCode()).append(' ')
-		.append(OPEN_NAT_PREFIX).append(cc.getNationalPhonePrefix())
-		.append(CLOSE_NAT_PREFIX).append(' ');
+			.append(OPEN_NAT_PREFIX).append(cc.getNationalPhonePrefix())
+			.append(CLOSE_NAT_PREFIX).append(' ');
 		return formatNumberByGroups(getLocalNumber(), number).toString();
 	}
 
@@ -302,24 +301,24 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	public static PhoneNumber parse(String number, boolean checkCodeValidity) {
 		if (number != null && number.length() > 0) {
 			// Remove irrelevant characters
-			final String num = number.replaceAll("[^()\\[\\]+0-9A-Za-z]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
+			final var num = number.replaceAll("[^()\\[\\]+0-9A-Za-z]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
 			// Detect the general pattern with all the components of the phone number
-			final Matcher matcher = PHONE_NUMBER_PATTERN.matcher(num);
+			final var matcher = PHONE_NUMBER_PATTERN.matcher(num);
 			if (matcher.matches()) {
-				final String endNumber = matcher.group("n"); //$NON-NLS-1$
+				final var endNumber = matcher.group("n"); //$NON-NLS-1$
 				if (!Strings.isNullOrEmpty(endNumber)) {
-					final String plusSign = matcher.group("p"); //$NON-NLS-1$
+					final var plusSign = matcher.group("p"); //$NON-NLS-1$
 					if (!Strings.isNullOrEmpty(plusSign)) {
 						// Possible formats are:
 						// +00 0000000000
 						// +00 (0) 0000000000
-						final String countryCode = matcher.group("ip"); //$NON-NLS-1$
+						final var countryCode = matcher.group("ip"); //$NON-NLS-1$
 						if (Strings.isNullOrEmpty(countryCode)) {
 							assert Strings.isNullOrEmpty(matcher.group("np")); //$NON-NLS-1$
 							return extractCountryCodeAndLocalNumberWithPlus(endNumber);
 						}
-						final String nationalCode = matcher.group("np"); //$NON-NLS-1$
-						final CountryCode cc = extractCountryCode(countryCode, nationalCode, checkCodeValidity);
+						final var nationalCode = matcher.group("np"); //$NON-NLS-1$
+						final var cc = extractCountryCode(countryCode, nationalCode, checkCodeValidity);
 						return new PhoneNumber(cc, endNumber);
 					}
 					// Possible format is: 0000000000
@@ -340,7 +339,7 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	}
 
 	private static CountryCode extractCountryCode(String countryCode, String nationalCode, boolean checkCodeValidity) {
-		final CountryCode cc = CountryCode.fromCallingCode(toInt(countryCode));
+		final var cc = CountryCode.fromCallingCode(toInt(countryCode));
 		if (cc == null) {
 			throw new IllegalArgumentException();
 		}
@@ -353,11 +352,11 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	private static PhoneNumber extractCountryCodeAndLocalNumber(String fullNumber) {
 		assert !Strings.isNullOrEmpty(fullNumber);
 		// Search for international format first
-		for (final CountryCode cc : CountryCode.values()) {
-			final String intPrefix = cc.getInternationalPhonePrefix();
+		for (final var cc : CountryCode.values()) {
+			final var intPrefix = cc.getInternationalPhonePrefix();
 			if (!intPrefix.isEmpty() && fullNumber.startsWith(intPrefix)) {
-				String rest = fullNumber.substring(intPrefix.length());
-				final String code = Integer.toString(cc.getCallingCode());
+				var rest = fullNumber.substring(intPrefix.length());
+				final var code = Integer.toString(cc.getCallingCode());
 				if (rest.startsWith(code)) {
 					rest = rest.substring(code.length());
 					return new PhoneNumber(cc, rest);
@@ -365,10 +364,10 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 			}
 		}
 		// Search for national format at a second step
-		for (final CountryCode cc : CountryCode.values()) {
-			final String natPrefix = cc.getNationalPhonePrefix();
+		for (final var cc : CountryCode.values()) {
+			final var natPrefix = cc.getNationalPhonePrefix();
 			if (fullNumber.startsWith(natPrefix)) {
-				String rest = fullNumber.substring(natPrefix.length());
+				var rest = fullNumber.substring(natPrefix.length());
 				return new PhoneNumber(cc, rest);
 			}
 		}
@@ -378,10 +377,10 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	private static PhoneNumber extractCountryCodeAndLocalNumberWithPlus(String fullNumber) {
 		assert !Strings.isNullOrEmpty(fullNumber);
 		// Search for international format first
-		for (final CountryCode cc : CountryCode.values()) {
-			final String code = Integer.toString(cc.getCallingCode());
+		for (final var cc : CountryCode.values()) {
+			final var code = Integer.toString(cc.getCallingCode());
 			if (fullNumber.startsWith(code)) {
-				final String rest = fullNumber.substring(code.length());
+				final var rest = fullNumber.substring(code.length());
 				return new PhoneNumber(cc, rest);
 			}
 		}
@@ -428,9 +427,9 @@ public class PhoneNumber implements Serializable, Comparable<PhoneNumber>, JsonS
 	 */
 	public static PhoneNumber unserialize(String number) {
 		if (number != null) {
-			final String[] parts = number.split(Pattern.quote(SERIALIZATION_SEPARATOR), 2);
+			final var parts = number.split(Pattern.quote(SERIALIZATION_SEPARATOR), 2);
 			if (parts.length == 2 && !Strings.isNullOrEmpty(parts[0]) && !Strings.isNullOrEmpty(parts[1])) {
-				final CountryCode cc = CountryCode.valueOfCaseInsensitive(parts[0]);
+				final var cc = CountryCode.valueOfCaseInsensitive(parts[0]);
 				return new PhoneNumber(cc, parts[1]);
 			}
 		}

@@ -93,7 +93,7 @@ public class Patent extends Publication {
 
 	@Override
 	public int hashCode() {
-		int h = super.hashCode();
+		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.institution);
 		h = HashCodeUtils.add(h, this.address);
 		h = HashCodeUtils.add(h, this.patentType);
@@ -106,7 +106,7 @@ public class Patent extends Publication {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		final Patent other = (Patent) obj;
+		final var other = (Patent) obj;
 		if (!Objects.equals(this.institution, other.institution)) {
 			return false;
 		}
@@ -142,10 +142,10 @@ public class Patent extends Publication {
 	@Override
 	@JsonIgnore
 	public String getWherePublishedShortDescription() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(getInstitution());
-		final boolean b0 = !Strings.isNullOrEmpty(getPatentNumber());
-		final boolean b1 = !Strings.isNullOrEmpty(getPatentType());
+		final var b0 = !Strings.isNullOrEmpty(getPatentNumber());
+		final var b1 = !Strings.isNullOrEmpty(getPatentType());
 		if (b0 && b1) {
 			buf.append(", n. "); //$NON-NLS-1$
 			buf.append(getPatentNumber());
@@ -175,7 +175,7 @@ public class Patent extends Publication {
 
 	@Override
 	public String getPublicationTarget() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(getInstitution());
 		return buf.toString();
 	}

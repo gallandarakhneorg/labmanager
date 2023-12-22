@@ -470,6 +470,16 @@ project.properties["mainVersionNumber"] = project.properties["baseVersionNumber"
 				<role>Author of LanguageSelect for Vaadin 14</role>
 			</roles>
 		</contributor>
+		<contributor>
+			<name>Martin VYSNY</name>
+			<properties>
+				<id>mvysny</id>
+				<githubId>mvysny</githubId>
+			</properties>
+			<roles>
+				<role>Author of CountryFlag for Vaadin 8</role>
+			</roles>
+		</contributor>
 	</contributors>
 
 	<licenses>

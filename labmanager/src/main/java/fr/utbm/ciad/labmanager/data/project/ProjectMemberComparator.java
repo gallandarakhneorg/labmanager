@@ -59,15 +59,11 @@ public class ProjectMemberComparator implements Comparator<ProjectMember> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = compareRoles(o1.getRole(), o2.getRole());
+		var n = compareRoles(o1.getRole(), o2.getRole());
 		if (n != 0) {
 			return n;
 		}
-		n = this.personComparator.compare(o1.getPerson(), o2.getPerson());
-		if (n != 0) {
-			return n;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return this.personComparator.compare(o1.getPerson(), o2.getPerson());
 	}
 
 	private static int compareRoles(Role r1, Role r2) {

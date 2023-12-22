@@ -49,7 +49,7 @@ public class PersonComparator implements Comparator<Person> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = StringUtils.compare(o1.getLastName(), o2.getLastName());
+		var cmp = StringUtils.compare(o1.getLastName(), o2.getLastName());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -153,11 +153,7 @@ public class PersonComparator implements Comparator<Person> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = StringUtils.compare(o1.getGravatarId(), o2.getGravatarId());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return StringUtils.compare(o1.getGravatarId(), o2.getGravatarId());
 	}
 
 	private static int comparePhones(PhoneNumber p1, PhoneNumber p2) {

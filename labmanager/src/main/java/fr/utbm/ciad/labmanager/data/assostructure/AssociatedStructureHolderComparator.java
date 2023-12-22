@@ -63,7 +63,7 @@ public class AssociatedStructureHolderComparator implements Comparator<Associate
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = this.personComparator.compare(o1.getPerson(), o2.getPerson());
+		var cmp = this.personComparator.compare(o1.getPerson(), o2.getPerson());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -79,11 +79,7 @@ public class AssociatedStructureHolderComparator implements Comparator<Associate
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = compareString(o1.getRoleDescription(), o2.getRoleDescription());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return compareString(o1.getRoleDescription(), o2.getRoleDescription());
 	}
 
 	/** Null-safe comparison the two strings.

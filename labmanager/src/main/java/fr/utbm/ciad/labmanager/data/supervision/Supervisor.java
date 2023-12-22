@@ -87,8 +87,7 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.percentage);
 		h = HashCodeUtils.add(h, this.type);
 		return h;
@@ -102,7 +101,7 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final Supervisor other = (Supervisor) obj;
+		final var other = (Supervisor) obj;
 		if (this.percentage != other.percentage) {
 			return false;
 		}

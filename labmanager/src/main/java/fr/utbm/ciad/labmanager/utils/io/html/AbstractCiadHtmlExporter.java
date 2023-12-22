@@ -76,7 +76,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 
 	@Override
 	protected String formatTitle(String title, ExporterConfigurator configurator) {
-		final StringBuilder html = new StringBuilder();
+		final var html = new StringBuilder();
 		html.append("<i>"); //$NON-NLS-1$
 		if (configurator.isColoredTitle()) {
 			html.append("<font color=\"#"); //$NON-NLS-1$
@@ -110,7 +110,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 		if (append(html, decorateBefore(toHtml(publication.getEditors()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "EDITOR_PREFIX", locale)))) { //$NON-NLS-1$
 			html.append(". "); //$NON-NLS-1$
 		}
-		final String doiLink = buildDoiLink(publication.getDOI());
+		final var doiLink = buildDoiLink(publication.getDOI());
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "DOI_PREFIX", locale)), //$NON-NLS-1$
 				decorateBefore(toHtml(publication.getISBN()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "ISBN_PREFIX", locale)), //$NON-NLS-1$
@@ -184,7 +184,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 						toHtml(publication.getOrganization()))) {
 			html.append(". "); //$NON-NLS-1$
 		}
-		final String doiLink = buildDoiLink(publication.getDOI());
+		final var doiLink = buildDoiLink(publication.getDOI());
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "DOI_PREFIX", locale)), //$NON-NLS-1$
 				decorateBefore(toHtml(getISBN(publication.getConference())), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "ISBN_PREFIX", locale)), //$NON-NLS-1$
@@ -202,7 +202,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 
 	@Override
 	protected void exportDescription(StringBuilder html, JournalPaper publication, Locale locale) {
-		final Journal journal = publication.getJournal();
+		final var journal = publication.getJournal();
 		if (journal != null && append(html, ", ", //$NON-NLS-1$
 				decorateBefore(toHtml(journal.getJournalName()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "JOURNAL_PREFIX", locale)), //$NON-NLS-1$
 						toHtml(publication.getSeries()))) {
@@ -214,7 +214,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 				decorateBefore(toHtml(publication.getPages()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "PAGE_PREFIX", locale)))) { //$NON-NLS-1$
 			html.append(". "); //$NON-NLS-1$
 		}
-		final String doiLink = buildDoiLink(publication.getDOI());
+		final var doiLink = buildDoiLink(publication.getDOI());
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "DOI_PREFIX", locale)), //$NON-NLS-1$
 				decorateBefore(toHtml(getISBN(publication.getJournal())), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "ISBN_PREFIX", locale)), //$NON-NLS-1$
@@ -237,7 +237,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 
 	@Override
 	protected void exportDescription(StringBuilder html, JournalEdition publication, Locale locale) {
-		final Journal journal = publication.getJournal();
+		final var journal = publication.getJournal();
 		if (journal != null && append(html,
 				decorateBefore(toHtml(journal.getJournalName()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "JOURNAL_PREFIX", locale)))) { //$NON-NLS-1$
 			html.append(". "); //$NON-NLS-1$
@@ -248,9 +248,9 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 				decorateBefore(toHtml(publication.getPages()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "PAGE_PREFIX", locale)))) { //$NON-NLS-1$
 			html.append(". "); //$NON-NLS-1$
 		}
-		final String doiLink = buildDoiLink(publication.getDOI());
-		final String isbn = getISBN(journal);
-		final String issn = getISSN(journal);
+		final var doiLink = buildDoiLink(publication.getDOI());
+		final var isbn = getISBN(journal);
+		final var issn = getISSN(journal);
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "DOI_PREFIX", locale)), //$NON-NLS-1$
 				decorateBefore(isbn, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "ISBN_PREFIX", locale)), //$NON-NLS-1$
@@ -273,7 +273,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 				toHtml(publication.getOrganization()))) {
 			html.append(". "); //$NON-NLS-1$
 		}
-		final String doiLink = buildDoiLink(publication.getDOI());
+		final var doiLink = buildDoiLink(publication.getDOI());
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "DOI_PREFIX", locale)), //$NON-NLS-1$
 				decorateBefore(toHtml(getISBN(publication.getConference())), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "ISBN_PREFIX", locale)), //$NON-NLS-1$
@@ -297,7 +297,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 				toHtml(publication.getAddress()))) {
 			html.append(". "); //$NON-NLS-1$
 		}
-		final String doiLink = buildDoiLink(publication.getDOI());
+		final var doiLink = buildDoiLink(publication.getDOI());
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "DOI_PREFIX", locale)), //$NON-NLS-1$
 				decorateBefore(toHtml(publication.getISBN()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "ISBN_PREFIX", locale)), //$NON-NLS-1$
@@ -314,7 +314,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 				toHtml(publication.getAddress()))) {
 			html.append(". "); //$NON-NLS-1$
 		}
-		final String doiLink = buildDoiLink(publication.getDOI());
+		final var doiLink = buildDoiLink(publication.getDOI());
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "DOI_PREFIX", locale)), //$NON-NLS-1$
 				decorateBefore(toHtml(publication.getISBN()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "ISBN_PREFIX", locale)), //$NON-NLS-1$
@@ -329,7 +329,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 				getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + publication.getType().name(), locale),
 				toHtml(publication.getPatentNumber()))) {
 			if (!Strings.isNullOrEmpty(publication.getPatentType())) {
-				final String typeStr = getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "PATENT_TYPE", //$NON-NLS-1$
+				final var typeStr = getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "PATENT_TYPE", //$NON-NLS-1$
 						new Object[] {toHtml(publication.getPatentType())}, locale);
 				if (!Strings.isNullOrEmpty(typeStr)) {
 					html.append(" "); //$NON-NLS-1$
@@ -343,7 +343,7 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 				toHtml(publication.getAddress()))) {
 			html.append(". "); //$NON-NLS-1$
 		}
-		final String doiLink = buildDoiLink(publication.getDOI());
+		final var doiLink = buildDoiLink(publication.getDOI());
 		if (append(html, ", ", //$NON-NLS-1$
 				decorateBefore(doiLink, getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "DOI_PREFIX", locale)), //$NON-NLS-1$
 				decorateBefore(toHtml(publication.getISBN()), getMessageSourceAccessor().getMessage(MESSAGES_PREFIX + "ISBN_PREFIX", locale)), //$NON-NLS-1$
@@ -400,10 +400,10 @@ public abstract class AbstractCiadHtmlExporter extends AbstractHtmlExporter {
 	protected void exportAuthors(StringBuilder html, Publication publication, ExporterConfigurator configurator, boolean appendEndPoint,
 			Function2<Person, Integer, String> formatter) {
 		assert configurator != null;
-		final int year = publication.getPublicationYear();
-		final Integer oyear = Integer.valueOf(year);
-		boolean first = true;
-		for (final Person person : publication.getAuthors()) {
+		final var year = publication.getPublicationYear();
+		final var oyear = Integer.valueOf(year);
+		var first = true;
+		for (final var person : publication.getAuthors()) {
 			if (first) {
 				first = false;
 			} else {

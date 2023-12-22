@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.publication.type;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -143,8 +142,7 @@ public class PatentService extends AbstractPublicationTypeService {
 	 * @return the patent or {@code null}.
 	 */
 	public Patent getPatent(int identifier) {
-		final Optional<Patent> byId = this.repository.findById(Integer.valueOf(identifier));
-		return byId.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a patent.
@@ -158,7 +156,7 @@ public class PatentService extends AbstractPublicationTypeService {
 	 */
 	public Patent createPatent(Publication publication,
 			String number, String type, String institution, String address) {
-		final Patent res = new Patent(publication, institution, address, type, number);
+		final var res = new Patent(publication, institution, address, type, number);
 		this.repository.save(res);
 		return res;
 	}
@@ -194,9 +192,9 @@ public class PatentService extends AbstractPublicationTypeService {
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String number, String patentType, String institution, String address) {
-		final Optional<Patent> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final Patent patent = res.get();
+			final var patent = res.get();
 
 			updatePublicationNoSave(patent, title, type, date, year,
 					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,

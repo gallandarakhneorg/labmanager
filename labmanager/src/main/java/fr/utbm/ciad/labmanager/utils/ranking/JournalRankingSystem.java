@@ -50,7 +50,7 @@ public enum JournalRankingSystem {
 	 * @return the label of the journal ranking system in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -63,7 +63,7 @@ public enum JournalRankingSystem {
 	 */
 	public static JournalRankingSystem valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final JournalRankingSystem section : values()) {
+			for (final var section : values()) {
 				if (name.equalsIgnoreCase(section.name())) {
 					return section;
 				}

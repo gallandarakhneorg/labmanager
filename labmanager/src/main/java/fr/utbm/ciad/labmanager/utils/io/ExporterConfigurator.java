@@ -23,7 +23,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.function.Predicate;
 
 import fr.utbm.ciad.labmanager.data.member.MemberStatus;
@@ -433,24 +432,24 @@ public class ExporterConfigurator {
 	}
 
 	private static boolean isValidPeriod(Membership membership, int year) {
-		final LocalDate start = LocalDate.of(year, 1, 1);
-		final LocalDate end = LocalDate.of(year, 12, 31);
+		final var start = LocalDate.of(year, 1, 1);
+		final var end = LocalDate.of(year, 12, 31);
 		return membership.isActiveIn(start, end);
 	}
 
 	private static boolean isResearcher(Membership membership) {
-		final MemberStatus it = membership.getMemberStatus();
+		final var it = membership.getMemberStatus();
 		return it.isResearcher() && it != MemberStatus.POSTDOC && it != MemberStatus.PHD_STUDENT
 				&& it != MemberStatus.ASSOCIATED_MEMBER;
 	}
 
 	private static boolean isPhDStudent(Membership membership) {
-		final MemberStatus it = membership.getMemberStatus();
+		final var it = membership.getMemberStatus();
 		return it == MemberStatus.PHD_STUDENT;
 	}
 
 	private static boolean isPostdocEngineer(Membership membership) {
-		final MemberStatus it = membership.getMemberStatus();
+		final var it = membership.getMemberStatus();
 		return it.isTechnicalStaff() || it == MemberStatus.POSTDOC;
 	}
 
@@ -474,8 +473,8 @@ public class ExporterConfigurator {
 			if (this.personSelector != null && this.personSelector.test(person)) {
 				return ExportedAuthorStatus.SELECTED_PERSON;
 			}
-			ExportedAuthorStatus status = ExportedAuthorStatus.OTHER;
-			for (final Membership membership : person.getMemberships()) {
+			var status = ExportedAuthorStatus.OTHER;
+			for (final var membership : person.getMemberships()) {
 				if (isValidPeriod(membership, year)
 						&& (this.organizationSelector == null || this.organizationSelector.test(membership.getResearchOrganization()))) {
 					if (isResearcher(membership)) {
@@ -516,8 +515,8 @@ public class ExporterConfigurator {
 	 * @return the {@code uriBuilder}.
 	 */
 	public UriBuilder applyQueryParams(UriBuilder uriBuilder) {
-		UriBuilder b = uriBuilder;
-		for (final Entry<String, Object> query : this.queryParameters.entrySet()) {
+		var b = uriBuilder;
+		for (final var query : this.queryParameters.entrySet()) {
 			b = b.queryParam(query.getKey(), query.getValue());			
 		}
 		return b;

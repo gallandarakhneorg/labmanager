@@ -20,11 +20,9 @@
 package fr.utbm.ciad.labmanager.utils.names;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.function.Function;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.google.common.base.Strings;
@@ -87,15 +85,15 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	private static final Pattern AND_WITHOUT_COMMA_SEPARATED_PATTERN = Pattern.compile(AND_SEPARATED_FORMAT_1, Pattern.CASE_INSENSITIVE);
 
 	private static int extractNames(String text, NameCallback callback, Pattern nameSeparator) {
-		int nb = 0;
-		final String[] names = nameSeparator.split(text);
-		for (final String fn : names) {
+		var nb = 0;
+		final var names = nameSeparator.split(text);
+		for (final var fn : names) {
 			// Check the format: Last, von, First
-			final Matcher n0 = NAME_PATTERN_0.matcher(fn);
+			final var n0 = NAME_PATTERN_0.matcher(fn);
 			if (n0.matches()) {
-				final String lastname = n0.group(1);
-				final String von = n0.group(2);
-				final String firstname = n0.group(3);
+				final var lastname = n0.group(1);
+				final var von = n0.group(2);
+				final var firstname = n0.group(3);
 				if (!Strings.isNullOrEmpty(firstname) && !Strings.isNullOrEmpty(lastname)) {
 					callback.name(firstname, Strings.emptyToNull(von), lastname, nb);
 					++nb;
@@ -104,10 +102,10 @@ public class DefaultPersonNameParser implements PersonNameParser {
 				}
 			} else {
 				// Check the format: First Last (no von part)
-				final Matcher n1 = NAME_PATTERN_1.matcher(fn);
+				final var n1 = NAME_PATTERN_1.matcher(fn);
 				if (n1.matches()) {
-					final String lastname = n1.group(2);
-					final String firstname = n1.group(1);
+					final var lastname = n1.group(2);
+					final var firstname = n1.group(1);
 					if (!Strings.isNullOrEmpty(firstname) && !Strings.isNullOrEmpty(lastname)) {
 						callback.name(firstname, null, lastname, nb);
 						++nb;
@@ -125,9 +123,9 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	@Override
 	public int parseNames(String text, NameCallback callback) {
 		assert callback != null;
-		int nb = 0;
+		var nb = 0;
 		if (!Strings.isNullOrEmpty(text)) {
-			Matcher matcher = AND_WITH_COMMA_SEPARATED_PATTERN.matcher(text);
+			var matcher = AND_WITH_COMMA_SEPARATED_PATTERN.matcher(text);
 			if (matcher.matches()) {
 				nb = extractNames(text, callback, NAME_SEPARATOR_PATTERN_0);
 			} else {
@@ -148,18 +146,18 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	}
 
 	private static void forEachComponent(String name, Function<String, Boolean> consumer) {
-		final String[] words = name.split("[\\s\u00A0]+"); //$NON-NLS-1$
-		for (final String word : words) {
-			final String[] subwords = word.split("[\\-]+"); //$NON-NLS-1$
+		final var words = name.split("[\\s\u00A0]+"); //$NON-NLS-1$
+		for (final var word : words) {
+			final var subwords = word.split("[\\-]+"); //$NON-NLS-1$
 			int max = subwords.length;
 			if (subwords.length > 1 && "".equals(subwords[subwords.length -1])) { //$NON-NLS-1$
 				--max;
 			}
-			final List<String> components0 = new ArrayList<>();
-			for (int i = 0; i < max; ++i) {
+			final var components0 = new ArrayList<String>();
+			for (var i = 0; i < max; ++i) {
 				if (subwords[i].length() > 0) {
-					final String[] particles = subwords[i].split("[.]+"); //$NON-NLS-1$
-					for (final String particle : particles) {
+					final var particles = subwords[i].split("[.]+"); //$NON-NLS-1$
+					for (final var particle : particles) {
 						final String cmp;
 						if (particle.length() == 1) {
 							cmp = WordUtils.capitalizeFully(particle + "."); //$NON-NLS-1$
@@ -171,9 +169,9 @@ public class DefaultPersonNameParser implements PersonNameParser {
 				}
 			}
 			if (max > 1) {
-				final StringBuilder buf = new StringBuilder();
-				boolean first = true;
-				for (final String cmp : components0) {
+				final var buf = new StringBuilder();
+				var first = true;
+				for (final var cmp : components0) {
 					if (first) {
 						first = false;
 					} else {
@@ -181,13 +179,13 @@ public class DefaultPersonNameParser implements PersonNameParser {
 					}
 					buf.append(cmp);
 				}
-				final Boolean ret = consumer.apply(buf.toString());
+				final var ret = consumer.apply(buf.toString());
 				if (ret != null && !ret.booleanValue()) {
 					return;
 				}
 			} else {
-				for (final String cmp : components0) {
-					final Boolean ret = consumer.apply(cmp);
+				for (final var cmp : components0) {
+					final var ret = consumer.apply(cmp);
 					if (ret != null && !ret.booleanValue()) {
 						return;
 					}
@@ -198,13 +196,13 @@ public class DefaultPersonNameParser implements PersonNameParser {
 
 	@Override
 	public String parseFirstName(String fullName) {
-		String fn = Strings.nullToEmpty(fullName).trim();
+		var fn = Strings.nullToEmpty(fullName).trim();
 		if (!Strings.isNullOrEmpty(fn)) {
-			int index = fn.indexOf(FORMAT_2_SEPARATOR);
-			final StringBuilder name = new StringBuilder();
+			var index = fn.indexOf(FORMAT_2_SEPARATOR);
+			final var name = new StringBuilder();
 			if (index >= 0) {
 				fn = fn.substring(index + 1).trim();
-				final MutableBoolean cont = new MutableBoolean(false);
+				final var cont = new MutableBoolean(false);
 				forEachComponent(fn, it -> {
 					if (cont.booleanValue()) {
 						name.append(" "); //$NON-NLS-1$
@@ -214,8 +212,8 @@ public class DefaultPersonNameParser implements PersonNameParser {
 					return Boolean.TRUE;
 				});
 			} else {
-				final MutableBoolean cont = new MutableBoolean(false);
-				final MutableObject<String> cmp0 = new MutableObject<>(null);
+				final var cont = new MutableBoolean(false);
+				final var cmp0 = new MutableObject<String>(null);
 				forEachComponent(fn, it -> {
 					if (!it.endsWith(".") && cont.booleanValue()) { //$NON-NLS-1$
 						cmp0.setValue(it);
@@ -229,7 +227,7 @@ public class DefaultPersonNameParser implements PersonNameParser {
 					return Boolean.valueOf(cmp0.getValue() == null);
 				});
 			}
-			final String firstName = name.toString();
+			final var firstName = name.toString();
 			if (!Strings.isNullOrEmpty(firstName)) {
 				return firstName;
 			}
@@ -240,13 +238,13 @@ public class DefaultPersonNameParser implements PersonNameParser {
 
 	@Override
 	public String parseLastName(String fullName) {
-		String fn = Strings.nullToEmpty(fullName).trim();
+		var fn = Strings.nullToEmpty(fullName).trim();
 		if (!Strings.isNullOrEmpty(fn)) {
-			int index = fn.indexOf(FORMAT_2_SEPARATOR);
-			final StringBuilder name = new StringBuilder();
+			var index = fn.indexOf(FORMAT_2_SEPARATOR);
+			final var name = new StringBuilder();
 			if (index >= 0) {
 				fn = fn.substring(0, index).trim();
-				final MutableBoolean cont = new MutableBoolean(false);
+				final var cont = new MutableBoolean(false);
 				forEachComponent(fn, it -> {
 					if (cont.booleanValue()) {
 						name.append(" "); //$NON-NLS-1$
@@ -256,8 +254,8 @@ public class DefaultPersonNameParser implements PersonNameParser {
 					return Boolean.TRUE;
 				});
 			} else {
-				final MutableBoolean cont = new MutableBoolean(false);
-				final MutableBoolean inFirstName = new MutableBoolean(true);
+				final var cont = new MutableBoolean(false);
+				final var inFirstName = new MutableBoolean(true);
 				forEachComponent(fn, it -> {
 					if (!it.endsWith(".") || !inFirstName.booleanValue()) { //$NON-NLS-1$
 						inFirstName.setFalse();
@@ -272,7 +270,7 @@ public class DefaultPersonNameParser implements PersonNameParser {
 					return Boolean.TRUE;
 				});
 			}
-			final String lastName = name.toString();
+			final var lastName = name.toString();
 			if (!Strings.isNullOrEmpty(lastName)) {
 				return lastName;
 			}
@@ -283,7 +281,7 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	@Override
 	public String formatNameForDisplay(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			final String tname = name.trim();
+			final var tname = name.trim();
 			if (!Strings.isNullOrEmpty(tname)) {
 				return WordUtils.capitalizeFully(tname, NAME_DELIMITERS);
 			}
@@ -295,16 +293,16 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	@Override
 	public String normalizeName(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			final String normalizedName0 = name.trim();
+			final var normalizedName0 = name.trim();
 			if (!Strings.isNullOrEmpty(normalizedName0)) {
 				// Remove dashes, e.g., "A-B" -> "A B"
-				final String normalizedName1 = normalizedName0.replaceAll("\\s*\\-\\s*", " "); //$NON-NLS-1$ //$NON-NLS-2$
+				final var normalizedName1 = normalizedName0.replaceAll("\\s*\\-\\s*", " "); //$NON-NLS-1$ //$NON-NLS-2$
 				// Remove the dots, e.g., "N." -> "N"
-				final String normalizedName2 = normalizedName1.replaceAll("(\\S)\\.", "$1 "); //$NON-NLS-1$ //$NON-NLS-2$
+				final var normalizedName2 = normalizedName1.replaceAll("(\\S)\\.", "$1 "); //$NON-NLS-1$ //$NON-NLS-2$
 				// Normalize white-spaces, e.g., "    " -> " "
-				final String normalizedName3 = normalizedName2.replaceAll("\\s+", " "); //$NON-NLS-1$ //$NON-NLS-2$
+				final var normalizedName3 = normalizedName2.replaceAll("\\s+", " "); //$NON-NLS-1$ //$NON-NLS-2$
 				// Remove accents and special characters
-				final Normalizer2 normalizer = Normalizer2.getNFKDInstance();
+				final var normalizer = Normalizer2.getNFKDInstance();
 				String normalizedName4;
 				if (!normalizer.isNormalized(normalizedName3)) {
 					normalizedName4 = normalizer.normalize(normalizedName3);
@@ -322,11 +320,11 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	@Override
 	public boolean isShortName(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			final String normalizedName = normalizeName(name);
+			final var normalizedName = normalizeName(name);
 			if (!Strings.isNullOrEmpty(normalizedName)) {
-				final String[] words = normalizedName.split("\\s+"); //$NON-NLS-1$
+				final var words = normalizedName.split("\\s+"); //$NON-NLS-1$
 				if (words.length > 0) {
-					for (final String word : words) {
+					for (final var word : words) {
 						if (word.length() > 1) {
 							return false;
 						}
@@ -341,10 +339,10 @@ public class DefaultPersonNameParser implements PersonNameParser {
 	@Override
 	public Set<String> getNormalizedNamesFor(String name, boolean enableShortNames) {
 		Set<String> cases = new TreeSet<>();
-		final String normalizedName = normalizeName(name);
+		final var normalizedName = normalizeName(name);
 		if (!Strings.isNullOrEmpty(normalizedName)) {
 			// Generate the cases
-			final String[] words = normalizedName.split("\\s+"); //$NON-NLS-1$
+			final var words = normalizedName.split("\\s+"); //$NON-NLS-1$
 			if (words.length > 0) {
 				cases.add(words[0]);
 				if (enableShortNames) {
@@ -360,8 +358,8 @@ public class DefaultPersonNameParser implements PersonNameParser {
 
 	private static Set<String> fillWithWords(Set<String> cases, String word, boolean enableShortNames) {
 		assert !Strings.isNullOrEmpty(word);
-		final Set<String> result = new TreeSet<>();
-		for (final String candidate : cases) {
+		final var result = new TreeSet<String>();
+		for (final var candidate : cases) {
 			result.add(candidate + " " + word); //$NON-NLS-1$
 			if (enableShortNames) {
 				result.add(candidate + " " + Character.toString(word.charAt(0))); //$NON-NLS-1$

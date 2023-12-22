@@ -50,7 +50,7 @@ public class ResearchOrganizationNameComparator implements Comparator<ResearchOr
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = StringUtils.compareIgnoreCase(o1.getAcronym(), o2.getAcronym());
+		var cmp = StringUtils.compareIgnoreCase(o1.getAcronym(), o2.getAcronym());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -78,11 +78,7 @@ public class ResearchOrganizationNameComparator implements Comparator<ResearchOr
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = compareCountry(o1.getCountry(), o2.getCountry());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return compareCountry(o1.getCountry(), o2.getCountry());
 	}
 
 	private static int compareCountry(CountryCode c0, CountryCode c1) {

@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.publication.type;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -143,8 +142,7 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	 * @return the miscellaneous document or {@code null}.
 	 */
 	public MiscDocument getMiscDocument(int identifier) {
-		final Optional<MiscDocument> byId = this.repository.findById(Integer.valueOf(identifier));
-		return byId.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a miscellaneous document.
@@ -179,7 +177,7 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	public MiscDocument createMiscDocument(Publication publication,
 			String number, String howPublished, String type,
 			String organization, String publisher, String address, boolean saveInDb) {
-		final MiscDocument res = new MiscDocument(publication, organization, address, howPublished,
+		final var res = new MiscDocument(publication, organization, address, howPublished,
 				publisher, number, type);
 		if (saveInDb) {
 			this.repository.save(res);
@@ -221,9 +219,9 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String number, String howPublished, String miscDocumentType,
 			String organization, String publisher, String address) {
-		final Optional<MiscDocument> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final MiscDocument document = res.get();
+			final var document = res.get();
 
 			updatePublicationNoSave(document, title, type, date, year,
 					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,

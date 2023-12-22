@@ -50,7 +50,7 @@ public class AuthorshipComparator implements Comparator<Authorship> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int n = Integer.compare(o1.getAuthorRank(), o2.getAuthorRank());
+		var n = Integer.compare(o1.getAuthorRank(), o2.getAuthorRank());
 		if (n != 0) {
 			return n;
 		}
@@ -58,7 +58,7 @@ public class AuthorshipComparator implements Comparator<Authorship> {
 		if (n != 0) {
 			return n;
 		}
-		return Integer.compare(o2.getPublication().getId(), o1.getPublication().getId());
+		return Integer.compare(o1.getPublication().getId(), o2.getPublication().getId());
 	}
 
 }

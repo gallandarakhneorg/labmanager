@@ -82,7 +82,7 @@ public class OrphanSupervisionService extends AbstractOrphanService<Supervision>
 		if (supervision.getSupervisors().isEmpty()) {
 			return getMessage(locale, MESSAGE_PREFIX + "EmptySupervisorList"); //$NON-NLS-1$
 		}
-		for (final Supervisor supervisor : supervision.getSupervisors()) {
+		for (final var supervisor : supervision.getSupervisors()) {
 			if (supervisor.getSupervisor() == null) {
 				return getMessage(locale, MESSAGE_PREFIX + "NoPersonForSupervisor"); //$NON-NLS-1$
 			}
@@ -99,8 +99,8 @@ public class OrphanSupervisionService extends AbstractOrphanService<Supervision>
 	}
 
 	private static String join(List<Supervisor> supervisors, Locale locale) {
-		final StringBuffer buffer = new StringBuffer();
-		for (final Supervisor supervisor : supervisors) {
+		final var buffer = new StringBuffer();
+		for (final var supervisor : supervisors) {
 			if (buffer.length() > 0) {
 				buffer.append(", "); //$NON-NLS-1$
 			}

@@ -85,8 +85,7 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.budget);
 		h = HashCodeUtils.add(h, this.fundingScheme);
 		h = HashCodeUtils.add(h, this.grant);
@@ -101,7 +100,7 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final ProjectBudget other = (ProjectBudget) obj;
+		final var other = (ProjectBudget) obj;
 		if (this.budget != other.budget) {
 			return false;
 		}

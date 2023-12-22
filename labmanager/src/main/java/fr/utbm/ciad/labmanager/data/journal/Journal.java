@@ -26,7 +26,6 @@ import java.net.URL;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 import java.util.TreeMap;
@@ -191,8 +190,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.journalName);
 		h = HashCodeUtils.add(h, this.publisher);
 		h = HashCodeUtils.add(h, this.address);
@@ -216,10 +214,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final Journal other = (Journal) obj;
-		if (this.id != other.id) {
-			return false;
-		}
+		final var other = (Journal) obj;
 		if (!Objects.equals(this.journalName, other.journalName)) {
 			return false;
 		}
@@ -315,7 +310,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 		});
 		//
 		generator.writeObjectFieldStart("qualityIndicators"); //$NON-NLS-1$
-		for (final Entry<Integer, JournalQualityAnnualIndicators> indicators : getQualityIndicators().entrySet()) {
+		for (final var indicators : getQualityIndicators().entrySet()) {
 			generator.writeFieldId(indicators.getKey().intValue());
 			generator.writeObject(indicators.getValue());
 		}
@@ -566,7 +561,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @since 2.0
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsForYear(int year) {
-		final Map<Integer, JournalQualityAnnualIndicators> allIndicators = getQualityIndicators();
+		final var allIndicators = getQualityIndicators();
 		if (allIndicators == null) {
 			return null;
 		}
@@ -582,12 +577,12 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @since 2.0
 	 */
 	public final JournalQualityAnnualIndicators getQualityIndicatorsFor(int year, Predicate<JournalQualityAnnualIndicators> selector) {
-		final Map<Integer, JournalQualityAnnualIndicators> allIndicators = getQualityIndicators();
+		final var allIndicators = getQualityIndicators();
 		if (allIndicators != null) {
-			final IntegerList ids = new IntegerList(allIndicators.keySet());
-			final int start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
-			for (int i = start; i >= 0; --i) {
-				final JournalQualityAnnualIndicators indicators = allIndicators.get(ids.get(i));
+			final var ids = new IntegerList(allIndicators.keySet());
+			final var start = ListUtil.floorIndex(ids, (a, b) -> Integer.compare(a.intValue(), b.intValue()), Integer.valueOf(year));
+			for (var i = start; i >= 0; --i) {
+				final var indicators = allIndicators.get(ids.get(i));
 				if (indicators != null && selector.test(indicators)) {
 					return indicators;
 				}
@@ -613,9 +608,9 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @return the Q-Index of the journal for the given year, never {@code null}.
 	 */
 	public QuartileRanking getScimagoQIndexByYear(int year) {
-		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsFor(year, it -> it.getScimagoQIndex() != null);
+		final var indicators = getQualityIndicatorsFor(year, it -> it.getScimagoQIndex() != null);
 		if (indicators != null) {
-			final QuartileRanking ranking = indicators.getScimagoQIndex();
+			final var ranking = indicators.getScimagoQIndex();
 			if (ranking != null) {
 				return ranking;
 			}
@@ -630,7 +625,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @return the impacted annual indicators object
 	 */
 	public JournalQualityAnnualIndicators setScimagoQIndexByYear(int year, QuartileRanking quartile) {
-		JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+		var indicators = getQualityIndicatorsForYear(year);
 		if (indicators != null) {
 			indicators.setScimagoQIndex(quartile);
 		} else {
@@ -651,7 +646,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @return {@code true} if the journal has Q-Index.
 	 */
 	public boolean hasScimagoQIndexForYear(int year) {
-		final QuartileRanking qindex = getScimagoQIndexByYear(year);
+		final var qindex = getScimagoQIndexByYear(year);
 		return qindex != QuartileRanking.NR;
 	}
 
@@ -663,9 +658,9 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @return the Q-Index of the journal for the given year, never {@code null}.
 	 */
 	public QuartileRanking getWosQIndexByYear(int year) {
-		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsFor(year, it -> it.getWosQIndex() != null);
+		final var indicators = getQualityIndicatorsFor(year, it -> it.getWosQIndex() != null);
 		if (indicators != null) {
-			QuartileRanking ranking = indicators.getWosQIndex();
+			var ranking = indicators.getWosQIndex();
 			if (ranking != null) {
 				return ranking;
 			}
@@ -680,7 +675,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @return the impacted annual indicators object
 	 */
 	public JournalQualityAnnualIndicators setWosQIndexByYear(int year, QuartileRanking quartile) {
-		JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+		var indicators = getQualityIndicatorsForYear(year);
 		if (indicators != null) {
 			indicators.setWosQIndex(quartile);
 		} else {
@@ -712,7 +707,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 * @return the IF of the journal for the given year, or {@code 0} if not defined.
 	 */
 	public float getImpactFactorByYear(int year) {
-		final JournalQualityAnnualIndicators indicators = getQualityIndicatorsFor(year, it -> it.getImpactFactor() > 0f);
+		final var indicators = getQualityIndicatorsFor(year, it -> it.getImpactFactor() > 0f);
 		if (indicators != null) {
 			return indicators.getImpactFactor();
 		}
@@ -727,7 +722,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 */
 	public JournalQualityAnnualIndicators setImpactFactorByYear(int year, float impactFactor) {
 		assert impactFactor >= 0f;
-		JournalQualityAnnualIndicators indicators = getQualityIndicatorsForYear(year);
+		var indicators = getQualityIndicatorsForYear(year);
 		if (indicators != null) {
 			indicators.setImpactFactor(impactFactor);
 		} else {

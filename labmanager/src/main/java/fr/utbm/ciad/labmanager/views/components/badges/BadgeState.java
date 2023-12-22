@@ -112,7 +112,7 @@ public enum BadgeState {
 		if (style == null) {
 			this.style = BADGE_STYLE;
 		} else {
-			final StringBuilder result = new StringBuilder();
+			final var result = new StringBuilder();
 			result.append(BADGE_STYLE).append(" ").append(style); //$NON-NLS-1$
 			this.style = result.toString();
 		}

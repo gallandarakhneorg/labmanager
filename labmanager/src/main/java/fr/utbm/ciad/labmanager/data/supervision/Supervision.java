@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.TreeMap;
 
 import com.google.common.base.Strings;
@@ -141,8 +140,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.supervisedPerson);
 		h = HashCodeUtils.add(h, this.supervisors);
 		h = HashCodeUtils.add(h, this.title);
@@ -165,7 +163,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final Supervision other = (Supervision) obj;
+		final var other = (Supervision) obj;
 		if (!Objects.equals(this.supervisedPerson, other.supervisedPerson)) {
 			return false;
 		}
@@ -528,7 +526,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	 * @see #getAllLongTypeLabelKeys
 	 */
 	public String getLongTypeLabelKey(Person supervisor) {
-		final Optional<Supervisor> sup = getSupervisors().stream().filter(it -> it.getSupervisor().getId() == supervisor.getId()).findFirst();
+		final var sup = getSupervisors().stream().filter(it -> it.getSupervisor().getId() == supervisor.getId()).findFirst();
 		if (sup.isPresent()) {
 			return buildLongTypeLabelKey(
 					sup.get().getType(),
@@ -540,10 +538,10 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 
 	private static String buildLongTypeLabelKey(SupervisorType type, MemberStatus status, Gender gender) {
 		if (type != null && status != null && status.isSupervisable()) {
-			final StringBuilder key = new StringBuilder("supervision."); //$NON-NLS-1$
+			final var key = new StringBuilder("supervision."); //$NON-NLS-1$
 			key.append(type.name()).append("_"); //$NON-NLS-1$
 			key.append(status.name());
-			Gender g = gender;
+			var g = gender;
 			if (g == null || g == Gender.NOT_SPECIFIED) {
 				g = Gender.OTHER;
 			}
@@ -564,12 +562,12 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	 * @see #getLongTypeLabelKey
 	 */
 	public static Map<String, Integer> getAllLongTypeLabelKeys(Gender gender) {
-		final Map<String, Integer> keys = new TreeMap<>();
-		int index = 0;
-		for (final MemberStatus status : MemberStatus.values()) {
+		final var keys = new TreeMap<String, Integer>();
+		var index = 0;
+		for (final var status : MemberStatus.values()) {
 			if (status.isSupervisable()) {
 				for (final SupervisorType type : SupervisorType.values()) {
-					final String key = buildLongTypeLabelKey(type, status, gender);
+					final var key = buildLongTypeLabelKey(type, status, gender);
 					keys.put(key, Integer.valueOf(index));
 					++index;
 				}
@@ -584,9 +582,9 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	 * @return the reference year, or the current year if unknown
 	 */
 	public int getYear() {
-		final Membership mbr = getSupervisedPerson();
+		final var mbr = getSupervisedPerson();
 		if (mbr != null) {
-			LocalDate dt = mbr.getMemberToWhen();
+			var dt = mbr.getMemberToWhen();
 			if (dt != null) {
 				return dt.getYear();
 			}
@@ -603,10 +601,10 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	 * @return the year range.
 	 */
 	public IntegerRange getYearRange() {
-		final Membership mbr = getSupervisedPerson();
+		final var mbr = getSupervisedPerson();
 		if (mbr != null) {
-			final List<Integer> years = new ArrayList<>(3);
-			LocalDate dt = mbr.getMemberToWhen();
+			final var years = new ArrayList<Integer>(3);
+			var dt = mbr.getMemberToWhen();
 			if (dt != null) {
 				years.add(Integer.valueOf(dt.getYear()));
 			}

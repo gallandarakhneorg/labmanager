@@ -876,7 +876,7 @@ public enum PublicationType {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -889,7 +889,7 @@ public enum PublicationType {
 	 */
 	public static PublicationType valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final PublicationType type : values()) {
+			for (final var type : values()) {
 				if (name.equalsIgnoreCase(type.name())) {
 					return type;
 				}
@@ -908,9 +908,9 @@ public enum PublicationType {
 		if (type == null) {
 			return false;
 		}
-		final Class<? extends Publication> currentClass = getInstanceType();
+		final var currentClass = getInstanceType();
 		assert currentClass != null;
-		final Class<? extends Publication> otherClass = type.getInstanceType();
+		final var otherClass = type.getInstanceType();
 		assert otherClass != null;
 		return currentClass.equals(otherClass);
 	}

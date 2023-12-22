@@ -19,14 +19,12 @@
 
 package fr.utbm.ciad.labmanager.services.conference;
 
-import java.util.List;
 import java.util.Locale;
 
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.conference.Conference;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
-import fr.utbm.ciad.labmanager.data.publication.ConferenceBasedPublication;
 import fr.utbm.ciad.labmanager.services.AbstractOrphanService;
 import fr.utbm.ciad.labmanager.services.publication.PublicationService;
 import org.arakhne.afc.progress.Progression;
@@ -82,7 +80,7 @@ public class OrphanConferenceService extends AbstractOrphanService<Conference> {
 
 	@Override
 	public String getOrphanCriteria(Conference conference, Locale locale) {
-		final List<ConferenceBasedPublication> pubs = this.publicationService.getPublicationsForConference(conference.getId());
+		final var pubs = this.publicationService.getPublicationsForConference(conference.getId());
 		if (pubs.isEmpty()) {
 			return getMessage(locale, MESSAGE_PREFIX + "ConferenceWithoutPublication"); //$NON-NLS-1$
 		}

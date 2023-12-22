@@ -138,8 +138,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.complement);
 		h = HashCodeUtils.add(h, this.street);
@@ -159,10 +158,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final OrganizationAddress other = (OrganizationAddress) obj;
-		if (this.id != other.id) {
-			return false;
-		}
+		final var other = (OrganizationAddress) obj;
 		if (!Objects.equals(this.name, other.name)) {
 			return false;
 		}
@@ -385,7 +381,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	 * @throws MalformedURLException if the URL cannot be built.
 	 */
 	public URL getGoogleMapURL() throws MalformedURLException {
-		final String link = getGoogleMapLink();
+		final var link = getGoogleMapLink();
 		if (!Strings.isNullOrEmpty(link)) {
 			return new URL(link);
 		}
@@ -397,8 +393,8 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	 * @return the full address.
 	 */
 	public String getFullAddress() {
-		String separator = " "; //$NON-NLS-1$
-		final StringBuilder builder = new StringBuilder();
+		var separator = " "; //$NON-NLS-1$
+		final var builder = new StringBuilder();
 		if (!Strings.isNullOrEmpty(getComplement())) {
 			builder.append(getComplement());
 			separator = ", "; //$NON-NLS-1$

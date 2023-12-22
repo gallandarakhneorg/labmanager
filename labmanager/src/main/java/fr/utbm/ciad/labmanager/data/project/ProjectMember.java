@@ -82,8 +82,7 @@ public class ProjectMember implements Serializable, AttributeProvider, Comparabl
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.role);
 		return h;
@@ -97,8 +96,11 @@ public class ProjectMember implements Serializable, AttributeProvider, Comparabl
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final ProjectMember other = (ProjectMember) obj;
+		final var other = (ProjectMember) obj;
 		if (!Objects.equals(this.role, other.role)) {
+			return false;
+		}
+		if (!Objects.equals(this.person, other.person)) {
 			return false;
 		}
 		return true;

@@ -88,7 +88,7 @@ public class MyProfileView extends AbstractPersonEditor implements HasDynamicTit
 
 		rootContainer.setSpacing(true);
 		
-		final HorizontalLayout bar = new HorizontalLayout();
+		final var bar = new HorizontalLayout();
 		rootContainer.add(bar);
 		
 		this.saveButton = new Button("", event -> { //$NON-NLS-1$

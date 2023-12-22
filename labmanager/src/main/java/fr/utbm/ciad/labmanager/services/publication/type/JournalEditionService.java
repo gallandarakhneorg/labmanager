@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.publication.type;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -144,8 +143,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @return the journal edition or {@code null}.
 	 */
 	public JournalEdition getJournalEdition(int identifier) {
-		final Optional<JournalEdition> byId = this.repository.findById(Integer.valueOf(identifier));
-		return byId.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a journal edition.
@@ -160,7 +158,7 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @since 3.8
 	 */
 	public JournalEdition createJournalEdition(Publication publication, String volume, String number, String pages, Journal journal, boolean saveInDb) {
-		final JournalEdition res = new JournalEdition(publication, volume, number, pages);
+		final var res = new JournalEdition(publication, volume, number, pages);
 		res.setJournal(journal);
 		if (saveInDb) {
 			this.repository.save(res);
@@ -210,9 +208,9 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 			String doi, String halId, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, Journal journal) {
-		final Optional<JournalEdition> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final JournalEdition edition = res.get();
+			final var edition = res.get();
 
 			updatePublicationNoSave(edition, title, type, date, year,
 					abstractText, keywords, doi, halId, null, null, dblpUrl,

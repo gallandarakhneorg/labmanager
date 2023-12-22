@@ -23,19 +23,16 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.TreeSet;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.utbm.ciad.labmanager.components.indicators.members.fte.PermanentResearcherFteIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.members.fte.PhdStudentFteIndicator;
 import fr.utbm.ciad.labmanager.components.indicators.members.fte.PostdocFteIndicator;
@@ -273,13 +270,13 @@ public class PublicationStatService extends AbstractPublicationService {
 	public List<List<Integer>> getNumberOfPublicationsPerYear(Collection<? extends Publication> publications, JournalRankingSystem journalRankingSystem,
 			boolean enableAcl, boolean enableAcln, boolean enableCact, boolean enableOtherConf, boolean enableBooks,
 			boolean enableOthers) {
-		final JournalRankingSystem rankingSystem0 = journalRankingSystem == null ? JournalRankingSystem.getDefault() : journalRankingSystem;
+		final var rankingSystem0 = journalRankingSystem == null ? JournalRankingSystem.getDefault() : journalRankingSystem;
 		final Map<Integer, Collection<Publication>> publicationsPerYear = publications.stream()
 				.collect(Collectors.toMap(
 						it -> Integer.valueOf(it.getPublicationYear()),
 						it -> Collections.singleton(it),
 						(a, b) -> {
-							final MultiCollection<Publication> multi = new MultiCollection<>();
+							final var multi = new MultiCollection<Publication>();
 							multi.addCollection(a);
 							multi.addCollection(b);
 							return multi;
@@ -293,8 +290,8 @@ public class PublicationStatService extends AbstractPublicationService {
 					int otherConf = 0;
 					int books = 0;
 					int other = 0;
-					for (final Publication pub : it.getValue()) {
-						final PublicationCategory category = getCategory(pub, rankingSystem0);
+					for (final var pub : it.getValue()) {
+						final var category = getCategory(pub, rankingSystem0);
 						switch (category) {
 						case ACL:
 							++acl;
@@ -331,7 +328,7 @@ public class PublicationStatService extends AbstractPublicationService {
 							break;
 						}
 					}
-					final List<Integer> columns = new ArrayList<>(3);
+					final var columns = new ArrayList<Integer>(3);
 					columns.add(it.getKey());
 					if (enableAcl) {
 						columns.add(Integer.valueOf(acl));
@@ -367,7 +364,7 @@ public class PublicationStatService extends AbstractPublicationService {
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerCategory(Collection<? extends Publication> publications, JournalRankingSystem rankingSystem,
 			int lastYear, boolean excludeLastYear, Locale locale) {
-		final JournalRankingSystem rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
+		final var rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
 		final Map<PublicationCategory, Integer> publicationsPerYear = publications.stream()
 				.filter(it -> !excludeLastYear || it.getPublicationYear() != lastYear)
 				.collect(Collectors.toMap(
@@ -380,7 +377,7 @@ public class PublicationStatService extends AbstractPublicationService {
 				.filter(it -> it.getKey().isScientificEventPaper() || it.getKey().isScientificJournalPaper())
 				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 				.map(it -> {
-					final List<Object> columns = new ArrayList<>(2);
+					final var columns = new ArrayList<>(2);
 					columns.add(toString(it.getKey(), locale));
 					columns.add(it.getValue());
 					return columns;
@@ -399,7 +396,7 @@ public class PublicationStatService extends AbstractPublicationService {
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerQuartile(Collection<? extends Publication> publications, JournalRankingSystem rankingSystem,
 			int lastYear, boolean excludeLastYear, Locale locale) {
-		final JournalRankingSystem rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
+		final var rankingSystem0 = rankingSystem == null ? JournalRankingSystem.getDefault() : rankingSystem;
 		final Map<QuartileRanking, Integer> publicationsPerYear = publications.stream()
 				.filter(it -> it instanceof JournalBasedPublication && (!excludeLastYear || it.getPublicationYear() != lastYear))
 				.map(it -> (JournalBasedPublication) it)
@@ -413,7 +410,7 @@ public class PublicationStatService extends AbstractPublicationService {
 		return publicationsPerYear.entrySet().stream()
 				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 				.map(it -> {
-					final List<Object> columns = new ArrayList<>(2);
+					final var columns = new ArrayList<>(2);
 					columns.add(toString(it.getKey(), true, locale));
 					columns.add(it.getValue());
 					return columns;
@@ -446,8 +443,8 @@ public class PublicationStatService extends AbstractPublicationService {
 		return publicationsPerYear.entrySet().stream()
 				.sorted((a, b) -> - a.getKey().compareTo(b.getKey()))
 				.map(it -> {
-					final List<Object> columns = new ArrayList<>(2);
-					final CoreRanking ranking = it.getKey();
+					final var columns = new ArrayList<>(2);
+					final var ranking = it.getKey();
 					columns.add(toString(ranking, true, locale));
 					columns.add(it.getValue());
 					return columns;
@@ -465,15 +462,15 @@ public class PublicationStatService extends AbstractPublicationService {
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerScientificAxis(Collection<? extends Publication> publications,
 			int lastYear, boolean excludeLastYear, Locale locale) {
-		final Map<ScientificAxis, Integer> projectsPerAxis = new HashMap<>();
-		final AtomicInteger outsideAxis = new AtomicInteger();
+		final var projectsPerAxis = new HashMap<ScientificAxis, Integer>();
+		final var outsideAxis = new AtomicInteger();
 		publications.stream()
 			.filter(it -> (!excludeLastYear || it.getPublicationYear() != lastYear)
 					&& (it.getCategory().isScientificJournalPaper() || it.getCategory().isScientificEventPaper()))
 			.forEach(it -> {
 				if (!it.getScientificAxes().isEmpty()) {
-					for (final ScientificAxis axis : it.getScientificAxes()) {
-						final Integer oldValue = projectsPerAxis.get(axis);
+					for (final var axis : it.getScientificAxes()) {
+						final var oldValue = projectsPerAxis.get(axis);
 						if (oldValue == null) {
 							projectsPerAxis.put(axis, Integer.valueOf(1));
 						} else {
@@ -485,15 +482,15 @@ public class PublicationStatService extends AbstractPublicationService {
 				}
 			});
 		if (outsideAxis.intValue() > 0) {
-			final ScientificAxis outAxis = new ScientificAxis();
+			final var outAxis = new ScientificAxis();
 			outAxis.setName(getMessage(locale, MESSAGE_PREFIX + "OutsideScientificAxis")); //$NON-NLS-1$
 			projectsPerAxis.put(outAxis, Integer.valueOf(outsideAxis.get()));
 		}
 		return projectsPerAxis.entrySet().stream()
 				.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 				.map(it -> {
-					final List<Object> columns = new ArrayList<>(2);
-					final String name = Strings.isNullOrEmpty(it.getKey().getAcronym()) ? it.getKey().getName()
+					final var columns = new ArrayList<>(2);
+					final var name = Strings.isNullOrEmpty(it.getKey().getAcronym()) ? it.getKey().getName()
 							: it.getKey().getAcronym() + " - " + it.getKey().getName(); //$NON-NLS-1$
 					columns.add(name);
 					columns.add(it.getValue());
@@ -523,10 +520,10 @@ public class PublicationStatService extends AbstractPublicationService {
 						(a, b) -> {
 							return Integer.valueOf(a.intValue() + b.intValue());
 						}));
-		final Comparator<Journal> comparator = EntityUtils.getPreferredJournalComparator();
+		final var comparator = EntityUtils.getPreferredJournalComparator();
 		return publicationsPerYear.entrySet().stream()
 				.sorted((a, b) -> {
-					int cmp = a.getValue().compareTo(b.getValue());
+					var cmp = a.getValue().compareTo(b.getValue());
 					if (cmp != 0) {
 						return -cmp;
 					}
@@ -537,8 +534,8 @@ public class PublicationStatService extends AbstractPublicationService {
 					return comparator.compare(a.getKey(), b.getKey());
 				})
 				.map(it -> {
-					final Journal journal = it.getKey();
-					final List<Object> columns = new ArrayList<>(2);
+					final var journal = it.getKey();
+					final var columns = new ArrayList<>(2);
 					columns.add(journal.getJournalName());
 					columns.add(journal.getPublisher());
 					columns.add(toString(journal.getScimagoQIndexByYear(referenceYear), false, locale));
@@ -577,10 +574,10 @@ public class PublicationStatService extends AbstractPublicationService {
 						(a, b) -> {
 							return Integer.valueOf(a.intValue() + b.intValue());
 						}));
-		final Comparator<Conference> comparator = EntityUtils.getPreferredConferenceComparator();
+		final var comparator = EntityUtils.getPreferredConferenceComparator();
 		return publicationsPerYear.entrySet().stream()
 				.sorted((a, b) -> {
-					int cmp = a.getValue().compareTo(b.getValue());
+					var cmp = a.getValue().compareTo(b.getValue());
 					if (cmp != 0) {
 						return -cmp;
 					}
@@ -591,8 +588,8 @@ public class PublicationStatService extends AbstractPublicationService {
 					return comparator.compare(a.getKey(), b.getKey());
 				})
 				.map(it -> {
-					final Conference conference = it.getKey();
-					final List<Object> columns = new ArrayList<>(2);
+					final var conference = it.getKey();
+					final var columns = new ArrayList<>(2);
 					columns.add(conference.getName() + " (" + conference.getAcronym() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 					columns.add(conference.getPublisher());
 					columns.add(toString(conference.getCoreIndexByYear(referenceYear), false, locale));
@@ -603,9 +600,9 @@ public class PublicationStatService extends AbstractPublicationService {
 	}
 
 	private static List<Membership> getLastMemberships(Person author, ResearchOrganization referenceOrganization, LocalDate tw0, LocalDate tw1) {
-		final int refOrgId = referenceOrganization.getId();
-		final List<Membership> lastMemberships = new ArrayList<>();
-		final MutableInt year = new MutableInt(Integer.MIN_VALUE);
+		final var refOrgId = referenceOrganization.getId();
+		final var lastMemberships = new ArrayList<Membership>();
+		final var year = new MutableInt(Integer.MIN_VALUE);
 		author.getMemberships().stream()
 			.filter(it -> it.getMemberSinceWhen() == null || it.getMemberSinceWhen().getYear() <= tw0.getYear())
 			.forEach(it -> {
@@ -642,7 +639,7 @@ public class PublicationStatService extends AbstractPublicationService {
 	 */
 	public List<List<Object>> getNumberOfPublicationsPerCountry(Collection<? extends Publication> publications,
 			ResearchOrganization referenceOrganization, int lastYear, boolean excludeLastYear) {
-		final Map<CountryCode, Integer> papersPerCountry = new TreeMap<>((a, b) -> {
+		final var papersPerCountry = new TreeMap<CountryCode, Integer>((a, b) -> {
 			if (a == b) {
 				return 0;
 			}
@@ -654,39 +651,39 @@ public class PublicationStatService extends AbstractPublicationService {
 			}
 			return a.compareTo(b);
 		});
-		final Map<Integer, List<Map<String, Object>>> anonymousPapers = new TreeMap<>();
+		final var anonymousPapers = new TreeMap<Integer, List<Map<String, Object>>>();
 		publications.stream()
 			.filter(it -> (it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
 					&& (!excludeLastYear || it.getPublicationYear() != lastYear))
 			.forEach(it -> {
-				final LocalDate tw0 = LocalDate.of(it.getPublicationYear(), 1, 1);
-				final LocalDate tw1 = LocalDate.of(it.getPublicationYear(), 12, 31);
-				final Set<CountryCode> countriesForPaper = new TreeSet<>();
-				for (final Person author : it.getAuthors()) {
-					final List<Membership> lastMemberships = getLastMemberships(author, referenceOrganization, tw0, tw1);
+				final var tw0 = LocalDate.of(it.getPublicationYear(), 1, 1);
+				final var tw1 = LocalDate.of(it.getPublicationYear(), 12, 31);
+				final var countriesForPaper = new TreeSet<CountryCode>();
+				for (final var author : it.getAuthors()) {
+					final var lastMemberships = getLastMemberships(author, referenceOrganization, tw0, tw1);
 					// Test if the author is from the organization, or not.
 					// Only the author from other organizations are considered.
 					if (lastMemberships != null) {
 						if (!lastMemberships.isEmpty()) {
 							// The member is not member of the organization
-							for (final Membership membership : lastMemberships) {
-								final CountryCode country = membership.getResearchOrganization().getCountry();
+							for (final var membership : lastMemberships) {
+								final var country = membership.getResearchOrganization().getCountry();
 								if (country != null) {
 									countriesForPaper.add(country.normalize());
 								}
 							}
 						} else {
 							// The member is not member of the organization, but no membership for determining the country
-							final List<Map<String, Object>> persons = anonymousPapers.computeIfAbsent(Integer.valueOf(it.getId()), it0 -> new ArrayList<>());
-							final Map<String, Object> authorDesc = new HashMap<>();
+							final var persons = anonymousPapers.computeIfAbsent(Integer.valueOf(it.getId()), it0 -> new ArrayList<>());
+							final var authorDesc = new HashMap<String, Object>();
 							authorDesc.put("id", Integer.valueOf(author.getId())); //$NON-NLS-1$
 							authorDesc.put("name", author.getFullName()); //$NON-NLS-1$
 							persons.add(authorDesc);
 						}
 					}
 				}
-				for (final CountryCode country : countriesForPaper) {
-					final Integer value = papersPerCountry.get(country);
+				for (final var country : countriesForPaper) {
+					final var value = papersPerCountry.get(country);
 					if (value == null) {
 						papersPerCountry.put(country, Integer.valueOf(1));
 					} else {
@@ -696,7 +693,7 @@ public class PublicationStatService extends AbstractPublicationService {
 			});
 		if (!anonymousPapers.isEmpty()) {
 			try {
-				final ObjectMapper jsonMapper = JsonUtils.createMapper();
+				final var jsonMapper = JsonUtils.createMapper();
 				getLogger().info("Papers with country-less author: " + jsonMapper.writeValueAsString(anonymousPapers)); //$NON-NLS-1$
 			} catch (JsonProcessingException ex) {
 				getLogger().error(ex.getLocalizedMessage(), ex);
@@ -705,8 +702,8 @@ public class PublicationStatService extends AbstractPublicationService {
 		}
 		return papersPerCountry.entrySet().stream()
 				.map(it -> {
-					final List<Object> columns = new ArrayList<>(2);
-					final CountryCode cc = it.getKey();
+					final var columns = new ArrayList<>(2);
+					final var cc = it.getKey();
 					if (cc == null) {
 						columns.add("?"); //$NON-NLS-1$
 					} else {
@@ -717,14 +714,14 @@ public class PublicationStatService extends AbstractPublicationService {
 				})
 				// Sorted by quantity and country code
 				.sorted((a, b) -> {
-					final Integer na = (Integer) a.get(1);
-					final Integer nb = (Integer) b.get(1);
-					int cmp = nb.compareTo(na);
+					final var na = (Integer) a.get(1);
+					final var nb = (Integer) b.get(1);
+					var cmp = nb.compareTo(na);
 					if (cmp != 0) {
 						return cmp;
 					}
-					final String la = (String) a.get(0);
-					final String lb = (String) b.get(0);
+					final var la = (String) a.get(0);
+					final var lb = (String) b.get(0);
 					return la.compareToIgnoreCase(lb);
 				})
 				.collect(Collectors.toList());
@@ -743,22 +740,22 @@ public class PublicationStatService extends AbstractPublicationService {
 	@SuppressWarnings("static-method")
 	public List<List<Object>> getNumberOfPublicationsPerMember(Collection<? extends Publication> publications, ResearchOrganization referenceOrganization,
 			JournalRankingSystem rankingSystem, int minYear, int maxYear) {
-		final Map<Person, Map<PublicationCategory, Map<Integer, Integer>>> stats = new HashMap<>();
+		final var stats = new HashMap<Person, Map<PublicationCategory, Map<Integer, Integer>>>();
 		publications.stream()
 			.filter(it -> it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
 			.forEach(it -> {
-				final int year = it.getPublicationYear();
-				final LocalDate tw0 = LocalDate.of(year, 1, 1);
-				final LocalDate tw1 = LocalDate.of(year, 12, 31);
-				final PublicationCategory category = getCategory(it, rankingSystem);
-				for (final Person author : it.getAuthors()) {
+				final var year = it.getPublicationYear();
+				final var tw0 = LocalDate.of(year, 1, 1);
+				final var tw1 = LocalDate.of(year, 12, 31);
+				final var category = getCategory(it, rankingSystem);
+				for (final var author : it.getAuthors()) {
 					if (author.getMemberships().stream()
 							.filter(it0 -> it0.isActiveIn(tw0, tw1) && it0.getResearchOrganization().getId() == referenceOrganization.getId()
 							&& it0.isMainPosition() && !it0.getMemberStatus().isExternalPosition())
 							.findAny().isPresent()) {
-						final Map<PublicationCategory, Map<Integer, Integer>> stats0 = stats.computeIfAbsent(author, it0 -> new HashMap<>());
-						final Map<Integer, Integer> stats1 = stats0.computeIfAbsent(category, it0 -> new HashMap<>());
-						final Integer oldValue = stats1.get(Integer.valueOf(year));
+						final var stats0 = stats.computeIfAbsent(author, it0 -> new HashMap<>());
+						final var stats1 = stats0.computeIfAbsent(category, it0 -> new HashMap<>());
+						final var oldValue = stats1.get(Integer.valueOf(year));
 						if (oldValue == null) {
 							stats1.put(Integer.valueOf(year), Integer.valueOf(1));
 						} else {
@@ -767,12 +764,10 @@ public class PublicationStatService extends AbstractPublicationService {
 					}
 				}
 			});
-		final List<List<Object>> table = new ArrayList<>();
+		final var table = new ArrayList<List<Object>>();
 		stats.entrySet().stream()
 			.forEach(it -> {
-				List<Object> columns;
-	
-				columns = new ArrayList<>();
+				var columns = new ArrayList<>();
 				columns.add(it.getKey().getFullNameWithLastNameFirst());
 				if (fillMemberTable(it.getValue(), columns, minYear, maxYear, PublicationCategory.ACL)) {
 					table.add(columns);
@@ -804,7 +799,7 @@ public class PublicationStatService extends AbstractPublicationService {
 			});
 
 		return table.stream().sorted((a, b) -> {
-			int cmp = ((String) a.get(0)).compareToIgnoreCase((String) b.get(0));
+			var cmp = ((String) a.get(0)).compareToIgnoreCase((String) b.get(0));
 			if (cmp != 0) {
 				return cmp;
 			}
@@ -814,10 +809,10 @@ public class PublicationStatService extends AbstractPublicationService {
 	}
 
 	private static boolean fillMemberTable(Map<PublicationCategory, Map<Integer, Integer>> input, List<Object> columns, int minYear, int maxYear, PublicationCategory category) {
-		final Map<Integer, Integer> stats = input.get(category);
+		final var stats = input.get(category);
 		columns.add(category.getAcronym());
-		int total = 0;
-		for (int y = minYear; y <= maxYear; ++y) {
+		var total = 0;
+		for (var y = minYear; y <= maxYear; ++y) {
 			Integer value = null;
 			if (stats != null) {
 				value = stats.get(Integer.valueOf(y));
@@ -846,7 +841,7 @@ public class PublicationStatService extends AbstractPublicationService {
 	 */
 	public List<List<Object>> getPublicationAnnualRates(Collection<? extends Publication> publications, ResearchOrganization referenceOrganization,
 			JournalRankingSystem rankingSystem, int minYear, int maxYear, boolean excludeLastYear, Locale locale) {
-		final List<List<Object>> table = new ArrayList<>();
+		final var table = new ArrayList<List<Object>>();
 		addPublicationAnnualRates(table, getMessage(locale, MESSAGE_PREFIX + "ETP"), //$NON-NLS-1$
 				this.permanentResearcherCountIndicator.getValuesPerYear(referenceOrganization, minYear, maxYear),
 				minYear, maxYear, excludeLastYear);
@@ -940,12 +935,12 @@ public class PublicationStatService extends AbstractPublicationService {
 
 	private static void addPublicationAnnualRates(List<List<Object>> table, String category,
 			Map<Integer, ? extends Number> values, int minYear, int maxYear, boolean excludeLastYear) {
-		final List<Object> row = new ArrayList<>();
+		final var row = new ArrayList<>();
 		row.add(category);
-		float average = 0f;
-		int countAvg = 0;
-		for (int y = minYear; y <= maxYear; ++y) {
-			final Number value = values.get(Integer.valueOf(y));
+		var average = 0f;
+		var countAvg = 0;
+		for (var y = minYear; y <= maxYear; ++y) {
+			final var value = values.get(Integer.valueOf(y));
 			final float fvalue;
 			if (value != null) {
 				fvalue = value.floatValue();

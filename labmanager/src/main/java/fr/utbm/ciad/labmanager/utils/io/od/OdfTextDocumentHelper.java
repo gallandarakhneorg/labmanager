@@ -21,7 +21,6 @@ package fr.utbm.ciad.labmanager.utils.io.od;
 
 import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.text.NumberFormat;
 
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.Resources;
@@ -76,9 +75,9 @@ public class OdfTextDocumentHelper {
 		assert receiver != null;
 		assert separator != null;
 		assert values != null;
-		boolean first = true;
-		boolean added = false;
-		for (final String value : values) {
+		var first = true;
+		var added = false;
+		for (final var value : values) {
 			if (!Strings.isNullOrEmpty(value)) {
 				if (first) {
 					first = false;
@@ -110,7 +109,7 @@ public class OdfTextDocumentHelper {
 	 */
 	@SuppressWarnings("static-method")
 	public TextSpanElement newTextUnderline(TextPElement odtText) {
-		final TextSpanElement odtSpan = odtText.newTextSpanElement();
+		final var odtSpan = odtText.newTextSpanElement();
 		odtSpan.setProperty(StyleTextPropertiesElement.TextUnderlineType, "single"); //$NON-NLS-1$
 		odtSpan.setProperty(StyleTextPropertiesElement.TextUnderlineStyle, "solid"); //$NON-NLS-1$
 		return odtSpan;
@@ -123,7 +122,7 @@ public class OdfTextDocumentHelper {
 	 */
 	@SuppressWarnings("static-method")
 	public TextSpanElement newTextItalic(TextPElement odtText) {
-		final TextSpanElement odtSpan = odtText.newTextSpanElement();
+		final var odtSpan = odtText.newTextSpanElement();
 		odtSpan.setProperty(StyleTextPropertiesElement.FontStyle, "italic"); //$NON-NLS-1$
 		return odtSpan;
 	}
@@ -135,7 +134,7 @@ public class OdfTextDocumentHelper {
 	 */
 	@SuppressWarnings("static-method")
 	public TextSpanElement newTextBold(TextPElement odtText) {
-		final TextSpanElement odtSpan = odtText.newTextSpanElement();
+		final var odtSpan = odtText.newTextSpanElement();
 		odtSpan.setProperty(StyleTextPropertiesElement.FontWeight, "bold"); //$NON-NLS-1$
 		return odtSpan;
 	}
@@ -147,7 +146,7 @@ public class OdfTextDocumentHelper {
 	 */
 	@SuppressWarnings("static-method")
 	public TextSpanElement newTextBoldUnderline(TextPElement odtText) {
-		final TextSpanElement odtSpan = odtText.newTextSpanElement();
+		final var odtSpan = odtText.newTextSpanElement();
 		odtSpan.setProperty(StyleTextPropertiesElement.FontWeight, "bold"); //$NON-NLS-1$
 		odtSpan.setProperty(StyleTextPropertiesElement.TextUnderlineType, "single"); //$NON-NLS-1$
 		odtSpan.setProperty(StyleTextPropertiesElement.TextUnderlineStyle, "solid"); //$NON-NLS-1$
@@ -178,7 +177,7 @@ public class OdfTextDocumentHelper {
 	@SuppressWarnings("static-method")
 	public String formatNumberIfStrictlyPositive(float number) {
 		if (number > 0f) {
-			final NumberFormat format = new DecimalFormat("#0.000"); //$NON-NLS-1$
+			final var format = new DecimalFormat("#0.000"); //$NON-NLS-1$
 			return format.format(number);
 		}
 		return null;

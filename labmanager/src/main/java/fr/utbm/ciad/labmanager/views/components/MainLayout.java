@@ -146,7 +146,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	/** Add the title of the view, with the menu toggle button and the view title.
 	 */
 	protected void addViewHeader() {
-		final DrawerToggle toggle = new DrawerToggle();
+		final var toggle = new DrawerToggle();
 		toggle.setAriaLabel(getTranslation("views.menu_toggle")); //$NON-NLS-1$
 		this.viewTitle = new H2();
 		this.viewTitle.addClassNames(LumoUtility.FontSize.LARGE, LumoUtility.Margin.NONE);
@@ -156,7 +156,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	/** Add the navigation panel, with the application header, the menus, and the navigation footer.
 	 */
 	protected void addNavigationPanel() {
-		final Scroller scroller = new Scroller(createNavigationPanelContent());
+		final var scroller = new Scroller(createNavigationPanelContent());
 		addToDrawer(createNavigationPanelHeader(), scroller, createNavigationPanelFooter());
 	}
 
@@ -353,7 +353,7 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 * @return the created navigation panel.
 	 */
 	protected SideNav createNavigationPanelContent() {
-		final SideNav nav = new SideNav();
+		final var nav = new SideNav();
 		createWelcomeNavigation(nav);
 		createProfileNavigation(nav);
 		createScientificActivitiesNavigation(nav);
@@ -387,14 +387,14 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		this.languageLinks = null;
 		this.languageLinks = null;
 		
-		final Footer layout = new Footer();
-		final Optional<User> maybeUser = this.authenticatedUser.get();
+		final var layout = new Footer();
+		final var maybeUser = this.authenticatedUser.get();
 		if (maybeUser.isPresent()) {
-			final User user = maybeUser.get();
-			final Person person = user.getPerson();
+			final var user = maybeUser.get();
+			final var person = user.getPerson();
 			
 			this.avatar = new Avatar(person.getFullName());
-			final URL photo = person.getPhotoURL();
+			final var photo = person.getPhotoURL();
 			if (photo != null) {
 				this.avatar.setImage(photo.toExternalForm());
 			} else {
@@ -405,11 +405,11 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 			this.username = new Text(person.getFullName());
 
-			final MenuBar userMenu = new MenuBar();
+			final var userMenu = new MenuBar();
 			userMenu.setThemeName("tertiary-inline contrast"); //$NON-NLS-1$
 
-			final MenuItem userName = userMenu.addItem(""); //$NON-NLS-1$
-			final Div div = new Div();
+			final var userName = userMenu.addItem(""); //$NON-NLS-1$
+			final var div = new Div();
 			div.add(this.avatar);
 			div.add(this.username);
 			div.add(new Icon("lumo", "dropdown")); //$NON-NLS-1$//$NON-NLS-2$
@@ -418,21 +418,21 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			div.getElement().getStyle().set("gap", "var(--lumo-space-s)"); //$NON-NLS-1$//$NON-NLS-2$
 			userName.add(div);
 
-			final SubMenu mainMenu = userName.getSubMenu();
+			final var mainMenu = userName.getSubMenu();
 
 			this.languagesLink = mainMenu.addItem(""); //$NON-NLS-1$s
-			final Locale[] locales = LanguageSelect.getAvailableLocales();
+			final var locales = LanguageSelect.getAvailableLocales();
 			this.languageLinks = new LanguageRecord[locales.length];
-			final SubMenu languageSubMenu = this.languagesLink.getSubMenu();
+			final var languageSubMenu = this.languagesLink.getSubMenu();
 			int i = 0;
-			for (final Locale locale : LanguageSelect.getAvailableLocales()) {
-				final HorizontalLayout hl = new HorizontalLayout();
+			for (final var locale : LanguageSelect.getAvailableLocales()) {
+				final var hl = new HorizontalLayout();
 				hl.setSpacing(false);
 				hl.setAlignItems(Alignment.CENTER);
-				final Image img = new Image(LanguageSelect.getDefaultLanguageFlag(locale), ""); //$NON-NLS-1$
+				final var img = new Image(LanguageSelect.getDefaultLanguageFlag(locale), ""); //$NON-NLS-1$
 				img.setMaxHeight("var(--lumo-icon-size-s)"); //$NON-NLS-1$
 				img.getStyle().set("margin-right", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
-				final Span text = new Span(""); //$NON-NLS-1$
+				final var text = new Span(""); //$NON-NLS-1$
 				this.languageLinks[i] = new LanguageRecord(locale, text);
 				hl.add(img, text);
 				languageSubMenu.addItem(hl, e -> {
@@ -464,14 +464,14 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	 * @return the current page title.
 	 */
 	protected String getCurrentPageTitle() {
-		final Object obj = getContent();
+		final var obj = getContent();
 		if (obj == null) {
 			return ""; //$NON-NLS-1$
 		}
 		if (obj instanceof HasDynamicTitle castValue) {
 			return castValue.getPageTitle();
 		}
-		final PageTitle title = obj.getClass().getAnnotation(PageTitle.class);
+		final var title = obj.getClass().getAnnotation(PageTitle.class);
 		return title == null ? "" : getTranslation(title.value()); //$NON-NLS-1$
 	}
 
@@ -501,14 +501,14 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	@Override
 	public void authenticatedUserIdentityChange() {
-		final Optional<User> maybeUser = this.authenticatedUser.get();
+		final var maybeUser = this.authenticatedUser.get();
 		if (maybeUser.isPresent()) {
-			final User user = maybeUser.get();
-			final Person person = user.getPerson();
-			final String fullname = person.getFullName();
+			final var user = maybeUser.get();
+			final var person = user.getPerson();
+			final var fullname = person.getFullName();
 			if (this.avatar != null) {
 				this.avatar.setName(fullname);
-				final URL photo = person.getPhotoURL();
+				final var photo = person.getPhotoURL();
 				if (photo != null) {
 					this.avatar.setImage(photo.toExternalForm());
 				} else {

@@ -124,7 +124,7 @@ public class Book extends Publication {
 
 	@Override
 	public int hashCode() {
-		int h = super.hashCode();
+		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.volume);
 		h = HashCodeUtils.add(h, this.number);
 		h = HashCodeUtils.add(h, this.pages);
@@ -141,7 +141,7 @@ public class Book extends Publication {
 		if (!super.equals(obj)) {
 			return false;
 		}
-		final Book other = (Book) obj;
+		final var other = (Book) obj;
 		if (!Objects.equals(this.volume, other.volume)) {
 			return false;
 		}
@@ -201,7 +201,7 @@ public class Book extends Publication {
 	@Override
 	@JsonIgnore
 	public String getWherePublishedShortDescription() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(Strings.nullToEmpty(getEdition()));
 		if (!Strings.isNullOrEmpty(getVolume())) {
 			if (buf.length() > 0) {
@@ -256,7 +256,7 @@ public class Book extends Publication {
 
 	@Override
 	public String getPublicationTarget() {
-		final StringBuilder buf = new StringBuilder();
+		final var buf = new StringBuilder();
 		buf.append(getEdition());
 		if (!Strings.isNullOrEmpty(getPublisher())) {
 			buf.append(", "); //$NON-NLS-1$

@@ -92,7 +92,7 @@ public enum TRL {
 	 * @return the label of the project status in the given  language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -111,7 +111,7 @@ public enum TRL {
 	 */
     public static TRL valueOfCaseInsensitive(String stringTrl) {
     	if (!Strings.isNullOrEmpty(stringTrl)) {
-	    	for (final TRL candidate : values()) {
+	    	for (final var candidate : values()) {
 	    		if (candidate.toString().equalsIgnoreCase(stringTrl)
 	    				|| Integer.toString(candidate.getLevel()).equals(stringTrl)) {
 	    			return candidate;

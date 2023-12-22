@@ -28,7 +28,6 @@ import java.util.stream.Stream;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.member.Membership;
 import fr.utbm.ciad.labmanager.data.member.Person;
-import fr.utbm.ciad.labmanager.data.organization.ResearchOrganization;
 import fr.utbm.ciad.labmanager.data.publication.Publication;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -73,7 +72,7 @@ public abstract class AbstractPublicationService extends AbstractService {
 	}
 
 	private static boolean isOrganizationOf(Membership membership, int organizationId) {
-		ResearchOrganization ro = membership.getResearchOrganization();
+		var ro = membership.getResearchOrganization();
 		while (ro != null) {
 			if (ro.getId() == organizationId) {
 				return true;
@@ -92,20 +91,20 @@ public abstract class AbstractPublicationService extends AbstractService {
 	}
 
 	private static boolean hasActiveAuthor(Publication publication, Function<Person, Stream<Membership>> streamBuilder) {
-		final LocalDate pubDate = publication.getPublicationDate();
+		final var pubDate = publication.getPublicationDate();
 		if (pubDate != null) {
-			for (final Person author : publication.getAuthors()) {
-				final Stream<Membership> stream = streamBuilder.apply(author).filter(it -> it.isActiveAt(pubDate));
+			for (final var author : publication.getAuthors()) {
+				final var stream = streamBuilder.apply(author).filter(it -> it.isActiveAt(pubDate));
 				if (stream.count() > 0) {
 					return true;
 				}
 			}
 		} else {
-			final int year = publication.getPublicationYear();
-			final LocalDate start = LocalDate.of(year, 1, 1);
-			final LocalDate end = LocalDate.of(year, 12, 31);
-			for (final Person author : publication.getAuthors()) {
-				final Stream<Membership> stream = streamBuilder.apply(author).filter(it -> it.isActiveIn(start, end));
+			final var year = publication.getPublicationYear();
+			final var start = LocalDate.of(year, 1, 1);
+			final var end = LocalDate.of(year, 12, 31);
+			for (final var author : publication.getAuthors()) {
+				final var stream = streamBuilder.apply(author).filter(it -> it.isActiveIn(start, end));
 				if (stream.count() > 0) {
 					return true;
 				}

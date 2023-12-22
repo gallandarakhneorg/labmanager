@@ -62,7 +62,7 @@ public class AvatarItem extends Composite<HorizontalLayout> implements HasSize {
 		.set("color", "var(--lumo-secondary-text-color)") //$NON-NLS-1$ //$NON-NLS-2$
 		.set("font-size", "var(--lumo-font-size-s)"); //$NON-NLS-1$ //$NON-NLS-2$
 
-		final VerticalLayout column = new VerticalLayout(this.heading, this.description);
+		final var column = new VerticalLayout(this.heading, this.description);
 		column.setPadding(false);
 		column.setSpacing(false);
 
@@ -120,9 +120,9 @@ public class AvatarItem extends Composite<HorizontalLayout> implements HasSize {
 		}
 	}
 
-	/** Change the URL of the avatar.
+	/** Change the URL of the avatar image.
 	 *
-	 * @param url the URL of the avatar..
+	 * @param url the URL of the avatar image.
 	 */
 	public void setAvatarURL(String url) {
 		if (getContent().getComponentAt(0) instanceof Avatar existing) {

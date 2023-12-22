@@ -35,10 +35,6 @@ public interface FileManager {
 	 */
 	String JPEG_FILE_EXTENSION = ".jpg"; //$NON-NLS-1$
 
-	/** Default root directoy name for the downloadable files.
-	 */
-	String DOWNLOADABLE_FOLDER_NAME = "Downloadables"; //$NON-NLS-1$
-
 	/** Normalize a relative filename to be absolute for the server.
 	 *
 	 * @param file the relative filename.

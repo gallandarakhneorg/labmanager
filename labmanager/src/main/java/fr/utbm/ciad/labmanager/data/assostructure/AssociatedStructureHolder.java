@@ -100,8 +100,7 @@ public class AssociatedStructureHolder implements Serializable, AttributeProvide
 
 	@Override
 	public int hashCode() {
-		int h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.id);
+		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.role);
 		h = HashCodeUtils.add(h, this.roleDescription);
@@ -118,7 +117,7 @@ public class AssociatedStructureHolder implements Serializable, AttributeProvide
 		if (obj == null || getClass() != obj.getClass()) {
 			return false;
 		}
-		final AssociatedStructureHolder other = (AssociatedStructureHolder) obj;
+		final var other = (AssociatedStructureHolder) obj;
 		if (!Objects.equals(this.role, other.role)) {
 			return false;
 		}

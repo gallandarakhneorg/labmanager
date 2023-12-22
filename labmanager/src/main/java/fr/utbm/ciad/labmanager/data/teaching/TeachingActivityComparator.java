@@ -62,7 +62,7 @@ public class TeachingActivityComparator implements Comparator<TeachingActivity> 
 		if (a2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = this.personComparator.compare(a1.getPerson(), a2.getPerson());
+		var cmp = this.personComparator.compare(a1.getPerson(), a2.getPerson());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -86,11 +86,7 @@ public class TeachingActivityComparator implements Comparator<TeachingActivity> 
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = StringUtils.compare(a1.getTitle(), a2.getTitle());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(a1.getId(), a2.getId());
+		return StringUtils.compare(a1.getTitle(), a2.getTitle());
 	}
 
 	/** Null-safe comparison the two teaching activity's levels.

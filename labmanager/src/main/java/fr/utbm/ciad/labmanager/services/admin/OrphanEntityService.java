@@ -22,8 +22,6 @@ package fr.utbm.ciad.labmanager.services.admin;
 import java.util.List;
 import java.util.Locale;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.services.AbstractService;
@@ -73,15 +71,15 @@ public class OrphanEntityService extends AbstractService {
 	@Async
 	@Transactional
 	public ObjectNode detectOrphanEntities(List<? extends OrphanEntityBuilder<?>> builders, Locale locale, ProgressionListener progressListener) {
-		final DefaultProgression progress = new DefaultProgression(0, 0, builders.size() * Constants.HUNDRED, false);
+		final var progress = new DefaultProgression(0, 0, builders.size() * Constants.HUNDRED, false);
 		if (progressListener != null) {
 			progress.addProgressionListener(progressListener);
 		}
 		//
-		final ObjectMapper mapper = JsonUtils.createMapper();
-		final ObjectNode root = new ObjectNode(mapper.getNodeFactory());
-		for (final OrphanEntityBuilder<?> builder : builders) {
-			final Progression prog = progress.subTask(Constants.HUNDRED);
+		final var mapper = JsonUtils.createMapper();
+		final var root = new ObjectNode(mapper.getNodeFactory());
+		for (final var builder : builders) {
+			final var prog = progress.subTask(Constants.HUNDRED);
 			detectOrphanEntities(root, builder, locale, prog);
 			prog.end();
 		}
@@ -89,9 +87,9 @@ public class OrphanEntityService extends AbstractService {
 	}
 
 	private static void detectOrphanEntities(ObjectNode root, OrphanEntityBuilder<?> builder, Locale locale, Progression progress) {
-		final String name = builder.getOrphanTypeLabel(locale);
+		final var name = builder.getOrphanTypeLabel(locale);
 		if (!Strings.isNullOrEmpty(name)) {
-			final ArrayNode orphans = root.arrayNode();
+			final var orphans = root.arrayNode();
 			builder.computeOrphans(orphans, locale, progress);
 			if (!orphans.isEmpty()) {
 				root.set(name, orphans);

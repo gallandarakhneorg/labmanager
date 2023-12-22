@@ -81,22 +81,22 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	 * @return the label with the year.
 	 */
 	protected final String getLabelWithYears(Locale locale, String key, Object... arguments) {
-		final StringBuilder text = new StringBuilder(getMessage(locale, key, arguments));
-		final LocalDate start = getReferencePeriodStart();
-		final LocalDate end = getReferencePeriodEnd();
+		final var text = new StringBuilder(getMessage(locale, key, arguments));
+		final var start = getReferencePeriodStart();
+		final var end = getReferencePeriodEnd();
 		if (start != null && end != null) {
-			final int syear = start.getYear();
-			final int eyear = end.getYear();
+			final var syear = start.getYear();
+			final var eyear = end.getYear();
 			if (syear != eyear) {
 				text.append(" (").append(syear).append("-").append(eyear).append(")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			} else {
 				text.append(" (").append(syear).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 		} else if (start != null) {
-			final int year = start.getYear();
+			final var year = start.getYear();
 			text.append(" (").append(year).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
 		} else if (end != null) {
-			final int year = end.getYear();
+			final var year = end.getYear();
 			text.append(" (").append(year).append(")"); //$NON-NLS-1$ //$NON-NLS-2$
 		}
 		return text.toString();
@@ -134,8 +134,8 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	 * @since 2.4
 	 */
 	protected <T> void setComputationDetails(Collection<T> collection, Function<T, String> name) {
-		final StringBuffer bb = new StringBuffer();
-		final AtomicInteger index = new AtomicInteger(0);
+		final var bb = new StringBuffer();
+		final var index = new AtomicInteger(0);
 		collection.stream().map(it -> name.apply(it)).sorted().forEach(it -> {
 			if (bb.length() > 0) {
 				bb.append("\n"); //$NON-NLS-1$
@@ -149,9 +149,9 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 
 	@Override
 	public Number getNumericValue(ResearchOrganization organization) {
-		final Number value = this.values.computeIfAbsent(Integer.valueOf(organization.getId()), it -> {
+		final var value = this.values.computeIfAbsent(Integer.valueOf(organization.getId()), it -> {
 			getLogger().info("Computing indicator value for " + getKey()); //$NON-NLS-1$
-			final Number v = computeValue(organization);
+			final var v = computeValue(organization);
 			getLogger().info(getKey() + " = " + v); //$NON-NLS-1$
 			return v;
 		});
@@ -172,7 +172,7 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	 * @return the start date.
 	 */
 	protected static LocalDate computeStartDate(int years) {
-		final int ref = LocalDate.now().getYear() - 1;
+		final var ref = LocalDate.now().getYear() - 1;
 		return LocalDate.of(ref - years + 1, 1, 1);
 	}
 
@@ -183,7 +183,7 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	 * @return the end date.
 	 */
 	protected static LocalDate computeEndDate(int years) {
-		final int ref = LocalDate.now().getYear() - 1;
+		final var ref = LocalDate.now().getYear() - 1;
 		return LocalDate.of(ref - years, 12, 31);
 	}
 
@@ -195,10 +195,10 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 	 * @return the filtered stream.
 	 */
 	protected <T> Stream<T> filterByYearWindow(Collection<T> collection, Function<T, Integer> yearExtractor) {
-		final int start = getReferencePeriodStart().getYear();
-		final int end = getReferencePeriodEnd().getYear();
+		final var start = getReferencePeriodStart().getYear();
+		final var end = getReferencePeriodEnd().getYear();
 		return collection.stream().filter(it -> {
-			final Integer year = yearExtractor.apply(it);
+			final var year = yearExtractor.apply(it);
 			return year != null && year.intValue() >= start && year.intValue() <= end;
 		});
 	}

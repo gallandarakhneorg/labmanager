@@ -52,7 +52,7 @@ public class ProjectComparator implements Comparator<Project> {
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = compareBudgets(o1.getBudgets(), o2.getBudgets());
+		var cmp = compareBudgets(o1.getBudgets(), o2.getBudgets());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -76,11 +76,7 @@ public class ProjectComparator implements Comparator<Project> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = Float.compare(o1.getGlobalBudget(), o2.getGlobalBudget());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return Float.compare(o1.getGlobalBudget(), o2.getGlobalBudget());
 	}
 
 	/** Null-safe comparison the two TRLs.
@@ -175,10 +171,10 @@ public class ProjectComparator implements Comparator<Project> {
 		if (b1 == null) {
 			return Integer.MAX_VALUE;
 		}
-		for (int i = 0; i < b0.size() && i < b1.size(); ++i) {
-			final ProjectBudget p0 = b0.get(i); 
-			final ProjectBudget p1 = b1.get(i);
-			final int cmp = compareBudgets(p0, p1);
+		for (var i = 0; i < b0.size() && i < b1.size(); ++i) {
+			final var p0 = b0.get(i); 
+			final var p1 = b1.get(i);
+			final var cmp = compareBudgets(p0, p1);
 			if (cmp != 0) {
 				return cmp;
 			}

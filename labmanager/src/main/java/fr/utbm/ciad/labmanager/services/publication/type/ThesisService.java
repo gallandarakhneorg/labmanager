@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.publication.type;
 import java.time.LocalDate;
 import java.util.Base64;
 import java.util.List;
-import java.util.Optional;
 
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -143,8 +142,7 @@ public class ThesisService extends AbstractPublicationTypeService {
 	 * @return the thesis or {@code null}.
 	 */
 	public Thesis getThesis(int identifier) {
-		final Optional<Thesis> byId = this.repository.findById(Integer.valueOf(identifier));
-		return byId.orElse(null);
+		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a thesis.
@@ -169,7 +167,7 @@ public class ThesisService extends AbstractPublicationTypeService {
 	 */
 	public Thesis createThesis(Publication publication,
 			String institution, String address, boolean saveInDb) {
-		final Thesis res = new Thesis(publication, institution, address);
+		final var res = new Thesis(publication, institution, address);
 		if (saveInDb) {
 			this.repository.save(res);
 		}
@@ -205,9 +203,9 @@ public class ThesisService extends AbstractPublicationTypeService {
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String institution, String address) {
-		final Optional<Thesis> res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Integer.valueOf(pubId));
 		if (res.isPresent()) {
-			final Thesis thesis = res.get();
+			final var thesis = res.get();
 
 			updatePublicationNoSave(thesis, title, type, date, year,
 					abstractText, keywords, doi, halId, isbn, issn, dblpUrl,

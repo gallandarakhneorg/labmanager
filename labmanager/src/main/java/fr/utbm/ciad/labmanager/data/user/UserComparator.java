@@ -61,7 +61,7 @@ public class UserComparator implements Comparator<User> {
 		if (a2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		int cmp = compareRole(a1.getRole(), a2.getRole());
+		var cmp = compareRole(a1.getRole(), a2.getRole());
 		if (cmp != 0) {
 			return cmp;
 		}
@@ -69,11 +69,7 @@ public class UserComparator implements Comparator<User> {
 		if (cmp != 0) {
 			return cmp;
 		}
-		cmp = this.personComparator.compare(a1.getPerson(), a2.getPerson());
-		if (cmp != 0) {
-			return cmp;
-		}
-		return Integer.compare(a1.getId(), a2.getId());
+		return this.personComparator.compare(a1.getPerson(), a2.getPerson());
 	}
 
 	/** Null-safe comparison the two roles.

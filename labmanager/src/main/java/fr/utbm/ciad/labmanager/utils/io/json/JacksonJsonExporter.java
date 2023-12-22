@@ -20,7 +20,6 @@
 package fr.utbm.ciad.labmanager.utils.io.json;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Locale;
 
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -28,7 +27,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.JsonSerializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.data.publication.JournalBasedPublication;
@@ -70,21 +68,21 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 	@Override
 	public String exportPublicationsWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
 			String... rootKeys) throws Exception {
-		final JsonNode root = exportPublicationsAsTreeWithRootKeys(publications, configurator, null, rootKeys);
-		final ObjectMapper mapper = JsonUtils.createMapper();
+		final var root = exportPublicationsAsTreeWithRootKeys(publications, configurator, null, rootKeys);
+		final var mapper = JsonUtils.createMapper();
 		return mapper.writer().writeValueAsString(root);
 	}
 
 	@Override
 	public JsonNode exportPublicationsAsTreeWithRootKeys(Iterable<? extends Publication> publications, ExporterConfigurator configurator,
 			Procedure2<Publication, ObjectNode> callback, String... rootKeys) throws Exception {
-		final ObjectMapper mapper = JsonUtils.createMapper();
-		final JsonNode node = exportPublicationsAsTree(publications, configurator, callback, mapper, configurator.getLocale());
-		JsonNode root = node;
+		final var mapper = JsonUtils.createMapper();
+		final var node = exportPublicationsAsTree(publications, configurator, callback, mapper, configurator.getLocale());
+		var root = node;
 		if (rootKeys != null) {
-			for (int i = rootKeys.length - 1; i >= 0; --i) {
-				final String rkey = rootKeys[i];
-				final ObjectNode onode = mapper.createObjectNode();
+			for (var i = rootKeys.length - 1; i >= 0; --i) {
+				final var rkey = rootKeys[i];
+				final var onode = mapper.createObjectNode();
 				onode.set(rkey, root);
 				root = onode; 
 			}
@@ -108,12 +106,12 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 		if (publications == null) {
 			return mapper.nullNode();
 		}
-		final ArrayNode array = mapper.createArrayNode();
-		final boolean extraButtons = configurator.isDownloadButtons() || configurator.isExportButtons() || configurator.isEditButtons()
+		final var array = mapper.createArrayNode();
+		final var extraButtons = configurator.isDownloadButtons() || configurator.isExportButtons() || configurator.isEditButtons()
 				|| configurator.isDeleteButtons() || configurator.isFormattedAuthorList() || configurator.isFormattedPublicationDetails()
 				|| configurator.isFormattedLinks() || configurator.isTypeAndCategoryLabels();
-		for (final Publication publication : publications) {
-			final ObjectNode entryNode = exportPublication(publication, configurator, mapper);
+		for (final var publication : publications) {
+			final var entryNode = exportPublication(publication, configurator, mapper);
 			// Add additional fields by the callback function
 			if (callback != null) {
 				callback.apply(publication, entryNode);
@@ -124,7 +122,7 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 			}
 			// Make aliasing for the Scimago Quartiles
 			if (entryNode.has("scimagoQIndex") && publication instanceof JournalBasedPublication jbp) { //$NON-NLS-1$
-				final URL url = configurator.getJournalService().getScimagoQuartileImageURLByJournal(jbp.getJournal());
+				final var url = configurator.getJournalService().getScimagoQuartileImageURLByJournal(jbp.getJournal());
 				if (url != null) {
 					entryNode.set("scimagoQIndex_imageUrl", entryNode.textNode(url.toExternalForm())); //$NON-NLS-1$
 				}
@@ -141,9 +139,9 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 			//
 			if (extraButtons) {
 				if (configurator.isDownloadButtons()) {
-					final String button0 = this.htmlPageExporter.getButtonToDownloadPublicationPDF(publication.getPathToDownloadablePDF());
-					final String button1 = this.htmlPageExporter.getButtonToDownloadPublicationAwardCertificate(publication.getPathToDownloadableAwardCertificate());
-					final ArrayNode array0 = mapper.createArrayNode();
+					final var button0 = this.htmlPageExporter.getButtonToDownloadPublicationPDF(publication.getPathToDownloadablePDF());
+					final var button1 = this.htmlPageExporter.getButtonToDownloadPublicationAwardCertificate(publication.getPathToDownloadableAwardCertificate());
+					final var array0 = mapper.createArrayNode();
 					if (!Strings.isNullOrEmpty(button0)) {
 						array0.add(mapper.valueToTree(button0));
 					}
@@ -153,11 +151,11 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 					entryNode.set("htmlDownloads", array0); //$NON-NLS-1$
 				}
 				if (configurator.isExportButtons()) {
-					final String button0 = this.htmlPageExporter.getButtonToExportPublicationToBibTeX(publication.getId(), configurator);
-					final String button3 = this.htmlPageExporter.getButtonToExportPublicationToRIS(publication.getId(), configurator);
-					final String button1 = this.htmlPageExporter.getButtonToExportPublicationToOpenDocument(publication.getId(), configurator);
-					final String button2 = this.htmlPageExporter.getButtonToExportPublicationToHtml(publication.getId(), configurator);
-					final ArrayNode array0 = mapper.createArrayNode();
+					final var button0 = this.htmlPageExporter.getButtonToExportPublicationToBibTeX(publication.getId(), configurator);
+					final var button3 = this.htmlPageExporter.getButtonToExportPublicationToRIS(publication.getId(), configurator);
+					final var button1 = this.htmlPageExporter.getButtonToExportPublicationToOpenDocument(publication.getId(), configurator);
+					final var button2 = this.htmlPageExporter.getButtonToExportPublicationToHtml(publication.getId(), configurator);
+					final var array0 = mapper.createArrayNode();
 					if (!Strings.isNullOrEmpty(button0)) {
 						array0.add(mapper.valueToTree(button0));
 					}
@@ -173,16 +171,16 @@ public class JacksonJsonExporter extends AbstractJsonExporter {
 					entryNode.set("htmlExports", array0); //$NON-NLS-1$
 				}
 				if (configurator.isEditButtons()) {
-					final String editButton = this.htmlPageExporter.getButtonToEditPublication(publication.getId(), locale);
+					final var editButton = this.htmlPageExporter.getButtonToEditPublication(publication.getId(), locale);
 					if (!Strings.isNullOrEmpty(editButton)) {
-						final JsonNode editNode = mapper.valueToTree(editButton);
+						final var editNode = mapper.valueToTree(editButton);
 						entryNode.set("htmlEdit", editNode); //$NON-NLS-1$
 					}
 				}
 				if (configurator.isDeleteButtons()) {
-					final String deleteButton = this.htmlPageExporter.getButtonToDeletePublication(publication.getId(), locale);
+					final var deleteButton = this.htmlPageExporter.getButtonToDeletePublication(publication.getId(), locale);
 					if (!Strings.isNullOrEmpty(deleteButton)) {
-						final JsonNode deleteNode = mapper.valueToTree(deleteButton);
+						final var deleteNode = mapper.valueToTree(deleteButton);
 						entryNode.set("htmlDelete", deleteNode); //$NON-NLS-1$
 					}
 				}

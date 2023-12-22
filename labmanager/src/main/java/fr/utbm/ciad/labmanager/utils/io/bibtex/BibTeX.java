@@ -177,7 +177,7 @@ public interface BibTeX extends PublicationExporter<String> {
 	default Stream<Publication> getPublicationStreamFrom(String bibtex, boolean keepBibTeXId, boolean assignRandomId,
 			boolean ensureAtLeastOneMember, boolean createMissedJournal, boolean createMissedConference) throws Exception {
 		if (!Strings.isNullOrEmpty(bibtex)) {
-			try (final Reader reader = new StringReader(bibtex)) {
+			try (final var reader = new StringReader(bibtex)) {
 				return getPublicationStreamFrom(reader, keepBibTeXId, assignRandomId, ensureAtLeastOneMember, createMissedJournal,
 						createMissedConference);
 			}
@@ -214,7 +214,7 @@ public interface BibTeX extends PublicationExporter<String> {
 
 	@Override
 	default String exportPublications(Iterable<? extends Publication> publications, ExporterConfigurator configurator) {
-		try (final StringWriter writer = new StringWriter()) {
+		try (final var writer = new StringWriter()) {
 			exportPublications(writer, publications, configurator);
 			return Strings.emptyToNull(writer.toString());
 		} catch (IOException ex) {

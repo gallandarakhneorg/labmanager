@@ -1478,8 +1478,8 @@ public enum MemberStatus {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Gender gender, boolean former, Locale locale) {
-		final Gender gndr = gender == null || gender == Gender.NOT_SPECIFIED ? Gender.OTHER : gender;
-		final StringBuilder key = new StringBuilder();
+		final var gndr = gender == null || gender == Gender.NOT_SPECIFIED ? Gender.OTHER : gender;
+		final var key = new StringBuilder();
 		key.append(MESSAGE_PREFIX).append(name());
 		if (former) {
 			key.append("_former"); //$NON-NLS-1$
@@ -1501,10 +1501,10 @@ public enum MemberStatus {
 	 * @since 3.6
 	 */
 	public String getFrenchAcronym(MessageSourceAccessor messages) {
-		final StringBuilder key = new StringBuilder();
+		final var key = new StringBuilder();
 		key.append(MESSAGE_PREFIX).append(name());
 		key.append("_acronym"); //$NON-NLS-1$
-		final String label = messages.getMessage(key.toString());
+		final var label = messages.getMessage(key.toString());
 		return Strings.nullToEmpty(label);
 	}
 
@@ -1517,7 +1517,7 @@ public enum MemberStatus {
 	 */
 	public static MemberStatus valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final MemberStatus status : values()) {
+			for (final var status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
 					return status;
 				}

@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.utils.io.scimago;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.URI;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +29,6 @@ import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.opencsv.CSVParserBuilder;
@@ -43,7 +41,6 @@ import org.arakhne.afc.progress.Progression;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 /** Accessor to the online Scimago platform.
@@ -105,12 +102,12 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 	public URL getJournalPictureUrl(String journalId) {
 		if (!Strings.isNullOrEmpty(journalId)) {
 			try {
-				UriBuilder builder = this.uriBuilderFactory.builder();
+				var builder = this.uriBuilderFactory.builder();
 				builder = builder.scheme(SCHEME);
 				builder = builder.host(HOST);
 				builder = builder.path(JOURNAL_PICTURE_PATH);
 				builder = builder.queryParam(ID_PARAM, journalId);
-				final URI uri = builder.build();
+				final var uri = builder.build();
 				return uri.toURL();
 			} catch (Exception ex) {
 				//
@@ -123,13 +120,13 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 	public URL getJournalUrl(String journalId) {
 		if (!Strings.isNullOrEmpty(journalId)) {
 			try {
-				UriBuilder builder = this.uriBuilderFactory.builder();
+				var builder = this.uriBuilderFactory.builder();
 				builder = builder.scheme(SCHEME);
 				builder = builder.host(HOST);
 				builder = builder.path(JOURNAL_PATH);
 				builder = builder.queryParam(TIP_PARAM, SID_TYPE);
 				builder = builder.queryParam(QUERY_PARAM, journalId);
-				final URI uri = builder.build();
+				final var uri = builder.build();
 				return uri.toURL();
 			} catch (Exception ex) {
 				//
@@ -141,13 +138,13 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 	@Override
 	public URL getJournalCsvUrl(int year) {
 		try {
-			UriBuilder builder = this.uriBuilderFactory.builder();
+			var builder = this.uriBuilderFactory.builder();
 			builder = builder.scheme(SCHEME);
 			builder = builder.host(HOST);
 			builder = builder.path(RANK_PATH);
 			builder = builder.queryParam(OUT_PARAM, CSV_TYPE);
 			builder = builder.queryParam(YEAR_PARAM, Integer.valueOf(year));
-			final URI uri = builder.build();
+			final var uri = builder.build();
 			return uri.toURL();
 		} catch (Exception ex) {
 			throw new RuntimeException(ex);
@@ -157,16 +154,16 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 	private static void analyzeCsvRecord(Integer categoryColumn, Integer bestQuartileColumn, String[] row,
 			BiConsumer<String, QuartileRanking> callback) {
 		if (categoryColumn != null) {
-			final String rawCategories = row[categoryColumn.intValue()];
+			final var rawCategories = row[categoryColumn.intValue()];
 			if (!Strings.isNullOrEmpty(rawCategories)) {
-				final String[] categories = rawCategories.split("\\s*[,;]\\s*"); //$NON-NLS-1$
-				final Pattern pattern = Pattern.compile("\\s*(.+?)\\s*\\(([^\\)]+)\\)\\s*"); //$NON-NLS-1$
-				for (final String rawCategory : categories) {
-					final Matcher matcher = pattern.matcher(rawCategory);
+				final var categories = rawCategories.split("\\s*[,;]\\s*"); //$NON-NLS-1$
+				final var pattern = Pattern.compile("\\s*(.+?)\\s*\\(([^\\)]+)\\)\\s*"); //$NON-NLS-1$
+				for (final var rawCategory : categories) {
+					final var matcher = pattern.matcher(rawCategory);
 					if (matcher.matches()) {
 						try {
-							final QuartileRanking quartile = QuartileRanking.valueOfCaseInsensitive(matcher.group(2));
-							final String name = matcher.group(1);
+							final var quartile = QuartileRanking.valueOfCaseInsensitive(matcher.group(2));
+							final var name = matcher.group(1);
 							if (!Strings.isNullOrEmpty(name)) {
 								callback.accept(name.toLowerCase(), quartile);
 							}
@@ -179,7 +176,7 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 		}
 		if (bestQuartileColumn != null) {
 			try {
-				final QuartileRanking quartile = QuartileRanking.valueOfCaseInsensitive(row[bestQuartileColumn.intValue()]);
+				final var quartile = QuartileRanking.valueOfCaseInsensitive(row[bestQuartileColumn.intValue()]);
 				callback.accept(BEST, quartile);
 			} catch (Throwable ex) {
 				//
@@ -190,26 +187,26 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 	@SuppressWarnings("resource")
 	private static void analyzeCsvRecords(URL csvUrl, Progression progress, Consumer4 consumer) {
 		progress.setProperties(0, 0, 100, false);
-		try (final BufferedReader reader = new BufferedReader(new InputStreamReader(csvUrl.openStream()))) {
-			final CSVParserBuilder parserBuilder = new CSVParserBuilder();
+		try (final var reader = new BufferedReader(new InputStreamReader(csvUrl.openStream()))) {
+			final var parserBuilder = new CSVParserBuilder();
 			parserBuilder.withSeparator(';');
 			parserBuilder.withIgnoreLeadingWhiteSpace(true);
 			parserBuilder.withQuoteChar('"');
 			parserBuilder.withStrictQuotes(false);
-			final CSVReaderBuilder csvBuilder = new CSVReaderBuilder(reader);
+			final var csvBuilder = new CSVReaderBuilder(reader);
 			csvBuilder.withCSVParser(parserBuilder.build());
-			final CSVReader csvReader = csvBuilder.build();
+			final var csvReader = csvBuilder.build();
 			// Search for the column headers
-			String[] row = csvReader.readNext();
+			var row = csvReader.readNext();
 			if (row == null) {
 				throw new IOException("Unable to find the column \"" + SOURCE_ID_COLUMN + "\" in the Scimago CSV data source"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 			Integer bestQuartileColumn = null;
 			Integer categoryColumn = null;
 			Integer sourceIdColumn = null;
-			int i = 0;
+			var i = 0;
 			while (i < row.length && (sourceIdColumn == null || categoryColumn == null || bestQuartileColumn == null)) {
-				final String name = row[i];
+				final var name = row[i];
 				if (sourceIdColumn == null && SOURCE_ID_COLUMN.equalsIgnoreCase(name)) {
 					sourceIdColumn = Integer.valueOf(i);
 				}
@@ -240,16 +237,16 @@ public class OnlineScimagoPlatform implements ScimagoPlatform {
 	}
 	
 	private static Map<String, Map<String, QuartileRanking>> readJournalRanking(URL csvUrl, Progression rootProgress) {
-		final Map<String, Map<String, QuartileRanking>> ranking = new TreeMap<>();
+		final var ranking = new TreeMap<String, Map<String, QuartileRanking>>();
 		analyzeCsvRecords(csvUrl, rootProgress, (stream, sourceIdColumn, categoryColumn, bestQuartileColumn, progress) -> {
-			String[] row = stream.readNext();
-			final Progression rowProgress = progress.subTask(99, 0, row == null ? 0 : row.length);
+			var row = stream.readNext();
+			final var rowProgress = progress.subTask(99, 0, row == null ? 0 : row.length);
 			while (row != null) {
-				final Map<String, QuartileRanking> journalRanking = new HashMap<>();
+				final var journalRanking = new HashMap<String, QuartileRanking>();
 				analyzeCsvRecord(categoryColumn, bestQuartileColumn, row,
 						(a, b) -> journalRanking.put(a, b));
 				if (!journalRanking.isEmpty()) {
-					final String journalId = row[sourceIdColumn.intValue()];
+					final var journalId = row[sourceIdColumn.intValue()];
 					ranking.put(journalId, journalRanking);
 				}
 				rowProgress.increment();

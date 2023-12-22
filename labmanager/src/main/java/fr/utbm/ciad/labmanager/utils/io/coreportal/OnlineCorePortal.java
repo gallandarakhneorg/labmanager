@@ -19,12 +19,9 @@
 
 package fr.utbm.ciad.labmanager.utils.io.coreportal;
 
-import java.net.URI;
 import java.net.URL;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.microsoft.playwright.ElementHandle;
@@ -35,7 +32,6 @@ import org.arakhne.afc.progress.Progression;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 /** Accessor to the online CORE Portal.
@@ -69,11 +65,11 @@ public class OnlineCorePortal extends AbstractWebScraper implements CorePortal {
 	public URL getConferenceUrl(String conferenceId) {
 		if (!Strings.isNullOrEmpty(conferenceId)) {
 			try {
-				UriBuilder builder = this.uriBuilderFactory.builder();
+				var builder = this.uriBuilderFactory.builder();
 				builder = builder.scheme(SCHEME);
 				builder = builder.host(HOST);
 				builder = builder.path(CONFERENCE_PATH).path(conferenceId);
-				final URI uri = builder.build();
+				final var uri = builder.build();
 				return uri.toURL();
 			} catch (Exception ex) {
 				//
@@ -84,17 +80,17 @@ public class OnlineCorePortal extends AbstractWebScraper implements CorePortal {
 
 	private static boolean parseConferenceRankingBox(AtomicReference<CorePortalConference> output,
 			AtomicInteger outputYear, ElementHandle box) {
-		final List<ElementHandle> rows = box.querySelectorAll("div"); //$NON-NLS-1$
+		final var rows = box.querySelectorAll("div"); //$NON-NLS-1$
 		String foundRank = null;
 		Integer foundYear = null;
-		for (final ElementHandle row : rows) {
-			final String text = row.innerText().trim();
+		for (final var row : rows) {
+			final var text = row.innerText().trim();
 			if (!Strings.isNullOrEmpty(text)) {
-				final Matcher matcher0 = SOURCE_PATTERN.matcher(text);
+				final var matcher0 = SOURCE_PATTERN.matcher(text);
 				if (matcher0.find()) {
 					foundYear = Integer.valueOf(matcher0.group(1));
 				}
-				final Matcher matcher1 = RANK_PATTERN.matcher(text);
+				final var matcher1 = RANK_PATTERN.matcher(text);
 				if (matcher1.find()) {
 					foundRank = matcher1.group(1);
 				}
@@ -106,7 +102,7 @@ public class OnlineCorePortal extends AbstractWebScraper implements CorePortal {
 		if (foundRank != null && foundYear != null) {
 			if (!Strings.isNullOrEmpty(foundRank)) {
 				try {
-					final CoreRanking ranking = CoreRanking.valueOfCaseInsensitive(foundRank);
+					final var ranking = CoreRanking.valueOfCaseInsensitive(foundRank);
 					output.set(new CorePortalConference(ranking));
 					outputYear.set(foundYear.intValue());
 					return true;
@@ -120,12 +116,12 @@ public class OnlineCorePortal extends AbstractWebScraper implements CorePortal {
 	
 	@Override
 	public CorePortalConference getConferenceRanking(int year, String identifier, Progression progress) throws Exception {
-		final Progression prog = ensureProgress(progress);
+		final var prog = ensureProgress(progress);
 		if (!Strings.isNullOrEmpty(identifier)) {
-			final URL url = getConferenceUrl(identifier);
+			final var url = getConferenceUrl(identifier);
 			if (url != null) {
-				final AtomicReference<CorePortalConference> output = new AtomicReference<>();
-				final AtomicInteger outputYear = new AtomicInteger(Integer.MIN_VALUE);
+				final var output = new AtomicReference<CorePortalConference>();
+				final var outputYear = new AtomicInteger(Integer.MIN_VALUE);
 				loadHtmlPage(
 						DEFAULT_DEVELOPER,
 						url,
@@ -133,12 +129,12 @@ public class OnlineCorePortal extends AbstractWebScraper implements CorePortal {
 						"div[id=detail]", //$NON-NLS-1$
 						0,
 						(page, element0) -> {
-							final List<ElementHandle> boxes = element0.querySelectorAll("div[class=detail]"); //$NON-NLS-1$
-							for (final ElementHandle box : boxes) {
-								final AtomicReference<CorePortalConference> output0 = new AtomicReference<>();
-								final AtomicInteger outputYear0 = new AtomicInteger(0);
+							final var boxes = element0.querySelectorAll("div[class=detail]"); //$NON-NLS-1$
+							for (final var box : boxes) {
+								final var output0 = new AtomicReference<CorePortalConference>();
+								final var outputYear0 = new AtomicInteger(0);
 								if (parseConferenceRankingBox(output0, outputYear0, box)) {
-									final int y = outputYear0.get();
+									final var y = outputYear0.get();
 									if (y <= year && (outputYear.get() < y)) {
 										output.set(output0.get());
 										outputYear.set(y);
@@ -146,7 +142,7 @@ public class OnlineCorePortal extends AbstractWebScraper implements CorePortal {
 								}
 							}
 						});
-				final CorePortalConference conference = output.get();
+				final var conference = output.get();
 				if (conference != null) {
 					return conference;
 				}

@@ -22,7 +22,6 @@ package fr.utbm.ciad.labmanager.services.jury;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.jury.JuryMembership;
@@ -122,9 +121,9 @@ public class JuryMembershipService extends AbstractService {
 	public JuryMembership addJuryMembership(int person, LocalDate date, JuryMembershipType membershipType,
 			JuryType defenseType, String title, String candidate, String university, CountryCode country,
 			List<String> promoters) {
-		final Person personObj = this.personService.getPersonById(person);
+		final var personObj = this.personService.getPersonById(person);
 		if (personObj != null) {
-			final JuryMembership mem = new JuryMembership();
+			final var mem = new JuryMembership();
 			updateJuryMembershipWithoutSaving(mem, personObj, date, membershipType, defenseType, title, candidate, university, country, promoters);
 			return this.membershipRepository.save(mem);
 		}
@@ -150,12 +149,12 @@ public class JuryMembershipService extends AbstractService {
 	public JuryMembership updateJuryMembership(int membershipId, int person, LocalDate date, JuryMembershipType membershipType,
 			JuryType defenseType, String title, String candidate, String university, CountryCode country,
 			List<String> promoters) {
-		final Optional<JuryMembership> optMembership = this.membershipRepository.findById(Integer.valueOf(membershipId));
+		final var optMembership = this.membershipRepository.findById(Integer.valueOf(membershipId));
 		if (optMembership.isEmpty()) {
 			throw new IllegalArgumentException("Jury membership not found with id: " + membershipId); //$NON-NLS-1$
 		}
-		final JuryMembership membership = optMembership.get();
-		final Person personObj = this.personService.getPersonById(person);
+		final var membership = optMembership.get();
+		final var personObj = this.personService.getPersonById(person);
 		if (personObj == null) {
 			throw new IllegalArgumentException("Person not found with id: " + person); //$NON-NLS-1$
 		}
@@ -193,7 +192,7 @@ public class JuryMembershipService extends AbstractService {
 		membership.setCandidate(extractPerson(candidate, true, this.personService, this.nameParser));
 		membership.setUniversity(university);
 		membership.setCountry(country);
-		final List<Person> promoterArray = new ArrayList<>();
+		final var promoterArray = new ArrayList<Person>();
 		forEarchPerson(promoters, true, this.personService, this.nameParser, it -> promoterArray.add(it));
 		membership.setPromoters(promoterArray);
 	}
@@ -205,8 +204,8 @@ public class JuryMembershipService extends AbstractService {
 	 */
 	@Transactional
 	public void removeJuryMembership(int membershipId) throws Exception {
-		final Integer mid = Integer.valueOf(membershipId);
-		final Optional<JuryMembership> optMbr = this.membershipRepository.findById(mid);
+		final var mid = Integer.valueOf(membershipId);
+		final var optMbr = this.membershipRepository.findById(mid);
 		if (optMbr.isEmpty()) {
 			throw new IllegalStateException("Jury membership not found with id: " + membershipId); //$NON-NLS-1$
 		}

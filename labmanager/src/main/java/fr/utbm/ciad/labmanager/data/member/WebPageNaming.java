@@ -26,7 +26,6 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 /** Type of webpage naming for persons. This type describes how the address of a person's webpage could be built up.
@@ -61,8 +60,8 @@ public enum WebPageNaming {
 	EMAIL_ID {
 		@Override
 		public String getWebpageIdFor(Person person) {
-			final String email = person.getEmail();
-			final String id = StringUtils.substringBefore(email, "@"); //$NON-NLS-1$
+			final var email = person.getEmail();
+			final var id = StringUtils.substringBefore(email, "@"); //$NON-NLS-1$
 			return id;
 		}
 	},
@@ -74,8 +73,8 @@ public enum WebPageNaming {
 	FIRST_LAST {
 		@Override
 		public String getWebpageIdFor(Person person) {
-			final String first = StringUtils.stripAccents(person.getFirstName());
-			final String last = StringUtils.stripAccents(person.getLastName());
+			final var first = StringUtils.stripAccents(person.getFirstName());
+			final var last = StringUtils.stripAccents(person.getLastName());
 			final String ref;
 			if (Strings.isNullOrEmpty(last)) {
 				if (Strings.isNullOrEmpty(first)) {
@@ -102,7 +101,7 @@ public enum WebPageNaming {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -112,12 +111,12 @@ public enum WebPageNaming {
 	 * @return the URI, or {@code null}.
 	 */
 	public URI getWebpageURIFor(Person person) {
-		final String id = getWebpageIdFor(person);
+		final var id = getWebpageIdFor(person);
 		if (Strings.isNullOrEmpty(id)) {
 			return null;
 		}
 		try {
-			UriBuilder b = FACTORY.builder();
+			var b = FACTORY.builder();
 			b = b.path("/" + id); //$NON-NLS-1$
 			return b.build();
 		} catch (Throwable ex) {
@@ -141,7 +140,7 @@ public enum WebPageNaming {
 	 */
 	public static WebPageNaming valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final WebPageNaming status : values()) {
+			for (final var status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
 					return status;
 				}

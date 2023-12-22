@@ -26,7 +26,6 @@ import com.google.common.base.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.web.util.DefaultUriBuilderFactory;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriBuilderFactory;
 
 /** Type of webpage naming for projects. This type describes how the address of a project's webpage could be built up.
@@ -52,7 +51,7 @@ public enum ProjectWebPageNaming {
 	PROJECT_ID {
 		@Override
 		public String getWebpageIdFor(Project project) {
-			final int id = project != null ? project.getId() : 0;
+			final var id = project != null ? project.getId() : 0;
 			if (id != 0) {
 				return "project-" + id; //$NON-NLS-1$
 			}
@@ -68,7 +67,7 @@ public enum ProjectWebPageNaming {
 		@Override
 		public String getWebpageIdFor(Project project) {
 			if (project != null) {
-				String acronym = StringUtils.stripAccents(project.getAcronym());
+				var acronym = StringUtils.stripAccents(project.getAcronym());
 				if (!Strings.isNullOrEmpty(acronym)) {
 					acronym = acronym.toLowerCase();
 					return acronym.replaceAll("[^a-z0-9_\\-\\.]+", ""); //$NON-NLS-1$ //$NON-NLS-2$
@@ -86,7 +85,7 @@ public enum ProjectWebPageNaming {
 		@Override
 		public String getWebpageIdFor(Project project) {
 			if (project != null) {
-				String acronym = StringUtils.stripAccents(project.getAcronym());
+				var acronym = StringUtils.stripAccents(project.getAcronym());
 				if (!Strings.isNullOrEmpty(acronym)) {
 					acronym = acronym.toLowerCase();
 					return "project/" + acronym.replaceAll("[^a-z0-9_\\-\\.]+", ""); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -107,7 +106,7 @@ public enum ProjectWebPageNaming {
 	 * @return the label of the status in the current language.
 	 */
 	public String getLabel(MessageSourceAccessor messages, Locale locale) {
-		final String label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
+		final var label = messages.getMessage(MESSAGE_PREFIX + name(), locale);
 		return Strings.nullToEmpty(label);
 	}
 
@@ -117,12 +116,12 @@ public enum ProjectWebPageNaming {
 	 * @return the URI, or {@code null}.
 	 */
 	public URI getWebpageURIFor(Project project) {
-		final String id = getWebpageIdFor(project);
+		final var id = getWebpageIdFor(project);
 		if (Strings.isNullOrEmpty(id)) {
 			return null;
 		}
 		try {
-			UriBuilder b = FACTORY.builder();
+			var b = FACTORY.builder();
 			b = b.path("/" + id); //$NON-NLS-1$
 			return b.build();
 		} catch (Throwable ex) {
@@ -146,7 +145,7 @@ public enum ProjectWebPageNaming {
 	 */
 	public static ProjectWebPageNaming valueOfCaseInsensitive(String name) {
 		if (!Strings.isNullOrEmpty(name)) {
-			for (final ProjectWebPageNaming status : values()) {
+			for (final var status : values()) {
 				if (name.equalsIgnoreCase(status.name())) {
 					return status;
 				}

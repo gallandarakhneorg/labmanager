@@ -75,18 +75,18 @@ public class LanguageSelectFlagItemRenderer implements SerializableFunction<Loca
 	 */
 	@SuppressWarnings("static-method")
 	protected String getLanguageName(LanguageSelect parent, String lang) {
-		final String key = new StringBuilder().append(parent.getFlagTranslationKeyPrefix()).append(lang).toString();
+		final var key = new StringBuilder().append(parent.getFlagTranslationKeyPrefix()).append(lang).toString();
 		return parent.getTranslation(key);
 	}
 
 	@Override
 	public Component apply(Locale item) {
-		final FlexLayout wrapper = new FlexLayout();
+		final var wrapper = new FlexLayout();
 	    wrapper.setAlignItems(Alignment.CENTER);
-		final LanguageSelect parent = this.parent.get();
+		final var parent = this.parent.get();
 		if (parent != null) {
-			final String lang = item.getLanguage().toLowerCase();
-			final Image flag = new Image(getLanguageFlag(parent, lang), ""); //$NON-NLS-1$
+			final var lang = item.getLanguage().toLowerCase();
+			final var flag = new Image(getLanguageFlag(parent, lang), ""); //$NON-NLS-1$
 			flag.addClassName("language-select-flag"); //$NON-NLS-1$
 			flag.setWidth("var(--lumo-size-xs)"); //$NON-NLS-1$
 			wrapper.add(flag	);

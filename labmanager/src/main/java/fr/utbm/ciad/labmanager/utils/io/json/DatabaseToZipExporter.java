@@ -20,7 +20,6 @@
 package fr.utbm.ciad.labmanager.utils.io.json;
 
 import java.io.BufferedInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -31,7 +30,6 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -97,17 +95,17 @@ public class DatabaseToZipExporter {
 	public ZipExporter startExportFromDatabase(Progression progress) throws Exception {
 		assert progress != null;
 		progress.setProperties(0, 0, 100, false);
-		final Map<String, Object> content = this.jsonExporter.exportFromDatabase();
+		final var content = this.jsonExporter.exportFromDatabase();
 		progress.setValue(TWENTY);
 		return new ZipExporter(content, progress.subTask(EIGHTY));
 	}
 
 	private static void writeJsonToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
-		final String filename = Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json"; //$NON-NLS-1$
-		final ZipEntry entry = new ZipEntry(filename);
+		final var filename = Constants.DEFAULT_DBCONTENT_ATTACHMENT_BASENAME + ".json"; //$NON-NLS-1$
+		final var entry = new ZipEntry(filename);
 		zos.putNextEntry(entry);
-		final ObjectMapper mapper = JsonUtils.createMapper();
-		try (UnclosableStream ucs = new UnclosableStream(zos)) {
+		final var mapper = JsonUtils.createMapper();
+		try (var ucs = new UnclosableStream(zos)) {
 			mapper.writer().writeValue(ucs, json);
 		}
 		zos.closeEntry();
@@ -117,17 +115,17 @@ public class DatabaseToZipExporter {
 
 	@SuppressWarnings("unchecked")
 	private void writePublicationFilesToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
-		List<Map<String, Object>>  publications = (List<Map<String, Object>>) json.get(JsonTool.PUBLICATIONS_SECTION);
+		var publications = (List<Map<String, Object>>) json.get(JsonTool.PUBLICATIONS_SECTION);
 		if (publications != null && !publications.isEmpty()) {
 			progress.setProperties(0, 0, publications.size(), false);
-			for (final Map<String, Object> publication : publications) {
-				final String targetFilename0 = (String) publication.get("pathToDownloadableAwardCertificate"); //$NON-NLS-1$
+			for (final var publication : publications) {
+				final var targetFilename0 = (String) publication.get("pathToDownloadableAwardCertificate"); //$NON-NLS-1$
 				if (!Strings.isNullOrEmpty(targetFilename0)) {
 					if (!copyFileToZip(targetFilename0, zos)) {
 						publication.remove("pathToDownloadableAwardCertificate"); //$NON-NLS-1$
 					}
 				}
-				final String targetFilename1 = (String) publication.get("pathToDownloadablePDF"); //$NON-NLS-1$
+				final var targetFilename1 = (String) publication.get("pathToDownloadablePDF"); //$NON-NLS-1$
 				if (!Strings.isNullOrEmpty(targetFilename1)) {
 					if (!copyFileToZip(targetFilename1, zos)) {
 						publication.remove("pathToDownloadablePDF"); //$NON-NLS-1$
@@ -141,11 +139,11 @@ public class DatabaseToZipExporter {
 
 	@SuppressWarnings("unchecked")
 	private void writeAddressFilesToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
-		List<Map<String, Object>>  addresses = (List<Map<String, Object>>) json.get(JsonTool.ORGANIZATIONADDRESSES_SECTION);
+		var addresses = (List<Map<String, Object>>) json.get(JsonTool.ORGANIZATIONADDRESSES_SECTION);
 		if (addresses != null && !addresses.isEmpty()) {
 			progress.setProperties(0, 0, addresses.size(), false);
-			for (final Map<String, Object> address : addresses) {
-				final String targetFilename0 = (String) address.get("pathToBackgroundImage"); //$NON-NLS-1$
+			for (final var address : addresses) {
+				final var targetFilename0 = (String) address.get("pathToBackgroundImage"); //$NON-NLS-1$
 				if (!Strings.isNullOrEmpty(targetFilename0)) {
 					if (!copyFileToZip(targetFilename0, zos)) {
 						address.remove("pathToBackgroundImage"); //$NON-NLS-1$
@@ -159,13 +157,13 @@ public class DatabaseToZipExporter {
 
 	@SuppressWarnings("unchecked")
 	private void writeOrganizationFilesToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
-		List<Map<String, Object>>  organizations = (List<Map<String, Object>>) json.get(JsonTool.RESEARCHORGANIZATIONS_SECTION);
+		var organizations = (List<Map<String, Object>>) json.get(JsonTool.RESEARCHORGANIZATIONS_SECTION);
 		if (organizations != null && !organizations.isEmpty()) {
 			progress.setProperties(0, 0, organizations.size(), false);
-			for (final Map<String, Object> organization : organizations) {
-				for (final String fieldName : Arrays.asList(
+			for (final var organization : organizations) {
+				for (final var fieldName : Arrays.asList(
 						"pathToLogo")) { //$NON-NLS-1$
-					final String targetFilename0 = (String) organization.get(fieldName);
+					final var targetFilename0 = (String) organization.get(fieldName);
 					if (!Strings.isNullOrEmpty(targetFilename0)) {
 						if (!copyFileToZip(targetFilename0, zos)) {
 							organization.remove(fieldName);
@@ -180,25 +178,25 @@ public class DatabaseToZipExporter {
 
 	@SuppressWarnings("unchecked")
 	private void writeProjectFilesToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
-		List<Map<String, Object>>  projects = (List<Map<String, Object>>) json.get(JsonTool.PROJECTS_SECTION);
+		var projects = (List<Map<String, Object>>) json.get(JsonTool.PROJECTS_SECTION);
 		if (projects != null && !projects.isEmpty()) {
 			progress.setProperties(0, 0, projects.size(), false);
-			for (final Map<String, Object> project : projects) {
-				for (final String fieldName : Arrays.asList(
+			for (final var project : projects) {
+				for (final var fieldName : Arrays.asList(
 						"pathToLogo", //$NON-NLS-1$
 						"pathToPowerpoint", //$NON-NLS-1$
 						"pathToPressDocument", //$NON-NLS-1$
 						"pathToScientificRequirements")) { //$NON-NLS-1$
-					final String targetFilename0 = (String) project.get(fieldName);
+					final var targetFilename0 = (String) project.get(fieldName);
 					if (!Strings.isNullOrEmpty(targetFilename0)) {
 						if (!copyFileToZip(targetFilename0, zos)) {
 							project.remove(fieldName);
 						}
 					}
 				}
-				final Object images = project.get("pathsToImages"); //$NON-NLS-1$
+				final var images = project.get("pathsToImages"); //$NON-NLS-1$
 				if (images != null) {
-					for (final String imagePath : (Collection<String>) images) {
+					for (final var imagePath : (Collection<String>) images) {
 						if (!Strings.isNullOrEmpty(imagePath)) {
 							copyFileToZip(imagePath, zos);
 						}
@@ -212,13 +210,13 @@ public class DatabaseToZipExporter {
 
 	@SuppressWarnings("unchecked")
 	private void writeTeachingActivityFilesToZip(Map<String, Object> json, ZipOutputStream zos, Progression progress) throws Exception {
-		List<Map<String, Object>>  activities = (List<Map<String, Object>>) json.get(JsonTool.TEACHING_ACTIVITY_SECTION);
+		var activities = (List<Map<String, Object>>) json.get(JsonTool.TEACHING_ACTIVITY_SECTION);
 		if (activities != null && !activities.isEmpty()) {
 			progress.setProperties(0, 0, activities.size(), false);
-			for (final Map<String, Object> activity : activities) {
-				for (final String fieldName : Arrays.asList(
+			for (final var activity : activities) {
+				for (final var fieldName : Arrays.asList(
 						"pathToSlides")) { //$NON-NLS-1$
-					final String targetFilename0 = (String) activity.get(fieldName);
+					final var targetFilename0 = (String) activity.get(fieldName);
 					if (!Strings.isNullOrEmpty(targetFilename0)) {
 						if (!copyFileToZip(targetFilename0, zos)) {
 							activity.remove(fieldName);
@@ -232,15 +230,15 @@ public class DatabaseToZipExporter {
 	}
 
 	private boolean copyFileToZip(String filename, ZipOutputStream zos) throws Exception {
-		final File lfilename = FileSystem.convertStringToFile(filename);
-		final File localFile = this.download.normalizeForServerSide(lfilename);
+		final var lfilename = FileSystem.convertStringToFile(filename);
+		final var localFile = this.download.normalizeForServerSide(lfilename);
 		if (localFile.canRead()) {
-			final ZipEntry entry = new ZipEntry(lfilename.toString());
+			final var entry = new ZipEntry(lfilename.toString());
 			zos.putNextEntry(entry);
-			try (UnclosableStream ucs = new UnclosableStream(zos)) {
-				try (BufferedInputStream bis = new BufferedInputStream(new FileInputStream(localFile))) {
-					final byte[] bytesIn = new byte[COPY_BUFFER_SIZE];
-					int read = 0;
+			try (var ucs = new UnclosableStream(zos)) {
+				try (var bis = new BufferedInputStream(new FileInputStream(localFile))) {
+					final var bytesIn = new byte[COPY_BUFFER_SIZE];
+					var read = 0;
 					while ((read = bis.read(bytesIn)) != -1) {
 						ucs.write(bytesIn, 0, read);
 					}
@@ -285,7 +283,7 @@ public class DatabaseToZipExporter {
 		 */
 		public void exportToZip(OutputStream output) throws Exception {
 			this.progress.setProperties(0, 0, FIVE_HUNDRED + FIVE, false);
-			try (ZipOutputStream zos = new ZipOutputStream(output)) {
+			try (var zos = new ZipOutputStream(output)) {
 				writePublicationFilesToZip(this.content, zos, this.progress.subTask(Constants.HUNDRED));
 				writeAddressFilesToZip(this.content, zos, this.progress.subTask(Constants.HUNDRED));
 				writeOrganizationFilesToZip(this.content, zos, this.progress.subTask(Constants.HUNDRED));
