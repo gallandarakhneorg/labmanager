@@ -166,8 +166,8 @@ public class ConferenceService extends AbstractService {
 	 * @param identifier the identifier of the conference.
 	 * @return the conference or {@code null} if it has no conference with the given identifier.
 	 */
-	public Conference getConferenceById(int identifier) {
-		final var opt = this.conferenceRepository.findById(Integer.valueOf(identifier));
+	public Conference getConferenceById(long identifier) {
+		final var opt = this.conferenceRepository.findById(Long.valueOf(identifier));
 		if (opt.isPresent()) {
 			return opt.get();
 		}
@@ -190,7 +190,7 @@ public class ConferenceService extends AbstractService {
 	 */
 	public Optional<Conference> createConference(boolean validated, String acronym, String name,
 			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId,
-			Integer enclosingConference) {
+			Long enclosingConference) {
 		final var conference = new Conference();
 		try {
 			Conference enclosingConferenceObj = null;
@@ -232,12 +232,12 @@ public class ConferenceService extends AbstractService {
 	 * @param enclosingConference the identifier of the conference that is enclosing the current conference.
 	 * @return the updated conference.
 	 */
-	public Optional<Conference> updateConference(int identifier, boolean validated, String acronym, String name,
+	public Optional<Conference> updateConference(long identifier, boolean validated, String acronym, String name,
 			String publisher, String isbn, String issn, Boolean openAccess, String conferenceUrl, String coreId,
-			Integer enclosingConference) {
+			Long enclosingConference) {
 		final Optional<Conference> res;
 		if (identifier >= 0) {
-			res = this.conferenceRepository.findById(Integer.valueOf(identifier));
+			res = this.conferenceRepository.findById(Long.valueOf(identifier));
 		} else {
 			res = Optional.empty();
 		}
@@ -292,8 +292,8 @@ public class ConferenceService extends AbstractService {
 	 * @param identifier the identifier of the conference to be removed.
 	 */
 	@Transactional
-	public void removeConference(int identifier) {
-		final Integer id = Integer.valueOf(identifier);
+	public void removeConference(long identifier) {
+		final Long id = Long.valueOf(identifier);
 		final Optional<Conference> conferenceRef = this.conferenceRepository.findById(id);
 		if (conferenceRef.isPresent()) {
 			this.conferenceRepository.deleteById(id);
@@ -421,9 +421,9 @@ public class ConferenceService extends AbstractService {
 	 * @param year the reference year.
 	 * @param changes the changes to apply.
 	 */
-	public void updateConferenceIndicators(int year, Map<Integer, CoreRanking> changes) {
+	public void updateConferenceIndicators(int year, Map<Long, CoreRanking> changes) {
 		if (changes != null) {
-			for (final Entry<Integer, CoreRanking> entry : changes.entrySet()) {
+			for (final Entry<Long, CoreRanking> entry : changes.entrySet()) {
 				final Optional<Conference> conference = this.conferenceRepository.findById(entry.getKey());
 				if (conference.isEmpty()) {
 					throw new IllegalArgumentException("Conference not found: " + entry.getKey()); //$NON-NLS-1$

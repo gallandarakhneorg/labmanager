@@ -93,33 +93,31 @@ public class Patent extends Publication {
 
 	@Override
 	public int hashCode() {
+		if (getId() != 0) {
+			return Long.hashCode(getId());
+		}
 		var h = super.hashCode();
-		h = HashCodeUtils.add(h, this.institution);
-		h = HashCodeUtils.add(h, this.address);
-		h = HashCodeUtils.add(h, this.patentType);
 		h = HashCodeUtils.add(h, this.patentNumber);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!super.equals(obj)) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (Patent) obj;
-		if (!Objects.equals(this.institution, other.institution)) {
-			return false;
+		if (getId() != 0 && other.getId() != 0) {
+			return getId() == other.getId();
 		}
-		if (!Objects.equals(this.address, other.address)) {
-			return false;
-		}
-		if (!Objects.equals(this.patentType, other.patentType)) {
-			return false;
-		}
-		if (!Objects.equals(this.patentNumber, other.patentNumber)) {
-			return false;
-		}
-		return true;
+		return super.equals(other)
+				&& Objects.equals(this.patentNumber, other.patentNumber);
 	}
 
 	@Override

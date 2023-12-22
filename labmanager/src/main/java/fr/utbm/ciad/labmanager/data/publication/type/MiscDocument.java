@@ -97,41 +97,31 @@ public class MiscDocument extends Publication {
 
 	@Override
 	public int hashCode() {
+		if (getId() != 0) {
+			return Long.hashCode(getId());
+		}
 		var h = super.hashCode();
-		h = HashCodeUtils.add(h, this.organization);
-		h = HashCodeUtils.add(h, this.address);
 		h = HashCodeUtils.add(h, this.howPublished);
-		h = HashCodeUtils.add(h, this.publisher);
-		h = HashCodeUtils.add(h, this.documentNumber);
-		h = HashCodeUtils.add(h, this.documentType);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!super.equals(obj)) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (MiscDocument) obj;
-		if (!Objects.equals(this.organization, other.organization)) {
-			return false;
+		if (getId() != 0 && other.getId() != 0) {
+			return getId() == other.getId();
 		}
-		if (!Objects.equals(this.address, other.address)) {
-			return false;
-		}
-		if (!Objects.equals(this.howPublished, other.howPublished)) {
-			return false;
-		}
-		if (!Objects.equals(this.publisher, other.publisher)) {
-			return false;
-		}
-		if (!Objects.equals(this.documentNumber, other.documentNumber)) {
-			return false;
-		}
-		if (!Objects.equals(this.documentType, other.documentType)) {
-			return false;
-		}
-		return true;
+		return super.equals(other)
+				&& Objects.equals(this.howPublished, other.howPublished);
 	}
 
 	@Override

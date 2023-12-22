@@ -33,7 +33,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface AuthorshipRepository extends JpaRepository<Authorship, Integer>, JpaSpecificationExecutor<Authorship> {
+public interface AuthorshipRepository extends JpaRepository<Authorship, Long>, JpaSpecificationExecutor<Authorship> {
 
 	/** Find an authorship that corresponds tothe given person identifier and publication identifier.
 	 *
@@ -41,20 +41,20 @@ public interface AuthorshipRepository extends JpaRepository<Authorship, Integer>
 	 * @param publicationId the publication of the publication.
 	 * @return the authorship.
 	 */
-	Optional<Authorship> findByPersonIdAndPublicationId(int personId, int publicationId);
+	Optional<Authorship> findByPersonIdAndPublicationId(long personId, long publicationId);
 
 	/** Find the authorships that corresponds are linked to the publication with the given identifier.
 	 *
 	 * @param publicationId the publication of the publication.
 	 * @return the authorships linked to the publication with the given id.
 	 */
-	List<Authorship> findByPublicationId(int publicationId);
+	List<Authorship> findByPublicationId(long publicationId);
 
 	/** Count the number of authorships for the person with the given id.
 	 *
 	 * @param id the identifier of the person.
 	 * @return the count of authorships.
 	 */
-	int countDistinctByPersonId(int id);
+	int countDistinctByPersonId(long id);
 
 }

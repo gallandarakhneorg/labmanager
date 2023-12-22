@@ -70,7 +70,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Acronym of the scientific axis.
 	 */
@@ -135,40 +135,34 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.acronym);
 		h = HashCodeUtils.add(h, this.name);
 		h = HashCodeUtils.add(h, this.startDate);
-		h = HashCodeUtils.add(h, this.endDate);
-		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (ScientificAxis) obj;
-		if (!Objects.equals(this.acronym, other.acronym)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.name, other.name)) {
-			return false;
-		}
-		if (!Objects.equals(this.startDate, other.startDate)) {
-			return false;
-		}
-		if (!Objects.equals(this.endDate, other.endDate)) {
-			return false;
-		}
-		if (this.validated != other.validated) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.acronym, other.acronym)
+				&& Objects.equals(this.name, other.name)
+				&& Objects.equals(this.startDate, other.startDate);
 	}
 
 	@Override
@@ -180,7 +174,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
 		if (getId() != 0) {
-			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+			consumer.accept("id", Long.valueOf(getId())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getAcronym())) {
 			consumer.accept("acronym", getAcronym()); //$NON-NLS-1$
@@ -242,7 +236,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -250,7 +244,7 @@ public class ScientificAxis implements Serializable, JsonSerializable, Comparabl
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

@@ -22,11 +22,11 @@ package fr.utbm.ciad.labmanager.data.conference;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Locale;
-import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.CoreRanking;
 import jakarta.persistence.Column;
@@ -53,7 +53,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 @Entity
 @Table(name = "ConferenceAnnualIndicators")
-public class ConferenceQualityAnnualIndicators implements Serializable, AttributeProvider {
+public class ConferenceQualityAnnualIndicators implements Serializable, AttributeProvider, IdentifiableEntity {
 
 	private static final long serialVersionUID = 1212711963054404563L;
 
@@ -63,7 +63,7 @@ public class ConferenceQualityAnnualIndicators implements Serializable, Attribut
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	@JsonIgnore
-	private int id;
+	private long id;
 
 	/** Year for the entry.
 	 */
@@ -96,29 +96,45 @@ public class ConferenceQualityAnnualIndicators implements Serializable, Attribut
 	}
 
 	@Override
+	public long getId() {
+		return this.id;
+	}
+
+	/** Change the database id.
+	 *
+	 * @param id the new database id;
+	 * @since 4.0
+	 */
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.referenceYear);
-		h = HashCodeUtils.add(h, this.coreIndex);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (ConferenceQualityAnnualIndicators) obj;
-		if (this.referenceYear != other.referenceYear) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.coreIndex, other.coreIndex)) {
-			return false;
-		}
-		return true;
+		return this.referenceYear == other.referenceYear;
 	}
 
 	@Override

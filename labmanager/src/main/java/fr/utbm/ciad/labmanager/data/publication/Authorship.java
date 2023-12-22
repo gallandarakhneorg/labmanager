@@ -55,7 +55,7 @@ public class Authorship implements Serializable, AttributeProvider, Comparable<A
 	 */
 	@Id
 	@GeneratedValue
-	private int id;
+	private long id;
 
 	/** Author rank determines the order of the author in the list of authors for the concerned publication.
 	 */
@@ -92,33 +92,33 @@ public class Authorship implements Serializable, AttributeProvider, Comparable<A
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-		final var that = (Authorship) o;
-		if (this.authorRank != that.authorRank) {
-			return false;
-		}
-		if (!Objects.equals(this.publication, that.publication)) {
-			return false;
-		}
-		if (!Objects.equals(this.person, that.person)) {
-			return false;
-		}
-		return true;
-	}
-
-	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.authorRank);
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.publication);
 		return h;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final var other = (Authorship) obj;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
+		}
+		return Objects.equals(this.person, other.person)
+				&& Objects.equals(this.publication, other.publication);
 	}
 
 	@Override
@@ -139,7 +139,7 @@ public class Authorship implements Serializable, AttributeProvider, Comparable<A
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -147,7 +147,7 @@ public class Authorship implements Serializable, AttributeProvider, Comparable<A
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

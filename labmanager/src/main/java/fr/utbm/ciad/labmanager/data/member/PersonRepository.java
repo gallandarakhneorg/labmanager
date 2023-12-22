@@ -34,7 +34,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface PersonRepository extends JpaRepository<Person, Integer>, JpaSpecificationExecutor<Person> {
+public interface PersonRepository extends JpaRepository<Person, Long>, JpaSpecificationExecutor<Person> {
 
 	/** Replies a person who has the given first and last names.
 	 * 
@@ -82,13 +82,13 @@ public interface PersonRepository extends JpaRepository<Person, Integer>, JpaSpe
 	 * @param id the identifier of the organization.
 	 * @return the persons.
 	 */
-	Set<Person> findDistinctByMembershipsResearchOrganizationId(int id);
+	Set<Person> findDistinctByMembershipsResearchOrganizationId(long id);
 
 	/** Replies the persons who authored the publication with the given identifier.
 	 *
 	 * @param id the identifier of the publication.
 	 * @return the persons.
 	 */
-	List<Person> findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(int id);
+	List<Person> findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(long id);
 
 }

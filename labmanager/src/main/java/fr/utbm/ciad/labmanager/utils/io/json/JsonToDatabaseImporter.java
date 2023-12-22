@@ -492,7 +492,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	public Stats importJsonFileToDatabase(JsonNode content, boolean clearDatabase, FileCallback fileCallback) throws Exception {
 		if (content != null && !content.isEmpty()) {
-			final var objectRepository = new TreeMap<String, Integer>();
+			final var objectRepository = new TreeMap<String, Long>();
 			final var aliasRepository = new TreeMap<String, Set<String>>();
 
 			try (final var session = this.sessionFactory.openSession()) {
@@ -551,7 +551,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @param aliasRepository the repository of field aliases.
 	 * @throws Exception if an address cannot be created.
 	 */
-	protected void insertGlobalIndicators(Session session, JsonNode globalIndicators, Map<String, Integer> objectIdRepository,
+	protected void insertGlobalIndicators(Session session, JsonNode globalIndicators, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		if (globalIndicators != null && !globalIndicators.isEmpty()) {
 			getLogger().info("Inserting global indicators..."); //$NON-NLS-1$
@@ -579,7 +579,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new addresses in the database.
 	 * @throws Exception if an address cannot be created.
 	 */
-	protected int insertAddresses(Session session, JsonNode addresses, Map<String, Integer> objectIdRepository,
+	protected int insertAddresses(Session session, JsonNode addresses, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		var nbNew = 0;
 		if (addresses != null && !addresses.isEmpty()) {
@@ -616,12 +616,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 							++nbNew;
 							getLogger().info("  + " + adr.getName() + " (id: " + adr.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(adr.getId()));
+								objectIdRepository.put(id, Long.valueOf(adr.getId()));
 							}
 						} else {
 							getLogger().info("  X " + existing.get().getName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
 							}
 							if (fileCallback != null) {
 								if (!Strings.isNullOrEmpty(existing.get().getPathToBackgroundImage())) {
@@ -650,7 +650,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new organizations in the database.
 	 * @throws Exception if an organization cannot be created.
 	 */
-	protected int insertOrganizations(Session session, JsonNode organizations, Map<String, Integer> objectIdRepository,
+	protected int insertOrganizations(Session session, JsonNode organizations, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		var nbNew = 0;
 		if (organizations != null && !organizations.isEmpty()) {
@@ -711,7 +711,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 							getLogger().info("  + " + orga.getAcronymOrName() + " (id: " + orga.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
 								objectInstanceRepository.put(id, orga);
-								objectIdRepository.put(id, Integer.valueOf(orga.getId()));
+								objectIdRepository.put(id, Long.valueOf(orga.getId()));
 							}
 							// Save hierarchical relation with other organization
 							final var superOrga = getRef(orgaObject.get(SUPER_ORGANIZATION_KEY));
@@ -722,7 +722,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 							getLogger().info("  X " + existing.get().getAcronymOrName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
 								objectInstanceRepository.put(id, existing.get());
-								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
 							}
 						}
 					}
@@ -785,7 +785,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new persons in the database.
 	 * @throws Exception if a person cannot be created.
 	 */
-	protected int insertPersons(Session session, JsonNode persons, Map<String, Integer> objectIdRepository,
+	protected int insertPersons(Session session, JsonNode persons, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (persons != null && !persons.isEmpty()) {
@@ -813,12 +813,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 							++nbNew;
 							getLogger().info("  + " + person.getFullName() + " (id: " + person.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(person.getId()));
+								objectIdRepository.put(id, Long.valueOf(person.getId()));
 							}
 						} else {
 							getLogger().info("  X " + existing.get().getFullName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
 							}
 						}
 						session.getTransaction().commit();
@@ -832,11 +832,11 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return nbNew;
 	}
 
-	private static Map<String, List<Integer>> extractScientificAxes(JsonNode scientificAxes,
-			Map<String, Integer> objectIdRepository, String jsonKey) {
-		final var axes = new TreeMap<String, List<Integer>>();
+	private static Map<String, List<Long>> extractScientificAxes(JsonNode scientificAxes,
+			Map<String, Long> objectIdRepository, String jsonKey) {
+		final var axes = new TreeMap<String, List<Long>>();
 		if (scientificAxes != null) {
-			final var cache = new HashMap<String, Integer>();
+			final var cache = new HashMap<String, Long>();
 			scientificAxes.forEach(axisNode -> {
 				final var mbrsNode = axisNode.get(jsonKey);
 				if (mbrsNode != null && mbrsNode.isArray() && !mbrsNode.isEmpty()) {
@@ -878,7 +878,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @throws Exception if a membership cannot be created.
 	 */
 	protected int insertOrganizationMemberships(Session session, JsonNode memberships, JsonNode scientificAxes,
-			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository) throws Exception {
+			Map<String, Long> objectIdRepository, Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (memberships != null && !memberships.isEmpty()) {
 			getLogger().info("Inserting " + memberships.size() + " organization memberships..."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -886,7 +886,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 			final var axesOfMemberships = extractScientificAxes(
 					scientificAxes, objectIdRepository, MEMBERSHIPS_KEY);
 			//
-			final var addressPostProcessing = new ArrayList<Pair<Membership, Integer>>();
+			final var addressPostProcessing = new ArrayList<Pair<Membership, Long>>();
 			var i = 0;
 			for (final var membershipObject : memberships) {
 				getLogger().info("> Organization membership " + (i + 1) + "/" + memberships.size()); //$NON-NLS-1$ //$NON-NLS-2$
@@ -961,14 +961,14 @@ public class JsonToDatabaseImporter extends JsonTool {
 									+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
 									+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(membership.getId()));
+								objectIdRepository.put(id, Long.valueOf(membership.getId()));
 							}
 						} else {
 							getLogger().info("  X " + targetOrganization.get().getAcronymOrName() //$NON-NLS-1$
 									+ " - " + targetPerson.get().getFullName() //$NON-NLS-1$
 									+ " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
 							}
 						}
 						session.getTransaction().commit();
@@ -1005,7 +1005,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new journals in the database.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	protected int insertJournals(Session session, JsonNode journals, Map<String, Integer> objectIdRepository,
+	protected int insertJournals(Session session, JsonNode journals, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (journals != null && !journals.isEmpty()) {
@@ -1087,12 +1087,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 							//
 							getLogger().info("  + " + journal.getJournalName() + " (id: " + journal.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(journal.getId()));
+								objectIdRepository.put(id, Long.valueOf(journal.getId()));
 							}
 						} else {
 							getLogger().info("  X " + existing.get().getJournalName() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
 							}
 						}
 						session.getTransaction().commit();
@@ -1152,7 +1152,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new conferences in the database.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	protected int insertConferences(Session session, JsonNode conferences, Map<String, Integer> objectIdRepository,
+	protected int insertConferences(Session session, JsonNode conferences, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (conferences != null && !conferences.isEmpty()) {
@@ -1210,12 +1210,12 @@ public class JsonToDatabaseImporter extends JsonTool {
 							//
 							getLogger().info("  + " + conference.getNameOrAcronym() + " (id: " + conference.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(conference.getId()));
+								objectIdRepository.put(id, Long.valueOf(conference.getId()));
 							}
 						} else {
 							getLogger().info("  X " + existing.get().getNameOrAcronym() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
 							}
 						}
 						session.getTransaction().commit();
@@ -1257,7 +1257,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @throws Exception if a membership cannot be created.
 	 */
 	protected Pair<Integer, Integer> insertPublications(Session session, JsonNode publications, JsonNode scientificAxes,
-			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
+			Map<String, Long> objectIdRepository, Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		var nbNewPublications = 0;
 		final var nbNewPersons = new MutableInt();
 		if (publications != null && !publications.isEmpty()) {
@@ -1310,7 +1310,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 						++nbNewPublications;
 						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Integer.valueOf(publication.getId()));
+							objectIdRepository.put(id, Long.valueOf(publication.getId()));
 						}
 						//
 						getLogger().info("  + " + publication.getTitle() + " (id: " + publication.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
@@ -1353,7 +1353,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						// Publication is already in the database
 						getLogger().info("  X " + existing.get().getTitle() + " (id: " + existing.get().getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+							objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
 						}
 						if (fileCallback != null) {
 							if (!Strings.isNullOrEmpty(existing.get().getPathToDownloadablePDF())) {
@@ -1373,7 +1373,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return Pair.of(Integer.valueOf(nbNewPublications), nbNewPersons.toInteger());
 	}
 
-	private Publication createPublicationInstance(String id, JsonNode publicationObject, Map<String, Integer> objectIdRepository,
+	private Publication createPublicationInstance(String id, JsonNode publicationObject, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		// Retrieve the elements that characterize the type of the publication
 		final var type = getEnum(publicationObject, TYPE_KEY, PublicationType.class);
@@ -1466,7 +1466,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		return publication;
 	}
 
-	private Person findOrCreateAuthor(JsonNode authorObject, Map<String, Integer> objectIdRepository, MutableInt nbNewPersons) {
+	private Person findOrCreateAuthor(JsonNode authorObject, Map<String, Long> objectIdRepository, MutableInt nbNewPersons) {
 		assert authorObject != null;
 		Person targetAuthor = null;
 		final var authorId = getRef(authorObject);
@@ -1508,7 +1508,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new memberships in the database.
 	 * @throws Exception if a membership cannot be created.
 	 */
-	protected int insertJuryMemberships(Session session, JsonNode memberships, Map<String, Integer> objectIdRepository,
+	protected int insertJuryMemberships(Session session, JsonNode memberships, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (memberships != null && !memberships.isEmpty()) {
@@ -1582,7 +1582,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 									+ " - " + membership.getType().getLabel(getMessageSourceAccessor(), Gender.NOT_SPECIFIED, Locale.US) //$NON-NLS-1$
 									+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(membership.getId()));
+								objectIdRepository.put(id, Long.valueOf(membership.getId()));
 							}
 						} else {
 							getLogger().info("  X " + targetPerson.get().getFullName() //$NON-NLS-1$
@@ -1590,7 +1590,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 									+ " - " + membership.getType().getLabel(getMessageSourceAccessor(), Gender.NOT_SPECIFIED, Locale.US) //$NON-NLS-1$
 									+ " (id: " + membership.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 							if (!Strings.isNullOrEmpty(id)) {
-								objectIdRepository.put(id, Integer.valueOf(existing.get().getId()));
+								objectIdRepository.put(id, Long.valueOf(existing.get().getId()));
 							}
 						}
 						session.getTransaction().commit();
@@ -1613,7 +1613,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new supervisions in the database.
 	 * @throws Exception if a supervision cannot be created.
 	 */
-	protected int insertSupervisions(Session session, JsonNode supervisions, Map<String, Integer> objectIdRepository,
+	protected int insertSupervisions(Session session, JsonNode supervisions, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (supervisions != null && !supervisions.isEmpty()) {
@@ -1676,7 +1676,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 								+ " - " + supervision.getSupervisedPerson().getShortDescription(getMessageSourceAccessor(), Locale.US) //$NON-NLS-1$
 								+ " (id: " + supervision.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Integer.valueOf(supervision.getId()));
+							objectIdRepository.put(id, Long.valueOf(supervision.getId()));
 						}
 						session.getTransaction().commit();
 					}
@@ -1698,7 +1698,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new supervisions in the database.
 	 * @throws Exception if a supervision cannot be created.
 	 */
-	protected int insertInvitations(Session session, JsonNode invitations, Map<String, Integer> objectIdRepository,
+	protected int insertInvitations(Session session, JsonNode invitations, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (invitations != null && !invitations.isEmpty()) {
@@ -1748,7 +1748,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 								+ " - " + invitation.getInviter().getFullName() //$NON-NLS-1$
 								+ " (id: " + invitation.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Integer.valueOf(invitation.getId()));
+							objectIdRepository.put(id, Long.valueOf(invitation.getId()));
 						}
 						session.getTransaction().commit();
 					}
@@ -1774,7 +1774,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 */
 	@SuppressWarnings("removal")
 	protected int insertProjects(Session session, JsonNode projects, JsonNode scientificAxes,
-			Map<String, Integer> objectIdRepository, Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
+			Map<String, Long> objectIdRepository, Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		var nbNew = 0;
 		if (projects != null && !projects.isEmpty()) {
 			getLogger().info("Inserting " + projects.size() + " projects..."); //$NON-NLS-1$ //$NON-NLS-2$
@@ -2026,7 +2026,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						getLogger().info("  + " + project.getAcronymOrScientificTitle() //$NON-NLS-1$
 						+ " (id: " + project.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Integer.valueOf(project.getId()));
+							objectIdRepository.put(id, Long.valueOf(project.getId()));
 						}
 						session.getTransaction().commit();
 						//
@@ -2073,7 +2073,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new associated structures in the database.
 	 * @throws Exception if an associated structure cannot be created.
 	 */
-	protected int insertAssociatedStructures(Session session, JsonNode structures, Map<String, Integer> objectIdRepository,
+	protected int insertAssociatedStructures(Session session, JsonNode structures, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		var nbNew = 0;
 		if (structures != null && !structures.isEmpty()) {
@@ -2195,7 +2195,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						getLogger().info("  + " + structure.getAcronymOrName() //$NON-NLS-1$
 						+ " (id: " + structure.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Integer.valueOf(structure.getId()));
+							objectIdRepository.put(id, Long.valueOf(structure.getId()));
 						}
 						session.getTransaction().commit();
 					}
@@ -2218,7 +2218,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new associated structures in the database.
 	 * @throws Exception if an associated structure cannot be created.
 	 */
-	protected int insertTeachingActivities(Session session, JsonNode activities, Map<String, Integer> objectIdRepository,
+	protected int insertTeachingActivities(Session session, JsonNode activities, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		var nbNew = 0;
 		if (activities != null && !activities.isEmpty()) {
@@ -2295,7 +2295,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						getLogger().info("  + " + activity.getCodeOrTitle() //$NON-NLS-1$
 						+ " (id: " + activity.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$
 						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Integer.valueOf(activity.getId()));
+							objectIdRepository.put(id, Long.valueOf(activity.getId()));
 						}
 						session.getTransaction().commit();
 					}
@@ -2318,7 +2318,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new scientific axes in the database.
 	 * @throws Exception if a scientific axis cannot be created.
 	 */
-	protected int insertScientificAxes(Session session, JsonNode axes, Map<String, Integer> objectIdRepository,
+	protected int insertScientificAxes(Session session, JsonNode axes, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository, FileCallback fileCallback) throws Exception {
 		var nbNew = 0;
 		if (axes != null && !axes.isEmpty()) {
@@ -2335,7 +2335,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						}
 						++nbNew;
 						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Integer.valueOf(axis.getId()));
+							objectIdRepository.put(id, Long.valueOf(axis.getId()));
 						}
 					}
 				} catch (Throwable ex) {
@@ -2356,7 +2356,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 	 * @return the number of new users in the database.
 	 * @throws Exception if an user cannot be created.
 	 */
-	protected int insertApplicationUsers(Session session, JsonNode users, Map<String, Integer> objectIdRepository,
+	protected int insertApplicationUsers(Session session, JsonNode users, Map<String, Long> objectIdRepository,
 			Map<String, Set<String>> aliasRepository) throws Exception {
 		var nbNew = 0;
 		if (users != null && !users.isEmpty()) {
@@ -2391,7 +2391,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 						++nbNew;
 						getLogger().info("  + " + user.getLogin() + " (id: " + user.getId() + ")"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 						if (!Strings.isNullOrEmpty(id)) {
-							objectIdRepository.put(id, Integer.valueOf(user.getId()));
+							objectIdRepository.put(id, Long.valueOf(user.getId()));
 						}
 
 						session.getTransaction().commit();
@@ -2421,7 +2421,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param filename the filename that is specified in the JSON file.
 		 * @return the fixed filename.
 		 */
-		String publicationPdfFile(int dbId, String filename);
+		String publicationPdfFile(long dbId, String filename);
 
 		/** An award file was attached to a publication.
 		 *
@@ -2429,7 +2429,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param filename the filename that is specified in the JSON file.
 		 * @return the fixed filename.
 		 */
-		String publicationAwardFile(int dbId, String filename);
+		String publicationAwardFile(long dbId, String filename);
 
 		/** A background image file was attached to an address.
 		 *
@@ -2437,7 +2437,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @param filename the filename that is specified in the JSON file.
 		 * @return the fixed filename.
 		 */
-		String addressBackgroundImageFile(int dbId, String filename);
+		String addressBackgroundImageFile(long dbId, String filename);
 
 		/** A logo file was attached to an organization.
 		 *
@@ -2446,7 +2446,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @return the fixed filename.
 		 * @since 3.2
 		 */
-		String organizationLogoFile(int dbId, String filename);
+		String organizationLogoFile(long dbId, String filename);
 
 		/** A logo file was attached to a project.
 		 *
@@ -2455,7 +2455,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @return the fixed filename.
 		 * @since 3.0
 		 */
-		String projectLogoFile(int dbId, String filename);
+		String projectLogoFile(long dbId, String filename);
 
 		/** An image file was attached to a project.
 		 *
@@ -2465,7 +2465,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @return the fixed filename.
 		 * @since 3.0
 		 */
-		String projectImageFile(int dbId, int index, String filename);
+		String projectImageFile(long dbId, int index, String filename);
 
 		/** A scientific requirement file was attached to a project.
 		 *
@@ -2474,7 +2474,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @return the fixed filename.
 		 * @since 3.0
 		 */
-		String projectScientificRequirementsFile(int dbId, String filename);
+		String projectScientificRequirementsFile(long dbId, String filename);
 
 		/** A press document file was attached to a project.
 		 *
@@ -2483,7 +2483,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @return the fixed filename.
 		 * @since 3.0
 		 */
-		String projectPressDocumentFile(int dbId, String filename);
+		String projectPressDocumentFile(long dbId, String filename);
 
 		/** A PowerPoint file was attached to a project.
 		 *
@@ -2492,7 +2492,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @return the fixed filename.
 		 * @since 3.0
 		 */
-		String projectPowerpointFile(int dbId, String filename);
+		String projectPowerpointFile(long dbId, String filename);
 
 	}
 

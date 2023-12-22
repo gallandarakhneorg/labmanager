@@ -330,7 +330,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		if (!addresses.isEmpty()) {
 			final var array = root.arrayNode();
 			var i = 0;
-			final var nodes = new TreeMap<Integer, ObjectNode>();
+			final var nodes = new TreeMap<Long, ObjectNode>();
 			for (final var address : addresses) {
 				final var jsonAddress = array.objectNode();
 
@@ -339,7 +339,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 				if (jsonAddress.size() > 0) {
 					repository.put(address, id);
-					nodes.put(Integer.valueOf(address.getId()), jsonAddress);
+					nodes.put(Long.valueOf(address.getId()), jsonAddress);
 					array.add(jsonAddress);
 					++i;
 				}
@@ -361,7 +361,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 		if (!organizations.isEmpty()) {
 			final var array = root.arrayNode();
 			var i = 0;
-			final var nodes = new TreeMap<Integer, ObjectNode>();
+			final var nodes = new TreeMap<Long, ObjectNode>();
 			for (final var organization : organizations) {
 				final var jsonOrganization = array.objectNode();
 
@@ -370,7 +370,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 
 				if (jsonOrganization.size() > 0) {
 					repository.put(organization, id);
-					nodes.put(Integer.valueOf(organization.getId()), jsonOrganization);
+					nodes.put(Long.valueOf(organization.getId()), jsonOrganization);
 					array.add(jsonOrganization);
 					++i;
 				}
@@ -390,7 +390,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 						}
 					}
 					if (!jsonAddresses.isEmpty()) {
-						final var objNode = nodes.get(Integer.valueOf(organization.getId()));
+						final var objNode = nodes.get(Long.valueOf(organization.getId()));
 						if (objNode == null) {
 							throw new IllegalStateException("No JSON node created for organization: " + organization.getAcronymOrName()); //$NON-NLS-1$
 						}
@@ -406,7 +406,7 @@ public class DatabaseToJsonExporter extends JsonTool {
 					if (Strings.isNullOrEmpty(id)) {
 						throw new IllegalStateException("Organization not found: " + organization.getAcronymOrName()); //$NON-NLS-1$
 					}
-					final var objNode = nodes.get(Integer.valueOf(organization.getId()));
+					final var objNode = nodes.get(Long.valueOf(organization.getId()));
 					if (objNode == null) {
 						throw new IllegalStateException("No JSON node created for organization: " + organization.getAcronymOrName()); //$NON-NLS-1$
 					}

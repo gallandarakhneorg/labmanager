@@ -151,8 +151,8 @@ public class ScientificAxisService extends AbstractService {
 	 * @param id the identifier of the axis.
 	 * @return the axis with the gien identifier, or {@code null} if there is no axis with this id.
 	 */
-	public ScientificAxis getScientificAxisById(int id) {
-		return this.scientificAxisRepository.findById(Integer.valueOf(id)).orElse(null);
+	public ScientificAxis getScientificAxisById(long id) {
+		return this.scientificAxisRepository.findById(Long.valueOf(id)).orElse(null);
 	}
 
 	/** Delete the scientific axis with the given identifier.
@@ -160,8 +160,8 @@ public class ScientificAxisService extends AbstractService {
 	 * @param identifier the identifier of the axis to be deleted.
 	 */
 	@Transactional
-	public void removeScientificAxis(int identifier) {
-		final var id = Integer.valueOf(identifier);
+	public void removeScientificAxis(long identifier) {
+		final var id = Long.valueOf(identifier);
 		final var axisOpt = this.scientificAxisRepository.findById(id);
 		if (axisOpt.isPresent()) {
 			final var axis = axisOpt.get();
@@ -217,12 +217,12 @@ public class ScientificAxisService extends AbstractService {
 	 * @param memberships the list of associated memberships.
 	 * @return the reference to the created axis.
 	 */
-	public Optional<ScientificAxis> updateScientificAxis(int axisId, boolean validated, String acronym,
+	public Optional<ScientificAxis> updateScientificAxis(long axisId, boolean validated, String acronym,
 			String name, LocalDate startDate, LocalDate endDate, List<Project> projects,
 			List<Publication> publications, List<Membership> memberships) {
 		final Optional<ScientificAxis> res;
 		if (axisId >= 0) {
-			res = this.scientificAxisRepository.findById(Integer.valueOf(axisId));
+			res = this.scientificAxisRepository.findById(Long.valueOf(axisId));
 		} else {
 			res = Optional.empty();
 		}
@@ -291,7 +291,7 @@ public class ScientificAxisService extends AbstractService {
 	 * @param identifiers the identifiers.
 	 * @return the axes.
 	 */
-	public List<ScientificAxis> getScientificAxesFor(List<Integer> identifiers) {
+	public List<ScientificAxis> getScientificAxesFor(List<Long> identifiers) {
 		final var axes = this.scientificAxisRepository.findAllById(identifiers);
 		if (axes.size() != identifiers.size()) {
 			throw new IllegalArgumentException("Scientific axis not found"); //$NON-NLS-1$

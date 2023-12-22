@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -55,14 +56,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import fr.utbm.ciad.labmanager.components.indicators.members.fte.PermanentResearcherFteIndicator;
-import fr.utbm.ciad.labmanager.components.indicators.members.fte.PhdStudentFteIndicator;
-import fr.utbm.ciad.labmanager.components.indicators.members.fte.PostdocFteIndicator;
-import fr.utbm.ciad.labmanager.components.indicators.publication.count.ScimagoJournalPaperCountIndicator;
-import fr.utbm.ciad.labmanager.components.indicators.publication.count.UnrankedJournalPaperCountIndicator;
-import fr.utbm.ciad.labmanager.components.indicators.publication.count.WosJournalPaperCountIndicator;
-import fr.utbm.ciad.labmanager.components.indicators.publication.fte.ScimagoJournalPaperFteRatioIndicator;
-import fr.utbm.ciad.labmanager.components.indicators.publication.fte.WosJournalPaperFteRatioIndicator;
 import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.conference.ConferenceRepository;
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
@@ -103,7 +96,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PublicationService}.
@@ -219,21 +211,21 @@ public class PublicationServiceTest {
 		// The lenient configuration is used to configure the mocks for all the tests
 		// at the same code location for configuration simplicity
 		this.pub0 = mock(Publication.class, "pub0");
-		lenient().when(this.pub0.getId()).thenReturn(123);
+		lenient().when(this.pub0.getId()).thenReturn(123l);
 		this.pub1 = mock(Publication.class, "pub1");
-		lenient().when(this.pub1.getId()).thenReturn(234);
+		lenient().when(this.pub1.getId()).thenReturn(234l);
 		this.pub2 = mock(Publication.class, "pub2");
-		lenient().when(this.pub2.getId()).thenReturn(345);
+		lenient().when(this.pub2.getId()).thenReturn(345l);
 
 		lenient().when(this.publicationRepository.findAll()).thenReturn(
 				Arrays.asList(this.pub0, this.pub1, this.pub2));
-		lenient().when(this.publicationRepository.findById(anyInt())).then(it -> {
-			switch (((Integer) it.getArgument(0)).intValue()) {
-			case 123:
+		lenient().when(this.publicationRepository.findById(anyLong())).then(it -> {
+			var n = ((Long) it.getArgument(0)).longValue();
+			if (n == 123l) {
 				return Optional.of(this.pub0);
-			case 234:
+			} else if (n == 234l) {
 				return Optional.of(this.pub1);
-			case 345:
+			} else if (n == 345l) {
 				return Optional.of(this.pub2);
 			}
 			return Optional.empty();
@@ -279,8 +271,8 @@ public class PublicationServiceTest {
 
 		final ArgumentCaptor<Integer> arg = ArgumentCaptor.forClass(Integer.class);
 
-		verify(this.publicationRepository, atLeastOnce()).findById(eq(234));
-		verify(this.publicationRepository, atLeastOnce()).deleteById(eq(234));
+		verify(this.publicationRepository, atLeastOnce()).findById(eq(234l));
+		verify(this.publicationRepository, atLeastOnce()).deleteById(eq(234l));
 		
 		verifyNoMoreInteractions(this.publicationRepository);
 	}
@@ -289,17 +281,17 @@ public class PublicationServiceTest {
 	@DisplayName("save(Publication...)")
 	public void save() {
 		Person pers0 = mock(Person.class);
-		when(pers0.getId()).thenReturn(1234);
+		when(pers0.getId()).thenReturn(1234l);
 		Person pers1 = mock(Person.class);
-		when(pers1.getId()).thenReturn(2345);
+		when(pers1.getId()).thenReturn(2345l);
 		doReturn(Arrays.asList(pers0)).when(this.pub0).getTemporaryAuthors();
 		doReturn(Arrays.asList(pers1)).when(this.pub1).getTemporaryAuthors();
 		
-		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
-			switch ((Integer) it.getArgument(0)) {
-			case 1234:
+		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 1234l) {
 				return Optional.of(pers0);
-			case 2345:
+			} else if (n == 2345l) {
 				return Optional.of(pers1);
 			}
 			return Optional.empty();
@@ -324,11 +316,11 @@ public class PublicationServiceTest {
 		verifyNoInteractions(this.journalRepository);
 	}
 
-	private void assertAuthorship(ArgumentCaptor<Authorship> authorships, int personId, int publicationId, int rank) {
+	private void assertAuthorship(ArgumentCaptor<Authorship> authorships, long personId, long publicationId, int rank) {
 		for (final Authorship aut : authorships.getAllValues()) {
-			int pid = aut.getPerson().getId();
-			int pubid = aut.getPublication().getId();
-			int r = aut.getAuthorRank();
+			long pid = aut.getPerson().getId();
+			long pubid = aut.getPublication().getId();
+			long r = aut.getAuthorRank();
 			if (personId == pid && publicationId == pubid && rank == r) {
 				return;
 			}
@@ -336,7 +328,7 @@ public class PublicationServiceTest {
 		fail("Authorship not found");
 	}
 
-	private void assertAuthorship(Authorship authorship, int personId, int publicationId, int rank) {
+	private void assertAuthorship(Authorship authorship, long personId, long publicationId, int rank) {
 		assertEquals(personId, authorship.getPerson().getId(), "Invalid person");
 		assertEquals(publicationId, authorship.getPublication().getId(), "Invalid publication");
 		assertEquals(rank, authorship.getAuthorRank(), "Invalid rank");
@@ -345,7 +337,7 @@ public class PublicationServiceTest {
 	@Test
 	@DisplayName("importBibTeXPublications(null, null, false, false)")
 	public void importBibTeXPublications_null() throws Exception {
-		List<Integer> ids = this.test.importBibTeXPublications(null, null, false, false, Locale.US);
+		List<Long> ids = this.test.importBibTeXPublications(null, null, false, false, Locale.US);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -354,7 +346,7 @@ public class PublicationServiceTest {
 	@DisplayName("importBibTeXPublications(\"\", null, false, false)")
 	public void importBibTeXPublications_empty() throws Exception {
 		Reader rd = new StringReader("");
-		List<Integer> ids = this.test.importBibTeXPublications(rd, null, false, false, Locale.US);
+		List<Long> ids = this.test.importBibTeXPublications(rd, null, false, false, Locale.US);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -364,55 +356,55 @@ public class PublicationServiceTest {
 	public void importBibTeXPublications_0() throws Exception {
 		String bibtex = "--valid-bibtex--";
 		Person a0 = mock(Person.class);
-		when(a0.getId()).thenReturn(1234);
+		when(a0.getId()).thenReturn(1234l);
 		when(a0.getFirstName()).thenReturn("Fa0");
 		when(a0.getLastName()).thenReturn("La0");
 		Person a1 = mock(Person.class);
-		when(a1.getId()).thenReturn(2345);
+		when(a1.getId()).thenReturn(2345l);
 		when(a1.getFirstName()).thenReturn("Fa1");
 		when(a1.getLastName()).thenReturn("La1");
 		Person a2 = mock(Person.class);
-		when(a2.getId()).thenReturn(3456);
+		when(a2.getId()).thenReturn(3456l);
 		when(a2.getFirstName()).thenReturn("Fa2");
 		when(a2.getLastName()).thenReturn("La2");
 		Publication p0 = mock(Publication.class);
-		when(p0.getId()).thenReturn(987);
+		when(p0.getId()).thenReturn(987l);
 		when(p0.getAuthors()).thenReturn(Arrays.asList(a0, a1));
 		Publication p1 = mock(Publication.class);
-		when(p1.getId()).thenReturn(874);
+		when(p1.getId()).thenReturn(874l);
 		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
 		when(this.bibtex.extractPublications(any(Reader.class), anyBoolean(), anyBoolean(), anyBoolean(),
 				anyBoolean(), anyBoolean())).thenReturn(Arrays.asList(p0, p1));
-		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
-			switch ((Integer) it.getArgument(0)) {
-			case 1234:
+		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 1234l) {
 				return Optional.of(a0);
-			case 2345:
+			} else if (n == 2345l) {
 				return Optional.of(a1);
-			case 3456:
+			} else if (n == 3456l) {
 				return Optional.of(a2);
 			}
 			return Optional.empty();
 		});
-		when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyInt())).thenReturn(Collections.singletonList(null));
+		when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyLong())).thenReturn(Collections.singletonList(null));
 
-		lenient().when(this.publicationRepository.findById(anyInt())).then(it -> {
-			switch (((Integer) it.getArgument(0)).intValue()) {
-			case 123:
+		lenient().when(this.publicationRepository.findById(anyLong())).then(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 123l) {
 				return Optional.of(this.pub0);
-			case 234:
+			} else if (n == 234l) {
 				return Optional.of(this.pub1);
-			case 345:
+			} else if (n == 345l) {
 				return Optional.of(this.pub2);
-			case 987:
+			} else if (n == 987l) {
 				return Optional.of(p0);
-			case 874:
+			} else if (n == 874l) {
 				return Optional.of(p1);
 			}
 			return Optional.empty();
 		});
 
-		List<Integer> ids = this.test.importBibTeXPublications(new StringReader(bibtex), null, false, false, Locale.US);
+		List<Long> ids = this.test.importBibTeXPublications(new StringReader(bibtex), null, false, false, Locale.US);
 
 		assertNotNull(ids);
 		assertEquals(2, ids.size());
@@ -428,7 +420,7 @@ public class PublicationServiceTest {
 
 		verify(p1, atLeastOnce()).setTemporaryAuthors(same(null));
 
-		verify( this.personRepository, atLeastOnce()).findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(eq(874));
+		verify( this.personRepository, atLeastOnce()).findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(eq(874l));
 		
 		ArgumentCaptor<Authorship> arg0 = ArgumentCaptor.forClass(Authorship.class);
 		verify(this.authorshipRepository, atLeastOnce()).save(arg0.capture());
@@ -441,7 +433,7 @@ public class PublicationServiceTest {
 	@Test
 	@DisplayName("importRISPublications(null, null, false, false)")
 	public void importRISPublications_null() throws Exception {
-		List<Integer> ids = this.test.importRISPublications(null, null, false, false, Locale.US);
+		List<Long> ids = this.test.importRISPublications(null, null, false, false, Locale.US);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -450,7 +442,7 @@ public class PublicationServiceTest {
 	@DisplayName("importRISPublications(\"\", null, false, false)")
 	public void importRISPublications_empty() throws Exception {
 		Reader rd = new StringReader("");
-		List<Integer> ids = this.test.importRISPublications(rd, null, false, false, Locale.US);
+		List<Long> ids = this.test.importRISPublications(rd, null, false, false, Locale.US);
 		assertNotNull(ids);
 		assertTrue(ids.isEmpty());
 	}
@@ -460,55 +452,55 @@ public class PublicationServiceTest {
 	public void importRISPublications_0() throws Exception {
 		String ris = "--valid-ris--";
 		Person a0 = mock(Person.class);
-		when(a0.getId()).thenReturn(1234);
+		when(a0.getId()).thenReturn(1234l);
 		when(a0.getFirstName()).thenReturn("Fa0");
 		when(a0.getLastName()).thenReturn("La0");
 		Person a1 = mock(Person.class);
-		when(a1.getId()).thenReturn(2345);
+		when(a1.getId()).thenReturn(2345l);
 		when(a1.getFirstName()).thenReturn("Fa1");
 		when(a1.getLastName()).thenReturn("La1");
 		Person a2 = mock(Person.class);
-		when(a2.getId()).thenReturn(3456);
+		when(a2.getId()).thenReturn(3456l);
 		when(a2.getFirstName()).thenReturn("Fa2");
 		when(a2.getLastName()).thenReturn("La2");
 		Publication p0 = mock(Publication.class);
-		when(p0.getId()).thenReturn(987);
+		when(p0.getId()).thenReturn(987l);
 		when(p0.getAuthors()).thenReturn(Arrays.asList(a0, a1));
 		Publication p1 = mock(Publication.class);
-		when(p1.getId()).thenReturn(874);
+		when(p1.getId()).thenReturn(874l);
 		when(p1.getAuthors()).thenReturn(Arrays.asList(a1, a2));
 		when(this.ris.extractPublications(any(Reader.class), anyBoolean(), anyBoolean(), anyBoolean(),
 				anyBoolean(), anyBoolean(), any(Locale.class))).thenReturn(Arrays.asList(p0, p1));
-		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
-			switch ((Integer) it.getArgument(0)) {
-			case 1234:
+		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 1234l) {
 				return Optional.of(a0);
-			case 2345:
+			} else if (n == 2345l) {
 				return Optional.of(a1);
-			case 3456:
+			} else if (n == 3456l) {
 				return Optional.of(a2);
 			}
 			return Optional.empty();
 		});
-		when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyInt())).thenReturn(Collections.singletonList(null));
+		when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyLong())).thenReturn(Collections.singletonList(null));
 
-		lenient().when(this.publicationRepository.findById(anyInt())).then(it -> {
-			switch (((Integer) it.getArgument(0)).intValue()) {
-			case 123:
+		lenient().when(this.publicationRepository.findById(anyLong())).then(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 123l) {
 				return Optional.of(this.pub0);
-			case 234:
+			} else if (n == 234l) {
 				return Optional.of(this.pub1);
-			case 345:
+			} else if (n == 345l) {
 				return Optional.of(this.pub2);
-			case 987:
+			} else if (n == 987l) {
 				return Optional.of(p0);
-			case 874:
+			} else if (n == 874l) {
 				return Optional.of(p1);
 			}
 			return Optional.empty();
 		});
 
-		List<Integer> ids = this.test.importRISPublications(new StringReader(ris), null, false, false, Locale.US);
+		List<Long> ids = this.test.importRISPublications(new StringReader(ris), null, false, false, Locale.US);
 
 		assertNotNull(ids);
 		assertEquals(2, ids.size());
@@ -524,7 +516,7 @@ public class PublicationServiceTest {
 
 		verify(p1, atLeastOnce()).setTemporaryAuthors(same(null));
 
-		verify( this.personRepository, atLeastOnce()).findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(eq(874));
+		verify( this.personRepository, atLeastOnce()).findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(eq(874l));
 		
 		ArgumentCaptor<Authorship> arg0 = ArgumentCaptor.forClass(Authorship.class);
 		verify(this.authorshipRepository, atLeastOnce()).save(arg0.capture());
@@ -707,7 +699,7 @@ public class PublicationServiceTest {
 
 	@Test
 	public void getPublicationsByPersonId() {
-		when(this.publicationRepository.findAllByAuthorshipsPersonId(anyInt())).thenReturn(
+		when(this.publicationRepository.findAllByAuthorshipsPersonId(anyLong())).thenReturn(
 				Arrays.asList(this.pub0, this.pub1));
 
 		final List<Publication> list = this.test.getPublicationsByPersonId(2345);
@@ -734,7 +726,7 @@ public class PublicationServiceTest {
 		when(this.publicationRepository.findAllById(any())).thenReturn(
 				Arrays.asList(this.pub0, this.pub2));
 
-		final List<Publication> list = this.test.getPublicationsByIds(Arrays.asList(2345, 3456));
+		final List<Publication> list = this.test.getPublicationsByIds(Arrays.asList(2345l, 3456l));
 		assertNotNull(list);
 		assertEquals(2, list.size());
 		assertTrue(list.contains(this.pub0));
@@ -746,11 +738,11 @@ public class PublicationServiceTest {
 		Person pers0 = mock(Person.class);
 		Person pers1 = mock(Person.class);
 
-		when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyInt())).thenAnswer(it -> {
-			switch ((Integer) it.getArgument(0)) {
-			case 1234:
+		when(this.personRepository.findByAuthorshipsPublicationIdOrderByAuthorshipsAuthorRank(anyLong())).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 1234l) {
 				return Arrays.asList(pers1, pers0);
-			case 2345:
+			} else if (n == 2345l) {
 				return Collections.singletonList(pers1);
 			}
 			return Collections.emptyList();
@@ -772,10 +764,9 @@ public class PublicationServiceTest {
 	@Test
 	public void addAuthorship_IntIntInt_noAuthorship() {
 		Person pers0 = mock(Person.class);
-		when(pers0.getId()).thenReturn(1234);
-		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
-			switch ((Integer) it.getArgument(0)) {
-			case 1234:
+		when(pers0.getId()).thenReturn(1234l);
+		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
+			if (((Number) it.getArgument(0)).longValue() == 1234l) {
 				return Optional.of(pers0);
 			}
 			return Optional.empty();
@@ -798,10 +789,9 @@ public class PublicationServiceTest {
 	@Test
 	public void addAuthorship_IntIntInt_alreadyInsideAuthorship() {
 		Person pers0 = mock(Person.class);
-		when(pers0.getId()).thenReturn(1234);
-		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
-			switch ((Integer) it.getArgument(0)) {
-			case 1234:
+		when(pers0.getId()).thenReturn(1234l);
+		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
+			if (((Number) it.getArgument(0)).longValue() == 1234l) {
 				return Optional.of(pers0);
 			}
 			return Optional.empty();
@@ -826,14 +816,14 @@ public class PublicationServiceTest {
 	@Test
 	public void addAuthorship_IntIntInt_newAuthorship_insertAsFirstAuthor() {
 		Person pers0 = mock(Person.class);
-		when(pers0.getId()).thenReturn(1234);
+		when(pers0.getId()).thenReturn(1234l);
 		Person pers1 = mock(Person.class);
-		when(pers1.getId()).thenReturn(2345);
-		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
-			switch ((Integer) it.getArgument(0)) {
-			case 1234:
+		when(pers1.getId()).thenReturn(2345l);
+		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 1234l) {
 				return Optional.of(pers0);
-			case 2345:
+			} else if (n == 2345l) {
 				return Optional.of(pers1);
 			}
 			return Optional.empty();
@@ -860,14 +850,14 @@ public class PublicationServiceTest {
 	@Test
 	public void addAuthorship_IntIntInt_newAuthorship_insertAsSecondAuthor() {
 		Person pers0 = mock(Person.class);
-		when(pers0.getId()).thenReturn(1234);
+		when(pers0.getId()).thenReturn(1234l);
 		Person pers1 = mock(Person.class);
-		when(pers1.getId()).thenReturn(2345);
-		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
-			switch ((Integer) it.getArgument(0)) {
-			case 1234:
+		when(pers1.getId()).thenReturn(2345l);
+		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 1234l) {
 				return Optional.of(pers0);
-			case 2345:
+			} else if (n == 2345l) {
 				return Optional.of(pers1);
 			}
 			return Optional.empty();
@@ -891,14 +881,14 @@ public class PublicationServiceTest {
 	@Test
 	public void addAuthorship_IntIntInt_newAuthorship_insertWithOutRangedRank() {
 		Person pers0 = mock(Person.class);
-		when(pers0.getId()).thenReturn(1234);
+		when(pers0.getId()).thenReturn(1234l);
 		Person pers1 = mock(Person.class);
-		when(pers1.getId()).thenReturn(2345);
-		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
-			switch ((Integer) it.getArgument(0)) {
-			case 1234:
+		when(pers1.getId()).thenReturn(2345l);
+		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 1234l) {
 				return Optional.of(pers0);
-			case 2345:
+			} else if (n == 2345l) {
 				return Optional.of(pers1);
 			}
 			return Optional.empty();

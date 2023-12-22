@@ -61,7 +61,7 @@ public class ProjectMember implements Serializable, AttributeProvider, Comparabl
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Promoter or director of the candidate.
 	 */
@@ -82,28 +82,30 @@ public class ProjectMember implements Serializable, AttributeProvider, Comparabl
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.person);
-		h = HashCodeUtils.add(h, this.role);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (ProjectMember) obj;
-		if (!Objects.equals(this.role, other.role)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.person, other.person)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.person, other.person);
 	}
 
 	@Override
@@ -119,7 +121,7 @@ public class ProjectMember implements Serializable, AttributeProvider, Comparabl
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -127,7 +129,7 @@ public class ProjectMember implements Serializable, AttributeProvider, Comparabl
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

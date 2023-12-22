@@ -104,11 +104,11 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	private void exportPublicationButton(StringBuilder html, String buttonClass, String buttonIconClass,
-			String buttonIconPath, String tooltip, String endpoint, int id, String label, ExporterConfigurator configurator) {
+			String buttonIconPath, String tooltip, String endpoint, long id, String label, ExporterConfigurator configurator) {
 		var builder = new DefaultUriBuilderFactory().builder();
 		builder = builder.path("/" + this.constants.getServerName() + "/" + endpoint); //$NON-NLS-1$ //$NON-NLS-2$
 		builder = configurator.applyQueryParams(builder);
-		builder = builder.queryParam("id", Integer.valueOf(id)); //$NON-NLS-1$
+		builder = builder.queryParam("id", Long.valueOf(id)); //$NON-NLS-1$
 		builder = builder.queryParam("inAttachment", Boolean.TRUE); //$NON-NLS-1$
 		html.append("<a class=\"btn btn-xs btn-success "); //$NON-NLS-1$
 		html.append(buttonClass);
@@ -132,7 +132,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	@Override
-	public String getButtonToExportPublicationToBibTeX(int publicationId, ExporterConfigurator configurator) {
+	public String getButtonToExportPublicationToBibTeX(long publicationId, ExporterConfigurator configurator) {
 		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btBibtex", "fa-file-lines", Constants.EXPORT_BIBTEX_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
@@ -144,7 +144,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	@Override
-	public String getButtonToExportPublicationToRIS(int publicationId, ExporterConfigurator configurator) {
+	public String getButtonToExportPublicationToRIS(long publicationId, ExporterConfigurator configurator) {
 		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btRis", "fa-file-lines", Constants.EXPORT_RIS_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
@@ -156,7 +156,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	@Override
-	public String getButtonToExportPublicationToHtml(int publicationId, ExporterConfigurator configurator) {
+	public String getButtonToExportPublicationToHtml(long publicationId, ExporterConfigurator configurator) {
 		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btHtml", "fa-file-code", Constants.EXPORT_HTML_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
@@ -168,7 +168,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	@Override
-	public String getButtonToExportPublicationToOpenDocument(int publicationId, ExporterConfigurator configurator) {
+	public String getButtonToExportPublicationToOpenDocument(long publicationId, ExporterConfigurator configurator) {
 		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			exportPublicationButton(html, "btWord", "fa-file-word", Constants.EXPORT_ODT_WHITE_ICON, //$NON-NLS-1$ //$NON-NLS-2$
@@ -180,7 +180,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	@Override
-	public String getButtonToEditPublication(int publicationId, Locale locale) {
+	public String getButtonToEditPublication(long publicationId, Locale locale) {
 		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			html.append("<a class=\"btn btn-xs btn-success\" href=\"/"); //$NON-NLS-1$
@@ -195,7 +195,7 @@ public class CiadHtmlPageExporter extends AbstractCiadHtmlExporter implements Ht
 	}
 
 	@Override
-	public String getButtonToDeletePublication(int publicationId, Locale locale) {
+	public String getButtonToDeletePublication(long publicationId, Locale locale) {
 		final var html = new StringBuilder();
 		if (publicationId != 0) {
 			html.append("<a class=\"btn btn-xs btn-danger\" href=\"/"); //$NON-NLS-1$

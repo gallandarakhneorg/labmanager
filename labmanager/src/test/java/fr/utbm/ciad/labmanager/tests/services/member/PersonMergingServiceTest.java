@@ -21,10 +21,11 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -60,7 +61,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 
 /** Tests for {@link PersonMergingService}.
@@ -128,7 +128,7 @@ public class PersonMergingServiceTest {
 	@Test
 	public void mergePersonsById() throws Exception {
 		Person pers0 = mock(Person.class, "pers0");
-		when(pers0.getId()).thenReturn(12345);
+		when(pers0.getId()).thenReturn(12345l);
 
 		Set<Authorship> existingAuthorships0 = new HashSet<>();
 		when(pers0.getAuthorships()).thenReturn(existingAuthorships0);
@@ -141,16 +141,16 @@ public class PersonMergingServiceTest {
 		existingAuthorships0.add(existingAuthorship0);
 
 		Person pers3 = mock(Person.class, "pers3");
-		when(pers3.getId()).thenReturn(34567548);
+		when(pers3.getId()).thenReturn(34567548l);
 
 		Set<Authorship> existingAuthorships3 = new HashSet<>();
 		when(pers3.getAuthorships()).thenReturn(existingAuthorships3);
 
-		when(this.personRepository.findById(anyInt())).thenAnswer(it -> {
-			switch (((Integer) it.getArgument(0)).intValue()) {
-			case 12345:
+		when(this.personRepository.findById(anyLong())).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 12345l) {
 				return Optional.of(pers0);
-			case 34567548:
+			} else if (n == 34567548l) {
 				return Optional.of(pers3);
 			}
 			return Optional.empty();
@@ -158,21 +158,19 @@ public class PersonMergingServiceTest {
 
 		when(this.personRepository.findAllById(any(List.class))).thenAnswer(it -> {
 			final List<Person> list = new ArrayList<>();
-			for (final Integer id : (List<Integer>) it.getArgument(0)) {
-				switch (id) {
-				case 12345:
+			for (final Long id : (List<Long>) it.getArgument(0)) {
+				if (id == 12345l) {
 					list.add(pers0);
-					break;
 				}
 			}
 			return list;
 		});
 		
 		//
-		this.test.mergePersonsById(Arrays.asList(12345), 34567548);
+		this.test.mergePersonsById(Arrays.asList(12345l), 34567548l);
 		//
 
-		verify(this.personService).removePerson(eq(12345));
+		verify(this.personService).removePerson(eq(12345l));
 
 		verify(this.personRepository).save(same(pers3));
 
@@ -194,19 +192,19 @@ public class PersonMergingServiceTest {
 	@Test
 	public void mergePersons_nothingInSource() throws Exception {
 		Person pers0 = mock(Person.class, "pers0");
-		when(pers0.getId()).thenReturn(12345);
+		when(pers0.getId()).thenReturn(12345l);
 
 		Set<Authorship> existingAuthorships0 = new HashSet<>();
 		when(pers0.getAuthorships()).thenReturn(existingAuthorships0);
 
 		Person pers3 = mock(Person.class, "pers3");
-		when(pers3.getId()).thenReturn(34567548);
+		when(pers3.getId()).thenReturn(34567548l);
 
 		//
 		this.test.mergePersons(Arrays.asList(pers0), pers3);
 		//
 
-		verify(this.personService).removePerson(eq(12345));
+		verify(this.personService).removePerson(eq(12345l));
 
 		verify(this.personRepository, never()).save(any());
 	}
@@ -214,7 +212,7 @@ public class PersonMergingServiceTest {
 	@Test
 	public void mergePersons_publications() throws Exception {
 		Person pers0 = mock(Person.class, "pers0");
-		when(pers0.getId()).thenReturn(12345);
+		when(pers0.getId()).thenReturn(12345l);
 
 		Set<Authorship> existingAuthorships0 = new HashSet<>();
 		when(pers0.getAuthorships()).thenReturn(existingAuthorships0);
@@ -227,7 +225,7 @@ public class PersonMergingServiceTest {
 		existingAuthorships0.add(existingAuthorship0);
 		
 		Person pers3 = mock(Person.class, "pers3");
-		when(pers3.getId()).thenReturn(34567548);
+		when(pers3.getId()).thenReturn(34567548l);
 
 		Set<Authorship> existingAuthorships3 = new HashSet<>();
 		when(pers3.getAuthorships()).thenReturn(existingAuthorships3);
@@ -236,7 +234,7 @@ public class PersonMergingServiceTest {
 		this.test.mergePersons(Arrays.asList(pers0), pers3);
 		//
 
-		verify(this.personService).removePerson(eq(12345));
+		verify(this.personService).removePerson(eq(12345l));
 
 		verify(this.personRepository).save(same(pers3));
 
@@ -251,23 +249,23 @@ public class PersonMergingServiceTest {
 	@Test
 	public void mergePersons_organizationMemberships() throws Exception {
 		Person pers0 = mock(Person.class, "pers0");
-		when(pers0.getId()).thenReturn(12345);
+		when(pers0.getId()).thenReturn(12345l);
 
 		Membership mbr0 = mock(Membership.class);
 		
 		List<Membership> memberships = new ArrayList<>();
 		memberships.add(mbr0);
 		
-		when(this.organizationMembershipService.getMembershipsForPerson(eq(12345))).thenReturn(memberships);
+		when(this.organizationMembershipService.getMembershipsForPerson(eq(12345l))).thenReturn(memberships);
 		
 		Person pers3 = mock(Person.class, "pers3");
-		when(pers3.getId()).thenReturn(34567548);
+		when(pers3.getId()).thenReturn(34567548l);
 
 		//
 		this.test.mergePersons(Arrays.asList(pers0), pers3);
 		//
 
-		verify(this.personService).removePerson(eq(12345));
+		verify(this.personService).removePerson(eq(12345l));
 
 		verify(this.personRepository).save(same(pers3));
 
@@ -278,23 +276,23 @@ public class PersonMergingServiceTest {
 	@Test
 	public void mergePersons_juryMemberships() throws Exception {
 		Person pers0 = mock(Person.class, "pers0");
-		when(pers0.getId()).thenReturn(12345);
+		when(pers0.getId()).thenReturn(12345l);
 
 		JuryMembership mbr0 = mock(JuryMembership.class);
 		
 		List<JuryMembership> memberships = new ArrayList<>();
 		memberships.add(mbr0);
 		
-		when(this.juryMembershipService.getMembershipsForPerson(eq(12345))).thenReturn(memberships);
+		when(this.juryMembershipService.getMembershipsForPerson(eq(12345l))).thenReturn(memberships);
 		
 		Person pers3 = mock(Person.class, "pers3");
-		when(pers3.getId()).thenReturn(34567548);
+		when(pers3.getId()).thenReturn(34567548l);
 
 		//
 		this.test.mergePersons(Arrays.asList(pers0), pers3);
 		//
 
-		verify(this.personService).removePerson(eq(12345));
+		verify(this.personService).removePerson(eq(12345l));
 
 		verify(this.personRepository).save(same(pers3));
 
@@ -312,37 +310,37 @@ public class PersonMergingServiceTest {
 	@Test
 	public void getPersonDuplicates_oneDuplicate() throws Exception {
 		Person pers0 = mock(Person.class, "pers0");
-		lenient().when(pers0.getId()).thenReturn(123);
+		lenient().when(pers0.getId()).thenReturn(123l);
 		lenient().when(pers0.getFirstName()).thenReturn("F1");
 		lenient().when(pers0.getLastName()).thenReturn("L1");
 
 		Person pers1 = mock(Person.class, "pers1");
-		lenient().when(pers1.getId()).thenReturn(234);
+		lenient().when(pers1.getId()).thenReturn(234l);
 		lenient().when(pers1.getFirstName()).thenReturn("F2");
 		lenient().when(pers1.getLastName()).thenReturn("L2");
 
 		Person pers0b = mock(Person.class, "pers0b");
-		lenient().when(pers0b.getId()).thenReturn(456852);
+		lenient().when(pers0b.getId()).thenReturn(456852l);
 		lenient().when(pers0b.getFirstName()).thenReturn("F1");
 		lenient().when(pers0b.getLastName()).thenReturn("L1");
 
 		Person pers2 = mock(Person.class, "pers2");
-		lenient().when(pers2.getId()).thenReturn(345);
+		lenient().when(pers2.getId()).thenReturn(345l);
 		lenient().when(pers2.getFirstName()).thenReturn("F3");
 		lenient().when(pers2.getLastName()).thenReturn("L3");
 
 		Person pers2b = mock(Person.class, "pers2b");
-		lenient().when(pers2b.getId()).thenReturn(456853);
+		lenient().when(pers2b.getId()).thenReturn(456853l);
 		lenient().when(pers2b.getFirstName()).thenReturn("F3");
 		lenient().when(pers2b.getLastName()).thenReturn("L3");
 
 		Person pers2c = mock(Person.class, "pers2c");
-		lenient().when(pers2c.getId()).thenReturn(456854);
+		lenient().when(pers2c.getId()).thenReturn(456854l);
 		lenient().when(pers2c.getFirstName()).thenReturn("F3");
 		lenient().when(pers2c.getLastName()).thenReturn("L3");
 
 		Person pers3 = mock(Person.class, "pers3");
-		lenient().when(pers3.getId()).thenReturn(456);
+		lenient().when(pers3.getId()).thenReturn(456l);
 		lenient().when(pers3.getFirstName()).thenReturn("F4");
 		lenient().when(pers3.getLastName()).thenReturn("L4");
 

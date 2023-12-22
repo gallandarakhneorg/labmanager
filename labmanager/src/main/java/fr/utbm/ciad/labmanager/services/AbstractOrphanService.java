@@ -86,7 +86,7 @@ public abstract class AbstractOrphanService<T extends IdentifiableEntity> extend
 	 * @return the edition identifier of the entity.
 	 */
 	protected Object getEditionParameterValue(T entity) {
-		return Integer.valueOf(entity.getId());
+		return Long.valueOf(entity.getId());
 	}
 
 	/** Replies the identifier that is associated to the given entity and that should be passed in the deletion link.
@@ -95,7 +95,7 @@ public abstract class AbstractOrphanService<T extends IdentifiableEntity> extend
 	 * @return the deletion identifier of the entity.
 	 */
 	protected Object getDeletionParameterValue(T entity) {
-		return Integer.valueOf(entity.getId());
+		return Long.valueOf(entity.getId());
 	}
 
 	/** Compute the orphans and put them in a Json node.
@@ -110,7 +110,7 @@ public abstract class AbstractOrphanService<T extends IdentifiableEntity> extend
 	 * @param locale the locale to use.
 	 * @param progress the progress indicator.
 	 */
-	protected void computeOrphansInJson(ArrayNode receiver, JpaRepository<T, Integer> repository,
+	protected void computeOrphansInJson(ArrayNode receiver, JpaRepository<T, Long> repository,
 			OrphanEntityBuilder<T> builder, String editionEndpoint, String editionParameter,
 			String deletionEndpoint, String deletionParameter, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, repository, builder, editionEndpoint, editionParameter, null, null,
@@ -131,7 +131,7 @@ public abstract class AbstractOrphanService<T extends IdentifiableEntity> extend
 	 * @param locale the locale to use.
 	 * @param progress the progress indicator.
 	 */
-	protected void computeOrphansInJson(ArrayNode receiver, JpaRepository<T, Integer> repository,
+	protected void computeOrphansInJson(ArrayNode receiver, JpaRepository<T, Long> repository,
 			OrphanEntityBuilder<T> builder, String editionEndpoint, String editionParameter0,
 			String editionParameter1, Function<T, String> editionValue1,
 			String deletionEndpoint, String deletionParameter, Locale locale, Progression progress) {

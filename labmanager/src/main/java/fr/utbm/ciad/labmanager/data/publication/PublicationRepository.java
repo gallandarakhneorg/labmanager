@@ -34,14 +34,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface PublicationRepository extends JpaRepository<Publication, Integer>, JpaSpecificationExecutor<Publication> {
+public interface PublicationRepository extends JpaRepository<Publication, Long>, JpaSpecificationExecutor<Publication> {
 
 	/** Replies the list of publications for the person with the given identifier.
 	 *
 	 * @param personId the identifier of the person.
 	 * @return the list of publications.
 	 */
-	List<Publication> findAllByAuthorshipsPersonId(int personId);
+	List<Publication> findAllByAuthorshipsPersonId(long personId);
 
 	/** Replies the list of publications for the person with the given webpage identifier.
 	 *
@@ -55,7 +55,7 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
 	 * @param personIds the list of identifiers of the authors.
 	 * @return the list of publications.
 	 */
-	Set<Publication> findAllByAuthorshipsPersonIdIn(Set<Integer> personIds);
+	Set<Publication> findAllByAuthorshipsPersonIdIn(Set<Long> personIds);
 	
 	/** Replies the list of publictions for the given identifiers.
 	 *
@@ -63,7 +63,7 @@ public interface PublicationRepository extends JpaRepository<Publication, Intege
 	 * @return the publications.
 	 * @since 2.5
 	 */
-	Set<Publication> findAllByIdIn(Collection<Integer> identifiers);
+	Set<Publication> findAllByIdIn(Collection<Long> identifiers);
 
 	/** Replies the list of publications with the given title.
 	 *

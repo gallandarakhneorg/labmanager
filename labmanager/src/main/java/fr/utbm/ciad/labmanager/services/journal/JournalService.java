@@ -175,7 +175,7 @@ public class JournalService extends AbstractService {
 	 * @return the journal, or {@code null} if none is defined.
 	 */
 	public Journal getJournalById(int identifier) {
-		final var res = this.journalRepository.findById(Integer.valueOf(identifier));
+		final var res = this.journalRepository.findById(Long.valueOf(identifier));
 		if (res.isPresent()) {
 			return res.get();
 		}
@@ -209,7 +209,7 @@ public class JournalService extends AbstractService {
 	 * @param name the name to search for.
 	 * @return the journal identifier, or {@code 0} if none is defined.
 	 */
-	public int getJournalIdByName(String name) {
+	public long getJournalIdByName(String name) {
 		final var res = this.journalRepository.findDistinctByJournalName(name);
 		if (!res.isEmpty()) {
 			final var journal = res.iterator().next();
@@ -262,8 +262,8 @@ public class JournalService extends AbstractService {
 	 * @throws AttachedJournalPaperException when the journal has attached papers.
 	 */
 	@Transactional
-	public void removeJournal(int identifier) throws AttachedJournalPaperException {
-		final var id = Integer.valueOf(identifier);
+	public void removeJournal(long identifier) throws AttachedJournalPaperException {
+		final var id = Long.valueOf(identifier);
 		final var journalRef = this.journalRepository.findById(id);
 		if (journalRef.isPresent()) {
 			final var journal = journalRef.get();
@@ -291,9 +291,9 @@ public class JournalService extends AbstractService {
 	 * @param wosCategory the name of the scientific category on WoS for obtaining Q-index.
 	 * @return the updated journal.
 	 */
-	public Journal updateJournal(int identifier, boolean validated, String name, String address, String publisher, String isbn, String issn,
+	public Journal updateJournal(long identifier, boolean validated, String name, String address, String publisher, String isbn, String issn,
 			Boolean openAccess, String journalUrl, String scimagoId, String scimagoCategory, String wosId, String wosCategory) {
-		final var res = this.journalRepository.findById(Integer.valueOf(identifier));
+		final var res = this.journalRepository.findById(Long.valueOf(identifier));
 		if (res.isPresent()) {
 			final var journal = res.get();
 			if (journal != null) {
@@ -326,11 +326,11 @@ public class JournalService extends AbstractService {
 	 * @param paperId the identifier of the paper.
 	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
 	 */
-	public boolean linkPaper(int journalId, int paperId) {
-		final var idPaper = Integer.valueOf(paperId);
+	public boolean linkPaper(long journalId, long paperId) {
+		final var idPaper = Long.valueOf(paperId);
 		final var optPaper = this.publicationRepository.findById(idPaper);
 		if (optPaper.isPresent()) {
-			final var optJournal = this.journalRepository.findById(Integer.valueOf(journalId));
+			final var optJournal = this.journalRepository.findById(Long.valueOf(journalId));
 			if (optJournal.isPresent()) {
 				final var paper = optPaper.get();
 				final var journal = optJournal.get();
@@ -351,8 +351,8 @@ public class JournalService extends AbstractService {
 	 * @param applySave indicates if the changes must be committed into the database by this function.
 	 * @return {@code true} if the link is deleted; {@code false} if the link cannot be deleted.
 	 */
-	public boolean unlinkPaper(int paperId, boolean applySave) {
-		final var optPaper = this.publicationRepository.findById(Integer.valueOf(paperId));
+	public boolean unlinkPaper(long paperId, boolean applySave) {
+		final var optPaper = this.publicationRepository.findById(Long.valueOf(paperId));
 		if (optPaper.isPresent()) {
 			final var paper = optPaper.get();
 			final var linkedJournal = paper.getJournal();
@@ -375,7 +375,7 @@ public class JournalService extends AbstractService {
 	 * @param paperId the identifier of the paper. 
 	 * @return {@code true} if the link is deleted; {@code false} if the link cannot be deleted.
 	 */
-	public boolean unlinkPaper(int paperId) {
+	public boolean unlinkPaper(long paperId) {
 		return unlinkPaper(paperId, true);
 	}
 
@@ -384,8 +384,8 @@ public class JournalService extends AbstractService {
 	 * @param journalId the identifier of the journal.
 	 * @return the quartile or {@code null} if none cannot be found.
 	 */
-	public QuartileRanking downloadScimagoQuartileByJournalId(int journalId) {
-		final var res = this.journalRepository.findById(Integer.valueOf(journalId));
+	public QuartileRanking downloadScimagoQuartileByJournalId(long journalId) {
+		final var res = this.journalRepository.findById(Long.valueOf(journalId));
 		if (res.isPresent()) {
 			return downloadScimagoQuartileByJournal(res.get());
 		}
@@ -636,9 +636,9 @@ public class JournalService extends AbstractService {
 	 * @param wosQindex the Q-index that is provided by WoS, or {@code null} if none.
 	 * @param wosCategory the name of the scientific category that is used on WoS for retrieving the Q-index.
 	 */
-	protected void updateJournalIndicators(int id, int referenceYear, float impactFactor, QuartileRanking scimagoQindex,
+	protected void updateJournalIndicators(long id, int referenceYear, float impactFactor, QuartileRanking scimagoQindex,
 			String scimagoCategory, QuartileRanking wosQindex, String wosCategory) {
-		final var optJournal = this.journalRepository.findById(Integer.valueOf(id));
+		final var optJournal = this.journalRepository.findById(Long.valueOf(id));
 		if (optJournal.isEmpty()) {
 			throw new IllegalArgumentException("Journal with id " + id + " not found"); //$NON-NLS-1$ //$NON-NLS-2$
 		}

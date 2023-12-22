@@ -81,7 +81,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Acronym of the research organization.
 	 */
@@ -207,64 +207,32 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.acronym);
-		h = HashCodeUtils.add(h, this.country);
-		h = HashCodeUtils.add(h, this.description);
-		h = HashCodeUtils.add(h, this.majorOrganization);
-		h = HashCodeUtils.add(h, this.rnsr);
-		h = HashCodeUtils.add(h, this.nationalIdentifier);
 		h = HashCodeUtils.add(h, this.name);
-		h = HashCodeUtils.add(h, this.organizationUrl);
-		h = HashCodeUtils.add(h, this.type);
-		h = HashCodeUtils.add(h, this.pathToLogo);
-		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (ResearchOrganization) obj;
-		if (!Objects.equals(this.acronym, other.acronym)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.country, other.country)) {
-			return false;
-		}
-		if (!Objects.equals(this.description, other.description)) {
-			return false;
-		}
-		if (!Objects.equals(this.name, other.name)) {
-			return false;
-		}
-		if (this.majorOrganization != other.majorOrganization) {
-			return false;
-		}
-		if (!Objects.equals(this.rnsr, other.rnsr)) {
-			return false;
-		}
-		if (!Objects.equals(this.nationalIdentifier, other.nationalIdentifier)) {
-			return false;
-		}
-		if (!Objects.equals(this.organizationUrl, other.organizationUrl)) {
-			return false;
-		}
-		if (!Objects.equals(this.type, other.type)) {
-			return false;
-		}
-		if (!Objects.equals(this.pathToLogo, other.pathToLogo)) {
-			return false;
-		}
-		if (this.validated != other.validated) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.acronym, other.acronym)
+				&& Objects.equals(this.name, other.name);
 	}
 
 	@Override
@@ -283,7 +251,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
 		if (getId() != 0) {
-			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+			consumer.accept("id", Long.valueOf(getId())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getAcronym())) {
 			consumer.accept("acronym", getAcronym()); //$NON-NLS-1$
@@ -370,7 +338,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -378,7 +346,7 @@ public class ResearchOrganization implements Serializable, JsonSerializable, Com
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

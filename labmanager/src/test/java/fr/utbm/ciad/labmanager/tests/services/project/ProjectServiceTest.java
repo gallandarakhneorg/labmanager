@@ -160,7 +160,7 @@ public class ProjectServiceTest {
 	@Test
 	public void getProjectById() {
 		Project expected = mock(Project.class);
-		when(this.projectRepository.findById(eq(Integer.valueOf(1234)))).thenReturn(Optional.of(expected));
+		when(this.projectRepository.findById(eq(Long.valueOf(1234l)))).thenReturn(Optional.of(expected));
 		//
 		Project project = this.test.getProjectById(1234);
 		assertNotNull(project);
@@ -174,7 +174,7 @@ public class ProjectServiceTest {
 	public void getProjectsByOrganizationId() {
 		Project prj0 = mock(Project.class);
 		Project prj1 = mock(Project.class);
-		when(this.projectRepository.findDistinctOrganizationProjects(eq(Integer.valueOf(1234)))).thenReturn(
+		when(this.projectRepository.findDistinctOrganizationProjects(eq(Long.valueOf(1234l)))).thenReturn(
 				Arrays.asList(prj0, prj1));
 		//
 		List<Project> projects = this.test.getProjectsByOrganizationId(1234);
@@ -188,7 +188,7 @@ public class ProjectServiceTest {
 	public void getPublicProjectsByOrganizationId() {
 		Project prj0 = mock(Project.class);
 		Project prj1 = mock(Project.class);
-		when(this.projectRepository.findDistinctOrganizationProjects(eq(Boolean.FALSE), eq(ProjectStatus.ACCEPTED), eq(Integer.valueOf(1234)))).thenReturn(
+		when(this.projectRepository.findDistinctOrganizationProjects(eq(Boolean.FALSE), eq(ProjectStatus.ACCEPTED), eq(Long.valueOf(1234)))).thenReturn(
 				Arrays.asList(prj0, prj1));
 		//
 		List<Project> projects = this.test.getPublicProjectsByOrganizationId(1234);
@@ -202,7 +202,7 @@ public class ProjectServiceTest {
 	public void getProjectsByPersonId() {
 		Project prj0 = mock(Project.class);
 		Project prj1 = mock(Project.class);
-		when(this.projectRepository.findDistinctPersonProjects(eq(Integer.valueOf(1234)))).thenReturn(
+		when(this.projectRepository.findDistinctPersonProjects(eq(Long.valueOf(1234)))).thenReturn(
 				new HashSet<>(Arrays.asList(prj0, prj1)));
 		//
 		Set<Project> projects = this.test.getProjectsByPersonId(1234);
@@ -216,7 +216,7 @@ public class ProjectServiceTest {
 	public void getPublicProjectsByPersonId() {
 		Project prj0 = mock(Project.class);
 		Project prj1 = mock(Project.class);
-		when(this.projectRepository.findDistinctPersonProjects(eq(Boolean.FALSE), eq(ProjectStatus.ACCEPTED), eq(Integer.valueOf(1234)))).thenReturn(
+		when(this.projectRepository.findDistinctPersonProjects(eq(Boolean.FALSE), eq(ProjectStatus.ACCEPTED), eq(Long.valueOf(1234)))).thenReturn(
 				Arrays.asList(prj0, prj1));
 		//
 		List<Project> projects = this.test.getPublicProjectsByPersonId(1234);
@@ -231,9 +231,9 @@ public class ProjectServiceTest {
 		LocalDate edt = LocalDate.now().plusDays(1);
 		//
 		Person pers0 = mock(Person.class);
-		when(pers0.getId()).thenReturn(12345);
+		when(pers0.getId()).thenReturn(12345l);
 		Person pers1 = mock(Person.class);
-		when(pers1.getId()).thenReturn(23456);
+		when(pers1.getId()).thenReturn(23456l);
 		//
 		when(mbr0.isActiveIn(any(LocalDate.class), any(LocalDate.class))).thenReturn(Boolean.FALSE);
 		when(mbr0.isPermanentPosition()).thenReturn(Boolean.FALSE);
@@ -241,8 +241,8 @@ public class ProjectServiceTest {
 		when(mbr1.isPermanentPosition()).thenReturn(Boolean.FALSE);
 		when(mbr2.isPermanentPosition()).thenReturn(Boolean.TRUE);
 		//
-		when(this.membershipService.getMembershipsForPerson(eq(12345))).thenReturn(Arrays.asList(mbr0, mbr1));
-		when(this.membershipService.getMembershipsForPerson(eq(23456))).thenReturn(Arrays.asList(mbr2));
+		when(this.membershipService.getMembershipsForPerson(eq(12345l))).thenReturn(Arrays.asList(mbr0, mbr1));
+		when(this.membershipService.getMembershipsForPerson(eq(23456l))).thenReturn(Arrays.asList(mbr2));
 		//
 		ProjectMember part0 = mock(ProjectMember.class);
 		when(part0.getPerson()).thenReturn(pers0);

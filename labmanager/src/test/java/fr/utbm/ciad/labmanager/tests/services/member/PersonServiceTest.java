@@ -22,7 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -122,33 +122,33 @@ public class PersonServiceTest {
 		// The lenient configuration is used to configure the mocks for all the tests
 		// at the same code location for configuration simplicity
 		this.pers0 = mock(Person.class, "pers0");
-		lenient().when(this.pers0.getId()).thenReturn(123);
+		lenient().when(this.pers0.getId()).thenReturn(123l);
 		lenient().when(this.pers0.getFirstName()).thenReturn("F1");
 		lenient().when(this.pers0.getLastName()).thenReturn("L1");
 		this.pers1 = mock(Person.class, "pers1");
-		lenient().when(this.pers1.getId()).thenReturn(234);
+		lenient().when(this.pers1.getId()).thenReturn(234l);
 		lenient().when(this.pers1.getFirstName()).thenReturn("F2");
 		lenient().when(this.pers1.getLastName()).thenReturn("L2");
 		this.pers2 = mock(Person.class, "pers2");
-		lenient().when(this.pers2.getId()).thenReturn(345);
+		lenient().when(this.pers2.getId()).thenReturn(345l);
 		lenient().when(this.pers2.getFirstName()).thenReturn("F3");
 		lenient().when(this.pers2.getLastName()).thenReturn("L3");
 		this.pers3 = mock(Person.class, "pers3");
-		lenient().when(this.pers3.getId()).thenReturn(456);
+		lenient().when(this.pers3.getId()).thenReturn(456l);
 		lenient().when(this.pers3.getFirstName()).thenReturn("F4");
 		lenient().when(this.pers3.getLastName()).thenReturn("L4");
 
 		lenient().when(this.personRepository.findAll()).thenReturn(
 				Arrays.asList(this.pers0, this.pers1, this.pers2, this.pers3));
-		lenient().when(this.personRepository.findById(anyInt())).then(it -> {
-			switch (((Integer) it.getArgument(0)).intValue()) {
-			case 123:
+		lenient().when(this.personRepository.findById(anyLong())).then(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 123l) {
 				return Optional.of(this.pers0);
-			case 234:
+			} else if (n == 234l) {
 				return Optional.of(this.pers1);
-			case 345:
+			} else if (n == 345l) {
 				return Optional.of(this.pers2);
-			case 456:
+			} else if (n == 456l) {
 				return Optional.of(this.pers3);
 			}
 			return Optional.empty();
@@ -309,15 +309,15 @@ public class PersonServiceTest {
 	public void updatePerson() {
 		final PhoneNumber num1 = new PhoneNumber(CountryCode.FRANCE, "123456789");
 		final PhoneNumber num2 = new PhoneNumber(CountryCode.FRANCE, "987654321");
-		Person person = this.test.updatePerson(234, true, "NFN", "NLN", Gender.FEMALE, "NE", num1, num2, "NR1",
+		Person person = this.test.updatePerson(234l, true, "NFN", "NLN", Gender.FEMALE, "NE", num1, num2, "NR1",
 				"NGRAV", "NORCID", "NRID", "NSCOPID", "NGSC", "NHAL", "NLIN", "NGIT", "NRGID", "NADSI", "NFB", "NDBLP", "NACA",
 				"NCORDIS", WebPageNaming.EMAIL_ID, 159, 357, 7854, 2159, 2357, 27854);
 
 		assertNotNull(person);
 
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
+		final ArgumentCaptor<Long> arg0 = ArgumentCaptor.forClass(Long.class);
 		verify(this.personRepository, atLeastOnce()).findById(arg0.capture());
-		Integer actual0 = arg0.getValue();
+		Long actual0 = arg0.getValue();
 		assertNotNull(actual0);
 		assertEquals(234, actual0);
 
@@ -361,10 +361,10 @@ public class PersonServiceTest {
 	public void removePerson() {
 		this.test.removePerson(234);
 
-		final ArgumentCaptor<Integer> arg = ArgumentCaptor.forClass(Integer.class);
+		final ArgumentCaptor<Long> arg = ArgumentCaptor.forClass(Long.class);
 
 		verify(this.personRepository, atLeastOnce()).findById(arg.capture());
-		Integer actual = arg.getValue();
+		Long actual = arg.getValue();
 		assertNotNull(actual);
 		assertEquals(234, actual);
 

@@ -141,8 +141,8 @@ public class ThesisService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the thesis.
 	 * @return the thesis or {@code null}.
 	 */
-	public Thesis getThesis(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public Thesis getThesis(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a thesis.
@@ -198,12 +198,12 @@ public class ThesisService extends AbstractPublicationTypeService {
 	 * @param institution the name of the institution in which the thesis was published.
 	 * @param address the geographical address of the institution. Usually a city and a country.
 	 */
-	public void updateThesis(int pubId,
+	public void updateThesis(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String institution, String address) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var thesis = res.get();
 
@@ -223,8 +223,8 @@ public class ThesisService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the thesis to be removed.
 	 */
-	public void removeThesis(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removeThesis(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

@@ -90,8 +90,8 @@ public class TeachingService extends AbstractService {
 	 * @param id the identifier of the person.
 	 * @return the list of teaching activities.
 	 */
-	public List<TeachingActivity> getActivitiesByPersonId(int id) {
-		return this.teachingActivityRepository.findDistinctByPersonId(Integer.valueOf(id));
+	public List<TeachingActivity> getActivitiesByPersonId(long id) {
+		return this.teachingActivityRepository.findDistinctByPersonId(Long.valueOf(id));
 	}
 
 	/** Replies all the known teaching activities.
@@ -160,8 +160,8 @@ public class TeachingService extends AbstractService {
 	 * @param id the identifier.
 	 * @return the activity or {@code null} if the activity cannot be found.
 	 */
-	public TeachingActivity getActivityById(int id) {
-		final var opt = this.teachingActivityRepository.findById(Integer.valueOf(id));
+	public TeachingActivity getActivityById(long id) {
+		final var opt = this.teachingActivityRepository.findById(Long.valueOf(id));
 		if (opt.isPresent()) {
 			return opt.get();
 		}
@@ -174,8 +174,8 @@ public class TeachingService extends AbstractService {
 	 * @param removeAssociatedFiles indicates if the uploaded files that are associated to the activity should be deleted also.
 	 */
 	@Transactional
-	public void removeTeachingActivity(int id, boolean removeAssociatedFiles) {
-		final var identifier = Integer.valueOf(id);
+	public void removeTeachingActivity(long id, boolean removeAssociatedFiles) {
+		final var identifier = Long.valueOf(id);
 		final var activityOpt = this.teachingActivityRepository.findById(identifier);
 		if (activityOpt.isPresent()) {
 			final var activity = activityOpt.get();
@@ -283,7 +283,7 @@ public class TeachingService extends AbstractService {
 	 * @throws Exception if the slides cannot be uploaded.
 	 */
 	public Optional<TeachingActivity> updateTeachingActivity(
-			int activity, Person person, String code, String title,
+			long activity, Person person, String code, String title,
 			TeachingActivityLevel level, StudentType studentType,
 			CountryCode language, String degree, ResearchOrganization university,
 			LocalDate startDate, LocalDate endDate, TeacherRole role, boolean differentHetdForTdTp,
@@ -292,7 +292,7 @@ public class TeachingService extends AbstractService {
 			MultipartFile pathToSlides, boolean removePathToSlides) throws Exception {
 		final Optional<TeachingActivity> res;
 		if (activity >= 0) {
-			res = this.teachingActivityRepository.findById(Integer.valueOf(activity));
+			res = this.teachingActivityRepository.findById(Long.valueOf(activity));
 		} else {
 			res = Optional.empty();
 		}
@@ -380,8 +380,8 @@ public class TeachingService extends AbstractService {
 	 * @return {@code true} if the person is a teacher.
 	 * @since 3.6
 	 */
-	public boolean isTeacher(int id) {
-		return !this.teachingActivityRepository.findDistinctByPersonId(Integer.valueOf(id)).isEmpty();
+	public boolean isTeacher(long id) {
+		return !this.teachingActivityRepository.findDistinctByPersonId(Long.valueOf(id)).isEmpty();
 	}
 
 	/** Start the editing of the given teaching activity.

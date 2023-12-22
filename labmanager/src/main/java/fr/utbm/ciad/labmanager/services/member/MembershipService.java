@@ -134,9 +134,9 @@ public class MembershipService extends AbstractService {
 	 * @param statusFilter indicates how to filter according to the member status.
 	 * @return the list of the members.
 	 */
-	public List<Membership> getOrganizationMembers(int identifier, MemberFiltering memberFilter,
+	public List<Membership> getOrganizationMembers(long identifier, MemberFiltering memberFilter,
 			Predicate<MemberStatus> statusFilter) {
-		final var optOrg = this.organizationRepository.findById(Integer.valueOf(identifier));
+		final var optOrg = this.organizationRepository.findById(Long.valueOf(identifier));
 		if (optOrg.isPresent()) {
 			return getOrganizationMembers(optOrg.get(), memberFilter, statusFilter);
 		}
@@ -150,7 +150,7 @@ public class MembershipService extends AbstractService {
 	 * @return map with the member identifiers as keys and the list of the other organizations as values.
 	 */
 	@SuppressWarnings("static-method")
-	public Map<Integer, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
+	public Map<Long, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
 			String currentOrganizationName) {
 		if (currentOrganizationName != null) {
 			return getOtherOrganizationsForMembers(members,
@@ -166,20 +166,20 @@ public class MembershipService extends AbstractService {
 	 * @return map with the member identifiers as keys and the list of the other organizations as values.
 	 */
 	@SuppressWarnings("static-method")
-	public Map<Integer, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
-			int currentOrganizationId) {
+	public Map<Long, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
+			long currentOrganizationId) {
 		return getOtherOrganizationsForMembers(members,
 				it -> currentOrganizationId != it.getResearchOrganization().getId());
 	}
 
-	private static Map<Integer, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
+	private static Map<Long, List<ResearchOrganization>> getOtherOrganizationsForMembers(Collection<Membership> members,
 			Predicate<? super Membership> organizationSelector) {
 		if (members != null) {
 			// Get the memberships in other organizations for the given members
 			final var stream = members.stream().filter(organizationSelector);
 			// Group by member id and extract only the research organizations
 			final var map = stream.collect(Collectors.groupingBy(
-					it -> Integer.valueOf(it.getPerson().getId()),
+					it -> Long.valueOf(it.getPerson().getId()),
 					TreeMap::new,
 					Collectors.mapping(Membership::getResearchOrganization, Collectors.toList())));
 			return map;
@@ -193,7 +193,7 @@ public class MembershipService extends AbstractService {
 	 * @param memberId the identifier of the member.
 	 * @return the membership or {@code null}.
 	 */
-	public Membership getMembership(int organizationId, int memberId) {
+	public Membership getMembership(long organizationId, long memberId) {
 		final var res = this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(
 				organizationId, memberId);
 		if (res.isPresent()) {
@@ -208,7 +208,7 @@ public class MembershipService extends AbstractService {
 	 * @param memberId the identifier of the member.
 	 * @return the memberships, never {@code null}.
 	 */
-	public Set<Membership> getMemberships(int organizationId, int memberId) {
+	public Set<Membership> getMemberships(long organizationId, long memberId) {
 		return this.membershipRepository.findByResearchOrganizationIdAndPersonId(organizationId, memberId);
 	}
 
@@ -217,7 +217,7 @@ public class MembershipService extends AbstractService {
 	 * @param memberId the identifier of the person.
 	 * @return the memberships of the person.
 	 */
-	public List<Membership> getMembershipsForPerson(int memberId) {
+	public List<Membership> getMembershipsForPerson(long memberId) {
 		return this.membershipRepository.findAllByPersonId(memberId);
 	}
 
@@ -245,15 +245,15 @@ public class MembershipService extends AbstractService {
 	 *     if the replied membership is a new membership or not.
 	 * @throws Exception if the creation cannot be done.
 	 */
-	public Pair<Membership, Boolean> addMembership(int organizationId, Integer organizationAddressId, int personId,
+	public Pair<Membership, Boolean> addMembership(long organizationId, Long organizationAddressId, long personId,
 			LocalDate startDate, LocalDate endDate,
 			MemberStatus memberStatus, boolean permanentPosition,
 			Responsibility responsibility, CnuSection cnuSection, ConrsSection conrsSection,
 			FrenchBap frenchBap, boolean isMainPosition, List<ScientificAxis> axes, boolean forceCreation) throws Exception {
 		assert memberStatus != null;
-		final var optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
+		final var optOrg = this.organizationRepository.findById(Long.valueOf(organizationId));
 		if (optOrg.isPresent()) {
-			final var optPerson = this.personRepository.findById(Integer.valueOf(personId));
+			final var optPerson = this.personRepository.findById(Long.valueOf(personId));
 			if (optPerson.isPresent()) {
 				final var person = optPerson.get();
 				if (!forceCreation) {
@@ -317,12 +317,12 @@ public class MembershipService extends AbstractService {
 	 * @return the updated membership.
 	 * @throws Exception if the given identifiers cannot be resolved to JPA entities.
 	 */
-	public Membership updateMembershipById(int membershipId, Integer organizationId, Integer organizationAddressId,
+	public Membership updateMembershipById(long membershipId, Long organizationId, Long organizationAddressId,
 			LocalDate startDate, LocalDate endDate,
 			MemberStatus memberStatus, boolean permanentPosition, Responsibility responsibility,
 			CnuSection cnuSection, ConrsSection conrsSection, FrenchBap frenchBap,
 			boolean isMainPosition, List<ScientificAxis> axes) throws Exception {
-		final var res = this.membershipRepository.findById(Integer.valueOf(membershipId));
+		final var res = this.membershipRepository.findById(Long.valueOf(membershipId));
 		if (res.isPresent()) {
 			final var membership = res.get();
 			if (organizationId != null) {
@@ -364,8 +364,8 @@ public class MembershipService extends AbstractService {
 	 * @throws Exception in case of error.
 	 */
 	@Transactional
-	public void removeMembership(int membershipId) throws Exception {
-		final var mid = Integer.valueOf(membershipId);
+	public void removeMembership(long membershipId) throws Exception {
+		final var mid = Long.valueOf(membershipId);
 		final var optMbr = this.membershipRepository.findById(mid);
 		if (optMbr.isEmpty()) {
 			throw new IllegalStateException("Membership not found with id: " + membershipId); //$NON-NLS-1$
@@ -394,7 +394,7 @@ public class MembershipService extends AbstractService {
 	 * @return the persons.
 	 * @see #getMembersOf(int)
 	 */
-	public Set<Person> getDirectMembersOf(int organizationId) {
+	public Set<Person> getDirectMembersOf(long organizationId) {
 		return this.personRepository.findDistinctByMembershipsResearchOrganizationId(organizationId);
 	}
 
@@ -406,8 +406,8 @@ public class MembershipService extends AbstractService {
 	 * @return the persons.
 	 * @see #getDirectMembersOf(int)
 	 */
-	public Set<Person> getMembersOf(int organizationId) {
-		final var optOrg = this.organizationRepository.findById(Integer.valueOf(organizationId));
+	public Set<Person> getMembersOf(long organizationId) {
+		final var optOrg = this.organizationRepository.findById(Long.valueOf(organizationId));
 		if (optOrg.isPresent()) {
 			final var organization = optOrg.get();
 
@@ -455,7 +455,7 @@ public class MembershipService extends AbstractService {
 	 * @return the list of memberships for the given identifiers.
 	 * @since 3.5
 	 */
-	public List<Membership> getMembershipsByIds(List<Integer> identifiers) {
+	public List<Membership> getMembershipsByIds(List<Long> identifiers) {
 		var memberships = this.membershipRepository.findAllById(identifiers);
 		if (memberships.size() != identifiers.size()) {
 			throw new IllegalArgumentException("Membership not found"); //$NON-NLS-1$
@@ -483,7 +483,7 @@ public class MembershipService extends AbstractService {
 	 * @return {@code true} if the person is member of an organization.
 	 * @since 3.6
 	 */
-	public boolean isMember(int id) {
+	public boolean isMember(long id) {
 		return !this.membershipRepository.findAllByPersonId(id).isEmpty();
 	}
 

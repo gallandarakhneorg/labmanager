@@ -30,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface GlobalIndicatorsRepository extends JpaRepository<GlobalIndicators, Integer>, JpaSpecificationExecutor<GlobalIndicators> {
+public interface GlobalIndicatorsRepository extends JpaRepository<GlobalIndicators, Long>, JpaSpecificationExecutor<GlobalIndicators> {
 	//
 }

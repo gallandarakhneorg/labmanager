@@ -141,8 +141,8 @@ public class PatentService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the patent.
 	 * @return the patent or {@code null}.
 	 */
-	public Patent getPatent(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public Patent getPatent(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a patent.
@@ -187,12 +187,12 @@ public class PatentService extends AbstractPublicationTypeService {
 	 * @param institution the name of the institution in which the patent was published.
 	 * @param address the geographical address of the institution. Usually a city and a country.
 	 */
-	public void updatePatent(int pubId,
+	public void updatePatent(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String number, String patentType, String institution, String address) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var patent = res.get();
 
@@ -214,8 +214,8 @@ public class PatentService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the patent to be removed.
 	 */
-	public void removePatent(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removePatent(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

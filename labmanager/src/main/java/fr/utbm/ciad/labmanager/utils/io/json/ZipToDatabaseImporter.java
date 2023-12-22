@@ -249,70 +249,70 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 		}
 
 		@Override
-		public String publicationPdfFile(int dbId, String filename) {
+		public String publicationPdfFile(long dbId, String filename) {
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makePdfFilename(dbId),
 					ZipToDatabaseImporter.this.download.makePdfPictureFilename(dbId));
 		}
 
 		@Override
-		public String publicationAwardFile(int dbId, String filename) {
+		public String publicationAwardFile(long dbId, String filename) {
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeAwardFilename(dbId),
 					ZipToDatabaseImporter.this.download.makeAwardPictureFilename(dbId));
 		}
 
 		@Override
-		public String addressBackgroundImageFile(int dbId, String filename) {
+		public String addressBackgroundImageFile(long dbId, String filename) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeAddressBackgroundImage(dbId, fileExtension));
 		}
 
 		@Override
-		public String organizationLogoFile(int dbId, String filename) {
+		public String organizationLogoFile(long dbId, String filename) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeOrganizationLogoFilename(dbId, fileExtension));
 		}
 
 		@Override
-		public String projectLogoFile(int dbId, String filename) {
+		public String projectLogoFile(long dbId, String filename) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectLogoFilename(dbId, fileExtension));
 		}
 
 		@Override
-		public String projectImageFile(int dbId, int index, String filename) {
+		public String projectImageFile(long dbId, int index, String filename) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectImageFilename(dbId, index, fileExtension));
 		}
 
 		@Override
-		public String projectScientificRequirementsFile(int dbId, String filename) {
+		public String projectScientificRequirementsFile(long dbId, String filename) {
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectScientificRequirementsFilename(dbId),
 					ZipToDatabaseImporter.this.download.makeProjectScientificRequirementsPictureFilename(dbId));
 		}
 
 		@Override
-		public String projectPressDocumentFile(int dbId, String filename) {
+		public String projectPressDocumentFile(long dbId, String filename) {
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectPressDocumentFilename(dbId),
 					ZipToDatabaseImporter.this.download.makeProjectPressDocumentPictureFilename(dbId));
 		}
 
 		@Override
-		public String projectPowerpointFile(int dbId, String filename) {
+		public String projectPowerpointFile(long dbId, String filename) {
 			final var fileExtension = FileSystem.extension(filename);
 			return moveFile(filename, dbId,
 					ZipToDatabaseImporter.this.download.makeProjectPowerpointFilename(dbId, fileExtension),
 					ZipToDatabaseImporter.this.download.makeProjectPowerpointPictureFilename(dbId));
 		}
 
-		private String moveFile(String inFilename, int outId, File outFilename, File outPictureName) {
+		private String moveFile(String inFilename, long outId, File outFilename, File outPictureName) {
 			try {
 				final var inFile = FileSystem.join(this.temporaryFolder, inFilename);
 				if (inFile.canRead()) {
@@ -330,7 +330,7 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 			}
 		}
 
-		private String moveFile(String inFilename, int outId, File outFilename) {
+		private String moveFile(String inFilename, long outId, File outFilename) {
 			try {
 				final var inFile = FileSystem.join(this.temporaryFolder, inFilename);
 				if (inFile.canRead()) {

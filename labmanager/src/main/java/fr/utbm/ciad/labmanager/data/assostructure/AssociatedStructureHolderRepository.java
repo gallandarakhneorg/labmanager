@@ -31,13 +31,13 @@ import org.springframework.data.jpa.repository.JpaRepository;
  * @mavenartifactid $ArtifactId$
  * @since 3.2
  */
-public interface AssociatedStructureHolderRepository extends JpaRepository<AssociatedStructureHolder, Integer> {
+public interface AssociatedStructureHolderRepository extends JpaRepository<AssociatedStructureHolder, Long> {
 
 	/** Replies the list of holders that corresponds to the persons with the give identifier.
 	 *
 	 * @param id the identifier of the person.
 	 * @return the list of associate structures' holders.
 	 */
-	List<AssociatedStructureHolder> findDistinctByPersonId(int id);
+	List<AssociatedStructureHolder> findDistinctByPersonId(long id);
 
 }

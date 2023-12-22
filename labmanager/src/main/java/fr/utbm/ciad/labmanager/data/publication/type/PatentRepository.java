@@ -30,7 +30,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface PatentRepository extends JpaRepository<Patent, Integer>, JpaSpecificationExecutor<Patent> {
+public interface PatentRepository extends JpaRepository<Patent, Long>, JpaSpecificationExecutor<Patent> {
 	//
 }
 

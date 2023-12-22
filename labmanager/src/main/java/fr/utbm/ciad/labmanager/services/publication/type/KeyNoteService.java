@@ -142,8 +142,8 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the keynote.
 	 * @return the keynote or {@code null}.
 	 */
-	public KeyNote getKeyNote(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public KeyNote getKeyNote(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a keynote.
@@ -210,12 +210,12 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 */
-	public void updateKeyNote(int pubId,
+	public void updateKeyNote(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			Conference conference, int conferenceOccurrenceNumber, String editors, String orga, String address) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var paper = res.get();
 
@@ -238,8 +238,8 @@ public class KeyNoteService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the keynote to be removed.
 	 */
-	public void removeKeyNote(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removeKeyNote(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

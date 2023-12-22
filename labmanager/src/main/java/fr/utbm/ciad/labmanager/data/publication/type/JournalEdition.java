@@ -85,29 +85,33 @@ public class JournalEdition extends AbstractJournalBasedPublication {
 
 	@Override
 	public int hashCode() {
+		if (getId() != 0) {
+			return Long.hashCode(getId());
+		}
 		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.volume);
 		h = HashCodeUtils.add(h, this.number);
-		h = HashCodeUtils.add(h, this.pages);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!super.equals(obj)) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (JournalEdition) obj;
-		if (!Objects.equals(this.volume, other.volume)) {
-			return false;
+		if (getId() != 0 && other.getId() != 0) {
+			return getId() == other.getId();
 		}
-		if (!Objects.equals(this.number, other.number)) {
-			return false;
-		}
-		if (!Objects.equals(this.pages, other.pages)) {
-			return false;
-		}
-		return true;
+		return super.equals(other)
+				&& Objects.equals(this.volume, other.volume)
+				&& Objects.equals(this.number, other.number);
 	}
 
 	@Override

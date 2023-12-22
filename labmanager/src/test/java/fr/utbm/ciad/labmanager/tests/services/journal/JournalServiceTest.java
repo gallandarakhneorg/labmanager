@@ -25,6 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
@@ -122,29 +123,29 @@ public class JournalServiceTest {
 		// The lenient configuration is used to configure the mocks for all the tests
 		// at the same code location for configuration simplicity
 		this.jour0 = mock(Journal.class);
-		lenient().when(this.jour0.getId()).thenReturn(123);
+		lenient().when(this.jour0.getId()).thenReturn(123l);
 		lenient().when(this.jour0.getJournalName()).thenReturn("N1");
 		this.jour1 = mock(Journal.class);
-		lenient().when(this.jour1.getId()).thenReturn(234);
+		lenient().when(this.jour1.getId()).thenReturn(234l);
 		lenient().when(this.jour1.getJournalName()).thenReturn("N2");
 		this.jour2 = mock(Journal.class);
-		lenient().when(this.jour2.getId()).thenReturn(345);
+		lenient().when(this.jour2.getId()).thenReturn(345l);
 		lenient().when(this.jour2.getJournalName()).thenReturn("N3");
 		this.jour3 = mock(Journal.class);
-		lenient().when(this.jour3.getId()).thenReturn(456);
+		lenient().when(this.jour3.getId()).thenReturn(456l);
 		lenient().when(this.jour3.getJournalName()).thenReturn("N4");
 
 		lenient().when(this.journalRepository.findAll()).thenReturn(
 				Arrays.asList(this.jour0, this.jour1, this.jour2, this.jour3));
-		lenient().when(this.journalRepository.findById(anyInt())).then(it -> {
-			switch (((Integer) it.getArgument(0)).intValue()) {
-			case 123:
+		lenient().when(this.journalRepository.findById(anyLong())).then(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 123l) {
 				return Optional.of(this.jour0);
-			case 234:
+			} else if (n == 234) {
 				return Optional.of(this.jour1);
-			case 345:
+			} else if (n == 345) {
 				return Optional.of(this.jour2);
-			case 456:
+			} else if (n == 456l) {
 				return Optional.of(this.jour3);
 			}
 			return Optional.empty();
@@ -237,10 +238,10 @@ public class JournalServiceTest {
 	public void removeJournal() throws Exception {
 		this.test.removeJournal(234);
 
-		final ArgumentCaptor<Integer> arg = ArgumentCaptor.forClass(Integer.class);
+		final ArgumentCaptor<Long> arg = ArgumentCaptor.forClass(Long.class);
 
 		verify(this.journalRepository, atLeastOnce()).findById(arg.capture());
-		Integer actual = arg.getValue();
+		Long actual = arg.getValue();
 		assertNotNull(actual);
 		assertEquals(234, actual);
 
@@ -254,9 +255,9 @@ public class JournalServiceTest {
 	public void updateJournal() {
 		this.test.updateJournal(234, true, "NN", "NA", "NP", "NISBN", "NISSN", Boolean.TRUE, "NURL", "NSCI", "NSC", "NWOS", "NWC");
 
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
+		final ArgumentCaptor<Long> arg0 = ArgumentCaptor.forClass(Long.class);
 		verify(this.journalRepository, atLeastOnce()).findById(arg0.capture());
-		Integer actual0 = arg0.getValue();
+		Long actual0 = arg0.getValue();
 		assertNotNull(actual0);
 		assertEquals(234, actual0);
 
@@ -286,8 +287,8 @@ public class JournalServiceTest {
 		final Set<JournalPaper> papers = new HashSet<>();
 		when(this.jour1.getPublishedPapers()).thenReturn(papers);
 		final JournalPaper paper = mock(JournalPaper.class);
-		when(this.publicationRepository.findById(anyInt())).then(it -> {
-			if (((Integer) it.getArgument(0)).intValue() == 1025) {
+		when(this.publicationRepository.findById(anyLong())).then(it -> {
+			if (((Number) it.getArgument(0)).longValue() == 1025l) {
 				return Optional.of(paper);
 			}
 			return Optional.empty();
@@ -336,8 +337,8 @@ public class JournalServiceTest {
 	public void unlinkPaper_Int() {
 		final JournalPaper paper = mock(JournalPaper.class);
 		when(paper.getJournal()).thenReturn(this.jour1);
-		when(this.publicationRepository.findById(anyInt())).then(it -> {
-			if (((Integer) it.getArgument(0)).intValue() == 1025) {
+		when(this.publicationRepository.findById(anyLong())).then(it -> {
+			if (((Number) it.getArgument(0)).longValue() == 1025l) {
 				return Optional.of(paper);
 			}
 			return Optional.empty();
@@ -376,8 +377,8 @@ public class JournalServiceTest {
 	@Test
 	public void unlinkPaper_Int_notLinked() {
 		final JournalPaper paper = mock(JournalPaper.class);
-		when(this.publicationRepository.findById(anyInt())).then(it -> {
-			if (((Integer) it.getArgument(0)).intValue() == 1025) {
+		when(this.publicationRepository.findById(anyLong())).then(it -> {
+			if (((Number) it.getArgument(0)).longValue() == 1025l) {
 				return Optional.of(paper);
 			}
 			return Optional.empty();
@@ -391,8 +392,8 @@ public class JournalServiceTest {
 	protected void unlinkPaper_IntBoolean_trueSecondArgument() {
 		final JournalPaper paper = mock(JournalPaper.class);
 		when(paper.getJournal()).thenReturn(this.jour1);
-		when(this.publicationRepository.findById(anyInt())).then(it -> {
-			if (((Integer) it.getArgument(0)).intValue() == 1025) {
+		when(this.publicationRepository.findById(anyLong())).then(it -> {
+			if (((Number) it.getArgument(0)).longValue() == 1025l) {
 				return Optional.of(paper);
 			}
 			return Optional.empty();
@@ -426,8 +427,8 @@ public class JournalServiceTest {
 	protected void unlinkPaper_IntBoolean_falseSecondArgument() {
 		final JournalPaper paper = mock(JournalPaper.class);
 		when(paper.getJournal()).thenReturn(this.jour1);
-		when(this.publicationRepository.findById(anyInt())).then(it -> {
-			if (((Integer) it.getArgument(0)).intValue() == 1025) {
+		when(this.publicationRepository.findById(anyLong())).then(it -> {
+			if (((Long) it.getArgument(0)).longValue() == 1025l) {
 				return Optional.of(paper);
 			}
 			return Optional.empty();

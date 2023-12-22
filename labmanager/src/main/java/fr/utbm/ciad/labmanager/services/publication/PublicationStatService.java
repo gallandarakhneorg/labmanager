@@ -651,7 +651,7 @@ public class PublicationStatService extends AbstractPublicationService {
 			}
 			return a.compareTo(b);
 		});
-		final var anonymousPapers = new TreeMap<Integer, List<Map<String, Object>>>();
+		final var anonymousPapers = new TreeMap<Long, List<Map<String, Object>>>();
 		publications.stream()
 			.filter(it -> (it.getCategory().isScientificEventPaper() || it.getCategory().isScientificJournalPaper())
 					&& (!excludeLastYear || it.getPublicationYear() != lastYear))
@@ -674,9 +674,9 @@ public class PublicationStatService extends AbstractPublicationService {
 							}
 						} else {
 							// The member is not member of the organization, but no membership for determining the country
-							final var persons = anonymousPapers.computeIfAbsent(Integer.valueOf(it.getId()), it0 -> new ArrayList<>());
+							final var persons = anonymousPapers.computeIfAbsent(Long.valueOf(it.getId()), it0 -> new ArrayList<>());
 							final var authorDesc = new HashMap<String, Object>();
-							authorDesc.put("id", Integer.valueOf(author.getId())); //$NON-NLS-1$
+							authorDesc.put("id", Long.valueOf(author.getId())); //$NON-NLS-1$
 							authorDesc.put("name", author.getFullName()); //$NON-NLS-1$
 							persons.add(authorDesc);
 						}

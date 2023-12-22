@@ -17,7 +17,6 @@
 package fr.utbm.ciad.labmanager.tests.services.publication;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -34,10 +33,8 @@ import fr.utbm.ciad.labmanager.data.publication.PublicationLanguage;
 import fr.utbm.ciad.labmanager.data.publication.PublicationType;
 import fr.utbm.ciad.labmanager.services.publication.AbstractPublicationTypeService;
 import fr.utbm.ciad.labmanager.utils.doi.DefaultDoiTools;
-import fr.utbm.ciad.labmanager.utils.doi.DoiTools;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import fr.utbm.ciad.labmanager.utils.io.hal.DefaultHalTools;
-import fr.utbm.ciad.labmanager.utils.io.hal.HalTools;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -185,7 +182,7 @@ public class AbstractPublicationTypeServiceTest {
 	@Test
 	public void updatePublicationNoSave_0_nopdfcontent() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
+		when(pub.getId()).thenReturn(123l);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
 				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "hal-123", "isbn0", "issn0", "http://dblp.org",
@@ -215,7 +212,7 @@ public class AbstractPublicationTypeServiceTest {
 	@Test
 	public void updatePublicationNoSave_0_noaward() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
+		when(pub.getId()).thenReturn(123l);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
 				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "hal-123", "isbn0", "issn0", "http://dblp.org",
@@ -354,7 +351,7 @@ public class AbstractPublicationTypeServiceTest {
 	@Test
 	public void updatePublicationNoSave_1_nopdfcontent() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
+		when(pub.getId()).thenReturn(123l);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
 				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "hal-123", "isbn0", "issn0", new URL("http://dblp.org"),
@@ -383,7 +380,7 @@ public class AbstractPublicationTypeServiceTest {
 	@Test
 	public void updatePublicationNoSave_1_noaward() throws Exception {
 		Publication pub = mock(Publication.class);
-		when(pub.getId()).thenReturn(123);
+		when(pub.getId()).thenReturn(123l);
 
 		this.test.updatePublicationNoSave(pub, "title0", PublicationType.ARTISTIC_PRODUCTION,
 				LocalDate.parse("2022-07-23"), 2022, "abs0", "kw0", "doi:doi/0", "hal-123", "isbn0", "issn0", new URL("http://dblp.org"),

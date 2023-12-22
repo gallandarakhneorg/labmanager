@@ -151,8 +151,8 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the conference paper.
 	 * @return the conference paper or {@code null}.
 	 */
-	public ConferencePaper getConferencePaper(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public ConferencePaper getConferencePaper(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 
@@ -162,14 +162,14 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param includeSubOrganizations indicates if the members of the suborganizations are considered.
 	 * @return the publications.
 	 */
-	public Set<ConferencePaper> getConferencePapersByOrganizationId(int identifier, boolean includeSubOrganizations) {
+	public Set<ConferencePaper> getConferencePapersByOrganizationId(long identifier, boolean includeSubOrganizations) {
 		final Set<Person> members;
 		if (includeSubOrganizations) {
 			members = this.membershipService.getMembersOf(identifier);
 		} else {
 			members = this.membershipService.getDirectMembersOf(identifier);
 		}
-		final var identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
+		final var identifiers = members.stream().map(it -> Long.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
 		return this.repository.findAllByAuthorshipsPersonIdIn(identifiers);
 	}
 
@@ -253,13 +253,13 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 * @param orga the name of the organization institution.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 */
-	public void updateConferencePaper(int pubId,
+	public void updateConferencePaper(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			Conference conference, int conferenceOccurrenceNumber, String volume, String number,
 			String pages, String editors, String series, String orga, String address) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var paper = res.get();
 
@@ -286,8 +286,8 @@ public class ConferencePaperService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the conference paper to be removed.
 	 */
-	public void removeConferencePaper(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removeConferencePaper(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

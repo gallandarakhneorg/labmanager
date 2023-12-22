@@ -145,53 +145,31 @@ public class ConferencePaper extends Publication implements ConferenceBasedPubli
 
 	@Override
 	public int hashCode() {
+		if (getId() != 0) {
+			return Long.hashCode(getId());
+		}
 		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.conference);
-		h = HashCodeUtils.add(h, this.conferenceOccurrenceNumber);
-		h = HashCodeUtils.add(h, this.volume);
-		h = HashCodeUtils.add(h, this.number);
-		h = HashCodeUtils.add(h, this.pages);
-		h = HashCodeUtils.add(h, this.editors);
-		h = HashCodeUtils.add(h, this.organization);
-		h = HashCodeUtils.add(h, this.address);
-		h = HashCodeUtils.add(h, this.series);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!super.equals(obj)) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (ConferencePaper) obj;
-		if (!Objects.equals(this.conference, other.conference)) {
-			return false;
+		if (getId() != 0 && other.getId() != 0) {
+			return getId() == other.getId();
 		}
-		if (this.conferenceOccurrenceNumber != other.conferenceOccurrenceNumber) {
-			return false;
-		}
-		if (!Objects.equals(this.volume, other.volume)) {
-			return false;
-		}
-		if (!Objects.equals(this.number, other.number)) {
-			return false;
-		}
-		if (!Objects.equals(this.pages, other.pages)) {
-			return false;
-		}
-		if (!Objects.equals(this.editors, other.editors)) {
-			return false;
-		}
-		if (!Objects.equals(this.organization, other.organization)) {
-			return false;
-		}
-		if (!Objects.equals(this.address, other.address)) {
-			return false;
-		}
-		if (!Objects.equals(this.series, other.series)) {
-			return false;
-		}
-		return true;
+		return super.equals(other)
+				&& Objects.equals(this.conference, other.conference);
 	}
 
 	@Override
@@ -287,9 +265,9 @@ public class ConferencePaper extends Publication implements ConferenceBasedPubli
 			appendConferenceName(buf, conference, year);
 			Conference enclosingConference = conference.getEnclosingConference();
 			if (enclosingConference != null) {
-				final var identifiers = new HashSet<Integer>();
-				identifiers.add(Integer.valueOf(conference.getId()));
-				while (enclosingConference != null && identifiers.add(Integer.valueOf(enclosingConference.getId()))) {
+				final var identifiers = new HashSet<Long>();
+				identifiers.add(Long.valueOf(conference.getId()));
+				while (enclosingConference != null && identifiers.add(Long.valueOf(enclosingConference.getId()))) {
 					buf.append(", ").append("in").append(" "); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 					appendConferenceName(buf, enclosingConference, year);
 					enclosingConference = enclosingConference.getEnclosingConference();

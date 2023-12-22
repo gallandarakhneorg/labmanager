@@ -151,8 +151,8 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the journal paper.
 	 * @return the journal paper or {@code null}.
 	 */
-	public JournalPaper getJournalPaper(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public JournalPaper getJournalPaper(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 	/** Replies the journal papers that are associated to the journal with the given identifier.
@@ -160,7 +160,7 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param journalId the identifier of the journal.
 	 * @return the journal papers.
 	 */
-	public List<JournalPaper> getJournalPapersByJournalId(int journalId) {
+	public List<JournalPaper> getJournalPapersByJournalId(long journalId) {
 		return this.repository.findAllByJournalId(journalId);
 	}
 
@@ -171,7 +171,7 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param filterAuthorshipsWithActiveMemberships indicates if the authorships must correspond to active memberships.
 	 * @return the publications.
 	 */
-	public Set<JournalPaper> getJournalPapersByOrganizationId(int identifier, boolean includeSubOrganizations,
+	public Set<JournalPaper> getJournalPapersByOrganizationId(long identifier, boolean includeSubOrganizations,
 			boolean filterAuthorshipsWithActiveMemberships) {
 		final Set<Person> members;
 		if (includeSubOrganizations) {
@@ -179,7 +179,7 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 		} else {
 			members = this.membershipService.getDirectMembersOf(identifier);
 		}
-		final var identifiers = members.stream().map(it -> Integer.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
+		final var identifiers = members.stream().map(it -> Long.valueOf(it.getId())).collect(Collectors.toUnmodifiableSet());
 		final var publications = this.repository.findAllByAuthorshipsPersonIdIn(identifiers);
 		if (filterAuthorshipsWithActiveMemberships) {
 			return filterPublicationsWithMemberships(publications, identifier, includeSubOrganizations);
@@ -247,12 +247,12 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 * @param series the series of the journal.
 	 * @param journal the journal.
 	 */
-	public void updateJournalPaper(int pubId,
+	public void updateJournalPaper(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, String series, Journal journal) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var paper = res.get();
 
@@ -276,8 +276,8 @@ public class JournalPaperService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the journal paper to be removed.
 	 */
-	public void removeJournalPaper(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removeJournalPaper(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

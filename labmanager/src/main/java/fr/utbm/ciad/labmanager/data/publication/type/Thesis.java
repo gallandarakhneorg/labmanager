@@ -79,25 +79,31 @@ public class Thesis extends Publication {
 
 	@Override
 	public int hashCode() {
+		if (getId() != 0) {
+			return Long.hashCode(getId());
+		}
 		var h = super.hashCode();
 		h = HashCodeUtils.add(h, this.institution);
-		h = HashCodeUtils.add(h, this.address);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!super.equals(obj)) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (Thesis) obj;
-		if (!Objects.equals(this.institution, other.institution)) {
-			return false;
+		if (getId() != 0 && other.getId() != 0) {
+			return getId() == other.getId();
 		}
-		if (!Objects.equals(this.address, other.address)) {
-			return false;
-		}
-		return true;
+		return super.equals(other)
+				&& Objects.equals(this.institution, other.institution);
 	}
 
 	@Override

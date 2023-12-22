@@ -81,7 +81,7 @@ public class JuryMembershipService extends AbstractService {
 	 * @param personId the identifier of the person.
 	 * @return the list of jury memberships.
 	 */
-	public List<JuryMembership> getMembershipsForPerson(int personId) {
+	public List<JuryMembership> getMembershipsForPerson(long personId) {
 		return this.membershipRepository.findAllByPersonId(personId);
 	}
 
@@ -90,7 +90,7 @@ public class JuryMembershipService extends AbstractService {
 	 * @param candidateId the identifier of the candidate.
 	 * @return the list of jury memberships.
 	 */
-	public List<JuryMembership> getMembershipsForCandidate(int candidateId) {
+	public List<JuryMembership> getMembershipsForCandidate(long candidateId) {
 		return this.membershipRepository.findAllByCandidateId(candidateId);
 	}
 
@@ -99,7 +99,7 @@ public class JuryMembershipService extends AbstractService {
 	 * @param promoterId the identifier of the promoter.
 	 * @return the list of jury memberships.
 	 */
-	public List<JuryMembership> getMembershipsForPromoter(int promoterId) {
+	public List<JuryMembership> getMembershipsForPromoter(long promoterId) {
 		return this.membershipRepository.findAllByPromotersId(promoterId);
 	}
 
@@ -118,7 +118,7 @@ public class JuryMembershipService extends AbstractService {
 	 *     (for unknown persons).
 	 * @return the created jury membership.
 	 */
-	public JuryMembership addJuryMembership(int person, LocalDate date, JuryMembershipType membershipType,
+	public JuryMembership addJuryMembership(long person, LocalDate date, JuryMembershipType membershipType,
 			JuryType defenseType, String title, String candidate, String university, CountryCode country,
 			List<String> promoters) {
 		final var personObj = this.personService.getPersonById(person);
@@ -146,10 +146,10 @@ public class JuryMembershipService extends AbstractService {
 	 *     (for unknown persons).
 	 * @return the updated jury membership.
 	 */
-	public JuryMembership updateJuryMembership(int membershipId, int person, LocalDate date, JuryMembershipType membershipType,
+	public JuryMembership updateJuryMembership(long membershipId, int person, LocalDate date, JuryMembershipType membershipType,
 			JuryType defenseType, String title, String candidate, String university, CountryCode country,
 			List<String> promoters) {
-		final var optMembership = this.membershipRepository.findById(Integer.valueOf(membershipId));
+		final var optMembership = this.membershipRepository.findById(Long.valueOf(membershipId));
 		if (optMembership.isEmpty()) {
 			throw new IllegalArgumentException("Jury membership not found with id: " + membershipId); //$NON-NLS-1$
 		}
@@ -203,8 +203,8 @@ public class JuryMembershipService extends AbstractService {
 	 * @throws Exception in case of error.
 	 */
 	@Transactional
-	public void removeJuryMembership(int membershipId) throws Exception {
-		final var mid = Integer.valueOf(membershipId);
+	public void removeJuryMembership(long membershipId) throws Exception {
+		final var mid = Long.valueOf(membershipId);
 		final var optMbr = this.membershipRepository.findById(mid);
 		if (optMbr.isEmpty()) {
 			throw new IllegalStateException("Jury membership not found with id: " + membershipId); //$NON-NLS-1$
@@ -227,7 +227,7 @@ public class JuryMembershipService extends AbstractService {
 	 * @return {@code true} if the person is candidate or member of a jury.
 	 * @since 3.6
 	 */
-	public boolean isInvolved(int id) {
+	public boolean isInvolved(long id) {
 		return !this.membershipRepository.findAllByPersonId(id).isEmpty()
 				|| !this.membershipRepository.findAllByCandidateId(id).isEmpty()
 				|| !this.membershipRepository.findAllByPromotersId(id).isEmpty();

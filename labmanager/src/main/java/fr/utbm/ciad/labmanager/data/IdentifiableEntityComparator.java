@@ -42,7 +42,7 @@ public class IdentifiableEntityComparator implements Comparator<IdentifiableEnti
 		if (o2 == null) {
 			return Integer.MAX_VALUE;
 		}
-		return Integer.compare(o1.getId(), o2.getId());
+		return Long.compare(o1.getId(), o2.getId());
 	}
 
 }

@@ -79,7 +79,7 @@ public class PersonInvitationService extends AbstractService {
 	 * @param personId the identifier of the person to search for.
 	 * @return the invitations for the person.
 	 */
-	public List<PersonInvitation> getInvitationsForPerson(int personId) {
+	public List<PersonInvitation> getInvitationsForPerson(long personId) {
 		return this.invitationRepository.findAllByGuestIdOrInviterId(personId, personId);
 	}
 
@@ -96,7 +96,7 @@ public class PersonInvitationService extends AbstractService {
 	 * @param country the country of the university.
 	 * @return the created invitation.
 	 */
-	public PersonInvitation addPersonInvitation(int person,
+	public PersonInvitation addPersonInvitation(long person,
 			String guest, String inviter,
 			LocalDate startDate, LocalDate endDate,
 			PersonInvitationType type,
@@ -125,13 +125,13 @@ public class PersonInvitationService extends AbstractService {
 	 * @return the created invitation.
 	 */
 	public PersonInvitation updatePersonInvitation(
-			int invitation,
-			int person,
+			long invitation,
+			long person,
 			String guest, String inviter,
 			LocalDate startDate, LocalDate endDate,
 			PersonInvitationType type,
 			String title, String university, CountryCode country) {
-		final var optInvitation = this.invitationRepository.findById(Integer.valueOf(invitation));
+		final var optInvitation = this.invitationRepository.findById(Long.valueOf(invitation));
 		if (optInvitation.isEmpty()) {
 			throw new IllegalArgumentException("Invitation not found with id: " + invitation); //$NON-NLS-1$
 		}
@@ -188,8 +188,8 @@ public class PersonInvitationService extends AbstractService {
 	 * @throws Exception in case of error.
 	 */
 	@Transactional
-	public void removePersonInvitation(int invitationId) {
-		final var iid = Integer.valueOf(invitationId);
+	public void removePersonInvitation(long invitationId) {
+		final var iid = Long.valueOf(invitationId);
 		final var optInv = this.invitationRepository.findById(iid);
 		if (optInv.isEmpty()) {
 			throw new IllegalStateException("Person invitation not found with id: " + invitationId); //$NON-NLS-1$
@@ -211,7 +211,7 @@ public class PersonInvitationService extends AbstractService {
 	 * @return {@code true} if the person is an inviter or an invitee.
 	 * @since 3.6
 	 */
-	public boolean isAssociated(int id) {
+	public boolean isAssociated(long id) {
 		return !this.invitationRepository.findAllByGuestIdOrInviterId(id, id).isEmpty();
 	}
 

@@ -65,7 +65,7 @@ public class User implements Serializable, AttributeProvider, Comparable<User>, 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Role of the application user.
 	 */
@@ -91,32 +91,30 @@ public class User implements Serializable, AttributeProvider, Comparable<User>, 
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.role);
-		h = HashCodeUtils.add(h, this.login);
 		h = HashCodeUtils.add(h, this.person);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (User) obj;
-		if (!Objects.equals(this.role, other.role)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.login, other.login)) {
-			return false;
-		}
-		if (!Objects.equals(this.person, other.person)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.person, other.person);
 	}
 
 	@Override
@@ -138,7 +136,7 @@ public class User implements Serializable, AttributeProvider, Comparable<User>, 
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -146,7 +144,7 @@ public class User implements Serializable, AttributeProvider, Comparable<User>, 
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

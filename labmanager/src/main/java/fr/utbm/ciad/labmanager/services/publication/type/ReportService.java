@@ -141,8 +141,8 @@ public class ReportService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the report.
 	 * @return the report or {@code null}.
 	 */
-	public Report getReport(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public Report getReport(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a report.
@@ -204,12 +204,12 @@ public class ReportService extends AbstractPublicationTypeService {
 	 * @param institution the name of the institution in which the report was published.
 	 * @param address the geographical address of the institution. Usually a city and a country.
 	 */
-	public void updateReport(int pubId,
+	public void updateReport(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String number, String reportType, String institution, String address) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var report = res.get();
 
@@ -231,8 +231,8 @@ public class ReportService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the report to be removed.
 	 */
-	public void removeReport(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removeReport(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

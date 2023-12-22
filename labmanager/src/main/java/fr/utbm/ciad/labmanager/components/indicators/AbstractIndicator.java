@@ -47,7 +47,7 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 
 	private String key;
 	
-	private final Map<Integer, Number> values = new TreeMap<>();
+	private final Map<Long, Number> values = new TreeMap<>();
 
 	private String details;
 
@@ -149,7 +149,7 @@ public abstract class AbstractIndicator extends AbstractComponent implements Ind
 
 	@Override
 	public Number getNumericValue(ResearchOrganization organization) {
-		final var value = this.values.computeIfAbsent(Integer.valueOf(organization.getId()), it -> {
+		final var value = this.values.computeIfAbsent(Long.valueOf(organization.getId()), it -> {
 			getLogger().info("Computing indicator value for " + getKey()); //$NON-NLS-1$
 			final var v = computeValue(organization);
 			getLogger().info(getKey() + " = " + v); //$NON-NLS-1$

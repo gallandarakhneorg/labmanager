@@ -43,14 +43,14 @@ public interface DownloadableFileManager extends FileManager {
 	 * @param id the identifier of the publication.
 	 * @throws Exception if the file cannot be deleted.
 	 */
-	void deleteDownloadablePublicationPdfFile(int id) throws Exception;
+	void deleteDownloadablePublicationPdfFile(long id) throws Exception;
 
 	/** Delete from the server the downloadable award's PDF file associated to the publication with given identifier.
 	 *
 	 * @param id the identifier of the publication.
 	 * @throws Exception if the file cannot be deleted.
 	 */
-	void deleteDownloadableAwardPdfFile(int id) throws Exception;
+	void deleteDownloadableAwardPdfFile(long id) throws Exception;
 
 	/** Delete from the server the address background image associated to the address with given identifier.
 	 *
@@ -58,7 +58,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @param fileExtension the filename extension for the image ({@code .jpg}, {@code .gif}, {@code .png}).
 	 * @throws Exception if the file cannot be deleted.
 	 */
-	void deleteAddressBackgroundImage(int id, String fileExtension);
+	void deleteAddressBackgroundImage(long id, String fileExtension);
 
 	/** Delete from the server the logo image associated to the project with given identifier.
 	 *
@@ -67,7 +67,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @throws Exception if the file cannot be deleted.
 	 * @since 3.0
 	 */
-	void deleteProjectLogo(int id, String fileExtension);
+	void deleteProjectLogo(long id, String fileExtension);
 
 	/** Delete from the server the image at the given index and associated to the project with given identifier.
 	 *
@@ -77,7 +77,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @throws Exception if the file cannot be deleted.
 	 * @since 3.0
 	 */
-	void deleteProjectImage(int id, int imageIndex, String fileExtension);
+	void deleteProjectImage(long id, int imageIndex, String fileExtension);
 
 	/** Delete from the server the scientific requirements associated to the project with given identifier.
 	 *
@@ -85,7 +85,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @throws Exception if the file cannot be deleted.
 	 * @since 3.0
 	 */
-	void deleteProjectScientificRequirements(int id);
+	void deleteProjectScientificRequirements(long id);
 
 	/** Delete from the server the Powerpoint associated to the project with given identifier.
 	 *
@@ -94,7 +94,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @throws Exception if the file cannot be deleted.
 	 * @since 3.0
 	 */
-	void deleteProjectPowerpoint(int id, String fileExtension);
+	void deleteProjectPowerpoint(long id, String fileExtension);
 
 	/** Delete from the server the press document associated to the project with given identifier.
 	 *
@@ -102,7 +102,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @throws Exception if the file cannot be deleted.
 	 * @since 3.0
 	 */
-	void deleteProjectPressDocument(int id);
+	void deleteProjectPressDocument(long id);
 
 	/** Delete from the server the slides associated to the teaching activities with given identifier.
 	 *
@@ -110,7 +110,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @throws Exception if the file cannot be deleted.
 	 * @since 3.4
 	 */
-	void deleteTeachingActivitySlides(int id);
+	void deleteTeachingActivitySlides(long id);
 
 	/** Replies the path to the a folder that could be used temporary.
 	 *
@@ -190,28 +190,28 @@ public interface DownloadableFileManager extends FileManager {
 	 * @param publicationId the identifier of the publication.
 	 * @return the path to the downloadable file.
 	 */
-	File makePdfFilename(int publicationId);
+	File makePdfFilename(long publicationId);
 
 	/** Make the path to the image that corresponds to the PDF downloadable file for the publication with the given identifier.
 	 *
 	 * @param publicationId the identifier of the publication.
 	 * @return the path to the JPEG image associated to the downloadable file.
 	 */
-	File makePdfPictureFilename(int publicationId);
+	File makePdfPictureFilename(long publicationId);
 
 	/** Make the path to the award downloadable file for the publication with the given identifier.
 	 *
 	 * @param publicationId the identifier of the publication.
 	 * @return the path to the downloadable file.
 	 */
-	File makeAwardFilename(int publicationId);
+	File makeAwardFilename(long publicationId);
 
 	/** Make the path to the image that corresponds to the award downloadable file for the publication with the given identifier.
 	 *
 	 * @param publicationId the identifier of the publication.
 	 * @return the path to the JPEG image associated to the downloadable file.
 	 */
-	File makeAwardPictureFilename(int publicationId);
+	File makeAwardPictureFilename(long publicationId);
 
 	/** Make the path to the image that corresponds to the address background file for the address with the given identifier.
 	 *
@@ -219,7 +219,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @param fileExtension the filename extension for the image ({@code .jpg}, {@code .gif}, {@code .png}).
 	 * @return the path to the image associated to the background image.
 	 */
-	File makeAddressBackgroundImage(int addressId, String fileExtension);
+	File makeAddressBackgroundImage(long addressId, String fileExtension);
 
 	/** Make the path to the image that corresponds to the logo for the project with the given identifier.
 	 *
@@ -228,7 +228,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the image associated to the logo.
 	 * @since 3.0
 	 */
-	File makeProjectLogoFilename(int projectId, String fileExtension);
+	File makeProjectLogoFilename(long projectId, String fileExtension);
 
 	/** Make the path to the image that corresponds to the image for the project with the given identifier.
 	 *
@@ -238,7 +238,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the image associated to the image.
 	 * @since 3.0
 	 */
-	File makeProjectImageFilename(int projectId, int imageIndex, String fileExtension);
+	File makeProjectImageFilename(long projectId, int imageIndex, String fileExtension);
 
 	/** Make the path to the PDF that corresponds to the scientific requirements for the project with the given identifier.
 	 *
@@ -246,7 +246,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the image associated to the project.
 	 * @since 3.0
 	 */
-	File makeProjectScientificRequirementsFilename(int projectId);
+	File makeProjectScientificRequirementsFilename(long projectId);
 
 	/** Make the path to the PDF thumbnail that corresponds to the scientific requirements for the project with the given identifier.
 	 *
@@ -254,7 +254,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the image associated to the project.
 	 * @since 3.0
 	 */
-	File makeProjectScientificRequirementsPictureFilename(int projectId);
+	File makeProjectScientificRequirementsPictureFilename(long projectId);
 
 	/** Make the path to the Powerpoint that corresponds to the presentation for the project with the given identifier.
 	 *
@@ -263,7 +263,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the Powerpoint associated to the presentation.
 	 * @since 3.0
 	 */
-	File makeProjectPowerpointFilename(int projectId, String fileExtension);
+	File makeProjectPowerpointFilename(long projectId, String fileExtension);
 
 	/** Make the path to the Powerpoint thumbnail that corresponds to the presentation for the project with the given identifier.
 	 *
@@ -271,7 +271,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the Powerpoint tumbnail associated to the presentation.
 	 * @since 3.0
 	 */
-	File makeProjectPowerpointPictureFilename(int projectId);
+	File makeProjectPowerpointPictureFilename(long projectId);
 
 	/** Make the path to the PDF that corresponds to the press document for the project with the given identifier.
 	 *
@@ -279,7 +279,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the press document associated to the project.
 	 * @since 3.0
 	 */
-	File makeProjectPressDocumentFilename(int projectId);
+	File makeProjectPressDocumentFilename(long projectId);
 
 	/** Make the path to the PDF thumbnail that corresponds to the press document for the project with the given identifier.
 	 *
@@ -287,7 +287,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the press document thumbnail associated to the project.
 	 * @since 3.0
 	 */
-	File makeProjectPressDocumentPictureFilename(int projectId);
+	File makeProjectPressDocumentPictureFilename(long projectId);
 
 	/** Make the path to the PDF that corresponds to the slides for the teaching activity with the given identifier.
 	 *
@@ -295,7 +295,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the slides associated to the teaching activity.
 	 * @since 3.4
 	 */
-	File makeTeachingActivitySlidesFilename(int activityId);
+	File makeTeachingActivitySlidesFilename(long activityId);
 
 	/** Make the path to the PDF thumbnail that corresponds to the slides for the teaching activity with the given identifier.
 	 *
@@ -303,7 +303,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the image associated to the sldies of the activity.
 	 * @since 3.4
 	 */
-	File makeTeachingActivitySlidesPictureFilename(int activityId);
+	File makeTeachingActivitySlidesPictureFilename(long activityId);
 
 	/** Save the uploaded PDF file and its associated picture.
 	 *
@@ -349,7 +349,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @param callback lambda that is invoked each time a file has changed. THe arguments are the id of the file, the old name and the new name. 
 	 * @throws IOException if the files cannot be moved.
 	 */
-	void moveFiles(int sourceId, int targetId, Procedure3<String, String, String> callback) throws IOException;
+	void moveFiles(long sourceId, long targetId, Procedure3<String, String, String> callback) throws IOException;
 
 	/** Replies the list of all the uploaded PDF files.
 	 *
@@ -389,7 +389,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @throws Exception if the file cannot be deleted.
 	 * @since 3.2
 	 */
-	void deleteOrganizationLogo(int id, String fileExtension);
+	void deleteOrganizationLogo(long id, String fileExtension);
 
 	/** Replies the path to the root folder for organization logos.
 	 *
@@ -405,7 +405,7 @@ public interface DownloadableFileManager extends FileManager {
 	 * @return the path to the image associated to the logo.
 	 * @since 3.0
 	 */
-	File makeOrganizationLogoFilename(int organizationId, String fileExtension);
+	File makeOrganizationLogoFilename(long organizationId, String fileExtension);
 
 	/** Replies the fielname of the thumbnail assuming that the given input filename is
 	 * generated by one of the "make" functions of this {@link DownloadableFileManager}.

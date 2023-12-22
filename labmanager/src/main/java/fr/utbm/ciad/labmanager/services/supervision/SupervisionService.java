@@ -86,8 +86,8 @@ public class SupervisionService extends AbstractService {
 	 * @param supervisorId the identifier of the supervisor.
 	 * @return the list of the supervisions for the supervised person.
 	 */
-	public List<Supervision> getSupervisionsForSupervisor(int supervisorId) {
-		return this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Integer.valueOf(supervisorId));
+	public List<Supervision> getSupervisionsForSupervisor(long supervisorId) {
+		return this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Long.valueOf(supervisorId));
 	}
 
 	/** Replies all the supervisions associated to the person with the given identifier, when he/she is the supervised person.
@@ -95,8 +95,8 @@ public class SupervisionService extends AbstractService {
 	 * @param supervisedPersonId the identifier of the supervised person.
 	 * @return the list of the supervisions for the supervised person.
 	 */
-	public List<Supervision> getSupervisionsForSupervisedPerson(int supervisedPersonId) {
-		return this.supervisionRepository.findAllBySupervisedPersonPersonId(Integer.valueOf(supervisedPersonId));
+	public List<Supervision> getSupervisionsForSupervisedPerson(long supervisedPersonId) {
+		return this.supervisionRepository.findAllBySupervisedPersonPersonId(Long.valueOf(supervisedPersonId));
 	}
 
 	/** Replies all the supervisions associated to the membership with the given identifier.
@@ -105,8 +105,8 @@ public class SupervisionService extends AbstractService {
 	 * @return the list of the supervisions for the membership.
 	 * @since 3.6
 	 */
-	public List<Supervision> getSupervisionsForMembership(int membershipId) {
-		return this.supervisionRepository.findAllBySupervisedPersonId(Integer.valueOf(membershipId));
+	public List<Supervision> getSupervisionsForMembership(long membershipId) {
+		return this.supervisionRepository.findAllBySupervisedPersonId(Long.valueOf(membershipId));
 	}
 
 	/** Create a supervision of a person.
@@ -127,7 +127,7 @@ public class SupervisionService extends AbstractService {
 	 * @param jointPosition indicates if the position of the supervised person is in the context of a joint agreement between institutions (co-tutelle, etc.).
 	 * @param entrepreneur indicates if the supervised person has also a position of entrepreneur in parallel. 
 	 */
-	public void addSupervision(int membership, List<Map<String, String>> supervisors, boolean abandonment,
+	public void addSupervision(long membership, List<Map<String, String>> supervisors, boolean abandonment,
 			String title, FundingScheme fundingScheme, String fundingDetails, LocalDate defenseDate,
 			String positionAfterSupervision, int numberOfAteRPositions, boolean jointPosition, boolean entrepreneur) {
 		final var supervision = new Supervision();
@@ -157,10 +157,10 @@ public class SupervisionService extends AbstractService {
 	 * @param jointPosition indicates if the position of the supervised person is in the context of a joint agreement between institutions (co-tutelle, etc.).
 	 * @param entrepreneur indicates if the supervised person has also a position of entrepreneur in parallel. 
 	 */
-	public void updateSupervision(int supervision, int membership, List<Map<String, String>> supervisors, boolean abandonment,
+	public void updateSupervision(long supervision, long membership, List<Map<String, String>> supervisors, boolean abandonment,
 			String title, FundingScheme fundingScheme, String fundingDetails, LocalDate defenseDate,
 			String positionAfterSupervision, int numberOfAteRPositions, boolean jointPosition, boolean entrepreneur) {
-		final var supervisionOpt = this.supervisionRepository.findById(Integer.valueOf(supervision));
+		final var supervisionOpt = this.supervisionRepository.findById(Long.valueOf(supervision));
 		if (supervisionOpt.isPresent()) {
 			final var supervisionObj = supervisionOpt.get();
 			updateSupervisionWithoutSavingAndSupervisors(supervisionObj, membership, abandonment, title, fundingScheme,
@@ -173,11 +173,11 @@ public class SupervisionService extends AbstractService {
 		}
 	}
 
-	private void updateSupervisionWithoutSavingAndSupervisors(Supervision supervision, int membership, boolean abandonment,
+	private void updateSupervisionWithoutSavingAndSupervisors(Supervision supervision, long membership, boolean abandonment,
 			String title, FundingScheme fundingScheme, String fundingDetails, LocalDate defenseDate,
 			String positionAfterSupervision, int numberOfAteRPositions, boolean jointPosition, boolean entrepreneur) {
 		assert supervision != null;
-		final var membershipObj = this.membershipRepository.findById(Integer.valueOf(membership));
+		final var membershipObj = this.membershipRepository.findById(Long.valueOf(membership));
 		if (membershipObj.isEmpty()) {
 			throw new IllegalArgumentException("Membership cannot be found with with: " + membership); //$NON-NLS-1$
 		}
@@ -239,8 +239,8 @@ public class SupervisionService extends AbstractService {
 	 * @param identifier the identifier of the supervision.
 	 */
 	@Transactional
-	public void removeSupervision(int identifier) {
-		final var mid = Integer.valueOf(identifier);
+	public void removeSupervision(long identifier) {
+		final var mid = Long.valueOf(identifier);
 		final var optSupervision = this.supervisionRepository.findById(mid);
 		if (optSupervision.isEmpty()) {
 			throw new IllegalStateException("Supervision not found with id: " + identifier); //$NON-NLS-1$
@@ -270,9 +270,9 @@ public class SupervisionService extends AbstractService {
 	 * @return {@code true} if the person is a student or a supervisor involved in the supervision.
 	 * @since 3.6
 	 */
-	public boolean isInvolved(int id) {
-		return !this.supervisionRepository.findAllBySupervisedPersonPersonId(Integer.valueOf(id)).isEmpty()
-				|| !!this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Integer.valueOf(id)).isEmpty();
+	public boolean isInvolved(long id) {
+		return !this.supervisionRepository.findAllBySupervisedPersonPersonId(Long.valueOf(id)).isEmpty()
+				|| !!this.supervisionRepository.findAllDisctinctBySupervisorsSupervisorId(Long.valueOf(id)).isEmpty();
 	}
 
 }

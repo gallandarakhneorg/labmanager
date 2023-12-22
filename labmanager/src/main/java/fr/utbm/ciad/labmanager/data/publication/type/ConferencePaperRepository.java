@@ -32,14 +32,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface ConferencePaperRepository extends JpaRepository<ConferencePaper, Integer>, JpaSpecificationExecutor<ConferencePaper> {
+public interface ConferencePaperRepository extends JpaRepository<ConferencePaper, Long>, JpaSpecificationExecutor<ConferencePaper> {
 
 	/** Replies the list of conference papers for the persons with the given identifiers.
 	 *
 	 * @param personIds the list of identifiers of the authors.
 	 * @return the list of journal papers.
 	 */
-	Set<ConferencePaper> findAllByAuthorshipsPersonIdIn(Set<Integer> personIds);
+	Set<ConferencePaper> findAllByAuthorshipsPersonIdIn(Set<Long> personIds);
 
 }
 

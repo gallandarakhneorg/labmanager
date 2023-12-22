@@ -94,7 +94,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Reference to the person who has done the activity.
 	 */
@@ -246,75 +246,38 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.code);
 		h = HashCodeUtils.add(h, this.title);
-		h = HashCodeUtils.add(h, this.degree);
-		h = HashCodeUtils.add(h, this.university);
 		h = HashCodeUtils.add(h, this.level);
-		h = HashCodeUtils.add(h, this.studentType);
-		h = HashCodeUtils.add(h, this.role);
-		h = HashCodeUtils.add(h, this.differentHetdForTdTp);
-		h = HashCodeUtils.add(h, this.annualWorkPerType);
-		h = HashCodeUtils.add(h, this.numberOfStudents);
-		h = HashCodeUtils.add(h, this.explanation);
-		h = HashCodeUtils.add(h, this.pedagogicalPracticeTypes);
-		h = HashCodeUtils.add(h, this.language);
 		h = HashCodeUtils.add(h, this.startDate);
 		h = HashCodeUtils.add(h, this.endDate);
-		h = HashCodeUtils.add(h, this.activityUrl);
-		h = HashCodeUtils.add(h, this.sourceUrl);
-		h = HashCodeUtils.add(h, this.pathToSlides);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (TeachingActivity) obj;
-		if (!Objects.equals(this.person, other.person)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.university, other.university)) {
-			return false;
-		}
-		if (!Objects.equals(this.code, other.code)) {
-			return false;
-		}
-		if (!Objects.equals(this.title, other.title)) {
-			return false;
-		}
-		if (!Objects.equals(this.language, other.language)) {
-			return false;
-		}
-		if (!Objects.equals(this.startDate, other.startDate)) {
-			return false;
-		}
-		if (!Objects.equals(this.endDate, other.endDate)) {
-			return false;
-		}
-		if (!Objects.equals(this.level, other.level)) {
-			return false;
-		}
-		if (!Objects.equals(this.studentType, other.studentType)) {
-			return false;
-		}
-		if (!Objects.equals(this.role, other.role)) {
-			return false;
-		}
-		if (this.differentHetdForTdTp != other.differentHetdForTdTp) {
-			return false;
-		}
-		if (!Objects.equals(this.pathToSlides, other.pathToSlides)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.code, other.code)
+				&& Objects.equals(this.title, other.title)
+				&& this.level == other.level
+				&& Objects.equals(this.startDate, other.startDate)
+				&& Objects.equals(this.endDate, other.endDate);
 	}
 
 	@Override
@@ -400,7 +363,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -408,7 +371,7 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

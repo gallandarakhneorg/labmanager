@@ -131,8 +131,8 @@ public class UserService extends AbstractService {
 	 * @param id the identifier.
 	 * @return the user or {@code null} if the user cannot be found.
 	 */
-	public User getUserById(int id) {
-		final Optional<User> opt = this.userRepository.findById(Integer.valueOf(id));
+	public User getUserById(long id) {
+		final Optional<User> opt = this.userRepository.findById(Long.valueOf(id));
 		if (opt.isPresent()) {
 			return opt.get();
 		}

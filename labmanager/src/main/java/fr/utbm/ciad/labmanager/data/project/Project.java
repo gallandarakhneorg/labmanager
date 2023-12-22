@@ -93,7 +93,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Title of the project with highlight on scientific contribution.
 	 */
@@ -345,114 +345,34 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.scientificTitle);
 		h = HashCodeUtils.add(h, this.acronym);
-		h = HashCodeUtils.add(h, this.description);
+		h = HashCodeUtils.add(h, this.scientificTitle);
 		h = HashCodeUtils.add(h, this.startDate);
-		h = HashCodeUtils.add(h, this.duration);
-		h = HashCodeUtils.add(h, this.globalBudget);
-		h = HashCodeUtils.add(h, this.contractType);
-		h = HashCodeUtils.add(h, this.activityType);
-		h = HashCodeUtils.add(h, this.status);
-		h = HashCodeUtils.add(h, this.trl);
-		h = HashCodeUtils.add(h, this.confidential);
-		h = HashCodeUtils.add(h, this.openSource);
-		h = HashCodeUtils.add(h, this.projectURL);
-		h = HashCodeUtils.add(h, this.webPageNaming);
-		h = HashCodeUtils.add(h, this.videoURLs);
-		h = HashCodeUtils.add(h, this.pathToScientificRequirements);
-		h = HashCodeUtils.add(h, this.pathToPressDocument);
-		h = HashCodeUtils.add(h, this.pathToLogo);
-		h = HashCodeUtils.add(h, this.videoURLs);
-		h = HashCodeUtils.add(h, this.pathsToImages);
-		h = HashCodeUtils.add(h, this.pathToPowerpoint);
-		h = HashCodeUtils.add(h, this.coordinator);
-		h = HashCodeUtils.add(h, this.localOrganization);
-		h = HashCodeUtils.add(h, this.superOrganization);
-		h = HashCodeUtils.add(h, this.learOrganization);
-		h = HashCodeUtils.add(h, this.otherPartners);
-		h = HashCodeUtils.add(h, this.participants);
-		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
 		if (obj == null) {
 			return false;
+		}
+		if (this == obj) {
+			return true;
 		}
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (Project) obj;
-		if (!Objects.equals(this.scientificTitle, other.scientificTitle)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.acronym, other.acronym)) {
-			return false;
-		}
-		if (!Objects.equals(this.startDate, other.startDate)) {
-			return false;
-		}
-		if (this.duration != other.duration) {
-			return false;
-		}
-		if (!Objects.equals(this.description, other.description)) {
-			return false;
-		}
-		if (!Objects.equals(this.learOrganization, other.learOrganization)) {
-			return false;
-		}
-		if (this.globalBudget != other.globalBudget) {
-			return false;
-		}
-		if (this.contractType != other.contractType) {
-			return false;
-		}
-		if (this.activityType != other.activityType) {
-			return false;
-		}
-		if (this.status != other.status) {
-			return false;
-		}
-		if (this.trl != other.trl) {
-			return false;
-		}
-		if (this.confidential != other.confidential) {
-			return false;
-		}
-		if (this.openSource != other.openSource) {
-			return false;
-		}
-		if (!Objects.equals(this.projectURL, other.projectURL)) {
-			return false;
-		}
-		if (!Objects.equals(this.webPageNaming, other.webPageNaming)) {
-			return false;
-		}
-		if (!Objects.equals(this.pathToScientificRequirements, other.pathToScientificRequirements)) {
-			return false;
-		}
-		if (!Objects.equals(this.pathToPressDocument, other.pathToPressDocument)) {
-			return false;
-		}
-		if (!Objects.equals(this.pathToLogo, other.pathToLogo)) {
-			return false;
-		}
-		if (!Objects.equals(this.pathsToImages, other.pathsToImages)) {
-			return false;
-		}
-		if (!Objects.equals(this.pathToPowerpoint, other.pathToPowerpoint)) {
-			return false;
-		}
-		if (!Objects.equals(this.videoURLs, other.videoURLs)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.acronym, other.acronym)
+				&& Objects.equals(this.scientificTitle, other.scientificTitle)
+				&& Objects.equals(this.startDate, other.startDate);
 	}
 
 	@Override
@@ -464,7 +384,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
 		if (getId() != 0) {
-			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+			consumer.accept("id", Long.valueOf(getId())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getScientificTitle())) {
 			consumer.accept("scientificTitle", getScientificTitle()); //$NON-NLS-1$
@@ -603,7 +523,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -611,7 +531,7 @@ public class Project implements Serializable, JsonSerializable, Comparable<Proje
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

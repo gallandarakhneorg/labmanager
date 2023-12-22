@@ -66,7 +66,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Reference to the person who is invited.
 	 */
@@ -141,52 +141,34 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.guest);
 		h = HashCodeUtils.add(h, this.inviter);
-		h = HashCodeUtils.add(h, this.type);
 		h = HashCodeUtils.add(h, this.startDate);
-		h = HashCodeUtils.add(h, this.endDate);
-		h = HashCodeUtils.add(h, this.title);
-		h = HashCodeUtils.add(h, this.university);
-		h = HashCodeUtils.add(h, this.country);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (PersonInvitation) obj;
-		if (!Objects.equals(this.guest, other.guest)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.inviter, other.inviter)) {
-			return false;
-		}
-		if (!Objects.equals(this.type, other.type)) {
-			return false;
-		}
-		if (!Objects.equals(this.startDate, other.startDate)) {
-			return false;
-		}
-		if (!Objects.equals(this.endDate, other.endDate)) {
-			return false;
-		}
-		if (!Objects.equals(this.title, other.title)) {
-			return false;
-		}
-		if (!Objects.equals(this.university, other.university)) {
-			return false;
-		}
-		if (!Objects.equals(this.country, other.country)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.guest, other.guest)
+				&& Objects.equals(this.inviter, other.inviter)
+				&& Objects.equals(this.startDate, other.startDate);
 	}
 
 	@Override
@@ -224,7 +206,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -232,7 +214,7 @@ public class PersonInvitation implements Serializable, AttributeProvider, Compar
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

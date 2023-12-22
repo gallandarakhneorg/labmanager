@@ -30,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @since 2.1
  */
-public interface SupervisorRepository extends JpaRepository<Supervisor, Integer>, JpaSpecificationExecutor<Supervisor> {
+public interface SupervisorRepository extends JpaRepository<Supervisor, Long>, JpaSpecificationExecutor<Supervisor> {
 	//
 }

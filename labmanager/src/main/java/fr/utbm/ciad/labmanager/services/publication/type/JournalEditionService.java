@@ -142,8 +142,8 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the journal edition.
 	 * @return the journal edition or {@code null}.
 	 */
-	public JournalEdition getJournalEdition(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public JournalEdition getJournalEdition(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a journal edition.
@@ -203,12 +203,12 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 * @param journal the associated journal.
 	 * @param pages the pages in the journal.
 	 */
-	public void updateJournalEdition(int pubId,
+	public void updateJournalEdition(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, Journal journal) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var edition = res.get();
 
@@ -231,8 +231,8 @@ public class JournalEditionService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the journal edition to be removed.
 	 */
-	public void removeJournalEdition(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removeJournalEdition(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

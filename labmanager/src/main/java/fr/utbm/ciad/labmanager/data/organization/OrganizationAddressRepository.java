@@ -34,7 +34,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @see OrganizationAddress
  */
-public interface OrganizationAddressRepository extends JpaRepository<OrganizationAddress, Integer>, JpaSpecificationExecutor<OrganizationAddress> {
+public interface OrganizationAddressRepository extends JpaRepository<OrganizationAddress, Long>, JpaSpecificationExecutor<OrganizationAddress> {
 
 	/** Find an address from its symbolic name.
 	 *
@@ -49,6 +49,6 @@ public interface OrganizationAddressRepository extends JpaRepository<Organizatio
 	 * @param addresses the identifiers to match.
 	 * @return the list of addresses with the given identifiers.
 	 */
-	Set<OrganizationAddress> findAllByIdIn(List<Integer> addresses);
+	Set<OrganizationAddress> findAllByIdIn(List<Long> addresses);
 
 }

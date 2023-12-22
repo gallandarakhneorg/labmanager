@@ -235,8 +235,8 @@ public class ProjectService extends AbstractService {
 	 * @param id the identifier of the project in the database.
 	 * @return the project or {@code null} if there is no project with the given id.
 	 */
-	public Project getProjectById(int id) {
-		final var projectOpt = this.projectRepository.findById(Integer.valueOf(id));
+	public Project getProjectById(long id) {
+		final var projectOpt = this.projectRepository.findById(Long.valueOf(id));
 		if (projectOpt.isPresent()) {
 			return projectOpt.get();
 		}
@@ -250,8 +250,8 @@ public class ProjectService extends AbstractService {
 	 * @param organizationId the identifier of he organization.
 	 * @return the list of projects for the organization with the given id.
 	 */
-	public List<Project> getProjectsByOrganizationId(int organizationId) {
-		final var idObj = Integer.valueOf(organizationId);
+	public List<Project> getProjectsByOrganizationId(long organizationId) {
+		final var idObj = Long.valueOf(organizationId);
 		return this.projectRepository.findDistinctOrganizationProjects(idObj);
 	}
 
@@ -263,8 +263,8 @@ public class ProjectService extends AbstractService {
 	 * @param organizationId the identifier of he organization.
 	 * @return the list of public projects for the organization with the given id.
 	 */
-	public List<Project> getPublicProjectsByOrganizationId(int organizationId) {
-		final var idObj = Integer.valueOf(organizationId);
+	public List<Project> getPublicProjectsByOrganizationId(long organizationId) {
+		final var idObj = Long.valueOf(organizationId);
 		return this.projectRepository.findDistinctOrganizationProjects(Boolean.FALSE, ProjectStatus.ACCEPTED, idObj);
 	}
 
@@ -273,8 +273,8 @@ public class ProjectService extends AbstractService {
 	 * @param id the identifier of the person.
 	 * @return the projects.
 	 */
-	public Set<Project> getProjectsByPersonId(int id) {
-		return this.projectRepository.findDistinctPersonProjects(Integer.valueOf(id));
+	public Set<Project> getProjectsByPersonId(long id) {
+		return this.projectRepository.findDistinctPersonProjects(Long.valueOf(id));
 	}
 
 	/** Replies public the projects that are associated to the person with the given identifier.
@@ -283,9 +283,9 @@ public class ProjectService extends AbstractService {
 	 * @param id the identifier of the person.
 	 * @return the public projects.
 	 */
-	public List<Project> getPublicProjectsByPersonId(int id) {
+	public List<Project> getPublicProjectsByPersonId(long id) {
 		return this.projectRepository.findDistinctPersonProjects(
-				Boolean.FALSE, ProjectStatus.ACCEPTED, Integer.valueOf(id));
+				Boolean.FALSE, ProjectStatus.ACCEPTED, Long.valueOf(id));
 	}
 
 	/** Update a project with the given information.
@@ -332,9 +332,9 @@ public class ProjectService extends AbstractService {
 			boolean openSource, LocalDate startDate, int duration, String description,
 			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL,
 			ProjectWebPageNaming webPageNaming, float globalBudget, ProjectContractType contractType,
-			ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
-			int superOrganization, int learOrganization, List<Integer> otherPartners,
-			Map<Integer, Role> participants, MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
+			ProjectActivityType activityType, TRL trl, long coordinator, long localOrganization,
+			long superOrganization, long learOrganization, List<Long> otherPartners,
+			Map<Long, Role> participants, MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages, 
 			List<String> videoURLs, MultipartFile pathToPowerpoint, boolean removePathToPowerpoint,
 			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status,
@@ -371,7 +371,7 @@ public class ProjectService extends AbstractService {
 
 		// Link the organizations
 
-		final var coordinatorOrg = this.organizationRepository.findById(Integer.valueOf(coordinator));
+		final var coordinatorOrg = this.organizationRepository.findById(Long.valueOf(coordinator));
 		if (coordinatorOrg.isEmpty()) {
 			throw new IllegalArgumentException("Coordinator organization not found with id " + coordinator); //$NON-NLS-1$
 		}
@@ -381,7 +381,7 @@ public class ProjectService extends AbstractService {
 		if (coordinator == localOrganization && coordinatorOrg.get() != null) {
 			localOrganizationOrg = coordinatorOrg;
 		} else {
-			localOrganizationOrg = this.organizationRepository.findById(Integer.valueOf(localOrganization));
+			localOrganizationOrg = this.organizationRepository.findById(Long.valueOf(localOrganization));
 		}
 		if (localOrganizationOrg.isEmpty()) {
 			throw new IllegalArgumentException("Local organization not found with id " + localOrganization); //$NON-NLS-1$
@@ -395,7 +395,7 @@ public class ProjectService extends AbstractService {
 			} else if (superOrganization == localOrganization && localOrganizationOrg.get() != null) {
 				superOrganizationOrg = localOrganizationOrg;
 			} else {
-				superOrganizationOrg = this.organizationRepository.findById(Integer.valueOf(superOrganization));
+				superOrganizationOrg = this.organizationRepository.findById(Long.valueOf(superOrganization));
 			}
 			if (superOrganizationOrg.isEmpty()) {
 				project.setSuperOrganization(null);
@@ -415,7 +415,7 @@ public class ProjectService extends AbstractService {
 		} else if (learOrganization == superOrganization && superOrganizationOrg.get() != null) {
 			learOrganizationOrg = superOrganizationOrg;
 		} else {
-			learOrganizationOrg = this.organizationRepository.findById(Integer.valueOf(learOrganization));
+			learOrganizationOrg = this.organizationRepository.findById(Long.valueOf(learOrganization));
 		}
 		if (learOrganizationOrg.isEmpty()) {
 			throw new IllegalArgumentException("LEAR organization not found with id " + learOrganization); //$NON-NLS-1$
@@ -472,10 +472,10 @@ public class ProjectService extends AbstractService {
 	}
 
 	private boolean updateImages(Project project, boolean explicitRemove, MultipartFile[] uploadedFiles) throws IOException {
-		boolean changed = false;
+		var changed = false;
 		if (explicitRemove) {
-			int i = 0;
-			for (final String imagePath : project.getPathsToImages()) {
+			var i = 0;
+			for (final var imagePath : project.getPathsToImages()) {
 				final String ext;
 				if (!Strings.isNullOrEmpty(imagePath)) {
 					ext = FileSystem.extension(imagePath);
@@ -495,15 +495,15 @@ public class ProjectService extends AbstractService {
 			}
 		}
 		if (uploadedFiles != null && uploadedFiles.length > 0) {
-			final List<String> paths = new ArrayList<>(uploadedFiles.length);
-			final MutableInt i = new MutableInt(0);
+			final var paths = new ArrayList<String>(uploadedFiles.length);
+			final var i = new MutableInt(0);
 			for (; i.intValue() < uploadedFiles.length; i.increment()) {
-				final MultipartFile uploadedFile = uploadedFiles[i.intValue()];
+				final var uploadedFile = uploadedFiles[i.intValue()];
 				final String ext;
 				if (uploadedFile != null) {
 					ext = FileSystem.extension(uploadedFile.getOriginalFilename());
 				} else {
-					final String filename = project.getPathToLogo();
+					final var filename = project.getPathToLogo();
 					if (!Strings.isNullOrEmpty(filename)) {
 						ext = FileSystem.extension(filename);
 					} else {
@@ -538,7 +538,7 @@ public class ProjectService extends AbstractService {
 		if (uploadedFile != null) {
 			ext = FileSystem.extension(uploadedFile.getOriginalFilename());
 		} else {
-			final String filename = project.getPathToPowerpoint();
+			final var filename = project.getPathToPowerpoint();
 			if (!Strings.isNullOrEmpty(filename)) {
 				ext = FileSystem.extension(filename);
 			} else {
@@ -567,7 +567,7 @@ public class ProjectService extends AbstractService {
 		if (uploadedFile != null) {
 			ext = FileSystem.extension(uploadedFile.getOriginalFilename());
 		} else {
-			final String filename = project.getPathToLogo();
+			final var filename = project.getPathToLogo();
 			if (!Strings.isNullOrEmpty(filename)) {
 				ext = FileSystem.extension(filename);
 			} else {
@@ -626,14 +626,14 @@ public class ProjectService extends AbstractService {
 			boolean openSource, LocalDate startDate, int duration, String description,
 			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL,
 			ProjectWebPageNaming webPageNaming, float globalBudget,
-			ProjectContractType contractType, ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
-			int superOrganization, int learOrganization, List<Integer> otherPartners, Map<Integer, Role> participants,
+			ProjectContractType contractType, ProjectActivityType activityType, TRL trl, long coordinator, long localOrganization,
+			long superOrganization, long learOrganization, List<Long> otherPartners, Map<Long, Role> participants,
 			MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages,
 			List<String> videoURLs, MultipartFile pathToPowerpoint, boolean removePathToPowerpoint,
 			MultipartFile pathToPressDocument, boolean removePathToPressDocument, ProjectStatus status,
 			List<ProjectBudget> localOrganizationBudgets, List<ScientificAxis> axes) throws IOException {
-		final Project project = new Project();
+		final var project = new Project();
 		try {
 			updateProject(project, validated, acronym, scientificTitle, openSource,
 					startDate, duration, description, pathToLogo, removePathToLogo, projectURL, webPageNaming, globalBudget,
@@ -696,13 +696,13 @@ public class ProjectService extends AbstractService {
 	 * @return the reference to the updated project.
 	 * @throws IOException if the uploaded files cannot be saved on the server.
 	 */
-	public Optional<Project> updateProject(int projectId,
+	public Optional<Project> updateProject(long projectId,
 			boolean validated, String acronym, String scientificTitle,
 			boolean openSource, LocalDate startDate, int duration, String description,
 			MultipartFile pathToLogo, boolean removePathToLogo, URL projectURL,
 			ProjectWebPageNaming webPageNaming, float globalBudget,
-			ProjectContractType contractType, ProjectActivityType activityType, TRL trl, int coordinator, int localOrganization,
-			int superOrganization, int learOrganization, List<Integer> otherPartners, Map<Integer, Role> participants, 
+			ProjectContractType contractType, ProjectActivityType activityType, TRL trl, long coordinator, long localOrganization,
+			long superOrganization, long learOrganization, List<Long> otherPartners, Map<Long, Role> participants, 
 			MultipartFile pathToScientificRequirements, boolean removePathToScientificRequirements,
 			boolean confidential, MultipartFile[] pathsToImages, boolean removePathsToImages,
 			List<String> videoURLs, MultipartFile pathToPowerpoint, boolean removePathToPowerpoint,
@@ -710,7 +710,7 @@ public class ProjectService extends AbstractService {
 			List<ProjectBudget> localOrganizationBudgets, List<ScientificAxis> axes) throws IOException {
 		final Optional<Project> res;
 		if (projectId >= 0) {
-			res = this.projectRepository.findById(Integer.valueOf(projectId));
+			res = this.projectRepository.findById(Long.valueOf(projectId));
 		} else {
 			res = Optional.empty();
 		}
@@ -730,14 +730,14 @@ public class ProjectService extends AbstractService {
 	 * @param identifier the identifier of the publication to remove.
 	 * @param removeAssociatedFiles indicates if the associated files should be also deleted.
 	 */
-	public void removeProject(int identifier, boolean removeAssociatedFiles) {
-		final Integer id = Integer.valueOf(identifier);
-		final Optional<Project> projectOpt = this.projectRepository.findById(id);
+	public void removeProject(long identifier, boolean removeAssociatedFiles) {
+		final var id = Long.valueOf(identifier);
+		final var projectOpt = this.projectRepository.findById(id);
 		if (projectOpt.isPresent()) {
-			final Project project = projectOpt.get();
+			final var project = projectOpt.get();
 			//
-			final String pathToLogo = project.getPathToLogo();
-			final String pathToPowerpoint = project.getPathToPowerpoint();
+			final var pathToLogo = project.getPathToLogo();
+			final var pathToPowerpoint = project.getPathToPowerpoint();
 			//
 			project.setCoordinator(null);
 			project.setLocalOrganization(null);
@@ -755,7 +755,7 @@ public class ProjectService extends AbstractService {
 			if (removeAssociatedFiles) {
 				try {
 					if (!Strings.isNullOrEmpty(pathToLogo)) {
-						final String ext = FileSystem.extension(pathToLogo);
+						final var ext = FileSystem.extension(pathToLogo);
 						this.fileManager.deleteProjectLogo(identifier, ext);
 					}
 				} catch (Throwable ex) {
@@ -768,7 +768,7 @@ public class ProjectService extends AbstractService {
 				}
 				try {
 					if (!Strings.isNullOrEmpty(pathToPowerpoint)) {
-						final String ext = FileSystem.extension(pathToPowerpoint);
+						final var ext = FileSystem.extension(pathToPowerpoint);
 						this.fileManager.deleteProjectPowerpoint(identifier, ext);
 					}
 				} catch (Throwable ex) {
@@ -792,13 +792,13 @@ public class ProjectService extends AbstractService {
 	 * @since 3.4
 	 */
 	public Stream<Membership> getRecuitedPersonStream(Project project) {
-		final LocalDate sdt = project.getStartDate();
-		final LocalDate edt = project.getEndDate();
+		final var sdt = project.getStartDate();
+		final var edt = project.getEndDate();
 		if (sdt != null && edt != null) {
 			return project.getParticipants().stream()
 					.filter(it -> it.getPerson() != null)
 					.map(it -> {
-						final Optional<Membership> mbrs = this.membershipService.getMembershipsForPerson(it.getPerson().getId()).stream()
+						final var mbrs = this.membershipService.getMembershipsForPerson(it.getPerson().getId()).stream()
 							.filter(it1 -> !it1.isPermanentPosition() && it1.isActiveIn(sdt, edt)).findAny();
 						if (mbrs.isEmpty()) {
 							return null;
@@ -828,8 +828,8 @@ public class ProjectService extends AbstractService {
 	 * @return the list of projects.
 	 * @since 3.5
 	 */
-	public List<Project> getProjectsByIds(List<Integer> identifiers) {
-		final List<Project> projects = this.projectRepository.findAllById(identifiers);
+	public List<Project> getProjectsByIds(List<Long> identifiers) {
+		final var projects = this.projectRepository.findAllById(identifiers);
 		if (projects.size() != identifiers.size()) {
 			throw new IllegalArgumentException("Project not found"); //$NON-NLS-1$
 		}
@@ -850,7 +850,7 @@ public class ProjectService extends AbstractService {
 						it -> Integer.valueOf(it.getStartYear()),
 						it -> Collections.singleton(it),
 						(a, b) -> {
-							final MultiCollection<Project> multi = new MultiCollection<>();
+							final var multi = new MultiCollection<Project>();
 							multi.addCollection(a);
 							multi.addCollection(b);
 							return multi;
@@ -858,11 +858,11 @@ public class ProjectService extends AbstractService {
 		return projectsPerYear.entrySet().stream()
 			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 			.map(it -> {
-				int nbAap = 0;
-				int NbIndus = 0;
-				int nbAutoFunded = 0;
-				float budget = 0f;
-				for (final Project prj : it.getValue()) {
+				var nbAap = 0;
+				var NbIndus = 0;
+				var nbAutoFunded = 0;
+				var budget = 0f;
+				for (final var prj : it.getValue()) {
 					switch (prj.getCategory()) {
 					case COMPETITIVE_CALL_PROJECT:
 						++nbAap;
@@ -881,7 +881,7 @@ public class ProjectService extends AbstractService {
 						break;
 					}
 				}
-				final List<Number> columns = new ArrayList<>(3);
+				final var columns = new ArrayList<Number>(3);
 				columns.add(it.getKey());
 				columns.add(Integer.valueOf(nbAap));
 				columns.add(Integer.valueOf(NbIndus));
@@ -904,19 +904,19 @@ public class ProjectService extends AbstractService {
 		projects.stream()
 			.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
 			.forEach(it -> {
-				for (int y = it.getStartYear(); y <= it.getEndYear(); ++y) {
-					final List<Project> yearProjects = projectsPerYear.computeIfAbsent(Integer.valueOf(y), it0 -> new ArrayList<>());
+				for (var y = it.getStartYear(); y <= it.getEndYear(); ++y) {
+					final var yearProjects = projectsPerYear.computeIfAbsent(Integer.valueOf(y), it0 -> new ArrayList<>());
 					yearProjects.add(it);
 				}
 			});
 		return projectsPerYear.entrySet().stream()
 			.sorted((a, b) -> a.getKey().compareTo(b.getKey()))
 			.map(it -> {
-				int aap = 0;
-				int indus = 0;
-				int autoFunded = 0;
-				float budget = 0f;
-				for (final Project prj : it.getValue()) {
+				var aap = 0;
+				var indus = 0;
+				var autoFunded = 0;
+				var budget = 0f;
+				for (final var prj : it.getValue()) {
 					switch (prj.getCategory()) {
 					case COMPETITIVE_CALL_PROJECT:
 						++aap;
@@ -935,7 +935,7 @@ public class ProjectService extends AbstractService {
 						break;
 					}
 				}
-				final List<Number> columns = new ArrayList<>(3);
+				final var columns = new ArrayList<Number>(3);
 				columns.add(it.getKey());
 				columns.add(Integer.valueOf(aap));
 				columns.add(Integer.valueOf(indus));
@@ -1133,7 +1133,7 @@ public class ProjectService extends AbstractService {
 	 * @since 3.6
 	 */
 	public List<List<Object>> getNumberOfProjectsPerCountry(Collection<? extends Project> projects, ResearchOrganization referenceOrganization) {
-		final Map<CountryCode, Integer> projectsPerCountry = new TreeMap<>((a, b) -> {
+		final var projectsPerCountry = new TreeMap<CountryCode, Integer>((a, b) -> {
 			if (a == b) {
 				return 0;
 			}
@@ -1145,7 +1145,7 @@ public class ProjectService extends AbstractService {
 			}
 			return a.compareTo(b);
 		});
-		final Map<Integer, List<Map<String, Object>>> anonymousProjects = new TreeMap<>();
+		final var anonymousProjects = new TreeMap<Long, List<Map<String, Object>>>();
 		projects.stream()
 			.filter(it -> it.getStatus() == ProjectStatus.ACCEPTED)
 			.forEach(it -> {
@@ -1203,10 +1203,10 @@ public class ProjectService extends AbstractService {
 				.collect(Collectors.toList());
 	}
 
-	private static void addAnonymousProject(Map<Integer, List<Map<String, Object>>> anonymousProjects, Project project, ResearchOrganization organization) {
-		final List<Map<String, Object>> invalidOrgas = anonymousProjects.computeIfAbsent(Integer.valueOf(project.getId()), it -> new ArrayList<>());
+	private static void addAnonymousProject(Map<Long, List<Map<String, Object>>> anonymousProjects, Project project, ResearchOrganization organization) {
+		final List<Map<String, Object>> invalidOrgas = anonymousProjects.computeIfAbsent(Long.valueOf(project.getId()), it -> new ArrayList<>());
 		final Map<String, Object> orgaDesc = new HashMap<>();
-		orgaDesc.put("id", Integer.valueOf(organization.getId())); //$NON-NLS-1$
+		orgaDesc.put("id", Long.valueOf(organization.getId())); //$NON-NLS-1$
 		orgaDesc.put("name", organization.getName()); //$NON-NLS-1$
 		invalidOrgas.add(orgaDesc);
 	}
@@ -1229,8 +1229,8 @@ public class ProjectService extends AbstractService {
 	 * @return {@code true} if the person is participating to a project.
 	 * @since 3.6
 	 */
-	public boolean isInvolved(int id) {
-		return !this.projectRepository.findDistinctPersonProjects(Integer.valueOf(id)).isEmpty();
+	public boolean isInvolved(long id) {
+		return !this.projectRepository.findDistinctPersonProjects(Long.valueOf(id)).isEmpty();
 	}
 
 	/** Replies the project with the given acronym or name.

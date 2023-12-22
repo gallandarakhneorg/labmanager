@@ -32,7 +32,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @since 2.2
  */
-public interface PersonInvitationRepository extends JpaRepository<PersonInvitation, Integer>, JpaSpecificationExecutor<PersonInvitation> {
+public interface PersonInvitationRepository extends JpaRepository<PersonInvitation, Long>, JpaSpecificationExecutor<PersonInvitation> {
 
 	/** Replies the invitations for the given person whatever if he/she is invitee or inviter.
 	 *
@@ -40,7 +40,7 @@ public interface PersonInvitationRepository extends JpaRepository<PersonInvitati
 	 * @param inviterId the identifier of the inviter.
 	 * @return the invitations for the person.
 	 */
-	List<PersonInvitation> findAllByGuestIdOrInviterId(int guestId, int inviterId);
+	List<PersonInvitation> findAllByGuestIdOrInviterId(long guestId, long inviterId);
 
 	/** Count the number of persons in the invitations whatever if he/she is invitee or inviter.
 	 *
@@ -48,6 +48,6 @@ public interface PersonInvitationRepository extends JpaRepository<PersonInvitati
 	 * @param inviterId the identifier of the inviter.
 	 * @return the count of invitations
 	 */
-	int countDistinctByGuestIdOrInviterId(int guestId, int inviterId);
+	int countDistinctByGuestIdOrInviterId(long guestId, long inviterId);
 
 }

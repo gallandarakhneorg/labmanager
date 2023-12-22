@@ -81,7 +81,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id", nullable = false)
-	private int id;
+	private long id;
 
 	/** Name of the journal.
 	 */
@@ -190,68 +190,32 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.journalName);
 		h = HashCodeUtils.add(h, this.publisher);
-		h = HashCodeUtils.add(h, this.address);
-		h = HashCodeUtils.add(h, this.journalUrl);
-		h = HashCodeUtils.add(h, this.scimagoId);
-		h = HashCodeUtils.add(h, this.scimagoCategory);
-		h = HashCodeUtils.add(h, this.wosId);
-		h = HashCodeUtils.add(h, this.wosCategory);
-		h = HashCodeUtils.add(h, this.isbn);
-		h = HashCodeUtils.add(h, this.issn);
-		h = HashCodeUtils.add(h, this.openAccess);
-		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (Journal) obj;
-		if (!Objects.equals(this.journalName, other.journalName)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.publisher, other.publisher)) {
-			return false;
-		}
-		if (!Objects.equals(this.address, other.address)) {
-			return false;
-		}
-		if (!Objects.equals(this.journalUrl, other.journalUrl)) {
-			return false;
-		}
-		if (!Objects.equals(this.scimagoId, other.scimagoId)) {
-			return false;
-		}
-		if (!Objects.equals(this.scimagoCategory, other.scimagoCategory)) {
-			return false;
-		}
-		if (!Objects.equals(this.wosId, other.wosId)) {
-			return false;
-		}
-		if (!Objects.equals(this.wosCategory, other.wosCategory)) {
-			return false;
-		}
-		if (!Objects.equals(this.isbn, other.isbn)) {
-			return false;
-		}
-		if (!Objects.equals(this.issn, other.issn)) {
-			return false;
-		}
-		if (!Objects.equals(this.openAccess, other.openAccess)) {
-			return false;
-		}
-		if (this.validated != other.validated) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.journalName, other.journalName)
+				&& Objects.equals(this.publisher, other.publisher);
 	}
 
 	/** {@inheritDoc}
@@ -264,7 +228,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	@Override
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getId() != 0) {
-			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+			consumer.accept("id", Long.valueOf(getId())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getJournalName())) {
 			consumer.accept("journalName", getJournalName()); //$NON-NLS-1$
@@ -325,7 +289,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -333,7 +297,7 @@ public class Journal implements Serializable, JsonSerializable, AttributeProvide
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

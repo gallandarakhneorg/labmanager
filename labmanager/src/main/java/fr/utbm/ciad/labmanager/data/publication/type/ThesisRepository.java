@@ -30,7 +30,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface ThesisRepository extends JpaRepository<Thesis, Integer>, JpaSpecificationExecutor<Thesis> {
+public interface ThesisRepository extends JpaRepository<Thesis, Long>, JpaSpecificationExecutor<Thesis> {
 	//
 }
 

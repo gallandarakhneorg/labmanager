@@ -32,14 +32,14 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @since 2.1
  */
-public interface SupervisionRepository extends JpaRepository<Supervision, Integer>, JpaSpecificationExecutor<Supervision> {
+public interface SupervisionRepository extends JpaRepository<Supervision, Long>, JpaSpecificationExecutor<Supervision> {
 
 	/** Replies all the supervisions associated to the person with the given identifier, when he/she is the supervised person.
 	 *
 	 * @param supervisedPersonId the identifier of the supervised person.
 	 * @return the list of the supervisions for the supervised person.
 	 */
-	List<Supervision> findAllBySupervisedPersonPersonId(Integer supervisedPersonId);
+	List<Supervision> findAllBySupervisedPersonPersonId(Long supervisedPersonId);
 
 	/** Replies all the supervisions associated to the membership with the given identifier.
 	 *
@@ -47,20 +47,20 @@ public interface SupervisionRepository extends JpaRepository<Supervision, Intege
 	 * @return the list of the supervisions for the membership.
 	 * @since 3.6
 	 */
-	List<Supervision> findAllBySupervisedPersonId(Integer membershipId);
+	List<Supervision> findAllBySupervisedPersonId(Long membershipId);
 
 	/** Replies all the supervisions associated to the person with the given identifier, when he/she is one of the supervisors.
 	 *
 	 * @param supervisorId the identifier of the supervisor.
 	 * @return the list of the supervisions for the supervisor.
 	 */
-	List<Supervision> findAllDisctinctBySupervisorsSupervisorId(Integer supervisorId);
+	List<Supervision> findAllDisctinctBySupervisorsSupervisorId(Long supervisorId);
 
 	/** Count the number of supervisions for the supervisor with the given id.
 	 *
 	 * @param id the identifier of the supervisor.
 	 * @return the count of supervisions.
 	 */
-	int countDistinctBySupervisedPersonPersonId(int id);
+	int countDistinctBySupervisedPersonPersonId(long id);
 
 }

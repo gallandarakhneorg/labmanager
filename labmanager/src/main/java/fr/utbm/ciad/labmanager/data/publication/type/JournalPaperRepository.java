@@ -33,21 +33,21 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface JournalPaperRepository extends JpaRepository<JournalPaper, Integer>, JpaSpecificationExecutor<JournalPaper> {
+public interface JournalPaperRepository extends JpaRepository<JournalPaper, Long>, JpaSpecificationExecutor<JournalPaper> {
 
 	/** Replies the journal papers that are associated to the journal with the given identifier.
 	 *
 	 * @param journalId the identifier of the journal.
 	 * @return the journal papers.
 	 */
-	List<JournalPaper> findAllByJournalId(int journalId);
+	List<JournalPaper> findAllByJournalId(long journalId);
 
 	/** Replies the list of journal papers for the persons with the given identifiers.
 	 *
 	 * @param personIds the list of identifiers of the authors.
 	 * @return the list of publications.
 	 */
-	Set<JournalPaper> findAllByAuthorshipsPersonIdIn(Set<Integer> personIds);
+	Set<JournalPaper> findAllByAuthorshipsPersonIdIn(Set<Long> personIds);
 
 }
 

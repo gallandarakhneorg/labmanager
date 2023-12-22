@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeastOnce;
@@ -84,14 +84,14 @@ public class OrganizationAddressServiceTest {
 		// The lenient configuration is used to configure the mocks for all the tests
 		// at the same code location for configuration simplicity
 		this.adr0 = mock(OrganizationAddress.class);
-		lenient().when(this.adr0.getId()).thenReturn(123);
+		lenient().when(this.adr0.getId()).thenReturn(123l);
 		lenient().when(this.adr0.getName()).thenReturn("N1");
 		lenient().when(this.adr0.getComplement()).thenReturn("C1");
 		lenient().when(this.adr0.getStreet()).thenReturn("S1");
 		lenient().when(this.adr0.getZipCode()).thenReturn("Z1");
 		lenient().when(this.adr0.getCity()).thenReturn("C1");
 		this.adr1 = mock(OrganizationAddress.class);
-		lenient().when(this.adr1.getId()).thenReturn(234);
+		lenient().when(this.adr1.getId()).thenReturn(234l);
 		lenient().when(this.adr1.getName()).thenReturn("N2");
 		lenient().when(this.adr1.getComplement()).thenReturn("C2");
 		lenient().when(this.adr1.getStreet()).thenReturn("S2");
@@ -100,11 +100,11 @@ public class OrganizationAddressServiceTest {
 
 		lenient().when(this.addressRepository.findAll()).thenReturn(
 				Arrays.asList(this.adr0, this.adr1));
-		lenient().when(this.addressRepository.findById(anyInt())).then(it -> {
-			switch (((Integer) it.getArgument(0)).intValue()) {
-			case 123:
+		lenient().when(this.addressRepository.findById(anyLong())).then(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 123l) {
 				return Optional.of(this.adr0);
-			case 234:
+			} else if (n == 234l) {
 				return Optional.of(this.adr1);
 			}
 			return Optional.empty();
@@ -155,11 +155,11 @@ public class OrganizationAddressServiceTest {
 	public void updateAddress() throws IOException {
 		MultipartFile file = mock(MultipartFile.class);
 		when(file.isEmpty()).thenReturn(true);
-		Optional<OrganizationAddress> res = this.test.updateAddress(234, true, "NN", "NC", "NS", "NZC", "NC", "NMC", "NGL", file, false);
+		Optional<OrganizationAddress> res = this.test.updateAddress(234l, true, "NN", "NC", "NS", "NZC", "NC", "NMC", "NGL", file, false);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
-		verify(this.addressRepository, atLeastOnce()).findById(eq(234));
+		verify(this.addressRepository, atLeastOnce()).findById(eq(234l));
 		verify(this.addressRepository, atLeastOnce()).save(same(this.adr1));
 
 		verify(this.adr1, atLeastOnce()).setValidated(eq(true));
@@ -175,7 +175,7 @@ public class OrganizationAddressServiceTest {
 	@Test
 	public void removeAddress() throws Exception {
 		this.test.removeAddress(234);
-		verify(this.addressRepository, atLeastOnce()).deleteById(eq(234));
+		verify(this.addressRepository, atLeastOnce()).deleteById(eq(234l));
 	}
 
 }

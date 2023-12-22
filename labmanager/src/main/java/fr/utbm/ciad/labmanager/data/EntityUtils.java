@@ -162,7 +162,7 @@ public final class EntityUtils {
 		if (cmp != 0) {
 			return cmp;
 		}
-		return Integer.compare(a.getId(), b.getId());
+		return Long.compare(a.getId(), b.getId());
 	};
 
 	private EntityUtils() {

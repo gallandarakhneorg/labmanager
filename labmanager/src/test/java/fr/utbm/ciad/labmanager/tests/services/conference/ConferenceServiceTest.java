@@ -115,13 +115,13 @@ public class ConferenceServiceTest {
 		final Conference conf0 = mock(Conference.class);
 		final Conference conf1 = mock(Conference.class);
 		final Conference conf2 = mock(Conference.class);
-		when(this.conferenceRepository.findById(any(Integer.class))).thenAnswer(it -> {
-			switch ((int) it.getArgument(0)) {
-			case 123:
+		when(this.conferenceRepository.findById(any(Long.class))).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 123l) {
 				return Optional.of(conf0);
-			case 234:
+			} else if (n == 234) {
 				return Optional.of(conf1);
-			case 345:
+			} else if (n == 345) {
 				return Optional.of(conf2);
 			}
 			return Optional.empty();
@@ -163,16 +163,16 @@ public class ConferenceServiceTest {
 	@Test
 	public void createConference() {
 		Conference enclosingConf = mock(Conference.class);
-		when(this.conferenceRepository.findById(any(Integer.class))).thenAnswer(it -> {
-			switch ((int) it.getArgument(0)) {
-			case 159753:
+		when(this.conferenceRepository.findById(any(Long.class))).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 159753l) {
 				return Optional.of(enclosingConf);
 			}
 			return Optional.empty();
 		});
 
 		final Optional<Conference> conferenceOpt = this.test.createConference(true, "NA", "NN", "NP", "NIB",  "NIS",
-				Boolean.TRUE, "NURL", "NCORE", 159753);
+				Boolean.TRUE, "NURL", "NCORE", 159753l);
 		assertNotNull(conferenceOpt);
 		Conference conference = conferenceOpt.get();
 		assertNotNull(conference);
@@ -197,9 +197,9 @@ public class ConferenceServiceTest {
 	@Test
 	public void removeConference() throws Exception {
 		final Conference conf1 = mock(Conference.class);
-		when(this.conferenceRepository.findById(any(Integer.class))).thenAnswer(it -> {
-			switch ((int) it.getArgument(0)) {
-			case 234:
+		when(this.conferenceRepository.findById(any(Long.class))).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 234l) {
 				return Optional.of(conf1);
 			}
 			return Optional.empty();
@@ -207,10 +207,10 @@ public class ConferenceServiceTest {
 		//
 		this.test.removeConference(234);
 
-		final ArgumentCaptor<Integer> arg = ArgumentCaptor.forClass(Integer.class);
+		final ArgumentCaptor<Long> arg = ArgumentCaptor.forClass(Long.class);
 
 		verify(this.conferenceRepository, atLeastOnce()).findById(arg.capture());
-		Integer actual = arg.getValue();
+		Long actual = arg.getValue();
 		assertNotNull(actual);
 		assertEquals(234, actual);
 
@@ -226,25 +226,25 @@ public class ConferenceServiceTest {
 		final Conference conf1 = mock(Conference.class);
 		final Conference conf2 = mock(Conference.class);
 		final Conference enclosingConf = mock(Conference.class);
-		when(this.conferenceRepository.findById(any(Integer.class))).thenAnswer(it -> {
-			switch ((int) it.getArgument(0)) {
-			case 234:
+		when(this.conferenceRepository.findById(any(Long.class))).thenAnswer(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 234l) {
 				return Optional.of(conf1);
-			case 159753:
+			} else if (n == 159753l) {
 				return Optional.of(enclosingConf);
 			}
 			return Optional.empty();
 		});
 
-		this.test.updateConference(234, true, "NA", "NN", "NP", "NIB", "NIS", Boolean.TRUE, "NURL", "NCORE", 159753);
+		this.test.updateConference(234, true, "NA", "NN", "NP", "NIB", "NIS", Boolean.TRUE, "NURL", "NCORE", 159753l);
 
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
+		final ArgumentCaptor<Long> arg0 = ArgumentCaptor.forClass(Long.class);
 		verify(this.conferenceRepository, times(2)).findById(arg0.capture());
-		List<Integer> actuals = arg0.getAllValues();
+		List<Long> actuals = arg0.getAllValues();
 		assertNotNull(actuals);
 		assertEquals(2, actuals.size());
-		assertTrue(actuals.contains(234));
-		assertTrue(actuals.contains(159753));
+		assertTrue(actuals.contains(234l));
+		assertTrue(actuals.contains(159753l));
 
 
 		final ArgumentCaptor<Conference> arg1 = ArgumentCaptor.forClass(Conference.class);

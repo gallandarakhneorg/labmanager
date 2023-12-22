@@ -22,11 +22,11 @@ package fr.utbm.ciad.labmanager.data.journal;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Locale;
-import java.util.Objects;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
+import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
 import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import jakarta.persistence.Column;
@@ -50,7 +50,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 @Entity
 @Table(name = "JournalAnnualIndicators")
-public class JournalQualityAnnualIndicators implements Serializable, AttributeProvider {
+public class JournalQualityAnnualIndicators implements Serializable, AttributeProvider, IdentifiableEntity {
 
 	private static final long serialVersionUID = -3671513001937890573L;
 
@@ -60,7 +60,7 @@ public class JournalQualityAnnualIndicators implements Serializable, AttributePr
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id", nullable = false)
 	@JsonIgnore
-	private int id;
+	private long id;
 
 	/** Year for the entry.
 	 */
@@ -110,39 +110,46 @@ public class JournalQualityAnnualIndicators implements Serializable, AttributePr
 		this.wosQIndex = wosQuartile;
 		this.impactFactor = impactFactor;
 	}
+	
+	@Override
+	public long getId() {
+		return this.id;
+	}
+
+	/** Change the database identifier.
+	 *
+	 * @param id the new database identifier.
+	 */
+	public void setId(long id) {
+		this.id = id;
+	}
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.impactFactor);
 		h = HashCodeUtils.add(h, this.referenceYear);
-		h = HashCodeUtils.add(h, this.scimagoQIndex);
-		h = HashCodeUtils.add(h, this.wosQIndex);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (JournalQualityAnnualIndicators) obj;
-		if (this.impactFactor != other.impactFactor) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (this.referenceYear != other.referenceYear) {
-			return false;
-		}
-		if (!Objects.equals(this.scimagoQIndex, other.scimagoQIndex)) {
-			return false;
-		}
-		if (!Objects.equals(this.wosQIndex, other.wosQIndex)) {
-			return false;
-		}
-		return true;
+		return this.referenceYear == other.referenceYear;
 	}
 
 	/** {@inheritDoc}

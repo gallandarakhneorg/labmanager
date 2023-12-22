@@ -76,11 +76,11 @@ public abstract class AbstractTypedPublicationTest<T extends Publication> {
 		original.setAbstractText("abstract");
 		
 		Person p0 = mock(Person.class);
-		when(p0.getId()).thenReturn(1234);
+		when(p0.getId()).thenReturn(1234l);
 		Authorship a0 = mock(Authorship.class);
 		when(a0.getPerson()).thenReturn(p0);
 		Person p1 = mock(Person.class);
-		when(p1.getId()).thenReturn(2345);
+		when(p1.getId()).thenReturn(2345l);
 		Authorship a1 = mock(Authorship.class);
 		when(a1.getPerson()).thenReturn(p1);
 		original.setAuthorships(Sets.newHashSet(a0, a1));

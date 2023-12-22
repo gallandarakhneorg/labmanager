@@ -142,8 +142,8 @@ public class BookService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the book.
 	 * @return the book or {@code null}.
 	 */
-	public Book getBook(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public Book getBook(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a book.
@@ -222,13 +222,13 @@ public class BookService extends AbstractPublicationTypeService {
 	 * @param address the geographical location of the event, usually a city and a country.
 	 * @return the updated book.
 	 */
-	public Optional<Book> updateBook(int pubId,
+	public Optional<Book> updateBook(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String volume, String number, String pages, String edition, String editors,
 			String series, String publisher, String address) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var book = res.get();
 
@@ -255,8 +255,8 @@ public class BookService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the book to be removed.
 	 */
-	public void removeBook(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removeBook(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

@@ -33,7 +33,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecificationExecutor<User> {
+public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
 	/** Replies the application user with the given login.
 	 *
@@ -47,7 +47,7 @@ public interface UserRepository extends JpaRepository<User, Integer>, JpaSpecifi
 	 * @param personId the identifier of the person to search for.
 	 * @return the user.
 	 */
-	Optional<User> findByPersonId(int personId);
+	Optional<User> findByPersonId(long personId);
 
 	/** Replies all the application users with the given role.
 	 *

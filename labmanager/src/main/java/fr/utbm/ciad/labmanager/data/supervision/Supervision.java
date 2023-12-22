@@ -73,7 +73,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Reference to the supervised membership.
 	 */
@@ -140,64 +140,32 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.supervisedPerson);
-		h = HashCodeUtils.add(h, this.supervisors);
 		h = HashCodeUtils.add(h, this.title);
-		h = HashCodeUtils.add(h, this.funding);
-		h = HashCodeUtils.add(h, this.fundingDetails);
-		h = HashCodeUtils.add(h, this.defenseDate);
-		h = HashCodeUtils.add(h, this.positionAfterSupervision);
-		h = HashCodeUtils.add(h, this.numberOfAterPositions);
-		h = HashCodeUtils.add(h, this.isJointPosition);
-		h = HashCodeUtils.add(h, this.isEntrepreneur);
-		h = HashCodeUtils.add(h, this.abandonment);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (Supervision) obj;
-		if (!Objects.equals(this.supervisedPerson, other.supervisedPerson)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.supervisors, other.supervisors)) {
-			return false;
-		}
-		if (!Objects.equals(this.title, other.title)) {
-			return false;
-		}
-		if (!Objects.equals(this.funding, other.funding)) {
-			return false;
-		}
-		if (!Objects.equals(this.fundingDetails, other.fundingDetails)) {
-			return false;
-		}
-		if (!Objects.equals(this.defenseDate, other.defenseDate)) {
-			return false;
-		}
-		if (!Objects.equals(this.positionAfterSupervision, other.positionAfterSupervision)) {
-			return false;
-		}
-		if (this.numberOfAterPositions != other.numberOfAterPositions) {
-			return false;
-		}
-		if (this.isJointPosition != other.isJointPosition) {
-			return false;
-		}
-		if (this.isEntrepreneur != other.isEntrepreneur) {
-			return false;
-		}
-		if (this.abandonment != other.abandonment) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.supervisedPerson, other.supervisedPerson)
+				&& Objects.equals(this.title, other.title);
 	}
 
 	@Override
@@ -231,7 +199,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -239,7 +207,7 @@ public class Supervision implements Serializable, AttributeProvider, Comparable<
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

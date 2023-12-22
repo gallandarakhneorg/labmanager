@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
@@ -119,81 +120,74 @@ public class MembershipServiceTest {
 		// The lenient configuration is used to configure the mocks for all the tests
 		// at the same code location for configuration simplicity
 		this.o1 = mock(ResearchOrganization.class);
-		lenient().when(this.o1.getId()).thenReturn(1234);
+		lenient().when(this.o1.getId()).thenReturn(1234l);
 		lenient().when(this.o1.getName()).thenReturn("o1");
 		this.o2 = mock(ResearchOrganization.class);
-		lenient().when(this.o2.getId()).thenReturn(2345);
+		lenient().when(this.o2.getId()).thenReturn(2345l);
 		lenient().when(this.o2.getName()).thenReturn("o2");
 
 		this.p1 = mock(Person.class);
-		lenient().when(this.p1.getId()).thenReturn(12345);
+		lenient().when(this.p1.getId()).thenReturn(12345l);
 		this.p2 = mock(Person.class);
-		lenient().when(this.p2.getId()).thenReturn(23456);
+		lenient().when(this.p2.getId()).thenReturn(23456l);
 		this.p3 = mock(Person.class);
-		lenient().when(this.p3.getId()).thenReturn(34567);
+		lenient().when(this.p3.getId()).thenReturn(34567l);
 
 		this.ms0 = mock(Membership.class);
-		lenient().when(this.ms0.getId()).thenReturn(123);
+		lenient().when(this.ms0.getId()).thenReturn(123l);
 		lenient().when(this.ms0.getPerson()).thenReturn(this.p1);
 		lenient().when(this.ms0.getResearchOrganization()).thenReturn(this.o1);
 		lenient().when(this.ms0.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		this.ms1 = mock(Membership.class);
-		lenient().when(this.ms1.getId()).thenReturn(234);
+		lenient().when(this.ms1.getId()).thenReturn(234l);
 		lenient().when(this.ms1.getPerson()).thenReturn(this.p2);
 		lenient().when(this.ms1.getResearchOrganization()).thenReturn(this.o1);
 		lenient().when(this.ms1.getMemberStatus()).thenReturn(MemberStatus.FULL_PROFESSOR);
 		this.ms2 = mock(Membership.class);
-		lenient().when(this.ms2.getId()).thenReturn(345);
+		lenient().when(this.ms2.getId()).thenReturn(345l);
 		lenient().when(this.ms2.getPerson()).thenReturn(this.p1);
 		lenient().when(this.ms2.getResearchOrganization()).thenReturn(this.o2);
 		lenient().when(this.ms2.getMemberStatus()).thenReturn(MemberStatus.ASSOCIATE_PROFESSOR);
 		this.ms3 = mock(Membership.class);
-		lenient().when(this.ms3.getId()).thenReturn(456);
+		lenient().when(this.ms3.getId()).thenReturn(456l);
 		lenient().when(this.ms3.getPerson()).thenReturn(this.p3);
 		lenient().when(this.ms3.getResearchOrganization()).thenReturn(this.o2);
 		lenient().when(this.ms3.getMemberStatus()).thenReturn(MemberStatus.FULL_PROFESSOR);
 
-		lenient().when(this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(anyInt(), anyInt())).then(it -> {
-			final int orgaId = ((Integer) it.getArgument(0)).intValue();
-			final int personId = ((Integer) it.getArgument(1)).intValue();
-			switch (orgaId) {
-			case 1234:
-				switch(personId) {
-				case 12345:
+		lenient().when(this.membershipRepository.findDistinctByResearchOrganizationIdAndPersonId(anyLong(), anyLong())).then(it -> {
+			final long orgaId = ((Number) it.getArgument(0)).longValue();
+			final long personId = ((Number) it.getArgument(1)).longValue();
+			if (orgaId == 1234l) {
+				if (personId == 12345l) {
 					return Optional.of(this.ms0);
-				case 23456:
+				} else if (personId == 23456l) {
 					return Optional.of(this.ms1);
 				}
-				break;
-			case 2345:
-				switch(personId) {
-				case 12345:
+			} else if (orgaId == 2345l) {
+				if (personId == 12345l) {
 					return Optional.of(this.ms2);
-				case 34567:
+				} else if (personId == 34567l) {
 					return Optional.of(this.ms3);
 				}
-				break;
 			}
 			return Optional.empty();
 		});
-		lenient().when(this.personRepository.findById(anyInt())).then(it -> {
-			final int personId = ((Integer) it.getArgument(0)).intValue();
-			switch (personId) {
-			case 12345:
+		lenient().when(this.personRepository.findById(anyLong())).then(it -> {
+			final long personId = ((Number) it.getArgument(0)).longValue();
+			if (personId == 12345l) {
 				return Optional.of(this.p1);
-			case 23456:
+			} else if (personId == 23456l) {
 				return Optional.of(this.p2);
-			case 34567:
+			} else if (personId == 34567l) {
 				return Optional.of(this.p3);
 			}
 			return Optional.empty();
 		});
-		lenient().when(this.personRepository.findDistinctByMembershipsResearchOrganizationId(anyInt())).then(it -> {
-			final int orgaId = ((Integer) it.getArgument(0)).intValue();
-			switch (orgaId) {
-			case 1234:
+		lenient().when(this.personRepository.findDistinctByMembershipsResearchOrganizationId(anyLong())).then(it -> {
+			final long orgaId = ((Number) it.getArgument(0)).longValue();
+			if (orgaId == 1234l) {
 				return Sets.newHashSet(this.p1, this.p2);
-			case 2345:
+			} else if (orgaId == 2345l) {
 				return Sets.newHashSet(this.p1, this.p3);
 			}
 			return Collections.emptySet();
@@ -244,12 +238,11 @@ public class MembershipServiceTest {
 			}
 			return Collections.emptySet();
 		});
-		lenient().when(this.organizationRepository.findById(anyInt())).then(it -> {
-			final int orgaId = ((Integer) it.getArgument(0)).intValue();
-			switch (orgaId) {
-			case 1234:
+		lenient().when(this.organizationRepository.findById(anyLong())).then(it -> {
+			final long orgaId = ((Number) it.getArgument(0)).longValue();
+			if (orgaId == 1234l) {
 				return Optional.of(this.o1);
-			case 2345:
+			} else if (orgaId == 2345l) {
 				return Optional.of(this.o2);
 			}
 			return Optional.empty();
@@ -258,31 +251,31 @@ public class MembershipServiceTest {
 
 	@Test
 	public void getMembership() {
-		final Membership ms0 = this.test.getMembership(1, 1);
+		final Membership ms0 = this.test.getMembership(1l, 1l);
 		assertNull(ms0);
 
-		final Membership ms1 = this.test.getMembership(1234, 1);
+		final Membership ms1 = this.test.getMembership(1234l, 1l);
 		assertNull(ms1);
 
-		final Membership ms2 = this.test.getMembership(1, 12345);
+		final Membership ms2 = this.test.getMembership(1l, 12345l);
 		assertNull(ms2);
 
-		final Membership ms3 = this.test.getMembership(2345, 12345);
+		final Membership ms3 = this.test.getMembership(2345l, 12345l);
 		assertSame(this.ms2, ms3);
 	}
 
 	@Test
 	public void getDirectMembersOf() {
-		final Set<Person> pers0 = this.test.getDirectMembersOf(1);
+		final Set<Person> pers0 = this.test.getDirectMembersOf(1l);
 		assertTrue(pers0.isEmpty());
 
-		final Set<Person> pers1 = this.test.getDirectMembersOf(1234);
+		final Set<Person> pers1 = this.test.getDirectMembersOf(1234l);
 		assertEquals(2, pers1.size());
 		assertTrue(pers1.contains(this.p1));
 		assertTrue(pers1.contains(this.p2));
 		assertFalse(pers1.contains(this.p3));
 
-		final Set<Person> pers2 = this.test.getDirectMembersOf(2345);
+		final Set<Person> pers2 = this.test.getDirectMembersOf(2345l);
 		assertEquals(2, pers2.size());
 		assertTrue(pers2.contains(this.p1));
 		assertFalse(pers2.contains(this.p2));
@@ -291,16 +284,16 @@ public class MembershipServiceTest {
 
 	@Test
 	public void getMembersOf_noHierarchy() {
-		final Set<Person> pers0 = this.test.getMembersOf(1);
+		final Set<Person> pers0 = this.test.getMembersOf(1l);
 		assertTrue(pers0.isEmpty());
 
-		final Set<Person> pers1 = this.test.getMembersOf(1234);
+		final Set<Person> pers1 = this.test.getMembersOf(1234l);
 		assertEquals(2, pers1.size());
 		assertTrue(pers1.contains(this.p1));
 		assertTrue(pers1.contains(this.p2));
 		assertFalse(pers1.contains(this.p3));
 
-		final Set<Person> pers2 = this.test.getMembersOf(2345);
+		final Set<Person> pers2 = this.test.getMembersOf(2345l);
 		assertEquals(2, pers2.size());
 		assertTrue(pers2.contains(this.p1));
 		assertFalse(pers2.contains(this.p2));
@@ -311,16 +304,16 @@ public class MembershipServiceTest {
 	public void getMembersOf_hierarchy() {
 		when(this.o1.getSubOrganizations()).thenReturn(Collections.singleton(this.o2));
 
-		final Set<Person> pers0 = this.test.getMembersOf(1);
+		final Set<Person> pers0 = this.test.getMembersOf(1l);
 		assertTrue(pers0.isEmpty());
 
-		final Set<Person> pers1 = this.test.getMembersOf(1234);
+		final Set<Person> pers1 = this.test.getMembersOf(1234l);
 		assertEquals(3, pers1.size());
 		assertTrue(pers1.contains(this.p1));
 		assertTrue(pers1.contains(this.p2));
 		assertTrue(pers1.contains(this.p3));
 
-		final Set<Person> pers2 = this.test.getMembersOf(2345);
+		final Set<Person> pers2 = this.test.getMembersOf(2345l);
 		assertEquals(2, pers2.size());
 		assertTrue(pers2.contains(this.p1));
 		assertFalse(pers2.contains(this.p2));
@@ -461,24 +454,24 @@ public class MembershipServiceTest {
 		when(this.o1.getMemberships()).thenReturn(Sets.newHashSet(this.ms0, this.ms1));
 		when(this.o2.getMemberships()).thenReturn(Sets.newHashSet(this.ms2, this.ms3));
 
-		final List<Membership> mbrs0 = this.test.getOrganizationMembers(0, null, null);
+		final List<Membership> mbrs0 = this.test.getOrganizationMembers(0l, null, null);
 		assertTrue(mbrs0.isEmpty());
 
-		final List<Membership> mbrs1 = this.test.getOrganizationMembers(1234, null, null);
+		final List<Membership> mbrs1 = this.test.getOrganizationMembers(1234l, null, null);
 		assertEquals(2, mbrs1.size());
 		assertTrue(mbrs1.contains(this.ms0));
 		assertTrue(mbrs1.contains(this.ms1));
 		assertFalse(mbrs1.contains(this.ms2));
 		assertFalse(mbrs1.contains(this.ms3));
 
-		final List<Membership> mbrs2 = this.test.getOrganizationMembers(2345, null, null);
+		final List<Membership> mbrs2 = this.test.getOrganizationMembers(2345l, null, null);
 		assertEquals(2, mbrs2.size());
 		assertFalse(mbrs2.contains(this.ms0));
 		assertFalse(mbrs2.contains(this.ms1));
 		assertTrue(mbrs2.contains(this.ms2));
 		assertTrue(mbrs2.contains(this.ms3));
 
-		final List<Membership> mbrs3 = this.test.getOrganizationMembers(1234, MemberFiltering.FORMERS, null);
+		final List<Membership> mbrs3 = this.test.getOrganizationMembers(1234l, MemberFiltering.FORMERS, null);
 		assertTrue(mbrs3.isEmpty());
 
 		final List<Membership> mbrs4 = this.test.getOrganizationMembers(2345, MemberFiltering.FORMERS, null);
@@ -491,7 +484,7 @@ public class MembershipServiceTest {
 		assertFalse(mbrs5.contains(this.ms2));
 		assertFalse(mbrs5.contains(this.ms3));
 
-		final List<Membership> mbrs6 = this.test.getOrganizationMembers(2345, null, it -> it == MemberStatus.FULL_PROFESSOR);
+		final List<Membership> mbrs6 = this.test.getOrganizationMembers(2345l, null, it -> it == MemberStatus.FULL_PROFESSOR);
 		assertEquals(1, mbrs6.size());
 		assertFalse(mbrs6.contains(this.ms0));
 		assertFalse(mbrs6.contains(this.ms1));
@@ -501,28 +494,28 @@ public class MembershipServiceTest {
 
 	@Test
 	public void getOtherOrganizationsForMembers_CollectionString() {
-		final Map<Integer, List<ResearchOrganization>> grp0 = this.test.getOtherOrganizationsForMembers(null, null);
+		final Map<Long, List<ResearchOrganization>> grp0 = this.test.getOtherOrganizationsForMembers(null, null);
 		assertTrue(grp0.isEmpty());
 
-		final Map<Integer, List<ResearchOrganization>> grp1 = this.test.getOtherOrganizationsForMembers(null, "o1");
+		final Map<Long, List<ResearchOrganization>> grp1 = this.test.getOtherOrganizationsForMembers(null, "o1");
 		assertTrue(grp1.isEmpty());
 
-		final Map<Integer, List<ResearchOrganization>> grp2 = this.test.getOtherOrganizationsForMembers(null, "o3");
+		final Map<Long, List<ResearchOrganization>> grp2 = this.test.getOtherOrganizationsForMembers(null, "o3");
 		assertTrue(grp2.isEmpty());
 
-		final Map<Integer, List<ResearchOrganization>> grp3 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), null);
+		final Map<Long, List<ResearchOrganization>> grp3 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), null);
 		assertTrue(grp3.isEmpty());
 
-		final Map<Integer, List<ResearchOrganization>> grp4 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), "o3");
+		final Map<Long, List<ResearchOrganization>> grp4 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), "o3");
 		assertEquals(1, grp4.size());
-		final List<ResearchOrganization> orgs4 = grp4.get(12345);
+		final List<ResearchOrganization> orgs4 = grp4.get(12345l);
 		assertEquals(2, orgs4.size());
 		assertTrue(orgs4.contains(this.o1));
 		assertTrue(orgs4.contains(this.o2));
 
-		final Map<Integer, List<ResearchOrganization>> grp5 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), "o1");
+		final Map<Long, List<ResearchOrganization>> grp5 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), "o1");
 		assertEquals(1, grp5.size());
-		final List<ResearchOrganization> orgs5 = grp5.get(12345);
+		final List<ResearchOrganization> orgs5 = grp5.get(12345l);
 		assertEquals(1, orgs5.size());
 		assertFalse(orgs5.contains(this.o1));
 		assertTrue(orgs5.contains(this.o2));
@@ -530,25 +523,25 @@ public class MembershipServiceTest {
 
 	@Test
 	public void getOtherOrganizationsForMembers_CollectionInt() {
-		final Map<Integer, List<ResearchOrganization>> grp0 = this.test.getOtherOrganizationsForMembers(null, 0);
+		final Map<Long, List<ResearchOrganization>> grp0 = this.test.getOtherOrganizationsForMembers(null, 0l);
 		assertTrue(grp0.isEmpty());
 
-		final Map<Integer, List<ResearchOrganization>> grp1 = this.test.getOtherOrganizationsForMembers(null, 1234);
+		final Map<Long, List<ResearchOrganization>> grp1 = this.test.getOtherOrganizationsForMembers(null, 1234l);
 		assertTrue(grp1.isEmpty());
 
-		final Map<Integer, List<ResearchOrganization>> grp2 = this.test.getOtherOrganizationsForMembers(null, 1);
+		final Map<Long, List<ResearchOrganization>> grp2 = this.test.getOtherOrganizationsForMembers(null, 1l);
 		assertTrue(grp2.isEmpty());
 
-		final Map<Integer, List<ResearchOrganization>> grp4 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), 1);
+		final Map<Long, List<ResearchOrganization>> grp4 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), 1l);
 		assertEquals(1, grp4.size());
-		final List<ResearchOrganization> orgs4 = grp4.get(12345);
+		final List<ResearchOrganization> orgs4 = grp4.get(12345l);
 		assertEquals(2, orgs4.size());
 		assertTrue(orgs4.contains(this.o1));
 		assertTrue(orgs4.contains(this.o2));
 
-		final Map<Integer, List<ResearchOrganization>> grp5 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), 1234);
+		final Map<Long, List<ResearchOrganization>> grp5 = this.test.getOtherOrganizationsForMembers(Sets.newHashSet(this.ms0, this.ms2), 1234l);
 		assertEquals(1, grp5.size());
-		final List<ResearchOrganization> orgs5 = grp5.get(12345);
+		final List<ResearchOrganization> orgs5 = grp5.get(12345l);
 		assertEquals(1, orgs5.size());
 		assertFalse(orgs5.contains(this.o1));
 		assertTrue(orgs5.contains(this.o2));
@@ -582,10 +575,9 @@ public class MembershipServiceTest {
 
 	@Test
 	public void updateMembershipById() throws Exception {
-		when(this.membershipRepository.findById(anyInt())).then(it -> {
-			final int id = ((Integer) it.getArgument(0)).intValue();
-			switch (id) {
-			case 234:
+		when(this.membershipRepository.findById(anyLong())).then(it -> {
+			final long id = ((Number) it.getArgument(0)).longValue();
+			if (id == 234l) {
 				return Optional.of(this.ms1);
 			}
 			return Optional.empty();
@@ -593,7 +585,7 @@ public class MembershipServiceTest {
 		
 		List<ScientificAxis> axes = mock(List.class);
 
-		final Membership m = this.test.updateMembershipById(234, 1234, null, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
+		final Membership m = this.test.updateMembershipById(234l, 1234l, null, LocalDate.parse("2019-07-12"), LocalDate.parse("2019-07-28"),
 				MemberStatus.MASTER_STUDENT, true, Responsibility.IT_RESPONSIBLE, CnuSection.CNU_05,
 				ConrsSection.CONRS_06, FrenchBap.BAP_E, false, axes);
 		assertSame(this.ms1, m);
@@ -619,17 +611,16 @@ public class MembershipServiceTest {
 
 	@Test
 	public void removeMembership() throws Exception {
-		when(this.membershipRepository.findById(anyInt())).then(it -> {
-			final int personId = ((Integer) it.getArgument(0)).intValue();
-			switch (personId) {
-			case 234:
+		when(this.membershipRepository.findById(anyLong())).then(it -> {
+			final long personId = ((Number) it.getArgument(0)).longValue();
+			if (personId == 234l) {
 				return Optional.of(this.ms1);
 			}
 			return Optional.empty();
 		});
 		this.test.removeMembership(234);
-		verify(this.membershipRepository, atLeastOnce()).findById(eq(234));
-		verify(this.membershipRepository, atLeastOnce()).deleteById(eq(234));
+		verify(this.membershipRepository, atLeastOnce()).findById(eq(234l));
+		verify(this.membershipRepository, atLeastOnce()).deleteById(eq(234l));
 	}
 
 }

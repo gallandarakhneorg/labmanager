@@ -66,7 +66,7 @@ public class OrphanJuryMembershipService extends AbstractOrphanService<JuryMembe
 	public void computeOrphans(ArrayNode receiver, Locale locale, Progression progress) {
 		computeOrphansInJson(receiver, this.membershipRepository, this,
 				Constants.JURY_MEMBERSHIP_EDITING_ENDPOINT, Constants.PERSON_ENDPOINT_PARAMETER,
-				Constants.GOTO_ENDPOINT_PARAMETER, it -> Integer.toString(it.getId()),
+				Constants.GOTO_ENDPOINT_PARAMETER, it -> Long.toString(it.getId()),
 				Constants.JURY_MEMBERSHIP_DELETION_ENDPOINT, Constants.ID_ENDPOINT_PARAMETER,
 				locale, progress);
 	}
@@ -74,7 +74,7 @@ public class OrphanJuryMembershipService extends AbstractOrphanService<JuryMembe
 	@Override
 	protected Object getEditionParameterValue(JuryMembership entity) {
 		if (entity.getPerson() != null) {
-			return Integer.valueOf(entity.getPerson().getId());
+			return Long.valueOf(entity.getPerson().getId());
 		}
 		return Integer.valueOf(0);
 	}

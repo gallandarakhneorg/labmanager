@@ -57,7 +57,7 @@ public class ProjectWebPageNamingTest {
 		this.items.addAll(Arrays.asList(ProjectWebPageNaming.values()));
 
 		this.project = mock(Project.class);
-		when(this.project.getId()).thenReturn(1456);
+		when(this.project.getId()).thenReturn(1456l);
 		when(this.project.getAcronym()).thenReturn("myacronym");
 	}
 

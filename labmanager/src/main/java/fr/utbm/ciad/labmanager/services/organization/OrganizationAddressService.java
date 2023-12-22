@@ -139,8 +139,8 @@ public class OrganizationAddressService extends AbstractService {
 	 * @param identifier the identifier of the address.
 	 * @return the address or {@code null} if none.
 	 */
-	public OrganizationAddress getAddressById(int identifier) {
-		final var adr = this.addressRepository.findById(Integer.valueOf(identifier));
+	public OrganizationAddress getAddressById(long identifier) {
+		final var adr = this.addressRepository.findById(Long.valueOf(identifier));
 		if (adr.isPresent()) {
 			return adr.get();
 		}
@@ -197,9 +197,9 @@ public class OrganizationAddressService extends AbstractService {
 	 * @throws IOException if the uploaded files cannot be treated correctly.
 	 */
 	public Optional<OrganizationAddress> updateAddress(
-			int identifier, boolean validated, String name, String complement, String street, String zipCode,
+			long identifier, boolean validated, String name, String complement, String street, String zipCode,
 			String city, String mapCoordinates, String googleLink, MultipartFile backgroundImage, boolean removedBackgroundImage) throws IOException {
-		final var res = this.addressRepository.findById(Integer.valueOf(identifier));
+		final var res = this.addressRepository.findById(Long.valueOf(identifier));
 		if (res.isPresent()) {
 			final var address = res.get();
 			if (!Strings.isNullOrEmpty(name)) {
@@ -267,8 +267,8 @@ public class OrganizationAddressService extends AbstractService {
 	 * @param identifier the database identifier of the address.
 	 */
 	@Transactional
-	public void removeAddress(int identifier) {
-		final var id = Integer.valueOf(identifier);
+	public void removeAddress(long identifier) {
+		final var id = Long.valueOf(identifier);
 		this.addressRepository.deleteById(id);
 	}
 	
@@ -300,7 +300,7 @@ public class OrganizationAddressService extends AbstractService {
 
 		private String pathToBackgroundImage;
 		
-		private int id;
+		private long id;
 
 		private OrganizationAddress address;
 
@@ -355,7 +355,7 @@ public class OrganizationAddressService extends AbstractService {
 			this.pathToBackgroundImage = this.address.getPathToBackgroundImage();
 		}
 
-		private void deleteBackgroundImage(int id) {
+		private void deleteBackgroundImage(long id) {
 			if (!Strings.isNullOrEmpty(this.pathToBackgroundImage)) {
 				final var ext = FileSystem.extension(this.pathToBackgroundImage);
 				if (!Strings.isNullOrEmpty(ext)) {

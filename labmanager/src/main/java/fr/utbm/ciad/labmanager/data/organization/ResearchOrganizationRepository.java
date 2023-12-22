@@ -33,7 +33,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @see ResearchOrganization
  */
-public interface ResearchOrganizationRepository extends JpaRepository<ResearchOrganization, Integer>, JpaSpecificationExecutor<ResearchOrganization> {
+public interface ResearchOrganizationRepository extends JpaRepository<ResearchOrganization, Long>, JpaSpecificationExecutor<ResearchOrganization> {
 
 	/** Find a research organization with the given acronym or name. This function is case sensitive.
 	 *

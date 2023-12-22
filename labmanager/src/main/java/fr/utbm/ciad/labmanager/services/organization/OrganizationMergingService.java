@@ -161,7 +161,7 @@ public class OrganizationMergingService extends AbstractService {
 	 * @param target the identifier of the target organization which should replace the source organizations.
 	 * @throws Exception if the merging cannot be completed.
 	 */
-	public void mergeOrganizationsById(Collection<Integer> source, Integer target) throws Exception {
+	public void mergeOrganizationsById(Collection<Long> source, Long target) throws Exception {
 		assert target != null;
 		assert source != null;
 		final var optTarget = this.organizationRepository.findById(target);
@@ -170,7 +170,7 @@ public class OrganizationMergingService extends AbstractService {
 			final var sourceOrganizations = this.organizationRepository.findAllById(source);
 			if (sourceOrganizations.size() != source.size()) {
 				for (final var ro : sourceOrganizations) {
-					if (!source.contains(Integer.valueOf(ro.getId()))) {
+					if (!source.contains(Long.valueOf(ro.getId()))) {
 						throw new IllegalArgumentException("Source organization not found with identifier: " + ro.getId()); //$NON-NLS-1$
 					}
 				}

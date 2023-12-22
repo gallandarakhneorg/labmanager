@@ -36,7 +36,7 @@ import org.springframework.data.repository.query.Param;
  * @mavenartifactid $ArtifactId$
  * @since 3.0
  */
-public interface ProjectRepository extends JpaRepository<Project, Integer>, JpaSpecificationExecutor<Project> {
+public interface ProjectRepository extends JpaRepository<Project, Long>, JpaSpecificationExecutor<Project> {
 
 	/** Replies all the projects that match the different organization identifiers.
 	 * The identifier is compared to, the coordinator, the local organization,
@@ -46,7 +46,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, JpaS
 	 * @return the list of projects.
 	 */
 	@Query("SELECT DISTINCT p FROM Project p WHERE p.coordinator.id = :id OR p.localOrganization.id = :id OR p.superOrganization.id = :id")
-	List<Project> findDistinctOrganizationProjects(@Param("id") Integer id);
+	List<Project> findDistinctOrganizationProjects(@Param("id") Long id);
 
 	/** Replies all the projects that match the organization identifier, the confidential
 	 * flag and the project status.
@@ -60,7 +60,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, JpaS
 	 */
 	@Query("SELECT DISTINCT p FROM Project p WHERE (p.coordinator.id = :id OR p.localOrganization.id = :id OR p.superOrganization.id = :id) AND p.confidential = :confidential AND p.status = :status")
 	List<Project> findDistinctOrganizationProjects(
-			@Param("confidential") Boolean confidential, @Param("status") ProjectStatus status, @Param("id") Integer id);
+			@Param("confidential") Boolean confidential, @Param("status") ProjectStatus status, @Param("id") Long id);
 
 	/** Replies all the projects that match the person identifier.
 	 * The identifier is compared to the participant list, the local organization.
@@ -69,7 +69,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, JpaS
 	 * @return the list of projects.
 	 */
 	@Query("SELECT DISTINCT p FROM Project p, ProjectMember m WHERE m.person.id = :id AND m MEMBER OF p.participants")
-	Set<Project> findDistinctPersonProjects(@Param("id") Integer id);
+	Set<Project> findDistinctPersonProjects(@Param("id") Long id);
 
 	/** Replies all the projects that match the person identifier, the confidential
 	 * flag and the project status.
@@ -82,7 +82,7 @@ public interface ProjectRepository extends JpaRepository<Project, Integer>, JpaS
 	 */
 	@Query("SELECT DISTINCT p FROM Project p, ProjectMember m WHERE m.person.id = :id AND m MEMBER OF p.participants AND p.confidential = :confidential AND p.status = :status")
 	List<Project> findDistinctPersonProjects(
-			@Param("confidential") Boolean confidential, @Param("status") ProjectStatus status, @Param("id") Integer id);
+			@Param("confidential") Boolean confidential, @Param("status") ProjectStatus status, @Param("id") Long id);
 
 	/** Replies all the projects according to their confidentiality and status.
 	 *

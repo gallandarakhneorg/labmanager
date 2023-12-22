@@ -141,8 +141,8 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the book chapter.
 	 * @return the book chapter, or {@code null}.
 	 */
-	public BookChapter getBookChapter(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public BookChapter getBookChapter(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a book chapter.
@@ -230,14 +230,14 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	 * @param publisher the name of the publisher of the book.
 	 * @param address the geographical location of the event, usually a city and a country.
 	 */
-	public void updateBookChapter(int pubId, 
+	public void updateBookChapter(long pubId, 
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String bookTitle, String chapterNumber, String edition,
 			String volume, String number, String pages, String editors, String series,
 			String publisher, String address) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var chapter = res.get();
 
@@ -265,8 +265,8 @@ public class BookChapterService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier if the chapter to remove.
 	 */
-	public void removeBookChapter(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removeBookChapter(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

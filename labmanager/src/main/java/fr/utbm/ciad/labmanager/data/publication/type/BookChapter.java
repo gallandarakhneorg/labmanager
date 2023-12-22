@@ -139,57 +139,37 @@ public class BookChapter extends Publication {
 
 	@Override
 	public int hashCode() {
+		if (getId() != 0) {
+			return Long.hashCode(getId());
+		}
 		var h = super.hashCode();
+		h = HashCodeUtils.add(h, this.bookTitle);
+		h = HashCodeUtils.add(h, this.publisher);
 		h = HashCodeUtils.add(h, this.volume);
 		h = HashCodeUtils.add(h, this.number);
-		h = HashCodeUtils.add(h, this.pages);
-		h = HashCodeUtils.add(h, this.editors);
-		h = HashCodeUtils.add(h, this.address);
-		h = HashCodeUtils.add(h, this.series);
-		h = HashCodeUtils.add(h, this.publisher);
-		h = HashCodeUtils.add(h, this.edition);
-		h = HashCodeUtils.add(h, this.bookTitle);
-		h = HashCodeUtils.add(h, this.chapterNumber);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (!super.equals(obj)) {
+		if (obj == null) {
+			return false;
+		}
+		if (this == obj) {
+			return true;
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (BookChapter) obj;
-		if (!Objects.equals(this.volume, other.volume)) {
-			return false;
+		if (getId() != 0 && other.getId() != 0) {
+			return getId() == other.getId();
 		}
-		if (!Objects.equals(this.number, other.number)) {
-			return false;
-		}
-		if (!Objects.equals(this.pages, other.pages)) {
-			return false;
-		}
-		if (!Objects.equals(this.editors, other.editors)) {
-			return false;
-		}
-		if (!Objects.equals(this.address, other.address)) {
-			return false;
-		}
-		if (!Objects.equals(this.series, other.series)) {
-			return false;
-		}
-		if (!Objects.equals(this.publisher, other.publisher)) {
-			return false;
-		}
-		if (!Objects.equals(this.edition, other.edition)) {
-			return false;
-		}
-		if (!Objects.equals(this.bookTitle, other.bookTitle)) {
-			return false;
-		}
-		if (!Objects.equals(this.chapterNumber, other.chapterNumber)) {
-			return false;
-		}
-		return true;
+		return super.equals(other)
+				&& Objects.equals(this.bookTitle, other.bookTitle)
+				&& Objects.equals(this.publisher, other.publisher)
+				&& Objects.equals(this.volume, other.volume)
+				&& Objects.equals(this.number, other.number);
 	}
 
 	@Override

@@ -61,7 +61,7 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Promoter or director of the candidate.
 	 */
@@ -87,28 +87,30 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.percentage);
-		h = HashCodeUtils.add(h, this.type);
+		h = HashCodeUtils.add(h, this.supervisor);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (Supervisor) obj;
-		if (this.percentage != other.percentage) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.type, other.type)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.supervisor, other.supervisor);
 	}
 
 	@Override
@@ -127,7 +129,7 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -135,7 +137,7 @@ public class Supervisor implements Serializable, AttributeProvider, Comparable<S
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

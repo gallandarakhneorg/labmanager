@@ -30,7 +30,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface JournalEditionRepository extends JpaRepository<JournalEdition, Integer>, JpaSpecificationExecutor<JournalEdition> {
+public interface JournalEditionRepository extends JpaRepository<JournalEdition, Long>, JpaSpecificationExecutor<JournalEdition> {
 	//
 }
 

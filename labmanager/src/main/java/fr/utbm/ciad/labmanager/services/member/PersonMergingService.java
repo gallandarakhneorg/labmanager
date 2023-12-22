@@ -182,7 +182,7 @@ public class PersonMergingService extends AbstractService {
 	 * @param target the identifier of the target person who should replace the source persons.
 	 * @throws Exception if the merging cannot be completed.
 	 */
-	public void mergePersonsById(Collection<Integer> source, Integer target) throws Exception {
+	public void mergePersonsById(Collection<Long> source, Long target) throws Exception {
 		assert target != null;
 		assert source != null;
 		final var optTarget = this.personRepository.findById(target);
@@ -191,7 +191,7 @@ public class PersonMergingService extends AbstractService {
 			final var sourcePersons = this.personRepository.findAllById(source);
 			if (sourcePersons.size() != source.size()) {
 				for (final var sp : sourcePersons) {
-					if (!source.contains(Integer.valueOf(sp.getId()))) {
+					if (!source.contains(Long.valueOf(sp.getId()))) {
 						throw new IllegalArgumentException("Source person not found with identifier: " + sp.getId()); //$NON-NLS-1$
 					}
 				}

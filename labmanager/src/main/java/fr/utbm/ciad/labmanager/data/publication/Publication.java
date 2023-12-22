@@ -89,7 +89,7 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Type of the publication. This type of publication may enable/disable several fields of the publication (see sub types of {@link Publications}).
 	 */
@@ -288,95 +288,34 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.abstractText);
-		h = HashCodeUtils.add(h, this.dblpUrl);
-		h = HashCodeUtils.add(h, this.doi);
-		h = HashCodeUtils.add(h, this.extraUrl);
-		h = HashCodeUtils.add(h, this.halId);
-		h = HashCodeUtils.add(h, this.isbn);
-		h = HashCodeUtils.add(h, this.issn);
-		h = HashCodeUtils.add(h, this.keywords);
-		h = HashCodeUtils.add(h, this.majorLanguage);
-		h = HashCodeUtils.add(h, this.pathToDownloadableAwardCertificate);
-		h = HashCodeUtils.add(h, this.pathToDownloadablePDF);
-		h = HashCodeUtils.add(h, this.publicationDate);
-		h = HashCodeUtils.add(h, this.publicationYear);
 		h = HashCodeUtils.add(h, this.title);
+		h = HashCodeUtils.add(h, this.publicationYear);
 		h = HashCodeUtils.add(h, this.type);
-		h = HashCodeUtils.add(h, this.videoUrl);
-		h = HashCodeUtils.add(h, this.manualValidationForced);
-		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
 		if (obj == null) {
 			return false;
+		}
+		if (this == obj) {
+			return true;
 		}
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (Publication) obj;
-		if (!Objects.equals(this.abstractText, other.abstractText)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.dblpUrl, other.dblpUrl)) {
-			return false;
-		}
-		if (!Objects.equals(this.doi, other.doi)) {
-			return false;
-		}
-		if (!Objects.equals(this.extraUrl, other.extraUrl)) {
-			return false;
-		}
-		if (!Objects.equals(this.halId, other.halId)) {
-			return false;
-		}
-		if (!Objects.equals(this.isbn, other.isbn)) {
-			return false;
-		}
-		if (!Objects.equals(this.issn, other.issn)) {
-			return false;
-		}
-		if (!Objects.equals(this.keywords, other.keywords)) {
-			return false;
-		}
-		if (!Objects.equals(this.majorLanguage, other.majorLanguage)) {
-			return false;
-		}
-		if (!Objects.equals(this.pathToDownloadableAwardCertificate, other.pathToDownloadableAwardCertificate)) {
-			return false;
-		}
-		if (!Objects.equals(this.pathToDownloadablePDF, other.pathToDownloadablePDF)) {
-			return false;
-		}
-		if (!Objects.equals(this.publicationDate, other.publicationDate)) {
-			return false;
-		}
-		if (this.publicationYear != other.publicationYear) {
-			return false;
-		}
-		if (!Objects.equals(this.title, other.title)) {
-			return false;
-		}
-		if (!Objects.equals(this.type, other.type)) {
-			return false;
-		}
-		if (!Objects.equals(this.videoUrl, other.videoUrl)) {
-			return false;
-		}
-		if (this.manualValidationForced != other.manualValidationForced) {
-			return false;
-		}
-		if (this.validated != other.validated) {
-			return false;
-		}
-		return true;
+		return this.type == other.type
+				&& this.publicationYear == other.publicationYear
+				&& Objects.equals(this.title, other.title);
 	}
 
 	@Override
@@ -388,7 +327,7 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
 		if (getId() != 0) {
-			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+			consumer.accept("id", Long.valueOf(getId())); //$NON-NLS-1$
 		}
 		if (getPublicationYear() > 0) {
 			consumer.accept("publicationYear", Integer.valueOf(getPublicationYear())); //$NON-NLS-1$
@@ -548,7 +487,7 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -557,7 +496,7 @@ public abstract class Publication implements Production, JsonSerializable, Compa
 	 *
 	 * @param id the new identifier
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

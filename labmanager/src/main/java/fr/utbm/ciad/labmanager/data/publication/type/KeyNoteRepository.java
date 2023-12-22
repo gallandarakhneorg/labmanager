@@ -30,7 +30,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface KeyNoteRepository extends JpaRepository<KeyNote, Integer>, JpaSpecificationExecutor<KeyNote> {
+public interface KeyNoteRepository extends JpaRepository<KeyNote, Long>, JpaSpecificationExecutor<KeyNote> {
 	//
 }
 

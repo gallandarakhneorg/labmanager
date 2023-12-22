@@ -38,7 +38,7 @@ import org.springframework.data.repository.query.Param;
  * @mavenartifactid $ArtifactId$
  * @since 3.6
  */
-public interface ConferenceRepository extends JpaRepository<Conference, Integer>, JpaSpecificationExecutor<Conference> {
+public interface ConferenceRepository extends JpaRepository<Conference, Long>, JpaSpecificationExecutor<Conference> {
 
 	/** Find the conference with the given acronym or name.
 	 *

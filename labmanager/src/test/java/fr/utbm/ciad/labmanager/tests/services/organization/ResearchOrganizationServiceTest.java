@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.atLeastOnce;
@@ -98,33 +98,33 @@ public class ResearchOrganizationServiceTest {
 		// The lenient configuration is used to configure the mocks for all the tests
 		// at the same code location for configuration simplicity
 		this.orga0 = mock(ResearchOrganization.class);
-		lenient().when(this.orga0.getId()).thenReturn(123);
+		lenient().when(this.orga0.getId()).thenReturn(123l);
 		lenient().when(this.orga0.getAcronym()).thenReturn("O1");
 		lenient().when(this.orga0.getName()).thenReturn("N1");
 		this.orga1 = mock(ResearchOrganization.class);
-		lenient().when(this.orga1.getId()).thenReturn(234);
+		lenient().when(this.orga1.getId()).thenReturn(234l);
 		lenient().when(this.orga1.getAcronym()).thenReturn("O2");
 		lenient().when(this.orga1.getName()).thenReturn("N2");
 		this.orga2 = mock(ResearchOrganization.class);
-		lenient().when(this.orga2.getId()).thenReturn(345);
+		lenient().when(this.orga2.getId()).thenReturn(345l);
 		lenient().when(this.orga2.getAcronym()).thenReturn("O3");
 		lenient().when(this.orga2.getName()).thenReturn("N3");
 		this.orga3 = mock(ResearchOrganization.class);
-		lenient().when(this.orga3.getId()).thenReturn(456);
+		lenient().when(this.orga3.getId()).thenReturn(456l);
 		lenient().when(this.orga3.getAcronym()).thenReturn("O4");
 		lenient().when(this.orga3.getName()).thenReturn("N4");
 
 		lenient().when(this.organizationRepository.findAll()).thenReturn(
 				Arrays.asList(this.orga0, this.orga1, this.orga2, this.orga3));
-		lenient().when(this.organizationRepository.findById(anyInt())).then(it -> {
-			switch (((Integer) it.getArgument(0)).intValue()) {
-			case 123:
+		lenient().when(this.organizationRepository.findById(anyLong())).then(it -> {
+			var n = ((Number) it.getArgument(0)).longValue();
+			if (n == 123l) {
 				return Optional.of(this.orga0);
-			case 234:
+			} else if (n == 234l) {
 				return Optional.of(this.orga1);
-			case 345:
+			} else if (n == 345l) {
 				return Optional.of(this.orga2);
-			case 456:
+			} else if (n == 456l) {
 				return Optional.of(this.orga3);
 			}
 			return Optional.empty();
@@ -207,10 +207,10 @@ public class ResearchOrganizationServiceTest {
 
 	@Test
 	public void createResearchOrganization() throws Exception {
-		List<Integer> addrs = Collections.emptyList();
+		List<Long> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
 		final Optional<ResearchOrganization> res = this.test.createResearchOrganization(true, "NA", "NN", true, "NRNSR", "NNI", "ND",
-				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0, null);
+				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0l, null);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
@@ -234,10 +234,10 @@ public class ResearchOrganizationServiceTest {
 	public void removeResearchOrganization() throws Exception {
 		this.test.removeResearchOrganization(234);
 
-		final ArgumentCaptor<Integer> arg = ArgumentCaptor.forClass(Integer.class);
+		final ArgumentCaptor<Long> arg = ArgumentCaptor.forClass(Long.class);
 
 		verify(this.organizationRepository, atLeastOnce()).findById(arg.capture());
-		Integer actual = arg.getValue();
+		Long actual = arg.getValue();
 		assertNotNull(actual);
 		assertEquals(234, actual);
 
@@ -249,16 +249,16 @@ public class ResearchOrganizationServiceTest {
 
 	@Test
 	public void updateResearchOrganization() throws Exception {
-		List<Integer> addrs = Collections.emptyList();
+		List<Long> addrs = Collections.emptyList();
 		Set<OrganizationAddress> raddrs = Collections.emptySet();
-		Optional<ResearchOrganization> res = this.test.updateResearchOrganization(234, true, "NA", "NN", true, "NRNSR", "NNI", "ND",
-				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0, null, false);
+		Optional<ResearchOrganization> res = this.test.updateResearchOrganization(234l, true, "NA", "NN", true, "NRNSR", "NNI", "ND",
+				ResearchOrganizationType.FACULTY, "NURL", CountryCode.GERMANY, addrs, 0l, null, false);
 		assertNotNull(res);
 		assertNotNull(res.get());
 
-		final ArgumentCaptor<Integer> arg0 = ArgumentCaptor.forClass(Integer.class);
+		final ArgumentCaptor<Long> arg0 = ArgumentCaptor.forClass(Long.class);
 		verify(this.organizationRepository, atLeastOnce()).findById(arg0.capture());
-		Integer actual0 = arg0.getValue();
+		Long actual0 = arg0.getValue();
 		assertNotNull(actual0);
 		assertEquals(234, actual0);
 

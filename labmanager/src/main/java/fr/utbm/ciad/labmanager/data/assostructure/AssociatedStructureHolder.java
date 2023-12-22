@@ -62,7 +62,7 @@ public class AssociatedStructureHolder implements Serializable, AttributeProvide
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Holder of the associated structure creation.
 	 */
@@ -100,37 +100,30 @@ public class AssociatedStructureHolder implements Serializable, AttributeProvide
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.person);
-		h = HashCodeUtils.add(h, this.role);
-		h = HashCodeUtils.add(h, this.roleDescription);
-		h = HashCodeUtils.add(h, this.organization);
-		h = HashCodeUtils.add(h, this.superOrganization);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (AssociatedStructureHolder) obj;
-		if (!Objects.equals(this.role, other.role)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.roleDescription, other.roleDescription)) {
-			return false;
-		}
-		if (!Objects.equals(this.organization, other.organization)) {
-			return false;
-		}
-		if (!Objects.equals(this.superOrganization, other.superOrganization)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.person, other.person);
 	}
 
 	@Override
@@ -147,7 +140,7 @@ public class AssociatedStructureHolder implements Serializable, AttributeProvide
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -155,7 +148,7 @@ public class AssociatedStructureHolder implements Serializable, AttributeProvide
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

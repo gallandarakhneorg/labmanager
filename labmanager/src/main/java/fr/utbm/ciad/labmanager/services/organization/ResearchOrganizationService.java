@@ -150,8 +150,8 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param identifier the identifier to search for.
 	 * @return the research organization.
 	 */
-	public Optional<ResearchOrganization> getResearchOrganizationById(int identifier) {
-		return this.organizationRepository.findById(Integer.valueOf(identifier));
+	public Optional<ResearchOrganization> getResearchOrganizationById(long identifier) {
+		return this.organizationRepository.findById(Long.valueOf(identifier));
 	}
 
 	/** Replies the research organization with the given acronym.
@@ -202,7 +202,7 @@ public class ResearchOrganizationService extends AbstractService {
 	public Optional<ResearchOrganization> createResearchOrganization(boolean validated, String acronym, String name,
 			boolean isMajor,
 			String rnsr, String nationalIdentifier, String description,
-			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization,
+			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Long> addresses, Long superOrganization,
 			MultipartFile pathToLogo) throws IOException {
 		final Optional<ResearchOrganization> sres;
 		if (superOrganization != null && superOrganization.intValue() != 0) {
@@ -254,8 +254,8 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @throws AttachedMemberException when the organization contains members.
 	 */
 	@Transactional
-	public void removeResearchOrganization(int identifier) throws AttachedSubOrganizationException, AttachedMemberException {
-		final var id = Integer.valueOf(identifier);
+	public void removeResearchOrganization(long identifier) throws AttachedSubOrganizationException, AttachedMemberException {
+		final var id = Long.valueOf(identifier);
 		final var res = this.organizationRepository.findById(id);
 		if (res.isPresent()) {
 			final var organization = res.get();
@@ -290,12 +290,11 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @return the organization object that was updated.
 	 * @throws IOException if the logo cannot be uploaded or removed.
 	 */
-	public Optional<ResearchOrganization> updateResearchOrganization(int identifier, boolean validated, String acronym, String name,
-			boolean isMajor,
-			String rnsr, String nationalIdentifier, String description,
-			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Integer> addresses, Integer superOrganization,
-			MultipartFile pathToLogo, boolean removePathToLogo) throws IOException  {
-		final var res = this.organizationRepository.findById(Integer.valueOf(identifier));
+	public Optional<ResearchOrganization> updateResearchOrganization(long identifier, boolean validated, String acronym,
+			String name, boolean isMajor, String rnsr, String nationalIdentifier, String description,
+			ResearchOrganizationType type, String organizationURL, CountryCode country, List<Long> addresses,
+			Long superOrganization, MultipartFile pathToLogo, boolean removePathToLogo) throws IOException  {
+		final var res = this.organizationRepository.findById(Long.valueOf(identifier));
 		if (res.isPresent()) {
 			final Optional<ResearchOrganization> sres;
 			if (superOrganization != null && superOrganization.intValue() != 0) {
@@ -369,13 +368,11 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param subIdentifier the identifier of the suborganization.
 	 * @return {@code true} if the link is created; {@code false} if the link cannot be created.
 	 */
-	public boolean linkSubOrganization(int superIdentifier, int subIdentifier) {
+	public boolean linkSubOrganization(long superIdentifier, long subIdentifier) {
 		if (superIdentifier != subIdentifier) {
-			final var superOrg = this.organizationRepository.findById(
-					Integer.valueOf(superIdentifier));
+			final var superOrg = this.organizationRepository.findById(Long.valueOf(superIdentifier));
 			if (superOrg.isPresent()) {
-				final var subOrg = this.organizationRepository.findById(
-						Integer.valueOf(subIdentifier));
+				final var subOrg = this.organizationRepository.findById(Long.valueOf(subIdentifier));
 				if (subOrg.isPresent()) {
 					final var superOrganization = superOrg.get();
 					final var subOrganization = subOrg.get();
@@ -397,12 +394,10 @@ public class ResearchOrganizationService extends AbstractService {
 	 * @param subIdentifier the identifier of the suborganization.
 	 * @return {@code true} if the link is deleted; {@code false} if the link cannot be deleted.
 	 */
-	public boolean unlinkSubOrganization(int superIdentifier, int subIdentifier) {
-		final var superOrg = this.organizationRepository.findById(
-				Integer.valueOf(superIdentifier));
+	public boolean unlinkSubOrganization(long superIdentifier, long subIdentifier) {
+		final var superOrg = this.organizationRepository.findById(Long.valueOf(superIdentifier));
 		if (superOrg.isPresent()) {
-			final var subOrg = this.organizationRepository.findById(
-					Integer.valueOf(subIdentifier));
+			final var subOrg = this.organizationRepository.findById(Long.valueOf(subIdentifier));
 			if (subOrg.isPresent()) {
 				final var superOrganization = superOrg.get();
 				final var subOrganization = subOrg.get();
@@ -444,7 +439,7 @@ public class ResearchOrganizationService extends AbstractService {
 
 		private String pathToLogo;
 		
-		private int id;
+		private long id;
 
 		private ResearchOrganization organization;
 
@@ -499,7 +494,7 @@ public class ResearchOrganizationService extends AbstractService {
 			this.pathToLogo = this.organization.getPathToLogo();
 		}
 
-		private void deleteLogo(int id) {
+		private void deleteLogo(long id) {
 			if (!Strings.isNullOrEmpty(this.pathToLogo)) {
 				final var ext = FileSystem.extension(this.pathToLogo);
 				if (!Strings.isNullOrEmpty(ext)) {

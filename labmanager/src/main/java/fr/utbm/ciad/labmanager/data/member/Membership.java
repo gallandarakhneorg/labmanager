@@ -71,7 +71,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** First date of involvement.
 	 */
@@ -185,68 +185,36 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.cnuSection);
-		h = HashCodeUtils.add(h, this.conrsSection);
-		h = HashCodeUtils.add(h, this.frenchBap);
-		h = HashCodeUtils.add(h, this.memberSinceWhen);
-		h = HashCodeUtils.add(h, this.memberStatus);
-		h = HashCodeUtils.add(h, this.permanentPosition);
-		h = HashCodeUtils.add(h, this.responsibility);
-		h = HashCodeUtils.add(h, this.memberToWhen);
 		h = HashCodeUtils.add(h, this.person);
 		h = HashCodeUtils.add(h, this.researchOrganization);
-		h = HashCodeUtils.add(h, this.organizationAddress);
-		h = HashCodeUtils.add(h, this.isMainPosition);
+		h = HashCodeUtils.add(h, this.memberSinceWhen);
+		h = HashCodeUtils.add(h, this.memberToWhen);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (Membership) obj;
-		if (this.cnuSection != other.cnuSection) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (this.conrsSection != other.conrsSection) {
-			return false;
-		}
-		if (this.frenchBap != other.frenchBap) {
-			return false;
-		}
-		if (!Objects.equals(this.memberStatus, other.memberStatus)) {
-			return false;
-		}
-		if (this.permanentPosition != other.permanentPosition) {
-			return false;
-		}
-		if (!Objects.equals(this.responsibility, other.responsibility)) {
-			return false;
-		}
-		if (!Objects.equals(this.memberSinceWhen, other.memberSinceWhen)) {
-			return false;
-		}
-		if (!Objects.equals(this.memberToWhen, other.memberSinceWhen)) {
-			return false;
-		}
-		if (!Objects.equals(this.person, other.person)) {
-			return false;
-		}
-		if (!Objects.equals(this.researchOrganization, other.researchOrganization)) {
-			return false;
-		}
-		if (!Objects.equals(this.organizationAddress, other.organizationAddress)) {
-			return false;
-		}
-		if (this.isMainPosition != other.isMainPosition) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.person, other.person)
+				&& Objects.equals(this.researchOrganization, other.researchOrganization)
+				&& Objects.equals(this.memberSinceWhen, other.memberSinceWhen)
+				&& Objects.equals(this.memberToWhen, other.memberToWhen);
 	}
 
 	@Override
@@ -285,7 +253,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -293,7 +261,7 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

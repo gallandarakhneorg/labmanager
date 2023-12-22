@@ -33,28 +33,28 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @since 2.0.0
  */
-public interface JuryMembershipRepository extends JpaRepository<JuryMembership, Integer>, JpaSpecificationExecutor<JuryMembership> {
+public interface JuryMembershipRepository extends JpaRepository<JuryMembership, Long>, JpaSpecificationExecutor<JuryMembership> {
 
 	/** Replies the list of memberships that are associated to the person with the given identifier.
 	 *
 	 * @param personId the identifier of the person.
 	 * @return the list of memberships.
 	 */
-	List<JuryMembership> findAllByPersonId(int personId);
+	List<JuryMembership> findAllByPersonId(long personId);
 
 	/** Replies the list of memberships that are associated to the candidate with the given identifier.
 	 *
 	 * @param candidateId the identifier of the candidate.
 	 * @return the list of memberships.
 	 */
-	List<JuryMembership> findAllByCandidateId(int candidateId);
+	List<JuryMembership> findAllByCandidateId(long candidateId);
 
 	/** Replies the list of memberships that are associated to the promoter with the given identifier.
 	 *
 	 * @param promoterId the identifier of the promoter.
 	 * @return the list of memberships.
 	 */
-	List<JuryMembership> findAllByPromotersId(int promoterId);
+	List<JuryMembership> findAllByPromotersId(long promoterId);
 
 	/** Replies a membership that corresponds to the person, candidate and type.
 	 *
@@ -63,13 +63,13 @@ public interface JuryMembershipRepository extends JpaRepository<JuryMembership, 
 	 * @param type the type of membership.
 	 * @return the membership from the database.
 	 */
-	Optional<JuryMembership> findByPersonIdAndCandidateIdAndType(int personId, int candidateId, JuryMembershipType type);
+	Optional<JuryMembership> findByPersonIdAndCandidateIdAndType(long personId, long candidateId, JuryMembershipType type);
 
 	/** Count the number of jury memberships for the participant with the given id.
 	 *
 	 * @param id the identifier of the participant.
 	 * @return the count of supervisions.
 	 */
-	int countDistinctByPersonId(int id);
+	int countDistinctByPersonId(long id);
 
 }

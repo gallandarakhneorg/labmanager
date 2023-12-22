@@ -30,7 +30,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface MiscDocumentRepository extends JpaRepository<MiscDocument, Integer>, JpaSpecificationExecutor<MiscDocument> {
+public interface MiscDocumentRepository extends JpaRepository<MiscDocument, Long>, JpaSpecificationExecutor<MiscDocument> {
 	//
 }
 

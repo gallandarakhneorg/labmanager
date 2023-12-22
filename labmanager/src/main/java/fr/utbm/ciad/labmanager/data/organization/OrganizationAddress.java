@@ -63,7 +63,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Symbolic name of the address.
 	 */
@@ -138,52 +138,30 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
 		h = HashCodeUtils.add(h, this.name);
-		h = HashCodeUtils.add(h, this.complement);
-		h = HashCodeUtils.add(h, this.street);
-		h = HashCodeUtils.add(h, this.zipCode);
-		h = HashCodeUtils.add(h, this.city);
-		h = HashCodeUtils.add(h, this.mapCoordinates);
-		h = HashCodeUtils.add(h, this.pathToBackgroundImage);
-		h = HashCodeUtils.add(h, this.validated);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (OrganizationAddress) obj;
-		if (!Objects.equals(this.name, other.name)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.complement, other.complement)) {
-			return false;
-		}
-		if (!Objects.equals(this.street, other.street)) {
-			return false;
-		}
-		if (!Objects.equals(this.zipCode, other.zipCode)) {
-			return false;
-		}
-		if (!Objects.equals(this.city, other.city)) {
-			return false;
-		}
-		if (!Objects.equals(this.mapCoordinates, other.mapCoordinates)) {
-			return false;
-		}
-		if (!Objects.equals(this.pathToBackgroundImage, other.pathToBackgroundImage)) {
-			return false;
-		}
-		if (this.validated != other.validated) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.name, other.name);
 	}
 
 	@Override
@@ -202,7 +180,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		assert consumer != null : "How to consume an attribute if the consumer is null?"; //$NON-NLS-1$
 		if (getId() != 0) {
-			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+			consumer.accept("id", Long.valueOf(getId())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getName())) {
 			consumer.accept("name", getName()); //$NON-NLS-1$
@@ -247,7 +225,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -255,7 +233,7 @@ public class OrganizationAddress implements Serializable, JsonSerializable, Comp
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

@@ -183,7 +183,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** First name of the person.
 	 */
@@ -391,132 +391,36 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.academiaURL);
-		h = HashCodeUtils.add(h, this.cordisURL);
-		h = HashCodeUtils.add(h, this.dblpURL);
-		h = HashCodeUtils.add(h, this.email);
-		h = HashCodeUtils.add(h, this.facebookId);
-		h = HashCodeUtils.add(h, this.firstName);
-		h = HashCodeUtils.add(h, this.gender);
-		h = HashCodeUtils.add(h, this.githubId);
-		h = HashCodeUtils.add(h, this.googleScholarHindex);
-		h = HashCodeUtils.add(h, this.gravatarId);
 		h = HashCodeUtils.add(h, this.lastName);
-		h = HashCodeUtils.add(h, this.linkedInId);
-		h = HashCodeUtils.add(h, this.mobilePhone);
-		h = HashCodeUtils.add(h, this.officePhone);
-		h = HashCodeUtils.add(h, this.officeRoom);
+		h = HashCodeUtils.add(h, this.firstName);
 		h = HashCodeUtils.add(h, this.orcid);
-		h = HashCodeUtils.add(h, this.googleScholarId);
-		h = HashCodeUtils.add(h, this.idhal);
-		h = HashCodeUtils.add(h, this.researcherId);
-		h = HashCodeUtils.add(h, this.scopusId);
-		h = HashCodeUtils.add(h, this.researchGateId);
-		h = HashCodeUtils.add(h, this.adScientificIndexId);
-		h = HashCodeUtils.add(h, this.wosHindex);
-		h = HashCodeUtils.add(h, this.scopusHindex);
-		h = HashCodeUtils.add(h, this.googleScholarCitations);
-		h = HashCodeUtils.add(h, this.wosCitations);
-		h = HashCodeUtils.add(h, this.scopusCitations);
-		h = HashCodeUtils.add(h, this.validated);
+		h = HashCodeUtils.add(h, this.email);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (Person) obj;
-		if (!Objects.equals(this.academiaURL, other.academiaURL)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.cordisURL, other.cordisURL)) {
-			return false;
-		}
-		if (!Objects.equals(this.dblpURL, other.dblpURL)) {
-			return false;
-		}
-		if (!Objects.equals(this.email, other.email)) {
-			return false;
-		}
-		if (!Objects.equals(this.facebookId, other.facebookId)) {
-			return false;
-		}
-		if (!Objects.equals(this.firstName, other.firstName)) {
-			return false;
-		}
-		if (!Objects.equals(this.gender, other.gender)) {
-			return false;
-		}
-		if (!Objects.equals(this.githubId, other.githubId)) {
-			return false;
-		}
-		if (this.googleScholarHindex != other.googleScholarHindex) {
-			return false;
-		}
-		if (!Objects.equals(this.gravatarId, other.gravatarId)) {
-			return false;
-		}
-		if (!Objects.equals(this.lastName, other.lastName)) {
-			return false;
-		}
-		if (!Objects.equals(this.linkedInId, other.linkedInId)) {
-			return false;
-		}
-		if (!Objects.equals(this.mobilePhone, other.mobilePhone)) {
-			return false;
-		}
-		if (!Objects.equals(this.officePhone, other.officePhone)) {
-			return false;
-		}
-		if (!Objects.equals(this.officeRoom, other.officeRoom)) {
-			return false;
-		}
-		if (!Objects.equals(this.orcid, other.orcid)) {
-			return false;
-		}
-		if (!Objects.equals(this.googleScholarId, other.googleScholarId)) {
-			return false;
-		}
-		if (!Objects.equals(this.idhal, other.idhal)) {
-			return false;
-		}
-		if (!Objects.equals(this.researcherId, other.researcherId)) {
-			return false;
-		}
-		if (!Objects.equals(this.scopusId, other.scopusId)) {
-			return false;
-		}
-		if (!Objects.equals(this.researchGateId, other.researchGateId)) {
-			return false;
-		}
-		if (!Objects.equals(this.adScientificIndexId, other.adScientificIndexId)) {
-			return false;
-		}
-		if (this.wosHindex != other.wosHindex) {
-			return false;
-		}
-		if (this.scopusHindex != other.scopusHindex) {
-			return false;
-		}
-		if (this.googleScholarCitations != other.googleScholarCitations) {
-			return false;
-		}
-		if (this.wosCitations != other.wosCitations) {
-			return false;
-		}
-		if (this.scopusCitations != other.scopusCitations) {
-			return false;
-		}
-		if (this.validated != other.validated) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.lastName, other.lastName)
+				&& Objects.equals(this.firstName, other.firstName)
+				&& Objects.equals(this.orcid, other.orcid)
+				&& Objects.equals(this.email, other.email);
 	}
 
 	@Override
@@ -527,7 +431,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	@Override
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getId() != 0) {
-			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+			consumer.accept("id", Long.valueOf(getId())); //$NON-NLS-1$
 		}
 		if (!Strings.isNullOrEmpty(getAcademiaURL())) {
 			consumer.accept("academiaURL", getAcademiaURL()); //$NON-NLS-1$
@@ -693,7 +597,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -701,7 +605,7 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

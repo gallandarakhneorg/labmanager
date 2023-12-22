@@ -71,7 +71,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Reference to the person.
 	 */
@@ -154,52 +154,34 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.person);
-		h = HashCodeUtils.add(h, this.type);
-		h = HashCodeUtils.add(h, this.defenseType);
-		h = HashCodeUtils.add(h, this.date);
-		h = HashCodeUtils.add(h, this.title);
 		h = HashCodeUtils.add(h, this.candidate);
-		h = HashCodeUtils.add(h, this.university);
-		h = HashCodeUtils.add(h, this.promoters);
+		h = HashCodeUtils.add(h, this.defenseType);
+		h = HashCodeUtils.add(h, this.person);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (JuryMembership) obj;
-		if (!Objects.equals(this.person, other.person)) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.type, other.type)) {
-			return false;
-		}
-		if (!Objects.equals(this.defenseType, other.defenseType)) {
-			return false;
-		}
-		if (!Objects.equals(this.date, other.date)) {
-			return false;
-		}
-		if (!Objects.equals(this.title, other.title)) {
-			return false;
-		}
-		if (!Objects.equals(this.candidate, other.candidate)) {
-			return false;
-		}
-		if (!Objects.equals(this.university, other.university)) {
-			return false;
-		}
-		if (!Objects.equals(this.promoters, other.promoters)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.candidate, other.candidate)
+				&& Objects.equals(this.defenseType, other.defenseType)
+				&& Objects.equals(this.person, other.person);
 	}
 
 	@Override
@@ -247,7 +229,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -255,7 +237,7 @@ public class JuryMembership implements Serializable, AttributeProvider, Comparab
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

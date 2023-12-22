@@ -54,11 +54,11 @@ public class AuthorshipComparator implements Comparator<Authorship> {
 		if (n != 0) {
 			return n;
 		}
-		n = Integer.compare(o1.getPerson().getId(), o2.getPerson().getId());
+		n = Long.compare(o1.getPerson().getId(), o2.getPerson().getId());
 		if (n != 0) {
 			return n;
 		}
-		return Integer.compare(o1.getPublication().getId(), o2.getPublication().getId());
+		return Long.compare(o1.getPublication().getId(), o2.getPublication().getId());
 	}
 
 }

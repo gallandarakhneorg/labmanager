@@ -30,7 +30,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface BookChapterRepository extends JpaRepository<BookChapter, Integer>, JpaSpecificationExecutor<BookChapter> {
+public interface BookChapterRepository extends JpaRepository<BookChapter, Long>, JpaSpecificationExecutor<BookChapter> {
 	//
 }
 

@@ -32,7 +32,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @since 3.0
  */
-public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Integer>, JpaSpecificationExecutor<ProjectMember> {
+public interface ProjectMemberRepository extends JpaRepository<ProjectMember, Long>, JpaSpecificationExecutor<ProjectMember> {
 
 	/** Replies the list of the project members that corresponds to the person with the given identifier.
 	 *
@@ -40,6 +40,6 @@ public interface ProjectMemberRepository extends JpaRepository<ProjectMember, In
 	 * @return the list of the project members.
 	 * @since 3.2
 	 */
-	List<ProjectMember> findDistinctByPersonId(int id);
+	List<ProjectMember> findDistinctByPersonId(long id);
 
 }

@@ -32,13 +32,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @since 3.4
  */
-public interface TeachingActivityRepository extends JpaRepository<TeachingActivity, Integer>, JpaSpecificationExecutor<TeachingActivity> {
+public interface TeachingActivityRepository extends JpaRepository<TeachingActivity, Long>, JpaSpecificationExecutor<TeachingActivity> {
 
 	/** Replies the list of activities that associated to the person with the given id.
 	 *
 	 * @param id the identifier.
 	 * @return the list of activities.
 	 */
-	List<TeachingActivity> findDistinctByPersonId(Integer id);
+	List<TeachingActivity> findDistinctByPersonId(Long id);
 
 }

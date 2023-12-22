@@ -59,7 +59,7 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(nullable = false)
-	private int id;
+	private long id;
 
 	/** Budget only for the research organization.
 	 */
@@ -85,32 +85,30 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 
 	@Override
 	public int hashCode() {
+		if (this.id != 0) {
+			return Long.hashCode(this.id);
+		}
 		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.budget);
 		h = HashCodeUtils.add(h, this.fundingScheme);
-		h = HashCodeUtils.add(h, this.grant);
 		return h;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		final var other = (ProjectBudget) obj;
-		if (this.budget != other.budget) {
-			return false;
+		if (this.id != 0 && other.id != 0) {
+			return this.id == other.id;
 		}
-		if (!Objects.equals(this.fundingScheme, other.fundingScheme)) {
-			return false;
-		}
-		if (!Objects.equals(this.grant, other.grant)) {
-			return false;
-		}
-		return true;
+		return Objects.equals(this.fundingScheme, other.fundingScheme);
 	}
 
 	@Override
@@ -132,7 +130,7 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -140,7 +138,7 @@ public class ProjectBudget implements Serializable, AttributeProvider, Comparabl
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

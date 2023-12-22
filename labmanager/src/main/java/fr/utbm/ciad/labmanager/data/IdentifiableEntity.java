@@ -33,7 +33,7 @@ public interface IdentifiableEntity {
 	 *
 	 * @return the identifier.
 	 */
-	int getId();
+	long getId();
 
 	/** Replies if the given entity is a fake entity or not.
 	 * A fake entity is created for being provided by the JPA to the front-end.

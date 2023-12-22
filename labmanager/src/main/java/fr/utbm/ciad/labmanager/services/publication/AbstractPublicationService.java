@@ -60,7 +60,7 @@ public abstract class AbstractPublicationService extends AbstractService {
 	 * @return the filtered publications.
 	 */
 	protected static <P extends Publication> Set<P> filterPublicationsWithMemberships(Set<P> publications,
-			int organizationId, boolean includeSubOrganizations) {
+			long organizationId, boolean includeSubOrganizations) {
 		final Function<Person, Stream<Membership>> streamBuilder;
 		if (includeSubOrganizations) {
 			streamBuilder = it -> buildStream(it, organizationId);
@@ -71,7 +71,7 @@ public abstract class AbstractPublicationService extends AbstractService {
 					.collect(Collectors.toUnmodifiableSet());
 	}
 
-	private static boolean isOrganizationOf(Membership membership, int organizationId) {
+	private static boolean isOrganizationOf(Membership membership, long organizationId) {
 		var ro = membership.getResearchOrganization();
 		while (ro != null) {
 			if (ro.getId() == organizationId) {
@@ -82,11 +82,11 @@ public abstract class AbstractPublicationService extends AbstractService {
 		return false;
 	}
 	
-	private static Stream<Membership> buildStream(Person author, int organizationId) {
+	private static Stream<Membership> buildStream(Person author, long organizationId) {
 		return author.getMemberships().stream().filter(it -> isOrganizationOf(it, organizationId));
 	}
 	
-	private static Stream<Membership> buildStreamStrict(Person author, int organizationId) {
+	private static Stream<Membership> buildStreamStrict(Person author, long organizationId) {
 		return author.getMemberships().stream().filter(it -> it.getId() == organizationId);
 	}
 

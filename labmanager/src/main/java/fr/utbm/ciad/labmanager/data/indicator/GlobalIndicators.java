@@ -30,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -41,7 +40,6 @@ import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.data.AttributeProvider;
 import fr.utbm.ciad.labmanager.data.EntityUtils;
 import fr.utbm.ciad.labmanager.data.IdentifiableEntity;
-import fr.utbm.ciad.labmanager.utils.HashCodeUtils;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -74,7 +72,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "id", nullable = false)
-	private int id;
+	private long id;
 
 	@Column(length =  EntityUtils.LARGE_TEXT_SIZE)
 	@Lob
@@ -110,21 +108,18 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 
 	@Override
 	public int hashCode() {
-		var h = HashCodeUtils.start();
-		h = HashCodeUtils.add(h, this.visibleIndicatorKeys);
-		return h;
+		return 1231;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
+		if (obj == null) {
+			return false;
+		}
 		if (this == obj) {
 			return true;
 		}
-		if (obj == null || getClass() != obj.getClass()) {
-			return false;
-		}
-		final var other = (GlobalIndicators) obj;
-		if (!Objects.equals(this.visibleIndicatorKeys, other.visibleIndicatorKeys)) {
+		if (getClass() != obj.getClass()) {
 			return false;
 		}
 		return true;
@@ -133,7 +128,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	@Override
 	public void forEachAttribute(MessageSourceAccessor messages, Locale locale, AttributeConsumer consumer) throws IOException {
 		if (getId() != 0) {
-			consumer.accept("id", Integer.valueOf(getId())); //$NON-NLS-1$
+			consumer.accept("id", Long.valueOf(getId())); //$NON-NLS-1$
 		}
 		if (!getVisibleIndicatorKeyList().isEmpty()) {
 			consumer.accept("visibleIndicatorKeys", getVisibleIndicatorKeyList()); //$NON-NLS-1$
@@ -157,7 +152,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	}
 
 	@Override
-	public int getId() {
+	public long getId() {
 		return this.id;
 	}
 
@@ -165,7 +160,7 @@ public class GlobalIndicators implements Serializable, JsonSerializable, Attribu
 	 *
 	 * @param id the identifier.
 	 */
-	public void setId(int id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 

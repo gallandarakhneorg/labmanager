@@ -34,7 +34,7 @@ import org.springframework.data.repository.query.Param;
  * @mavenartifactid $ArtifactId$
  * @since 3.2
  */
-public interface AssociatedStructureRepository extends JpaRepository<AssociatedStructure, Integer>, JpaSpecificationExecutor<AssociatedStructure> {
+public interface AssociatedStructureRepository extends JpaRepository<AssociatedStructure, Long>, JpaSpecificationExecutor<AssociatedStructure> {
 
 	/** Replies all the associated structures that match the organization identifier, and the confidential
 	 * flag.
@@ -45,7 +45,7 @@ public interface AssociatedStructureRepository extends JpaRepository<AssociatedS
 	 */
 	@Query("SELECT DISTINCT s FROM AssociatedStructure s, AssociatedStructureHolder h WHERE s.fundingOrganization.id = :id OR ((h.organization.id = :id OR h.superOrganization.id = :id) AND h MEMBER OF s.holders) AND s.confidential = :confidential")
 	List<AssociatedStructure> findDistinctOrganizationAssociatedStructures(
-			@Param("confidential") Boolean confidential, @Param("id") Integer id);
+			@Param("confidential") Boolean confidential, @Param("id") Long id);
 
 	/** Replies all the associated structures that match the person identifier, and the confidential
 	 * flag.
@@ -56,6 +56,6 @@ public interface AssociatedStructureRepository extends JpaRepository<AssociatedS
 	 */
 	@Query("SELECT DISTINCT s FROM AssociatedStructure s, AssociatedStructureHolder h WHERE h.person.id = :id AND h MEMBER OF s.holders AND s.confidential = :confidential")
 	List<AssociatedStructure> findDistinctPersonAssociatedStructures(
-			@Param("confidential") Boolean confidential, @Param("id") Integer id);
+			@Param("confidential") Boolean confidential, @Param("id") Long id);
 
 }

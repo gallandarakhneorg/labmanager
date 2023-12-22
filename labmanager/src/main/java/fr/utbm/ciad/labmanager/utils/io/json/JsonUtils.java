@@ -291,7 +291,7 @@ public final class JsonUtils {
 
 		private final JsonGenerator generator;
 
-		private final Set<Integer> cache = new TreeSet<>();
+		private final Set<Long> cache = new TreeSet<>();
 
 		private CachedGenerator(JsonGenerator generator) {
 			this.generator = generator;
@@ -307,7 +307,7 @@ public final class JsonUtils {
 		public void writeReferenceOrObject(IdentifiableEntity obj, CachedGeneratorCreator creator) throws IOException {
 			if (obj == null) {
 				this.generator.writeNull();
-			} else if (this.cache.add(Integer.valueOf(obj.getId()))) {
+			} else if (this.cache.add(Long.valueOf(obj.getId()))) {
 				creator.create();
 			} else {
 				writeObjectRef(this.generator, obj);

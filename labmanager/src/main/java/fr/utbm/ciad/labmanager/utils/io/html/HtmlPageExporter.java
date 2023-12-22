@@ -55,7 +55,7 @@ public interface HtmlPageExporter extends HtmlExporter {
 	 * @param configurator the configuration for the exporter.
 	 * @return the HTML code.
 	 */
-	String getButtonToExportPublicationToBibTeX(int publicationId,
+	String getButtonToExportPublicationToBibTeX(long publicationId,
 			ExporterConfigurator configurator);
 
 	/** Replies the button for exporting the publication to RIS.
@@ -65,7 +65,7 @@ public interface HtmlPageExporter extends HtmlExporter {
 	 * @return the HTML code.
 	 * @since 3.7
 	 */
-	String getButtonToExportPublicationToRIS(int publicationId,
+	String getButtonToExportPublicationToRIS(long publicationId,
 			ExporterConfigurator configurator);
 
 	/** Replies the button for exporting the publication to HTML page.
@@ -74,7 +74,7 @@ public interface HtmlPageExporter extends HtmlExporter {
 	 * @param configurator the configuration for the exporter.
 	 * @return the HTML code.
 	 */
-	String getButtonToExportPublicationToHtml(int publicationId,
+	String getButtonToExportPublicationToHtml(long publicationId,
 			ExporterConfigurator configurator);
 
 	/** Replies the button for exporting the publication to Open Document.
@@ -83,7 +83,7 @@ public interface HtmlPageExporter extends HtmlExporter {
 	 * @param configurator the configuration for the exporter.
 	 * @return the HTML code.
 	 */
-	String getButtonToExportPublicationToOpenDocument(int publicationId,
+	String getButtonToExportPublicationToOpenDocument(long publicationId,
 			ExporterConfigurator configurator);
 
 	/** Replies the button for editing the publication.
@@ -92,7 +92,7 @@ public interface HtmlPageExporter extends HtmlExporter {
 	 * @param locale the locale to be used.
 	 * @return the HTML code.
 	 */
-	String getButtonToEditPublication(int publicationId, Locale locale);
+	String getButtonToEditPublication(long publicationId, Locale locale);
 
 	/** Replies the button for deleting the publication.
 	 *
@@ -100,7 +100,7 @@ public interface HtmlPageExporter extends HtmlExporter {
 	 * @param locale the locale to use.
 	 * @return the HTML code.
 	 */
-	String getButtonToDeletePublication(int publicationId, Locale locale);
+	String getButtonToDeletePublication(long publicationId, Locale locale);
 
 	/** Generate the HTML links for the given publication.
 	 *

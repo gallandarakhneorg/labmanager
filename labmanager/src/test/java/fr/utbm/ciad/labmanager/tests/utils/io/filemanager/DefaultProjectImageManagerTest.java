@@ -71,7 +71,7 @@ public class DefaultProjectImageManagerTest {
 	@Test
 	public void getThumbnailPath() throws Exception {
 		Project project = mock(Project.class);
-		when(project.getId()).thenReturn(1234);
+		when(project.getId()).thenReturn(1234l);
 		String path = this.test.getThumbnailPath(project, false);
 		assertNotNull(path);
 		assertEquals("Downloadables/ProjectThumbnails/Prj1234.jpg", path);

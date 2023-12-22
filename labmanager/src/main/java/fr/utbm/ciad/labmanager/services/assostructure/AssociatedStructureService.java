@@ -83,7 +83,7 @@ public class AssociatedStructureService extends AbstractService {
 	 * @return the associated structure, or {@code null} if there is no associated structure with the given id.
 	 */
 	public AssociatedStructure getAssociatedStructureById(int id) {
-		final var structureOpt = this.structureRepository.findById(Integer.valueOf(id));
+		final var structureOpt = this.structureRepository.findById(Long.valueOf(id));
 		if (structureOpt.isPresent()) {
 			return structureOpt.get();
 		}
@@ -94,9 +94,9 @@ public class AssociatedStructureService extends AbstractService {
 	 *
 	 * @param identifier the identifier of the structure to remove.
 	 */
-	public void removeAssociatedStructure(int identifier) {
-		final var id = Integer.valueOf(identifier);
-		final var structureOpt = this.structureRepository.findById(Integer.valueOf(identifier));
+	public void removeAssociatedStructure(long identifier) {
+		final var id = Long.valueOf(identifier);
+		final var structureOpt = this.structureRepository.findById(Long.valueOf(identifier));
 		if (structureOpt.isPresent()) {
 			final var structure = structureOpt.get();
 			//
@@ -124,8 +124,8 @@ public class AssociatedStructureService extends AbstractService {
 	 * @return the reference to the created structure.
 	 */
 	public Optional<AssociatedStructure> createAssosiatedStructure(boolean validated, String acronym, String name,
-			AssociatedStructureType type, LocalDate creationDate, int creationDuration, int fundingOrganization,
-			Map<Integer, HolderDescription> holders, String description, float budget,
+			AssociatedStructureType type, LocalDate creationDate, int creationDuration, long fundingOrganization,
+			Map<Long, HolderDescription> holders, String description, float budget,
 			List<? extends Project> projects, boolean confidential) {
 		final var structure = new AssociatedStructure();
 		try {
@@ -163,13 +163,13 @@ public class AssociatedStructureService extends AbstractService {
 	 * @param confidential indicates if the project should be confidential or not.
 	 * @return the reference to the created structure.
 	 */
-	public Optional<AssociatedStructure> updateAssociatedStructure(int structureId, boolean validated, String acronym, String name,
-			AssociatedStructureType type, LocalDate creationDate, int creationDuration, int fundingOrganization,
-			Map<Integer, HolderDescription> holders, String description, float budget,
+	public Optional<AssociatedStructure> updateAssociatedStructure(long structureId, boolean validated, String acronym, String name,
+			AssociatedStructureType type, LocalDate creationDate, int creationDuration, long fundingOrganization,
+			Map<Long, HolderDescription> holders, String description, float budget,
 			List<? extends Project> projects, boolean confidential) {
 		final Optional<AssociatedStructure> res;
 		if (structureId >= 0) {
-			res = this.structureRepository.findById(Integer.valueOf(structureId));
+			res = this.structureRepository.findById(Long.valueOf(structureId));
 		} else {
 			res = Optional.empty();
 		}
@@ -197,8 +197,8 @@ public class AssociatedStructureService extends AbstractService {
 	 * @param confidential indicates if the structure should be confidential or not.
 	 */
 	protected void updateAssociatedStructure(AssociatedStructure structure, boolean validated, String acronym, String name,
-			AssociatedStructureType type, LocalDate creationDate, int creationDuration, int fundingOrganization,
-			Map<Integer, HolderDescription> holders, String description, float budget,
+			AssociatedStructureType type, LocalDate creationDate, int creationDuration, long fundingOrganization,
+			Map<Long, HolderDescription> holders, String description, float budget,
 			List<? extends Project> projects, boolean confidential) {
 		structure.setValidated(validated);
 		structure.setAcronym(acronym);
@@ -213,7 +213,7 @@ public class AssociatedStructureService extends AbstractService {
 		this.structureRepository.save(structure);
 
 		// Link the organization
-		final var fundingOrg = this.organizationRepository.findById(Integer.valueOf(fundingOrganization));
+		final var fundingOrg = this.organizationRepository.findById(Long.valueOf(fundingOrganization));
 		if (fundingOrg.isEmpty()) {
 			throw new IllegalArgumentException("Funding organization not found with id " + fundingOrganization); //$NON-NLS-1$
 		}
@@ -352,8 +352,8 @@ public class AssociatedStructureService extends AbstractService {
 	 * @param id the identifier of the organization.
 	 * @return the list of associated structures.
 	 */
-	public List<AssociatedStructure> getAssociatedStructuresByOrganizationId(int id) {
-		final var idObj = Integer.valueOf(id);
+	public List<AssociatedStructure> getAssociatedStructuresByOrganizationId(long id) {
+		final var idObj = Long.valueOf(id);
 		return this.structureRepository.findDistinctOrganizationAssociatedStructures(Boolean.FALSE, idObj);
 	}
 
@@ -362,8 +362,8 @@ public class AssociatedStructureService extends AbstractService {
 	 * @param id the identifier of the person.
 	 * @return the list of associated structures.
 	 */
-	public List<AssociatedStructure> getAssociatedStructuresByPersonId(int id) {
-		final var idObj = Integer.valueOf(id);
+	public List<AssociatedStructure> getAssociatedStructuresByPersonId(long id) {
+		final var idObj = Long.valueOf(id);
 		return this.structureRepository.findDistinctPersonAssociatedStructures(Boolean.FALSE, idObj);
 	}
 
@@ -373,7 +373,7 @@ public class AssociatedStructureService extends AbstractService {
 	 * @return {@code true} if the person is involved in an associated structure.
 	 * @since 3.6
 	 */
-	public boolean isInvolved(int id) {
+	public boolean isInvolved(long id) {
 		return !getAssociatedStructuresByPersonId(id).isEmpty();
 	}
 

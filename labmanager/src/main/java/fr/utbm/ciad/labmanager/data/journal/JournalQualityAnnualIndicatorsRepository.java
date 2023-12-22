@@ -30,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface JournalQualityAnnualIndicatorsRepository extends JpaRepository<JournalQualityAnnualIndicators, Integer>, JpaSpecificationExecutor<JournalQualityAnnualIndicators> {
+public interface JournalQualityAnnualIndicatorsRepository extends JpaRepository<JournalQualityAnnualIndicators, Long>, JpaSpecificationExecutor<JournalQualityAnnualIndicators> {
 	//
 }

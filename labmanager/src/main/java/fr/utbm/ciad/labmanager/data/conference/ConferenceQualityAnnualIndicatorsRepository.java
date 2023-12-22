@@ -30,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @since 3.6
  */
-public interface ConferenceQualityAnnualIndicatorsRepository extends JpaRepository<ConferenceQualityAnnualIndicators, Integer>, JpaSpecificationExecutor<ConferenceQualityAnnualIndicators> {
+public interface ConferenceQualityAnnualIndicatorsRepository extends JpaRepository<ConferenceQualityAnnualIndicators, Long>, JpaSpecificationExecutor<ConferenceQualityAnnualIndicators> {
 	//
 }

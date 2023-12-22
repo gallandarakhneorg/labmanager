@@ -197,8 +197,8 @@ public class PersonService extends AbstractService {
 	 * @param identifier the identifier of the person.
 	 * @return the person, or {@code null} if none.
 	 */
-	public Person getPersonById(int identifier) {
-		final var byId = this.personRepository.findById(Integer.valueOf(identifier));
+	public Person getPersonById(long identifier) {
+		final var byId = this.personRepository.findById(Long.valueOf(identifier));
 		return byId.orElse(null);
 	}
 
@@ -359,12 +359,12 @@ public class PersonService extends AbstractService {
 	 * @param scopusCitations the number of citations for the person on Scopus.
 	 * @return the updated person.
 	 */
-	public Person updatePerson(int identifier, boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
+	public Person updatePerson(long identifier, boolean validated, String firstName, String lastName, Gender gender, String email, PhoneNumber officePhone,
 			PhoneNumber mobilePhone, String officeRoom, String gravatarId, String orcid, String researcherId, String scopusId, String scholarId,
 			String idhal, String linkedInId, String githubId, String researchGateId, String adScientificIndexId, String facebookId, String dblpURL,
 			String academiaURL, String cordisURL, WebPageNaming webPageNaming, int scholarHindex, int wosHindex, int scopusHindex,
 			int scholarCitations, int wosCitations, int scopusCitations) {
-		final var res = this.personRepository.findById(Integer.valueOf(identifier));
+		final var res = this.personRepository.findById(Long.valueOf(identifier));
 		if (res.isPresent()) {
 			final var person = res.get();
 			if (!Strings.isNullOrEmpty(firstName)) {
@@ -413,8 +413,8 @@ public class PersonService extends AbstractService {
 	 *     the identifier does not correspond to a person.
 	 */
 	@Transactional
-	public Person removePerson(int identifier) {
-		final var id = Integer.valueOf(identifier);
+	public Person removePerson(long identifier) {
+		final var id = Long.valueOf(identifier);
 		final var optPerson = this.personRepository.findById(id);
 		if (optPerson.isPresent()) {
 			final var person = optPerson.get();
@@ -457,7 +457,7 @@ public class PersonService extends AbstractService {
 	 * @return the identifier, or {@code 0} if no person has the given name.
 	 * @see #getPersonIdBySimilarName(String, String)
 	 */
-	public int getPersonIdByName(String firstName, String lastName) {
+	public long getPersonIdByName(String firstName, String lastName) {
 		final var res = this.personRepository.findByFirstNameAndLastName(firstName, lastName);
 		if (res.size() > 0) {
 			return res.iterator().next().getId();
@@ -475,7 +475,7 @@ public class PersonService extends AbstractService {
 	 * @return the identifier, or {@code 0} if no person has the given name.
 	 * @see #getPersonIdByName(String, String)
 	 */
-	public int getPersonIdBySimilarName(String firstName, String lastName) {
+	public long getPersonIdBySimilarName(String firstName, String lastName) {
 		final var person = getPersonBySimilarName(firstName, lastName);
 		if (person != null) {
 			return person.getId();
@@ -534,7 +534,7 @@ public class PersonService extends AbstractService {
 				firstname.append(von);
 			}
 			//
-			final int id;
+			final long id;
 			if (useNameSimilarity) {
 				id = getPersonIdBySimilarName(firstname.toString(), ln);
 			} else {
@@ -576,7 +576,7 @@ public class PersonService extends AbstractService {
 		try {
 			for (final var author : authors) {
 				if (author != null) {
-					var authorId = 0;
+					var authorId = 0l;
 					if (idPattern.matcher(author).matches()) {
 						// Numeric value means that the person is known.
 						try {
@@ -597,7 +597,7 @@ public class PersonService extends AbstractService {
 					}
 					if (authorId != 0) {
 						// Check if the given author identifier corresponds to a known person with memberships.
-						final var optPers = this.personRepository.findById(Integer.valueOf(authorId));
+						final var optPers = this.personRepository.findById(Long.valueOf(authorId));
 						if (optPers.isPresent() && !optPers.get().getMemberships().isEmpty()) {
 							throw new SuccessException();
 						}
@@ -745,7 +745,7 @@ public class PersonService extends AbstractService {
 	 *
 	 * @param changes the changes to apply.
 	 */
-	public void setPersonIndicators(Map<Integer, PersonIndicators> changes) {
+	public void setPersonIndicators(Map<Long, PersonIndicators> changes) {
 		if (changes != null) {
 			for (final var entry : changes.entrySet()) {
 				final var person = this.personRepository.findById(entry.getKey());

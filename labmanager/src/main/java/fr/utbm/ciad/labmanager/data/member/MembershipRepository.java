@@ -34,7 +34,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavengroupid $GroupId$
  * @mavenartifactid $ArtifactId$
  */
-public interface MembershipRepository extends JpaRepository<Membership, Integer>, JpaSpecificationExecutor<Membership> {
+public interface MembershipRepository extends JpaRepository<Membership, Long>, JpaSpecificationExecutor<Membership> {
 
 	/** Find the membership by their organization and member identifiers.
 	 *
@@ -42,7 +42,7 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
 	 * @param personId the identifier of the member.
 	 * @return the membership.
 	 */
-	Optional<Membership> findDistinctByResearchOrganizationIdAndPersonId(int researchoOrganizationId, int personId);
+	Optional<Membership> findDistinctByResearchOrganizationIdAndPersonId(long researchoOrganizationId, long personId);
 
 	/** Find the memberships by their organization and member identifiers.
 	 *
@@ -50,21 +50,21 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
 	 * @param personId the identifier of the member.
 	 * @return the memberships.
 	 */
-	Set<Membership> findByResearchOrganizationIdAndPersonId(int researchoOrganizationId, int personId);
+	Set<Membership> findByResearchOrganizationIdAndPersonId(long researchoOrganizationId, long personId);
 
 	/** Replies the list of memberships for the given member.
 	 *
 	 * @param memberId the identifier of the member.
 	 * @return the list of memberships.
 	 */
-	List<Membership> findAllByPersonId(int memberId);
+	List<Membership> findAllByPersonId(long memberId);
 
 	/** Count the number of memberships for the person with the given id.
 	 *
 	 * @param id the identifier of the person.
 	 * @return the count of memberships.
 	 */
-	int countDistinctByPersonId(int id);
+	int countDistinctByPersonId(long id);
 
 	/** Replies the list of memberships for the given research organization.
 	 *
@@ -72,6 +72,6 @@ public interface MembershipRepository extends JpaRepository<Membership, Integer>
 	 * @return the list of memberships.
 	 * @since 3.2
 	 */
-	List<Membership> findDistinctByResearchOrganizationId(int organizationId);
+	List<Membership> findDistinctByResearchOrganizationId(long organizationId);
 
 }

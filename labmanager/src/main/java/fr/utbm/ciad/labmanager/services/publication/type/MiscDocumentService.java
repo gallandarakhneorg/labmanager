@@ -141,8 +141,8 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	 * @param identifier the identifier of the miscellaneous document.
 	 * @return the miscellaneous document or {@code null}.
 	 */
-	public MiscDocument getMiscDocument(int identifier) {
-		return this.repository.findById(Integer.valueOf(identifier)).orElse(null);
+	public MiscDocument getMiscDocument(long identifier) {
+		return this.repository.findById(Long.valueOf(identifier)).orElse(null);
 	}
 
 	/** Create a miscellaneous document.
@@ -213,13 +213,13 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	 * @param publisher the name of the publisher if any.
 	 * @param address the geographical location of the organization that has published the document. It is usually a city, country pair.
 	 */
-	public void updateMiscDocument(int pubId,
+	public void updateMiscDocument(long pubId,
 			String title, PublicationType type, LocalDate date, int year, String abstractText, String keywords,
 			String doi, String halId, String isbn, String issn, String dblpUrl, String extraUrl,
 			PublicationLanguage language, String pdfContent, String awardContent, String pathToVideo,
 			String number, String howPublished, String miscDocumentType,
 			String organization, String publisher, String address) {
-		final var res = this.repository.findById(Integer.valueOf(pubId));
+		final var res = this.repository.findById(Long.valueOf(pubId));
 		if (res.isPresent()) {
 			final var document = res.get();
 
@@ -243,8 +243,8 @@ public class MiscDocumentService extends AbstractPublicationTypeService {
 	 *
 	 * @param identifier the identifier of the miscellaneous document to be removed.
 	 */
-	public void removeMiscDocument(int identifier) {
-		this.repository.deleteById(Integer.valueOf(identifier));
+	public void removeMiscDocument(long identifier) {
+		this.repository.deleteById(Long.valueOf(identifier));
 	}
 
 }

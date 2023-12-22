@@ -30,6 +30,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
  * @mavenartifactid $ArtifactId$
  * @since 3.5
  */
-public interface ScientificAxisRepository extends JpaRepository<ScientificAxis, Integer>, JpaSpecificationExecutor<ScientificAxis> {
+public interface ScientificAxisRepository extends JpaRepository<ScientificAxis, Long>, JpaSpecificationExecutor<ScientificAxis> {
 	//
 }

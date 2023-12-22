@@ -641,7 +641,7 @@ public abstract class AbstractComponent {
 	private Person extractPerson(String personDesc, Pattern idPattern, boolean createPerson,
 			PersonService personService, PersonNameParser nameParser) {
 		Person person = null;
-		int personId = 0;
+		var personId = 0l;
 		if (idPattern.matcher(personDesc).matches()) {
 			// Numeric value means that the person is known.
 			try {
