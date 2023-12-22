@@ -49,6 +49,22 @@ public final class ViewConstants {
 	 */
 	public static final String WOS_ICON = "/icons/wos.svg"; //$NON-NLS-1$
 
+	/** Path to the icon of Scimago.
+	 */
+	public static final String SCIMAGO_ICON = "/icons/scimago.svg"; //$NON-NLS-1$
+
+	/** URL of the Scimago platform, with the terminal slash character.
+	 */
+	public static final String SCIMAGO_BASE_URL = "https://www.scimagojr.com/"; //$NON-NLS-1$
+
+	/** Path to the icon of CORE Portal.
+	 */
+	public static final String CORE_PORTAL_ICON = "/icons/coreportal.svg"; //$NON-NLS-1$
+
+	/** URL of the CORE portal, with the terminal slash character.
+	 */
+	public static final String CORE_PORTAL_BASE_URL = "https://www.core.edu.au/conference-portal/"; //$NON-NLS-1$
+
 	/** Path to the icon of Google Scholar.
 	 */
 	public static final String GSCHOLAR_ICON = "/icons/googlescholar.svg"; //$NON-NLS-1$

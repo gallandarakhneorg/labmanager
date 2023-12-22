@@ -436,4 +436,113 @@ public final class ComponentFactory {
 		}).setTextAlign(ColumnTextAlign.END).setKey("controls").setAutoWidth(true).setFlexGrow(0).setWidth("0px"); //$NON-NLS-1$ //$NON-NLS-2$
 	}
 
+	/** Open a standard dialog box for editing an information.
+	 *
+	 * @param title the title of the dialog.
+	 * @param content the content of the dialog, where the editing fields are located.
+	 * @param mapEnterKeyToSave if {@code true}, the "save" button is activated when the {@code Enter}
+	 *     is pushed. If {@code false}, the {@code Enter} is not mapped to a component.
+	 * @param enableValidationButton indicates if the 'Validate' button is enabled or not.
+	 * @param saveDoneCallback the callback that is invoked after saving
+	 */
+	public static void openEditionModalDialog(String title, AbstractEntityEditor<?> content, boolean mapEnterKeyToSave,
+			SerializableConsumer<Dialog> saveDoneCallback) {
+		final SerializableConsumer<Dialog> validateCallback;
+		if (content.isAdmin()) {
+			validateCallback = dialog -> {
+				content.validateByOrganizationalStructureManager();
+				if (content.isValidData()) {
+					content.save();
+				} else {
+					content.notifyInvalidity();
+				}
+			};
+		} else {
+			validateCallback = null;
+		}
+		openEditionModalDialog(title, content, mapEnterKeyToSave,
+				dialog -> {
+					if (content.isValidData()) {
+						if (content.save()) {
+							dialog.close();
+							if (saveDoneCallback != null) {
+								saveDoneCallback.accept(dialog);
+							}
+						}
+					} else {
+						content.notifyInvalidity();
+					}
+				},
+				validateCallback);
+	}
+
+	/** Open a standard dialog box for editing an information.
+	 *
+	 * @param title the title of the dialog.
+	 * @param content the content of the dialog, where the editing fields are located.
+	 * @param mapEnterKeyToSave if {@code true}, the "save" button is activated when the {@code Enter}
+	 *     is pushed. If {@code false}, the {@code Enter} is not mapped to a component.
+	 * @param saveCallback the callback for saving the information.
+	 * @param validateCallback the callback for validating the information.
+	 */
+	public static void openEditionModalDialog(String title, Component content, boolean mapEnterKeyToSave,
+			SerializableConsumer<Dialog> saveCallback,
+			SerializableConsumer<Dialog> validateCallback) {
+		final var dialog = new Dialog();
+		dialog.setModal(true);
+		dialog.setCloseOnEsc(true);
+		dialog.setCloseOnOutsideClick(true);
+		dialog.setDraggable(true);
+		dialog.setResizable(true);			
+		dialog.setHeaderTitle(title);
+		dialog.add(content);
+
+		final var saveButton = new Button(content.getTranslation("views.save"), e -> saveCallback.accept(dialog)); //$NON-NLS-1$
+		saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		if (mapEnterKeyToSave) {
+			saveButton.addClickShortcut(Key.ENTER);
+		}
+		saveButton.setIcon(LineAwesomeIcon.SAVE_SOLID.create());
+
+		final var cancelButton = new Button(content.getTranslation("views.cancel"), e -> dialog.close()); //$NON-NLS-1$
+
+		if (validateCallback != null) {
+			final var validateButton = new Button(content.getTranslation("views.validate"), //$NON-NLS-1$
+					event -> validateCallback.accept(dialog));
+			validateButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+			validateButton.setIcon(LineAwesomeIcon.CHECK_DOUBLE_SOLID.create());
+			dialog.getFooter().add(validateButton, cancelButton, saveButton);
+		} else {
+			dialog.getFooter().add(cancelButton, saveButton);
+		}
+
+		dialog.open();
+	}
+
+	/** Create a combo box that contains the countries.
+	 *
+	 * @param locale the locale for rendering the country names.
+	 * @return the combo box.
+	 */
+	public static ComboBox<CountryCode> newCountryComboBox(Locale locale) {
+		final var combo = new ComboBox<CountryCode>();
+		combo.setItems(CountryCode.values());
+		combo.setItemLabelGenerator(it -> getCountryLabelForCombo(it, locale));
+		combo.setValue(CountryCode.getDefault());
+		return combo;
+	}
+
+	/** Update the items of the given combo box for displaying the country names according to the locale.
+	 *
+	 * @param combo the combo box to update.
+	 * @param locale the locale for rendering the country names.
+	 */
+	public static void updateCountryComboBoxItems(ComboBox<CountryCode> combo, Locale locale) {
+		combo.setItemLabelGenerator(it -> getCountryLabelForCombo(it, locale));
+	}
+
+	private static String getCountryLabelForCombo(CountryCode country, Locale locale) {
+		return country.getDisplayCountry(locale);
+	}
+
 }
