@@ -17,17 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.persons;
+package fr.utbm.ciad.labmanager.views.components.journals;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.user.UserService.EditingContext;
+import fr.utbm.ciad.labmanager.services.journal.JournalService.EditingContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** Editor of person information that may be embedded. This editor does not provide
+/** Editor of journal information that may be embedded. This editor does not provide
  * the components for saving the information. It is the role of the component that
- * is embedding this editor to save the edited person.
+ * is embedding this editor to save the edited journal.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -35,21 +35,21 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public final class EmbeddedPersonEditor extends AbstractPersonEditor {
+public final class EmbeddedJournalEditor extends AbstractJournalEditor {
 
-	private static final long serialVersionUID = 3928100811567654630L;
+	private static final long serialVersionUID = -8334616123986168541L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedPersonEditor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedJournalEditor.class);
 
 	/** Constructor.
 	 *
-	 * @param userContext the editing context for the user.
+	 * @param context the editing context for the conference.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
-	public EmbeddedPersonEditor(EditingContext userContext, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages) {
-		super(userContext, authenticatedUser, messages, LOGGER);
+	public EmbeddedJournalEditor(EditingContext context,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
+		super(context, authenticatedUser, messages, LOGGER);
 		createEditorContent();
 	}
 

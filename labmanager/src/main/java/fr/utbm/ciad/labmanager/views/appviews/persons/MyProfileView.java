@@ -32,6 +32,7 @@ import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.services.user.UserService.EditingContext;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
 import fr.utbm.ciad.labmanager.views.components.persons.AbstractPersonEditor;
 import jakarta.annotation.security.PermitAll;
@@ -52,7 +53,7 @@ import org.vaadin.lineawesome.LineAwesomeIcon;
 @Route(value = "myprofile", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
-public class MyProfileView extends AbstractPersonEditor implements HasDynamicTitle {
+public final class MyProfileView extends AbstractPersonEditor implements HasDynamicTitle {
 
 	private static final long serialVersionUID = 738063190104767506L;
 
@@ -71,9 +72,18 @@ public class MyProfileView extends AbstractPersonEditor implements HasDynamicTit
 	 */
 	public MyProfileView(@Autowired PersonService personService, @Autowired UserService userService,
 			@Autowired AuthenticatedUser authenticatedUser, @Autowired MessageSourceAccessor messages) {
-		super(authenticatedUser.get().get().getPerson(), personService,
-				authenticatedUser.get().get(), userService,
+		super(
+				createEditingContext(personService, userService, authenticatedUser),
 				authenticatedUser, messages, LOGGER);
+		createEditorContent();
+	}
+
+	private static EditingContext createEditingContext(
+			PersonService personService, UserService userService,
+			AuthenticatedUser authenticatedUser) {
+		final var user = authenticatedUser.get().get();
+		final var person = user.getPerson();
+		return userService.startEditing(user, personService.startEditing(person));
 	}
 
 	@Override
@@ -82,33 +92,20 @@ public class MyProfileView extends AbstractPersonEditor implements HasDynamicTit
 	}
 
 	@Override
-	protected void createContent(VerticalLayout rootContainer, boolean isAdmin, PersonService personService,
-			UserService userService) {
-		super.createContent(rootContainer, isAdmin, personService, userService);
+	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
+		super.createEditorContent(rootContainer, isAdmin);
 
 		rootContainer.setSpacing(true);
 		
 		final var bar = new HorizontalLayout();
 		rootContainer.add(bar);
 		
-		this.saveButton = new Button("", event -> { //$NON-NLS-1$
-			if (getPersonDataBinder().validate().isOk()) {
-				doSave(getEditedPerson(), personService, getEditedUser(), userService);
-			} else {
-				notifyInvalidity();
-			}
-		});
-		this.saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-		this.saveButton.addClickShortcut(Key.ENTER);
-		this.saveButton.setIcon(LineAwesomeIcon.SAVE_SOLID.create());
-		bar.add(this.saveButton);
-
 		this.validateButton = null;
 		if (isAdmin) {
 			this.validateButton = new Button("", event -> { //$NON-NLS-1$
-				doValidate(getEditedPerson());
-				if (getPersonDataBinder().validate().isOk()) {
-					doSave(getEditedPerson(), personService, getEditedUser(), userService);
+				validateByOrganizationalStructureManager();
+				if (isValidData()) {
+					save();
 				} else {
 					notifyInvalidity();
 				}
@@ -117,6 +114,18 @@ public class MyProfileView extends AbstractPersonEditor implements HasDynamicTit
 			this.validateButton.setIcon(LineAwesomeIcon.CHECK_DOUBLE_SOLID.create());
 			bar.add(this.validateButton);
 		}
+
+		this.saveButton = new Button("", event -> { //$NON-NLS-1$
+			if (isValidData()) {
+				save();
+			} else {
+				notifyInvalidity();
+			}
+		});
+		this.saveButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+		this.saveButton.addClickShortcut(Key.ENTER);
+		this.saveButton.setIcon(LineAwesomeIcon.SAVE_SOLID.create());
+		bar.add(this.saveButton);
 	}
 
 	@Override

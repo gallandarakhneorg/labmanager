@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.scientificaxis;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
@@ -40,6 +41,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Service for scientific axes.
  * 
@@ -295,6 +297,63 @@ public class ScientificAxisService extends AbstractService {
 			throw new IllegalArgumentException("Scientific axis not found"); //$NON-NLS-1$
 		}
 		return axes;
+	}
+
+	/** Start the editing of the given scientific axis.
+	 *
+	 * @param axis the scientific axis to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the scientific axis and its related resources.
+	 */
+	public EditingContext startEditing(ScientificAxis axis) {
+		assert axis != null;
+		return new EditingContext(axis);
+	}
+
+	/** Context for editing a {@link ScientificAxis}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+		
+		private static final long serialVersionUID = 3560524631927901367L;
+
+		private ScientificAxis axis;
+
+		/** Constructor.
+		 *
+		 * @param axis the edited scientific axis.
+		 */
+		EditingContext(ScientificAxis axis) {
+			this.axis = axis;
+		}
+
+		/** Replies the scientific axis.
+		 *
+		 * @return the scientific axis.
+		 */
+		public ScientificAxis getScientificAxis() {
+			return this.axis;
+		}
+
+		/** Save the scientific axis in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the scientific axis object that was provided before the saving.
+		 * Invoke {@link #getScientificAxis()} for obtaining the new scientific axis
+		 * instance, since the content of the saved object may have totally changed.
+		 */
+		@Transactional
+		public void save() {
+			this.axis = ScientificAxisService.this.scientificAxisRepository.save(this.axis);
+		}
+
 	}
 
 }

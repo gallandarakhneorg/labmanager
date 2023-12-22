@@ -19,20 +19,16 @@
 
 package fr.utbm.ciad.labmanager.services.journal;
 
-import java.awt.image.BufferedImage;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.base.Strings;
 import fr.utbm.ciad.labmanager.configuration.Constants;
@@ -40,14 +36,12 @@ import fr.utbm.ciad.labmanager.data.journal.Journal;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicators;
 import fr.utbm.ciad.labmanager.data.journal.JournalQualityAnnualIndicatorsRepository;
 import fr.utbm.ciad.labmanager.data.journal.JournalRepository;
-import fr.utbm.ciad.labmanager.data.publication.type.JournalPaper;
 import fr.utbm.ciad.labmanager.data.publication.type.JournalPaperRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
 import fr.utbm.ciad.labmanager.utils.io.json.JsonUtils;
 import fr.utbm.ciad.labmanager.utils.io.network.NetConnection;
 import fr.utbm.ciad.labmanager.utils.io.scimago.ScimagoPlatform;
 import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform;
-import fr.utbm.ciad.labmanager.utils.io.wos.WebOfSciencePlatform.WebOfScienceJournal;
 import fr.utbm.ciad.labmanager.utils.ranking.QuartileRanking;
 import org.arakhne.afc.progress.DefaultProgression;
 import org.arakhne.afc.progress.Progression;
@@ -58,6 +52,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Service related to the journals.
  * 
@@ -691,6 +686,63 @@ public class JournalService extends AbstractService {
 		} else if (changed) {
 			this.journalRepository.save(journal);
 		}
+	}
+
+	/** Start the editing of the given journal.
+	 *
+	 * @param journal the journal to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the journal and its related resources.
+	 */
+	public EditingContext startEditing(Journal journal) {
+		assert journal != null;
+		return new EditingContext(journal);
+	}
+
+	/** Context for editing a {@link Journal}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+		
+		private static final long serialVersionUID = 2080175605368803970L;
+
+		private Journal journal;
+
+		/** Constructor.
+		 *
+		 * @param journal the edited journal.
+		 */
+		EditingContext(Journal journal) {
+			this.journal = journal;
+		}
+
+		/** Replies the journal.
+		 *
+		 * @return the journal.
+		 */
+		public Journal getJournal() {
+			return this.journal;
+		}
+
+		/** Save the journal in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the journal object that was provided before the saving.
+		 * Invoke {@link #getJournal()} for obtaining the new journal
+		 * instance, since the content of the saved object may have totally changed.
+		 */
+		@Transactional
+		public void save() {
+			this.journal = JournalService.this.journalRepository.save(this.journal);
+		}
+
 	}
 
 }

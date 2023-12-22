@@ -19,8 +19,8 @@
 
 package fr.utbm.ciad.labmanager.services.organization;
 
-import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
@@ -29,6 +29,7 @@ import fr.utbm.ciad.labmanager.configuration.Constants;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddress;
 import fr.utbm.ciad.labmanager.data.organization.OrganizationAddressRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +39,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /** Service for organizations' addresses.
@@ -268,6 +270,100 @@ public class OrganizationAddressService extends AbstractService {
 	public void removeAddress(int identifier) {
 		final var id = Integer.valueOf(identifier);
 		this.addressRepository.deleteById(id);
+	}
+	
+
+	/** Start the editing of the given address.
+	 *
+	 * @param address the address to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the address and its related resources.
+	 */
+	public EditingContext startEditing(OrganizationAddress address) {
+		assert address != null;
+		return new EditingContext(address);
+	}
+
+	/** Context for editing a {@link OrganizationAddress}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+
+		private static final long serialVersionUID = -9212082677199758148L;
+
+		private String pathToBackgroundImage;
+		
+		private int id;
+
+		private OrganizationAddress address;
+
+		/** Constructor.
+		 *
+		 * @param address the edited address.
+		 */
+		EditingContext(OrganizationAddress address) {
+			this.id = address.getId();
+			this.pathToBackgroundImage = address.getPathToBackgroundImage();
+			this.address = address;
+		}
+
+		/** Replies the address.
+		 *
+		 * @return the address.
+		 */
+		public OrganizationAddress getAddress() {
+			return this.address;
+		}
+
+		/** Save the address in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the address object that was provided before the saving.
+		 * Invoke {@link #getAddress()} for obtaining the new address
+		 * instance, since the content of the saved object may have totally changed.
+		 *
+		 * @param components list of components to update if the service detects an inconsistent value.
+		 * @throws IOException if files cannot be saved on the server.
+		 */
+		@Transactional
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.address = OrganizationAddressService.this.addressRepository.save(this.address);
+			// Save the uploaded file if needed.
+			if (this.id != this.address.getId()) {
+				// Special case where the field value does not corresponds to the correct path
+				deleteBackgroundImage(this.id);
+				for (final var component : components) {
+					component.updateValue();
+				}
+				this.address = OrganizationAddressService.this.addressRepository.save(this.address);
+			}
+			if (Strings.isNullOrEmpty(this.address.getPathToBackgroundImage())) {
+				deleteBackgroundImage(this.address.getId());
+			} else {
+				for (final var component : components) {
+					component.saveUploadedFileOnServer();
+				}
+			}
+			this.id = this.address.getId();
+			this.pathToBackgroundImage = this.address.getPathToBackgroundImage();
+		}
+
+		private void deleteBackgroundImage(int id) {
+			if (!Strings.isNullOrEmpty(this.pathToBackgroundImage)) {
+				final var ext = FileSystem.extension(this.pathToBackgroundImage);
+				if (!Strings.isNullOrEmpty(ext)) {
+					OrganizationAddressService.this.fileManager.deleteAddressBackgroundImage(id, ext);
+				}
+			}
+		}
+
 	}
 
 }

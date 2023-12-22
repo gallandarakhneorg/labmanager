@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.user;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,7 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRepository;
 import fr.utbm.ciad.labmanager.services.AbstractService;
+import org.apache.jena.ext.com.google.common.base.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.data.domain.Page;
@@ -146,22 +148,105 @@ public class UserService extends AbstractService {
 		return this.userRepository.findByPersonId(person.getId()).orElse(null);
 	}
 
-	/** Save the given user in the JPA infrastructure.
+	/** Start the editing of the given user.
 	 *
-	 * @param user the user to save.
+	 * @param user the user to save. It may be {@code null} and, in this case, an user
+	 *     is created and associated to the person in the given {@code personContext}.
+	 * @param personContext the context used for editing the associated person in parallel.
+	 *     This context is used for obtaining the edited person in the case
+	 *     a fresh user instance is needed (after deletion).
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the user and its related resources.
 	 */
-	@Transactional
-	public void save(User user) {
-		this.userRepository.saveAndFlush(user);
+	public EditingContext startEditing(User user,
+			fr.utbm.ciad.labmanager.services.member.PersonService.EditingContext personContext) {
+		final User userInstance;
+		if (user == null) {
+			userInstance = new User();
+			userInstance.setPerson(personContext.getPerson());
+		} else {
+			userInstance = user;
+		}
+		return new EditingContext(userInstance, personContext);
 	}
 
-	/** Remove the given user from the JPA infrastructure.
-	 *
-	 * @param user the user to remove.
+	/** Context for editing a {@link User}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
 	 */
-	@Transactional
-	public void remove(User user) {
-		this.userRepository.delete(user);
+	public class EditingContext implements Serializable {
+
+		private static final long serialVersionUID = 2325698605037680657L;
+
+		private final fr.utbm.ciad.labmanager.services.member.PersonService.EditingContext personContext;
+
+		private User user;
+
+		/** Constructor.
+		 *
+		 * @param user the edited user.
+		 * @param personContext the context used for editing the associated person in parallel.
+		 *     This context is used for obtaining the edited person in the case
+		 *     a fresh user instance is needed (after deletion).
+		 */
+		EditingContext(User user,
+				fr.utbm.ciad.labmanager.services.member.PersonService.EditingContext personContext) {
+			this.personContext = personContext;
+			this.user = user;
+			this.user.setPerson(personContext.getPerson());
+		}
+
+		/** Replies the user.
+		 *
+		 * @return the user.
+		 */
+		public User getUser() {
+			return this.user;
+		}
+
+		/** Replies the context used for editing the person in parallel to this user..
+		 *
+		 * @return the editing context for the person associated to this user.
+		 */
+		public fr.utbm.ciad.labmanager.services.member.PersonService.EditingContext getPersonContext() {
+			return this.personContext;
+		}
+
+		/** Save or delete the user and the person from the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the user object that was provided before the saving.
+		 * Invoke {@link #getUser()} for obtaining the new user
+		 * instance, since the content of the saved object may have totally changed.
+		 *
+		 * @return {@code true} if the user was saved, and {@code false} if the user
+		 *     was deleted.
+		 */
+		@Transactional
+		public boolean savePersonAndSaveOrDeleteUser() {
+			this.personContext.save();
+			//
+			if (Strings.isNullOrEmpty(this.user.getLogin())) {
+				try {
+					UserService.this.userRepository.delete(this.user);
+				} catch (Throwable ex) {
+					//
+				}
+				this.user = new User();
+				this.user.setPerson(this.personContext.getPerson());
+				return false;
+			}
+			this.user.setPerson(this.personContext.getPerson());
+			this.user = UserService.this.userRepository.save(this.user);
+			return true;
+		}
+
 	}
 
 }

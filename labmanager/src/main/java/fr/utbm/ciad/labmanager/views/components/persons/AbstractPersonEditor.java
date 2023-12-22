@@ -36,25 +36,15 @@ import static fr.utbm.ciad.labmanager.views.ViewConstants.RESEARCHGATE_ICON;
 import static fr.utbm.ciad.labmanager.views.ViewConstants.SCOPUS_ICON;
 import static fr.utbm.ciad.labmanager.views.ViewConstants.WOS_ICON;
 
-import java.net.URL;
-
-import com.vaadin.flow.component.Component;
-import com.vaadin.flow.component.Composite;
 import com.vaadin.flow.component.Text;
-import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.details.Details;
-import com.vaadin.flow.component.details.DetailsVariant;
-import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.JustifyContentMode;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -63,7 +53,6 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.Binder;
 import com.vaadin.flow.data.validator.EmailValidator;
 import com.vaadin.flow.i18n.LocaleChangeEvent;
-import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.theme.lumo.LumoIcon;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
@@ -72,17 +61,17 @@ import fr.utbm.ciad.labmanager.data.member.Person;
 import fr.utbm.ciad.labmanager.data.member.WebPageNaming;
 import fr.utbm.ciad.labmanager.data.user.User;
 import fr.utbm.ciad.labmanager.data.user.UserRole;
-import fr.utbm.ciad.labmanager.services.member.PersonService;
-import fr.utbm.ciad.labmanager.services.user.UserService;
+import fr.utbm.ciad.labmanager.services.user.UserService.EditingContext;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.components.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.converters.StringTrimer;
 import fr.utbm.ciad.labmanager.views.components.details.DetailsWithErrorMark;
 import fr.utbm.ciad.labmanager.views.components.details.DetailsWithErrorMarkStatusHandler;
+import fr.utbm.ciad.labmanager.views.components.entities.AbstractEntityEditor;
 import fr.utbm.ciad.labmanager.views.components.phones.PhoneNumberField;
-import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
+import fr.utbm.ciad.labmanager.views.components.validators.NotEmptyStringValidator;
 import fr.utbm.ciad.labmanager.views.components.validators.OrcidValidator;
 import fr.utbm.ciad.labmanager.views.components.validators.UrlValidator;
-import org.apache.logging.log4j.util.Strings;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 
@@ -95,15 +84,9 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @since 4.0
  */
 @Uses(Icon.class)
-public abstract class AbstractPersonEditor extends Composite<VerticalLayout> implements LocaleChangeObserver {
+public abstract class AbstractPersonEditor extends AbstractEntityEditor<Person> {
 
-	private static final long serialVersionUID = 6088942935576032576L;
-	
-	private final Logger logger;
-
-	private final MessageSourceAccessor messages;
-
-	private final AuthenticatedUser authenticatedUser;
+	private static final long serialVersionUID = 4532244485914692596L;
 
 	private DetailsWithErrorMark personalInformationDetails;
 
@@ -169,111 +152,90 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 
 	private TextField facebook;
 
-	private Details administrationDetails;
-
 	private ComboBox<WebPageNaming> webpageConvention;
-
-	private Checkbox validatedPerson;
 
 	private TextField userLogin;
 
 	private ComboBox<UserRole> userRole;
 
-	private final Person editedPerson;
-
-	private final Binder<Person> personBinder = new Binder<>(Person.class);
-
-	private final User editedUser;
-
-	private boolean isJpaUser;
-
 	private final Binder<User> userBinder = new Binder<>(User.class);
+
+	private final EditingContext userContext;
 
 	/** Constructor.
 	 *
-	 * @param person the person to edit, never {@code null}.
-	 * @param personService the service for accessing to the person. If it is {@code null},
-	 *     the default implementation does nothing. This function must be overridden to save the person
-	 *     without a repository.
-	 * @param user the user associated to the person. It could be {@code null} if is it unknown.
-	 * @param userService the service for accessing to the person. If it is {@code null},
-	 *     the default implementation does nothing. This function must be overridden to save the user
-	 *     without a repository.
+	 * @param userContext the editing context for the user.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 * @param logger the logger to be used by this view.
 	 */
-	public AbstractPersonEditor(Person person, PersonService personService, User user, UserService userService, 
+	public AbstractPersonEditor(EditingContext userContext,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages, Logger logger) {
-		assert person != null;
-
-		this.messages = messages;
-		this.logger = logger;
-		this.editedPerson = person;
-		this.isJpaUser = user != null;
-		if (this.isJpaUser) {
-			this.editedUser = user;
-		} else {
-			this.editedUser = new User();
-			this.editedUser.setPerson(this.editedPerson);
-		}
-		this.authenticatedUser = authenticatedUser;
-
-		final boolean isAdmin = this.authenticatedUser != null && this.authenticatedUser.get().isPresent()
-				&& this.authenticatedUser.get().get().getRole() == UserRole.ADMIN;
-
-		createContent(getContent(), isAdmin, personService, userService);
+		super(Person.class, authenticatedUser, messages, logger,
+				"views.persons.administration_details", //$NON-NLS-1$
+				"views.persons.administration.validated_person"); //$NON-NLS-1$
+		this.userContext = userContext;
 	}
 
-	/** Create the content of the editor.
-	 *
-	 * @param rootContainer the container.
-	 * @param isAdmin indicates if the user has the administrator role.
-	 * @param personService the service for accessing to the person.
-	 * @param userService the service for accessing to the user.
-	 */
-	protected void createContent(VerticalLayout rootContainer, boolean isAdmin, PersonService personService,
-			UserService userService) {
-		rootContainer.setSpacing(false);
+	@Override
+	public boolean isValidData() {
+		return super.isValidData() && getUserDataBinder().validate().isOk();
+	}
 
+	@Override
+	protected void createEditorContent(VerticalLayout rootContainer, boolean isAdmin) {
 		createPersonalInformationComponents(rootContainer);
 		createContactInformationComponents(rootContainer);
 		createResearcherIdsComponents(rootContainer);
 		createIndexesComponents(rootContainer);
 		createSocialLinksComponents(rootContainer);
-		
 		if (isAdmin) {
-			createAdministrationComponents(rootContainer);
-		}
+			createAdministrationComponents(rootContainer,
+					content -> {
+						this.webpageConvention = new ComboBox<>();
+						this.webpageConvention.setItems(WebPageNaming.values());
+						this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
+						this.webpageConvention.setValue(WebPageNaming.UNSPECIFIED);
+						content.add(this.webpageConvention, 2);
 
-		this.personBinder.setBean(getEditedPerson());
-		this.userBinder.setBean(getEditedUser());
+						this.userLogin = new TextField();
+						this.userLogin.setClearButtonVisible(true);
+						this.userLogin.setPrefixComponent(VaadinIcon.HASH.create());
+						content.add(this.userLogin);
+						
+						this.userRole = new ComboBox<>();
+						this.userRole.setItems(UserRole.values());
+						this.userRole.setItemLabelGenerator(this::getUserRoleLabel);
+						this.userRole.setPrefixComponent(VaadinIcon.MEDAL.create());
+						this.userRole.setValue(UserRole.USER);
+						content.add(this.userRole);
+
+						getEntityDataBinder().forField(this.webpageConvention).bind(Person::getWebPageNaming, Person::setWebPageNaming);
+						getUserDataBinder().forField(this.userLogin).bind(User::getLogin, User::setLogin);
+						getUserDataBinder().forField(this.userRole).bind(User::getRole, User::setRole);
+					},
+					it -> it.bind(Person::isValidated, Person::setValidated));
+		}
 	}
 	
-	/** Replies the person which is shown and edited by this view.
-	 *
-	 * @return the person, never {@code null}.
-	 */
-	public Person getEditedPerson() {
-		return this.editedPerson;
+	@Override
+	protected void linkBeans() {
+		super.linkBeans();
+		getUserDataBinder().setBean(getEditedUser());
 	}
 
-	/** Replies the user associated to the {@link #getEditedPerson() edited person} which is shown and edited by this view.
+	@Override
+	public Person getEditedEntity() {
+		return this.userContext.getPersonContext().getPerson();
+	}
+
+	/** Replies the user associated to the {@link #getEditedEntity() edited person} which is shown and edited by this view.
 	 * The provided user may be not a valid JPA entity since it was not yet saved in the database.
 	 *
-	 * @return the user, never {@code null}.
+	 * @return the user.
 	 */
 	public User getEditedUser() {
-		return this.editedUser;
-	}
-
-	/** Replies the binder of person data to the fields.
-	 *
-	 * @return the person data binder.
-	 * @see #getUserDataBinder()
-	 */
-	protected Binder<Person> getPersonDataBinder() {
-		return this.personBinder;
+		return this.userContext.getUser();
 	}
 
 	/** Replies the binder of user data to the fields.
@@ -285,123 +247,41 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 		return this.userBinder;
 	}
 
-	/** Invoked for saving the person. This function must be overridden by the child class that need to do a specific
-	 * saving process. 
-	 *
-	 * @param person the person to save.
-	 * @param personService the service for accessing to the person. If it is {@code null},
-	 *     the default implementation does nothing. This function must be overridden to save the person
-	 *     without a repository.
-	 * @param user the user to save.
-	 * @param userService the service for accessing to the user. If it is {@code null},
-	 *     the default implementation does nothing. This function must be overridden to save the user
-	 *     without a repository.
-	 * @return {@code true} if the saving was a success.
-	 */
-	protected boolean doSave(Person person, PersonService personService, User user, UserService userService) {
-		boolean saved = false;
-		if (personService != null) {
-			try {
-				personService.save(person);
-				if (this.authenticatedUser != null && this.authenticatedUser.get().isPresent()) {
-					final User loggedUser = this.authenticatedUser.get().get();
-					if (loggedUser.getPerson().getId() == person.getId()) {
-						notifyAuthenticatedUserChange();
-					}
+	@Override
+	protected void doSave() throws Exception {
+		if (this.userContext.savePersonAndSaveOrDeleteUser()) {
+			final var auser = getAuthenticatedUser();
+			if (auser != null && auser.get() != null && auser.get().isPresent()) {
+				final var loggedUser = auser.get().get();
+				if (loggedUser.getPerson().getId() == getEditedEntity().getId()) {
+					notifyAuthenticatedUserChange();
 				}
-				saved = true;
-			} catch (Throwable ex) {
-				notifySavingError(ex);
 			}
 		}
-		if (userService != null) {
-			try {
-				if (Strings.isEmpty(user.getLogin())) {
-					userService.remove(user);
-				} else {
-					userService.save(user);
-				}
-				saved = true;
-			} catch (Throwable ex) {
-				notifySavingError(ex);
-			}
-		}
-		if (saved) {
-			notifySaved();
-			return true;
-		}
-		return false;
 	}
 
-	/** Invoked for validating the person. This function does not save.
-	 * This function must be overridden by the child class that need to do a specific
-	 * saving process. 
-	 *
-	 * @param person the person to validate.
-	 */
-	protected void doValidate(Person person) {
-		try {
-			this.validatedPerson.setValue(Boolean.TRUE);
-			notifyValidated();
-		} catch (Throwable ex) {
-			notifyValidationError(ex);
-		}
+	@Override
+	public void notifySaved() {
+		notifySaved(getTranslation("views.persons.save_success", //$NON-NLS-1$
+				getEditedEntity().getFullName()));
 	}
 
-	/** Notify the user that its personal information has changed.
-	 */
-	@SuppressWarnings("static-method")
-	protected void notifyAuthenticatedUserChange() {
-		UserIdentityChangedObserver app = null;
-		final Component view = UI.getCurrent().getCurrentView();
-		if (view != null) {
-			app = view.findAncestor(UserIdentityChangedObserver.class);
-		}
-		if (app != null) {
-			app.authenticatedUserIdentityChange();
-		}
+	@Override
+	public void notifyValidated() {
+		notifyValidated(getTranslation("views.persons.validation_success", //$NON-NLS-1$
+				getEditedEntity().getFullName()));
 	}
 
-	/** Notify the user that the form contains invalid information.
-	 */
-	protected void notifyInvalidity() {
-		final Notification notification = Notification.show(getTranslation("views.save_invalid_data")); //$NON-NLS-1$
-		notification.addThemeVariants(NotificationVariant.LUMO_WARNING);
+	@Override
+	public void notifySavingError(Throwable error) {
+		notifySavingError(error, getTranslation("views.persons.save_error", //$NON-NLS-1$ 
+				getEditedEntity().getFullName(), error.getLocalizedMessage()));
 	}
 
-	/** Notify the user that the person was saved.
-	 */
-	protected void notifySaved() {
-		this.logger.info("Data for person named " + this.editedPerson.getFullName() + "(id: " + this.editedPerson.getId() + ") was successfully saved by " + AuthenticatedUser.getUserName(this.authenticatedUser)); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final Notification notification = Notification.show(getTranslation("views.persons.save_success", //$NON-NLS-1$
-				this.editedPerson.getFullName()));
-		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-	}
-
-	/** Notify the user that the person was validated.
-	 */
-	protected void notifyValidated() {
-		final Notification notification = Notification.show(getTranslation("views.persons.validation_success", //$NON-NLS-1$
-				this.editedPerson.getFullName()));
-		notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
-	}
-
-	/** Notify the user that the person cannot be saved.
-	 */
-	protected void notifySavingError(Throwable error) {
-		this.logger.warn("Error when saving data for person named " + this.editedPerson.getFullName() + "(id: " + this.editedPerson.getId() + "): " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final Notification notification = Notification.show(getTranslation("views.persons.save_error", //$NON-NLS-1$ 
-				this.editedPerson.getFullName(), error.getLocalizedMessage()));
-		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-	}
-
-	/** Notify the user that the person cannot be validated.
-	 */
-	protected void notifyValidationError(Throwable error) {
-		this.logger.warn("Error when validating the person named " + this.editedPerson.getFullName() + "(id: " + this.editedPerson.getId() + "): " + error.getLocalizedMessage(), error); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
-		final Notification notification = Notification.show(getTranslation("views.persons.validation_error", //$NON-NLS-1$ 
-				this.editedPerson.getFullName(), error.getLocalizedMessage()));
-		notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
+	@Override
+	public void notifyValidationError(Throwable error) {
+		notifyValidationError(error, getTranslation("views.persons.validation_error", //$NON-NLS-1$ 
+				getEditedEntity().getFullName(), error.getLocalizedMessage()));
 	}
 
 	private void updatePhoto() {
@@ -416,10 +296,10 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 			image.setMaxWidth(ViewConstants.PHOTO_SIZE, Unit.PIXELS);
 			this.photo.add(image);			
 		} else {
-			final StringBuilder size = new StringBuilder();
+			final var size = new StringBuilder();
 			size.append(ViewConstants.PHOTO_SIZE);
 			size.append(Unit.PIXELS.getSymbol());
-			final Icon image = LumoIcon.USER.create();
+			final var image = LumoIcon.USER.create();
 			image.setSize(size.toString());
 			this.photo.add(image);			
 		}
@@ -436,7 +316,7 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 	 * @param receiver the receiver of the component
 	 */
 	protected void createPersonalInformationComponents(VerticalLayout receiver) {
-		final FormLayout content = ComponentFactory.newColumnForm(2);
+		final var content = ComponentFactory.newColumnForm(2);
 
 		this.lastname = new TextField();
 		this.lastname.setRequired(true);
@@ -472,15 +352,25 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 		this.personalInformationDetails = new DetailsWithErrorMark(content);
 		this.personalInformationDetails.setOpened(false);
 		receiver.add(this.personalInformationDetails);
-
-		this.personBinder.forField(this.lastname).bind(Person::getLastName, Person::setLastName);
-		this.personBinder.forField(this.firstname).bind(Person::getFirstName, Person::setFirstName);
-		this.personBinder.forField(this.gender).bind(Person::getGender, Person::setGender);
-		this.personBinder.forField(this.gravatarId).bind(Person::getGravatarId, Person::setGravatarId);
+		
+		getEntityDataBinder().forField(this.lastname)
+			.withConverter(new StringTrimer())
+			.withValidator(new NotEmptyStringValidator(getTranslation("views.persons.last_name.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.lastname, this.personalInformationDetails))
+			.bind(Person::getLastName, Person::setLastName);
+		getEntityDataBinder().forField(this.firstname)
+			.withConverter(new StringTrimer())
+			.withValidator(new NotEmptyStringValidator(getTranslation("views.persons.first_name.error"))) //$NON-NLS-1$
+			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.firstname, this.personalInformationDetails))
+			.bind(Person::getFirstName, Person::setFirstName);
+		getEntityDataBinder().forField(this.gender).bind(Person::getGender, Person::setGender);
+		getEntityDataBinder().forField(this.gravatarId)
+			.withConverter(new StringTrimer())
+			.bind(Person::getGravatarId, Person::setGravatarId);
 	}
 
 	private String getGenderLabel(Gender gender) {
-		return gender.getLabel(this.messages, getLocale());
+		return gender.getLabel(getMessageSourceAccessor(), getLocale());
 	}
 
 	/** Create the components for entering the contact informations.
@@ -521,19 +411,22 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 		this.contactInformationDetails.setOpened(false);
 		receiver.add(this.contactInformationDetails);
 
-		this.personBinder.forField(this.email)
+		getEntityDataBinder().forField(this.email)
+			.withConverter(new StringTrimer())
 			.withValidator(new EmailValidator(getTranslation("views.forms.email.invalid_format"))) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.email, this.contactInformationDetails))
 			.bind(Person::getEmail, Person::setEmail);
-		this.personBinder.forField(this.officePhone)
+		getEntityDataBinder().forField(this.officePhone)
 			.withValidator(this.officePhone.getDefaultValidator())
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.officePhone, this.contactInformationDetails))
 			.bind(Person::getOfficePhone, Person::setOfficePhone);
-		this.personBinder.forField(this.mobilePhone)
+		getEntityDataBinder().forField(this.mobilePhone)
 			.withValidator(this.mobilePhone.getDefaultValidator())
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.mobilePhone, this.contactInformationDetails))
 			.bind(Person::getMobilePhone, Person::setMobilePhone);
-		this.personBinder.forField(this.officeRoom).bind(Person::getOfficeRoom, Person::setOfficeRoom);
+		getEntityDataBinder().forField(this.officeRoom)
+			.withConverter(new StringTrimer())
+			.bind(Person::getOfficeRoom, Person::setOfficeRoom);
 	}
 
 	/** Create the components for entering the researcher identifiers.
@@ -573,14 +466,21 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 		this.researcherIdsDetails.setOpened(false);
 		receiver.add(this.researcherIdsDetails);
 
-		this.personBinder.forField(this.orcid)
+		getEntityDataBinder().forField(this.orcid)
+			.withConverter(new StringTrimer())
 			.withValidator(new OrcidValidator(getTranslation("views.persons.invalid_orcid"), //$NON-NLS-1$
-					getTranslation("views.persons.undesired_orcid"))) //$NON-NLS-1$
+					getTranslation("views.persons.undesired_orcid"), true)) //$NON-NLS-1$
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.orcid, this.researcherIdsDetails))
 			.bind(Person::getORCID, Person::setORCID);
-		this.personBinder.forField(this.scopus).bind(Person::getScopusId, Person::setScopusId);
-		this.personBinder.forField(this.wos).bind(Person::getResearcherId, Person::setResearcherId);
-		this.personBinder.forField(this.gscholar).bind(Person::getGoogleScholarId, Person::setGoogleScholarId);
+		getEntityDataBinder().forField(this.scopus)
+			.withConverter(new StringTrimer())
+			.bind(Person::getScopusId, Person::setScopusId);
+		getEntityDataBinder().forField(this.wos)
+			.withConverter(new StringTrimer())
+			.bind(Person::getResearcherId, Person::setResearcherId);
+		getEntityDataBinder().forField(this.gscholar)
+			.withConverter(new StringTrimer())
+			.bind(Person::getGoogleScholarId, Person::setGoogleScholarId);
 	}
 
 	/** Create the components for entering the researcher indicators and indexes.
@@ -645,19 +545,19 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 		this.gscholarCitations.setSuffixComponent(new Div(new Text(getTranslation("views.persons.citations")))); //$NON-NLS-1$
 		content1.add(this.gscholarCitations);
 
-		final VerticalLayout vl = new VerticalLayout(content0, content1);
+		final var vl = new VerticalLayout(content0, content1);
 		vl.setSpacing(false);
 
 		this.indexesDetails = new Details("", vl); //$NON-NLS-1$
 		this.indexesDetails.setOpened(false);
 		receiver.add(this.indexesDetails);
 
-		this.personBinder.forField(this.wosHindex).bind(Person::getWosHindex, Person::setWosHindex);
-		this.personBinder.forField(this.scopusHindex).bind(Person::getScopusHindex, Person::setScopusHindex);
-		this.personBinder.forField(this.gscholarHindex).bind(Person::getGoogleScholarHindex, Person::setGoogleScholarHindex);
-		this.personBinder.forField(this.wosCitations).bind(Person::getWosCitations, Person::setWosCitations);
-		this.personBinder.forField(this.scopusCitations).bind(Person::getScopusCitations, Person::setScopusCitations);
-		this.personBinder.forField(this.gscholarCitations).bind(Person::getGoogleScholarCitations, Person::setGoogleScholarCitations);
+		getEntityDataBinder().forField(this.wosHindex).bind(Person::getWosHindex, Person::setWosHindex);
+		getEntityDataBinder().forField(this.scopusHindex).bind(Person::getScopusHindex, Person::setScopusHindex);
+		getEntityDataBinder().forField(this.gscholarHindex).bind(Person::getGoogleScholarHindex, Person::setGoogleScholarHindex);
+		getEntityDataBinder().forField(this.wosCitations).bind(Person::getWosCitations, Person::setWosCitations);
+		getEntityDataBinder().forField(this.scopusCitations).bind(Person::getScopusCitations, Person::setScopusCitations);
+		getEntityDataBinder().forField(this.gscholarCitations).bind(Person::getGoogleScholarCitations, Person::setGoogleScholarCitations);
 	}
 
 	/** Create the components for entering the social links.
@@ -675,7 +575,7 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 	 * @param receiver the receiver of the component
 	 */
 	protected void createSocialLinksComponents(VerticalLayout receiver) {
-		final FormLayout content = ComponentFactory.newColumnForm(1);
+		final var content = ComponentFactory.newColumnForm(1);
 
 		this.researchGate = ComponentFactory.newClickableIconTextField(Person.RESEARCHGATE_BASE_URL, RESEARCHGATE_ICON);
 		this.researchGate.setClearButtonVisible(true);
@@ -721,83 +621,54 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 		this.socialLinksDetails.setOpened(false);
 		receiver.add(this.socialLinksDetails);
 
-		final String invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
+		final var invalidUrl = getTranslation("views.urls.invalid_format"); //$NON-NLS-1$
 		
-		this.personBinder.forField(this.researchGate).bind(Person::getResearchGateId, Person::setResearchGateId);
-		this.personBinder.forField(this.adScientificIndex).bind(Person::getAdScientificIndexId, Person::setAdScientificIndexId);
-		this.personBinder.forField(this.dblp)
-			.withValidator(new UrlValidator(invalidUrl))
+		getEntityDataBinder().forField(this.researchGate)
+			.withConverter(new StringTrimer())
+			.bind(Person::getResearchGateId, Person::setResearchGateId);
+		getEntityDataBinder().forField(this.adScientificIndex)
+			.withConverter(new StringTrimer())
+			.bind(Person::getAdScientificIndexId, Person::setAdScientificIndexId);
+		getEntityDataBinder().forField(this.dblp)
+			.withConverter(new StringTrimer())
+			.withValidator(new UrlValidator(invalidUrl, true))
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.dblp, this.socialLinksDetails))
 			.bind(Person::getDblpURL, Person::setDblpURL);
-		this.personBinder.forField(this.academiaEdu)
-			.withValidator(new UrlValidator(invalidUrl))
+		getEntityDataBinder().forField(this.academiaEdu)
+			.withConverter(new StringTrimer())
+			.withValidator(new UrlValidator(invalidUrl, true))
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.academiaEdu, this.socialLinksDetails))
 			.bind(Person::getAcademiaURL, Person::setAcademiaURL);
-		this.personBinder.forField(this.euCordis)
-			.withValidator(new UrlValidator(invalidUrl))
+		getEntityDataBinder().forField(this.euCordis)
+			.withConverter(new StringTrimer())
+			.withValidator(new UrlValidator(invalidUrl, true))
 			.withValidationStatusHandler(new DetailsWithErrorMarkStatusHandler(this.euCordis, this.socialLinksDetails))
 			.bind(Person::getCordisURL, Person::setCordisURL);
-		this.personBinder.forField(this.linkedin).bind(Person::getLinkedInId, Person::setLinkedInId);
-		this.personBinder.forField(this.github).bind(Person::getGithubId, Person::setGithubId);
-		this.personBinder.forField(this.facebook).bind(Person::getFacebookId, Person::setFacebookId);
-	}
-
-	/** Create the components for adminitrator.
-	 * The information includes:<ul>
-	 * <li>Naming convention for the person's page on the institution website</li>
-	 * <li>Is the person information validated by a local authority?</li>
-	 * </ul>
-	 *
-	 * @param receiver the receiver of the component
-	 */
-	protected void createAdministrationComponents(VerticalLayout receiver) {
-		final FormLayout content = ComponentFactory.newColumnForm(1);
-
-		this.webpageConvention = new ComboBox<>();
-		this.webpageConvention.setItems(WebPageNaming.values());
-		this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
-		this.webpageConvention.setValue(WebPageNaming.UNSPECIFIED);
-		content.add(this.webpageConvention, 2);
-
-		this.userLogin = new TextField();
-		this.userLogin.setClearButtonVisible(true);
-		this.userLogin.setPrefixComponent(VaadinIcon.HASH.create());
-		content.add(this.userLogin);
-		
-		this.userRole = new ComboBox<>();
-		this.userRole.setItems(UserRole.values());
-		this.userRole.setItemLabelGenerator(this::getUserRoleLabel);
-		this.userRole.setPrefixComponent(VaadinIcon.MEDAL.create());
-		this.userRole.setValue(UserRole.USER);
-		content.add(this.userRole);
-
-		this.validatedPerson = new Checkbox();
-		content.add(this.validatedPerson);
-
-		this.administrationDetails = new Details("", content); //$NON-NLS-1$
-		this.administrationDetails.setOpened(false);
-		this.administrationDetails.addThemeVariants(DetailsVariant.FILLED);
-		receiver.add(this.administrationDetails);
-
-		this.personBinder.forField(this.webpageConvention).bind(Person::getWebPageNaming, Person::setWebPageNaming);
-		this.personBinder.forField(this.validatedPerson).bind(Person::isValidated, Person::setValidated);
-		this.userBinder.forField(this.userLogin).bind(User::getLogin, User::setLogin);
-		this.userBinder.forField(this.userRole).bind(User::getRole, User::setRole);
+		getEntityDataBinder().forField(this.linkedin)
+			.withConverter(new StringTrimer())
+			.bind(Person::getLinkedInId, Person::setLinkedInId);
+		getEntityDataBinder().forField(this.github)
+			.withConverter(new StringTrimer())
+			.bind(Person::getGithubId, Person::setGithubId);
+		getEntityDataBinder().forField(this.facebook)
+			.withConverter(new StringTrimer())
+			.bind(Person::getFacebookId, Person::setFacebookId);
 	}
 
 	private String getWebPageNamingLabel(WebPageNaming naming) {
-		return naming.getLabel(this.messages, getLocale());
+		return naming.getLabel(getMessageSourceAccessor(), getLocale());
 	}
 
 	private String getUserRoleLabel(UserRole role) {
-		return role.getLabel(this.messages, getLocale());
+		return role.getLabel(getMessageSourceAccessor(), getLocale());
 	}
 
 	@Override
 	public void localeChange(LocaleChangeEvent event) {
+		super.localeChange(event);
 		this.personalInformationDetails.setSummaryText(getTranslation("views.persons.personal_informations")); //$NON-NLS-1$
 		this.lastname.setLabel(getTranslation("views.persons.last_name")); //$NON-NLS-1$
-		this.firstname.setLabel(getTranslation("views.persons.last_name")); //$NON-NLS-1$
+		this.firstname.setLabel(getTranslation("views.persons.first_name")); //$NON-NLS-1$
 		this.gender.setLabel(getTranslation("views.persons.gender")); //$NON-NLS-1$
 		this.gender.setHelperText(getTranslation("views.persons.gender.helper")); //$NON-NLS-1$);
 		this.gender.setItemLabelGenerator(this::getGenderLabel);
@@ -857,15 +728,19 @@ public abstract class AbstractPersonEditor extends Composite<VerticalLayout> imp
 		this.facebook.setLabel(getTranslation("views.persons.facebook")); //$NON-NLS-1$
 		this.facebook.setHelperText(getTranslation("views.persons.facebook.helper")); //$NON-NLS-1$
 
-		this.administrationDetails.setSummaryText(getTranslation("views.persons.administration_details")); //$NON-NLS-1$
-		this.webpageConvention.setLabel(getTranslation("views.persons.administration.webpage_naming")); //$NON-NLS-1$
-		this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
-		this.validatedPerson.setLabel(getTranslation("views.persons.administration.validated_person")); //$NON-NLS-1$
-		this.userLogin.setLabel(getTranslation("views.persons.administration.user_login")); //$NON-NLS-1$
-		this.userLogin.setHelperText(getTranslation("views.persons.administration.user_login.help")); //$NON-NLS-1$
-		this.userRole.setLabel(getTranslation("views.persons.administration.user_role")); //$NON-NLS-1$
-		this.userRole.setHelperText(getTranslation("views.persons.administration.user_role.help")); //$NON-NLS-1$
-		this.userRole.setItemLabelGenerator(this::getUserRoleLabel);
+		if (this.webpageConvention != null) {
+			this.webpageConvention.setLabel(getTranslation("views.persons.administration.webpage_naming")); //$NON-NLS-1$
+			this.webpageConvention.setItemLabelGenerator(this::getWebPageNamingLabel);
+		}
+		if (this.userLogin != null) {
+			this.userLogin.setLabel(getTranslation("views.persons.administration.user_login")); //$NON-NLS-1$
+			this.userLogin.setHelperText(getTranslation("views.persons.administration.user_login.help")); //$NON-NLS-1$
+		}
+		if (this.userRole != null) {
+			this.userRole.setLabel(getTranslation("views.persons.administration.user_role")); //$NON-NLS-1$
+			this.userRole.setHelperText(getTranslation("views.persons.administration.user_role.help")); //$NON-NLS-1$
+			this.userRole.setItemLabelGenerator(this::getUserRoleLabel);
+		}
 	}
 
 }

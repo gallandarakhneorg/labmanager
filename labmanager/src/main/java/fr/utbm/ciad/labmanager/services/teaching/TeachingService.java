@@ -20,6 +20,7 @@
 package fr.utbm.ciad.labmanager.services.teaching;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
@@ -48,6 +49,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 /** Service for the teaching activities.
@@ -380,6 +382,63 @@ public class TeachingService extends AbstractService {
 	 */
 	public boolean isTeacher(int id) {
 		return !this.teachingActivityRepository.findDistinctByPersonId(Integer.valueOf(id)).isEmpty();
+	}
+
+	/** Start the editing of the given teaching activity.
+	 *
+	 * @param activity the teaching activity to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the teaching activity and its related resources.
+	 */
+	public EditingContext startEditing(TeachingActivity activity) {
+		assert activity != null;
+		return new EditingContext(activity);
+	}
+
+	/** Context for editing a {@link TeachingActivity}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+
+		private static final long serialVersionUID = -7122364187938515699L;
+		
+		private TeachingActivity activity;
+
+		/** Constructor.
+		 *
+		 * @param activity the edited teaching activity.
+		 */
+		EditingContext(TeachingActivity activity) {
+			this.activity = activity;
+		}
+
+		/** Replies the teaching activity.
+		 *
+		 * @return the teaching activity.
+		 */
+		public TeachingActivity getTeachingActivity() {
+			return this.activity;
+		}
+
+		/** Save the teaching activity in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the teaching activity object that was provided before the saving.
+		 * Invoke {@link #getTeachingActivity()} for obtaining the new teaching activity
+		 * instance, since the content of the saved object may have totally changed.
+		 */
+		@Transactional
+		public void save() {
+			this.activity = TeachingService.this.teachingActivityRepository.save(this.activity);
+		}
+
 	}
 
 }

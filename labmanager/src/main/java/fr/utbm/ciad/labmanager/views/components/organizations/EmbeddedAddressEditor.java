@@ -17,17 +17,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.persons;
+package fr.utbm.ciad.labmanager.views.components.organizations;
 
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
-import fr.utbm.ciad.labmanager.services.user.UserService.EditingContext;
+import fr.utbm.ciad.labmanager.services.organization.OrganizationAddressService.EditingContext;
+import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.MessageSourceAccessor;
 
-/** Editor of person information that may be embedded. This editor does not provide
+/** Editor of organization address information that may be embedded. This editor does not provide
  * the components for saving the information. It is the role of the component that
- * is embedding this editor to save the edited person.
+ * is embedding this editor to save the edited address.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -35,21 +36,23 @@ import org.springframework.context.support.MessageSourceAccessor;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-public final class EmbeddedPersonEditor extends AbstractPersonEditor {
+public final class EmbeddedAddressEditor extends AbstractAddressEditor {
 
-	private static final long serialVersionUID = 3928100811567654630L;
+	private static final long serialVersionUID = 7033019483159095081L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedPersonEditor.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(EmbeddedAddressEditor.class);
 
 	/** Constructor.
 	 *
-	 * @param userContext the editing context for the user.
+	 * @param context the context for editing the entity.
+	 * @param fileManager the manager of files at the server-side.
 	 * @param authenticatedUser the connected user.
 	 * @param messages the accessor to the localized messages (Spring layer).
 	 */
-	public EmbeddedPersonEditor(EditingContext userContext, AuthenticatedUser authenticatedUser,
-			MessageSourceAccessor messages) {
-		super(userContext, authenticatedUser, messages, LOGGER);
+	public EmbeddedAddressEditor(EditingContext context,
+			DownloadableFileManager fileManager,
+			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
+		super(context, fileManager, authenticatedUser, messages, LOGGER);
 		createEditorContent();
 	}
 

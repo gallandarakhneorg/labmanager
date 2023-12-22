@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.conference;
 
+import java.io.Serializable;
 import java.net.URL;
 import java.util.HashMap;
 import java.util.List;
@@ -52,6 +53,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Service related to the conferences.
  * 
@@ -289,6 +291,7 @@ public class ConferenceService extends AbstractService {
 	 * 
 	 * @param identifier the identifier of the conference to be removed.
 	 */
+	@Transactional
 	public void removeConference(int identifier) {
 		final Integer id = Integer.valueOf(identifier);
 		final Optional<Conference> conferenceRef = this.conferenceRepository.findById(id);
@@ -433,6 +436,63 @@ public class ConferenceService extends AbstractService {
 				}
 			}
 		}
+	}
+
+	/** Start the editing of the given conference.
+	 *
+	 * @param conference the conference to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the conference and its related resources.
+	 */
+	public EditingContext startEditing(Conference conference) {
+		assert conference != null;
+		return new EditingContext(conference);
+	}
+
+	/** Context for editing a {@link Conference}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+
+		private static final long serialVersionUID = -7122364187938515699L;
+		
+		private Conference conference;
+
+		/** Constructor.
+		 *
+		 * @param conference the edited conference.
+		 */
+		EditingContext(Conference conference) {
+			this.conference = conference;
+		}
+
+		/** Replies the conference.
+		 *
+		 * @return the conference.
+		 */
+		public Conference getConference() {
+			return this.conference;
+		}
+
+		/** Save the conference in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the conference object that was provided before the saving.
+		 * Invoke {@link #getConference()} for obtaining the new conference
+		 * instance, since the content of the saved object may have totally changed.
+		 */
+		@Transactional
+		public void save() {
+			this.conference = ConferenceService.this.conferenceRepository.save(this.conference);
+		}
+
 	}
 
 }
