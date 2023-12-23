@@ -17,7 +17,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.login;
+package fr.utbm.ciad.labmanager.views.appviews.login;
 
 import com.vaadin.flow.component.login.LoginI18n;
 import com.vaadin.flow.component.login.LoginOverlay;
@@ -26,11 +26,14 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.internal.RouteUtil;
+import com.vaadin.flow.server.VaadinRequest;
 import com.vaadin.flow.server.VaadinService;
 import com.vaadin.flow.server.auth.AnonymousAllowed;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 
-/** View for logged in the users.
+/** View for logged in the users in the production or development mode.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -41,24 +44,32 @@ import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 @AnonymousAllowed
 @PageTitle("Login")
 @Route(value = "login")
-public class LoginView extends LoginOverlay implements BeforeEnterObserver {
+public class AdaptiveLoginView extends LoginOverlay implements BeforeEnterObserver {
 
-	private static final long serialVersionUID = 7995735340418029759L;
+	private static final long serialVersionUID = 4873621745334362590L;
 
 	private final AuthenticatedUser authenticatedUser;
 
 	/** Constructor.
 	 *
 	 * @param authenticatedUser the logged-in user.
+	 * @param applicationName the name of the application.
 	 */
-	public LoginView(AuthenticatedUser authenticatedUser) {
+	public AdaptiveLoginView(
+			@Autowired AuthenticatedUser authenticatedUser,
+			@Value("${labmanager.application-name}") String applicationName) {
 		this.authenticatedUser = authenticatedUser;
+
+		final var isProductionMode = VaadinRequest.getCurrent().getService().getDeploymentConfiguration().isProductionMode();
+
 		setAction(RouteUtil.getRoutePath(VaadinService.getCurrent().getContext(), getClass()));
 
+		final var inviteMessage = getTranslation(isProductionMode ? "views.login.prod.invite" : "views.login.dev.invite"); //$NON-NLS-1$ //$NON-NLS-2$
+		
 		final var i18n = LoginI18n.createDefault();
 		i18n.setHeader(new LoginI18n.Header());
-		i18n.getHeader().setTitle("CIAD Lab Manager");
-		i18n.getHeader().setDescription("Login using user/user or admin/admin");
+		i18n.getHeader().setTitle(applicationName);
+		i18n.getHeader().setDescription(inviteMessage);
 		i18n.setAdditionalInformation(null);
 		setI18n(i18n);
 
@@ -71,9 +82,9 @@ public class LoginView extends LoginOverlay implements BeforeEnterObserver {
 		if (this.authenticatedUser.get().isPresent()) {
 			// Already logged in
 			setOpened(false);
-			event.forwardTo("");
+			event.forwardTo(""); //$NON-NLS-1$
 		}
-		setError(event.getLocation().getQueryParameters().getParameters().containsKey("error"));
+		setError(event.getLocation().getQueryParameters().getParameters().containsKey("error")); //$NON-NLS-1$
 	}
 
 }

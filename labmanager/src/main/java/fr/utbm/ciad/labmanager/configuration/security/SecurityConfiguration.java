@@ -20,7 +20,7 @@
 package fr.utbm.ciad.labmanager.configuration.security;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurity;
-import fr.utbm.ciad.labmanager.views.login.LoginView;
+import fr.utbm.ciad.labmanager.views.appviews.login.AdaptiveLoginView;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -45,13 +45,16 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 	 *
 	 * @return the encoder.
 	 */
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        //TODO return new BCryptPasswordEncoder();
-    	return NoOpPasswordEncoder.getInstance();
-    }
+	@SuppressWarnings("static-method")
+	@Bean
+	public PasswordEncoder passwordEncoder() {
+		/* TODO
+		return new BCryptPasswordEncoder();
+		*/
+		return NoOpPasswordEncoder.getInstance();
+	}
 
-    @Override
+	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.authorizeHttpRequests(
 				authorize -> authorize.requestMatchers(new AntPathRequestMatcher("/images/**/*")).permitAll()); //$NON-NLS-1$
@@ -61,29 +64,8 @@ public class SecurityConfiguration extends VaadinWebSecurity {
 				.requestMatchers(new AntPathRequestMatcher("/line-awesome/**/*.svg")).permitAll()); //$NON-NLS-1$
 
 		super.configure(http);
-		//http.authenticationProvider(null)
-		setLoginView(http, LoginView.class);
+		
+		setLoginView(http, AdaptiveLoginView.class);
 	}
-
-// TODO	/**
-//	 * Allows access to static resources, bypassing Spring Security.
-//	 */
-//	@Override
-//	public void configure(WebSecurity web) {
-//		web.ignoring().requestMatchers(
-//				// Client-side JS
-//				"/VAADIN/**", //$NON-NLS-1$
-//				// the standard favicon URI
-//				"/favicon.ico", //$NON-NLS-1$
-//				// the robots exclusion standard
-//				"/robots.txt", //$NON-NLS-1$
-//				// web application manifest
-//				"/manifest.webmanifest", //$NON-NLS-1$
-//				"/sw.js", //$NON-NLS-1$
-//				// icons and images
-//				"/icons/**", //$NON-NLS-1$
-//				"/images/**", //$NON-NLS-1$
-//				"/styles/**"); //$NON-NLS-1$
-//	}    
 
 }

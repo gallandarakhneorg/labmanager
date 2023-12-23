@@ -68,7 +68,7 @@ public class UserSecurityService extends AbstractService implements UserDetailsS
 	}
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         final var optUser = this.userRepository.findByLogin(username);
         if (optUser.isEmpty()) {
@@ -79,13 +79,9 @@ public class UserSecurityService extends AbstractService implements UserDetailsS
         if (Strings.isBlank(login)) {
             throw new UsernameNotFoundException("No institutional login specified for the user with login: " + username); //$NON-NLS-1$
         }
-        final String password;
-        //if (VaadinService.getCurrent().getDeploymentConfiguration().isProductionMode()) {
-        //TODO pwd
-        password = DEVELOPMENT_MODE_PASSWORD;
-        //} else {
-        //	password = DEVELOPMENT_MODE_PASSWORD;
-        //}
+        
+        final String password = DEVELOPMENT_MODE_PASSWORD;
+
         return new org.springframework.security.core.userdetails.User(login, password, getAuthorities(user));
     }
 

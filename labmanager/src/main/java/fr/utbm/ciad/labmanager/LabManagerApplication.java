@@ -41,21 +41,21 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @Theme(value = "labmanager")
 public class LabManagerApplication implements AppShellConfigurator {
 
-    private static final long serialVersionUID = 3672131574382734484L;
+	private static final long serialVersionUID = 3672131574382734484L;
 
-    /** Starting point for the LabManaer application.
-     *
-     * @param args the commande-line arguments.
-     */
+	/** Starting point for the LabManaer application.
+	 *
+	 * @param args the commande-line arguments.
+	 */
 	@SuppressWarnings("resource")
 	public static void main(String[] args) {
-        SpringApplication.run(LabManagerApplication.class, args);
-    }
+		SpringApplication.run(LabManagerApplication.class, args);
+	}
 
 	@Override
 	public void configurePage(AppShellSettings settings) {
 		settings.addLink("shortcut icon", "themes/labmanager/icons/favicon.ico"); //$NON-NLS-1$ //$NON-NLS-2$
-        settings.addFavIcon("icon", "themes/labmanager/icons/favicon.svg", "92x92"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		settings.addFavIcon("icon", "themes/labmanager/icons/favicon.svg", "92x92"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 	}
 
 }
