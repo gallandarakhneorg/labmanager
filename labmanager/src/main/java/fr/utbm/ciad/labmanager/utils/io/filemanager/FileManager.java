@@ -35,6 +35,10 @@ public interface FileManager {
 	 */
 	String JPEG_FILE_EXTENSION = ".jpg"; //$NON-NLS-1$
 
+	/** PDF filename extension.
+	 */
+	String PDF_FILE_EXTENSION = ".pdf"; //$NON-NLS-1$
+
 	/** Normalize a relative filename to be absolute for the server.
 	 *
 	 * @param file the relative filename.

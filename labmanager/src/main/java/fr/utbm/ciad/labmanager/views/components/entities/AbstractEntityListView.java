@@ -389,7 +389,6 @@ public abstract class AbstractEntityListView<T extends IdentifiableEntity> exten
 		}
 
 		final var dataView =  grid.setItems(getFetchCallback(this.filters));
-		dataView.setIdentifierProvider(it -> computeIdForEntity(it));
 		dataView.setItemCountEstimate(ViewConstants.GRID_PAGE_SIZE * 10); 
 		dataView.setItemCountEstimateIncrease(ViewConstants.GRID_PAGE_SIZE); 
 
@@ -413,11 +412,11 @@ public abstract class AbstractEntityListView<T extends IdentifiableEntity> exten
 	 *     it must have an identifier different than zero replied by {@link IdentifiableEntity#getId()}.
 	 * @return the identifier of the entity.
 	 */
-	protected Integer computeIdForEntity(T entity) {
+	protected Long computeIdForEntity(T entity) {
 		assert entity != null;
 		final var id = entity.getId();
 		assert id != 0 : "Entity not in the JPA database"; //$NON-NLS-1$
-		return Integer.valueOf(id);
+		return Long.valueOf(id);
 	}
 
 	/** Run the double click action for the entity. By default, it runs the editor.
@@ -442,10 +441,8 @@ public abstract class AbstractEntityListView<T extends IdentifiableEntity> exten
 	protected void refreshItem(T item) {
 		final var provider = this.grid.getDataProvider();
 		if (item == null || item.getId() == 0) {
-			System.err.println("REFRESH ALL");
 			provider.refreshAll();
 		} else {
-			System.err.println("REFRESH: " + item.getId() + " / " + provider.getId(item));
 			provider.refreshItem(item, true);
 		}
 	}

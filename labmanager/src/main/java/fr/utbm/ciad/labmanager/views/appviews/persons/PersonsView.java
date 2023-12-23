@@ -27,7 +27,7 @@ import fr.utbm.ciad.labmanager.services.member.MembershipService;
 import fr.utbm.ciad.labmanager.services.member.PersonService;
 import fr.utbm.ciad.labmanager.services.user.UserService;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.persons.AbstractPersonListView;
+import fr.utbm.ciad.labmanager.views.components.persons.StandardPersonListView;
 import jakarta.annotation.security.PermitAll;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,7 +44,7 @@ import org.springframework.context.support.MessageSourceAccessor;
  */
 @Route(value = "persons", layout = MainLayout.class)
 @PermitAll
-public class PersonsView extends AbstractPersonListView implements HasDynamicTitle {
+public class PersonsView extends StandardPersonListView implements HasDynamicTitle {
 
 	private static final long serialVersionUID = 1616874715478139507L;
 
