@@ -85,24 +85,20 @@ public abstract class AbstractUploadableFileImageViewerField<T> extends Abstract
         this.clearButton.setVisible(true);
     }
 
-	@Override
-	protected final void reset() {
-		super.reset();
-		internalPropertyReset();
-		internalUiReset();
-		updateValue();
+	/** Invoked to clear all UI components that are not the uploader itself.
+	 *
+	 * @see #resetUploader()
+	 */
+	protected void resetUi() {
+		final var source = ComponentFactory.newEmptyBackgroundStreamImage();
+		this.clearButton.setEnabled(false);
+		this.image.setSrc(source);
 	}
 
 	/** Invoked to clear all internal properties for resetting.
 	 */
-	protected void internalPropertyReset() {
+	protected void resetProperties() {
 		//
-	}
-
-	/** Invoked to clear all internal UI for resetting.
-	 */
-	protected void internalUiReset() {
-		updateImage(this.image, this.clearButton);
 	}
 
 	/** Change the size of the image on the viewer.
@@ -140,11 +136,14 @@ public abstract class AbstractUploadableFileImageViewerField<T> extends Abstract
 	
 	@Override
 	protected void uploadFailed(Throwable error) {
-		reset();
+		resetProperties();
+		resetUi();
 	}
 
 	private void onImageCleared() {
-		reset();
+		resetUploader();
+		resetProperties();
+		resetUi();
 		imageCleared();
 	}
 

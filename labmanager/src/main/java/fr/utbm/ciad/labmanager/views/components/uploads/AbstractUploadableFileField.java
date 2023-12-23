@@ -291,9 +291,9 @@ public abstract class AbstractUploadableFileField<T> extends CustomField<T> impl
 		this.uploadDropLabel.setText(getTranslation("views.upload_drop_here")); //$NON-NLS-1$
 	}
 
-	/** Reset the uploader.
+	/** Reset the uploader only.
 	 */
-	protected void reset() {
+	protected void resetUploader() {
 		this.upload.interruptUpload();
 		this.receiver.reset();
 	}

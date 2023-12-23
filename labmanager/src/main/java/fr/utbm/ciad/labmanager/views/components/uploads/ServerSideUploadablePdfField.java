@@ -20,8 +20,10 @@
 package fr.utbm.ciad.labmanager.views.components.uploads;
 
 import java.io.File;
+import java.io.IOException;
 
 import com.google.common.base.Strings;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.SerializableSupplier;
 import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
@@ -41,6 +43,8 @@ public class ServerSideUploadablePdfField extends AbstractServerSideUploadablePd
 
 	private static final long serialVersionUID = 1807734044935969508L;
 
+	private String lastJpaData = ""; //$NON-NLS-1$
+
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the server-side files.
@@ -51,6 +55,22 @@ public class ServerSideUploadablePdfField extends AbstractServerSideUploadablePd
 		super(fileManager, filenameSupplier);
 	}
 
+	/** Constructor.
+	 *
+	 * @param fileManager the manager of the server-side files.
+	 * @param filenameSupplier provides the client-side name that should be considered as
+	 *     the field's value for the uploaded file.
+	 */
+	public ServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableFunction<String, File> filenameSupplier) {
+		super(fileManager, filenameSupplier);
+	}
+
+	@Override
+	protected void resetProperties() {
+		super.resetProperties();
+		this.lastJpaData = ""; //$NON-NLS-1$
+	}
+
 	@Override
 	protected void uploadSucceeded() {
 		super.uploadSucceeded();
@@ -58,21 +78,30 @@ public class ServerSideUploadablePdfField extends AbstractServerSideUploadablePd
 	}
 
 	@Override
+	protected void imageCleared() {
+		super.imageCleared();
+		updateValue();
+	}
+
+	@Override
 	public void updateValue() {
+		// Overridden for increasing the visibility of this function 
 		super.updateValue();
 	}
-	
+
 	@Override
 	protected String generateModelValue() {
 		if (hasUploadedData()) {
-			return getFilenameSupplier().get().toString();
+			this.lastJpaData = getFilenameSupplier().get().toString();
 		}
-		return ""; //$NON-NLS-1$
+		return this.lastJpaData;
 	}
 
 	@Override
 	protected void setPresentationValue(String newPresentationValue) {
-		reset();
+		resetProperties();
+		resetUi();
+		this.lastJpaData = Strings.nullToEmpty(newPresentationValue);
 		if (!Strings.isNullOrEmpty(newPresentationValue)) {
 			final var file = FileSystem.convertStringToFile(newPresentationValue);
 			final var thumbnailFile = toServerSideThumbnailFile(file);
@@ -80,6 +109,12 @@ public class ServerSideUploadablePdfField extends AbstractServerSideUploadablePd
 				setImageSource(thumbnailFile);
 			}
 		}
+	}
+
+	@Override
+	public void saveUploadedFileOnServer() throws IOException {
+		final var filename = getFileManager().normalizeForServerSide(getFilenameSupplier().get());
+		saveUploadedFileOnServer(filename);
 	}
 
 }

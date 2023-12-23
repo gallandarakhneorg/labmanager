@@ -21,6 +21,7 @@ package fr.utbm.ciad.labmanager.views.components.uploads;
 
 import java.io.File;
 
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.SerializableSupplier;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 
@@ -55,6 +56,17 @@ public abstract class AbstractServerSideUploadablePdfField<T> extends AbstractSe
 	 *     the field's value for the uploaded file.
 	 */
 	public AbstractServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableSupplier<File> filenameSupplier) {
+		super(fileManager, filenameSupplier);
+		setAcceptedFileTypes(DEFAULT_ACCEPTED_MIME_TYPES);
+	}
+
+	/** Constructor.
+	 *
+	 * @param fileManager the manager of the server-side files.
+	 * @param filenameSupplier provides the client-side name that should be considered as
+	 *     the field's value for the uploaded file.
+	 */
+	public AbstractServerSideUploadablePdfField(DownloadableFileManager fileManager, SerializableFunction<String, File> filenameSupplier) {
 		super(fileManager, filenameSupplier);
 		setAcceptedFileTypes(DEFAULT_ACCEPTED_MIME_TYPES);
 	}

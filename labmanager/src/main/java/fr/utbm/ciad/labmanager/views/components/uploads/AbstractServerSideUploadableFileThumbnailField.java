@@ -27,11 +27,14 @@ import java.io.IOException;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.html.Image;
+import com.vaadin.flow.function.SerializableFunction;
 import com.vaadin.flow.function.SerializableSupplier;
 import com.vaadin.flow.server.InputStreamFactory;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
+import fr.utbm.ciad.labmanager.utils.io.filemanager.FileManager;
 import fr.utbm.ciad.labmanager.views.components.ComponentFactory;
+import org.arakhne.afc.vmutil.FileSystem;
 
 /** A field that enables to upload a binary file to the server and shows its graphical representation
  * named the thumbnail..
@@ -66,6 +69,26 @@ public abstract class AbstractServerSideUploadableFileThumbnailField<T> extends 
 	public AbstractServerSideUploadableFileThumbnailField(DownloadableFileManager fileManager, SerializableSupplier<File> filenameSupplier) {
 		this.fileManager = fileManager;
 		this.filenameSupplier = filenameSupplier;
+	}
+
+	/** Constructor.
+	 *
+	 * @param fileManager the manager of the server-side files.
+	 * @param filenameSupplier provides the client-side name that should be considered as
+	 *     the field's value for the uploaded file.
+	 */
+	public AbstractServerSideUploadableFileThumbnailField(DownloadableFileManager fileManager, SerializableFunction<String, File> filenameSupplier) {
+		this.fileManager = fileManager;
+		this.filenameSupplier = () -> {
+			final var file = getClientSideFilename();
+			final String ext;
+			if (file != null) {
+				ext = FileSystem.extension(file);
+			} else {
+				ext = FileManager.PDF_FILE_EXTENSION;
+			}
+			return filenameSupplier.apply(ext);
+		};
 	}
 
 	/** Replies the file manager for the server-side files.
@@ -120,8 +143,8 @@ public abstract class AbstractServerSideUploadableFileThumbnailField<T> extends 
 	}
 
 	@Override
-	protected void internalPropertyReset() {
-		super.internalPropertyReset();
+	protected void resetProperties() {
+		super.resetProperties();
 		this.thumbnail = null;
 	}
 

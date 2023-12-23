@@ -49,6 +49,8 @@ public class ServerSideUploadableImageField extends AbstractServerSideUploadable
 
 	private final SerializableSupplier<File> filenameSupplier;
 
+	private String lastJpaData = ""; //$NON-NLS-1$
+
 	/** Constructor.
 	 *
 	 * @param fileManager the manager of the server-side files.
@@ -81,27 +83,42 @@ public class ServerSideUploadableImageField extends AbstractServerSideUploadable
 	}
 
 	@Override
+	protected void resetProperties() {
+		super.resetProperties();
+		this.lastJpaData = ""; //$NON-NLS-1$
+	}
+	
+	@Override
 	protected void uploadSucceeded() {
 		super.uploadSucceeded();
 		updateValue();
 	}
 
 	@Override
+	protected void imageCleared() {
+		super.imageCleared();
+		updateValue();
+	}
+
+	@Override
 	public void updateValue() {
+		// Overridden for increasing the visibility of this function 
 		super.updateValue();
 	}
 
 	@Override
 	protected String generateModelValue() {
 		if (hasUploadedData()) {
-			return this.filenameSupplier.get().toString();
+			this.lastJpaData = this.filenameSupplier.get().toString();
 		}
-		return ""; //$NON-NLS-1$
+		return this.lastJpaData;
 	}
 
 	@Override
 	protected void setPresentationValue(String newPresentationValue) {
-		reset();
+		resetProperties();
+		resetUi();
+		this.lastJpaData = Strings.nullToEmpty(newPresentationValue);
 		if (!Strings.isNullOrEmpty(newPresentationValue)) {
 			final var file = FileSystem.convertStringToFile(newPresentationValue);
 			final var targetFile = this.fileManager.normalizeForServerSide(file);
