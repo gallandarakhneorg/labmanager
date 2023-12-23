@@ -849,6 +849,11 @@ public class Membership implements Serializable, AttributeProvider, Comparable<M
 		return end.getDayOfYear() - start.getDayOfYear() + 1;
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
 }
 
 

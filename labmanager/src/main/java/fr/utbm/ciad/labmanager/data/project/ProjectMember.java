@@ -181,4 +181,9 @@ public class ProjectMember implements Serializable, AttributeProvider, Comparabl
 		}
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
 }

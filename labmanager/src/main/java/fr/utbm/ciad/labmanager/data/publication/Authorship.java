@@ -211,6 +211,11 @@ public class Authorship implements Serializable, AttributeProvider, Comparable<A
 		}
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
 }
 
 

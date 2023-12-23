@@ -1837,4 +1837,9 @@ public class Person implements Serializable, JsonSerializable, AttributeProvider
 		this.adScientificIndexId = Strings.emptyToNull(id);
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
 }

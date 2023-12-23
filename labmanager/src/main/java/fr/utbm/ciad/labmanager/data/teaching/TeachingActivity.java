@@ -1030,4 +1030,9 @@ public class TeachingActivity implements Serializable, JsonSerializable, Attribu
 		this.pedagogicalPracticeTypes.addAll(types);
 	}
 
+	@Override
+	public String toString() {
+		return new StringBuilder(getClass().getName()).append("@ID=").append(getId()).toString(); //$NON-NLS-1$
+	}
+
 }
