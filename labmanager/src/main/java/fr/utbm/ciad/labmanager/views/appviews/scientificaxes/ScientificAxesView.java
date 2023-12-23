@@ -19,22 +19,18 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.scientificaxes;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.scientificaxes.StandardScientificAxisListView;
 import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 
 /** List all the scientific axes.
  * 
@@ -44,50 +40,29 @@ import jakarta.annotation.security.RolesAllowed;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-@PageTitle("Scientific Axes")
 @Route(value = "scientificaxes", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
-public class ScientificAxesView extends Composite<VerticalLayout> {
+public class ScientificAxesView extends StandardScientificAxisListView implements HasDynamicTitle {
 
-	private static final long serialVersionUID = -2459424821131298051L;
+	private static final long serialVersionUID = 4918450030888881030L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(ScientificAxesView.class);
 
 	/** Constructor.
+	 * 
+	 * @param authenticatedUser the connected user.
+	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param axisService the service for accessing the scientific axes.
 	 */
-    public ScientificAxesView() {
-        final TextField textField = new TextField();
-        TextField textField2 = new TextField();
-        final ComboBox<?> comboBox = new ComboBox<>();
-        final Button buttonPrimary = new Button();
-        getContent().setWidth("100%");
-        getContent().getStyle().set("flex-grow", "1");
-        textField.setLabel("Name");
-        textField.setWidth("192px");
-        textField2.setLabel("First name");
-        textField2.setWidth("192px");
-        comboBox.setLabel("Gender");
-        comboBox.setWidth("192px");
-        setComboBoxSampleData(comboBox);
-        buttonPrimary.setText("Save");
-        buttonPrimary.setWidth("min-content");
-        buttonPrimary.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        getContent().add(textField);
-        getContent().add(textField2);
-        getContent().add(comboBox);
-        getContent().add(buttonPrimary);
-    }
+	public ScientificAxesView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			ScientificAxisService axisService) {
+		super(authenticatedUser, messages, axisService, LOGGER);
+	}
 
-    record SampleItem(String value, String label, Boolean disabled) {
-    }
-
-    private void setComboBoxSampleData(ComboBox comboBox) {
-        final List<SampleItem> sampleItems = new ArrayList<>();
-        sampleItems.add(new SampleItem("first", "First", null));
-        sampleItems.add(new SampleItem("second", "Second", null));
-        sampleItems.add(new SampleItem("third", "Third", Boolean.TRUE));
-        sampleItems.add(new SampleItem("fourth", "Fourth", null));
-        comboBox.setItems(sampleItems);
-        comboBox.setItemLabelGenerator(item -> ((SampleItem) item).label());
-    }
+	@Override
+	public String getPageTitle() {
+		return getTranslation("views.scientific_axes.axes.list"); //$NON-NLS-1$
+	}
 
 }
