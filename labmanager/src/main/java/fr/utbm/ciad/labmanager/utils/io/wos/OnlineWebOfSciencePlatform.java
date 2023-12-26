@@ -223,8 +223,8 @@ public class OnlineWebOfSciencePlatform extends AbstractWebScraper implements We
 							final var hindex = readInt(elements.get(0));
 							ihindex = positiveInt(hindex);
 						}
-						if (elements.size() >= 2) {
-							final var citations = readInt(elements.get(2));
+						if (elements.size() >= 1) {
+							final var citations = readInt(elements.get(1));
 							icitations = positiveInt(citations);
 						}
 						output.set(new WebOfSciencePerson(ihindex, icitations));

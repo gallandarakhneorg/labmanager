@@ -19,15 +19,13 @@
 
 package fr.utbm.ciad.labmanager.tests.views.components.validators;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.vaadin.flow.data.binder.ErrorLevel;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
-import com.vaadin.flow.data.validator.RegexpValidator;
 import fr.utbm.ciad.labmanager.views.components.validators.NotEmptyStringValidator;
-import org.apache.jena.ext.com.google.common.base.Strings;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
