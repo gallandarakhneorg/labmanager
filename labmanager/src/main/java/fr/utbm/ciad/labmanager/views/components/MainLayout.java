@@ -19,9 +19,11 @@
 
 package fr.utbm.ciad.labmanager.views.components;
 
+import java.util.ArrayList;
 import java.util.Locale;
 
 import com.vaadin.flow.component.Text;
+import com.vaadin.flow.component.Unit;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.avatar.Avatar;
@@ -32,7 +34,6 @@ import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Header;
-import com.vaadin.flow.component.html.Image;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.menubar.MenuBar;
@@ -48,6 +49,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.server.auth.AccessAnnotationChecker;
 import com.vaadin.flow.theme.lumo.LumoUtility;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.ViewConstants;
 import fr.utbm.ciad.labmanager.views.appviews.about.AboutView;
 import fr.utbm.ciad.labmanager.views.appviews.assocstructures.AssociatedStructuresView;
@@ -77,7 +79,8 @@ import fr.utbm.ciad.labmanager.views.appviews.supervisions.SupervisionsView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.MyTeachingActivitiesView;
 import fr.utbm.ciad.labmanager.views.appviews.teaching.TeachingActivitiesView;
 import fr.utbm.ciad.labmanager.views.appviews.welcome.WelcomeView;
-import fr.utbm.ciad.labmanager.views.components.messages.LanguageSelect;
+import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
+import fr.utbm.ciad.labmanager.views.components.addons.localization.LanguageSelect;
 import fr.utbm.ciad.labmanager.views.components.users.UserIdentityChangedObserver;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -141,6 +144,10 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	private SideNavItem journals;
 
 	private SideNavItem conferences;
+
+	private SideNavItem teachingSection;
+
+	private SideNavItem teachingActivites;
 
 	/** Constructor.
 	 *
@@ -321,14 +328,15 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 	protected void createTeachingNavigation(SideNav nav) {
 		if (this.accessChecker.hasAccess(MyTeachingActivitiesView.class)
 				|| this.accessChecker.hasAccess(TeachingActivitiesView.class)) {
-			final SideNavItem teaching = new SideNavItem("Teaching");
-			if (this.accessChecker.hasAccess(MyTeachingActivitiesView.class)) {
-				teaching.addItem(new SideNavItem("My activities", MyTeachingActivitiesView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
-			}
+			this.teachingSection = new SideNavItem(""); //$NON-NLS-1$
 			if (this.accessChecker.hasAccess(TeachingActivitiesView.class)) {
-				teaching.addItem(new SideNavItem("Activities", TeachingActivitiesView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.teachingSection.addItem(new SideNavItem("My Activities", MyTeachingActivitiesView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
-			nav.addItem(teaching);
+			if (this.accessChecker.hasAccess(MyTeachingActivitiesView.class)) {
+				this.teachingActivites = new SideNavItem("", TeachingActivitiesView.class, LineAwesomeIcon.USER_TIE_SOLID.create()); //$NON-NLS-1$
+				this.teachingSection.addItem(this.teachingActivites);
+			}
+			nav.addItem(this.teachingSection);
 		}
 	}
 
@@ -446,21 +454,38 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 			final var locales = LanguageSelect.getAvailableLocales();
 			this.languageLinks = new LanguageRecord[locales.length];
 			final var languageSubMenu = this.languagesLink.getSubMenu();
+			final var currentLang = getLocale().getLanguage();
+			final var langItems = new ArrayList<MenuItem>(locales.length);
+			MenuItem currentLanguageItem = null;
 			int i = 0;
-			for (final var locale : LanguageSelect.getAvailableLocales()) {
+			for (final var locale : locales) {
 				final var hl = new HorizontalLayout();
 				hl.setSpacing(false);
 				hl.setAlignItems(Alignment.CENTER);
-				final var img = new Image(LanguageSelect.getDefaultLanguageFlag(locale), ""); //$NON-NLS-1$
-				img.setMaxHeight("var(--lumo-icon-size-s)"); //$NON-NLS-1$
-				img.getStyle().set("margin-right", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+
+				final var countryCode = CountryCode.fromLocale(locale);
+				final var flag = new CountryFlag(countryCode);
+				flag.setSizeFromHeight(2, Unit.EX);
+				flag.getStyle().set("margin-right", "var(--lumo-space-s)"); //$NON-NLS-1$ //$NON-NLS-2$
+
 				final var text = new Span(""); //$NON-NLS-1$
 				this.languageLinks[i] = new LanguageRecord(locale, text);
-				hl.add(img, text);
-				languageSubMenu.addItem(hl, e -> {
+				hl.add(flag, text);
+				final var menuItem = languageSubMenu.addItem(hl, e -> {
+					final var current = e.getSource();
+					langItems.stream().filter(it -> it != current).forEach(it -> it.setChecked(false));
 					LanguageSelect.setUILocale(locale);
 				});
+				menuItem.setCheckable(true);
+				langItems.add(menuItem);
+				if (currentLanguageItem == null && currentLang.equalsIgnoreCase(locale.getLanguage())) {
+					currentLanguageItem = menuItem;
+				}
 				++i;
+			}
+
+			if (currentLanguageItem != null) {
+				currentLanguageItem.setChecked(true);
 			}
 			
 			this.logoutLink = mainMenu.addItem("", e -> { //$NON-NLS-1$
@@ -508,6 +533,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		this.scientificActivitySection.setLabel(getTranslation("views.navitem.scientificactivitiesSection")); //$NON-NLS-1$
 		this.journals.setLabel(getTranslation("views.navitem.journals")); //$NON-NLS-1$
 		this.conferences.setLabel(getTranslation("views.navitem.conferences")); //$NON-NLS-1$
+
+		this.teachingSection.setLabel(getTranslation("views.navitem.teachingSection")); //$NON-NLS-1$
+		this.teachingActivites.setLabel(getTranslation("views.navitem.teaching_activities")); //$NON-NLS-1$
 
 		this.organizationsSection.setLabel(getTranslation("views.navitem.organizationsSection")); //$NON-NLS-1$
 		this.organizations.setLabel(getTranslation("views.navitem.organizations")); //$NON-NLS-1$

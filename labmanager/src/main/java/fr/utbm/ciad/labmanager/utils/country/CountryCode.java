@@ -19,9 +19,73 @@
 
 package fr.utbm.ciad.labmanager.utils.country;
 
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ALBANIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ARABIC;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ARMENIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.AZERBAIJANI;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.BENGALI;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.BOSNIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.BULGARIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.BURMESE;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.CATALAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.CROATIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.CZECH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.DANISH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.DHIVEHI;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.DUTCH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.DZONGHKHA;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ESTONIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.FILIPINO;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.FINNISH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.GEORGIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.GREEK;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.HEBREW;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.HINDI;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.HUNGARIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ICELANDIC;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.INDONESIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.KAZAKH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.KHMER;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.KYRGYZ;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.LATVIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.LITHUANIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.LUXEMBOURGISH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.MACEDONIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.MALAY;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.MALTESE;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.MONGOLIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.NEPALI;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.NORWEGIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.OROMO;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.PERSIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.POLISH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.PORTUGUESE;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ROMANIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.RUSSIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SERBIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SINHALA;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SLOVAK;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SLOVENIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SPANNISH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SWAHILI;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.SWEDISH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.TAJIK;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.THAI;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.TIGRINYA;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.TURKISH;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.TURKMEN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.UKRAINIAN;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.URDU;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.UZBEK;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.VIETNAMESE;
+import static fr.utbm.ciad.labmanager.utils.country.DefaultLanguages.ZULU;
+
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 import org.eclipse.xtext.xbase.lib.Pure;
@@ -41,7 +105,7 @@ public enum CountryCode {
 
 	/** AF.
 	 */
-	AFGHANISTAN("af", 93, null, null) { //$NON-NLS-1$
+	AFGHANISTAN("af", PERSIAN, 93, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -76,10 +140,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** AX.
 	 */
-	ALAND_ISLANDS("ax", 358, null, null) { //$NON-NLS-1$
+	ALAND_ISLANDS("ax", FINNISH, 358, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FINLAND;
@@ -114,10 +183,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** AL.
 	 */
-	ALBANIA("al", 355, null, null) { //$NON-NLS-1$
+	ALBANIA("al", ALBANIAN, 355, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -151,11 +225,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** DZ.
 	 */
-	ALGERIA("dz", 213, null, null) { //$NON-NLS-1$
+	ALGERIA("dz", ARABIC, 213, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -190,10 +269,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** AS.
 	 */
-	AMERICAN_SAMOA("as", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	AMERICAN_SAMOA("as", Locale.US, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -228,10 +312,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** AD.
 	 */
-	ANDORRA("ad", 376, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	ANDORRA("ad", CATALAN, 376, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -265,11 +354,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** AO.
 	 */
-	ANGOLA("ao", 244, null, null) { //$NON-NLS-1$
+	ANGOLA("ao", PORTUGUESE, 244, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -304,10 +398,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** AI.
 	 */
-	ANGUILLA("ai", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	ANGUILLA("ai", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -340,12 +439,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** AQ.
 	 */
-	ANTARCTICA("aq", 0, null, null) { //$NON-NLS-1$
+	ANTARCTICA("aq", Locale.US, 0, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -378,12 +482,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** AG.
 	 */
-	ANTIGUA_AND_BARBUDA("ag", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	ANTIGUA_AND_BARBUDA("ag", Locale.US, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -416,12 +525,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** AR.
 	 */
-	ARGENTINA("ar", 54, null, null) { //$NON-NLS-1$
+	ARGENTINA("ar", SPANNISH, 54, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -454,12 +568,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** AM.
 	 */
-	ARMENIA("am", 374, null, null) { //$NON-NLS-1$
+	ARMENIA("am", ARMENIAN, 374, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -494,10 +613,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** AW.
 	 */
-	ARUBA("aw", 297, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	ARUBA("aw", DUTCH, 297, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NETHERLANDS;
@@ -530,12 +654,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** AU.
 	 */
-	AUSTRALIA("au", 61, "0011", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	AUSTRALIA("au", Locale.UK, 61, "0011", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -568,12 +697,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** AT.
 	 */
-	AUSTRIA("at", 43, null, null) { //$NON-NLS-1$
+	AUSTRIA("at", Locale.GERMAN, 43, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -606,12 +740,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** AZ.
 	 */
-	AZERBAIJAN("az", 994, null, null) { //$NON-NLS-1$
+	AZERBAIJAN("az", AZERBAIJANI, 994, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -645,12 +784,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 
 	/** BS.
 	 */
-	BAHAMAS("bs", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	BAHAMAS("bs", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -683,12 +827,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** BH.
 	 */
-	BAHRAIN("bh", 973, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	BAHRAIN("bh", ARABIC, 973, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -721,12 +870,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** BD.
 	 */
-	BANGLADESH("bd", 880, null, null) { //$NON-NLS-1$
+	BANGLADESH("bd", BENGALI, 880, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -760,11 +914,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** BB.
 	 */
-	BARBADOS("bb", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	BARBADOS("bb", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -797,12 +956,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** BY.
 	 */
-	BELARUS("by", 375, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	BELARUS("by", RUSSIAN, 375, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -835,12 +999,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** BE.
 	 */
-	BELGIUM("be", 32, null, null) { //$NON-NLS-1$
+	BELGIUM("be", DUTCH, 32, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -873,12 +1042,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** BZ.
 	 */
-	BELIZE("bz", 501, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	BELIZE("bz", Locale.UK, 501, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -911,12 +1085,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** BJ.
 	 */
-	BENIN("bj", 229, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	BENIN("bj", Locale.FRENCH, 229, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -951,10 +1130,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** BM.
 	 */
-	BERMUDA("bm", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	BERMUDA("bm", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -989,10 +1173,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** BT.
 	 */
-	BHUTAN("BT", 975, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	BHUTAN("BT", DZONGHKHA, 975, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1026,11 +1215,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** BO.
 	 */
-	BOLIVIA("bo", 591, null, null) { //$NON-NLS-1$
+	BOLIVIA("bo", SPANNISH, 591, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1063,12 +1257,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** BQ.
 	 */
-	SAINT_EUSTATIUS_AND_SABA_BONAIRE("bq", 599, null, null) { //$NON-NLS-1$
+	SAINT_EUSTATIUS_AND_SABA_BONAIRE("bq", DUTCH, 599, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NETHERLANDS;
@@ -1103,10 +1302,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** BA.
 	 */
-	BOSNIA_AND_HERZEGOVINA("ba", 387, null, null) { //$NON-NLS-1$
+	BOSNIA_AND_HERZEGOVINA("ba", BOSNIAN, 387, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1140,11 +1344,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** BW.
 	 */
-	BOTSWANA("bw", 267, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	BOTSWANA("bw", Locale.UK, 267, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1179,10 +1388,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** BV.
 	 */
-	BOUVET_ISLAND("BV", 47, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	BOUVET_ISLAND("BV", NORWEGIAN, 47, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NORWAY;
@@ -1217,10 +1431,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** BR.
 	 */
-	BRAZIL("br", 55, null, null) { //$NON-NLS-1$
+	BRAZIL("br", PORTUGUESE, 55, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1253,12 +1472,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** IO.
 	 */
-	BRITISH_INDIAN_OCEAN_TERRITORY("io", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	BRITISH_INDIAN_OCEAN_TERRITORY("io", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -1291,12 +1515,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** BN.
 	 */
-	BRUNEI_DARUSSALAM("bn", 673, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	BRUNEI_DARUSSALAM("bn", Locale.UK, 673, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1329,12 +1558,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** BG.
 	 */
-	BULGARIA("bg", 359, null, null) { //$NON-NLS-1$
+	BULGARIA("bg", BULGARIAN, 359, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1368,11 +1602,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** BF.
 	 */
-	BURKINA_FASO("bf", 226, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	BURKINA_FASO("bf", Locale.FRENCH, 226, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1406,11 +1645,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** BI.
 	 */
-	BURUNDI("bi", 257, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	BURUNDI("bi", Locale.FRENCH, 257, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1444,12 +1688,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 
 	/** KH.
 	 */
-	CAMBODIA("kh", 855, "007", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	CAMBODIA("kh", KHMER, 855, "007", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1483,11 +1732,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** CM.
 	 */
-	CAMEROON("cm", 237, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	CAMEROON("cm", Locale.FRENCH, 237, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1521,11 +1775,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** CA.
 	 */
-	CANADA("ca", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	CANADA("ca", Locale.US, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1558,12 +1817,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** CV.
 	 */
-	CAPE_VERDE("cv", 238, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	CAPE_VERDE("cv", PORTUGUESE, 238, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1598,10 +1862,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** KY.
 	 */
-	CAYMAN_ISLANDS("ky", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	CAYMAN_ISLANDS("ky", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -1636,10 +1905,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** CF.
 	 */
-	CENTRAL_AFRICAN_REPUBLIC("cf", 236, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	CENTRAL_AFRICAN_REPUBLIC("cf", Locale.FRENCH, 236, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1673,11 +1947,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** TD.
 	 */
-	CHAD("td", 235, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	CHAD("td", ARABIC, 235, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1711,11 +1990,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** CL.
 	 */
-	CHILE("cl", 56, "1YZ0", "1YZ") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	CHILE("cl", SPANNISH, 56, "1YZ0", "1YZ") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1748,12 +2032,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** CN.
 	 */
-	CHINA("cn", 86, null, null) { //$NON-NLS-1$
+	CHINA("cn", Locale.CHINESE, 86, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1788,10 +2077,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** CX.
 	 */
-	CHRISTMAS_ISLAND("cx", 672, null, null) { //$NON-NLS-1$
+	CHRISTMAS_ISLAND("cx", Locale.UK, 672, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return AUSTRALIA;
@@ -1824,12 +2118,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** CC.
 	 */
-	COCOS_ISLANDS("cc", 672, null, null) { //$NON-NLS-1$
+	COCOS_ISLANDS("cc", Locale.UK, 672, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return AUSTRALIA;
@@ -1864,10 +2163,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** CO.
 	 */
-	COLOMBIA("co", 57, null, null) { //$NON-NLS-1$
+	COLOMBIA("co", SPANNISH, 57, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1900,12 +2204,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** KM.
 	 */
-	COMOROS("km", 269, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	COMOROS("km", Locale.FRENCH, 269, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1939,11 +2248,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** CG.
 	 */
-	CONGO("cg", 242, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	CONGO("cg", Locale.FRENCH, 242, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -1977,11 +2291,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** CD.
 	 */
-	CONGO_DEMOCRATIC_REPUBLIC("cd", 243, null, null) { //$NON-NLS-1$
+	CONGO_DEMOCRATIC_REPUBLIC("cd", Locale.FRENCH, 243, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2015,11 +2334,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** CK.
 	 */
-	COOK_ISLANDS("ck", 682, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	COOK_ISLANDS("ck", Locale.UK, 682, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2052,12 +2376,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** CR.
 	 */
-	COSTA_RICA("cr", 506, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	COSTA_RICA("cr", SPANNISH, 506, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2090,12 +2419,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** CI.
 	 */
-	COTE_D_IVOIRE("ci", 225, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	COTE_D_IVOIRE("ci", Locale.FRENCH, 225, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2129,11 +2463,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** HR.
 	 */
-	CROATIA("hr", 385, null, null) { //$NON-NLS-1$
+	CROATIA("hr", CROATIAN, 385, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2167,11 +2506,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** CU.
 	 */
-	CUBA("cu", 53, "119", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	CUBA("cu", SPANNISH, 53, "119", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2204,12 +2548,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** CW.
 	 */
-	CURACAO("cw", 599, null, null) { //$NON-NLS-1$
+	CURACAO("cw", DUTCH, 599, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NETHERLANDS;
@@ -2244,10 +2593,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** CY.
 	 */
-	CYPRUS("cy", 357, null, null) { //$NON-NLS-1$
+	CYPRUS("cy", GREEK, 357, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2280,12 +2634,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** CZ.
 	 */
-	CZECH_REPUBLIC("cz", 420, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	CZECH_REPUBLIC("cz", CZECH, 420, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2319,12 +2678,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 
 	/** DK.
 	 */
-	DENMARK("dk", 45, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	DENMARK("dk", DANISH, 45, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2358,11 +2722,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** DJ.
 	 */
-	DJIBOUTI("dj", 253, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	DJIBOUTI("dj", ARABIC, 253, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2396,11 +2765,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** DM.
 	 */
-	DOMINICA("dm", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	DOMINICA("dm", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2433,12 +2807,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** DO.
 	 */
-	DOMINICAN_REPUBLIC("do", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	DOMINICAN_REPUBLIC("do", SPANNISH, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2471,13 +2850,18 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 
 	/** EC.
 	 */
-	ECUADOR("ec", 593, null, null) { //$NON-NLS-1$
+	ECUADOR("ec", SPANNISH, 593, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2510,12 +2894,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** EG.
 	 */
-	EGYPT("eg", 20, null, null) { //$NON-NLS-1$
+	EGYPT("eg", ARABIC, 20, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2549,11 +2938,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** SV.
 	 */
-	EL_SALVADOR("sv", 503, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	EL_SALVADOR("sv", SPANNISH, 503, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2586,12 +2980,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** GQ.
 	 */
-	EQUATORIAL_GUINEA("gq", 240, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	EQUATORIAL_GUINEA("gq", Locale.FRENCH, 240, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2626,10 +3025,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** ER.
 	 */
-	ERITREA("er", 291, null, null) { //$NON-NLS-1$
+	ERITREA("er", TIGRINYA, 291, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2662,12 +3066,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return true;
 		}
 	},
 	/** EE.
 	 */
-	ESTONIA("ee", 372, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	ESTONIA("ee", ESTONIAN, 372, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2702,10 +3111,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** ET.
 	 */
-	ETHIOPIA("et", 251, null, null) { //$NON-NLS-1$
+	ETHIOPIA("et", OROMO, 251, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2738,13 +3152,18 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return true;
 		}
 	},
 
 	/** FK.
 	 */
-	FALKLAND_ISLANDS("fk", 500, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	FALKLAND_ISLANDS("fk", Locale.UK, 500, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -2777,12 +3196,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** FO.
 	 */
-	FAROE_ISLANDS("fo", 298, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	FAROE_ISLANDS("fo", DANISH, 298, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return DENMARK;
@@ -2817,10 +3241,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** FJ.
 	 */
-	FIJI("fj", 679, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	FIJI("fj", Locale.UK, 679, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2853,12 +3282,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** FI.
 	 */
-	FINLAND("fi", 358, null, null) { //$NON-NLS-1$
+	FINLAND("fi", FINNISH, 358, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2892,11 +3326,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** FR.
 	 */
-	FRANCE("fr", 33, null, null) { //$NON-NLS-1$
+	FRANCE("fr", Locale.FRENCH, 33, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -2931,10 +3370,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** GF.
 	 */
-	FRENCH_GUIANA("gf", 594, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	FRENCH_GUIANA("gf", Locale.FRENCH, 594, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -2967,12 +3411,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** PF.
 	 */
-	FRENCH_POLYNESIA("pf", 689, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	FRENCH_POLYNESIA("pf", Locale.FRENCH, 689, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -3005,12 +3454,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** TF.
 	 */
-	FRENCH_SOUTHERN_TERRITORIES("tf", 262, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	FRENCH_SOUTHERN_TERRITORIES("tf", Locale.FRENCH, 262, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -3045,11 +3499,16 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 
 	/** GA.
 	 */
-	GABON("ga", 241, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	GABON("ga", Locale.FRENCH, 241, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3083,11 +3542,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** GM.
 	 */
-	GAMBIA("gm", 220, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	GAMBIA("gm", Locale.UK, 220, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3121,11 +3585,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** GE.
 	 */
-	GEORGIA("ge", 995, null, null) { //$NON-NLS-1$
+	GEORGIA("ge", GEORGIAN, 995, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3159,11 +3628,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** DE.
 	 */
-	GERMANY("de", 49, null, null) { //$NON-NLS-1$
+	GERMANY("de", Locale.GERMAN, 49, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3197,11 +3671,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** GH.
 	 */
-	GHANA("ghg", 233, null, null) { //$NON-NLS-1$
+	GHANA("ghg", Locale.UK, 233, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3236,10 +3715,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** GI.
 	 */
-	GIBRALTAR("gi", 350, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	GIBRALTAR("gi", Locale.UK, 350, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -3274,10 +3758,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** GR.
 	 */
-	GREECE("gr", 30, null, null) { //$NON-NLS-1$
+	GREECE("gr", GREEK, 30, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3312,10 +3801,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** GL.
 	 */
-	GREENLAND("gl", 299, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	GREENLAND("gl", DANISH, 299, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return DENMARK;
@@ -3350,10 +3844,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** GD.
 	 */
-	GRENADA("gd", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	GRENADA("gd", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3388,10 +3887,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** GP.
 	 */
-	GUADELOUPE("gp", 590, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	GUADELOUPE("gp", Locale.FRENCH, 590, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -3426,10 +3930,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** GU.
 	 */
-	GUAM("gu", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	GUAM("gu", Locale.US, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -3464,10 +3973,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** GT.
 	 */
-	GUATEMALA("gt", 502, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	GUATEMALA("gt", SPANNISH, 502, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3502,10 +4016,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** GG.
 	 */
-	GUERNSEY("GG", 44, null, null) { //$NON-NLS-1$
+	GUERNSEY("GG", Locale.UK, 44, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -3540,10 +4059,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** GN.
 	 */
-	GUINEA("gn", 224, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	GUINEA("gn", Locale.FRENCH, 224, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3578,10 +4102,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** GW.
 	 */
-	GUINEA_BISSAU("gw", 245, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	GUINEA_BISSAU("gw", PORTUGUESE, 245, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3614,12 +4143,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** GY.
 	 */
-	GUYANA("gy", 592, "001", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	GUYANA("gy", Locale.UK, 592, "001", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3652,13 +4186,18 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 
 	/** HT.
 	 */
-	HAITI("ht", 509, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	HAITI("ht", Locale.FRENCH, 509, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3693,10 +4232,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** HM.
 	 */
-	HEARD_ISLAND_AND_MCDONALD_ISLANDS("hm", 672, null, null) { //$NON-NLS-1$
+	HEARD_ISLAND_AND_MCDONALD_ISLANDS("hm", Locale.UK, 672, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return AUSTRALIA;
@@ -3731,10 +4275,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** HN.
 	 */
-	HONDURAS("hn", 504, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	HONDURAS("hn", SPANNISH, 504, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3769,10 +4318,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** HK.
 	 */
-	HONG_KONG("hk", 852, "001", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	HONG_KONG("hk", Locale.CHINESE, 852, "001", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return CHINA;
@@ -3807,10 +4361,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** HU.
 	 */
-	HUNGARY("hu", 36, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	HUNGARY("hu", HUNGARIAN, 36, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3844,12 +4403,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 
 	/** IS.
 	 */
-	ICELAND("is", 354, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	ICELAND("is", ICELANDIC, 354, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3883,11 +4447,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** IN.
 	 */
-	INDIA("in", 91, null, null) { //$NON-NLS-1$
+	INDIA_REPUBLIC_OF("in", HINDI, 91, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3921,11 +4490,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** ID.
 	 */
-	INDONESIA("id", 62, "001", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	INDONESIA("id", INDONESIAN, 62, "001", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3959,11 +4533,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** IR.
 	 */
-	IRAN("ir", 98, null, null) { //$NON-NLS-1$
+	IRAN("ir", PERSIAN, 98, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -3997,11 +4576,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** IQ.
 	 */
-	IRAQ("iq", 964, null, null) { //$NON-NLS-1$
+	IRAQ("iq", ARABIC, 964, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4034,12 +4618,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** IE.
 	 */
-	IRELAND("ie", 353, null, null) { //$NON-NLS-1$
+	IRELAND("ie", Locale.UK, 353, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4072,12 +4661,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** IM.
 	 */
-	ISLE_OF_MAN("im", 44, null, null) { //$NON-NLS-1$
+	ISLE_OF_MAN("im", Locale.UK, 44, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -4110,12 +4704,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** IL.
 	 */
-	ISRAEL("il", 972, null, null) { //$NON-NLS-1$
+	ISRAEL("il", HEBREW, 972, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4149,11 +4748,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** IT.
 	 */
-	ITALY("it", 39, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	ITALY("it", Locale.ITALIAN, 39, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4187,12 +4791,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 
 	/** JM.
 	 */
-	JAMAICA("jm", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	JAMAICA("jm", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4225,12 +4834,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** JP.
 	 */
-	JAPAN("jp", 81, "010", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	JAPAN("jp", Locale.JAPANESE, 81, "010", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4265,10 +4879,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** JE.
 	 */
-	JERSEY("je", 44, null, null) { //$NON-NLS-1$
+	JERSEY("je", Locale.UK, 44, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -4303,10 +4922,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** JO.
 	 */
-	JORDAN("jo", 962, null, null) { //$NON-NLS-1$
+	JORDAN("jo", ARABIC, 962, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4339,13 +4963,18 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 
 	/** KZ.
 	 */
-	KAZAKHSTAN("kz", 7, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	KAZAKHSTAN("kz", KAZAKH, 7, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4379,11 +5008,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** KE.
 	 */
-	KENYA("ke", 254, "000", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	KENYA("ke", Locale.UK, 254, "000", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4416,12 +5050,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** KI.
 	 */
-	KIRIBATI("ki", 686, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	KIRIBATI("ki", Locale.UK, 686, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4454,12 +5093,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** KP.
 	 */
-	KOREA_DEMOCRATIC_PEOPLE_REPUBLIC("kp", 850, null, null) { //$NON-NLS-1$
+	KOREA_DEMOCRATIC_PEOPLE_REPUBLIC("kp", Locale.KOREAN, 850, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4492,12 +5136,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** KR.
 	 */
-	KOREA_REPUBLIC("kr", 82, "001.002", "0.082") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	KOREA_REPUBLIC("kr", Locale.KOREAN, 82, "001.002", "0.082") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4531,11 +5180,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** KW.
 	 */
-	KUWAIT("kw", 965, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	KUWAIT("kw", ARABIC, 965, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4568,12 +5222,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** KG.
 	 */
-	KYRGYZSTAN("kg", 996, null, null) { //$NON-NLS-1$
+	KYRGYZSTAN("kg", KYRGYZ, 996, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4607,12 +5266,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 
 	/** LA.
 	 */
-	LAO("la", 856, null, null) { //$NON-NLS-1$
+	LAO("la", DefaultLanguages.LAO, 856, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4646,11 +5310,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** LV.
 	 */
-	LATVIA("lv", 371, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	LATVIA("lv", LATVIAN, 371, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4684,11 +5353,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** LB.
 	 */
-	LEBANON("lb", 961, null, null) { //$NON-NLS-1$
+	LEBANON("lb", ARABIC, 961, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4721,12 +5395,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** LS.
 	 */
-	LESOTHO("ls", 266, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	LESOTHO("ls", Locale.UK, 266, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4760,11 +5439,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** LR.
 	 */
-	LIBERIA("lr", 231, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	LIBERIA("lr", Locale.UK, 231, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4798,11 +5482,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** LY.
 	 */
-	LIBYAN_ARAB_JAMAHIRIYA("ly", 218, null, null) { //$NON-NLS-1$
+	LIBYAN_ARAB_JAMAHIRIYA("ly", ARABIC, 218, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4835,12 +5524,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** LI.
 	 */
-	LIECHTENSTEIN("li", 423, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	LIECHTENSTEIN("li", Locale.GERMAN, 423, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4873,12 +5567,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** LT.
 	 */
-	LITHUANIA("lt", 370, null, null) { //$NON-NLS-1$
+	LITHUANIA("lt", LITHUANIAN, 370, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4912,11 +5611,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** LU.
 	 */
-	LUXEMBOURG("lu", 352, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	LUXEMBOURG("lu", LUXEMBOURGISH, 352, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -4950,12 +5654,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 
 	/** MO.
 	 */
-	MACAO("mo", 853, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MACAO("mo", Locale.CHINESE, 853, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return CHINA;
@@ -4990,10 +5699,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** MK.
 	 */
-	MACEDONIA("mk", 389, null, null) { //$NON-NLS-1$
+	MACEDONIA("mk", MACEDONIAN, 389, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5027,11 +5741,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** MG.
 	 */
-	MADAGASCAR("mg", 261, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MADAGASCAR("mg", Locale.FRENCH, 261, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5065,11 +5784,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** MW.
 	 */
-	MALAWI("mw", 265, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MALAWI("mw", Locale.UK, 265, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5103,11 +5827,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** MY.
 	 */
-	MALAYSIA("my", 60, null, null) { //$NON-NLS-1$
+	MALAYSIA("my", MALAY, 60, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5141,11 +5870,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** MV.
 	 */
-	MALDIVES("mv", 960, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MALDIVES("mv", DHIVEHI, 960, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5179,11 +5913,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** ML.
 	 */
-	MALI("ml", 223, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MALI("ml", Locale.FRENCH, 223, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5217,11 +5956,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** MT.
 	 */
-	MALTA("mt", 356, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MALTA("mt", MALTESE, 356, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5255,11 +5999,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** MH.
 	 */
-	MARSHALL_ISLANDS("mh", 692, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	MARSHALL_ISLANDS("mh", Locale.UK, 692, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5292,12 +6041,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** MQ.
 	 */
-	MARTINIQUE("mq", 596, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MARTINIQUE("mq", Locale.FRENCH, 596, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -5330,12 +6084,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** MR.
 	 */
-	MAURITANIA("mr", 222, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MAURITANIA("mr", ARABIC, 222, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5369,11 +6128,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** MU.
 	 */
-	MAURITIUS("mu", 230, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MAURITIUS("mu", Locale.UK, 230, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5408,10 +6172,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** YT.
 	 */
-	MAYOTTE("yt", 262, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MAYOTTE("yt", Locale.FRENCH, 262, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -5446,10 +6215,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** MX.
 	 */
-	MEXICO("mx", 52, null, "01") { //$NON-NLS-1$ //$NON-NLS-2$
+	MEXICO("mx", SPANNISH, 52, null, "01") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5482,12 +6256,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** FM.
 	 */
-	MICRONESIA("fm", 691, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	MICRONESIA("fm", Locale.UK, 691, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5520,12 +6299,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** MD.
 	 */
-	MOLDOVA("md", 373, null, null) { //$NON-NLS-1$
+	MOLDOVA("md", ROMANIAN, 373, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5558,12 +6342,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** MC.
 	 */
-	MONACO("mc", 377, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MONACO("mc", Locale.FRENCH, 377, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5596,12 +6385,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** MN.
 	 */
-	MONGOLIA("mn", 976, "001", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	MONGOLIA("mn", MONGOLIAN, 976, "001", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5635,11 +6429,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** ME.
 	 */
-	MONTENEGRO("me", 382, null, null) { //$NON-NLS-1$
+	MONTENEGRO("me", SERBIAN, 382, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5672,12 +6471,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** MS.
 	 */
-	MONTSERRAT("mq", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	MONTSERRAT("mq", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -5712,10 +6516,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** MA.
 	 */
-	MOROCCO("ma", 212, null, null) { //$NON-NLS-1$
+	MOROCCO("ma", ARABIC, 212, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5749,11 +6558,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** MZ.
 	 */
-	MOZAMBIQUE("mz", 258, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	MOZAMBIQUE("mz", PORTUGUESE, 258, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5787,11 +6601,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** MM.
 	 */
-	MYANMAR("mm", 95, null, null) { //$NON-NLS-1$
+	MYANMAR("mm", BURMESE, 95, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5825,12 +6644,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 
 	/** NA.
 	 */
-	NAMIBIA("na", 264, null, null) { //$NON-NLS-1$
+	NAMIBIA("na", Locale.UK, 264, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5864,11 +6688,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** NR.
 	 */
-	NAURU("nr", 674, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	NAURU("nr", Locale.UK, 674, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5901,12 +6730,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** NP.
 	 */
-	NEPAL("np", 977, null, null) { //$NON-NLS-1$
+	NEPAL("np", NEPALI, 977, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5940,11 +6774,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** NL.
 	 */
-	NETHERLANDS("nl", 31, null, null) { //$NON-NLS-1$
+	NETHERLANDS("nl", DUTCH, 31, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -5979,10 +6818,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** NC.
 	 */
-	NEW_CALEDONIA("nc", 687, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	NEW_CALEDONIA("nc", Locale.FRENCH, 687, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -6017,10 +6861,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** NZ.
 	 */
-	NEW_ZEALAND("nz", 64, null, null) { //$NON-NLS-1$
+	NEW_ZEALAND("nz", Locale.UK, 64, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6053,12 +6902,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** NI.
 	 */
-	NICARAGUA("no", 505, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	NICARAGUA("no", SPANNISH, 505, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6091,12 +6945,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** NE.
 	 */
-	NIGER("ne", 227, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	NIGER("ne", Locale.FRENCH, 227, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6129,12 +6988,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** NG.
 	 */
-	NIGERIA("ng", 234, "009", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	NIGERIA("ng", Locale.UK, 234, "009", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6169,10 +7033,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** NU.
 	 */
-	NIUE("nu", 683, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	NIUE("nu", Locale.UK, 683, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -6207,10 +7076,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** NF.
 	 */
-	NORFOLK_ISLAND("nf", 672, null, null) { //$NON-NLS-1$
+	NORFOLK_ISLAND("nf", Locale.UK, 672, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return AUSTRALIA;
@@ -6245,10 +7119,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** MP.
 	 */
-	NORTHERN_MARIANA_ISLANDS("mp", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	NORTHERN_MARIANA_ISLANDS("mp", Locale.US, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -6283,10 +7162,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** NO.
 	 */
-	NORWAY("no", 47, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	NORWAY("no", NORWEGIAN, 47, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6320,12 +7204,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 
 	/** OM.
 	 */
-	OMAN("om", 968, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	OMAN("om", ARABIC, 968, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6358,13 +7247,18 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 
 	/** PK.
 	 */
-	PAKISTAN("pk", 92, null, null) { //$NON-NLS-1$
+	PAKISTAN("pk", URDU, 92, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6398,11 +7292,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** PW.
 	 */
-	PALAU("pw", 680, "011", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	PALAU("pw", Locale.UK, 680, "011", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6435,12 +7334,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** PS.
 	 */
-	PALESTINIAN_TERRITORY("ps", 970, null, null) { //$NON-NLS-1$
+	PALESTINIAN_TERRITORY("ps", ARABIC, 970, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6473,12 +7377,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** PA.
 	 */
-	PANAMA("pa", 507, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	PANAMA("pa", SPANNISH, 507, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6511,12 +7420,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** PG.
 	 */
-	PAPUA_NEW_GUINEA("pg", 675, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	PAPUA_NEW_GUINEA("pg", Locale.UK, 675, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6549,12 +7463,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** PY.
 	 */
-	PARAGUAY("py", 595, null, null) { //$NON-NLS-1$
+	PARAGUAY("py", SPANNISH, 595, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6587,12 +7506,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** PE.
 	 */
-	PERU("pe", 51, null, null) { //$NON-NLS-1$
+	PERU("pe", SPANNISH, 51, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6625,12 +7549,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** PH.
 	 */
-	PHILIPPINES("ph", 63, null, null) { //$NON-NLS-1$
+	PHILIPPINES("ph", FILIPINO, 63, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6665,10 +7594,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** PN. TDOO
 	 */
-	PITCAIRN("pn", 0, null, null) { //$NON-NLS-1$
+	PITCAIRN("pn", Locale.UK, 0, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -6703,10 +7637,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** PL.
 	 */
-	POLAND("pl", 48, null, null) { //$NON-NLS-1$
+	POLAND("pl", POLISH, 48, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6740,11 +7679,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** PT.
 	 */
-	PORTUGAL("pt", 351, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	PORTUGAL("pt", PORTUGUESE, 351, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6779,10 +7723,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** PR.
 	 */
-	PUERTO_RICO("pr", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	PUERTO_RICO("pr", SPANNISH, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -6817,11 +7766,16 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 
 	/** QA.
 	 */
-	QATAR("qa", 974, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	QATAR("qa", ARABIC, 974, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6854,13 +7808,18 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 
 	/** RE.
 	 */
-	REUNION("RE", 262, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	REUNION("RE", Locale.FRENCH, 262, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -6895,10 +7854,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** RO.
 	 */
-	ROMANIA("ro", 40, null, null) { //$NON-NLS-1$
+	ROMANIA("ro", ROMANIAN, 40, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6932,11 +7896,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** RU.
 	 */
-	RUSSIAN_FEDERATION("ru", 7, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	RUSSIAN_FEDERATION("ru", RUSSIAN, 7, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -6970,11 +7939,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** RW.
 	 */
-	RWANDA("rw", 250, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	RWANDA("rw", Locale.UK, 250, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7008,12 +7982,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 
 	/** BL.
 	 */
-	SAINT_BARTHELEMY("bl", 590, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SAINT_BARTHELEMY("bl", Locale.FRENCH, 590, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -7046,12 +8025,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** SH.
 	 */
-	SAINT_HELENA("sh", 247, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SAINT_HELENA("sh", Locale.UK, 247, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7084,12 +8068,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** KN.
 	 */
-	SAINT_KITTS_AND_NEVIS("kn", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	SAINT_KITTS_AND_NEVIS("kn", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7122,12 +8111,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** LC.
 	 */
-	SAINT_LUCIA("lc", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	SAINT_LUCIA("lc", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7160,12 +8154,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** PM.
 	 */
-	SAINT_PIERRE_AND_MIQUELON("pm", 508, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SAINT_PIERRE_AND_MIQUELON("pm", Locale.FRENCH, 508, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -7200,10 +8199,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** VC.
 	 */
-	SAINT_VINCENT_AND_THE_GRENADINES("vc", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	SAINT_VINCENT_AND_THE_GRENADINES("vc", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7238,10 +8242,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** WS.
 	 */
-	SAMOA("ws", 685, "0", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	SAMOA("ws", Locale.UK, 685, "0", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7274,12 +8283,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** SM.
 	 */
-	SAN_MARINO("sm", 378, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SAN_MARINO("sm", Locale.ITALIAN, 378, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7314,10 +8328,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** MF.
 	 */
-	SAINT_MARTIN_FRENCH_SIDE("mf", 590, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SAINT_MARTIN_FRENCH_SIDE("mf", Locale.FRENCH, 590, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -7352,10 +8371,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** ST.
 	 */
-	SAO_TOME_AND_PRINCIPE("st", 239, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SAO_TOME_AND_PRINCIPE("st", PORTUGUESE, 239, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7389,11 +8413,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** SA.
 	 */
-	SAUDI_ARABIA("sa", 966, null, null) { //$NON-NLS-1$
+	SAUDI_ARABIA("sa", ARABIC, 966, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7427,11 +8456,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** SN.
 	 */
-	SENEGAL("sn", 221, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SENEGAL("sn", Locale.FRENCH, 221, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7465,11 +8499,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** RS.
 	 */
-	SERBIA("rs", 381, null, null) { //$NON-NLS-1$
+	SERBIA("rs", SERBIAN, 381, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7503,11 +8542,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** SC.
 	 */
-	SEYCHELLES("sc", 248, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SEYCHELLES("sc", Locale.FRENCH, 248, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7540,12 +8584,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** SL.
 	 */
-	SIERRA_LEONE("sl", 232, null, null) { //$NON-NLS-1$
+	SIERRA_LEONE("sl", Locale.UK, 232, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7579,11 +8628,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** SG.
 	 */
-	SINGAPORE("sg", 65, "001.008", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	SINGAPORE("sg", Locale.UK, 65, "001.008", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7616,12 +8670,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** SX.
 	 */
-	SINT_MAARTEN_DUTCH_SIDE("sx", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	SINT_MAARTEN_DUTCH_SIDE("sx", DUTCH, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NETHERLANDS;
@@ -7656,10 +8715,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** SK.
 	 */
-	SLOVAKIA("sk", 421, null, null) { //$NON-NLS-1$
+	SLOVAKIA("sk", SLOVAK, 421, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7693,11 +8757,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** SI.
 	 */
-	SLOVENIA("si", 386, null, null) { //$NON-NLS-1$
+	SLOVENIA("si", SLOVENIAN, 386, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7732,10 +8801,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** SB.
 	 */
-	SOLOMON_ISLANDS("sb", 677, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SOLOMON_ISLANDS("sb", Locale.UK, 677, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7768,12 +8842,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** SO.
 	 */
-	SOMALIA("so", 252, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SOMALIA("so", ARABIC, 252, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7806,12 +8885,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** ZA.
 	 */
-	SOUTH_AFRICA("za", 27, null, null) { //$NON-NLS-1$
+	SOUTH_AFRICA("za", ZULU, 27, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7846,10 +8930,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** GS.
 	 */
-	SOUTH_GEORGIA_AND_THE_SOUTH_SANDWICH_ISLANDS("GS", 500, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SOUTH_GEORGIA_AND_THE_SOUTH_SANDWICH_ISLANDS("GS", Locale.UK, 500, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -7884,10 +8973,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** ES.
 	 */
-	SPAIN("es", 34, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SPAIN("es", SPANNISH, 34, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7921,11 +9015,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** LK.
 	 */
-	SRI_LANKA("lk", 94, null, null) { //$NON-NLS-1$
+	SRI_LANKA("lk", SINHALA, 94, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7959,11 +9058,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** SD.
 	 */
-	SUDAN("sd", 249, null, null) { //$NON-NLS-1$
+	SUDAN("sd", ARABIC, 249, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -7997,11 +9101,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** SR.
 	 */
-	SURINAME("sr", 597, null, null) { //$NON-NLS-1$
+	SURINAME("sr", DUTCH, 597, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8034,12 +9143,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** SJ.
 	 */
-	SVALBARD_AND_JAN_MAYEN("sj", 47, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SVALBARD_AND_JAN_MAYEN("sj", NORWEGIAN, 47, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NORWAY;
@@ -8074,10 +9188,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** SZ.
 	 */
-	SWAZILAND("sz", 268, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	SWAZILAND("sz", Locale.UK, 268, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8111,11 +9230,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** SE.
 	 */
-	SWEDEN("se", 46, null, null) { //$NON-NLS-1$
+	SWEDEN("se", SWEDISH, 46, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8149,11 +9273,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** CH.
 	 */
-	SWITZERLAND("ch", 41, null, null) { //$NON-NLS-1$
+	SWITZERLAND("ch", Locale.GERMAN, 41, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8186,12 +9315,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** SY.
 	 */
-	SYRIAN_ARAB_REPUBLIC("sy", 963, null, null) { //$NON-NLS-1$
+	SYRIAN_ARAB_REPUBLIC("sy", ARABIC, 963, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8224,13 +9358,18 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 
 	/** TW.
 	 */
-	TAIWAN("tw", 886, "002", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	TAIWAN("tw", Locale.CHINESE, 886, "002", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8263,12 +9402,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** TJ.
 	 */
-	TAJIKISTAN("tj", 992, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	TAJIKISTAN("tj", TAJIK, 992, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8303,10 +9447,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** TZ.
 	 */
-	TANZANIA("tz", 255, "000", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	TANZANIA("tz", SWAHILI, 255, "000", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8339,12 +9488,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return true;
 		}
 	},
 	/** TH.
 	 */
-	THAILAND("th", 66, "001", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	THAILAND("th", THAI, 66, "001", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8378,11 +9532,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** TL.
 	 */
-	TIMOR_LESTE("tl", 670, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	TIMOR_LESTE("tl", PORTUGUESE, 670, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8415,12 +9574,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** TG.
 	 */
-	TOGO("tg", 228, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	TOGO("tg", Locale.FRENCH, 228, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8455,10 +9619,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** TK.
 	 */
-	TOKELAU("tk", 690, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	TOKELAU("tk", Locale.UK, 690, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return NEW_ZEALAND;
@@ -8493,10 +9662,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** TO.
 	 */
-	TONGA("to", 676, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	TONGA("to", Locale.UK, 676, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8529,12 +9703,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** TT.
 	 */
-	TRINIDAD_AND_TOBAGO("tt", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	TRINIDAD_AND_TOBAGO("tt", Locale.UK, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8567,12 +9746,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** TN.
 	 */
-	TUNISIA("tn", 216, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	TUNISIA("tn", ARABIC, 216, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8606,11 +9790,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** TR.
 	 */
-	TURKEY("tr", 90, null, null) { //$NON-NLS-1$
+	TURKEY("tr", TURKISH, 90, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8644,11 +9833,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** TM.
 	 */
-	TURKMENISTAN("tm", 993, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	TURKMENISTAN("tm", TURKMEN, 993, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8683,10 +9877,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** TC.
 	 */
-	TURKS_AND_CAICOS_ISLANDS("tc", 1, "0", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	TURKS_AND_CAICOS_ISLANDS("tc", Locale.UK, 1, "0", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -8719,12 +9918,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** TV.
 	 */
-	TUVALU("tv", 688, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	TUVALU("tv", Locale.UK, 688, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -8757,13 +9961,18 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 
 	/** UG.
 	 */
-	UGANDA("ug", 256, "000", null) { //$NON-NLS-1$ //$NON-NLS-2$
+	UGANDA("ug", Locale.UK, 256, "000", null) { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8797,11 +10006,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** UA.
 	 */
-	UKRAINE("ua", 380, null, null) { //$NON-NLS-1$
+	UKRAINE("ua", UKRAINIAN, 380, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8835,11 +10049,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** AE.
 	 */
-	UNITED_ARAB_EMIRATES("ae", 971, null, null) { //$NON-NLS-1$
+	UNITED_ARAB_EMIRATES("ae", ARABIC, 971, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8872,12 +10091,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** GB.
 	 */
-	UNITED_KINGDOM("gb", 44, null, null) { //$NON-NLS-1$
+	UNITED_KINGDOM("gb", Locale.UK, 44, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8911,11 +10135,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 	/** US.
 	 */
-	UNITED_STATES("us", 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	UNITED_STATES("us", Locale.US, 1, "011", "1") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -8948,12 +10177,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** UM. TDOO
 	 */
-	UNITED_STATES_MINOR_OUTLYING_ISLANDS("um", 0, null, null) { //$NON-NLS-1$
+	UNITED_STATES_MINOR_OUTLYING_ISLANDS("um", Locale.US, 0, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -8988,10 +10222,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** UY.
 	 */
-	URUGUAY("uy", 598, null, null) { //$NON-NLS-1$
+	URUGUAY("uy", SPANNISH, 598, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9024,12 +10263,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** UZ.
 	 */
-	UZBEKISTAN("uz", 998, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	UZBEKISTAN("uz", UZBEK, 998, "810", "8") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9063,12 +10307,17 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
 		}
 	},
 
 	/** VU.
 	 */
-	VANUATU("vu", 678, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	VANUATU("vu", Locale.UK, 678, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9101,12 +10350,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** VA.
 	 */
-	VATICAN_CITY_STATE("va", 379, "", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	VATICAN_CITY_STATE("va", Locale.ITALIAN, 379, "", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9139,12 +10393,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** VE.
 	 */
-	VENEZUELA("ve", 58, null, null) { //$NON-NLS-1$
+	VENEZUELA("ve", SPANNISH, 58, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9177,12 +10436,17 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 	/** VN.
 	 */
-	VIETNAM("vn", 84, null, null) { //$NON-NLS-1$
+	VIETNAM("vn", VIETNAMESE, 84, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9217,10 +10481,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return true;
+		}
 	},
 	/** VG.
 	 */
-	VIRGIN_ISLANDS_BRITISH_SIDE("vg", 284, "011", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	VIRGIN_ISLANDS_BRITISH_SIDE("vg", Locale.UK, 284, "011", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_KINGDOM;
@@ -9255,10 +10524,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** VI.
 	 */
-	VIRGIN_ISLANDS_US_SIDE("vi", 340, "011", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+	VIRGIN_ISLANDS_US_SIDE("vi", Locale.US, 340, "011", "") { //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return UNITED_STATES;
@@ -9293,11 +10567,16 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 
 	/** WF.
 	 */
-	WALLIS_AND_FUTUNA("wf", 681, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
+	WALLIS_AND_FUTUNA("wf", Locale.FRENCH, 681, null, "") { //$NON-NLS-1$ //$NON-NLS-2$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return FRANCE;
@@ -9332,10 +10611,15 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return false;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 	/** EH.
 	 */
-	WESTERN_SAHARA("eh", 212, null, null) { //$NON-NLS-1$
+	WESTERN_SAHARA("eh", ARABIC, 212, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return MOROCCO;
@@ -9370,11 +10654,16 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	},
 
 	/** Y.
 	 */
-	YEMEN("y", 967, null, null) { //$NON-NLS-1$
+	YEMEN("y", ARABIC, 967, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9407,13 +10696,18 @@ public enum CountryCode {
 
 		@Override
 		public boolean isAfricanContinent() {
+			return false;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
 			return false;
 		}
 	},
 
 	/** ZM.
 	 */
-	ZAMBIA("zm", 260, null, null) { //$NON-NLS-1$
+	ZAMBIA("zm", Locale.UK, 260, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9447,11 +10741,16 @@ public enum CountryCode {
 		@Override
 		public boolean isAfricanContinent() {
 			return true;
+		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
 		}
 	},
 	/** ZW.
 	 */
-	ZIMBABWE("zw", 263, null, null) { //$NON-NLS-1$
+	ZIMBABWE("zw", Locale.ENGLISH, 263, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -9486,9 +10785,20 @@ public enum CountryCode {
 		public boolean isAfricanContinent() {
 			return true;
 		}
+
+		@Override
+		public boolean isLanguageSource() {
+			return false;
+		}
 	};
 
+	private static Map<CountryCode, String> COUNTRY_LIST;
+
+	private static final Map<String, List<CountryCode>> LANGUAGE_LIST = new HashMap<>();
+
 	private final String code;
+
+	private final Locale locale;
 
 	private final int callingCode;
 
@@ -9496,8 +10806,9 @@ public enum CountryCode {
 
 	private final String nationalPhonePrefix;
 
-	CountryCode(String isoCode, int callingCode, String internationalPhonePrefix, String nationalPhonePrefix) {
+	CountryCode(String isoCode, Locale predefinedLocale, int callingCode, String internationalPhonePrefix, String nationalPhonePrefix) {
 		this.code = isoCode;
+		this.locale = predefinedLocale;
 		this.callingCode = callingCode;
 		this.internationalPhonePrefix = internationalPhonePrefix;
 		this.nationalPhonePrefix = nationalPhonePrefix;
@@ -9624,13 +10935,36 @@ public enum CountryCode {
 		throw new IllegalArgumentException("Invalid country code: " + name); //$NON-NLS-1$
 	}
 
-	/** Replies the default locale for the country.
+	/** Replies the locale for the country.
 	 *
-	 * @return the default locale for the country.
+	 * @return the locale for the country.
+	 * @deprecated replaced by {@link #getLanguageLocale()} or {@link #getCountryLocale()}.
 	 */
 	@Pure
+	@Deprecated(since = "18.0", forRemoval = true)
 	public Locale getLocale() {
-		return new Locale(this.code);
+		return this.locale;
+	}
+
+	/** Replies the locale for the country that corresponds to the majority language in that country.
+	 *
+	 * @return the majority locale for the country. The returned locale is independent of the country.
+	 * @since 18.0
+	 */
+	@Pure
+	public Locale getLanguageLocale() {
+		return this.locale;
+	}
+
+	/** Replies the locale for the country that corresponds to the majority language in that country.
+	 *
+	 * @return the majority locale for the country. The returned locale depends on the country as
+	 *     geographical area. 
+	 * @since 18.0
+	 */
+	@Pure
+	public Locale getCountryLocale() {
+		return new Locale(this.locale.getLanguage(), this.code);
 	}
 
 	@Override
@@ -9649,19 +10983,13 @@ public enum CountryCode {
 	}
 
 	/** Replies the display name of the country.
-	 * The target language is the one provided by {@link LocaleContextHolder}.
 	 *
 	 * @param locale the locale used for selecting the term.
 	 * @return the display name of the country.
 	 * @since 4.0
 	 */
 	public String getDisplayCountry(Locale locale) {
-		final var theCode = getCode();
-		final var countryLocale = new Locale(theCode, theCode);
-		if (locale == null) {
-			return countryLocale.getDisplayCountry();
-		}
-		return countryLocale.getDisplayCountry(locale);
+		return getLanguageLocale().getDisplayCountry(locale);
 	}
 
 	/** Replies the display name of the language associated to the country.
@@ -9681,25 +11009,61 @@ public enum CountryCode {
 	 * @since 4.0
 	 */
 	public String getDisplayLanguage(Locale locale) {
-		final var theCode = getCode();
-		final var countryLocale = new Locale(theCode, theCode);
-		if (locale == null) {
-			return countryLocale.getDisplayLanguage();
-		}
-		return countryLocale.getDisplayLanguage(locale);
+		return getLanguageLocale().getDisplayLanguage(locale);
 	}
 
 	/** Replies all the display names of the countries.
-	 * The target language is the one provided by {@link LocaleContextHolder}.
 	 *
 	 * @return the display names of the countries.
+	 * @see #getAllDisplayLanguages()
 	 */
 	public static Map<CountryCode, String> getAllDisplayCountries() {
-		final var labels = new TreeMap<CountryCode, String>();
-		for (final var code : CountryCode.values()) {
-			labels.put(code, code.getDisplayCountry());
+		synchronized (CountryCode.class) {
+			if (COUNTRY_LIST == null) {
+				COUNTRY_LIST = new TreeMap<>();
+				for (final var code : CountryCode.values()) {
+					COUNTRY_LIST.put(code, code.getDisplayCountry());
+				}
+			}
+			return COUNTRY_LIST;
 		}
-		return labels;
+	}
+
+	/** Replies all the language names of the countries.
+	 *
+	 * <p>The list of languages may be shorter than the list of countries
+	 * provided by {@link #getAllDisplayCountries()} because
+	 * many countries are speaking the same language.
+	 * In this case, the first country code in the list that is
+	 * associated to a {@link #getSovereignCountry() sovereign}
+	 * country is associated to the language.
+	 *
+	 * <p>The replied list is sorted by alphabetical order.
+	 *
+	 * @param locale the locale to use for obtaining the names of the languages.
+	 * @return the display names of the languages.
+	 * @since 4.0
+	 */
+	public static List<CountryCode> getAllDisplayLanguages(Locale locale) {
+		synchronized (CountryCode.class) {
+			final var languageKey = locale.getLanguage();
+			List<CountryCode> list = LANGUAGE_LIST.get(languageKey);
+			if (list == null) {
+				final Map<String, CountryCode> selection = new TreeMap<>();
+				for (final var code : values()) {
+					if (code.isLanguageSource()) {
+						final var codeLocale = code.getLanguageLocale();
+						var language = codeLocale.getDisplayLanguage(locale).toLowerCase(locale);
+						selection.putIfAbsent(language, code);
+					}
+				}
+				list = selection.values().stream().sorted(
+						(a, b) -> a.getDisplayLanguage(locale).compareToIgnoreCase(b.getDisplayLanguage(locale)))
+						.collect(Collectors.toList());
+				LANGUAGE_LIST.put(languageKey, list);
+			}
+			return list;
+		}
 	}
 
 	/** Replies the country code of the sovereign/president/governor of the country with the current code.
@@ -9833,6 +11197,13 @@ public enum CountryCode {
 		}
 		return sovereign.isAfricanContinent();
 	}
+
+	/** Replies if the country code corresponds to a country with a language that is unique or originated of that country.
+	 *
+	 * @return {@code true} if the code corresponds to a language provider.
+	 * @since 18.0
+	 */
+	public abstract boolean isLanguageSource();
 
 	/** Replies if the country code corresponds to a country located in African continent.
 	 *

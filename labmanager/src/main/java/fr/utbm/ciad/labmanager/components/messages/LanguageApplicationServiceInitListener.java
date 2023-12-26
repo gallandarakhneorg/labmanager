@@ -21,7 +21,7 @@ package fr.utbm.ciad.labmanager.components.messages;
 
 import com.vaadin.flow.server.ServiceInitEvent;
 import com.vaadin.flow.server.VaadinServiceInitListener;
-import fr.utbm.ciad.labmanager.views.components.messages.LanguageSelect;
+import fr.utbm.ciad.labmanager.views.components.addons.localization.LanguageSelect;
 import org.springframework.stereotype.Component;
 
 /** Listener on the initialization of the Vaadin framework for initializing the language from the language cookie.

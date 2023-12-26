@@ -29,7 +29,7 @@ import com.vaadin.flow.component.select.SelectVariant;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
-import fr.utbm.ciad.labmanager.views.components.messages.LanguageSelect;
+import fr.utbm.ciad.labmanager.views.components.addons.localization.LanguageSelect;
 import jakarta.annotation.security.PermitAll;
 
 /** The default view of the labmanager application.
@@ -66,11 +66,11 @@ public class WelcomeView extends Composite<VerticalLayout> {
         layoutColumn2.add(icon);
         //layoutColumn2.add(loginForm);
         
-        LanguageSelect select0 = LanguageSelect.newStandardLanguageSelect();
+        LanguageSelect select0 = LanguageSelect.newStandardLanguageSelect(getLocale());
         select0.addThemeVariants(SelectVariant.LUMO_SMALL);
         layoutColumn2.add(select0);
 
-        LanguageSelect select1 = LanguageSelect.newFlagOnlyLanguageSelect();
+        LanguageSelect select1 = LanguageSelect.newFlagOnlyLanguageSelect(getLocale());
         select1.addThemeVariants(SelectVariant.LUMO_SMALL);
         layoutColumn2.add(select1);
 	}

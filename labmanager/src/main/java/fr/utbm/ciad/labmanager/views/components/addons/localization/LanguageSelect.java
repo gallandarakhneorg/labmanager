@@ -18,12 +18,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package fr.utbm.ciad.labmanager.views.components.messages;
+package fr.utbm.ciad.labmanager.views.components.addons.localization;
 
 import java.util.Arrays;
 import java.util.Locale;
 
-import com.google.common.base.Strings;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.Unit;
@@ -36,12 +35,15 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import com.vaadin.flow.i18n.LocaleChangeObserver;
 import com.vaadin.flow.internal.LocaleUtil;
 import com.vaadin.flow.server.ServiceInitEvent;
-import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.server.VaadinService;
-import fr.utbm.ciad.labmanager.views.components.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.countryflag.CountryFlag;
 import jakarta.servlet.http.Cookie;
 
 /** A select component that is able to change the current language of the Vaadin UI.
+ * 
+ * <p>This component is a re-implementation and an extension of
+ * <a href="https://github.com/KasparScherrer/language-select">LanguageSelect</a>
+ * written by Karspar Scherrer under Apache 2 license.
  * 
  * <h3>important note</h3>
  * 
@@ -53,22 +55,14 @@ import jakarta.servlet.http.Cookie;
  *
  * <h3>Language Flags</h3>
  *
- * <p>You need to provide a flag image for each Locale that you will add as item.
- * Place these images in {@code /icons/languageflags/} folder in the Java resources
- * {@code src/main/resources}, and name them [language_code].svg.
- * Only SVG files are used by this language selector by default.
- * If you want to change the flag folder, call {@link #setFlagPath(String)}.
- * If you want to change the default extension, call {@link #setFlagExtension(String)}.
+ * <p>In opposite to the original code of this component, you no not need to provide a flag image.
+ * Flags are provided by the {@link CountryFlag country flag component}.
  *
  * <h3>Translation of language names</h3>
  * 
  * <p>In the ResourceBundle that your I18NProvider implementation uses, add translations for each Locale that you will use.
  * The keys must be named {@code views.language_select.[language_code]}
  * If you want to change the key prefix, call {@link #setFlagTranslationKeyPrefix(String)}.
- * 
- * <p>This component is a re-implementation and an extension of
- * <a href="https://github.com/KasparScherrer/language-select">LanguageSelect</a>
- * written by Karspar Scherrer under Apache 2 license.
  *
  * @author $Author: sgalland$
  * @author $Author: kscherrer$
@@ -82,29 +76,12 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 
 	private static final long serialVersionUID = -9160658766711844756L;
 
-	/** Default path of the flag images.
-	 */
-	public static final String DEFAULT_FLAG_PATH = "/icons/languageselect/"; //$NON-NLS-1$
-
-	/** Default filename extension for the flag images.
-	 */
-	public static final String DEFAULT_FLAG_EXTENSION = ".svg"; //$NON-NLS-1$
-
 	// 6 months
 	private static final int LANGUAGE_COOKIE_DURATION = 262800;
 
 	private static final String LANGUAGE_COOKIE_NAME = "VaadinPreferredLanguage"; //$NON-NLS-1$
 
-
-	private static final String DEFAULT_TRANSLATION_KEY_PREFIX = "views.language_select."; //$NON-NLS-1$
-
-	private final ComponentRenderer<? extends Component, Locale> defaultRenderer = new ComponentRenderer<>(new LanguageSelectItemRenderer(this));
-
-	private String flagPath;
-
-	private String flagExtension;
-
-	private String flagTranslationKeyPrefix;
+	private ComponentRenderer<? extends Component, Locale> defaultRenderer;
 
 	/** Constructor with the provided languages. This constructor does not use the language cookie.
 	 * To use the language cookie, invoke {@link #LanguageSelect(boolean, Locale...)}.
@@ -133,7 +110,9 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 	 * @param items the supported languages.
 	 * @see #LanguageSelect(Locale...)
 	 */
-	public LanguageSelect(Locale currentLocale, boolean useLanguageCookie, Locale... items){
+	public LanguageSelect(Locale currentLocale, boolean useLanguageCookie, Locale... items) {
+		this.defaultRenderer = new ComponentRenderer<>(new LanguageSelectItemRenderer(currentLocale));
+
 		setItems(items);
 		addClassName("language-select"); //$NON-NLS-1$
 		setEmptySelectionAllowed(false);
@@ -151,18 +130,6 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 		});
 	}
 	
-	/** Replies the default resource corresponding to the language flag.
-	 *
-	 * @param locale the locale for which the flag must be replied.
-	 * @return the flag icon resource.
-	 */
-	public static StreamResource getDefaultLanguageFlag(Locale locale) {
-		return ComponentFactory.newStreamImage(
-				new StringBuilder().append(DEFAULT_FLAG_PATH)
-				.append(locale.getLanguage().toLowerCase())
-				.append(DEFAULT_FLAG_EXTENSION).toString());
-	}
-
 	@Override
 	public void setRenderer(ComponentRenderer<? extends Component, Locale> renderer) {
 		super.setRenderer(renderer == null ? this.defaultRenderer : renderer);
@@ -179,23 +146,25 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 	/** Factory method for creating the language select from the current
 	 * {@link I18NProvider} provider.
 	 *
+	 * @param locale the locale to be used for displaying the names.
 	 * @return the language select.
 	 */
-	public static LanguageSelect newStandardLanguageSelect() {
+	public static LanguageSelect newStandardLanguageSelect(Locale locale) {
 		final var locales = getAvailableLocales();
-		final var select = new LanguageSelect(true, locales);
+		final var select = new LanguageSelect(locale, true, locales);
 		return select;
 	}
 
 	/** Factory method for creating the language select from the current
 	 * {@link I18NProvider} provider and displaying only the flags.
 	 *
+	 * @param locale the locale to be used for displaying the names.
 	 * @return the language select.
 	 */
-	public static LanguageSelect newFlagOnlyLanguageSelect() {
+	public static LanguageSelect newFlagOnlyLanguageSelect(Locale locale) {
 		final var locales = getAvailableLocales();
 		final var select = new LanguageSelect(true, locales);
-		select.setRenderer(new LanguageSelectFlagItemRenderer(select));
+		select.setRenderer(new LanguageSelectFlagItemRenderer(locale));
 		select.setMaxWidth(52, Unit.POINTS);
 		return select;
 	}
@@ -244,58 +213,6 @@ public class LanguageSelect extends Select<Locale> implements LocaleChangeObserv
 		languageCookie.setMaxAge(LANGUAGE_COOKIE_DURATION);
 		languageCookie.setPath("/"); //$NON-NLS-1$
 		VaadinService.getCurrentResponse().addCookie(languageCookie);
-	}
-
-	/** Change the path where the flags are located.
-	 * It is the path in the {@code src/main/resources} folder, with
-	 * a slash character at the beginning and at the end.
-	 *
-	 * @param path the new path.
-	 */
-	public void setFlagPath(String path) {
-		this.flagPath = Strings.emptyToNull(path);
-	}
-
-	/** Replies the path where the flags are located.
-	 * It is the path in the {@code src/main/resources} folder, with
-	 * a slash character at the beginning and at the end.
-	 *
-	 * @return the path.
-	 */
-	public String getFlagPath() {
-		return this.flagPath == null ? DEFAULT_FLAG_PATH : this.flagPath;
-	}
-
-	/** Change the file extension of the flag filenames.
-	 *
-	 * @param ext the filename extension.
-	 */
-	public void setFlagExtension(String ext) {
-		this.flagExtension = Strings.emptyToNull(ext);
-	}
-
-	/** Replies the file extension of the flag filenames.
-	 *
-	 * @return the filename extension.
-	 */
-	public String getFlagExtension() {
-		return this.flagExtension == null ? DEFAULT_FLAG_EXTENSION : this.flagExtension;
-	}
-
-	/** Change the prefix of the keys that are in the translation files for the language names.
-	 *
-	 * @param prefix the prefix of the keys in the language translation files.
-	 */
-	public void setFlagTranslationKeyPrefix(String prefix) {
-		this.flagTranslationKeyPrefix = Strings.emptyToNull(prefix);
-	}
-
-	/** Replies the prefix of the keys that are in the translation files for the language names.
-	 *
-	 * @return the prefix of the keys in the language translation files.
-	 */
-	public String getFlagTranslationKeyPrefix() {
-		return this.flagTranslationKeyPrefix == null ? DEFAULT_TRANSLATION_KEY_PREFIX : this.flagTranslationKeyPrefix;
 	}
 
 	/**

@@ -56,6 +56,7 @@ import com.vaadin.flow.function.SerializableConsumer;
 import com.vaadin.flow.server.StreamResource;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.views.components.entities.AbstractEntityEditor;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jena.ext.com.google.common.base.Strings;
 import org.arakhne.afc.vmutil.FileSystem;
 import org.vaadin.lineawesome.LineAwesomeIcon;
@@ -543,6 +544,32 @@ public final class ComponentFactory {
 
 	private static String getCountryLabelForCombo(CountryCode country, Locale locale) {
 		return country.getDisplayCountry(locale);
+	}
+
+	/** Create a combo box that contains the languages.
+	 *
+	 * @param locale the locale for rendering the language names.
+	 * @return the combo box.
+	 */
+	public static ComboBox<CountryCode> newLanguageComboBox(Locale locale) {
+		final var combo = new ComboBox<CountryCode>();
+		combo.setItems(CountryCode.getAllDisplayLanguages(locale));
+		combo.setItemLabelGenerator(it -> getLanguageLabelForCombo(it, locale));
+		combo.setValue(CountryCode.getDefault());
+		return combo;
+	}
+
+	/** Update the items of the given combo box for displaying the country names according to the locale.
+	 *
+	 * @param combo the combo box to update.
+	 * @param locale the locale for rendering the country names.
+	 */
+	public static void updateLanguageComboBoxItems(ComboBox<CountryCode> combo, Locale locale) {
+		combo.setItemLabelGenerator(it -> getLanguageLabelForCombo(it, locale));
+	}
+
+	private static String getLanguageLabelForCombo(CountryCode country, Locale locale) {
+		return StringUtils.capitalize(country.getDisplayLanguage(locale));
 	}
 
 }
