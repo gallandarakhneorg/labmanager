@@ -4456,7 +4456,7 @@ public enum CountryCode {
 	},
 	/** IN.
 	 */
-	INDIA_REPUBLIC_OF("in", HINDI, 91, null, null) { //$NON-NLS-1$
+	INDIA("in", HINDI, 91, null, null) { //$NON-NLS-1$
 		@Override
 		public CountryCode getSovereignCountry() {
 			return null;
@@ -10792,7 +10792,7 @@ public enum CountryCode {
 		}
 	};
 
-	private static Map<CountryCode, String> COUNTRY_LIST;
+	private static final Map<String, List<CountryCode>> COUNTRY_LIST = new HashMap<>();
 
 	private static final Map<String, List<CountryCode>> LANGUAGE_LIST = new HashMap<>();
 
@@ -10989,7 +10989,7 @@ public enum CountryCode {
 	 * @since 4.0
 	 */
 	public String getDisplayCountry(Locale locale) {
-		return getLanguageLocale().getDisplayCountry(locale);
+		return getCountryLocale().getDisplayCountry(locale);
 	}
 
 	/** Replies the display name of the language associated to the country.
@@ -11014,18 +11014,29 @@ public enum CountryCode {
 
 	/** Replies all the display names of the countries.
 	 *
+	 * @param locale the locale to use for obtaining the names of the languages.
 	 * @return the display names of the countries.
 	 * @see #getAllDisplayLanguages()
 	 */
-	public static Map<CountryCode, String> getAllDisplayCountries() {
+	public static List<CountryCode> getAllDisplayCountries(Locale locale) {
 		synchronized (CountryCode.class) {
-			if (COUNTRY_LIST == null) {
-				COUNTRY_LIST = new TreeMap<>();
-				for (final var code : CountryCode.values()) {
-					COUNTRY_LIST.put(code, code.getDisplayCountry());
+			final var languageKey = locale.getLanguage();
+			List<CountryCode> list = COUNTRY_LIST.get(languageKey);
+			if (list == null) {
+				final Map<String, CountryCode> selection = new TreeMap<>();
+				for (final var code : values()) {
+					if (code.getSovereignCountry() == null) {
+						final var codeLocale = code.getCountryLocale();
+						var language = codeLocale.getDisplayCountry(locale).toLowerCase(locale);
+						selection.putIfAbsent(language, code);
+					}
 				}
+				list = selection.values().stream().sorted(
+						(a, b) -> a.getDisplayCountry(locale).compareToIgnoreCase(b.getDisplayCountry(locale)))
+						.collect(Collectors.toList());
+				COUNTRY_LIST.put(languageKey, list);
 			}
-			return COUNTRY_LIST;
+			return list;
 		}
 	}
 

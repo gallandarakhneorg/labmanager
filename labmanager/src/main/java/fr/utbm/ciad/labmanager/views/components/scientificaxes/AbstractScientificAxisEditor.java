@@ -29,12 +29,12 @@ import com.vaadin.flow.i18n.LocaleChangeEvent;
 import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
 import fr.utbm.ciad.labmanager.data.scientificaxis.ScientificAxis;
 import fr.utbm.ciad.labmanager.services.scientificaxis.ScientificAxisService.EditingContext;
-import fr.utbm.ciad.labmanager.views.components.ComponentFactory;
-import fr.utbm.ciad.labmanager.views.components.converters.StringTrimer;
-import fr.utbm.ciad.labmanager.views.components.details.DetailsWithErrorMark;
-import fr.utbm.ciad.labmanager.views.components.details.DetailsWithErrorMarkStatusHandler;
-import fr.utbm.ciad.labmanager.views.components.entities.AbstractEntityEditor;
-import fr.utbm.ciad.labmanager.views.components.validators.NotEmptyStringValidator;
+import fr.utbm.ciad.labmanager.views.components.addons.ComponentFactory;
+import fr.utbm.ciad.labmanager.views.components.addons.converters.StringTrimer;
+import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMark;
+import fr.utbm.ciad.labmanager.views.components.addons.details.DetailsWithErrorMarkStatusHandler;
+import fr.utbm.ciad.labmanager.views.components.addons.entities.AbstractEntityEditor;
+import fr.utbm.ciad.labmanager.views.components.addons.validators.NotEmptyStringValidator;
 import org.slf4j.Logger;
 import org.springframework.context.support.MessageSourceAccessor;
 

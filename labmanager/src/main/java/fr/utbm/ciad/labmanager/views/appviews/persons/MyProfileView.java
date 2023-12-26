@@ -75,7 +75,7 @@ public final class MyProfileView extends AbstractPersonEditor implements HasDyna
 		super(
 				createEditingContext(personService, userService, authenticatedUser),
 				authenticatedUser, messages, LOGGER);
-		createEditorContent();
+		createEditorContentAndLinkBeans();
 	}
 
 	private static EditingContext createEditingContext(

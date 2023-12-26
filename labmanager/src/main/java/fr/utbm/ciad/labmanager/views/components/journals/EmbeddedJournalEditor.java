@@ -50,7 +50,7 @@ public final class EmbeddedJournalEditor extends AbstractJournalEditor {
 	public EmbeddedJournalEditor(EditingContext context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
 		super(context, authenticatedUser, messages, LOGGER);
-		createEditorContent();
+		createEditorContentAndLinkBeans();
 	}
 
 }

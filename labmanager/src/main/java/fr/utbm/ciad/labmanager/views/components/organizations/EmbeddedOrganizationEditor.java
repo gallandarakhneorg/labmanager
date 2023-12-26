@@ -53,7 +53,7 @@ public final class EmbeddedOrganizationEditor extends AbstractOrganizationEditor
 			DownloadableFileManager fileManager,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
 		super(context, fileManager, authenticatedUser, messages, LOGGER);
-		createEditorContent();
+		createEditorContentAndLinkBeans();
 	}
 
 }

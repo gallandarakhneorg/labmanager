@@ -39,6 +39,7 @@ import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityLevel;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityRepository;
 import fr.utbm.ciad.labmanager.data.teaching.TeachingActivityType;
 import fr.utbm.ciad.labmanager.services.AbstractService;
+import fr.utbm.ciad.labmanager.utils.HasAsynchronousUploadService;
 import fr.utbm.ciad.labmanager.utils.country.CountryCode;
 import fr.utbm.ciad.labmanager.utils.io.filemanager.DownloadableFileManager;
 import org.apache.jena.ext.com.google.common.base.Strings;
@@ -409,14 +410,20 @@ public class TeachingService extends AbstractService {
 
 		private static final long serialVersionUID = -7122364187938515699L;
 		
-		private TeachingActivity activity;
+		private String pathToSlides;
+		
+		private long id;
+
+		private TeachingActivity teachingActivity;
 
 		/** Constructor.
 		 *
 		 * @param activity the edited teaching activity.
 		 */
 		EditingContext(TeachingActivity activity) {
-			this.activity = activity;
+			this.id = activity.getId();
+			this.pathToSlides = activity.getPathToSlides();
+			this.teachingActivity = activity;
 		}
 
 		/** Replies the teaching activity.
@@ -424,19 +431,46 @@ public class TeachingService extends AbstractService {
 		 * @return the teaching activity.
 		 */
 		public TeachingActivity getTeachingActivity() {
-			return this.activity;
+			return this.teachingActivity;
 		}
 
 		/** Save the teaching activity in the JPA database.
 		 *
 		 * <p>After calling this function, it is preferable to not use
 		 * the teaching activity object that was provided before the saving.
-		 * Invoke {@link #getTeachingActivity()} for obtaining the new teaching activity
+		 * Invoke {@link #getTeachingActivity()} for obtaining the new activity
 		 * instance, since the content of the saved object may have totally changed.
+		 *
+		 * @param components list of components to update if the service detects an inconsistent value.
+		 * @throws IOException if files cannot be saved on the server.
 		 */
 		@Transactional
-		public void save() {
-			this.activity = TeachingService.this.teachingActivityRepository.save(this.activity);
+		public void save(HasAsynchronousUploadService... components) throws IOException {
+			this.teachingActivity = TeachingService.this.teachingActivityRepository.save(this.teachingActivity);
+			// Save the uploaded file if needed.
+			if (this.id != this.teachingActivity.getId()) {
+				// Special case where the field value does not corresponds to the correct path
+				deleteSlides(this.id);
+				for (final var component : components) {
+					component.updateValue();
+				}
+				this.teachingActivity = TeachingService.this.teachingActivityRepository.save(this.teachingActivity);
+			}
+			if (Strings.isNullOrEmpty(this.teachingActivity.getPathToSlides())) {
+				deleteSlides(this.teachingActivity.getId());
+			} else {
+				for (final var component : components) {
+					component.saveUploadedFileOnServer();
+				}
+			}
+			this.id = this.teachingActivity.getId();
+			this.pathToSlides = this.teachingActivity.getPathToSlides();
+		}
+
+		private void deleteSlides(long id) {
+			if (!Strings.isNullOrEmpty(this.pathToSlides)) {
+				TeachingService.this.fileManager.deleteTeachingActivitySlides(id);
+			}
 		}
 
 	}

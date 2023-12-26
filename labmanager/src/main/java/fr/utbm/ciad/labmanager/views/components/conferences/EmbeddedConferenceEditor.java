@@ -50,7 +50,7 @@ public final class EmbeddedConferenceEditor extends AbstractConferenceEditor {
 	public EmbeddedConferenceEditor(EditingContext context,
 			AuthenticatedUser authenticatedUser, MessageSourceAccessor messages) {
 		super(context, authenticatedUser, messages, LOGGER);
-		createEditorContent();
+		createEditorContentAndLinkBeans();
 	}
 
 }

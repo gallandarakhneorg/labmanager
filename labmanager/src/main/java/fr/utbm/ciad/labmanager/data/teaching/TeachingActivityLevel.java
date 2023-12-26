@@ -19,7 +19,10 @@
 
 package fr.utbm.ciad.labmanager.data.teaching;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -81,4 +84,16 @@ public enum TeachingActivityLevel {
 		throw new IllegalArgumentException("Invalid activity level: " + name); //$NON-NLS-1$
 	}
 
+	/** Replies all the teaching activity levels sorted according to their display names.
+	 *
+	 * @param messages the accessor to the localized labels.
+	 * @param locale the locale to use.
+	 * @return the list of all the levels.
+	 */
+	public static List<TeachingActivityLevel> getAllDisplayLevels(MessageSourceAccessor messages, Locale locale) {
+		return Arrays.asList(values()).stream().sorted(
+				(a, b) -> a.getLabel(messages, locale).compareToIgnoreCase(b.getLabel(messages, locale)))
+				.collect(Collectors.toList());
+	}
+	
 }
