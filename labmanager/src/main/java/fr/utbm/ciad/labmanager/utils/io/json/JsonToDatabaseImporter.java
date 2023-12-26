@@ -2232,6 +2232,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 					if (activity != null) {
 						session.beginTransaction();
 
+						// Teacher
 						final var personId = getRef(activityObject.get(PERSON_KEY));
 						if (Strings.isNullOrEmpty(personId)) {
 							throw new IllegalArgumentException("Invalid person reference for teaching activity with id: " + id); //$NON-NLS-1$
@@ -2249,6 +2250,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 							this.teachingRepository.save(activity);
 						}
 
+						// University
 						final var universityId = getRef(activityObject.get(UNIVERSITY_KEY));
 						if (Strings.isNullOrEmpty(universityId)) {
 							throw new IllegalArgumentException("Invalid university reference for teaching activity with id: " + id); //$NON-NLS-1$
@@ -2266,6 +2268,7 @@ public class JsonToDatabaseImporter extends JsonTool {
 							this.teachingRepository.save(activity);
 						}
 
+						// Annual hours
 						final var annualHoursMap = new HashMap<TeachingActivityType, Float>();
 						final var annualHoursNode = activityObject.get(ANNUAL_HOURS_KEY);
 						if (annualHoursNode != null) {
@@ -2289,6 +2292,22 @@ public class JsonToDatabaseImporter extends JsonTool {
 						activity.setAnnualWorkPerType(annualHoursMap);
 						if (!isFake()) {
 							this.teachingRepository.save(activity);
+						}
+
+						// Ensure that attached files are correct
+						if (fileCallback != null) {
+							var activityChanged = false;
+							if (!Strings.isNullOrEmpty(activity.getPathToSlides())) {
+								final var afn = activity.getPathToSlides();
+								final var fn = fileCallback.teachingActivitySlideFile(activity.getId(), afn);
+								if (!Objects.equals(afn, fn)) {
+									activity.setPathToSlides(fn);
+									activityChanged = true;
+								}
+							}
+							if (activityChanged && !isFake()) {
+								this.teachingRepository.save(activity);
+							}
 						}
 
 						++nbNew;
@@ -2493,6 +2512,15 @@ public class JsonToDatabaseImporter extends JsonTool {
 		 * @since 3.0
 		 */
 		String projectPowerpointFile(long dbId, String filename);
+
+		/** A slide file was attached to a teaching activity.
+		 *
+		 * @param dbId the identifier of the teaching activityin the database.
+		 * @param filename the filename that is specified in the JSON file.
+		 * @return the fixed filename.
+		 * @since 3.0
+		 */
+		String teachingActivitySlideFile(long dbId, String filename);
 
 	}
 

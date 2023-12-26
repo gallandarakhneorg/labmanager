@@ -312,6 +312,13 @@ public class ZipToDatabaseImporter extends AbstractComponent {
 					ZipToDatabaseImporter.this.download.makeProjectPowerpointPictureFilename(dbId));
 		}
 
+		@Override
+		public String teachingActivitySlideFile(long dbId, String filename) {
+			return moveFile(filename, dbId,
+					ZipToDatabaseImporter.this.download.makeTeachingActivitySlidesFilename(dbId),
+					ZipToDatabaseImporter.this.download.makeTeachingActivitySlidesPictureFilename(dbId));
+		}
+
 		private String moveFile(String inFilename, long outId, File outFilename, File outPictureName) {
 			try {
 				final var inFile = FileSystem.join(this.temporaryFolder, inFilename);
