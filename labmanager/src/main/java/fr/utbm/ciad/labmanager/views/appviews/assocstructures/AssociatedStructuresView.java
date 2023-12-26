@@ -19,23 +19,20 @@
 
 package fr.utbm.ciad.labmanager.views.appviews.assocstructures;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import com.vaadin.flow.component.Composite;
-import com.vaadin.flow.component.button.Button;
-import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.combobox.ComboBox;
 import com.vaadin.flow.component.dependency.Uses;
 import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.textfield.TextField;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import fr.utbm.ciad.labmanager.components.security.AuthenticatedUser;
+import fr.utbm.ciad.labmanager.services.assostructure.AssociatedStructureService;
 import fr.utbm.ciad.labmanager.views.components.MainLayout;
+import fr.utbm.ciad.labmanager.views.components.assocstructures.StandardAssociatedStructureListView;
 import jakarta.annotation.security.PermitAll;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.support.MessageSourceAccessor;
 
-/** Enable to edit the associated structures.
+/** List all the associated structures.
  * 
  * @author $Author: sgalland$
  * @version $Name$ $Revision$ $Date$
@@ -43,50 +40,29 @@ import jakarta.annotation.security.PermitAll;
  * @mavenartifactid $ArtifactId$
  * @since 4.0
  */
-@PageTitle("Associated Structures")
 @Route(value = "assocstructures", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
-public class AssociatedStructuresView extends Composite<VerticalLayout> {
+public class AssociatedStructuresView extends StandardAssociatedStructureListView implements HasDynamicTitle {
 
-	private static final long serialVersionUID = 738063190104767506L;
+	private static final long serialVersionUID = -2694471588623830169L;
+
+	private static final Logger LOGGER = LoggerFactory.getLogger(AssociatedStructuresView.class);
 
 	/** Constructor.
+	 * 
+	 * @param authenticatedUser the connected user.
+	 * @param messages the accessor to the localized messages (spring layer).
+	 * @param structureService the service for accessing the associated structures.
 	 */
-    public AssociatedStructuresView() {
-        final TextField textField = new TextField();
-        TextField textField2 = new TextField();
-        final ComboBox<?> comboBox = new ComboBox<>();
-        final Button buttonPrimary = new Button();
-        getContent().setWidth("100%");
-        getContent().getStyle().set("flex-grow", "1");
-        textField.setLabel("Name");
-        textField.setWidth("192px");
-        textField2.setLabel("First name");
-        textField2.setWidth("192px");
-        comboBox.setLabel("Gender");
-        comboBox.setWidth("192px");
-        setComboBoxSampleData(comboBox);
-        buttonPrimary.setText("Save");
-        buttonPrimary.setWidth("min-content");
-        buttonPrimary.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        getContent().add(textField);
-        getContent().add(textField2);
-        getContent().add(comboBox);
-        getContent().add(buttonPrimary);
-    }
+	public AssociatedStructuresView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+			AssociatedStructureService structureService) {
+		super(authenticatedUser, messages, structureService, LOGGER);
+	}
 
-    record SampleItem(String value, String label, Boolean disabled) {
-    }
-
-    private void setComboBoxSampleData(ComboBox comboBox) {
-        final List<SampleItem> sampleItems = new ArrayList<>();
-        sampleItems.add(new SampleItem("first", "First", null));
-        sampleItems.add(new SampleItem("second", "Second", null));
-        sampleItems.add(new SampleItem("third", "Third", Boolean.TRUE));
-        sampleItems.add(new SampleItem("fourth", "Fourth", null));
-        comboBox.setItems(sampleItems);
-        comboBox.setItemLabelGenerator(item -> ((SampleItem) item).label());
-    }
+	@Override
+	public String getPageTitle() {
+		return getTranslation("views.associated_structure.structures.list"); //$NON-NLS-1$
+	}
 
 }

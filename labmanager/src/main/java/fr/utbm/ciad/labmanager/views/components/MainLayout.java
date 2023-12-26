@@ -149,6 +149,10 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 
 	private SideNavItem teachingActivites;
 
+	private SideNavItem projectSection;
+
+	private SideNavItem associatedStructures;
+
 	/** Constructor.
 	 *
 	 * @param authenticatedUser the logged-in user.
@@ -270,20 +274,21 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 				|| this.accessChecker.hasAccess(ProjectsView.class)
 				|| this.accessChecker.hasAccess(MyAssociatedStructuresView.class)
 				|| this.accessChecker.hasAccess(AssociatedStructuresView.class)) {
-			final SideNavItem projects = new SideNavItem("Projects and Innovation");
+			this.projectSection = new SideNavItem(""); //$NON-NLS-1$
 			if (this.accessChecker.hasAccess(MyProjectsView.class)) {
-				projects.addItem(new SideNavItem("My Projects", MyAssociatedStructuresView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.projectSection.addItem(new SideNavItem("My Projects", MyAssociatedStructuresView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
 			if (this.accessChecker.hasAccess(MyAssociatedStructuresView.class)) {
-				projects.addItem(new SideNavItem("My Associated Structures", MyAssociatedStructuresView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.projectSection.addItem(new SideNavItem("My Associated Structures", MyAssociatedStructuresView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
 			if (this.accessChecker.hasAccess(ProjectsView.class)) {
-				projects.addItem(new SideNavItem("Projects", ProjectsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.projectSection.addItem(new SideNavItem("Projects", ProjectsView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
 			}
 			if (this.accessChecker.hasAccess(AssociatedStructuresView.class)) {
-				projects.addItem(new SideNavItem("Associated Structures", AssociatedStructuresView.class, LineAwesomeIcon.USER_TIE_SOLID.create()));
+				this.associatedStructures = new SideNavItem("", AssociatedStructuresView.class, LineAwesomeIcon.LINK_SOLID.create()); //$NON-NLS-1$
+				this.projectSection.addItem(this.associatedStructures);
 			}
-			nav.addItem(projects);
+			nav.addItem(this.projectSection);
 		}
 	}
 
@@ -533,6 +538,9 @@ public class MainLayout extends AppLayout implements LocaleChangeObserver, UserI
 		this.scientificActivitySection.setLabel(getTranslation("views.navitem.scientificactivitiesSection")); //$NON-NLS-1$
 		this.journals.setLabel(getTranslation("views.navitem.journals")); //$NON-NLS-1$
 		this.conferences.setLabel(getTranslation("views.navitem.conferences")); //$NON-NLS-1$
+
+		this.projectSection.setLabel(getTranslation("views.navitem.projectSection")); //$NON-NLS-1$
+		this.associatedStructures.setLabel(getTranslation("views.navitem.associated_structures")); //$NON-NLS-1$
 
 		this.teachingSection.setLabel(getTranslation("views.navitem.teachingSection")); //$NON-NLS-1$
 		this.teachingActivites.setLabel(getTranslation("views.navitem.teaching_activities")); //$NON-NLS-1$

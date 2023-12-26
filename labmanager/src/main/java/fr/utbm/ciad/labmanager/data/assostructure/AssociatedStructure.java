@@ -418,7 +418,7 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 		}
 	}
 
-	/** Replies the duration of creation.
+	/** Replies the duration of creation (in months).
 	 *
 	 * @return the duration, or {@code null}.
 	 */
@@ -426,7 +426,7 @@ public class AssociatedStructure implements Serializable, JsonSerializable, Comp
 		return this.creationDuration;
 	}
 
-	/** Change the duration of creation. 
+	/** Change the duration of creation (in months). 
 	 *
 	 * @param duration the duration, or {@code null}.
 	 */

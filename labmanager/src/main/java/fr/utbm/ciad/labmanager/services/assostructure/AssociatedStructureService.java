@@ -19,6 +19,7 @@
 
 package fr.utbm.ciad.labmanager.services.assostructure;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -43,6 +44,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /** Service for the associated structures.
  * 
@@ -375,6 +377,63 @@ public class AssociatedStructureService extends AbstractService {
 	 */
 	public boolean isInvolved(long id) {
 		return !getAssociatedStructuresByPersonId(id).isEmpty();
+	}
+
+	/** Start the editing of the given associated structure.
+	 *
+	 * @param structure the associated structure to save.
+	 * @return the editing context that enables to keep track of any information needed
+	 *      for saving the associated structure and its related resources.
+	 */
+	public EditingContext startEditing(AssociatedStructure structure) {
+		assert structure != null;
+		return new EditingContext(structure);
+	}
+
+	/** Context for editing a {@link AssociatedStructure}.
+	 * This context is usually defined when the entity is associated to
+	 * external resources in the server file system.
+	 * 
+	 * @author $Author: sgalland$
+	 * @version $Name$ $Revision$ $Date$
+	 * @mavengroupid $GroupId$
+	 * @mavenartifactid $ArtifactId$
+	 * @since 4.0
+	 */
+	public class EditingContext implements Serializable {
+
+		private static final long serialVersionUID = -7800294119864189541L;
+
+		private AssociatedStructure structure;
+
+		/** Constructor.
+		 *
+		 * @param structure the edited associated structure.
+		 */
+		EditingContext(AssociatedStructure structure) {
+			this.structure = structure;
+		}
+
+		/** Replies the associated structure.
+		 *
+		 * @return the associated structure.
+		 */
+		public AssociatedStructure getAssociatedStructure() {
+			return this.structure;
+		}
+
+		/** Save the associated structure in the JPA database.
+		 *
+		 * <p>After calling this function, it is preferable to not use
+		 * the associated structure object that was provided before the saving.
+		 * Invoke {@link #getAssociatedStructure()} for obtaining the new structure
+		 * instance, since the content of the saved object may have totally changed.
+		 */
+		@Transactional
+		public void save() {
+			this.structure = AssociatedStructureService.this.structureRepository.save(this.structure);
+		}
+
 	}
 
 }

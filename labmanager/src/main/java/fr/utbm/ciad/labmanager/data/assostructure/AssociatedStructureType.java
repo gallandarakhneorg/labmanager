@@ -19,7 +19,10 @@
 
 package fr.utbm.ciad.labmanager.data.assostructure;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 import com.google.common.base.Strings;
 import org.springframework.context.support.MessageSourceAccessor;
@@ -571,7 +574,7 @@ public enum AssociatedStructureType {
 			return false;
 		}
 	},
-	
+
 	/** International company that is hosted in the research organization.
 	 *
 	 * @since 3.6
@@ -751,7 +754,7 @@ public enum AssociatedStructureType {
 	 * @since 3.6 
 	 */
 	public abstract Boolean isInternational();
-	
+
 	/** Replies if this type of associated structure is for European structure, i.e. a structure
 	 * in Europe but not in the country.
 	 * If the replied value is {@code null}, then the European status is not determined by its type.
@@ -762,7 +765,7 @@ public enum AssociatedStructureType {
 	 * @since 3.6 
 	 */
 	public abstract Boolean isEuropean();
-	
+
 	/** Replies if this type of associated structure is for national structure, i.e. a structure
 	 * in the country.
 	 * If the replied value is {@code null}, then the national status is not determined by its type.
@@ -773,7 +776,7 @@ public enum AssociatedStructureType {
 	 * @since 3.6 
 	 */
 	public abstract Boolean isNational();
-	
+
 	/** Replies if this type represents an hosted company.
 	 *
 	 * @return {@code true} if the type is for an hosted. 
@@ -808,5 +811,17 @@ public enum AssociatedStructureType {
 	 * @since 3.6 
 	 */
 	public abstract boolean isChair();
+
+	/** Replies all the associated structure types sorted according to their display names.
+	 *
+	 * @param messages the accessor to the localized labels.
+	 * @param locale the locale to use.
+	 * @return the list of all the types.
+	 */
+	public static List<AssociatedStructureType> getAllDisplayTypes(MessageSourceAccessor messages, Locale locale) {
+		return Arrays.asList(values()).stream().sorted(
+				(a, b) -> a.getLabel(messages, locale).compareToIgnoreCase(b.getLabel(messages, locale)))
+				.collect(Collectors.toList());
+	}
 
 }
