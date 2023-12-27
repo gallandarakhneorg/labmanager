@@ -43,11 +43,11 @@ import org.springframework.context.support.MessageSourceAccessor;
 @Route(value = "assocstructures", layout = MainLayout.class)
 @PermitAll
 @Uses(Icon.class)
-public class AssociatedStructuresView extends StandardAssociatedStructureListView implements HasDynamicTitle {
+public class AssociatedStructuresListView extends StandardAssociatedStructureListView implements HasDynamicTitle {
 
 	private static final long serialVersionUID = -2694471588623830169L;
 
-	private static final Logger LOGGER = LoggerFactory.getLogger(AssociatedStructuresView.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(AssociatedStructuresListView.class);
 
 	/** Constructor.
 	 * 
@@ -55,7 +55,7 @@ public class AssociatedStructuresView extends StandardAssociatedStructureListVie
 	 * @param messages the accessor to the localized messages (spring layer).
 	 * @param structureService the service for accessing the associated structures.
 	 */
-	public AssociatedStructuresView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
+	public AssociatedStructuresListView(AuthenticatedUser authenticatedUser, MessageSourceAccessor messages,
 			AssociatedStructureService structureService) {
 		super(authenticatedUser, messages, structureService, LOGGER);
 	}
